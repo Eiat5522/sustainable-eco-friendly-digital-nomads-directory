@@ -1,0 +1,29 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+# these users will be requested for review when someone
+# opens a pull request.
+*       @project-maintainers
+
+# App configuration files
+app-scaffold/next.config.*    @project-maintainers
+app-scaffold/tailwind.config.* @project-maintainers
+
+# Core components
+app-scaffold/src/components/* @frontend-team
+
+# Map related files
+app-scaffold/src/components/map/* @map-team
+
+# Image optimization and assets
+app-scaffold/src/components/listings/ImageGallery.tsx @image-team
+app-scaffold/src/lib/getListingImages.js @image-team
+
+# Data and API
+app-scaffold/src/lib/* @backend-team
+app-scaffold/src/data/* @backend-team
+
+# Documentation
+*.md    @docs-team @project-maintainers
+
+# GitHub specific files
+.github/* @project-maintainers

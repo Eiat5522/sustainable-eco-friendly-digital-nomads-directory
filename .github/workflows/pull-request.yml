@@ -1,0 +1,65 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: 'app-scaffold/package-lock.json'
+
+    - name: Install dependencies
+      run: |
+        cd app-scaffold
+        npm ci
+
+    - name: Type check
+      run: |
+        cd app-scaffold
+        npm run type-check
+
+    - name: Lint
+      run: |
+        cd app-scaffold
+        npm run lint
+
+    - name: Check formatting
+      run: |
+        cd app-scaffold
+        npx prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
+
+  build:
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: 'app-scaffold/package-lock.json'
+
+    - name: Install dependencies
+      run: |
+        cd app-scaffold
+        npm ci
+
+    - name: Build
+      run: |
+        cd app-scaffold
+        npm run build

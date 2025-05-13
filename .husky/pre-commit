@@ -1,0 +1,14 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+cd app-scaffold
+
+echo "💅 Running prettier..."
+npm run format
+
+echo "🔍 Running type check..."
+npm run type-check
+
+echo "🧹 Running lint..."
+npm run lint
+
+echo "✨ Pre-commit checks completed!"
