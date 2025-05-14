@@ -3,92 +3,121 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import 'leaflet.markercluster';
 import { type Listing } from '@/types/listings';
-import { createCustomMarker, createPopupContent } from './CustomMarker';
+import '@/styles/map.css';
 
-interface MapProps {
+interface MapComponentProps {
   listings: Listing[];
-  center?: [number, number];
-  zoom?: number;
+  onBoundsChange?: (bounds: L.LatLngBounds) => void;
 }
 
-export default function MapComponent({ listings, center = [13.7563, 100.5018], zoom = 11 }: MapProps) {
+const DEFAULT_CENTER: L.LatLngTuple = [13.7563, 100.5018]; // Bangkok
+const DEFAULT_ZOOM = 12;
+
+const categoryIcons = {
+  coworking: '🏢',
+  cafe: '☕',
+  accommodation: '🏠'
+};
+
+export default function MapComponent({ listings, onBoundsChange }: MapComponentProps) {
   const mapRef = useRef<L.Map | null>(null);
-  const markersRef = useRef<L.LayerGroup | null>(null);
+  const markersRef = useRef<L.MarkerClusterGroup | null>(null);
 
   useEffect(() => {
     // Initialize map if not already initialized
     if (!mapRef.current) {
       mapRef.current = L.map('map', {
-        zoomControl: true,
-        scrollWheelZoom: true,
-        maxZoom: 19
-      }).setView(center, zoom);
+        center: DEFAULT_CENTER,
+        zoom: DEFAULT_ZOOM,
+        layers: [
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+          })
+        ]
+      });
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(mapRef.current);
+      // Create marker cluster group
+      markersRef.current = L.markerClusterGroup({
+        chunkedLoading: true,
+        maxClusterRadius: 50,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        iconCreateFunction: (cluster) => {
+          return L.divIcon({
+            html: `<div class="cluster-icon">${cluster.getChildCount()}</div>`,
+            className: 'custom-marker-cluster',
+            iconSize: L.point(40, 40)
+          });
+        }
+      });
 
-      markersRef.current = L.layerGroup().addTo(mapRef.current);
+      // Add the marker cluster group to the map
+      mapRef.current.addLayer(markersRef.current);
+
+      // Setup bounds change handler
+      if (onBoundsChange) {
+        mapRef.current.on('moveend', () => {
+          onBoundsChange(mapRef.current!.getBounds());
+        });
+      }
     }
 
-    // Clear existing markers
-    if (markersRef.current) {
+    // Update markers when listings change
+    if (markersRef.current && mapRef.current) {
       markersRef.current.clearLayers();
-    }
 
-    // Add markers for listings
-    listings.forEach(listing => {
-      if (listing.coordinates.latitude && listing.coordinates.longitude) {
-        const marker = L.marker(
-          [listing.coordinates.latitude, listing.coordinates.longitude],
-          { icon: createCustomMarker(listing) }
-        ).bindPopup(createPopupContent(listing), {
-          maxWidth: 300,
-          className: 'rounded-lg shadow-lg'
+      listings.forEach(listing => {
+        const { latitude, longitude } = listing.coordinates;
+        if (!latitude || !longitude) return;
+
+        const marker = L.marker([latitude, longitude], {
+          icon: L.divIcon({
+            html: `<div class="marker-icon">${categoryIcons[listing.category]}</div>`,
+            className: 'custom-marker',
+            iconSize: L.point(32, 32)
+          })
         });
 
+        marker.bindPopup(`
+          <div class="marker-popup">
+            <h3 class="font-semibold">${listing.name}</h3>
+            <p class="text-sm text-gray-600">${listing.address_string}</p>
+            <div class="mt-2">
+              ${listing.eco_focus_tags.map(tag => 
+                `<span class="inline-block px-2 py-1 mr-1 mb-1 text-xs bg-green-100 text-green-800 rounded-full">${tag}</span>`
+              ).join('')}
+            </div>
+          </div>
+        `);
+
         markersRef.current?.addLayer(marker);
-      }
-    });
-
-    // Fit bounds to show all markers with padding
-    const markers = markersRef.current?.getLayers() as L.Marker[];
-    if (markers.length > 0) {
-      const group = L.featureGroup(markers);
-      const bounds = group.getBounds();
-      const maxZoom = 15; // Limit max zoom when fitting bounds
-
-      mapRef.current?.fitBounds(bounds, {
-        padding: [50, 50],
-        maxZoom,
-        animate: true,
-        duration: 0.5
       });
+
+      // If we have listings and this is the first time, fit bounds
+      if (listings.length > 0 && !mapRef.current.getBounds().getNorthEast().equals(mapRef.current.getBounds().getSouthWest())) {
+        const bounds = L.latLngBounds(listings
+          .filter(l => l.coordinates.latitude && l.coordinates.longitude)
+          .map(l => [l.coordinates.latitude!, l.coordinates.longitude!] as L.LatLngTuple));
+        
+        if (bounds.isValid()) {
+          mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+        }
+      }
     }
 
-    // Cleanup
+    // Cleanup function
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
       }
     };
-  }, [listings, center, zoom]);
+  }, [listings, onBoundsChange]);
 
-  return (
-    <div className="relative w-full">
-      <div id="map" className="w-full h-[600px] rounded-lg shadow-lg" />
-      {/* SEO-friendly text (hidden) */}
-      <div className="sr-only">
-        <h2>Interactive Map of Sustainable Locations</h2>
-        <p>
-          Explore {listings.length} sustainable locations across Thailand including 
-          eco-friendly coworking spaces, cafes, and accommodations. Click on markers 
-          to view details about each location.
-        </p>
-      </div>
-    </div>
-  );
+  return <div id="map" className="w-full h-full" />;
 }

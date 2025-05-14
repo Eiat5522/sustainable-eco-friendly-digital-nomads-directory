@@ -57,15 +57,21 @@ export async function getAllListings({ limit = 12 } = {}) {
  * Fetch listings with optional filtering
  */
 export async function getFilteredListings({ 
+  searchQuery,
   category,
   city,
   ecoTags,
   nomadFeatures,
+  minRating,
   limit = 50,
   offset = 0
 } = {}) {
   // Build the filter conditions
   let filterConditions = ['_type == "listing"']
+  
+  if (searchQuery) {
+    filterConditions.push(`(name match "*${searchQuery}*" || descriptionShort match "*${searchQuery}*")`)
+  }
   
   if (category) {
     filterConditions.push(`category == "${category}"`)
@@ -87,6 +93,10 @@ export async function getFilteredListings({
       `"${feature}" in digitalNomadFeatures[]->slug.current`
     )
     filterConditions.push(`(${featureConditions.join(' || ')})`)
+  }
+
+  if (minRating) {
+    filterConditions.push(`averageRating >= ${minRating}`)
   }
   
   // Combine all filters

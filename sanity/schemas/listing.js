@@ -114,6 +114,24 @@ export default {
       type: 'date',
       validation: Rule => Rule.required().error('Last verified date is required')
     },
+    {
+      name: 'averageRating',
+      title: 'Average Rating',
+      type: 'number',
+      description: 'Calculated average rating from approved reviews. Do not edit manually.',
+      readOnly: true,
+      initialValue: 0,
+      validation: Rule => Rule.min(0).max(5)
+    },
+    {
+      name: 'reviewCount',
+      title: 'Review Count',
+      type: 'number',
+      description: 'Total number of approved reviews. Do not edit manually.',
+      readOnly: true,
+      initialValue: 0,
+      validation: Rule => Rule.min(0)
+    },
     // Conditional fields based on category
     {
       name: 'coworkingDetails',

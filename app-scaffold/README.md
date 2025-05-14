@@ -34,3 +34,51 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## 🎭 Testing
+
+This project uses Playwright for end-to-end testing. Our test suite covers:
+
+- Map integration and interactions
+- Listing filters and search
+- Mobile responsiveness
+- API integration
+- Error handling
+
+### Running Tests
+
+```bash
+# Install dependencies
+npm install
+
+# Install Playwright browsers
+npx playwright install --with-deps
+
+# Run all tests
+npm run test:e2e
+
+# Run specific test file
+npm run test:e2e tests/map-integration.spec.ts
+
+# Run tests in debug mode
+npm run test:debug
+```
+
+### Test Documentation
+
+For detailed information about our testing setup, please refer to:
+
+- [Testing Overview](tests/TESTING.md)
+- [Test Writing Guide](tests/WRITING_GUIDE.md)
+- [API Mocking Guide](tests/API-MOCKING.md)
+- [Test Utilities](tests/utils/README.md)
+
+### Continuous Integration
+
+Tests run automatically on:
+
+- Pull request creation/updates
+- Merges to main branch
+- Manual trigger via GitHub Actions
+
+For more details about our testing strategy and implementation, see the documentation in the `tests` directory.

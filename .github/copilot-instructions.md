@@ -53,9 +53,9 @@
 6. **User Testing (`clinerules.md`):** Monthly usability sessions; analytics dashboards drive roadmap decisions.
 7. **(KhaRom Specific):**
 
-   * Cline assists with code scaffolding, reviews, and documentation.
+   * Copilot assists with code scaffolding, reviews, and documentation.
    * React Native mobile builds via EAS Build from Expo.
-   * Regular code reviews and documentation updates maintained with Cline.
+   * Regular code reviews and documentation updates maintained with Copilot.
 
 ---
 
@@ -75,7 +75,21 @@
 
 ---
 
-## 🧠 **Memory Bank** (From KhaRom Configuration)
+## 🧠 **Memory Bank**
 
-* Instructions for Project memory usage are stored in `memory-bank.md`.
-* The purpose of the Memory Bank is to preserve important context and decisions through the conversation history.
+* **Purpose:** Preserve critical project context, decisions, and technical considerations throughout the development process
+* **Location:** Memory Bank content is maintained in `.clinerules/memory-bank.md`
+* **What to Store:**
+  * Key architectural decisions and their rationales
+  * Technical constraints and chosen workarounds
+  * Third-party integration specifics
+  * Design patterns established for consistency
+  * Performance optimization strategies
+* **Maintenance Process:**
+  * Update after significant technical decisions
+  * Reference in PR descriptions when applicable
+  * Review and prune quarterly to keep relevant
+* **Usage Guidelines:** 
+  * Keep entries concise and dated
+  * Link to relevant issues/PRs for context
+  * Organize by domain (frontend, backend, infrastructure)

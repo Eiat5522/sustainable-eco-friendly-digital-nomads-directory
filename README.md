@@ -5,6 +5,14 @@ A curated directory of sustainable, eco-friendly venues and services for digital
 ## Features
 
 - 🌱 Curated eco-friendly listings
+- 🔍 Advanced search and filter system
+  - Full-text search across names and descriptions
+  - Category filtering (coworking, cafe, accommodation)
+  - Location-based filtering by city
+  - Eco tag filtering
+  - Digital nomad feature filtering
+  - Rating-based filtering (1-5 stars)
+  - Price range filtering
 - 📍 Interactive map integration
 - 🖼️ Optimized image loading
 - 📱 Responsive design
@@ -18,6 +26,29 @@ A curated directory of sustainable, eco-friendly venues and services for digital
 - Tailwind CSS
 - Leaflet.js for maps
 - Next/Image for optimized images
+- Sanity.io for CMS
+
+## Filter System API
+
+The directory supports comprehensive filtering through its API:
+
+```typescript
+// Filter Parameters
+interface FilterState {
+  searchQuery: string;      // Full-text search
+  category: string | null;  // Listing category
+  city: string | null;     // Location
+  ecoTags: string[];       // Sustainability features
+  features: string[];      // Digital nomad amenities
+  minRating: number | null; // Minimum star rating
+  priceRange: [number, number]; // Price range in THB
+}
+
+// Example API Usage
+GET /api/listings?search=quiet&category=coworking&city=bangkok&minRating=4
+```
+
+Filters can be combined and are applied server-side for optimal performance, with client-side fallback if needed.
 
 ## Getting Started
 

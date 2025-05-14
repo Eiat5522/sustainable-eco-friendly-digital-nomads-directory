@@ -11,7 +11,11 @@
     "type-check": "tsc --noEmit",
     "lint:fix": "next lint --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.9.1",
@@ -38,7 +42,8 @@
     "eslint": "^8.40.0",
     "eslint-config-next": "^13.4.0",
     "postcss": "^8.4.23",
-    "tailwindcss": "^3.3.2"
+    "tailwindcss": "^3.3.2",
+    "playwright": "^1.30.0"
   },
   "browserslist": {
     "production": [

@@ -2,8 +2,9 @@
 
 import dynamic from 'next/dynamic';
 import { type Listing } from '@/types/listings';
-import { SanityListing } from '@/types/sanity';
 import StaticMapImage from './StaticMapImage';
+import type { LatLngBounds } from 'leaflet';
+import { cn } from '@/lib/utils';
 
 const Map = dynamic(() => import('./MapComponent'), {
   ssr: false,
@@ -12,18 +13,27 @@ const Map = dynamic(() => import('./MapComponent'), {
 
 interface MapContainerProps {
   listings: Listing[];
+  onBoundsChange?: (bounds: LatLngBounds) => void;
+  className?: string;
 }
 
-export default function MapContainer({ listings }: MapContainerProps) {
+export default function MapContainer({ 
+  listings, 
+  onBoundsChange,
+  className 
+}: MapContainerProps) {
   return (
-    <div className="relative">
+    <div className={cn("relative", className)}>
       {/* SEO-friendly static map (pre-rendered) */}
       <div className="hidden">
         <StaticMapImage listings={listings} width={1200} height={600} />
       </div>
       
       {/* Interactive map (client-side only) */}
-      <Map listings={listings} />
+      <Map 
+        listings={listings} 
+        onBoundsChange={onBoundsChange}
+      />
     </div>
   );
 }
