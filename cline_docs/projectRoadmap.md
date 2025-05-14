@@ -9,7 +9,7 @@
 
 ## 6-Week Implementation Plan
 
-### Phase 1: Image Optimization (Weeks 1-2) ✅
+### Phase 1: Image Optimization and Testing (Weeks 1-2) ✅
 - [x] Project scaffolding complete
 - [x] Initial listing components created
 - [x] Implement Next.js Image optimization
@@ -19,8 +19,31 @@
   - [x] Add blur placeholders
 - [x] Configure next.config.js for images
 - [x] Test and validate optimizations
+- [x] Implement Playwright testing framework
+  - [x] Set up test utilities
+  - [x] Add API mocking
+  - [x] Create documentation
+  - [x] Configure CI integration
 
-### Phase 2: CMS Integration (Weeks 2-4)
+### Phase 2: Map Integration Enhancement (Weeks 2-3)
+- [ ] Implement marker clustering
+  - [ ] Add leaflet.markercluster
+  - [ ] Configure clustering options
+  - [ ] Style cluster markers
+- [ ] Enhance filter integration
+  - [ ] Connect UI to map markers
+  - [ ] Add real-time updates
+  - [ ] Test performance
+- [ ] Optimize for mobile
+  - [ ] Improve touch controls
+  - [ ] Responsive sizing
+  - [ ] Mobile filter UI
+- [ ] Add state management
+  - [ ] Map bounds tracking
+  - [ ] View persistence
+  - [ ] History management
+
+### Phase 3: CMS Integration (Weeks 2-4)
 - [ ] Select and set up headless CMS
   - [ ] Evaluate Strapi CE vs Sanity
   - [ ] Design content models
@@ -32,7 +55,7 @@
 - [ ] Migrate existing content to CMS
 - [ ] Test CMS workflow
 
-### Phase 3: Authentication System (Weeks 3-5)
+### Phase 4: Authentication System (Weeks 3-5)
 - [ ] Set up NextAuth.js
   - [ ] Configure authentication providers
   - [ ] Implement user sessions
@@ -44,7 +67,7 @@
 - [ ] Add social login options
 - [ ] Test security measures
 
-### Phase 4: Map Performance (Weeks 4-6)
+### Phase 5: Map Performance (Weeks 4-6)
 - [ ] Implement marker clustering
   - [ ] Add leaflet.markercluster
   - [ ] Configure clustering options

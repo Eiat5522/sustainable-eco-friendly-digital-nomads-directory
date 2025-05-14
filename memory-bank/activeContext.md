@@ -1,63 +1,58 @@
-# Active Context: PrismJS Vulnerability in Sanity
+# Active Context: Map Integration Enhancement
 
 **Date:** May 14, 2025
 
-**Primary Goal:** Resolve PrismJS vulnerabilities within the `sanity/` project, primarily stemming from nested dependencies of `@sanity/ui`.
+**Primary Goal:** Enhance the map component with clustering, improved filtering, and mobile optimizations.
 
 **Current State of Key Files:**
 
-*   `sanity/package.json`:
-    *   `"type": "module"`
-    *   **Dependencies:**
-        *   `"@sanity/ui": "^3.0.0-static.6"`
-        *   `"prismjs": "1.30.0"` (exact)
-        *   `"refractor": "4.8.1"` (exact)
-        *   `"react-refractor": "3.1.1"` (exact)
-    *   **Overrides:** Extensive overrides for `prismjs`, `refractor`, `react-refractor` globally (`**/...`) and specifically for `@sanity/ui` and `sanity-plugin-media`.
-        ```json
-        "overrides": {
-          "prismjs": "^1.30.0",
-          "refractor": "^4.8.1",
-          "react-refractor": "^3.1.1",
-          "**/prismjs": "^1.30.0",
-          "**/refractor": "^4.8.1",
-          "**/react-refractor": "^3.1.1",
-          "@sanity/ui": {
-            "prismjs": "^1.30.0",
-            "refractor": "^4.8.1",
-            "react-refractor": "^3.1.1"
-          },
-          "sanity-plugin-media": {
-            "prismjs": "^1.30.0",
-            "refractor": "^4.8.1",
-            "react-refractor": "^3.1.1"
-          }
-        }
-        ```
-    *   **Scripts:**
-        *   `"postinstall": "node scripts/patch-prismjs.js"`
+*   `src/components/map/MapComponent.tsx`:
+    *   Basic Leaflet integration
+    *   Marker placement
+    *   Basic zoom controls
+    *   Needs clustering implementation
 
-*   `sanity/.npmrc`:
-    ```
-    legacy-peer-deps=true
-    resolution-mode=highest
-    strict-peer-dependencies=false
-    public-hoist-pattern[]=*prismjs*
-    public-hoist-pattern[]=*refractor*
-    public-hoist-pattern[]=*react-refractor*
-    ```
+*   `src/components/listings/FilterSidebar.tsx`:
+    *   Category filters
+    *   Eco-tag filters
+    *   Needs real-time map integration
 
-*   `sanity/scripts/patch-prismjs.js`:
-    *   ES Module script designed to find `package.json` files in `node_modules`, check for `prismjs` dependencies with versions < 1.29.0, update them to `^1.30.0`, and run `npm install` in that specific package directory.
-    *   **Current Issue:** The script reported patching 0 dependencies in its last run, indicating it's not effectively resolving the vulnerabilities.
+*   `src/styles/map.css`:
+    *   Basic map styling
+    *   Needs mobile-specific styles
+    *   Cluster styling pending
 
-**Persistent Problem:**
+**Implementation Requirements:**
 
-*   `npm audit` (after `rm -rf node_modules && npm install`) still reports 4 moderate severity PrismJS vulnerabilities. The primary path is often: `@sanity/ui` -> `react-refractor` -> `refractor` -> `prismjs@<vulnerable_version>`.
-*   The combination of direct dependency updates, npm overrides, `.npmrc` settings, and the postinstall patch script has not yet fully resolved the issue.
+1.  Map Clustering:
+    *   Use `leaflet.markercluster`
+    *   Configure cluster thresholds
+    *   Style cluster indicators
+    *   Handle zoom level transitions
 
-**Next Focus:**
+2.  Filter Integration:
+    *   Real-time marker updates
+    *   Category-based filtering
+    *   Eco-tag filtering
+    *   Combined filter logic
 
-*   Debugging the `patch-prismjs.js` script.
-*   Further deep dive into the dependency tree to understand why overrides are not fully effective for `@sanity/ui`'s transitive dependencies.
-*   Exploring alternative patching methods or seeking Sanity-specific solutions.
+3.  Mobile Optimization:
+    *   Touch-friendly controls
+    *   Responsive container sizing
+    *   Mobile-first filter UI
+    *   Performance considerations
+
+4.  State Management:
+    *   Map bounds tracking
+    *   View state persistence
+    *   History management
+    *   Filter state sync
+
+5.  Performance:
+    *   Lazy marker loading
+    *   Efficient updates
+    *   Loading indicators
+    *   Error handling
+
+**Testing Coverage:**
+All features are covered by Playwright tests in `tests/map-integration.spec.ts`
