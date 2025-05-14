@@ -40,3 +40,9 @@ This document outlines the key technology choices and architectural decisions fo
     - Option 1: Mailgun (free tier)
     - Option 2: SendGrid (free tier)
   - *Justification:* Reliable email delivery services for transactional emails (e.g., user registration, notifications) with available free tiers.
+
+## Testing & Quality Assurance
+- **E2E Testing:** Playwright v1.41.0
+  - *Justification:* Modern, reliable end-to-end testing framework with excellent cross-browser support, built-in API mocking, and mobile viewport testing capabilities.
+  - *Implementation:* Using ESM for test files, custom utility functions for common operations, and comprehensive documentation.
+  - *CI Integration:* Automated test runs via GitHub Actions on PR creation and merges.

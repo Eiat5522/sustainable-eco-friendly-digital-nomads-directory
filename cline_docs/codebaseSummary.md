@@ -40,6 +40,18 @@ This document provides a high-level overview of the 'Sustainable Digital Nomads 
 /.clinerules           # Cline configuration files
 /brand-guidelines-logos # Brand assets and guidelines
 /cline_docs            # Project documentation
+/tests                # Playwright end-to-end tests
+  /utils              # Test utilities and helpers
+    /map-test-utils.ts    # Map interaction helpers
+    /filter-test-utils.ts # Filter management utilities
+    /test-assertions.ts   # Common test assertions
+    /test-fixtures.ts     # Test fixtures
+    /test-setup.ts       # Global test setup
+  /setup              # Test setup and configuration
+  /map-integration.spec.ts # Map component tests
+  /TESTING.md         # Testing overview and setup
+  /WRITING_GUIDE.md   # Test writing guidelines
+  /API-MOCKING.md     # API mocking documentation
 ```
 
 ## Key Components and Their Interactions (Current Implementation)
@@ -104,38 +116,54 @@ This document provides a high-level overview of the 'Sustainable Digital Nomads 
 - **CMS Data:** (Planned) To be implemented in future phases.
 
 ## Recent Significant Changes
-1. **Listing Data Population (In Progress):**
+1. **Testing Implementation (Completed - 2025-05-14):**
+   - Implemented Playwright end-to-end testing framework with ES Module support
+   - Created comprehensive test utilities:
+     - Map interaction helpers (pan, zoom, marker checks)
+     - Filter management utilities
+     - Common assertions for loading and empty states
+     - Custom test fixtures
+   - Established API mocking strategy using Playwright's request interception
+   - Added thorough documentation:
+     - Testing overview and setup guide
+     - Test writing guidelines with examples
+     - API mocking documentation
+     - Utility function reference
+   - Set up CI integration for automated test runs
+   - Documentation available in `/app-scaffold/tests/` directory
+
+2. **Listing Data Population (In Progress):**
    - Created image subfolders in `app-scaffold/public/images/listings/` for all listings.
    - Sourced and placed images for "Shinei Office Space", "JustCo One City Centre", and "Pier Lab".
    - `firecrawl_scrape` failed for "Plantiful" (Facebook URL); manual download pending.
-2. **Listing Display UI Refinements (Completed):**
+3. **Listing Display UI Refinements (Completed):**
    - Implemented pagination on the main listings page (`app/listings/page.tsx`).
    - Added loading state indicators (initial load and during filter/sort changes) to `app/listings/page.tsx`.
    - Enhanced error/empty state handling with context-specific messages on `app/listings/page.tsx`.
    - Simplified `ListingGrid.tsx` by removing its internal "no listings" check.
    - Confirmed image optimization in `ListingCard.tsx`.
-3. **Listing Display Implementation (Initial - Completed):**
+4. **Listing Display Implementation (Initial - Completed):**
    - Created TypeScript interfaces for listing data (`src/types/listings.ts`).
    - Developed core listing components: `ListingCard.tsx`, `ListingGrid.tsx`.
    - Implemented listing routes: `/listings` and `/listings/[id]`.
    - Styled components according to brand guidelines.
    - Added client-side filtering and sorting to the main listings page.
-4. **Styling Updates (Completed):**
+5. **Styling Updates (Completed):**
     - Updated global styles in `app/globals.css` to use the correct color palette.
     - Updated header and listings page styling.
     - Updated hero section styling.
     - Added a subtle border and adjusted the hover effect for the listing cards.
-5. **Project Scaffolding (Completed - Previous Phase):**
+6. **Project Scaffolding (Completed - Previous Phase):**
    - Next.js 15.3.2 project initialized with TypeScript and App Router.
    - Tailwind CSS 4.1.6 integrated with PostCSS.
    - Basic components structure created (Header, Footer).
    - Initial layout and homepage implemented.
-6. **Documentation Updates (Ongoing):**
+7. **Documentation Updates (Ongoing):**
    - Updated `techStack.md` with specific versions.
    - Updated `memory-bank` files (`productContext.md`, `activeContext.md`, `progress.md`).
    - Updated `cline_docs/currentTask.md`.
    - Updated this document (`codebaseSummary.md`) to reflect current implementation.
-7. **Directory Structure (Established):**
+8. **Directory Structure (Established):**
    - Established `/src` directory structure following best practices.
    - Added `/listings` subdirectories in `/app` and `/components`.
    - Added `listings.ts` in `/lib` and `/types`.
