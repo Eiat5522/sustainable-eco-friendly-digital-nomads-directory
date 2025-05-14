@@ -54,37 +54,42 @@ export default {
       name: 'coordinates',
       title: 'Coordinates',
       type: 'geopoint'
+     ,validation: Rule => Rule.required().error('Coordinates are required')
     },
     {
       name: 'descriptionShort',
       title: 'Short Description',
       type: 'text',
       rows: 2,
-      validation: Rule => Rule.max(160).warning('Short descriptions work best')
+      validation: Rule => Rule.required().max(160).warning('Short descriptions work best')
     },
     {
       name: 'descriptionLong',
       title: 'Long Description',
       type: 'array',
       of: [{ type: 'block' }]
+     ,validation: Rule => Rule.required().min(1).error('A long description is required')
     },
     {
       name: 'ecoFocusTags',
       title: 'Eco Focus Tags',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'ecoTag' }] }]
+     ,validation: Rule => Rule.required().min(1).error('At least one eco focus tag is required')
     },
     {
       name: 'ecoNotesDetailed',
       title: 'Detailed Eco Notes',
       type: 'text',
       rows: 5
+     ,validation: Rule => Rule.max(1000).warning('Keep eco notes concise')
     },
     {
       name: 'sourceUrls',
       title: 'Source URLs',
       type: 'array',
       of: [{ type: 'url' }]
+     ,validation: Rule => Rule.min(1).error('At least one source URL is required')
     },
     {
       name: 'mainImage',
@@ -106,6 +111,7 @@ export default {
           type: 'string'
         }
       ]
+     ,validation: Rule => Rule.required().error('A main image is required')
     },
     {
       name: 'galleryImages',
@@ -132,17 +138,20 @@ export default {
           ]
         }
       ]
+     ,validation: Rule => Rule.required().min(1).error('At least one gallery image is required')
     },
     {
       name: 'digitalNomadFeatures',
       title: 'Digital Nomad Features',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'nomadFeature' }] }]
+     ,validation: Rule => Rule.min(1).warning('Add at least one digital nomad feature if possible')
     },
     {
       name: 'lastVerifiedDate',
       title: 'Last Verified Date',
       type: 'date'
+     ,validation: Rule => Rule.required().error('Last verified date is required')
     },
     // Conditional fields based on category
     {

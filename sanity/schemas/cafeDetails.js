@@ -12,6 +12,7 @@ export default {
       name: 'operatingHours',
       title: 'Operating Hours',
       type: 'string'
+     ,validation: Rule => Rule.required().error('Operating hours are required')
     },
     {
       name: 'priceIndication',
@@ -25,6 +26,7 @@ export default {
           { title: '$$$$', value: '$$$$' }
         ]
       }
+     ,validation: Rule => Rule.required().error('Price indication is required')
     },
     {
       name: 'menuHighlights',
@@ -49,12 +51,14 @@ export default {
           }
         }
       ]
+     ,validation: Rule => Rule.min(1).warning('Add at least one menu highlight if possible')
     },
     {
       name: 'wifiReliabilityNotes',
       title: 'WiFi Reliability Notes',
       type: 'text',
       rows: 2
+     ,validation: Rule => Rule.max(300).warning('Keep WiFi notes concise')
     },
     {
       name: 'wifiSpeed',

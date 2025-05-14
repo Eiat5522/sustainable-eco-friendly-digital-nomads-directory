@@ -2,15 +2,27 @@
 
 import { type ReactNode } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the preview banner to avoid SSR issues
+const PreviewBanner = dynamic(() => import('./PreviewBanner'), { ssr: false });
 
 interface LayoutProps {
   children: ReactNode;
+  preview?: boolean;
 }
 
-export default function Layout({ children }: LayoutProps) {
+export default function Layout({ children, preview = false }: LayoutProps) {
+  // Check if we're in preview mode from URL param (for client-side detection)
+  const searchParams = useSearchParams();
+  const isPreview = preview || searchParams?.get('preview') === 'true';
+
   return (
     <>
-      <header className="bg-primary-500 border-b border-gray-200">
+      {isPreview && <PreviewBanner />}
+      
+      <header className={`bg-primary-500 border-b border-gray-200 ${isPreview ? 'mt-10' : ''}`}>
         <nav className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <Link href="/" className="text-xl font-bold text-white">
@@ -31,7 +43,7 @@ export default function Layout({ children }: LayoutProps) {
         </nav>
       </header>
 
-      <main className="min-h-screen bg-gray-100">
+      <main className={`min-h-screen bg-gray-100 ${isPreview ? 'mt-10' : ''}`}>
         {children}
       </main>
 

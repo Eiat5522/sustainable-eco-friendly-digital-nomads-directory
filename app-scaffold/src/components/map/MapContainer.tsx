@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { type Listing } from '@/types/listings';
+import { SanityListing } from '@/types/sanity';
 import StaticMapImage from './StaticMapImage';
 
 const Map = dynamic(() => import('./MapComponent'), {

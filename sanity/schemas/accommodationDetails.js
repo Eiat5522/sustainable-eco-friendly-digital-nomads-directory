@@ -24,6 +24,7 @@ export default {
           { title: 'Eco Lodge', value: 'eco_lodge' }
         ]
       }
+     ,validation: Rule => Rule.required().error('Accommodation type is required')
     },
     {
       name: 'priceRangeThb',
@@ -34,11 +35,13 @@ export default {
           name: 'min',
           title: 'Minimum Price',
           type: 'number'
+     ,validation: Rule => Rule.required().min(0).error('Minimum price is required and must be non-negative')
         },
         {
           name: 'max',
           title: 'Maximum Price',
           type: 'number'
+     ,validation: Rule => Rule.required().min(0).error('Maximum price is required and must be non-negative')
         }
       ]
     },
@@ -64,6 +67,7 @@ export default {
           }
         }
       ]
+     ,validation: Rule => Rule.min(1).warning('Add at least one room type if possible')
     },
     {
       name: 'specificAmenities',
@@ -90,6 +94,7 @@ export default {
           }
         }
       ]
+     ,validation: Rule => Rule.min(1).warning('Add at least one amenity if possible')
     },
     {
       name: 'wifiSpeed',

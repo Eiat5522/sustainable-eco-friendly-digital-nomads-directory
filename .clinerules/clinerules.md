@@ -18,6 +18,13 @@ Stripe for payments (pay-as-you-go, no monthly fee)
 
 GitHub for version control & CI
 
+🛠️ MCP Server Installation Guidance
+
+- Default MCP server install location is C:\Users\Dev\Documents\Cline\MCP.
+- If you encounter Windows path length or character issues, use a shorter directory path for MCP servers.
+- Always verify directory creation before proceeding with installation.
+- Document any fallback or alternate install locations in project notes.
+
 NextAuth.js (open-source) or Auth0 free tier for authentication & role-based access
 
 🗂️ Folder Structure

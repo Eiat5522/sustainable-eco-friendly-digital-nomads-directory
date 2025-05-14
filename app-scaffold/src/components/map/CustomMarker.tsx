@@ -2,70 +2,141 @@
 
 import L from 'leaflet';
 import { type Listing } from '@/types/listings';
+import { SanityListing } from '@/types/sanity';
 
-const CATEGORY_COLORS = {
-  coworking: '#10B981', // green-500
-  cafe: '#6366F1',      // indigo-500
-  accommodation: '#EC4899' // pink-500
-};
-
-type CategoryType = keyof typeof CATEGORY_COLORS;
-
-export function createCustomMarker(listing: Listing): L.Icon {
-  const color = CATEGORY_COLORS[listing.category as CategoryType] || '#6B7280'; // gray-500 as fallback
-
-  const svgIcon = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 44" width="32" height="44">
-      <path fill="${color}" d="M16 0c8.837 0 16 7.163 16 16 0 8.836-16 28-16 28S0 24.836 0 16C0 7.163 7.163 0 16 0z"/>
-      <circle fill="white" cx="16" cy="16" r="6"/>
-    </svg>
+// Create marker icon based on listing category
+export function createCustomMarker(listing: Listing) {
+  const markerHtml = `
+    <div class="marker-icon marker-${listing.category}">
+      <span class="sr-only">${listing.category} marker</span>
+    </div>
   `;
 
-  const iconUrl = `data:image/svg+xml;base64,${btoa(svgIcon)}`;
-
-  return new L.Icon({
-    iconUrl,
-    iconSize: [32, 44],
-    iconAnchor: [16, 44],
-    popupAnchor: [0, -44],
-    shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-    shadowSize: [41, 41],
-    shadowAnchor: [12, 41]
+  return L.divIcon({
+    html: markerHtml,
+    className: 'custom-marker',
+    iconSize: [30, 42],
+    iconAnchor: [15, 42],
+    popupAnchor: [0, -42]
   });
 }
 
-export function createPopupContent(listing: Listing): string {
-  const categoryColor = CATEGORY_COLORS[listing.category as CategoryType] || '#6B7280';
+// Create popup content for a listing
+export function createPopupContent(listing: Listing) {
+  // Function to get eco tags, works with both listing formats
+  const getEcoTags = (listing: Listing): string[] => {
+    return listing.eco_focus_tags || [];
+  };
+
+  // Create popup HTML with listing data
+  const popupContent = document.createElement('div');
+  popupContent.className = 'listing-popup';
   
-  return `
-    <div class="p-4">
-      <div class="flex items-center justify-between mb-2">
-        <h3 class="font-bold text-lg">${listing.name}</h3>
-        <span 
-          class="px-2 py-1 text-xs rounded capitalize"
-          style="background-color: ${categoryColor}1A; color: ${categoryColor};"
-        >
-          ${listing.category}
-        </span>
-      </div>
-      <p class="text-sm mb-3 text-gray-600">${listing.description_short}</p>
-      <div class="flex gap-2 mb-3 flex-wrap">
-        ${listing.eco_focus_tags.map(tag => 
-          `<span 
-            class="inline-block px-2 py-1 text-xs rounded capitalize"
-            style="background-color: ${categoryColor}1A; color: ${categoryColor};"
-          >
-            ${tag.replace(/_/g, ' ')}
-          </span>`
-        ).join('')}
-      </div>
-      <a 
-        href="/listings/${listing.id}" 
-        class="inline-block px-4 py-2 rounded text-white transition-colors hover:opacity-90"
-        style="background-color: ${categoryColor};"
-      >
-        View Details
-      </a>
-    </div>
+  // Category badge
+  const badge = document.createElement('span');
+  badge.className = `category-badge category-${listing.category}`;
+  badge.innerText = listing.category.charAt(0).toUpperCase() + listing.category.slice(1);
+  
+  // Title
+  const title = document.createElement('h3');
+  title.innerText = listing.name;
+  
+  // Description
+  const description = document.createElement('p');
+  description.className = 'description';
+  description.innerText = listing.description_short;
+  
+  // Tags container
+  const tagsContainer = document.createElement('div');
+  tagsContainer.className = 'tags-container';
+  
+  // Add eco tags if available
+  const ecoTags = getEcoTags(listing);
+  if (ecoTags && ecoTags.length > 0) {
+    ecoTags.slice(0, 3).forEach(tag => {
+      const tagElement = document.createElement('span');
+      tagElement.className = 'eco-tag';
+      tagElement.innerText = tag.replace(/_/g, ' ');
+      tagsContainer.appendChild(tagElement);
+    });
+  }
+  
+  // Link to details page
+  const link = document.createElement('a');
+  link.href = `/listings/${listing.id}`;
+  link.className = 'details-link';
+  link.innerText = 'View Details';
+  
+  // Append all elements to popup content
+  popupContent.appendChild(badge);
+  popupContent.appendChild(title);
+  popupContent.appendChild(description);
+  popupContent.appendChild(tagsContainer);
+  popupContent.appendChild(link);
+  
+  // Add styles
+  const style = document.createElement('style');
+  style.innerHTML = `
+    .listing-popup {
+      padding: 0;
+    }
+    .listing-popup h3 {
+      font-weight: 600;
+      margin-top: 8px;
+      margin-bottom: 6px;
+    }
+    .category-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      font-size: 12px;
+      border-radius: 12px;
+      color: white;
+      font-weight: 500;
+    }
+    .category-coworking {
+      background-color: #E67E22;
+    }
+    .category-cafe {
+      background-color: #D35400;
+    }
+    .category-accommodation {
+      background-color: #2980B9;
+    }
+    .description {
+      margin-top: 8px;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .eco-tag {
+      background-color: #E3F2FD;
+      color: #0277BD;
+      padding: 3px 6px;
+      font-size: 11px;
+      border-radius: 10px;
+    }
+    .details-link {
+      display: block;
+      text-align: center;
+      background-color: #4CAF50;
+      color: white;
+      padding: 8px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+    .details-link:hover {
+      background-color: #388E3C;
+    }
   `;
+  
+  popupContent.appendChild(style);
+  
+  return popupContent;
 }

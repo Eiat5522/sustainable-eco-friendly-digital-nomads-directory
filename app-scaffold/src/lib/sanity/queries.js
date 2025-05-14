@@ -1,0 +1,154 @@
+/**
+ * GROQ queries for the listings
+ * 
+ * This file contains all the queries used to fetch listing data from Sanity
+ */
+import { client } from './client'
+
+// Base listing projection with fields needed for listing cards
+const listingCardProjection = `{
+  _id,
+  name,
+  "slug": slug.current,
+  category,
+  "city": city->name,
+  descriptionShort,
+  mainImage,
+  "ecoTags": ecoFocusTags[]->name,
+  "nomadFeatures": digitalNomadFeatures[]->name
+}`
+
+// Full listing projection with all fields
+const fullListingProjection = `{
+  _id,
+  name,
+  "slug": slug.current,
+  category,
+  "city": city->{
+    name,
+    "slug": slug.current
+  },
+  addressString,
+  coordinates,
+  descriptionShort,
+  descriptionLong,
+  "ecoTags": ecoFocusTags[]->{ name, "slug": slug.current },
+  ecoNotesDetailed,
+  sourceUrls,
+  mainImage,
+  galleryImages,
+  "nomadFeatures": digitalNomadFeatures[]->{ name, "slug": slug.current },
+  lastVerifiedDate,
+  coworkingDetails,
+  cafeDetails,
+  accommodationDetails
+}`
+
+/**
+ * Fetch all listings for the homepage
+ */
+export async function getAllListings({ limit = 12 } = {}) {
+  return client.fetch(
+    `*[_type == "listing"] | order(name asc) ${listingCardProjection} [0...${limit}]`
+  )
+}
+
+/**
+ * Fetch listings with optional filtering
+ */
+export async function getFilteredListings({ 
+  category,
+  city,
+  ecoTags,
+  nomadFeatures,
+  limit = 50,
+  offset = 0
+} = {}) {
+  // Build the filter conditions
+  let filterConditions = ['_type == "listing"']
+  
+  if (category) {
+    filterConditions.push(`category == "${category}"`)
+  }
+  
+  if (city) {
+    filterConditions.push(`city->slug.current == "${city}"`)
+  }
+  
+  if (ecoTags && ecoTags.length > 0) {
+    const tagConditions = ecoTags.map(tag => 
+      `"${tag}" in ecoFocusTags[]->slug.current`
+    )
+    filterConditions.push(`(${tagConditions.join(' || ')})`)
+  }
+  
+  if (nomadFeatures && nomadFeatures.length > 0) {
+    const featureConditions = nomadFeatures.map(feature => 
+      `"${feature}" in digitalNomadFeatures[]->slug.current`
+    )
+    filterConditions.push(`(${featureConditions.join(' || ')})`)
+  }
+  
+  // Combine all filters
+  const filter = filterConditions.join(' && ')
+  
+  // Pagination
+  const paginationParams = `[${offset}...${offset + limit}]`
+  
+  return client.fetch(
+    `*[${filter}] | order(name asc) ${listingCardProjection} ${paginationParams}`
+  )
+}
+
+/**
+ * Get a single listing by slug
+ */
+export async function getListingBySlug(slug) {
+  return client.fetch(
+    `*[_type == "listing" && slug.current == $slug] ${fullListingProjection} [0]`,
+    { slug }
+  )
+}
+
+/**
+ * Get a list of all cities
+ */
+export async function getAllCities() {
+  return client.fetch(`
+    *[_type == "city"] | order(name asc) {
+      _id,
+      name,
+      "slug": slug.current,
+      coordinates,
+      "listingCount": count(*[_type == "listing" && references(^._id)])
+    }
+  `)
+}
+
+/**
+ * Get all eco tags
+ */
+export async function getAllEcoTags() {
+  return client.fetch(`
+    *[_type == "ecoTag"] | order(name asc) {
+      _id,
+      name,
+      "slug": slug.current,
+      description
+    }
+  `)
+}
+
+/**
+ * Get all digital nomad features
+ */
+export async function getAllNomadFeatures() {
+  return client.fetch(`
+    *[_type == "nomadFeature"] | order(name asc) {
+      _id,
+      name,
+      "slug": slug.current,
+      description
+    }
+  `)
+}

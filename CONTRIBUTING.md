@@ -7,7 +7,7 @@ Thank you for your interest in contributing to our project! This document outlin
 We follow a simplified version of Git Flow with these main branches:
 
 - `main` - Production-ready code
-- `develop` - Integration branch for features
+- `develop` - Main development branch
 - `feature/*` - New features and improvements
 - `fix/*` - Bug fixes
 - `release/*` - Release preparation

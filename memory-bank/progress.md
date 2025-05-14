@@ -19,6 +19,11 @@ Known Issues:
 
 Evolution:
 - Moved all Leaflet logic to client-only components.
+
+2025-05-13:
+- Sanity Studio is now running and connected to the real project (projectId: sc70w3cr, dataset: production).
+- All custom schemas (listings, users, reviews, events, blog posts, comments, etc.) are present and Studio loads without errors.
+- The user can now add and manage content in the Studio UI.
 - Adopted dynamic import with SSR disabled for all map components.
 - StaticMapImage used for SEO and fallback.
 - Memory bank documentation updated after each significant change.

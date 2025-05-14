@@ -1,0 +1,81 @@
+# Product Requirements Document (PRD)
+## Project: Sustainable Eco-Friendly Digital Nomads Directory
+
+### Vision
+Build a comprehensive, performant, and user-friendly directory of sustainable venues for digital nomads in Thailand, with curated listings, interactive maps, and robust content management.
+
+---
+
+## High-Level Goals
+- Integrate a headless CMS for content management
+- Add authentication and role-based access
+- Optimize map performance and user experience
+- Complete image sourcing and optimization
+- Maintain comprehensive documentation
+
+---
+
+## Phase 2: CMS Integration
+
+### Objectives
+- Evaluate Strapi CE vs Sanity (features, pricing, performance, community, integration complexity)
+- Decide on self-hosted vs managed
+- Design content models (Listings, Users, Reviews, Media)
+- Set up and configure CMS (local/dev environment)
+- Implement content models and asset management
+- Integrate CMS with Next.js (data fetching, migration, API routes, caching, preview)
+- Test CMS workflow (content updates, preview, asset handling)
+- Document CMS setup and editorial workflow
+
+---
+
+## Phase 3: Authentication & Role-Based Access
+
+### Objectives
+- Set up authentication (NextAuth.js or Auth0)
+- Implement user sessions and social login options
+- Set up role-based access (admin, editor, venue owner, user)
+- Secure API routes and implement role checks
+- Test session handling, access control, and security
+- Document authentication setup and user management
+
+---
+
+## Phase 4: Map Performance & Advanced Features
+
+### Objectives
+- Integrate marker clustering (leaflet.markercluster)
+- Optimize marker rendering and clustering options
+- Implement map region caching
+- Maintain SEO-friendly static fallback
+- Test map performance (100+ points, mobile optimization)
+
+---
+
+## Cross-Phase Tasks
+
+### Objectives
+- Complete image sourcing for all listings
+- Update listings data with correct image paths
+- Ensure all images are optimized and accessible
+- Keep documentation (cline_docs, memory-bank) updated after each significant change
+
+---
+
+## Future Considerations
+
+- CDN integration for global performance
+- Advanced search and filtering
+- User reviews and ratings
+- Analytics integration
+- Mobile app development
+
+---
+
+## Completion Criteria
+
+- CMS integration: content updates reflect in under 1min, preview mode working, efficient asset management
+- Authentication: secure user sessions, role-based access, protected API routes, multiple social login options
+- Map: smooth clustering, efficient rendering, region caching, SEO fallback
+- Images: optimized, responsive, accessible
+- Documentation: up-to-date, clear, and actionable

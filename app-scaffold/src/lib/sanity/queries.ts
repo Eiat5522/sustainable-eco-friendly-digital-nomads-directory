@@ -1,0 +1,197 @@
+import { client, getClient } from './client';
+
+export async function getAllListings(preview = false) {
+  const sanityClient = getClient(preview);
+  
+  const query = `*[_type == "listing"] {
+    _id,
+    name,
+    "slug": slug.current,
+    descriptionShort,
+    category,
+    "city": city->name,
+    coordinates,
+    "mainImage": mainImage.asset->url,
+    "ecoFocusTags": ecoFocusTags[]->name,
+    "nomadFeatures": nomadFeatures[]->name,
+    wifi,
+    priceRange,
+  }`;
+  
+  return await sanityClient.fetch(query);
+}
+
+export async function getListingBySlug(slug: string, preview = false) {
+  const sanityClient = getClient(preview);
+  
+  const query = `*[_type == "listing" && slug.current == $slug][0] {
+    _id,
+    name,
+    "slug": slug.current,
+    descriptionShort,
+    descriptionLong,
+    category,
+    "city": city->{
+      name,
+      "slug": slug.current
+    },
+    coordinates,
+    mainImage,
+    galleryImages,
+    "ecoFocusTags": ecoFocusTags[]->name,
+    "nomadFeatures": nomadFeatures[]->name,
+    wifi,
+    priceRange,
+    website,
+    addressString,
+    openingHours,
+    contactInfo,
+    ecoNotesDetailed,
+    sourceUrls,
+    lastVerifiedDate,    "reviews": *[_type == "review" && references(^._id)]{
+      _id,
+      rating, 
+      comment,
+      author->{name}
+    },
+    ...select(
+      category == 'coworking' => {
+        "coworkingDetails": {
+          operatingHours,
+          pricingPlans,
+          specificAmenities: specificAmenities_coworking
+        }
+      },
+      category == 'cafe' => {
+        "cafeDetails": {
+          operatingHours,
+          priceIndication,
+          menuHighlights: menu_highlights_cafe,
+          wifiReliabilityNotes
+        }
+      },
+      category == 'accommodation' => {
+        "accommodationDetails": {
+          accommodationType: accommodation_type,
+          pricePerNightRange: price_per_night_thb_range,
+          roomTypesAvailable: room_types_available,
+          specificAmenities: specific_amenities_accommodation
+        }
+      }
+    )
+  }`;
+  
+  return await sanityClient.fetch(query, { slug });
+}
+
+export async function getListingsByCategory(category: string, preview = false) {
+  const sanityClient = getClient(preview);
+  
+  const query = `*[_type == "listing" && category == $category] {
+    _id,
+    name,
+    "slug": slug.current,
+    descriptionShort,
+    category,
+    "city": city->name,
+    coordinates,
+    mainImage,
+    "ecoFocusTags": ecoFocusTags[]->name,
+    "nomadFeatures": nomadFeatures[]->name,
+    wifi,
+    priceRange,
+  }`;
+  
+  return await sanityClient.fetch(query, { category });
+}
+
+export async function getListingsByCity(cityName: string, preview = false) {
+  const sanityClient = getClient(preview);
+  
+  const query = `*[_type == "listing" && city->name == $cityName] {
+    _id,
+    name,
+    "slug": slug.current,
+    descriptionShort,
+    category,
+    "city": city->name,
+    coordinates,
+    mainImage,
+    "ecoFocusTags": ecoFocusTags[]->name,
+    "nomadFeatures": nomadFeatures[]->name,
+    wifi,
+    priceRange,
+  }`;
+  
+  return await sanityClient.fetch(query, { cityName });
+}
+
+// Get all available cities for filtering
+export async function getAllCities(preview = false) {
+  const sanityClient = getClient(preview);
+  
+  const query = `*[_type == "city"] {
+    _id,
+    name,
+    "slug": slug.current,
+    country,
+    coordinates
+  }`;
+  
+  return await sanityClient.fetch(query);
+}
+
+// Get all eco focus tags for filtering
+export async function getAllEcoTags(preview = false) {
+  const sanityClient = getClient(preview);
+  
+  const query = `*[_type == "ecoTag"] {
+    _id,
+    name,
+    "slug": slug.current,
+    description
+  }`;
+  
+  return await sanityClient.fetch(query);
+}
+
+// Search listings
+export async function searchListings(searchTerm: string, preview = false) {
+  const sanityClient = getClient(preview);
+  
+  const query = `*[_type == "listing" && (
+    name match $searchTerm || 
+    descriptionShort match $searchTerm ||
+    descriptionLong match $searchTerm ||
+    ecoNotesDetailed match $searchTerm
+  )] {
+    _id,
+    name,
+    "slug": slug.current,
+    descriptionShort,
+    category,
+    "city": city->name,
+    coordinates,
+    mainImage,
+    "ecoFocusTags": ecoFocusTags[]->name,
+  }`;
+  
+  return await sanityClient.fetch(query, { searchTerm: `*${searchTerm}*` });
+}
+
+// Get latest blog posts
+export async function getLatestBlogPosts(limit = 3, preview = false) {
+  const sanityClient = getClient(preview);
+  
+  const query = `*[_type == "blogPost"] | order(_createdAt desc)[0...$limit] {
+    _id,
+    title,
+    "slug": slug.current,
+    excerpt,
+    mainImage,
+    _createdAt,
+    "author": author->name
+  }`;
+  
+  return await sanityClient.fetch(query, { limit: limit - 1 });
+}

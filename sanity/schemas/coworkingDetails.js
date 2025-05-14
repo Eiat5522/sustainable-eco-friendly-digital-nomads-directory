@@ -12,6 +12,7 @@ export default {
       name: 'operatingHours',
       title: 'Operating Hours',
       type: 'string'
+     ,validation: Rule => Rule.required().error('Operating hours are required')
     },
     {
       name: 'pricingPlans',
@@ -37,11 +38,15 @@ export default {
                   { title: 'Day Pass', value: 'day_pass' }
                 ]
               }
+              ,validation: Rule => Rule.required().error('Pricing type is required')
             },
             {
               name: 'priceTHB',
               title: 'Price (THB)',
               type: 'number'
+              ,validation: Rule => Rule.required().min(0).error('Price is required and must be non-negative')
+          ,validation: Rule => Rule.required().error('Each pricing plan must have type and price')
+     ,validation: Rule => Rule.required().min(1).error('At least one pricing plan is required')
             },
             {
               name: 'priceNotes',
@@ -91,6 +96,7 @@ export default {
           }
         }
       ]
+     ,validation: Rule => Rule.min(1).warning('Add at least one amenity if possible')
     }
   ]
 }

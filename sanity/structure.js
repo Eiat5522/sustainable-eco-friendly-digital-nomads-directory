@@ -128,4 +128,4 @@ export default (S) =>
     ]);
 
 // Export the structure for sanity.config.js
-export const structure = (S) => customStructure(S);
+// Remove broken export referencing customStructure

@@ -1,3 +1,6 @@
+## Custom Instruction Improvement (2025-05-13)
+
+When confirming that a web-based service (such as Sanity Studio or the Next.js frontend) is running and error-free, always check with Playwright MCP server and wait for explicit confirmation from the user before proceeding to the next step.
 Phase: 1.e - Interactive Map Integration
 
 Current Focus:

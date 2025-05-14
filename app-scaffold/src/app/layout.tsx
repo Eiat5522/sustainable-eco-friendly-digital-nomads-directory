@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import 'leaflet/dist/leaflet.css';
 import Layout from '@/components/layout/Layout';
+import { draftMode } from 'next/headers';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,10 +25,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Check if preview mode is enabled
+  const isPreview = draftMode().isEnabled;
+  
   return (
     <html lang="en" className={`${inter.variable}`}>
       <body className={`${inter.className} antialiased`}>
-        <Layout>
+        <Layout preview={isPreview}>
           {children}
         </Layout>
       </body>
