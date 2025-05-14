@@ -7,6 +7,7 @@ export default {
   name: 'accommodationDetails',
   title: 'Accommodation Details',
   type: 'object',
+  validation: Rule => Rule.required().error('Accommodation details are required for accommodation listings'),
   fields: [
     {
       name: 'accommodationType',
@@ -23,8 +24,8 @@ export default {
           { title: 'Villa', value: 'villa' },
           { title: 'Eco Lodge', value: 'eco_lodge' }
         ]
-      }
-     ,validation: Rule => Rule.required().error('Accommodation type is required')
+      },
+      validation: Rule => Rule.required().error('Accommodation type is required')
     },
     {
       name: 'priceRangeThb',
@@ -34,16 +35,22 @@ export default {
         {
           name: 'min',
           title: 'Minimum Price',
-          type: 'number'
-     ,validation: Rule => Rule.required().min(0).error('Minimum price is required and must be non-negative')
+          type: 'number',
+          validation: Rule => Rule.required().min(0).error('Minimum price must be non-negative')
         },
         {
           name: 'max',
           title: 'Maximum Price',
-          type: 'number'
-     ,validation: Rule => Rule.required().min(0).error('Maximum price is required and must be non-negative')
+          type: 'number',
+          validation: Rule => Rule.required().min(0).error('Maximum price must be non-negative')
         }
-      ]
+      ],
+      validation: Rule => Rule.custom((priceRange, context) => {
+        if (priceRange?.max < priceRange?.min) {
+          return 'Maximum price must be greater than minimum price'
+        }
+        return true
+      })
     },
     {
       name: 'roomTypesAvailable',
@@ -51,66 +58,74 @@ export default {
       type: 'array',
       of: [
         {
-          type: 'string',
-          options: {
-            list: [
-              { title: 'Private Room (Ensuite)', value: 'private_room_ensuite' },
-              { title: 'Private Room (Shared Bath)', value: 'private_room_shared_bath' },
-              { title: 'Dorm Bed', value: 'dorm_bed' },
-              { title: 'Studio Apartment', value: 'studio_apartment' },
-              { title: 'One Bedroom', value: 'one_bedroom' },
-              { title: 'Two Bedroom', value: 'two_bedroom' },
-              { title: 'Pool Villa', value: 'pool_villa' },
-              { title: 'Bungalow', value: 'bungalow' },
-              { title: 'Tent/Glamping', value: 'tent_glamping' }
-            ]
-          }
+          type: 'object',
+          fields: [
+            {
+              name: 'type',
+              title: 'Room Type',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Single Room', value: 'single' },
+                  { title: 'Double Room', value: 'double' },
+                  { title: 'Twin Room', value: 'twin' },
+                  { title: 'Studio', value: 'studio' },
+                  { title: 'One Bedroom', value: 'one_bedroom' },
+                  { title: 'Two Bedroom', value: 'two_bedroom' },
+                  { title: 'Dormitory', value: 'dormitory' },
+                  { title: 'Suite', value: 'suite' }
+                ]
+              },
+              validation: Rule => Rule.required()
+            },
+            {
+              name: 'pricePerNight',
+              title: 'Price per Night (THB)',
+              type: 'number',
+              validation: Rule => Rule.required().min(0)
+            },
+            {
+              name: 'features',
+              title: 'Room Features',
+              type: 'array',
+              of: [{ type: 'string' }],
+              options: {
+                list: [
+                  { title: 'Air Conditioning', value: 'ac' },
+                  { title: 'Private Bathroom', value: 'private_bathroom' },
+                  { title: 'Kitchen', value: 'kitchen' },
+                  { title: 'Workspace', value: 'workspace' },
+                  { title: 'Balcony', value: 'balcony' }
+                ]
+              }
+            }
+          ]
         }
-      ]
-     ,validation: Rule => Rule.min(1).warning('Add at least one room type if possible')
-    },
-    {
-      name: 'specificAmenities',
-      title: 'Specific Amenities',
-      type: 'array',
-      of: [
-        {
-          type: 'string',
-          options: {
-            list: [
-              { title: 'Swimming Pool', value: 'swimming_pool' },
-              { title: 'On-site Restaurant/Bar', value: 'on_site_restaurant_bar' },
-              { title: 'Private Beach Access', value: 'private_beach_access' },
-              { title: 'Fitness Center/Gym', value: 'fitness_center_gym' },
-              { title: 'Coworking Space', value: 'coworking_space' },
-              { title: 'Kitchen', value: 'kitchen' },
-              { title: 'Laundry Facilities', value: 'laundry_facilities' },
-              { title: 'Free Bicycles', value: 'free_bicycles' },
-              { title: 'Daily Cleaning', value: 'daily_cleaning' },
-              { title: 'Airport Transfer', value: 'airport_transfer' },
-              { title: 'Yoga Classes', value: 'yoga_classes' },
-              { title: 'Meditation Space', value: 'meditation_space' }
-            ]
-          }
-        }
-      ]
-     ,validation: Rule => Rule.min(1).warning('Add at least one amenity if possible')
-    },
-    {
-      name: 'wifiSpeed',
-      title: 'WiFi Speed (Mbps)',
-      type: 'number'
+      ],
+      validation: Rule => Rule.required().min(1).error('At least one room type is required')
     },
     {
       name: 'minimumStay',
-      title: 'Minimum Stay (days)',
-      type: 'number'
+      title: 'Minimum Stay (nights)',
+      type: 'number',
+      validation: Rule => Rule.required().min(1).error('Please specify minimum stay duration')
     },
     {
-      name: 'workspaceInRoom',
-      title: 'Workspace in Room',
-      type: 'boolean',
-      description: 'Does the accommodation provide a suitable workspace within rooms?'
+      name: 'workspaceFeatures',
+      title: 'Workspace Features',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'Desk in Room', value: 'desk_in_room' },
+          { title: 'Ergonomic Chair', value: 'ergonomic_chair' },
+          { title: 'Good Lighting', value: 'good_lighting' },
+          { title: 'Fast WiFi in Room', value: 'fast_wifi_room' },
+          { title: 'Coworking Space', value: 'coworking_space' },
+          { title: 'Multiple Power Outlets', value: 'power_outlets' }
+        ]
+      },
+      validation: Rule => Rule.min(1).error('Please specify workspace features')
     }
   ]
 }

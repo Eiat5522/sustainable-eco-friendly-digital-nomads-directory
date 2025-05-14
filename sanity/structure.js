@@ -9,7 +9,17 @@ import { definePlugin, defineConfig } from 'sanity';
 import { deskTool } from 'sanity/desk';
 import { visionTool } from '@sanity/vision';
 import { Iframe } from 'sanity-plugin-iframe-pane';
+import { previewConfig } from './config/preview';
 
+// Icons for document types (you can replace these with your preferred icons)
+const ICONS = {
+  listings: '🏠',
+  cities: '🌆',
+  blog: '📝',
+  events: '📅',
+  settings: '⚙️',
+  users: '👥'
+}
 
 // Define structure with custom organization and preview
 // Use the S parameter provided by Sanity, do not import StructureBuilder
@@ -62,70 +72,115 @@ export default (S) =>
       // Listings section with icon
       S.listItem()
         .title('Listings')
-        .icon(FaList)
+        .icon(() => ICONS.listings)
         .child(
           S.list()
             .title('Listings')
             .items([
               S.listItem()
                 .title('All Listings')
-                .icon(FaList)
                 .child(
-                  S.documentTypeList('listing')
+                  S.documentList()
                     .title('All Listings')
                     .filter('_type == "listing"')
+                    .defaultOrdering([{ field: 'name', direction: 'asc' }])
                 ),
-              // Filter by category
               S.listItem()
-                .title('Listings by Category')
-                .icon(FaList)
+                .title('By Category')
                 .child(
                   S.list()
                     .title('Listings by Category')
                     .items([
-                      S.listItem()
-                        .title('Coworking Spaces')
-                        .icon(FaLaptop)
-                        .child(
-                          S.documentTypeList('listing')
-                            .title('Coworking Spaces')
-                            .filter('_type == "listing" && category == "coworking"')
-                        ),
-                      S.listItem()
-                        .title('Cafes')
-                        .icon(FaCoffee)
-                        .child(
-                          S.documentTypeList('listing')
-                            .title('Cafes')
-                            .filter('_type == "listing" && category == "cafe"')
-                        ),
-                      S.listItem()
-                        .title('Accommodations')
-                        .icon(FaBed)
-                        .child(
-                          S.documentTypeList('listing')
-                            .title('Accommodations')
-                            .filter('_type == "listing" && category == "accommodation"')
-                        ),
+                      createCategoryList('Coworking Spaces', 'coworking'),
+                      createCategoryList('Cafes', 'cafe'),
+                      createCategoryList('Accommodations', 'accommodation'),
+                      createCategoryList('Restaurants', 'restaurant'),
+                      createCategoryList('Activities', 'activity')
                     ])
                 ),
+              S.divider(),
+              S.documentTypeListItem('ecoTag').title('Eco Tags'),
+              S.documentTypeListItem('nomadFeature').title('Nomad Features')
             ])
         ),
       
-      // Reference data
-      S.divider(),
+      // Cities Section
       S.listItem()
         .title('Cities')
-        .icon(FaMapMarkerAlt)
-        .child(S.documentTypeList('city').title('Cities')),
-      S.listItem()
-        .title('Eco Tags')
-        .icon(FaLeaf)
-        .child(S.documentTypeList('ecoTag').title('Eco Tags')),
-      S.listItem()
-        .title('Digital Nomad Features')
-        .icon(FaLaptop)        .child(S.documentTypeList('nomadFeature').title('Digital Nomad Features')),
-    ]);
+        .icon(() => ICONS.cities)
+        .child(
+          S.documentTypeList('city')
+            .title('Cities')
+            .defaultOrdering([{ field: 'name', direction: 'asc' }])
+        ),
 
-// Export the structure for sanity.config.js
-// Remove broken export referencing customStructure
+      // Content Section
+      S.listItem()
+        .title('Content')
+        .icon(() => ICONS.blog)
+        .child(
+          S.list()
+            .title('Content')
+            .items([
+              S.documentTypeListItem('blogPost').title('Blog Posts'),
+              S.documentTypeListItem('event').title('Events')
+            ])
+        ),
+
+      // Reviews & Comments
+      S.listItem()
+        .title('User Content')
+        .child(
+          S.list()
+            .title('User Content')
+            .items([
+              S.documentTypeListItem('review')
+                .title('Reviews')
+                .child(
+                  S.documentList()
+                    .title('Reviews')
+                    .filter('_type == "review"')
+                    .defaultOrdering([{ field: '_createdAt', direction: 'desc' }])
+                ),
+              S.documentTypeListItem('comment').title('Comments')
+            ])
+        ),
+
+      // Users Section
+      S.listItem()
+        .title('Users')
+        .icon(() => ICONS.users)
+        .child(
+          S.documentTypeList('user')
+            .title('Users')
+            .defaultOrdering([{ field: 'name', direction: 'asc' }])
+        ),
+
+      // Divider
+      S.divider(),
+
+      // Settings (can be expanded later)
+      S.listItem()
+        .title('Settings')
+        .icon(() => ICONS.settings)
+        .child(
+          S.list()
+            .title('Settings')
+            .items([
+              // Add settings documents here when needed
+            ])
+        )
+    ])
+
+// Helper function to create category-filtered lists
+function createCategoryList(title, categoryValue) {
+  return S.listItem()
+    .title(title)
+    .child(
+      S.documentList()
+        .title(title)
+        .filter('_type == "listing" && category == $category')
+        .params({ category: categoryValue })
+        .defaultOrdering([{ field: 'name', direction: 'asc' }])
+    )
+}

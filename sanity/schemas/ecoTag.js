@@ -2,6 +2,7 @@
  * Eco Tag schema for Sanity CMS
  * Represents sustainability features/tags for listings
  */
+import { slugField, descriptionField, imageWithAlt } from './shared/fields'
 
 export default {
   name: 'ecoTag',
@@ -15,28 +16,16 @@ export default {
       validation: Rule => Rule.required()
     },
     {
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      options: {
-        source: 'name',
-        maxLength: 96
-      },
-      validation: Rule => Rule.required()
+      ...slugField
     },
     {
-      name: 'description',
-      title: 'Description',
-      type: 'text',
-      rows: 2
+      ...descriptionField,
+      validation: Rule => Rule.required().max(200).error('A clear, concise description is required')
     },
     {
       name: 'icon',
       title: 'Icon',
-      type: 'image',
-      options: {
-        hotspot: true
-      }
+      ...imageWithAlt
     }
   ],
   preview: {

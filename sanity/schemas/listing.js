@@ -2,6 +2,7 @@
  * Listing schema for Sanity CMS
  * Based on data_schema.md for Sustainable Eco-Friendly Digital Nomads Directory
  */
+import { imageWithAlt, slugField } from './shared/fields'
 
 export default {
   name: 'listing',
@@ -15,24 +16,18 @@ export default {
       validation: Rule => Rule.required()
     },
     {
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      options: {
-        source: 'name',
-        maxLength: 96
-      },
-      validation: Rule => Rule.required()
+      ...slugField
     },
     {
       name: 'category',
       title: 'Category',
-      type: 'string',
-      options: {
+      type: 'string',      options: {
         list: [
           { title: 'Coworking', value: 'coworking' },
           { title: 'Cafe', value: 'cafe' },
-          { title: 'Accommodation', value: 'accommodation' }
+          { title: 'Accommodation', value: 'accommodation' },
+          { title: 'Restaurant', value: 'restaurant' },
+          { title: 'Activity', value: 'activity' }
         ]
       },
       validation: Rule => Rule.required()
@@ -53,8 +48,8 @@ export default {
     {
       name: 'coordinates',
       title: 'Coordinates',
-      type: 'geopoint'
-     ,validation: Rule => Rule.required().error('Coordinates are required')
+      type: 'geopoint',
+      validation: Rule => Rule.required().error('Coordinates are required')
     },
     {
       name: 'descriptionShort',
@@ -67,91 +62,57 @@ export default {
       name: 'descriptionLong',
       title: 'Long Description',
       type: 'array',
-      of: [{ type: 'block' }]
-     ,validation: Rule => Rule.required().min(1).error('A long description is required')
+      of: [{ type: 'block' }],
+      validation: Rule => Rule.required().min(1).error('A long description is required')
     },
     {
       name: 'ecoFocusTags',
       title: 'Eco Focus Tags',
       type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'ecoTag' }] }]
-     ,validation: Rule => Rule.required().min(1).error('At least one eco focus tag is required')
+      of: [{ type: 'reference', to: [{ type: 'ecoTag' }] }],
+      validation: Rule => Rule.required().min(1).error('At least one eco focus tag is required')
     },
     {
       name: 'ecoNotesDetailed',
       title: 'Detailed Eco Notes',
       type: 'text',
-      rows: 5
-     ,validation: Rule => Rule.max(1000).warning('Keep eco notes concise')
+      rows: 5,
+      validation: Rule => Rule.max(1000).warning('Keep eco notes concise')
     },
     {
       name: 'sourceUrls',
       title: 'Source URLs',
       type: 'array',
-      of: [{ type: 'url' }]
-     ,validation: Rule => Rule.min(1).error('At least one source URL is required')
+      of: [{ type: 'url' }],
+      validation: Rule => Rule.min(1).error('At least one source URL is required')
     },
     {
       name: 'mainImage',
       title: 'Main Image',
-      type: 'image',
-      options: {
-        hotspot: true
-      },
-      fields: [
-        {
-          name: 'alt',
-          title: 'Alternative Text',
-          type: 'string',
-          description: 'Important for SEO and accessibility'
-        },
-        {
-          name: 'caption',
-          title: 'Caption',
-          type: 'string'
-        }
-      ]
-     ,validation: Rule => Rule.required().error('A main image is required')
+      ...imageWithAlt,
+      validation: Rule => Rule.required().error('A main image is required')
     },
     {
       name: 'galleryImages',
       title: 'Gallery Images',
       type: 'array',
-      of: [
-        {
-          type: 'image',
-          options: {
-            hotspot: true
-          },
-          fields: [
-            {
-              name: 'alt',
-              title: 'Alternative Text',
-              type: 'string',
-              description: 'Important for SEO and accessibility'
-            },
-            {
-              name: 'caption',
-              title: 'Caption',
-              type: 'string'
-            }
-          ]
-        }
-      ]
-     ,validation: Rule => Rule.required().min(1).error('At least one gallery image is required')
+      of: [{
+        ...imageWithAlt
+      }],
+      validation: Rule => Rule.required().min(1).error('At least one gallery image is required')
     },
     {
       name: 'digitalNomadFeatures',
       title: 'Digital Nomad Features',
       type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'nomadFeature' }] }]
-     ,validation: Rule => Rule.min(1).warning('Add at least one digital nomad feature if possible')
+      of: [{ type: 'reference', to: [{ type: 'nomadFeature' }] }],
+      validation: Rule => Rule.min(1).warning('Add at least one digital nomad feature if possible')
     },
     {
       name: 'lastVerifiedDate',
       title: 'Last Verified Date',
-      type: 'date'
-     ,validation: Rule => Rule.required().error('Last verified date is required')
+      type: 'date',
+      validation: Rule => Rule.required().error('Last verified date is required')
     },
     // Conditional fields based on category
     {
@@ -165,12 +126,23 @@ export default {
       title: 'Cafe Details',
       type: 'cafeDetails',
       hidden: ({ document }) => document?.category !== 'cafe'
-    },
-    {
+    },    {
       name: 'accommodationDetails',
       title: 'Accommodation Details',
       type: 'accommodationDetails',
       hidden: ({ document }) => document?.category !== 'accommodation'
+    },
+    {
+      name: 'restaurantDetails',
+      title: 'Restaurant Details',
+      type: 'restaurantDetails',
+      hidden: ({ document }) => document?.category !== 'restaurant'
+    },
+    {
+      name: 'activitiesDetails',
+      title: 'Activities Details',
+      type: 'activitiesDetails',
+      hidden: ({ document }) => document?.category !== 'activity'
     }
   ],
   preview: {

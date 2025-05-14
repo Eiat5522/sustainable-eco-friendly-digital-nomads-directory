@@ -1,4 +1,6 @@
 // Sanity schema for reviews
+import { dateTimeWithInitial } from './shared/fields'
+
 export default {
   name: 'review',
   title: 'Review',
@@ -28,13 +30,10 @@ export default {
       name: 'comment',
       title: 'Comment',
       type: 'text',
+      validation: Rule => Rule.max(1000).warning('Keep reviews concise and helpful')
     },
     {
-      name: 'createdAt',
-      title: 'Created At',
-      type: 'datetime',
-      readOnly: true,
-      initialValue: () => new Date().toISOString(),
+      ...dateTimeWithInitial
     },
     {
       name: 'approved',

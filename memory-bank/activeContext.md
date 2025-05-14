@@ -1,36 +1,63 @@
-## Custom Instruction Improvement (2025-05-13)
+# Active Context: PrismJS Vulnerability in Sanity
 
-When confirming that a web-based service (such as Sanity Studio or the Next.js frontend) is running and error-free, always check with Playwright MCP server and wait for explicit confirmation from the user before proceeding to the next step.
-Phase: 1.e - Interactive Map Integration
+**Date:** May 14, 2025
 
-Current Focus:
-- Leaflet.js map is now integrated using dynamic import with ssr: false to avoid SSR errors.
-- StaticMapImage is used for SEO fallback.
-- Listings and images are displaying correctly.
-- Confirmed that the website is running and the styling is applied correctly.
+**Primary Goal:** Resolve PrismJS vulnerabilities within the `sanity/` project, primarily stemming from nested dependencies of `@sanity/ui`.
 
-Recent Changes:
-- Refactored map logic into MapComponent.tsx (client-only).
-- Updated MapContainer.tsx to use dynamic import with ssr: false.
-- Ensured index.ts exports the correct map component.
-- Directory structure for listing images created and populated for several venues.
-- Updated next.config.mjs to include image domains.
-- Added Tailwind configuration and plugins.
-- Updated layout and home page styling.
-- Updated listings page styling.
+**Current State of Key Files:**
 
-Next Steps:
-- Continue image sourcing for remaining listings.
-- Update listings data with correct image paths.
-- Test map marker clustering and performance.
-- Begin CMS and authentication integration.
+*   `sanity/package.json`:
+    *   `"type": "module"`
+    *   **Dependencies:**
+        *   `"@sanity/ui": "^3.0.0-static.6"`
+        *   `"prismjs": "1.30.0"` (exact)
+        *   `"refractor": "4.8.1"` (exact)
+        *   `"react-refractor": "3.1.1"` (exact)
+    *   **Overrides:** Extensive overrides for `prismjs`, `refractor`, `react-refractor` globally (`**/...`) and specifically for `@sanity/ui` and `sanity-plugin-media`.
+        ```json
+        "overrides": {
+          "prismjs": "^1.30.0",
+          "refractor": "^4.8.1",
+          "react-refractor": "^3.1.1",
+          "**/prismjs": "^1.30.0",
+          "**/refractor": "^4.8.1",
+          "**/react-refractor": "^3.1.1",
+          "@sanity/ui": {
+            "prismjs": "^1.30.0",
+            "refractor": "^4.8.1",
+            "react-refractor": "^3.1.1"
+          },
+          "sanity-plugin-media": {
+            "prismjs": "^1.30.0",
+            "refractor": "^4.8.1",
+            "react-refractor": "^3.1.1"
+          }
+        }
+        ```
+    *   **Scripts:**
+        *   `"postinstall": "node scripts/patch-prismjs.js"`
 
-Decisions:
-- All Leaflet-based components use dynamic import with SSR disabled.
-- StaticMapImage is required for SEO and fallback.
-- Use feature branches and PRs for all new features and bugfixes.
+*   `sanity/.npmrc`:
+    ```
+    legacy-peer-deps=true
+    resolution-mode=highest
+    strict-peer-dependencies=false
+    public-hoist-pattern[]=*prismjs*
+    public-hoist-pattern[]=*refractor*
+    public-hoist-pattern[]=*react-refractor*
+    ```
 
-Learnings:
-- Leaflet.js must never be imported at the top level in SSR contexts.
-- Dynamic import with SSR disabled is best practice for Next.js + Leaflet.
-- Maintaining a static fallback improves SEO and UX.
+*   `sanity/scripts/patch-prismjs.js`:
+    *   ES Module script designed to find `package.json` files in `node_modules`, check for `prismjs` dependencies with versions < 1.29.0, update them to `^1.30.0`, and run `npm install` in that specific package directory.
+    *   **Current Issue:** The script reported patching 0 dependencies in its last run, indicating it's not effectively resolving the vulnerabilities.
+
+**Persistent Problem:**
+
+*   `npm audit` (after `rm -rf node_modules && npm install`) still reports 4 moderate severity PrismJS vulnerabilities. The primary path is often: `@sanity/ui` -> `react-refractor` -> `refractor` -> `prismjs@<vulnerable_version>`.
+*   The combination of direct dependency updates, npm overrides, `.npmrc` settings, and the postinstall patch script has not yet fully resolved the issue.
+
+**Next Focus:**
+
+*   Debugging the `patch-prismjs.js` script.
+*   Further deep dive into the dependency tree to understand why overrides are not fully effective for `@sanity/ui`'s transitive dependencies.
+*   Exploring alternative patching methods or seeking Sanity-specific solutions.

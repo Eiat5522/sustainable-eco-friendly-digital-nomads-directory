@@ -7,6 +7,8 @@ import nomadFeature from './nomadFeature'
 import coworkingDetails from './coworkingDetails'
 import cafeDetails from './cafeDetails'
 import accommodationDetails from './accommodationDetails'
+import restaurantDetails from './restaurantDetails'
+import activitiesDetails from './activitiesDetails'
 import review from './review'
 import event from './event'
 import user from './user'
@@ -23,10 +25,12 @@ export const schemaTypes = [
   review,
   event,
   user,
+  blogPost,
   // Objects
   coworkingDetails,
   cafeDetails,
   accommodationDetails,
-  blogPost,
+  restaurantDetails,
+  activitiesDetails,
   comment
 ]

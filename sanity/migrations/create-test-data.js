@@ -4,14 +4,31 @@
  * This script creates sample test data in the Sanity CMS.
  */
 
+import dotenv from 'dotenv'
 import { createClient } from '@sanity/client'
+import { fileURLToPath } from 'url'
+import { dirname, resolve } from 'path'
+import { v4 as uuidv4 } from 'uuid'
 
-// Sanity client configuration
+// Load environment variables
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+dotenv.config({ path: resolve(__dirname, '../.env') })
+
+// Validate required environment variables
+const requiredEnvVars = ['SANITY_STUDIO_PROJECT_ID', 'SANITY_TEST_TOKEN']
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    console.error(`❌ Missing required environment variable: ${envVar}`)
+    process.exit(1)
+  }
+}
+
 const client = createClient({
-  projectId: 'abcde123', // Our test project ID
-  dataset: 'production',
-  token: 'skWHATEVERYOURTOKENIS', // Hard-coded for this test
-  apiVersion: '2023-05-03', 
+  projectId: process.env.SANITY_STUDIO_PROJECT_ID,
+  dataset: 'development', // Using development dataset for safety
+  apiVersion: process.env.SANITY_STUDIO_API_VERSION || '2023-05-03',
+  token: process.env.SANITY_TEST_TOKEN,
   useCdn: false
 })
 

@@ -1,4 +1,4 @@
-Technologies Used:
+# Technologies Used
 - Next.js 15.3.2 (App Router, TypeScript)
 - Tailwind CSS 4.1.6
 - Leaflet.js (interactive maps, client-only)

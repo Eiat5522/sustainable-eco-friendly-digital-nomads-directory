@@ -7,12 +7,13 @@ export default {
   name: 'cafeDetails',
   title: 'Cafe Details',
   type: 'object',
+  validation: Rule => Rule.required().error('Cafe details are required for cafe listings'),
   fields: [
     {
       name: 'operatingHours',
       title: 'Operating Hours',
-      type: 'string'
-     ,validation: Rule => Rule.required().error('Operating hours are required')
+      type: 'string',
+      validation: Rule => Rule.required().error('Operating hours are required')
     },
     {
       name: 'priceIndication',
@@ -25,8 +26,8 @@ export default {
           { title: '$$$', value: '$$$' },
           { title: '$$$$', value: '$$$$' }
         ]
-      }
-     ,validation: Rule => Rule.required().error('Price indication is required')
+      },
+      validation: Rule => Rule.required().error('Price indication is required')
     },
     {
       name: 'menuHighlights',
@@ -50,53 +51,31 @@ export default {
             ]
           }
         }
-      ]
-     ,validation: Rule => Rule.min(1).warning('Add at least one menu highlight if possible')
+      ],
+      validation: Rule => Rule.min(2).error('Please select at least 2 menu highlights')
     },
     {
-      name: 'wifiReliabilityNotes',
-      title: 'WiFi Reliability Notes',
-      type: 'text',
-      rows: 2
-     ,validation: Rule => Rule.max(300).warning('Keep WiFi notes concise')
-    },
-    {
-      name: 'wifiSpeed',
-      title: 'WiFi Speed (Mbps)',
-      type: 'number'
-    },
-    {
-      name: 'workFriendlySeating',
-      title: 'Work-Friendly Seating',
-      type: 'boolean',
-      description: 'Does the cafe have comfortable seating suitable for working?'
-    },
-    {
-      name: 'powerOutlets',
-      title: 'Power Outlets',
-      type: 'string',
+      name: 'workspaceAmenities',
+      title: 'Workspace Amenities',
+      type: 'array',
+      of: [{ type: 'string' }],
       options: {
         list: [
-          { title: 'Abundant', value: 'abundant' },
-          { title: 'Limited', value: 'limited' },
-          { title: 'Very Few', value: 'very_few' },
-          { title: 'None', value: 'none' }
+          { title: 'Fast WiFi', value: 'fast_wifi' },
+          { title: 'Power Outlets', value: 'power_outlets' },
+          { title: 'Large Tables', value: 'large_tables' },
+          { title: 'Quiet Zones', value: 'quiet_zones' },
+          { title: 'Outdoor Seating', value: 'outdoor_seating' }
         ]
-      }
+      },
+      validation: Rule => Rule.min(1).error('Please specify workspace amenities')
     },
     {
-      name: 'noiseLevel',
-      title: 'Noise Level',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Very Quiet', value: 'very_quiet' },
-          { title: 'Quiet', value: 'quiet' },
-          { title: 'Moderate', value: 'moderate' },
-          { title: 'Loud', value: 'loud' },
-          { title: 'Very Loud', value: 'very_loud' }
-        ]
-      }
+      name: 'maxRecommendedStay',
+      title: 'Maximum Recommended Stay (hours)',
+      type: 'number',
+      validation: Rule => Rule.required().min(1).max(12)
+        .error('Please specify a reasonable maximum stay duration between 1-12 hours')
     }
   ]
 }

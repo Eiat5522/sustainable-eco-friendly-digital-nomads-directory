@@ -1,6 +1,7 @@
 /**
  * City schema for Sanity CMS
  */
+import { imageWithAlt, slugField, descriptionField } from './shared/fields'
 
 export default {
   name: 'city',
@@ -14,40 +15,28 @@ export default {
       validation: Rule => Rule.required()
     },
     {
-      name: 'slug',
-      title: 'Slug',
-      type: 'slug',
-      options: {
-        source: 'name',
-        maxLength: 96
-      },
-      validation: Rule => Rule.required()
+      ...slugField
     },
     {
-      name: 'description',
-      title: 'Description',
-      type: 'text',
+      ...descriptionField,
       rows: 3
     },
     {
       name: 'coordinates',
       title: 'Coordinates',
-      type: 'geopoint'
+      type: 'geopoint',
+      validation: Rule => Rule.required().error('City coordinates are required for mapping')
     },
     {
       name: 'image',
       title: 'City Image',
-      type: 'image',
-      options: {
-        hotspot: true
-      },
-      fields: [
-        {
-          name: 'alt',
-          title: 'Alternative Text',
-          type: 'string'
-        }
-      ]
+      ...imageWithAlt
     }
-  ]
+  ],
+  preview: {
+    select: {
+      title: 'name',
+      media: 'image'
+    }
+  }
 }

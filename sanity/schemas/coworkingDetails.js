@@ -7,12 +7,13 @@ export default {
   name: 'coworkingDetails',
   title: 'Coworking Details',
   type: 'object',
+  validation: Rule => Rule.required().error('Coworking details are required for coworking spaces'),
   fields: [
     {
       name: 'operatingHours',
       title: 'Operating Hours',
-      type: 'string'
-     ,validation: Rule => Rule.required().error('Operating hours are required')
+      type: 'string',
+      validation: Rule => Rule.required().error('Operating hours are required')
     },
     {
       name: 'pricingPlans',
@@ -37,66 +38,44 @@ export default {
                   { title: 'Meeting Room', value: 'meeting_room' },
                   { title: 'Day Pass', value: 'day_pass' }
                 ]
-              }
-              ,validation: Rule => Rule.required().error('Pricing type is required')
+              },
+              validation: Rule => Rule.required().error('Pricing type is required')
             },
             {
               name: 'priceTHB',
               title: 'Price (THB)',
-              type: 'number'
-              ,validation: Rule => Rule.required().min(0).error('Price is required and must be non-negative')
-          ,validation: Rule => Rule.required().error('Each pricing plan must have type and price')
-     ,validation: Rule => Rule.required().min(1).error('At least one pricing plan is required')
+              type: 'number',
+              validation: Rule => Rule.required().min(0).error('Price must be a non-negative number')
             },
             {
-              name: 'priceNotes',
-              title: 'Price Notes',
-              type: 'string'
+              name: 'description',
+              title: 'Description',
+              type: 'string',
+              validation: Rule => Rule.max(200).warning('Keep descriptions concise')
             }
-          ],
-          preview: {
-            select: {
-              title: 'type',
-              subtitle: 'priceTHB'
-            },
-            prepare({ title, subtitle }) {
-              return {
-                title: title,
-                subtitle: subtitle ? `${subtitle} THB` : 'No price set'
-              }
-            }
-          }
+          ]
         }
-      ]
+      ],
+      validation: Rule => Rule.required().min(1).error('At least one pricing plan is required')
     },
     {
-      name: 'specificAmenities',
-      title: 'Specific Amenities',
+      name: 'amenities',
+      title: 'Amenities',
       type: 'array',
-      of: [
-        {
-          type: 'string',
-          options: {
-            list: [
-              { title: 'AC Rooms', value: 'ac_rooms' },
-              { title: 'Outdoor Seating Area', value: 'outdoor_seating_area' },
-              { title: 'Call Rooms/Skype Booths', value: 'skype_booths_call_rooms' },
-              { title: 'Printer/Scanner/Copier', value: 'printer_scanner_copier' },
-              { title: 'Monitor Rental', value: 'monitor_rental_available' },
-              { title: 'On-site Cafe/Restaurant', value: 'on_site_cafe_restaurant' },
-              { title: 'Kitchen Access', value: 'kitchen_access_shared' },
-              { title: 'Personal Lockers', value: 'personal_lockers' },
-              { title: 'Event Space', value: 'event_space_available' },
-              { title: 'Bike Parking', value: 'bike_parking' },
-              { title: 'Car Parking', value: 'car_parking' },
-              { title: 'Private Offices', value: 'private_offices' },
-              { title: 'Coworking Desks', value: 'coworking_desks' },
-              { title: 'Virtual Offices', value: 'virtual_offices' }
-            ]
-          }
-        }
-      ]
-     ,validation: Rule => Rule.min(1).warning('Add at least one amenity if possible')
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'High-speed WiFi', value: 'high_speed_wifi' },
+          { title: 'Meeting Rooms', value: 'meeting_rooms' },
+          { title: 'Standing Desks', value: 'standing_desks' },
+          { title: 'Phone Booths', value: 'phone_booths' },
+          { title: 'Kitchen', value: 'kitchen' },
+          { title: 'Free Coffee/Tea', value: 'free_coffee_tea' },
+          { title: 'Printing Services', value: 'printing' },
+          { title: '24/7 Access', value: '24_7_access' }
+        ]
+      },
+      validation: Rule => Rule.min(1).error('Please specify available amenities')
     }
   ]
 }
