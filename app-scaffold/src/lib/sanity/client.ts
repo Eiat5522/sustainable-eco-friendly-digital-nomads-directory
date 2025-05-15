@@ -1,33 +1,31 @@
-import { createClient } from 'next-sanity';
+import { createClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
-export const projectId = 'sc70w3cr';
-export const dataset = 'production';
-export const apiVersion = '2023-05-14';
-
-export const client = createClient({
-  projectId,
-  dataset,
-  apiVersion, // use a UTC date string
-  useCdn: process.env.NODE_ENV === 'production', // use CDN in production for better performance
-});
-
-// Helper function for image URL generation
-const builder = imageUrlBuilder(client);
-
-export function urlFor(source: any) {
-  return builder.image(source);
+if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
+  throw new Error('Missing NEXT_PUBLIC_SANITY_PROJECT_ID environment variable');
 }
 
-// For preview functionality
-export const getClient = (usePreview = false) => 
-  usePreview 
-    ? createClient({
-        projectId,
-        dataset,
-        apiVersion,
-        useCdn: false, // During previews, we need fresh content
-        token: process.env.SANITY_API_TOKEN, // Needed for preview mode
-      })
-    : client;
-    : client;
+if (!process.env.NEXT_PUBLIC_SANITY_DATASET) {
+  throw new Error('Missing NEXT_PUBLIC_SANITY_DATASET environment variable');
+}
+
+export const sanityConfig = {
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  apiVersion: '2024-05-16',
+  useCdn: process.env.NODE_ENV === 'production',
+};
+
+export const client = createClient(sanityConfig);
+
+export const previewClient = createClient({
+  ...sanityConfig,
+  useCdn: false,
+  token: process.env.SANITY_API_TOKEN,
+});
+
+export const getClient = (preview = false) => (preview ? previewClient : client);
+
+const builder = imageUrlBuilder(client);
+export const urlFor = (source: SanityImageSource) => builder.image(source);

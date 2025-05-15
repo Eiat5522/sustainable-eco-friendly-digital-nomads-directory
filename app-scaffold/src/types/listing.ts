@@ -47,9 +47,11 @@ export interface Listing {
   }>
   city: City
   ecoTags: EcoTag[]
+  ecoRating?: number
   location: {
     lat: number
     lng: number
+    coordinates?: [number, number]
   }
   address: string
   rating: number

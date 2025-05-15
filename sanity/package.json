@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "main": "package.json",
-  "license": "UNLICENSED",  "scripts": {
+  "license": "UNLICENSED",
+  "scripts": {
     "start": "sanity start",
     "build": "sanity build",
     "dev": "sanity dev",
@@ -19,28 +20,30 @@
     "verify:setup": "node scripts/verify-setup.js",    
     "verify:config": "node scripts/verify-config.js",    
     "verify:env": "node scripts/verify-environment.js",
-    "test:xss": "xdg-open scripts/xss-protection-test.html || start scripts/xss-protection-test.html || open scripts/xss-protection-test.html",
+    "test:xss": "node scripts/test-xss.js",
     "test:connection": "node scripts/test-connection.js",
     "check:all": "npm run verify:security && npm run verify:setup && npm run verify:config && npm run verify:env && npm run test:connection && npm audit",
     "validate": "npm run lint && npm run check:all"
   },
   "keywords": [
     "sanity"
-  ],  "dependencies": {    "@sanity/client": "^6.15.0",
-    "@sanity/vision": "^3.26.1",
+  ],
+  "dependencies": {
+    "@sanity/client": "^6.15.0",
+    "@sanity/vision": "^3.29.0",
     "@sanity/icons": "^2.8.0",
-    "@sanity/ui": "^2.15.17",
+    "@sanity/ui": "^2.0.0",
     "@sanity/scheduled-publishing": "^1.4.1",
     "@portabletext/block-tools": "^1.1.24",
-    "sanity": "^3.26.1",
+    "sanity": "^3.29.0",
     "sanity-plugin-media": "^3.1.1",
-    "groq": "^3.26.1",
+    "groq": "^3.29.0",
     "@sanity/image-url": "^1.0.2",
     "styled-components": "^6.1.8",
     "prismjs": "^1.31.0",
     "refractor": "^4.8.1",
     "react-refractor": "^3.1.1",
-    "dompurify": "^3.0.8"
+    "dompurify": "^3.0.11"
   },
   "peerDependencies": {
     "react": "^18.2.0",
@@ -50,39 +53,11 @@
     "@types/react": "^18.2.45",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
-    "dotenv": "^16.3.1",
-    "eslint": "^8.55.0",
+    "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "prettier": "^3.1.1",
-    "typescript": "^5.3.3",
-    "uuid": "^9.0.1"
-  },
-  "resolutions": {
-    "prismjs": "^1.31.0",
-    "refractor": "^4.8.1",
-    "react-refractor": "^3.1.1",
-    "@sanity/**/prismjs": "^1.31.0"
-  },
-  "overrides": {
-    "prismjs": "^1.31.0",
-    "refractor": "^4.8.1",
-    "react-refractor": "^3.1.1"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "security": {
-    "csp": {
-      "enable": true,
-      "policies": {
-        "script-src": ["'self'", "'unsafe-inline'"],
-        "style-src": ["'self'", "'unsafe-inline'"],
-        "img-src": ["'self'", "data:", "https:"],
-        "connect-src": ["'self'", "https://api.sanity.io"]
-      }
-    },
-    "corsOrigins": ["http://localhost:3000", "https://*.your-production-domain.com"],
-    "apiVersion": "2025-05-15"
+    "typescript": "^5.3.3"
   }
 }

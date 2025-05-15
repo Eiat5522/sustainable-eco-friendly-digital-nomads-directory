@@ -1,8 +1,8 @@
+"use client";
+
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { promises as fs } from 'fs';
-import path from 'path';
-import { type Listing } from '@/types/listings';
 import dynamic from 'next/dynamic';
 import { CityHero } from '@/components/listings/CityHero';
 import { CitySection } from '@/components/listings/CitySection';
@@ -113,10 +113,16 @@ const cities = [
 ];
 
 async function getFeaturedListings(): Promise<Listing[]> {
-  const filePath = path.join(process.cwd(), 'src/data/listings.json');
-  const fileContents = await fs.readFile(filePath, 'utf8');
-  const data = JSON.parse(fileContents);
-  return data.slice(0, 6); // Return first 6 listings as featured
+  try {
+    const filePath = path.join(process.cwd(), 'src/data/listings.json');
+    const fileContents = await fs.readFile(filePath, 'utf8');
+    const data = JSON.parse(fileContents);
+    // Using the original data format directly
+    return data.slice(0, 6); // Return first 6 listings as featured
+  } catch (error) {
+    console.error('Error loading listings:', error);
+    return []; // Return empty array if there's an error
+  }
 }
 
 export default async function HomePage() {

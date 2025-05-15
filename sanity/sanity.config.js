@@ -5,27 +5,42 @@
  * See https://www.sanity.io/docs/configuration for more info.
  */
 
-import { defineConfig } from 'sanity'
+import { defineConfig, isDev } from 'sanity'
 import { deskTool } from 'sanity/desk'
 import { visionTool } from '@sanity/vision'
 import { media } from 'sanity-plugin-media'
-import { scheduledPublishing } from '@sanity/scheduled-publishing'
+import { scheduledPublishing, ScheduleAction, ScheduledBadge } from '@sanity/scheduled-publishing'
 import { previewConfig } from './config/preview'
 import { schemaTypes } from './schemas'
 import { structure } from './structure'
 import DOMPurify from 'dompurify'
 
-// Import XSS protection for PrismJS - May 15, 2025
+// Import XSS protection for PrismJS - May 16, 2025
 import './scripts/load-prismjs-protection'
 
 const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'
+const ALLOWED_ORIGINS = [
+  FRONTEND_URL,
+  'https://your-production-domain.com',
+  'https://your-staging-domain.com'
+].filter(Boolean)
+
+// Security headers configuration
+const SECURITY_HEADERS = {
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'Content-Security-Policy': "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';",
+  'X-XSS-Protection': '1; mode=block'
+}
 
 const config = defineConfig({
   name: 'sustainable-nomads',
   title: 'Sustainable Digital Nomads Directory',
   projectId: 'sc70w3cr',
   dataset: 'production',
-    plugins: [
+  plugins: [
     deskTool({
       structure,
       defaultDocumentNode: (S, { schemaType }) => {
@@ -47,19 +62,23 @@ const config = defineConfig({
 
         return S.document().views(views)
       }
-    }),visionTool({
+    }),
+    // Only enable Vision tool in development or for administrators
+    ...(isDev ? [visionTool({
       defaultApiVersion: '2025-05-15',
       defaultDataset: 'production',
-      securityHeaders: {
-        'X-Frame-Options': 'DENY',
-        'X-Content-Type-Options': 'nosniff',
-        'Referrer-Policy': 'strict-origin-when-cross-origin'
-      }
-    }),
+      securityHeaders: SECURITY_HEADERS
+    })] : []),
     media(),
     scheduledPublishing({
       enabled: true,
-      inputDateTimeFormat: 'MM/dd/yyyy h:mm a'
+      inputDateTimeFormat: 'MM/dd/yyyy h:mm a',
+      // Only allow admins and editors to schedule content
+      permissions: ({ currentUser }) => {
+        return currentUser?.roles?.some(role => 
+          ['administrator', 'editor'].includes(role.name)
+        )
+      }
     })
   ],
 
@@ -68,22 +87,51 @@ const config = defineConfig({
   },
 
   document: {
-    // Enhanced document actions
-    actions: (prev, { schemaType }) => {
+    // Enhanced document actions with role-based access
+    actions: (prev, { schemaType, currentUser }) => {
+      // Filter actions based on user role
+      const isAdmin = currentUser?.roles?.some(role => role.name === 'administrator')
+      const isEditor = currentUser?.roles?.some(role => role.name === 'editor')
+      
+      let actions = prev
+
+      // Remove delete action for certain schema types
       if (['listing', 'blogPost', 'event'].includes(schemaType)) {
-        return prev.filter(action => action.action !== 'delete')
+        actions = actions.filter(action => action.action !== 'delete')
+      }
+
+      // Only show schedule action for admins and editors
+      if (!isAdmin && !isEditor) {
+        actions = actions.filter(action => action !== ScheduleAction)
+      }
+
+      return actions
+    },
+    // Only show schedule badge for admins and editors
+    badges: (prev, { schemaType, currentUser }) => {
+      const isAdmin = currentUser?.roles?.some(role => role.name === 'administrator')
+      const isEditor = currentUser?.roles?.some(role => role.name === 'editor')
+
+      if (!isAdmin && !isEditor) {
+        return prev.filter(badge => badge !== ScheduledBadge)
       }
       return prev
     },
     preview: previewConfig
   },
 
-  // Added security and performance optimizations
+  // Enhanced security and performance optimizations
   api: {
     projectId: 'sc70w3cr',
     dataset: 'production',
     useCdn: process.env.NODE_ENV === 'production',
     withCredentials: true,
+    cors: {
+      credentials: true,
+      origin: ALLOWED_ORIGINS,
+      headers: Object.keys(SECURITY_HEADERS),
+    },
+    maxRequestsPerSecond: 100, // Rate limiting
   },
 
   form: {
@@ -92,11 +140,19 @@ const config = defineConfig({
         { name: 'media-library', title: 'Media Library' },
         { name: 'asset-library', title: 'Asset Library' }
       ],
-      directUploads: true
+      // Enable file type validation
+      accept: 'image/jpeg, image/png, image/webp, image/gif',
+      directUploads: true,
+      // Add file size limits
+      maxSize: 5 * 1024 * 1024 // 5MB
     },
     file: {
       assetSources: ['media-library', 'asset-library'],
-      directUploads: true
+      // Enable file type validation
+      accept: '.pdf,.doc,.docx,.txt',
+      directUploads: true,
+      // Add file size limits
+      maxSize: 10 * 1024 * 1024 // 10MB
     }
   },
   security: {
