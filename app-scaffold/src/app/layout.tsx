@@ -4,6 +4,7 @@ import './globals.css';
 import 'leaflet/dist/leaflet.css';
 import Layout from '@/components/layout/Layout';
 import { draftMode } from 'next/headers';
+import AuthProvider from '@/components/auth/AuthProvider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -31,9 +32,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable}`}>
       <body className={`${inter.className} antialiased`}>
-        <Layout preview={isPreview}>
-          {children}
-        </Layout>
+        <AuthProvider>
+          <Layout preview={isPreview}>
+            {children}
+          </Layout>
+        </AuthProvider>
       </body>
     </html>
   );
