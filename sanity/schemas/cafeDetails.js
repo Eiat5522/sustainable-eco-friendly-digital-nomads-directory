@@ -76,6 +76,101 @@ export default {
       type: 'number',
       validation: Rule => Rule.required().min(1).max(12)
         .error('Please specify a reasonable maximum stay duration between 1-12 hours')
+    },
+    {
+      name: 'noiseLevel',
+      title: 'Typical Noise Level',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Very Quiet', value: 'very_quiet' },
+          { title: 'Low Hum', value: 'low' },
+          { title: 'Moderate', value: 'moderate' },
+          { title: 'Energetic', value: 'high' },
+          { title: 'Very Loud', value: 'very_loud' }
+        ]
+      },
+      validation: Rule => Rule.required()
+    },
+    {
+      name: 'powerOutlets',
+      title: 'Power Outlet Availability',
+      type: 'object',
+      fields: [
+        {
+          name: 'availability',
+          title: 'Availability',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Abundant (Every Table)', value: 'abundant' },
+              { title: 'Good (Most Tables)', value: 'good' },
+              { title: 'Limited (Some Tables)', value: 'limited' },
+              { title: 'Very Limited', value: 'very_limited' },
+              { title: 'None', value: 'none' }
+            ]
+          }
+        },
+        {
+          name: 'notes',
+          title: 'Notes',
+          type: 'text',
+          rows: 2
+        }
+      ]
+    },
+    {
+      name: 'workPolicy',
+      title: 'Work Policy',
+      type: 'object',
+      fields: [
+        {
+          name: 'laptopsAllowed',
+          title: 'Laptops Allowed',
+          type: 'boolean'
+        },
+        {
+          name: 'timeLimit',
+          title: 'Time Limit (minutes)',
+          type: 'number',
+          validation: Rule => Rule.min(0)
+        },
+        {
+          name: 'peakHoursPolicy',
+          title: 'Peak Hours Policy',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Always Welcome', value: 'always' },
+              { title: 'Limited During Peak', value: 'limited_peak' },
+              { title: 'Not Allowed During Peak', value: 'no_peak' }
+            ]
+          }
+        },
+        {
+          name: 'peakHours',
+          title: 'Peak Hours',
+          type: 'string'
+        }
+      ]
+    },
+    {
+      name: 'veganFriendly',
+      title: 'Vegan Friendly',
+      type: 'object',
+      fields: [
+        {
+          name: 'isVeganFriendly',
+          title: 'Is Vegan Friendly',
+          type: 'boolean'
+        },
+        {
+          name: 'veganOptions',
+          title: 'Percentage of Vegan Options',
+          type: 'number',
+          validation: Rule => Rule.min(0).max(100)
+        }
+      ]
     }
   ]
 }

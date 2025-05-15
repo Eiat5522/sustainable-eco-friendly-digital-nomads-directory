@@ -111,21 +111,105 @@ export default {
       validation: Rule => Rule.required().min(1).error('Please specify minimum stay duration')
     },
     {
-      name: 'workspaceFeatures',
-      title: 'Workspace Features',
-      type: 'array',
-      of: [{ type: 'string' }],
-      options: {
-        list: [
-          { title: 'Desk in Room', value: 'desk_in_room' },
-          { title: 'Ergonomic Chair', value: 'ergonomic_chair' },
-          { title: 'Good Lighting', value: 'good_lighting' },
-          { title: 'Fast WiFi in Room', value: 'fast_wifi_room' },
-          { title: 'Coworking Space', value: 'coworking_space' },
-          { title: 'Multiple Power Outlets', value: 'power_outlets' }
-        ]
-      },
-      validation: Rule => Rule.min(1).error('Please specify workspace features')
+      name: 'coworkingPartnership',
+      title: 'Coworking Partnership',
+      type: 'object',
+      fields: [
+        {
+          name: 'hasPartnership',
+          title: 'Has Coworking Partnership',
+          type: 'boolean'
+        },
+        {
+          name: 'partner',
+          title: 'Partner Space',
+          type: 'reference',
+          to: [{ type: 'listing' }],
+          options: {
+            filter: 'category == "coworking"'
+          },
+          hidden: ({ parent }) => !parent?.hasPartnership
+        },
+        {
+          name: 'discountDetails',
+          title: 'Discount Details',
+          type: 'text',
+          rows: 2,
+          hidden: ({ parent }) => !parent?.hasPartnership
+        }
+      ]
+    },
+    {
+      name: 'workspaceQuality',
+      title: 'Workspace Quality',
+      type: 'object',
+      fields: [
+        {
+          name: 'hasWorkspace',
+          title: 'Has Dedicated Workspace',
+          type: 'boolean'
+        },
+        {
+          name: 'workspaceType',
+          title: 'Workspace Type',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Proper Desk', value: 'proper_desk' },
+              { title: 'Ergonomic Setup', value: 'ergonomic' },
+              { title: 'Basic Table', value: 'basic' },
+              { title: 'Shared Space', value: 'shared' }
+            ]
+          },
+          hidden: ({ parent }) => !parent?.hasWorkspace
+        },
+        {
+          name: 'workspaceFeatures',
+          title: 'Workspace Features',
+          type: 'array',
+          of: [{ type: 'string' }],
+          options: {
+            list: [
+              { title: 'Ergonomic Chair', value: 'ergonomic_chair' },
+              { title: 'Desk Lamp', value: 'desk_lamp' },
+              { title: 'Monitor', value: 'monitor' },
+              { title: 'Natural Light', value: 'natural_light' }
+            ]
+          },
+          hidden: ({ parent }) => !parent?.hasWorkspace
+        }
+      ]
+    },
+    {
+      name: 'stayDuration',
+      title: 'Stay Duration',
+      type: 'object',
+      fields: [
+        {
+          name: 'minimumNights',
+          title: 'Minimum Nights',
+          type: 'number',
+          validation: Rule => Rule.required().min(1)
+        },
+        {
+          name: 'maximumNights',
+          title: 'Maximum Nights',
+          type: 'number',
+          validation: Rule => Rule.min(1)
+        },
+        {
+          name: 'longTermAvailable',
+          title: 'Long-term Stay Available',
+          type: 'boolean'
+        },
+        {
+          name: 'longTermDiscount',
+          title: 'Long-term Stay Discount',
+          type: 'text',
+          rows: 2,
+          hidden: ({ parent }) => !parent?.longTermAvailable
+        }
+      ]
     }
   ]
 }

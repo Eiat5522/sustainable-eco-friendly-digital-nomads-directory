@@ -5,6 +5,13 @@ import 'leaflet/dist/leaflet.css';
 import Layout from '@/components/layout/Layout';
 import { draftMode } from 'next/headers';
 import AuthProvider from '@/components/auth/AuthProvider';
+import dynamic from 'next/dynamic';
+
+// Dynamically import web vitals reporter to avoid SSR issues
+const WebVitalsReporter = dynamic(
+  () => import('@/lib/performance/web-vitals-reporter').then((mod) => mod.default),
+  { ssr: false }
+);
 
 const inter = Inter({
   subsets: ['latin'],

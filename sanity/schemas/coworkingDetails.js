@@ -76,6 +76,80 @@ export default {
         ]
       },
       validation: Rule => Rule.min(1).error('Please specify available amenities')
+    },
+    {
+      name: 'internetSpeed',
+      title: 'Internet Speed',
+      type: 'object',
+      fields: [
+        {
+          name: 'download',
+          title: 'Download Speed (Mbps)',
+          type: 'number',
+          validation: Rule => Rule.min(0)
+        },
+        {
+          name: 'upload',
+          title: 'Upload Speed (Mbps)',
+          type: 'number',
+          validation: Rule => Rule.min(0)
+        },
+        {
+          name: 'lastTested',
+          title: 'Last Tested',
+          type: 'datetime'
+        },
+        {
+          name: 'redundancy',
+          title: 'Internet Redundancy',
+          type: 'boolean',
+          description: 'Does the space have backup internet connection?'
+        }
+      ]
+    },
+    {
+      name: 'events',
+      title: 'Events & Workshops',
+      type: 'array',
+      of: [{
+        type: 'reference',
+        to: [{ type: 'event' }]
+      }]
+    },
+    {
+      name: 'accessPolicy',
+      title: 'Access Policy',
+      type: 'object',
+      fields: [
+        {
+          name: 'hours',
+          title: '24/7 Access',
+          type: 'boolean'
+        },
+        {
+          name: 'membershipRequired',
+          title: 'Membership Required',
+          type: 'boolean'
+        },
+        {
+          name: 'dayPassAvailable',
+          title: 'Day Pass Available',
+          type: 'boolean'
+        },
+        {
+          name: 'guestPolicy',
+          title: 'Guest Policy',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'No Guests', value: 'no_guests' },
+              { title: 'Paid Guest Pass', value: 'paid' },
+              { title: 'Free Guest Pass', value: 'free' },
+              { title: 'Members Only', value: 'members' }
+            ]
+          }
+        }
+      ]
     }
   ]
 }

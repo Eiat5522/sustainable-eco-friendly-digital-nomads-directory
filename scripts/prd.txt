@@ -6,20 +6,26 @@ Build a comprehensive, performant, and user-friendly directory of sustainable ve
 
 ---
 
-## High-Level Goals
-- Integrate a headless CMS for content management
-- Add authentication and role-based access
-- Optimize map performance and user experience
-- Complete image sourcing and optimization
-- Maintain comprehensive documentation
+## High-Level Goals & Current Priorities (Updated: May 15, 2025)
+1. Security & Infrastructure
+   - URGENT: Resolve PrismJS vulnerability in Sanity integration
+   - Complete Sanity CMS integration (chosen over Strapi CE)
+   - Set up authentication and role-based access
+   - Ensure secure API endpoints and data handling
+
+2. Content & Performance
+   - Complete image sourcing and optimization
+   - Implement efficient content delivery
+   - Optimize map performance and user experience
+   - Maintain comprehensive documentation
 
 ---
 
-## Phase 2: CMS Integration
+## Phase 2: Sanity CMS Integration (In Progress)
 
 ### Objectives
-- Evaluate Strapi CE vs Sanity (features, pricing, performance, community, integration complexity)
-- Decide on self-hosted vs managed
+- CRITICAL: Resolve PrismJS vulnerability in current Sanity setup
+- Note: Sanity has been chosen as CMS solution (see cms_comparison.md)
 - Design content models (Listings, Users, Reviews, Media)
 - Set up and configure CMS (local/dev environment)
 - Implement content models and asset management

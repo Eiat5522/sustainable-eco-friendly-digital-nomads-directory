@@ -135,22 +135,122 @@ export default {
       validation: Rule => Rule.required()
     },
     {
+      name: 'ecoScore',
+      title: 'Eco-friendly Score',
+      type: 'object',
+      fields: [
+        {
+          name: 'score',
+          title: 'Score',
+          type: 'number',
+          validation: Rule => Rule.required().min(1).max(5)
+        },
+        {
+          name: 'certifications',
+          title: 'Eco Certifications',
+          type: 'array',
+          of: [{ type: 'string' }],
+          options: {
+            list: [
+              { title: 'Green Globe', value: 'green_globe' },
+              { title: 'Earth Check', value: 'earth_check' },
+              { title: 'Rainforest Alliance', value: 'rainforest_alliance' },
+              { title: 'Local Eco Cert', value: 'local_eco' }
+            ]
+          }
+        },
+        {
+          name: 'justification',
+          title: 'Score Justification',
+          type: 'text',
+          rows: 3,
+          validation: Rule => Rule.required()
+        }
+      ]
+    },
+    {
       name: 'languages',
-      title: 'Languages',
+      title: 'Language Options',
       type: 'array',
       of: [{ type: 'string' }],
       options: {
         list: [
-          { title: 'English', value: 'english' },
-          { title: 'Thai', value: 'thai' },
-          { title: 'Chinese', value: 'chinese' },
-          { title: 'Japanese', value: 'japanese' },
-          { title: 'Korean', value: 'korean' },
-          { title: 'French', value: 'french' },
-          { title: 'German', value: 'german' }
+          { title: 'English', value: 'en' },
+          { title: 'Thai', value: 'th' },
+          { title: 'Chinese', value: 'zh' },
+          { title: 'Japanese', value: 'ja' },
+          { title: 'Korean', value: 'ko' },
+          { title: 'German', value: 'de' },
+          { title: 'French', value: 'fr' },
+          { title: 'Spanish', value: 'es' }
         ]
       },
-      validation: Rule => Rule.required().min(1).error('Please specify available languages')
+      validation: Rule => Rule.required().min(1)
+    },
+    {
+      name: 'accessibility',
+      title: 'Accessibility',
+      type: 'object',
+      fields: [
+        {
+          name: 'wheelchairAccessible',
+          title: 'Wheelchair Accessible',
+          type: 'boolean'
+        },
+        {
+          name: 'mobilityLevel',
+          title: 'Required Mobility Level',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Easy - Suitable for All', value: 'easy' },
+              { title: 'Moderate - Some Walking', value: 'moderate' },
+              { title: 'Challenging - Active', value: 'challenging' },
+              { title: 'Difficult - Very Active', value: 'difficult' }
+            ]
+          }
+        },
+        {
+          name: 'accessibilityNotes',
+          title: 'Accessibility Notes',
+          type: 'text',
+          rows: 3
+        }
+      ]
+    },
+    {
+      name: 'seasonality',
+      title: 'Seasonality',
+      type: 'object',
+      fields: [
+        {
+          name: 'bestMonths',
+          title: 'Best Months',
+          type: 'array',
+          of: [{ type: 'string' }],
+          options: {
+            list: [
+              { title: 'January', value: '01' },
+              { title: 'February', value: '02' },
+              { title: 'March', value: '03' },
+              { title: 'April', value: '04' },
+              { title: 'May', value: '05' },
+              { title: 'June', value: '06' },
+              { title: 'July', value: '07' },
+              { title: 'August', value: '08' },
+              { title: 'September', value: '09' },
+              { title: 'October', value: '10' },
+              { title: 'November', value: '11' },
+              { title: 'December', value: '12' }
+            ]
+          }
+        },
+        {
+          name: 'weatherDependent',
+          title: 'Weather Dependent',
+          type: 'boolean'
+        }
+      ]
     }
   ]
 }

@@ -132,6 +132,123 @@ export default {
       initialValue: 0,
       validation: Rule => Rule.min(0)
     },
+    {
+      name: 'contactInfo',
+      title: 'Contact Information',
+      type: 'object',
+      fields: [
+        {
+          name: 'contactPerson',
+          title: 'Contact Person',
+          type: 'string'
+        },
+        {
+          name: 'email',
+          title: 'Email',
+          type: 'string',
+          validation: Rule => Rule.email()
+        },
+        {
+          name: 'phone',
+          title: 'Phone',
+          type: 'string'
+        },
+        {
+          name: 'socialMedia',
+          title: 'Social Media',
+          type: 'array',
+          of: [{
+            type: 'object',
+            fields: [
+              {
+                name: 'platform',
+                title: 'Platform',
+                type: 'string',
+                options: {
+                  list: [
+                    { title: 'Facebook', value: 'facebook' },
+                    { title: 'Instagram', value: 'instagram' },
+                    { title: 'Twitter', value: 'twitter' },
+                    { title: 'LinkedIn', value: 'linkedin' }
+                  ]
+                }
+              },
+              {
+                name: 'url',
+                title: 'URL',
+                type: 'url'
+              }
+            ]
+          }]
+        }
+      ]
+    },
+    {
+      name: 'customTags',
+      title: 'Custom Tags',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        layout: 'tags',
+        suggestions: [
+          'pet-friendly',
+          'female-friendly',
+          'outdoor',
+          'digital-nomad-hotspot',
+          'family-friendly',
+          'lgbtq-friendly',
+          'accessible',
+          'quiet',
+          'social'
+        ]
+      }
+    },
+    {
+      name: 'virtualTour',
+      title: 'Virtual Tour',
+      type: 'object',
+      fields: [
+        {
+          name: 'type',
+          title: 'Type',
+          type: 'string',
+          options: {
+            list: [
+              { title: '360° Tour', value: '360' },
+              { title: 'Video Tour', value: 'video' },
+              { title: 'Photo Gallery Tour', value: 'photos' }
+            ]
+          }
+        },
+        {
+          name: 'url',
+          title: 'URL',
+          type: 'url'
+        }
+      ]
+    },
+    {
+      name: 'accessibility',
+      title: 'Accessibility Features',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'Wheelchair Accessible', value: 'wheelchair' },
+          { title: 'Step-free Access', value: 'step_free' },
+          { title: 'Accessible Bathroom', value: 'accessible_bathroom' },
+          { title: 'Accessible Parking', value: 'accessible_parking' },
+          { title: 'Service Animals Welcome', value: 'service_animals' }
+        ]
+      }
+    },
+    {
+      name: 'completenessScore',
+      title: 'Listing Completeness Score',
+      type: 'number',
+      readOnly: true,
+      description: 'Automatically calculated based on filled fields'
+    },
     // Conditional fields based on category
     {
       name: 'coworkingDetails',

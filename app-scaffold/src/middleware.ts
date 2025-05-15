@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { withAuth } from './lib/auth/withAuth';
+import { updateSessionActivity } from './middleware/session';
+import { createServerTiming } from './middleware/server-timing';
 
 export async function middleware(request: NextRequest) {
+  // Update session activity for all requests
+  await updateSessionActivity(request);
+
   const pathname = request.nextUrl.pathname;
   
   // Admin routes protection
@@ -22,11 +27,9 @@ export async function middleware(request: NextRequest) {
   
   // API routes that need protection
   if (pathname.startsWith('/api/restricted')) {
-    // This is a catch-all for any API routes that should be authenticated
     return withAuth(request);
   }
   
-  // Continue with the request if no protection needed
   return NextResponse.next();
 }
 
@@ -37,5 +40,7 @@ export const config = {
     '/profile/:path*',
     '/listings/manage/:path*',
     '/api/restricted/:path*',
+    // Add more paths that need session tracking
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };

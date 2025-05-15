@@ -8,6 +8,12 @@ import dynamic from 'next/dynamic';
 // Dynamically import the preview banner to avoid SSR issues
 const PreviewBanner = dynamic(() => import('./PreviewBanner'), { ssr: false });
 
+// Dynamically import web vitals reporter to avoid SSR issues
+const WebVitalsReporter = dynamic(
+  () => import('@/lib/performance/web-vitals-reporter').then((mod) => mod.WebVitalsReporter),
+  { ssr: false }
+);
+
 interface LayoutProps {
   children: ReactNode;
   preview?: boolean;

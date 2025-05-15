@@ -14,6 +14,9 @@ import event from './event'
 import user from './user'
 import blogPost from './blogPost'
 import comment from './comment'
+import eventRegistration from './eventRegistration'
+import listingAnalytics from './listingAnalytics'
+import userPreference from './userPreference'
 
 // Export the schema types
 export const schemaTypes = [
@@ -26,6 +29,9 @@ export const schemaTypes = [
   event,
   user,
   blogPost,
+  eventRegistration,
+  listingAnalytics,
+  userPreference,
   // Objects
   coworkingDetails,
   cafeDetails,

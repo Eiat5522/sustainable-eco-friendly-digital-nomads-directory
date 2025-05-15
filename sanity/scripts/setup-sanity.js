@@ -65,12 +65,65 @@ function printSetupInstructions() {
   console.log('6. Add it to your .env file as SANITY_TEST_TOKEN\n')
 }
 
+async function verifySanitySetup() {
+  console.log('🔍 Verifying Sanity setup and security...');
+
+  // Check dependencies
+  const depCheck = await checkDependencies();
+  if (!depCheck.success) {
+    throw new Error(`Dependency check failed: ${depCheck.error}`);
+  }
+
+  // Verify security settings
+  const securityCheck = await verifySecuritySettings();
+  if (!securityCheck.success) {
+    throw new Error(`Security verification failed: ${securityCheck.error}`);
+  }
+
+  // Verify API configuration
+  await verifyApiConfig();
+
+  console.log('✅ Sanity setup verification complete');
+}
+
+async function verifySecuritySettings() {
+  try {
+    const config = await import('../sanity.config.js');
+    const security = config.default.security || {};
+
+    // Verify CSP
+    if (!security.contentSecurityPolicy?.directives) {
+      return { success: false, error: 'Missing Content Security Policy' };
+    }
+
+    // Verify CORS
+    if (!security.cors?.origin) {
+      return { success: false, error: 'Missing CORS configuration' };
+    }
+
+    // Verify authentication
+    if (!security.authentication?.requireLogin) {
+      return { success: false, error: 'Authentication not properly configured' };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
 // Main execution
 async function main() {
   const isValid = await validateSetup()
   if (!isValid) {
     printSetupInstructions()
     process.exit(1)
+  }
+  try {
+    await verifySanitySetup();
+  } catch (error) {
+    console.error('❌ Setup failed:', error.message);
+    process.exit(1);
   }
   console.log('\n✨ Setup validation complete!\n')
 }

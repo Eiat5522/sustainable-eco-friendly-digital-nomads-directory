@@ -28,7 +28,7 @@ This document outlines the key technology choices and architectural decisions fo
   - *Implementation:* Using stable version 1.9.4 for reliable mapping functionality.
 - **Deployment & Hosting:** Vercel (Hobby free tier)
   - *Justification:* Offers excellent native support for Next.js, integrated CI/CD, serverless functions, global CDN, and a generous free tier for initial deployment.
-- **Payments:** Stripe
+- **Payments:** Stripe (Post-MVP)
   - *Justification:* Developer-friendly APIs, secure payment processing, pay-as-you-go pricing model, and widely trusted for online transactions.
 - **Authentication (Choice TBD during setup):**
     - Option 1: NextAuth.js (open-source)

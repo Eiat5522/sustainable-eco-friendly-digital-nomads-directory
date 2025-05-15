@@ -96,7 +96,7 @@ This document provides a high-level overview of the 'Sustainable Digital Nomads 
    - Header and Footer components frame the content.
    - Listing-specific components handle the display of directory data.
 
-## External Dependencies (Current Implementation)
+## External Dependencies (Current Implementation, Post-MVP)
 - **Core Frameworks:**
   - Next.js 15.3.2 (with TypeScript and App Router)
   - React 19.0.0

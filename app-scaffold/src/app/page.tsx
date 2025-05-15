@@ -3,6 +3,128 @@ import Image from 'next/image';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { type Listing } from '@/types/listings';
+import dynamic from 'next/dynamic';
+import { CityHero } from '@/components/listings/CityHero';
+import { CitySection } from '@/components/listings/CitySection';
+
+// Dynamically import CityCarousel to avoid hydration issues
+const DynamicCityCarousel = dynamic(() => import('@/components/listings/CityCarousel'), {
+  ssr: false,
+  loading: () => (
+    <div className="aspect-[2/1] lg:aspect-[3/1] bg-gray-200 animate-pulse rounded-lg" />
+  ),
+});
+
+const cities = [
+  {
+    id: '1',
+    name: 'Chiang Mai',
+    imageUrl: '/images/listings/chiang-mai-hero.jpg',
+    description: 'A digital nomad haven with ancient temples and modern coworking spaces, all embracing sustainable practices.',
+    slug: 'chiang-mai',
+    listingsCount: 45
+  },
+  {
+    id: '2',
+    name: 'Bangkok',
+    imageUrl: '/images/listings/bangkok-hero.jpg',
+    description: 'Where modern eco-innovation meets traditional Thai culture in this bustling metropolis.',
+    slug: 'bangkok',
+    listingsCount: 38
+  },
+  {
+    id: '3',
+    name: 'Phuket',
+    imageUrl: '/images/listings/phuket-hero.jpg',
+    description: 'Paradise island with a growing sustainable tourism movement and remote work infrastructure.',
+    slug: 'phuket',
+    listingsCount: 32
+  },
+  {
+    id: '4',
+    name: 'Koh Lanta',
+    imageUrl: '/images/listings/koh-lanta-hero.jpg',
+    description: 'An island sanctuary for digital nomads focused on eco-tourism and sustainable living.',
+    slug: 'koh-lanta',
+    listingsCount: 25
+  },
+  {
+    id: '5',
+    name: 'Pai',
+    imageUrl: '/images/listings/pai-hero.jpg',
+    description: 'A mindful mountain community with organic cafes and eco-resorts.',
+    slug: 'pai',
+    listingsCount: 20
+  }
+];
+import dynamic from 'next/dynamic';
+import { CityHero } from '@/components/listings/CityHero';
+import { CitySection } from '@/components/listings/CitySection';
+
+// Dynamically import CityCarousel to avoid hydration issues
+const DynamicCityCarousel = dynamic(() => import('@/components/listings/CityCarousel'), {
+  ssr: false,
+  loading: () => (
+    <div className="aspect-[2/1] lg:aspect-[3/1] bg-gray-200 animate-pulse rounded-lg" />
+  ),
+});
+
+const cities = [
+  {
+    id: '1',
+    name: 'Chiang Mai',
+    imageUrl: '/images/listings/chiang-mai-hero.jpg',
+    description: 'A digital nomad haven with ancient temples and modern coworking spaces, all embracing sustainable practices.',
+    slug: 'chiang-mai',
+    listingsCount: 45
+  },
+  {
+    id: '2',
+    name: 'Bangkok',
+    imageUrl: '/images/listings/bangkok-hero.jpg',
+    description: 'Where modern eco-innovation meets traditional Thai culture in this bustling metropolis.',
+    slug: 'bangkok',
+    listingsCount: 38
+  },
+  {
+    id: '3',
+    name: 'Phuket',
+    imageUrl: '/images/listings/phuket-hero.jpg',
+    description: 'Paradise island with a growing sustainable tourism movement and remote work infrastructure.',
+    slug: 'phuket',
+    listingsCount: 32
+  },
+  {
+    id: '4',
+    name: 'Koh Lanta',
+    imageUrl: '/images/listings/koh-lanta-hero.jpg',
+    description: 'An island sanctuary for digital nomads focused on eco-tourism and sustainable living.',
+    slug: 'koh-lanta',
+    listingsCount: 25
+  },
+  {
+    id: '5',
+    name: 'Pai',
+    imageUrl: '/images/listings/pai-hero.jpg',
+    description: 'A mindful mountain community with organic cafes and eco-resorts.',
+    slug: 'pai',
+    listingsCount: 20
+  }
+];
+
+async function getFeaturedListings(): Promise<Listing[]> {
+  const filePath = path.join(process.cwd(), 'src/data/listings.json');
+  const fileContents = await fs.readFile(filePath, 'utf8');
+  const data = JSON.parse(fileContents);
+  return data.slice(0, 6); // Return first 6 listings as featured
+}
+
+export default async function HomePage() {
+  const featuredListings = await getFeaturedListings();m 'next/link';
+import Image from 'next/image';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { type Listing } from '@/types/listings';
 
 async function getFeaturedListings(): Promise<Listing[]> {
   const filePath = path.join(process.cwd(), 'src/data/listings.json');
@@ -16,25 +138,23 @@ export default async function HomePage() {
 
   return (
     <div>
-      {/* Hero Section */}
-      <section className="bg-primary-500 text-white py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Sustainable Spaces for Digital Nomads in Thailand
-            </h1>
-            <p className="text-lg md:text-xl mb-8">
-              Discover eco-friendly coworking spaces, cafes, and accommodations that match your values.
-            </p>
-            <Link 
-              href="/listings"
-              className="inline-block bg-white text-primary-600 px-8 py-3 rounded-lg font-semibold hover:bg-primary-100 transition-colors"
-            >
-              Browse Listings
-            </Link>
-          </div>
-        </div>
+      {/* City Carousel */}
+      <section className="relative">
+        <DynamicCityCarousel cities={cities} />
       </section>
+
+      {/* Featured City Section */}
+      <CitySection
+        city={cities[0]} // Featuring Chiang Mai
+        listingStats={{
+          coworking: 15,
+          cafe: 12,
+          accommodation: 8,
+          restaurant: 6,
+          activity: 4
+        }}
+        className="bg-gray-50"
+      />
 
       {/* Featured Listings */}
       <section className="py-16 bg-gray-50">

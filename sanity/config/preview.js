@@ -4,11 +4,17 @@
  */
 
 const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000'
+const PREVIEW_SECRET = process.env.SANITY_STUDIO_PREVIEW_SECRET
+
+if (!PREVIEW_SECRET) {
+  console.warn('Warning: SANITY_STUDIO_PREVIEW_SECRET not set')
+}
 
 // Shared resolver functions
 const getSlugUrl = (doc, type) => {
   if (!doc.slug?.current) return null
-  return `${FRONTEND_URL}/${type}/${doc.slug.current}`
+  const baseUrl = `${FRONTEND_URL}/${type}/${doc.slug.current}`
+  return PREVIEW_SECRET ? `${baseUrl}?preview=${PREVIEW_SECRET}` : baseUrl
 }
 
 export const previewConfig = {
