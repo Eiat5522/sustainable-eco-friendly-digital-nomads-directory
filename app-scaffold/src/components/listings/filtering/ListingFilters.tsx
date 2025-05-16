@@ -1,12 +1,15 @@
 'use client';
 
 import { useCallback, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { debounce } from 'lodash';
 import { Badge } from '@/components/ui/badge';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { SearchInput } from '@/components/ui/search';
+import { formatPrice } from '@/lib/utils';
+import { Filter, X } from 'lucide-react';
 import type { Listing } from '@/types/listings';
 import type { SanityListing } from '@/types/sanity';
 
@@ -14,6 +17,7 @@ interface ListingFiltersProps {
   listings: (Listing | SanityListing)[];
   onFilterChange: (filters: FilterState) => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 interface FilterState {
@@ -28,66 +32,73 @@ interface FilterState {
   sustainableOnly: boolean;
 }
 
+const INITIAL_FILTER_STATE: FilterState = {
+  searchQuery: '',
+  category: null,
+  city: null,
+  ecoTags: [],
+  nomadFeatures: [],
+  priceRange: [0, 50000],
+  minRating: null,
+  wifi: false,
+  sustainableOnly: false,
+};
+
 export default function ListingFilters({
   listings,
   onFilterChange,
   className = '',
+  isLoading = false,
 }: ListingFiltersProps) {
-  const [filters, setFilters] = useState<FilterState>({
-    searchQuery: '',
-    category: null,
-    city: null,
-    ecoTags: [],
-    nomadFeatures: [],
-    priceRange: [0, 50000],
-    minRating: null,
-    wifi: false,
-    sustainableOnly: false,
-  });
+  const [filters, setFilters] = useState<FilterState>(INITIAL_FILTER_STATE);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   // Extract unique filter options from listings
   const categories = Array.from(new Set(listings.map(l => l.category)));
   const cities = Array.from(new Set(listings.map(l => {
     if ('city' in l && typeof l.city === 'string') return l.city;
-    return (l as Listing).city;
+    return null;
   }).filter(Boolean)));
-  
-  const allEcoTags = Array.from(new Set(listings.flatMap(l => {
-    if ('ecoTags' in l) return l.ecoTags || [];
-    return (l as Listing).eco_focus_tags || [];
-  })));
-  
-  const allNomadFeatures = Array.from(new Set(listings.flatMap(l => {
-    if ('nomadFeatures' in l) return l.nomadFeatures || [];
-    return (l as Listing).digital_nomad_features || [];
-  })));
 
-  // Debounced search handler
-  const debouncedSearch = useCallback(
-    debounce((query: string) => {
-      setFilters(prev => ({ ...prev, searchQuery: query }));
+  // Handler for mobile filters toggle
+  const toggleMobileFilters = () => {
+    setIsMobileFiltersOpen(!isMobileFiltersOpen);
+  };
+
+  // Debounced filter handler
+  const debouncedFilterChange = useCallback(
+    debounce((newFilters: FilterState) => {
+      onFilterChange(newFilters);
     }, 300),
-    []
+    [onFilterChange]
   );
 
   useEffect(() => {
-    onFilterChange(filters);
-  }, [filters, onFilterChange]);
+    debouncedFilterChange(filters);
+    return () => {
+      debouncedFilterChange.cancel();
+    };
+  }, [filters, debouncedFilterChange]);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    debouncedSearch(e.target.value);
+  const handleSearchChange = (value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      searchQuery: value
+    }));
   };
 
   const handleCategoryChange = (category: string | null) => {
-    setFilters(prev => ({ ...prev, category }));
+    setFilters(prev => ({
+      ...prev,
+      category
+    }));
   };
 
   const handleCityChange = (city: string | null) => {
-    setFilters(prev => ({ ...prev, city }));
-  };
-
-  const handleRatingChange = (rating: number | null) => {
-    setFilters(prev => ({ ...prev, minRating: rating }));
+    setFilters(prev => ({
+      ...prev,
+      city
+    }));
   };
 
   const handleEcoTagToggle = (tag: string) => {
@@ -95,7 +106,7 @@ export default function ListingFilters({
       ...prev,
       ecoTags: prev.ecoTags.includes(tag)
         ? prev.ecoTags.filter(t => t !== tag)
-        : [...prev.ecoTags, tag],
+        : [...prev.ecoTags, tag]
     }));
   };
 
@@ -104,182 +115,298 @@ export default function ListingFilters({
       ...prev,
       nomadFeatures: prev.nomadFeatures.includes(feature)
         ? prev.nomadFeatures.filter(f => f !== feature)
-        : [...prev.nomadFeatures, feature],
+        : [...prev.nomadFeatures, feature]
     }));
   };
 
   const handlePriceRangeChange = (value: number[]) => {
-    setFilters(prev => ({ ...prev, priceRange: [value[0], value[1]] }));
+    setFilters(prev => ({
+      ...prev,
+      priceRange: [value[0], value[1]] as [number, number]
+    }));
   };
 
-  const handleWifiToggle = () => {
-    setFilters(prev => ({ ...prev, wifi: !prev.wifi }));
+  const handleWifiToggle = (checked: boolean) => {
+    setFilters(prev => ({
+      ...prev,
+      wifi: checked
+    }));
   };
 
-  const handleSustainableToggle = () => {
-    setFilters(prev => ({ ...prev, sustainableOnly: !prev.sustainableOnly }));
+  const handleSustainableOnlyToggle = (checked: boolean) => {
+    setFilters(prev => ({
+      ...prev,
+      sustainableOnly: checked
+    }));
   };
 
   const resetFilters = () => {
-    setFilters({
-      searchQuery: '',
-      category: null,
-      city: null,
-      ecoTags: [],
-      nomadFeatures: [],
-      priceRange: [0, 50000],
-      minRating: null,
-      wifi: false,
-      sustainableOnly: false,
-    });
+    setFilters(INITIAL_FILTER_STATE);
   };
 
-  const activeFiltersCount = Object.values(filters).filter(value => {
-    if (Array.isArray(value)) return value.length > 0;
-    if (typeof value === 'boolean') return value;
-    return value !== null;
-  }).length;
-
   return (
-    <div className={`bg-white rounded-lg shadow p-4 space-y-6 ${className}`}>
+    <>
+      {/* Mobile Filter Button */}
+      <div className="lg:hidden fixed bottom-4 right-4 z-40">
+        <button
+          onClick={toggleMobileFilters}
+          className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-500 text-white shadow-lg"
+          aria-label="Toggle filters"
+        >
+          <Filter className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Mobile Filter Drawer */}
+      <AnimatePresence>
+        {isMobileFiltersOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 lg:hidden"
+          >
+            <div className="absolute inset-0 bg-black/50" onClick={toggleMobileFilters} />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 30 }}
+              className="absolute right-0 top-0 h-full w-full max-w-xs bg-white px-4 py-6 shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold">Filters</h2>
+                <button
+                  onClick={toggleMobileFilters}
+                  className="rounded-full p-2 hover:bg-gray-100"
+                  aria-label="Close filters"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              {/* Filter Content */}
+              <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-10rem)]">
+                <FilterContent
+                  filters={filters}
+                  isLoading={isLoading}
+                  listings={listings}
+                  onSearchChange={handleSearchChange}
+                  onCategoryChange={handleCategoryChange}
+                  onCityChange={handleCityChange}
+                  onEcoTagToggle={handleEcoTagToggle}
+                  onNomadFeatureToggle={handleNomadFeatureToggle}
+                  onPriceRangeChange={handlePriceRangeChange}
+                  onWifiToggle={handleWifiToggle}
+                  onSustainableOnlyToggle={handleSustainableOnlyToggle}
+                  categories={categories}
+                  cities={cities}
+                />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t">
+                <button
+                  onClick={resetFilters}
+                  className="w-full py-2 text-sm text-primary-600 hover:text-primary-700"
+                >
+                  Reset all filters
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Filters */}
+      <div className={`hidden lg:block ${className}`}>
+        <FilterContent
+          filters={filters}
+          isLoading={isLoading}
+          listings={listings}
+          onSearchChange={handleSearchChange}
+          onCategoryChange={handleCategoryChange}
+          onCityChange={handleCityChange}
+          onEcoTagToggle={handleEcoTagToggle}
+          onNomadFeatureToggle={handleNomadFeatureToggle}
+          onPriceRangeChange={handlePriceRangeChange}
+          onWifiToggle={handleWifiToggle}
+          onSustainableOnlyToggle={handleSustainableOnlyToggle}
+          categories={categories}
+          cities={cities}
+        />
+      </div>
+    </>
+  );
+}
+
+// Separate component for filter content to avoid duplication
+function FilterContent({
+  filters,
+  isLoading,
+  listings,
+  onSearchChange,
+  onCategoryChange,
+  onCityChange,
+  onEcoTagToggle,
+  onNomadFeatureToggle,
+  onPriceRangeChange,
+  onWifiToggle,
+  onSustainableOnlyToggle,
+  categories,
+  cities,
+}: {
+  filters: FilterState;
+  isLoading: boolean;
+  listings: (Listing | SanityListing)[];
+  onSearchChange: (value: string) => void;
+  onCategoryChange: (category: string | null) => void;
+  onCityChange: (city: string | null) => void;
+  onEcoTagToggle: (tag: string) => void;
+  onNomadFeatureToggle: (feature: string) => void;
+  onPriceRangeChange: (value: number[]) => void;
+  onWifiToggle: (checked: boolean) => void;
+  onSustainableOnlyToggle: (checked: boolean) => void;
+  categories: string[];
+  cities: string[];
+}) {
+  return (
+    <div className="space-y-6">
       {/* Search */}
-      <div>
-        <h3 className="text-base font-medium mb-2">Search</h3>
+      <div className="space-y-2">
+        <label htmlFor="search" className="text-sm font-medium">
+          Search
+        </label>
         <SearchInput
-          placeholder="Search for listings..."
-          onChange={handleSearchChange}
+          id="search"
+          value={filters.searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder="Search listings..."
+          className="w-full"
         />
       </div>
 
       {/* Categories */}
-      <div>
-        <h3 className="text-base font-medium mb-2">Category</h3>
-        <div className="flex flex-wrap gap-2">
-          {categories.map(category => (
-            <Badge
-              key={category}
-              variant={filters.category === category ? 'default' : 'outline'}
-              className="cursor-pointer"
-              onClick={() => handleCategoryChange(category)}
-            >
-              {category}
-            </Badge>
-          ))}
-        </div>
+      <div className="space-y-2">
+        <h3 className="text-sm font-medium">Categories</h3>
+        {isLoading ? (
+          <LoadingPlaceholder />
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <Badge
+                key={category}
+                variant={filters.category === category ? 'default' : 'outline'}
+                className="cursor-pointer"
+                onClick={() => onCategoryChange(category)}
+              >
+                {category}
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Cities */}
-      <div>
-        <h3 className="text-base font-medium mb-2">Location</h3>
-        <div className="flex flex-wrap gap-2">
-          {cities.map(city => (
-            <Badge
-              key={city}
-              variant={filters.city === city ? 'default' : 'outline'}
-              className="cursor-pointer"
-              onClick={() => handleCityChange(city)}
-            >
-              {city}
-            </Badge>
-          ))}
-        </div>
+      <div className="space-y-2">
+        <h3 className="text-sm font-medium">Location</h3>
+        {isLoading ? (
+          <LoadingPlaceholder />
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {cities.map((city) => (
+              <Badge
+                key={city}
+                variant={filters.city === city ? 'default' : 'outline'}
+                className="cursor-pointer"
+                onClick={() => onCityChange(city)}
+              >
+                {city}
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Price Range */}
-      <div>
-        <h3 className="text-base font-medium mb-2">Price Range (THB)</h3>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium">Price Range</h3>
+          <span className="text-sm text-gray-500">
+            {formatPrice(filters.priceRange[0])} - {formatPrice(filters.priceRange[1])}
+          </span>
+        </div>
         <Slider
-          defaultValue={[filters.priceRange[0], filters.priceRange[1]]}
+          defaultValue={filters.priceRange}
+          min={0}
           max={50000}
           step={1000}
-          onValueChange={handlePriceRangeChange}
+          onValueChange={onPriceRangeChange}
           className="w-full"
         />
-        <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-          <span>฿{filters.priceRange[0].toLocaleString()}</span>
-          <span>฿{filters.priceRange[1].toLocaleString()}</span>
-        </div>
       </div>
 
       {/* Eco Features */}
-      <div>
-        <h3 className="text-base font-medium mb-2">Sustainability Features</h3>
-        <div className="grid grid-cols-2 gap-2">
-          {allEcoTags.map(tag => (
-            <div key={tag} className="flex items-center space-x-2">
-              <Checkbox
-                id={`eco-${tag}`}
-                checked={filters.ecoTags.includes(tag)}
-                onCheckedChange={() => handleEcoTagToggle(tag)}
-              />
-              <label
-                htmlFor={`eco-${tag}`}
-                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {tag.replace(/_/g, ' ')}
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Digital Nomad Features */}
-      <div>
-        <h3 className="text-base font-medium mb-2">Digital Nomad Features</h3>
-        <div className="grid grid-cols-2 gap-2">
-          {allNomadFeatures.map(feature => (
-            <div key={feature} className="flex items-center space-x-2">
-              <Checkbox
-                id={`feature-${feature}`}
-                checked={filters.nomadFeatures.includes(feature)}
-                onCheckedChange={() => handleNomadFeatureToggle(feature)}
-              />
-              <label
-                htmlFor={`feature-${feature}`}
-                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {feature.replace(/_/g, ' ')}
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Quick Filters */}
-      <div>
-        <h3 className="text-base font-medium mb-2">Quick Filters</h3>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <label htmlFor="wifi" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              Fast WiFi
-            </label>
-            <Switch
-              id="wifi"
-              checked={filters.wifi}
-              onCheckedChange={handleWifiToggle}
-            />
+      <div className="space-y-2">
+        <h3 className="text-sm font-medium">Sustainability Features</h3>
+        {isLoading ? (
+          <LoadingPlaceholder />
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+            {Array.from(new Set(listings.flatMap(l => {
+              if ('ecoTags' in l) return l.ecoTags || [];
+              return [];
+            }))).map(tag => (
+              <div key={tag} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`eco-${tag}`}
+                  checked={filters.ecoTags.includes(tag)}
+                  onCheckedChange={() => onEcoTagToggle(tag)}
+                />
+                <label
+                  htmlFor={`eco-${tag}`}
+                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {tag.replace(/_/g, ' ')}
+                </label>
+              </div>
+            ))}
           </div>
-          <div className="flex items-center justify-between">
-            <label htmlFor="sustainable" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-              Sustainable Only
-            </label>
-            <Switch
-              id="sustainable"
-              checked={filters.sustainableOnly}
-              onCheckedChange={handleSustainableToggle}
-            />
-          </div>
-        </div>
+        )}
       </div>
 
-      {/* Reset Filters */}
-      <div className="pt-4 border-t">
-        <button
-          onClick={resetFilters}
-          className="w-full py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-        >
-          Reset All Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
-        </button>
+      {/* Quick Toggles */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <label htmlFor="wifi" className="text-sm font-medium">
+            Fast WiFi Available
+          </label>
+          <Switch
+            id="wifi"
+            checked={filters.wifi}
+            onCheckedChange={onWifiToggle}
+          />
+        </div>
+        <div className="flex items-center justify-between">
+          <label htmlFor="sustainable" className="text-sm font-medium">
+            Sustainable Only
+          </label>
+          <Switch
+            id="sustainable"
+            checked={filters.sustainableOnly}
+            onCheckedChange={onSustainableOnlyToggle}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LoadingPlaceholder() {
+  return (
+    <div className="space-y-2 animate-pulse">
+      <div className="h-4 bg-gray-200 rounded w-24" />
+      <div className="space-y-1">
+        <div className="h-3 bg-gray-200 rounded w-32" />
+        <div className="h-3 bg-gray-200 rounded w-28" />
+        <div className="h-3 bg-gray-200 rounded w-36" />
       </div>
     </div>
   );

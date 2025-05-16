@@ -22,6 +22,8 @@
     "verify:env": "node scripts/verify-environment.js",
     "test:xss": "node scripts/test-xss.js",
     "test:connection": "node scripts/test-connection.js",
+    "test:schemas": "jest tests/",
+    "test": "npm run test:schemas",
     "check:all": "npm run verify:security && npm run verify:setup && npm run verify:config && npm run verify:env && npm run test:connection && npm audit",
     "validate": "npm run lint && npm run check:all"
   },

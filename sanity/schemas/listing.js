@@ -13,7 +13,8 @@ export default {
       name: 'name',
       title: 'Name',
       type: 'string',
-      validation: Rule => Rule.required()
+      validation: Rule => Rule.required().min(3).max(100)
+        .error('Name must be between 3 and 100 characters')
     },
     {
       ...slugField
@@ -21,7 +22,8 @@ export default {
     {
       name: 'category',
       title: 'Category',
-      type: 'string',      options: {
+      type: 'string',
+      options: {
         list: [
           { title: 'Coworking', value: 'coworking' },
           { title: 'Cafe', value: 'cafe' },
@@ -31,6 +33,7 @@ export default {
         ]
       },
       validation: Rule => Rule.required()
+        .error('Please select a category')
     },
     {
       name: 'city',
@@ -61,45 +64,50 @@ export default {
     {
       name: 'descriptionLong',
       title: 'Long Description',
-      type: 'array',
-      of: [{ type: 'block' }],
-      validation: Rule => Rule.required().min(1).error('A long description is required')
+      type: 'richText'
     },
     {
       name: 'ecoFocusTags',
       title: 'Eco Focus Tags',
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'ecoTag' }] }],
-      validation: Rule => Rule.required().min(1).error('At least one eco focus tag is required')
+      validation: Rule => Rule.required().min(2).max(10)
+        .error('Please select between 2-10 eco focus tags')
     },
     {
       name: 'ecoNotesDetailed',
       title: 'Detailed Eco Notes',
       type: 'text',
       rows: 5,
-      validation: Rule => Rule.max(1000).warning('Keep eco notes concise')
+      validation: Rule => Rule.required().min(100).max(1000)
+        .error('Eco notes must be between 100-1000 characters')
     },
     {
       name: 'sourceUrls',
       title: 'Source URLs',
       type: 'array',
       of: [{ type: 'url' }],
-      validation: Rule => Rule.min(1).error('At least one source URL is required')
+      validation: Rule => Rule.min(1).max(5)
+        .error('Please provide between 1-5 source URLs')
     },
     {
       name: 'mainImage',
       title: 'Main Image',
       ...imageWithAlt,
-      validation: Rule => Rule.required().error('A main image is required')
+      validation: Rule => Rule.required()
+        .error('A main image is required')
     },
     {
       name: 'galleryImages',
       title: 'Gallery Images',
       type: 'array',
       of: [{
-        ...imageWithAlt
+        ...imageWithAlt,
+        validation: Rule => Rule.required()
+          .error('Each gallery image must have an alt text')
       }],
-      validation: Rule => Rule.required().min(1).error('At least one gallery image is required')
+      validation: Rule => Rule.required().min(3).max(20)
+        .error('Please provide between 3-20 gallery images')
     },
     {
       name: 'digitalNomadFeatures',
@@ -226,6 +234,20 @@ export default {
           type: 'url'
         }
       ]
+    },    {
+      name: 'sustainability',
+      title: 'Sustainability Level',
+      type: 'string',
+      options: {
+        list: [
+          { title: '🌱 Basic', value: 'basic', description: 'Basic eco-friendly practices' },
+          { title: '🌿 Intermediate', value: 'intermediate', description: 'Strong commitment to sustainability' },
+          { title: '🌳 Advanced', value: 'advanced', description: 'Exceptional environmental practices' },
+          { title: '♻️ Zero Waste', value: 'zero_waste', description: 'Zero waste and carbon neutral' }
+        ],
+        layout: 'radio'
+      },
+      validation: Rule => Rule.required()
     },
     {
       name: 'accessibility',
@@ -234,9 +256,9 @@ export default {
       of: [{ type: 'string' }],
       options: {
         list: [
-          { title: 'Wheelchair Accessible', value: 'wheelchair' },
-          { title: 'Step-free Access', value: 'step_free' },
-          { title: 'Accessible Bathroom', value: 'accessible_bathroom' },
+          { title: '♿ Wheelchair Accessible', value: 'wheelchair' },
+          { title: '🚶 Step-free Access', value: 'step_free' },
+          { title: '🚻 Accessible Bathroom', value: 'accessible_bathroom' },
           { title: 'Accessible Parking', value: 'accessible_parking' },
           { title: 'Service Animals Welcome', value: 'service_animals' }
         ]
@@ -268,9 +290,31 @@ export default {
       hidden: ({ document }) => document?.category !== 'accommodation'
     },
     {
-      name: 'restaurantDetails',
-      title: 'Restaurant Details',
-      type: 'restaurantDetails',
+      name: 'restaurantDetails',      title: 'Restaurant Details',
+      type: 'object',
+      fields: [
+        {
+          name: 'cuisine',
+          title: 'Cuisine Types',
+          type: 'array',
+          of: [{ type: 'string' }],
+          options: {
+            list: [
+              { title: '🇹🇭 Thai', value: 'thai', description: 'Traditional Thai cuisine' },
+              { title: '🌍 International', value: 'international', description: 'Global fusion' },
+              { title: '🥬 Vegan/Vegetarian', value: 'vegan_vegetarian', description: 'Plant-based options' },
+              { title: '🫒 Mediterranean', value: 'mediterranean', description: 'Mediterranean diet' },
+              { title: '🍱 Japanese', value: 'japanese', description: 'Japanese cuisine' },
+              { title: '🍛 Indian', value: 'indian', description: 'Indian dishes' },
+              { title: '🔄 Fusion', value: 'fusion', description: 'Creative fusion' },
+              { title: '🌱 Raw/Health', value: 'raw_health', description: 'Raw and health food' },
+              { title: '🥘 Local Fusion', value: 'local_fusion', description: 'Local with a twist' },
+              { title: '🥗 Clean Eating', value: 'clean_eating', description: 'Healthy focus' }
+            ],
+            layout: 'grid'
+          }
+        }
+      ],
       hidden: ({ document }) => document?.category !== 'restaurant'
     },
     {

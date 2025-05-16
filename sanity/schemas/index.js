@@ -17,6 +17,7 @@ import comment from './comment'
 import eventRegistration from './eventRegistration'
 import listingAnalytics from './listingAnalytics'
 import userPreference from './userPreference'
+import richText from './richText'
 
 // Export the schema types
 export const schemaTypes = [
@@ -38,5 +39,6 @@ export const schemaTypes = [
   accommodationDetails,
   restaurantDetails,
   activitiesDetails,
+  richText,
   comment
 ]

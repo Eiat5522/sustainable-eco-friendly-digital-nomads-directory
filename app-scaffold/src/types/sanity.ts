@@ -1,16 +1,16 @@
 // Typescript interfaces for Sanity data models
-import { SanityImageAsset, SanityReference } from '@sanity/client';
+import type { SanityImageAsset, SanityReference as SanityClientReference } from '@sanity/client';
 
 // Sanity image type
 export interface SanityImage {
   _type: 'image';
-  asset: SanityReference<SanityImageAsset>;
+  asset: SanityClientReference<SanityImageAsset>; // Uses aliased import
   alt?: string;
   caption?: string;
 }
 
-// Common reference type with slug
-export interface SanityReference {
+// Common reference type with slug, renamed to avoid conflict
+export interface SlugAndNameReference {
   _id: string;
   name: string;
   slug?: { current: string };
@@ -29,7 +29,7 @@ export interface SanityListing extends SanityDocument {
   name: string;
   slug: string;  // This is pre-processed from slug.current
   category: 'coworking' | 'cafe' | 'accommodation';
-  city: string;  // This is pre-processed from city->name
+  city: string;  // This is pre-processed from city->name // This might be a SlugAndNameReference in raw data
   addressString: string;
   coordinates: {
     lat: number;

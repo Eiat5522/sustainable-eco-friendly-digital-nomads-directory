@@ -5,9 +5,17 @@ export default {
   fields: [
     {
       name: 'sustainableEnergy',
-      title: 'Sustainable Energy',
-      type: 'boolean',
-      description: 'Uses renewable energy sources'
+      title: 'Energy Usage',
+      type: 'string',
+      options: {
+        list: [
+          { title: '🔋 100% Renewable', value: 'fully_renewable' },
+          { title: '🔅 Partially Renewable', value: 'partially_renewable' },
+          { title: '⚡ Energy Efficient', value: 'energy_efficient' },
+          { title: '📊 Standard Grid', value: 'standard' }
+        ],
+        layout: 'radio'
+      }
     },
     {
       name: 'wasteManagement',

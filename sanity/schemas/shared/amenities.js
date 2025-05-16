@@ -4,10 +4,20 @@ export default {
   type: 'object',
   fields: [
     {
-      name: 'wifi',
-      title: 'WiFi',
-      type: 'boolean',
-      initialValue: true
+      name: 'wifiQuality',
+      title: 'WiFi Quality',
+      type: 'string',
+      options: {
+        list: [
+          { title: '🚀 High Speed (100+ Mbps)', value: 'high_speed' },
+          { title: '💻 Good (50-100 Mbps)', value: 'good' },
+          { title: '📱 Basic (20-50 Mbps)', value: 'basic' },
+          { title: '⚠️ Limited (<20 Mbps)', value: 'limited' },
+          { title: '❌ No WiFi', value: 'none' }
+        ],
+        layout: 'radio'
+      },
+      validation: Rule => Rule.required()
     },
     {
       name: 'wifiSpeed',

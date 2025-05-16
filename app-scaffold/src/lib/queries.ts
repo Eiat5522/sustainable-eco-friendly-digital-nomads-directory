@@ -1,6 +1,13 @@
 import { groq } from 'next-sanity'
 import { getClient } from '@/lib/sanity.utils'
 import type { ListingFilters } from '@/components/ListingFilters'
+import type {
+  ListingStats,
+  WorkspaceResult,
+  SearchResult,
+  NearbyVenue,
+  VenueSummary
+} from '@/types/query-types'
 
 // Base listing fields
 const listingFields = groq`
@@ -107,4 +114,138 @@ export async function getFilteredListings(filters: ListingFilters, page = 1, lim
     page,
     totalPages: Math.ceil(total / limit),
   }
+}
+
+// Complex aggregation query - Get listing statistics
+export async function getListingStats(): Promise<ListingStats> {
+  const query = groq`{
+    "totalListings": count(*[_type == "listing"]),
+    "byCategory": *[_type == "listing"] {
+      type
+    } | group(type) {
+      "category": key,
+      "count": count()
+    },
+    "topCities": *[_type == "listing"] {
+      "cityName": city->name,
+      "country": city->country
+    } | group(cityName, country) {
+      "city": cityName,
+      "country": country,
+      "count": count()
+    } | order(count desc)[0...5],
+    "averageRatings": *[_type == "review"] {
+      "listingId": listing->_id,
+      "listingName": listing->name,
+      rating
+    } | group(listingId, listingName) {
+      "listing": listingName,
+      "avgRating": avg(rating)
+    } | order(avgRating desc)
+  }`
+  
+  return await getClient().fetch<ListingStats>(query)
+}
+
+// Advanced digital nomad friendly workspace query with conditional logic
+export async function getDigitalNomadWorkspaces(minWifiSpeed = 20): Promise<WorkspaceResult[]> {
+  const query = groq`*[_type == "listing" && type in ["cafe", "coworking"]] {
+    _id,
+    name,
+    type,
+    "wifiSpeed": select(
+      type == "cafe" => cafeDetails.wifiSpeed,
+      type == "coworking" => coworkingDetails.internetSpeed.download
+    ),
+    "hasWorkspaces": coworkingDetails.amenities != null || 
+                    (type == "cafe" && defined(cafeDetails.workPolicy.laptopsAllowed)),
+    "powerOutlets": select(
+      type == "cafe" => cafeDetails.powerOutlets,
+      type == "coworking" => "abundant"
+    ),
+    "location": {
+      "city": city->name,
+      "coordinates": location.coordinates
+    }
+  }[wifiSpeed >= $minWifiSpeed && hasWorkspaces]`
+  
+  return await getClient().fetch<WorkspaceResult[]>(query, { minWifiSpeed })
+}
+
+// Full-text search with relevance scoring and rich text content
+export async function searchListings(searchText: string): Promise<SearchResult[]> {
+  const query = groq`*[_type == "listing" && (
+    name match $searchText ||
+    description match $searchText ||
+    richTextContent.content[].children[].text match $searchText
+  )] {
+    _id,
+    name,
+    "score": boost(name match $searchText, 3) +
+            boost(description match $searchText, 2) +
+            boost(richTextContent.content[].children[].text match $searchText, 1),
+    type,
+    "description": description,
+    "city": city->name,
+    mainImage {
+      asset-> {
+        url
+      }
+    }
+  } | order(score desc)`
+  
+  return await getClient().fetch<SearchResult[]>(query, { searchText })
+}
+
+// Geospatial query for nearby listings
+export async function getNearbyListings(coords: { lat: number; lng: number }, maxDistanceKm = 5): Promise<NearbyVenue[]> {
+  const query = groq`*[_type == "listing" && defined(location.coordinates)] {
+    _id,
+    name,
+    "distance": geo::distance(location.coordinates, $userLocation),
+    location,
+    type,
+    "city": city->name
+  }[distance < $maxDistanceKm] | order(distance)`
+  
+  return await getClient().fetch<NearbyVenue[]>(query, {
+    userLocation: coords,
+    maxDistanceKm
+  })
+}
+
+// Complex venue summary with conditional aggregation
+export async function getDigitalNomadVenueSummary(): Promise<VenueSummary> {
+  const query = groq`{
+    "coworkingSpaces": *[_type == "listing" && type == "coworking"] {
+      "hasHighSpeedWifi": coworkingDetails.internetSpeed.download >= 50,
+      "has24Access": coworkingDetails.accessPolicy.hours == "24/7",
+      "priceRange": select(
+        count(coworkingDetails.pricingPlans[price < 20]) > 0 => "budget",
+        count(coworkingDetails.pricingPlans[price >= 20 && price < 50]) > 0 => "moderate",
+        "premium"
+      )
+    } | {
+      "total": count(*),
+      "withHighSpeedWifi": count(*[hasHighSpeedWifi]),
+      "with24Access": count(*[has24Access]),
+      "priceDistribution": group(priceRange) {
+        "range": key,
+        "count": count()
+      }
+    },
+    
+    "cafes": *[_type == "listing" && type == "cafe"] {
+      "isLaptopFriendly": cafeDetails.workPolicy.laptopsAllowed,
+      "hasGoodWifi": cafeDetails.wifiSpeed >= 20,
+      "noTimeLimits": !defined(cafeDetails.workPolicy.timeLimit) || cafeDetails.workPolicy.timeLimit == 0
+    } | {
+      "total": count(*),
+      "laptopFriendly": count(*[isLaptopFriendly]),
+      "withGoodWifi": count(*[hasGoodWifi]),
+      "withoutTimeLimits": count(*[noTimeLimits])
+    }
+  }`
+  
+  return await getClient().fetch<VenueSummary>(query)
 }

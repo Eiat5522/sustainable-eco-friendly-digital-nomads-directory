@@ -9,21 +9,22 @@ export default {
   type: 'object',
   validation: Rule => Rule.required().error('Accommodation details are required for accommodation listings'),
   fields: [
-    {
-      name: 'accommodationType',
+    {      name: 'accommodationType',
       title: 'Accommodation Type',
       type: 'string',
       options: {
         list: [
-          { title: 'Hotel', value: 'hotel' },
-          { title: 'Guesthouse', value: 'guesthouse' },
-          { title: 'Bungalow', value: 'bungalow' },
-          { title: 'Resort', value: 'resort' },
-          { title: 'Hostel', value: 'hostel' },
-          { title: 'Apartment/Condo', value: 'apartment_condo' },
-          { title: 'Villa', value: 'villa' },
-          { title: 'Eco Lodge', value: 'eco_lodge' }
-        ]
+          { title: '🏨 Hotel', value: 'hotel', description: 'Full-service hotel' },
+          { title: '🏡 Guesthouse', value: 'guesthouse', description: 'Local, homey atmosphere' },
+          { title: '🌴 Bungalow', value: 'bungalow', description: 'Individual units' },
+          { title: '🏖️ Resort', value: 'resort', description: 'Full amenities resort' },
+          { title: '🎒 Hostel', value: 'hostel', description: 'Budget-friendly, social' },
+          { title: '🏢 Apartment/Condo', value: 'apartment_condo', description: 'Self-contained unit' },
+          { title: '🏰 Villa', value: 'villa', description: 'Luxury private residence' },
+          { title: '🌿 Eco Lodge', value: 'eco_lodge', description: 'Environmentally focused' }
+        ],
+        layout: 'radio'
+      }
       },
       validation: Rule => Rule.required().error('Accommodation type is required')
     },

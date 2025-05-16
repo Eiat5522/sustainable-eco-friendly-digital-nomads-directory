@@ -32,50 +32,31 @@ export default {
                   { title: 'Daily', value: 'daily' },
                   { title: 'Weekly', value: 'weekly' },
                   { title: 'Monthly', value: 'monthly' },
-                  { title: 'Hot Desk', value: 'hot_desk' },
-                  { title: 'Dedicated Desk', value: 'dedicated_desk' },
-                  { title: 'Private Office', value: 'private_office' },
-                  { title: 'Meeting Room', value: 'meeting_room' },
-                  { title: 'Day Pass', value: 'day_pass' }
+                  { title: 'Hot Desk', value: 'hot-desk' },
+                  { title: 'Dedicated Desk', value: 'dedicated-desk' },
+                  { title: 'Private Office', value: 'private-office' }
                 ]
               },
-              validation: Rule => Rule.required().error('Pricing type is required')
+              validation: Rule => Rule.required()
             },
             {
-              name: 'priceTHB',
-              title: 'Price (THB)',
+              name: 'price',
+              title: 'Price',
               type: 'number',
-              validation: Rule => Rule.required().min(0).error('Price must be a non-negative number')
+              validation: Rule => Rule.required().min(0)
             },
             {
-              name: 'description',
-              title: 'Description',
+              name: 'currency',
+              title: 'Currency',
               type: 'string',
-              validation: Rule => Rule.max(200).warning('Keep descriptions concise')
+              initialValue: 'THB',
+              validation: Rule => Rule.required()
             }
-          ]
+          ],
+          validation: Rule => Rule.required()
         }
       ],
       validation: Rule => Rule.required().min(1).error('At least one pricing plan is required')
-    },
-    {
-      name: 'amenities',
-      title: 'Amenities',
-      type: 'array',
-      of: [{ type: 'string' }],
-      options: {
-        list: [
-          { title: 'High-speed WiFi', value: 'high_speed_wifi' },
-          { title: 'Meeting Rooms', value: 'meeting_rooms' },
-          { title: 'Standing Desks', value: 'standing_desks' },
-          { title: 'Phone Booths', value: 'phone_booths' },
-          { title: 'Kitchen', value: 'kitchen' },
-          { title: 'Free Coffee/Tea', value: 'free_coffee_tea' },
-          { title: 'Printing Services', value: 'printing' },
-          { title: '24/7 Access', value: '24_7_access' }
-        ]
-      },
-      validation: Rule => Rule.min(1).error('Please specify available amenities')
     },
     {
       name: 'internetSpeed',
@@ -86,70 +67,22 @@ export default {
           name: 'download',
           title: 'Download Speed (Mbps)',
           type: 'number',
-          validation: Rule => Rule.min(0)
+          validation: Rule => Rule.required().min(1)
         },
         {
           name: 'upload',
           title: 'Upload Speed (Mbps)',
           type: 'number',
-          validation: Rule => Rule.min(0)
+          validation: Rule => Rule.required().min(1)
         },
         {
           name: 'lastTested',
           title: 'Last Tested',
-          type: 'datetime'
-        },
-        {
-          name: 'redundancy',
-          title: 'Internet Redundancy',
-          type: 'boolean',
-          description: 'Does the space have backup internet connection?'
+          type: 'datetime',
+          validation: Rule => Rule.required()
         }
-      ]
-    },
-    {
-      name: 'events',
-      title: 'Events & Workshops',
-      type: 'array',
-      of: [{
-        type: 'reference',
-        to: [{ type: 'event' }]
-      }]
-    },
-    {
-      name: 'accessPolicy',
-      title: 'Access Policy',
-      type: 'object',
-      fields: [
-        {
-          name: 'hours',
-          title: '24/7 Access',
-          type: 'boolean'
-        },
-        {
-          name: 'membershipRequired',
-          title: 'Membership Required',
-          type: 'boolean'
-        },
-        {
-          name: 'dayPassAvailable',
-          title: 'Day Pass Available',
-          type: 'boolean'
-        },
-        {
-          name: 'guestPolicy',
-          title: 'Guest Policy',
-          type: 'string',
-          options: {
-            list: [
-              { title: 'No Guests', value: 'no_guests' },
-              { title: 'Paid Guest Pass', value: 'paid' },
-              { title: 'Free Guest Pass', value: 'free' },
-              { title: 'Members Only', value: 'members' }
-            ]
-          }
-        }
-      ]
+      ],
+      validation: Rule => Rule.required()
     }
   ]
 }

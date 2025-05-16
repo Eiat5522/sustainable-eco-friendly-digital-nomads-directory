@@ -120,17 +120,17 @@ export default {
       },
       validation: Rule => Rule.min(1).error('Please specify sustainability practices')
     },
-    {
-      name: 'skillLevel',
+    {      name: 'skillLevel',
       title: 'Skill Level',
       type: 'string',
       options: {
         list: [
-          { title: 'Beginner', value: 'beginner' },
-          { title: 'Intermediate', value: 'intermediate' },
-          { title: 'Advanced', value: 'advanced' },
-          { title: 'All Levels', value: 'all_levels' }
-        ]
+          { title: '🌱 Beginner', value: 'beginner', description: 'No experience needed' },
+          { title: '🌿 Intermediate', value: 'intermediate', description: 'Some experience required' },
+          { title: '🌳 Advanced', value: 'advanced', description: 'Experienced practitioners' },
+          { title: '🌺 All Levels', value: 'all_levels', description: 'Adaptable to any level' }
+        ],
+        layout: 'radio'
       },
       validation: Rule => Rule.required()
     },
@@ -145,17 +145,20 @@ export default {
           type: 'number',
           validation: Rule => Rule.required().min(1).max(5)
         },
-        {
-          name: 'certifications',
+        {          name: 'certifications',
           title: 'Eco Certifications',
           type: 'array',
           of: [{ type: 'string' }],
           options: {
             list: [
-              { title: 'Green Globe', value: 'green_globe' },
-              { title: 'Earth Check', value: 'earth_check' },
-              { title: 'Rainforest Alliance', value: 'rainforest_alliance' },
-              { title: 'Local Eco Cert', value: 'local_eco' }
+              { title: '🌏 Green Globe', value: 'green_globe', description: 'International sustainability certification' },
+              { title: '🌍 Earth Check', value: 'earth_check', description: 'Scientific benchmarking certification' },
+              { title: '🌲 Rainforest Alliance', value: 'rainforest_alliance', description: 'Environmental & social certification' },
+              { title: '🏆 LEED Certification', value: 'leed', description: 'Building sustainability certification' },
+              { title: '🌱 Local Eco Cert', value: 'local_eco', description: 'Local environmental certification' },
+              { title: '♻️ Zero Waste', value: 'zero_waste', description: 'Zero waste certification' }
+            ],
+            layout: 'grid'
             ]
           }
         },

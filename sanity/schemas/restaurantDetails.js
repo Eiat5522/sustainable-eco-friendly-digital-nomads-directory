@@ -9,36 +9,41 @@ export default {
   type: 'object',
   validation: Rule => Rule.required().error('Restaurant details are required for restaurant listings'),
   fields: [
-    {
-      name: 'cuisineType',
+    {      name: 'cuisineType',
       title: 'Cuisine Type',
       type: 'array',
       of: [{ type: 'string' }],
       options: {
         list: [
-          { title: 'Thai', value: 'thai' },
-          { title: 'International', value: 'international' },
-          { title: 'Vegan/Vegetarian', value: 'vegan_vegetarian' },
-          { title: 'Mediterranean', value: 'mediterranean' },
-          { title: 'Japanese', value: 'japanese' },
-          { title: 'Indian', value: 'indian' },
-          { title: 'Fusion', value: 'fusion' },
+          { title: '🇹🇭 Thai', value: 'thai', description: 'Traditional Thai cuisine' },
+          { title: '🌍 International', value: 'international', description: 'Global fusion' },
+          { title: '🥬 Vegan/Vegetarian', value: 'vegan_vegetarian', description: 'Plant-based options' },
+          { title: '🫒 Mediterranean', value: 'mediterranean', description: 'Mediterranean diet' },
+          { title: '🍱 Japanese', value: 'japanese', description: 'Japanese cuisine' },
+          { title: '🍛 Indian', value: 'indian', description: 'Indian dishes' },
+          { title: '🔄 Fusion', value: 'fusion', description: 'Creative fusion' },
+          { title: '🌱 Raw/Health', value: 'raw_health', description: 'Raw and health food' },
+          { title: '🥘 Local Fusion', value: 'local_fusion', description: 'Local with a twist' },
+          { title: '🥗 Clean Eating', value: 'clean_eating', description: 'Healthy focus' }
+        ],
+        layout: 'grid'
+      },
           { title: 'Raw/Health Food', value: 'raw_health' }
         ]
       },
       validation: Rule => Rule.required().min(1).error('Please specify at least one cuisine type')
     },
-    {
-      name: 'priceRange',
+    {      name: 'priceRange',
       title: 'Price Range',
       type: 'string',
       options: {
         list: [
-          { title: '$', value: 'budget' },
-          { title: '$$', value: 'moderate' },
-          { title: '$$$', value: 'expensive' },
-          { title: '$$$$', value: 'luxury' }
-        ]
+          { title: '$ (Under $10)', value: 'budget', description: 'Budget-friendly options' },
+          { title: '$$ ($10-25)', value: 'moderate', description: 'Moderately priced' },
+          { title: '$$$ ($25-50)', value: 'expensive', description: 'Higher-end dining' },
+          { title: '$$$$ ($50+)', value: 'luxury', description: 'Premium dining experience' }
+        ],
+        layout: 'radio'
       },
       validation: Rule => Rule.required().error('Price range is required')
     },

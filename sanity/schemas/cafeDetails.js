@@ -8,12 +8,60 @@ export default {
   title: 'Cafe Details',
   type: 'object',
   validation: Rule => Rule.required().error('Cafe details are required for cafe listings'),
-  fields: [
-    {
+  fields: [    {
       name: 'operatingHours',
       title: 'Operating Hours',
-      type: 'string',
-      validation: Rule => Rule.required().error('Operating hours are required')
+      type: 'array',
+      of: [{
+        type: 'object',
+        fields: [
+          {
+            name: 'day',
+            title: 'Day',
+            type: 'string',
+            options: {
+              list: [
+                { title: 'Monday', value: 'monday' },
+                { title: 'Tuesday', value: 'tuesday' },
+                { title: 'Wednesday', value: 'wednesday' },
+                { title: 'Thursday', value: 'thursday' },
+                { title: 'Friday', value: 'friday' },
+                { title: 'Saturday', value: 'saturday' },
+                { title: 'Sunday', value: 'sunday' }
+              ]
+            }
+          },
+          {
+            name: 'openTime',
+            title: 'Opening Time',
+            type: 'string',
+            options: {
+              list: Array.from({ length: 24 }, (_, i) => {
+                const hour = i.toString().padStart(2, '0')
+                return { title: `${hour}:00`, value: `${hour}:00` }
+              })
+            }
+          },
+          {
+            name: 'closeTime',
+            title: 'Closing Time',
+            type: 'string',
+            options: {
+              list: Array.from({ length: 24 }, (_, i) => {
+                const hour = i.toString().padStart(2, '0')
+                return { title: `${hour}:00`, value: `${hour}:00` }
+              })
+            }
+          },
+          {
+            name: 'closed',
+            title: 'Closed',
+            type: 'boolean',
+            initialValue: false
+          }
+        ]
+      }],
+      validation: Rule => Rule.required().min(7).max(7).error('Please specify hours for all days of the week')
     },
     {
       name: 'priceIndication',
