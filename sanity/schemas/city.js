@@ -1,42 +1,24 @@
-/**
- * City schema for Sanity CMS
- */
-import { imageWithAlt, slugField, descriptionField } from './shared/fields'
+import {defineField, defineType} from 'sanity'
 
-export default {
+export default defineType({
   name: 'city',
   title: 'City',
   type: 'document',
   fields: [
-    {
+    defineField({
       name: 'name',
       title: 'Name',
       type: 'string',
-      validation: Rule => Rule.required()
-    },
-    {
-      ...slugField
-    },
-    {
-      ...descriptionField,
-      rows: 3
-    },
-    {
+    }),
+    defineField({
+      name: 'country',
+      title: 'Country',
+      type: 'string',
+    }),
+    defineField({
       name: 'coordinates',
       title: 'Coordinates',
       type: 'geopoint',
-      validation: Rule => Rule.required().error('City coordinates are required for mapping')
-    },
-    {
-      name: 'image',
-      title: 'City Image',
-      ...imageWithAlt
-    }
+    }),
   ],
-  preview: {
-    select: {
-      title: 'name',
-      media: 'image'
-    }
-  }
-}
+})

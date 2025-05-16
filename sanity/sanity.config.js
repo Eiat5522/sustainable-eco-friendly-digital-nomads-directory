@@ -12,6 +12,10 @@ import { media } from 'sanity-plugin-media'
 import { scheduledPublishing, ScheduleAction, ScheduledBadge } from '@sanity/scheduled-publishing'
 import { previewConfig } from './config/preview'
 import { schemaTypes } from './schemas'
+import listing from './schemas/listing.js'
+import city from './schemas/city.js'
+import ecoTag from './schemas/ecoTag.js'
+import review from './schemas/review.js'
 import { structure } from './structure'
 import DOMPurify from 'dompurify'
 
@@ -83,7 +87,7 @@ const config = defineConfig({
   ],
 
   schema: {
-    types: schemaTypes
+    types: [...schemaTypes, listing, city, ecoTag, review],
   },
 
   document: {

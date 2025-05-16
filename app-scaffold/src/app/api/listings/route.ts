@@ -1,41 +1,134 @@
-import { NextResponse } from 'next/server';
-import { getClient } from '@/lib/sanity/client';
+import { NextResponse, Request } from 'next/server';
+import { client as sanityClient } from '../../../lib/sanity.js';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route.js';
 import { z } from 'zod';
+import clientPromise from '@/lib/mongodb.js';
 
-const querySchema = z.object({
-  category: z.string().optional(),
-  location: z.string().optional(),
-  minRating: z.coerce.number().min(1).max(5).optional(),
-  featured: z.enum(['true', 'false']).optional(),
+// Validation schema for new listing
+const createListingSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters'),
+  cityId: z.string().min(1, 'City is required'),
+  category: z.string().min(1, 'Category is required'),
+  description_short: z.string().min(10, 'Short description must be at least 10 characters'),
+  description_long: z.string().min(50, 'Long description must be at least 50 characters'),
+  imageUrl: z.string().url('Valid image URL is required'),
+  eco_features: z.array(z.string()).optional(),
+  amenities: z.array(z.string()).optional(),
+  slug: z.string().min(1, 'Slug is required'),
 });
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const params = Object.fromEntries(searchParams.entries());
-    const validatedParams = querySchema.safeParse(params);
+    const listings = await sanityClient.fetch(
+      `*[_type == "listing"]{
+        _id,
+        name,
+        city->{name},
+        category,
+        description_short,
+        "imageUrl": primary_image_url,
+        slug
+      }`
+    );
+    return NextResponse.json(listings);
+  } catch (error) {
+    console.error('Error fetching listings:', error);
+    return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 });
+  }
+}
 
-    if (!validatedParams.success) {
+export async function POST(request: Request) {
+  try {
+    // Check authentication
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user) {
       return NextResponse.json(
-        { success: false, error: 'Invalid parameters' },
+        { success: false, message: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Check user role - only venue owners and admins can create listings
+    const userRole = session.user.role;
+    if (!['venueOwner', 'admin'].includes(userRole)) {
+      return NextResponse.json(
+        { success: false, message: 'Insufficient permissions' },
+        { status: 403 }
+      );
+    }
+
+    // Parse and validate request body
+    const body = await request.json();
+    const validationResult = createListingSchema.safeParse(body);
+    
+    if (!validationResult.success) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Invalid listing data',
+          errors: validationResult.error.errors
+        },
         { status: 400 }
       );
     }
 
-    const { category, location, minRating, featured } = validatedParams.data;
-    const query = `*[_type == "listing"] ${
-      category ? `&& category->name == $category` : ''
-    } ${location ? `&& location.city match $location + "*"` : ''} ${
-      minRating ? `&& ecoRating >= $minRating` : ''
-    } ${featured === 'true' ? `&& isFeatured == true` : ''} | order(_createdAt desc)`;
+    const validatedData = validationResult.data;
+    
+    // Create listing in Sanity
+    const newListing = await sanityClient.create({
+      _type: 'listing',
+      name: validatedData.name,
+      city: { _type: 'reference', _ref: validatedData.cityId },
+      category: validatedData.category,
+      description_short: validatedData.description_short,
+      description_long: validatedData.description_long,
+      primary_image_url: validatedData.imageUrl,
+      eco_features: validatedData.eco_features || [],
+      amenities: validatedData.amenities || [],
+      slug: {
+        _type: 'slug',
+        current: validatedData.slug
+      },
+      owner: {
+        _type: 'reference',
+        _ref: session.user.id
+      },
+      status: 'draft',
+      created_at: new Date().toISOString()
+    });
 
-    const listings = await getClient().fetch(query, validatedParams.data);
+    // Rate limiting - store creation timestamp
+    const client = await clientPromise;
+    const db = client.db();
+    await db.collection('listingCreations').insertOne({
+      userId: session.user.id,
+      listingId: newListing._id,
+      createdAt: new Date()
+    });
 
-    return NextResponse.json({ success: true, data: listings });
+    return NextResponse.json({
+      success: true, 
+      message: 'Listing created successfully',
+      listing: newListing
+    });
   } catch (error) {
-    console.error('Listings API Error:', error);
+    console.error('Error creating listing:', error);
+    
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Invalid listing data',
+          errors: error.errors 
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch listings' },
+      { success: false, message: 'Failed to create listing' },
       { status: 500 }
     );
   }
