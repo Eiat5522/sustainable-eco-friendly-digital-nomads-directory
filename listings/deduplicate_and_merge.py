@@ -3,9 +3,10 @@ import json
 import csv
 import os
 import re
-from thefuzz import fuzz
-from math import radians, sin, cos, sqrt, atan2
+import subprocess
 from datetime import datetime
+from math import radians, sin, cos, sqrt, atan2
+from thefuzz import fuzz
 
 # === City code mapping (3 lowercase letters, IATA or mnemonic) ===
 CITY_CODES = {
@@ -128,6 +129,145 @@ def archive_files(files_to_archive, archive_date, dirs):
                 print(f"Warning: Could not archive {src_path}: {str(e)}")
                 continue
 
+def process_image(url, destination_path, sizes=[(800, 600), (400, 300), (200, 150)]):
+    """
+    Download and process an image, creating multiple sizes and optimizing quality.
+    Returns the paths to all generated images.
+    """
+    try:
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(destination_path), exist_ok=True)
+
+        # Download image
+        response = requests.get(url)
+        response.raise_for_status()
+
+        # Open and process image
+        img = Image.open(BytesIO(response.content))
+
+        # Generate different sizes
+        generated_paths = []
+        base_name, ext = os.path.splitext(destination_path)
+
+        for size in sizes:
+            size_suffix = f"{size[0]}x{size[1]}"
+            size_path = f"{base_name}_{size_suffix}{ext}"
+
+            # Resize and optimize
+            resized = img.copy()
+            resized.thumbnail(size)
+            resized.save(size_path, optimize=True, quality=85)
+            generated_paths.append(size_path)
+
+        return generated_paths
+
+    except Exception as e:
+        print(f"Error processing image {url}: {str(e)}")
+        return []
+
+def process_listing_images(record, base_dir):
+    """Process all images for a listing record."""
+    if 'id' not in record:
+        return record
+
+    listing_id = record['id']
+    images_dir = os.path.join(base_dir, 'app-scaffold', 'public', 'images', 'listings', listing_id)
+
+    # Process primary image
+    if 'primary_image_url' in record:
+        try:
+            paths = process_image(
+                record['primary_image_url'],
+                os.path.join(images_dir, 'main.jpg')
+            )
+            if paths:
+                record['primary_image_url'] = f'/images/listings/{listing_id}/main.jpg'
+        except Exception as e:
+            print(f"Error processing primary image for {listing_id}: {str(e)}")
+
+    # Process gallery images
+    if 'gallery_image_urls' in record and isinstance(record['gallery_image_urls'], list):
+        new_gallery_urls = []
+        for idx, url in enumerate(record['gallery_image_urls']):
+            try:
+                paths = process_image(
+                    url,
+                    os.path.join(images_dir, f'gallery_{idx + 1}.jpg')
+                )
+                if paths:
+                    new_gallery_urls.append(f'/images/listings/{listing_id}/gallery_{idx + 1}.jpg')
+            except Exception as e:
+                print(f"Error processing gallery image {idx + 1} for {listing_id}: {str(e)}")
+
+        if new_gallery_urls:
+            record['gallery_image_urls'] = new_gallery_urls
+
+    return record
+
+def process_records(temp_data, listings_data):
+    """Process and merge records from two data sources."""
+    seen_keys = set()
+    final_records = []
+
+    for rec in temp_data:
+        key = dedupe_key(rec)
+        seen_keys.add(key)
+        if 'id' not in rec:
+            rec['id'] = generate_slug_id(
+                rec.get('name', ''),
+                rec.get('city', ''),
+                rec.get('category', '')
+            )
+        final_records.append(rec)
+
+    for rec in listings_data:
+        key = dedupe_key(rec)
+        is_duplicate = any(
+            fuzzy_match(rec['address_string'], other['address_string'])
+            for other in final_records
+            if other['name'].lower() == rec['name'].lower()
+            and other['city'].lower() == rec['city'].lower()
+        )
+
+        is_geo_duplicate = any(
+            is_close_geo(rec.get('coordinates', {}), other.get('coordinates', {}))
+            for other in final_records
+        )
+
+        if is_duplicate or is_geo_duplicate:
+            for idx, other in enumerate(final_records):
+                if (dedupe_key(other) == key or
+                    fuzzy_match(rec['address_string'], other['address_string'])):
+                    merged = merge_records(other, rec)
+                    final_records[idx] = merged
+                    break
+        else:
+            if 'id' not in rec:
+                rec['id'] = generate_slug_id(
+                    rec.get('name', ''),
+                    rec.get('city', ''),
+                    rec.get('category', '')
+                )
+            final_records.append(rec)
+
+    return final_records
+
+def write_output_csv(records, output_file):
+    """Write records to CSV file with proper handling of complex types"""
+    fieldnames = set().union(*(r.keys() for r in records))
+    with open(output_file, 'w', encoding='utf-8', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for record in records:
+            row = {}
+            for key, value in record.items():
+                if isinstance(value, (list, dict)):
+                    row[key] = json.dumps(value, ensure_ascii=False)
+                else:
+                    row[key] = value
+            writer.writerow(row)
+
 def main():
     try:
         # File Paths
@@ -139,7 +279,16 @@ def main():
         dirs = ensure_directories(base_dir)
         output_csv = os.path.join(dirs['output'], 'Listing_Population_Template.csv')
 
-        # Load Data before archiving
+        # Archive existing files
+        archive_date = datetime.now().strftime('%Y-%m-%d')
+        files_to_archive = {
+            output_csv: 'Listing_Population_Template.csv',
+            temp_listings: 'Temp_Listings.json',
+            listings: 'Listings.json'
+        }
+        archive_files(files_to_archive, archive_date, dirs)
+
+        # Load and Process Data
         temp_data = []
         listings_data = []
 
@@ -154,76 +303,35 @@ def main():
             print(f"Warning: Error reading JSON files: {str(e)}")
             return
 
-        # Archive existing files
-        archive_date = datetime.now().strftime('%Y-%m-%d')
-        files_to_archive = {
-            output_csv: 'Listing_Population_Template.csv',
-            temp_listings: 'Temp_Listings.json',
-            listings: 'Listings.json'
-        }
-        archive_files(files_to_archive, archive_date, dirs)
-
         # Process Records
-        seen_keys = set()
-        final_records = []
-
-        for rec in temp_data:
-            key = dedupe_key(rec)
-            seen_keys.add(key)
-            if 'id' not in rec:
-                rec['id'] = generate_slug_id(
-                    rec.get('name', ''),
-                    rec.get('city', ''),
-                    rec.get('category', '')
-                )
-            final_records.append(rec)
-
-        for rec in listings_data:
-            key = dedupe_key(rec)
-            is_duplicate = any(
-                fuzzy_match(rec['address_string'], other['address_string'])
-                for other in final_records
-                if other['name'].lower() == rec['name'].lower()
-                and other['city'].lower() == rec['city'].lower()
-            )
-
-            is_geo_duplicate = any(
-                is_close_geo(rec.get('coordinates', {}), other.get('coordinates', {}))
-                for other in final_records
-            )
-
-            if is_duplicate or is_geo_duplicate:
-                for idx, other in enumerate(final_records):
-                    if (dedupe_key(other) == key or
-                        fuzzy_match(rec['address_string'], other['address_string'])):
-                        final_records[idx] = merge_records(other, rec)
-                        break
-            else:
-                if 'id' not in rec:
-                    rec['id'] = generate_slug_id(
-                        rec.get('name', ''),
-                        rec.get('city', ''),
-                        rec.get('category', '')
-                    )
-                final_records.append(rec)
+        final_records = process_records(temp_data, listings_data)
 
         # Write Output
-        fieldnames = set().union(*(r.keys() for r in final_records))
-        with open(output_csv, 'w', encoding='utf-8', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
+        write_output_csv(final_records, output_csv)
 
-            for record in final_records:
-                row = {}
-                for key, value in record.items():
-                    if isinstance(value, (list, dict)):
-                        row[key] = json.dumps(value, ensure_ascii=False)
-                    else:
-                        row[key] = value
-                writer.writerow(row)
+        # Process Images (if available)
+        try:
+            print("\nProcessing images...")
+            image_processor_path = os.path.join(
+                os.path.dirname(os.path.dirname(base_dir)),
+                'scripts',
+                'process-listing-images.py'
+            )
+            if os.path.exists(image_processor_path):
+                subprocess.run([
+                    'python',
+                    image_processor_path
+                ], check=True)
+                print("Image processing complete!")
+            else:
+                print("Warning: Image processor script not found")
+        except subprocess.CalledProcessError as e:
+            print(f"Warning: Image processing failed: {str(e)}")
+        except Exception as e:
+            print(f"Warning: Error during image processing: {str(e)}")
 
         # Print Summary
-        print(f"Total Records: {len(final_records)}")
+        print(f"\nTotal Records: {len(final_records)}")
         print(f"CSV saved to: {output_csv}")
         print("\nArchive Process Summary:")
         print(f"Archived Production: {os.listdir(dirs['archived_production'])}")

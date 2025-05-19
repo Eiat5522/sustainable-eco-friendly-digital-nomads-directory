@@ -5,6 +5,7 @@ const nextConfig = {
   reactStrictMode: true,
 
   images: {
+    unoptimized: true, // Allow local image optimization
     remotePatterns: [
       {
         protocol: 'https',
@@ -20,6 +21,25 @@ const nextConfig = {
       }
     ],
   },
-};
+
+  // Enable reading local files in app directory
+  experimental: {
+    serverComponentsExternalPackages: ['sharp'],
+    serverActions: true,
+  },
+
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.csv$/,
+      loader: 'csv-loader',
+      options: {
+        dynamicTyping: true,
+        header: true,
+        skipEmptyLines: true,
+      },
+    });
+    return config;
+  },
+}
 
 export default nextConfig;
