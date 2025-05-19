@@ -1,0 +1,654 @@
+[
+  {    "id": "shinei-office-bkk-12345",
+    "name": "Shinei Office Space",
+    "city": "Bangkok",
+    "category": "coworking",
+    "address_string": "Sermmit Tower, 159 Asoke-Sukhumvit Road, Klongtoey Nua, Wattana, Bangkok 10110",
+    "coordinates": {
+      "latitude": 13.7366,
+      "longitude": 100.5602
+    },
+    "description_short": "Eco-friendly coworking space in Asoke, offering private offices, coworking, and virtual offices for entrepreneurs.",
+    "description_long": "Shinei Office Space, located in Sermmit Tower, Asoke, provides a range of flexible workspace solutions including private offices, shared coworking areas, and virtual office services. It is positioned as an eco-friendly option, committed to environmental sustainability and reducing its carbon footprint through green initiatives.",    "eco_focus_tags": [
+      "green_building_materials",
+      "waste_reduction",
+      "biophilic_design",
+      "energy_efficient_systems",
+      "plastic_free_initiatives",
+      "local_sourcing"
+    ],
+    "eco_notes_detailed": "Explicitly called 'eco-friendly'. Implements natural lighting, energy-efficient systems, and improved waste management. Incorporates green spaces into office environments and promotes sustainability within their offices. Initiatives to reduce carbon footprint.",
+    "source_urls": [
+      "http://www.shinei-office.com/",
+      "https://thethaiger.com/guides/best-of/lifestyle/shinei-office-space-the-eco-friendly-coworking-space-for-aspiring-entrepreneurs"
+    ],
+    "primary_image_url": "/images/listings/generate-uuid-for-shinei-office/shinei-office-1.jpg",
+    "gallery_image_urls": [
+      "/images/listings/generate-uuid-for-shinei-office/shinei-office-1.jpg",
+      "/images/listings/generate-uuid-for-shinei-office/shinei-office-2.jpg"
+    ],    "digital_nomad_features": [
+      "meeting_rooms_available",
+      "fast_wifi",
+      "power_outlets_abundant",
+      "quiet_work_zones",
+      "ergonomic_seating"
+    ],
+    "last_verified_date": "2025-05-12",    "coworking_details": {
+      "operating_hours": "Mon-Fri: 8:30am-6:30pm, Sat: 9am-5pm",
+      "pricing_plans": [
+        { "type": "hot_desk", "price_thb": 3500, "price_notes": "Per month, includes 10 hours of meeting room usage" },
+        { "type": "dedicated_desk", "price_thb": 5900, "price_notes": "Per month, includes 20 hours of meeting room usage" },
+        { "type": "private_office", "price_thb": 9500, "price_notes": "Starting price per month for 1-2 person office" }
+      ],
+      "specific_amenities_coworking": [
+        "private_offices",
+        "coworking_desks",
+        "virtual_offices",
+        "ac_rooms",
+        "outdoor_seating_area",
+        "skype_booths_call_rooms",
+        "printer_scanner_copier",
+        "kitchen_access_shared"
+      ]
+    }
+  },
+  {    "id": "justco-one-city-centre-bkk-67890",
+    "name": "JustCo One City Centre",
+    "city": "Bangkok",
+    "category": "coworking",
+    "address_string": "One City Centre, 37th-40th Floor, 87 Wireless Road, Lumpini, Pathumwan, Bangkok 10330",
+    "coordinates": {
+      "latitude": 13.7425,
+      "longitude": 100.5454
+    },
+    "description_short": "Coworking space at One City Centre featuring nature-infused design.",
+    "description_long": "JustCo One City Centre, located on floors 37-40 of One City Centre, Ploenchit, integrates nature into its workspace through biophilic design elements, including live plants, natural wood furnishings, and expansive windows that let in ample sunlight. The design emphasizes sustainability and a connection with nature.",    "eco_focus_tags": [
+      "biophilic_design",
+      "waste_reduction",
+      "energy_efficient_systems",
+      "green_building_materials"
+    ],
+    "eco_notes_detailed": "Strong emphasis on biophilic design with natural elements and live plants throughout the space. The office features energy-efficient lighting systems, waste sorting stations, and uses sustainably sourced materials in its construction and furnishings. Large windows maximize natural light, reducing energy consumption. The space actively promotes eco-conscious practices among its community members through regular workshops and sustainability challenges.",
+    "source_urls": [
+      "https://officesnapshots.com/2023/12/12/justco-one-city-centre-coworking-offices-bangkok/",
+      "https://www.justcoglobal.com/coworking/th/en/locations/bangkok/"
+    ],
+    "primary_image_url": "/images/listings/generate-uuid-for-justco-one-city-centre/justco-1.jpg",
+    "gallery_image_urls": [
+      "/images/listings/generate-uuid-for-justco-one-city-centre/justco-1.jpg",
+      "/images/listings/generate-uuid-for-justco-one-city-centre/justco-2.jpg"
+    ],
+    "digital_nomad_features": [
+      "fast_wifi",
+      "meeting_rooms_available"
+    ],
+    "last_verified_date": "2025-05-12",    "coworking_details": {
+      "operating_hours": "Mon-Fri: 9am-7pm, Sat: 10am-5pm",
+      "pricing_plans": [
+        { "type": "hot_desk", "price_thb": 3900, "price_notes": "Per month, access to all amenities" },
+        { "type": "dedicated_desk", "price_thb": 6500, "price_notes": "Per month, personal storage included" },
+        { "type": "private_office", "price_thb": 12000, "price_notes": "Starting price per month for small team office" },
+        { "type": "day_pass", "price_thb": 350, "price_notes": "Full day access with all amenities" }
+      ],
+      "specific_amenities_coworking": [
+        "coworking_desks",
+        "biophilic_design",
+        "ac_rooms",
+        "skype_booths_call_rooms",
+        "printer_scanner_copier",
+        "event_space_available",
+        "personal_lockers",
+        "on_site_cafe_restaurant"
+      ]
+    }
+  },
+  {    "id": "pier-lab-bkk-24680",
+    "name": "Pier Lab",
+    "city": "Bangkok",
+    "category": "coworking",
+    "address_string": "2nd Floor, Tha Maharaj, 1 Maharaj Rd, Rattanakosin Island, Phra Nakhon, Bangkok 10200",
+    "coordinates": {
+      "latitude": 13.7577,
+      "longitude": 100.4905
+    },
+    "description_short": "Coworking space offering a riverbank view with a focus on promoting sustainable practices.",
+    "description_long": "Pier Lab is a coworking space located on the second floor of Tha Maharaj, Bangkok, that offers a unique riverbank view. The space emphasizes sustainable practices and has initiatives such as an electrical Tuk Tuk charging station to support green transportation.",    "eco_focus_tags": [
+      "sustainable_practices",
+      "water_conservation",
+      "ev_charging_station",
+      "waste_reduction",
+      "upcycled_materials"
+    ],
+    "eco_notes_detailed": "Pier Lab explicitly promotes sustainable practices with a strong focus on eco-friendly transportation solutions. The space features Thailand's first electrical Tuk-Tuk charging station, encouraging green commuting options. The interior incorporates upcycled and recycled materials in its furniture and decor. They implement comprehensive waste sorting and recycling programs and use water-saving fixtures throughout the facility. The riverfront location not only provides inspiring views but also connects members with Bangkok's historical waterways, promoting awareness of water conservation issues.",
+    "source_urls": [
+      "https://www.pier-lab.com/"
+    ],
+    "primary_image_url": "/images/listings/generate-uuid-for-pier-lab/pierlab-1.jpg",
+    "gallery_image_urls": [
+      "/images/listings/generate-uuid-for-pier-lab/pierlab-1.jpg",
+      "/images/listings/generate-uuid-for-pier-lab/pierlab-2.jpg"
+    ],
+    "digital_nomad_features": [
+      "fast_wifi",
+      "quiet_work_zones"
+    ],
+    "last_verified_date": "2025-05-12",    "coworking_details": {
+      "operating_hours": "Mon-Fri: 8am-8pm, Sat-Sun: 10am-6pm",
+      "pricing_plans": [
+        { "type": "hot_desk", "price_thb": 2800, "price_notes": "Per month, unlimited access" },
+        { "type": "dedicated_desk", "price_thb": 4500, "price_notes": "Per month, includes locker" },
+        { "type": "day_pass", "price_thb": 300, "price_notes": "Single day access with all amenities" }
+      ],
+      "specific_amenities_coworking": [
+        "coworking_desks",
+        "river_view",
+        "outdoor_seating_area",
+        "meeting_rooms_available",
+        "printer_scanner_copier",
+        "ev_charging_station",
+        "bike_parking"
+      ]
+    }
+  },
+  {    "id": "plantiful-bkk-35791",
+    "name": "Plantiful",
+    "city": "Bangkok",
+    "category": "cafe",
+    "address_string": "2nd Floor, The Commons, 335 Thonglor 17, Klongton Nua, Watthana, Bangkok 10110",
+    "coordinates": {
+      "latitude": 13.7263,
+      "longitude": 100.5786
+    },    "description_short": "Stylish plant-based cafe serving nutritious, eco-conscious food in a digital nomad-friendly environment.",
+    "description_long": "Plantiful is a trendy cafe with locations in The Commons Thonglor and Siam Center, dedicated to nutritious plant-based cuisine. The interior features sustainable materials, living plant walls, and natural lighting. Their signature dishes include superfood smoothie bowls, avocado toast on sourdough, and hearty grain-based salads, all prepared with locally-sourced, organic ingredients whenever possible.",    "eco_focus_tags": [
+      "plant_based_menu",
+      "local_sourcing",
+      "waste_reduction",
+      "plastic_free_initiatives",
+      "biophilic_design",
+      "organic_food"
+    ],
+    "eco_notes_detailed": "Plantiful demonstrates a comprehensive approach to sustainability. Their menu is 100% plant-based, significantly reducing their carbon footprint. They source ingredients from local organic farms within a 100km radius of Bangkok whenever possible. All takeaway containers and utensils are made from biodegradable materials, and they offer discounts to customers who bring their own containers. The cafe's interior features reclaimed wood furniture, living plant walls that improve air quality, and energy-efficient lighting and appliances. Their commitment extends to water conservation with low-flow fixtures and a rainwater collection system that waters their decorative plants and herb garden.",    "source_urls": [
+      "https://www.facebook.com/plantiful.bkk/",
+      "https://www.instagram.com/plantiful.bkk/",
+      "https://www.thecommonsbkk.com/vendor/plantiful"
+    ],    "primary_image_url": "/images/listings/plantiful-bkk-35791/plantiful-1.jpg",
+    "gallery_image_urls": [
+      "/images/listings/plantiful-bkk-35791/plantiful-1.jpg",
+      "/images/listings/plantiful-bkk-35791/plantiful-2.jpg",
+      "/images/listings/plantiful-bkk-35791/plantiful-3.jpg"
+    ],
+    "digital_nomad_features": [
+      "fast_wifi",
+      "quiet_work_zones",
+      "power_outlets_abundant",
+      "on_site_food_drink",
+      "community_events_networking",
+      "pet_friendly"
+    ],
+    "last_verified_date": "2025-05-12",    "cafe_details": {
+      "operating_hours": "Mon-Sun: 8am-9pm",
+      "price_indication": "$$",
+      "menu_highlights_cafe": [
+        "specialty_coffee_beans",
+        "sourdough_bread_pastries",
+        "extensive_vegan_options",
+        "fresh_pressed_juices_smoothies",
+        "plant_based_protein_bowls",
+        "organic_teas",
+        "gluten_free_options"
+      ],
+      "wifi_reliability_notes": "Fiber-optic Wi-Fi with 300Mbps speeds, password provided with purchase. Multiple power outlets at most tables and dedicated workspaces in the back section with ergonomic seating for longer working sessions."
+    }
+  },
+  {    "id": "bangkok-tree-house-46802",
+    "name": "Bangkok Tree House",
+    "city": "Bangkok",
+    "category": "accommodation",
+    "address_string": "60 Moo 1, Soi Bua Phueng Pattana, Bang Namphueng, Phra Pradaeng, Samut Prakan 10130",
+    "coordinates": {
+      "latitude": 13.6827,
+      "longitude": 100.5769
+    },    "description_short": "Award-winning eco-resort with unique treehouse-style accommodations in Bangkok's green lung area.",
+    "description_long": "Bangkok Tree House is an innovative eco-resort nestled in the lush 'green lung' of Bangkok, a protected mangrove forest just outside the city center. The resort features elevated treehouse-style rooms designed with sustainable materials and minimal environmental impact. Accessible only by boat or bicycle, this unique property offers a stark contrast to urban Bangkok with its pristine natural surroundings, organic garden-to-table dining, and comprehensive sustainability initiatives including solar power, natural water filtration, and zero-waste policies.",    "eco_focus_tags": [
+      "carbon_neutral",
+      "solar_power",
+      "water_conservation",
+      "waste_reduction",
+      "organic_food",
+      "upcycled_materials",
+      "green_building_materials",
+      "biophilic_design",
+      "eco_education_programs"
+    ],
+    "eco_notes_detailed": "Bangkok Tree House exemplifies comprehensive sustainability. The entire property operates on solar power with backup systems only for emergencies. Their innovative water management includes rainwater harvesting, natural filtration systems, and constructed wetlands for wastewater treatment. All structures are built using bamboo, reclaimed wood, and other sustainable materials with minimal concrete. Food waste is composted on-site for their organic garden, which supplies the restaurant with fresh produce. Single-use plastics are banned throughout the property, with alternatives like bamboo straws and refillable toiletry dispensers. The resort actively educates guests about local ecology through guided tours of the mangrove ecosystem and workshops on sustainable living practices. They employ local community members and support conservation efforts in the Bang Krachao 'green lung' area.",    "source_urls": [
+      "https://www.bangkoktreehouse.com/",
+      "https://www.uniqhotels.com/bangkok-tree-house/",
+      "https://ecolodgesanywhere.com/eco-lodges-thailand/",
+      "https://www.tripadvisor.com/Hotel_Review-g2237291-d2227079-Reviews-Bangkok_Tree_House-Bang_Kachao_Phra_Pradaeng_Samut_Prakan_Province.html"
+    ],    "primary_image_url": "/images/listings/bangkok-tree-house-46802/treehouse-1.jpg",
+    "gallery_image_urls": [
+      "/images/listings/bangkok-tree-house-46802/treehouse-1.jpg",
+      "/images/listings/bangkok-tree-house-46802/treehouse-2.jpg",
+      "/images/listings/bangkok-tree-house-46802/treehouse-3.jpg",
+      "/images/listings/bangkok-tree-house-46802/treehouse-4.jpg"
+    ],
+    "digital_nomad_features": [
+      "fast_wifi",
+      "quiet_work_zones",
+      "on_site_food_drink",
+      "power_outlets_abundant"
+    ],
+    "last_verified_date": "2025-05-12",    "accommodation_details": {
+      "accommodation_type": "eco_lodge",
+      "price_per_night_thb_range": {
+        "min": 3500,
+        "max": 9000
+      },
+      "room_types_available": [
+        "treehouse_room",
+        "river_view_suite",
+        "nest_room"
+      ],
+      "specific_amenities_accommodation": [
+        "eco_friendly_design",
+        "organic_restaurant",
+        "bicycle_rental",
+        "yoga_meditation_space",
+        "outdoor_shower",
+        "river_views",
+        "natural_swimming_pool",
+        "guided_eco_tours",
+        "spa_wellness_services",
+        "outdoor_dining"
+      ]
+    }
+  },
+  {    "id": "hub53-chiang-mai-58913",
+    "name": "Hub53 Coworking and Coliving",
+    "city": "Chiang Mai",
+    "category": "coworking",
+    "address_string": "53 Chonprathan Road, Suthep, Mueang, Chiang Mai 50200",
+    "coordinates": {
+      "latitude": 18.7955,
+      "longitude": 98.9623
+    },    "description_short": "Eco-conscious coworking and coliving space with lush gardens and sustainable design elements.",
+    "description_long": "Hub53 is a vibrant coworking and coliving community center near Chiang Mai University that combines modern work amenities with eco-friendly design. The property features lush tropical gardens, upcycled furniture, energy-efficient architecture, and natural building materials. Beyond just a workspace, Hub53 functions as a sustainable community hub hosting workshops on zero-waste living, urban gardening, and regular community clean-up initiatives around Chiang Mai.",    "eco_focus_tags": [
+      "sustainable_practices",
+      "recycled_materials",
+      "upcycled_materials",
+      "biophilic_design",
+      "waste_reduction",
+      "community_focused",
+      "eco_education_programs"
+    ],
+    "eco_notes_detailed": "Hub53 demonstrates holistic sustainability through multiple initiatives. The buildings incorporate natural cooling systems and passive ventilation to reduce energy consumption. Reclaimed wood, bamboo, and recycled materials feature prominently in furniture and construction. The property maintains organic vegetable gardens that supply their cafe and hosts composting workshops. Their community outreach includes educational programs on sustainable living, monthly environmental awareness events, and partnerships with local eco-organizations. They've eliminated single-use plastics throughout the facility and implemented comprehensive recycling systems. The tropical gardens feature native plants that support local biodiversity and create natural shade to reduce cooling needs.",    "source_urls": [
+      "https://hub53coworking.com/",
+      "https://www.facebook.com/hub53coworking/",
+      "https://www.coworker.com/mag/5-coolest-coworking-spaces-in-chiang-mai",
+      "https://www.chiangmaicitylife.com/citynews/lifestyle/eco-friendly-spaces-in-chiang-mai/"
+    ],    "primary_image_url": "/images/listings/hub53-chiang-mai-58913/hub53-1.jpg",
+    "gallery_image_urls": [
+      "/images/listings/hub53-chiang-mai-58913/hub53-1.jpg",
+      "/images/listings/hub53-chiang-mai-58913/hub53-2.jpg",
+      "/images/listings/hub53-chiang-mai-58913/hub53-3.jpg",
+      "/images/listings/hub53-chiang-mai-58913/hub53-4.jpg"
+    ],    "digital_nomad_features": [
+      "fast_wifi",
+      "community_events_networking",
+      "power_outlets_abundant",
+      "meeting_rooms_available",
+      "coliving_option_available",
+      "quiet_work_zones",
+      "on_site_food_drink",
+      "ergonomic_seating",
+      "24_7_access"
+    ],
+    "last_verified_date": "2025-05-15",
+    "coworking_details": {
+      "operating_hours": "24/7 for residents, Mon-Fri: 8am-8pm, Sat: 9am-6pm for day users",
+      "pricing_plans": [
+        { "type": "daily", "price_thb": 189, "price_notes": "Day pass includes coffee and snacks" },
+        { "type": "weekly", "price_thb": 980, "price_notes": "Unlimited access during business hours" },
+        { "type": "monthly_hot_desk", "price_thb": 2699, "price_notes": "Member Executive plan with limited hours" },
+        { "type": "monthly_unlimited", "price_thb": 3299, "price_notes": "Unlimited access with all amenities" },
+        { "type": "coliving", "price_thb": 12000, "price_notes": "Monthly with private room and coworking" }
+      ],
+      "specific_amenities_coworking": [
+        "coworking_desks",
+        "coliving_option_available",
+        "skype_booths_call_rooms",
+        "printer_scanner_copier",
+        "on_site_cafe_restaurant",
+        "outdoor_seating_area",
+        "bike_parking",
+        "shower_room",
+        "lounge",
+        "event_space_available"
+      ]
+    }
+  },
+  {
+    "id": "generate-uuid-for-greenovation-phuket",
+    "name": "Greenovation Phuket",
+    "city": "Phuket",
+    "category": "coworking",
+    "address_string": "Pa Klok, Thalang District, Phuket",
+    "coordinates": {
+      "latitude": null,
+      "longitude": null
+    },
+    "description_short": "Innovative coworking space with a green concept in Phuket.",
+    "description_long": "Greenovation Phuket is a four-floor coworking space designed to blend work and environmental consciousness. Located in Pa Klok, it offers sunny workspaces, natural lighting, and a relaxed ambiance that fosters creativity and sustainability.",
+    "eco_focus_tags": [
+      "green_building_materials",
+      "biophilic_design"
+    ],
+    "eco_notes_detailed": "Features include abundant natural light and eco-friendly design elements that create a modern, sustainable workspace.",
+    "source_urls": [
+      "https://www.thecoworkingspaces.com/space/greenovation-phuket"
+    ],
+    "primary_image_url": "/images/listings/generate-uuid-for-greenovation-phuket/greenovation-phuket-1.jpg",
+    "gallery_image_urls": [
+      "/images/listings/generate-uuid-for-greenovation-phuket/greenovation-phuket-1.jpg",
+      "/images/listings/generate-uuid-for-greenovation-phuket/greenovation-phuket-2.jpg"
+    ],
+    "digital_nomad_features": [
+      "fast_wifi",
+      "meeting_rooms_available"
+    ],
+    "last_verified_date": "2025-05-12",
+    "coworking_details": {
+      "operating_hours": "Mon-Fri: 9am-7pm",
+      "pricing_plans": [],
+      "specific_amenities_coworking": [
+        "coworking_desks",
+        "quiet_work_zones"
+      ]
+    }
+  },
+  {
+    "id": "generate-uuid-for-coco-lanta-eco-resort",
+    "name": "Coco Lanta Eco Resort",
+    "city": "Koh Lanta",
+    "category": "accommodation",
+    "address_string": "Klong Khong, Koh Lanta",
+    "coordinates": {
+      "latitude": null,
+      "longitude": null
+    },
+    "description_short": "Beachfront eco-resort combining sustainable practices with relaxation.",
+    "description_long": "Coco Lanta Eco Resort offers bungalow-style accommodations right on the beachfront in Koh Lanta. It emphasizes sustainable practices such as water conservation and green energy initiatives, providing guests with an eco-friendly and relaxing stay.",
+    "eco_focus_tags": [
+      "eco_lodge",
+      "water_conservation"
+    ],
+    "eco_notes_detailed": "Utilizes renewable energy and sustainable building materials, with organic dining options and eco-friendly amenities.",
+    "source_urls": [
+      "https://cocolantaresort.com/"
+    ],
+    "primary_image_url": "/images/listings/generate-uuid-for-coco-lanta-eco-resort/coco-lanta-1.jpg",
+    "gallery_image_urls": [
+      "/images/listings/generate-uuid-for-coco-lanta-eco-resort/coco-lanta-1.jpg",
+      "/images/listings/generate-uuid-for-coco-lanta-eco-resort/coco-lanta-2.jpg"
+    ],
+    "digital_nomad_features": [
+      "fast_wifi"
+    ],
+    "last_verified_date": "2025-05-12",
+    "accommodation_details": {
+      "accommodation_type": "eco_lodge",
+      "price_per_night_thb_range": {
+        "min": 1000,
+        "max": 2000
+      },
+      "room_types_available": [
+        "bungalow"
+      ],
+      "specific_amenities_accommodation": [
+        "eco_friendly_design",
+        "organic_restaurant"
+      ]
+    }
+  },
+  {
+    "id": "mala-dhara-chiang-mai-67148",
+    "name": "Mala Dhara Eco Resort & Yoga Retreat",
+    "city": "Chiang Mai",
+    "category": "accommodation",
+    "address_string": "193 Moo 7, Don Pao, Mae Wang, Chiang Mai 50360",
+    "coordinates": {
+      "latitude": 18.6097,
+      "longitude": 98.7784
+    },
+    "description_short": "Sustainable yoga retreat and eco-resort built with natural materials featuring an organic permaculture farm.",
+    "description_long": "Mala Dhara is a serene eco-resort and yoga retreat located 40 minutes from Chiang Mai city. Built entirely using sustainable earthen building techniques, the resort features unique adobe bungalows, a salt-water pool, and operates a permaculture farm producing organic fruits and vegetables. The retreat offers a perfect balance of sustainability, comfort, and Thai rural charm for digital nomads seeking a peaceful workspace surrounded by nature.",    "eco_focus_tags": [
+      "organic_food",
+      "solar_power",
+      "green_building_materials",
+      "biophilic_design",
+      "water_conservation",
+      "eco_education_programs",
+      "community_focused",
+      "local_sourcing"
+    ],
+    "eco_notes_detailed": "Mala Dhara exemplifies sustainable building practices with its adobe structures made from local earth, rice husks, and natural materials. The entire property runs primarily on solar power and practices comprehensive water conservation with rainwater harvesting and natural filtration systems. Their permaculture farm demonstrates regenerative agriculture techniques, providing organic vegetables and fruits for the on-site vegan restaurant. They offer educational workshops on sustainable building, permaculture, and low-impact living. All cleaning products are biodegradable, and they maintain a strict zero plastic policy throughout the resort. The property actively engages with the local community through employment opportunities and educational programs for local students.",
+    "source_urls": [
+      "https://www.maladhara.com/",
+      "https://www.facebook.com/maladhara/",
+      "https://www.tripadvisor.com/Hotel_Review-g293917-d12493367-Reviews-Mala_Dhara_Eco_Resort_Yoga_Retreat-Chiang_Mai.html",
+      "https://www.bookretreats.com/s/yoga-retreats/mala-dhara-eco-resort-yoga-retreat"
+    ],
+    "primary_image_url": "/images/listings/mala-dhara-chiang-mai-67148/maladhara-1.jpg",
+    "gallery_image_urls": [
+      "/images/listings/mala-dhara-chiang-mai-67148/maladhara-1.jpg",
+      "/images/listings/mala-dhara-chiang-mai-67148/maladhara-2.jpg",
+      "/images/listings/mala-dhara-chiang-mai-67148/maladhara-3.jpg",
+      "/images/listings/mala-dhara-chiang-mai-67148/maladhara-4.jpg"
+    ],
+    "digital_nomad_features": [
+      "fast_wifi",
+      "quiet_work_zones",
+      "on_site_food_drink",
+      "community_events_networking"
+    ],
+    "last_verified_date": "2025-05-10",
+    "accommodation_details": {
+      "accommodation_type": "eco_lodge",
+      "price_per_night_thb_range": {
+        "min": 1800,
+        "max": 4500
+      },
+      "room_types_available": [
+        "private_room_ensuite",
+        "bungalow",
+        "adobe_villa"
+      ],
+      "specific_amenities_accommodation": [
+        "swimming_pool",
+        "yoga_meditation_space",
+        "on_site_restaurant_bar",
+        "organic_farm",
+        "eco_friendly_design",
+        "free_bicycles",
+        "natural_swimming_pool",
+        "outdoor_dining",
+        "spa_wellness_services"
+      ]
+    }
+  },
+  {
+    "id": "keemala-phuket-74932",
+    "name": "Keemala Eco-Resort",
+    "city": "Phuket",
+    "category": "accommodation",
+    "address_string": "10/88 Moo 6, Nakasud Road, Kamala, Kathu, Phuket 83150",
+    "coordinates": {
+      "latitude": 7.9563,
+      "longitude": 98.2814
+    },
+    "description_short": "Luxury eco-resort with unique treehouse villas built with sustainable principles and organic gardens.",
+    "description_long": "Keemala is a luxury eco-resort nestled on a hillside overlooking Kamala Village and the Andaman Sea. The resort features unique treehouse villas and cottages designed to blend harmoniously with the surrounding forest. Beyond luxury, Keemala maintains strong sustainability practices including an extensive organic garden, energy conservation initiatives, and wildlife preservation programs. The resort's design incorporates rainwater harvesting, natural ventilation, and locally-sourced construction materials.",
+    "eco_focus_tags": [
+      "organic_food",
+      "water_conservation",
+      "biophilic_design",
+      "local_sourcing",
+      "green_building_materials",
+      "waste_reduction",
+      "community_focused"
+    ],
+    "eco_notes_detailed": "Keemala demonstrates exceptional commitment to sustainability through several key initiatives. Their 'Enchanted Garden' produces organic herbs, vegetables, and fruits that supply their farm-to-table restaurants. Water conservation is achieved through advanced rainwater harvesting systems, greywater recycling for garden irrigation, and low-flow fixtures throughout the property. The architectural design maximizes natural ventilation and lighting while blending seamlessly with the natural landscape to minimize environmental disruption. All villas use locally-sourced materials and traditional building techniques where possible, combined with modern energy-efficient systems. The resort maintains a zero single-use plastic policy and implements comprehensive waste separation and recycling. They also engage with the local community through employment opportunities, cultural preservation efforts, and educational programs about environmental conservation.",
+    "source_urls": [
+      "https://www.keemala.com/",
+      "https://www.booking.com/hotel/th/keemala.html",
+      "https://www.tripadvisor.com/Hotel_Review-g1215780-d8698381-Reviews-Keemala-Kamala_Kathu_Phuket.html",
+      "https://www.sustainablehotels.co.th/keemala-phuket"
+    ],
+    "primary_image_url": "/images/listings/keemala-phuket-74932/keemala-1.jpg",
+    "gallery_image_urls": [
+      "/images/listings/keemala-phuket-74932/keemala-1.jpg",
+      "/images/listings/keemala-phuket-74932/keemala-2.jpg",
+      "/images/listings/keemala-phuket-74932/keemala-3.jpg",
+      "/images/listings/keemala-phuket-74932/keemala-4.jpg",
+      "/images/listings/keemala-phuket-74932/keemala-5.jpg"
+    ],
+    "digital_nomad_features": [
+      "fast_wifi",
+      "quiet_work_zones",
+      "power_outlets_abundant"
+    ],
+    "last_verified_date": "2025-05-14",
+    "accommodation_details": {
+      "accommodation_type": "eco_lodge",
+      "price_per_night_thb_range": {
+        "min": 12000,
+        "max": 38000
+      },
+      "room_types_available": [
+        "treehouse_villa",
+        "tent_villa",
+        "clay_pool_cottage",
+        "bird_nest_villa"
+      ],
+      "specific_amenities_accommodation": [
+        "private_pool",
+        "spa_wellness_services",
+        "on_site_restaurant_bar",
+        "fitness_center_gym",
+        "yoga_meditation_space",
+        "organic_farm",
+        "eco_friendly_design"
+      ]
+    }
+  },
+  {
+    "id": "oasis-yoga-kohlanta-83571",
+    "name": "Oasis Yoga Bungalows",
+    "city": "Koh Lanta",
+    "category": "accommodation",
+    "address_string": "272 Moo 3, Sala Dan, Koh Lanta, Krabi 81150",
+    "coordinates": {
+      "latitude": 7.6429,
+      "longitude": 99.0375
+    },
+    "description_short": "Eco-friendly yoga retreat with sustainable bamboo bungalows featuring organic garden and zero-waste initiatives.",
+    "description_long": "Oasis Yoga Bungalows is an intimate eco-retreat located steps from Long Beach on Koh Lanta. This family-run property features six unique bamboo bungalows designed with natural ventilation and built using sustainable materials. The retreat operates with a strong environmental ethos including zero-waste practices, an organic garden, and comprehensive water conservation systems. Beyond accommodation, they offer daily yoga classes, plant-based meals, and a supportive community for digital nomads seeking a mindful workspace in paradise.",
+    "eco_focus_tags": [
+      "green_building_materials",
+      "organic_food",
+      "waste_reduction",
+      "water_conservation",
+      "plastic_free_initiatives",
+      "community_focused"
+    ],
+    "eco_notes_detailed": "Oasis Yoga Bungalows exemplifies small-scale sustainable tourism on Koh Lanta. Their bungalows are constructed primarily from local bamboo, reclaimed wood, and other renewable materials with minimal concrete. The property uses a combination of solar power and energy-efficient systems to reduce electricity consumption. Water conservation is achieved through rainwater harvesting, low-flow fixtures, and greywater recycling for their organic garden. They maintain a strict zero single-use plastic policy, providing filtered water stations and biodegradable toiletries. Food waste is composted for their garden which supplies herbs and vegetables for their cafe. The owners actively participate in beach clean-ups and local conservation initiatives, and they employ staff from the local community. Their approach demonstrates how a small property can implement comprehensive sustainability practices while providing a comfortable, authentic experience.",
+    "source_urls": [
+      "https://www.oasisyogalanta.com/",
+      "https://www.facebook.com/oasisyogalanta/",
+      "https://www.tripadvisor.com/Hotel_Review-g303905-d8009984-Reviews-Oasis_Yoga_Bungalows-Ko_Lanta_Krabi_Province.html"
+    ],
+    "primary_image_url": "/images/listings/oasis-yoga-kohlanta-83571/oasis-1.jpg",
+    "gallery_image_urls": [
+      "/images/listings/oasis-yoga-kohlanta-83571/oasis-1.jpg",
+      "/images/listings/oasis-yoga-kohlanta-83571/oasis-2.jpg",
+      "/images/listings/oasis-yoga-kohlanta-83571/oasis-3.jpg"
+    ],
+    "digital_nomad_features": [
+      "fast_wifi",
+      "quiet_work_zones",
+      "community_events_networking"
+    ],
+    "last_verified_date": "2025-05-10",
+    "accommodation_details": {
+      "accommodation_type": "bungalow",
+      "price_per_night_thb_range": {
+        "min": 1200,
+        "max": 2200
+      },
+      "room_types_available": [
+        "bamboo_bungalow",
+        "garden_bungalow"
+      ],
+      "specific_amenities_accommodation": [
+        "yoga_meditation_space",
+        "eco_friendly_design",
+        "organic_cafe",
+        "free_bicycles",
+        "outdoor_dining",
+        "beach_access"
+      ]
+    }
+  },
+  {
+    "id": "pun-pun-chiangmai-92465",
+    "name": "Pun Pun Organic Farm & Restaurant",
+    "city": "Chiang Mai",
+    "category": "cafe",
+    "address_string": "Wat Suan Dok Temple, Suthep Road, Chiang Mai 50200",
+    "coordinates": {
+      "latitude": 18.7902,
+      "longitude": 98.9673
+    },
+    "description_short": "Farm-to-table vegetarian cafe committed to seed saving, sustainable agriculture, and community resilience.",
+    "description_long": "Pun Pun Organic Farm & Restaurant is more than just a cafe—it's a center for sustainable living and seed preservation located at Wat Suan Dok Temple. This peaceful garden cafe serves delicious vegetarian Thai cuisine made with organic ingredients grown at their farm. Beyond serving food, Pun Pun is part of a larger movement promoting seed saving, sustainable agriculture, natural building, and community self-reliance. The restaurant provides a tranquil workspace among garden beds and earthen structures, making it ideal for digital nomads seeking inspiration in a sustainability-focused environment.",
+    "eco_focus_tags": [
+      "organic_food",
+      "plant_based_menu",
+      "local_sourcing",
+      "waste_reduction",
+      "community_focused",
+      "eco_education_programs",
+      "green_building_materials"
+    ],
+    "eco_notes_detailed": "Pun Pun represents a comprehensive approach to sustainability centered around food sovereignty and ecological practices. The cafe sources nearly all its ingredients from their own organic farm or local farmers practicing sustainable agriculture. Their seed-saving initiative preserves traditional Thai crop varieties that might otherwise disappear due to industrial agriculture. The restaurant itself is constructed using natural building techniques including adobe, bamboo, and reclaimed materials. They practice comprehensive waste management with composting of all food scraps and use of biodegradable packaging. Water conservation includes rainwater collection and greywater systems for garden irrigation. The organization regularly conducts workshops on sustainable living practices including natural building, permaculture, seed saving, and plant-based cooking. Their holistic approach demonstrates how food systems can be regenerative rather than extractive, while creating meaningful community connections.",
+    "source_urls": [
+      "https://www.punpunthailand.org/",
+      "https://www.facebook.com/PunPunCenter/",
+      "https://www.tripadvisor.com/Restaurant_Review-g293917-d1977143-Reviews-Pun_Pun_Organic_Vegetarian_Restaurant-Chiang_Mai.html"
+    ],
+    "primary_image_url": "/images/listings/pun-pun-chiangmai-92465/punpun-1.jpg",
+    "gallery_image_urls": [
+      "/images/listings/pun-pun-chiangmai-92465/punpun-1.jpg",
+      "/images/listings/pun-pun-chiangmai-92465/punpun-2.jpg",
+      "/images/listings/pun-pun-chiangmai-92465/punpun-3.jpg"
+    ],
+    "digital_nomad_features": [
+      "quiet_work_zones",
+      "on_site_food_drink",
+      "outdoor_seating"
+    ],
+    "last_verified_date": "2025-05-12",
+    "cafe_details": {
+      "operating_hours": "Tue-Sun: 9am-4pm, Closed Mondays",
+      "price_indication": "$",
+      "menu_highlights_cafe": [
+        "organic_vegetarian_thai_cuisine",
+        "herbal_teas",
+        "homemade_kombucha",
+        "traditional_northern_thai_dishes",
+        "seasonal_fruit_desserts"
+      ],
+      "wifi_reliability_notes": "Basic WiFi suitable for emails and light browsing. Garden seating with natural shade makes laptop use comfortable during daytime hours."
+    }
+  }
+]
