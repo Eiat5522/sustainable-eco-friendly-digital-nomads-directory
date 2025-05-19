@@ -1,8 +1,8 @@
-import { client, getClient } from './client';
+import { getClient } from './client';
 
 export async function getAllListings(preview = false) {
   const sanityClient = getClient(preview);
-  
+
   const query = `*[_type == "listing"] {
     _id,
     name,
@@ -17,13 +17,13 @@ export async function getAllListings(preview = false) {
     wifi,
     priceRange,
   }`;
-  
+
   return await sanityClient.fetch(query);
 }
 
 export async function getListingBySlug(slug: string, preview = false) {
   const sanityClient = getClient(preview);
-  
+
   const query = `*[_type == "listing" && slug.current == $slug][0] {
     _id,
     name,
@@ -50,7 +50,7 @@ export async function getListingBySlug(slug: string, preview = false) {
     sourceUrls,
     lastVerifiedDate,    "reviews": *[_type == "review" && references(^._id)]{
       _id,
-      rating, 
+      rating,
       comment,
       author->{name}
     },
@@ -80,13 +80,13 @@ export async function getListingBySlug(slug: string, preview = false) {
       }
     )
   }`;
-  
+
   return await sanityClient.fetch(query, { slug });
 }
 
 export async function getListingsByCategory(category: string, preview = false) {
   const sanityClient = getClient(preview);
-  
+
   const query = `*[_type == "listing" && category == $category] {
     _id,
     name,
@@ -101,13 +101,13 @@ export async function getListingsByCategory(category: string, preview = false) {
     wifi,
     priceRange,
   }`;
-  
+
   return await sanityClient.fetch(query, { category });
 }
 
 export async function getListingsByCity(cityName: string, preview = false) {
   const sanityClient = getClient(preview);
-  
+
   const query = `*[_type == "listing" && city->name == $cityName] {
     _id,
     name,
@@ -122,14 +122,14 @@ export async function getListingsByCity(cityName: string, preview = false) {
     wifi,
     priceRange,
   }`;
-  
+
   return await sanityClient.fetch(query, { cityName });
 }
 
 // Get all available cities for filtering
 export async function getAllCities(preview = false) {
   const sanityClient = getClient(preview);
-  
+
   const query = `*[_type == "city"] {
     _id,
     name,
@@ -137,30 +137,30 @@ export async function getAllCities(preview = false) {
     country,
     coordinates
   }`;
-  
+
   return await sanityClient.fetch(query);
 }
 
 // Get all eco focus tags for filtering
 export async function getAllEcoTags(preview = false) {
   const sanityClient = getClient(preview);
-  
+
   const query = `*[_type == "ecoTag"] {
     _id,
     name,
     "slug": slug.current,
     description
   }`;
-  
+
   return await sanityClient.fetch(query);
 }
 
 // Search listings
 export async function searchListings(searchTerm: string, preview = false) {
   const sanityClient = getClient(preview);
-  
+
   const query = `*[_type == "listing" && (
-    name match $searchTerm || 
+    name match $searchTerm ||
     descriptionShort match $searchTerm ||
     descriptionLong match $searchTerm ||
     ecoNotesDetailed match $searchTerm
@@ -175,14 +175,14 @@ export async function searchListings(searchTerm: string, preview = false) {
     mainImage,
     "ecoFocusTags": ecoFocusTags[]->name,
   }`;
-  
+
   return await sanityClient.fetch(query, { searchTerm: `*${searchTerm}*` });
 }
 
 // Get latest blog posts
 export async function getLatestBlogPosts(limit = 3, preview = false) {
   const sanityClient = getClient(preview);
-  
+
   const query = `*[_type == "blogPost"] | order(_createdAt desc)[0...$limit] {
     _id,
     title,
@@ -192,6 +192,24 @@ export async function getLatestBlogPosts(limit = 3, preview = false) {
     _createdAt,
     "author": author->name
   }`;
-  
+
   return await sanityClient.fetch(query, { limit: limit - 1 });
+}
+
+export async function getRelatedListings(listingId: string, category: string, cityName: string, limit = 3) {
+  const query = `*[_type == "listing" && _id != $listingId && (category == $category || city->name == $cityName)][0...${limit}]{
+    _id,
+    name,
+    "slug": slug.current,
+    descriptionShort,
+    mainImage,
+    category,
+    "ecoFocusTags": ecoFocusTags[]->name,
+    "city": city->{
+      name,
+      "slug": slug.current
+    }
+  }`
+
+  return await getClient().fetch(query, { listingId, category, cityName })
 }

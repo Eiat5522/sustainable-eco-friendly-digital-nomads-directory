@@ -19,6 +19,10 @@ import listingAnalytics from './listingAnalytics'
 import userPreference from './userPreference'
 import richText from './richText'
 
+// Import new schema types
+import moderationStatus from './moderationStatus'
+import searchConfig from './searchConfig'
+
 // Export the schema types
 export const schemaTypes = [
   // Documents
@@ -31,8 +35,9 @@ export const schemaTypes = [
   user,
   blogPost,
   eventRegistration,
-  listingAnalytics,
-  userPreference,
+  listingAnalytics,  userPreference,
+  moderationStatus,
+  searchConfig,
   // Objects
   coworkingDetails,
   cafeDetails,

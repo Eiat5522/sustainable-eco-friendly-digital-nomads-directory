@@ -1,9 +1,4 @@
 import { defineConfig, devices } from '@playwright/test';
-import { fileURLToPath } from 'url';
-import path from 'path';
-
-// Convert __dirname equivalent for ES modules
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   testDir: './tests',
@@ -18,7 +13,6 @@ export default defineConfig({
     // Enable JavaScript in the browser for map functionality
     javaScriptEnabled: true,
   },
-  globalSetup: path.join(__dirname, './tests/setup/mock-data.ts'),
   projects: [
     {
       name: 'chromium',
@@ -40,10 +34,12 @@ export default defineConfig({
       name: 'Mobile Safari',
       use: { ...devices['iPhone 12'] },
     },
-  ],
-  webServer: {
+  ],  webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
+    timeout: 120000, // 2 minutes
+    stderr: 'pipe',
+    stdout: 'pipe'
   },
-});
+})

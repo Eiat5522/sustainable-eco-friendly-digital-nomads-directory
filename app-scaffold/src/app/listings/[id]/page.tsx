@@ -1,267 +1,275 @@
-import { Metadata } from 'next';
-import { ImageGallery } from '@/components/listings/ImageGallery';
-import Link from 'next/link';
+import { draftMode } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { getListingById } from '@/lib/listings';
-import { getListingImages } from '@/lib/getListingImages.js';
+import { PreviewBanner } from '@/components/preview/PreviewBanner';
+import { getClient } from '@/lib/sanity.utils';
+import { Metadata } from 'next';
+import Link from 'next/link';
+import Image from 'next/image';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
 
-interface Props {
+interface ListingPageProps {
   params: {
     id: string;
   };
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const resolvedParams = await params;
-  const listing = getListingById(resolvedParams.id);
-  if (!listing) return notFound();
+export async function generateMetadata({
+  params,
+}: ListingPageProps): Promise<Metadata> {
+  const client = getClient(false);
+  const listing = await client.fetch(
+    `*[_type == "listing" && _id == $id][0]{
+      name,
+      description_short,
+      city->{name},
+      primary_image_url
+    }`,
+    { id: params.id }
+  );
+
+  if (!listing) return { title: 'Listing Not Found' };
 
   return {
-    title: `${listing.name} | Sustainable Digital Nomads Directory`,
+    title: `${listing.name} - Eco-Friendly Space in ${listing.city.name}`,
     description: listing.description_short,
+    openGraph: {
+      title: `${listing.name} - Sustainable Digital Nomad Space`,
+      description: listing.description_short,
+      images: [{ url: listing.primary_image_url }],
+    },
   };
 }
 
-export default async function ListingPage({ params }: Props) {
-  const resolvedParams = await params;
-  const listing = getListingById(resolvedParams.id);
-  if (!listing) return notFound();
+export default async function ListingPage({ params }: ListingPageProps) {
+  const preview = draftMode().isEnabled;
+  const client = getClient(preview);
 
-  const images = getListingImages(resolvedParams.id);
+  const listing = await client.fetch(
+    `*[_type == "listing" && _id == $id][0]{
+      _id,
+      name,
+      description_short,
+      description_long,
+      city->{
+        name,
+        country,
+        slug
+      },
+      category,
+      "image": primary_image_url,
+      "gallery": gallery_image_urls,
+      eco_focus_tags,
+      digital_nomad_features,
+      "slug": slug.current,
+      price_range,
+      website_url,
+      contact_email,
+      sustainability_score,
+      amenities
+    }`,
+    { id: params.id }
+  );
+
+  if (!listing) {
+    notFound();
+  }
+
+  // Generate JSON-LD structured data
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: listing.name,
+    description: listing.description_long || listing.description_short,
+    image: listing.image,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: listing.city.name,
+      addressCountry: listing.city.country,
+    },
+    category: listing.category,
+    url: `${process.env.NEXT_PUBLIC_SITE_URL}/listings/${listing.slug}`,
+    priceRange: listing.price_range,
+  };
+
+  const breadcrumbs = [
+    { name: 'Home', href: '/' },
+    { name: 'Listings', href: '/listings' },
+    { name: listing.city.name, href: `/city/${listing.city.slug}` },
+    { name: listing.name },
+  ];
 
   return (
-    <main className="container mx-auto py-12 px-4 sm:px-6">
-      {/* Back Link */}
-      <Link
-        href="/listings"
-        className="inline-flex items-center text-emerald-600 dark:text-emerald-400 hover:underline mb-8"
-      >
-        ← Back to Listings
-      </Link>
+    <>
+      {preview && <PreviewBanner />}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
 
-      <article className="bg-stone-50 dark:bg-slate-800 p-6 sm:p-8 rounded-lg shadow-lg">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-              {listing.name}
-            </h1>
-            <span className={`inline-block px-3 py-1 text-sm font-semibold rounded-full ${
-              listing.category === 'coworking'
-                ? 'bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100' // Terracotta-like
-                : listing.category === 'cafe'
-                ? 'bg-pink-100 text-pink-800 dark:bg-pink-800 dark:text-pink-100' // Blush Pink-like
-                : 'bg-teal-100 text-teal-800 dark:bg-teal-800 dark:text-teal-100' // Soft Teal for Accommodation
-            }`}>
-              {listing.category.charAt(0).toUpperCase() + listing.category.slice(1)}
-            </span>
+        <Breadcrumbs segments={breadcrumbs} />
+
+        <article className="bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden">
+          {/* Hero Section */}
+          <div className="relative aspect-video">
+            {listing.image ? (
+              <Image
+                src={listing.image}
+                alt={listing.name}
+                fill
+                className="object-cover"
+                priority
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center">
+                <h1 className="text-white text-2xl font-bold">{listing.name}</h1>
+              </div>
+            )}
           </div>
-          <p className="text-xl text-slate-600 dark:text-slate-400">
-            {listing.description_short}
-          </p>
-        </div>
 
-        {/* Image and Key Info Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* Image Gallery */}
-          <ImageGallery
-            images={images}
-            alt={listing.name}
-          />
-
-          {/* Key Info */}
-          <div className="space-y-6 bg-white dark:bg-slate-700 p-6 rounded-lg shadow">
-            {/* Location */}
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                Location
-              </h2>
-              <p className="text-slate-600 dark:text-slate-400">{listing.address_string}</p>
-            </div>
-
-            {/* Eco Focus Tags */}
-            {listing.eco_focus_tags && listing.eco_focus_tags.length > 0 && (
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                Sustainability Features
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {listing.eco_focus_tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-block px-3 py-1 text-sm bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100 rounded-full" // Deep Forest Green-like
-                  >
-                    {tag.replace(/_/g, ' ')}
+          <div className="p-8">
+            {/* Header */}
+            <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                  {listing.name}
+                </h1>
+                <p className="text-lg text-gray-600 dark:text-gray-300">
+                  {listing.city.name}, {listing.city.country}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <span
+                  className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                    listing.category === 'coworking'
+                      ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100'
+                      : listing.category === 'accommodation'
+                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100'
+                      : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100'
+                  }`}
+                >
+                  {listing.category}
+                </span>
+                {listing.sustainability_score && (
+                  <span className="px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
+                    Eco Score: {listing.sustainability_score}/10
                   </span>
-                ))}
+                )}
               </div>
             </div>
-            )}
 
-            {/* Digital Nomad Features */}
-            {listing.digital_nomad_features && listing.digital_nomad_features.length > 0 && (
-              <div>
-                <h2 className="text-lg font-semibold text_slate-900 dark:text-white mb-2">
-                  Digital Nomad Features
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {listing.digital_nomad_features.map((feature) => (
-                    <span
-                      key={feature}
-                      className="inline-block px-3 py-1 text-sm bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100 rounded-full" // Soft Beige-like
-                    >
-                      {feature.replace(/_/g, ' ')}
-                    </span>
-                  ))}
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column - Main Info */}
+              <div className="lg:col-span-2">
+                <div className="prose dark:prose-invert max-w-none">
+                  <h2 className="text-2xl font-semibold mb-4">About This Space</h2>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    {listing.description_long || listing.description_short}
+                  </p>
+                </div>
+
+                {/* Amenities */}
+                {listing.amenities && listing.amenities.length > 0 && (
+                  <div className="mt-8">
+                    <h2 className="text-2xl font-semibold mb-4">Amenities</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {listing.amenities.map((amenity: string) => (
+                        <div key={amenity} className="flex items-center gap-2">
+                          <span className="text-emerald-600 dark:text-emerald-400">
+                            ✓
+                          </span>
+                          <span>{amenity}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Column - Features & Contact */}
+              <div className="space-y-6">
+                {/* Eco Features */}
+                <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-4">
+                    Eco Features
+                  </h3>
+                  {listing.eco_focus_tags?.length ? (
+                    <ul className="space-y-2">
+                      {listing.eco_focus_tags.map((tag: string) => (
+                        <li
+                          key={tag}
+                          className="flex items-center gap-2 text-green-700 dark:text-green-300"
+                        >
+                          <span>🌱</span>
+                          {tag}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-green-700 dark:text-green-300">
+                      No eco features listed yet.
+                    </p>
+                  )}
+                </div>
+
+                {/* Digital Nomad Features */}
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-4">
+                    Digital Nomad Features
+                  </h3>
+                  {listing.digital_nomad_features?.length ? (
+                    <ul className="space-y-2">
+                      {listing.digital_nomad_features.map((feature: string) => (
+                        <li
+                          key={feature}
+                          className="flex items-center gap-2 text-blue-700 dark:text-blue-300"
+                        >
+                          <span>💻</span>
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-blue-700 dark:text-blue-300">
+                      No features listed yet.
+                    </p>
+                  )}
+                </div>
+
+                {/* Contact & Links */}
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-6">
+                  <h3 className="text-lg font-semibold mb-4">Contact & Links</h3>
+                  <div className="space-y-4">
+                    {listing.website_url && (
+                      <a
+                        href={listing.website_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-emerald-600 dark:text-emerald-400 hover:underline"
+                      >
+                        <span>🌐</span>
+                        Visit Website
+                      </a>
+                    )}
+                    {listing.contact_email && (
+                      <div className="flex items-center gap-2">
+                        <span>📧</span>
+                        <a
+                          href={`mailto:${listing.contact_email}`}
+                          className="text-emerald-600 dark:text-emerald-400 hover:underline"
+                        >
+                          {listing.contact_email}
+                        </a>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
-        </div>
-
-        {/* Detailed Description */}
-        <div className="prose dark:prose-invert max-w-none prose-headings:text-slate-800 dark:prose-headings:text-slate-100 prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-strong:text-slate-800 dark:prose-strong:text-slate-200 prose-ul:text-slate-700 dark:prose-ul:text-slate-300 prose-li:text-slate-700 dark:prose-li:text-slate-300">
-          <h2 className="text-2xl font-semibold mt-8 mb-4">About {listing.name}</h2>
-          <p>{listing.description_long}</p>
-
-          {listing.eco_notes_detailed && (
-            <>
-              <h2 className="text-2xl font-semibold mt-6 mb-4">Sustainability Initiatives</h2>
-              <p>{listing.eco_notes_detailed}</p>
-            </>
-          )}
-
-          {/* Category-specific Details */}
-          {listing.category === 'coworking' && listing.coworking_details && (
-            <>
-              <h2>Coworking Details</h2>
-              {listing.coworking_details.operating_hours && (
-                <p>
-                  <strong>Operating Hours:</strong>{' '}
-                  {typeof listing.coworking_details.operating_hours === 'string'
-                    ? listing.coworking_details.operating_hours
-                    : Object.entries(listing.coworking_details.operating_hours).map(([key, value]) => `${key.replace(/_/g, ' ')}: ${value}`).join(', ')}
-                </p>
-              )}
-              {listing.coworking_details.pricing_plans && listing.coworking_details.pricing_plans.length > 0 && (
-                <>
-                  <h3 className="text-xl font-semibold mt-4 mb-2">Pricing Plans</h3>
-                  <ul className="list-disc list-inside space-y-1">
-                    {listing.coworking_details.pricing_plans.map((plan, index) => (
-                      <li key={index}>
-                        <span className="font-medium">{String(plan.type).replace(/_/g, ' ')}:</span> ฿{plan.price_thb}
-                        {plan.price_notes && <span className="text-sm italic"> ({plan.price_notes})</span>}
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-              {listing.coworking_details.specific_amenities_coworking && listing.coworking_details.specific_amenities_coworking.length > 0 && (
-                <>
-                  <h3 className="text-xl font-semibold mt-4 mb-2">Amenities</h3>
-                  <ul className="list-disc list-inside grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
-                    {listing.coworking_details.specific_amenities_coworking.map((amenity) => (
-                      <li key={amenity}>{amenity.replace(/_/g, ' ')}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </>
-          )}
-
-          {listing.category === 'cafe' && listing.cafe_details && (
-            <>
-              <h2>Cafe Details</h2>
-              {listing.cafe_details.operating_hours && (
-                <p>
-                  <strong>Operating Hours:</strong>{' '}
-                  {typeof listing.cafe_details.operating_hours === 'string'
-                    ? listing.cafe_details.operating_hours
-                    : Object.entries(listing.cafe_details.operating_hours).map(([key, value]) => `${key.replace(/_/g, ' ')}: ${value}`).join(', ')}
-                </p>
-              )}
-              {listing.cafe_details.price_indication && (
-                <p>
-                  <strong>Price Range:</strong> {String(listing.cafe_details.price_indication)}
-                </p>
-              )}
-              {listing.cafe_details.menu_highlights_cafe && listing.cafe_details.menu_highlights_cafe.length > 0 && (
-                <>
-                  <h3 className="text-xl font-semibold mt-4 mb-2">Menu Highlights</h3>
-                  <ul className="list-disc list-inside grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
-                    {listing.cafe_details.menu_highlights_cafe.map((highlight) => (
-                      <li key={highlight}>{highlight.replace(/_/g, ' ')}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
-              {listing.cafe_details.wifi_reliability_notes && (
-                <p>
-                  <strong>WiFi Notes:</strong> {listing.cafe_details.wifi_reliability_notes}
-                </p>
-              )}
-            </>
-          )}
-
-          {listing.category === 'accommodation' && listing.accommodation_details && (
-            <>
-              <h2>Accommodation Details</h2>
-              <p>
-                <strong>Type:</strong> {String(listing.accommodation_details.accommodation_type).replace(/_/g, ' ')}
-              </p>
-              {listing.accommodation_details.price_per_night_thb_range && (
-                <p>
-                  <strong>Price Range:</strong>{' '}
-                  {typeof listing.accommodation_details.price_per_night_thb_range === 'string'
-                    ? listing.accommodation_details.price_per_night_thb_range
-                    : `฿${(listing.accommodation_details.price_per_night_thb_range as { min?: number; max?: number }).min || 'N/A'} - ฿${(listing.accommodation_details.price_per_night_thb_range as { min?: number; max?: number }).max || 'N/A'}`}
-                </p>
-              )}
-              {listing.accommodation_details.room_types_available && listing.accommodation_details.room_types_available.length > 0 && (
-                <>
-                  <h3 className="text-xl font-semibold mt-4 mb-2">Room Types</h3>
-                  <ul className="list-disc list-inside grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
-                    {listing.accommodation_details.room_types_available.map((type) => (
-                      <li key={type}>{type.replace(/_/g, ' ')}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
-              {listing.accommodation_details.specific_amenities_accommodation && listing.accommodation_details.specific_amenities_accommodation.length > 0 && (
-                <>
-                  <h3 className="text-xl font-semibold mt-4 mb-2">Amenities</h3>
-                  <ul className="list-disc list-inside grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
-                    {listing.accommodation_details.specific_amenities_accommodation.map((amenity) => (
-                      <li key={amenity}>{amenity.replace(/_/g, ' ')}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </>
-          )}
-
-          {/* Source URLs */}
-          {listing.source_urls && listing.source_urls.length > 0 && (
-            <>
-              <h2 className="text-2xl font-semibold mt-6 mb-4">Sources & Additional Information</h2>
-              <ul className="list-disc list-inside space-y-1">
-                {listing.source_urls.map((url) => (
-                  <li key={url}>
-                    <a
-                      href={url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-emerald-600 dark:text-emerald-400 hover:underline hover:text-emerald-700 dark:hover:text-emerald-300 break-all"
-                    >
-                      {url}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </div>
-      </article>
-    </main>
+        </article>
+      </main>
+    </>
   );
 }

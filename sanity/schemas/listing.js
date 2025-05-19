@@ -1,7 +1,6 @@
-import {defineField, defineType} from 'sanity'
+import { defineField, defineType } from 'sanity'
 
-export default defineType({
-  name: 'listing',
+export default defineType({  name: 'listing',
   title: 'Listing',
   type: 'document',
   fields: [
@@ -9,6 +8,10 @@ export default defineType({
       name: 'name',
       title: 'Name',
       type: 'string',
+      validation: Rule => Rule.required(),
+      options: {
+        searchBoost: 2.0
+      }
     }),
     defineField({
       name: 'city',
@@ -178,6 +181,98 @@ export default defineType({
       title: 'Reviews',
       type: 'array',
       of: [{type: 'reference', to: [{type: 'review'}]}],
+    }),
+    defineField({
+      name: 'moderation',
+      title: 'Moderation',
+      type: 'object',
+      options: {
+        collapsible: true,
+        collapsed: false,
+      },
+      fields: [
+        {
+          name: 'status',
+          title: 'Status',
+          type: 'string',
+          options: {
+            list: [
+              {title: 'Draft', value: 'draft'},
+              {title: 'Pending Review', value: 'pending'},
+              {title: 'Published', value: 'published'},
+              {title: 'Archived', value: 'archived'},
+              {title: 'Flagged', value: 'flagged'},
+            ]
+          },
+          initialValue: 'draft'
+        },
+        {
+          name: 'featured',
+          title: 'Featured Listing',
+          type: 'boolean',
+          initialValue: false
+        },
+        {
+          name: 'verificationStatus',
+          title: 'Verification Status',
+          type: 'string',
+          options: {
+            list: [
+              {title: 'Unverified', value: 'unverified'},
+              {title: 'Verified', value: 'verified'},
+              {title: 'Needs Verification', value: 'needs_verification'},
+            ]
+          },
+          initialValue: 'unverified'
+        },
+        {
+          name: 'moderatorNotes',
+          title: 'Moderator Notes',
+          type: 'text'
+        }
+      ]
+    }),
+    defineField({
+      name: 'searchMetadata',
+      title: 'Search Metadata',
+      type: 'object',
+      description: 'Additional information to improve search functionality',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
+        {
+          name: 'keywords',
+          title: 'Additional Keywords',
+          type: 'array',
+          of: [{type: 'string'}],
+          description: 'Additional search terms that might not appear in other fields'
+        },
+        {
+          name: 'boost',
+          title: 'Search Result Boost',
+          type: 'number',
+          initialValue: 1.0,
+          description: 'Boost factor for search results (1.0 is normal)'
+        },
+        {
+          name: 'searchExcerpt',
+          title: 'Search Result Excerpt',
+          type: 'text',
+          description: 'Custom excerpt for search results display'
+        },
+        {
+          name: 'similarListings',
+          title: 'Similar Listings',
+          type: 'array',
+          of: [{
+            type: 'reference',
+            to: [{type: 'listing'}]
+          }],
+          description: 'Manually curated list of similar listings'
+        }
+      ]
     }),
   ],
 })

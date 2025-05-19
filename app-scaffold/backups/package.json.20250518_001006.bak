@@ -1,0 +1,74 @@
+{
+  "name": "app-scaffold",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "resolutions": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "@types/react": "18.2.48",
+    "@types/react-dom": "18.2.18"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "prepare": "husky install",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:performance": "node scripts/run-baseline-tests.js",
+    "test:performance:staging": "node scripts/run-baseline-tests.js --env=staging",
+    "test:performance:prod": "node scripts/run-baseline-tests.js --env=production",
+    "analyze": "ANALYZE=true ANALYZE_OPEN=true next build"
+  },
+  "dependencies": {
+    "@auth/mongodb-adapter": "^3.10.0",
+    "@sanity/client": "^6.11.1",
+    "@sanity/image-url": "^1.0.2",
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "framer-motion": "^10.18.0",
+    "leaflet": "^1.9.4",
+    "mongodb": "^6.3.0",
+    "next": "14.1.0",
+    "next-auth": "^4.24.5",
+    "next-sanity": "^7.0.7",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-intersection-observer": "^9.5.3",
+    "typescript": "^5.3.3",
+    "groq": "^3.23.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/line-clamp": "^0.4.4",
+    "@tailwindcss/typography": "^0.5.16",
+    "@types/leaflet": "^1.9.8",
+    "autoprefixer": "^10.4.18",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^15.3.2",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^4.1.6",
+    "playwright": "^1.41.0",
+    "@playwright/test": "^1.41.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

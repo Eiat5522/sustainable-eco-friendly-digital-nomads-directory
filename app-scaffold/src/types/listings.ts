@@ -3,8 +3,16 @@ export interface Coordinates {
   longitude: number | null;
 }
 
+export interface PricingPlan {
+  name: string;
+  price: number;
+  duration: string;
+  features: string[];
+}
+
 export interface Listing {
   id: string;
+  slug?: string;
   name: string;
   city: string;
   category: 'coworking' | 'cafe' | 'accommodation';
@@ -21,7 +29,7 @@ export interface Listing {
   last_verified_date: string;
   coworking_details?: {
     operating_hours: string | null;
-    pricing_plans: any[];
+    pricing_plans: PricingPlan[];
     specific_amenities_coworking: string[];
   };
   cafe_details?: {

@@ -8,12 +8,12 @@
  * @date May 15, 2025
  */
 
-import { PERFORMANCE_BUDGETS } from './performance-budgets';
+const { PERFORMANCE_BUDGETS } = require('./performance-budgets');
 
 /**
  * Configuration for baseline testing
  */
-export const BASELINE_TEST_CONFIG = {
+const BASELINE_TEST_CONFIG = {
   // Key URLs to test
   testUrls: [
     '/', // Homepage
@@ -77,7 +77,7 @@ export const BASELINE_TEST_CONFIG = {
  * Generate a Lighthouse configuration based on our performance budgets
  * @returns {Object} - Lighthouse config
  */
-export function generateLighthouseConfig() {
+function generateLighthouseConfig() {
   return {
     extends: 'lighthouse:default',
     settings: {
@@ -121,7 +121,7 @@ export function generateLighthouseConfig() {
  * Structure for storing test results
  * @returns {Object} - Empty test results object
  */
-export function createEmptyTestResults() {
+function createEmptyTestResults() {
   return {
     timestamp: Date.now(),
     date: new Date().toISOString(),
@@ -143,7 +143,7 @@ export function createEmptyTestResults() {
  * @param {number} value - The measured value
  * @returns {Object} - Result with status and details
  */
-export function evaluateMetric(category, name, value) {
+function evaluateMetric(category, name, value) {
   if (!PERFORMANCE_BUDGETS[category] || !PERFORMANCE_BUDGETS[category][name]) {
     return {
       status: 'unknown',
@@ -176,7 +176,7 @@ export function evaluateMetric(category, name, value) {
  * @param {Object} results - Test results object
  * @returns {string} - Markdown formatted report
  */
-export function generateMarkdownReport(results) {
+function generateMarkdownReport(results) {
   const { timestamp, date, summary, pageTests, apiTests } = results;
   
   let markdown = `# Performance Baseline Test Results\n\n`;
@@ -275,7 +275,7 @@ function getRecommendation(metricName) {
   return recommendations[metricName] || 'Review implementation and consider optimizing resource usage and response times.';
 }
 
-export default {
+module.exports = {
   BASELINE_TEST_CONFIG,
   generateLighthouseConfig,
   createEmptyTestResults,

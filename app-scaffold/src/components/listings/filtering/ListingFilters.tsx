@@ -1,163 +1,146 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { debounce } from 'lodash';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Switch } from '@/components/ui/switch';
-import { SearchInput } from '@/components/ui/search';
-import { formatPrice } from '@/lib/utils';
 import { Filter, X } from 'lucide-react';
-import type { Listing } from '@/types/listings';
-import type { SanityListing } from '@/types/sanity';
+import { Badge } from '@/components/ui/Badge';
+import { Checkbox } from '@/components/ui/Checkbox';
+import { RangeSlider } from '@/components/ui/RangeSlider';
+import { SortSelect } from '@/components/listings/sorting/SortSelect';
+import { SearchInput } from '@/components/ui/SearchInput';
+import { cn } from '@/lib/utils';
+import { SortOption } from '@/types/sort';
+import { FilterCombinations } from './FilterCombinations';
+import { FilterGroup, FilterOperator } from '@/types/filters';
 
-interface ListingFiltersProps {
-  listings: (Listing | SanityListing)[];
-  onFilterChange: (filters: FilterState) => void;
-  className?: string;
-  isLoading?: boolean;
-}
-
-interface FilterState {
-  searchQuery: string;
-  category: string | null;
-  city: string | null;
+export interface FiltersState {
+  search: string;
+  categories: string[];
+  cities: string[];
+  priceRange: [number, number];
   ecoTags: string[];
   nomadFeatures: string[];
-  priceRange: [number, number];
-  minRating: number | null;
-  wifi: boolean;
-  sustainableOnly: boolean;
+  sort?: SortOption;
+  combinations: FilterGroup[];
+  combinationOperator: FilterOperator;
 }
 
-const INITIAL_FILTER_STATE: FilterState = {
-  searchQuery: '',
-  category: null,
-  city: null,
+interface ListingFiltersProps {
+  className?: string;
+  onFiltersChange: (filters: FiltersState) => void;
+  onSortChange: (sortOption: SortOption) => void;
+  categories: string[];
+  cities: string[];
+  loading?: boolean;
+}
+
+const defaultFilters: FiltersState = {
+  search: '',
+  categories: [],
+  cities: [],
+  priceRange: [0, 1000],
   ecoTags: [],
   nomadFeatures: [],
-  priceRange: [0, 50000],
-  minRating: null,
-  wifi: false,
-  sustainableOnly: false,
+  sort: undefined,
+  combinations: [],
+  combinationOperator: 'AND'
 };
 
-export default function ListingFilters({
-  listings,
-  onFilterChange,
-  className = '',
-  isLoading = false,
+export function ListingFilters({
+  className,
+  onFiltersChange,
+  onSortChange,
+  categories,
+  cities,
+  loading = false
 }: ListingFiltersProps) {
-  const [filters, setFilters] = useState<FilterState>(INITIAL_FILTER_STATE);
+  const [filters, setFilters] = useState<FiltersState>(defaultFilters);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
-  // Extract unique filter options from listings
-  const categories = Array.from(new Set(listings.map(l => l.category)));
-  const cities = Array.from(new Set(listings.map(l => {
-    if ('city' in l && typeof l.city === 'string') return l.city;
-    return null;
-  }).filter(Boolean)));
-
-  // Handler for mobile filters toggle
-  const toggleMobileFilters = () => {
-    setIsMobileFiltersOpen(!isMobileFiltersOpen);
-  };
-
-  // Debounced filter handler
-  const debouncedFilterChange = useCallback(
-    debounce((newFilters: FilterState) => {
-      onFilterChange(newFilters);
-    }, 300),
-    [onFilterChange]
-  );
+  const debouncedOnFiltersChange = useCallback(
+    debounce((newFilters: FiltersState) => {
+      onFiltersChange(newFilters);
+    }, 500),
+    [onFiltersChange]
+  ) as (filters: FiltersState) => void;
 
   useEffect(() => {
-    debouncedFilterChange(filters);
-    return () => {
-      debouncedFilterChange.cancel();
-    };
-  }, [filters, debouncedFilterChange]);
+    debouncedOnFiltersChange(filters);
+  }, [filters, debouncedOnFiltersChange]);
 
-  const handleSearchChange = (value: string) => {
-    setFilters(prev => ({
+  const handleSortChange = (sortOption: SortOption) => {
+    setFilters((prev: FiltersState) => ({ ...prev, sort: sortOption }));
+    onSortChange(sortOption);
+  };
+
+  const toggleCategory = (category: string) => {
+    setFilters((prev: FiltersState) => ({
       ...prev,
-      searchQuery: value
+      categories: prev.categories.includes(category)
+        ? prev.categories.filter((c: string) => c !== category)
+        : [...prev.categories, category]
     }));
   };
 
-  const handleCategoryChange = (category: string | null) => {
-    setFilters(prev => ({
+  const toggleCity = (city: string) => {
+    setFilters((prev: FiltersState) => ({
       ...prev,
-      category
+      cities: prev.cities.includes(city)
+        ? prev.cities.filter((c: string) => c !== city)
+        : [...prev.cities, city]
     }));
   };
 
-  const handleCityChange = (city: string | null) => {
-    setFilters(prev => ({
-      ...prev,
-      city
-    }));
+  const setPriceRange = (range: [number, number]) => {
+    setFilters((prev: FiltersState) => ({ ...prev, priceRange: range }));
   };
 
-  const handleEcoTagToggle = (tag: string) => {
-    setFilters(prev => ({
+  const toggleEcoTag = (tag: string) => {
+    setFilters((prev: FiltersState) => ({
       ...prev,
       ecoTags: prev.ecoTags.includes(tag)
-        ? prev.ecoTags.filter(t => t !== tag)
+        ? prev.ecoTags.filter((t: string) => t !== tag)
         : [...prev.ecoTags, tag]
     }));
   };
 
-  const handleNomadFeatureToggle = (feature: string) => {
-    setFilters(prev => ({
+  const toggleNomadFeature = (feature: string) => {
+    setFilters((prev: FiltersState) => ({
       ...prev,
       nomadFeatures: prev.nomadFeatures.includes(feature)
-        ? prev.nomadFeatures.filter(f => f !== feature)
+        ? prev.nomadFeatures.filter((f: string) => f !== feature)
         : [...prev.nomadFeatures, feature]
     }));
   };
 
-  const handlePriceRangeChange = (value: number[]) => {
-    setFilters(prev => ({
-      ...prev,
-      priceRange: [value[0], value[1]] as [number, number]
-    }));
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters((prev: FiltersState) => ({ ...prev, search: e.target.value }));
   };
 
-  const handleWifiToggle = (checked: boolean) => {
-    setFilters(prev => ({
-      ...prev,
-      wifi: checked
-    }));
-  };
-
-  const handleSustainableOnlyToggle = (checked: boolean) => {
-    setFilters(prev => ({
-      ...prev,
-      sustainableOnly: checked
-    }));
+  const toggleMobileFilters = () => {
+    setIsMobileFiltersOpen(!isMobileFiltersOpen);
   };
 
   const resetFilters = () => {
-    setFilters(INITIAL_FILTER_STATE);
+    setFilters(defaultFilters);
   };
+
+  if (loading) {
+    return <LoadingFilters />;
+  }
 
   return (
     <>
-      {/* Mobile Filter Button */}
       <div className="lg:hidden fixed bottom-4 right-4 z-40">
         <button
           onClick={toggleMobileFilters}
-          className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-500 text-white shadow-lg"
-          aria-label="Toggle filters"
+          className="bg-primary-600 text-white p-4 rounded-full shadow-lg flex items-center space-x-2"
         >
-          <Filter className="w-5 h-5" />
+          <Filter className="h-5 w-5" />
         </button>
       </div>
 
-      {/* Mobile Filter Drawer */}
       <AnimatePresence>
         {isMobileFiltersOpen && (
           <motion.div
@@ -171,35 +154,28 @@ export default function ListingFilters({
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 30 }}
-              className="absolute right-0 top-0 h-full w-full max-w-xs bg-white px-4 py-6 shadow-xl"
+              className="absolute right-0 top-0 h-full w-full max-w-xs bg-white p-6"
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold">Filters</h2>
-                <button
-                  onClick={toggleMobileFilters}
-                  className="rounded-full p-2 hover:bg-gray-100"
-                  aria-label="Close filters"
-                >
-                  <X className="w-5 h-5" />
+                <button onClick={toggleMobileFilters} className="text-gray-500">
+                  <X className="h-5 w-5" />
                 </button>
               </div>
-              {/* Filter Content */}
               <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-10rem)]">
-                <FilterContent
+                <FiltersContent
                   filters={filters}
-                  isLoading={isLoading}
-                  listings={listings}
-                  onSearchChange={handleSearchChange}
-                  onCategoryChange={handleCategoryChange}
-                  onCityChange={handleCityChange}
-                  onEcoTagToggle={handleEcoTagToggle}
-                  onNomadFeatureToggle={handleNomadFeatureToggle}
-                  onPriceRangeChange={handlePriceRangeChange}
-                  onWifiToggle={handleWifiToggle}
-                  onSustainableOnlyToggle={handleSustainableOnlyToggle}
                   categories={categories}
-                  cities={cities}
+                  cities={cities.filter((city): city is string => city !== null)}
+                  onSearchChange={handleSearchChange}
+                  toggleCategory={toggleCategory}
+                  toggleCity={toggleCity}
+                  setPriceRange={setPriceRange}
+                  toggleEcoTag={toggleEcoTag}
+                  toggleNomadFeature={toggleNomadFeature}
+                  onSortChange={handleSortChange}
+                  onCombinationsChange={(combinations) => setFilters((prev) => ({ ...prev, combinations }))}
+                  onCombinationOperatorChange={(operator) => setFilters((prev) => ({ ...prev, combinationOperator: operator }))}
                 />
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t">
@@ -207,7 +183,7 @@ export default function ListingFilters({
                   onClick={resetFilters}
                   className="w-full py-2 text-sm text-primary-600 hover:text-primary-700"
                 >
-                  Reset all filters
+                  Reset Filters
                 </button>
               </div>
             </motion.div>
@@ -215,87 +191,83 @@ export default function ListingFilters({
         )}
       </AnimatePresence>
 
-      {/* Desktop Filters */}
-      <div className={`hidden lg:block ${className}`}>
-        <FilterContent
+      <div className={cn('hidden lg:block', className)}>
+        <FiltersContent
           filters={filters}
-          isLoading={isLoading}
-          listings={listings}
-          onSearchChange={handleSearchChange}
-          onCategoryChange={handleCategoryChange}
-          onCityChange={handleCityChange}
-          onEcoTagToggle={handleEcoTagToggle}
-          onNomadFeatureToggle={handleNomadFeatureToggle}
-          onPriceRangeChange={handlePriceRangeChange}
-          onWifiToggle={handleWifiToggle}
-          onSustainableOnlyToggle={handleSustainableOnlyToggle}
           categories={categories}
-          cities={cities}
+          cities={cities.filter((city): city is string => city !== null)}
+          onSearchChange={handleSearchChange}
+          toggleCategory={toggleCategory}
+          toggleCity={toggleCity}
+          setPriceRange={setPriceRange}
+          toggleEcoTag={toggleEcoTag}
+          toggleNomadFeature={toggleNomadFeature}
+          onSortChange={handleSortChange}
+          onCombinationsChange={(combinations) => setFilters((prev) => ({ ...prev, combinations }))}
+          onCombinationOperatorChange={(operator) => setFilters((prev) => ({ ...prev, combinationOperator: operator }))}
         />
       </div>
     </>
   );
 }
 
-// Separate component for filter content to avoid duplication
-function FilterContent({
-  filters,
-  isLoading,
-  listings,
-  onSearchChange,
-  onCategoryChange,
-  onCityChange,
-  onEcoTagToggle,
-  onNomadFeatureToggle,
-  onPriceRangeChange,
-  onWifiToggle,
-  onSustainableOnlyToggle,
-  categories,
-  cities,
-}: {
-  filters: FilterState;
-  isLoading: boolean;
-  listings: (Listing | SanityListing)[];
-  onSearchChange: (value: string) => void;
-  onCategoryChange: (category: string | null) => void;
-  onCityChange: (city: string | null) => void;
-  onEcoTagToggle: (tag: string) => void;
-  onNomadFeatureToggle: (feature: string) => void;
-  onPriceRangeChange: (value: number[]) => void;
-  onWifiToggle: (checked: boolean) => void;
-  onSustainableOnlyToggle: (checked: boolean) => void;
+interface FiltersContentProps {
+  filters: FiltersState;
   categories: string[];
   cities: string[];
-}) {
+  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  toggleCategory: (category: string) => void;
+  toggleCity: (city: string) => void;
+  setPriceRange: (range: [number, number]) => void;
+  toggleEcoTag: (tag: string) => void;
+  toggleNomadFeature: (feature: string) => void;
+  onSortChange: (sortOption: SortOption) => void;
+  onCombinationsChange: (combinations: FilterGroup[]) => void;
+  onCombinationOperatorChange: (operator: FilterOperator) => void;
+}
+
+function FiltersContent({
+  filters,
+  categories,
+  cities,
+  onSearchChange,
+  toggleCategory,
+  toggleCity,
+  setPriceRange,
+  toggleEcoTag,
+  toggleNomadFeature,
+  onSortChange,
+  onCombinationsChange,
+  onCombinationOperatorChange
+}: FiltersContentProps) {
   return (
     <div className="space-y-6">
-      {/* Search */}
+      <div className="space-y-2">
+        <SortSelect onSortChange={onSortChange} />
+      </div>
+
       <div className="space-y-2">
         <label htmlFor="search" className="text-sm font-medium">
           Search
         </label>
         <SearchInput
-          id="search"
-          value={filters.searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          value={filters.search}
+          onChange={onSearchChange}
           placeholder="Search listings..."
           className="w-full"
         />
       </div>
 
-      {/* Categories */}
       <div className="space-y-2">
         <h3 className="text-sm font-medium">Categories</h3>
-        {isLoading ? (
-          <LoadingPlaceholder />
-        ) : (
+        {categories.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
               <Badge
                 key={category}
-                variant={filters.category === category ? 'default' : 'outline'}
+                variant={filters.categories.includes(category) ? 'default' : 'outline'}
                 className="cursor-pointer"
-                onClick={() => onCategoryChange(category)}
+                onClick={() => toggleCategory(category)}
               >
                 {category}
               </Badge>
@@ -304,19 +276,16 @@ function FilterContent({
         )}
       </div>
 
-      {/* Cities */}
       <div className="space-y-2">
-        <h3 className="text-sm font-medium">Location</h3>
-        {isLoading ? (
-          <LoadingPlaceholder />
-        ) : (
+        <h3 className="text-sm font-medium">Cities</h3>
+        {cities.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {cities.map((city) => (
               <Badge
                 key={city}
-                variant={filters.city === city ? 'default' : 'outline'}
+                variant={filters.cities.includes(city) ? 'default' : 'outline'}
                 className="cursor-pointer"
-                onClick={() => onCityChange(city)}
+                onClick={() => toggleCity(city)}
               >
                 {city}
               </Badge>
@@ -325,81 +294,77 @@ function FilterContent({
         )}
       </div>
 
-      {/* Price Range */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium">Price Range</h3>
           <span className="text-sm text-gray-500">
-            {formatPrice(filters.priceRange[0])} - {formatPrice(filters.priceRange[1])}
+            ${filters.priceRange[0]} - ${filters.priceRange[1]}
           </span>
         </div>
-        <Slider
-          defaultValue={filters.priceRange}
+        <RangeSlider
           min={0}
-          max={50000}
-          step={1000}
-          onValueChange={onPriceRangeChange}
-          className="w-full"
+          max={1000}
+          step={50}
+          value={filters.priceRange}
+          onChange={setPriceRange}
         />
       </div>
 
-      {/* Eco Features */}
       <div className="space-y-2">
         <h3 className="text-sm font-medium">Sustainability Features</h3>
-        {isLoading ? (
-          <LoadingPlaceholder />
-        ) : (
-          <div className="grid grid-cols-2 gap-2">
-            {Array.from(new Set(listings.flatMap(l => {
-              if ('ecoTags' in l) return l.ecoTags || [];
-              return [];
-            }))).map(tag => (
-              <div key={tag} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`eco-${tag}`}
-                  checked={filters.ecoTags.includes(tag)}
-                  onCheckedChange={() => onEcoTagToggle(tag)}
-                />
-                <label
-                  htmlFor={`eco-${tag}`}
-                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  {tag.replace(/_/g, ' ')}
-                </label>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-2 gap-2">
+          {['Solar Power', 'Composting', 'Water Conservation', 'Local Food'].map((tag) => (
+            <div key={tag} className="flex items-center space-x-2">
+              <Checkbox
+                id={`eco-${tag}`}
+                checked={filters.ecoTags.includes(tag)}
+                onCheckedChange={() => toggleEcoTag(tag)}
+              />
+              <label
+                htmlFor={`eco-${tag}`}
+                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                {tag}
+              </label>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Quick Toggles */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <label htmlFor="wifi" className="text-sm font-medium">
-            Fast WiFi Available
+            High-Speed WiFi
           </label>
-          <Switch
+          <Checkbox
             id="wifi"
-            checked={filters.wifi}
-            onCheckedChange={onWifiToggle}
+            checked={filters.nomadFeatures.includes('wifi')}
+            onCheckedChange={() => toggleNomadFeature('wifi')}
           />
         </div>
         <div className="flex items-center justify-between">
           <label htmlFor="sustainable" className="text-sm font-medium">
-            Sustainable Only
+            Sustainable Workspace
           </label>
-          <Switch
+          <Checkbox
             id="sustainable"
-            checked={filters.sustainableOnly}
-            onCheckedChange={onSustainableOnlyToggle}
+            checked={filters.nomadFeatures.includes('sustainable')}
+            onCheckedChange={() => toggleNomadFeature('sustainable')}
           />
         </div>
       </div>
+
+      <FilterCombinations
+        combinations={filters.combinations}
+        onCombinationsChange={onCombinationsChange}
+        globalOperator={filters.combinationOperator}
+        onGlobalOperatorChange={onCombinationOperatorChange}
+      />
     </div>
   );
 }
 
-function LoadingPlaceholder() {
+function LoadingFilters() {
   return (
     <div className="space-y-2 animate-pulse">
       <div className="h-4 bg-gray-200 rounded w-24" />

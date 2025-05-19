@@ -1,8 +1,8 @@
-import Link from 'next/link';
-import Image from 'next/image';
+import { urlForImage } from '@/lib/sanity/client';
 import { type Listing } from '@/types/listings';
 import { SanityListing } from '@/types/sanity';
-import { urlForImage } from '@/lib/sanity/client';
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface ListingGridProps {
   listings: (Listing | SanityListing)[];
@@ -13,7 +13,7 @@ export default function ListingGrid({ listings, useSlug = false }: ListingGridPr
   // Helper function to get image URL (from Sanity or directly)
   const getImageUrl = (listing: Listing | SanityListing) => {
     const isSanityListing = '_type' in listing || 'slug' in listing;
-    
+
     if (isSanityListing && 'mainImage' in listing && listing.mainImage) {
       return urlForImage(listing.mainImage)
         .width(800)
@@ -24,48 +24,48 @@ export default function ListingGrid({ listings, useSlug = false }: ListingGridPr
     }
     return (listing as Listing).primary_image_url;
   };
-  
+
   // Helper to get listing URL (by slug or ID)
   const getListingUrl = (listing: Listing | SanityListing) => {
     const isSanityListing = '_type' in listing || 'slug' in listing;
-    
+
     if (useSlug && isSanityListing && 'slug' in listing) {
       return `/listings/${listing.slug}`;
     }
-    return `/listings/${(listing as Listing).id || (listing as SanityListing)._id}`;
+    return `/listings/${(listing as Listing).slug?.current || (listing as SanityListing).slug.current}`;
   };
-  
+
   // Helper to get eco tags (different field names in different models)
   const getEcoTags = (listing: Listing | SanityListing) => {
     const isSanityListing = '_type' in listing || 'slug' in listing;
-    
+
     return isSanityListing && 'ecoTags' in listing
       ? listing.ecoTags
       : (listing as Listing).eco_focus_tags;
   };
-  
+
   // Helper to get location/city
   const getLocation = (listing: Listing | SanityListing) => {
     const isSanityListing = '_type' in listing || 'slug' in listing;
-    
-    return isSanityListing 
-      ? listing.city 
+
+    return isSanityListing
+      ? listing.city
       : (listing as Listing).city;
   };
-  
+
   // Helper to get description
   const getDescription = (listing: Listing | SanityListing) => {
     const isSanityListing = '_type' in listing || 'slug' in listing;
-    
+
     return isSanityListing && 'descriptionShort' in listing
       ? listing.descriptionShort
       : (listing as Listing).description_short;
   };
-  
+
   // Helper to get address
   const getAddress = (listing: Listing | SanityListing) => {
     const isSanityListing = '_type' in listing || 'slug' in listing;
-    
+
     return isSanityListing && 'addressString' in listing
       ? listing.addressString
       : (listing as Listing).address_string;
@@ -90,7 +90,7 @@ export default function ListingGrid({ listings, useSlug = false }: ListingGridPr
             />
             <div className="absolute top-4 right-4 z-10">
               <span className={`
-                inline-block px-3 py-1 text-sm font-medium rounded-full 
+                inline-block px-3 py-1 text-sm font-medium rounded-full
                 ${listing.category === 'coworking' ? 'bg-category-coworking text-white' :
                   listing.category === 'cafe' ? 'bg-category-cafe text-white' :
                   'bg-category-accommodation text-white'}
@@ -108,7 +108,7 @@ export default function ListingGrid({ listings, useSlug = false }: ListingGridPr
             <p className="text-gray-600 text-sm mb-4 line-clamp-2">
               {getDescription(listing)}
             </p>
-            
+
             <div className="flex flex-wrap gap-2 mb-4">
               {getEcoTags(listing)?.slice(0, 3).map((tag) => (
                 <span

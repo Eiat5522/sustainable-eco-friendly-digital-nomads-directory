@@ -1,0 +1,329 @@
+{
+  "apexPMD.jrePath": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.6.7-hotspot\\bin\\java.exe",
+  "salesforcedx-vscode-apex.java.home": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.6.7-hotspot",
+  "workbench.startupEditor": "none",
+  "roo-cline.allowedCommands": [
+    "npm install",
+    "tsc",
+    "git log",
+    "git diff",
+    "git show",
+    "cd",
+    "mkdir",
+    "npx",
+    "node",
+    "npm run",
+    "rm"
+  ],
+  "workbench.secondarySideBar.showLabels": false,
+  "window.newWindowDimensions": "maximized",
+  "window.openFilesInNewWindow": "default",
+  "window.openWithoutArgumentsInNewWindow": "off",
+  "terminal.integrated.automationProfile.windows": {},
+  "files.autoSave": "afterDelay",
+  "mcp": {
+    "inputs": [
+      {
+        "type": "promptString",
+        "id": "pg_url",
+        "description": "PostgreSQL URL (e.g. postgresql://user:pass@localhost:5432/mydb)",
+        "default": "postgresql://user:pass@localhost:5432/defaultdb"
+      },
+      {
+        "type": "promptString",
+        "id": "pg_user",
+        "description": "PostgreSQL User",
+        "default": "postgres"
+      },
+      {
+        "type": "promptString",
+        "id": "pg_password",
+        "description": "PostgreSQL Password",
+        "default": "Eiat@5522"
+      },
+      {
+        "type": "promptString",
+        "id": "pg_host",
+        "description": "PostgreSQL Host",
+        "default": "localhost"
+      },
+      {
+        "type": "promptString",
+        "id": "pg_port",
+        "description": "PostgreSQL Port",
+        "default": "5432"
+      },
+      {
+        "type": "promptString",
+        "id": "pg_database",
+        "description": "PostgreSQL Database",
+        "default": "wingman_db"
+      },
+      {
+        "type": "promptString",
+        "id": "apiKey",
+        "description": "4bcad19e6aff46c390dac5450caa6983",
+        "password": true
+      },
+      {
+        "type": "promptString",
+        "id": "6f4a6a408ed32ecba4eecf41475a46e926ab0b707485501ffca358669e8b0038",
+        "description": "21st.dev Magic API Key",
+        "password": true
+      },
+      {
+        "type": "promptString",
+        "id": "tavily_api_key",
+        "description": "Tavily API Key",
+        "password": true
+      }
+    ],
+    "windows-cli": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@simonb97/server-win-cli",
+        "--config",
+        "D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/win-cli-config.json"
+      ]
+    },
+    "servers": {
+      "memory": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-memory"]
+      },
+      "github.com/modelcontextprotocol/servers/tree/main/src/filesystem": {
+        "autoApprove": [
+          "create_directory",
+          "list_allowed_directories",
+          "list_directory",
+          "read_file",
+          "read_multiple_files",
+          "write_file",
+          "edit_file",
+          "directory_tree",
+          "move_file",
+          "search_files",
+          "get_file_info"
+        ],
+        "disabled": false,
+        "timeout": 60,
+        "command": "cmd",
+        "args": [
+          "/c",
+          "npx",
+          "-y",
+          "@modelcontextprotocol/server-filesystem",
+          "D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory"
+        ],
+        "transportType": "stdio"
+      },
+      "playwright": {
+        "command": "npx",
+        "args": ["-y", "@playwright/mcp@latest"]
+      },
+      "context7": {
+        "command": "npx",
+        "args": ["-y", "@upstash/context7-mcp@latest"]
+      },
+      "github.com/zcaceres/fetch-mcp": {
+        "autoApprove": [
+          "fetch_html",
+          "fetch_markdown",
+          "fetch_txt",
+          "fetch_json"
+        ],
+        "disabled": false,
+        "timeout": 60,
+        "command": "node",
+        "args": [
+          "D:/Eiat_Folder/AppData/Local/Cline/MCP/github.com/zcaceres/fetch-mcp/dist/index.js"
+        ],
+        "transportType": "stdio"
+      },
+      "sequentialthinking": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+      },
+      "git": {
+        "command": "uvx",
+        "args": ["mcp-server-git"]
+      },
+      "time": {
+        "command": "uvx",
+        "args": ["mcp-server-time"]
+      },
+      "mongodb": {
+        "command": "npx",
+        "args": ["-y", "mongodb-mcp-server"],
+        "env": {
+          "MDB_MCP_CONNECTION_STRING": "${env:MONGODB_URL}"
+        }
+      },
+      "postgres": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-postgres",
+          "${input:pg_url}"
+        ],
+        "env": {
+          "PG_MCP_CONNECTION_STRING": "postgresql://${input:pg_user}:${input:pg_password}@${input:pg_host}:${input:pg_port}/${input:pg_database}"
+        }
+      },
+      "taskmaster-ai": {
+        "command": "npx",
+        "args": ["-y", "--package=task-master-ai", "task-master-ai"],
+        "env": {
+          "GOOGLE_API_KEY": "${env:GOOGLE_API_KEY}"
+        }
+      },
+      "software-planning": {
+        "command": "node",
+        "args": [
+          "D:/Eiat_Folder/AppData/Local/Cline/MCP/Software-planning-mcp/build/index.js"
+        ]
+      },
+      "firecrawl": {
+        "command": "npx",
+        "args": ["-y", "firecrawl-mcp"]
+      },
+      "taskmanager": {
+        "command": "node",
+        "args": [
+          "C:/Users/Dev/Documents/Cline/MCP/mcp-taskmanager/dist/index.js"
+        ]
+      },
+      "neo4j": {
+        "command": "uvx",
+        "args": ["mcp-neo4j-memory@0.1.3"],
+        "env": {
+          "NEO4J_URL": "${env:NEO4J_URL}",
+          "NEO4J_USERNAME": "${env:NEO4J_USERNAME}",
+          "NEO4J_PASSWORD": "${env:NEO4J_PASSWORD}"
+        }
+      },
+      "linear": {
+        "command": "node",
+        "args": [
+          "D:/Eiat_Folder/AppData/Local/Cline/MCP/github.com/cline/linear-mcp/build/index.js"
+        ],
+        "env": {
+          "LINEAR_API_KEY": "${env:LINEAR_API_KEY}"
+        }
+      },
+      "exa": {
+        "command": "npx",
+        "args": [
+          "D:/Eiat_Folder/Dev/AppData/Roaming/npm/node_modules/exa-mcp-server/build.index.json"
+        ],
+        "env": {
+          "EXA_API_KEY": "${env:EXA_API_KEY}"
+        }
+      },
+      "dart": {
+        "command": "npx",
+        "args": ["-y", "dart-mcp-server"],
+        "env": {
+          "DART_TOKEN": "${env:DART_TOKEN}"
+        }
+      },
+      "shell": {
+        "command": "uv",
+        "args": ["--directory", ".", "run", "mcp-shell-server"],
+        "env": {
+          "ALLOW_COMMANDS": "ls,cat,pwd,grep,wc,touch,find,cd,Set-Location"
+        }
+      },
+      "duckduckgo": {
+        "command": "uvx",
+        "args": ["ddg-mcp-server"]
+      },
+      "figma": {
+        "command": "npx",
+        "args": ["-y", "figma-developer-mcp"],
+        "env": {
+          "FIGMA_API_KEY": "${env:FIGMA_API_KEY}"
+        }
+      },
+      "21st-dev-magic": {
+        "command": "cmd",
+        "args": [
+          "/c",
+          "npx",
+          "-y",
+          "@21st-dev/magic@latest",
+          "--magic-api-key=${env:MAGIC_API_KEY}"
+        ]
+      },
+      "puppeteer": {
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
+      },
+      "tavily": {
+        "command": "npx",
+        "args": ["-y", "tavily-mcp@0.1.4"],
+        "env": {
+          "TAVILY_API_KEY": "${env:TAVILY_API_KEY}"
+        }
+      }
+    }
+  },
+  "websearch.preferredEngine": "tavily",
+  "editor.minimap.enabled": false,
+  "chat": {},
+  "security.workspace.trust.untrustedFiles": "open",
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "database-client.autoSync": true,
+  "workbench.panel.showLabels": false,
+  "diffEditor.maxComputationTime": 0,
+  "editor.dropIntoEditor.preferences": [],
+  "roo-cline.vsCodeLmModelSelector": {
+    "experimentalFeatures": {
+      "enableGitHubCopilotConnection": true
+    },
+    "providers": {
+      "githubCopilot": {
+        "models": {
+          "claude": {
+            "modelId": "claude-3-7-sonnet-20250219",
+            "priority": 1
+          }
+        }
+      }
+    }
+  },
+  "remote.SSH.remotePlatform": {
+    "ssh-cranky-hypatia2-r9xdn.view-3.tempo-dev.app": "linux"
+  },
+  "material-icon-theme.saturation": 1,
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": true,
+    "markdown": true,
+    "scminput": false
+  },
+  "chat.instructionsFilesLocations": {
+    ".github/copilot-instructions.md": true
+  },
+  "github.copilot.nextEditSuggestions.fixes": true,
+  "workbench.settings.applyToAllProfiles": [],
+  "workbench.colorTheme": "Default Light Modern",
+  "accessibility.voice.autoSynthesize": "on",
+  "accessibility.voice.keywordActivation": "chatInView",
+  "accessibility.voice.speechTimeout": 1250,
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "redhat.telemetry.enabled": true,
+  "accessibility.voice.speechLanguage": "en-US",
+  "accessibility.voice.ignoreCodeBlocks": true,
+  "git.openRepositoryInParentFolders": "never",
+  "workbench.productIconTheme": "material-product-icons",
+  "playwright.pickLocatorCopyToClipboard": false,
+  "workbench.editorAssociations": {
+    "*.copilotmd": "vscode.markdown.preview.editor",
+    "*.txt": "default"
+  },
+  "workbench.editor.tabActionLocation": "left",
+  "workbench.editor.autoLockGroups": {},
+  "workbench.editor.processExplorer": false
+}

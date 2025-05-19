@@ -144,4 +144,4 @@ src/components/
 
 This guide reflects our frontend implementation based on 2025 design trends, sustainable principles, and our brand guidelines. As we continue developing, we'll expand this documentation with additional components and patterns.
 
-*Last updated: May 16, 2025*
+##Last updated: May 16, 2025*

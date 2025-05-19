@@ -1,251 +1,192 @@
-import { groq } from 'next-sanity'
-import { getClient } from '@/lib/sanity.utils'
-import type { ListingFilters } from '@/components/ListingFilters'
-import type {
-  ListingStats,
-  WorkspaceResult,
-  SearchResult,
-  NearbyVenue,
-  VenueSummary
-} from '@/types/query-types'
+import { groq } from 'next-sanity';
+import { getClient } from './sanity/client';
+import { SortOption } from '../types/sort';
+import { ListingFilters, FilterResults } from '../types/filters';
+import { SanityListing } from '../types/sanity';
 
-// Base listing fields
-const listingFields = groq`
+// Common field definitions
+const listingFields = `
   _id,
   name,
-  slug,
+  "slug": slug.current,
   description,
-  type,
-  priceRange,
-  "mainImage": mainImage.asset->{url},
-  "galleryImages": galleryImages[].asset->{url},
-  "city": city->{
-    _id,
-    name,
-    slug,
-    country,
-    coordinates
-  },
-  "ecoTags": ecoTags[]->{
-    _id,
-    name,
-    slug,
-    description,
-    icon
-  },
-  location,
-  address,
+  category,
+  "city": city->name,
+  coordinates,
+  mainImage,
+  "ecoTags": ecoFocusTags[]->name,
+  "nomadFeatures": nomadFeatures[]->name,
   rating,
-  website,
-  phone,
-  email,
-  socialLinks,
-  hours,
-  amenities,
-  createdAt,
-  updatedAt
-`
+  priceRange,
+  lastVerifiedDate
+`;
 
-// Type-specific fields
 const typeFields = {
-  coworking: groq`coworkingDetails`,
-  cafe: groq`cafeDetails`,
-  accommodation: groq`accommodationDetails`,
-  restaurant: groq`restaurantDetails`,
-  activities: groq`activitiesDetails`,
-}
+  coworking: `
+    operatingHours,
+    pricingPlans,
+    specificAmenities
+  `,
+  cafe: `
+    menuHighlights,
+    wifiReliability,
+    priceIndication
+  `,
+  accommodation: `
+    roomTypes,
+    amenities,
+    pricePerNight
+  `
+};
 
-export async function getFilteredListings(filters: ListingFilters, page = 1, limit = 12) {
-  const { cities, types, ecoTags, priceRange } = filters
-  
-  let query = groq`*[_type == "listing"`
-  const conditions: string[] = []
-  const params: Record<string, any> = {}
+import { groq } from 'next-sanity';
+import { ListingFilters, FilterOperator, FilterCondition, FilterGroup } from '@/types/filters';
+import { SortOption } from '@/types/sort';
+import { FilterResults, SanityListing } from '@/types/listing';
 
-  if (cities.length > 0) {
-    conditions.push('city._ref in $cities')
-    params.cities = cities
+import { Listing, SanityListing } from '@/types/listing';
+import { ListingFilters, FilterResults } from '@/types/filters';
+import { SortOption } from '@/types/sort';
+import { getClient } from '@/lib/sanity/client';
+
+export async function getFilteredListings(
+  filters: ListingFilters, 
+  page = 1, 
+  limit = 12, 
+  sort?: SortOption
+): Promise<FilterResults<SanityListing>> {
+  let query = `*[_type == "listing"`;
+  const conditions: string[] = [];
+  const params: Record<string, any> = {};
+
+  // Text search
+  if (filters.searchQuery) {
+    conditions.push('(name match $searchQuery || description match $searchQuery)');
+    params.searchQuery = `*${filters.searchQuery}*`;
   }
 
-  if (types.length > 0) {
-    conditions.push('type in $types')
-    params.types = types
+  // Process filter combinations if they exist
+  if (filters.combinations && filters.combinations.length > 0) {
+    const enabledGroups = filters.combinations.filter(group => group.isEnabled !== false);
+    if (enabledGroups.length > 0) {
+      const combinationConditions = enabledGroups.map((group, groupIndex) => {
+        const groupConditions = group.conditions.map((condition, condIndex) => {
+          const paramKey = `${condition.field}_${groupIndex}_${condIndex}`;
+          params[paramKey] = condition.value;
+
+          switch (condition.field) {
+            case 'category':
+              return `category == $${paramKey}`;
+            case 'location':
+              return `city->name == $${paramKey}`;
+            case 'ecoTags':
+              return `$${paramKey} in ecoFocusTags[]->name`;
+            case 'nomadFeatures':
+              return `$${paramKey} in nomadFeatures[]->name`;
+            case 'minRating':
+              return `rating >= $${paramKey}`;
+            case 'maxPriceRange':
+              return `priceRange.max <= $${paramKey}`;
+            default:
+              return '';
+          }
+        }).filter(Boolean);
+
+        // Join conditions within group using group operator (AND/OR)
+        return groupConditions.length > 0 ? `(${groupConditions.join(` ${group.operator} `)})` : null;
+      }).filter(Boolean);
+
+      // Join groups with global operator or default to AND
+      if (combinationConditions.length > 0) {
+        const globalOperator = filters.combinationOperator || 'AND';
+        conditions.push(`(${combinationConditions.join(` ${globalOperator} `)})`);
+      }
+    }
+  } else {
+    // Traditional single-filter handling if no combinations are specified
+    if (filters.category) {
+      conditions.push('category == $category');
+      params.category = filters.category;
+    }
+
+    if (filters.location) {
+      conditions.push('city->name == $location');
+      params.location = filters.location;
+    }
+
+    // Process eco tags with OR logic within the tag group
+    if (filters.ecoTags && filters.ecoTags.length > 0) {
+      const tagConditions = filters.ecoTags.map((tag, index) => {
+        const paramKey = `tag_${index}`;
+        params[paramKey] = tag;
+        return `$${paramKey} in ecoFocusTags[]->name`;
+      });
+      conditions.push(`(${tagConditions.join(' || ')})`);
+    }
+
+    // Process nomad features with OR logic within the feature group
+    if (filters.nomadFeatures && filters.nomadFeatures.length > 0) {
+      const featureConditions = filters.nomadFeatures.map((feature, index) => {
+        const paramKey = `feature_${index}`;
+        params[paramKey] = feature;
+        return `$${paramKey} in nomadFeatures[]->name`;
+      });
+      conditions.push(`(${featureConditions.join(' || ')})`);
+    }
+
+    if (filters.minRating) {
+      conditions.push('rating >= $minRating');
+      params.minRating = filters.minRating;
+    }
+
+    if (filters.maxPriceRange) {
+      conditions.push('priceRange.max <= $maxPrice');
+      params.maxPrice = filters.maxPriceRange;
+    }
   }
 
-  if (ecoTags.length > 0) {
-    conditions.push('count((ecoTags[]->slug.current)[@ in $ecoTags]) > 0')
-    params.ecoTags = ecoTags
-  }
-
-  if (priceRange.length > 0) {
-    conditions.push('priceRange in $priceRange')
-    params.priceRange = priceRange
-  }
-
+  // Add conditions to query if any exist
   if (conditions.length > 0) {
-    query += ` && ${conditions.join(' && ')}`
+    query += ` && ${conditions.join(' && ')}`;
+  }
+  query += ']';
+
+  // Add sorting
+  if (sort) {
+    query += ` | order(${sort.field} ${sort.direction})`;
+  } else {
+    query += ` | order(name asc)`;
   }
 
-  query += `] | order(rating desc) {
-    ${listingFields},
-    ${Object.entries(typeFields)
-      .map(([type, fields]) => `${type} == type => { ${fields} }`)
-      .join(',')}
-  }[$start...$end]`
+  // Add pagination and fields
+  const start = (page - 1) * limit;
+  query += ` [${start}...${start + limit}] {
+    _id,
+    name,
+    slug,
+    category,
+    description,
+    city->,
+    ecoFocusTags[]->,
+    nomadFeatures[]->,
+    rating,
+    priceRange,
+    images[] {
+      asset->
+    }
+  }`;
 
-  const start = (page - 1) * limit
-  const end = start + limit
-
-  const listings = await getClient().fetch(query, {
-    ...params,
-    start,
-    end,
-  })
-
-  // Get total count for pagination
-  const countQuery = groq`count(*[_type == "listing"${
-    conditions.length > 0 ? ` && ${conditions.join(' && ')}` : ''
-  }])`
-  const total = await getClient().fetch(countQuery, params)
+  // Execute query
+  const client = getClient();
+  const results = await client.fetch(query, params);
+  const total = await client.fetch(
+    query.replace(/\[\$start\.\.\.\$end\].*$/, '').replace('{ ', '').replace(' }', '')
+  );
 
   return {
-    listings,
-    total,
+    data: results,
+    total: total.length,
     page,
-    totalPages: Math.ceil(total / limit),
-  }
-}
-
-// Complex aggregation query - Get listing statistics
-export async function getListingStats(): Promise<ListingStats> {
-  const query = groq`{
-    "totalListings": count(*[_type == "listing"]),
-    "byCategory": *[_type == "listing"] {
-      type
-    } | group(type) {
-      "category": key,
-      "count": count()
-    },
-    "topCities": *[_type == "listing"] {
-      "cityName": city->name,
-      "country": city->country
-    } | group(cityName, country) {
-      "city": cityName,
-      "country": country,
-      "count": count()
-    } | order(count desc)[0...5],
-    "averageRatings": *[_type == "review"] {
-      "listingId": listing->_id,
-      "listingName": listing->name,
-      rating
-    } | group(listingId, listingName) {
-      "listing": listingName,
-      "avgRating": avg(rating)
-    } | order(avgRating desc)
-  }`
-  
-  return await getClient().fetch<ListingStats>(query)
-}
-
-// Advanced digital nomad friendly workspace query with conditional logic
-export async function getDigitalNomadWorkspaces(minWifiSpeed = 20): Promise<WorkspaceResult[]> {
-  const query = groq`*[_type == "listing" && type in ["cafe", "coworking"]] {
-    _id,
-    name,
-    type,
-    "wifiSpeed": select(
-      type == "cafe" => cafeDetails.wifiSpeed,
-      type == "coworking" => coworkingDetails.internetSpeed.download
-    ),
-    "hasWorkspaces": coworkingDetails.amenities != null || 
-                    (type == "cafe" && defined(cafeDetails.workPolicy.laptopsAllowed)),
-    "powerOutlets": select(
-      type == "cafe" => cafeDetails.powerOutlets,
-      type == "coworking" => "abundant"
-    ),
-    "location": {
-      "city": city->name,
-      "coordinates": location.coordinates
-    }
-  }[wifiSpeed >= $minWifiSpeed && hasWorkspaces]`
-  
-  return await getClient().fetch<WorkspaceResult[]>(query, { minWifiSpeed })
-}
-
-// Full-text search with relevance scoring and rich text content
-export async function searchListings(searchText: string): Promise<SearchResult[]> {
-  const query = groq`*[_type == "listing" && (
-    name match $searchText ||
-    description match $searchText ||
-    richTextContent.content[].children[].text match $searchText
-  )] {
-    _id,
-    name,
-    "score": boost(name match $searchText, 3) +
-            boost(description match $searchText, 2) +
-            boost(richTextContent.content[].children[].text match $searchText, 1),
-    type,
-    "description": description,
-    "city": city->name,
-    mainImage {
-      asset-> {
-        url
-      }
-    }
-  } | order(score desc)`
-  
-  return await getClient().fetch<SearchResult[]>(query, { searchText })
-}
-
-// Geospatial query for nearby listings
-export async function getNearbyListings(coords: { lat: number; lng: number }, maxDistanceKm = 5): Promise<NearbyVenue[]> {
-  const query = groq`*[_type == "listing" && defined(location.coordinates)] {
-    _id,
-    name,
-    "distance": geo::distance(location.coordinates, $userLocation),
-    location,
-    type,
-    "city": city->name
-  }[distance < $maxDistanceKm] | order(distance)`
-  
-  return await getClient().fetch<NearbyVenue[]>(query, {
-    userLocation: coords,
-    maxDistanceKm
-  })
-}
-
-// Complex venue summary with conditional aggregation
-export async function getDigitalNomadVenueSummary(): Promise<VenueSummary> {
-  const query = groq`{
-    "coworkingSpaces": *[_type == "listing" && type == "coworking"] {
-      "hasHighSpeedWifi": coworkingDetails.internetSpeed.download >= 50,
-      "has24Access": coworkingDetails.accessPolicy.hours == "24/7",
-      "priceRange": select(
-        count(coworkingDetails.pricingPlans[price < 20]) > 0 => "budget",
-        count(coworkingDetails.pricingPlans[price >= 20 && price < 50]) > 0 => "moderate",
-        "premium"
-      )
-    } | {
-      "total": count(*),
-      "withHighSpeedWifi": count(*[hasHighSpeedWifi]),
-      "with24Access": count(*[has24Access]),
-      "priceDistribution": group(priceRange) {
-        "range": key,
-        "count": count()
-      }
-    },
-    
-    "cafes": *[_type == "listing" && type == "cafe"] {
-      "isLaptopFriendly": cafeDetails.workPolicy.laptopsAllowed,
-      "hasGoodWifi": cafeDetails.wifiSpeed >= 20,
-      "noTimeLimits": !defined(cafeDetails.workPolicy.timeLimit) || cafeDetails.workPolicy.timeLimit == 0
-    } | {
-      "total": count(*),
-      "laptopFriendly": count(*[isLaptopFriendly]),
-      "withGoodWifi": count(*[hasGoodWifi]),
-      "withoutTimeLimits": count(*[noTimeLimits])
-    }
-  }`
-  
-  return await getClient().fetch<VenueSummary>(query)
+    totalPages: Math.ceil(total.length / limit)
+  };
 }
