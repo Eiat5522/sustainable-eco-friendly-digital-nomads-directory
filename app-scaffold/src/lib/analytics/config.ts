@@ -1,11 +1,24 @@
 import Analytics from '@analytics/google-analytics-v4';
 import { AnalyticsBrowser } from '@vercel/analytics/react';
+import posthog from 'posthog-js';
 
 // Load environment variables
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 const VERCEL_ANALYTICS_ID = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS_ID;
+const POSTHOG_TOKEN = process.env.NEXT_PUBLIC_POSTHOG_TOKEN;
+const POSTHOG_HOST = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com';
 
-// Initialize analytics instance with both GA4 and Vercel
+// Initialize PostHog for A/B testing
+if (typeof window !== 'undefined' && POSTHOG_TOKEN) {
+  posthog.init(POSTHOG_TOKEN, {
+    api_host: POSTHOG_HOST,
+    loaded: (posthog) => {
+      if (process.env.NODE_ENV === 'development') posthog.debug();
+    },
+  });
+}
+
+// Initialize analytics instance with GA4, Vercel, and PostHog
 const analytics = Analytics({
   app: 'sustainable-eco-nomads',
   plugins: [
@@ -23,6 +36,18 @@ const analytics = Analytics({
 export const vercelAnalytics = process.env.NODE_ENV === 'production'
   ? new AnalyticsBrowser()
   : null;
+
+// Export analytics instances
+export { analytics, posthog };
+
+// Export config constants
+export const ANALYTICS_CONFIG = {
+  GA_MEASUREMENT_ID,
+  VERCEL_ANALYTICS_ID,
+  POSTHOG_TOKEN,
+  POSTHOG_HOST,
+  IS_PRODUCTION: process.env.NODE_ENV === 'production',
+} as const;
 
 // Define tracking event types
 export interface PageViewEvent {

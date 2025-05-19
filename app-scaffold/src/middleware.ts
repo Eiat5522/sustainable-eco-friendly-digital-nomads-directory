@@ -1,14 +1,21 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { analytics } from './lib/analytics/analytics';
 import { withAuth } from './lib/auth/withAuth';
+import { cacheMiddleware } from './middleware/cache';
 
 export async function middleware(request: NextRequest) {
+  // Initialize analytics
+  await analytics.initialize();
+
   // Update session activity for non-static, non-API routes
   if (
     !request.nextUrl.pathname.startsWith('/_next') &&
     !request.nextUrl.pathname.startsWith('/api') &&
     !request.nextUrl.pathname.startsWith('/static')
   ) {
+    // Track page view for non-static routes
+    analytics.trackPageView(request.url);
     try {
       const sessionUpdateUrl = new URL('/api/session', request.url);
       await fetch(sessionUpdateUrl, {
@@ -46,7 +53,18 @@ export async function middleware(request: NextRequest) {
     return withAuth(request);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+
+  // Apply caching middleware for non-admin, non-api routes
+  if (
+    !pathname.startsWith('/admin') &&
+    !pathname.startsWith('/api') &&
+    !pathname.startsWith('/profile')
+  ) {
+    return await cacheMiddleware(request, response);
+  }
+
+  return response;
 }
 
 // Configure which paths should be protected by this middleware

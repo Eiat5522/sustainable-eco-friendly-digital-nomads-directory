@@ -1,9 +1,9 @@
+import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { getClient } from '@/lib/sanity.utils';
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getClient } from '@/lib/sanity.utils';
-import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { notFound } from 'next/navigation';
 
 interface Listing {
   _id: string;
@@ -139,7 +139,7 @@ export default async function CategoryPage({ params }: Props) {
   };
 
   // Group listings by city for better organization  type ListingsByCity = Record<string, Listing[]>;
-  
+
   const listingsByCity = categoryListings.reduce<ListingsByCity>((acc, listing) => {
     const cityName = listing.city.name;
     if (!acc[cityName]) {
@@ -189,7 +189,7 @@ export default async function CategoryPage({ params }: Props) {
               <p className="text-gray-600 dark:text-gray-400 text-sm">Avg. Eco Features</p>
               <p className="text-2xl font-bold">
                 {Math.round(
-                  categoryListings.reduce((acc: number, l: Listing) => acc + l.eco_features.length, 0) / 
+                  categoryListings.reduce((acc: number, l: Listing) => acc + l.eco_features.length, 0) /
                   Math.max(categoryListings.length, 1)
                 )}
               </p>

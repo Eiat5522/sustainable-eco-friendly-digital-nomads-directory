@@ -41,6 +41,27 @@ npm run test:e2e tests/preview-api.spec.ts
 
 ## Test Environment Setup
 
+### Performance Testing
+Before running performance tests:
+
+1. Ensure test data exists by running:
+```bash
+node sanity/scripts/create-preview-test-data.js
+```
+
+2. Run performance tests:
+```bash
+npm run test:e2e tests/preview-performance.spec.ts
+```
+
+The tests will measure:
+- Load time comparison between normal and preview mode
+- API endpoint response times
+- Memory usage during preview mode navigation
+- Core Web Vitals metrics
+
+Performance reports are generated in `test-results/performance/`.
+
 ### Visual Regression Testing
 Before running visual regression tests:
 

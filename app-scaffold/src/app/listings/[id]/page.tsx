@@ -1,11 +1,10 @@
-import { draftMode } from 'next/headers';
-import { notFound } from 'next/navigation';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { PreviewBanner } from '@/components/preview/PreviewBanner';
 import { getClient } from '@/lib/sanity.utils';
 import { Metadata } from 'next';
-import Link from 'next/link';
+import { draftMode } from 'next/headers';
 import Image from 'next/image';
-import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { notFound } from 'next/navigation';
 
 interface ListingPageProps {
   params: {
