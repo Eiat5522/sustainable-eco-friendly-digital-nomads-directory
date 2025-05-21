@@ -21,11 +21,12 @@ const nextConfig = {
       }
     ],
   },
-
   // Enable reading local files in app directory
   experimental: {
     serverComponentsExternalPackages: ['sharp'],
-    serverActions: true,
+  },
+  compiler: {
+    styledComponents: true,
   },
 
   webpack: (config) => {

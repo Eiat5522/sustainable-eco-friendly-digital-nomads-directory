@@ -1,5 +1,5 @@
-import { Listing } from '@/types/listings';
 import listingsData from '@/data/listings.json';
+import { Listing } from '@/types/listings';
 
 export function getListings(): Listing[] {
   return (listingsData as unknown) as Listing[];
@@ -9,12 +9,13 @@ export function getListingsByCategory(category: Listing['category']): Listing[] 
   return getListings().filter(listing => listing.category === category);
 }
 
-export function getListingById(id: string): Listing | undefined {
-  return getListings().find(listing => listing.id === id);
+export function getListingBySlug(slug: string): Listing | undefined {
+  return getListings().find(listing => listing.slug === slug);
 }
 
+
 export function getListingsByCity(city: string): Listing[] {
-  return getListings().filter(listing => 
+  return getListings().filter(listing =>
     listing.city.toLowerCase() === city.toLowerCase()
   );
 }

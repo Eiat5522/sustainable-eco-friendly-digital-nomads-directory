@@ -37,12 +37,10 @@ export default function Header() {
                 Bangkok
               </Link>
             </div>
-          </div>
-
-          {/* Right side buttons - Desktop */}
+          </div>          {/* Right side buttons - Desktop */}
           <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
             <Link
-              href="/listings/1"
+              href="/listings/sample-eco-friendly-listing"
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               Sample Listing
@@ -104,9 +102,8 @@ export default function Header() {
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
             >
               Bangkok
-            </Link>
-            <Link
-              href="/listings/1"
+            </Link>            <Link
+              href="/listings/sample-eco-friendly-listing"
               className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
             >
               Sample Listing

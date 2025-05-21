@@ -1,0 +1,17 @@
+{
+  "name": "sustainable-eco-friendly-digital-nomads-directory-root",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Root package for the Sustainable Eco-Friendly Digital Nomads Directory project",
+  "scripts": {
+    "dev": "cd app-scaffold && npm run dev",
+    "build": "cd app-scaffold && npm run build",
+    "start": "cd app-scaffold && npm run start",
+    "lint": "cd app-scaffold && npm run lint"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ]
+}

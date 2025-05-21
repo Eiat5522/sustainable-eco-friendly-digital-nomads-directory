@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 interface Listing {
   _id: string
   name: string
-  slug: string
+  slug: { current: string }; // Changed from string to { current: string }
   description_short: string
   primary_image_url: string
   category: string
@@ -65,7 +65,7 @@ export function RelatedListings({ currentListing, allListings, maxListings = 3 }
         {relatedListings.map((listing) => (
           <Link
             key={listing._id}
-            href={`/listings/${listing.slug}`}
+            href={`/listings/${listing.slug.current}`} // Updated to use listing.slug.current
             className="group"
           >
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-shadow hover:shadow-lg">

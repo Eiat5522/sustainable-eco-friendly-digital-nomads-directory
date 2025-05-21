@@ -3,7 +3,6 @@
  */
 import { createClient } from 'next-sanity'
 import imageUrlBuilder from '@sanity/image-url'
-import { draftMode } from 'next/headers'
 
 export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
 export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
@@ -16,16 +15,25 @@ export const getClient = (preview = false) => {
     dataset,
     apiVersion,
     useCdn: !preview && process.env.NODE_ENV === 'production',
-    // Only include stega in development for visual editing
-    stega: process.env.NODE_ENV === 'development',
+    // Disable stega for now as we're not using visual editing
+    stega: {
+      enabled: false
+    },
     perspective: preview ? 'previewDrafts' : 'published',
     token: preview ? process.env.SANITY_API_TOKEN : undefined,
   })
   return client
 }
 
+// Export imageUrlBuilder
+export const urlFor = (source) => {
+  const client = getClient()
+  const builder = imageUrlBuilder(client)
+  return builder.image(source)
+}
+
 // Get the correct client based on preview mode
-export const client = getClient(draftMode().isEnabled)
+export const client = getClient(false)
 
 // Set up image URL builder
 const builder = imageUrlBuilder(client)
@@ -59,15 +67,15 @@ export function generateImageSrcSet(source) {
   if (!source?.asset?._ref) {
     return null
   }
-  
+
   const baseImageUrl = urlForImage(source).auto('format')
-  
+
   // Generate an array of URLs with different widths
   const srcSet = widths.map(width => ({
     url: baseImageUrl.width(width).url(),
     width: width,
   }))
-  
+
   return srcSet
     .map(({ url, width }) => `${url} ${width}w`)
     .join(', ')

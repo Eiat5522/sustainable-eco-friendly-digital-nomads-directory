@@ -2,8 +2,6 @@ import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { ImageGallery } from '@/components/listings/ImageGallery';
 import { ListingDetail } from '@/components/listings/ListingDetail';
 import { RelatedListings } from '@/components/listings/RelatedListings';
-import { getListingImages } from '@/lib/getListingImages.js';
-import { getListingById } from '@/lib/listings';
 import { getClient } from '@/lib/sanity/client';
 import { Metadata, ResolvingMetadata } from 'next';
 import Link from 'next/link';
@@ -60,6 +58,22 @@ interface Listing {
   sustainabilityScore: number;
 }
 
+// Function to fetch all listing slugs from Sanity for generateStaticParams
+async function getAllListingSlugs() {
+  const client = getClient();
+  const slugs = await client.fetch<Array<{ slug: { current: string } }>>(
+    `*[_type == "listing" && defined(slug.current)]{ "slug": slug }`
+  );
+  return slugs.map((item) => ({
+    slug: item.slug.current,
+  }));
+}
+
+export async function generateStaticParams() {
+  const slugs = await getAllListingSlugs();
+  return slugs;
+}
+
 type Props = {
   params: { slug: string };
 };
@@ -69,7 +83,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   try {
-    // First try to fetch from Sanity
+    // Fetch from Sanity by slug
     const sanityListing = await getClient().fetch<Listing>(
       `*[_type == "listing" && slug.current == $slug][0]{
         name,
@@ -97,18 +111,8 @@ export async function generateMetadata(
           images: [sanityListing.primary_image_url],
         },
       };
-    }
-
-    // If not found in Sanity, try to get by ID (assuming the slug might actually be an ID)
-    const idListing = getListingById(params.slug);
-    if (idListing) {
-      return {
-        title: `${idListing.name} | Sustainable Digital Nomads Directory`,
-        description: idListing.description_short,
-      };
-    }
-
-    // Not found in either source
+    }    // If no listing is found by slug, return 404
+    // Note: We've removed the ID-based fallback as part of migration to slug-only URLs
     return notFound();
   } catch (error) {
     console.error("Error generating metadata:", error);
@@ -121,22 +125,43 @@ export async function generateMetadata(
 
 export default async function ListingPage({ params }: Props) {
   try {
-    // First try to fetch from Sanity
+    // Fetch from Sanity by slug
     const sanityListing = await getClient().fetch<Listing>(
       `*[_type == "listing" && slug.current == $slug][0]{
-        ...,
+        _id,
+        name,
+        slug,
+        descriptionShort,
+        descriptionLong,
+        category,
         city->{name, country},
+        location,
         images[]{
           asset->{
             url,
             metadata
           }
-        }
+        },
+        "primary_image_url": images[0].asset->url,
+        ecoTags,
+        amenities,
+        contact_phone,
+        contact_email,
+        website,
+        price_range,
+        reviews[]{
+          rating,
+          comment,
+          author,
+          "date": _createdAt
+        },
+        sustainabilityScore
       }`,
       { slug: params.slug }
     );
 
     if (sanityListing) {
+      console.log("Fetched Sanity Listing:", JSON.stringify(sanityListing, null, 2));
       // Render Sanity listing
       return (
         <main className="container mx-auto py-12 px-4 sm:px-6">
@@ -157,7 +182,14 @@ export default async function ListingPage({ params }: Props) {
               </div>
             )}
 
-            <ListingDetail listing={sanityListing} />
+            <ListingDetail listing={{
+              ...sanityListing,
+              description_short: sanityListing.descriptionShort || "",
+              description_long: sanityListing.descriptionLong || "",
+              eco_features: sanityListing.ecoTags || [],
+              gallery_images: sanityListing.images?.map(img => img.asset.url) || [],
+              reviews: sanityListing.reviews || []
+            }} />
           </article>
 
           <RelatedListings
@@ -169,74 +201,7 @@ export default async function ListingPage({ params }: Props) {
       );
     }
 
-    // If not found in Sanity, try to get by ID
-    const idListing = getListingById(params.slug);
-    if (idListing) {
-      const images = getListingImages(params.slug);
-
-      return (
-        <main className="container mx-auto py-12 px-4 sm:px-6">
-          {/* Back Link */}
-          <Link
-            href="/listings"
-            className="inline-flex items-center text-emerald-600 dark:text-emerald-400 hover:underline mb-8"
-          >
-            ← Back to Listings
-          </Link>
-
-          <article className="bg-stone-50 dark:bg-slate-800 p-6 sm:p-8 rounded-lg shadow-lg">
-            {/* Header Section */}
-            <div className="mb-8">
-              <div className="flex flex-wrap items-center gap-3 mb-4">
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                  {idListing.name}
-                </h1>
-                <span className={`inline-block px-3 py-1 text-sm font-semibold rounded-full ${
-                  idListing.category === 'coworking'
-                    ? 'bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100'
-                    : idListing.category === 'accommodation'
-                    ? 'bg-teal-100 text-teal-800 dark:bg-teal-800 dark:text-teal-100'
-                    : idListing.category === 'cafe'
-                    ? 'bg-amber-100 text-amber-800 dark:bg-amber-800 dark:text-amber-100'
-                    : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-800 dark:text-emerald-100'
-                }`}>
-                  {idListing.category.charAt(0).toUpperCase() + idListing.category.slice(1)}
-                </span>
-              </div>
-            </div>
-
-            {/* Image Gallery */}
-            {images && images.length > 0 && (
-              <div className="mb-8">
-                <ImageGallery
-                  images={images}
-                  alt={`Photos of ${idListing.name}`}
-                />
-              </div>
-            )}
-
-            {/* Content adapted from [id]/page.tsx */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="md:col-span-2">
-                <div className="prose dark:prose-invert max-w-none">
-                  <h2 className="text-2xl font-bold mb-4 text-slate-800 dark:text-slate-200">About This Place</h2>
-                  <p className="text-slate-600 dark:text-slate-300">{idListing.description_long || idListing.description_short}</p>
-                </div>
-              </div>
-
-              <div>
-                <div className="bg-white dark:bg-slate-700 p-6 rounded-lg shadow">
-                  <h3 className="text-xl font-bold mb-4 text-slate-800 dark:text-slate-200">Location</h3>
-                  <p className="text-slate-600 dark:text-slate-300">{idListing.city?.name}, {idListing.city?.country}</p>
-                </div>
-              </div>
-            </div>
-          </article>
-        </main>
-      );
-    }
-
-    // Not found in either source
+    // If no listing is found, return 404
     return notFound();
   } catch (error) {
     console.error("Error rendering listing:", error);

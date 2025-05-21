@@ -1,7 +1,40 @@
+import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { ListingCard } from '@/components/listings/ListingCard'; // Assuming you have this
+import { PreviewBanner } from '@/components/preview/PreviewBanner';
+import { getClient } from '@/lib/sanity/client';
+import { Listing } from '@/types/listings'; // Assuming you have a shared Listing type
+import { Metadata } from 'next';
 import { draftMode } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { PreviewBanner } from '@/components/preview/PreviewBanner';
-import { getClient } from '@/lib/sanity.utils';
+
+// Utility to convert a string to a slug
+function slugify(text: string): string {
+  if (!text) return '';
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(/[^\w-]+/g, '') // Remove all non-word chars
+    .replace(/--+/g, '-'); // Replace multiple - with single -
+}
+
+// Function to fetch all unique city names and convert them to slugs
+async function getAllCitySlugs() {
+  const client = getClient();
+  // Fetch all unique city names from listings
+  const cityNames = await client.fetch<string[]>(
+    `array::unique(*[_type == "listing" && defined(city)].city)`
+  );
+  return cityNames.map((name: string) => ({ // Added type for name
+    slug: slugify(name),
+  }));
+}
+
+export async function generateStaticParams() {
+  const citySlugs = await getAllCitySlugs();
+  return citySlugs;
+}
 
 interface CityPageProps {
   params: {
@@ -9,113 +42,117 @@ interface CityPageProps {
   };
 }
 
-export default async function CityPage({ params }: CityPageProps) {
-  const preview = draftMode().isEnabled;
-  const client = getClient(preview);
+export async function generateMetadata({ params }: CityPageProps): Promise<Metadata> {
+  const client = getClient();
+  // Fetch one listing for this city to get the actual city name for metadata
+  // This assumes city names are consistent.
+  const listingInCity = await client.fetch<Listing | null>(
+    `*[_type == "listing" && defined(city)][0]{
+      "id": _id,
+      city
+    }`
+  ).then(result => result && slugify(result.city) === params.slug ? result : null);
 
-  const city = await client.fetch(
-    `*[_type == "city" && slug.current == $slug][0]{
-      _id,
+  const cityName = listingInCity ? listingInCity.city : params.slug.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()); // Fallback to de-slugified slug
+
+  if (!listingInCity && !cityName) { // If no listing found and slug is weird
+    return { title: 'City Not Found' };
+  }
+
+  return {
+    title: `${cityName} - Eco-Friendly Listings | Sustainable Digital Nomads`,
+    description: `Discover sustainable coworking spaces, cafes, and accommodations in ${cityName}.`,
+    openGraph: {
+      title: `${cityName} - Sustainable Nomad Hotspots`,
+      description: `Find the best eco-conscious places for digital nomads in ${cityName}.`,
+    },
+  };
+}
+
+export default async function CityPage({ params }: CityPageProps) {
+  const { isEnabled } = draftMode();
+  const client = getClient(isEnabled);
+
+  // Fetch listings for the current city slug
+  // We need to fetch all listings and then filter them in code if Sanity's GROQ can't slugify on the fly for queries.
+  // Or, if your Sanity instance allows for custom functions or more complex queries, that could be an option.
+  // For now, let's fetch all and filter, which is not ideal for very large datasets.
+  // A better approach if possible is to store a slugified version of the city in Sanity if you add a proper City schema.
+
+  const allListings = await client.fetch<Listing[]>(
+    `*[_type == "listing"]{
+      "id": _id,
       name,
-      description,
-      "image": main_image_url,
-      "gallery": gallery_image_urls,
       "slug": slug.current,
-      "listings": *[_type == "listing" && references(^._id)]{
-        _id,
-        name,
-        description_short,
-        category,
-        "image": primary_image_url,
-        eco_focus_tags,
-        digital_nomad_features,
-        "slug": slug.current
-      }
-    }`,
-    { slug: params.slug }
+      city,
+      category,
+      "description_short": descriptionShort,
+      "eco_focus_tags": ecoTags,
+      "digital_nomad_features": nomadFeatures,
+      "primary_image_url": mainImage.asset->url
+    }`
   );
 
-  if (!city) {
-    notFound();
-  }
+  console.log('All Listings:', allListings);
+  console.log('Params Slug:', params.slug);
+
+  const listingsInCity = allListings.filter(
+    (listing: Listing) => {
+      const citySlug = slugify(listing.city);
+      console.log(`Comparing: ${citySlug} === ${params.slug}`);
+      return citySlug === params.slug;
+    }
+  );
+  console.log('Listings in City:', listingsInCity);
+
+  // Removed the notFound() call here to always show the "No listings" message
+  // if (listingsInCity.length === 0) {
+  //   // Try to find if the city name itself exists, even if no listings currently
+  //   const cityExists = allListings.some((listing: Listing) => slugify(listing.city) === params.slug);
+  //   if (!cityExists) {
+  //       notFound();
+  //   }
+  // }
+
+  // Determine the "true" city name from the first listing, or de-slugify
+  const cityName = listingsInCity.length > 0 ? listingsInCity[0].city : params.slug.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+
+
+  const breadcrumbs = [
+    { name: 'Home', href: '/' },
+    { name: 'Cities', href: '/cities' }, // Assuming you might have a /cities overview page
+    { name: cityName },
+  ];
 
   return (
     <>
-      {preview && <PreviewBanner />}
+      {isEnabled && <PreviewBanner />}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Hero Section */}
-        <section className="mb-16">
-          <div className="relative aspect-[21/9] rounded-xl overflow-hidden mb-8">
-            {city.image ? (
-              <img
-                src={city.image}
-                alt={city.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-blue-500 to-green-500" />
-            )}
-            <div className="absolute inset-0 bg-black/40" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white text-center">
-                {city.name}
-              </h1>
-            </div>
-          </div>
-          {city.description && (
-            <div className="max-w-3xl mx-auto">
-              <p className="text-lg text-gray-600 text-center">
-                {city.description}
-              </p>
-            </div>
-          )}
-        </section>
+        <Breadcrumbs segments={breadcrumbs} />
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Eco-Friendly Listings in {cityName}
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">
+            Discover sustainable coworking spaces, cafes, and accommodations.
+          </p>
+        </div>
 
-        {/* Listings Grid */}
-        {city.listings?.length > 0 && (
-          <section>
-            <h2 className="text-2xl font-bold text-gray-900 mb-8">
-              Sustainable Spaces in {city.name}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {city.listings.map((listing: any) => (
-                <div
-                  key={listing._id}
-                  className="bg-white shadow-sm rounded-lg overflow-hidden"
-                >
-                  <div className="aspect-[4/3] bg-gray-100">
-                    {listing.image ? (
-                      <img
-                        src={listing.image}
-                        alt={listing.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-blue-500 to-green-500" />
-                    )}
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {listing.name}
-                    </h3>
-                    <p className="text-gray-600 mb-4">{listing.description_short}</p>
-                    {listing.eco_focus_tags?.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {listing.eco_focus_tags.map((tag: string) => (
-                          <span
-                            key={tag}
-                            className="px-2 py-1 bg-green-100 text-green-800 text-sm rounded"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+        {listingsInCity.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {listingsInCity.map((listing: Listing) => ( // Added type for listing
+              <ListingCard key={listing.id} listing={listing} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-10">
+            <p className="text-xl text-gray-700 dark:text-gray-300">
+              No listings found for {cityName} yet.
+            </p>
+            <p className="text-gray-500 dark:text-gray-400 mt-2">
+              Check back soon or explore other cities!
+            </p>
+          </div>
         )}
       </main>
     </>
