@@ -3,12 +3,13 @@
 import dynamic from 'next/dynamic';
 
 interface City {
-  id: string;
-  name: string;
-  imageUrl: string;
+  _id: string;
+  title: string; // Changed from name to title to match Sanity schema
   description: string;
   slug: string;
-  listingsCount: number;
+  mainImage: string;
+  sustainabilityScore: number;
+  highlights: string[];
 }
 
 interface CitiesCarouselProps {

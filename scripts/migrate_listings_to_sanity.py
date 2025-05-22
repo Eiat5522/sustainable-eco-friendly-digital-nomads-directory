@@ -161,7 +161,65 @@ SANITY_API_VERSION = "2025-05-22" # Current date for latest API version
 # Script is in 'scripts', so paths are relative to the project root
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MERGED_LISTINGS_PATH = PROJECT_ROOT / "listings" / "merged_listings.json"
+
+# TEMPORARY IMAGE HANDLING (2025-05-22):
+# We're using two image locations temporarily until manual image curation is complete:
+# 1. Primary: sanity_image_staging - Will contain manually curated images
+# 2. Fallback: app-scaffold/public - Contains some initial images for development
+# TODO: After manual image curation is complete (expected 2025-05-23):
+# - Remove the PUBLIC_IMAGES_PATH fallback
+# - Update the image handling logic to only use STAGING_PATH
+# - Delete these temporary handling comments
 IMAGE_STAGING_PATH = PROJECT_ROOT / "sanity_image_staging"
+PUBLIC_IMAGES_PATH = PROJECT_ROOT / "app-scaffold" / "public"
+
+def find_image_path(relative_path: str) -> Optional[Path]:
+    """
+    TEMPORARY FUNCTION (2025-05-22): Handles dual-location image finding
+    This function will be simplified after manual image curation is complete.
+
+    Looks for images in two locations:
+    1. Primary: sanity_image_staging directory (for manually curated images)
+    2. Fallback: app-scaffold/public directory (for development images)
+
+    Args:
+        relative_path: The relative path to the image from either root
+
+    Returns:
+        Path object if image is found, None otherwise
+
+    TODO (2025-05-23):
+    - After manual image curation, remove this function
+    - Update image handling to directly use IMAGE_STAGING_PATH
+    """
+    # Try primary location (sanity_image_staging)
+    primary_path = IMAGE_STAGING_PATH / relative_path.lstrip('/')
+    if primary_path.exists():
+        return primary_path
+
+    # Try fallback location (app-scaffold/public)
+    fallback_path = PUBLIC_IMAGES_PATH / relative_path.lstrip('/')
+    if fallback_path.exists():
+        return fallback_path
+
+    # If the path starts with http(s), it's an external URL - skip for now
+    if relative_path.startswith(('http://', 'https://')):
+        return None
+
+    return None
+
+def get_content_type(file_path: Path) -> str:
+    """
+    Determine the content type based on file extension
+    """
+    content_types = {
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.webp': 'image/webp'
+    }
+    return content_types.get(file_path.suffix.lower(), 'image/jpeg')
 
 def slugify_for_sanity_id(text_id):
     """
@@ -264,22 +322,23 @@ def test_migration(client, num_listings=2):
                     print(f"  Warning: Invalid sustainability_rating for {listing.get('name')}: {s_rating}")
 
             # Image handling
+            # TEMPORARY IMAGE HANDLING (2025-05-22):
+            # This section uses a dual-location strategy until manual image curation is complete
+            # TODO (2025-05-23): Simplify this to only use IMAGE_STAGING_PATH
+
             # Main Image
             main_image_relative_path = listing.get("primary_image_url")
-            if main_image_relative_path and isinstance(main_image_relative_path, str):
-                staged_image_path = IMAGE_STAGING_PATH / main_image_relative_path.lstrip('/')
-                if staged_image_path.exists():
+            if main_image_relative_path:
+                image_path = find_image_path(main_image_relative_path)
+                if image_path:
                     try:
-                        print(f"  Uploading main image: {staged_image_path.name}...")
-                        with open(staged_image_path, 'rb') as img_file:
-                            content_type = 'image/jpeg'  # Default to JPEG
-                            if staged_image_path.suffix.lower() in ['.png', '.gif', '.webp']:
-                                content_type = f'image/{staged_image_path.suffix[1:].lower()}'
-
+                        print(f"  Uploading main image: {image_path.name}...")
+                        with open(image_path, 'rb') as img_file:
+                            content_type = get_content_type(image_path)
                             image_asset = client.assets_upload(
                                 img_file.read(),
                                 content_type=content_type,
-                                filename=staged_image_path.name
+                                filename=image_path.name
                             )
 
                             if image_asset and '_id' in image_asset:
@@ -295,32 +354,31 @@ def test_migration(client, num_listings=2):
                                 print(f"    Error: Invalid response from image upload")
 
                     except SanityAPIError as e:
-                        print(f"  Error uploading main image {staged_image_path.name}: {e}")
+                        print(f"  Error uploading main image {image_path.name}: {e}")
                     except Exception as e:
-                        print(f"  Unexpected error uploading main image {staged_image_path.name}: {e}")
+                        print(f"  Unexpected error uploading main image {image_path.name}: {e}")
                 else:
-                    print(f"  Main image not found in staging: {staged_image_path}")
+                    location_msg = "(checked both staging and public directories)" if not main_image_relative_path.startswith(('http://', 'https://')) else "(external URL - skipped)"
+                    print(f"  Main image not found {location_msg}: {main_image_relative_path}")
 
             # Gallery Images
             gallery_image_relative_paths = listing.get("gallery_image_urls", [])
             if gallery_image_relative_paths and isinstance(gallery_image_relative_paths, list):
                 sanity_gallery = []
                 for rel_path in gallery_image_relative_paths:
-                    if not rel_path or not isinstance(rel_path, str):
+                    if not rel_path:
                         continue
-                    staged_gallery_image_path = IMAGE_STAGING_PATH / rel_path.lstrip('/')
-                    if staged_gallery_image_path.exists():
-                        try:
-                            print(f"  Uploading gallery image: {staged_gallery_image_path.name}...")
-                            with open(staged_gallery_image_path, 'rb') as img_file:
-                                content_type = 'image/jpeg'  # Default to JPEG
-                                if staged_gallery_image_path.suffix.lower() in ['.png', '.gif', '.webp']:
-                                    content_type = f'image/{staged_gallery_image_path.suffix[1:].lower()}'
 
+                    image_path = find_image_path(rel_path)
+                    if image_path:
+                        try:
+                            print(f"  Uploading gallery image: {image_path.name}...")
+                            with open(image_path, 'rb') as img_file:
+                                content_type = get_content_type(image_path)
                                 gallery_asset = client.assets_upload(
                                     img_file.read(),
                                     content_type=content_type,
-                                    filename=staged_gallery_image_path.name
+                                    filename=image_path.name
                                 )
 
                                 if gallery_asset and '_id' in gallery_asset:
@@ -336,11 +394,13 @@ def test_migration(client, num_listings=2):
                                     print(f"    Error: Invalid response from gallery image upload")
 
                         except SanityAPIError as e:
-                            print(f"  Error uploading gallery image {staged_gallery_image_path.name}: {e}")
+                            print(f"  Error uploading gallery image {image_path.name}: {e}")
                         except Exception as e:
-                            print(f"  Unexpected error uploading gallery image {staged_gallery_image_path.name}: {e}")
+                            print(f"  Unexpected error uploading gallery image {image_path.name}: {e}")
                     else:
-                        print(f"  Gallery image not found in staging: {staged_gallery_image_path}")
+                        location_msg = "(checked both staging and public directories)" if not rel_path.startswith(('http://', 'https://')) else "(external URL - skipped)"
+                        print(f"  Gallery image not found {location_msg}: {rel_path}")
+
                 if sanity_gallery:
                     sanity_doc["gallery"] = sanity_gallery
 
@@ -494,22 +554,23 @@ def main():
                 print(f"  Warning: Invalid sustainability_rating for {listing.get('name')}: {s_rating}")
 
         # Image handling
+        # TEMPORARY IMAGE HANDLING (2025-05-22):
+        # This section uses a dual-location strategy until manual image curation is complete
+        # TODO (2025-05-23): Simplify this to only use IMAGE_STAGING_PATH
+
         # Main Image
         main_image_relative_path = listing.get("primary_image_url")
-        if main_image_relative_path and isinstance(main_image_relative_path, str):
-            staged_image_path = IMAGE_STAGING_PATH / main_image_relative_path.lstrip('/')
-            if staged_image_path.exists():
+        if main_image_relative_path:
+            image_path = find_image_path(main_image_relative_path)
+            if image_path:
                 try:
-                    print(f"  Uploading main image: {staged_image_path.name}...")
-                    with open(staged_image_path, 'rb') as img_file:
-                        content_type = 'image/jpeg'  # Default to JPEG
-                        if staged_image_path.suffix.lower() in ['.png', '.gif', '.webp']:
-                            content_type = f'image/{staged_image_path.suffix[1:].lower()}'
-
+                    print(f"  Uploading main image: {image_path.name}...")
+                    with open(image_path, 'rb') as img_file:
+                        content_type = get_content_type(image_path)
                         image_asset = client.assets_upload(
                             img_file.read(),
                             content_type=content_type,
-                            filename=staged_image_path.name
+                            filename=image_path.name
                         )
 
                         if image_asset and '_id' in image_asset:
@@ -525,32 +586,31 @@ def main():
                             print(f"    Error: Invalid response from image upload")
 
                 except SanityAPIError as e:
-                    print(f"  Error uploading main image {staged_image_path.name}: {e}")
+                    print(f"  Error uploading main image {image_path.name}: {e}")
                 except Exception as e:
-                    print(f"  Unexpected error uploading main image {staged_image_path.name}: {e}")
+                    print(f"  Unexpected error uploading main image {image_path.name}: {e}")
             else:
-                print(f"  Main image not found in staging: {staged_image_path}")
+                location_msg = "(checked both staging and public directories)" if not main_image_relative_path.startswith(('http://', 'https://')) else "(external URL - skipped)"
+                print(f"  Main image not found {location_msg}: {main_image_relative_path}")
 
         # Gallery Images
         gallery_image_relative_paths = listing.get("gallery_image_urls", [])
         if gallery_image_relative_paths and isinstance(gallery_image_relative_paths, list):
             sanity_gallery = []
             for rel_path in gallery_image_relative_paths:
-                if not rel_path or not isinstance(rel_path, str):
+                if not rel_path:
                     continue
-                staged_gallery_image_path = IMAGE_STAGING_PATH / rel_path.lstrip('/')
-                if staged_gallery_image_path.exists():
-                    try:
-                        print(f"  Uploading gallery image: {staged_gallery_image_path.name}...")
-                        with open(staged_gallery_image_path, 'rb') as img_file:
-                            content_type = 'image/jpeg'  # Default to JPEG
-                            if staged_gallery_image_path.suffix.lower() in ['.png', '.gif', '.webp']:
-                                content_type = f'image/{staged_gallery_image_path.suffix[1:].lower()}'
 
+                image_path = find_image_path(rel_path)
+                if image_path:
+                    try:
+                        print(f"  Uploading gallery image: {image_path.name}...")
+                        with open(image_path, 'rb') as img_file:
+                            content_type = get_content_type(image_path)
                             gallery_asset = client.assets_upload(
                                 img_file.read(),
                                 content_type=content_type,
-                                filename=staged_gallery_image_path.name
+                                filename=image_path.name
                             )
 
                             if gallery_asset and '_id' in gallery_asset:
@@ -566,11 +626,13 @@ def main():
                                 print(f"    Error: Invalid response from gallery image upload")
 
                     except SanityAPIError as e:
-                        print(f"  Error uploading gallery image {staged_gallery_image_path.name}: {e}")
+                        print(f"  Error uploading gallery image {image_path.name}: {e}")
                     except Exception as e:
-                        print(f"  Unexpected error uploading gallery image {staged_gallery_image_path.name}: {e}")
+                        print(f"  Unexpected error uploading gallery image {image_path.name}: {e}")
                 else:
-                    print(f"  Gallery image not found in staging: {staged_gallery_image_path}")
+                    location_msg = "(checked both staging and public directories)" if not rel_path.startswith(('http://', 'https://')) else "(external URL - skipped)"
+                    print(f"  Gallery image not found {location_msg}: {rel_path}")
+
             if sanity_gallery:
                 sanity_doc["gallery"] = sanity_gallery
 

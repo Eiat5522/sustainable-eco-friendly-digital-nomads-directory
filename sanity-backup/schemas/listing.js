@@ -40,9 +40,10 @@ export default defineType({  name: 'listing',
       type: 'string',
     }),
     defineField({
-      name: 'coordinates',
-      title: 'Coordinates',
-      type: 'geopoint',
+      name: 'country',
+      title: 'Country',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'description_short',

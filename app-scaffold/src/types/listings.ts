@@ -1,8 +1,3 @@
-export interface Coordinates {
-  latitude: number | null;
-  longitude: number | null;
-}
-
 export interface PricingPlan {
   name: string;
   price: number;
@@ -17,7 +12,6 @@ export interface Listing {
   city: string;
   category: 'coworking' | 'cafe' | 'accommodation';
   address_string: string;
-  coordinates: Coordinates;
   description_short: string;
   description_long: string;
   eco_focus_tags: string[];

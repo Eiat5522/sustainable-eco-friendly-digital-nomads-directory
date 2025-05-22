@@ -3,44 +3,45 @@
 import CitiesCarousel from '@/components/home/CitiesCarousel';
 import FeaturedListings from '@/components/home/FeaturedListings';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
+import { getAllCities } from '@/lib/sanity/queries';
+import { useEffect, useState } from 'react';
 
-// Sample city data for testing
-const sampleCities = [
-  {
-    id: '1',
-    name: 'Chiang Mai',
-    imageUrl: '/images/cities/chiangmai.jpg',
-    description: 'Digital nomad hub with rich culture and affordable living',
-    slug: 'chiang-mai',
-    listingsCount: 45
-  },
-  {
-    id: '2',
-    name: 'Bali',
-    imageUrl: '/images/cities/bali.jpg',
-    description: 'Tropical paradise with vibrant coworking scene',
-    slug: 'bali',
-    listingsCount: 38
-  },
-  {
-    id: '3',
-    name: 'Lisbon',
-    imageUrl: '/images/cities/lisbon.jpg',
-    description: 'Historic city with modern digital infrastructure',
-    slug: 'lisbon',
-    listingsCount: 32
-  },
-  {
-    id: '4',
-    name: 'Mexico City',
-    imageUrl: '/images/cities/mexico-city.jpg',
-    description: 'Cultural metropolis with thriving startup ecosystem',
-    slug: 'mexico-city',
-    listingsCount: 29
-  }
-];
+interface SanityCity {
+  _id: string;
+  title: string;  // Changed from name to title to match Sanity schema
+  slug: string;
+  country: string;
+  description: string;
+  sustainabilityScore: number;
+  highlights: string[];
+  mainImage: string;
+}
 
 export default function Home() {
+  const [cities, setCities] = useState<SanityCity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchCities() {
+      try {
+        setIsLoading(true);
+        const fetchedCities = await getAllCities();
+        console.log('Fetched cities in page.tsx:', JSON.stringify(fetchedCities, null, 2)); // Added console.log
+        setCities(fetchedCities || []);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching cities:", err);
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setCities([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchCities();
+  }, []);
+
   return (
     <main className="min-h-screen bg-gradient-to-b from-white to-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -58,7 +59,7 @@ export default function Home() {
         {/* Cities Carousel Section */}
         <section className="mb-16">
           <h2 className="text-2xl font-bold text-gray-900 mb-8">Popular Eco-Friendly Destinations</h2>
-          <CitiesCarousel cities={sampleCities} />
+          <CitiesCarousel cities={cities} />
         </section>
 
         {/* Featured Listings Section */}

@@ -1,9 +1,21 @@
 /**
  * GROQ queries for the listings
- * 
+ *
  * This file contains all the queries used to fetch listing data from Sanity
  */
 import { client } from './client'
+
+// City projection with all necessary fields
+const cityProjection = `{
+  _id,
+  title,
+  "slug": slug.current,
+  country,
+  description,
+  "mainImage": mainImage.asset->url,
+  sustainabilityScore,
+  highlights
+}`
 
 // Base listing projection with fields needed for listing cards
 const listingCardProjection = `{
@@ -29,7 +41,6 @@ const fullListingProjection = `{
     "slug": slug.current
   },
   addressString,
-  coordinates,
   descriptionShort,
   descriptionLong,
   "ecoTags": ecoFocusTags[]->{ name, "slug": slug.current },
@@ -56,7 +67,7 @@ export async function getAllListings({ limit = 12 } = {}) {
 /**
  * Fetch listings with optional filtering
  */
-export async function getFilteredListings({ 
+export async function getFilteredListings({
   searchQuery,
   category,
   city,
@@ -68,28 +79,28 @@ export async function getFilteredListings({
 } = {}) {
   // Build the filter conditions
   let filterConditions = ['_type == "listing"']
-  
+
   if (searchQuery) {
     filterConditions.push(`(name match "*${searchQuery}*" || descriptionShort match "*${searchQuery}*")`)
   }
-  
+
   if (category) {
     filterConditions.push(`category == "${category}"`)
   }
-  
+
   if (city) {
     filterConditions.push(`city->slug.current == "${city}"`)
   }
-  
+
   if (ecoTags && ecoTags.length > 0) {
-    const tagConditions = ecoTags.map(tag => 
+    const tagConditions = ecoTags.map(tag =>
       `"${tag}" in ecoFocusTags[]->slug.current`
     )
     filterConditions.push(`(${tagConditions.join(' || ')})`)
   }
-  
+
   if (nomadFeatures && nomadFeatures.length > 0) {
-    const featureConditions = nomadFeatures.map(feature => 
+    const featureConditions = nomadFeatures.map(feature =>
       `"${feature}" in digitalNomadFeatures[]->slug.current`
     )
     filterConditions.push(`(${featureConditions.join(' || ')})`)
@@ -98,13 +109,13 @@ export async function getFilteredListings({
   if (minRating) {
     filterConditions.push(`averageRating >= ${minRating}`)
   }
-  
+
   // Combine all filters
   const filter = filterConditions.join(' && ')
-  
+
   // Pagination
   const paginationParams = `[${offset}...${offset + limit}]`
-  
+
   return client.fetch(
     `*[${filter}] | order(name asc) ${listingCardProjection} ${paginationParams}`
   )
@@ -124,15 +135,7 @@ export async function getListingBySlug(slug) {
  * Get a list of all cities
  */
 export async function getAllCities() {
-  return client.fetch(`
-    *[_type == "city"] | order(name asc) {
-      _id,
-      name,
-      "slug": slug.current,
-      coordinates,
-      "listingCount": count(*[_type == "listing" && references(^._id)])
-    }
-  `)
+  return client.fetch(`*[_type == "city"] | order(title asc) ${cityProjection}`)
 }
 
 /**

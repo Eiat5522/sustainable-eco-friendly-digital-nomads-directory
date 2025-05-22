@@ -25,12 +25,6 @@ export default {
       name: 'postalCode',
       title: 'Postal Code',
       type: 'string'
-    },
-    {
-      name: 'coordinates',
-      title: 'Coordinates',
-      type: 'geopoint',
-      validation: Rule => Rule.required()
     }
   ]
 }

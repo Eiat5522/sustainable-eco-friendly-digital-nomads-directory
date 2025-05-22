@@ -28,10 +28,6 @@ export interface SanityListing extends SanityDocument {
   category: CategoryType;
   city: string;  // This is pre-processed from city->name
   addressString: string;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
   descriptionShort: string;
   descriptionLong: string;
   ecoTags: string[];  // Pre-processed from ecoFocusTags[]->name

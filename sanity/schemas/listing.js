@@ -41,11 +41,6 @@ export default defineType({
       type: 'string',
     }),
     defineField({
-      name: 'coordinates',
-      title: 'Coordinates',
-      type: 'geopoint',
-    }),
-    defineField({
       name: 'description_short',
       title: 'Short Description',
       type: 'string',

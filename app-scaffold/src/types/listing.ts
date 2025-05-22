@@ -9,10 +9,6 @@ export interface City {
   slug: string
   listingCount: number
   country: string
-  coordinates: {
-    lat: number
-    lng: number
-  }
 }
 
 // Eco Tag type
@@ -48,11 +44,6 @@ export interface Listing {
   city: City
   ecoTags: EcoTag[]
   ecoRating?: number
-  location: {
-    lat: number
-    lng: number
-    coordinates?: [number, number]
-  }
   address: string
   rating: number
   website?: string
