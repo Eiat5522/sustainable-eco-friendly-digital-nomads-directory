@@ -13,5 +13,8 @@
     ">0.2%",
     "not dead",
     "not op_mini all"
-  ]
+  ],
+  "dependencies": {
+    "@sanity/client": "^7.3.0"
+  }
 }

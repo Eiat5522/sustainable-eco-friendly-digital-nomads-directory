@@ -35,10 +35,12 @@ This document outlines the implementation plan for integrating Sanity CMS with o
 ## Phase 2: Data Migration & API Integration (Week 2)
 
 ### 2.1 Data Migration
-- [ ] Create migration script to import listings from existing JSON
-- [ ] Transform data to match Sanity schemas
-- [ ] Upload images to Sanity's asset pipeline
+- [x] Create migration script to import listings from existing JSON
+- [x] Transform data to match Sanity schemas
+- [🟡] Upload images to Sanity's asset pipeline (6 images staged, more pending)
 - [ ] Validate migrated content for accuracy
+- [ ] Implement proper HTTP API client for Sanity
+- [ ] Add error recovery and rollback procedures
 
 ### 2.2 API Integration
 - [ ] Install Sanity client in Next.js project
