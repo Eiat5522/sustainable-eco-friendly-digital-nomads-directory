@@ -1,6 +1,7 @@
 import { defineField, defineType } from 'sanity'
 
-export default defineType({  name: 'listing',
+export default defineType({
+  name: 'listing',
   title: 'Listing',
   type: 'document',
   fields: [
@@ -72,15 +73,43 @@ export default defineType({  name: 'listing',
       of: [{type: 'url'}],
     }),
     defineField({
-      name: 'primary_image_url',
-      title: 'Primary Image URL',
-      type: 'url',
+      name: 'primaryImage',
+      title: 'Primary Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        {
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative text',
+          description: 'Important for SEO and accessibility.',
+          validation: Rule => Rule.required(),
+        }
+      ]
     }),
     defineField({
-      name: 'gallery_image_urls',
-      title: 'Gallery Image URLs',
+      name: 'galleryImages',
+      title: 'Gallery Images',
       type: 'array',
-      of: [{type: 'url'}],
+      of: [
+        {
+          type: 'image',
+          options: {
+            hotspot: true,
+          },
+          fields: [
+            {
+              name: 'alt',
+              type: 'string',
+              title: 'Alternative text',
+              description: 'Important for SEO and accessibility.',
+              validation: Rule => Rule.required(),
+            }
+          ]
+        }
+      ],
     }),
     defineField({
       name: 'digital_nomad_features',

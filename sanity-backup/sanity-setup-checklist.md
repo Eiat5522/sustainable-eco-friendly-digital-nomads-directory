@@ -1,9 +1,9 @@
 # 🧩 Sanity Studio Setup & Collaboration Checklist
 
 ## ✅ Version Control
-- [ ] Initialize a git repository (if not already done).
-- [ ] Commit your starting state before major changes.
-- [ ] Make separate commits for:
+- [X] Initialize a git repository (if not already done).
+- [X] Commit your starting state before major changes.
+- [X] Make separate commits for:
   - Sanity Studio scaffold
   - Schema setup
   - Integration with frontend
@@ -11,9 +11,9 @@
 ---
 
 ## ✅ Environment Variables
-- [ ] Store all API keys and tokens in `.env` files.
-- [ ] Add `.env*` to `.gitignore`.
-- [ ] Share `.env.local` (non-secret values) with teammates as needed.
+- [X] Store all API keys and tokens in `.env` files.
+- [X] Add `.env*` to `.gitignore`.
+- [X] Share `.env.local` (non-secret values) with teammates as needed.
 
 ---
 
