@@ -29,9 +29,17 @@
    - Appropriate headers configured
 
 ### Environment Configuration
-- API version updated to 2025-05-15
+- API version initially set to 2025-05-15 (suspected to be too far in the future)
 - Project ID and dataset properly configured
 - Frontend URL properly referenced
+
+### Troubleshooting Steps Undertaken
+- Removed duplicate imports of schema types in `sanity.config.js`
+- Explicitly imported the `city` schema in `sanity.config.js`
+- Verified that the `city` schema is included in the `structure.js` file
+- Attempted to start the Sanity Studio using `npm run dev` and `npx sanity dev`
+- Attempted to use Playwright to access the Sanity Studio and capture console logs and HTML content, but encountered issues with rendering and authentication.
+- User has manually cleared browser cache and cookies and restarted the Sanity Studio.
 
 ## Next Steps
 
