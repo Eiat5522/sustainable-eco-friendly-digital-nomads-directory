@@ -176,3 +176,55 @@ export async function getAllNomadFeatures() {
     }
   `)
 }
+
+// Get a single city by slug
+export async function getCity(slug) {
+  return await client.fetch(
+    `*[_type == "city" && slug.current == $slug][0]{
+      _id,
+      title,
+      "slug": slug.current,
+      country,
+      description,
+      mainImage {
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions {
+              width,
+              height
+            }
+          }
+        }
+      },
+      sustainabilityScore,
+      highlights
+    }`,
+    { slug }
+  )
+}
+
+// Get listings for a specific city
+export async function getListingsByCity(citySlug) {
+  return await client.fetch(
+    `*[_type == "listing" && references(*[_type == "city" && slug.current == $citySlug]._id)]{
+      _id,
+      name,
+      "slug": slug.current,
+      category,
+      "city": city->title,
+      descriptionShort,
+      mainImage {
+        asset->{
+          _id,
+          url
+        }
+      },
+      "ecoTags": ecoFocusTags[]->name,
+      "nomadFeatures": digitalNomadFeatures[]->name,
+      sustainabilityScore
+    }`,
+    { citySlug }
+  )
+}

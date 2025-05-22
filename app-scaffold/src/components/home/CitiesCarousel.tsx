@@ -4,10 +4,22 @@ import dynamic from 'next/dynamic';
 
 interface City {
   _id: string;
-  title: string; // Changed from name to title to match Sanity schema
+  title: string;
   description: string;
   slug: string;
-  mainImage: string;
+  mainImage: {
+    asset: {
+      _id: string;
+      url: string;
+      metadata: {
+        dimensions: {
+          width: number;
+          height: number;
+        };
+      };
+    };
+  };
+  country: string;
   sustainabilityScore: number;
   highlights: string[];
 }

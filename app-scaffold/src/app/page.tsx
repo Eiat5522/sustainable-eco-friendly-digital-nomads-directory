@@ -8,13 +8,24 @@ import { useEffect, useState } from 'react';
 
 interface SanityCity {
   _id: string;
-  title: string;  // Changed from name to title to match Sanity schema
+  title: string;
   slug: string;
   country: string;
   description: string;
+  mainImage: {
+    asset: {
+      _id: string;
+      url: string;
+      metadata: {
+        dimensions: {
+          width: number;
+          height: number;
+        };
+      };
+    };
+  };
   sustainabilityScore: number;
   highlights: string[];
-  mainImage: string;
 }
 
 export default function Home() {
@@ -28,7 +39,10 @@ export default function Home() {
         setIsLoading(true);
         const fetchedCities = await getAllCities();
         console.log('Fetched cities in page.tsx:', JSON.stringify(fetchedCities, null, 2)); // Added console.log
-        setCities(fetchedCities || []);
+        if (!fetchedCities || !Array.isArray(fetchedCities)) {
+          throw new Error('Invalid city data received');
+        }
+        setCities(fetchedCities);
         setError(null);
       } catch (err) {
         console.error("Error fetching cities:", err);
@@ -59,7 +73,23 @@ export default function Home() {
         {/* Cities Carousel Section */}
         <section className="mb-16">
           <h2 className="text-2xl font-bold text-gray-900 mb-8">Popular Eco-Friendly Destinations</h2>
-          <CitiesCarousel cities={cities} />
+          {isLoading ? (
+            <div className="flex items-center justify-center min-h-[300px]">
+              <div className="w-16 h-16 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center text-red-600 p-8">
+              <p className="text-lg">Error loading cities: {error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                Retry
+              </button>
+            </div>
+          ) : (
+            <CitiesCarousel cities={cities} />
+          )}
         </section>
 
         {/* Featured Listings Section */}

@@ -1,11 +1,18 @@
+'use client';
+
 import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { ListingCard } from '@/components/listings/ListingCard'; // Assuming you have this
+import { ListingCard } from '@/components/listings/ListingCard';
 import { PreviewBanner } from '@/components/preview/PreviewBanner';
+import ScrollToTopButton from '@/components/ScrollToTopButton';
 import { getClient } from '@/lib/sanity/client';
-import { Listing } from '@/types/listings'; // Assuming you have a shared Listing type
+import { getCity, getListingsByCity } from '@/lib/sanity/queries';
+import { Listing } from '@/types/listings';
+import { motion } from 'framer-motion';
 import { Metadata } from 'next';
 import { draftMode } from 'next/headers';
-import { notFound } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 // Utility to convert a string to a slug
 function slugify(text: string): string {
@@ -69,92 +76,236 @@ export async function generateMetadata({ params }: CityPageProps): Promise<Metad
   };
 }
 
-export default async function CityPage({ params }: CityPageProps) {
+export default function CityPage({ params }: CityPageProps) {
   const { isEnabled } = draftMode();
-  const client = getClient(isEnabled);
+  const [city, setCity] = useState<any>(null); // Initialize with null or a default city structure
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch listings for the current city slug
-  // We need to fetch all listings and then filter them in code if Sanity's GROQ can't slugify on the fly for queries.
-  // Or, if your Sanity instance allows for custom functions or more complex queries, that could be an option.
-  // For now, let's fetch all and filter, which is not ideal for very large datasets.
-  // A better approach if possible is to store a slugified version of the city in Sanity if you add a proper City schema.
-
-  const allListings = await client.fetch<Listing[]>(
-    `*[_type == "listing"]{
-      "id": _id,
-      name,
-      "slug": slug.current,
-      city,
-      category,
-      "description_short": descriptionShort,
-      "eco_focus_tags": ecoTags,
-      "digital_nomad_features": nomadFeatures,
-      "primary_image_url": mainImage.asset->url
-    }`
-  );
-
-  console.log('All Listings:', allListings);
-  console.log('Params Slug:', params.slug);
-
-  const listingsInCity = allListings.filter(
-    (listing: Listing) => {
-      const citySlug = slugify(listing.city);
-      console.log(`Comparing: ${citySlug} === ${params.slug}`);
-      return citySlug === params.slug;
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+        const cityData = await getCity(params.slug);
+        const listingsData = await getListingsByCity(params.slug);
+        if (!cityData) {
+          throw new Error('City not found');
+        }
+        setCity(cityData);
+        setListings(listingsData || []);
+        setError(null);
+      } catch (err) {
+        console.error(`Error fetching data for city ${params.slug}:`, err);
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        setCity(null);
+        setListings([]);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  );
-  console.log('Listings in City:', listingsInCity);
+    fetchData();
+  }, [params.slug]);
 
-  // Removed the notFound() call here to always show the "No listings" message
-  // if (listingsInCity.length === 0) {
-  //   // Try to find if the city name itself exists, even if no listings currently
-  //   const cityExists = allListings.some((listing: Listing) => slugify(listing.city) === params.slug);
-  //   if (!cityExists) {
-  //       notFound();
-  //   }
-  // }
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-16 h-16 border-4 border-gray-200 border-t-green-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
-  // Determine the "true" city name from the first listing, or de-slugify
-  const cityName = listingsInCity.length > 0 ? listingsInCity[0].city : params.slug.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-center">
+        <h2 className="text-2xl font-semibold text-red-600 mb-4">Error loading city data</h2>
+        <p className="text-gray-700 mb-6">{error}</p>
+        <Link href="/"
+          className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+        >
+          Go to Homepage
+        </Link>
+      </div>
+    );
+  }
 
+  if (!city) {
+    // This case should ideally be handled by a 404 page,
+    // but for now, a simple message will do.
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen text-center">
+        <h2 className="text-2xl font-semibold text-gray-700 mb-4">City Not Found</h2>
+        <p className="text-gray-600 mb-6">The city you are looking for does not exist or could not be loaded.</p>
+        <Link href="/"
+          className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+        >
+          Go to Homepage
+        </Link>
+      </div>
+    );
+  }
 
   const breadcrumbs = [
     { name: 'Home', href: '/' },
-    { name: 'Cities', href: '/cities' }, // Assuming you might have a /cities overview page
-    { name: cityName },
+    { name: 'Cities', href: '/cities' },
+    { name: city.title },
   ];
 
   return (
     <>
       {isEnabled && <PreviewBanner />}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Breadcrumbs segments={breadcrumbs} />
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Eco-Friendly Listings in {cityName}
-          </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300 mt-2">
-            Discover sustainable coworking spaces, cafes, and accommodations.
-          </p>
+      <ScrollToTopButton />
+
+      {/* Hero Section */}
+      <section className="relative h-[80vh] w-full overflow-hidden">
+        {/* Background Image with Parallax Effect */}
+        <div className="absolute inset-0">
+          {city.mainImage?.asset?.url && (
+            <Image
+              src={city.mainImage.asset.url}
+              alt={city.title}
+              fill
+              className="object-cover transform scale-105 motion-safe:animate-subtle-zoom"
+              priority
+            />
+          )}
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
         </div>
 
-        {listingsInCity.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {listingsInCity.map((listing: Listing) => ( // Added type for listing
-              <ListingCard key={listing.id} listing={listing} />
-            ))}
+        {/* Hero Content */}
+        <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="h-full flex flex-col justify-between py-12">
+            {/* Breadcrumbs at top */}
+            <div className="text-white/90">
+              <Breadcrumbs segments={breadcrumbs} className="text-white/75" />
+            </div>
+
+            {/* City Information */}
+            <div className="max-w-3xl">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+                  {city.title}
+                </h1>
+                <p className="text-lg md:text-xl text-white/90 mb-6">
+                  {city.description}
+                </p>
+
+                {/* Eco Score */}
+                <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-500/20 backdrop-blur-sm">
+                  <span className="w-3 h-3 rounded-full bg-green-400 mr-2" />
+                  <span className="text-green-400 font-medium">
+                    Eco Score: {city.sustainabilityScore}
+                  </span>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+              className="flex justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+            >
+              <div className="animate-bounce bg-white/10 p-2 rounded-full backdrop-blur-sm">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </div>
+            </motion.div>
           </div>
-        ) : (
-          <div className="text-center py-10">
-            <p className="text-xl text-gray-700 dark:text-gray-300">
-              No listings found for {cityName} yet.
-            </p>
-            <p className="text-gray-500 dark:text-gray-400 mt-2">
-              Check back soon or explore other cities!
-            </p>
+        </div>
+      </section>
+
+      {/* Highlights Section */}
+      {city.highlights && city.highlights.length > 0 && (
+        <section className="py-16 bg-gradient-to-b from-white to-gray-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl font-bold text-gray-900 mb-8">
+                City Highlights
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {city.highlights.map((highlight, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    className="p-6 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
+                  >
+                    <p className="text-gray-800">{highlight}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           </div>
-        )}
-      </main>
+        </section>
+      )}
+
+      {/* Listings Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">
+              Sustainable Places in {city.title}
+            </h2>
+
+            {listings.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {listings.map((listing: Listing, index) => (
+                  <motion.div
+                    key={listing.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                  >
+                    <ListingCard listing={listing} />
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-10"
+              >
+                <p className="text-xl text-gray-700">
+                  No listings found for {city.title} yet.
+                </p>
+                <p className="text-gray-500 mt-2">
+                  Check back soon or explore other cities!
+                </p>
+              </motion.div>
+            )}
+          </motion.div>
+        </div>
+      </section>
     </>
   );
 }

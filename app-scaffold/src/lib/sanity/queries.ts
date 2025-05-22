@@ -98,15 +98,27 @@ export async function getListingsByCity(cityName: string, preview = false) {
 // Get all available cities for filtering
 export async function getAllCities(preview = false) {
   const sanityClient = getClient(preview);
+
   const query = `*[_type == "city"] {
     _id,
-    name: title,
+    title,
     "slug": slug.current,
     country,
     description,
     sustainabilityScore,
     highlights,
-    "mainImage": mainImage.asset->url
+    mainImage {
+      asset->{
+        _id,
+        url,
+        metadata {
+          dimensions {
+            width,
+            height
+          }
+        }
+      }
+    }
   }`;
 
   return await sanityClient.fetch(query);

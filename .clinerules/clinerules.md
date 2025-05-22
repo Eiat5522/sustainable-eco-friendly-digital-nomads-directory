@@ -1,76 +1,157 @@
-##Note to Cline##
-You must 
+# 📦 Sustainable Digital Nomads Directory - Project Rules
 
-# Project Structure
+## 🚨 Critical Notes for Cline
 
-🛠️ Tech Stack
+- **Project Context**: This is a sustainable digital nomads directory with Sanity CMS and Next.js 14
+- **Current Phase**: City pages implementation with carousel fixes and image handling
+- **Change Directory**: Use PowerShell 7 commands like `Set-Location` instead of `cd`
+- **Task Updates**: Always update task status in `tasks/task_breakdown.md` after completion
 
-Next.js 14+ (App Router) for full-stack rendering and API routes (open-source, free)
+## 🛠️ Tech Stack (CURRENT IMPLEMENTATION)
 
-Tailwind CSS for rapid, utility-first styling (open-source, free)
+### Frontend & Framework
 
-Strapi CE (self-hosted) or Sanity (free tier) for headless CMS
+- **Next.js 14.2.28** (App Router) - Security patched version
+- **React 18** with TypeScript
+- **Tailwind CSS 3.4** with custom animations and plugins
+- **Framer Motion** for animations and transitions
 
-MongoDB Atlas free cluster (or ElephantSQL free plan) for user & auth data
+### CMS & Data
 
-Leaflet.js + OpenStreetMap for map integration (open-source, no API fees)
+- **Sanity CMS** (implemented and configured)
+- **Sanity Image CDN** for optimized image delivery
+- **MongoDB Atlas** for user data (future implementation)
 
-Vercel Hobby tier (alternatively Cloudflare Pages/Workers free tier) for deployment
+### UI Components & Libraries
 
-Stripe for payments (pay-as-you-go, no monthly fee)
+- **Embla Carousel** for image carousels
+- **Lucide React** for icons
+- **Next/Image** for optimized images
 
-GitHub for version control & CI
+### Development Tools
 
-NextAuth.js (open-source) or Auth0 free tier for authentication & role-based access
+- **TypeScript 5** for type safety
+- **ESLint & Prettier** for code quality
+- **Playwright** for E2E testing
 
-🗂️ Folder Structure
+## 🗂️ Project Structure (CURRENT STATE)
 
-📂 /src
-  /app                # Next.js App Router (e.g., layout.tsx, page.tsx)
-  /components         # Reusable React components
-  /cms                # Strapi/Sanity schemas & helpers
-  /lib                # Utility functions (e.g., SEO helpers, db adapters)
-  /api                # Route handlers (e.g., /api/listings, /api/contact)
-  /styles             # Tailwind config & global styles
-  /hooks              # Custom React hooks
-  /types              # TypeScript types & interfaces
-📂 /public               # Static assets (images, icons)
-📂 /scripts              # Migration or seed scripts
-📂 /memory-bank          # Cline Memory Bank/Project Context folder
-📂 /.clinerules           # Cline configuration folder
-📂 /.github               # GitHub Copilot configuration folder (Cline can IGNORE this.)
-📂 /.env.example          # Sample environment variables
+```
+📂 /app-scaffold           # Main Next.js application
+  /src
+    /app                   # Next.js App Router (layout.tsx, page.tsx)
+      /city/[slug]         # ✅ City detail pages (IMPLEMENTED)
+      /listing/[slug]      # Listing detail pages
+      /api                 # API route handlers
+    /components            # React components
+      /home                # ✅ Home page components (CitiesCarousel)
+      /listings            # ✅ Listing components (CityCarousel, ListingCard)
+      /ui                  # Reusable UI components
+    /lib                   # Utilities and configurations
+      /sanity              # ✅ Sanity client and queries (IMPLEMENTED)
+    /types                 # ✅ TypeScript interfaces (UPDATED)
+  /public                  # Static assets
+  /scripts                 # Build and utility scripts
 
-🌐 Backend / API Route Conventions
+📂 /sanity                 # ✅ Sanity CMS (CONFIGURED)
+  /schemas               # Content schemas
+  /schemaTypes           # Schema type definitions
 
-REST-like endpoints under /src/app/api/*:
+📂 /listings               # Raw listing data and processing scripts
+📂 /memory-bank            # Project context and documentation
+📂 /tasks                  # ✅ Task breakdown and status tracking
+📂 /.clinerules            # Project configuration files
+```
 
-GET /api/listings – list filtered listings
+## � Current Implementation Status
 
-POST /api/listings – create (auth required, premium only)
+### ✅ COMPLETED
 
-GET /api/listings/[slug] – fetch detail
+- Sanity CMS setup and configuration
+- City schema with image handling
+- City detail pages with modern UI
+- Carousel components with Embla
+- Image optimization via Sanity CDN
+- TypeScript interfaces for type safety
+- Tailwind CSS with custom animations
+- Responsive design implementation
 
-POST /api/reviews – add review (auth required)
+### 🚧 IN PROGRESS
 
-GET /api/events – upcoming events feed
+- Carousel TypeScript type fixes
+- Documentation updates
+- Testing carousel functionality
 
-Handlers connect to CMS or DB via lightweight wrappers
+### 📋 PENDING
 
-All responses use JSON with standard success/error envelopes
+- User authentication system
+- Listing creation/editing
+- Search and filtering
+- Payment integration
+- Mobile app development
 
-🚀 Development Workflow
+## 🌐 API Routes & Data Flow (CURRENT IMPLEMENTATION)
 
-Branching: Feature branches → PR → main
+### Sanity CMS Integration
 
-CI: GitHub Actions runs lint, type-check, and tests on every PR
+- **GET /api/cities** - Fetch all cities (via Sanity queries)
+- **GET /api/listings** - Fetch listings with filters
+- **GET /api/listings/[slug]** - Individual listing details
+- **GET /api/city/[slug]** - City details with filtered listings
 
-Deploy: Merge to main triggers Vercel preview → prod
+### Data Queries (Implemented)
 
-CMS: Strapi/Sanity deployed via Vercel Functions/Edge or self-hosted on Render free tier
+```javascript
+// City queries with proper image handling
+const cityProjection = `{
+  _id,
+  title,
+  "slug": slug.current,
+  country,
+  description,
+  mainImage {
+    asset->{
+      _id,
+      url,
+      metadata {
+        dimensions {
+          width,
+          height
+        }
+      }
+    }
+  },
+  sustainabilityScore,
+  highlights
+}`
+```
 
-Compile Check: After file edits (especially syntax/imports), check server terminal for compile errors before browser testing.
+### Image Handling
 
-Content Editors: Admin UI behind auth; role-based permissions for editors vs. venue owners
+- **Sanity CDN**: Optimized image delivery with responsive sizing
+- **Next/Image**: Automatic optimization and lazy loading
+- **Fallback Images**: Proper error handling for missing images
 
-User Testing: Monthly usability sessions; analytics dashboards drive roadmap decisions
+## 🚀 Development Workflow (UPDATED)
+
+### Current Development Process
+
+1. **PowerShell 7**: Use `Set-Location` for directory navigation
+2. **Task Tracking**: Update `tasks/task_breakdown.md` after each completion
+3. **Type Safety**: Maintain TypeScript interfaces in `/src/types/`
+4. **Component Development**: Modern React patterns with hooks and contexts
+5. **Styling**: Tailwind CSS with custom animations and responsive design
+
+### Build & Deploy
+
+- **Development**: `npm run dev` in `/app-scaffold`
+- **Sanity Studio**: Access via Sanity dashboard
+- **Type Checking**: Continuous TypeScript validation
+- **Testing**: Playwright for E2E testing
+
+### Code Quality Standards
+
+- **TypeScript**: Strict type checking enabled
+- **ESLint**: Code quality enforcement
+- **Image Optimization**: Proper aspect ratios and responsive images
+- **Performance**: Lazy loading and optimized bundles

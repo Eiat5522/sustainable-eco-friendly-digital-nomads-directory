@@ -85,19 +85,71 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
       : [];
   };
 
-
   return (
-    <>
-      <style>{`
-        @keyframes shimmer {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-        :global(.animate-shimmer) {
-          animation: shimmer 1.5s infinite;
-        }
-      `}</style>
-      <Link href={getListingUrl()} className="block h-full">
+    <Link href={getListingUrl()}>
+      <div className="group h-full bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+        {/* Image Section */}
+        <div className="relative aspect-[4/3] overflow-hidden">
+          {getImageUrl() ? (
+            <Image
+              src={getImageUrl()}
+              alt={listingName}
+              fill
+              className={`object-cover transition-transform duration-500 group-hover:scale-105 ${
+                isLoading ? 'opacity-0' : 'opacity-100'
+              }`}
+              onLoad={() => setIsLoading(false)}
+              onError={() => setIsError(true)}
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+              <span className="text-gray-400">{listingName}</span>
+            </div>
+          )}
+
+          {/* Category Badge */}
+          <div className="absolute top-4 left-4 z-10">
+            <span className="px-3 py-1 rounded-full text-sm font-medium bg-white/90 text-gray-800 shadow-sm backdrop-blur-sm">
+              {getCategory()}
+            </span>
+          </div>
+
+          {/* Loading State */}
+          {isLoading && !isError && (
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-shimmer" />
+          )}
+        </div>
+
+        {/* Content Section */}
+        <div className="p-6">
+          <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
+            {searchQuery
+              ? highlightText(listingName, searchQuery)
+              : listingName}
+          </h3>
+
+          <p className="text-gray-600 mb-4 line-clamp-2">
+            {searchQuery
+              ? highlightText(getDescription(), searchQuery)
+              : getDescription()}
+          </p>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2 mt-auto">
+            {getEcoTags()
+              .slice(0, 3)
+              .map((tag, index) => (
+                <span
+                  key={index}
+                  className="px-2 py-1 text-sm bg-green-50 text-green-700 rounded-full"
+                >
+                  {searchQuery ? highlightText(tag, searchQuery) : tag}
+                </span>
+              ))}
+          </div>
+        </div>
+      </div>
+    </Link>
         <article className="h-full transition-transform hover:scale-[1.02] duration-200" data-testid="listing-card">
           <div className="relative bg-stone-50 dark:bg-slate-800 rounded-lg shadow-lg hover:shadow-xl overflow-hidden h-full border border-stone-200 dark:border-slate-700 hover:border-green-600 dark:hover:border-green-500 transition-all duration-300">
             {/* Image */}
