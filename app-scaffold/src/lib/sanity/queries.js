@@ -12,7 +12,18 @@ const cityProjection = `{
   "slug": slug.current,
   country,
   description,
-  "mainImage": mainImage.asset->url,
+  mainImage {
+    asset->{
+      _id,
+      url,
+      metadata {
+        dimensions {
+          width,
+          height
+        }
+      }
+    }
+  },
   sustainabilityScore,
   highlights
 }`
@@ -25,7 +36,7 @@ const listingCardProjection = `{
   category,
   "city": city->name,
   descriptionShort,
-  mainImage,
+  "mainImage": mainImage.asset->url,
   "ecoTags": ecoFocusTags[]->name,
   "nomadFeatures": digitalNomadFeatures[]->name
 }`
@@ -46,8 +57,8 @@ const fullListingProjection = `{
   "ecoTags": ecoFocusTags[]->{ name, "slug": slug.current },
   ecoNotesDetailed,
   sourceUrls,
-  mainImage,
-  galleryImages,
+  "mainImage": mainImage.asset->url,
+  "galleryImages": galleryImages[].asset->url,
   "nomadFeatures": digitalNomadFeatures[]->{ name, "slug": slug.current },
   lastVerifiedDate,
   coworkingDetails,

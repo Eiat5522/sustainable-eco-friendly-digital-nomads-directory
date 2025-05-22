@@ -7,12 +7,25 @@ import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
+interface SanityImage {
+  asset: {
+    _id: string;
+    url: string;
+    metadata: {
+      dimensions: {
+        width: number;
+        height: number;
+      };
+    };
+  };
+}
+
 interface City {
   _id: string;
-  title: string;  // Changed from name to title to match Sanity schema
+  title: string;
   description: string;
   slug: string;
-  mainImage: string;
+  mainImage: SanityImage;
   country: string;
   sustainabilityScore: number;
   highlights: string[];
@@ -87,15 +100,24 @@ export default function CityCarousel({ cities }: CityCarouselProps) {
               className="flex-[0_0_100%] min-w-0 pl-4 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
             >
               <Link href={`/city/${city.slug}`}>
-                <div className="group relative overflow-hidden rounded-lg">
-                  {/* Image Container */}
-                  <div className="relative aspect-[4/3]">
-                    {city.mainImage ? (                      <Image
-                        src={city.mainImage}
+                <div className="group relative overflow-hidden rounded-lg">                  {/* Image Container */}
+                  <div className="relative aspect-[4/3]">                    {city.mainImage?.asset?.url ? (
+                      <Image
+                        src={city.mainImage.asset.url}
                         alt={city.title}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33.333vw"
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          // Show fallback
+                          const fallback = target.parentElement;
+                          if (fallback) {
+                            fallback.classList.add(bgColors[index % bgColors.length], 'flex', 'items-center', 'justify-center', 'text-white', 'text-lg', 'font-medium');
+                            fallback.textContent = city.title;
+                          }
+                        }}
                       />
                     ) : (
                       <div className={`${bgColors[index % bgColors.length]} h-full flex items-center justify-center text-white text-lg font-medium`}>

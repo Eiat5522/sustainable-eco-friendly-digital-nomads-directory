@@ -1,8 +1,8 @@
 /**
  * Sanity client configuration for the frontend
  */
-import { createClient } from 'next-sanity'
 import imageUrlBuilder from '@sanity/image-url'
+import { createClient } from 'next-sanity'
 
 export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
 export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
@@ -25,27 +25,28 @@ export const getClient = (preview = false) => {
   return client
 }
 
-// Export imageUrlBuilder
-export const urlFor = (source) => {
-  const client = getClient()
-  const builder = imageUrlBuilder(client)
-  return builder.image(source)
-}
+// Create the default client for general use
+export const client = getClient()
 
-// Get the correct client based on preview mode
-export const client = getClient(false)
-
-// Set up image URL builder
+// Create an image URL builder to optimize and transform images
 const builder = imageUrlBuilder(client)
 
 /**
- * Helper function for generating image URLs with automatic width and quality optimizations
+ * Helper function to build optimized image URLs
+ * @param {Object} source - The image source object from Sanity
+ * @returns {Function} - Image URL builder function
  */
 export function urlForImage(source) {
-  if (!source?.asset?._ref) {
-    return null
-  }
   return builder.image(source)
+}
+
+/**
+ * Helper function to get an optimized image URL with default settings
+ * @param {Object} source - The image source object from Sanity
+ * @returns {string} - Optimized image URL as string
+ */
+export function getImageUrl(source) {
+  return builder.image(source).auto('format').fit('max').url()
 }
 
 /**
