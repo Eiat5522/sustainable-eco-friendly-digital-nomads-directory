@@ -21,15 +21,18 @@
     "@aws-sdk/credential-providers": "^3.812.0",
     "@mongodb-js/zstd": "^2.0.1",
     "@next/third-parties": "^15.3.2",
-    "@sanity/client": "6.29.1",
+    "@sanity/client": "^7.3.0",
     "@sanity/image-url": "^1.1.0",
     "@sanity/ui": "^2.15.18",
+    "@sanity/vision": "^3.89.0",
+    "@sanity/visual-editing": "^2.13.22",
     "@types/node": "20.17.47",
     "@types/react": "18.3.21",
     "@types/react-dom": "18.3.7",
     "@types/styled-components": "^5.1.34",
     "@vercel/analytics": "^1.5.0",
     "aws4": "^1.13.2",
+    "bcryptjs": "^3.0.2",
     "clsx": "^2.1.1",
     "critters": "^0.0.23",
     "embla-carousel-autoplay": "^8.6.0",
@@ -50,10 +53,15 @@
     "node-fetch": "2.7.0",
     "plausible-tracker": "0.3.9",
     "posthog-js": "^1.242.3",
+    "prismjs": "^1.30.0",
     "react": "18.2.0",
     "react-cookie-consent": "^9.0.0",
     "react-dom": "18.2.0",
+    "react-hook-form": "^7.56.4",
+    "react-refractor": "^3.1.1",
+    "refractor": "^3.6.0",
     "snappy": "^7.2.2",
+    "string-similarity": "^4.0.4",
     "styled-components": "^6.1.18",
     "tailwind-merge": "^3.3.0",
     "typescript": "5.8.3"
@@ -66,6 +74,7 @@
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/bcryptjs": "^2.4.6",
     "@types/jest": "^29.5.11",
     "autoprefixer": "^10.4.18",
     "csv-loader": "^3.0.5",
@@ -81,5 +90,23 @@
     "rimraf": "^5.0.5",
     "tailwindcss": "^3.4.1",
     "tailwindcss-animate": "^1.0.7"
+  },
+  "overrides": {
+    "prismjs": "^1.30.0",
+    "react-refractor": {
+      "refractor": "5.0.0"
+    },
+    "@sanity/ui": {
+      "refractor": "5.0.0",
+      "prismjs": "^1.30.0"
+    },
+    "@sanity/insert-menu": {
+      "refractor": "5.0.0",
+      "prismjs": "^1.30.0"
+    },
+    "@sanity/visual-editing": {
+      "refractor": "5.0.0",
+      "prismjs": "^1.30.0"
+    }
   }
 }

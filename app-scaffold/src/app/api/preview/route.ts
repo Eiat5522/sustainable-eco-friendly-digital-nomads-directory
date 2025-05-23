@@ -20,8 +20,8 @@ export async function GET(request: Request) {
 
   // Enable Draft Mode by setting the cookie
   draftMode().enable()
-
   // Redirect to the path from the fetched post
   // We don't redirect to searchParams.slug as that might lead to open redirect vulnerabilities
   const redirectPath = `/${type === 'listing' ? 'listings' : type}/${slug}`
   redirect(redirectPath)
+}

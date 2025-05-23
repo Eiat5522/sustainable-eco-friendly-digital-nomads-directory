@@ -1,157 +1,140 @@
-# 📦 Sustainable Digital Nomads Directory - Project Rules
+---
 
-## 🚨 Critical Notes for Cline
+description: Custom instructions adapted from GitHub Copilot guidelines to govern Cline’s behavior and workflows
+author: Itthiphum Lenavat
+version: 1.0
+tags: \["copilot", "workflow", "memory", "navigation"]
+globs: \["\*\*/copilot-instructions.md"]
+----------------------------------------
 
-- **Project Context**: This is a sustainable digital nomads directory with Sanity CMS and Next.js 14
-- **Current Phase**: City pages implementation with carousel fixes and image handling
-- **Change Directory**: Use PowerShell 7 commands like `Set-Location` instead of `cd`
-- **Task Updates**: Always update task status in `tasks/task_breakdown.md` after completion
+# 📋 GitHub Copilot–Style Custom Instructions for Cline
 
-## 🛠️ Tech Stack (CURRENT IMPLEMENTATION)
+## 🎯 Objective
 
-### Frontend & Framework
+Provide Cline with structured guidance—modeled on GitHub Copilot’s best practices—so it can assist seamlessly in navigating the project, managing tasks, adhering to tech-stack conventions, and maintaining user memory.
 
-- **Next.js 14.2.28** (App Router) - Security patched version
-- **React 18** with TypeScript
-- **Tailwind CSS 3.4** with custom animations and plugins
-- **Framer Motion** for animations and transitions
+## 🗂️ 1. Project Structure & Task Management
 
-### CMS & Data
+* ✅ **Task Tracking**
 
-- **Sanity CMS** (implemented and configured)
-- **Sanity Image CDN** for optimized image delivery
-- **MongoDB Atlas** for user data (future implementation)
+  * Mark subtasks complete when finished.
+  * Update parent-task status once all subtasks are done.
 
-### UI Components & Libraries
+* 🗄️ **Directory Layout**
 
-- **Embla Carousel** for image carousels
-- **Lucide React** for icons
-- **Next/Image** for optimized images
+  ```
+  sustainable-eco-friendly-digital-nomads-directory/
+  ├─ app-scaffold/        # Next.js front-end
+  ├─ sanity/              # Sanity Studio (CMS)
+  └─ app-scaffold/src/
+     └─ components/       # React components
+  ```
 
-### Development Tools
+## 🚀 2. Directory Navigation (PowerShell 7)
 
-- **TypeScript 5** for type safety
-- **ESLint & Prettier** for code quality
-- **Playwright** for E2E testing
+* Use `Set-Location` instead of `cd`.
+* Validate with `Test-Path` before moving.
+* Example:
 
-## 🗂️ Project Structure (CURRENT STATE)
+  ```powershell
+  # Go to project root
+  Set-Location -Path "D:\Eiat_Folder\MyProjects\...\sustainable-eco-friendly-digital-nomads-directory"
 
-```
-📂 /app-scaffold           # Main Next.js application
-  /src
-    /app                   # Next.js App Router (layout.tsx, page.tsx)
-      /city/[slug]         # ✅ City detail pages (IMPLEMENTED)
-      /listing/[slug]      # Listing detail pages
-      /api                 # API route handlers
-    /components            # React components
-      /home                # ✅ Home page components (CitiesCarousel)
-      /listings            # ✅ Listing components (CityCarousel, ListingCard)
-      /ui                  # Reusable UI components
-    /lib                   # Utilities and configurations
-      /sanity              # ✅ Sanity client and queries (IMPLEMENTED)
-    /types                 # ✅ TypeScript interfaces (UPDATED)
-  /public                  # Static assets
-  /scripts                 # Build and utility scripts
+  # Into Next.js folder
+  Set-Location -Path ".\app-scaffold"
 
-📂 /sanity                 # ✅ Sanity CMS (CONFIGURED)
-  /schemas               # Content schemas
-  /schemaTypes           # Schema type definitions
+  # Into Sanity studio
+  Set-Location -Path "..\sanity"
 
-📂 /listings               # Raw listing data and processing scripts
-📂 /memory-bank            # Project context and documentation
-📂 /tasks                  # ✅ Task breakdown and status tracking
-📂 /.clinerules            # Project configuration files
-```
+  # Into components
+  Set-Location -Path ".\app-scaffold\src\components"
+  ```
 
-## � Current Implementation Status
+## 🛠️ 3. Tech Stack Conventions
 
-### ✅ COMPLETED
+* **Front-end:** Next.js 14+ (App Router), Tailwind CSS
+* **CMS:** Sanity (free tier)
+* **Database:** MongoDB Atlas or ElephantSQL
+* **Maps:** Leaflet.js + OpenStreetMap
+* **Auth:** NextAuth.js or Auth0
+* **Deployment:** Vercel (Hobby) or Cloudflare Pages
+* **CI/CD:** GitHub Actions (lint, type-check, tests → preview → production)
 
-- Sanity CMS setup and configuration
-- City schema with image handling
-- City detail pages with modern UI
-- Carousel components with Embla
-- Image optimization via Sanity CDN
-- TypeScript interfaces for type safety
-- Tailwind CSS with custom animations
-- Responsive design implementation
+## 🌐 4. API & Routing Patterns
 
-### 🚧 IN PROGRESS
+* **REST endpoints** under `app-scaffold/src/app/api`:
 
-- Carousel TypeScript type fixes
-- Documentation updates
-- Testing carousel functionality
+  ```
+  GET    /api/listings
+  POST   /api/listings
+  GET    /api/listings/[slug]
+  PUT    /api/listings/[slug]
+  DELETE /api/listings/[slug]
+  ```
+* **Response envelope**:
 
-### 📋 PENDING
+  ```json
+  {
+    "success": true|false,
+    "data": {…},
+    "error": { code, message }
+  }
+  ```
 
-- User authentication system
-- Listing creation/editing
-- Search and filtering
-- Payment integration
-- Mobile app development
+## 🔄 5. Development Workflow
 
-## 🌐 API Routes & Data Flow (CURRENT IMPLEMENTATION)
+1. **Branching:** feature/\* → pull request → main
+2. **CI:** run lint, type-check, tests on every PR
+3. **Merge:** → Vercel preview → production
+4. **CMS updates:** commit to Sanity Studio → auto-deploy
+5. **User testing:** monthly sessions → backlog refinement
 
-### Sanity CMS Integration
+## 🔒 6. Security & Environment
 
-- **GET /api/cities** - Fetch all cities (via Sanity queries)
-- **GET /api/listings** - Fetch listings with filters
-- **GET /api/listings/[slug]** - Individual listing details
-- **GET /api/city/[slug]** - City details with filtered listings
+* **Secrets:** Vercel/Cloudflare env vars
+* **Headers:** enforce HTTPS, CSP, CORS via Next.js middleware
+* **Rate limiting:** middleware or Cloudflare Turnstile on critical routes
+* **Backups:** nightly CMS & DB snapshots (free-tier limits)
 
-### Data Queries (Implemented)
+## 📦 7. Dependencies & Versioning
 
-```javascript
-// City queries with proper image handling
-const cityProjection = `{
-  _id,
-  title,
-  "slug": slug.current,
-  country,
-  description,
-  mainImage {
-    asset->{
-      _id,
-      url,
-      metadata {
-        dimensions {
-          width,
-          height
-        }
-      }
-    }
-  },
-  sustainabilityScore,
-  highlights
-}`
-```
+* **Lock** security-critical libraries to fixed versions
+* **Audit** regularly with `npm audit`
+* **Key versions:**
 
-### Image Handling
+  * Next.js `^14.2.28`
+  * NextAuth.js `^4.24.5`
+  * `@auth/mongodb-adapter` `^2.0.0`
+  * Sanity client/image URL `^6.x`
 
-- **Sanity CDN**: Optimized image delivery with responsive sizing
-- **Next/Image**: Automatic optimization and lazy loading
-- **Fallback Images**: Proper error handling for missing images
+## 🧠 8. Memory Management
 
-## 🚀 Development Workflow (UPDATED)
+### 👤 8.1 Identify
 
-### Current Development Process
+* Assume you’re interacting with **Eiat**; if unsure, ask.
 
-1. **PowerShell 7**: Use `Set-Location` for directory navigation
-2. **Task Tracking**: Update `tasks/task_breakdown.md` after each completion
-3. **Type Safety**: Maintain TypeScript interfaces in `/src/types/`
-4. **Component Development**: Modern React patterns with hooks and contexts
-5. **Styling**: Tailwind CSS with custom animations and responsive design
+### 📥 8.2 Load
 
-### Build & Deploy
+* On session start, print:
 
-- **Development**: `npm run dev` in `/app-scaffold`
-- **Sanity Studio**: Access via Sanity dashboard
-- **Type Checking**: Continuous TypeScript validation
-- **Testing**: Playwright for E2E testing
+  ```
+  Remembering…
+  ```
+* Retrieve all relevant facts from memory graph.
 
-### Code Quality Standards
+### 🔍 8.3 Gather
 
-- **TypeScript**: Strict type checking enabled
-- **ESLint**: Code quality enforcement
-- **Image Optimization**: Proper aspect ratios and responsive images
-- **Performance**: Lazy loading and optimized bundles
+Be alert for new data:
+
+* **Identity:** age, location, role
+* **Preferences:** language, style
+* **Projects:** repo names, tech choices
+* **Goals:** deliverables, timelines
+
+### ♻️ 8.4 Update
+
+When new info arises:
+
+1. Create nodes for recurring entities.
+2. Link them to the user.
+3. Store each fact as an observation.

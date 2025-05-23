@@ -22,7 +22,6 @@
 - Playwright for testing
 - ESLint + Prettier for code quality
 
-
 ## Technical Constraints
 
 - Leaflet.js must not be imported at top level in SSR context

@@ -16,7 +16,7 @@ const listingFields = `
   lastVerifiedDate
 `;
 
-export async function getAllListings(preview = false) {
+async function getAllListings(preview = false) {
   const sanityClient = getClient(preview);
 
   const query = `*[_type == "listing"] {
@@ -26,7 +26,7 @@ export async function getAllListings(preview = false) {
   return await sanityClient.fetch(query);
 }
 
-export async function getListingBySlug(slug: string, preview = false) {
+async function getListingBySlug(slug: string, preview = false) {
   const sanityClient = getClient(preview);
 
   const query = `*[_type == "listing" && slug.current == $slug][0] {
@@ -75,7 +75,7 @@ export async function getListingBySlug(slug: string, preview = false) {
   return await sanityClient.fetch(query, { slug });
 }
 
-export async function getListingsByCategory(category: string, preview = false) {
+async function getListingsByCategory(category: string, preview = false) {
   const sanityClient = getClient(preview);
 
   const query = `*[_type == "listing" && category == $category] {
@@ -85,18 +85,18 @@ export async function getListingsByCategory(category: string, preview = false) {
   return await sanityClient.fetch(query, { category });
 }
 
-export async function getListingsByCity(cityName: string, preview = false) {
+async function getListingsByCity(cityName: string, preview = false) {
   const sanityClient = getClient(preview);
 
   const query = `*[_type == "listing" && city->name == $cityName] {
     ${listingFields}
   }`;
 
-  return await sanityClient.fetch(query, { cityName });
+  return await sanityClient.fetch(query);
 }
 
 // Get all available cities for filtering
-export async function getAllCities(preview = false) {
+async function getAllCities(preview = false) {
   const sanityClient = getClient(preview);
 
   const query = `*[_type == "city"] {
@@ -125,7 +125,7 @@ export async function getAllCities(preview = false) {
 }
 
 // Get all eco focus tags for filtering
-export async function getAllEcoTags(preview = false) {
+async function getAllEcoTags(preview = false) {
   const sanityClient = getClient(preview);
 
   const query = `*[_type == "ecoTag"] {
@@ -139,7 +139,7 @@ export async function getAllEcoTags(preview = false) {
 }
 
 // Search listings
-export async function searchListings(searchTerm: string, preview = false) {
+async function searchListings(searchTerm: string, preview = false) {
   const sanityClient = getClient(preview);
 
   const query = `*[_type == "listing" && (
@@ -155,7 +155,7 @@ export async function searchListings(searchTerm: string, preview = false) {
 }
 
 // Get latest blog posts
-export async function getLatestBlogPosts(limit = 3, preview = false) {
+async function getLatestBlogPosts(limit = 3, preview = false) {
   const sanityClient = getClient(preview);
 
   const query = `*[_type == "blogPost"] | order(_createdAt desc)[0...$limit] {
@@ -178,3 +178,9 @@ export async function getRelatedListings(listingId: string, category: string, ci
 
   return await getClient().fetch(query, { listingId, category, cityName })
 }
+
+// Export all functions
+export { getAllCities, getAllEcoTags, getAllListings, getLatestBlogPosts, getListingBySlug, getListingsByCategory, getListingsByCity, searchListings };
+
+// Additional alias export
+export const getCity = getListingBySlug
