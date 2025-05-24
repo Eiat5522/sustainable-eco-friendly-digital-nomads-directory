@@ -2,7 +2,7 @@
 
 ## Overall Project Structure
 ```text
-/app-scaffold            # Main Next.js application directory
+/app-next-directory            # Main Next.js application directory
   /src
     /app                 # Next.js App Router (pages, layouts)
       /layout.tsx        # Root layout with metadata and common structure

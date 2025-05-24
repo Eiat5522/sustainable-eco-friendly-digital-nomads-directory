@@ -9,7 +9,7 @@ import shutil
 
 # Configuration
 LISTINGS_DIR = Path("d:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/listings")
-APP_PUBLIC_DIR = Path("d:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-scaffold/public")
+APP_PUBLIC_DIR = Path("d:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/public")
 IMAGE_STAGING_DIR = Path("d:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/sanity_image_staging")
 
 LISTINGS_FILES = [
@@ -206,7 +206,7 @@ def stage_images(image_paths):
             print(f"Skipping potentially invalid relative path: {rel_path}")
             continue
 
-        # Source path is relative to APP_PUBLIC_DIR (e.g., /images/listings/foo.jpg -> app-scaffold/public/images/listings/foo.jpg)
+        # Source path is relative to APP_PUBLIC_DIR (e.g., /images/listings/foo.jpg -> app-next-directory/public/images/listings/foo.jpg)
         # We strip the leading '/' to correctly join with APP_PUBLIC_DIR
         source_image_path = APP_PUBLIC_DIR / rel_path.lstrip("/")
 

@@ -9,7 +9,8 @@ export default {
   type: 'object',
   validation: Rule => Rule.required().error('Accommodation details are required for accommodation listings'),
   fields: [
-    {      name: 'accommodationType',
+    {
+      name: 'accommodationType',
       title: 'Accommodation Type',
       type: 'string',
       options: {
@@ -25,8 +26,6 @@ export default {
         ],
         layout: 'radio'
       }
-      },
-      validation: Rule => Rule.required().error('Accommodation type is required')
     },
     {
       name: 'priceRangeThb',

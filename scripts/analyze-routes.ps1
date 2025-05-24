@@ -1,8 +1,8 @@
 # analyze-routes.ps1
 # Script to analyze the Next.js project's dynamic routes and help identify potential issues
 
-$appDirectory = ".\app-scaffold\src\app"
-$pagesDirectory = ".\app-scaffold\pages"
+$appDirectory = ".\app-next-directory\src\app"
+$pagesDirectory = ".\app-next-directory\pages"
 
 Write-Host "📊 Analyzing Dynamic Routes in Next.js Project" -ForegroundColor Cyan
 Write-Host "================================================" -ForegroundColor Cyan
@@ -79,7 +79,7 @@ Write-Host "`n🔍 Component Link Analysis" -ForegroundColor Cyan
 Write-Host "======================" -ForegroundColor Cyan
 
 # Find components with Link tags that might need updating
-$componentFiles = Get-ChildItem -Path ".\app-scaffold\src\components" -Filter "*.tsx" -Recurse
+$componentFiles = Get-ChildItem -Path ".\app-next-directory\src\components" -Filter "*.tsx" -Recurse
 $totalLinks = 0
 $slugLinks = 0
 $idLinks = 0

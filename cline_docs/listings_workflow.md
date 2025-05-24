@@ -48,7 +48,7 @@ listings/
    - Complex data types (arrays, objects) are JSON-stringified
 
 5. **Integration with App**
-   - Production data is automatically synced to `app-scaffold/src/data/listings`
+   - Production data is automatically synced to `app-next-directory/src/data/listings`
    - Use `scripts/sync-listings-data.ps1` for syncing:
      - Production mode: One-time sync
      - Development mode: Continuous sync with file watching
@@ -62,7 +62,7 @@ listings/
    ```powershell
    python listings/deduplicate_and_merge.py
    ```
-3. Sync to app-scaffold:
+3. Sync to app-next-directory:
    ```powershell
    ./scripts/sync-listings-data.ps1 -Mode production
    ```
@@ -152,7 +152,7 @@ The system processes images for optimal web delivery with the following features
 ## Directory Structure
 
 ```
-app-scaffold/
+app-next-directory/
 └── public/
     └── images/
         └── listings/

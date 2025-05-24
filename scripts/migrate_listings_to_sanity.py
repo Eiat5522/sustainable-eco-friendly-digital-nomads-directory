@@ -165,13 +165,13 @@ MERGED_LISTINGS_PATH = PROJECT_ROOT / "listings" / "merged_listings.json"
 # TEMPORARY IMAGE HANDLING (2025-05-22):
 # We're using two image locations temporarily until manual image curation is complete:
 # 1. Primary: sanity_image_staging - Will contain manually curated images
-# 2. Fallback: app-scaffold/public - Contains some initial images for development
+# 2. Fallback: app-next-directory/public - Contains some initial images for development
 # TODO: After manual image curation is complete (expected 2025-05-23):
 # - Remove the PUBLIC_IMAGES_PATH fallback
 # - Update the image handling logic to only use STAGING_PATH
 # - Delete these temporary handling comments
 IMAGE_STAGING_PATH = PROJECT_ROOT / "sanity_image_staging"
-PUBLIC_IMAGES_PATH = PROJECT_ROOT / "app-scaffold" / "public"
+PUBLIC_IMAGES_PATH = PROJECT_ROOT / "app-next-directory" / "public"
 
 def find_image_path(relative_path: str) -> Optional[Path]:
     """
@@ -180,7 +180,7 @@ def find_image_path(relative_path: str) -> Optional[Path]:
 
     Looks for images in two locations:
     1. Primary: sanity_image_staging directory (for manually curated images)
-    2. Fallback: app-scaffold/public directory (for development images)
+    2. Fallback: app-next-directory/public directory (for development images)
 
     Args:
         relative_path: The relative path to the image from either root
@@ -197,7 +197,7 @@ def find_image_path(relative_path: str) -> Optional[Path]:
     if primary_path.exists():
         return primary_path
 
-    # Try fallback location (app-scaffold/public)
+    # Try fallback location (app-next-directory/public)
     fallback_path = PUBLIC_IMAGES_PATH / relative_path.lstrip('/')
     if fallback_path.exists():
         return fallback_path

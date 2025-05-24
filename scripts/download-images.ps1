@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 # --- Configuration ---
 $projectRoot = "d:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory"
 $mergedListingsPathLocal = Join-Path $projectRoot "listings\merged_listings.json" # Renamed to avoid lint warning
-$imagesBaseDestDirLocal = Join-Path $projectRoot "app-scaffold\public" # Renamed to avoid lint warning
+$imagesBaseDestDirLocal = Join-Path $projectRoot "app-next-directory\public" # Renamed to avoid lint warning
 
 # This map translates the relative paths found in merged_listings.json
 # to actual downloadable URLs.

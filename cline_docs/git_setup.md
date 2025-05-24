@@ -46,7 +46,7 @@ main
 
 1. **For Developers**
    - Clone the repository
-   - Run `npm install` in app-scaffold directory
+   - Run `npm install` in app-next-directory directory
    - Set up your IDE with Prettier and ESLint
    - Create feature branches from develop
 

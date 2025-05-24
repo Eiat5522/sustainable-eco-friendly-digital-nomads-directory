@@ -9,7 +9,7 @@ The current migration script (scripts/migrate_listings_to_sanity.py) implements 
    - Expected to be populated on 2025-05-23
    - Will be the final source of truth for all listing images
 
-2. **Fallback Location**: pp-scaffold/public/images/
+2. **Fallback Location**: pp-next-directory/public/images/
    - Contains some initial development images
    - Used temporarily to allow development to proceed
    - Will be phased out after manual image curation is complete
@@ -37,7 +37,7 @@ The temporary dual-location handling is implemented in:
 1. **Path Constants** (top of file):
    \\\python
    IMAGE_STAGING_PATH = PROJECT_ROOT / "sanity_image_staging"
-   PUBLIC_IMAGES_PATH = PROJECT_ROOT / "app-scaffold" / "public"
+   PUBLIC_IMAGES_PATH = PROJECT_ROOT / "app-next-directory" / "public"
    \\\
 
 2. **Image Finding Function**:

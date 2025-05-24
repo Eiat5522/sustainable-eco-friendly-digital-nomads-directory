@@ -10,7 +10,7 @@ $MAX_RETRIES = 5
 Write-Host "🚀 Starting Next.js development server..." -ForegroundColor Cyan
 
 # Start the Next.js development server in the background
-$process = Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory "./app-scaffold" -PassThru -WindowStyle Hidden
+$process = Start-Process -FilePath "npm" -ArgumentList "run", "dev" -WorkingDirectory "./app-next-directory" -PassThru -WindowStyle Hidden
 
 # Wait for the server to start up
 Write-Host "⏳ Waiting $WAIT_TIME_SECONDS seconds for the server to start..." -ForegroundColor Yellow
@@ -44,7 +44,7 @@ if (-not $serverRunning) {
 
 # Run the route tests
 Write-Host "🧪 Running route tests..." -ForegroundColor Magenta
-node ./app-scaffold/scripts/route-test.js
+node ./app-next-directory/scripts/route-test.js
 
 # Shutdown the server
 Write-Host "🛑 Shutting down the development server..." -ForegroundColor Cyan

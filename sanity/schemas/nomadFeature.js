@@ -2,7 +2,7 @@
  * Nomad Feature schema for Sanity CMS
  * Represents digital nomad-friendly features for listings
  */
-import { slugField, descriptionField, imageWithAlt } from './shared/fields'
+import { descriptionField, imageWithAlt, slugField } from './fields.js';
 
 export default {
   name: 'nomadFeature',

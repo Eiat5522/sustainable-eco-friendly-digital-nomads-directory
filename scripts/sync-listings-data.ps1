@@ -6,7 +6,7 @@ param (
 $ErrorActionPreference = "Stop"
 
 $sourceDir = Join-Path $PSScriptRoot "..\listings\production"
-$targetDir = Join-Path $PSScriptRoot "..\app-scaffold\src\data\listings"
+$targetDir = Join-Path $PSScriptRoot "..\app-next-directory\src\data\listings"
 
 # Ensure target directory exists
 New-Item -ItemType Directory -Force -Path $targetDir | Out-Null

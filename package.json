@@ -4,10 +4,10 @@
   "private": true,
   "description": "Root package for the Sustainable Eco-Friendly Digital Nomads Directory project",
   "scripts": {
-    "dev": "cd app-scaffold && npm run dev",
-    "build": "cd app-scaffold && npm run build",
-    "start": "cd app-scaffold && npm run start",
-    "lint": "cd app-scaffold && npm run lint"
+    "dev": "cd app-next-directory && npm run dev",
+    "build": "cd app-next-directory && npm run build",
+    "start": "cd app-next-directory && npm run start",
+    "lint": "cd app-next-directory && npm run lint"
   },
   "browserslist": [
     ">0.2%",
@@ -16,8 +16,10 @@
   ],
   "dependencies": {
     "@sanity/client": "^7.3.0",
+    "@sanity/code-input": "^5.1.2",
     "bcryptjs": "^2.4.3",
-    "react-hook-form": "^7.56.4"
+    "react-hook-form": "^7.56.4",
+    "resend": "^4.5.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6"

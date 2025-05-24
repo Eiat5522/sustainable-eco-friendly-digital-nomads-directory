@@ -35,10 +35,10 @@ Follow the prompts:
 
 ## 3. Configure Environment Variables
 
-Create a `.env.local` file in the Next.js app-scaffold directory:
+Create a `.env.local` file in the Next.js app-next-directory directory:
 
 ```bash
-cd ../app-scaffold
+cd ../app-next-directory
 touch .env.local
 ```
 
@@ -67,7 +67,7 @@ cd ../sanity
 npm install
 
 # In the Next.js app directory
-cd ../app-scaffold
+cd ../app-next-directory
 npm install
 ```
 
@@ -104,7 +104,7 @@ This will run the Sanity Studio on http://localhost:3333
 In another terminal, start the Next.js development server:
 
 ```bash
-cd ../app-scaffold
+cd ../app-next-directory
 npm run dev
 ```
 

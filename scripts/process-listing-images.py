@@ -25,7 +25,7 @@ WEBP_QUALITY = 85
 class ImageProcessor:
     def __init__(self, base_dir):
         self.base_dir = Path(base_dir)
-        self.public_dir = self.base_dir / 'app-scaffold' / 'public'
+        self.public_dir = self.base_dir / 'app-next-directory' / 'public'
         self.images_dir = self.public_dir / 'images' / 'listings'
         self.temp_dir = self.base_dir / 'temp_images'
         self.setup_directories()

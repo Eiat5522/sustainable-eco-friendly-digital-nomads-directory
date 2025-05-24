@@ -145,7 +145,8 @@ export default {
           type: 'number',
           validation: Rule => Rule.required().min(1).max(5)
         },
-        {          name: 'certifications',
+        {
+          name: 'certifications',
           title: 'Eco Certifications',
           type: 'array',
           of: [{ type: 'string' }],
@@ -159,7 +160,6 @@ export default {
               { title: '♻️ Zero Waste', value: 'zero_waste', description: 'Zero waste certification' }
             ],
             layout: 'grid'
-            ]
           }
         },
         {

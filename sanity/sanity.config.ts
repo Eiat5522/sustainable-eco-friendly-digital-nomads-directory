@@ -1,7 +1,8 @@
-import { visionTool } from '@sanity/vision'
-import { defineConfig } from 'sanity'
-import { structureTool } from 'sanity/structure'
-import { schemaTypes } from './schemas'; // Changed from './schemaTypes'
+import { visionTool } from '@sanity/vision';
+import { defineConfig } from 'sanity';
+import { structureTool } from 'sanity/structure';
+import { codeInput } from '@sanity/code-input'; // Import codeInput
+import { schemaTypes } from './schemas';
 
 export default defineConfig({
   name: 'default',
@@ -10,9 +11,9 @@ export default defineConfig({
   projectId: 'sc70w3cr',
   dataset: 'production',
 
-  plugins: [structureTool(), visionTool()],
+  plugins: [structureTool(), visionTool(), codeInput()], // Add codeInput to plugins
 
   schema: {
     types: schemaTypes,
   },
-})
+});

@@ -1,17 +1,17 @@
 ---
 
-description: Custom instructions adapted from GitHub Copilot guidelines to govern Cline’s behavior and workflows
+description: Custom instructions adapted from Cline guidelines to govern Cline’s behavior and workflows
 author: Itthiphum Lenavat
 version: 1.0
-tags: \["copilot", "workflow", "memory", "navigation"]
-globs: \["\*\*/copilot-instructions.md"]
+tags: \["cline", "workflow", "memory", "navigation"]
+globs: \["\*\*/clinerules.md"]
 ----------------------------------------
 
-# 📋 GitHub Copilot–Style Custom Instructions for Cline
+# 📋 Cline Custom Instructions
 
 ## 🎯 Objective
 
-Provide Cline with structured guidance—modeled on GitHub Copilot’s best practices—so it can assist seamlessly in navigating the project, managing tasks, adhering to tech-stack conventions, and maintaining user memory.
+Provide Cline with structured guidance modeled on Cline’s best practices. This guidance will help it assist seamlessly in navigating the project. It will also ensure effective task management. Additionally, it promotes adherence to tech-stack conventions and supports the maintenance of user memory.
 
 ## 🗂️ 1. Project Structure & Task Management
 
@@ -23,16 +23,16 @@ Provide Cline with structured guidance—modeled on GitHub Copilot’s best prac
 * 🗄️ **Directory Layout**
 
   ```
-  sustainable-eco-friendly-digital-nomads-directory/
-  ├─ app-scaffold/        # Next.js front-end
-  ├─ sanity/              # Sanity Studio (CMS)
-  └─ app-scaffold/src/
-     └─ components/       # React components
+  sustainable-eco-friendly-digital-nomads-directory/  # Root directory for the project
+  ├─ app-next-directory/                                   # Next.js front-end application
+  ├─ sanity/                                         # Sanity Studio for CMS management
+  └─ app-next-directory/src/                               # Source folder for the front-end
+     └─ components/                                  # React components for UI
   ```
 
 ## 🚀 2. Directory Navigation (PowerShell 7)
 
-* Use `Set-Location` instead of `cd`.
+* Refer to the project guidelines for using `Set-Location` instead of `cd`. `Set-Location` is preferred because it is a full cmdlet in PowerShell, offering better error handling, path validation, and compatibility with scripts compared to the `cd` alias.
 * Validate with `Test-Path` before moving.
 * Example:
 
@@ -41,28 +41,28 @@ Provide Cline with structured guidance—modeled on GitHub Copilot’s best prac
   Set-Location -Path "D:\Eiat_Folder\MyProjects\...\sustainable-eco-friendly-digital-nomads-directory"
 
   # Into Next.js folder
-  Set-Location -Path ".\app-scaffold"
+  Set-Location -Path ".\app-next-directory"
 
   # Into Sanity studio
   Set-Location -Path "..\sanity"
 
   # Into components
-  Set-Location -Path ".\app-scaffold\src\components"
+  Set-Location -Path ".\app-next-directory\src\components"
   ```
 
 ## 🛠️ 3. Tech Stack Conventions
 
-* **Front-end:** Next.js 14+ (App Router), Tailwind CSS
+* **Front-end:** Next.js ^14.2.28 (App Router), Tailwind CSS ^3.3.2
 * **CMS:** Sanity (free tier)
 * **Database:** MongoDB Atlas or ElephantSQL
 * **Maps:** Leaflet.js + OpenStreetMap
 * **Auth:** NextAuth.js or Auth0
 * **Deployment:** Vercel (Hobby) or Cloudflare Pages
-* **CI/CD:** GitHub Actions (lint, type-check, tests → preview → production)
+* **CI/CD:**  Actions (lint, type-check, tests → preview → production)
 
 ## 🌐 4. API & Routing Patterns
 
-* **REST endpoints** under `app-scaffold/src/app/api`:
+* **REST endpoints** under `app-next-directory/src/app/api`:
 
   ```
   GET    /api/listings
@@ -70,14 +70,22 @@ Provide Cline with structured guidance—modeled on GitHub Copilot’s best prac
   GET    /api/listings/[slug]
   PUT    /api/listings/[slug]
   DELETE /api/listings/[slug]
+  POST   /api/reviews
+  GET    /api/reviews/listing/[slug]
+  GET    /api/auth/session
+  POST   /api/auth/signup
   ```
+
 * **Response envelope**:
 
   ```json
   {
     "success": true|false,
     "data": {…},
-    "error": { code, message }
+    "error": {
+      "code": "string", // Possible values: "INVALID_INPUT", "NOT_FOUND", "UNAUTHORIZED", "SERVER_ERROR"
+      "message": "string" // Descriptive error message, e.g., "Invalid input provided", "Resource not found"
+    }
   }
   ```
 
@@ -94,8 +102,8 @@ Provide Cline with structured guidance—modeled on GitHub Copilot’s best prac
 * **Secrets:** Vercel/Cloudflare env vars
 * **Headers:** enforce HTTPS, CSP, CORS via Next.js middleware
 * **Rate limiting:** middleware or Cloudflare Turnstile on critical routes
-* **Backups:** nightly CMS & DB snapshots (free-tier limits)
-
+* **Lock** dependencies to fixed versions
+* **Pin** security-critical libraries to exact versions
 ## 📦 7. Dependencies & Versioning
 
 * **Lock** security-critical libraries to fixed versions
@@ -107,11 +115,11 @@ Provide Cline with structured guidance—modeled on GitHub Copilot’s best prac
   * `@auth/mongodb-adapter` `^2.0.0`
   * Sanity client/image URL `^6.x`
 
-## 🧠 8. Memory Management
+```markdown
+🧠 8. Memory Management
+=======================
 
-### 👤 8.1 Identify
-
-* Assume you’re interacting with **Eiat**; if unsure, ask.
+👤 8.1 Identify
 
 ### 📥 8.2 Load
 
@@ -122,14 +130,22 @@ Provide Cline with structured guidance—modeled on GitHub Copilot’s best prac
   ```
 * Retrieve all relevant facts from memory graph.
 
+  **Example:**
+  - If the user mentions a new project, store the project name, description, and associated technologies.
+  - Link the project to the user in the memory graph for future reference.
+
 ### 🔍 8.3 Gather
 
 Be alert for new data:
 
 * **Identity:** age, location, role
+  - Example: If the user mentions their location, store it as a node labeled "Location" and link it to the user.
 * **Preferences:** language, style
+  - Example: If the user prefers concise responses, store this preference and adjust communication style accordingly.
 * **Projects:** repo names, tech choices
+  - Example: If the user shares a repository name, create a node for the repository and link it to the user with details like tech stack and purpose.
 * **Goals:** deliverables, timelines
+  - Example: If the user specifies a deadline, store it as a "Goal" node and associate it with the relevant project.
 
 ### ♻️ 8.4 Update
 

@@ -52,9 +52,9 @@ This folder contains the **Sanity Studio** CMS for the Sustainable Digital Nomad
 
 ## 🔗 Connecting with Next.js Frontend
 
-* The Next.js app lives in `../app-scaffold`.
+* The Next.js app lives in `../app-next-directory`.
 * Use your Sanity project ID, dataset, and API version for client connections.
-* See `/app-scaffold/lib/sanity.js` for the client setup.
+* See `/app-next-directory/lib/sanity.js` for the client setup.
 
 ---
 

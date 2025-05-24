@@ -16,7 +16,7 @@ const client = createClient({
 });
 
 // Path to your images folder
-const IMAGES_DIR = path.join(__dirname, '../../app-scaffold/public/images/cities');
+const IMAGES_DIR = path.join(__dirname, '../../app-next-directory/public/images/cities');
 
 // Function to upload a single image
 async function uploadImage(filePath) {
