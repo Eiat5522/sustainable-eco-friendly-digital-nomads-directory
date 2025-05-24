@@ -1,7 +1,7 @@
+import { codeInput } from '@sanity/code-input'; // Import codeInput
 import { visionTool } from '@sanity/vision';
 import { defineConfig } from 'sanity';
 import { structureTool } from 'sanity/structure';
-import { codeInput } from '@sanity/code-input'; // Import codeInput
 import { schemaTypes } from './schemas';
 
 export default defineConfig({

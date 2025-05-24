@@ -14,10 +14,9 @@ export default {
       name: 'email',
       title: 'Email',
       type: 'string',
+      isUnique: true, // Added isUnique flag
       validation: Rule => Rule
-        .required()
-        .email()
-        .unique(), // Ensure email uniqueness
+        .email(), // Removed .unique()
     },
     {
       name: 'avatar',
