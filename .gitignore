@@ -80,4 +80,11 @@ tasks.json
 tasks/
 
 # Copilot
-.copilotignore
+.copilotignore*
+*image_curation_helper.csv*
+*requirements.txt*
+*run_migration.py*
+*task_0*
+*clean-install.ps1*
+*tasks.json.bak*
+*WORKSTREAM*
