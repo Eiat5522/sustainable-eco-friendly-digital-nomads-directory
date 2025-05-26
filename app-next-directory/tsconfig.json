@@ -1,0 +1,58 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext",
+      "es2022",
+      "webworker"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "types": [
+      "./src/types/jsx.d.ts",
+      "./src/types/next.d.ts",
+      "./src/types/react.d.ts"
+    ],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./src/*",
+        "./tests/*"
+      ]
+    },
+    "baseUrl": "."
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "webServer": {
+    "command": "npm run dev",
+    "url": "http://localhost:3000",
+    "reuseExistingServer": "false",
+    "timeout": 120000,
+    "stderr": "pipe",
+    "stdout": "pipe"
+  }
+}
