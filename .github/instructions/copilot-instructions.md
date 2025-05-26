@@ -256,7 +256,7 @@ When new information about projects is provided:
 2. **Link** them to existing nodes with appropriate relations
 3. **Store** each fact as an observation in your memory graph
 **Example:**
-- If a user mentions a new project, create a node for it and link it to the user
+
 - Store the project details as an observation
 - If a user mentions a new technology, create a node for it and link it to the relevant project
 - Store the technology details as an observation

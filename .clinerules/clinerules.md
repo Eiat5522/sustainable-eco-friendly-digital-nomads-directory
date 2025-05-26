@@ -104,6 +104,7 @@ Provide Cline with structured guidance modeled on Cline’s best practices. This
 * **Rate limiting:** middleware or Cloudflare Turnstile on critical routes
 * **Lock** dependencies to fixed versions
 * **Pin** security-critical libraries to exact versions
+
 ## 📦 7. Dependencies & Versioning
 
 * **Lock** security-critical libraries to fixed versions
@@ -112,7 +113,7 @@ Provide Cline with structured guidance modeled on Cline’s best practices. This
 
   * Next.js `^14.2.28`
   * NextAuth.js `^4.24.5`
-  * `@auth/mongodb-adapter` `^2.0.0`
+  * `@NextAuth/mongodb-adapter` `^2.0.0`
   * Sanity client/image URL `^6.x`
 
 ```markdown
@@ -126,7 +127,9 @@ Provide Cline with structured guidance modeled on Cline’s best practices. This
 * On session start, print:
 
   ```
+
   Remembering…
+
   ```
 * Retrieve all relevant facts from memory graph.
 

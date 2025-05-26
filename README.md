@@ -1,37 +1,78 @@
 # Sustainable Eco-Friendly Digital Nomads Directory
 
-A curated directory of sustainable, eco-friendly venues and services for digital nomads in Thailand, built with Next.js 14+ and Sanity CMS.
+A curated monorepo containing a comprehensive platform for sustainable, eco-friendly venues and services for digital nomads, built with Next.js 14+, Sanity CMS, and modern authentication.
+
+## 🏗️ Project Architecture
+
+This is a **monorepo** containing multiple interconnected applications:
+
+```
+sustainable-eco-friendly-digital-nomads-directory/
+├── app-next-directory/          # Main Next.js application
+├── sanity/                      # Sanity CMS configuration
+├── listings/                    # Data processing & migration scripts
+├── cline_docs/                  # Project documentation
+├── memory-bank/                 # Development notes & session logs
+└── tasks/                       # Task management files
+```
 
 ## 🌱 Features
 
 - **Curated Eco-Friendly Listings**
-  - Verified sustainability practices
-  - Community-reviewed sustainability scores
+  - Verified sustainability practices with community-reviewed scores
+  - Comprehensive venue data with eco-certifications
 - **Advanced Search & Filtering**
-  - Full-text search across names and descriptions
-  - Category filtering (coworking, cafe, accommodation)
-  - Location-based filtering by city/region
-  - Eco tag filtering (zero-waste, renewable energy, etc.)
-  - Digital nomad feature filtering (fast WiFi, standing desks, etc.)
-  - Rating-based filtering (1-5 stars)
-  - Price range filtering
-- **Interactive Map Integration** with Leaflet.js and OpenStreetMap
-- **User Accounts & Authentication** via NextAuth.js
-- **Reviews & Favorites System**
-- **Responsive Design & Dark Mode Support**
-- **SEO-Optimized Listings & Blog**
-- **Event Calendar** for sustainability meetups
+  - Full-text search across names, descriptions, and features
+  - Multi-category filtering (coworking, cafe, accommodation, events)
+  - Geographic filtering by city/region with interactive maps
+  - Eco-tag filtering (zero-waste, renewable energy, organic food)
+  - Digital nomad features (WiFi speed, workspace quality, community)
+  - Price range and rating-based filtering
+- **Authentication & User Management**
+  - **✅ COMPLETED**: Full NextAuth.js implementation with role-based access
+  - Multi-tier user roles (user, editor, venueOwner, admin, superAdmin)
+  - Secure password hashing with bcrypt
+  - JWT session management with MongoDB storage
+- **Interactive Features**
+  - Leaflet.js maps with OpenStreetMap integration
+  - User reviews and favorites system
+  - Event calendar for sustainability meetups
+  - Community-driven content submission
+- **Modern UI/UX**
+  - Responsive design with Tailwind CSS
+  - Dark mode support with next-themes
+  - Framer Motion animations
+  - Accessible design with Radix UI components
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 14+ (App Router), TypeScript, Tailwind CSS
-- **CMS**: Sanity.io (headless CMS)
-- **Database**: MongoDB Atlas (user data, auth)
-- **Map**: Leaflet.js + OpenStreetMap
-- **Authentication**: NextAuth.js
-- **Payment Processing**: Stripe
-- **Deployment**: Vercel Hobby tier
-- **CI/CD**: GitHub Actions
+### Frontend
+- **Next.js 14+** (App Router) with TypeScript
+- **Tailwind CSS** + **Tailwind UI** for styling
+- **Framer Motion** for animations
+- **Radix UI** for accessible components
+- **React Hook Form** + **Zod** for form validation
+
+### Backend & CMS
+- **Sanity.io** (Headless CMS) for content management
+- **MongoDB Atlas** for user data and authentication
+- **NextAuth.js** for authentication and session management
+- **bcryptjs** for secure password hashing
+
+### Maps & Integrations
+- **Leaflet.js** + **OpenStreetMap** for interactive maps
+- **React Leaflet** for React integration
+- **Stripe** for payment processing (premium listings)
+
+### Testing & Quality
+- **Playwright** for E2E testing (120+ test cases implemented)
+- **ESLint** + **Prettier** for code formatting
+- **TypeScript** for type safety
+
+### Deployment & DevOps
+- **Vercel** for hosting
+- **GitHub Actions** for CI/CD
+- **MongoDB Atlas** for production database
 
 ## 🚀 Getting Started
 
