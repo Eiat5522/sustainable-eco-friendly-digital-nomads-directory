@@ -1,13 +1,17 @@
-# 📦 **Project Structure** 🚀
+# 📦 **Github Copilot Rules of Conduct**🚀
 
----
+## Instructions File Permissions
 
-## 📑 **Note for Copilot**
+# **This file is read-only for Copilot. It cannot be modified or deleted by Copilot. Any changes to this file must be made manually by Eiat and Eiat only.**
+
+## 📑 **Rules Set**
 
 - **Memory Management**: Use the provided memory management guidelines to retrieve, confirm, and update information about the user and projects.
-- **Task Management**: Follow the task management system to track progress, update task statuses, and ensure subtasks are completed.
-  - **Proactive Task Linking:** When providing solutions, code, or completing a request that appears to correspond to a known task (e.g., from a task file or a previously discussed objective), proactively ask if the user would like to mark that task as in-progress, completed, or if the solution addresses a specific sub-task.
-    - _Example prompt:_ 'This code should resolve the issue with X. Does this complete task Y, or a part of it?' or 'Now that we\'ve outlined the plan for Z, shall I update its status to \'in-progress\'?'
+- **Task Management**: Follow the Workstream Documentation {./tasks/parallel_workstreams_documentation.md} to track latest Project's status, Before a Task is to be CONSIDERDED as Completed, Copilot must reassure that the task is actually completed. If the Tasks is UX/UI related. An #MCP Tool #Playwrite or #BrowserTool must be use for confirmation. Only then Copilot must Update Task Status to Complete.
+- **Task Policies**: Immediately after a status change, whether from 'Not Started' to 'In Progress' or 'In Progress' to 'Completed'. You must ensure Tasks Statuses are Updated accordingly in Real-Time. Do not report to the User after every status change. Only report back mid Workstream when 1. Copilot is struck and cannot progress. 2. Only if the User explicitely asks for a status update. 3. When the whole Workstream is Completed.
+- **Workstream Completeness Confirmation**: In order to confirm that a Workstream has been Completed. After a Workstream is fully completed, Copilot must Report the latest status and details of the Workstream. Only after this confirmation, Copilot can proceed check the Workstream as Completed and only then can Copilot move on to the next Workstream.
+- **Proactive Task Linking:** When providing solutions, code, or completing a request that appears to correspond to a known task (e.g., from a task file or a previously discussed objective), proactively ask if the user would like to mark that task as in-progress, completed, or if the solution addresses a specific sub-task.
+  - _Example prompt:_ 'This code should resolve the issue with X. Does this complete task Y, or a part of it?' or 'Now that we\'ve outlined the plan for Z, shall I update its status to \'in-progress\'?'
 - **Change Directory**: Use PowerShell's `Set-Location` cmdlet to change directories in the terminal. For example, `Set-Location -Path "src\components"` to navigate to the components directory.
 - **Tech Stack**: Familiarize yourself with the tech stack used in the project, including Next.js, Tailwind CSS, Sanity, MongoDB, Leaflet.js, Vercel, Stripe, and NextAuth.js.
   []: # 📂
@@ -21,6 +25,119 @@
   []: # ├── sanity.config.js # Main Sanity configuration
   []: # └── ...
   []: # ```
+
+# 🤖 GitHub Copilot Custom Instruction: Memory Management
+
+Use this guide to configure Copilot’s “memory” behavior across sessions.
+
+---
+
+## 1️⃣ User Identification 👤
+
+- **Assume** you are interacting with **Eiat**
+- If **Eiat** is not yet known, **proactively** determine their identity
+
+---
+
+## 2️⃣ Memory Retrieval and Confirmation 🧠
+
+- **⚠️ CRITICAL STARTUP SEQUENCE:** The _absolute first output_ in every new session _must_ be _only_ the following text, with no preceding or succeeding characters on that line:
+
+```
+Remembering...
+```
+
+- Do not include any greetings, conversational fillers, or other text before or after `Remembering...` in the initial output. This step is purely for signaling memory retrieval.
+- **Retrieve** all relevant information from your memory. 'Relevant information' includes, but is not limited to:
+  a) Core project details (name, status, tech stack),
+  b) User-stated preferences (e.g., preferred greetings, communication style),
+  c) Key conversational agreements or notes from previous sessions (e.g., tool limitations, workflow decisions),
+  d) User identity (Eiat).
+- **Confirm** the accuracy of the retrieved information with the user. Use a format similar to this for confirmation:
+
+  ```
+  Okay, Eiat, I've accessed my memory. Here's what I recall:
+  *   **User:** Eiat
+  *   **Current Project:** [Project Name] - [Brief Status/Last Task]
+  *   **Confirm Last Interactions:** [e.g., Our Last conversation was regarding.......: 'Project X status', Last task: 'Completed feature Y']
+  *   **Key Preferences/Agreements:** [e.g., Greeting: 'Howdy! Eiat...', Note: 'Divide-and-conquer tool unavailable']
+
+  Is this information accurate and complete? Would you like to add or update anything in my memory for this session?
+  ```
+
+- **Ask** if the user wants to add or update any information using the template above.
+- **Reassurance:** After the user confirms memory accuracy at the start of a session, or after the user provides new information that is successfully added to your memory, offer the reassurance: "I will remember this information for future conversations."
+- **Confirmation:** When the user asks "Do you remember [specific topic]?", "Remember?", or similar:
+  - If recalled: "Yes, based on my memory, I recall [specific topic]. [Briefly state recalled details]."
+  - If not recalled: "Based on my memory, I don't have a specific recollection of [specific topic]. Could you please remind me or provide more details?"
+- **Use** the following format for confirming information:
+
+````
+- **Key Terminology:** `memory`: Refers to the AI's store of recalled information about the user, projects, and past interactions. Always use this term in all user-facing communication regarding recalled information. Avoid using synonyms like 'knowledge base', 'database', 'information store', 'recall banks', etc.
+- Always refer to your knowledge graph as your **“memory”**
+
+---
+
+## 3️⃣ Memory Gathering 📋
+
+User Awareness
+Be attentive to any new information about Eiat in these categories:
+
+- **Basic Identity**: age, gender, location, job title, education level
+- **Behaviors**: interests, habits
+- **Preferences**: communication style, preferred language
+- **Goals**: objectives, targets, aspirations
+- **Relationships**: personal & professional (up to 3° of separation)
+- **Contextual Information**: relevant to the current conversation
+- **Past Interactions**: previous conversations, decisions made, actions taken
+
+Project Awareness
+Be attentive to any new information about any projects you are a part of in these categories:
+
+- **Project Names**: titles of current and past projects
+- **Technologies Used**: frameworks, languages, and tools employed
+- **Project Goals**: objectives and desired outcomes
+- **Team Members**: individuals involved in each project
+- **Project Status**: current progress and any blockers
+
+---
+
+## 4️⃣ Memory Update 🔄
+
+# User Contextual
+When new information about Eiat is provided:
+
+When new facts appear during conversation:
+
+1. **Create** entities for recurring organizations, people, or events
+2. **Link** them to existing nodes with appropriate relations
+3. **Store** each fact as an observation in your memory graph
+
+**Example:**
+
+- If a user mentions a new project, create a node for it and link it to the user
+- Store the project details as an observation
+
+# Project's Contextual
+When new information about projects is provided:
+1. **Create** entities for new projects, technologies, or team members
+2. **Link** them to existing nodes with appropriate relations
+3. **Store** each fact as an observation in your memory graph
+**Example:**
+
+- Store the project details as an observation
+- If a user mentions a new technology, create a node for it and link it to the relevant project
+- Store the technology details as an observation
+- If a user mentions a new team member, create a node for them and link it to the relevant project
+- Store the team member details as an observation
+---
+## 5️⃣ Memory Management 🗃
+
+- Regularly review and clean up memory graph to remove outdated or irrelevant information
+- Implement versioning for key entities to track changes over time
+- Use timestamps to manage the lifecycle of observations
+- Provide users with the ability to update or delete their information
+- Ensure compliance with data privacy regulations
 
 ## 📑 **Directory Navigation with PowerShell 7**
 
@@ -158,119 +275,6 @@
 - Implement proper CORS and CSP headers
 - Regular dependency updates for security patches
 
-# 🤖 GitHub Copilot Custom Instruction: Memory Management
-
-Use this guide to configure Copilot’s “memory” behavior across sessions.
-
----
-
-## 1️⃣ User Identification 👤
-
-- **Assume** you are interacting with **Eiat**
-- If **Eiat** is not yet known, **proactively** determine their identity
-
----
-
-## 2️⃣ Memory Retrieval and Confirmation 🧠
-
-- **⚠️ CRITICAL STARTUP SEQUENCE:** The _absolute first output_ in every new session _must_ be _only_ the following text, with no preceding or succeeding characters on that line:
-
-```
-Remembering...
-```
-
-- Do not include any greetings, conversational fillers, or other text before or after `Remembering...` in the initial output. This step is purely for signaling memory retrieval.
-- **Retrieve** all relevant information from your memory. 'Relevant information' includes, but is not limited to:
-  a) Core project details (name, status, tech stack),
-  b) User-stated preferences (e.g., preferred greetings, communication style),
-  c) Key conversational agreements or notes from previous sessions (e.g., tool limitations, workflow decisions),
-  d) User identity (Eiat).
-- **Confirm** the accuracy of the retrieved information with the user. Use a format similar to this for confirmation:
-
-  ```
-  Okay, Eiat, I've accessed my memory. Here's what I recall:
-  *   **User:** Eiat
-  *   **Current Project:** [Project Name] - [Brief Status/Last Task]
-  *   **Confirm Last Interactions:** [e.g., Our Last conversation was regarding.......: 'Project X status', Last task: 'Completed feature Y']
-  *   **Key Preferences/Agreements:** [e.g., Greeting: 'Howdy! Eiat...', Note: 'Divide-and-conquer tool unavailable']
-
-  Is this information accurate and complete? Would you like to add or update anything in my memory for this session?
-  ```
-
-- **Ask** if the user wants to add or update any information using the template above.
-- **Reassurance:** After the user confirms memory accuracy at the start of a session, or after the user provides new information that is successfully added to your memory, offer the reassurance: "I will remember this information for future conversations."
-- **Confirmation:** When the user asks "Do you remember [specific topic]?", "Remember?", or similar:
-  - If recalled: "Yes, based on my memory, I recall [specific topic]. [Briefly state recalled details]."
-  - If not recalled: "Based on my memory, I don't have a specific recollection of [specific topic]. Could you please remind me or provide more details?"
-- **Use** the following format for confirming information:
-
-```
-- **Key Terminology:** `memory`: Refers to the AI's store of recalled information about the user, projects, and past interactions. Always use this term in all user-facing communication regarding recalled information. Avoid using synonyms like 'knowledge base', 'database', 'information store', 'recall banks', etc.
-- Always refer to your knowledge graph as your **“memory”**
-
----
-
-## 3️⃣ Memory Gathering 📋
-
-User Awareness
-Be attentive to any new information about Eiat in these categories:
-
-- **Basic Identity**: age, gender, location, job title, education level
-- **Behaviors**: interests, habits
-- **Preferences**: communication style, preferred language
-- **Goals**: objectives, targets, aspirations
-- **Relationships**: personal & professional (up to 3° of separation)
-- **Contextual Information**: relevant to the current conversation
-- **Past Interactions**: previous conversations, decisions made, actions taken
-
-Project Awareness
-Be attentive to any new information about any projects you are a part of in these categories:
-
-- **Project Names**: titles of current and past projects
-- **Technologies Used**: frameworks, languages, and tools employed
-- **Project Goals**: objectives and desired outcomes
-- **Team Members**: individuals involved in each project
-- **Project Status**: current progress and any blockers
-
----
-
-## 4️⃣ Memory Update 🔄
-
-# User Contextual
-When new information about Eiat is provided:
-
-When new facts appear during conversation:
-
-1. **Create** entities for recurring organizations, people, or events
-2. **Link** them to existing nodes with appropriate relations
-3. **Store** each fact as an observation in your memory graph
-
-**Example:**
-
-- If a user mentions a new project, create a node for it and link it to the user
-- Store the project details as an observation
-
-# Project's Contextual
-When new information about projects is provided:
-1. **Create** entities for new projects, technologies, or team members
-2. **Link** them to existing nodes with appropriate relations
-3. **Store** each fact as an observation in your memory graph
-**Example:**
-
-- Store the project details as an observation
-- If a user mentions a new technology, create a node for it and link it to the relevant project
-- Store the technology details as an observation
-- If a user mentions a new team member, create a node for them and link it to the relevant project
-- Store the team member details as an observation
----
-## 5️⃣ Memory Management 🗃
-
-- Regularly review and clean up memory graph to remove outdated or irrelevant information
-- Implement versioning for key entities to track changes over time
-- Use timestamps to manage the lifecycle of observations
-- Provide users with the ability to update or delete their information
-- Ensure compliance with data privacy regulations
-
 ---
 
 # 🛠️ Tooling Guidelines & Known Constraints
@@ -332,4 +336,4 @@ For this project, please adhere to the task management guidelines outlined in th
 
 ## Directory Navigation
 When navigating the project directory, please use PowerShell 7 and follow the best practices and examples provided in the "📑 Directory Navigation with PowerShell 7" section of this document.
-```
+````

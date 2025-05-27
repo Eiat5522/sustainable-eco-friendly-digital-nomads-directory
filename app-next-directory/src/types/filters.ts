@@ -26,6 +26,14 @@ export interface ListingFilters {
   nomadFeatures?: string[];
   minRating?: number;
   maxPriceRange?: number;
+  // New fields for advanced search filters
+  minPriceRange?: number; // Minimum price for dual range slider (budget filtering)
+  sustainabilityScore?: number; // Separate eco-focused score (1-5, distinct from general rating)
+  radius?: number; // Search radius in kilometers for geo-filtering
+  latitude?: number; // Geo-search latitude
+  longitude?: number; // Geo-search longitude
+  accommodationType?: string[]; // Specific accommodation types for travelers
+  ecoCertification?: string; // Specific eco-certifications
   combinations?: FilterGroup[];
   combinationOperator?: FilterOperator; // Global operator for combining filter groups
 }

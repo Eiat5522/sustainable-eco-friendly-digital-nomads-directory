@@ -122,9 +122,7 @@ class SanityClient:
         except SanityAPIError as e:
             if e.response and e.response.status_code == 404:
                 return None
-            raise
-
-    def assets_upload(self, file_content: bytes, content_type: str = "image/jpeg", filename: Optional[str] = None) -> Dict[str, Any]:
+            raise    def assets_upload(self, file_content: bytes, content_type: str = "image/jpeg", filename: Optional[str] = None) -> Dict[str, Any]:
         """Upload an asset (image)"""
         url = f"https://{self.project_id}.api.sanity.io/v{self.api_version}/assets/images/{self.dataset}"
         headers = self.headers.copy()
@@ -142,9 +140,13 @@ class SanityClient:
                 params=params
             )
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+            print(f"    Raw API response: {result}")  # Debug: show actual response
+            return result
         except requests.exceptions.RequestException as e:
             if hasattr(e, 'response') and e.response is not None:
+                print(f"    Error response status: {e.response.status_code}")
+                print(f"    Error response body: {e.response.text}")
                 raise SanityAPIError(
                     f"Asset upload failed: {str(e)}",
                     response=e.response
@@ -162,49 +164,51 @@ SANITY_API_VERSION = "2025-05-22" # Current date for latest API version
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MERGED_LISTINGS_PATH = PROJECT_ROOT / "listings" / "merged_listings.json"
 
-# TEMPORARY IMAGE HANDLING (2025-05-22):
-# We're using two image locations temporarily until manual image curation is complete:
-# 1. Primary: sanity_image_staging - Will contain manually curated images
-# 2. Fallback: app-next-directory/public - Contains some initial images for development
-# TODO: After manual image curation is complete (expected 2025-05-23):
-# - Remove the PUBLIC_IMAGES_PATH fallback
-# - Update the image handling logic to only use STAGING_PATH
-# - Delete these temporary handling comments
+# IMAGE HANDLING (Updated 2025-05-27):
+# Primary image location for manually curated and optimized images
 IMAGE_STAGING_PATH = PROJECT_ROOT / "sanity_image_staging"
+# Fallback location for any remaining development images
 PUBLIC_IMAGES_PATH = PROJECT_ROOT / "app-next-directory" / "public"
 
 def find_image_path(relative_path: str) -> Optional[Path]:
     """
-    TEMPORARY FUNCTION (2025-05-22): Handles dual-location image finding
-    This function will be simplified after manual image curation is complete.
+    Enhanced image finding function (Updated 2025-05-27)
 
-    Looks for images in two locations:
-    1. Primary: sanity_image_staging directory (for manually curated images)
-    2. Fallback: app-next-directory/public directory (for development images)
+    Prioritizes optimized images, then staging, then fallback to public directory
+
+    Search order:
+    1. sanity_image_staging/optimized/ (for batch-optimized images)
+    2. sanity_image_staging/images/ (for manually curated images)
+    3. app-next-directory/public/ (fallback for development images)
 
     Args:
         relative_path: The relative path to the image from either root
 
     Returns:
         Path object if image is found, None otherwise
-
-    TODO (2025-05-23):
-    - After manual image curation, remove this function
-    - Update image handling to directly use IMAGE_STAGING_PATH
     """
-    # Try primary location (sanity_image_staging)
-    primary_path = IMAGE_STAGING_PATH / relative_path.lstrip('/')
-    if primary_path.exists():
-        return primary_path
-
-    # Try fallback location (app-next-directory/public)
-    fallback_path = PUBLIC_IMAGES_PATH / relative_path.lstrip('/')
-    if fallback_path.exists():
-        return fallback_path
-
-    # If the path starts with http(s), it's an external URL - skip for now
+    # Skip external URLs
     if relative_path.startswith(('http://', 'https://')):
         return None
+
+    # Clean the path
+    clean_path = relative_path.lstrip('/')
+
+    # Try optimized images first (WebP format)
+    base_name = Path(clean_path).stem
+    optimized_webp = IMAGE_STAGING_PATH / "optimized" / f"{base_name}.webp"
+    if optimized_webp.exists():
+        return optimized_webp
+
+    # Try staging images (original format)
+    staging_path = IMAGE_STAGING_PATH / "images" / clean_path
+    if staging_path.exists():
+        return staging_path
+
+    # Try fallback location (app-next-directory/public)
+    fallback_path = PUBLIC_IMAGES_PATH / clean_path
+    if fallback_path.exists():
+        return fallback_path
 
     return None
 

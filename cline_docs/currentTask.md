@@ -116,6 +116,7 @@
 ## Next Steps
 
 1. Component Testing & Optimization
+
    - Write tests for new components
    - Optimize bundle size
    - Add analytics tracking
@@ -123,6 +124,7 @@
    - Add error tracking
 
 2. Content Population & Enhancement
+
    - Add real city images
    - Populate listing images
    - Implement content moderation workflow

@@ -34,23 +34,27 @@ test('using fixtures', async ({ page, mockListings }) => {
 ## 🎯 Test Categories
 
 ### 1. Map Integration Tests
+
 - Map initialization
 - Marker interactions
 - Clustering behavior
 - Viewport changes
 
 ### 2. Filter Tests
+
 - Category filters
 - Eco tag filters
 - Combined filters
 - Clear filters
 
 ### 3. Responsive Design Tests
+
 - Mobile viewport
 - Desktop viewport
 - Component scaling
 
 ### 4. State Management Tests
+
 - Loading states
 - Empty states
 - Error states
@@ -63,20 +67,22 @@ test('using fixtures', async ({ page, mockListings }) => {
    - Don't rely on other test results
 
 2. **Clear Naming**
+
    ```typescript
    test('should show popup when marker is clicked');
    test('should filter listings when category is selected');
    ```
 
 3. **Arrange-Act-Assert Pattern**
+
    ```typescript
    test('should filter by category', async ({ page }) => {
      // Arrange
      await waitForMapLoad(page);
-     
+
      // Act
      await applyFilters(page, { categories: ['coworking'] });
-     
+
      // Assert
      const markers = await getVisibleMarkers(page);
      expect(markers.length).toBeGreaterThan(0);
@@ -91,17 +97,19 @@ test('using fixtures', async ({ page, mockListings }) => {
 ## 🐛 Debugging Tests
 
 ### Visual Debugging
+
 ```typescript
 test('debug example', async ({ page }) => {
   // Add pause for debugging
   await page.pause();
-  
+
   // Take screenshots
   await page.screenshot({ path: 'debug.png' });
 });
 ```
 
 ### Slow Motion Mode
+
 ```bash
 npx playwright test --debug
 ```
@@ -109,6 +117,7 @@ npx playwright test --debug
 ## 🔄 Common Patterns
 
 ### Testing API Responses
+
 ```typescript
 test('api example', async ({ page }) => {
   await setupMockApi(page, {
@@ -119,6 +128,7 @@ test('api example', async ({ page }) => {
 ```
 
 ### Testing Responsive Design
+
 ```typescript
 test('responsive example', async ({ page }) => {
   await setupViewport(page, 'mobile');
@@ -127,6 +137,7 @@ test('responsive example', async ({ page }) => {
 ```
 
 ### Testing User Interactions
+
 ```typescript
 test('interaction example', async ({ page }) => {
   await clickMarkerByIndex(page, 0);
@@ -138,6 +149,7 @@ test('interaction example', async ({ page }) => {
 ## 🚨 Error Handling
 
 ### Network Errors
+
 ```typescript
 test('handles network error', async ({ page }) => {
   await setupMockApi(page, null, { status: 500 });
@@ -146,6 +158,7 @@ test('handles network error', async ({ page }) => {
 ```
 
 ### Empty States
+
 ```typescript
 test('handles no results', async ({ page }) => {
   await applyFilters(page, {

@@ -47,6 +47,7 @@ sustainable-eco-friendly-digital-nomads-directory/
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Next.js 14+** (App Router) with TypeScript
 - **Tailwind CSS** + **Tailwind UI** for styling
 - **Framer Motion** for animations
@@ -54,22 +55,26 @@ sustainable-eco-friendly-digital-nomads-directory/
 - **React Hook Form** + **Zod** for form validation
 
 ### Backend & CMS
+
 - **Sanity.io** (Headless CMS) for content management
 - **MongoDB Atlas** for user data and authentication
 - **NextAuth.js** for authentication and session management
 - **bcryptjs** for secure password hashing
 
 ### Maps & Integrations
+
 - **Leaflet.js** + **OpenStreetMap** for interactive maps
 - **React Leaflet** for React integration
 - **Stripe** for payment processing (premium listings)
 
 ### Testing & Quality
+
 - **Playwright** for E2E testing (120+ test cases implemented)
 - **ESLint** + **Prettier** for code formatting
 - **TypeScript** for type safety
 
 ### Deployment & DevOps
+
 - **Vercel** for hosting
 - **GitHub Actions** for CI/CD
 - **MongoDB Atlas** for production database
@@ -104,6 +109,7 @@ npm install
 ```
 
 3. Set up environment variables:
+
    - Copy `.env.example` to `.env.local` in the app-next-directory directory
    - Fill in the required environment variables
 
