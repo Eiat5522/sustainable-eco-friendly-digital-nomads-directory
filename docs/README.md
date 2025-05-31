@@ -1,56 +1,66 @@
 # 📚 Documentation Structure
 
-This directory contains comprehensive documentation for the **Sustainable Eco-Friendly Digital Nomads Directory** monorepo.
+This directory contains all project documentation for the **Sustainable Eco-Friendly Digital Nomads Directory** monorepo.
 
 ## 🗂️ Documentation Organization
 
-Our documentation is organized according to the **workspace structure**:
+Documentation is organized by domain:
 
 ```
 docs/
 ├── README.md                    # This overview (you are here)
-├── monorepo/                    # Monorepo-wide documentation
-│   ├── WORKSPACE_GUIDE.md       # Working with npm workspaces
-│   ├── DEVELOPMENT_SETUP.md     # Complete development setup
-│   └── DEPLOYMENT_GUIDE.md      # Production deployment
-├── app-next-directory/          # Next.js frontend documentation
-│   ├── README.md                # Frontend overview
-│   ├── API_DOCUMENTATION.md     # API routes and endpoints
-│   ├── AUTHENTICATION.md        # Auth system implementation
-│   ├── TESTING.md               # Testing strategies and guides
-│   └── COMPONENTS.md            # Component documentation
+├── app-next-directory/          # Next.js app documentation
 ├── sanity/                      # Sanity CMS documentation
-│   ├── README.md                # CMS overview
-│   ├── SCHEMA_GUIDE.md          # Content schemas and models
-│   ├── MIGRATION_GUIDE.md       # Data migration procedures
-│   └── CONTENT_WORKFLOW.md      # Editorial workflow
-├── shared/                      # Cross-workspace documentation
-│   ├── CODING_STANDARDS.md      # Code style and conventions
-│   ├── GIT_WORKFLOW.md          # Branch strategy and commits
-│   └── TROUBLESHOOTING.md       # Common issues and solutions
-└── assets/                      # Documentation assets
-    ├── images/                  # Screenshots and diagrams
-    └── brand/                   # Brand guidelines and assets
+├── shared/                      # Cross-domain/project docs
+└── assets/                      # Images, diagrams, brand assets
 ```
+
+### Key Subfolders
+
+- `app-next-directory/`: Frontend, API, authentication, testing, and component docs
+- `sanity/`: CMS overview, schema guides, migration, editorial workflow
+- `shared/`: Coding standards, git workflow, troubleshooting
+- `assets/`: Images, diagrams, and brand assets
+
+## 🚦 Status
+
+- All legacy documentation migrated to this structure
+- Six key context files retained in `memory-bank/`
+- References to old doc locations are being updated
+
+## 🔗 Quick Navigation
+
+- [Frontend Overview](app-next-directory/README.md)
+- [Sanity CMS Overview](sanity/README.md)
+- [Coding Standards](shared/CODING_STANDARDS.md)
+- [Deployment Guide](monorepo/DEPLOYMENT_GUIDE.md)
+
+## 📝 Notes
+
+This documentation reflects the current npm workspaces and monorepo structure. For context and session logs, see `memory-bank/`.
 
 ## 🚀 Quick Navigation
 
 ### **For Developers**
+
 - **🏁 Getting Started**: [`monorepo/DEVELOPMENT_SETUP.md`](monorepo/DEVELOPMENT_SETUP.md)
 - **⚙️ Workspace Management**: [`monorepo/WORKSPACE_GUIDE.md`](monorepo/WORKSPACE_GUIDE.md)
 - **📋 Coding Standards**: [`shared/CODING_STANDARDS.md`](shared/CODING_STANDARDS.md)
 
 ### **For Frontend Work**
+
 - **🎨 Next.js App**: [`app-next-directory/README.md`](app-next-directory/README.md)
 - **🔐 Authentication**: [`app-next-directory/AUTHENTICATION.md`](app-next-directory/AUTHENTICATION.md)
 - **🧪 Testing Guide**: [`app-next-directory/TESTING.md`](app-next-directory/TESTING.md)
 
 ### **For Content Management**
+
 - **📝 Sanity CMS**: [`sanity/README.md`](sanity/README.md)
 - **🗃️ Content Schemas**: [`sanity/SCHEMA_GUIDE.md`](sanity/SCHEMA_GUIDE.md)
 - **🔄 Data Migration**: [`sanity/MIGRATION_GUIDE.md`](sanity/MIGRATION_GUIDE.md)
 
 ### **For Deployment**
+
 - **🚀 Production Deploy**: [`monorepo/DEPLOYMENT_GUIDE.md`](monorepo/DEPLOYMENT_GUIDE.md)
 - **🐛 Troubleshooting**: [`shared/TROUBLESHOOTING.md`](shared/TROUBLESHOOTING.md)
 
@@ -61,8 +71,8 @@ This documentation reflects our **npm workspaces** structure:
 ```json
 {
   "workspaces": [
-    "app-next-directory",    // Next.js frontend application
-    "sanity"                 // Sanity CMS configuration
+    "app-next-directory", // Next.js frontend application
+    "sanity" // Sanity CMS configuration
   ]
 }
 ```
@@ -79,6 +89,7 @@ Each workspace has its own dedicated documentation section while shared concerns
 ## 🤝 Contributing to Documentation
 
 See [`../CONTRIBUTING.md`](../CONTRIBUTING.md) for guidelines on:
+
 - Documentation style and formatting
 - Adding new documentation sections
 - Updating existing documentation

@@ -1,4 +1,4 @@
-# Listing Data Schema (cline_docs/data_schema.md)
+# Listing Data Schema
 
 This document outlines the JSON schema for individual listings in the 'Sustainable Digital Nomads in Thailand' directory. The data will be stored as an array of listing objects.
 
@@ -120,8 +120,8 @@ This document outlines the JSON schema for individual listings in the 'Sustainab
   "category": "coworking", // or "cafe" if it's primarily a cafe with good workspace
   "address_string": "123 Nimmanhaemin Road, Suthep, Mueang Chiang Mai District, Chiang Mai 50200, Thailand",
   "coordinates": {
-    "latitude": 18.799000,
-    "longitude": 98.967000
+    "latitude": 18.799,
+    "longitude": 98.967
   },
   "description_short": "A vibrant coworking space and cafe in the heart of Nimman, offering a productive environment with a strong eco-conscious ethos.",
   "description_long": "GreenLeaf provides flexible desk options, private offices, and a delightful cafe serving organic coffee and plant-based snacks. We are committed to minimizing our environmental impact through various initiatives and fostering a community of like-minded professionals.",
@@ -153,13 +153,18 @@ This document outlines the JSON schema for individual listings in the 'Sustainab
     "ergonomic_seating"
   ],
   "last_verified_date": "2025-05-12",
-  "coworking_details": { // Only if category is "coworking"
+  "coworking_details": {
+    // Only if category is "coworking"
     "operating_hours": {
       "monday_friday": "8am-8pm",
       "saturday_sunday": "10am-6pm"
     },
     "pricing_plans": [
-      { "type": "daily", "price_thb": 300, "price_notes": "Includes one free coffee." },
+      {
+        "type": "daily",
+        "price_thb": 300,
+        "price_notes": "Includes one free coffee."
+      },
       { "type": "weekly", "price_thb": 1500, "price_notes": "" },
       { "type": "monthly_hot_desk", "price_thb": 4500, "price_notes": "" }
     ],
@@ -173,3 +178,4 @@ This document outlines the JSON schema for individual listings in the 'Sustainab
   }
   // cafe_details or accommodation_details would be here if category matched
 }
+```

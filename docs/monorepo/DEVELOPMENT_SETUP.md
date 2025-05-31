@@ -5,9 +5,11 @@ This guide provides comprehensive information for developers working on the Sust
 ## 📋 Project Overview
 
 ### Architecture
+
 This is a **monorepo** containing a Next.js application with Sanity CMS backend, designed for sustainable travel and digital nomad lifestyle content.
 
 ### Tech Stack Summary
+
 - **Frontend**: Next.js 14+ (App Router), TypeScript, Tailwind CSS
 - **Backend**: Sanity CMS, MongoDB Atlas, NextAuth.js
 - **Testing**: Playwright (120+ E2E tests)
@@ -29,8 +31,8 @@ sustainable-eco-friendly-digital-nomads-directory/
 │   ├── *.py                     # Python migration scripts
 │   └── *.json                   # Data files
 ├── docs/                        # Project documentation
-├── cline_docs/                  # Development notes
-├── memory-bank/                 # Session logs & context
+├── docs/                        # Project documentation
+├── memory-bank/                 # Context, logs, and session files (six key context files retained)
 └── tasks/                       # Task management files
 ```
 
@@ -46,6 +48,7 @@ sustainable-eco-friendly-digital-nomads-directory/
 ### Initial Setup
 
 1. **Clone and install:**
+
    ```bash
    git clone <repository-url>
    cd sustainable-eco-friendly-digital-nomads-directory
@@ -53,10 +56,11 @@ sustainable-eco-friendly-digital-nomads-directory/
    ```
 
 2. **Install workspace dependencies:**
+
    ```bash
    # Install Next.js dependencies
    cd app-next-directory && npm install
-   
+
    # Install Sanity dependencies
    cd ../sanity && npm install
    ```
@@ -65,6 +69,7 @@ sustainable-eco-friendly-digital-nomads-directory/
    Create `.env.local` files in both `app-next-directory/` and `sanity/`:
 
    **app-next-directory/.env.local:**
+
    ```env
    # Sanity Configuration
    NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
@@ -100,6 +105,7 @@ cd sanity && npm run dev
 ### Available Scripts
 
 #### Root Level Scripts
+
 ```bash
 npm run dev           # Start Next.js development server
 npm run dev:sanity    # Start Sanity Studio
@@ -108,6 +114,7 @@ npm run lint          # Lint Next.js application
 ```
 
 #### Next.js App Scripts (from app-next-directory/)
+
 ```bash
 npm run dev           # Development server
 npm run build         # Production build
@@ -120,6 +127,7 @@ npm run test:auth     # Run authentication tests only
 ```
 
 #### Sanity Scripts (from sanity/)
+
 ```bash
 npm run dev           # Development studio
 npm run build         # Build studio
@@ -129,6 +137,7 @@ npm run deploy        # Deploy to Sanity hosting
 ## 🧪 Testing Strategy
 
 ### Test Coverage
+
 - **120+ Playwright test cases** covering authentication flows
 - **Cross-browser testing** (Chromium, Firefox, WebKit)
 - **Role-based access control** validation
@@ -147,6 +156,7 @@ npm run test:debug             # Debug mode
 ```
 
 ### Test Structure
+
 ```text
 tests/
 ├── auth.spec.ts               # Authentication flow tests
@@ -159,6 +169,7 @@ tests/
 ## 📁 Code Organization
 
 ### Component Structure
+
 ```text
 src/components/
 ├── auth/                      # Authentication components
@@ -180,6 +191,7 @@ src/components/
 ```
 
 ### API Route Organization
+
 ```text
 src/app/api/
 ├── auth/                      # NextAuth routes
@@ -207,6 +219,7 @@ The authentication system is fully implemented with:
 - **Comprehensive testing** (120+ test cases)
 
 ### User Roles
+
 1. **user**: Basic user access
 2. **editor**: Content editing permissions
 3. **venueOwner**: Venue management access
@@ -216,11 +229,13 @@ The authentication system is fully implemented with:
 ## 📊 Data Management
 
 ### Sanity CMS
+
 - **Content types**: Listings, Cities, Blog Posts, Site Config
 - **Schema definitions** in `sanity/schemas/`
 - **Content migration** via Python scripts in `listings/`
 
 ### MongoDB
+
 - **User authentication** data
 - **Session management**
 - **User preferences** and favorites
@@ -228,10 +243,12 @@ The authentication system is fully implemented with:
 ## 🚀 Deployment
 
 ### Development Environment
+
 - **Next.js**: `http://localhost:3000`
 - **Sanity Studio**: `http://localhost:3333`
 
 ### Production Deployment
+
 - **Vercel** for Next.js application
 - **Sanity Cloud** for CMS hosting
 - **MongoDB Atlas** for database
@@ -239,12 +256,14 @@ The authentication system is fully implemented with:
 ## 🔄 Git Workflow
 
 ### Branch Strategy
+
 - `main`: Production-ready code
 - `develop`: Integration branch
 - `feature/*`: Feature development
 - `hotfix/*`: Critical fixes
 
 ### Commit Convention
+
 ```bash
 feat: add new authentication feature
 fix: resolve login redirect issue
@@ -263,23 +282,30 @@ test: add RBAC test coverage
 ## 🆘 Common Issues & Solutions
 
 ### Environment Variables
+
 Ensure all required environment variables are set in `.env.local` files for both Next.js and Sanity workspaces.
 
 ### Package Dependencies
+
 If you encounter deprecated package warnings, update dependencies:
+
 ```bash
 npm update
 npm audit fix
 ```
 
 ### MongoDB Connection
+
 Test MongoDB connection:
+
 ```bash
 npm run test:db-connection
 ```
 
 ### Sanity Schema Updates
+
 After updating Sanity schemas, redeploy the studio:
+
 ```bash
 cd sanity && npm run deploy
 ```

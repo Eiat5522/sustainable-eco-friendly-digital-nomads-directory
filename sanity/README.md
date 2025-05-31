@@ -1,16 +1,16 @@
-# Sanity CMS Studio - Sustainable Eco-Friendly Digital Nomads Directory
+# Sanity CMS Studio – Sustainable Eco-Friendly Digital Nomads Directory
 
-This is the **Sanity Content Studio** configuration for the Sustainable Eco-Friendly Digital Nomads Directory project. It provides content management capabilities for listings, blog posts, cities, and site configuration.
+This is the **Sanity Content Studio** configuration for the Sustainable Eco-Friendly Digital Nomads Directory project. It provides content management for listings, blog posts, cities, and site configuration.
 
 ## 🎯 Purpose
 
-The Sanity Studio serves as the **headless CMS backend** for managing:
+Sanity Studio serves as the **headless CMS backend** for managing:
 
-- **Venue Listings**: Coworking spaces, cafes, accommodations, and events
-- **City Information**: Location data, descriptions, and featured venues
-- **Blog Content**: Articles about sustainability and digital nomad lifestyle
-- **Site Configuration**: Global settings, navigation, and metadata
-- **User-Generated Content**: Reviews, ratings, and community submissions
+- **Venue Listings**: Coworking spaces, cafes, accommodations, events
+- **City Information**: Location data, descriptions, featured venues
+- **Blog Content**: Sustainability and digital nomad articles
+- **Site Configuration**: Global settings, navigation, metadata
+- **User-Generated Content**: Reviews, ratings, community submissions
 
 ## 🚀 Quick Start
 
@@ -24,26 +24,22 @@ npm 9.6.7+ required
 ### Setup & Development
 
 1. **Install dependencies:**
-
    ```bash
    npm install
    ```
-
 2. **Start the Sanity Studio:**
-
    ```bash
    npm run dev
    ```
-
 3. **Access the studio:**
    - Studio URL: [http://localhost:3333](http://localhost:3333)
    - Login with your Sanity account credentials
 
-## 📦 Integration with Monorepo
+## 📦 Monorepo Integration
 
-This Sanity configuration is part of a **monorepo structure**:
+This Sanity configuration is part of the monorepo:
 
-```text
+```
 sustainable-eco-friendly-digital-nomads-directory/
 ├── app-next-directory/          # Next.js frontend (consumes Sanity data)
 ├── sanity/                      # This Sanity Studio configuration
@@ -57,22 +53,27 @@ sustainable-eco-friendly-digital-nomads-directory/
 - **Migration Scripts** in `/listings` interact with Sanity HTTP API
 - **Shared content types** defined in `sanity/schemas/`
 
-## �️ Content Schema
+## 🗂️ Documentation
+
+All Sanity documentation is now located in `docs/sanity/`.
 
 ### Core Content Types
 
 1. **Listing** (`listing.ts`)
+
    - Venue information (name, description, location)
    - Sustainability features and certifications
    - Amenities and digital nomad facilities
    - Images and gallery
 
 2. **City** (`city.ts`)
+
    - Geographic information and boundaries
    - Featured venues and highlights
    - Tourism and nomad-specific information
 
 3. **Blog Post** (`blogPost.ts`)
+
    - Editorial content about sustainability
    - SEO optimization fields
    - Author attribution and publishing workflow

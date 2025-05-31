@@ -40,7 +40,6 @@ next-env.d.ts
 
 # IDE
 .idea/
-.vscode/
 *.sublime-project
 *.sublime-workspace
 
@@ -68,7 +67,6 @@ dev-debug.log
 # Environment variables
 # Editor directories and files
 .idea
-.vscode
 *.suo
 *.ntvs*
 *.njsproj
@@ -87,4 +85,5 @@ tasks/
 *task_0*
 *clean-install.ps1*
 *tasks.json.bak*
+/.specstory*
 *WORKSTREAM*

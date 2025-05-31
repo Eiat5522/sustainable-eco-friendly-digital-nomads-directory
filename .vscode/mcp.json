@@ -1,0 +1,69 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "shotgrid-script-name",
+      "description": "ShotGrid Script Name"
+    },
+    {
+      "type": "promptString",
+      "id": "shotgrid-script-key",
+      "description": "ShotGrid Script Key",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "shotgrid-url",
+      "description": "ShotGrid URL"
+    },
+    {
+      "type": "promptString",
+      "id": "QDRANT_URL",
+      "description": "qdrant URL (e.g. http://localhost:6333)",
+      "default": "http://localhost:6333"
+    },
+    {
+      "type": "promptString",
+      "id": "QDRANT_API_KEY",
+      "description": "qdrantApiKey",
+      "password": true
+    },
+    {
+      "type": "promptString",
+      "id": "COLLECTION_NAME",
+      "description": "collectionName"
+    },
+    {
+      "type": "promptString",
+      "id": "EMBEDDING_MODEL",
+      "description": "embeddingModel",
+      "default": "sentence-transformers/all-MiniLM-L6-v2"
+    }
+  ],
+  "servers": {
+    "shotgrid": {
+      "url": "https://gitmcp.io/shotgrid",
+      "scriptName": "${input:shotgrid-script-name}",
+      "scriptKey": "${input:shotgrid-script-key}",
+      "shotgridUrl": "${input:shotgrid-url}"
+    },
+    "next-vercel": {
+      "url": "https://gitmcp.io/vercel/next.js"
+    },
+    "next-saas-starter-Docs": {
+      "url": "https://gitmcp.io/nextjs/saas-starter"
+    },
+    "ts-nextjs-tailwind-starter-Docs": {
+      "url": "https://gitmcp.io/theodorusclarence/ts-nextjs-tailwind-starter"
+    },
+    "next-sanity-Docs": {
+      "url": "https://gitmcp.io/sanity-io/next-sanity"
+    },
+    "next-sanity-studio-Docs": {
+      "url": "https://gitmcp.io/sanity-io/next-sanity-studio"
+    },
+    "next-sanity-studio-graphql-Docs": {
+      "url": "https://gitmcp.io/sanity-io/next-sanity-studio-graphql"
+    }
+  },
+}

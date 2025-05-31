@@ -1,7 +1,6 @@
 # 🔌 API Documentation
 
 This document describes the API endpoints available in the Sustainable Eco-Friendly Digital Nomads Directory application.
-**Last Updated: May 28, 2025**
 
 ## 🔐 Authentication
 
@@ -134,6 +133,292 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 }
 ```
 
+#### `DELETE /api/user/favorites/[listingId]`
+
+**Purpose**: Remove listing from favorites
+**Access**: Authenticated users
+**Response**:
+
+```json
+{
+  "success": true,
+  "message": "Favorite removed successfully"
+}
+```
+
+#### `GET /api/user/dashboard`
+
+**Purpose**: Get comprehensive user dashboard data
+**Access**: Authenticated users
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "profile": {
+      "id": "user_id",
+      "name": "User Name",
+      "email": "user@example.com",
+      "image": "https://cdn.sanity.io/images/...",
+      "role": "user",
+      "memberSince": "2025-01-01T00:00:00.000Z",
+      "completionPercentage": 85
+    },
+    "activity": {
+      "level": "Medium",
+      "totalFavorites": 12,
+      "recentFavorites": [
+        {
+          "id": "fav_id",
+          "listingId": "listing_id",
+          "createdAt": "2025-05-30T00:00:00.000Z"
+        }
+      ],
+      "analytics": {
+        "totalSessions": 45,
+        "averageSessionDuration": 15,
+        "pageViews": 230,
+        "searchQueries": 18,
+        "reviewsSubmitted": 3,
+        "lastLogin": "2025-05-31T08:00:00.000Z"
+      },
+      "engagement": {
+        "mostViewedCategories": ["coworking", "cafe"],
+        "preferredCities": ["Bangkok", "Chiang Mai"],
+        "recentSearches": [
+          {
+            "query": "eco coworking",
+            "timestamp": "2025-05-31T07:30:00.000Z"
+          }
+        ],
+        "recentViews": [
+          {
+            "listingId": "listing_id",
+            "viewedAt": "2025-05-31T07:25:00.000Z"
+          }
+        ]
+      },
+      "conversions": {
+        "clickedExternalLinks": 8,
+        "completedContactForms": 2,
+        "premiumListingsViewed": 15,
+        "mapInteractions": 25
+      }
+    },
+    "preferences": {
+      "location": {
+        "country": "Thailand",
+        "city": "Bangkok"
+      },
+      "notifications": {
+        "email": true,
+        "push": false
+      },
+      "ui": {
+        "theme": "light",
+        "language": "en"
+      },
+      "filters": {
+        "defaultCategory": "coworking",
+        "priceRange": ["$", "$$"]
+      },
+      "privacy": {
+        "profileVisible": true,
+        "analyticsEnabled": true
+      }
+    },
+    "insights": {
+      "achievements": [
+        {
+          "name": "Explorer",
+          "description": "100+ page views"
+        }
+      ],
+      "recommendations": [
+        "Try using our search filters to discover hidden gems"
+      ],
+      "monthlyTrends": [
+        {
+          "month": "Jan",
+          "sessions": 10,
+          "pageViews": 45,
+          "searches": 5
+        }
+      ]
+    }
+  }
+}
+```
+
+#### `GET /api/user/preferences`
+
+**Purpose**: Get user preferences
+**Access**: Authenticated users
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "location": {
+      "country": "Thailand",
+      "city": "Bangkok",
+      "timezone": "Asia/Bangkok"
+    },
+    "notifications": {
+      "email": true,
+      "push": false,
+      "sms": false,
+      "frequency": "weekly"
+    },
+    "ui": {
+      "theme": "light",
+      "language": "en",
+      "currency": "USD",
+      "dateFormat": "DD/MM/YYYY"
+    },
+    "filters": {
+      "defaultCategory": "coworking",
+      "priceRange": ["$", "$$"],
+      "ecoTags": ["solar-powered", "zero-waste"],
+      "radius": 10
+    },
+    "privacy": {
+      "profileVisible": true,
+      "analyticsEnabled": true,
+      "locationSharing": false
+    }
+  }
+}
+```
+
+#### `PUT /api/user/preferences`
+
+**Purpose**: Update user preferences
+**Access**: Authenticated users
+**Body**:
+
+```json
+{
+  "location": {
+    "country": "Thailand",
+    "city": "Chiang Mai"
+  },
+  "notifications": {
+    "email": false,
+    "push": true
+  },
+  "ui": {
+    "theme": "dark",
+    "language": "th"
+  }
+}
+```
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "message": "Preferences updated successfully",
+  "data": {
+    "updatedAt": "2025-05-31T08:30:00.000Z"
+  }
+}
+```
+
+#### `GET /api/user/analytics`
+
+**Purpose**: Get user analytics data
+**Access**: Authenticated users
+**Query Parameters**:
+
+- `timeRange`: Filter by time range (7d, 30d, 90d, all) - default: 30d
+- `includeHistory`: Include detailed history (true/false) - default: false
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "activity": {
+      "totalSessions": 45,
+      "averageSessionDuration": 15,
+      "pageViews": 230,
+      "searchQueries": 18,
+      "reviewsSubmitted": 3,
+      "lastLogin": "2025-05-31T08:00:00.000Z"
+    },
+    "engagement": {
+      "mostViewedCategories": [
+        {
+          "category": "coworking",
+          "count": 45
+        }
+      ],
+      "preferredCities": [
+        {
+          "city": "Bangkok",
+          "count": 35
+        }
+      ],
+      "searchPatterns": [
+        {
+          "query": "eco coworking",
+          "count": 5,
+          "timestamp": "2025-05-31T07:30:00.000Z"
+        }
+      ],
+      "viewHistory": [
+        {
+          "listingId": "listing_id",
+          "viewedAt": "2025-05-31T07:25:00.000Z",
+          "duration": 45
+        }
+      ]
+    },
+    "conversions": {
+      "clickedExternalLinks": 8,
+      "completedContactForms": 2,
+      "premiumListingsViewed": 15,
+      "mapInteractions": 25
+    },
+    "timeRange": "30d",
+    "generatedAt": "2025-05-31T08:30:00.000Z"
+  }
+}
+```
+
+#### `POST /api/user/analytics`
+
+**Purpose**: Track user activity/events
+**Access**: Authenticated users
+**Body**:
+
+```json
+{
+  "eventType": "page_view",
+  "data": {
+    "page": "/listings/eco-coworking-bangkok",
+    "category": "coworking",
+    "listingId": "listing_id",
+    "duration": 45,
+    "timestamp": "2025-05-31T08:30:00.000Z"
+  }
+}
+```
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "message": "Event tracked successfully"
+}
+```
+
 ### Listings Endpoints
 
 #### `GET /api/listings`
@@ -144,14 +429,10 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 
 - `city`: Filter by city
 - `category`: Filter by category (coworking, cafe, accommodation)
-- `ecoTags`: Filter by eco tags (comma-separated)
+- `ecoTags`: Filter by eco tags
 - `search`: Text search
 - `page`: Pagination (default: 1)
 - `limit`: Items per page (default: 20)
-- `latitude`: Latitude for geo-search (requires longitude and radius)
-- `longitude`: Longitude for geo-search (requires latitude and radius)
-- `radius`: Search radius in kilometers for geo-search
-- `[other_advanced_eco_filters]`: Placeholder for any other specific advanced eco-filter parameters (e.g., `minSustainabilityScore`, `hasCertificationType`)
 
 **Response**:
 
@@ -253,118 +534,6 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
   },
   "ecoTags": ["organic-food", "renewable-energy"],
   "priceRange": "$"
-}
-```
-
-### Contact Endpoints
-
-#### `POST /api/contact`
-
-**Purpose**: Submit contact form inquiry
-**Access**: Public
-**Body**:
-
-```json
-{
-  "name": "John Doe",
-  "email": "john.doe@example.com",
-  "message": "I have a question about your platform."
-}
-```
-
-**Response**:
-
-- **Success (200 OK)**:
-
-```json
-{
-  "message": "Your message has been sent successfully!"
-}
-```
-
-- **Error (e.g., 400 Bad Request, 429 Too Many Requests, 500 Internal Server Error)**:
-
-```json
-{
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Invalid input data",
-    "details": {
-      "field": "email",
-      "issue": "Invalid email format"
-    }
-  }
-}
-```
-
-**Notes**: Implements Nodemailer for email sending, Zod for validation, and rate limiting.
-
-### Blog Endpoints
-
-#### `GET /api/blog`
-
-**Purpose**: Get a list of blog posts
-**Access**: Public
-**Query Parameters**:
-
-- `page`: Pagination (default: 1)
-- `limit`: Items per page (default: 10)
-- `category`: Filter by blog post category (slug)
-- `tag`: Filter by blog post tag (slug)
-
-**Response**:
-
-```json
-{
-  "posts": [
-    {
-      "slug": "my-first-blog-post",
-      "title": "My First Blog Post",
-      "excerpt": "A short summary of the blog post...",
-      "coverImage": "https://cdn.sanity.io/images/.../image.jpg",
-      "author": {
-        "name": "Author Name",
-        "picture": "https://cdn.sanity.io/images/.../author.jpg"
-      },
-      "date": "2025-05-28T10:00:00.000Z",
-      "categories": [{ "name": "Travel", "slug": "travel" }],
-      "tags": [{ "name": "Asia", "slug": "asia" }]
-    }
-  ],
-  "pagination": {
-    "currentPage": 1,
-    "totalPages": 5,
-    "totalItems": 50,
-    "hasNext": true,
-    "hasPrev": false
-  }
-}
-```
-
-#### `GET /api/blog/[slug]`
-
-**Purpose**: Get a single blog post by its slug
-**Access**: Public
-**Response**:
-
-```json
-{
-  "post": {
-    "slug": "my-first-blog-post",
-    "title": "My First Blog Post",
-    "content": "<p>Full HTML content of the blog post...</p>",
-    "coverImage": "https://cdn.sanity.io/images/.../image.jpg",
-    "author": {
-      "name": "Author Name",
-      "picture": "https://cdn.sanity.io/images/.../author.jpg"
-    },
-    "date": "2025-05-28T10:00:00.000Z",
-    "categories": [{ "name": "Travel", "slug": "travel" }],
-    "tags": [{ "name": "Asia", "slug": "asia" }],
-    "relatedPosts": [
-      // Optional: array of related post summaries
-    ]
-  }
 }
 ```
 
@@ -475,52 +644,6 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 }
 ```
 
-#### `PUT /api/admin/reviews/[reviewId]/status` (Admin Only)
-
-**Purpose**: Update the status of a review (e.g., approve, reject)
-**Access**: Admin, SuperAdmin
-**Body**:
-
-```json
-{
-  "status": "approved" // or "rejected", "pending"
-}
-```
-
-**Response**:
-
-- **Success (200 OK)**:
-
-```json
-{
-  "message": "Review status updated successfully.",
-  "review": {
-    "id": "review_id",
-    "status": "approved"
-    // ...other review fields
-  }
-}
-```
-
-#### `GET /api/admin/reviews/stats` (Admin Only)
-
-**Purpose**: Get statistics about reviews
-**Access**: Admin, SuperAdmin
-**Response**:
-
-```json
-{
-  "stats": {
-    "totalReviews": 950,
-    "pendingApproval": 15,
-    "approvedReviews": 900,
-    "rejectedReviews": 35,
-    "averageRatingOverall": 4.4
-    // ...other relevant review stats
-  }
-}
-```
-
 ### Admin Endpoints
 
 #### `GET /api/admin/stats`
@@ -538,27 +661,6 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
     "pendingReviews": 5,
     "newListings": 8,
     "activeUsers": 234
-  }
-}
-```
-
-#### `GET /api/admin/search/stats` (Admin Only)
-
-**Purpose**: Get statistics about search queries
-**Access**: Admin, SuperAdmin
-**Response**:
-
-```json
-{
-  "stats": {
-    "totalSearchesToday": 500,
-    "totalSearchesLast7Days": 3500,
-    "popularSearchTerms": [
-      { "term": "eco-friendly coworking bangkok", "count": 120 },
-      { "term": "vegan cafe chiang mai", "count": 90 }
-    ],
-    "searchesWithNoResults": 25
-    // ...other relevant search stats
   }
 }
 ```
@@ -584,84 +686,6 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
   "role": "editor"
 }
 ```
-
-#### `GET /api/admin/users/[userId]/analytics` (Admin Only)
-
-**Purpose**: Get analytics for a specific user (placeholder for potential future endpoint)
-**Access**: Admin, SuperAdmin
-**Response**:
-
-```json
-{
-  "analytics": {
-    "userId": "user_id",
-    "loginFrequencyLast30Days": 15,
-    "favoriteCategories": ["coworking", "cafe"],
-    "reviewsSubmitted": 5
-    // ...other user-specific analytics
-  }
-}
-```
-
-**Note**: This is a conceptual endpoint. Actual implementation details may vary.
-
-#### `POST /api/admin/listings/bulk-action` (Admin Only)
-
-**Purpose**: Perform bulk actions on listings (e.g., publish, unpublish, delete)
-**Access**: Admin, SuperAdmin
-**Body**:
-
-```json
-{
-  "action": "publish", // "unpublish", "delete"
-  "listingIds": ["listing_id_1", "listing_id_2", "listing_id_3"]
-}
-```
-
-**Response**:
-
-- **Success (200 OK)**:
-
-```json
-{
-  "message": "Bulk action completed successfully.",
-  "results": {
-    "successCount": 3,
-    "failedCount": 0,
-    "errors": [] // Array of error details if any
-  }
-}
-```
-
-#### `PUT /api/admin/content/[contentId]/status` (Admin Only)
-
-**Purpose**: Generic endpoint for moderating various content types (e.g., listings, user-generated content beyond reviews)
-**Access**: Admin, SuperAdmin
-**Body**:
-
-```json
-{
-  "contentType": "listing", // "comment", "forumPost", etc.
-  "status": "approved" // "rejected", "needs_review"
-}
-```
-
-**Response**:
-
-- **Success (200 OK)**:
-
-```json
-{
-  "message": "Content status updated successfully.",
-  "content": {
-    "id": "contentId",
-    "type": "listing",
-    "status": "approved"
-  }
-}
-```
-
-**Note**: This is a conceptual endpoint for broader content moderation. Specific implementations might vary.
 
 ## 🔒 Role-Based Access Control
 

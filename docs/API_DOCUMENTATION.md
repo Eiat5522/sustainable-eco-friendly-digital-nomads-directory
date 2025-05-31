@@ -9,8 +9,11 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 ### Authentication Status: ✅ COMPLETED
 
 - **JWT Strategy**: Secure token-based authentication
+
 - **Role-Based Access**: 5-tier permission system
+
 - **Session Management**: MongoDB-backed sessions
+
 - **Security**: bcryptjs password hashing, rate limiting
 
 ## 📋 API Endpoints
@@ -18,16 +21,21 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 ### Authentication Endpoints
 
 #### `POST /api/auth/signin`
+
 **Purpose**: User authentication
 **Access**: Public
 **Body**:
+
 ```json
 {
   "email": "user@example.com",
   "password": "securePassword123"
 }
+
 ```
+
 **Response**:
+
 ```json
 {
   "user": {
@@ -38,21 +46,26 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
   },
   "expires": "2025-06-26T12:00:00.000Z"
 }
+
 ```
 
 #### `POST /api/auth/signup`
+
 **Purpose**: User registration
 **Access**: Public
 **Body**:
+
 ```json
 {
   "name": "New User",
   "email": "newuser@example.com",
   "password": "securePassword123"
 }
+
 ```
 
 #### `POST /api/auth/signout`
+
 **Purpose**: User logout
 **Access**: Authenticated users
 **Response**: Session termination
@@ -60,9 +73,11 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 ### User Management Endpoints
 
 #### `GET /api/user/profile`
+
 **Purpose**: Get current user profile
 **Access**: Authenticated users
 **Response**:
+
 ```json
 {
   "id": "user_id",
@@ -75,12 +90,15 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
     "notifications": true
   }
 }
+
 ```
 
 #### `PUT /api/user/profile`
+
 **Purpose**: Update user profile
 **Access**: Authenticated users
 **Body**:
+
 ```json
 {
   "name": "Updated Name",
@@ -89,12 +107,15 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
     "notifications": false
   }
 }
+
 ```
 
 #### `GET /api/user/favorites`
+
 **Purpose**: Get user's favorite listings
 **Access**: Authenticated users
 **Response**:
+
 ```json
 {
   "favorites": [
@@ -106,32 +127,339 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
     }
   ]
 }
+
 ```
 
 #### `POST /api/user/favorites`
+
 **Purpose**: Add listing to favorites
 **Access**: Authenticated users
 **Body**:
+
 ```json
 {
   "listingId": "listing_id"
 }
+
+```
+
+#### `DELETE /api/user/favorites/[listingId]`
+
+**Purpose**: Remove listing from favorites
+**Access**: Authenticated users
+**Response**:
+
+```json
+{
+  "success": true,
+  "message": "Favorite removed successfully"
+}
+
+```
+
+#### `GET /api/user/dashboard`
+
+**Purpose**: Get comprehensive user dashboard data
+**Access**: Authenticated users
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "profile": {
+      "id": "user_id",
+      "name": "User Name",
+      "email": "user@example.com",
+      "image": "https://cdn.sanity.io/images/...",
+      "role": "user",
+      "memberSince": "2025-01-01T00:00:00.000Z",
+      "completionPercentage": 85
+    },
+    "activity": {
+      "level": "Medium",
+      "totalFavorites": 12,
+      "recentFavorites": [
+        {
+          "id": "fav_id",
+          "listingId": "listing_id",
+          "createdAt": "2025-05-30T00:00:00.000Z"
+        }
+      ],
+      "analytics": {
+        "totalSessions": 45,
+        "averageSessionDuration": 15,
+        "pageViews": 230,
+        "searchQueries": 18,
+        "reviewsSubmitted": 3,
+        "lastLogin": "2025-05-31T08:00:00.000Z"
+      },
+      "engagement": {
+        "mostViewedCategories": ["coworking", "cafe"],
+        "preferredCities": ["Bangkok", "Chiang Mai"],
+        "recentSearches": [
+          {
+            "query": "eco coworking",
+            "timestamp": "2025-05-31T07:30:00.000Z"
+          }
+        ],
+        "recentViews": [
+          {
+            "listingId": "listing_id",
+            "viewedAt": "2025-05-31T07:25:00.000Z"
+          }
+        ]
+      },
+      "conversions": {
+        "clickedExternalLinks": 8,
+        "completedContactForms": 2,
+        "premiumListingsViewed": 15,
+        "mapInteractions": 25
+      }
+    },
+    "preferences": {
+      "location": {
+        "country": "Thailand",
+        "city": "Bangkok"
+      },
+      "notifications": {
+        "email": true,
+        "push": false
+      },
+      "ui": {
+        "theme": "light",
+        "language": "en"
+      },
+      "filters": {
+        "defaultCategory": "coworking",
+        "priceRange": ["$", "$$"]
+      },
+      "privacy": {
+        "profileVisible": true,
+        "analyticsEnabled": true
+      }
+    },
+    "insights": {
+      "achievements": [
+        {
+          "name": "Explorer",
+          "description": "100+ page views"
+        }
+      ],
+      "recommendations": [
+        "Try using our search filters to discover hidden gems"
+      ],
+      "monthlyTrends": [
+        {
+          "month": "Jan",
+          "sessions": 10,
+          "pageViews": 45,
+          "searches": 5
+        }
+      ]
+    }
+  }
+}
+
+```
+
+#### `GET /api/user/preferences`
+
+**Purpose**: Get user preferences
+**Access**: Authenticated users
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "location": {
+      "country": "Thailand",
+      "city": "Bangkok",
+      "timezone": "Asia/Bangkok"
+    },
+    "notifications": {
+      "email": true,
+      "push": false,
+      "sms": false,
+      "frequency": "weekly"
+    },
+    "ui": {
+      "theme": "light",
+      "language": "en",
+      "currency": "USD",
+      "dateFormat": "DD/MM/YYYY"
+    },
+    "filters": {
+      "defaultCategory": "coworking",
+      "priceRange": ["$", "$$"],
+      "ecoTags": ["solar-powered", "zero-waste"],
+      "radius": 10
+    },
+    "privacy": {
+      "profileVisible": true,
+      "analyticsEnabled": true,
+      "locationSharing": false
+    }
+  }
+}
+
+```
+
+#### `PUT /api/user/preferences`
+
+**Purpose**: Update user preferences
+**Access**: Authenticated users
+**Body**:
+
+```json
+{
+  "location": {
+    "country": "Thailand",
+    "city": "Chiang Mai"
+  },
+  "notifications": {
+    "email": false,
+    "push": true
+  },
+  "ui": {
+    "theme": "dark",
+    "language": "th"
+  }
+}
+
+```
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "message": "Preferences updated successfully",
+  "data": {
+    "updatedAt": "2025-05-31T08:30:00.000Z"
+  }
+}
+
+```
+
+#### `GET /api/user/analytics`
+
+**Purpose**: Get user analytics data
+**Access**: Authenticated users
+**Query Parameters**:
+
+- `timeRange`: Filter by time range (7d, 30d, 90d, all) - default: 30d
+
+- `includeHistory`: Include detailed history (true/false) - default: false
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "data": {
+    "activity": {
+      "totalSessions": 45,
+      "averageSessionDuration": 15,
+      "pageViews": 230,
+      "searchQueries": 18,
+      "reviewsSubmitted": 3,
+      "lastLogin": "2025-05-31T08:00:00.000Z"
+    },
+    "engagement": {
+      "mostViewedCategories": [
+        {
+          "category": "coworking",
+          "count": 45
+        }
+      ],
+      "preferredCities": [
+        {
+          "city": "Bangkok",
+          "count": 35
+        }
+      ],
+      "searchPatterns": [
+        {
+          "query": "eco coworking",
+          "count": 5,
+          "timestamp": "2025-05-31T07:30:00.000Z"
+        }
+      ],
+      "viewHistory": [
+        {
+          "listingId": "listing_id",
+          "viewedAt": "2025-05-31T07:25:00.000Z",
+          "duration": 45
+        }
+      ]
+    },
+    "conversions": {
+      "clickedExternalLinks": 8,
+      "completedContactForms": 2,
+      "premiumListingsViewed": 15,
+      "mapInteractions": 25
+    },
+    "timeRange": "30d",
+    "generatedAt": "2025-05-31T08:30:00.000Z"
+  }
+}
+
+```
+
+#### `POST /api/user/analytics`
+
+**Purpose**: Track user activity/events
+**Access**: Authenticated users
+**Body**:
+
+```json
+{
+  "eventType": "page_view",
+  "data": {
+    "page": "/listings/eco-coworking-bangkok",
+    "category": "coworking",
+    "listingId": "listing_id",
+    "duration": 45,
+    "timestamp": "2025-05-31T08:30:00.000Z"
+  }
+}
+
+```
+
+**Response**:
+
+```json
+{
+  "success": true,
+  "message": "Event tracked successfully"
+}
+
 ```
 
 ### Listings Endpoints
 
 #### `GET /api/listings`
+
 **Purpose**: Get all listings with filtering
 **Access**: Public
 **Query Parameters**:
+
 - `city`: Filter by city
+
 - `category`: Filter by category (coworking, cafe, accommodation)
+
 - `ecoTags`: Filter by eco tags
+
 - `search`: Text search
+
 - `page`: Pagination (default: 1)
+
 - `limit`: Items per page (default: 20)
 
 **Response**:
+
 ```json
 {
   "listings": [
@@ -159,12 +487,15 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
     "hasPrev": false
   }
 }
+
 ```
 
 #### `GET /api/listings/[slug]`
+
 **Purpose**: Get single listing by slug
 **Access**: Public
 **Response**:
+
 ```json
 {
   "listing": {
@@ -207,12 +538,15 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
     }
   }
 }
+
 ```
 
 #### `POST /api/listings` (Admin Only)
+
 **Purpose**: Create new listing
 **Access**: Admin, VenueOwner
 **Body**:
+
 ```json
 {
   "name": "New Eco Venue",
@@ -227,14 +561,17 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
   "ecoTags": ["organic-food", "renewable-energy"],
   "priceRange": "$"
 }
+
 ```
 
 ### Cities Endpoints
 
 #### `GET /api/cities`
+
 **Purpose**: Get all cities with listing counts
 **Access**: Public
 **Response**:
+
 ```json
 {
   "cities": [
@@ -253,12 +590,15 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
     }
   ]
 }
+
 ```
 
 #### `GET /api/cities/[slug]`
+
 **Purpose**: Get city details with listings
 **Access**: Public
 **Response**:
+
 ```json
 {
   "city": {
@@ -277,14 +617,17 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
     ]
   }
 }
+
 ```
 
 ### Reviews Endpoints
 
 #### `GET /api/reviews/[listingId]`
+
 **Purpose**: Get reviews for a listing
 **Access**: Public
 **Response**:
+
 ```json
 {
   "reviews": [
@@ -312,12 +655,15 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
     }
   }
 }
+
 ```
 
 #### `POST /api/reviews`
+
 **Purpose**: Submit new review
 **Access**: Authenticated users
 **Body**:
+
 ```json
 {
   "listingId": "listing_id",
@@ -326,14 +672,17 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
   "ecoRating": 4.5,
   "nomadRating": 4.8
 }
+
 ```
 
 ### Admin Endpoints
 
 #### `GET /api/admin/stats`
+
 **Purpose**: Get admin dashboard statistics
 **Access**: Admin, SuperAdmin
 **Response**:
+
 ```json
 {
   "stats": {
@@ -345,38 +694,47 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
     "activeUsers": 234
   }
 }
+
 ```
 
 #### `GET /api/admin/users`
+
 **Purpose**: Get user management data
 **Access**: Admin, SuperAdmin
 **Query Parameters**:
+
 - `page`: Pagination
+
 - `role`: Filter by role
+
 - `search`: Search users
 
 #### `PUT /api/admin/users/[userId]/role`
+
 **Purpose**: Update user role
 **Access**: SuperAdmin
 **Body**:
+
 ```json
 {
   "role": "editor"
 }
+
 ```
 
 ## 🔒 Role-Based Access Control
 
 ### User Roles & Permissions
 
-| Endpoint | User | Editor | VenueOwner | Admin | SuperAdmin |
-|----------|------|--------|------------|-------|------------|
-| `GET /api/listings` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `POST /api/listings` | ❌ | ❌ | ✅ | ✅ | ✅ |
-| `PUT /api/listings/[id]` | ❌ | ❌ | Own only | ✅ | ✅ |
-| `DELETE /api/listings/[id]` | ❌ | ❌ | ❌ | ✅ | ✅ |
-| `GET /api/admin/*` | ❌ | ❌ | ❌ | ✅ | ✅ |
-| `PUT /api/admin/users/*/role` | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Endpoint                      | User | Editor | VenueOwner | Admin | SuperAdmin |
+| ----------------------------- | ---- | ------ | ---------- | ----- | ---------- |
+
+| `GET /api/listings`           | ✅   | ✅     | ✅         | ✅    | ✅         |
+| `POST /api/listings`          | ❌   | ❌     | ✅         | ✅    | ✅         |
+| `PUT /api/listings/[id]`      | ❌   | ❌     | Own only   | ✅    | ✅         |
+| `DELETE /api/listings/[id]`   | ❌   | ❌     | ❌         | ✅    | ✅         |
+| `GET /api/admin/*`            | ❌   | ❌     | ❌         | ✅    | ✅         |
+| `PUT /api/admin/users/*/role` | ❌   | ❌     | ❌         | ❌    | ✅         |
 
 ## 🛠️ Error Handling
 
@@ -393,15 +751,21 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
     }
   }
 }
+
 ```
 
 ### Common Error Codes
 
 - `UNAUTHORIZED`: Authentication required
+
 - `FORBIDDEN`: Insufficient permissions
+
 - `VALIDATION_ERROR`: Invalid input data
+
 - `NOT_FOUND`: Resource not found
+
 - `RATE_LIMITED`: Too many requests
+
 - `SERVER_ERROR`: Internal server error
 
 ## 🔄 Rate Limiting
@@ -409,8 +773,11 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 ### Limits by Endpoint Type
 
 - **Authentication**: 5 requests per minute per IP
+
 - **Public APIs**: 100 requests per minute per IP
+
 - **Authenticated APIs**: 1000 requests per minute per user
+
 - **Admin APIs**: 500 requests per minute per user
 
 ## 📊 Response Formats
@@ -431,16 +798,19 @@ All paginated endpoints follow this format:
     "hasPrev": false
   }
 }
+
 ```
 
 ### Timestamps
 
 All timestamps are in ISO 8601 format (UTC):
+
 ```json
 {
   "createdAt": "2025-05-26T12:00:00.000Z",
   "updatedAt": "2025-05-26T15:30:00.000Z"
 }
+
 ```
 
 ## 🧪 Testing
@@ -448,9 +818,13 @@ All timestamps are in ISO 8601 format (UTC):
 ### API Testing Coverage
 
 - **120+ test cases** covering all endpoints
+
 - **Authentication flow** validation
+
 - **Role-based access** verification
+
 - **Error handling** scenarios
+
 - **Rate limiting** validation
 
 ### Running API Tests
@@ -460,11 +834,15 @@ All timestamps are in ISO 8601 format (UTC):
 npm run test:api              # All API tests
 npm run test:auth             # Authentication tests
 npm run test:rbac             # Role-based access tests
+
 ```
 
 ## 📚 Additional Resources
 
 - [NextAuth.js Documentation](https://next-auth.js.org/)
+
 - [Next.js API Routes](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
+
 - [MongoDB Documentation](https://docs.mongodb.com/)
+
 - [Sanity API Reference](https://www.sanity.io/docs/http-api)
