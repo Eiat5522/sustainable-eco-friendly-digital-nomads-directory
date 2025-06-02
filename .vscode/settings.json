@@ -1,23 +1,13 @@
 {
-  // Enable the use of instruction files for code generation
-  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
-
   // Enable next-edit suggestions
   "github.copilot.nextEditSuggestions.enabled": true,
   "github.copilot.nextEditSuggestions.fixes": true,
-  // Enable Copilot chat
-  "github.copilot.chat.enabled": true,
-  // Enable Copilot chat for code generation
-  "github.copilot.chat.codeGeneration.enabled": true,
-  // default custom instructions file
-  // Enable Copilot chat for code generation with custom instructions
-  "github.copilot.chat.codeGeneration.customInstructionsFileEnabled": true,
-  "github.copilot.chat.codeGeneration.customInstructionsFile": "copilot-instructions.md",
 
   // TypeScript-specific settings
   "github.copilot.chat.completionContext.typescript.mode": "on",
   "github.copilot.chat.languageContext.fix.typescript.enabled": true,
-  "explorer.excludeGitIgnore": true,
+  "explorer.excludeGitIgnore": false,
   "search.useParentIgnoreFiles": false,
-  "search.useGlobalIgnoreFiles": true
+  "search.useGlobalIgnoreFiles": false,
+  "chat.mcp.serverSampling": {}
 }
