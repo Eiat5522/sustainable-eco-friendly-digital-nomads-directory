@@ -24,18 +24,9 @@
         "-y",
         "@modelcontextprotocol/server-filesystem",
         "--allow-dirs",
-        "${workspaceFolder}/app-next-directory",
-        "--allow-dirs",
-        "${workspaceFolder}/sanity"
+        "file:///D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory",
+        "file:///D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/sanity"
       ]
-    },
-    "prysm-scraper": {
-      "command": "npx",
-      "args": ["-y", "@pinkpixel/prysm-mcp"],
-      "env": {
-        "PRYSM_OUTPUT_DIR": "${workspaceFolder}/docs/shared/PRYSM_OUTPUT/PRYSM_OUTPUT_DIR/",
-        "PRYSM_IMAGE_OUTPUT_DIR": "${workspaceFolder}/docs/shared/PRYSM_OUTPUT/PRYSM_IMAGE_OUTPUT_DIR/"
-      }
     }
-  },
+  }
 }

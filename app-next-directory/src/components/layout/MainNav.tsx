@@ -1,24 +1,43 @@
-sol foCar"use client";
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, forwardRef, HTMLAttributes } from 'react'; // Added forwardRef and HTMLAttributes
+import Link, { LinkProps } from 'next/link'; // Added LinkProps
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Menu, X, Leaf, Map, Calendar, User, Sun, Moon } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import { Search, Menu, X, Leaf, Map, Calendar, User, Home, BookOpen, Mail, LogIn, UserCircle } from 'lucide-react';
+import { signIn, signOut, useSession } from 'next-auth/react';
+import ThemeToggle from './ThemeToggle';
 
 const navigationItems = [
-  { name: 'Explore', href: '/listings', icon: Map },
+  { name: 'Home', href: '/', icon: Home },
+  { name: 'Listings', href: '/listings', icon: Map },
   { name: 'Cities', href: '/cities', icon: Calendar },
-  { name: 'Community', href: '/community', icon: User },
+  { name: 'Blog', href: '/blog', icon: BookOpen },
+  { name: 'Contact Us', href: '/contact', icon: Mail },
 ];
+
+// Helper component to correctly pass refs and props for NextLink
+interface CustomLinkProps extends LinkProps, Omit<HTMLAttributes<HTMLAnchorElement>, 'href'> {
+  children: React.ReactNode;
+}
+
+const CustomLink = forwardRef<HTMLAnchorElement, CustomLinkProps>(({ children, href, ...props }, ref) => {
+  return (
+    <Link href={href} legacyBehavior={false} passHref>
+      <a ref={ref} {...props}>
+        {children}
+      </a>
+    </Link>
+  );
+});
+CustomLink.displayName = 'CustomLink';
 
 export function MainNav() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
-  
+  const { data: session, status } = useSession();
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -26,7 +45,7 @@ export function MainNav() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
+
   return (
     <header className={`fixed w-full z-50 transition-all duration-300 ${
       isScrolled ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-sm' : 'bg-transparent'
@@ -41,53 +60,117 @@ export function MainNav() {
               </span>
             </Link>
           </div>
-          
+
           {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-8">
+          <div className="hidden md:flex md:items-center md:space-x-6 lg:space-x-8">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
               return (
-                <Link 
+                <CustomLink // Use CustomLink
                   key={item.name}
-                  href={item.href} 
-                  className={`text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center group ${
-                    isActive ? 'text-primary-600 dark:text-primary-400' : ''
-                  }`}
+                  href={item.href}
+                  className={`text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center group text-sm font-medium transition-colors`}
                 >
-                  <Icon className="mr-1 h-4 w-4" />
-                  <span>{item.name}</span>
-                  <span className={`block h-0.5 bg-primary-600 dark:bg-primary-400 transition-all duration-300 ${
-                    isActive ? 'w-full' : 'w-0 group-hover:w-full'
-                  }`} />
-                </Link>
+                  <Icon className={`mr-1.5 h-4 w-4 ${isActive ? 'text-primary-600 dark:text-primary-400' : ''}`} />
+                  <span className={`${isActive ? 'text-primary-600 dark:text-primary-400' : ''}`}>{item.name}</span>
+                </CustomLink>
               );
             })}
 
-            <button 
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Toggle theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="h-5 w-5 text-gray-300" />
-              ) : (
-                <Moon className="h-5 w-5 text-gray-700" />
-              )}
-            </button>
+            <ThemeToggle />
 
-            <button className="ml-4 bg-primary-50 hover:bg-primary-100 dark:bg-primary-900/50 dark:hover:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-full px-4 py-2 flex items-center transition-colors">
-              <Search className="h-4 w-4 mr-2" />
-              <span>Search</span>
-            </button>
+            {/* Auth Button/User Menu - Desktop */}
+            {status === 'loading' ? (
+              <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+            ) : session ? (
+              <div className="relative group">
+                <button
+                  className="flex items-center justify-center w-9 h-9 rounded-full overflow-hidden border-2 border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                  aria-label="User menu"
+                >
+                  {session.user?.image ? (
+                    <img
+                      src={session.user.image}
+                      alt={session.user.name || 'User profile'}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-100">
+                      {session.user?.name?.charAt(0)?.toUpperCase() || <UserCircle className="h-5 w-5"/>}
+                    </div>
+                  )}
+                </button>
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{session.user?.name || 'User'}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{session.user?.email}</p>
+                  </div>
+                  <CustomLink // Use CustomLink
+                    href="/dashboard"
+                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Dashboard
+                  </CustomLink>
+                  <CustomLink // Use CustomLink
+                    href="/account"
+                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Account Settings
+                  </CustomLink>
+                  <button
+                    onClick={() => signOut()}
+                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => signIn()}
+                className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                aria-label="Sign in"
+              >
+                <LogIn className="mr-1.5 h-4 w-4" />
+                Login
+              </button>
+            )}
           </div>
-          
+
           {/* Mobile menu button */}
-          <div className="flex md:hidden">
-            <button 
+          <div className="flex md:hidden items-center space-x-2">
+            <ThemeToggle />
+            {status !== 'loading' && !session && (
+                 <button
+                    onClick={() => signIn()}
+                    className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    aria-label="Sign in"
+                >
+                    <LogIn className="h-5 w-5" />
+                </button>
+            )}
+            {status !== 'loading' && session && (
+                 <div className="relative group">
+                    <button
+                        className="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border-2 border-primary-500"
+                        aria-label="User menu"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    >
+                        {session.user?.image ? (
+                            <img src={session.user.image} alt={session.user.name || 'User profile'} className="w-full h-full object-cover" />
+                        ) : (
+                            <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-100">
+                                {session.user?.name?.charAt(0)?.toUpperCase() || <UserCircle className="h-5 w-5"/>}
+                            </div>
+                        )}
+                    </button>
+                 </div>
+            )}
+            <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
-              aria-expanded={mobileMenuOpen}
+              aria-expanded={mobileMenuOpen.toString()} // Corrected ARIA attribute to be a string
               aria-controls="mobile-menu"
             >
               <span className="sr-only">Open main menu</span>
@@ -96,7 +179,7 @@ export function MainNav() {
           </div>
         </div>
       </nav>
-      
+
       {/* Mobile menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
@@ -106,14 +189,14 @@ export function MainNav() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800"
+            className="md:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-lg"
           >
-            <div className="px-4 pt-2 pb-3 space-y-1">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname === item.href;
                 return (
-                  <Link
+                  <CustomLink // Use CustomLink
                     key={item.name}
                     href={item.href}
                     className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
@@ -125,31 +208,40 @@ export function MainNav() {
                   >
                     <Icon className="mr-3 h-5 w-5" />
                     {item.name}
-                  </Link>
+                  </CustomLink>
                 );
               })}
-              
+
+              {/* Mobile Auth/User actions */}
               <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-800">
-                <button className="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <Search className="mr-3 h-5 w-5" />
-                  Search
-                </button>
-                <button 
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="w-full flex items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
-                  {theme === 'dark' ? (
-                    <>
-                      <Sun className="mr-3 h-5 w-5" />
-                      Light Mode
-                    </>
-                  ) : (
-                    <>
-                      <Moon className="mr-3 h-5 w-5" />
-                      Dark Mode
-                    </>
-                  )}
-                </button>
+                {session && (
+                  <>
+                    <div className="px-3 py-2">
+                      <p className="text-sm font-medium text-gray-800 dark:text-white truncate">{session.user?.name || 'User'}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 truncate">{session.user?.email}</p>
+                    </div>
+                    <CustomLink // Use CustomLink
+                      href="/dashboard"
+                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Dashboard
+                    </CustomLink>
+                    <CustomLink // Use CustomLink
+                      href="/account"
+                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Account Settings
+                    </CustomLink>
+                    <button
+                      onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      Sign out
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

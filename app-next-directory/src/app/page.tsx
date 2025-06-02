@@ -52,12 +52,6 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Original Welcome Text - consider removing or integrating into hero */}
-      <div className="p-4">
-        <h1>Welcome to the Homepage</h1>
-        <p>This is a placeholder page.</p>
-      </div>
-
       {/* City Carousel Placeholder - Multiple Cards Example */}
       <div className="mt-8 p-4">
         {' '}

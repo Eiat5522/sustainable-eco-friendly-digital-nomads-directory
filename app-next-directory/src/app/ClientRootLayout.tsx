@@ -1,6 +1,7 @@
-"use client";
+'use client';
 
-import { MainNav } from '@/components/navigation/MainNav';
+import Footer from '@/components/layout/Footer'; // Added Footer import
+import { MainNav } from '@/components/layout/MainNav'; // Corrected import path
 import { SearchDialog } from '@/components/search/SearchDialog';
 import { AnalyticsProvider } from '@/lib/analytics/analytics';
 import { ThemeProvider as NextThemeProvider } from 'next-themes';
@@ -29,12 +30,17 @@ export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
   return (
     <AnalyticsProvider>
       <ThemeProvider>
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen flex flex-col bg-gray-50">
+          {' '}
+          {/* Added flex flex-col */}
           <MainNav onSearchClick={() => setIsSearchOpen(true)} />
           <SearchDialog isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-          <main className="pt-16">
+          <main className="flex-grow pt-16">
+            {' '}
+            {/* Added flex-grow */}
             {children}
           </main>
+          <Footer /> {/* Added Footer component */}
         </div>
       </ThemeProvider>
     </AnalyticsProvider>
