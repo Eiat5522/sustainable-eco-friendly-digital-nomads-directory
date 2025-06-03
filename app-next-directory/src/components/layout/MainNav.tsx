@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, forwardRef, HTMLAttributes } from 'react'; // Added forwardRef and HTMLAttributes
+import { AnimatePresence, motion } from 'framer-motion';
+import { BookOpen, Calendar, Home, Leaf, LogIn, Mail, Map, Menu, UserCircle, X } from 'lucide-react';
+import { signIn, signOut, useSession } from 'next-auth/react';
 import Link, { LinkProps } from 'next/link'; // Added LinkProps
 import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Menu, X, Leaf, Map, Calendar, User, Home, BookOpen, Mail, LogIn, UserCircle } from 'lucide-react';
-import { signIn, signOut, useSession } from 'next-auth/react';
+import { forwardRef, HTMLAttributes, useEffect, useState } from 'react'; // Added forwardRef and HTMLAttributes
 import ThemeToggle from './ThemeToggle';
 
 const navigationItems = [
@@ -21,15 +21,15 @@ interface CustomLinkProps extends LinkProps, Omit<HTMLAttributes<HTMLAnchorEleme
   children: React.ReactNode;
 }
 
-const CustomLink = forwardRef<HTMLAnchorElement, CustomLinkProps>(({ children, href, ...props }, ref) => {
-  return (
-    <Link href={href} legacyBehavior={false} passHref>
-      <a ref={ref} {...props}>
+const CustomLink = forwardRef<HTMLAnchorElement, CustomLinkProps>(
+  ({ children, href, ...props }, ref) => {
+    return (
+      <Link ref={ref} href={href} {...props}>
         {children}
-      </a>
-    </Link>
-  );
-});
+      </Link>
+    );
+  }
+);
 CustomLink.displayName = 'CustomLink';
 
 export function MainNav() {

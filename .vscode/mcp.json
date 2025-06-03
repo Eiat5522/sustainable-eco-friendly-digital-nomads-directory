@@ -1,55 +1,22 @@
 {
-  "mcp": {
-    "inputs": [
-      {
-        "type": "promptString",
-        "id": "EXA_API_KEY",
-        "description": "EXA_API_KEY",
-        "password": true
-      }
-    ],
-    "servers": {
-      "next-vercel": {
-        "url": "https://gitmcp.io/vercel/next.js"
-      },
-      "next-saas-starter-Docs": {
-        "url": "https://gitmcp.io/nextjs/saas-starter"
-      },
-      "ts-nextjs-tailwind-starter-Docs": {
-        "url": "https://gitmcp.io/theodorusclarence/ts-nextjs-tailwind-starter"
-      },
-      "next-sanity-Docs": {
-        "url": "https://gitmcp.io/sanity-io/next-sanity"
-      },
-      "next-sanity-studio-Docs": {
-        "url": "https://gitmcp.io/sanity-io/next-sanity-studio"
-      },
-      "next-sanity-studio-graphql-Docs": {
-        "url": "https://gitmcp.io/sanity-io/next-sanity-studio-graphql"
-      },
-      "filesystem": {
-        "command": "npx",
-        "args": [
-          "-y",
-          "@modelcontextprotocol/server-filesystem",
-          "--allow-dirs",
-          "file:///D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory",
-          "file:///D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/sanity"
-        ]
-      },
-      "think-tank": {
-        "command": "node",
-        "args": ["-y", "mcp-think-tank@2.0.7"],
-        "env": {
-          "MEMORY_PATH": "${file}/think-tank-memory/project-memory.jsonl",
-          "EXA_API_KEY": "${env: EXA_API_KEY}",
-          "TOOL_LIMIT": "50",
-          "CACHE_CONTENT": "true",
-          "CONTENT_CACHE_SIZE": "100",
-          "MCP_DEBUG": "false",
-          "AUTO_LINK": "true"
-        }
-      }
+  "servers": {
+    "next-vercel": {
+      "url": "https://gitmcp.io/vercel/next.js"
+    },
+    "next-saas-starter-Docs": {
+      "url": "https://gitmcp.io/nextjs/saas-starter"
+    },
+    "ts-nextjs-tailwind-starter-Docs": {
+      "url": "https://gitmcp.io/theodorusclarence/ts-nextjs-tailwind-starter"
+    },
+    "next-sanity-Docs": {
+      "url": "https://gitmcp.io/sanity-io/next-sanity"
+    },
+    "next-sanity-studio-Docs": {
+      "url": "https://gitmcp.io/sanity-io/next-sanity-studio"
+    },
+    "next-sanity-studio-graphql-Docs": {
+      "url": "https://gitmcp.io/sanity-io/next-sanity-studio-graphql"
     }
   }
 }
