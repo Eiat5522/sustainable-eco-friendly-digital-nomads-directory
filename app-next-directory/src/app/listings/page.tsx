@@ -1,6 +1,6 @@
 'use client';
 
-import FeaturedListings from '@/components/home/FeaturedListings';
+import FeaturedListings from '@/components/listings/FeaturedListings';
 
 export default function ListingsPage() {
   return (
