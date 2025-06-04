@@ -4,6 +4,7 @@ import { client } from '@/lib/sanity.utils'; // Assuming this path is correct
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import styles from './HomePage.module.css';
+import FeaturedListings from '@/components/listings/FeaturedListings'; // Updated import path
 
 // Define an interface for the City data
 interface City {
@@ -83,6 +84,9 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Featured Listings Section - ADDED HERE */}
+      <FeaturedListings />
 
       {/* City Carousel Section */}
       <div className="mt-8 p-4">

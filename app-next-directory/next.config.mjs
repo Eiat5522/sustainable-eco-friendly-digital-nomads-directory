@@ -36,10 +36,8 @@ const nextConfig = {
       }
     ],
   },
-  // Enable reading local files in app directory
-  experimental: {
-    serverComponentsExternalPackages: ['sharp'],
-  },
+  // Move serverComponentsExternalPackages to top level as serverExternalPackages
+  serverExternalPackages: ['sharp'],
   compiler: {
     styledComponents: true,
   },
