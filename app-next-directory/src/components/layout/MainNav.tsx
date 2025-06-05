@@ -10,7 +10,7 @@ import ThemeToggle from './ThemeToggle';
 
 const navigationItems = [
   { name: 'Home', href: '/', icon: Home },
-  { name: 'Listings', href: '/listings', icon: Map },
+  { name: 'Listings', href: '/listings', icon: Calendar }, // Re-added Listings
   { name: 'Cities', href: '/cities', icon: Calendar },
   { name: 'Blog', href: '/blog', icon: BookOpen },
   { name: 'Contact Us', href: '/contact', icon: Mail },

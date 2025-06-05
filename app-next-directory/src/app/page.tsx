@@ -4,7 +4,9 @@ import { client } from '@/lib/sanity.utils'; // Assuming this path is correct
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import styles from './HomePage.module.css';
-import FeaturedListings from '@/components/listings/FeaturedListings'; // Updated import path
+import Hero from '@/components/home/Hero';
+import FeaturedListings from '@/components/listings/FeaturedListings';
+import FeaturedCities from '@/components/home/FeaturedCities';
 
 // Define an interface for the City data
 interface City {
@@ -59,7 +61,6 @@ const HomePage = () => {
   }, []);
 
   return (
-    // Removed p-4 from here to allow hero to be full width if needed
     <div>
       {/* Hero Section */}
       <div className="relative bg-gray-800 text-white py-20 md:py-32 text-center">
@@ -74,7 +75,8 @@ const HomePage = () => {
           </h1>
           <p className="text-lg md:text-xl mb-8">
             Find eco-friendly destinations and resources for the conscious digital nomad.
-          </p>          <div className="mt-8 text-center">
+          </p>
+          <div className="mt-8 text-center">
             <Link
               href="/listings"
               className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300 ease-in-out transform hover:scale-105 inline-block"
