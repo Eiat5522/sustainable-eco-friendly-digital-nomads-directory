@@ -45,7 +45,8 @@ export default function Map({ listings, center = [13.7563, 100.5018], zoom = 11 
       }).addTo(mapRef.current);
 
       markersRef.current = L.layerGroup().addTo(mapRef.current);
-    }
+      }
+    });
 
     // Clear existing markers
     if (markersRef.current) {

@@ -1,4 +1,4 @@
- fi"use client";
+"use client";
 
 import { ArrowLeft, ArrowRight, Leaf } from "lucide-react";
 import { useEffect, useState } from "react";

@@ -1,4 +1,4 @@
- donese "use client";
+"use client";
 
 import { type ReactNode } from 'react';
 import { useSearchParams } from 'next/navigation';
