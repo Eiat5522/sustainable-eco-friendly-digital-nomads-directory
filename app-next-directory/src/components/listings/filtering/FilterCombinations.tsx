@@ -14,9 +14,6 @@ interface FilterCombinationsProps {
   globalOperator: FilterOperator;
   onGlobalOperatorChange: (operator: FilterOperator) => void;
 }
-  globalOperator: FilterOperator;
-  onGlobalOperatorChange: (operator: FilterOperator) => void;
-}
 
 export function FilterCombinations({
   combinations,
