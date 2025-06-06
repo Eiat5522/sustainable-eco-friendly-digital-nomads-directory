@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-export function HeroSection() {
+export default function Hero() {
   return (
     <div className="relative bg-gray-800 text-white">
       {/* Background Image with Next.js Image component */}
@@ -27,7 +27,7 @@ export function HeroSection() {
             <span className="block">Sustainable Spaces for</span>
             <span className="block text-primary-400">Digital Nomads</span>
           </h1>
-          
+
           <p className="text-lg md:text-xl mb-8 text-gray-200">
             Discover eco-friendly workspaces, accommodations, and cafes around the world.
             Join our community of environmentally conscious digital nomads.
@@ -36,16 +36,30 @@ export function HeroSection() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/listings"
-              className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition duration-150 ease-in-out"
+              className="inline-flex items-center justify-center px-6 py-3 border border-white text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition duration-150 ease-in-out"
             >
               Explore Spaces
             </Link>
             <Link
               href="/about"
-              className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-primary-200 bg-primary-900 bg-opacity-50 hover:bg-opacity-70 transition duration-150 ease-in-out"
+              className="inline-flex items-center justify-center px-6 py-3 border border-primary-400 text-base font-medium rounded-md text-primary-200 bg-primary-900 bg-opacity-50 hover:bg-opacity-70 transition duration-150 ease-in-out"
             >
               Learn More
             </Link>
+          </div>
+
+          {/* Stats or Features */}
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { number: '500+', text: 'Eco-friendly Spaces' },
+              { number: '50+', text: 'Cities Worldwide' },
+              { number: '10k+', text: 'Digital Nomads' }
+            ].map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-3xl font-bold text-primary-400">{stat.number}</div>
+                <div className="text-gray-300">{stat.text}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

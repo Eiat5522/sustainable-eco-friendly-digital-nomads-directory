@@ -1,8 +1,34 @@
-// Removed duplicate import of groq from 'next-sanity'
 import { FilterResults, ListingFilters } from '../types/filters';
 import { SanityListing } from '../types/sanity';
 import { SortOption } from '../types/sort';
 import { getClient } from './sanity/client';
+
+export async function getFeaturedListings() {
+  const query = `*[_type == "listing" && featured == true] {
+    _id,
+    title,
+    description,
+    type,
+    price,
+    location,
+    mainImage {
+      asset-> {
+        url
+      }
+    },
+    ecoFeatures[]-> {
+      name
+    },
+    rating,
+    reviewCount,
+    slug {
+      current
+    }
+  }[0...3]`;
+
+  const client = getClient();
+  return client.fetch(query);
+}
 
 // Common field definitions
 const listingFields = `
@@ -38,13 +64,6 @@ const typeFields = {
     pricePerNight
   `
 };
-
-// ...existing code...
-// Removed duplicate import of ListingFilters, FilterOperator, FilterCondition, FilterGroup from '@/types/filters'
-// ...existing code...
-// ...existing code...
-
-// ...existing code...
 
 export async function getFilteredListings(
   filters: ListingFilters,

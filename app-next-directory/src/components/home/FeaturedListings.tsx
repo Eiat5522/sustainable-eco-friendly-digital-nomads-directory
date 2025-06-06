@@ -1,7 +1,10 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { getFeaturedListings } from '@/lib/queries';
+
 interface ListingType {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   type: 'accommodation' | 'coworking' | 'cafe';
@@ -11,80 +14,99 @@ interface ListingType {
     period: string;
   };
   location: string;
-  imageUrl: string;
-  ecoFeatures: string[];
+  mainImage: {
+    asset: {
+      url: string;
+    };
+  };
+  ecoFeatures: Array<{ name: string }>;
   rating: number;
   reviewCount: number;
+  slug: {
+    current: string;
+  };
 }
 
-interface FeaturedListingsProps {
-  listings?: ListingType[];
-}
+export default function FeaturedListings() {
+  const [listings, setListings] = useState<ListingType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-const sampleListings: ListingType[] = [
-  {
-    id: '1',
-    title: 'Eco Villa with Workspace',
-    description: 'Solar-powered villa with dedicated workspace and organic garden',
-    type: 'accommodation',
-    price: {
-      amount: 1200,
-      currency: 'USD',
-      period: 'month'
-    },
-    location: 'Ubud, Bali',
-    imageUrl: '/images/listings/eco-villa-bali.jpg',
-    ecoFeatures: ['Solar Powered', 'Organic Garden', 'Water Recycling'],
-    rating: 4.8,
-    reviewCount: 24
-  },
-  {
-    id: '2',
-    title: 'Green Coworking Hub',
-    description: 'Sustainable coworking space using renewable energy',
-    type: 'coworking',
-    price: {
-      amount: 200,
-      currency: 'USD',
-      period: 'month'
-    },
-    location: 'Chiang Mai',
-    imageUrl: '/images/listings/green-hub-chiangmai.jpg',
-    ecoFeatures: ['100% Renewable', 'Zero Waste', 'Bike Parking'],
-    rating: 4.9,
-    reviewCount: 36
-  },
-  {
-    id: '3',
-    title: 'Eco Cafe & Workspace',
-    description: 'Zero-waste cafe with high-speed internet and workspace',
-    type: 'cafe',
-    price: {
-      amount: 15,
-      currency: 'USD',
-      period: 'day'
-    },
-    location: 'Lisbon',
-    imageUrl: '/images/listings/eco-cafe-lisbon.jpg',
-    ecoFeatures: ['Zero Waste', 'Local Produce', 'Energy Efficient'],
-    rating: 4.7,
-    reviewCount: 42
+  useEffect(() => {
+    const loadListings = async () => {
+      try {
+        const data = await getFeaturedListings();
+        console.log("Raw API Response for Featured Listings:", JSON.stringify(data, null, 2)); // Added for debugging
+        // Basic data validation
+        if (!Array.isArray(data)) {
+          console.error("FeaturedListings Error: API response is not an array. Received:", data);
+          setError("Failed to load listings. Expected an array.");
+          setListings([]); // Set to empty array to prevent further errors
+          return;
+        }
+
+        // Optional: More specific validation for each item if needed
+        // For example, check if each item is an object and has a title
+        const isValidData = data.every(item =>
+          typeof item === 'object' &&
+          item !== null &&
+          typeof item.title === 'string' &&
+          typeof item._id === 'string' // Assuming _id is crucial
+          // Add other critical property checks here
+        );
+
+        if (!isValidData) {
+          console.error("FeaturedListings Error: Some items in the API response have an unexpected format. Received:", data);
+          setError("Failed to load listings. Data format is incorrect for some items.");
+          setListings([]);
+          return;
+        }
+
+        setListings(data);
+      } catch (err) {
+        console.error('Failed to fetch featured listings:', err);
+        setError('Failed to load featured listings');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadListings();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="animate-pulse bg-gray-200 h-96 rounded-lg"></div>
+        ))}
+      </div>
+    );
   }
-];
 
-export default function FeaturedListings({ listings = sampleListings }: FeaturedListingsProps) {
+  if (error) {
+    return (
+      <div className="text-center text-red-500 py-8">
+        {error}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {listings.map((listing) => (
         <div
-          key={listing.id}
+          key={listing._id}
           className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
         >
           {/* Image Container */}
           <div className="relative h-48">
-            <div className={`absolute inset-0 bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white text-lg font-medium`}>
-              {listing.title}
-            </div>
+            <img
+              src={listing.mainImage?.asset?.url || '/placeholder-listing.jpg'}
+              alt={listing.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
           </div>
 
           {/* Content */}
@@ -113,7 +135,7 @@ export default function FeaturedListings({ listings = sampleListings }: Featured
                   key={index}
                   className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700"
                 >
-                  {feature}
+                  {feature.name}
                 </span>
               ))}
             </div>
