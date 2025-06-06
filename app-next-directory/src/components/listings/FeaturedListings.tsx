@@ -32,24 +32,19 @@ export default function FeaturedListings({}: FeaturedListingsProps) {
         // Adjust the API endpoint and query parameters as per your backend
         const response = await fetch('/api/listings?featured=true&limit=4');
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         // Assuming your API returns { success: boolean, listings: Listing[] }
         if (data.success && Array.isArray(data.listings)) {
           setListings(data.listings);
         } else {
-          console.error(
-            'API response was not successful or listings format is incorrect:',
-            data
-          );
+          console.error('API response was not successful or listings format is incorrect:', data);
           setError('Failed to load listings. Unexpected data format.');
         }
       } catch (err) {
         console.error('Error fetching featured listings:', err);
-        setError(
-          err instanceof Error ? err.message : 'An unknown error occurred.'
-        );
+        setError(err instanceof Error ? err.message : 'An unknown error occurred.');
       } finally {
         setLoading(false);
       }
@@ -81,16 +76,12 @@ export default function FeaturedListings({}: FeaturedListingsProps) {
   return (
     <section className="py-12 bg-gray-50">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold mb-10 text-center text-gray-800">
-          Featured Listings
-        </h2>
+        <h2 className="text-3xl font-bold mb-10 text-center text-gray-800">Featured Listings</h2>
         {listings.length === 0 && !loading && (
-          <p className="text-center text-gray-600">
-            No featured listings available at the moment.
-          </p>
+          <p className="text-center text-gray-600">No featured listings available at the moment.</p>
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {listings.map((listing) => (
+          {listings.map(listing => (
             <article
               key={listing._id}
               className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col"
@@ -127,9 +118,7 @@ export default function FeaturedListings({}: FeaturedListingsProps) {
                 <div className="mt-auto">
                   {/* Pushes price and button to the bottom */}
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-lg font-bold text-green-600">
-                      ${listing.price}
-                    </span>
+                    <span className="text-lg font-bold text-green-600">${listing.price}</span>
                     <span className="text-xs text-gray-500">/night</span>
                   </div>
                   <Link

@@ -32,10 +32,10 @@ export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
     <SessionProvider>
       <AnalyticsProvider>
         <ThemeProvider>
-          <div className="min-h-screen flex flex-col bg-gray-50">
+          <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
             {' '}
             {/* Added flex flex-col */}
-            <MainNav onSearchClick={() => setIsSearchOpen(true)} />
+            <MainNav />
             <SearchDialog isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
             <main className="flex-grow pt-16">
               {' '}

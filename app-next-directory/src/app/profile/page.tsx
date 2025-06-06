@@ -17,10 +17,10 @@ export default async function ProfilePage() {
     : null;
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
       <div className="md:flex">
         {/* Profile sidebar */}
-        <div className="md:w-1/3 p-6 bg-green-50">
+        <div className="md:w-1/3 p-6 bg-green-50 dark:bg-green-900/40">
           <div className="flex flex-col items-center">
             <div className="relative h-32 w-32 rounded-full overflow-hidden mb-4">
               {session.user.image ? (

@@ -4,7 +4,7 @@ import clientPromise from "./mongodb";
 
 export const authOptions: AuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: .local.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt",
   },

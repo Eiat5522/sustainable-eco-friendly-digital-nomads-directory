@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import type { FilterCondition } from '@/types/components';
@@ -63,14 +63,14 @@ export function FilterConditionEditor({ conditions, onChange }: FilterConditionE
             placeholder="Enter value"
           />
         </div>
-        <Button
+        <button
           variant="outline"
           size="icon"
           onClick={addCondition}
           disabled={!newCondition.field || !newCondition.value}
         >
           <Plus className="h-4 w-4" />
-        </Button>
+        </button>
       </div>
 
       <div className="space-y-2">
@@ -80,14 +80,14 @@ export function FilterConditionEditor({ conditions, onChange }: FilterConditionE
               <span className="text-sm font-medium">{condition.field}:</span>
               <span className="text-sm">{condition.value}</span>
             </div>
-            <Button
+            <button
               variant="ghost"
               size="icon"
               onClick={() => removeCondition(index)}
               className="text-gray-400 hover:text-gray-600"
             >
               <Trash2 className="h-4 w-4" />
-            </Button>
+            </button>
           </div>
         ))}
       </div>

@@ -4,7 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import type { FilterGroup, FilterOperator } from '@/types/components';
 import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { PlusCircle, XCircle } from 'lucide-react';
 import { FilterConditionEditor } from './FilterConditionEditor';
 
@@ -136,7 +136,7 @@ export function FilterCombinations({
                     }}
                   />
                 ))}
-                
+
                 <Button
                   variant="outline"
                   size="sm"
