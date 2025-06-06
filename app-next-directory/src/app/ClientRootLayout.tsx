@@ -3,7 +3,7 @@
 import Footer from '@/components/layout/Footer'; // Added Footer import
 import { MainNav } from '@/components/layout/MainNav'; // Corrected import path
 import { SearchDialog } from '@/components/search/SearchDialog';
-import { AnalyticsProvider } from '@/lib/analytics/analytics';
+import { AnalyticsProvider } from '@/lib/analytics/analytics.tsx';
 import { ThemeProvider as NextThemeProvider } from 'next-themes';
 import { SessionProvider } from 'next-auth/react';
 import { ReactNode, useState } from 'react';

@@ -57,13 +57,3 @@ class AnalyticsManager {
 }
 
 export const analytics = AnalyticsManager.getInstance();
-
-// Wrap your app with this component
-export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      <Analytics />
-      {children}
-    </>
-  );
-}

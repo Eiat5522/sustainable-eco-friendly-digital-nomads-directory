@@ -23,7 +23,8 @@
     "types": [
       "./src/types/jsx.d.ts",
       "./src/types/next.d.ts",
-      "./src/types/react.d.ts"
+      "./src/types/react.d.ts",
+      "node"
     ],
     "plugins": [
       {
@@ -45,7 +46,11 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "tests",
+    "src/tests",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ],
   "webServer": {
     "command": "npm run dev",

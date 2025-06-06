@@ -212,3 +212,35 @@ export function ListingFilters({
       <div className="fixed bottom-4 left-4 right-4 z-40 lg:hidden">
         <button
           onClick={() => setIsMobileOpen(true)}
+          className="w-full rounded-md bg-green-600 px-4 py-2 text-white shadow"
+        >
+          Filters ({activeFilterCount})
+        </button>
+      </div>
+
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-50 bg-white p-4 overflow-y-auto lg:hidden">
+          <FilterSystem
+            groups={filterDefinitions}
+            onFilterChange={handleHookFilterChange}
+            initialFilters={activeFilters}
+          />
+          <div className="mt-4 flex justify-between">
+            <button
+              className="rounded-md bg-gray-200 px-4 py-2"
+              onClick={() => setIsMobileOpen(false)}
+            >
+              Close
+            </button>
+            <button
+              className="rounded-md bg-red-500 px-4 py-2 text-white"
+              onClick={handleClearAllFilters}
+            >
+              Clear All
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
