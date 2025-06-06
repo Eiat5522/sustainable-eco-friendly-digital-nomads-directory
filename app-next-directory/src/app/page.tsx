@@ -4,20 +4,28 @@ import { client } from '@/lib/sanity.utils';
 import { useEffect, useState } from 'react';
 import { HeroSection } from '@/components/HeroSection';
 import FeaturedListings from '@/components/home/FeaturedListings';
-import { CityCarousel } from '@/components/CityCarousel';
+import CitiesCarousel from '@/components/home/CitiesCarousel';
 
 interface City {
   _id: string;
-  name: string;
+  title: string;
+  description: string;
   slug: string;
-  image: {
+  mainImage: {
     asset: {
+      _id: string;
       url: string;
+      metadata: {
+        dimensions: {
+          width: number;
+          height: number;
+        };
+      };
     };
   };
-  listingCount: number;
-  ecoScore: number;
-  sustainabilityFeatures: string[];
+  country: string;
+  sustainabilityScore: number;
+  highlights: string[];
 }
 
 const HomePage = () => {
@@ -30,19 +38,29 @@ const HomePage = () => {
       try {
         const query = `*[_type == "city"] {
           _id,
-          name,
+          title,
+          description,
           "slug": slug.current,
-          image {
+          mainImage {
             asset-> {
-              url
+              _id,
+              url,
+              metadata {
+                dimensions {
+                  width,
+                  height
+                }
+              }
             }
           },
-          listingCount,
-          ecoScore,
-          sustainabilityFeatures
+          country,
+          sustainabilityScore,
+          highlights
         }`;
 
         const data = await client.fetch<City[]>(query);
+        console.log('Fetched cities data:', data);
+        console.log('First city mainImage:', data[0]?.mainImage);
         setCities(data);
       } catch (err) {
         console.error('Failed to fetch cities:', err);
@@ -80,7 +98,7 @@ const HomePage = () => {
           ) : error ? (
             <div className="text-center text-red-500 py-8">{error}</div>
           ) : (
-            <CityCarousel cities={cities} />
+            <CitiesCarousel cities={cities} />
           )}
         </div>
       </section>

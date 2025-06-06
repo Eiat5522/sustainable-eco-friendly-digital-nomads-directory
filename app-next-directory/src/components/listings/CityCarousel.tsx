@@ -53,6 +53,9 @@ const CAROUSEL_OPTIONS = {
 } as const;
 
 export default function CityCarousel({ cities }: CityCarouselProps) {
+  console.log('CityCarousel received cities:', cities);
+  console.log('First city image data:', cities[0]?.mainImage);
+
   const [emblaRef, emblaApi] = useEmblaCarousel(CAROUSEL_OPTIONS, [
     AutoPlay(AUTO_PLAY_OPTIONS)
   ]);
