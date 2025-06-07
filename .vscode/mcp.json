@@ -18,5 +18,9 @@
     "next-sanity-studio-graphql-Docs": {
       "url": "https://gitmcp.io/sanity-io/next-sanity-studio-graphql"
     },
+    "vscode": {
+      "command": "npx",
+      "args": ["vscode-as-mcp-server"]
+    }
   }
 }
