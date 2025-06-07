@@ -27,7 +27,7 @@ export function generateImageSizes(breakpointWidths: { [breakpoint: number]: num
   const sizes = Object.entries(breakpointWidths)
     .map(([breakpoint, width]) => `(max-width: ${breakpoint}px) ${width}vw`)
     .join(', ');
-  
+
   return sizes || '100vw';
 }
 
@@ -47,7 +47,7 @@ const generateEcoPlaceholder = () => {
       </g>
     </svg>
   `
-  
+
   return `data:image/svg+xml;base64,${Buffer.from(leafPattern).toString('base64')}`;
 }
 
@@ -75,6 +75,10 @@ export function OptimizedImage({
     rootMargin: '200px',
   })
 
+  // Debug logging for image data
+  console.log('OptimizedImage - Received image:', JSON.stringify(image, null, 2));
+  console.log('OptimizedImage - Alt text:', alt);
+
   // Generate optimized image URL with proper format negotiation
   const imageUrl = image ? builder
     .image(image)
@@ -82,7 +86,10 @@ export function OptimizedImage({
     .fit(objectFit)
     .quality(quality)
     .url() : null;
-  
+
+  // Debug log the generated URL
+  console.log('OptimizedImage - Generated URL:', imageUrl);
+
   // Generate low-quality placeholder
   const blurDataUrl = image ? builder
     .image(image)
@@ -104,8 +111,8 @@ export function OptimizedImage({
     }
     return {};
   };
-
   const handleImageLoad = () => {
+    console.log('OptimizedImage - Image loaded successfully:', imageUrl);
     setLoaded(true);
     if (onLoad) {
       onLoad();
@@ -113,12 +120,13 @@ export function OptimizedImage({
   };
 
   const handleImageError = () => {
+    console.error('OptimizedImage - Image failed to load:', imageUrl);
     setError(true);
   };
-
   // Download image when in viewport
   useEffect(() => {
     if (inView && !loaded && imageUrl) {
+      console.log('OptimizedImage - Image is in view, starting to load:', imageUrl);
       const img = new window.Image()
       img.src = imageUrl
       img.onload = handleImageLoad
@@ -128,7 +136,7 @@ export function OptimizedImage({
 
   if (!image && !imageUrl) {
     return (
-      <div 
+      <div
         className={`bg-gray-200 flex items-center justify-center ${className}`}
         style={{ width: width || '100%', height: height || '100%', position: fill ? 'absolute' : 'relative' }}
       >
@@ -141,7 +149,7 @@ export function OptimizedImage({
 
   if (error) {
     return (
-      <div 
+      <div
         className={`bg-gray-100 flex flex-col items-center justify-center ${className}`}
         style={{ width: width || '100%', height: height || '100%', position: fill ? 'absolute' : 'relative' }}
       >
@@ -180,7 +188,7 @@ export function OptimizedImage({
           </motion.div>
         </AnimatePresence>
       )}
-      
+
       {/* Show eco-friendly placeholder until image loads */}
       {!loaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100">

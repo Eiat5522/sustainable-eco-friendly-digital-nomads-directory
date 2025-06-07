@@ -1,6 +1,6 @@
 'use client';
 
-import { client } from '@/lib/sanity.utils';
+import { getAllCities } from '@/lib/sanity/queries';
 import { useEffect, useState } from 'react';
 import { HeroSection } from '@/components/HeroSection';
 import FeaturedListings from '@/components/home/FeaturedListings';
@@ -32,33 +32,10 @@ const HomePage = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     const fetchCities = async () => {
       try {
-        const query = `*[_type == "city"] {
-          _id,
-          title,
-          description,
-          "slug": slug.current,
-          mainImage {
-            asset-> {
-              _id,
-              url,
-              metadata {
-                dimensions {
-                  width,
-                  height
-                }
-              }
-            }
-          },
-          country,
-          sustainabilityScore,
-          highlights
-        }`;
-
-        const data = await client.fetch<City[]>(query);
+        const data = await getAllCities();
         console.log('Fetched cities data:', data);
         console.log('First city mainImage:', data[0]?.mainImage);
         setCities(data);
