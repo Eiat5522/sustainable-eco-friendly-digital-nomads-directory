@@ -53,7 +53,7 @@ sustainable-eco-friendly-digital-nomads-directory/
 - **Vercel** (deployment)
 - **Playwright** (E2E testing, reports in `app-next-directory/playwright-report/`)
 
-## � Documentation Structure
+## 📚 Documentation Structure
 
 All documentation is now under the `docs/` directory, with subfolders for `sanity/`, `app-next-directory/`, and `shared/`. Six key context files are retained in `memory-bank/`.
 
