@@ -1,6 +1,6 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
-cd app-scaffold
+cd app-next-directory
 
 echo "💅 Running prettier..."
 npm run format

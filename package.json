@@ -1,0 +1,43 @@
+{
+  "name": "sustainable-eco-friendly-digital-nomads-directory-root",
+  "workspaces": [
+    "./app-next-directory",
+    "./sanity"
+  ],
+  "version": "0.1.2",
+  "private": true,
+  "description": "Root package for the Sustainable Eco-Friendly Digital Nomads Directory project",
+  "scripts": {
+    "dev:next": "cd app-next-directory && npm run dev",
+    "dev:sanity": "cd sanity && npm run dev",
+    "dev": "npm run dev:next",
+    "build:next": "cd app-next-directory && npm run build",
+    "build:sanity": "cd sanity && npm run build",
+    "build": "npm run build:next && npm run build:sanity",
+    "start:next": "cd app-next-directory && npm run start",
+    "start:sanity": "cd sanity && npm run start",
+    "start": "npm run start:next",
+    "lint:next": "cd app-next-directory && npm run lint",
+    "lint:sanity": "cd sanity && npm run lint",
+    "lint": "npm run lint:next"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
+  "dependencies": {
+    "@sanity/client": "^7.3.0",
+    "@sanity/code-input": "^5.1.2",
+    "bcrypt": "^5.1.0",
+    "clsx": "^2.1.1",
+    "react-hook-form": "^7.56.4",
+    "resend": "^4.5.1",
+    "vscode-variables": "^1.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/bcryptjs": "^2.4.6",
+    "playwright": "^1.52.0"
+  }
+}

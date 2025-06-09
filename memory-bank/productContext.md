@@ -1,30 +1,51 @@
-Why This Project Exists:
-- To provide a curated directory of sustainable, eco-friendly venues and services for digital nomads in Thailand.
+# Product Context (Updated: May 15, 2025)
 
-Problems It Solves:
-- Difficulty finding genuinely eco-friendly options for digital nomads.
-- Lack of centralized, trustworthy information.
+## Why This Project Exists
 
-How It Should Work:
-- Users can browse listings, view details, and see locations on an interactive map.
-- Listings are curated and verified for sustainability.
-- Map and listings are SEO-friendly and performant.
-- Map loads client-side only, with static fallback for SEO.
+- To provide a curated directory of sustainable, eco-friendly venues and services for digital nomads in Thailand
+- To promote and support environmentally conscious businesses
+- To help digital nomads make sustainable choices
 
-User Experience Goals:
-- Fast, mobile-first experience.
-- Easy navigation and filtering.
-- Clear sustainability information.
-- Community reviews and ratings.
+## Problems It Solves
 
-Current Status:
-- Basic functionality implemented with Next.js and Tailwind CSS.
-- Interactive map working with Leaflet.js (client-side only).
-- Static map fallback in place for SEO.
-- Initial listings data and images loaded correctly.
+- Difficulty finding genuinely eco-friendly options for digital nomads
+- Lack of centralized, trustworthy information about sustainable venues
+- Limited visibility for eco-conscious businesses
+- Complex verification of sustainability claims
 
-Next Development Goals:
-- Complete image sourcing for all listings.
-- Implement listing filters and search.
-- Add user authentication and reviews.
-- Integrate CMS for content management.
+## Current Project State
+
+- Basic Next.js 15.3.2 application with Tailwind CSS 4.1.6 implemented
+- Interactive map integration with Leaflet.js (client-side only)
+- Initial Sanity Studio setup complete but facing PrismJS vulnerability
+- Basic search component and UI components implemented
+- Testing framework with Playwright established
+- CI/CD pipeline operational
+
+## Immediate Focus
+
+- Resolve critical PrismJS vulnerability in Sanity integration
+- Complete Sanity CMS integration and schema definitions
+- Implement authentication system
+- Optimize image loading and map performance
+- Create remaining UI components (city carousel, hero section)
+
+## User Experience Goals
+
+- Fast, mobile-first experience
+- Intuitive navigation and filtering
+- Clear sustainability information
+- Reliable map interaction
+- Smooth content management workflow
+- Secure user authentication
+- Optimized image loading
+
+## Key Technical Decisions
+
+- Using Next.js App Router for modern routing
+- Sanity CMS for content management
+- Leaflet.js for interactive maps
+- Client-side only map rendering with SEO fallback
+- NextAuth.js planned for authentication
+- Tailwind CSS for styling
+- MongoDB Atlas for user data
