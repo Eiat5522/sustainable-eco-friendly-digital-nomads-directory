@@ -1,6 +1,7 @@
 'use client';
 
 import { getAllCities } from '@/lib/sanity/queries';
+import { getFeaturedListings } from '@/lib/queries';
 import { useEffect, useState } from 'react';
 import { HeroSection } from '@/components/HeroSection';
 import FeaturedListings from '@/components/home/FeaturedListings';
@@ -28,26 +29,29 @@ interface City {
   highlights: string[];
 }
 
+
 const HomePage = () => {
   const [cities, setCities] = useState<City[]>([]);
+  const [featuredListings, setFeaturedListings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    const fetchCities = async () => {
+    const fetchData = async () => {
       try {
-        const data = await getAllCities();
-        console.log('Fetched cities data:', data);
-        console.log('First city mainImage:', data[0]?.mainImage);
-        setCities(data);
+        const [citiesData, featuredData] = await Promise.all([
+          getAllCities(),
+          getFeaturedListings()
+        ]);
+        setCities(citiesData);
+        setFeaturedListings(featuredData);
       } catch (err) {
-        console.error('Failed to fetch cities:', err);
-        setError('Failed to load cities. Please try again later.');
+        console.error('Failed to fetch data:', err);
+        setError('Failed to load data. Please try again later.');
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchCities();
+    fetchData();
   }, []);
 
   return (
@@ -61,7 +65,7 @@ const HomePage = () => {
           <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
             Featured Sustainable Spaces
           </h2>
-          <FeaturedListings />
+          <FeaturedListings listings={featuredListings} />
         </div>
       </section>
 

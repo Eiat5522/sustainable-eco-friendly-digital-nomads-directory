@@ -50,13 +50,10 @@ export interface IUserPreferences extends Document {
  * Mongoose User Preferences Schema
  */
 const UserPreferencesSchema: Schema<IUserPreferences> = new Schema(
-  {
-    userId: {
+  {    userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      unique: true,
-      index: true,
     },
     location: {
       preferredCities: {

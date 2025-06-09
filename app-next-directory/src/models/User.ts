@@ -20,15 +20,12 @@ const UserSchema: Schema<IUser> = new Schema(
   {
     name: {
       type: String,
-    },
-    email: {
+    },    email: {
       type: String,
       required: [true, 'Email is required'],
-      unique: true,
       trim: true,
       lowercase: true,
       match: [/.+\@.+\..+/, 'Please fill a valid email address'],
-      index: true,
     },
     // Password field is often not directly in the schema if using NextAuth.js Credentials provider,
     // as the adapter and NextAuth.js handle password hashing and verification.

@@ -15,7 +15,14 @@ import { authenticateUser } from '@/lib/auth/serverAuth';
 import { createSanityUser, findSanityUserByEmail, updateSanityUserWithAuthDetails } from '@/lib/auth/userService';
 
 const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise), // MongoDBAdapter uses the raw client promise
+  adapter: MongoDBAdapter(clientPromise, {
+    collections: {
+      Users: "nextauth_users", // Use different collection name to avoid conflicts
+      Accounts: "nextauth_accounts",
+      Sessions: "nextauth_sessions",
+      VerificationTokens: "nextauth_verification_tokens"
+    }
+  }), // MongoDBAdapter uses the raw client promise
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,

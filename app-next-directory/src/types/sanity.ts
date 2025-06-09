@@ -26,22 +26,26 @@ export interface SanityListing extends SanityDocument {
   name: string;
   slug: string;  // This is pre-processed from slug.current
   category: CategoryType;
-  city: string;  // This is pre-processed from city->name
-  addressString: string;
+  city: {
+    name: string;
+    country: string;
+  };
+  address: string;  // Updated to match camelCase field
   descriptionShort: string;
-  descriptionLong: string;
+  descriptionLong?: string;
   ecoTags: string[];  // Pre-processed from ecoFocusTags[]->name
-  ecoNotesDetailed: string;
-  sourceUrls: string[];
+  ecoNotesDetailed?: string;
+  sourceUrls?: string[];
   mainImage: SanityImage;
-  galleryImages: SanityImage[];
-  nomadFeatures: string[];  // Pre-processed from digitalNomadFeatures[]->name
-  lastVerifiedDate: string;
+  galleryImages?: SanityImage[];
+  digitalNomadFeatures: string[];  // Updated to match camelCase field
+  lastVerifiedDate?: string;
   rating: number;
-  priceRange: string;
+  priceRange?: string;
   website?: string;
   contactInfo?: string;
   openingHours?: string;
+  status: string;  // Added status field
   coworkingDetails?: {
     operatingHours: string;
     pricingPlans: Array<{

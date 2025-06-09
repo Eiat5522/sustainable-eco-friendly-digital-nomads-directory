@@ -70,8 +70,8 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
   const getAddress = (listing: Listing | SanityListing) => {
     const isSanityListing = '_type' in listing || 'slug' in listing;
 
-    return isSanityListing && 'addressString' in listing
-      ? listing.addressString
+    return isSanityListing && 'address' in listing
+      ? listing.address
       : (listing as Listing).address_string;
   };
 

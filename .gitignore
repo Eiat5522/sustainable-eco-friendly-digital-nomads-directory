@@ -77,6 +77,13 @@ dev-debug.log
 tasks.json
 tasks/
 
+#.txt
+*requirement.txt
+
+#sanity backup and image staging
+*sanity-backup/
+.*sanity_image_staging*
+
 # Copilot
 *.copilotignore
 *image_curation_helper.csv*
@@ -85,5 +92,13 @@ tasks/
 *task_0*
 *clean-install.ps1*
 *tasks.json.bak*
-*.specstory*
+*.specstory/
 *WORKSTREAM*
+*listings/
+
+
+#Cline & Roo
+/.cline**
+/.roo**
+/cline_docs/**
+.vscode/mcp.json
