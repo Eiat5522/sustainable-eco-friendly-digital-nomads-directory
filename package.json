@@ -27,17 +27,17 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@sanity/client": "^7.3.0",
+    "@sanity/client": "^7.5.0",
     "@sanity/code-input": "^5.1.2",
-    "bcrypt": "^5.1.0",
+    "bcrypt": "^6.0.0",
     "clsx": "^2.1.1",
-    "react-hook-form": "^7.56.4",
-    "resend": "^4.5.1",
+    "react-hook-form": "^7.57.0",
+    "resend": "^4.5.2",
     "vscode-variables": "^1.0.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",
-    "@types/bcryptjs": "^2.4.6",
+    "@types/bcryptjs": "^3.0.0",
     "playwright": "^1.52.0"
   }
 }

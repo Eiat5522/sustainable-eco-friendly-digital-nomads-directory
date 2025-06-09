@@ -54,13 +54,10 @@ export interface IUserAnalytics extends Document {
  * Mongoose User Analytics Schema
  */
 const UserAnalyticsSchema: Schema<IUserAnalytics> = new Schema(
-  {
-    userId: {
+  {    userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      unique: true,
-      index: true,
     },
     activity: {
       lastLogin: {

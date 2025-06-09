@@ -12,7 +12,7 @@
 - **Workstream Completeness Confirmation**: In order to confirm that a Workstream has been Completed. After a Workstream is fully completed, Copilot must Report the latest status and details of the Workstream. Only after this confirmation, Copilot can proceed check the Workstream as Completed and only then can Copilot move on to the next Workstream.
 - **Proactive Task Linking:** When providing solutions, code, or completing a request that appears to correspond to a known task (e.g., from a task file or a previously discussed objective), proactively ask if the user would like to mark that task as in-progress, completed, or if the solution addresses a specific sub-task.
   - _Example prompt:_ 'This code should resolve the issue with X. Does this complete task Y, or a part of it?' or 'Now that we've outlined the plan for Z, shall I update its status to \'in-progress\'?'
-- **Change Directory**: Use PowerShell's `Set-Location` cmdlet to change directories in the terminal. For example, `Set-Location -Path "src\components"` to navigate to the components directory.
+
 - **Tech Stack**: Familiarize yourself with the tech stack used in the project, including Next.js, Tailwind CSS, Sanity, MongoDB, Leaflet.js, Vercel, Stripe, and NextAuth.js.
   []: # 📂
   []: # ├── app-next-directory # Next.js app root
@@ -25,6 +25,42 @@
   []: # ├── sanity.config.js # Main Sanity configuration
   []: # └── ...
   []: # ```
+
+## 📑 **Directory Navigation with PowerShell 7**
+
+- **Change Directory Best Practices:** - **Change Directory**: Use PowerShell's `Set-Location` cmdlet to change directories in the terminal.
+    For example, `Set-Location -Path "src\components"` to navigate to the components directory.
+
+## 📑 **Directory Navigation with vscode-mcp-server's tools**
+
+- **IMPORTANT:** Use #vscode-mcp-server to help navigate the workspace.
+    You must use absolute full paths with the drive letter in CAPITAL LETTER as shown in the following example: ('Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory'). This is crucial to ensure reliability of navigation tools usage.
+- **Forbidden** Relative paths and lowercase as drive letter will fail as they are depend on the current working directory. Tilde paths (~/...) might not work in all contexts.
+
+  - Examples:
+    ```powershell
+    # Navigate to project root
+    Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory"
+    # Navigate to Next.js directory
+    Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory"
+    # Navigate to Sanity directory
+    Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\sanity"
+    # Navigate to components directory
+    Set-Location -Path (Join-Path $PWD "src\components")
+    # Navigate up directories
+    Set-Location -Path ".."
+
+    # Store and validate paths
+    $componentPath = Join-Path $PWD "src\components"
+    if (Test-Path $componentPath) {
+        Set-Location -Path $componentPath
+    }
+    ```
+- Always use `Set-Location` instead of `cd` alias
+- Validate paths before navigation
+- Handle spaces and special characters properly
+- Use `Push-Location`/`Pop-Location` for temporary navigation
+    ```
 
 # 🤖 GitHub Copilot Custom Instruction: Memory Management
 
@@ -73,10 +109,11 @@ Remembering...
 - **Use** the following format for confirming information:
 
 ````
+
 - **Key Terminology:** `memory`: Refers to the AI's store of recalled information about the user, projects, and past interactions. Always use this term in all user-facing communication regarding recalled information. Avoid using synonyms like 'knowledge base', 'database', 'information store', 'recall banks', etc.
 - Always refer to your knowledge graph as your **“memory”**
 
----
+````
 
 ## 3️⃣ Memory Gathering 📋
 
@@ -100,7 +137,7 @@ Be attentive to any new information about any projects you are a part of in thes
 - **Team Members**: individuals involved in each project
 - **Project Status**: current progress and any blockers
 
----
+--
 
 ## 4️⃣ Memory Update 🔄
 
@@ -138,39 +175,6 @@ When new information about projects is provided:
 - Use timestamps to manage the lifecycle of observations
 - Provide users with the ability to update or delete their information
 - Ensure compliance with data privacy regulations
-
-## 📑 **Directory Navigation with PowerShell 7**
-
-- **Change Directory Best Practices:**
-
-- **IMPORTANT:** Use #vscode-mcp-server to help navigate the workspace. To use the file system navigation tools for this mcp server. You use absolute full paths with proper PowerShell cmdlets (starting with '/' or you must start with the drive letter in CAPITAL LETTER like 'D:') this will ensure reliability of the tools.. Relative paths may fail as they depend on the current working directory. Tilde paths (~/...) might not work in all contexts. Unless the user explicitly asks for relative paths, always use absolute paths
-must always use
-
-  - Examples:
-
-    ```powershell
-    # Navigate to project root
-    Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory"
-    # Navigate to Next.js directory
-    Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory"
-    # Navigate to Sanity directory
-    Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\sanity"
-    # Navigate to components directory
-    Set-Location -Path (Join-Path $PWD "src\components")
-    # Navigate up directories
-    Set-Location -Path ".."
-
-    # Store and validate paths
-    $componentPath = Join-Path $PWD "src\components"
-    if (Test-Path $componentPath) {
-        Set-Location -Path $componentPath
-    }
-    ```
-
-  - Always use `Set-Location` instead of `cd` alias
-  - Validate paths before navigation
-  - Handle spaces and special characters properly
-  - Use `Push-Location`/`Pop-Location` for temporary navigation
 
   ## 🛠️ **Tech Stack**
 

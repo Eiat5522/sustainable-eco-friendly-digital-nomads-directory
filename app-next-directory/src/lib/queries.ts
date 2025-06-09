@@ -4,25 +4,25 @@ import { SortOption } from '../types/sort';
 import { getClient } from './sanity/client';
 
 export async function getFeaturedListings() {
-  const query = `*[_type == "listing" && moderation.featured == true] {
+  const query = `*[_type == "listing" && status == "approved"] {
     _id,
-    title,
-    description,
-    type,
-    price,
-    location,
+    name,
+    descriptionShort,
+    category,
+    address,
     mainImage {
       asset-> {
+        _id,
         url
       }
     },
-    ecoFeatures[]-> {
-      name
-    },
+    "ecoTags": ecoFocusTags[]->name,
+    digitalNomadFeatures,
     rating,
-    reviewCount,
-    slug {
-      current
+    "slug": slug.current,
+    city-> {
+      name,
+      country
     }
   }`;
 
@@ -35,15 +35,14 @@ const listingFields = `
   _id,
   name,
   "slug": slug.current,
-  description,
+  descriptionShort,
   category,
   "city": city->name,
-  coordinates,
+  address,
   mainImage,
   "ecoTags": ecoFocusTags[]->name,
-  "nomadFeatures": nomadFeatures[]->name,
+  digitalNomadFeatures,
   rating,
-  priceRange,
   lastVerifiedDate
 `;
 
@@ -77,7 +76,7 @@ export async function getFilteredListings(
 
   // Text search
   if (filters.searchQuery) {
-    conditions.push('(name match $searchQuery || description match $searchQuery)');
+    conditions.push('(name match $searchQuery || descriptionShort match $searchQuery)');
     params.searchQuery = `*${filters.searchQuery}*`;
   }
 
@@ -98,7 +97,7 @@ export async function getFilteredListings(
             case 'ecoTags':
               return `$${paramKey} in ecoFocusTags[]->name`;
             case 'nomadFeatures':
-              return `$${paramKey} in nomadFeatures[]->name`;
+              return `$${paramKey} in digitalNomadFeatures`;
             case 'minRating':
               return `rating >= $${paramKey}`;
             case 'maxPriceRange':
@@ -145,7 +144,7 @@ export async function getFilteredListings(
       const featureConditions = filters.nomadFeatures.map((feature, index) => {
         const paramKey = `feature_${index}`;
         params[paramKey] = feature;
-        return `$${paramKey} in nomadFeatures[]->name`;
+        return `$${paramKey} in digitalNomadFeatures`;
       });
       conditions.push(`(${featureConditions.join(' || ')})`);
     }
@@ -181,14 +180,17 @@ export async function getFilteredListings(
     name,
     slug,
     category,
-    description,
+    descriptionShort,
     city->,
     ecoFocusTags[]->,
-    nomadFeatures[]->,
+    digitalNomadFeatures,
     rating,
-    priceRange,
-    images[] {
-      asset->
+    address,
+    mainImage {
+      asset-> {
+        _id,
+        url
+      }
     }
   }`;
 
