@@ -10,7 +10,7 @@ const listingFields = `
   "city": city->name,
   "primaryImage": primaryImage,
   "ecoTags": eco_focus_tags[]->name,
-  "digital_nomad_features": digital_nomad_features,
+  "digital_nomad_features": digital_nomad_features[]->name,
   last_verified_date
 `;
 

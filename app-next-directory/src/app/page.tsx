@@ -29,7 +29,6 @@ interface City {
   highlights: string[];
 }
 
-
 const HomePage = () => {
   const [cities, setCities] = useState<City[]>([]);
   const [isLoadingCities, setIsLoadingCities] = useState(true);
@@ -39,20 +38,11 @@ const HomePage = () => {
   const [isLoadingFeatured, setIsLoadingFeatured] = useState(true);
   const [errorFeatured, setErrorFeatured] = useState<string | null>(null);
 
-  const [featuredListings, setFeaturedListings] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCities = async () => {
       try {
         const data = await getAllCities();
         setCities(data);
-        const [citiesData, featuredData] = await Promise.all([
-          getAllCities(),
-          getFeaturedListings()
-        ]);
-        setCities(citiesData);
-        setFeaturedListings(featuredData);
       } catch (err) {
         console.error('Failed to fetch cities:', err);
         setErrorCities('Failed to load cities. Please try again later.');
@@ -68,8 +58,6 @@ const HomePage = () => {
       } catch (err) {
         console.error('Failed to fetch featured listings:', err);
         setErrorFeatured('Failed to load featured listings. Please try again later.');
-        console.error('Failed to fetch data:', err);
-        setError('Failed to load data. Please try again later.');
       } finally {
         setIsLoadingFeatured(false);
       }
@@ -77,7 +65,6 @@ const HomePage = () => {
 
     fetchCities();
     fetchFeaturedListings();
-    fetchData();
   }, []);
 
   return (
@@ -100,7 +87,6 @@ const HomePage = () => {
           ) : (
             <FeaturedListings listings={featuredListings} />
           )}
-          <FeaturedListings listings={featuredListings} />
         </div>
       </section>
 
