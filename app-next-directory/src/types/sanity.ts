@@ -23,47 +23,56 @@ export interface SanityImage {
 
 // Interface for listings from Sanity
 export interface SanityListing extends SanityDocument {
+  _type: 'listing';
   name: string;
-  slug: string;  // This is pre-processed from slug.current
-  category: CategoryType;
-  city: string;  // This is pre-processed from city->name
-  addressString: string;
-  descriptionShort: string;
-  descriptionLong: string;
-  ecoTags: string[];  // Pre-processed from ecoFocusTags[]->name
-  ecoNotesDetailed: string;
-  sourceUrls: string[];
-  mainImage: SanityImage;
-  galleryImages: SanityImage[];
-  nomadFeatures: string[];  // Pre-processed from digitalNomadFeatures[]->name
-  lastVerifiedDate: string;
-  rating: number;
-  priceRange: string;
+  slug: string;
+  description_short?: string;
+  category?: CategoryType;
+  city?: string; // Resolved name of the city
+  primaryImage?: SanityImage;
+  ecoTags?: string[]; // Array of resolved tag names
+  digital_nomad_features?: string[]; // Array of strings
+  last_verified_date?: string;
+  reviews?: number; // Count of reviews
+
+  // Optional fields (can be present in full document, but not always in partials like cards)
+  addressString?: string;
+  descriptionLong?: string;
+  galleryImages?: SanityImage[];
   website?: string;
   contactInfo?: string;
-  openingHours?: string;
+  openingHours?: string; // This might be structured
+  ecoNotesDetailed?: string;
+  sourceUrls?: string[];
+
+  // Fields that were in listingFields previously, but removed for card view.
+  // Still useful for a "full" SanityListing type.
+  rating?: number;
+  priceRange?: string;
+
+  // Category specific details (optional)
   coworkingDetails?: {
-    operatingHours: string;
-    pricingPlans: Array<{
+    operatingHours?: string; // Keep optional if not always present
+    pricingPlans?: Array<{
       type: string;
       price: number;
       period: string;
     }>;
-    specificAmenities: string[];
+    specificAmenities?: string[];
   };
   cafeDetails?: {
-    operatingHours: string;
-    priceIndication: string;
-    menuHighlights: string[];
-    wifiReliabilityNotes: string;
+    operatingHours?: string; // Keep optional if not always present
+    priceIndication?: string;
+    menuHighlights?: string[];
+    wifiReliabilityNotes?: string;
   };
   accommodationDetails?: {
-    accommodationType: string;
-    pricePerNightRange: {
-      min: number;
-      max: number;
+    accommodationType?: string;
+    pricePerNightRange?: { // Keep optional if not always present
+      min?: number; // Make sub-fields optional too
+      max?: number;
     };
-    roomTypesAvailable: string[];
-    specificAmenities: string[];
+    roomTypesAvailable?: string[];
+    specificAmenities?: string[];
   };
 }

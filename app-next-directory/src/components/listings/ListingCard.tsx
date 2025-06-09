@@ -47,9 +47,9 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
 
   const getImageUrl = () => {
     if (isSanityListing(listing)) {
-      if (listing.mainImage) {
+      if (listing.primaryImage) {
         try {
-          return urlFor(listing.mainImage)
+          return urlFor(listing.primaryImage)
             .width(800)
             .height(480)
             .fit('crop')
