@@ -1,11 +1,11 @@
 'use client';
 
-import { getAllCities } from '@/lib/sanity/queries';
-import { getFeaturedListings } from '@/lib/queries';
+import { getAllCities, getFeaturedListings } from '@/lib/sanity/queries';
 import { useEffect, useState } from 'react';
 import { HeroSection } from '@/components/HeroSection';
 import FeaturedListings from '@/components/home/FeaturedListings';
 import CitiesCarousel from '@/components/home/CitiesCarousel';
+import { SanityListing } from '@/types/sanity';
 
 interface City {
   _id: string;
@@ -32,12 +32,21 @@ interface City {
 
 const HomePage = () => {
   const [cities, setCities] = useState<City[]>([]);
+  const [isLoadingCities, setIsLoadingCities] = useState(true);
+  const [errorCities, setErrorCities] = useState<string | null>(null);
+
+  const [featuredListings, setFeaturedListings] = useState<SanityListing[]>([]);
+  const [isLoadingFeatured, setIsLoadingFeatured] = useState(true);
+  const [errorFeatured, setErrorFeatured] = useState<string | null>(null);
+
   const [featuredListings, setFeaturedListings] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const data = await getAllCities();
+        setCities(data);
         const [citiesData, featuredData] = await Promise.all([
           getAllCities(),
           getFeaturedListings()
@@ -45,12 +54,29 @@ const HomePage = () => {
         setCities(citiesData);
         setFeaturedListings(featuredData);
       } catch (err) {
+        console.error('Failed to fetch cities:', err);
+        setErrorCities('Failed to load cities. Please try again later.');
+      } finally {
+        setIsLoadingCities(false);
+      }
+    };
+
+    const fetchFeaturedListings = async () => {
+      try {
+        const data = await getFeaturedListings();
+        setFeaturedListings(data);
+      } catch (err) {
+        console.error('Failed to fetch featured listings:', err);
+        setErrorFeatured('Failed to load featured listings. Please try again later.');
         console.error('Failed to fetch data:', err);
         setError('Failed to load data. Please try again later.');
       } finally {
-        setIsLoading(false);
+        setIsLoadingFeatured(false);
       }
     };
+
+    fetchCities();
+    fetchFeaturedListings();
     fetchData();
   }, []);
 
@@ -65,6 +91,15 @@ const HomePage = () => {
           <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
             Featured Sustainable Spaces
           </h2>
+          {isLoadingFeatured ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-pulse text-gray-500">Loading featured listings...</div>
+            </div>
+          ) : errorFeatured ? (
+            <div className="text-center text-red-500 py-8">{errorFeatured}</div>
+          ) : (
+            <FeaturedListings listings={featuredListings} />
+          )}
           <FeaturedListings listings={featuredListings} />
         </div>
       </section>
@@ -72,12 +107,12 @@ const HomePage = () => {
       {/* Cities Section */}
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
-          {isLoading ? (
+          {isLoadingCities ? (
             <div className="flex justify-center items-center h-96">
               <div className="animate-pulse text-gray-500">Loading cities...</div>
             </div>
-          ) : error ? (
-            <div className="text-center text-red-500 py-8">{error}</div>
+          ) : errorCities ? (
+            <div className="text-center text-red-500 py-8">{errorCities}</div>
           ) : (
             <CitiesCarousel cities={cities} />
           )}
