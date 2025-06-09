@@ -168,7 +168,7 @@ export default async function ListingPage({ params }: Props) {
           <Breadcrumbs
             items={[
               { label: 'Listings', href: '/listings' },
-              { label: sanityListing.name, href: `/listings/${params.slug,\n        featured\n      }` },
+              { label: sanityListing.name, href: `/listings/${params.slug}` },
             ]}
           />
 
@@ -177,7 +177,7 @@ export default async function ListingPage({ params }: Props) {
               <div className="mb-8">
                 <ImageGallery
                   images={sanityListing.images.map(img => img.asset.url)}
-                  alt={`Photos of ${sanityListing.name,\n        featured\n      }`}
+                  alt={`Photos of ${sanityListing.name}`}
                 />
               </div>
             )}

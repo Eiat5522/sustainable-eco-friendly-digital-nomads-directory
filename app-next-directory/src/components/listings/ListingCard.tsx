@@ -57,7 +57,19 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
             .url();
         } catch (error) {
           console.error('Error generating Sanity image URL:', error);
-          return '';
+        }
+      }
+      // Fallback: use first gallery image if primaryImage is missing
+      if (Array.isArray((listing as any).galleryImages) && (listing as any).galleryImages.length > 0) {
+        try {
+          return urlFor((listing as any).galleryImages[0])
+            .width(800)
+            .height(480)
+            .fit('crop')
+            .auto('format')
+            .url();
+        } catch (error) {
+          console.error('Error generating Sanity gallery image URL:', error);
         }
       }
     } else if (typeof listing === 'object' && listing !== null && 'primary_image_url' in listing && typeof (listing as any).primary_image_url === 'string') {
@@ -78,8 +90,8 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
 
   const getDescription = () => {
     if (isSanityListing(listing)) {
-      // Handle both description (from query) and descriptionShort (from type)
-      return listing.description || listing.descriptionShort || '';
+      // Handle both description_short (from query) and descriptionShort (legacy/camelCase)
+      return (listing as any).description_short || (listing as any).descriptionShort || '';
     }
     if (typeof listing === 'object' && listing !== null) {
       if ('description' in listing && typeof (listing as any).description === 'string') {

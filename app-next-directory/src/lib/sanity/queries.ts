@@ -90,7 +90,7 @@ async function getListingsByCity(cityName: string, preview = false) {
     ${listingFields}
   }`;
 
-  return await sanityClient.fetch(query);
+  return await sanityClient.fetch(query, { cityName });
 }
 
 // Get all available cities for filtering
@@ -176,7 +176,7 @@ async function getFeaturedListings(preview = false) {
   const query = `*[_type == "listing" && moderation.featured == true] {
     ${listingFields},
     description_short,
-    "reviews": *[_type == "review" && references(^._id)] | count
+    "reviews": count(*[_type == "review" && references(^._id)])
   }`;
 
   return await sanityClient.fetch(query);
