@@ -5,15 +5,13 @@ const listingFields = `
   _id,
   name,
   "slug": slug.current,
-  description,
+  description_short,
   category,
   "city": city->name,
-  mainImage,
+  "primaryImage": primaryImage,
   "ecoTags": eco_focus_tags[]->name,
-  "nomadFeatures": digital_nomad_features[]->name,
-  rating,
-  priceRange,
-  lastVerifiedDate
+  "digital_nomad_features": digital_nomad_features,
+  last_verified_date
 `;
 
 async function getAllListings(preview = false) {
@@ -178,8 +176,6 @@ async function getFeaturedListings(preview = false) {
   const query = `*[_type == "listing" && moderation.featured == true] {
     ${listingFields},
     description_short,
-    priceRange,
-    rating,
     "reviews": *[_type == "review" && references(^._id)] | count
   }`;
 
