@@ -78,22 +78,48 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
 
   const getDescription = () => {
     if (isSanityListing(listing)) {
-      return listing.descriptionShort || '';
+      // Handle both description (from query) and descriptionShort (from type)
+      return listing.description || listing.descriptionShort || '';
     }
-    if (typeof listing === 'object' && listing !== null && 'description_short' in listing && typeof (listing as any).description_short === 'string') {
+    if (typeof listing === 'object' && listing !== null) {
+      if ('description' in listing && typeof (listing as any).description === 'string') {
+        return (listing as any).description;
+      }
+      if ('description_short' in listing && typeof (listing as any).description_short === 'string') {
         return (listing as any).description_short;
+      }
     }
     return '';
   };
 
   const getEcoTags = (): string[] => {
     if (isSanityListing(listing)) {
-      return Array.isArray(listing.ecoTags) ? listing.ecoTags : [];
-    }
-    if (typeof listing === 'object' && listing !== null && 'eco_focus_tags' in listing && Array.isArray((listing as any).eco_focus_tags)) {
-        return (listing as any).eco_focus_tags;
+      if (Array.isArray(listing.ecoTags)) {
+        return listing.ecoTags;
+      }
+      // Handle nested eco_focus_tags references
+      if ('eco_focus_tags' in listing && Array.isArray((listing as any).eco_focus_tags)) {
+        return (listing as any).eco_focus_tags.map((tag: any) =>
+          typeof tag === 'string' ? tag : (tag.name || '')
+        );
+      }
     }
     return [];
+  };
+
+  const getLocation = () => {
+    if (isSanityListing(listing)) {
+      return listing.city || '';
+    }
+    if (typeof listing === 'object' && listing !== null) {
+      if ('city' in listing && typeof (listing as any).city === 'string') {
+        return (listing as any).city;
+      }
+      if ('location' in listing && typeof (listing as any).location === 'string') {
+        return (listing as any).location;
+      }
+    }
+    return '';
   };
 
   return (
@@ -144,13 +170,22 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
               : (listingName || 'Unnamed Listing')}
           </h3>
 
+          {/* Location */}
+          <div className="flex items-center text-gray-600 mb-2">
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>{getLocation()}</span>
+          </div>
+
           <p className="text-gray-600 mb-4 line-clamp-2">
             {searchQuery
               ? highlightText(getDescription(), searchQuery)
               : getDescription()}
           </p>
 
-          {/* Tags */}
+          {/* Eco Tags */}
           <div className="flex flex-wrap gap-2 mt-auto">
             {getEcoTags()
               .slice(0, 3)

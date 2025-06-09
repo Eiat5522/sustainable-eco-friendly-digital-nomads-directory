@@ -11,7 +11,7 @@
 - **Task Policies**: Immediately after a status change, whether from 'Not Started' to 'In Progress' or 'In Progress' to 'Completed'. You must ensure Tasks Statuses are Updated accordingly in Real-Time. Do not report to the User after every status change. Only report back mid Workstream when 1. Copilot is struck and cannot progress. 2. Only if the User explicitely asks for a status update. 3. When the whole Workstream is Completed.
 - **Workstream Completeness Confirmation**: In order to confirm that a Workstream has been Completed. After a Workstream is fully completed, Copilot must Report the latest status and details of the Workstream. Only after this confirmation, Copilot can proceed check the Workstream as Completed and only then can Copilot move on to the next Workstream.
 - **Proactive Task Linking:** When providing solutions, code, or completing a request that appears to correspond to a known task (e.g., from a task file or a previously discussed objective), proactively ask if the user would like to mark that task as in-progress, completed, or if the solution addresses a specific sub-task.
-  - _Example prompt:_ 'This code should resolve the issue with X. Does this complete task Y, or a part of it?' or 'Now that we\'ve outlined the plan for Z, shall I update its status to \'in-progress\'?'
+  - _Example prompt:_ 'This code should resolve the issue with X. Does this complete task Y, or a part of it?' or 'Now that we've outlined the plan for Z, shall I update its status to \'in-progress\'?'
 - **Change Directory**: Use PowerShell's `Set-Location` cmdlet to change directories in the terminal. For example, `Set-Location -Path "src\components"` to navigate to the components directory.
 - **Tech Stack**: Familiarize yourself with the tech stack used in the project, including Next.js, Tailwind CSS, Sanity, MongoDB, Leaflet.js, Vercel, Stripe, and NextAuth.js.
   []: # 📂
@@ -131,7 +131,7 @@ When new information about projects is provided:
 - If a user mentions a new team member, create a node for them and link it to the relevant project
 - Store the team member details as an observation
 ---
-## 5️⃣ Memory Management 🗃
+## 5️⃣ Memory Maintenance 🗃
 
 - Regularly review and clean up memory graph to remove outdated or irrelevant information
 - Implement versioning for key entities to track changes over time
@@ -143,16 +143,18 @@ When new information about projects is provided:
 
 - **Change Directory Best Practices:**
 
-  - Use full paths with proper PowerShell cmdlets
+- **IMPORTANT:** Use #vscode-mcp-server to help navigate the workspace. To use the file system navigation tools for this mcp server. You use absolute full paths with proper PowerShell cmdlets (starting with '/' or you must start with the drive letter in CAPITAL LETTER like 'D:') this will ensure reliability of the tools.. Relative paths may fail as they depend on the current working directory. Tilde paths (~/...) might not work in all contexts. Unless the user explicitly asks for relative paths, always use absolute paths
+must always use
+
   - Examples:
 
     ```powershell
     # Navigate to project root
-    Set-Location -Path "d:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory"
+    Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory"
     # Navigate to Next.js directory
-    Set-Location -Path "d:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory"
+    Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory"
     # Navigate to Sanity directory
-    Set-Location -Path "d:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\sanity"
+    Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\sanity"
     # Navigate to components directory
     Set-Location -Path (Join-Path $PWD "src\components")
     # Navigate up directories
@@ -170,7 +172,7 @@ When new information about projects is provided:
   - Handle spaces and special characters properly
   - Use `Push-Location`/`Pop-Location` for temporary navigation
 
-## 🛠️ **Tech Stack**
+  ## 🛠️ **Tech Stack**
 
 - **Full-stack Rendering & API Routes:** Next.js 14+ (App Router)
 - **Styling:** Tailwind CSS
@@ -266,7 +268,7 @@ When new information about projects is provided:
   - @sanity/client (^6.12.3)
   - @sanity/image-url (^1.0.2)
 
-### Security Best Practices
+## 🗝️ **Security Best Practices**
 
 - Always use exact versions for security-critical packages
 - Regular security audits with `npm audit`
@@ -277,7 +279,7 @@ When new information about projects is provided:
 
 ---
 
-# 🛠️ Tooling Guidelines & Known Constraints
+#  🛠️ **Tooling Guidelines & Known Constraints**
 
 - **Tooling Notes & Constraints:**
     - List any tools that have known issues, are deprecated, or should be used with specific caution.
@@ -298,12 +300,14 @@ When new information about projects is provided:
 
 ---
 
-# 💻 Code Quality, Style & Documentation Standards
+# 💻 Code Quality & Standards:
 
-- **Adherence to Standards:** All generated or modified code must strive to adhere to the project's established linting rules (e.g., from `eslint.config.mjs`) and general best practices for the language/framework in use.
-- **Clarity and Readability:** Prioritize clear, self-documenting code where possible.
-- **Proactive Commenting/Documentation:** For complex functions, non-obvious logic, or significant code blocks, proactively offer to add explanatory comments or JSDoc-style documentation. Example: 'This function handles X. Would you like me to add detailed comments or JSDoc for it?'
-- **TODOs:** If there are parts of the code that require future attention or are incomplete based on the immediate request, mark them clearly with `// TODO: [Reason]` or `// FIXME: [Reason]` comments.
+-  **Code Standard:** All generated or modified code must adhere to the project's established linting rules (e.g., from eslint.config.mjs) and general best practices for the language/framework in use. Prioritize clear, self-documenting code where possible to enhance readability.
+-  **Commenting & Documentation:** For complex functions, non-obvious logic, or significant code blocks, proactively offer to add explanatory comments or JSDoc-style documentation. For example: 'This function handles X. Would you like me to add detailed comments or JSDoc for it?'.
+-  **Temporary & Debugging Artifacts:** To align with team practices for managing temporary testing and debugging artifacts:
+    1. When generating temporary files specifically for testing purposes (e.g., a simplified page to debug an issue), prefix the filename with FORTEST- or DEBUG-. For example: FORTEST-user-profile.html or DEBUG-api-service.ts [conversation history].
+    2. For temporary variables, code snippets, or queries inserted for testing or debugging within existing files, add a clear comment at the relevant location: // FORTEST: [Brief reason for testing/debugging] or // FIXME: [Brief reason for temporary modification] [conversation history].
+        - *ATTENTION* If there are parts of the code that require future attention or are incomplete based on the immediate request, mark them clearly with // TODO: [Reason] comments.
 
 ---
 
@@ -327,13 +331,8 @@ When new information about projects is provided:
 # Copilot Instructions for Sustainable Digital Nomads Directory
 ## Overview
 This document provides detailed instructions for GitHub Copilot to assist in the development of the Sustainable Digital Nomads Directory project. It includes guidelines for memory management, task management, and directory navigation using PowerShell 7.
-## Memory Management
-// The "### Memory Retrieval and Confirmation" subsection and its content that was previously here will be removed.
-// The instructions from section "2️⃣ Memory Retrieval and Confirmation 🧠" will be the sole guide for this topic.
-
 ## Task Management
-For this project, please adhere to the task management guidelines outlined in the "Note for Copilot" at the beginning of this document. This includes proactive task linking and updating task statuses as appropriate.
-
+For this project, please adhere to the task management guidelines outlined in the "📑 **Rules Set**" section at the beginning of this document. This includes proactive task linking and updating task statuses as appropriate.
 ## Directory Navigation
-When navigating the project directory, please use PowerShell 7 and follow the best practices and examples provided in the "📑 Directory Navigation with PowerShell 7" section of this document.
+When navigating the project directory, please use PowerShell 7 and follow the best practices and examples provided in the "📑 **Directory Navigation with PowerShell 7**" section of this document.
 ````

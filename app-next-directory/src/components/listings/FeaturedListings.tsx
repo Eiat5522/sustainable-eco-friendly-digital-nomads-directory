@@ -29,17 +29,18 @@ export default function FeaturedListings({}: FeaturedListingsProps) {
       setLoading(true);
       setError(null);
       try {
-        // Adjust the API endpoint and query parameters as per your backend
         const response = await fetch('/api/listings?featured=true&limit=4');
         if (!response.ok) {
           throw Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        // Assuming your API returns { success: boolean, listings: Listing[] }
-        if (data.success && Array.isArray(data.listings)) {
+        // FORTEST: Debug API response
+        console.log('DEBUG: Featured Listings API response:', data);
+        if (data.success && data.data && Array.isArray(data.data.listings)) {
+          setListings(data.data.listings);
+        } else if (data.success && Array.isArray(data.listings)) {
           setListings(data.listings);
         } else {
-          console.error('API response was not successful or listings format is incorrect:', data);
           setError('Failed to load listings. Unexpected data format.');
         }
       } catch (err) {

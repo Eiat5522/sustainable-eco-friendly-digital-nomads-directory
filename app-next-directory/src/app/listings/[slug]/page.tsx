@@ -62,7 +62,7 @@ interface Listing {
 async function getAllListingSlugs() {
   const client = getClient();
   const slugs = await client.fetch<Array<{ slug: { current: string } }>>(
-    `*[_type == "listing" && defined(slug.current)]{ "slug": slug }`
+    `*[_type == "listing" && defined(slug.current)]{ "slug": slug ,\n        featured\n      }`
   );
   return slugs.map((item) => ({
     slug: item.slug.current,
@@ -89,7 +89,7 @@ export async function generateMetadata(
         name,
         description_short,
         primary_image_url,
-      }`,
+      ,\n        featured\n      }`,
       { slug: params.slug }
     );
 
@@ -156,7 +156,7 @@ export default async function ListingPage({ params }: Props) {
           "date": _createdAt
         },
         sustainabilityScore
-      }`,
+      ,\n        featured\n      }`,
       { slug: params.slug }
     );
 
@@ -168,7 +168,7 @@ export default async function ListingPage({ params }: Props) {
           <Breadcrumbs
             items={[
               { label: 'Listings', href: '/listings' },
-              { label: sanityListing.name, href: `/listings/${params.slug}` },
+              { label: sanityListing.name, href: `/listings/${params.slug,\n        featured\n      }` },
             ]}
           />
 
@@ -177,7 +177,7 @@ export default async function ListingPage({ params }: Props) {
               <div className="mb-8">
                 <ImageGallery
                   images={sanityListing.images.map(img => img.asset.url)}
-                  alt={`Photos of ${sanityListing.name}`}
+                  alt={`Photos of ${sanityListing.name,\n        featured\n      }`}
                 />
               </div>
             )}

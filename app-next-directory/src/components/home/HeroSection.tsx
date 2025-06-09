@@ -56,7 +56,7 @@ const HeroSection: React.FC = () => {
       <div className="absolute inset-0 z-0">
         <div ref={parallaxRef} className="absolute inset-0 h-[120%]">
           <Image
-            src="/images/hero-bg.jpg"
+            src="/images/hero/hero_main.png"
             alt="Eco-friendly digital nomad workspace"
             fill
             priority

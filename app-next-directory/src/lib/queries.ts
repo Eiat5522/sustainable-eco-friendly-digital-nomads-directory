@@ -4,7 +4,7 @@ import { SortOption } from '../types/sort';
 import { getClient } from './sanity/client';
 
 export async function getFeaturedListings() {
-  const query = `*[_type == "listing" && featured == true] {
+  const query = `*[_type == "listing" && moderation.featured == true] {
     _id,
     title,
     description,
@@ -24,7 +24,7 @@ export async function getFeaturedListings() {
     slug {
       current
     }
-  }[0...3]`;
+  }`;
 
   const client = getClient();
   return client.fetch(query);

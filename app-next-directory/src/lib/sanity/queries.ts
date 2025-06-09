@@ -9,8 +9,8 @@ const listingFields = `
   category,
   "city": city->name,
   mainImage,
-  "ecoTags": ecoFocusTags[]->name,
-  "nomadFeatures": nomadFeatures[]->name,
+  "ecoTags": eco_focus_tags[]->name,
+  "nomadFeatures": digital_nomad_features[]->name,
   rating,
   priceRange,
   lastVerifiedDate
@@ -171,7 +171,22 @@ async function getLatestBlogPosts(limit = 3, preview = false) {
   return await sanityClient.fetch(query, { limit: limit - 1 });
 }
 
-export async function getRelatedListings(listingId: string, category: string, cityName: string, limit = 3) {
+// Get featured listings for home page
+async function getFeaturedListings(preview = false) {
+  const sanityClient = getClient(preview);
+
+  const query = `*[_type == "listing" && moderation.featured == true] {
+    ${listingFields},
+    description_short,
+    priceRange,
+    rating,
+    "reviews": *[_type == "review" && references(^._id)] | count
+  }`;
+
+  return await sanityClient.fetch(query);
+}
+
+async function getRelatedListings(listingId: string, category: string, cityName: string, limit = 3) {
   const query = `*[_type == "listing" && _id != $listingId && (category == $category || city->name == $cityName)][0...${limit}]{
     ${listingFields}
   }`
@@ -180,7 +195,17 @@ export async function getRelatedListings(listingId: string, category: string, ci
 }
 
 // Export all functions
-export { getAllCities, getAllEcoTags, getAllListings, getLatestBlogPosts, getListingBySlug, getListingsByCategory, getListingsByCity, searchListings };
+export {
+  getAllCities,
+  getAllEcoTags,
+  getAllListings,
+  getFeaturedListings,
+  getLatestBlogPosts,
+  getListingBySlug,
+  getListingsByCategory,
+  getListingsByCity,
+  searchListings
+};
 
 // Additional alias export
 export const getCity = getListingBySlug

@@ -12,7 +12,7 @@ export default function ListingsPageWrapper() {
   useEffect(() => {
     async function fetchListings() {
       try {
-        const response = await fetch('/api/listings');
+        const response = await fetch('/api/listings?featured=true');
         const data = await response.json();
         if (data.status === 'success') {
           setListings(data.data);

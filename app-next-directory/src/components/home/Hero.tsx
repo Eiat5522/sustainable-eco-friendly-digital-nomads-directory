@@ -9,7 +9,7 @@ export default function Hero() {
       {/* Background Image with Next.js Image component */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/hero-bg.jpg"
+          src="/images/hero/hero_main.png"
           alt="Digital nomad workspace"
           fill
           className="object-cover"

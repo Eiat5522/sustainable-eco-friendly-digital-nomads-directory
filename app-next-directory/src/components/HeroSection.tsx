@@ -9,7 +9,7 @@ export function HeroSection() {
       {/* Background Image with Next.js Image component */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="/images/hero-bg.jpg"
+          src="/images/hero/hero_main.png"
           alt="Digital nomad workspace"
           fill
           className="object-cover"
@@ -27,7 +27,7 @@ export function HeroSection() {
             <span className="block">Sustainable Spaces for</span>
             <span className="block text-primary-400">Digital Nomads</span>
           </h1>
-          
+
           <p className="text-lg md:text-xl mb-8 text-gray-200">
             Discover eco-friendly workspaces, accommodations, and cafes around the world.
             Join our community of environmentally conscious digital nomads.
