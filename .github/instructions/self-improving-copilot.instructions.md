@@ -1,5 +1,5 @@
 ---
-applyTo: 'g'
+applyTo: 'self-improving-copilot'
 reflectionProcess:
     enabled: true
     triggers:
