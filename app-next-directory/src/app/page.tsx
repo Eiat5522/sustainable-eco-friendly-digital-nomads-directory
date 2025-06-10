@@ -1,6 +1,6 @@
 'use client';
 
-import { getAllCities, getFeaturedListings } from '@/lib/sanity/queries';
+import { getAllCities } from '@/lib/sanity/queries';
 import { useEffect, useState } from 'react';
 import { HeroSection } from '@/components/HeroSection';
 import FeaturedListings from '@/components/home/FeaturedListings';
@@ -49,12 +49,16 @@ const HomePage = () => {
       } finally {
         setIsLoadingCities(false);
       }
-    };
-
-    const fetchFeaturedListings = async () => {
+    };    const fetchFeaturedListings = async () => {
       try {
-        const data = await getFeaturedListings();
-        setFeaturedListings(data);
+        const response = await fetch('/api/listings/featured');
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to load featured listings');
+        }
+
+        setFeaturedListings(result.data);
       } catch (err) {
         console.error('Failed to fetch featured listings:', err);
         setErrorFeatured('Failed to load featured listings. Please try again later.');

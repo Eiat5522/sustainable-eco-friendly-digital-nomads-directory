@@ -1,6 +1,7 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { handleAuthError, requireAuth } from '@/utils/auth-helpers';
 import { getCollection } from '@/utils/db-helpers';
+import { getListingBySlug } from '@/lib/sanity/queries';
 import { NextRequest } from 'next/server';
 
 export async function GET(
@@ -8,8 +9,8 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const listings = await getCollection('listings');
-    const listing = await listings.findOne({ slug: params.slug, status: 'active' });
+    // Fetch listing from Sanity
+    const listing = await getListingBySlug(params.slug);
 
     if (!listing) {
       return ApiResponseHandler.notFound('Listing');
@@ -17,6 +18,7 @@ export async function GET(
 
     return ApiResponseHandler.success(listing);
   } catch (error) {
+    console.error('Failed to fetch listing from Sanity:', error);
     return ApiResponseHandler.error('Failed to fetch listing');
   }
 }
