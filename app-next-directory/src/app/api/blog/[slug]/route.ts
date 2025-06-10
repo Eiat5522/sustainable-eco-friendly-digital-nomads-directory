@@ -35,10 +35,10 @@ const postQuery = groq`
 // GET endpoint for fetching a single blog post
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
 
     if (!slug) {
       return ApiResponseHandler.error('Blog post slug is required', 400);
@@ -100,10 +100,10 @@ async function trackViewCount(postId: string): Promise<number> {
 // PUT endpoint for updating view count (optional)
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     const body = await request.json();
 
     if (body.action === 'increment_view') {

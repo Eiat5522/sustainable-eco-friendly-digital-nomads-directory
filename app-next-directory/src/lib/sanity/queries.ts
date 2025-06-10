@@ -8,7 +8,9 @@ const listingFields = `
   description_short,
   category,
   "city": city->name,
-  "primaryImage": primaryImage,
+  "primaryImage": primaryImage {
+    asset->
+  },
   "ecoTags": eco_focus_tags[]->name,
   "digital_nomad_features": digital_nomad_features[]->name,
   last_verified_date
