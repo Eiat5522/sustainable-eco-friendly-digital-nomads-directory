@@ -187,9 +187,9 @@ async function getFeaturedListings(preview = false) {
 async function getRelatedListings(listingId: string, category: string, cityName: string, limit = 3) {
   const query = `*[_type == "listing" && _id != $listingId && (category == $category || city->name == $cityName)][0...${limit}]{
     ${listingFields}
-  }`
+  }`;
 
-  return await getClient().fetch(query, { listingId, category, cityName })
+  return await getClient().fetch(query, { listingId, category, cityName });
 }
 
 // Export all functions

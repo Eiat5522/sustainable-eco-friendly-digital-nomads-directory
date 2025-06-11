@@ -23,23 +23,24 @@ interface ListingProps {
     description_short: string
     description_long: string
     category: string
-    eco_features: string[]
-    amenities: string[]
+    eco_features?: string[]
+    amenities?: string[]
     primary_image_url: string
-    gallery_images: string[]
+    gallery_images?: string[]
     city: City
     location?: Location
     website?: string
     contact_email?: string
     contact_phone?: string
     price_range?: string
-    reviews: Review[]
+    reviews?: Review[]
   }
 }
 
 export function ListingDetail({ listing }: ListingProps) {
-  const averageRating = listing.reviews.length > 0
-    ? listing.reviews.reduce((acc, rev) => acc + rev.rating, 0) / listing.reviews.length
+  const reviews = listing.reviews || []
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviews.length
     : 0
 
   return (
@@ -92,7 +93,7 @@ export function ListingDetail({ listing }: ListingProps) {
           <div>
             <h3 className="text-xl font-semibold mb-4">Eco Features</h3>
             <ul className="space-y-2">
-              {listing.eco_features.map((feature) => (
+              {(listing.eco_features || []).map((feature) => (
                 <li key={feature} className="flex items-center text-green-700 dark:text-green-400">
                   <span className="mr-2">🌱</span> {feature}
                 </li>
@@ -102,7 +103,7 @@ export function ListingDetail({ listing }: ListingProps) {
           <div>
             <h3 className="text-xl font-semibold mb-4">Amenities</h3>
             <ul className="space-y-2">
-              {listing.amenities.map((amenity) => (
+              {(listing.amenities || []).map((amenity) => (
                 <li key={amenity} className="flex items-center text-gray-700 dark:text-gray-300">
                   <span className="mr-2">✓</span> {amenity}
                 </li>
@@ -154,11 +155,11 @@ export function ListingDetail({ listing }: ListingProps) {
         </div>
 
         {/* Reviews */}
-        {listing.reviews.length > 0 && (
+        {(listing.reviews || []).length > 0 && (
           <div>
             <h3 className="text-xl font-semibold mb-4">Reviews</h3>
             <div className="space-y-4">
-              {listing.reviews.map((review, index) => (
+              {(listing.reviews || []).map((review, index) => (
                 <div
                   key={index}
                   className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4"

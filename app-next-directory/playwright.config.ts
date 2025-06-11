@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+port { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 
 // Load test environment variables
@@ -12,7 +12,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [['html'], ['list'], ['json', { outputFile: 'test-results/test-results.json' }]],
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3001',
     trace: 'on-first-retry',
     // Enable JavaScript in the browser for map functionality
     javaScriptEnabled: true,
@@ -20,8 +20,6 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     // Enable video recording on failure
     video: 'retain-on-failure',
-    // Enable built-in test isolation
-    testIsolation: true,
   },
   projects: [
     // Setup project
@@ -114,7 +112,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:3000',
+    url: 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
     timeout: 120000, // 2 minutes
     stderr: 'pipe',

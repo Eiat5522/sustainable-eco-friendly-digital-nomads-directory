@@ -84,7 +84,7 @@ export default function BulkOperations() {
     setLoading(false);
   };
 
-  const handleBulkUpdate = async (updateData: Record<string, any>) => {
+  const handleBulkUpdate = async (updateData: Record<string, string | number | boolean>) => {
     setLoading(true);
     setResult(null);
 
@@ -115,7 +115,7 @@ export default function BulkOperations() {
     setLoading(false);
   };
 
-  const handleBulkDelete = async (filter: Record<string, any>) => {
+  const handleBulkDelete = async (filter: Record<string, string | number | boolean>) => {
     if (!confirm('Are you sure you want to delete these items? This action cannot be undone.')) {
       return;
     }
@@ -162,7 +162,7 @@ export default function BulkOperations() {
         <label className="block text-sm font-medium text-gray-700 mb-2">Content Type</label>
         <select
           value={selectedType}
-          onChange={(e) => setSelectedType(e.target.value as any)}
+          onChange={(e) => setSelectedType(e.target.value as 'listings' | 'users' | 'reviews' | 'blog_posts')}
           className="border border-gray-300 rounded-md px-3 py-2 w-48"
         >
           <option value="listings">Listings</option>
@@ -253,7 +253,7 @@ export default function BulkOperations() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                       <select className="border border-gray-300 rounded-md px-3 py-2 w-full">
-                        <option value="">Don't change</option>
+                        <option value="">Don&apos;t change</option>
                         <option value="published">Published</option>
                         <option value="draft">Draft</option>
                         <option value="archived">Archived</option>
@@ -262,7 +262,7 @@ export default function BulkOperations() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
                       <select className="border border-gray-300 rounded-md px-3 py-2 w-full">
-                        <option value="">Don't change</option>
+                        <option value="">Don&apos;t change</option>
                         <option value="accommodation">Accommodation</option>
                         <option value="coworking">Coworking</option>
                         <option value="activity">Activity</option>
@@ -276,7 +276,7 @@ export default function BulkOperations() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
                       <select className="border border-gray-300 rounded-md px-3 py-2 w-full">
-                        <option value="">Don't change</option>
+                        <option value="">Don&apos;t change</option>
                         <option value="user">User</option>
                         <option value="moderator">Moderator</option>
                         <option value="admin">Admin</option>
@@ -285,7 +285,7 @@ export default function BulkOperations() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                       <select className="border border-gray-300 rounded-md px-3 py-2 w-full">
-                        <option value="">Don't change</option>
+                        <option value="">Don&apos;t change</option>
                         <option value="true">Active</option>
                         <option value="false">Inactive</option>
                       </select>
