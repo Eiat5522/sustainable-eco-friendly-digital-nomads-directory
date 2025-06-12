@@ -82,23 +82,24 @@ tasks/
 
 #sanity backup and image staging
 *sanity-backup/
-.*sanity_image_staging*
+*/sanity_image_staging*
 
 # Copilot
 *.copilotignore
-*image_curation_helper.csv*
-*requirements.txt*
-*run_migration.py*
-*task_0*
-*clean-install.ps1*
-*tasks.json.bak*
-*.specstory/
+*image_curation_helper.csv
+*requirements.txt
+*run_migration.py
+*task_0
+*clean-install.ps1
+*tasks.json.bak
+*.specstory/*
 *WORKSTREAM*
-*listings/
 
 
 #Cline & Roo
-/.cline**
-/.roo**
-/cline_docs/**
+*/.cline*
+*.roomodes
+.room
+/cline_docs*
+/project-memory*
 .vscode/mcp.json

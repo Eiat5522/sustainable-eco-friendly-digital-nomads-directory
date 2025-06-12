@@ -56,6 +56,7 @@ interface Listing {
   price_range?: string;
   reviews?: Review[];
   sustainabilityScore: number;
+  featured: boolean; // Added featured here as it was in the query
 }
 
 // Function to fetch all listing slugs from Sanity for generateStaticParams
@@ -89,7 +90,8 @@ export async function generateMetadata(
         name,
         description_short,
         primary_image_url,
-      ,\n        featured\n      }`,
+        featured
+      }`,
       { slug: params.slug }
     );
 
@@ -155,8 +157,9 @@ export default async function ListingPage({ params }: Props) {
           author,
           "date": _createdAt
         },
-        sustainabilityScore
-      ,\n        featured\n      }`,
+        sustainabilityScore,
+        featured
+      }`,
       { slug: params.slug }
     );
 

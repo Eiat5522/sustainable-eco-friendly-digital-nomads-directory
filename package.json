@@ -1,8 +1,7 @@
 {
-  "name": "sustainable-eco-friendly-digital-nomads-directory-root",
-  "workspaces": [
-    "./app-next-directory",
-    "./sanity"
+  "name": "sustainable-eco-friendly-digital-nomads-directory-root",  "workspaces": [
+    "app-next-directory",
+    "sanity"
   ],
   "version": "0.1.2",
   "private": true,

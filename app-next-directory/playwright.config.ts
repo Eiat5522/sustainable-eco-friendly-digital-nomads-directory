@@ -1,4 +1,4 @@
-port { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 
 // Load test environment variables
