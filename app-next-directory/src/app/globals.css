@@ -18,6 +18,17 @@
     --background: 210 10% 12%;
     --foreground: 210 40% 98%;
     --primary: 142.1 70% 45%;
-    --primary-foreground: 0 0% 100%;
+    --primary-foreground: 210 40% 98%;
+  }
+}
+
+@layer utilities {
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 1.5s infinite;
   }
 }

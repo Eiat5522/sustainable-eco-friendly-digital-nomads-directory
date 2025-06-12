@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^5.0.2",
+    "@types/bcryptjs": "^3.0.0",
     "@types/react": "^18.0.25",
     "eslint": "^8.56.0",
     "prettier": "^3.0.2",

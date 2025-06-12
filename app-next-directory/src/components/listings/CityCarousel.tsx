@@ -53,9 +53,6 @@ const CAROUSEL_OPTIONS = {
 } as const;
 
 export default function CityCarousel({ cities }: CityCarouselProps) {
-  console.log('CityCarousel received cities:', cities);
-  console.log('First city image data:', cities[0]?.mainImage);
-
   const [emblaRef, emblaApi] = useEmblaCarousel(CAROUSEL_OPTIONS, [
     AutoPlay(AUTO_PLAY_OPTIONS)
   ]);
@@ -76,17 +73,16 @@ export default function CityCarousel({ cities }: CityCarouselProps) {
     setNextBtnDisabled(!emblaApi.canScrollNext());
     setActiveIndex(emblaApi.selectedScrollSnap());
   }, [emblaApi]);
-
   useEffect(() => {
     if (!emblaApi) return;
 
-    onSelect(emblaApi);
-    emblaApi.on('select', () => onSelect(emblaApi));
-    emblaApi.on('reInit', () => onSelect(emblaApi));
+    onSelect();
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
 
     return () => {
-      emblaApi.off('select', () => onSelect(emblaApi));
-      emblaApi.off('reInit', () => onSelect(emblaApi));
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
     };
   }, [emblaApi, onSelect]);
 

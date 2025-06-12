@@ -81,13 +81,12 @@ tasks/
 *requirement.txt
 
 #sanity backup and image staging
-*sanity-backup/
-*/sanity_image_staging*
+*/sanity-backup/*
+*/sanity_image_staging/*
 
 # Copilot
 *.copilotignore
 *image_curation_helper.csv
-*requirements.txt
 *run_migration.py
 *task_0
 *clean-install.ps1
@@ -95,14 +94,17 @@ tasks/
 *.specstory/*
 *WORKSTREAM*
 
+#Github Copilot
+.vscode/mcp.json
+**/*/project-memory/*
+*/tools-usage-guidelines.instructions.md
+
 
 #Cline & Roo
 */.cline*
 *.roomodes
 .room
 /cline_docs*
-/project-memory*
-.vscode/mcp.json
 
 # Code Index MCP cache directory
 .code_indexer/

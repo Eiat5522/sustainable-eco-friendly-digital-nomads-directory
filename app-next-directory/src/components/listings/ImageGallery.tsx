@@ -8,19 +8,29 @@ interface ImageGalleryProps {
 }
 
 export function ImageGallery({ images, alt }: ImageGalleryProps) {
+  // Filter out invalid images
+  const validImages = images.filter(img => img && img.trim() !== '');
+
+  // Early return if no valid images
+  if (validImages.length === 0) {
+    return (
+      <div className="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+        <p className="text-gray-500 dark:text-gray-400">No images available</p>
+      </div>
+    );
+  }
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set([0]));
-  const [failedImages, setFailedImages] = useState<Set<number>>(new Set());
+  const [isLoading, setIsLoading] = useState(true);  const [loadedImages, setLoadedImages] = useState(new Set<number>([0]));
+  const [failedImages, setFailedImages] = useState(new Set<number>());
 
   // Enhanced preload functionality
   useEffect(() => {
     let isMounted = true;
-    
-    const preloadImages = async () => {
+      const preloadImages = async () => {
       for (let i = 1; i <= 2; i++) {
-        const nextIndex = (selectedImage + i) % images.length;
+        const nextIndex = (selectedImage + i) % validImages.length;
         if (!loadedImages.has(nextIndex)) {
           try {
             await new Promise<void>((resolve, reject) => {
@@ -28,15 +38,18 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
               const img = new window.Image();
               img.onload = () => resolve();
               img.onerror = () => reject();
-              img.src = images[nextIndex];
-            });
-            if (isMounted) {
-              setLoadedImages(prev => new Set([...prev, nextIndex]));
+              img.src = validImages[nextIndex];
+            });            if (isMounted) {
+              const newLoadedImages = new Set(loadedImages);
+              newLoadedImages.add(nextIndex);
+              setLoadedImages(newLoadedImages);
             }
           } catch (error) {
             if (isMounted) {
               console.error(`Failed to preload image at index ${nextIndex}`);
-              setFailedImages(prev => new Set([...prev, nextIndex]));
+              const newFailedImages = new Set(failedImages);
+              newFailedImages.add(nextIndex);
+              setFailedImages(newFailedImages);
             }
           }
         }
@@ -47,24 +60,12 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
     return () => {
       isMounted = false;
     };
-  }, [selectedImage, images, loadedImages]);
-
+  }, [selectedImage, validImages, loadedImages]);
   // Handle image selection
   const handleImageSelect = (index: number) => {
     setIsLoading(true);
     setSelectedImage(index);
   };
-
-  // Handle empty images array
-  if (!images.length) {
-    return (
-      <div className="relative h-72 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
-        <div className="flex items-center justify-center h-full">
-          <span className="text-gray-400 dark:text-gray-500">No image available</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
@@ -78,22 +79,21 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
           isZoomed ? 'scale-110' : 'scale-100'
         }`}>
           {/* Loading Shimmer */}
-          <div 
+          <div
             className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent
               ${isLoading ? 'animate-shimmer opacity-100' : 'opacity-0'}`}
-            style={{ 
+            style={{
               backgroundSize: '200% 100%'
             }}
-          />
-
-          <Image
-            src={images[selectedImage]}
+          />          <Image
+            src={validImages[selectedImage]}
             alt={`${alt} - Image ${selectedImage + 1}`}
             fill
-            className={`object-cover transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-            onLoadingComplete={() => {
+            className={`object-cover transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}            onLoadingComplete={() => {
               setIsLoading(false);
-              setLoadedImages(prev => new Set([...prev, selectedImage]));
+              const newLoadedImages = new Set(loadedImages);
+              newLoadedImages.add(selectedImage);
+              setLoadedImages(newLoadedImages);
             }}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             quality={90}
@@ -102,19 +102,17 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
             priority={selectedImage === 0}
           />
         </div>
-        
+
         {/* Zoom Indicator */}
         {!isZoomed && loadedImages.has(selectedImage) && (
           <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-sm">
             Hover to zoom
           </div>
         )}
-      </div>
-
-      {/* Thumbnails */}
-      {images.length > 1 && (
+      </div>      {/* Thumbnails */}
+      {validImages.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-2">
-          {images.map((image, index) => (
+          {validImages.map((image, index) => (
             <button
               key={index}
               onClick={() => handleImageSelect(index)}
@@ -137,19 +135,8 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0dHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx//2wBDAR0XFyMeIyEeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyP/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
               />
             </button>
-          ))}
-        </div>
+          ))}        </div>
       )}
-
-      <style jsx global>{`
-        @keyframes shimmer {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-        .animate-shimmer {
-          animation: shimmer 1.5s infinite;
-        }
-      `}</style>
     </div>
   );
 }
