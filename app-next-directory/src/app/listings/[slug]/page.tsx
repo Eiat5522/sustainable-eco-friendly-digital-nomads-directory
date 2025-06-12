@@ -189,6 +189,7 @@ export default async function ListingPage({ params }: Props) {
 
             <ListingDetail listing={{
               ...sanityListing,
+              primary_image_url: sanityListing.primary_image_url || sanityListing.images?.[0]?.asset?.url || '',
               gallery_images: sanityListing.images?.map(img => img.asset?.url).filter(Boolean) as string[] || [],
               reviews: sanityListing.reviews?.map(review => ({
                 ...review,

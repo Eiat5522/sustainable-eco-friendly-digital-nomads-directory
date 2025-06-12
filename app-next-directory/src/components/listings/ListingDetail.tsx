@@ -25,7 +25,7 @@ interface ListingProps {
     category: string
     eco_features?: string[]
     amenities?: string[]
-    primary_image_url: string
+    primary_image_url?: string
     gallery_images?: string[]
     city: City
     location?: Location
@@ -42,18 +42,26 @@ export function ListingDetail({ listing }: ListingProps) {
   const averageRating = reviews.length > 0
     ? reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviews.length
     : 0
-
   return (
     <article className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
       {/* Header */}
       <div className="relative h-64 md:h-96">
-        <Image
-          src={listing.primary_image_url}
-          alt={listing.name}
-          fill
-          className="object-cover"
-          priority
-        />
+        {listing.primary_image_url && listing.primary_image_url.trim() !== '' ? (
+          <Image
+            src={listing.primary_image_url}
+            alt={listing.name}
+            fill
+            className="object-cover"
+            priority
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-4xl text-gray-400 mb-2">📍</div>
+              <p className="text-gray-500 dark:text-gray-400">No image available</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Content */}
