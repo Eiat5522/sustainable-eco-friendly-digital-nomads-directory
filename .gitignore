@@ -103,3 +103,6 @@ tasks/
 /cline_docs*
 /project-memory*
 .vscode/mcp.json
+
+# Code Index MCP cache directory
+.code_indexer/

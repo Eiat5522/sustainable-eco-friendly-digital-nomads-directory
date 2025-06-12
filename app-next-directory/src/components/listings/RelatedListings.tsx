@@ -1,64 +1,74 @@
 'use client';
 
-import Image from 'next/image'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface Listing {
-  _id: string
-  name: string
-  slug: { current: string }; // Changed from string to { current: string }
-  description_short: string
-  primary_image_url: string
-  category: string
+  _id: string;
+  name: string;
+  slug: { current: string };
+  description_short: string;
+  primary_image_url: string;
+  category: string;
   city: {
-    name: string
-    country: string
-  }
-  eco_features: string[]
+    name: string;
+    country: string;
+  };
+  eco_features: string[];
 }
 
 interface RelatedListingsProps {
-  currentListing: Listing
-  allListings: Listing[]
-  maxListings?: number
+  currentSlug: string;
+  category: string;
+  cityName: string;
 }
 
-export function RelatedListings({ currentListing, allListings, maxListings = 3 }: RelatedListingsProps) {
-  const router = useRouter()
+export function RelatedListings({ currentSlug, category, cityName }: RelatedListingsProps) {
+  const [relatedListings, setRelatedListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const relatedListings = useMemo(() => {
-    // Filter out current listing
-    const otherListings = allListings.filter(listing => listing._id !== currentListing._id)
+  useEffect(() => {
+    async function fetchRelatedListings() {
+      try {
+        const response = await fetch(`/api/listings?category=${encodeURIComponent(category)}&limit=3`);
+        if (response.ok) {
+          const data = await response.json();
+          // Filter out the current listing
+          const filtered = data.listings?.filter((listing: Listing) => 
+            listing.slug.current !== currentSlug
+          ).slice(0, 3) || [];
+          setRelatedListings(filtered);
+        }
+      } catch (error) {
+        console.error('Error fetching related listings:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-    // Calculate relevance scores
-    const scoredListings = otherListings.map(listing => {
-      let score = 0
+    fetchRelatedListings();
+  }, [currentSlug, category, cityName]);
 
-      // Same category
-      if (listing.category === currentListing.category) score += 3
+  if (loading) {
+    return (
+      <section className="mt-12">
+        <h2 className="text-2xl font-bold mb-6">Similar Eco-Friendly Spaces</h2>
+        <div className="grid md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="animate-pulse">
+              <div className="bg-gray-200 dark:bg-gray-700 h-48 rounded-lg mb-4"></div>
+              <div className="bg-gray-200 dark:bg-gray-700 h-4 rounded mb-2"></div>
+              <div className="bg-gray-200 dark:bg-gray-700 h-3 rounded mb-2"></div>
+              <div className="bg-gray-200 dark:bg-gray-700 h-3 rounded w-3/4"></div>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
 
-      // Same city
-      if (listing.city.name === currentListing.city.name) score += 2
-
-      // Shared eco features
-      const sharedFeatures = listing.eco_features.filter(feature =>
-        currentListing.eco_features.includes(feature)
-      )
-      score += sharedFeatures.length
-
-      return { listing, score }
-    })
-
-    // Sort by score and take top N
-    return scoredListings
-      .sort((a, b) => b.score - a.score)
-      .slice(0, maxListings)
-      .map(item => item.listing)
-  }, [currentListing, allListings, maxListings])
-
-  if (relatedListings.length === 0) return null
+  if (relatedListings.length === 0) return null;
 
   return (
     <section className="mt-12">
@@ -67,7 +77,7 @@ export function RelatedListings({ currentListing, allListings, maxListings = 3 }
         {relatedListings.map((listing) => (
           <Link
             key={listing._id}
-            href={`/listings/${listing.slug.current}`} // Updated to use listing.slug.current
+            href={`/listings/${listing.slug.current}`}
             className="group"
           >
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-shadow hover:shadow-lg">
@@ -95,5 +105,5 @@ export function RelatedListings({ currentListing, allListings, maxListings = 3 }
         ))}
       </div>
     </section>
-  )
+  );
 }

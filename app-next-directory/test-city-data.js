@@ -1,53 +1,55 @@
-// Test script to verify Sanity city data and image URLs
+// Test script to inspect city references in listings
 const { createClient } = require('@sanity/client');
+require('dotenv').config({ path: '.env.local' });
 
 const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'your-project-id',
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
-  apiVersion: '2024-01-01',
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  apiVersion: '2024-05-16',
   useCdn: false,
 });
 
-async function testCityData() {
+async function inspectCityReferences() {
   try {
-    console.log('Testing Sanity connection...');
-    console.log('Project ID:', process.env.NEXT_PUBLIC_SANITY_PROJECT_ID);
-    console.log('Dataset:', process.env.NEXT_PUBLIC_SANITY_DATASET);
+    console.log('🔍 Inspecting city references in listings...\n');
 
-    const query = `*[_type == "city"] {
-      _id,
-      title,
-      description,
-      "slug": slug.current,
-      mainImage {
-        asset-> {
-          _id,
-          url,
-          metadata {
-            dimensions {
-              width,
-              height
-            }
-          }
-        }
-      },
-      country,
-      sustainabilityScore,
-      highlights
-    }`;
+    // Check raw city field structure
+    const listingsWithCityData = await client.fetch(`
+      *[_type == "listing" && moderation.featured == true][0...3] {
+        _id,
+        name,
+        city,
+        "cityRef": city->_id,
+        "cityTitle": city->title,
+        "cityName": city->name,
+        "rawCity": city
+      }
+    `);
 
-    const cities = await client.fetch(query);
-    console.log('\n=== CITIES DATA ===');
-    console.log(`Found ${cities.length} cities`);
+    console.log('📋 Featured listings city data:');
+    listingsWithCityData.forEach((listing, index) => {
+      console.log(`${index + 1}. ${listing.name}`);
+      console.log(`   Raw City Field:`, listing.rawCity);
+      console.log(`   City Ref ID:`, listing.cityRef || 'NO REF');
+      console.log(`   City Title:`, listing.cityTitle || 'NO TITLE');
+      console.log(`   City Name:`, listing.cityName || 'NO NAME');
+      console.log('');
+    });
+
+    // Check available cities
+    console.log('🏙️ Available cities in Sanity:');
+    const cities = await client.fetch(`
+      *[_type == "city"][0...5] {
+        _id,
+        name,
+        title,
+        slug
+      }
+    `);
 
     cities.forEach((city, index) => {
-      console.log(`\nCity ${index + 1}:`);
-      console.log('- ID:', city._id);
-      console.log('- Title:', city.title);
-      console.log('- Slug:', city.slug);
-      console.log('- Country:', city.country);
-      console.log('- Sustainability Score:', city.sustainabilityScore);
-      console.log('- Highlights:', city.highlights?.join(', ') || 'None');
+      console.log(`${index + 1}. ${city.title || city.name} (ID: ${city._id})`);
+    });
 
       if (city.mainImage?.asset) {
         console.log('- Image Asset ID:', city.mainImage.asset._id);

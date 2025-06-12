@@ -7,7 +7,7 @@ const listingFields = `
   "slug": slug.current,
   description_short,
   category,
-  "city": city->name,
+  "city": city->title,
   "primaryImage": primaryImage {
     asset->
   },

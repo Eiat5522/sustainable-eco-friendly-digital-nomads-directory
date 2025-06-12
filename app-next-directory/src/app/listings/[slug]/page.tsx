@@ -56,7 +56,7 @@ interface Listing {
   price_range?: string;
   reviews?: Review[];
   sustainabilityScore: number;
-  featured: boolean; // Added featured here as it was in the query
+  featured: boolean;
 }
 
 // Function to fetch all listing slugs from Sanity for generateStaticParams
@@ -104,7 +104,6 @@ export async function generateMetadata(
           title: sanityListing.name,
           description: sanityListing.description_short,
           images: [sanityListing.primary_image_url],
-          authors: ['Sustainable Digital Nomads Directory'],
         },
         twitter: {
           card: 'summary_large_image',
@@ -113,8 +112,9 @@ export async function generateMetadata(
           images: [sanityListing.primary_image_url],
         },
       };
-    }    // If no listing is found by slug, return 404
-    // Note: We've removed the ID-based fallback as part of migration to slug-only URLs
+    }
+
+    // If no listing is found by slug, return 404
     return notFound();
   } catch (error) {
     console.error("Error generating metadata:", error);
@@ -133,8 +133,8 @@ export default async function ListingPage({ params }: Props) {
         _id,
         name,
         slug,
-        descriptionShort,
-        descriptionLong,
+        description_short,
+        description_long,
         category,
         city->{name, country},
         location,
@@ -145,7 +145,7 @@ export default async function ListingPage({ params }: Props) {
           }
         },
         "primary_image_url": images[0].asset->url,
-        ecoTags,
+        eco_features,
         amenities,
         contact_phone,
         contact_email,
@@ -169,9 +169,9 @@ export default async function ListingPage({ params }: Props) {
       return (
         <main className="container mx-auto py-12 px-4 sm:px-6">
           <Breadcrumbs
-            items={[
-              { label: 'Listings', href: '/listings' },
-              { label: sanityListing.name, href: `/listings/${params.slug}` },
+            segments={[
+              { name: 'Listings', href: '/listings' },
+              { name: sanityListing.name, href: `/listings/${params.slug}` },
             ]}
           />
 
@@ -187,16 +187,16 @@ export default async function ListingPage({ params }: Props) {
 
             <ListingDetail listing={{
               ...sanityListing,
-              description_short: sanityListing.descriptionShort || "",
-              description_long: sanityListing.descriptionLong || "",
-              eco_features: sanityListing.ecoTags || [],
               gallery_images: sanityListing.images?.map(img => img.asset.url) || [],
-              reviews: sanityListing.reviews || []
+              reviews: sanityListing.reviews?.map(review => ({
+                ...review,
+                _createdAt: review.date
+              })) || []
             }} />
           </article>
 
           <RelatedListings
-            slug={params.slug}
+            currentSlug={params.slug}
             category={sanityListing.category}
             cityName={sanityListing.city.name}
           />
