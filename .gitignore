@@ -97,7 +97,7 @@ tasks/
 #Github Copilot
 .vscode/mcp.json
 **/*/project-memory/*
-*/tools-usage-guidelines.instructions.md
+.github/instructions/tools-usage-guidelines.instructions.md
 
 
 #Cline & Roo
@@ -108,3 +108,7 @@ tasks/
 
 # Code Index MCP cache directory
 .code_indexer/
+
+# Repomix MCP files
+*/repomix-instruction.md
+*/.secretlintrc.json
