@@ -16,7 +16,7 @@ const InfographicSection: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, ease: [0.6, 0.05, -0.01, 0.9] }}
+          transition={{ duration: 0.8, ease: [0.6, 0.05, 0.01, 0.9] }}
           className="text-center max-w-3xl mx-auto"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-900 dark:text-white">
@@ -30,21 +30,20 @@ const InfographicSection: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={inView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 0.8, delay: 0.2, ease: [0.6, 0.05, -0.01, 0.9] }}
+          transition={{ duration: 0.8, delay: 0.2, ease: [0.6, 0.05, 0.01, 0.9] }}
           className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 md:p-12 my-12 max-w-5xl mx-auto"
         >
           {/* Placeholder for Infographic Visual */}
-          {/* You can replace this with an <Image /> component if you have a preview */}
-          <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center justify-center p-8">
-            <Image
-              src="/images/infographics/sustainable-nomad-preview.svg" // Replace with your actual preview image path
-              alt="Sustainable Nomad Blueprint Preview"
-              width={600}
-              height={338}
-              className="rounded-md shadow-lg"
-            />
-            <p className="mt-6 text-gray-600 dark:text-gray-400 text-center">
-              A visual guide to eco-friendly travel and remote work. Click below to see the full blueprint!
+          <div className="aspect-video bg-gray-100 dark:bg-gray-700 rounded-lg flex flex-col items-center justify-center p-8 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400 dark:text-gray-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Infographic Coming Soon!</h3>
+            <p className="text-gray-600 dark:text-gray-400">
+              We're working on a beautiful visual guide for the Sustainable Nomad Blueprint.
+            </p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">
+              In the meantime, you can click below to learn more about the concepts.
             </p>
           </div>
 

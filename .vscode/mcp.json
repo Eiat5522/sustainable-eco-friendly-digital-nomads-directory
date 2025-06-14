@@ -21,6 +21,18 @@
     "vscode-mcp-server": {
       "command": "npx",
       "args": ["mcp-remote@next", "http://localhost:3000/mcp"]
+    },
+    "workspace-filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${workspaceFolder}"
+      ],
+      "disabled": false,
+      "autoApprove": [
+        "list_allowed_directories"
+      ]
     }
   }
 }

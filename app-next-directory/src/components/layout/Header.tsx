@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useState } from 'react';
 import Logo from '../common/Logo';
-import SearchBar from '../search/SearchBar';
+import { SearchBar } from '../search/SearchBar';
 import ThemeToggle from './ThemeToggle';
 
 const Header: React.FC = () => {

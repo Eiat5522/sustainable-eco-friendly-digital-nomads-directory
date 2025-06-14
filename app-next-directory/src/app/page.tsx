@@ -1,115 +1,47 @@
 'use client';
 
-import { getAllCities } from '@/lib/sanity/queries';
 import { useEffect, useState } from 'react';
-import { HeroSection } from '@/components/HeroSection';
-import FeaturedListings from '@/components/home/FeaturedListings';
+import HeroSection from '@/components/home/HeroSection';
+import FeaturedListings from '@/components/listings/FeaturedListings';
 import CitiesCarousel from '@/components/home/CitiesCarousel';
-import { SanityListing } from '@/types/sanity';
+import InfographicSection from '@/components/home/InfographicSection';
+import WhyChooseUs from '@/components/home/WhyChooseUs';
+import CTASection from '@/components/home/CTASection';
 
-interface City {
-  _id: string;
-  title: string;
-  description: string;
-  slug: string;
-  mainImage: {
-    asset: {
-      _id: string;
-      url: string;
-      metadata: {
-        dimensions: {
-          width: number;
-          height: number;
-        };
-      };
-    };
-  };
-  country: string;
-  sustainabilityScore: number;
-  highlights: string[];
-}
-
-const HomePage = () => {
-  const [cities, setCities] = useState<City[]>([]);
-  const [isLoadingCities, setIsLoadingCities] = useState(true);
-  const [errorCities, setErrorCities] = useState<string | null>(null);
-
-  const [featuredListings, setFeaturedListings] = useState<SanityListing[]>([]);
-  const [isLoadingFeatured, setIsLoadingFeatured] = useState(true);
-  const [errorFeatured, setErrorFeatured] = useState<string | null>(null);
+export default function HomePage() {
+  const [listings, setListings] = useState([]);
+  const [cities, setCities] = useState([]);
 
   useEffect(() => {
-    const fetchCities = async () => {
-      try {
-        const data = await getAllCities();
-        setCities(data);
-      } catch (err) {
-        console.error('Failed to fetch cities:', err);
-        setErrorCities('Failed to load cities. Please try again later.');
-      } finally {
-        setIsLoadingCities(false);
-      }
-    };    const fetchFeaturedListings = async () => {
-      try {
-        const response = await fetch('/api/listings/featured');
-        const result = await response.json();
+    async function fetchData() {
+      const [featuredListingsResponse, citiesResponse] = await Promise.all([
+        fetch('/api/featured-listings').then(res => res.json()),
+        fetch('/api/cities').then(res => res.json()),
+      ]);
 
-        if (!result.success) {
-          throw new Error(result.error || 'Failed to load featured listings');
-        }
+      // console.log('Server-side log: Fetched featured listings data in page.tsx:', JSON.stringify(featuredListingsResponse, null, 2)); // Removed debugging log
+      // console.log('Server-side log: Fetched cities data in page.tsx:', JSON.stringify(citiesResponse, null, 2)); // Removed debugging log
+      
+      const featuredListings = featuredListingsResponse.listings || [];
+      const allCities = citiesResponse.success ? citiesResponse.cities : [];
+      
+      // console.log('Fetched featured listings data in page.tsx (client-side):', featuredListingsResponse);  // Removed debugging log
+      // console.log('Fetched cities data in page.tsx (client-side):', citiesResponse); // Removed debugging log
 
-        setFeaturedListings(result.data);
-      } catch (err) {
-        console.error('Failed to fetch featured listings:', err);
-        setErrorFeatured('Failed to load featured listings. Please try again later.');
-      } finally {
-        setIsLoadingFeatured(false);
-      }
-    };
-
-    fetchCities();
-    fetchFeaturedListings();
+      setListings(featuredListings);
+      setCities(allCities);
+    }
+    fetchData();
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
+    <div>
       <HeroSection />
-
-      {/* Featured Listings Section */}
-      <section className="py-12 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
-            Featured Sustainable Spaces
-          </h2>
-          {isLoadingFeatured ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-pulse text-gray-500">Loading featured listings...</div>
-            </div>
-          ) : errorFeatured ? (
-            <div className="text-center text-red-500 py-8">{errorFeatured}</div>
-          ) : (
-            <FeaturedListings listings={featuredListings} />
-          )}
-        </div>
-      </section>
-
-      {/* Cities Section */}
-      <section className="py-12 bg-gray-50">
-        <div className="container mx-auto px-4">
-          {isLoadingCities ? (
-            <div className="flex justify-center items-center h-96">
-              <div className="animate-pulse text-gray-500">Loading cities...</div>
-            </div>
-          ) : errorCities ? (
-            <div className="text-center text-red-500 py-8">{errorCities}</div>
-          ) : (
-            <CitiesCarousel cities={cities} />
-          )}
-        </div>
-      </section>
+      <FeaturedListings listings={listings} />
+      <CitiesCarousel cities={cities} />
+      <InfographicSection />
+      <WhyChooseUs />
+      <CTASection />
     </div>
   );
-};
-
-export default HomePage;
+}

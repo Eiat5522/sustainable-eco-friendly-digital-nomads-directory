@@ -53,12 +53,26 @@ Provide Cline with structured guidance modeled on Cline’s best practices. This
 ## 🛠️ 3. Tech Stack Conventions
 
 * **Front-end:** Next.js ^14.2.28 (App Router), Tailwind CSS ^3.3.2
+  * **Rendering Note:** Be mindful of code in `layout.tsx` or other root components that might conditionally prevent children from rendering during Server-Side Rendering (SSR) (e.g., checks like `typeof window === 'undefined'` for main content). Ensure page content is consistently rendered.
 * **CMS:** Sanity (free tier)
+  * **Image Handling:** When working with Sanity images:
+    1. Always inspect the TypeScript interface for the image asset within the specific component.
+    2. Determine if the fetched data provides a direct `asset.url` or an `asset._ref`.
+    3. Use the `urlFor()` helper (e.g., `urlFor(imageAsset).width(W).height(H).url()`) ONLY when dealing with an asset reference (`_ref`).
+    4. If a direct `url` is available in the fetched data, use it directly.
+    5. If unsure, and data is fetched client-side, consider temporarily logging the image data structure to confirm.
+* **Database:** MongoDB Atlas or ElephantSQL
 * **Database:** MongoDB Atlas or ElephantSQL
 * **Maps:** Leaflet.js + OpenStreetMap
 * **Auth:** NextAuth.js or Auth0
 * **Deployment:** Vercel (Hobby) or Cloudflare Pages
-* **CI/CD:**  Actions (lint, type-check, tests → preview → production)
+  * **CI/CD:**  Actions (lint, type-check, tests → preview → production)
+  * **PowerShell Profile/Scripting:**
+    * **Executable & Script Path Validation:** Before calling external commands or sourcing scripts (especially if paths are dynamic or not guaranteed in `PATH`):
+        1. Verify executable existence (e.g., `Test-Path $exePath` or `Get-Command $commandName -ErrorAction SilentlyContinue`).
+        2. If an executable provides a script path (e.g., via `--locate-shell-integration-path`), validate this path (`Test-Path $scriptPath -PathType Leaf` and ensure it's not empty) before sourcing.
+        3. Provide clear `Write-Warning` or `Write-Error` if validation fails.
+    * **User-Driven Refinements:** When user feedback suggests a cleaner, more robust, or more idiomatic way to structure script logic (e.g., using a boolean flag set at the start of a profile), prioritize incorporating such improvements.
 
 ## 🌐 4. API & Routing Patterns
 
@@ -116,6 +130,14 @@ Provide Cline with structured guidance modeled on Cline’s best practices. This
   * `@NextAuth/mongodb-adapter` `^2.0.0`
   * Sanity client/image URL `^6.x`
 
+## ⚙️ MCP Server Configuration
+
+* **Workspace-Specific Servers:** For MCP servers that rely on workspace-relative paths (e.g., using `"${workspaceFolder}"` in their arguments), configure them in the project's `.vscode/mcp.json` file. This ensures correct path resolution and keeps project-specific configurations localized.
+* **Global Servers:** Servers intended for general use across multiple projects can be configured in the global `cline_mcp_settings.json` file.
+* **Default Settings:** When adding new MCP servers, ensure `disabled` is set to `false` and `autoApprove` is initialized (e.g., to `[]`) unless specific auto-approval is intended.
+* **Versioning:** When installing MCP servers via `npx`, prefer specifying a version (e.g., `npx -y my-mcp-server@1.2.3`) if a stable version is known or can be easily determined. If not, using the latest version (e.g., `npx -y my-mcp-server`) is acceptable, but consider pinning it to a specific version later for stability.
+* **Tool Naming & Casing:** When calling MCP tools, meticulously check the server's documentation for exact tool names, parameter names, and their casing (e.g., `toolName` vs `tool_name`), as these are often case-sensitive and a common source of errors.
+
 ```markdown
 🧠 8. Memory Management
 =======================
@@ -157,3 +179,12 @@ When new info arises:
 1. Create nodes for recurring entities.
 2. Link them to the user.
 3. Store each fact as an observation.
+
+## 🖼️ Asset Management
+
+* **Missing Static Assets:** If a static asset (e.g., image, font, document) referenced in the code is found to be missing (e.g., after using `list_files`):
+    1. Inform the user about the specific missing asset and its path.
+    2. Propose and implement a graceful fallback. This could be:
+        * A styled placeholder `div` with descriptive text or an SVG icon.
+        * Removing the element if its absence doesn't critically break the UI and a placeholder is unsuitable.
+    3. Ask the user if they can provide the asset, if a generic placeholder is acceptable long-term, or if they have other instructions for handling it.

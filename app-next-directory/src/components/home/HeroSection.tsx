@@ -2,12 +2,12 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, FormEvent, useState } from 'react';
 
 const HeroSection: React.FC = () => {
   const router = useRouter();
   const parallaxRef = useRef<HTMLDivElement>(null);
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Parallax effect
   useEffect(() => {
@@ -22,7 +22,7 @@ const HeroSection: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
@@ -46,7 +46,7 @@ const HeroSection: React.FC = () => {
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.8, ease: [0.6, 0.05, -0.01, 0.9] }
+      transition: { duration: 0.8, ease: [0.6, 0.05, 0.01, 0.9] }
     }
   };
 

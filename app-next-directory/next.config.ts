@@ -8,14 +8,7 @@ const nextConfig = {
     ignoreBuildErrors: true, // Temporarily disable TypeScript errors
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'cdn.sanity.io',
-        port: '',
-        pathname: '/**',
-      },
-    ],
+    domains: ['cdn.sanity.io'],
   },
 };
 

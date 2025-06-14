@@ -9,15 +9,16 @@ const CTASection: React.FC = () => {
         <div className="flex flex-col lg:flex-row items-center gap-12">
           {/* Image/Visual Side */}
           <div className="w-full lg:w-1/2 relative">
-            <div className="relative h-[400px] w-full rounded-xl overflow-hidden shadow-xl">
-              <Image
-                src="/images/cta-nomad-working.jpg"
-                alt="Digital Nomad Working in Eco-friendly Environment"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-              <div className="absolute inset-0 bg-gradient-to-tr from-green-800/60 to-transparent"></div>
+            <div className="relative h-[400px] w-full rounded-xl overflow-hidden shadow-xl bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+              {/* Placeholder SVG or Text */}
+              <div className="text-center p-8">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-gray-400 dark:text-gray-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-gray-500 dark:text-gray-400">Illustrative image of a digital nomad in an eco-friendly setting. Image coming soon.</p>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-tr from-green-800/30 to-transparent"></div>
 
               {/* Testimonial overlay */}
               <div className="absolute bottom-6 left-6 right-6 bg-white/90 dark:bg-gray-800/90 p-4 rounded-lg shadow-lg">

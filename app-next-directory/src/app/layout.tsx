@@ -1,20 +1,31 @@
-
-import { Metadata } from 'next';
-import { ReactNode } from 'react';
 import './globals.css';
-import ClientRootLayout from './ClientRootLayout';
+import { Inter } from 'next/font/google';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import SessionWrapper from '@/components/layout/SessionWrapper';
 
-interface RootLayoutProps {
-  children: ReactNode;
-}
+const inter = Inter({ subsets: ['latin'] });
 
-export default function RootLayout({ children }: RootLayoutProps) {
+export const metadata = {
+  title: 'EcoNomads',
+  description: 'Sustainable travel accommodations',
+};
+
+import { SessionProvider } from 'next-auth/react';
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
-        <ClientRootLayout>
-          {children}
-        </ClientRootLayout>
+    <html lang="en">
+      <body className={inter.className}>
+        <SessionWrapper>
+          <Header />
+        </SessionWrapper>
+        <main>{children}</main>
+        <Footer />
       </body>
     </html>
   );

@@ -84,7 +84,6 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   try {
-    const awaitedParams = await params;
     // Fetch from Sanity by slug
     const sanityListing = await getClient().fetch<Listing>(
       `*[_type == "listing" && slug.current == $slug][0]{
@@ -93,7 +92,7 @@ export async function generateMetadata(
         primary_image_url,
         featured
       }`,
-      { slug: awaitedParams.slug }
+      { slug: params.slug }
     );
 
     if (sanityListing) {
@@ -128,7 +127,6 @@ export async function generateMetadata(
 
 export default async function ListingPage({ params }: Props) {
   try {
-    const awaitedParams = await params;
     // Fetch from Sanity by slug
     const sanityListing = await getClient().fetch<Listing>(
       `*[_type == "listing" && slug.current == $slug][0]{
@@ -162,7 +160,7 @@ export default async function ListingPage({ params }: Props) {
         sustainabilityScore,
         featured
       }`,
-      { slug: awaitedParams.slug }
+      { slug: params.slug }
     );
 
     if (sanityListing) {
@@ -173,7 +171,7 @@ export default async function ListingPage({ params }: Props) {
           <Breadcrumbs
             segments={[
               { name: 'Listings', href: '/listings' },
-              { name: sanityListing.name, href: `/listings/${awaitedParams.slug}` },
+              { name: sanityListing.name, href: `/listings/${params.slug}` },
             ]}
           />
 
@@ -181,7 +179,7 @@ export default async function ListingPage({ params }: Props) {
             {sanityListing.images && sanityListing.images.length > 0 && (
               <div className="mb-8">
                 <ImageGallery
-                  images={sanityListing.images.map(img => img.asset?.url).filter(Boolean) as string[]}
+                  images={sanityListing.images.map(img => img.asset.url)}
                   alt={`Photos of ${sanityListing.name}`}
                 />
               </div>
@@ -189,8 +187,7 @@ export default async function ListingPage({ params }: Props) {
 
             <ListingDetail listing={{
               ...sanityListing,
-              primary_image_url: sanityListing.primary_image_url || sanityListing.images?.[0]?.asset?.url || '',
-              gallery_images: sanityListing.images?.map(img => img.asset?.url).filter(Boolean) as string[] || [],
+              gallery_images: sanityListing.images?.map(img => img.asset.url) || [],
               reviews: sanityListing.reviews?.map(review => ({
                 ...review,
                 _createdAt: review.date
@@ -199,7 +196,7 @@ export default async function ListingPage({ params }: Props) {
           </article>
 
           <RelatedListings
-            currentSlug={awaitedParams.slug}
+            currentSlug={params.slug}
             category={sanityListing.category}
             cityName={sanityListing.city.name}
           />
