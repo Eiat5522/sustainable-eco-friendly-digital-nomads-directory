@@ -33,6 +33,11 @@
 - Date-based filtering built into query
 - Includes eco-initiatives data
 
+### /api/city/[slug]
+- GET: Fetch detailed information for a single city by its slug.
+- Uses `getCityBySlug` Sanity query.
+- Returns city details like description, highlights, main image, sustainability score.
+
 ## Performance Optimizations
 - CDN enabled for production
 - Query projections to minimize response payload

@@ -1,4 +1,4 @@
-# Project Progress (Updated: May 19, 2025)
+# Project Progress (Updated: June 14, 2025)
 
 ## Overall Project Status
 
@@ -22,6 +22,13 @@
 - Updated testing documentation
 - Generated baseline screenshots
 - Added proper masking for dynamic content
+
+### Listing and City Detail Pages Implementation (June 14, 2025) ✅
+- Created Listing detail page (`app/listings/[slug]/page.tsx`) with data fetching from Sanity.
+- Implemented `ImageGallery` client component for interactive image previews on listing pages.
+- Created City detail page (`app/city/[slug]/page.tsx`) displaying city-specific information.
+- Developed API route (`app/api/city/[slug]/route.ts`) to serve city data.
+- Added Call to Action sections on both detail pages.
 
 ### Homepage UI Implementation (May 19, 2025) ✅
 

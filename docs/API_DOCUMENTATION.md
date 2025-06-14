@@ -499,43 +499,64 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 ```json
 {
   "listing": {
-    "id": "listing_id",
+    "_id": "listing_id_from_sanity",
     "name": "Green Coworking Hub",
     "slug": "green-coworking-hub-bangkok",
-    "description": "Detailed description...",
-    "fullDescription": "Extended content...",
+    "description_short": "Sustainable workspace with solar panels.",
+    "descriptionLong": "Extended content detailing the eco-initiatives, community, and facilities...",
     "category": "coworking",
-    "city": "Bangkok",
-    "address": "123 Sustainable Street",
-    "coordinates": {
-      "lat": 13.7563,
-      "lng": 100.5018
+    "city": "Bangkok", // Name of the city
+    "addressString": "123 Sustainable Street, Bangkok",
+    "primaryImage": {
+      "asset": {
+        "_id": "image-asset-id-primary",
+        "url": "https://cdn.sanity.io/images/your_project_id/production/asset_id.jpg",
+        "alt": "Main view of Green Coworking Hub"
+        // metadata with dimensions could also be here
+      }
     },
-    "ecoTags": ["solar-powered", "zero-waste", "organic-food"],
-    "nomadFeatures": ["fast-wifi", "standing-desks", "meeting-rooms"],
-    "rating": 4.5,
-    "reviewCount": 24,
-    "priceRange": "$$",
-    "hours": {
-      "monday": "08:00-22:00",
-      "tuesday": "08:00-22:00"
-    },
-    "images": [
+    "galleryImages": [
       {
-        "url": "https://cdn.sanity.io/images/...",
-        "alt": "Main workspace area"
+        "asset": {
+          "_id": "image-asset-id-gallery-1",
+          "url": "https://cdn.sanity.io/images/your_project_id/production/gallery_asset_1.jpg",
+          "alt": "Interior view of workspace"
+        }
+      },
+      {
+        "asset": {
+          "_id": "image-asset-id-gallery-2",
+          "url": "https://cdn.sanity.io/images/your_project_id/production/gallery_asset_2.jpg",
+          "alt": "Community event at the hub"
+        }
       }
     ],
-    "contact": {
+    "ecoTags": ["solar-powered", "zero-waste", "organic-food"],
+    "digital_nomad_features": ["fast-wifi", "standing-desks", "meeting-rooms"],
+    "website": "https://greencoworking.com",
+    "contactInfo": {
       "phone": "+66 2 123 4567",
-      "email": "info@greencoworking.com",
-      "website": "https://greencoworking.com"
+      "email": "info@greencoworking.com"
     },
-    "sustainability": {
-      "certifications": ["LEED Gold", "Green Building"],
-      "practices": ["Solar panels", "Rainwater harvesting"],
-      "score": 4.2
+    "openingHours": "Mon-Fri: 08:00-22:00, Sat: 09:00-20:00",
+    "ecoNotesDetailed": "Detailed notes about specific sustainability practices...",
+    "sourceUrls": ["https://originalsource.com/article"],
+    "last_verified_date": "2025-06-01",
+    "reviews": [
+      {
+        "_id": "review_id_1",
+        "rating": 5,
+        "comment": "Excellent place with great eco-initiatives!",
+        "author": { "name": "Jane Doe" }
+      }
+    ],
+    // Category specific details, e.g., for 'coworking':
+    "coworkingDetails": {
+      "operatingHours": "Mon-Fri 9am-6pm", // This might be redundant if openingHours is used
+      "pricingPlans": "Varies, see website",
+      "specificAmenities": ["meeting rooms", "quiet zones"]
     }
+    // Other fields like price_range might be here depending on category
   }
 }
 
@@ -568,57 +589,75 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 
 #### `GET /api/cities`
 
-**Purpose**: Get all cities with listing counts
+**Purpose**: Get all cities with summary information (e.g., for a city listing page or filter).
 **Access**: Public
-**Response**:
+**Response**: (Example - actual fields might vary based on `getAllCities` query)
 
 ```json
 {
-  "cities": [
+  "success": true,
+  "data": [
     {
-      "id": "bangkok",
-      "name": "Bangkok",
+      "_id": "city_id_1",
+      "title": "Bangkok",
+      "slug": "bangkok",
       "country": "Thailand",
-      "description": "Vibrant capital with numerous eco-friendly venues",
-      "coordinates": {
-        "lat": 13.7563,
-        "lng": 100.5018
+      "description": "Vibrant capital with numerous eco-friendly venues.",
+      "mainImage": {
+        "asset": {
+          "_id": "image-asset-id-bangkok",
+          "url": "https://cdn.sanity.io/images/your_project_id/production/bangkok_main.jpg",
+          "alt": "Skyline of Bangkok"
+        }
       },
-      "listingCount": 45,
-      "featuredImage": "https://cdn.sanity.io/images/...",
-      "ecoScore": 4.1
+      "sustainabilityScore": 75
+      // Potentially listingCount if added to the query
     }
   ]
 }
-
 ```
 
-#### `GET /api/cities/[slug]`
+#### `GET /api/city/[slug]` (Note: path changed from `/api/cities/[slug]` for consistency with Next.js App Router)
 
-**Purpose**: Get city details with listings
+**Purpose**: Get detailed information for a single city by its slug.
 **Access**: Public
+**Path Parameter**: `slug` (string) - The unique slug for the city.
 **Response**:
 
 ```json
 {
-  "city": {
-    "id": "bangkok",
-    "name": "Bangkok",
-    "description": "Detailed city description...",
-    "ecoInitiatives": ["Bike sharing", "Green building program"],
-    "nomadInfo": {
-      "costOfLiving": "$$",
-      "internetSpeed": "Fast",
-      "coworkingSpaces": 23,
-      "cafes": 18
-    },
-    "listings": [
-      // Array of listings in this city
-    ]
+  "success": true,
+  "data": {
+    "_id": "city_document_id_from_sanity",
+    "title": "Chiang Mai",
+    "slug": "chiang-mai",
+    "country": "Thailand",
+    "description": "A northern Thai city renowned for its relaxed atmosphere, rich culture, and growing number of sustainable initiatives. Popular with digital nomads for its affordability and access to nature.",
+    "sustainabilityScore": 82,
+    "highlights": [
+      "Numerous vegetarian and vegan cafes with local sourcing.",
+      "Active community in waste reduction and recycling programs.",
+      "Easy access to national parks and elephant sanctuaries (choose ethical ones!).",
+      "Growing number of co-working spaces with eco-friendly practices."
+    ],
+    "mainImage": {
+      "asset": {
+        "_id": "image-asset-id-chiang-mai",
+        "url": "https://cdn.sanity.io/images/your_project_id/production/chiang_mai_main.jpg",
+        "alt": "Scenic view of Doi Suthep temple in Chiang Mai",
+        "metadata": {
+          "dimensions": {
+            "width": 1200,
+            "height": 800
+          }
+        }
+      }
+    }
+    // This endpoint focuses on city details. Listings for the city would typically be fetched via /api/listings?city=chiang-mai
   }
 }
-
 ```
+**Note**: The previous documentation for `GET /api/cities/[slug]` showed listings embedded. The new `GET /api/city/[slug]` route focuses on city-specific data. Listings for a city should be fetched using the `/api/listings` endpoint with a city filter (e.g., `/api/listings?city=slug`).
 
 ### Reviews Endpoints
 

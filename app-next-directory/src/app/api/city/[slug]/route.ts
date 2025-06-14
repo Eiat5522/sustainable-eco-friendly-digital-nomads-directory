@@ -1,22 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getCityBySlug } from '@/lib/sanity/queries'; // Import the new function
+import { ApiResponseHandler } from '@/utils/api-response'; // Assuming you have this utility
 
-// Define the shape of the context parameter for Next.js 15+
+// Define the shape of the context parameter
 type RouteContext = {
-  params: Promise<{ slug: string }>;
+  params: { slug: string }; // Updated to reflect Next.js 13+ App Router context
 };
 
 export async function GET(
   request: NextRequest,
   context: RouteContext
 ) {
-  const { slug } = await context.params;
+  const { slug } = context.params; // Directly access params
 
-  // You can now use the slug to fetch data for the specific city
-  // For example, fetch city data from Sanity or your database
-  // const cityData = await getCityData(slug);
+  try {
+    const cityData = await getCityBySlug(slug);
 
-  // For now, let's just return the slug
-  return NextResponse.json({ message: `Data for city: ${slug}` });
+    if (!cityData) {
+      return ApiResponseHandler.notFound('City');
+    }
+
+    // Construct the mainImage URL if using Sanity's image asset reference
+    // This depends on your urlFor utility setup
+    // For now, assuming cityData.mainImage.asset.url is directly available or handled by getCityBySlug
+    // If not, you'll need to import and use your urlFor helper here.
+    // Example: const mainImageUrl = cityData.mainImage ? urlFor(cityData.mainImage.asset).url() : null;
+    // const responseData = { ...cityData, mainImageUrl };
+
+    return ApiResponseHandler.success(cityData);
+  } catch (error) {
+    console.error(`Failed to fetch city data for slug: ${slug}`, error);
+    return ApiResponseHandler.error('Failed to fetch city data');
+  }
 }
 
 // You can add other HTTP method handlers here as needed:
