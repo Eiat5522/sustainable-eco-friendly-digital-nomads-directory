@@ -63,7 +63,13 @@ export default function SignUpForm() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || 'Something went wrong');
+        let errorMessage = result.message || 'Something went wrong';
+        if (errorMessage === 'User with this email already exists in Sanity') {
+          errorMessage = 'User with this email has already signed up.';
+          setError(errorMessage);
+          return; // Handle duplicate email gracefully without throwing
+        }
+        throw new Error(errorMessage);
       }
 
       // Registration successful

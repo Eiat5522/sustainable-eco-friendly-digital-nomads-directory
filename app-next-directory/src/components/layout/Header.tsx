@@ -12,6 +12,7 @@ const Header: React.FC = () => {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
   const isActive = (path: string) => pathname === path;
 
@@ -21,10 +22,16 @@ const Header: React.FC = () => {
         <div className="flex items-center">
           <Link href="/" className="flex items-center mr-8">
             <Logo />
-            <span className="font-bold text-xl ml-2 text-gray-800 dark:text-white">EcoNomads</span>
+            <span className="font-bold text-xl ml-2 text-gray-800 dark:text-white">Leaf & Laptop</span>
           </Link>
 
           <nav className="hidden md:flex space-x-6">
+            <Link
+              href="/"
+              className={`text-base font-medium ${isActive('/') ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400'}`}
+            >
+              Home
+            </Link>
             <Link
               href="/explore"
               className={`text-base font-medium ${isActive('/explore') ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400'}`}
@@ -48,7 +55,7 @@ const Header: React.FC = () => {
 
         <div className="flex items-center space-x-4">
           <div className="hidden sm:block w-64">
-            <SearchBar />
+            <SearchBar value={searchValue} onChange={setSearchValue} />
           </div>
 
           <ThemeToggle />

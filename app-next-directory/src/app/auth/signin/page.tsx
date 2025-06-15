@@ -10,11 +10,12 @@ export const metadata = {
 async function SignInPage({
   searchParams,
 }: {
-  searchParams: { callbackUrl?: string; error?: string };
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 }) {
   const providers = await getProviders();
-  const callbackUrl = searchParams.callbackUrl || '/';
-  const error = searchParams.error;
+  const resolvedSearchParams = await searchParams;
+  const callbackUrl = resolvedSearchParams.callbackUrl || '/';
+  const error = resolvedSearchParams.error;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 py-12 px-4 sm:px-6 lg:px-8">

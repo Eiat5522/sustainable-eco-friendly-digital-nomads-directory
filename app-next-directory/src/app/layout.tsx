@@ -7,7 +7,7 @@ import SessionWrapper from '@/components/layout/SessionWrapper';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'EcoNomads',
+  title: 'Leaf & Laptop',
   description: 'Sustainable travel accommodations',
 };
 
