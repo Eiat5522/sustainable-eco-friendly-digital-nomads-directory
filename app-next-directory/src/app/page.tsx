@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Header from '@/components/Header';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedListings from '@/components/listings/FeaturedListings';
 import CitiesCarousel from '@/components/home/CitiesCarousel';
@@ -36,6 +37,7 @@ export default function HomePage() {
 
   return (
     <div>
+      <Header />
       <HeroSection />
       <FeaturedListings listings={listings} />
       <CitiesCarousel cities={cities} />
