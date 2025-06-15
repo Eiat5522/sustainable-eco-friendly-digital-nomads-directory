@@ -1,91 +1,142 @@
 "use client";
-
-import React from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { urlFor } from '@/lib/sanity/image'; // Assuming this path is correct
 
 interface ImageGalleryProps {
-  images?: SanityImage[];
-  listingName: string;
+  images: string[];
+  alt: string;
 }
 
-interface SanityImage {
-  asset?: {
-    _id: string;
-    // other asset properties if needed
-  };
-  // other image fields like alt text if available on the image object itself
-  alt?: string; 
-}
+export function ImageGallery({ images, alt }: ImageGalleryProps) {
+  // Filter out invalid images
+  const validImages = images.filter(img => img && img.trim() !== '');
 
-const ImageGallery = ({ images, listingName }: ImageGalleryProps) => {
-  if (!images || images.length === 0) {
-    return null;
+  // Early return if no valid images
+  if (validImages.length === 0) {
+    return (
+      <div className="w-full h-96 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
+        <p className="text-gray-500 dark:text-gray-400">No images available</p>
+      </div>
+    );
   }
 
-  const [previewImage, setPreviewImage] = React.useState<SanityImage>(images[0]);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);  const [loadedImages, setLoadedImages] = useState(new Set<number>([0]));
+  const [failedImages, setFailedImages] = useState(new Set<number>());
 
-  const handleImageSelect = (image: SanityImage) => {
-    setPreviewImage(image);
+  // Enhanced preload functionality
+  useEffect(() => {
+    let isMounted = true;
+      const preloadImages = async () => {
+      for (let i = 1; i <= 2; i++) {
+        const nextIndex = (selectedImage + i) % validImages.length;
+        if (!loadedImages.has(nextIndex)) {
+          try {
+            await new Promise<void>((resolve, reject) => {
+              if (!isMounted) return;
+              const img = new window.Image();
+              img.onload = () => resolve();
+              img.onerror = () => reject();
+              img.src = validImages[nextIndex];
+            });            if (isMounted) {
+              const newLoadedImages = new Set(loadedImages);
+              newLoadedImages.add(nextIndex);
+              setLoadedImages(newLoadedImages);
+            }
+          } catch (error) {
+            if (isMounted) {
+              console.error(`Failed to preload image at index ${nextIndex}`);
+              const newFailedImages = new Set(failedImages);
+              newFailedImages.add(nextIndex);
+              setFailedImages(newFailedImages);
+            }
+          }
+        }
+      }
+    };
+
+    preloadImages();
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedImage, validImages, loadedImages]);
+  // Handle image selection
+  const handleImageSelect = (index: number) => {
+    setIsLoading(true);
+    setSelectedImage(index);
   };
 
-  const mainPreviewUrl = previewImage?.asset?._id
-    ? urlFor(previewImage.asset._id)?.width(800)?.height(600)?.url() ?? '/placeholder-city.jpg'
-    : '/placeholder-city.jpg';
-  
-  const mainPreviewAlt = previewImage?.alt || `Preview of ${listingName}`;
-
   return (
-    <div className="mt-8">
-      <h3 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Image Gallery</h3>
-      
-      {/* Main Preview Image */}
-      <div className="relative w-full h-80 md:h-96 mb-4 overflow-hidden rounded-lg shadow-lg bg-gray-200 dark:bg-gray-700">
-        <Image
-          src={mainPreviewUrl}
-          alt={mainPreviewAlt}
-          fill
-          className="object-contain" // Changed to contain to show full image, or use 'cover'
-          priority // If this is the primary content image after main listing image
-        />
-      </div>
-      
-      {/* Thumbnails */}
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
-        {images.map((image, index) => {
-          const imageAsset = image.asset;
-          let thumbnailUrl: string | undefined | null = null; // Explicitly type
-          if (imageAsset?._id) {
-            thumbnailUrl = urlFor(imageAsset._id)?.width(200)?.height(150)?.url();
-          }
+    <div className="space-y-4">
+      {/* Main Image */}
+      <div
+        className="relative"
+        onMouseEnter={() => setIsZoomed(true)}
+        onMouseLeave={() => setIsZoomed(false)}
+      >
+        <div className={`relative h-72 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden transition-transform duration-300 ${
+          isZoomed ? 'scale-110' : 'scale-100'
+        }`}>
+          {/* Loading Shimmer */}
+          <div
+            className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent
+              ${isLoading ? 'animate-shimmer opacity-100' : 'opacity-0'}`}
+            style={{
+              backgroundSize: '200% 100%'
+            }}
+          />          <Image
+            src={validImages[selectedImage]}
+            alt={`${alt} - Image ${selectedImage + 1}`}
+            fill
+            className={`object-cover transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}            onLoadingComplete={() => {
+              setIsLoading(false);
+              const newLoadedImages = new Set(loadedImages);
+              newLoadedImages.add(selectedImage);
+              setLoadedImages(newLoadedImages);
+            }}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            quality={90}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0dHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx//2wBDAR0XFyMeIyEeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyP/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+            priority={selectedImage === 0}
+          />
+        </div>
 
-          if (!thumbnailUrl) { // This check handles null or undefined
-             return null; // Skip if URL can't be generated
-          }
-
-          const thumbnailAlt = image.alt || `${listingName} gallery image ${index + 1}`;
-
-          return (
+        {/* Zoom Indicator */}
+        {!isZoomed && loadedImages.has(selectedImage) && (
+          <div className="absolute top-2 right-2 bg-black/60 text-white px-2 py-1 rounded text-sm">
+            Hover to zoom
+          </div>
+        )}
+      </div>      {/* Thumbnails */}
+      {validImages.length > 1 && (
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {validImages.map((image, index) => (
             <button
-              key={imageAsset?._id || index}
-              onMouseEnter={() => handleImageSelect(image)}
-              onClick={() => handleImageSelect(image)} // Good for touch devices
-              className={`relative w-full h-20 md:h-24 overflow-hidden rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:focus:ring-offset-gray-800
-                          ${previewImage.asset?._id === imageAsset?._id ? 'ring-2 ring-green-500 ring-offset-2 dark:ring-offset-gray-800' : ''}`}
+              key={index}
+              onClick={() => handleImageSelect(index)}
+              className={`relative w-20 h-20 flex-shrink-0 rounded-md overflow-hidden transition-opacity ${
+                selectedImage === index
+                  ? 'ring-2 ring-emerald-500 ring-offset-2'
+                  : 'opacity-70 hover:opacity-100'
+              }`}
+              disabled={failedImages.has(index)}
             >
               <Image
-                src={thumbnailUrl}
-                alt={thumbnailAlt}
+                src={image}
+                alt={`${alt} - Thumbnail ${index + 1}`}
                 fill
-                className="object-cover hover:opacity-75 transition-all duration-150"
-                sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 20vw, 16vw"
+                className="object-cover"
+                sizes="80px"
+                quality={60}
+                loading="lazy"
+                placeholder="blur"
+                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVigAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx0dHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx//2wBDAR0XFyMeIyEeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyMeIyP/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
               />
             </button>
-          );
-        })}
-      </div>
+          ))}        </div>
+      )}
     </div>
   );
-};
-
-export default ImageGallery;
+}

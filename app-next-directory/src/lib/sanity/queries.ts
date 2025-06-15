@@ -124,36 +124,6 @@ async function getAllCities(preview = false) {
   return await sanityClient.fetch(query);
 }
 
-// Get a specific city by its slug
-async function getCityBySlug(slug: string, preview = false) {
-  const sanityClient = getClient(preview);
-
-  const query = `*[_type == "city" && slug.current == $slug][0] {
-    _id,
-    title,
-    "slug": slug.current,
-    country,
-    description,
-    sustainabilityScore,
-    highlights,
-    mainImage {
-      asset->{
-        _id,
-        url,
-        metadata {
-          dimensions {
-            width,
-            height
-          }
-        },
-        alt // Assuming 'alt' is a field on the image asset reference in Sanity schema
-      }
-    }
-  }`;
-
-  return await sanityClient.fetch(query, { slug });
-}
-
 // Get all eco focus tags for filtering
 async function getAllEcoTags(preview = false) {
   const sanityClient = getClient(preview);
@@ -232,9 +202,8 @@ export {
   getListingBySlug,
   getListingsByCategory,
   getListingsByCity,
-  getCityBySlug, // Add the new function here
   searchListings
 };
 
 // Additional alias export
-// export const getCity = getListingBySlug; // Commenting out potentially incorrect alias
+export const getCity = getListingBySlug

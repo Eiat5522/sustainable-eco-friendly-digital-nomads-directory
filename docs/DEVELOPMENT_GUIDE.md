@@ -177,11 +177,9 @@ src/components/
 │   ├── RegisterForm.tsx
 │   └── AuthProvider.tsx
 ├── listings/                  # Listing-related components
-│   ├── ListingCard.tsx        # Card display for listings
-│   ├── ListingDetail.tsx      # Component for displaying full listing details
-│   ├── ImageGallery.tsx       # Interactive image gallery for listings
+│   ├── ListingCard.tsx
+│   ├── ListingDetail.tsx
 │   └── ListingFilters.tsx
-├── city/                      # City-related components (if any, e.g. CityCard.tsx)
 ├── common/                    # Shared components
 │   ├── Header.tsx
 │   ├── Footer.tsx
@@ -199,10 +197,8 @@ src/app/api/
 ├── auth/                      # NextAuth routes
 │   └── [...nextauth]/
 ├── listings/                  # Listing management
-│   ├── route.ts               # GET/POST listings (general listing operations)
-│   └── [slug]/route.ts        # GET single listing data (Note: the page is at `app/listings/[slug]/page.tsx`)
-├── city/
-│   └── [slug]/route.ts        # GET single city data (Note: the page is at `app/city/[slug]/page.tsx`)
+│   ├── route.ts               # GET/POST listings
+│   └── [slug]/
 ├── user/                      # User management
 │   ├── profile/
 │   └── favorites/
