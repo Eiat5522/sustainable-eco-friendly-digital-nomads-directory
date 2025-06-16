@@ -185,4 +185,3 @@ export async function GET(
     return ApiResponseHandler.error('Failed to fetch vote statistics', 500);
   }
 }
-p

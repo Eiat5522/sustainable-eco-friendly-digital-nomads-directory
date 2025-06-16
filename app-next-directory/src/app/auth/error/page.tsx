@@ -1,5 +1,8 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
+import React from 'react';
+const Suspense = (React as any).Suspense;
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { metadata } from './metadata';
@@ -28,9 +31,9 @@ function getErrorMessage(error: string | null) {
   }
 }
 
-function AuthErrorPage() {
+function AuthErrorContent() {
   const searchParams = useSearchParams();
-  const error = searchParams?.get('error');
+  const error = searchParams ? searchParams.get('error') : null;
   const errorMessage = getErrorMessage(error);
 
   return (
@@ -102,4 +105,10 @@ function AuthErrorPage() {
   );
 }
 
-export default AuthErrorPage;
+export default function AuthErrorPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthErrorContent />
+    </Suspense>
+  );
+}

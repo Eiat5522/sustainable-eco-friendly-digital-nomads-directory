@@ -17,7 +17,7 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
   const [isError, setIsError] = useState(false);
 
   const listingName =
-    typeof listing === 'object' && listing !== null && 'name' in listing && typeof (listing as any).name === 'string' && (listing as any).name !== null
+    typeof listing === 'object' && listing !== null && 'name' in listing && (listing as any).name != null && typeof (listing as any).name === 'string'
       ? (listing as any).name
       : '';
 
@@ -75,7 +75,7 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
           }
         }
       }
-    } else if (typeof listing === 'object' && listing !== null && 'primary_image_url' in listing && typeof (listing as any).primary_image_url === 'string' && (listing as any).primary_image_url !== null) {
+    } else if (typeof listing === 'object' && listing !== null && 'primary_image_url' in listing && (listing as any).primary_image_url != null && typeof (listing as any).primary_image_url === 'string') {
       return (listing as any).primary_image_url;
     }
     return '';
@@ -179,7 +179,7 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
 
         {/* Content Section */}
         <div className="p-6">
-          <h3 className="text-xl font-semibold font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
+          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
             {searchQuery
               ? highlightText(listingName || 'Unnamed Listing', searchQuery)
               : (listingName || 'Unnamed Listing')}
@@ -207,8 +207,7 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
               .map((tag: string, index: number) => ( // Added types for map callback
                 <span
                   key={index}
-                  className="px-2 py-1 text-sm  text-gray-700 rounded-full"
-                  style={{ backgroundColor: ['#f0fdf4', '#ecfdf5', '#d1fae5'][index % 3] }}
+                  className={`px-2 py-1 text-sm text-gray-700 rounded-full ${['bg-green-50', 'bg-green-100', 'bg-green-200'][index % 3]}`}
                 >
                   {searchQuery ? highlightText(tag, searchQuery) : tag}
                 </span>
