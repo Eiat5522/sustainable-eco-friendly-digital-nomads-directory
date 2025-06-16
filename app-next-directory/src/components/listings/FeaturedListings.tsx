@@ -58,9 +58,16 @@ interface FeaturedListingsProps {
 }
 
 export default function FeaturedListings({ listings }: FeaturedListingsProps) {
-  // console.log('FeaturedListings component rendered. Listings prop:', listings); // Removed debugging log
+  console.log('[DEBUG] FeaturedListings: Component rendered with', listings?.length || 0, 'listings');
+  console.log('[DEBUG] FeaturedListings: Listings structure check:', {
+    isArray: Array.isArray(listings),
+    hasListings: !!listings,
+    firstListingId: listings?.[0]?._id,
+    firstListingName: listings?.[0]?.name,
+    firstListingSlug: listings?.[0]?.slug
+  });
 
-  const getImageUrl = (listing: Listing): string => { // Changed return type to string
+  const getImageUrl = (listing: Listing): string => {
     // console.log('getImageUrl - Processing listing:', JSON.stringify(listing, null, 2)); // Removed debugging log
     // Condition changed: Check for existence of asset object (and its url or _id for robustness)
     // since asset-> in GROQ returns the full asset document, not just a reference.
@@ -91,7 +98,7 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold mb-10 text-center text-gray-800">Featured Listings</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {listings.map(listing => {
+          {listings.slice(0, 4).map(listing => {
             const imageUrl = getImageUrl(listing);
             // console.log(`FeaturedListings - Rendering Image for "${listing.name}": imageUrl is "${imageUrl}" (type: ${typeof imageUrl})`); // Removed targeted log
 
@@ -106,9 +113,20 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
                       <Image
                         src={imageUrl}
                         alt={listing.primaryImage?.alt || listing.name}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        width={500}
+                        height={300}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover'
+                        }}
+                        className="group-hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33.333vw"
+                        priority={true}
+                        onError={(e) => {
+                          console.warn('Featured image failed to load:', imageUrl);
+                          e.currentTarget.src = '/images/sustainable_nomads.png';
+                        }}
                       />
 
                     ) : (

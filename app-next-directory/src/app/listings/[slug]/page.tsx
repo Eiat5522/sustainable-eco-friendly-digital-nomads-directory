@@ -76,7 +76,7 @@ export async function generateStaticParams() {
 }
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata(
@@ -84,6 +84,7 @@ export async function generateMetadata(
   parent: ResolvingMetadata
 ): Promise<Metadata> {
   try {
+    const { slug } = await params;
     // Fetch from Sanity by slug
     const sanityListing = await getClient().fetch<Listing>(
       `*[_type == "listing" && slug.current == $slug][0]{
@@ -92,7 +93,7 @@ export async function generateMetadata(
         primary_image_url,
         featured
       }`,
-      { slug: params.slug }
+      { slug }
     );
 
     if (sanityListing) {
@@ -127,6 +128,7 @@ export async function generateMetadata(
 
 export default async function ListingPage({ params }: Props) {
   try {
+    const { slug } = await params;
     // Fetch from Sanity by slug
     const sanityListing = await getClient().fetch<Listing>(
       `*[_type == "listing" && slug.current == $slug][0]{
@@ -160,7 +162,7 @@ export default async function ListingPage({ params }: Props) {
         sustainabilityScore,
         featured
       }`,
-      { slug: params.slug }
+      { slug }
     );
 
     if (sanityListing) {
@@ -171,7 +173,7 @@ export default async function ListingPage({ params }: Props) {
           <Breadcrumbs
             segments={[
               { name: 'Listings', href: '/listings' },
-              { name: sanityListing.name, href: `/listings/${params.slug}` },
+              { name: sanityListing.name, href: `/listings/${slug}` },
             ]}
           />
 
@@ -196,7 +198,7 @@ export default async function ListingPage({ params }: Props) {
           </article>
 
           <RelatedListings
-            currentSlug={params.slug}
+            currentSlug={slug}
             category={sanityListing.category}
             cityName={sanityListing.city.name}
           />

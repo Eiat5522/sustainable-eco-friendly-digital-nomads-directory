@@ -5,10 +5,15 @@ export default function Logo() {
     <Image
       src="/images/logo/Leaf_and_Laptop_Logo.png"
       alt="Leaf & Laptop Logo"
-      width={40}
-      height={40}
+      width={48}
+      height={48}
+      style={{
+        width: '48px',
+        height: '48px',
+        objectFit: 'contain'
+      }}
       priority
-      className="rounded-full bg-white"
+      className="rounded-full bg-white p-1"
     />
   );
 }

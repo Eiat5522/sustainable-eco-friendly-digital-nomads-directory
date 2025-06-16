@@ -5,14 +5,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useState } from 'react';
 import Logo from '../common/Logo';
-import { SearchBar } from '../search/SearchBar';
 import ThemeToggle from './ThemeToggle';
 
 const Header: React.FC = () => {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
 
   const isActive = (path: string) => pathname === path;
 
@@ -54,10 +52,6 @@ const Header: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <div className="hidden sm:block w-64">
-            <SearchBar value={searchValue} onChange={setSearchValue} />
-          </div>
-
           <ThemeToggle />
 
           {/* Auth Button */}

@@ -1,14 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ...your existing config
+  reactStrictMode: true,
   eslint: {
-    ignoreDuringBuilds: true, // Temporarily disable to get app running
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true, // Temporarily disable TypeScript errors
+    ignoreBuildErrors: true,
   },
   images: {
-    domains: ['cdn.sanity.io'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cdn.sanity.io',
+        port: '',
+        pathname: '/**',
+      },
+    ],
   },
 };
 

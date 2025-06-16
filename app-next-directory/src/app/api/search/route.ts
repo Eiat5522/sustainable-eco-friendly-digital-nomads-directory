@@ -1,30 +1,7 @@
-import { searchListings } from '@/lib/search';
-import { SearchFilters, SortOption } from '@/types/search';
+import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
-import { getCollection } from '@/utils/db-helpers';
+import { groq } from 'next-sanity';
 import { NextRequest, NextResponse } from 'next/server';
-
-export async function POST(request: Request) {
-  try {
-    const { query, filters, page = 1, limit = 12, sort }: {
-      query?: string;
-      filters?: SearchFilters;
-      page?: number;
-      limit?: number;
-      sort?: SortOption;
-    } = await request.json();
-
-    const searchResults = await searchListings(query || '', filters, page, limit, sort);
-
-    return NextResponse.json(searchResults);  } catch (error) {
-    console.error('Search error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    return NextResponse.json(
-      { error: 'Failed to perform search', details: errorMessage },
-      { status: 500 }
-    );
-  }
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -32,88 +9,148 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get('q') || '';
     const category = searchParams.get('category');
     const location = searchParams.get('location');
-    const minRating = searchParams.get('minRating');
-    const ecoFeatures = searchParams.get('ecoFeatures')?.split(',') || [];
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const limit = parseInt(searchParams.get('limit') || '12');
 
-    const listings = await getCollection('listings');
-
-    const filter: any = { status: 'active' };
-
-    // Text search
-    if (query) {
-      filter.$text = { $search: query };
+    // Build the GROQ query for Sanity
+    let groqQuery = `*[_type == "listing" && moderation.status == "published"`;
+    
+    // Add search conditions with case-insensitive matching
+    if (query.trim()) {
+      const searchTerm = query.toLowerCase();
+      // Enhanced search across multiple fields using GROQ with case-insensitive matching
+      groqQuery += ` && (
+        name match "*${searchTerm}*" ||
+        lower(name) match "*${searchTerm}*" ||
+        slug.current match "*${searchTerm}*" ||
+        category match "*${searchTerm}*" ||
+        lower(category) match "*${searchTerm}*" ||
+        city->name match "*${searchTerm}*" ||
+        lower(city->name) match "*${searchTerm}*" ||
+        city->country match "*${searchTerm}*" ||
+        lower(city->country) match "*${searchTerm}*" ||
+        description_short match "*${searchTerm}*" ||
+        lower(description_short) match "*${searchTerm}*"
+      )`;
     }
 
-    // Category filter
     if (category) {
-      filter.category = category;
+      groqQuery += ` && category == "${category}"`;
     }
 
-    // Location filter
     if (location) {
-      filter.location = { $regex: location, $options: 'i' };
+      groqQuery += ` && city->name match "*${location}*"`;
     }
 
-    // Eco features filter
-    if (ecoFeatures.length > 0) {
-      filter.eco_features = { $in: ecoFeatures };
+    groqQuery += `] | order(_createdAt desc)`;
+
+    // Add pagination
+    const start = (page - 1) * limit;
+    const end = start + limit - 1;
+    groqQuery += `[${start}...${end}]`;
+
+    // Add fields to select
+    groqQuery += ` {
+      _id,
+      name,
+      "slug": slug.current,
+      category,
+      "primaryImage": primaryImage{
+        ...,
+        asset->
+      },
+      "galleryImages": galleryImages[]{
+        ...,
+        asset->
+      },
+      "location": city->{
+        _id,
+        name,
+        country
+      },
+      price,
+      moderation,
+      description_short,
+      description_long,
+      eco_features,
+      amenities
+    }`;
+
+    // Get the results
+    const results = await client.fetch(groqQuery);
+
+    // Get total count for pagination (separate query without pagination)
+    let countQuery = `count(*[_type == "listing" && moderation.status == "published"`;
+    
+    if (query.trim()) {
+      const searchTerm = query.toLowerCase();
+      countQuery += ` && (
+        name match "*${searchTerm}*" ||
+        lower(name) match "*${searchTerm}*" ||
+        slug.current match "*${searchTerm}*" ||
+        category match "*${searchTerm}*" ||
+        lower(category) match "*${searchTerm}*" ||
+        city->name match "*${searchTerm}*" ||
+        lower(city->name) match "*${searchTerm}*" ||
+        city->country match "*${searchTerm}*" ||
+        lower(city->country) match "*${searchTerm}*" ||
+        description_short match "*${searchTerm}*" ||
+        lower(description_short) match "*${searchTerm}*"
+      )`;
     }
 
-    const skip = (page - 1) * limit;
+    if (category) {
+      countQuery += ` && category == "${category}"`;
+    }
 
-    const pipeline = [
-      { $match: filter },
-      // Add average rating from reviews
-      {
-        $lookup: {
-          from: 'reviews',
-          localField: 'slug',
-          foreignField: 'listingSlug',
-          as: 'reviews'
-        }
-      },
-      {
-        $addFields: {
-          averageRating: {
-            $avg: {
-              $filter: {
-                input: '$reviews.rating',
-                cond: { $eq: ['$$this.status', 'approved'] }
-              }
-            }
-          }
-        }
-      },
-      // Filter by minimum rating if specified
-      ...(minRating ? [{ $match: { averageRating: { $gte: parseFloat(minRating) } } }] : []),
-      { $skip: skip },
-      { $limit: limit }
-    ];
+    if (location) {
+      countQuery += ` && city->name match "*${location}*"`;
+    }
 
-    const [results, total] = await Promise.all([
-      listings.aggregate(pipeline).toArray(),
-      listings.countDocuments(filter)
-    ]);
+    countQuery += `])`;
+
+    const total = await client.fetch(countQuery);
 
     return ApiResponseHandler.success({
-      listings: results,
+      results: results,
       pagination: {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit),
+        hasMore: page * limit < total
       },
       filters: {
         query,
         category,
-        location,
-        minRating,
-        ecoFeatures
+        location
       }
     });
   } catch (error) {
+    console.error('Search GET error:', error);
     return ApiResponseHandler.error('Search failed');
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    // For backward compatibility, redirect POST requests to use the same logic as GET
+    const body = await request.json();
+    const { query = '', page = 1, limit = 12 } = body;
+    
+    // Create a URL with search params to reuse the GET logic
+    const url = new URL('http://localhost:3000/api/search');
+    url.searchParams.set('q', query);
+    url.searchParams.set('page', page.toString());
+    url.searchParams.set('limit', limit.toString());
+    
+    const mockRequest = new NextRequest(url);
+    return await GET(mockRequest);
+  } catch (error) {
+    console.error('Search POST error:', error);
+    return NextResponse.json(
+      { error: 'Failed to perform search', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
   }
 }

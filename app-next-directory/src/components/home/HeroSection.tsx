@@ -2,19 +2,19 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useRef, FormEvent, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const HeroSection: React.FC = () => {
   const router = useRouter();
-  const parallaxRef = useRef<HTMLDivElement>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
   // Parallax effect
   useEffect(() => {
     const handleScroll = () => {
-      if (parallaxRef.current) {
+      const parallaxElement = document.getElementById('parallax-bg');
+      if (parallaxElement) {
         const scrollPosition = window.scrollY;
-        parallaxRef.current.style.transform = `translateY(${scrollPosition * 0.4}px)`;
+        parallaxElement.style.transform = `translateY(${scrollPosition * 0.4}px)`;
       }
     };
 
@@ -22,7 +22,7 @@ const HeroSection: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleSearch = (e: FormEvent) => {
+  const handleSearch = (e: any) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
@@ -54,7 +54,7 @@ const HeroSection: React.FC = () => {
     <section className="relative h-[90vh] min-h-[700px] overflow-hidden">
       {/* Background image with parallax effect */}
       <div className="absolute inset-0 z-0">
-        <div ref={parallaxRef} className="absolute inset-0 h-[120%]">
+        <div id="parallax-bg" className="absolute inset-0 h-[120%]">
           <Image
             src="/images/hero/hero_main.png"
             alt="Eco-friendly digital nomad workspace"
@@ -101,10 +101,13 @@ const HeroSection: React.FC = () => {
               <div className="relative flex-grow mb-3 md:mb-0">
                 <input
                   type="text"
+                  id="hero-search"
+                  name="search"
                   placeholder="Search destinations, eco-lodges, or co-working spaces..."
                   className="w-full h-14 px-5 pr-12 rounded-lg text-lg bg-white/90 backdrop-blur-md border-0 focus:ring-2 focus:ring-green-400"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  autoComplete="off"
                 />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -125,8 +128,8 @@ const HeroSection: React.FC = () => {
             </div>
 
             <div className="flex mt-4 space-x-4 text-white/80">
-              <span className="text-sm">Popular:</span>
-              {['Bali', 'Lisbon', 'Chiang Mai', 'Mexico City'].map((term) => (
+              <span className="text-sm">Categories:</span>
+              {['Coworking', 'Cafe', 'Accommodation'].map((term) => (
                 <button
                   key={term}
                   type="button"

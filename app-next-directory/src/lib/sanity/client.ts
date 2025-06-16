@@ -11,7 +11,9 @@ export const client = createClient({
   projectId,
   dataset,
   apiVersion: '2024-05-16',
-  useCdn: false,
+  useCdn: true, // Enable CDN caching
+  perspective: 'published', // Only fetch published content
+  stega: false, // Disable content editing features in production
 });
 
 // Set up preview client
@@ -19,7 +21,8 @@ export const previewClient = createClient({
   projectId,
   dataset,
   apiVersion: '2024-05-16',
-  useCdn: false,
+  useCdn: false, // Disable CDN for preview to get latest drafts
+  perspective: 'previewDrafts',
   token: process.env.SANITY_API_TOKEN,
 });
 
@@ -34,5 +37,8 @@ const builder = imageUrlBuilder(client);
 export function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
+
+// Export alias for compatibility
+export const urlForImage = urlFor;
 
 export default client;

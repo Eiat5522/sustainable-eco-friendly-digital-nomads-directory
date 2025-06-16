@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Header from '@/components/Header';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedListings from '@/components/listings/FeaturedListings';
 import CitiesCarousel from '@/components/home/CitiesCarousel';
@@ -15,29 +14,54 @@ export default function HomePage() {
 
   useEffect(() => {
     async function fetchData() {
-      const [featuredListingsResponse, citiesResponse] = await Promise.all([
-        fetch('/api/featured-listings').then(res => res.json()),
-        fetch('/api/cities').then(res => res.json()),
-      ]);
-
-      // console.log('Server-side log: Fetched featured listings data in page.tsx:', JSON.stringify(featuredListingsResponse, null, 2)); // Removed debugging log
-      // console.log('Server-side log: Fetched cities data in page.tsx:', JSON.stringify(citiesResponse, null, 2)); // Removed debugging log
+      console.log('[DEBUG] HomePage: Starting data fetch at', new Date().toISOString());
+      const startTime = performance.now();
       
-      const featuredListings = featuredListingsResponse.listings || [];
-      const allCities = citiesResponse.success ? citiesResponse.cities : [];
-      
-      // console.log('Fetched featured listings data in page.tsx (client-side):', featuredListingsResponse);  // Removed debugging log
-      // console.log('Fetched cities data in page.tsx (client-side):', citiesResponse); // Removed debugging log
+      try {
+        const [featuredListingsResponse, citiesResponse] = await Promise.all([
+          fetch('/api/featured-listings').then(res => {
+            console.log('[DEBUG] Featured listings API response status:', res.status);
+            return res.json();
+          }),
+          fetch('/api/cities').then(res => {
+            console.log('[DEBUG] Cities API response status:', res.status);
+            return res.json();
+          }),
+        ]);
 
-      setListings(featuredListings);
-      setCities(allCities);
+        const endTime = performance.now();
+        console.log('[DEBUG] HomePage: API calls completed in', (endTime - startTime).toFixed(2), 'ms');
+        
+        console.log('[DEBUG] Featured listings response structure:', {
+          hasListings: !!featuredListingsResponse.listings,
+          listingsCount: featuredListingsResponse.listings?.length || 0,
+          success: featuredListingsResponse.success,
+          hasError: !!featuredListingsResponse.error
+        });
+        
+        console.log('[DEBUG] Cities response structure:', {
+          hasCities: !!citiesResponse.cities,
+          citiesCount: citiesResponse.cities?.length || 0,
+          success: citiesResponse.success,
+          hasError: !!citiesResponse.error
+        });
+        
+        const featuredListings = featuredListingsResponse.listings || [];
+        const allCities = citiesResponse.success ? citiesResponse.cities : [];
+        
+        console.log('[DEBUG] HomePage: Setting state with', featuredListings.length, 'listings and', allCities.length, 'cities');
+        
+        setListings(featuredListings);
+        setCities(allCities);
+      } catch (error) {
+        console.error('[ERROR] HomePage: Failed to fetch data:', error);
+      }
     }
     fetchData();
   }, []);
 
   return (
     <div>
-      <Header />
       <HeroSection />
       <FeaturedListings listings={listings} />
       <CitiesCarousel cities={cities} />

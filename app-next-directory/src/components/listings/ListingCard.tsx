@@ -17,7 +17,7 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
   const [isError, setIsError] = useState(false);
 
   const listingName =
-    typeof listing === 'object' && listing !== null && 'name' in listing && typeof (listing as any).name === 'string'
+    typeof listing === 'object' && listing !== null && 'name' in listing && typeof (listing as any).name === 'string' && (listing as any).name !== null
       ? (listing as any).name
       : '';
 
@@ -61,18 +61,21 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
       }
       // Fallback: use first gallery image if primaryImage is missing
       if (Array.isArray((listing as any).galleryImages) && (listing as any).galleryImages.length > 0) {
-        try {
-          return urlFor((listing as any).galleryImages[0])
-            .width(800)
-            .height(480)
-            .fit('crop')
-            .auto('format')
-            .url();
-        } catch (error) {
-          console.error('Error generating Sanity gallery image URL:', error);
+        const firstGalleryImage = (listing as any).galleryImages[0];
+        if (firstGalleryImage) {
+          try {
+            return urlFor(firstGalleryImage)
+              .width(800)
+              .height(480)
+              .fit('crop')
+              .auto('format')
+              .url();
+          } catch (error) {
+            console.error('Error generating Sanity gallery image URL:', error);
+          }
         }
       }
-    } else if (typeof listing === 'object' && listing !== null && 'primary_image_url' in listing && typeof (listing as any).primary_image_url === 'string') {
+    } else if (typeof listing === 'object' && listing !== null && 'primary_image_url' in listing && typeof (listing as any).primary_image_url === 'string' && (listing as any).primary_image_url !== null) {
       return (listing as any).primary_image_url;
     }
     return '';
@@ -113,8 +116,8 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
       if ('eco_focus_tags' in listing && Array.isArray((listing as any).eco_focus_tags)) {
         return (listing as any).eco_focus_tags.map((tag: any) =>
           typeof tag === 'string' ? tag : (tag.name || '')
-        );
-      }
+  ); // Added a comment
+}
     }
     return [];
   };
@@ -176,7 +179,7 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
 
         {/* Content Section */}
         <div className="p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
+          <h3 className="text-xl font-semibold font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors">
             {searchQuery
               ? highlightText(listingName || 'Unnamed Listing', searchQuery)
               : (listingName || 'Unnamed Listing')}
@@ -204,7 +207,8 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
               .map((tag: string, index: number) => ( // Added types for map callback
                 <span
                   key={index}
-                  className="px-2 py-1 text-sm bg-green-50 text-green-700 rounded-full"
+                  className="px-2 py-1 text-sm  text-gray-700 rounded-full"
+                  style={{ backgroundColor: ['#f0fdf4', '#ecfdf5', '#d1fae5'][index % 3] }}
                 >
                   {searchQuery ? highlightText(tag, searchQuery) : tag}
                 </span>
