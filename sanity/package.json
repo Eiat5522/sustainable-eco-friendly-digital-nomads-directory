@@ -15,10 +15,11 @@
     "sanity"
   ],
   "dependencies": {
-    "@sanity/vision": "^3.92.0",
+    "@auth/mongodb-adapter": "3.9.1",
+    "@sanity/vision": "^2.2.6",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sanity": "^3.92.0",
+    "sanity": "^2.36.6",
     "styled-components": "^6.1.15"
   },
   "devDependencies": {

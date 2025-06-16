@@ -28,7 +28,11 @@ export interface SanityListing extends SanityDocument {
   slug: string;
   description_short?: string;
   category?: CategoryType;
-  city?: string; // Resolved name of the city
+  city?: {
+    _id: string;
+    slug: string;
+    title: string;
+  };
   primaryImage?: SanityImage;
   ecoTags?: string[]; // Array of resolved tag names
   digital_nomad_features?: string[]; // Array of strings
@@ -37,7 +41,7 @@ export interface SanityListing extends SanityDocument {
 
   // Optional fields (can be present in full document, but not always in partials like cards)
   addressString?: string;
-  descriptionLong?: string;
+  description_long?: any; // Can be Portable Text
   galleryImages?: SanityImage[];
   website?: string;
   contactInfo?: string;

@@ -124,10 +124,10 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
               <Image
                 src={getImageUrl(listing)}
                 alt={listing.name || 'Listing image'}
-                width={400}
-                height={192}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                priority={index < 3} // Prioritize loading for the first few images
                 onError={(e) => {
                   console.warn('Image failed to load:', getImageUrl(listing));
                   e.currentTarget.src = '/images/sustainable_nomads.png';
