@@ -4,7 +4,7 @@ import { SortOption } from '../types/sort';
 import { getClient } from './sanity/client';
 
 export async function getFeaturedListings() {
-  const query = `*[_type == "listing" && status == "approved"] {
+  const query = `*[_type == "listing" && moderation.status == "published" && moderation.featured == true] {
     _id,
     name,
     descriptionShort,
@@ -70,7 +70,7 @@ export async function getFilteredListings(
   limit = 12,
   sort?: SortOption
 ): Promise<FilterResults<SanityListing>> {
-  let query = `*[_type == "listing"`;
+  let query = `*[_type == "listing" && moderation.status == "published"`;
   const conditions: string[] = [];
   const params: Record<string, any> = {};
 

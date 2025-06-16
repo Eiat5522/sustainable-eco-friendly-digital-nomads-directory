@@ -19,7 +19,7 @@ const listingFields = `
 async function getAllListings(preview = false) {
   const sanityClient = getClient(preview);
 
-  const query = `*[_type == "listing"] {
+  const query = `*[_type == "listing" && moderation.status == "published"] {
     ${listingFields}
   }`;
 
@@ -78,7 +78,7 @@ async function getListingBySlug(slug: string, preview = false) {
 async function getListingsByCategory(category: string, preview = false) {
   const sanityClient = getClient(preview);
 
-  const query = `*[_type == "listing" && category == $category] {
+  const query = `*[_type == "listing" && moderation.status == "published" && category == $category] {
     ${listingFields}
   }`;
 
@@ -88,7 +88,7 @@ async function getListingsByCategory(category: string, preview = false) {
 async function getListingsByCity(cityName: string, preview = false) {
   const sanityClient = getClient(preview);
 
-  const query = `*[_type == "listing" && city->name == $cityName] {
+  const query = `*[_type == "listing" && moderation.status == "published" && city->name == $cityName] {
     ${listingFields}
   }`;
 
@@ -142,7 +142,7 @@ async function getAllEcoTags(preview = false) {
 async function searchListings(searchTerm: string, preview = false) {
   const sanityClient = getClient(preview);
 
-  const query = `*[_type == "listing" && (
+  const query = `*[_type == "listing" && moderation.status == "published" && (
     name match $searchTerm ||
     descriptionShort match $searchTerm ||
     descriptionLong match $searchTerm ||
@@ -175,7 +175,7 @@ async function getLatestBlogPosts(limit = 3, preview = false) {
 async function getFeaturedListings(preview = false) {
   const sanityClient = getClient(preview);
 
-  const query = `*[_type == "listing" && moderation.featured == true] {
+  const query = `*[_type == "listing" && moderation.status == "published" && moderation.featured == true] {
     ${listingFields},
     description_short,
     "reviews": count(*[_type == "review" && references(^._id)])
@@ -185,7 +185,7 @@ async function getFeaturedListings(preview = false) {
 }
 
 async function getRelatedListings(listingId: string, category: string, cityName: string, limit = 3) {
-  const query = `*[_type == "listing" && _id != $listingId && (category == $category || city->name == $cityName)][0...${limit}]{
+  const query = `*[_type == "listing" && moderation.status == "published" && _id != $listingId && (category == $category || city->name == $cityName)][0...${limit}]{
     ${listingFields}
   }`;
 

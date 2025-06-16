@@ -25,8 +25,8 @@ export async function searchListings(
   const client = getClient(preview);
   const start = (page - 1) * limit;
 
-  // Base query building
-  let groqQuery = `*[_type == "listing"`;
+  // Base query building - only include published listings
+  let groqQuery = `*[_type == "listing" && moderation.status == "published"`;
   const params: Record<string, any> = {};
 
   // Text search across multiple fields with field-specific boosts
@@ -152,7 +152,7 @@ export async function getSearchSuggestions(
 ): Promise<string[]> {
   const client = getClient(preview);
 
-  const groqQuery = `*[_type == "listing" && (
+  const groqQuery = `*[_type == "listing" && moderation.status == "published" && (
     name match $query + "*" ||
     searchMetadata.keywords[]->name match $query + "*"
   )][0...${limit}] {
@@ -191,7 +191,7 @@ export async function getSimilarListings(
   const client = getClient(preview);
 
   const query = `*[_type == "listing" && _id == $listingId][0] {
-    "similar": *[_type == "listing" && _id != $listingId] | score(
+    "similar": *[_type == "listing" && _id != $listingId && moderation.status == "published"] | score(
       boost(category == ^.category, 3) +
       boost(city._ref == ^.city._ref, 2) +
       count((ecoFocusTags[]->name)[@ in ^.ecoFocusTags[]->name]) +
