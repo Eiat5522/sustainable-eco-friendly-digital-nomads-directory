@@ -492,53 +492,51 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 
 #### `GET /api/listings/[slug]`
 
-**Purpose**: Get single listing by slug
+**Purpose**: Get single listing by slug. This endpoint directly fetches data from Sanity using a predefined GROQ query.
 **Access**: Public
 **Response**:
 
 ```json
 {
   "listing": {
-    "id": "listing_id",
-    "name": "Green Coworking Hub",
-    "slug": "green-coworking-hub-bangkok",
-    "description": "Detailed description...",
-    "fullDescription": "Extended content...",
+    "_id": "sanity_document_id",
+    "_type": "listing",
+    "_createdAt": "2025-01-15T10:00:00.000Z",
+    "_updatedAt": "2025-06-16T18:30:00.000Z",
+    "_rev": "sanity_revision_id",
+    "name": "Sustainable Coworking Space",
+    "slug": "sustainable-coworking-space-cityname",
+    "description_short": "A brief description of the listing.",
+    "description_long": "A more detailed and comprehensive description of the listing, including its features and eco-initiatives.",
     "category": "coworking",
-    "city": "Bangkok",
-    "address": "123 Sustainable Street",
-    "coordinates": {
-      "lat": 13.7563,
-      "lng": 100.5018
+    "city": {
+      "_id": "city_document_id",
+      "title": "City Name",
+      "slug": "city-name"
     },
-    "ecoTags": ["solar-powered", "zero-waste", "organic-food"],
-    "nomadFeatures": ["fast-wifi", "standing-desks", "meeting-rooms"],
-    "rating": 4.5,
-    "reviewCount": 24,
-    "priceRange": "$$",
-    "hours": {
-      "monday": "08:00-22:00",
-      "tuesday": "08:00-22:00"
+    "primaryImage": {
+      "_type": "image",
+      "asset": {
+        "_ref": "image-asset-id",
+        "_type": "reference",
+        "url": "https://cdn.sanity.io/images/projectid/dataset/image-asset-id.jpg"
+      },
+      "alt": "Primary image of the listing"
     },
-    "images": [
-      {
-        "url": "https://cdn.sanity.io/images/...",
-        "alt": "Main workspace area"
-      }
-    ],
-    "contact": {
-      "phone": "+66 2 123 4567",
-      "email": "info@greencoworking.com",
-      "website": "https://greencoworking.com"
-    },
-    "sustainability": {
-      "certifications": ["LEED Gold", "Green Building"],
-      "practices": ["Solar panels", "Rainwater harvesting"],
-      "score": 4.2
-    }
+    "ecoTags": ["solar-powered", "plastic-free", "community-focused"],
+    "digital_nomad_features": ["high-speed-wifi", "meeting-rooms", "ergonomic-chairs"],
+    "last_verified_date": "2025-06-01",
+    "reviews": 42,
+    "addressString": "123 Eco Lane, Sustainable City, Country",
+    "website": "https://example.com/listing",
+    "contactInfo": "info@example.com / +1234567890",
+    "openingHours": "Mon-Fri: 9am - 6pm, Sat: 10am - 4pm",
+    "ecoNotesDetailed": "Detailed notes about specific eco-friendly practices and sustainability efforts.",
+    "sourceUrls": ["https://source1.com", "https://source2.com"],
+    "rating": 4.7,
+    "priceRange": "$$"
   }
 }
-
 ```
 
 #### `POST /api/listings` (Admin Only)
@@ -846,3 +844,5 @@ npm run test:rbac             # Role-based access tests
 - [MongoDB Documentation](https://docs.mongodb.com/)
 
 - [Sanity API Reference](https://www.sanity.io/docs/http-api)
+- [Project Sanity Client (`src/lib/sanity/client.ts`)](./app-next-directory/src/lib/sanity/client.ts)
+- [Project Sanity Data Fetching (`src/lib/sanity/data.ts`)](./app-next-directory/src/lib/sanity/data.ts)

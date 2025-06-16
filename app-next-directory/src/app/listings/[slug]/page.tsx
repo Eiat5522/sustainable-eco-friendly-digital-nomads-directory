@@ -1,5 +1,5 @@
 import React from 'react';
-import { getListingData } from '../../../utils/sanity'; // Adjusted import path assuming utils is inside src/utils
+import { getListingData } from '@/lib/sanity/data';
 import { notFound } from 'next/navigation';
 
 export default async function ListingPage({ params }: { params: { slug: string } }) {
