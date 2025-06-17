@@ -11,8 +11,6 @@ export const metadata = {
   description: 'Sustainable travel accommodations',
 };
 
-import { SessionProvider } from 'next-auth/react';
-
 export default function RootLayout({
   children,
 }: {
@@ -23,9 +21,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <SessionWrapper>
           <Header />
+          <main>{children}</main>
+          <Footer />
         </SessionWrapper>
-        <main>{children}</main>
-        <Footer />
       </body>
     </html>
   );
