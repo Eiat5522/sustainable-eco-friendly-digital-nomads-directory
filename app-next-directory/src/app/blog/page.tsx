@@ -150,6 +150,8 @@ export default function BlogPage() {
                         src={urlFor(post.mainImage).width(400).height(200).url()}
                         alt={post.title}
                         fill
+                        priority
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-contain"
                       />
                     </div>

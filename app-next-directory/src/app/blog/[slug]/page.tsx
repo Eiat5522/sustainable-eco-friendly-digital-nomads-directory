@@ -268,6 +268,8 @@ export default function BlogPostPage() {
                 src={urlFor(post.mainImage).width(1200).height(600).url()}
                 alt={post.title}
                 fill
+                priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 67vw"
                 className="object-contain"
               />
             </div>
@@ -448,6 +450,7 @@ export default function BlogPostPage() {
                         src={urlFor(relatedPost.mainImage).width(300).height(150).url()}
                         alt={relatedPost.title}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
                         className="object-contain"
                       />
                     </div>
