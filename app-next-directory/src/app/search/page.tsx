@@ -6,9 +6,9 @@ import { Alert } from '@/components/ui/alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, Suspense } from 'react';
 
-export default function SearchResults() {
+function SearchResultsComponent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialQuery = searchParams?.get('q') || '';
@@ -170,5 +170,13 @@ export default function SearchResults() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SearchResults() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchResultsComponent />
+    </Suspense>
   );
 }

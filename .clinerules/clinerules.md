@@ -67,6 +67,7 @@ Provide Cline with structured guidance modeled on Cline’s best practices. This
 * **Auth:** NextAuth.js or Auth0
 * **Deployment:** Vercel (Hobby) or Cloudflare Pages
   * **CI/CD:**  Actions (lint, type-check, tests → preview → production)
+* **Identifier Casing:** Maintain consistent casing for variables, properties, and function names within TypeScript/JavaScript. Prefer `camelCase` for most identifiers (e.g., `primaryImage` not `primary_image`).
   * **PowerShell Profile/Scripting:**
     * **Executable & Script Path Validation:** Before calling external commands or sourcing scripts (especially if paths are dynamic or not guaranteed in `PATH`):
         1. Verify executable existence (e.g., `Test-Path $exePath` or `Get-Command $commandName -ErrorAction SilentlyContinue`).
@@ -146,16 +147,20 @@ Provide Cline with structured guidance modeled on Cline’s best practices. This
 
 ### 📥 8.2 Load
 
-* On session start, print:
-
+* On session start, or when beginning a new distinct task where context isn't pre-loaded, print:
   ```
-
   Remembering…
-
   ```
-* Retrieve all relevant facts from memory graph.
+* **Action:** Read the content of all core Memory Bank files:
+  * `memory-bank/projectbrief.md`
+  * `memory-bank/productContext.md`
+  * `memory-bank/activeContext.md`
+  * `memory-bank/systemPatterns.md`
+  * `memory-bank/techContext.md`
+  * `memory-bank/progress.md`
+* Retrieve all relevant facts from the memory graph based on these files and the current task.
 
-  **Example:**
+  **Example (after loading and processing memory files):**
   - If the user mentions a new project, store the project name, description, and associated technologies.
   - Link the project to the user in the memory graph for future reference.
 

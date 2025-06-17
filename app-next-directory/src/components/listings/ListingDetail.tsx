@@ -1,4 +1,8 @@
+"use client";
+
 import Image from 'next/image'
+import { useState } from 'react'
+import { urlFor } from '@/lib/sanity/image';
 
 interface Review {
   rating: number
@@ -13,50 +17,84 @@ interface Location {
 }
 
 interface City {
-  name: string
-  country: string
+  title: string; // Changed from name to title to match Sanity data
+  country?: string; 
 }
 
 interface ListingProps {
   listing: {
     name: string
-    description_short: string
-    description_long: string
-    category: string
+    description_short?: string
+    description_long?: string
+    category?: string
     eco_features?: string[]
     amenities?: string[]
-    primary_image_url: string
-    gallery_images?: string[]
-    city: City
+    primaryImage?: any // Or a more specific SanityImage type if available
+    galleryImages?: any[]
+    city?: City // Make city optional
     location?: Location
     website?: string
     contact_email?: string
     contact_phone?: string
     price_range?: string
-    reviews?: Review[]
+    reviews?: any // Temporarily set to any to resolve mismatch. Investigate SanityListing type.
   }
 }
 
 export function ListingDetail({ listing }: ListingProps) {
+  console.info('ListingDetail rendered', listing)
   const reviews = listing.reviews || []
-  const averageRating = reviews.length > 0
-    ? reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviews.length
+const [mainImage, setMainImage] = useState(listing.primaryImage)
+  const [hoverImage, setHoverImage] = useState<string | null>(null)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const averageRating = Array.isArray(reviews) && reviews.length > 0
+    ? reviews.reduce((acc: number, rev: Review) => acc + rev.rating, 0) / reviews.length
     : 0
 
   return (
     <article className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
       {/* Header */}
-      <div className="relative h-64 md:h-96">
+      <div className="relative h-64 md:h-96 cursor-pointer transition-all duration-300" onClick={() => setLightboxOpen(true)}>
         <Image
-          src={listing.primary_image_url}
+src={hoverImage || (listing.primaryImage && (typeof listing.primaryImage === 'object' && 'url' in listing.primaryImage ? listing.primaryImage.url : typeof listing.primaryImage === 'string' ? listing.primaryImage : urlFor(listing.primaryImage)?.url())) || '/placeholder-city.jpg'}
           alt={listing.name}
           fill
           className="object-cover"
           priority
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>
-
-      {/* Content */}
+        {listing.galleryImages && listing.galleryImages.length > 0 && (
+          <div className="w-full">
+            <div className="flex space-x-4 overflow-x-auto p-4 scrollbar-thin scrollbar-thumb-green-500 scrollbar-track-green-100">
+              {listing.galleryImages.map((img, idx) => {
+                const imgUrl = urlFor(img)?.url() || '/placeholder-city.jpg';
+                return (
+                  <div
+                    key={idx}
+                    className={`relative w-24 h-24 flex-shrink-0 cursor-pointer transition-all duration-300 rounded-lg overflow-hidden
+                      ${imgUrl === mainImage ? 'ring-2 ring-green-500 ring-offset-2' : 'hover:ring-2 hover:ring-green-400 hover:ring-offset-1'}
+                      transform hover:scale-105`}
+                    onMouseEnter={() => setHoverImage(imgUrl)}
+                    onMouseLeave={() => setHoverImage(null)}
+                    onClick={() => setMainImage(imgUrl)}
+                    title="Click to set as main image"
+                  >
+                    <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-10 transition-opacity duration-300" />
+                    <Image 
+                      src={imgUrl} 
+                      alt={`Gallery image ${idx + 1}`} 
+                      fill 
+                      className="object-cover"
+                      sizes="(max-width: 96px) 100vw, 96px"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {/* Content */}
       <div className="p-6 md:p-8">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -72,9 +110,11 @@ export function ListingDetail({ listing }: ListingProps) {
         </div>
 
         <div className="mb-6">
-          <h2 className="text-gray-500 dark:text-gray-400">
-            {listing.category} in {listing.city.name}, {listing.city.country}
-          </h2>
+          {listing.category && listing.city && (
+            <h2 className="text-gray-500 dark:text-gray-400">
+              {listing.category} in {listing.city.title}{listing.city.country ? `, ${listing.city.country}` : ''}
+            </h2>
+          )}
           {listing.price_range && (
             <p className="text-gray-600 dark:text-gray-300 mt-1">
               Price Range: {listing.price_range}
@@ -84,8 +124,8 @@ export function ListingDetail({ listing }: ListingProps) {
 
         {/* Description */}
         <div className="prose dark:prose-invert max-w-none mb-8">
-          <p className="text-lg mb-4">{listing.description_short}</p>
-          <div dangerouslySetInnerHTML={{ __html: listing.description_long }} />
+          {listing.description_short && <p className="text-lg mb-4">{listing.description_short}</p>}
+          {listing.description_long && <div dangerouslySetInnerHTML={{ __html: listing.description_long }} />}
         </div>
 
         {/* Features & Amenities */}
@@ -159,7 +199,7 @@ export function ListingDetail({ listing }: ListingProps) {
           <div>
             <h3 className="text-xl font-semibold mb-4">Reviews</h3>
             <div className="space-y-4">
-              {(listing.reviews || []).map((review, index) => (
+              {Array.isArray(listing.reviews) && listing.reviews.map((review: Review, index: number) => (
                 <div
                   key={index}
                   className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4"
@@ -178,6 +218,20 @@ export function ListingDetail({ listing }: ListingProps) {
           </div>
         )}
       </div>
+      {lightboxOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" onClick={() => setLightboxOpen(false)}>
+          <div className="relative w-11/12 md:w-3/4 lg:w-1/2 h-auto">
+            <Image 
+              src={hoverImage || (listing.primaryImage && (typeof listing.primaryImage === 'object' && 'url' in listing.primaryImage ? listing.primaryImage.url : typeof listing.primaryImage === 'string' ? listing.primaryImage : urlFor(listing.primaryImage)?.url())) || '/placeholder-city.jpg'}
+              alt={listing.name}
+              fill
+              className="object-cover"
+              priority
+              sizes="(max-width: 767px) 92vw, (max-width: 1023px) 75vw, 50vw"
+            />
+          </div>
+        </div>
+      )}
     </article>
   )
 }

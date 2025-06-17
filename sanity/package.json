@@ -23,6 +23,7 @@
     "styled-components": "^6.1.15"
   },
   "devDependencies": {
+    "@sanity/cli": "^3.92.0",
     "@sanity/eslint-config-studio": "^5.0.2",
     "@types/dotenv": "^6.1.1",
     "@types/react": "^18.0.25",

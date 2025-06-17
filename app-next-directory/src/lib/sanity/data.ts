@@ -31,7 +31,11 @@ const LISTING_BY_SLUG_QUERY = `
     ecoNotesDetailed,
     sourceUrls,
     rating,
-    priceRange
+    priceRange,
+    galleryImages[]{
+      ...,
+      asset->
+    }
   }
 `;
 

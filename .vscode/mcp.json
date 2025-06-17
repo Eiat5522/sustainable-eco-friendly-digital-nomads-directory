@@ -18,10 +18,6 @@
     "next-sanity-studio-graphql-Docs": {
       "url": "https://gitmcp.io/sanity-io/next-sanity-studio-graphql"
     },
-    "vscode-mcp-server": {
-      "command": "npx",
-      "args": ["mcp-remote@next", "http://localhost:3000/mcp"]
-    },
     "workspace-filesystem": {
       "command": "npx",
       "args": [
@@ -33,6 +29,31 @@
       "autoApprove": [
         "list_allowed_directories"
       ]
-    }
+    },
+    "vscode-mcp-server": {
+      "command": "npx",
+      "args": ["mcp-remote@next", "http://localhost:3000/mcp"]
+    },   
+    "desktop-commander": {
+      "timeout": 60,
+      "command": "npx",
+      "args": [
+        "-y",
+        "@wonderwhy-er/desktop-commander",
+        "D:\\Eiat_Folder\\MyProjects\\MyOtherProjects\\sustainable-eco-friendly-digital-nomads-directory"
+      ],
+      "type": "stdio",
+      "disabled": true
+    },
+    "chain-of-thought": {
+      "command": "npx",
+      "args": ["-y", "mcp-chain-of-thought"],
+      "env": {
+        "DATA_DIR": "${workspaceFolder}",
+        "ENABLE_THOUGHT_CHAIN": "true",
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "true",
+        "ENABLE_DETAILED_MODE": "true"
+      }
   }
 }

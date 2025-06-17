@@ -2,10 +2,11 @@ import React from 'react';
 import { getListingData } from '@/lib/sanity/data';
 import { urlFor } from '@/lib/sanity/image';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ListingDetail } from '@/components/listings/ListingDetail';
 
 export default async function ListingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -15,7 +16,13 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
     return notFound();
   }
 
-  const imageUrl = listing.primaryImage ? urlFor(listing.primaryImage)?.width(1200).height(800).url() : '/placeholder-city.jpg';
+  let imageUrl = '/placeholder-city.jpg';
+  if (listing.primaryImage) {
+    const builtUrl = urlFor(listing.primaryImage)?.width(1200).height(800).url();
+    if (builtUrl) {
+      imageUrl = builtUrl;
+    }
+  }
   const imageAlt = listing.primaryImage?.alt || listing.name || 'Listing image';
 
   return (
@@ -40,6 +47,8 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
             sizes="(max-width: 1024px) 100vw, 1200px"
           />
         </div>
+
+        <ListingDetail listing={listing} />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-6">
