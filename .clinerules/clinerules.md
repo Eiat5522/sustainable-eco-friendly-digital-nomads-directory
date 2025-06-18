@@ -193,3 +193,9 @@ When new info arises:
         * A styled placeholder `div` with descriptive text or an SVG icon.
         * Removing the element if its absence doesn't critically break the UI and a placeholder is unsuitable.
     3. Ask the user if they can provide the asset, if a generic placeholder is acceptable long-term, or if they have other instructions for handling it.
+
+## 📊 Data Consistency & Debugging
+
+* When debugging missing data in UI, always check the data fetching query for completeness and alignment with the CMS schema before making frontend changes.
+* When updating Sanity schemas, update GROQ queries and TypeScript types in lockstep.
+* Include a troubleshooting checklist for missing/undefined fields in UI: (a) Check CMS schema, (b) Check GROQ query, (c) Check prop types, (d) Check rendering logic.

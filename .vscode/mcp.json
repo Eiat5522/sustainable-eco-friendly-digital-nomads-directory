@@ -40,7 +40,9 @@
       "args": [
         "-y",
         "@wonderwhy-er/desktop-commander",
-        "D:\\Eiat_Folder\\MyProjects\\MyOtherProjects\\sustainable-eco-friendly-digital-nomads-directory"
+        "D://Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory",
+        "D://Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory",
+        "D://Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/sanity"
       ],
       "type": "stdio",
       "disabled": true

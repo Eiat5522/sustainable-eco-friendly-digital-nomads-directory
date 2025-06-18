@@ -19,6 +19,7 @@ const LISTING_BY_SLUG_QUERY = `
       title,
       "slug": slug.current
     },
+    location { lat, lng },
     primaryImage,
     ecoTags,
     digital_nomad_features,

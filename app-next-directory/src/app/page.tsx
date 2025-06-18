@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedListings from '@/components/listings/FeaturedListings';
 import CitiesCarousel from '@/components/home/CitiesCarousel';
-import InfographicSection from '@/components/home/InfographicSection';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
 import CTASection from '@/components/home/CTASection';
+import SustainableNomadTestimonials from '@/components/ui/sustainable-nomad-testimonials';
 
 export default function HomePage() {
   const [listings, setListings] = useState([]);
@@ -65,8 +65,8 @@ export default function HomePage() {
       <HeroSection />
       <FeaturedListings listings={listings} />
       <CitiesCarousel cities={cities} />
-      <InfographicSection />
       <WhyChooseUs />
+      <SustainableNomadTestimonials />
       <CTASection />
     </div>
   );

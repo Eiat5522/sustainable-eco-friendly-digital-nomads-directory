@@ -71,32 +71,34 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
     if (markersRef.current && mapRef.current) {
       markersRef.current.clearLayers();
 
-      listings.forEach(listing => {
-        const { latitude, longitude } = listing.coordinates;
-        if (!latitude || !longitude) return;
+      if (Array.isArray(listings)) {
+        listings.forEach(listing => {
+          const { latitude, longitude } = listing.coordinates || {};
+          if (!latitude || !longitude) return;
 
-        const marker = L.marker([latitude, longitude], {
-          icon: L.divIcon({
-            html: `<div class="marker-icon">${categoryIcons[listing.category]}</div>`,
-            className: 'custom-marker',
-            iconSize: L.point(32, 32)
-          })
-        });
+          const marker = L.marker([latitude, longitude], {
+            icon: L.divIcon({
+              html: `<div class="marker-icon">${categoryIcons[listing.category]}</div>`,
+              className: 'custom-marker',
+              iconSize: L.point(32, 32)
+            })
+          });
 
-        marker.bindPopup(`
-          <div class="marker-popup">
-            <h3 class="font-semibold">${listing.name}</h3>
-            <p class="text-sm text-gray-600">${listing.address_string}</p>
-            <div class="mt-2">
-              ${listing.eco_focus_tags.map(tag => 
-                `<span class="inline-block px-2 py-1 mr-1 mb-1 text-xs bg-green-100 text-green-800 rounded-full">${tag}</span>`
-              ).join('')}
+          marker.bindPopup(`
+            <div class="marker-popup">
+              <h3 class="font-semibold">${listing.name}</h3>
+              <p class="text-sm text-gray-600">${listing.address_string}</p>
+              <div class="mt-2">
+                ${Array.isArray(listing.eco_focus_tags) ? listing.eco_focus_tags.map(tag => 
+                  `<span class=\"inline-block px-2 py-1 mr-1 mb-1 text-xs bg-green-100 text-green-800 rounded-full\">${tag}</span>`
+                ).join('') : ''}
+              </div>
             </div>
-          </div>
-        `);
+          `);
 
-        markersRef.current?.addLayer(marker);
-      });
+          markersRef.current?.addLayer(marker);
+        });
+      }
 
       // If we have listings and this is the first time, fit bounds
       if (listings.length > 0 && !mapRef.current.getBounds().getNorthEast().equals(mapRef.current.getBounds().getSouthWest())) {

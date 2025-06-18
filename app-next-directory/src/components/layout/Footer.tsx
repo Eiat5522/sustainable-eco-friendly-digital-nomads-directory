@@ -1,4 +1,20 @@
+'use client';
+
 import Link from 'next/link';
+
+const handleBrowseListingsClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  e.preventDefault();
+  // Scroll to top of page
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Focus on search box after scroll completes
+  setTimeout(() => {
+    const searchBox = document.querySelector('input[type="search"], input[placeholder*="search"], input[placeholder*="Search"]') as HTMLInputElement;
+    if (searchBox) {
+      searchBox.focus();
+      searchBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 800);
+};
 
 export default function Footer() {
   return (
@@ -57,59 +73,59 @@ export default function Footer() {
                 <Link href="/" className="text-white/90 hover:text-white transition-colors text-sm">
                   Home
                 </Link>
-              </li>
-              <li>
-                <Link href="/listings" className="text-white/90 hover:text-white transition-colors text-sm">
+              </li>              <li>
+                <a 
+                  href="#" 
+                  onClick={handleBrowseListingsClick}
+                  className="text-white/90 hover:text-white transition-colors text-sm cursor-pointer"
+                >
                   Browse Listings
-                </Link>
+                </a>
               </li>
               <li>
                 <Link href="/blog" className="text-white/90 hover:text-white transition-colors text-sm">
                   Blog
                 </Link>
-              </li>
-              <li>
-                <Link href="/submit" className="text-white/90 hover:text-white transition-colors text-sm">
+              </li>              <li>
+                <Link href="/auth/signin" className="text-white/90 hover:text-white transition-colors text-sm">
                   Submit Your Business
                 </Link>
               </li>
               <li>
-                <Link href="/auth" className="text-white/90 hover:text-white transition-colors text-sm">
+                <Link href="/auth/signin" className="text-white/90 hover:text-white transition-colors text-sm">
                   Login / Register
                 </Link>
               </li>
             </ul>
-          </div>
-
-          {/* Categories */}
+          </div>          {/* Categories */}
           <div>
             <h3 className="text-lg font-semibold text-white mb-4">
               Categories
             </h3>
             <ul className="space-y-3">
               <li>
-                <Link href="/listings?category=cafes" className="text-white/90 hover:text-white transition-colors text-sm">
-                  Cafés
+                <Link href="/search?q=Coworking" className="text-white/90 hover:text-white transition-colors text-sm">
+                  Co-working Spaces
                 </Link>
               </li>
               <li>
-                <Link href="/listings?category=restaurants" className="text-white/90 hover:text-white transition-colors text-sm">
-                  Restaurants
+                <Link href="/search?q=Accommodation" className="text-white/90 hover:text-white transition-colors text-sm">
+                  Eco Accommodations
                 </Link>
               </li>
               <li>
-                <Link href="/listings?category=retail" className="text-white/90 hover:text-white transition-colors text-sm">
-                  Retail Stores
+                <Link href="/search?q=Cafe" className="text-white/90 hover:text-white transition-colors text-sm">
+                  Sustainable Cafes
                 </Link>
               </li>
               <li>
-                <Link href="/listings?category=offices" className="text-white/90 hover:text-white transition-colors text-sm">
-                  Office Spaces
+                <Link href="/search?q=Community" className="text-white/90 hover:text-white transition-colors text-sm">
+                  Nomad Communities
                 </Link>
               </li>
               <li>
-                <Link href="/listings?category=fashion" className="text-white/90 hover:text-white transition-colors text-sm">
-                  Fashion
+                <Link href="/search?q=Events" className="text-white/90 hover:text-white transition-colors text-sm">
+                  Green Events
                 </Link>
               </li>
             </ul>

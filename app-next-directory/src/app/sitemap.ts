@@ -11,24 +11,6 @@ interface SitemapEntry {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'
 
-  // Fetch listings
-  const listings = await getClient().fetch<{ slug: string, _updatedAt: string }[]>(
-    `*[_type == "listing"]{
-      "slug": slug.current,
-      _updatedAt
-    }`
-  )
-
-  // Fetch categories
-  const categories = await getClient().fetch<{ category: string }[]>(
-    `*[_type == "listing"]{category} | unique`
-  )
-
-  // Fetch cities
-  const cities = await getClient().fetch<{ name: string }[]>(
-    `*[_type == "city"]{name}`
-  )
-
   // Static pages
   const staticPages: SitemapEntry[] = [
     {
@@ -57,29 +39,52 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   ]
 
-  // Listing pages
-  const listingPages: SitemapEntry[] = listings.map((listing) => ({
-    url: `${baseUrl}/listings/${listing.slug}`,
-    lastModified: listing._updatedAt,
-    changeFrequency: 'weekly',
-    priority: 0.7
-  }))
+  try {
+    // Fetch listings
+    const listings = await getClient().fetch<{ slug: string, _updatedAt: string }[]>(
+      `*[_type == "listing"]{
+        "slug": slug.current,
+        _updatedAt
+      }`
+    ) || [];
 
-  // Category pages
-  const categoryPages: SitemapEntry[] = categories.map((cat) => ({
-    url: `${baseUrl}/category/${cat.category.toLowerCase()}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.6
-  }))
+    // Fetch categories
+    const categories = await getClient().fetch<{ category: string }[]>(
+      `*[_type == "listing"]{category} | unique`
+    ) || [];
 
-  // City pages
-  const cityPages: SitemapEntry[] = cities.map((city) => ({
-    url: `${baseUrl}/city/${city.name.toLowerCase()}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.6
-  }))
+    // Fetch cities
+    const cities = await getClient().fetch<{ name: string }[]>(
+      `*[_type == "city"]{name}`
+    ) || [];
 
-  return [...staticPages, ...listingPages, ...categoryPages, ...cityPages]
+    // Listing pages
+    const listingPages: SitemapEntry[] = listings.map((listing) => ({
+      url: `${baseUrl}/listings/${listing.slug}`,
+      lastModified: listing._updatedAt,
+      changeFrequency: 'weekly',
+      priority: 0.7
+    }));
+
+    // Category pages
+    const categoryPages: SitemapEntry[] = categories.map((cat) => ({
+      url: `${baseUrl}/category/${cat.category?.toLowerCase?.() ?? ''}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6
+    }));
+
+    // City pages
+    const cityPages: SitemapEntry[] = cities.map((city) => ({
+      url: `${baseUrl}/city/${city.name?.toLowerCase?.() ?? ''}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6
+    }));
+
+    return [...staticPages, ...listingPages, ...categoryPages, ...cityPages]
+  } catch (err) {
+    // Fallback to static pages only if any error occurs
+    return staticPages
+  }
 }

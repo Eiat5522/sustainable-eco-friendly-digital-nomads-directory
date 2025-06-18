@@ -159,11 +159,12 @@ export default function BulkOperations() {
 
       {/* Content Type Selection */}
       <div className="bg-white p-6 rounded-lg shadow mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Content Type</label>
-        <select
+        <label className="block text-sm font-medium text-gray-700 mb-2">Content Type</label>        <select
           value={selectedType}
           onChange={(e) => setSelectedType(e.target.value as 'listings' | 'users' | 'reviews' | 'blog_posts')}
           className="border border-gray-300 rounded-md px-3 py-2 w-48"
+          aria-label="Select content type to operate on"
+          title="Content Type Selection"
         >
           <option value="listings">Listings</option>
           <option value="users">Users</option>
@@ -250,18 +251,24 @@ export default function BulkOperations() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {selectedType === 'listings' && (
                   <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                      <select className="border border-gray-300 rounded-md px-3 py-2 w-full">
+                    <div>                      <label htmlFor="listing-status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                      <select 
+                        id="listing-status"
+                        className="border border-gray-300 rounded-md px-3 py-2 w-full"
+                        aria-label="Select listing status"
+                      >
                         <option value="">Don&apos;t change</option>
                         <option value="published">Published</option>
                         <option value="draft">Draft</option>
                         <option value="archived">Archived</option>
                       </select>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                      <select className="border border-gray-300 rounded-md px-3 py-2 w-full">
+                    <div>                      <label htmlFor="listing-category" className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                      <select 
+                        id="listing-category"
+                        className="border border-gray-300 rounded-md px-3 py-2 w-full"
+                        aria-label="Select listing category"
+                      >
                         <option value="">Don&apos;t change</option>
                         <option value="accommodation">Accommodation</option>
                         <option value="coworking">Coworking</option>
@@ -273,18 +280,24 @@ export default function BulkOperations() {
 
                 {selectedType === 'users' && (
                   <>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                      <select className="border border-gray-300 rounded-md px-3 py-2 w-full">
+                    <div>                      <label htmlFor="user-role" className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                      <select 
+                        id="user-role"
+                        className="border border-gray-300 rounded-md px-3 py-2 w-full"
+                        aria-label="Select user role"
+                      >
                         <option value="">Don&apos;t change</option>
                         <option value="user">User</option>
                         <option value="moderator">Moderator</option>
                         <option value="admin">Admin</option>
                       </select>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                      <select className="border border-gray-300 rounded-md px-3 py-2 w-full">
+                    <div>                      <label htmlFor="user-status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                      <select 
+                        id="user-status"
+                        className="border border-gray-300 rounded-md px-3 py-2 w-full"
+                        aria-label="Select user status"
+                      >
                         <option value="">Don&apos;t change</option>
                         <option value="true">Active</option>
                         <option value="false">Inactive</option>
@@ -342,22 +355,27 @@ export default function BulkOperations() {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Import {selectedType}</h3>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div>                <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 mb-2">
                   Upload file (JSON or CSV)
                 </label>
                 <input
+                  id="file-upload"
                   type="file"
                   accept=".json,.csv"
                   className="border border-gray-300 rounded-md px-3 py-2 w-full"
+                  aria-label="Upload JSON or CSV file"
+                  title="Choose a JSON or CSV file to upload"
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div>                <label htmlFor="conflict-resolution" className="block text-sm font-medium text-gray-700 mb-1">
                   Conflict Resolution
                 </label>
-                <select className="border border-gray-300 rounded-md px-3 py-2">
+                <select 
+                  id="conflict-resolution"
+                  className="border border-gray-300 rounded-md px-3 py-2"
+                  aria-label="Select how to handle conflicts during import"
+                >
                   <option value="skip">Skip conflicting items</option>
                   <option value="update">Update existing items</option>
                   <option value="error">Stop on conflict</option>

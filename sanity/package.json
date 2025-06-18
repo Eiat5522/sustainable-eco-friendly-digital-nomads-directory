@@ -16,20 +16,23 @@
   ],
   "dependencies": {
     "@auth/mongodb-adapter": "3.9.1",
-    "@sanity/vision": "^2.2.6",
+    "@sanity/code-input": "5.1.2",
+    "@sanity/vision": "3.93.0",
+    "leaflet.markercluster": "^1.5.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "sanity": "^2.36.6",
     "styled-components": "^6.1.15"
   },
   "devDependencies": {
     "@sanity/cli": "^3.92.0",
     "@sanity/eslint-config-studio": "^5.0.2",
     "@types/dotenv": "^6.1.1",
+    "@types/leaflet": "^1.9.18",
     "@types/react": "^18.0.25",
     "dotenv": "^16.5.0",
     "eslint": "^8.56.0",
     "prettier": "^3.0.2",
+    "sanity": "^3.93.0",
     "typescript": "^5.1.6"
   },
   "prettier": {

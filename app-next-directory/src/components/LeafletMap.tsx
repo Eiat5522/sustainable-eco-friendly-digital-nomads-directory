@@ -68,7 +68,7 @@ const LeafletMap: React.FC<LeafletMapProps> = ({
     });
 
     // Handle map clicks
-    map.on('click', function (e) {
+    map.on('click', function (e: L.LeafletMouseEvent) {
       const { lat, lng } = e.latlng;
       marker.setLatLng([lat, lng]);
       circle.setLatLng([lat, lng]);

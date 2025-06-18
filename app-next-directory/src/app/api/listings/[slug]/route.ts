@@ -10,7 +10,7 @@ export async function GET(
 ) {
   try {
     // Fetch listing from Sanity
-    const listing = await getListingBySlug(params.slug);
+    let listing = await getListingBySlug(params.slug);
 
     if (!listing) {
       return ApiResponseHandler.notFound('Listing');

@@ -41,6 +41,12 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'location',
+      title: 'Location',
+      type: 'geopoint',
+      description: 'Geographical location (latitude & longitude) for map display',
+    }),
+    defineField({
       name: 'description_short',
       title: 'Short Description',
       type: 'string',
