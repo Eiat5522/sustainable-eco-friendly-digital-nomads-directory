@@ -1,83 +1,185 @@
-import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { fetchCityDetails, fetchCityListings } from '../api';
 
-describe('fetchCityDetails', () => {
-  const mockCity = { _id: '1', name: 'Bangkok', slug: 'bangkok', listingCount: 10, country: 'Thailand' };
+// Mock fetch globally
+const mockFetch = jest.fn() as jest.MockedFunction<typeof fetch>;
+global.fetch = mockFetch;
 
+describe('API Functions', () => {
   beforeEach(() => {
-    global.fetch = jest.fn();
+    jest.clearAllMocks();
+    // Reset console.error mock
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
+    jest.restoreAllMocks();
   });
 
-  it('returns city data on success', async () => {
-    (fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ data: mockCity }),
+  describe('fetchCityDetails', () => {
+    it('should fetch city details successfully', async () => {
+      const mockCityData = {
+        id: '1',
+        name: 'Bangkok',
+        slug: 'bangkok',
+        description: 'Capital of Thailand',
+        coordinates: { lat: 13.7563, lng: 100.5018 },
+      };
+
+      const mockResponse = {
+        ok: true,
+        json: () => Promise.resolve({
+          success: true,
+          data: mockCityData,
+        }),
+      } as unknown as Response;
+
+      mockFetch.mockResolvedValue(mockResponse);
+
+      const result = await fetchCityDetails('bangkok');
+
+      expect(fetch).toHaveBeenCalledWith('/api/cities/bangkok');
+      expect(result).toEqual(mockCityData);
     });
-    const result = await fetchCityDetails('bangkok');
-    expect(result).toEqual(mockCity);
-    expect(fetch).toHaveBeenCalledWith('/api/cities/bangkok');
-  });
 
-  it('throws error on non-ok response', async () => {
-    (fetch as jest.Mock).mockResolvedValue({
-      ok: false,
-      json: async () => ({}),
+    it('should handle fetch error when response is not ok', async () => {
+      const mockResponse = {
+        ok: false,
+        status: 404,
+      } as unknown as Response;
+
+      mockFetch.mockResolvedValue(mockResponse);
+
+      await expect(fetchCityDetails('nonexistent')).rejects.toThrow('Failed to fetch city details');
+      expect(console.error).toHaveBeenCalledWith('Error fetching city details:', expect.any(Error));
     });
-    await expect(fetchCityDetails('bangkok')).rejects.toThrow('Failed to fetch city details');
-  });
 
-  it('throws error on fetch failure', async () => {
-    (fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
-    await expect(fetchCityDetails('bangkok')).rejects.toThrow('Network error');
-  });
-});
+    it('should handle network error', async () => {
+      const networkError = new Error('Network error');
+      mockFetch.mockRejectedValue(networkError);
 
-describe('fetchCityListings', () => {
-  const mockListings = [
-    { _id: 'l1', name: 'Eco Space', slug: 'eco-space', description: '', type: 'coworking', priceRange: 'moderate', mainImage: { asset: { _ref: '', url: '' } }, city: { _id: '', name: '', slug: '', listingCount: 0, country: '' }, ecoTags: [], address: '', rating: 4.5, createdAt: '', updatedAt: '' },
-  ];
-
-  beforeEach(() => {
-    global.fetch = jest.fn();
-  });
-
-  afterEach(() => {
-    jest.resetAllMocks();
-  });
-
-  it('returns listings array on success', async () => {
-    (fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ data: { listings: mockListings } }),
+      await expect(fetchCityDetails('bangkok')).rejects.toThrow('Network error');
+      expect(console.error).toHaveBeenCalledWith('Error fetching city details:', networkError);
     });
-    const result = await fetchCityListings('bangkok');
-    expect(result).toEqual(mockListings);
-    expect(fetch).toHaveBeenCalledWith('/api/listings?citySlug=bangkok');
-  });
 
-  it('returns empty array if listings missing', async () => {
-    (fetch as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({ data: {} }),
+    it('should handle JSON parsing error', async () => {
+      const mockResponse = {
+        ok: true,
+        json: () => Promise.reject(new Error('Invalid JSON')),
+      } as unknown as Response;
+
+      mockFetch.mockResolvedValue(mockResponse);
+
+      await expect(fetchCityDetails('bangkok')).rejects.toThrow('Invalid JSON');
     });
-    const result = await fetchCityListings('bangkok');
-    expect(result).toEqual([]);
   });
 
-  it('returns empty array on non-ok response', async () => {
-    (fetch as jest.Mock).mockResolvedValue({
-      ok: false,
-      json: async () => ({}),
+  describe('fetchCityListings', () => {
+    it('should fetch city listings successfully', async () => {
+      const mockListingsData = [
+        {
+          id: '1',
+          title: 'Green Cafe',
+          slug: 'green-cafe',
+          type: 'cafe',
+          city: 'Bangkok',
+        },
+        {
+          id: '2',
+          title: 'Eco Coworking',
+          slug: 'eco-coworking',
+          type: 'coworking',
+          city: 'Bangkok',
+        },
+      ];
+
+      const mockResponse = {
+        ok: true,
+        json: () => Promise.resolve({
+          success: true,
+          data: {
+            listings: mockListingsData,
+            total: 2,
+          },
+        }),
+      } as unknown as Response;
+
+      mockFetch.mockResolvedValue(mockResponse);
+
+      const result = await fetchCityListings('bangkok');
+
+      expect(fetch).toHaveBeenCalledWith('/api/listings?citySlug=bangkok');
+      expect(result).toEqual(mockListingsData);
     });
-    await expect(fetchCityListings('bangkok')).resolves.toEqual([]);
-  });
 
-  it('returns empty array on fetch failure', async () => {
-    (fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
-    await expect(fetchCityListings('bangkok')).resolves.toEqual([]);
+    it('should handle missing listings data', async () => {
+      const mockResponse = {
+        ok: true,
+        json: () => Promise.resolve({
+          success: true,
+          data: {}, // No listings property
+        }),
+      } as unknown as Response;
+
+      mockFetch.mockResolvedValue(mockResponse);
+
+      const result = await fetchCityListings('bangkok');
+
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array when response is not ok', async () => {
+      const mockResponse = {
+        ok: false,
+        status: 500,
+      } as unknown as Response;
+
+      mockFetch.mockResolvedValue(mockResponse);
+
+      const result = await fetchCityListings('bangkok');
+
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith('Error fetching city listings:', expect.any(Error));
+    });
+
+    it('should return empty array on network error', async () => {
+      const networkError = new Error('Network error');
+      mockFetch.mockRejectedValue(networkError);
+
+      const result = await fetchCityListings('bangkok');
+
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith('Error fetching city listings:', networkError);
+    });
+
+    it('should handle JSON parsing error gracefully', async () => {
+      const mockResponse = {
+        ok: true,
+        json: () => Promise.reject(new Error('Invalid JSON')),
+      } as unknown as Response;
+
+      mockFetch.mockResolvedValue(mockResponse);
+
+      const result = await fetchCityListings('bangkok');
+
+      expect(result).toEqual([]);
+      expect(console.error).toHaveBeenCalledWith('Error fetching city listings:', expect.any(Error));
+    });
+
+    it('should encode special characters in city slug', async () => {
+      const mockResponse = {
+        ok: true,
+        json: () => Promise.resolve({
+          success: true,
+          data: { listings: [] },
+        }),
+      } as unknown as Response;
+
+      mockFetch.mockResolvedValue(mockResponse);
+
+      await fetchCityListings('chiang-mai');
+
+      expect(fetch).toHaveBeenCalledWith('/api/listings?citySlug=chiang-mai');
+    });
   });
 });

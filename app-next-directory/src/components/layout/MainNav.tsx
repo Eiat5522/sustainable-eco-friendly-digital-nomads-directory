@@ -1,19 +1,18 @@
 "use client";
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { BookOpen, Calendar, Home, Leaf, LogIn, Mail, Map, Menu, UserCircle, X } from 'lucide-react';
+import { BookOpen, Calendar, Home, Leaf, LogIn, Mail, Menu, UserCircle, X } from 'lucide-react';
 import { signIn, signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import ThemeToggle from './ThemeToggle';
 
 const navigationItems = [
-	{ name: 'Home', href: '/', icon: Home },
-	{ name: 'Listings', href: '/listings', icon: Calendar }, // Re-added Listings
-	{ name: 'Cities', href: '/cities', icon: Calendar },
-	{ name: 'Blog', href: '/blog', icon: BookOpen },
-	{ name: 'Contact Us', href: '/contact', icon: Mail },
+{ name: 'Home', href: '/', icon: Home },
+{ name: 'Listings', href: '/listings', icon: Calendar },
+{ name: 'Find', href: '/search' }, // No icon for Find
+{ name: 'Blog', href: '/blog', icon: BookOpen },
+{ name: 'Contact Us', href: '/contact', icon: Mail },
 ];
 
 export function MainNav() {
@@ -45,22 +44,20 @@ export function MainNav() {
 
 					{/* Desktop Navigation */}
 					<div className="hidden md:flex md:items-center md:space-x-6 lg:space-x-8">
-						{navigationItems.map((item) => {
-							const Icon = item.icon;
-							const isActive = pathname === item.href;
-							return (
-								<Link
-									key={item.name}
-									href={item.href}
-									className={`text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center group text-sm font-medium transition-colors`}
-								>
-									<Icon className={`mr-1.5 h-4 w-4 ${isActive ? 'text-primary-600 dark:text-primary-400' : ''}`} />
-									<span className={`${isActive ? 'text-primary-600 dark:text-primary-400' : ''}`}>{item.name}</span>
-								</Link>
-							);
-						})}
-
-						<ThemeToggle />
+{navigationItems.map((item) => {
+const Icon = item.icon;
+const isActive = pathname === item.href;
+return (
+<Link
+key={item.name}
+href={item.href}
+className={`text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center group text-sm font-medium transition-colors`}
+>
+{Icon && <Icon className={`mr-1.5 h-4 w-4 ${isActive ? 'text-primary-600 dark:text-primary-400' : ''}`} />}
+<span className={`${isActive ? 'text-primary-600 dark:text-primary-400' : ''}`}>{item.name}</span>
+</Link>
+);
+})}
 
 						{/* Auth Button/User Menu - Desktop */}
 						{status === 'loading' ? (
@@ -121,10 +118,9 @@ export function MainNav() {
 						)}
 					</div>
 
-					{/* Mobile menu button */}
-					<div className="flex md:hidden items-center space-x-2">
-						<ThemeToggle />
-						{status !== 'loading' && !session && (
+{/* Mobile menu button */}
+<div className="flex md:hidden items-center space-x-2">
+{status !== 'loading' && !session && (
 							<button
 								onClick={() => signIn()}
 								className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -150,12 +146,11 @@ export function MainNav() {
 								</button>
 							</div>
 						)}
-						<button
-							onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-							className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
-							// eslint-disable-next-line jsx-a11y/aria-props
-							aria-expanded={!!mobileMenuOpen}
-						>
+<button
+onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
+aria-expanded={mobileMenuOpen ? "true" : "false"}
+>
 							<span className="sr-only">Open main menu</span>
 							{mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
 						</button>
@@ -175,22 +170,22 @@ export function MainNav() {
 						className="md:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 shadow-lg"
 					>
 						<div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-							{navigationItems.map((item) => {
-								const Icon = item.icon;
-								const isActive = pathname === item.href;
-								return (
-									<Link key={item.name} href={item.href}>
-										<span className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
-											isActive
-												? 'bg-primary-50 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-												: 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-										}`}>
-											<Icon className="mr-3 h-5 w-5" />
-											{item.name}
-										</span>
-									</Link>
-								);
-							})}
+{navigationItems.map((item) => {
+const Icon = item.icon;
+const isActive = pathname === item.href;
+return (
+<Link key={item.name} href={item.href}>
+<span className={`flex items-center px-3 py-2 rounded-md text-base font-medium ${
+isActive
+? 'bg-primary-50 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+: 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+}`}>
+{Icon && <Icon className="mr-3 h-5 w-5" />}
+{item.name}
+</span>
+</Link>
+);
+})}
 
 							{/* Mobile Auth/User actions */}
 							<div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-800">

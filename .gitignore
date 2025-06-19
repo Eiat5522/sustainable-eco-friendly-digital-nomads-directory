@@ -85,25 +85,27 @@ tasks/
 */sanity_image_staging/*
 
 # Copilot
-*.copilotignore
+.copilotignore
 *image_curation_helper.csv
 *run_migration.py
 *task_0
-*clean-install.ps1
+clean-install.ps1
 *tasks.json.bak
 *.specstory/*
 *WORKSTREAM*
 
 #Github Copilot
 .vscode/mcp.json
-**/*/project-memory/*
+/project-memory/
 .github/instructions/tools-usage-guidelines.instructions.md
+
+#Sanity
 
 
 #Cline & Roo
 */.clinerules*
 *.roomodes
-.room
+.roo
 /cline_docs*
 
 # Code Index MCP cache directory
@@ -112,3 +114,4 @@ tasks/
 # Repomix MCP files
 */repomix-instruction.md
 */.secretlintrc.json
+repomix-instruction.md

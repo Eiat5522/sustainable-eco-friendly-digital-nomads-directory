@@ -20,13 +20,13 @@ const CTASection: React.FC = () => {
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                 <Link
-                  href="/join"
+                  href="/auth/signup"
                   className="px-8 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium text-center transition shadow-lg hover:shadow-xl"
                 >
                   Join Now - Free
                 </Link>
                 <Link
-                  href="/explore"
+                  href="/search"
                   className="px-8 py-3 border border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-lg font-medium text-center transition"
                 >
                   Explore Destinations
@@ -34,7 +34,7 @@ const CTASection: React.FC = () => {
               </div>
 
               <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                Already a member? <Link href="/login" className="text-green-600 hover:underline">Sign in here</Link>
+                Already a member? <Link href="/auth/signin" className="text-green-600 hover:underline">Sign in here</Link>
               </p>
             </div>
           </div>

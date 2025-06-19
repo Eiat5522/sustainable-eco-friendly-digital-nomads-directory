@@ -1,7 +1,7 @@
 ---
 applyTo: 'toolsUsageGuidelines'
 ---
-### 💻 VSCode MCP Server Usage 💾 ###
+### 💻 Workspace File System MCP Server Tools Usage 💾 ###
 
 ## ➡️ WORKFLOW ESSENTIALS:⬆️
 - **Start Exploration:** with list_files_code on root directory (.) first
@@ -10,7 +10,7 @@ applyTo: 'toolsUsageGuidelines'
 - **Large Changes:** new files, or uncertain content: use create_file_code with overwrite=true
 
 ## 🚗 EXPLORATION STRATEGY:✈️
-- **Start:** list_files_code with path='.' (never recursive on root)
+- **Start:** list_files_code with path='.' (never recursive on root, this will most likely cause a timeout)
 - **Understand structure:** read key files like package.json, README, main entry points
 - **Find symbols:** use search_symbols_code for functions/classes, get_document_symbols_code for file overviews
 - **Before editing:** read_file_code the target file to understand current content

@@ -1,4 +1,5 @@
 # NPM Workspace Setup
+
 # -----------------
 
 The npm workspace configuration has been moved to the root directory to fix the warning:
@@ -7,6 +8,7 @@ The npm workspace configuration has been moved to the root directory to fix the 
 ## Project Structure
 
 This project is set up as an npm workspace with the following structure:
+
 - Root: Contains shared configuration and workspace settings
 - app-next-directory: Next.js application
 - sanity: Sanity Studio instance
@@ -32,6 +34,7 @@ npm run lint
 ## Configuration
 
 The shared npm configuration is now in the root `.npmrc` file with:
+
 - legacy-peer-deps=true
 - strict-peer-dependencies=false
 - auto-install-peers=true

@@ -26,10 +26,13 @@ The following Jest-related packages have been installed:
 ## Configuration Files
 
 ### jest.config.js
+
 Main Jest configuration using Next.js Jest integration for optimal compatibility.
 
 ### jest.setup.ts
+
 Global test setup file that includes:
+
 - Mock configurations for Next.js router and navigation
 - Mock for browser APIs (IntersectionObserver, ResizeObserver, etc.)
 - Mock for fetch API
@@ -51,6 +54,7 @@ The following npm scripts are available:
 ## Test File Structure
 
 Tests should be placed in:
+
 - `src/**/__tests__/**/*.{js,jsx,ts,tsx}` - Dedicated test directories
 - `src/**/*.{test,spec}.{js,jsx,ts,tsx}` - Co-located with source files
 
@@ -168,6 +172,7 @@ npx jest src/lib/__tests__
 ## Test Coverage
 
 Jest is configured to collect coverage from:
+
 - All TypeScript/JavaScript files in `src/`
 - Excluding type definition files, layouts, loading components, and CSS files
 
@@ -176,16 +181,20 @@ Coverage reports are generated in the `coverage/` directory.
 ## Mocking
 
 ### Next.js Specific Mocks
+
 - `next/router` - Mocked in jest.setup.ts
 - `next/navigation` - Mocked in jest.setup.ts
 - `next/image` - Can be mocked per test if needed
 
 ### External APIs
+
 - `fetch` - Globally mocked in jest.setup.ts
 - Other APIs should be mocked in individual test files
 
 ### Environment Variables
+
 Test environment variables are set in jest.setup.ts:
+
 ```typescript
 process.env.NEXTAUTH_SECRET = 'test-secret'
 process.env.NEXTAUTH_URL = 'http://localhost:3000'
@@ -229,6 +238,7 @@ Jest is configured to exclude Playwright test files (`.spec.ts` files in the `te
 ## Summary
 
 Jest is now fully configured for unit testing in this Next.js application. The setup includes:
+
 - ✅ Jest and Testing Library installation
 - ✅ TypeScript support
 - ✅ Next.js integration
