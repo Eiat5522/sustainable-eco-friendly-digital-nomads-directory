@@ -4,6 +4,7 @@ import { ListingGrid } from '@/components/listings/ListingGrid';
 import { SearchBar } from '@/components/search/SearchBar';
 import { Alert } from '@/components/ui/alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { WorldMapDemo } from '@/components/ui/world-map-demo';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useState, Suspense } from 'react';
@@ -86,9 +87,13 @@ function SearchResultsComponent() {
   const handleFiltersChange = useCallback(() => {}, []);
   const handleSortChange = useCallback(() => {}, []);
   const clearFilters = useCallback(() => {}, []);
-
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Hero Section with WorldMap */}
+      <div className="mb-12">
+        <WorldMapDemo />
+      </div>
+
       {/* Search Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">Search Results</h1>

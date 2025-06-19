@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --watchAll=false"
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.9.1",
@@ -27,6 +31,7 @@
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotted-map": "^2.2.3",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.18.1",
@@ -52,16 +57,24 @@
     "zod": "^3.25.64"
   },
   "devDependencies": {
+    "@jest/globals": "^30.0.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/dotenv": "^6.1.1",
+    "@types/jest": "^30.0.0",
     "@types/leaflet": "^1.9.18",
     "@types/node": "^20.3.3",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "autoprefixer": "^10.4.14",
     "dotenv": "^16.5.0",
+    "jest": "^30.0.1",
+    "jest-environment-jsdom": "^30.0.1",
     "postcss": "^8.4.24",
     "tailwindcss": "^3.3.2",
+    "ts-jest": "^29.4.0",
     "typescript": "^5.1.6"
   }
 }

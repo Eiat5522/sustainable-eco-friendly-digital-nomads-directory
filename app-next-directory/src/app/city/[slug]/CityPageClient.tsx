@@ -140,10 +140,9 @@ export default function CityPageClient({ city, listings }: CityPageClientProps) 
             </h2>
 
             {listings.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {listings.map((listing: Listing, index) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">                {listings.map((listing: Listing, index) => (
                   <motion.div
-                    key={listing.id}
+                    key={listing._id || listing.id || index}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}

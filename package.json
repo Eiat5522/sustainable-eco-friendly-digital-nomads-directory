@@ -18,7 +18,11 @@
     "start": "npm run start:next",
     "lint:next": "cd app-next-directory && npm run lint",
     "lint:sanity": "cd sanity && npm run lint",
-    "lint": "npm run lint:next"
+    "lint": "npm run lint:next",
+    "test": "cd app-next-directory && npm run test",
+    "test:watch": "cd app-next-directory && npm run test:watch",
+    "test:coverage": "cd app-next-directory && npm run test:coverage",
+    "test:ci": "cd app-next-directory && npm run test:ci"
   },
   "browserslist": [
     ">0.2%",

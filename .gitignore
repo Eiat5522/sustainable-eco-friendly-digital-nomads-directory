@@ -101,7 +101,7 @@ tasks/
 
 
 #Cline & Roo
-*/.cline*
+*/.clinerules*
 *.roomodes
 .room
 /cline_docs*

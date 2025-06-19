@@ -34,8 +34,7 @@ export async function GET() {
     const queryEndTime = performance.now();
     console.log('[DEBUG] Cities API: GROQ query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');
     console.log('[DEBUG] Cities API: Found', cities.length, 'cities');
-    
-    // Log data structure for first city if available
+      // Log data structure for first city if available
     if (cities.length > 0) {
       console.log('[DEBUG] Cities API: Sample city structure:', {
         hasId: !!cities[0]._id,
@@ -44,6 +43,12 @@ export async function GET() {
         hasCountry: !!cities[0].country,
         hasMainImage: !!cities[0].mainImage,
         hasSustainabilityScore: !!cities[0].sustainabilityScore
+      });
+      
+      // Log all city slugs for debugging
+      console.log('[DEBUG] Cities API: Available city slugs:');
+      cities.forEach((city, index) => {
+        console.log(`${index + 1}. ${city.title} -> slug: "${city.slug}"`);
       });
     }
 
