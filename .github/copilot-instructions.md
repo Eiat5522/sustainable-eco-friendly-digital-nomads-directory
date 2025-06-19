@@ -26,15 +26,16 @@
   []: # └── ...
   []: # ```
 
-## 📑 **Directory Navigation with PowerShell 7**
+### 💭Codebase Navigation & Context Consumption 💾 ###
+- **Context Gathering with RepoMix MCP Server** Use #RepoMix to help you gather context for the entire codebase. 
+    To start, first #pack_codebase, then analyze the output using #grep_repomix_output tool, this will provide you with better understanding of the context you are working with.
 
+## 📑 **Directory Navigation with File System MCP server in Powerhell 7 **
 - **Change Directory Best Practices:** - **Change Directory**: Use PowerShell's `Set-Location` cmdlet to change directories in the terminal.
     For example, `Set-Location -Path "src\components"` to navigate to the components directory.
-
-## 📑 **Directory Navigation with vscode-mcp-server's tools**
-
-- **IMPORTANT:** Use #vscode-mcp-server to help navigate the workspace.
-    You must use absolute full paths with the drive letter in CAPITAL LETTER as shown in the following example: ('Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory'). This is crucial to ensure reliability of navigation tools usage.
+- **IMPORTANT:** Use #file system mcp server to help navigate the codebase.
+    You must use absolute full paths with the drive letter in CAPITAL LETTER as shown in the following example: ('Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory').
+    This is crucial in ensuring tools usage reliability.
 - **Forbidden** Relative paths and lowercase as drive letter will fail as they are depend on the current working directory. Tilde paths (~/...) might not work in all contexts.
 
   - Examples:
@@ -230,7 +231,6 @@ When new information about projects is provided:
 5. **Content Editors:** Admin UI is placed behind authentication; role-based permissions are used for editors vs. venue owners.
 6. **User Testing:** Monthly usability sessions; analytics dashboards drive roadmap decisions.
 7. **(SustainableDigitalNomadsDirectory Specific):**
-
    - Copilot assists with code scaffolding, reviews, and documentation.
      - **Proactive Assistance:** In line with your role of assisting with code scaffolding, reviews, and documentation, proactively offer help when appropriate.
        - _Examples:_

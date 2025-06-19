@@ -15,10 +15,11 @@
     "sanity"
   ],
   "dependencies": {
-    "@auth/mongodb-adapter": "3.9.1",
+    "@auth/mongodb-adapter": "^3.9.1",
     "@sanity/code-input": "5.1.2",
     "@sanity/vision": "3.93.0",
     "leaflet.markercluster": "^1.5.3",
+    "node-fetch": "^3.3.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^6.1.15"
@@ -29,6 +30,7 @@
     "@types/dotenv": "^6.1.1",
     "@types/leaflet": "^1.9.18",
     "@types/react": "^18.0.25",
+    "@types/supertest": "^6.0.3",
     "dotenv": "^16.5.0",
     "eslint": "^8.56.0",
     "prettier": "^3.0.2",

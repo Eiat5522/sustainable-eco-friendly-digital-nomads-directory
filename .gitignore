@@ -103,7 +103,7 @@ clean-install.ps1
 
 
 #Cline & Roo
-*/.clinerules*
+**/.clinerules/
 *.roomodes
 .roo
 /cline_docs*
@@ -115,3 +115,6 @@ clean-install.ps1
 */repomix-instruction.md
 */.secretlintrc.json
 repomix-instruction.md
+.github/instructions/tools-usage-guidelines.instructions.md
+.github/copilot-instructions.md
+.vscode/mcp.json

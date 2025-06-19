@@ -1,24 +1,6 @@
 {
   "servers": {
-    "next-vercel": {
-      "url": "https://gitmcp.io/vercel/next.js"
-    },
-    "next-saas-starter-Docs": {
-      "url": "https://gitmcp.io/nextjs/saas-starter"
-    },
-    "ts-nextjs-tailwind-starter-Docs": {
-      "url": "https://gitmcp.io/theodorusclarence/ts-nextjs-tailwind-starter"
-    },
-    "next-sanity-Docs": {
-      "url": "https://gitmcp.io/sanity-io/next-sanity"
-    },
-    "next-sanity-studio-Docs": {
-      "url": "https://gitmcp.io/sanity-io/next-sanity-studio"
-    },
-    "next-sanity-studio-graphql-Docs": {
-      "url": "https://gitmcp.io/sanity-io/next-sanity-studio-graphql"
-    },
-    "workspace-filesystem": {
+    "File System": {
       "command": "npx",
       "args": [
         "-y",
@@ -30,11 +12,11 @@
         "list_allowed_directories"
       ]
     },
-    "vscode-mcp-server": {
+    "vscode": {
       "command": "npx",
-      "args": ["mcp-remote@next", "http://localhost:3000/mcp"]
-    },   
-    "desktop-commander": {
+      "args": ["vscode-as-mcp-server"]
+    },
+    "Desktop Commander": {
       "timeout": 60,
       "command": "npx",
       "args": [
@@ -57,5 +39,6 @@
         "ENABLE_GUI": "true",
         "ENABLE_DETAILED_MODE": "true"
       }
+    },
   }
 }
