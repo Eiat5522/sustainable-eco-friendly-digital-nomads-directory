@@ -3,7 +3,8 @@ import { MongoClient } from 'mongodb';
 import { initializeDatabase } from './mongodb/init';
 
 if (!process.env.MONGODB_URI) {
-  throw new Error('Please add your MongoDB URI to .env.local');
+  const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env.local';
+  throw new Error(`Please add your MongoDB URI to ${envFile}`);
 }
 
 const uri = process.env.MONGODB_URI;

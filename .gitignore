@@ -20,6 +20,7 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
+.venv
 
 # debug
 npm-debug.log*
@@ -81,8 +82,8 @@ tasks/
 *requirement.txt
 
 #sanity backup and image staging
-*/sanity-backup/*
-*/sanity_image_staging/*
+**/*sanity-backup/
+**/*sanity_image_staging/
 
 # Copilot
 .copilotignore
@@ -103,7 +104,7 @@ clean-install.ps1
 
 
 #Cline & Roo
-**/.clinerules/
+**/*.clinerules**/*
 *.roomodes
 .roo
 /cline_docs*
@@ -118,3 +119,4 @@ repomix-instruction.md
 .github/instructions/tools-usage-guidelines.instructions.md
 .github/copilot-instructions.md
 .vscode/mcp.json
+.github/instructions/typescript-react-coding-guidelines.instructions.md

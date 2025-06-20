@@ -3,8 +3,9 @@ import mongoose, { Mongoose } from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
+  const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env.local';
   throw new Error(
-    'Please define the MONGODB_URI environment variable inside .env.local'
+    `Please define the MONGODB_URI environment variable inside ${envFile}`
   );
 }
 

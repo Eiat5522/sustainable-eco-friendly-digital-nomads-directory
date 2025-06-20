@@ -26,10 +26,6 @@
   []: # └── ...
   []: # ```
 
-### 💭Codebase Navigation & Context Consumption 💾 ###
-- **Context Gathering with RepoMix MCP Server** Use #RepoMix to help you gather context for the entire codebase. 
-    To start, first #pack_codebase, then analyze the output using #grep_repomix_output tool, this will provide you with better understanding of the context you are working with.
-
 ## 📑 **Directory Navigation with File System MCP server in Powerhell 7 **
 - **Change Directory Best Practices:** - **Change Directory**: Use PowerShell's `Set-Location` cmdlet to change directories in the terminal.
     For example, `Set-Location -Path "src\components"` to navigate to the components directory.

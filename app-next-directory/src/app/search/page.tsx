@@ -1,36 +1,33 @@
 'use client';
 
 import { ListingGrid } from '@/components/listings/ListingGrid';
-import { SearchBar } from '@/components/search/SearchBar';
+import DigitalNomadSearchFilter from '@/components/ui/DigitalNomadSearchFilter';
 import { Alert } from '@/components/ui/alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { WorldMapDemo } from '@/components/ui/world-map-demo';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState, Suspense } from 'react';
+import React from 'react';
 
 function SearchResultsComponent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialQuery = searchParams?.get('q') || '';
 
-  const [query, setQuery] = useState(initialQuery);
-  const [results, setResults] = useState<any[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pagination, setPagination] = useState({
+  const [query, setQuery] = React.useState(initialQuery);
+  const [results, setResults] = React.useState<any[]>([]);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pagination, setPagination] = React.useState({
     page: 1,
     total: 0,
     totalPages: 0,
     hasMore: false
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [error, setError] = React.useState<Error | null>(null);
 
-  // Fetch search results
-  const fetchResults = useCallback(async (searchQuery: string, page: number = 1) => {
-    if (!searchQuery.trim()) {
+  const fetchResults = React.useCallback(async (searchQuery: string, page: number = 1, filters: Record<string, string> = {}) => {
+    if (!searchQuery.trim() && Object.keys(filters).length === 0) {
       setResults([]);
       setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
       return;
@@ -40,7 +37,14 @@ function SearchResultsComponent() {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}&page=${page}&limit=12`);
+      const queryParams = new URLSearchParams({
+        q: searchQuery,
+        page: page.toString(),
+        limit: '12',
+        ...filters,
+      });
+
+      const response = await fetch(`/api/search?${queryParams.toString()}`);
       
       if (!response.ok) {
         throw new Error('Search request failed');
@@ -63,53 +67,56 @@ function SearchResultsComponent() {
     }
   }, []);
 
-  // Handle search query changes
-  const handleQueryChange = useCallback((newQuery: string) => {
+  const handleQueryChange = React.useCallback((newQuery: string) => {
     setQuery(newQuery);
-    router.push(`/search?q=${encodeURIComponent(newQuery)}`);
-  }, [router]);
+    const queryParams = new URLSearchParams(searchParams?.toString());
+    queryParams.set('q', newQuery);
+    router.push(`/search?${queryParams.toString()}`);
+  }, [router, searchParams]);
 
-  // Handle page changes
-  const handlePageChange = useCallback((newPage: number) => {
+  const handleFiltersChange = React.useCallback((filters: Record<string, string>) => {
+    const queryParams = new URLSearchParams(searchParams?.toString());
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) {
+        queryParams.set(key, value);
+      } else {
+        queryParams.delete(key);
+      }
+    });
+    queryParams.set('page', '1');
+    router.push(`/search?${queryParams.toString()}`);
+  }, [router, searchParams]);
+
+  const handlePageChange = React.useCallback((newPage: number) => {
     setCurrentPage(newPage);
-    fetchResults(query, newPage);
-  }, [query, fetchResults]);
+    const currentFilters = Object.fromEntries(searchParams?.entries() || []);
+    fetchResults(query, newPage, currentFilters);
+  }, [query, fetchResults, searchParams]);
 
-  // Initial search when component mounts or query changes
-  useEffect(() => {
-    if (initialQuery) {
-      setQuery(initialQuery);
-      fetchResults(initialQuery);
-    }
-  }, [initialQuery, fetchResults]);
+  React.useEffect(() => {
+    const currentFilters = Object.fromEntries(searchParams?.entries() || []);
+    const q = currentFilters.q || '';
+    const page = parseInt(currentFilters.page, 10) || 1;
+    setQuery(q);
+    setCurrentPage(page);
+    fetchResults(q, page, currentFilters);
+  }, [searchParams, fetchResults]);
 
-  // Mock functions for compatibility with existing components
-  const handleFiltersChange = useCallback(() => {}, []);
-  const handleSortChange = useCallback(() => {}, []);
-  const clearFilters = useCallback(() => {}, []);
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Hero Section with WorldMap */}
       <div className="mb-12">
         <WorldMapDemo />
       </div>
 
-      {/* Search Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-4">Search Results</h1>
-        <div className="relative">
-          <SearchBar
-            value={query}
-            onChange={handleQueryChange}
-            suggestions={suggestions}
-            isLoading={isLoadingSuggestions}
-          />
-        </div>
+        <DigitalNomadSearchFilter
+          onSearch={handleQueryChange}
+          onFilterChange={handleFiltersChange}
+        />
       </div>
 
-      {/* Results Area */}
       <div className="w-full">
-        {/* Results Header */}
         <div className="mb-6 flex items-center justify-between">
           <p className="text-gray-600">
             {pagination.total} listings found
@@ -117,7 +124,6 @@ function SearchResultsComponent() {
           </p>
         </div>
 
-        {/* Error Alert */}
         {error && (
           <Alert
             type="error"
@@ -127,7 +133,6 @@ function SearchResultsComponent() {
           />
         )}
 
-        {/* Results Grid */}
         <AnimatePresence mode="wait">
           {isLoading ? (
             <motion.div
@@ -151,7 +156,6 @@ function SearchResultsComponent() {
           )}
         </AnimatePresence>
 
-        {/* Simple Pagination */}
         {pagination.totalPages > 1 && (
           <div className="mt-8 flex justify-center space-x-4">
             <button
@@ -180,8 +184,8 @@ function SearchResultsComponent() {
 
 export default function SearchResults() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <React.Suspense fallback={<div>Loading...</div>}>
       <SearchResultsComponent />
-    </Suspense>
+    </React.Suspense>
   );
 }

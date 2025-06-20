@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import { useState, useRef, useEffect, type ChangeEvent, type FormEvent } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { AnimatePresence, motion, MotionConfig } from "framer-motion"
@@ -86,8 +85,8 @@ type NomadSelectProps = {
 }
 
 const NomadSelect = ({ data, defaultValue, placeholder = "Select feature", onChange, selectedValue }: NomadSelectProps) => {
-  const [open, setOpen] = React.useState(false)
-  const ref = React.useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
   const [selected, setSelected] = useState<NomadFeature | undefined>(undefined)
 
   useEffect(() => {
@@ -268,7 +267,7 @@ interface SearchFilterProps {
   onFilterChange?: (filters: Record<string, string>) => void
 }
 
-const DigitalNomadSearchFilter = ({ onSearch, onFilterChange }: SearchFilterProps) => {
+export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: SearchFilterProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({})
   const [isFocused, setIsFocused] = useState(false)
@@ -316,13 +315,13 @@ const DigitalNomadSearchFilter = ({ onSearch, onFilterChange }: SearchFilterProp
     { id: "eco_conscious_group_activities", label: "Eco-Conscious Group Activities", value: "eco_conscious_group_activities", icon: <Leaf className="w-5 h-5 text-teal-500" />, category: "features_amenities" },
   ]
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setSearchQuery(value)
     onSearch?.(value)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       onSearch?.(searchQuery)
@@ -506,37 +505,6 @@ const DigitalNomadSearchFilter = ({ onSearch, onFilterChange }: SearchFilterProp
         <p className="text-lg font-medium">Search for digital nomad friendly locations</p>
         <p className="text-sm">Find your next destination with the perfect amenities</p>
       </motion.div>
-    </div>
-  )
-}
-
-// Demo Component
-export default function DigitalNomadSearchFilterDemo() {
-  const handleSearch = (query: string) => {
-    console.log("Search query:", query)
-  }
-
-  const handleFilterChange = (filters: Record<string, string>) => {
-    console.log("Active filters:", filters)
-  }
-
-  return (
-        <div className="min-h-screen bg-gradient-to-br from-[#479b8b]/10 to-[#479b8b]/20 dark:from-gray-900 dark:to-gray-800 py-12">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Digital Nomad Directory
-          </h1>
-          <p className="text-muted-foreground">
-            Discover and filter locations perfect for your remote work lifestyle
-          </p>
-        </div>
-
-        <DigitalNomadSearchFilter
-          onSearch={handleSearch}
-          onFilterChange={handleFilterChange}
-        />
-      </div>
     </div>
   )
 }
