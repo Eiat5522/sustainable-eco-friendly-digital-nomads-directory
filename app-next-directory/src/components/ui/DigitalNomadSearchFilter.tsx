@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect, type ChangeEvent, type FormEvent } from "react"
+import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { AnimatePresence, motion, MotionConfig } from "framer-motion"
 import { Search, X, Filter, Globe, Wifi, Coffee, Mountain, Plane, Users, ChevronDown, Building, Utensils, Activity, MapPin, BriefcaseBusiness, Lightbulb, Camera, Car, Bus, Leaf, Sparkles, Dumbbell, Soup, BedDouble } from "lucide-react"
@@ -77,6 +77,7 @@ type NomadFeature = {
 }
 
 type NomadSelectProps = {
+  id: string
   data?: NomadFeature[]
   onChange?: (value: string) => void
   defaultValue?: string
@@ -84,12 +85,12 @@ type NomadSelectProps = {
   selectedValue?: string; // Added prop to control selected value externally
 }
 
-const NomadSelect = ({ data, defaultValue, placeholder = "Select feature", onChange, selectedValue }: NomadSelectProps) => {
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-  const [selected, setSelected] = useState<NomadFeature | undefined>(undefined)
+const NomadSelect = ({ id, data, defaultValue, placeholder = "Select feature", onChange, selectedValue }: NomadSelectProps) => {
+  const [open, setOpen] = React.useState(false)
+  const ref = React.useRef<HTMLDivElement>(null)
+  const [selected, setSelected] = React.useState<NomadFeature | undefined>(undefined)
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (selectedValue) {
       const item = data?.find((i) => i.value === selectedValue)
       if (item) {
@@ -136,7 +137,7 @@ const NomadSelect = ({ data, defaultValue, placeholder = "Select feature", onCha
                 borderRadius: 12,
               }}
               layout
-              layoutId="nomad-dropdown"
+              layoutId={`nomad-dropdown-${id}`}
               onClick={() => setOpen(true)}
               className="overflow-hidden rounded-xl border border-input bg-background shadow-sm w-full cursor-pointer"
             >
@@ -148,7 +149,7 @@ const NomadSelect = ({ data, defaultValue, placeholder = "Select feature", onCha
               animate={{
                 borderRadius: 16,
               }}
-              layoutId="nomad-dropdown"
+              layoutId={`nomad-dropdown-${id}`}
               className="overflow-hidden rounded-2xl w-full max-w-md border border-input bg-background py-2 shadow-lg z-50"
               ref={ref}
             >
@@ -268,11 +269,11 @@ interface SearchFilterProps {
 }
 
 export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: SearchFilterProps) {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({})
-  const [isFocused, setIsFocused] = useState(false)
-  const [showFilters, setShowFilters] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [searchQuery, setSearchQuery] = React.useState("")
+  const [activeFilters, setActiveFilters] = React.useState<Record<string, string>>({})
+  const [isFocused, setIsFocused] = React.useState(false)
+  const [showFilters, setShowFilters] = React.useState(false)
+  const inputRef = React.useRef<HTMLInputElement>(null)
 
   const destinations: NomadFeature[] = [
     { id: "bangkok", label: "Bangkok", value: "bangkok", icon: <Building className="w-5 h-5 text-orange-500" />, category: "destination" },
@@ -315,13 +316,13 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
     { id: "eco_conscious_group_activities", label: "Eco-Conscious Group Activities", value: "eco_conscious_group_activities", icon: <Leaf className="w-5 h-5 text-teal-500" />, category: "features_amenities" },
   ]
 
-  const handleSearch = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setSearchQuery(value)
     onSearch?.(value)
   }
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
       onSearch?.(searchQuery)
@@ -458,6 +459,7 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
                 Destination
               </h3>
               <NomadSelect
+                id="destination-select"
                 data={destinations}
                 placeholder="Select destination"
                 onChange={(value) => addFilter("destination", value)}
@@ -471,6 +473,7 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
                 Category
               </h3>
               <NomadSelect
+                id="category-select"
                 data={categories}
                 placeholder="Select category"
                 onChange={(value) => addFilter("category", value)}
@@ -484,6 +487,7 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
                 Features/Amenities
               </h3>
               <NomadSelect
+                id="feature-amenity-select"
                 data={featuresAmenities}
                 placeholder="Select feature/amenity"
                 onChange={(value) => addFilter("feature_amenity", value)}

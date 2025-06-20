@@ -199,3 +199,5 @@ When new info arises:
 * When debugging missing data in UI, always check the data fetching query for completeness and alignment with the CMS schema before making frontend changes.
 * When updating Sanity schemas, update GROQ queries and TypeScript types in lockstep.
 * Include a troubleshooting checklist for missing/undefined fields in UI: (a) Check CMS schema, (b) Check GROQ query, (c) Check prop types, (d) Check rendering logic.
+
+Test
