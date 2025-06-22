@@ -1,3 +1,8 @@
+// Mock global Request and NextResponse for Jest
+(global as any).Request = class {};
+(global as any).NextResponse = {
+  json: jest.fn((data, init) => ({ data, ...init })),
+};
 import { POST } from './route';
 import connect from '@/lib/dbConnect';
 import User from '@/models/User';
