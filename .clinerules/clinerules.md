@@ -140,7 +140,51 @@ Provide Cline with structured guidance modeled on Cline’s best practices. This
 * **Tool Naming & Casing:** When calling MCP tools, meticulously check the server's documentation for exact tool names, parameter names, and their casing (e.g., `toolName` vs `tool_name`), as these are often case-sensitive and a common source of errors.
 
 ```markdown
+
+👤 8.1 Identify
+
+### 📥 8.2 Load
+
+* On session start, or when beginning a new distinct task where context isn't pre-loaded, print:
+  ```
+  Remembering…
+  ```
+* **Action:** Read the content of all core Memory Bank files:
+  * `memory-bank/projectbrief.md`
+  * `memory-bank/productContext.md`
+  * `memory-bank/activeContext.md`
+  * `memory-bank/systemPatterns.md`
+  * `memory-bank/techContext.md`
+  * `memory-bank/progress.md`
+* Retrieve all relevant facts from the memory graph based on these files and the current task.
+
+  **Example (after loading and processing memory files):**
+  - If the user mentions a new project, store the project name, description, and associated technologies.
+  - Link the project to the user in the memory graph for future reference.
 🧠 8. Memory Management
+
+👤 8.1 Identify
+
+### 📥 8.2 Load
+
+* On session start, or when beginning a new distinct task where context isn't pre-loaded, print:
+  ```
+  Remembering…
+  ```
+* **Action:** Read the content of all core Memory Bank files:
+  * `memory-bank/projectbrief.md`
+  * `memory-bank/productContext.md`
+  * `memory-bank/activeContext.md`
+  * `memory-bank/systemPatterns.md`
+  * `memory-bank/techContext.md`
+  * `memory-bank/progress.md`
+* In addition to local files, maintain a remotely stored memory using the Open Memory MCP server. All remote memory operations (add, retrieve, list, delete) should use this server.
+* When storing any memory (local or remote), always add a current date/time stamp using the Time MCP server. This ensures all memories are timestamped for future reference.
+* Retrieve all relevant facts from the memory graph based on these files and the current task.
+
+  **Example (after loading and processing memory files):**
+  - If the user mentions a new project, store the project name, description, and associated technologies, along with a timestamp.
+  - Link the project to the user in the memory graph for future reference.
 =======================
 
 👤 8.1 Identify

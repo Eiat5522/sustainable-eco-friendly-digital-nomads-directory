@@ -17,7 +17,6 @@
       "args": ["vscode-as-mcp-server"]
     },
     "Desktop Commander": {
-      "timeout": 60,
       "command": "npx",
       "args": [
         "-y",

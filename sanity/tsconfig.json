@@ -6,7 +6,7 @@
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "preserve",
+    "module": "ESNext",
     "moduleDetection": "force",
     "isolatedModules": true,
     "jsx": "preserve",
