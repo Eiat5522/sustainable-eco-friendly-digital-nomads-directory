@@ -1,7 +1,8 @@
-import type { EcoTag, SearchFilters } from '@/types';
+import type { EcoTag } from '@/types';
+import type { SearchFilters } from '@/types/index';
 import { motion } from 'framer-motion';
 import { Mic } from 'lucide-react';
-import { useState, type ChangeEvent } from 'react';
+import { useState } from 'react';
 import { SearchInput } from '../ui/search';
 
 interface FilterSidebarProps {
@@ -111,7 +112,7 @@ export function FilterSidebar({
         <div className="relative">
           <SearchInput
             value={filters.query || ''}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => handleSearchChange(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleSearchChange(e.target.value)}
             placeholder="Search sustainable spaces..."
             className="w-full"
           />
@@ -143,6 +144,8 @@ export function FilterSidebar({
                 checked={filters.category?.includes(category) ?? false}
                 onChange={() => handleCategoryChange(category)}
                 className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                aria-label={`Filter by category: ${category}`}
+                title={`Filter by category: ${category}`}
               />
               <span className="text-sm capitalize text-gray-700 dark:text-gray-300">{category}</span>
             </motion.label>
@@ -166,6 +169,8 @@ export function FilterSidebar({
                   checked={filters.ecoTags?.includes(tag.id) ?? false}
                   onChange={() => handleEcoTagChange(tag.id)}
                   className="rounded border-gray-300 text-green-600 focus:ring-green-500"
+                  aria-label={`Filter by eco feature: ${tag.label}`}
+                  title={`Filter by eco feature: ${tag.label}`}
                 />
                 <span className="text-sm text-gray-700 dark:text-gray-300">{tag.label}</span>
               </div>
@@ -177,35 +182,44 @@ export function FilterSidebar({
 
       <div className="mb-6">
         <h3 className="font-medium mb-3 text-gray-900 dark:text-white">Price Range</h3>
-        <div className="space-y-4">
-          <input
+        <div className="space-y-4">          <input
             type="range"
             min="0"
             max="10000"
             step="100"
             value={filters.maxPrice || 10000}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => handlePriceChange(filters.minPrice, Number(e.target.value))}
+            onChange={(e) => handlePriceChange(filters.minPrice, Number(e.target.value))}
             className="w-full accent-green-500"
+            aria-label="Price range slider"
+            title="Adjust maximum price range"
           />
           <div className="flex items-center space-x-4">
+            <label className="sr-only" htmlFor="minPrice">Minimum price</label>
             <input
+              id="minPrice"
               type="number"
               min="0"
               max={filters.maxPrice || 10000}
               value={filters.minPrice || ''}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => handlePriceChange(Number(e.target.value), filters.maxPrice)}
-              placeholder="Min"
+              onChange={(e) => handlePriceChange(Number(e.target.value), filters.maxPrice)}
+              placeholder="Min price"
               className="w-1/2 px-3 py-2 border rounded-lg focus:ring-green-500 focus:border-green-500"
+              aria-label="Minimum price"
+              title="Enter minimum price"
             />
-            <span className="text-gray-500">-</span>
+            <span className="text-gray-500" aria-hidden="true">-</span>
+            <label className="sr-only" htmlFor="maxPrice">Maximum price</label>
             <input
+              id="maxPrice"
               type="number"
               min={filters.minPrice || 0}
               max="10000"
               value={filters.maxPrice || ''}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => handlePriceChange(filters.minPrice, Number(e.target.value))}
-              placeholder="Max"
+              onChange={(e) => handlePriceChange(filters.minPrice, Number(e.target.value))}
+              placeholder="Max price"
               className="w-1/2 px-3 py-2 border rounded-lg focus:ring-green-500 focus:border-green-500"
+              aria-label="Maximum price"
+              title="Enter maximum price"
             />
           </div>        </div>
       </div>

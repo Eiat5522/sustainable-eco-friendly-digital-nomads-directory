@@ -7,8 +7,9 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || '';
-    const category = searchParams.get('category');
-    const location = searchParams.get('location');
+    const category = searchParams.getAll('category');
+    const location = searchParams.getAll('location');
+    const features_amenities = searchParams.getAll('features_amenities');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
 
@@ -33,13 +34,14 @@ export async function GET(request: NextRequest) {
         lower(description_short) match "*${searchTerm}*"
       )`;
     }
-
-    if (category) {
-      groqQuery += ` && category == "${category}"`;
+    if (category && category.length > 0) {
+      groqQuery += ` && (${category.map((cat) => `category == "${cat}"`).join(' || ')})`;
     }
-
-    if (location) {
-      groqQuery += ` && city->name match "*${location}*"`;
+    if (location && location.length > 0) {
+      groqQuery += ` && (${location.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
+    }
+    if (features_amenities && features_amenities.length > 0) {
+      groqQuery += ` && (${features_amenities.map((fa) => `array::contains(eco_features, "${fa}") || array::contains(amenities, "${fa}")`).join(' || ')})`;
     }
 
     groqQuery += `] | order(_createdAt desc)`;
@@ -98,13 +100,14 @@ export async function GET(request: NextRequest) {
         lower(description_short) match "*${searchTerm}*"
       )`;
     }
-
-    if (category) {
-      countQuery += ` && category == "${category}"`;
+    if (category && category.length > 0) {
+      countQuery += ` && (${category.map((cat) => `category == "${cat}"`).join(' || ')})`;
     }
-
-    if (location) {
-      countQuery += ` && city->name match "*${location}*"`;
+    if (location && location.length > 0) {
+      countQuery += ` && (${location.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
+    }
+    if (features_amenities && features_amenities.length > 0) {
+      countQuery += ` && (${features_amenities.map((fa) => `array::contains(eco_features, "${fa}") || array::contains(amenities, "${fa}")`).join(' || ')})`;
     }
 
     countQuery += `])`;

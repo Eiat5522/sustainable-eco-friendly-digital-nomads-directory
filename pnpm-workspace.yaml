@@ -1,0 +1,9 @@
+packages:
+  - app-next-directory
+  - sanity
+
+ignoredBuiltDependencies:
+  - bcrypt
+  - esbuild
+  - sharp
+  - unrs-resolver

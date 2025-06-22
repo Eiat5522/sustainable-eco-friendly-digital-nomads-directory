@@ -5,6 +5,15 @@ import { groq } from 'next-sanity';
 export async function GET() {
   const startTime = performance.now();
   console.log('[DEBUG] Featured Listings API: Request started at', new Date().toISOString());
+
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || !process.env.NEXT_PUBLIC_SANITY_DATASET) {
+    console.error('[ERROR] Featured Listings API: Sanity environment variables are not configured.');
+    return NextResponse.json({
+      error: 'Server configuration error: Sanity credentials missing.',
+      success: false,
+      listings: []
+    }, { status: 500 });
+  }
   
   try {
     // Corrected GROQ query to match your schema

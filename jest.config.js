@@ -1,10 +1,5 @@
 module.exports = {
   rootDir: ".",
-  globals: {
-    "ts-jest": {
-      tsconfig: "./tsconfig.json"
-    }
-  },
   transformIgnorePatterns: [
     "/node_modules/(?!(bson|jose|next-auth|openid-client|node-fetch)/)"
   ],
@@ -15,7 +10,10 @@ module.exports = {
   coverageDirectory: 'coverage',
   verbose: true,
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.tsx?$': ['ts-jest', { tsconfig: './tsconfig.json' }],
   },
- 
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  moduleDirectories: ['node_modules', '<rootDir>/'],
 };

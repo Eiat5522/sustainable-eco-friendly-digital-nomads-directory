@@ -7,96 +7,159 @@ import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { WorldMapDemo } from '@/components/ui/world-map-demo';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React from 'react';
+import dynamic from 'next/dynamic';
+import React, { useCallback, useState } from 'react';
+
+// Type definitions
+interface SearchResult {
+  id: string;
+  title: string;
+  // Add other result properties as needed
+}
+
+interface MultiSelectFilters {
+  destination: string[];
+  category: string[];
+  features_amenities: string[];
+}
+
+interface SearchPagination {
+  page: number;
+  total: number;
+  totalPages: number;
+  hasMore: boolean;
+}
+
+type FetchResultsFn = (searchQuery: string, page?: number, filters?: Record<string, string | string[]>) => Promise<void>;
+type QueryChangeFn = (query: string) => void;
+type FiltersChangeFn = (filters: MultiSelectFilters) => void;
+type PageChangeFn = (page: number) => void;
 
 function SearchResultsComponent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialQuery = searchParams?.get('q') || '';
 
-  const [query, setQuery] = React.useState(initialQuery);
-  const [results, setResults] = React.useState<any[]>([]);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [pagination, setPagination] = React.useState({
+  // State with proper typing
+  const [query, setQuery] = useState<string>(initialQuery);
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [pagination, setPagination] = useState<SearchPagination>({
     page: 1,
     total: 0,
     totalPages: 0,
     hasMore: false
   });
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-  const fetchResults = React.useCallback(async (searchQuery: string, page: number = 1, filters: Record<string, string> = {}) => {
-    if (!searchQuery.trim() && Object.keys(filters).length === 0) {
-      setResults([]);
-      setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const queryParams = new URLSearchParams({
-        q: searchQuery,
-        page: page.toString(),
-        limit: '12',
-        ...filters,
-      });
-
-      const response = await fetch(`/api/search?${queryParams.toString()}`);
-      
-      if (!response.ok) {
-        throw new Error('Search request failed');
+  const fetchResults = useCallback(
+    async (searchQuery: string, page: number = 1, filters: Record<string, string | string[]> = {}) => {
+      if (!searchQuery.trim() && Object.values(filters).every(v => (Array.isArray(v) ? v.length === 0 : !v))) {
+        setResults([]);
+        setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
+        return;
       }
 
-      const data = await response.json();
-      
-      if (data.success) {
-        setResults(data.data.results || []);
-        setPagination(data.data.pagination || { page: 1, total: 0, totalPages: 0, hasMore: false });
-      } else {
-        throw new Error(data.error || 'Search failed');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Unknown error occurred'));
-      setResults([]);
-      setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      try {
+        setIsLoading(true);
+        setError(null);
 
-  const handleQueryChange = React.useCallback((newQuery: string) => {
+        const queryParams = new URLSearchParams();
+        queryParams.set('q', searchQuery);
+        queryParams.set('page', page.toString());
+        queryParams.set('limit', '12');
+        Object.entries(filters).forEach(([key, value]) => {
+          if (Array.isArray(value)) {
+            (value as string[]).forEach((v) => v && queryParams.append(key, v));
+          } else if (value) {
+            queryParams.set(key, value as string);
+          }
+        });
+
+        const response = await fetch(`/api/search?${queryParams.toString()}`);
+        
+        if (!response.ok) {
+          throw new Error('Search request failed');
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+          setResults(data.data.results || []);
+          setPagination(data.data.pagination || { page: 1, total: 0, totalPages: 0, hasMore: false });
+        } else {
+          throw new Error(data.error || 'Search failed');
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Unknown error occurred'));
+        setResults([]);
+        setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    []
+  );
+
+  const handleQueryChange = useCallback((newQuery: string) => {
     setQuery(newQuery);
     const queryParams = new URLSearchParams(searchParams?.toString());
     queryParams.set('q', newQuery);
     router.push(`/search?${queryParams.toString()}`);
   }, [router, searchParams]);
 
-  const handleFiltersChange = React.useCallback((filters: Record<string, string>) => {
+  const handleFiltersChange = useCallback((filters: MultiSelectFilters) => {
     const queryParams = new URLSearchParams(searchParams?.toString());
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
-        queryParams.set(key, value);
-      } else {
-        queryParams.delete(key);
+    queryParams.delete('destination');
+    queryParams.delete('category');
+    queryParams.delete('features_amenities');
+    Object.entries(filters).forEach(([key, values]) => {
+      if (Array.isArray(values) && values.length > 0) {
+        (values as string[]).forEach((value) => {
+          queryParams.append(key, value);
+        });
       }
     });
     queryParams.set('page', '1');
     router.push(`/search?${queryParams.toString()}`);
   }, [router, searchParams]);
 
-  const handlePageChange = React.useCallback((newPage: number) => {
+  const handlePageChange = useCallback((newPage: number) => {
     setCurrentPage(newPage);
-    const currentFilters = Object.fromEntries(searchParams?.entries() || []);
+    const currentFilters: Record<string, string | string[]> = {};
+    searchParams?.forEach((value, key) => {
+      const existing = currentFilters[key];
+      if (existing) {
+        if (Array.isArray(existing)) {
+          (existing as string[]).push(value);
+        } else {
+          currentFilters[key] = [existing as string, value];
+        }
+      } else {
+        currentFilters[key] = value;
+      }
+    });
     fetchResults(query, newPage, currentFilters);
   }, [query, fetchResults, searchParams]);
 
   React.useEffect(() => {
-    const currentFilters = Object.fromEntries(searchParams?.entries() || []);
-    const q = currentFilters.q || '';
-    const page = parseInt(currentFilters.page, 10) || 1;
+    const currentFilters: Record<string, string | string[]> = {};
+    searchParams?.forEach((value, key) => {
+      const existing = currentFilters[key];
+      if (existing) {
+        if (Array.isArray(existing)) {
+          existing.push(value);
+        } else {
+          currentFilters[key] = [existing, value];
+        }
+      } else {
+        currentFilters[key] = value;
+      }
+    });
+
+    const q = (currentFilters.q as string) || '';
+    const page = parseInt((currentFilters.page as string) || '1', 10) || 1;
     setQuery(q);
     setCurrentPage(page);
     fetchResults(q, page, currentFilters);
@@ -182,10 +245,14 @@ function SearchResultsComponent() {
   );
 }
 
+const SearchResultsWithSuspense = dynamic(
+  () => Promise.resolve(SearchResultsComponent),
+  {
+    ssr: false,
+    loading: () => <div>Loading...</div>
+  }
+);
+
 export default function SearchResults() {
-  return (
-    <React.Suspense fallback={<div>Loading...</div>}>
-      <SearchResultsComponent />
-    </React.Suspense>
-  );
+  return <SearchResultsWithSuspense />;
 }

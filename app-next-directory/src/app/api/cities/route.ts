@@ -5,6 +5,15 @@ import { groq } from 'next-sanity';
 export async function GET() {
   const startTime = performance.now();
   console.log('[DEBUG] Cities API: Request started at', new Date().toISOString());
+
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || !process.env.NEXT_PUBLIC_SANITY_DATASET) {
+    console.error('[ERROR] Cities API: Sanity environment variables are not configured.');
+    return NextResponse.json({
+      error: 'Server configuration error: Sanity credentials missing.',
+      success: false,
+      cities: []
+    }, { status: 500 });
+  }
   
   try {
     const query = groq`*[_type == "city"] | order(_createdAt desc)[0...20] {
@@ -47,7 +56,7 @@ export async function GET() {
       
       // Log all city slugs for debugging
       console.log('[DEBUG] Cities API: Available city slugs:');
-      cities.forEach((city, index) => {
+      cities.forEach((city: { title: string; slug: string }, index: number) => {
         console.log(`${index + 1}. ${city.title} -> slug: "${city.slug}"`);
       });
     }

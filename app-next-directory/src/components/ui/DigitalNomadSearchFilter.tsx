@@ -1,11 +1,30 @@
 "use client"
 
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
-import { AnimatePresence, motion, MotionConfig } from "framer-motion"
-import { Search, X, Filter, Globe, Wifi, Coffee, Mountain, Plane, Users, ChevronDown, Building, Utensils, Activity, MapPin, BriefcaseBusiness, Lightbulb, Camera, Car, Bus, Leaf, Sparkles, Dumbbell, Soup, BedDouble } from "lucide-react"
-import { RiCloseFill } from '@remixicon/react'
+import React from 'react'
+import { Button } from "./button"
+import { X, Search, Filter, Globe, Building, Mountain, Plane, MapPin, BriefcaseBusiness, 
+  BedDouble, Utensils, Activity, Users, Coffee, Lightbulb, Wifi, Camera, Sparkles, 
+  Car, Dumbbell, Bus, Leaf, Soup, ChevronDown } from "lucide-react"
+import { MotionConfig, motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { cva, type VariantProps } from "class-variance-authority"
+
+// Multi-select filter state type
+type MultiSelectFilters = {
+  destination: string[];
+  category: string[];
+  features_amenities: string[];
+};
+
+// Enhanced Select Component for Nomad Features
+type NomadFeature = {
+  id: string;
+  label: string;
+  value: string;
+  description?: string;
+  icon: React.ReactNode;
+  category: string;
+};
 
 // Filter Badge Component
 const filterBadgeVariants = cva(
@@ -40,240 +59,107 @@ const FilterBadge = ({
   value,
   children,
   onRemove,
+  onClick,
   ...props
-}: FilterBadgeProps) => {
+}: FilterBadgeProps & { onClick?: () => void }) => {
   return (
-    <span className={cn(filterBadgeVariants({ variant }), className)} {...props}>
-      {label}
-      <span className="h-4 w-px bg-border" />
-      <span className="font-medium text-foreground">
-        {value}
-      </span>
+    <span 
+      className={cn(filterBadgeVariants({ variant }), className)}
+      onClick={onClick}
+      {...props}
+    >
+      {children}
+      {label && (
+        <>
+          <span className="ml-1">{label}</span>
+          <span className="h-4 w-px bg-border mx-1" />
+        </>
+      )}
       {onRemove && (
         <button
           type="button"
-          onClick={onRemove}
-          className={cn(
-            "-ml-1.5 flex size-5 items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground",
-            variant === "pill" ? "rounded-full" : "rounded"
-          )}
-          aria-label="Remove"
+          title="Remove filter"
+          aria-label={`Remove ${label} filter`}
+          className="flex h-4 w-4 items-center justify-center rounded-full hover:bg-muted"
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
         >
-          <RiCloseFill className="size-4 shrink-0" aria-hidden={true} />
+          <X className="h-3 w-3" />
         </button>
       )}
     </span>
   )
 }
 
+
 // Enhanced Select Component for Nomad Features
-type NomadFeature = {
-  id: string
-  label: string
-  value: string
-  description?: string
-  icon: React.ReactNode
-  category: string
+interface NomadSelectProps {
+  id: string;
+  data?: NomadFeature[];
+  onChange?: (value: string) => void;
+  defaultValue?: string;
+  placeholder?: string;
+  selectedValue?: string;
 }
 
-type NomadSelectProps = {
-  id: string
-  data?: NomadFeature[]
-  onChange?: (value: string) => void
-  defaultValue?: string
-  placeholder?: string
-  selectedValue?: string; // Added prop to control selected value externally
-}
-
-const NomadSelect = ({ id, data, defaultValue, placeholder = "Select feature", onChange, selectedValue }: NomadSelectProps) => {
-  const [open, setOpen] = React.useState(false)
-  const ref = React.useRef<HTMLDivElement>(null)
-  const [selected, setSelected] = React.useState<NomadFeature | undefined>(undefined)
+const NomadSelect = ({ 
+  id, 
+  data, 
+  defaultValue, 
+  placeholder = "Select feature", 
+  onChange, 
+  selectedValue 
+}: NomadSelectProps) => {
+  const [open, setOpen] = React.useState(false);
+  const [selected, setSelected] = React.useState<NomadFeature | undefined>(undefined);
 
   React.useEffect(() => {
     if (selectedValue) {
-      const item = data?.find((i) => i.value === selectedValue)
-      if (item) {
-        setSelected(item)
-      } else {
-        // If selectedValue is provided but not found in data, clear selection
-        setSelected(undefined);
+      const foundItem = data?.find((item: NomadFeature) => item.value === selectedValue);
+      if (foundItem) {
+        setSelected(foundItem);
       }
     } else if (defaultValue) {
-      const item = data?.find((i) => i.value === defaultValue)
-      if (item) {
-        setSelected(item)
-      } else {
-        // If defaultValue is provided but not found in data, clear selection
-        setSelected(undefined);
+      const foundItem = data?.find((item: NomadFeature) => item.value === defaultValue);
+      if (foundItem) {
+        setSelected(foundItem);
       }
     } else {
-      setSelected(undefined); // Clear selection if no default or selectedValue
+      setSelected(undefined);
     }
-  }, [defaultValue, data, selectedValue]) // Added selectedValue to dependency array
+  }, [defaultValue, data, selectedValue]);
 
   const onSelect = (value: string) => {
-    const item = data?.find((i) => i.value === value)
-    setSelected(item as NomadFeature)
-    setOpen(false)
-    onChange?.(value)
-  }
+    const foundItem = data?.find((item: NomadFeature) => item.value === value);
+    setSelected(foundItem);
+    setOpen(false);
+    onChange?.(value);
+  };
 
   return (
-    <MotionConfig
-      transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 25,
-        ease: [0.65, 0, 0.35, 1], // Changed to array format
-      }}
-    >
-      <motion.div className="flex items-center justify-center w-full">
-        <AnimatePresence mode="popLayout">
-          {!open ? (
-            <motion.div
-              whileTap={{ scale: 0.95 }}
-              animate={{
-                borderRadius: 12,
-              }}
-              layout
-              layoutId={`nomad-dropdown-${id}`}
-              onClick={() => setOpen(true)}
-              className="overflow-hidden rounded-xl border border-input bg-background shadow-sm w-full cursor-pointer"
-            >
-              <NomadSelectItem item={selected} placeholder={placeholder} />
-            </motion.div>
-          ) : (
-            <motion.div
-              layout
-              animate={{
-                borderRadius: 16,
-              }}
-              layoutId={`nomad-dropdown-${id}`}
-              className="overflow-hidden rounded-2xl w-full max-w-md border border-input bg-background py-2 shadow-lg z-50"
-              ref={ref}
-            >
-              <NomadSelectHead setOpen={setOpen} />
-              <div className="w-full overflow-y-auto max-h-64">
-                {data?.map((item) => (
-                  <NomadSelectItem
-                    key={item.id}
-                    item={item}
-                    onChange={onSelect}
-                    showDescription={true}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </MotionConfig>
-  )
-}
-
-const NomadSelectHead = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
-  return (
-    <motion.div
-      initial={{
-        opacity: 0,
-      }}
-      animate={{
-        opacity: 1,
-      }}
-      exit={{
-        opacity: 0,
-      }}
-      transition={{
-        delay: 0.1,
-      }}
-      layout
-      className="flex items-center justify-between p-4"
-    >
-      <motion.strong layout className="text-foreground flex items-center gap-2">
-                <Globe className="w-5 h-5 text-[#479b8b]" />
-        Choose Nomad Feature
-      </motion.strong>
-      <button
-        onClick={() => setOpen(false)}
-        className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary hover:bg-muted"
-        aria-label="Close"
-      >
-        <X className="text-secondary-foreground" size={12} />
-      </button>
-    </motion.div>
-  )
-}
-
-type NomadSelectItemProps = {
-  item?: NomadFeature
-  showDescription?: boolean
-  onChange?: (value: string) => void
-  placeholder?: string
-}
-
-const NomadSelectItem = ({
-  item,
-  showDescription = false,
-  onChange,
-  placeholder,
-}: NomadSelectItemProps) => {
-  return (
-    <motion.div
-      className={`group flex cursor-pointer items-center justify-between gap-2 p-4 py-3 hover:bg-accent hover:text-accent-foreground ${
-        !showDescription && "!py-2"
-      }`}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 10 }}
-      onClick={() => item && onChange?.(item.value)}
-    >
-      <div className="flex items-center gap-3 flex-1">
-        <motion.div
-          layout
-          layoutId={`icon-${item?.id}`}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-input bg-muted"
-        >
-          {item?.icon || <Globe className="w-5 h-5" />}
-        </motion.div>
-        <motion.div layout className="flex flex-col flex-1">
-          <motion.span
-            layoutId={`label-${item?.id}`}
-            className="text-sm font-semibold text-foreground"
-          >
-            {item?.label || placeholder}
-          </motion.span>
-          {showDescription && item?.description && (
-            <span className="text-xs text-muted-foreground">
-              {item.description}
-            </span>
-          )}
-        </motion.div>
-      </div>
-      {!showDescription && (
-        <motion.div
-          layout
-          className="flex items-center justify-center gap-2 pr-3"
-        >
-          <ChevronDown className="text-foreground" size={20} />
-        </motion.div>
-      )}
-    </motion.div>
-  )
-}
+    <div>
+      {/* Component content */}
+    </div>
+  );
+};
 
 // Main Search Filter Component
 interface SearchFilterProps {
-  onSearch?: (query: string) => void
-  onFilterChange?: (filters: Record<string, string>) => void
+  onSearch?: (query: string) => void;
+  onFilterChange?: (filters: MultiSelectFilters) => void;
 }
 
 export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: SearchFilterProps) {
-  const [searchQuery, setSearchQuery] = React.useState("")
-  const [activeFilters, setActiveFilters] = React.useState<Record<string, string>>({})
-  const [isFocused, setIsFocused] = React.useState(false)
-  const [showFilters, setShowFilters] = React.useState(false)
-  const inputRef = React.useRef<HTMLInputElement>(null)
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [activeFilters, setActiveFilters] = React.useState<MultiSelectFilters>({
+    destination: [],
+    category: [],
+    features_amenities: [],
+  });
+  const [isFocused, setIsFocused] = React.useState(false);
+  const [showFilters, setShowFilters] = React.useState(false);
 
   const destinations: NomadFeature[] = [
     { id: "bangkok", label: "Bangkok", value: "bangkok", icon: <Building className="w-5 h-5 text-orange-500" />, category: "destination" },
@@ -316,199 +202,174 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
     { id: "eco_conscious_group_activities", label: "Eco-Conscious Group Activities", value: "eco_conscious_group_activities", icon: <Leaf className="w-5 h-5 text-teal-500" />, category: "features_amenities" },
   ]
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    setSearchQuery(value)
-    onSearch?.(value)
-  }
+  // Handle filter selection
+  const handleFilterSelect = (category: keyof MultiSelectFilters, value: string) => {
+    const updatedFilters = {
+      ...activeFilters,
+      [category]: activeFilters[category].includes(value)
+        ? activeFilters[category].filter((item: string) => item !== value)
+        : [...activeFilters[category], value]
+    };
+    setActiveFilters(updatedFilters);
+    onFilterChange?.(updatedFilters);
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      onSearch?.(searchQuery)
-    }
-  }
+  // Remove a specific filter
+  const handleRemoveFilter = (category: keyof MultiSelectFilters, value: string) => {
+    const updatedFilters = {
+      ...activeFilters,
+      [category]: activeFilters[category].filter((item: string) => item !== value)
+    };
+    setActiveFilters(updatedFilters);
+    onFilterChange?.(updatedFilters);
+  };
 
-  const addFilter = (key: string, value: string) => {
-    const newFilters = { ...activeFilters, [key]: value }
-    setActiveFilters(newFilters)
-    onFilterChange?.(newFilters)
-  }
+  // Handle search input change
+  const handleSearchChange = (e: { currentTarget: HTMLInputElement }) => {
+    const value = e.currentTarget.value;
+    setSearchQuery(value);
+    onSearch?.(value);
+  };
 
-  const removeFilter = (key: string) => {
-    const newFilters = { ...activeFilters }
-    delete newFilters[key]
-    setActiveFilters(newFilters)
-    onFilterChange?.(newFilters)
-  }
-
-  const clearAllFilters = () => {
-    setActiveFilters({})
-    onFilterChange?.({})
-  }
+  // Clear all filters
+  const handleClearFilters = () => {
+    setActiveFilters({
+      destination: [],
+      category: [],
+      features_amenities: [],
+    });
+    onFilterChange?.({
+      destination: [],
+      category: [],
+      features_amenities: [],
+    });
+  };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 p-6">
-      {/* Search Bar */}
-      <motion.form
-        onSubmit={handleSubmit}
-        className="relative"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <motion.div
-          className={cn(
-            "flex items-center w-full rounded-2xl border relative overflow-hidden backdrop-blur-md transition-all duration-300",
-                        isFocused
-              ? "border-[#479b8b] shadow-lg shadow-[#479b8b]/20 bg-background"
-              : "border-input bg-background/50"
-          )}
-          animate={{
-            scale: isFocused ? 1.02 : 1,
-          }}
-          transition={{ type: "spring", stiffness: 400, damping: 25 }}
-        >
-          <div className="pl-4 py-4">
-            <Search
-              size={20}
-              className={cn(
-                "transition-colors duration-300",
-                                isFocused ? "text-[#479b8b]" : "text-muted-foreground"
-              )}
-            />
-          </div>
-
+    <div className="w-full max-w-3xl mx-auto">
+      <div className="relative">
+        {/* Search Input */}
+        <div className={cn(
+          "flex items-center gap-2 w-full rounded-lg border bg-background px-3 py-2",
+          isFocused && "ring-2 ring-ring"
+        )}>
+          <Search className="h-4 w-4 text-muted-foreground" />
           <input
-            ref={inputRef}
             type="text"
-            placeholder="Search digital nomad locations..."
+            placeholder="Search for listings..."
+            className="flex-1 bg-transparent outline-none"
             value={searchQuery}
-            onChange={handleSearch}
+            onChange={handleSearchChange}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            className="w-full py-4 bg-transparent outline-none placeholder:text-muted-foreground font-medium text-base text-foreground"
           />
-
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
             onClick={() => setShowFilters(!showFilters)}
-            className={cn(
-              "flex items-center gap-2 px-4 py-2 mr-2 rounded-xl transition-all duration-200",
-                            showFilters
-                ? "bg-[#479b8b]/10 text-[#479b8b] dark:bg-[#479b8b]/20 dark:text-[#479b8b]"
-                : "bg-muted text-muted-foreground hover:bg-accent"
-            )}
           >
-            <Filter size={16} />
-            <span className="text-sm font-medium">Filters</span>
-            {Object.keys(activeFilters).length > 0 && (
-                            <span className="bg-[#479b8b] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {Object.keys(activeFilters).length}
-              </span>
-            )}
-          </button>
-        </motion.div>
-      </motion.form>
+            <Filter className="h-4 w-4" />
+          </Button>
+        </div>
 
-      {/* Active Filters */}
-      <AnimatePresence>
-        {Object.keys(activeFilters).length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="flex flex-wrap items-center gap-2"
-          >
-            <span className="text-sm font-medium text-muted-foreground">Active filters:</span>
-            {Object.entries(activeFilters).map(([key, value]) => {
-              const allData = [...destinations, ...categories, ...featuresAmenities];
-              const feature = allData.find(f => f.value === value);
-              return (
-                <FilterBadge
-                  key={key}
-                  label={key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} // Format key for display
-                  value={feature?.label || value}
-                  variant="pill"
-                  onRemove={() => removeFilter(key)}
-                />
-              )
-            })}
-            <button
-              onClick={clearAllFilters}
-              className="text-xs text-muted-foreground hover:text-foreground underline"
-            >
-              Clear all
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Filter Panel */}
-      <AnimatePresence>
+        {/* Filter Panel */}
         {showFilters && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6 bg-muted/50 rounded-2xl border"
-          >
-            <div className="space-y-3">
-              <h3 className="font-semibold text-foreground flex items-center gap-2">
-                                <MapPin className="w-4 h-4 text-[#479b8b]" />
-                Destination
-              </h3>
-              <NomadSelect
-                id="destination-select"
-                data={destinations}
-                placeholder="Select destination"
-                onChange={(value) => addFilter("destination", value)}
-                selectedValue={activeFilters["destination"]}
-              />
+          <div className="absolute top-full left-0 w-full mt-2 p-4 bg-background border rounded-lg shadow-lg z-10">
+            {/* Destinations */}
+            <div className="space-y-4">
+              <h3 className="font-semibold">Destinations</h3>
+              <div className="flex flex-wrap gap-2">
+                {destinations.map((dest) => (
+                  <FilterBadge
+                    key={dest.id}
+                    variant="pill"
+                    label={dest.label}
+                    onRemove={
+                      activeFilters.destination.includes(dest.value)
+                        ? () => handleRemoveFilter('destination', dest.value)
+                        : undefined
+                    }
+                    className={cn(
+                      'cursor-pointer',
+                      activeFilters.destination.includes(dest.value) && 'bg-primary/10'
+                    )}
+                    onClick={() => handleFilterSelect('destination', dest.value)}
+                  >
+                    {dest.icon}
+                  </FilterBadge>
+                ))}
+              </div>
             </div>
 
-            <div className="space-y-3">
-              <h3 className="font-semibold text-foreground flex items-center gap-2">
-                                <Filter className="w-4 h-4 text-[#479b8b]" />
-                Category
-              </h3>
-              <NomadSelect
-                id="category-select"
-                data={categories}
-                placeholder="Select category"
-                onChange={(value) => addFilter("category", value)}
-                selectedValue={activeFilters["category"]}
-              />
+            {/* Categories */}
+            <div className="mt-4 space-y-4">
+              <h3 className="font-semibold">Categories</h3>
+              <div className="flex flex-wrap gap-2">
+                {categories.map((cat) => (
+                  <FilterBadge
+                    key={cat.id}
+                    variant="pill"
+                    label={cat.label}
+                    onRemove={
+                      activeFilters.category.includes(cat.value)
+                        ? () => handleRemoveFilter('category', cat.value)
+                        : undefined
+                    }
+                    className={cn(
+                      'cursor-pointer',
+                      activeFilters.category.includes(cat.value) && 'bg-primary/10'
+                    )}
+                    onClick={() => handleFilterSelect('category', cat.value)}
+                  >
+                    {cat.icon}
+                  </FilterBadge>
+                ))}
+              </div>
             </div>
 
-            <div className="space-y-3">
-              <h3 className="font-semibold text-foreground flex items-center gap-2">
-                                <Sparkles className="w-4 h-4 text-[#479b8b]" />
-                Features/Amenities
-              </h3>
-              <NomadSelect
-                id="feature-amenity-select"
-                data={featuresAmenities}
-                placeholder="Select feature/amenity"
-                onChange={(value) => addFilter("feature_amenity", value)}
-                selectedValue={activeFilters["feature_amenity"]}
-              />
+            {/* Features & Amenities */}
+            <div className="mt-4 space-y-4">
+              <h3 className="font-semibold">Features & Amenities</h3>
+              <div className="flex flex-wrap gap-2">
+                {featuresAmenities.map((feature) => (
+                  <FilterBadge
+                    key={feature.id}
+                    variant="pill"
+                    label={feature.label}
+                    onRemove={
+                      activeFilters.features_amenities.includes(feature.value)
+                        ? () => handleRemoveFilter('features_amenities', feature.value)
+                        : undefined
+                    }
+                    className={cn(
+                      'cursor-pointer',
+                      activeFilters.features_amenities.includes(feature.value) && 'bg-primary/10'
+                    )}
+                    onClick={() => handleFilterSelect('features_amenities', feature.value)}
+                  >
+                    {feature.icon}
+                  </FilterBadge>
+                ))}
+              </div>
             </div>
-          </motion.div>
+
+            {/* Clear Filters Button */}
+            {(activeFilters.destination.length > 0 ||
+              activeFilters.category.length > 0 ||
+              activeFilters.features_amenities.length > 0) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleClearFilters}
+                className="mt-4"
+              >
+                Clear All Filters
+              </Button>
+            )}
+          </div>
         )}
-      </AnimatePresence>
-
-      {/* Search Results Placeholder */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="text-center py-12 text-muted-foreground"
-      >
-                <Globe className="w-12 h-12 mx-auto mb-4 text-[#479b8b]" />
-        <p className="text-lg font-medium">Search for digital nomad friendly locations</p>
-        <p className="text-sm">Find your next destination with the perfect amenities</p>
-      </motion.div>
+      </div>
     </div>
-  )
+  );
 }

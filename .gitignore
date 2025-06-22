@@ -119,3 +119,4 @@ clean-install.ps1
 .github/copilot-instructions.md
 .github/instructions/tools-usage-guidelines.instructions.md
 .github/instructions/typescript-react-coding-guidelines.instructions.md
+.secretlintrc.json
