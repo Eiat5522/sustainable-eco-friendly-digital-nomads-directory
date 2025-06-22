@@ -53,68 +53,68 @@ function SearchResultsComponent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchResults = useCallback(
-    async (searchQuery: string, page: number = 1, filters: Record<string, string | string[]> = {}) => {
-      if (!searchQuery.trim() && Object.values(filters).every(v => (Array.isArray(v) ? v.length === 0 : !v))) {
-        setResults([]);
-        setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
-        return;
+  const fetchResults = useCallback(async (searchQuery, page = 1, filters = {}) => {
+    const q = searchQuery as string;
+    const p = page as number;
+    const f = filters as Record<string, string | string[]>;
+    if (!q.trim() && Object.values(f).every(v => (Array.isArray(v) ? v.length === 0 : !v))) {
+      setResults([]);
+      setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    const queryParams = new URLSearchParams();
+    queryParams.set('q', q);
+    queryParams.set('page', p.toString());
+    queryParams.set('limit', '12');
+    Object.entries(f).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        (value as string[]).forEach((v) => v && queryParams.append(key, v));
+      } else if (value) {
+        queryParams.set(key, value as string);
+      }
+    });
+
+    try {
+      const response = await fetch(`/api/search?${queryParams.toString()}`);
+      
+      if (!response.ok) {
+        throw new Error('Search request failed');
       }
 
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const queryParams = new URLSearchParams();
-        queryParams.set('q', searchQuery);
-        queryParams.set('page', page.toString());
-        queryParams.set('limit', '12');
-        Object.entries(filters).forEach(([key, value]) => {
-          if (Array.isArray(value)) {
-            (value as string[]).forEach((v) => v && queryParams.append(key, v));
-          } else if (value) {
-            queryParams.set(key, value as string);
-          }
-        });
-
-        const response = await fetch(`/api/search?${queryParams.toString()}`);
-        
-        if (!response.ok) {
-          throw new Error('Search request failed');
-        }
-
-        const data = await response.json();
-        
-        if (data.success) {
-          setResults(data.data.results || []);
-          setPagination(data.data.pagination || { page: 1, total: 0, totalPages: 0, hasMore: false });
-        } else {
-          throw new Error(data.error || 'Search failed');
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err : new Error('Unknown error occurred'));
-        setResults([]);
-        setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
-      } finally {
-        setIsLoading(false);
+      const data = await response.json();
+      
+      if (data.success) {
+        setResults(data.data.results || []);
+        setPagination(data.data.pagination || { page: 1, total: 0, totalPages: 0, hasMore: false });
+      } else {
+        throw new Error(data.error || 'Search failed');
       }
-    },
-    []
-  );
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Unknown error occurred'));
+      setResults([]);
+      setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  const handleQueryChange = useCallback((newQuery: string) => {
-    setQuery(newQuery);
+  const handleQueryChange = useCallback((newQuery) => {
+    const nq = newQuery as string;
+    setQuery(nq);
     const queryParams = new URLSearchParams(searchParams?.toString());
-    queryParams.set('q', newQuery);
+    queryParams.set('q', nq);
     router.push(`/search?${queryParams.toString()}`);
   }, [router, searchParams]);
 
-  const handleFiltersChange = useCallback((filters: MultiSelectFilters) => {
+  const handleFiltersChange = useCallback((filters) => {
+    const f = filters as MultiSelectFilters;
     const queryParams = new URLSearchParams(searchParams?.toString());
     queryParams.delete('destination');
     queryParams.delete('category');
     queryParams.delete('features_amenities');
-    Object.entries(filters).forEach(([key, values]) => {
+    Object.entries(f).forEach(([key, values]) => {
       if (Array.isArray(values) && values.length > 0) {
         (values as string[]).forEach((value) => {
           queryParams.append(key, value);
@@ -125,8 +125,9 @@ function SearchResultsComponent() {
     router.push(`/search?${queryParams.toString()}`);
   }, [router, searchParams]);
 
-  const handlePageChange = useCallback((newPage: number) => {
-    setCurrentPage(newPage);
+  const handlePageChange = useCallback((newPage) => {
+    const np = newPage as number;
+    setCurrentPage(np);
     const currentFilters: Record<string, string | string[]> = {};
     searchParams?.forEach((value, key) => {
       const existing = currentFilters[key];
@@ -140,7 +141,7 @@ function SearchResultsComponent() {
         currentFilters[key] = value;
       }
     });
-    fetchResults(query, newPage, currentFilters);
+    fetchResults(query, np, currentFilters);
   }, [query, fetchResults, searchParams]);
 
   React.useEffect(() => {
@@ -214,7 +215,8 @@ function SearchResultsComponent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <ListingGrid listings={results} />
+              {/* Map SearchResult[] to Listing[] or cast as any[] for ListingGrid */}
+              <ListingGrid listings={results as any[]} />
             </motion.div>
           )}
         </AnimatePresence>
