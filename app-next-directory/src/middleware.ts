@@ -77,7 +77,7 @@ export async function middleware(request: NextRequest) {
 
     // API routes protection
     if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth')) {
-      const protectedApiPaths = ['/api/user', '/api/admin', '/api/listings'];
+      const protectedApiPaths = ['/api/user', '/api/admin'];
       const isProtectedApi = protectedApiPaths.some(path => pathname.startsWith(path));
 
       if (isProtectedApi && !isAuthenticated) {

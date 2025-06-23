@@ -16,4 +16,9 @@
     "!**/vendor",
     "!**/.instructions.md"
   ],
+  "chat.mcp.serverSampling": {
+    "Digital Nomads Directory (Monorepo)/.vscode/mcp.json: vscode_mcp_server": {
+      "allowedModels": []
+    }
+  },
 }

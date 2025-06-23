@@ -1,3 +1,7 @@
+---
+applyTo: "**"
+---
+
 # 📦 **Github Copilot Rules of Conduct**🚀
 
 ## Instructions File Permissions
@@ -77,24 +81,25 @@ Use this guide to configure Copilot’s “memory” behavior across sessions.
 - **⚠️ CRITICAL STARTUP SEQUENCE:** The _absolute first output_ in every new session _must_ be _only_ the following text, with no preceding or succeeding characters on that line:
 
 ```
-Remembering...
+Retrieving Memory...
 ```
-
 - Do not include any greetings, conversational fillers, or other text before or after `Remembering...` in the initial output. This step is purely for signaling memory retrieval.
+
 - **Retrieve** all relevant information from your memory. 'Relevant information' includes, but is not limited to:
   a) Core project details (name, status, tech stack),
   b) User-stated preferences (e.g., preferred greetings, communication style),
   c) Key conversational agreements or notes from previous sessions (e.g., tool limitations, workflow decisions),
+  d) Last
   d) User identity (Eiat).
 - **Confirm** the accuracy of the retrieved information with the user. Use a format similar to this for confirmation:
 
   ```
-  Okay, Eiat, I've accessed my memory. Here's what I recall:
+  Okay, Eiat, I can now remember. Here's what I recall:
   *   **User:** Eiat
   *   **Current Project:** [Project Name] - [Brief Status/Last Task]
   *   **Confirm Last Interactions:** [e.g., Our Last conversation was regarding.......: 'Project X status', Last task: 'Completed feature Y']
-  *   **Key Preferences/Agreements:** [e.g., Greeting: 'Howdy! Eiat...', Note: 'Divide-and-conquer tool unavailable']
-
+  *   **Key Preferences/Agreements:** [e.g., Greeting: Welcome back Eiat, how can I help you today.]
+        
   Is this information accurate and complete? Would you like to add or update anything in my memory for this session?
   ```
 
@@ -139,9 +144,9 @@ Be attentive to any new information about any projects you are a part of in thes
 ## 4️⃣ Memory Update 🔄
 
 # User Contextual
-When new information about Eiat is provided:
+When new information about Eiat is provided or new facts appear during conversation:
 
-When new facts appear during conversation:
+ 
 
 1. **Create** entities for recurring organizations, people, or events
 2. **Link** them to existing nodes with appropriate relations

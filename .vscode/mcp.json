@@ -1,6 +1,6 @@
 {
   "servers": {
-    "File System": {
+    "FileSystem": {
       "command": "npx",
       "args": [
         "-y",
@@ -12,11 +12,7 @@
         "list_allowed_directories"
       ]
     },
-    "vscode": {
-      "command": "npx",
-      "args": ["vscode-as-mcp-server"]
-    },
-    "Desktop Commander": {
+    "Desktop-Commander": {
       "command": "npx",
       "args": [
         "-y",
@@ -32,7 +28,7 @@
       "command": "npx",
       "args": ["-y", "mcp-chain-of-thought"],
       "env": {
-        "DATA_DIR": "${workspaceFolder}",
+        "DATA_DIR": "${workspaceFolder}/.vscode/chain-of-thought-mcp-data",
         "ENABLE_THOUGHT_CHAIN": "true",
         "TEMPLATES_USE": "en",
         "ENABLE_GUI": "true",

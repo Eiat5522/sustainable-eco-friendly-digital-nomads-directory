@@ -51,6 +51,11 @@ const customJestConfig = {
     '<rootDir>/node_modules/',
   ],
   
+  // Ignore transforming ESM modules except for these packages
+  transformIgnorePatterns: [
+    '/node_modules/(?!(bson|jose|next-auth|openid-client|node-fetch)/)'
+  ],
+  
   // Verbose output
   verbose: true,
 }

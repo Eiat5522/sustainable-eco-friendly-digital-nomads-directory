@@ -1,5 +1,6 @@
 {
-  "name": "sustainable-eco-friendly-digital-nomads-directory-root",  "workspaces": [
+  "name": "sustainable-eco-friendly-digital-nomads-directory-root",
+  "workspaces": [
     "app-next-directory",
     "sanity"
   ],
@@ -30,18 +31,19 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@sanity/client": "^7.5.0",
+    "@sanity/client": "^7.6.0",
     "@sanity/code-input": "^5.1.2",
     "bcrypt": "^6.0.0",
     "clsx": "^2.1.1",
-    "react-hook-form": "^7.57.0",
-    "resend": "^4.5.2",
+    "react-hook-form": "^7.58.1",
+    "resend": "^4.6.0",
     "vscode-variables": "^1.0.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.52.0",
-    "eslint": "^9.28.0",
-    "eslint-config-next": "^15.3.3",
-    "playwright": "^1.52.0"
+    "@playwright/test": "^1.53.1",
+    "cross-fetch": "^4.1.0",
+    "eslint": "^9.29.0",
+    "eslint-config-next": "^15.3.4",
+    "playwright": "^1.53.1"
   }
 }
