@@ -1,4 +1,15 @@
 import '@testing-library/jest-dom';
+import 'cross-fetch/polyfill';
+
+// Polyfill for Request/Response for Jest (Node.js)
+if (typeof global.Request === 'undefined') {
+  // @ts-ignore
+  global.Request = fetch.Request;
+}
+if (typeof global.Response === 'undefined') {
+  // @ts-ignore
+  global.Response = fetch.Response;
+}
 
 // Mock Next.js router
 jest.mock('next/router', () => ({

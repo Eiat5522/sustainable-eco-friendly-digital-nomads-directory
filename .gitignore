@@ -82,8 +82,8 @@ tasks/
 *requirement.txt
 
 #sanity backup and image staging
-**/*sanity-backup
-**/*sanity_image_staging
+**/*sanity-backup/
+**/*sanity_image_staging/
 
 # Copilot
 .copilotignore
@@ -96,15 +96,14 @@ clean-install.ps1
 *WORKSTREAM*
 
 #Github Copilot
-.vscode/mcp.json
+*.vscode/mcp.json
 /project-memory/
 .github/instructions/tools-usage-guidelines.instructions.md
 
-#Sanity
 
 
 #Cline & Roo
-**/.clinerules/
+*/**.clinerules/*
 **/.roomodes
 **/.roo
 **/cline_docs
@@ -121,3 +120,4 @@ clean-install.ps1
 .github/instructions/typescript-react-coding-guidelines.instructions.md
 .secretlintrc.json
 .vscode/memory.json
+ Agent.md
