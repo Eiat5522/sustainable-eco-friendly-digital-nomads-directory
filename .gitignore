@@ -103,9 +103,10 @@ clean-install.ps1
 
 
 #Cline & Roo
-.clinerules/**/*/.md
-**/.roomodes
-**/*/.roo
+.clinerules/
+.roomodes/
+.roomodes       
+.roo/**/rules.md
 **/cline_docs
 
 # Code Index MCP cache directory
