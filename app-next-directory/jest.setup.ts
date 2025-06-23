@@ -111,6 +111,15 @@ global.fetch = jest.fn(() =>
   })
 ) as jest.Mock;
 
+/**
+ * Mock ESM-only modules to avoid Jest ESM transform errors.
+ */
+jest.mock('jose', () => ({}));
+jest.mock('node-fetch', () => ({}));
+jest.mock('nanoid', () => ({ nanoid: () => 'mocked-nanoid' }));
+jest.mock('@sanity/client', () => ({}));
+jest.mock('@panva/hkdf', () => ({}));
+
 // Mock environment variables
 process.env.NEXTAUTH_SECRET = 'test-secret'
 process.env.NEXTAUTH_URL = 'http://localhost:3000'

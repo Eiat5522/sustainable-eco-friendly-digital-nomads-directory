@@ -97,17 +97,17 @@ clean-install.ps1
 
 #Github Copilot
 *.vscode/mcp.json
-/project-memory/
 .github/instructions/tools-usage-guidelines.instructions.md
 
 
 
 #Cline & Roo
-.clinerules/
+**/.clinerules
 .roomodes/
 .roomodes       
 .roo/**/rules.md
 **/cline_docs
+cline_docs/**/.text
 
 # Code Index MCP cache directory
 .code_indexer/

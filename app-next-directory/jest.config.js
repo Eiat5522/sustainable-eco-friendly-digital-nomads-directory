@@ -53,7 +53,7 @@ const customJestConfig = {
   
   // Ignore transforming ESM modules except for these packages
   transformIgnorePatterns: [
-    '/node_modules/(?!(bson|jose|next-auth|openid-client|node-fetch)/)'
+    '/node_modules/(?!(bson|jose|next-auth|openid-client|node-fetch|@next-auth|@auth|@babel|nanoid|@sanity/client)/)'
   ],
   
   // Verbose output

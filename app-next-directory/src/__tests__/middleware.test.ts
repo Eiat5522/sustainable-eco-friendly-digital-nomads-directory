@@ -3,6 +3,10 @@ import { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { middleware } from '../middleware';
 import { UserRole } from '@/types/auth';
+const { middleware } = require('../app/auth/middleware');
+const { NextResponse } = require('next/server');
+const { getToken } = require('next-auth/jwt');
+const { config } = require('../app/auth/middleware');
 
 // Mock next-auth/jwt
 jest.mock('next-auth/jwt');
@@ -357,4 +361,78 @@ describe('Middleware', () => {
       );
     });
   });
+// Pseudocode plan:
+// 1. Test that unauthenticated users are redirected to /auth/login with callbackUrl set.
+// 2. Test that authenticated users proceed (NextResponse.next is called).
+// 3. Test that the callbackUrl is set correctly for various paths.
+// 4. Test error handling: if getToken throws, middleware should not throw and should allow request.
+// 5. Test that matcher config is set correctly (optional, but can be checked).
+
+describe('middleware (auth/profile)', () => {
+
+  const mockRedirect = NextResponse.redirect as jest.Mock;
+  const mockNext = NextResponse.next as jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.NEXTAUTH_SECRET = 'test-secret';
+  });
+
+  const createMockRequest = (pathname: string) => ({
+    nextUrl: { pathname },
+    url: `https://example.com${pathname}`,
+  });
+
+  it('redirects unauthenticated users to /auth/login with callbackUrl', async () => {
+    (getToken as jest.Mock).mockResolvedValue(null);
+    const request = createMockRequest('/auth/profile');
+    await middleware(request as any);
+
+    expect(mockRedirect).toHaveBeenCalledWith(
+      expect.objectContaining({
+        href: expect.stringContaining('/auth/login?callbackUrl=%2Fauth%2Fprofile'),
+      })
+    );
+    expect(mockNext).not.toHaveBeenCalled();
+  });
+
+  it('allows authenticated users to proceed', async () => {
+    (getToken as jest.Mock).mockResolvedValue({ sub: 'user-id', role: 'user' });
+    const request = createMockRequest('/auth/profile');
+    await middleware(request as any);
+
+    expect(mockNext).toHaveBeenCalled();
+    expect(mockRedirect).not.toHaveBeenCalled();
+  });
+
+  it('sets callbackUrl to the original path', async () => {
+    (getToken as jest.Mock).mockResolvedValue(null);
+    const request = createMockRequest('/auth/profile/settings');
+    await middleware(request as any);
+
+    expect(mockRedirect).toHaveBeenCalledWith(
+      expect.objectContaining({
+        href: expect.stringContaining('/auth/login?callbackUrl=%2Fauth%2Fprofile%2Fsettings'),
+      })
+    );
+  });
+
+  it('handles getToken errors gracefully', async () => {
+    (getToken as jest.Mock).mockRejectedValue(new Error('Token error'));
+    const request = createMockRequest('/auth/profile');
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    await middleware(request as any);
+
+    // Should allow request to proceed even if getToken fails
+    expect(mockNext).toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
+
+  it('exports correct matcher config', () => {
+    expect(config).toBeDefined();
+    expect(config.matcher).toEqual(['/auth/profile']);
+  });
+
+
+});
 });
