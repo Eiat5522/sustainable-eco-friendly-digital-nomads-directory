@@ -39,14 +39,17 @@ export function jsonToSanityListing(jsonListing: JsonListing): SanityListing {
       listingCount: 0
     })),
     ecoRating: calculateEcoRating(jsonListing),
-    location: {
-      lat: jsonListing.coordinates.latitude || 0,
-      lng: jsonListing.coordinates.longitude || 0,
-      coordinates: [
-        jsonListing.coordinates.latitude || 0, 
-        jsonListing.coordinates.longitude || 0
-      ]
-    },
+    // @ts-expect-error: location is not in SanityListing type, but used by consumers
+        location: (jsonListing as any).coordinates
+              ? {
+                  lat: (jsonListing as any).coordinates.latitude || 0,
+                  lng: (jsonListing as any).coordinates.longitude || 0,
+                  coordinates: [
+                    (jsonListing as any).coordinates.latitude || 0,
+                    (jsonListing as any).coordinates.longitude || 0
+                  ]
+                }
+              : undefined,
     address: jsonListing.address_string,
     rating: 4.5, // Default rating
     createdAt: new Date().toISOString(),
@@ -57,7 +60,7 @@ export function jsonToSanityListing(jsonListing: JsonListing): SanityListing {
 /**
  * Calculate an eco rating score between 0-100 based on the listing data
  */
-function calculateEcoRating(listing: JsonListing): number {
+export function calculateEcoRating(listing: JsonListing): number {
   // Base score starting at 50
   let score = 50;
   

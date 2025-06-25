@@ -51,13 +51,16 @@ const customJestConfig = {
     '<rootDir>/node_modules/',
   ],
   
-  // Ignore transforming ESM modules except for these packages
+  // Ignore transforming ESM modules except for these packages (including all submodules)
   transformIgnorePatterns: [
-    '/node_modules/(?!(bson|jose|next-auth|openid-client|node-fetch|@next-auth|@auth|@babel|nanoid|@sanity/client)/)'
+    '/node_modules/(?!((bson|jose|next-auth|openid-client|node-fetch|@next-auth|@auth|@babel|nanoid|@sanity/client)(/|$)))'
   ],
   
   // Verbose output
   verbose: true,
+
+  // Treat TypeScript files as ESM for Jest transform
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

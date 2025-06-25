@@ -1,3 +1,4 @@
+jest.mock('@sanity/client');
 /**
  * Sanity HTTP Client Test Suite
  * Day 1 Sprint: API Authentication Testing

@@ -18,7 +18,7 @@ const CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
 /**
  * Gets the user's approximate region based on IP geolocation
  */
-async function getUserRegion(): Promise<string> {
+export async function getUserRegion(): Promise<string> {
   try {
     // Use a lightweight geolocation service
     const response = await fetch('https://ipapi.co/json/');

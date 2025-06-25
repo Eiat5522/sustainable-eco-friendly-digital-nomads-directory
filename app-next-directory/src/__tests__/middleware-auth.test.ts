@@ -1,3 +1,12 @@
+/**
+ * Integration-style tests for middleware using real NextRequest/NextResponse objects.
+ * Polyfills Request/Response for Node.js and only mocks getToken.
+ * Focuses on end-to-end behavior and real HTTP semantics.
+ * For isolated unit tests with injected mocks, see:
+ *   ./middleware.test.ts
+ *
+ * Note: Both test files are needed for full coverage due to differences in mocking vs. real Next.js objects.
+ */
 // Polyfill for Request/Response for Jest (Node.js)
 import 'cross-fetch/polyfill';
 

@@ -2,21 +2,28 @@ import fetch from 'node-fetch';
 import fs from 'fs/promises';
 import path from 'path';
 import { LANDMARK_COORDINATES } from './landmark-coordinates';
-import { type Listing, type Coordinates } from '@/types/listings';
+import { type Listing } from '@/types/listings';
+// Coordinates type for geocoding results
+export interface Coordinates {
+  latitude: number | null;
+  longitude: number | null;
+}
 
-function findLandmarkCoordinates(address: string): Coordinates | null {
+export function findLandmarkCoordinates(address: string): Coordinates | null {
+  if (!address) return null;
   const addressLower = address.toLowerCase();
-  
   for (const landmark of LANDMARK_COORDINATES) {
-    if (landmark.searchTerms.some(term => addressLower.includes(term.toLowerCase()))) {
-      return landmark.coordinates;
+    for (const term of landmark.searchTerms) {
+      // Match if the term is a substring anywhere in the address (case-insensitive)
+      if (addressLower.includes(term.toLowerCase())) {
+        return landmark.coordinates;
+      }
     }
   }
-  
   return null;
 }
 
-async function geocodeAddress(address: string, city: string): Promise<Coordinates> {
+export async function geocodeAddress(address: string, city: string): Promise<Coordinates> {
   try {
     // First check for landmark coordinates
     const landmarkCoords = findLandmarkCoordinates(address);
@@ -93,7 +100,7 @@ async function geocodeAddress(address: string, city: string): Promise<Coordinate
   }
 }
 
-async function updateListingsWithCoordinates(): Promise<void> {
+export async function updateListingsWithCoordinates(): Promise<void> {
   try {
     // Read listings file
     const listingsPath = path.join(process.cwd(), 'src/data/listings.json');
@@ -102,7 +109,11 @@ async function updateListingsWithCoordinates(): Promise<void> {
 
     // Geocode each listing's address
     for (const listing of listings) {
-      if (!listing.coordinates.latitude || !listing.coordinates.longitude) {
+      if (
+        !listing.coordinates ||
+        !listing.coordinates.latitude ||
+        !listing.coordinates.longitude
+      ) {
         console.log(`\nProcessing: ${listing.name}`);
         const coordinates = await geocodeAddress(listing.address_string, listing.city);
         listing.coordinates = coordinates;
@@ -122,5 +133,3 @@ async function updateListingsWithCoordinates(): Promise<void> {
 if (require.main === module) {
   updateListingsWithCoordinates();
 }
-
-export { updateListingsWithCoordinates, geocodeAddress };

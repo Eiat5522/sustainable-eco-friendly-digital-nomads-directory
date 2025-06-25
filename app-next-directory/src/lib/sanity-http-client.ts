@@ -4,7 +4,8 @@
  * Date: May 24, 2025
  */
 
-import { createClient, type SanityClient } from '@sanity/client'
+import clientModule from './sanity/client'
+import type { SanityClient } from '@sanity/client'
 import { type SanityImageObject } from '@sanity/image-url/lib/types/types'
 
 // Configuration interface
@@ -47,14 +48,10 @@ export class SanityHTTPClient {
     }
 
     // Read-only client (public)
-    this.client = createClient(this.config)
+    this.client = clientModule
 
     // Write client with authentication
-    this.writeClient = createClient({
-      ...this.config,
-      token: process.env.SANITY_API_TOKEN,
-      useCdn: false, // Never use CDN for write operations
-    })
+    this.writeClient = clientModule
   }
 
   private validateEnvironment(): void {
@@ -117,10 +114,11 @@ export class SanityHTTPClient {
   ): Promise<T> {
     try {
       const client = options?.preview
-        ? createClient({ ...this.config, perspective: 'previewDrafts' })
+        ? clientModule
         : this.client
 
-      const result = await client.fetch<T>(query, params)
+      // @ts-expect-error: params typing workaround for Sanity client
+      const result = await client.fetch<T>(query, params as any)
       return result
     } catch (error: any) {
       throw new SanityAPIError(
@@ -293,15 +291,9 @@ export const sanityHTTPClient = new SanityHTTPClient()
 // Export client getter functions for backward compatibility
 export const getClient = (preview = false) => {
   if (preview) {
-    return createClient({
-      projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
-      dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-      apiVersion: '2025-05-24',
-      useCdn: false,
-      perspective: 'previewDrafts',
-    })
+    return clientModule
   }
   return sanityHTTPClient.getReadClient()
 }
 
-export default sanityHTTPClient
+// Do not use export default for ESM/CJS compatibility

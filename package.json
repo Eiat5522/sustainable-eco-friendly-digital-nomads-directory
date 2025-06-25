@@ -40,6 +40,7 @@
     "vscode-variables": "^1.0.1"
   },
   "devDependencies": {
+    "@auth/mongodb-adapter": "^3.10.0",
     "@playwright/test": "^1.53.1",
     "cross-fetch": "^4.1.0",
     "eslint": "^9.29.0",

@@ -1,4 +1,4 @@
-import { connect } from '@/lib/dbConnect';
+import connect from '@/lib/dbConnect';
 import User from '@/models/User';
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
@@ -11,7 +11,14 @@ export async function POST(request: NextRequest) {
 
     if (!name || !email || !password) {
       return NextResponse.json(
-        { message: 'Invalid request body', errors: ['All fields are required'] },
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'INVALID_INPUT',
+            message: 'Invalid request body: All fields are required'
+          }
+        },
         { status: 400 }
       );
     }
@@ -19,7 +26,14 @@ export async function POST(request: NextRequest) {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
-        { message: 'User already exists' },
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'CONFLICT',
+            message: 'User already exists'
+          }
+        },
         { status: 409 }
       );
     }
@@ -41,19 +55,24 @@ export async function POST(request: NextRequest) {
     };
 
     return NextResponse.json(
-      { message: 'User registered successfully', user: userResponse },
+      {
+        success: true,
+        data: { user: userResponse },
+        error: null
+      },
       { status: 201 }
     );
   } catch (error) {
     console.error('Registration error:', error);
-    if (error instanceof Error && error.message.includes('User creation')) {
-      return NextResponse.json(
-        { message: 'Error creating user' },
-        { status: 500 }
-      );
-    }
     return NextResponse.json(
-      { message: 'Internal server error' },
+      {
+        success: false,
+        data: null,
+        error: {
+          code: 'SERVER_ERROR',
+          message: error instanceof Error ? error.message : 'Internal server error'
+        }
+      },
       { status: 500 }
     );
   }

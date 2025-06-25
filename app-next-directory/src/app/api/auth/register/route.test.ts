@@ -13,7 +13,8 @@ import { getToken } from 'next-auth/jwt';
 
 // Mock dependencies
 jest.mock('@/lib/dbConnect', () => ({
-  connect: jest.fn(),
+  __esModule: true,
+  default: jest.fn(),
 }));
 
 jest.mock('@/models/User', () => ({
@@ -74,9 +75,9 @@ describe('POST /api/auth/register', () => {
 
     // Assert
     expect(response.status).toBe(201);
-    expect(body.message).toBe('User registered successfully');
-    expect(body.user.email).toBe('test@example.com');
-    expect(body.user).not.toHaveProperty('password');
+    expect(body.success).toBe(true);
+    expect(body.data.user.email).toBe('test@example.com');
+    expect(body.data.user).not.toHaveProperty('password');
     expect(connect).toHaveBeenCalledTimes(1);
     expect(User.findOne).toHaveBeenCalledWith({ email: 'test@example.com' });
     expect(User.create).toHaveBeenCalledTimes(1);
@@ -101,7 +102,9 @@ describe('POST /api/auth/register', () => {
 
     // Assert
     expect(response.status).toBe(409);
-    expect(body.message).toBe('User already exists');
+    expect(body.success).toBe(false);
+    expect(body.error.message).toBe('User already exists');
+    expect(body.error.code).toBe('CONFLICT');
     expect(User.create).not.toHaveBeenCalled();
   });
 
@@ -122,7 +125,9 @@ describe('POST /api/auth/register', () => {
 
     // Assert
     expect(response.status).toBe(400);
-    expect(body.message).toBe('Invalid request body');
+    expect(body.success).toBe(false);
+    expect(body.error.message).toMatch(/Invalid request body/i);
+    expect(body.error.code).toBe('INVALID_INPUT');
   });
 
   it('should return 500 if hashing password fails', async () => {
@@ -145,7 +150,9 @@ describe('POST /api/auth/register', () => {
 
     // Assert
     expect(response.status).toBe(500);
-    expect(body.message).toMatch(/Error registering user/i);
+    expect(body.success).toBe(false);
+    expect(body.error.message).toMatch(/hash error/i);
+    expect(body.error.code).toBe('SERVER_ERROR');
     expect(User.create).not.toHaveBeenCalled();
   });
 
@@ -170,7 +177,9 @@ describe('POST /api/auth/register', () => {
 
     // Assert
     expect(response.status).toBe(500);
-    expect(body.message).toMatch(/Error registering user/i);
+    expect(body.success).toBe(false);
+    expect(body.error.message).toMatch(/db error/i);
+    expect(body.error.code).toBe('SERVER_ERROR');
   });
 
   it('should return 500 if dbConnect throws', async () => {
@@ -192,7 +201,9 @@ describe('POST /api/auth/register', () => {
 
     // Assert
     expect(response.status).toBe(500);
-    expect(body.message).toMatch(/Error registering user/i);
+    expect(body.success).toBe(false);
+    expect(body.error.message).toMatch(/connection error/i);
+    expect(body.error.code).toBe('SERVER_ERROR');
   });
 
   it('should return 400 if request body is missing', async () => {
@@ -207,7 +218,9 @@ describe('POST /api/auth/register', () => {
 
     // Assert
     expect(response.status).toBe(400);
-    expect(body.message).toBe('Invalid request body');
+    expect(body.success).toBe(false);
+    expect(body.error.message).toMatch(/Invalid request body/i);
+    expect(body.error.code).toBe('INVALID_INPUT');
   });
 
   it('should return 400 if email is missing', async () => {
@@ -226,7 +239,9 @@ describe('POST /api/auth/register', () => {
 
     // Assert
     expect(response.status).toBe(400);
-    expect(body.message).toBe('Invalid request body');
+    expect(body.success).toBe(false);
+    expect(body.error.message).toMatch(/Invalid request body/i);
+    expect(body.error.code).toBe('INVALID_INPUT');
   });
 
   it('should return 400 if name is missing', async () => {
@@ -245,7 +260,9 @@ describe('POST /api/auth/register', () => {
 
     // Assert
     expect(response.status).toBe(400);
-    expect(body.message).toBe('Invalid request body');
+    expect(body.success).toBe(false);
+    expect(body.error.message).toMatch(/Invalid request body/i);
+    expect(body.error.code).toBe('INVALID_INPUT');
   });
 
   it('should return 400 if password is missing', async () => {
@@ -264,7 +281,9 @@ describe('POST /api/auth/register', () => {
 
     // Assert
     expect(response.status).toBe(400);
-    expect(body.message).toBe('Invalid request body');
+    expect(body.success).toBe(false);
+    expect(body.error.message).toMatch(/Invalid request body/i);
+    expect(body.error.code).toBe('INVALID_INPUT');
   });
 });
 // Pseudocode plan:

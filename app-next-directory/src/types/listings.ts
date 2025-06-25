@@ -5,6 +5,11 @@ export interface PricingPlan {
   features: string[];
 }
 
+export interface Coordinates {
+  latitude: number | null;
+  longitude: number | null;
+}
+
 export interface Listing {
   id: string;
   slug?: string;
@@ -21,6 +26,7 @@ export interface Listing {
   gallery_image_urls: string[];
   digital_nomad_features: string[];
   last_verified_date: string;
+  coordinates?: Coordinates;
   coworking_details?: {
     operating_hours: string | null;
     pricing_plans: PricingPlan[];

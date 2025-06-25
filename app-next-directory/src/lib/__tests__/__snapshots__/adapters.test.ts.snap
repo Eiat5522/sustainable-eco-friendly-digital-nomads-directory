@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`jsonToSanityListing should convert a full JsonListing to SanityListing format 1`] = `
+{
+  "_id": "abc123",
+  "address": "123 Green Rd",
+  "city": {
+    "_id": "city-id",
+    "country": "Thailand",
+    "listingCount": 0,
+    "name": "Bangkok",
+    "slug": "bangkok",
+  },
+  "createdAt": "2023-01-01T00:00:00.000Z",
+  "description": "A long eco-friendly description for digital nomads.",
+  "ecoRating": 75,
+  "ecoTags": [
+    {
+      "_id": "tag-0",
+      "description": "",
+      "listingCount": 0,
+      "name": "solar power",
+      "slug": "solar_power",
+    },
+    {
+      "_id": "tag-1",
+      "description": "",
+      "listingCount": 0,
+      "name": "recycling",
+      "slug": "recycling",
+    },
+  ],
+  "location": undefined,
+  "mainImage": {
+    "asset": {
+      "_ref": "image-reference",
+      "url": "https://img.com/eco.jpg",
+    },
+  },
+  "name": "Eco Space",
+  "priceRange": "moderate",
+  "rating": 4.5,
+  "slug": "eco-space",
+  "type": "coworking",
+  "updatedAt": "2023-01-01T00:00:00.000Z",
+}
+`;

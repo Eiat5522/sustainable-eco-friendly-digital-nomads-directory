@@ -11,9 +11,11 @@ module.exports = {
   verbose: true,
   transform: {
     '^.+\\.tsx?$': ['ts-jest', { tsconfig: './tsconfig.json' }],
+    '^.+\\.js$': 'babel-jest',
   },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  extensionsToTreatAsEsm: ['.ts', '.tsx'],
   moduleDirectories: ['node_modules', '<rootDir>/'],
 };

@@ -112,6 +112,14 @@ Provide Cline with structured guidance modeled on Cline’s best practices. This
 4. **CMS updates:** commit to Sanity Studio → auto-deploy
 5. **User testing:** monthly sessions → backlog refinement
 
+### 🧪 Testing: Unit vs. Integration Test File Policy
+
+* When both unit and integration test files exist for the same logic (e.g., middleware), each test file **must** include a comment block at the top that:
+  - Clearly explains its role (unit vs. integration).
+  - References the other test file by name.
+  - States why both are needed for full coverage (e.g., differences in mocking vs. real Next.js objects).
+  - Optionally includes troubleshooting notes for future maintainers about differences in mocking, polyfilling, or test semantics.
+* This ensures clarity for all contributors and prevents confusion about test coverage or intent.
 ## 🔒 6. Security & Environment
 
 * **Secrets:** Vercel/Cloudflare env vars

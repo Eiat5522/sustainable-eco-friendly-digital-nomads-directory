@@ -24,11 +24,25 @@
       "type": "stdio",
       "disabled": true
     },
+    "chroma": { // Runs the version last installed via uvx (typically Prod)
+      "command": "uvx",
+      "args": [
+        "chroma-mcp-server",
+        "--client-type=persistent",
+        "--embedding-function=default" // Example: Choose your embedding function
+      ],
+      "env": {
+        "CHROMA_DATA_DIR": "D:/Eiat_Folder/AppData/Local/Cline/MCP/ChromaDB", // Replace with your actual path
+        "CHROMA_LOG_DIR":  "D:/Eiat_Folder/AppData/Local/Cline/MCP/ChromaDB",
+        "LOG_LEVEL": "INFO",
+        "MCP_LOG_LEVEL": "INFO"
+      }
+    },
     "chain-of-thought": {
       "command": "npx",
       "args": ["-y", "mcp-chain-of-thought"],
       "env": {
-        "DATA_DIR": "${workspaceFolder}/.vscode/chain-of-thought-mcp-data",
+        "DATA_DIR": "${workspaceFolder}:/.vscode/chain-of-thought-mcp-data",
         "ENABLE_THOUGHT_CHAIN": "true",
         "TEMPLATES_USE": "en",
         "ENABLE_GUI": "true",
