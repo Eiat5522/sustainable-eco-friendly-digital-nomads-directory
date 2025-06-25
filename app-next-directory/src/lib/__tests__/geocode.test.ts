@@ -1,9 +1,16 @@
-// Jest unit tests for geocode.ts
+/**
+ * Jest unit tests for geocode.ts
+ */
 import { jest } from '@jest/globals';
 import * as geocodeModule from '../geocode';
 import { LANDMARK_COORDINATES } from '../landmark-coordinates';
 
-jest.mock('node-fetch', () => jest.fn());
+
+type MockFetchResponse = {
+  json: () => Promise<any>;
+};
+
+
 jest.mock('fs/promises', () => ({
   readFile: jest.fn(),
   writeFile: jest.fn(),
@@ -13,7 +20,12 @@ jest.mock('path', () => ({
 }));
 /* Manual mock for landmark-coordinates is provided in __mocks__/landmark-coordinates.ts */
 
-const fetch = require('node-fetch');
+/**
+ * Ensure global.fetch is a Jest mock function for all tests.
+ */
+global.fetch = jest.fn() as any;
+
+
 const fs = require('fs/promises');
 
 describe('findLandmarkCoordinates', () => {
@@ -38,13 +50,11 @@ describe('findLandmarkCoordinates', () => {
   });
 
   it('returns null for undefined', () => {
-    // @ts-expect-error
     const result = geocodeModule['findLandmarkCoordinates'](undefined);
     expect(result).toBeNull();
   });
 
   it('returns null for null', () => {
-    // @ts-expect-error
     const result = geocodeModule['findLandmarkCoordinates'](null);
     expect(result).toBeNull();
   });
@@ -59,6 +69,8 @@ describe('geocodeAddress', () => {
   beforeEach(() => {
     jest.resetModules();
     jest.clearAllMocks();
+    // @ts-expect-error
+    global.fetch = jest.fn();
   });
 
   function getGeocodeModuleWithMockedLandmark(mockImpl: any) {
@@ -79,8 +91,8 @@ describe('geocodeAddress', () => {
   });
 
   it('returns coordinates from fetch if no landmark found', async () => {
-    const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValueOnce(null).mockReturnValueOnce(null));
-    fetch.mockResolvedValueOnce({
+    const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValue(null));
+    (global.fetch as any).mockResolvedValueOnce({
       json: async () => [{ lat: '13.75', lon: '100.5' }],
     });
     const result = await geocodeModule.geocodeAddress('Some Address', 'Bangkok');
@@ -88,62 +100,59 @@ describe('geocodeAddress', () => {
   });
 
   it('returns city landmark coordinates if address fetch fails but city is a landmark', async () => {
-    const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValueOnce(null).mockReturnValueOnce({ latitude: 7.89, longitude: 0.12 }));
-    fetch.mockResolvedValueOnce({ json: async () => [] });
+    const geocodeModule = getGeocodeModuleWithMockedLandmark(
+      jest.fn()
+        .mockReturnValueOnce(null)
+        .mockReturnValueOnce({ latitude: 7.89, longitude: 0.12 })
+    );
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => [] });
     const result = await geocodeModule.geocodeAddress('Unknown Address', 'Landmark B');
-    expect(result).toEqual({ latitude: 7.89, longitude: 0.12 });
+    expect(result as any).toEqual({ latitude: 7.89, longitude: 0.12 });
   });
 
   it('returns coordinates from city fetch if address fetch fails', async () => {
     const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValue(null));
-    fetch
-      .mockResolvedValueOnce({ json: async () => [] }) // address fetch
-      .mockResolvedValueOnce({ json: async () => [{ lat: '15.0', lon: '101.0' }] }); // city fetch
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => [] }); // address fetch
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => [{ lat: '15.0', lon: '101.0' }] }); // city fetch
     const result = await geocodeModule.geocodeAddress('Unknown Address', 'Bangkok');
-    expect(result).toEqual({ latitude: 15.0, longitude: 101.0 });
+    expect(result as any).toEqual({ latitude: 15.0, longitude: 101.0 });
   });
 
   it('returns null coordinates if all fetches fail', async () => {
     const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValue(null));
-    fetch
-      .mockResolvedValueOnce({ json: async () => [] }) // address fetch
-      .mockResolvedValueOnce({ json: async () => [] }); // city fetch
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => [] }); // address fetch
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => [] }); // city fetch
     const result = await geocodeModule.geocodeAddress('Unknown Address', 'Unknown City');
     expect(result).toEqual({ latitude: null, longitude: null });
   });
 
   it('returns null coordinates on fetch error', async () => {
     const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValue(null));
-    fetch.mockRejectedValueOnce(new Error('Network error'));
+    (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
     const result = await geocodeModule.geocodeAddress('Error Address', 'Bangkok');
     expect(result).toEqual({ latitude: null, longitude: null });
   });
 
   it('returns null coordinates for empty address and city', async () => {
     const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValue(null));
-    global.fetch
-      .mockResolvedValueOnce({ json: async () => [] })
-      .mockResolvedValueOnce({ json: async () => [] });
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => [] });
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => [] });
     const result = await geocodeModule.geocodeAddress('', '');
     expect(result).toEqual({ latitude: null, longitude: null });
   });
 
   it('returns null coordinates for undefined address and city', async () => {
     const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValue(null));
-    fetch
-      .mockResolvedValueOnce({ json: async () => [] })
-      .mockResolvedValueOnce({ json: async () => [] });
-    // @ts-expect-error
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => [] });
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => [] });
     const result = await geocodeModule.geocodeAddress(undefined, undefined);
     expect(result).toEqual({ latitude: null, longitude: null });
   });
 
   it('returns null coordinates for null address and city', async () => {
     const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValue(null));
-    fetch
-      .mockResolvedValueOnce({ json: async () => [] })
-      .mockResolvedValueOnce({ json: async () => [] });
-    // @ts-expect-error
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => [] });
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => [] });
     const result = await geocodeModule.geocodeAddress(null, null);
     expect(result).toEqual({ latitude: null, longitude: null });
   });

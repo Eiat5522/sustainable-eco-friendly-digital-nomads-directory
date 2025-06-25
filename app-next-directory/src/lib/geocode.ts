@@ -9,7 +9,7 @@ export interface Coordinates {
   longitude: number | null;
 }
 
-export function findLandmarkCoordinates(address: string): Coordinates | null {
+export function findLandmarkCoordinates(address: string | undefined | null): Coordinates | null {
   if (!address) return null;
   const addressLower = address.toLowerCase();
   for (const landmark of LANDMARK_COORDINATES) {
