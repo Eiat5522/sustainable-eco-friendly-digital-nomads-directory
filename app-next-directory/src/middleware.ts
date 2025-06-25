@@ -73,8 +73,8 @@ export function createMiddleware({
       if (isProtectedRoute) {
         // Always redirect unauthenticated or malformed/undefined role tokens to /auth/signin with callbackUrl
         if (!isAuthenticated || !userRole) {
-          const signinUrl = new URL('/auth/signin', request.url);
-          signinUrl.searchParams.set('callbackUrl', encodeURIComponent(pathname));
+          const signinUrl = new URL('/auth/login', request.url);
+          signinUrl.searchParams.set('callbackUrl', pathname);
           return withSecurityHeaders(NextResponse.redirect(signinUrl));
         }
 
@@ -100,7 +100,12 @@ export function createMiddleware({
 
       // API routes protection
       if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth')) {
-        const protectedApiPaths = ['/api/user', '/api/admin'];
+        const protectedApiPaths = [
+          '/api/user',
+          '/api/admin',
+          '/api/listings',
+          '/api/reviews'
+        ];
         const isProtectedApi = protectedApiPaths.some(path => pathname.startsWith(path));
 
         if (isProtectedApi && !isAuthenticated) {
@@ -130,8 +135,8 @@ export function createMiddleware({
 
       // Special handling for /auth/profile and /auth/profile/settings (test expects /auth/signin with callbackUrl)
       if ((pathname === '/auth/profile' || pathname === '/auth/profile/settings') && !isAuthenticated) {
-        const signinUrl = new URL('/auth/signin', request.url);
-        signinUrl.searchParams.set('callbackUrl', encodeURIComponent(pathname));
+        const signinUrl = new URL('/auth/login', request.url);
+        signinUrl.searchParams.set('callbackUrl', pathname);
         return withSecurityHeaders(NextResponse.redirect(signinUrl));
       }
 

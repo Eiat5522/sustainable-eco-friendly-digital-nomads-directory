@@ -1,9 +1,37 @@
 // Jest unit tests for carbon-awareness.ts
 
+// Use jest.mock to allow mocking of getUserRegion (which is a read-only export)
+jest.mock('../carbon-awareness', () => {
+  const actual = jest.requireActual('../carbon-awareness');
+  return {
+    ...actual,
+    getUserRegion: jest.fn(),
+  };
+});
+
 import * as carbon from '../carbon-awareness';
 
+/**
+ * @fileoverview
+ * Jest unit tests for carbon-awareness.ts.
+ * Ensures robust async handling, proper mocking, and modern Jest best practices.
+ */
+
 describe('carbon-awareness', () => {
+  let originalFetch: typeof global.fetch;
+
+  beforeAll(() => {
+    originalFetch = global.fetch;
+  });
+
+  afterAll(() => {
+    global.fetch = originalFetch;
+  });
+
   describe('getUserRegion', () => {
+    /**
+     * Ensures fetch is mocked and restored for each test.
+     */
     beforeEach(() => {
       global.fetch = jest.fn();
     });
@@ -16,23 +44,27 @@ describe('carbon-awareness', () => {
       (global.fetch as jest.Mock).mockResolvedValue({
         json: async () => ({ country_code: 'US' }),
       });
-      const region = await (carbon as any).getUserRegion();
+      (carbon.getUserRegion as jest.Mock).mockReset();
+      (carbon.getUserRegion as jest.Mock).mockImplementation(jest.requireActual('../carbon-awareness').getUserRegion);
+      const region = await carbon.getUserRegion();
       expect(region).toBe('US');
     });
 
     it('returns UNKNOWN on fetch error', async () => {
       (global.fetch as jest.Mock).mockRejectedValue(new Error('fail'));
-      const region = await (carbon as any).getUserRegion();
+      (carbon.getUserRegion as jest.Mock).mockReset();
+      (carbon.getUserRegion as jest.Mock).mockImplementation(jest.requireActual('../carbon-awareness').getUserRegion);
+      const region = await carbon.getUserRegion();
       expect(region).toBe('UNKNOWN');
     });
   });
 
   describe('getCarbonIntensity', () => {
     let originalEnv: any;
+
     beforeEach(() => {
       originalEnv = process.env.NEXT_PUBLIC_ELECTRICITY_MAP_TOKEN;
       process.env.NEXT_PUBLIC_ELECTRICITY_MAP_TOKEN = 'test-token';
-      jest.resetModules();
       global.fetch = jest.fn();
     });
 
@@ -41,9 +73,13 @@ describe('carbon-awareness', () => {
       jest.resetAllMocks();
     });
 
+    /**
+     * @description
+     * Tests API intensity retrieval and caching logic.
+     */
     it('returns intensity from API and caches it', async () => {
-      // Mock getUserRegion to return 'US'
-      jest.spyOn(carbon as any, 'getUserRegion').mockResolvedValue('US');
+      (carbon.getUserRegion as jest.Mock).mockReset();
+      (carbon.getUserRegion as jest.Mock).mockResolvedValue('US');
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         json: async () => ({ carbonIntensity: 123 }),
@@ -58,15 +94,25 @@ describe('carbon-awareness', () => {
       expect(intensity2).toBe(123);
     });
 
+    /**
+     * @description
+     * Ensures fallback value is returned on fetch error.
+     */
     it('returns fallback value on fetch error', async () => {
-      jest.spyOn(carbon as any, 'getUserRegion').mockRejectedValue(new Error('fail'));
+      (carbon.getUserRegion as jest.Mock).mockReset();
+      (carbon.getUserRegion as jest.Mock).mockRejectedValue(new Error('fail'));
       (global.fetch as jest.Mock).mockRejectedValue(new Error('fail'));
       const intensity = await carbon.getCarbonIntensity();
       expect(intensity).toBe(250);
     });
 
+    /**
+     * @description
+     * Ensures fallback value is returned on non-ok response.
+     */
     it('returns fallback value on non-ok response', async () => {
-      jest.spyOn(carbon as any, 'getUserRegion').mockResolvedValue('US');
+      (carbon.getUserRegion as jest.Mock).mockReset();
+      (carbon.getUserRegion as jest.Mock).mockResolvedValue('US');
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         json: async () => ({}),
@@ -88,6 +134,10 @@ describe('carbon-awareness', () => {
   });
 
   describe('calculatePageCarbonFootprint', () => {
+    /**
+     * @description
+     * Verifies correct carbon emission calculation.
+     */
     it('calculates correct carbon emission', () => {
       // pageWeight = 1000 KB, carbonIntensity = 500
       // energyConsumption = 1000 * 0.000002 = 0.002 kWh
