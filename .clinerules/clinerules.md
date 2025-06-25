@@ -155,7 +155,9 @@ Provide Cline with structured guidance modeled on Cline’s best practices. This
 
 * On session start, or when beginning a new distinct task where context isn't pre-loaded, print:
   ```
+
   Remembering…
+
   ```
 * **Action:** Read the content of all core Memory Bank files:
   * `memory-bank/projectbrief.md`
@@ -177,7 +179,9 @@ Provide Cline with structured guidance modeled on Cline’s best practices. This
 
 * On session start, or when beginning a new distinct task where context isn't pre-loaded, print:
   ```
+
   Remembering…
+
   ```
 * **Action:** Read the content of all core Memory Bank files:
   * `memory-bank/projectbrief.md`
@@ -201,7 +205,9 @@ Provide Cline with structured guidance modeled on Cline’s best practices. This
 
 * On session start, or when beginning a new distinct task where context isn't pre-loaded, print:
   ```
+
   Remembering…
+
   ```
 * **Action:** Read the content of all core Memory Bank files:
   * `memory-bank/projectbrief.md`

@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 import fs from 'fs/promises';
 import path from 'path';
-import { LANDMARK_COORDINATES } from './landmark-coordinates';
+import { LANDMARK_COORDINATES } from 'landmark-coordinates';
 import { type Listing } from '@/types/listings';
 // Coordinates type for geocoding results
 export interface Coordinates {
