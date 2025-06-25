@@ -5,6 +5,16 @@ import { NextResponse } from 'next/server';
 
 const secret = process.env.NEXTAUTH_SECRET;
 
+/**
+ * Attach security headers to all NextResponse objects.
+ */
+function withSecurityHeaders<T extends NextResponse>(response: T): T {
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  return response;
+}
+
 // Edge-compatible access control function
 function hasAccess(userRole: UserRole, path: string): boolean {
   if (!userRole) {
@@ -53,7 +63,7 @@ export function createMiddleware({
       const isAuthPage = authPages.some(p => pathname.startsWith(p));
 
       if (isAuthPage && isAuthenticated) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+        return withSecurityHeaders(NextResponse.redirect(new URL('/dashboard', request.url)));
       }
 
       // Protected routes check
@@ -65,23 +75,27 @@ export function createMiddleware({
         if (!isAuthenticated || !userRole) {
           const signinUrl = new URL('/auth/signin', request.url);
           signinUrl.searchParams.set('callbackUrl', encodeURIComponent(pathname));
-          return NextResponse.redirect(signinUrl);
+          return withSecurityHeaders(NextResponse.redirect(signinUrl));
         }
 
         // Role-based access control
         if (!hasAccess(userRole, pathname)) {
           if (pathname.startsWith('/api/')) {
-            return NextResponse.json(
+            const res = NextResponse.json(
               { error: 'Access denied' },
               { status: 403 }
             );
+            res.headers.set('X-Frame-Options', 'DENY');
+            res.headers.set('X-Content-Type-Options', 'nosniff');
+            res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+            return res;
           }
           const homeUrl = new URL('/', request.url);
           homeUrl.searchParams.set('error', 'unauthorized_access');
-          return NextResponse.redirect(homeUrl);
+          return withSecurityHeaders(NextResponse.redirect(homeUrl));
         }
         // Authenticated and authorized: allow access
-        return NextResponse.next();
+        return withSecurityHeaders(NextResponse.next());
       }
 
       // API routes protection
@@ -90,40 +104,44 @@ export function createMiddleware({
         const isProtectedApi = protectedApiPaths.some(path => pathname.startsWith(path));
 
         if (isProtectedApi && !isAuthenticated) {
-          return NextResponse.json(
+          const res = NextResponse.json(
             { error: 'Authentication required' },
             { status: 401 }
           );
+          res.headers.set('X-Frame-Options', 'DENY');
+          res.headers.set('X-Content-Type-Options', 'nosniff');
+          res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+          return res;
         }
 
         if (isProtectedApi && userRole && !hasAccess(userRole, pathname)) {
-          return NextResponse.json(
+          const res = NextResponse.json(
             { error: 'Access denied' },
             { status: 403 }
           );
+          res.headers.set('X-Frame-Options', 'DENY');
+          res.headers.set('X-Content-Type-Options', 'nosniff');
+          res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+          return res;
         }
         // Authenticated and authorized: allow access
-        return NextResponse.next();
+        return withSecurityHeaders(NextResponse.next());
       }
 
       // Special handling for /auth/profile and /auth/profile/settings (test expects /auth/signin with callbackUrl)
       if ((pathname === '/auth/profile' || pathname === '/auth/profile/settings') && !isAuthenticated) {
         const signinUrl = new URL('/auth/signin', request.url);
         signinUrl.searchParams.set('callbackUrl', encodeURIComponent(pathname));
-        return NextResponse.redirect(signinUrl);
+        return withSecurityHeaders(NextResponse.redirect(signinUrl));
       }
 
       // Add security headers to all responses
-      const response = NextResponse.next();
-      response.headers.set('X-Frame-Options', 'DENY');
-      response.headers.set('X-Content-Type-Options', 'nosniff');
-      response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-      return response;
+      return withSecurityHeaders(NextResponse.next());
     } catch (error) {
       // Graceful error handling
       // eslint-disable-next-line no-console
       console.error('Middleware error:', error);
-      return NextResponse.next();
+      return withSecurityHeaders(NextResponse.next());
     }
   };
 }

@@ -40,6 +40,8 @@ const customJestConfig = {
   // Transform configuration
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
+    // Add this line to transform jose
+    '^jose$': 'babel-jest',
   },
   
   // Module file extensions
@@ -53,7 +55,7 @@ const customJestConfig = {
   
   // Ignore transforming ESM modules except for these packages (including all submodules)
   transformIgnorePatterns: [
-    '/node_modules/(?!((bson|jose|next-auth|openid-client|node-fetch|@next-auth|@auth|@babel|nanoid|@sanity/client)(/|$)))'
+    '/node_modules/(?!((bson|next-auth|openid-client|node-fetch|@next-auth|@auth|@babel|nanoid|@sanity/client|jose)(/|$)))'
   ],
   
   // Verbose output

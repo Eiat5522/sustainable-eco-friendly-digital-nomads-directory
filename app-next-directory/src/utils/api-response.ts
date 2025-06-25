@@ -18,6 +18,7 @@ export class ApiResponseHandler {
   }
 
   static error(error: string, status: number = 400, details?: any): NextResponse<ApiResponse> {
+    console.log('ApiResponseHandler.error called');
     return NextResponse.json({
       success: false,
       error,

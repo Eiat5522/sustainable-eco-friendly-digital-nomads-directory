@@ -3,11 +3,19 @@ import { NextResponse } from 'next/server';
 import { ApiResponseHandler } from '../api-response';
 
 // Mock NextResponse
-jest.mock('next/server', () => ({
-  NextResponse: {
-    json: jest.fn(),
-  },
-}));
+jest.mock('next/server', () => {
+  return {
+    NextResponse: {
+      json: jest.fn().mockImplementation((data, init) => {
+        const response: { data: any; status?: number } = {
+          data: data,
+          status: init?.status,
+        };
+        return response as any;
+      }),
+    },
+  };
+});
 
 describe('ApiResponseHandler', () => {
   beforeEach(() => {
@@ -47,9 +55,35 @@ describe('ApiResponseHandler', () => {
         success: true,
         data: null,
         message: undefined,
-      });
     });
   });
+
+  it('should call NextResponse.json with correct arguments', () => {
+    const testData = { id: 1, name: 'Test' };
+    const message = 'Success message';
+    ApiResponseHandler.success(testData, message);
+    expect(NextResponse.json).toHaveBeenCalledWith({
+      success: true,
+      data: testData,
+      message,
+    });
+  });
+
+  it('should call NextResponse.json with correct arguments and return the correct value', () => {
+    const testData = { id: 1, name: 'Test' };
+    const message = 'Success message';
+    const result = ApiResponseHandler.success(testData, message);
+    expect(NextResponse.json).toHaveBeenCalledWith({
+      success: true,
+      data: testData,
+      message,
+    });
+    expect(result).toEqual({
+      data: testData,
+      status: undefined,
+    });
+  });
+});
 
   describe('error', () => {
     it('should create an error response with default status 400', () => {

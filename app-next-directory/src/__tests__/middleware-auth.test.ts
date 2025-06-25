@@ -7,22 +7,11 @@
  *
  * Note: Both test files are needed for full coverage due to differences in mocking vs. real Next.js objects.
  */
-// Polyfill for Request/Response for Jest (Node.js)
-import 'cross-fetch/polyfill';
-
-// Ensure global Request/Response are defined BEFORE any Next.js or middleware imports
-if (typeof global.Request === 'undefined') {
-  // @ts-ignore
-  global.Request = fetch.Request;
-}
-if (typeof global.Response === 'undefined') {
-  // @ts-ignore
-  global.Response = fetch.Response;
-}
+// No polyfill for Request/Response: let Next.js provide its own for middleware tests.
 
 import { middleware } from '../middleware';
 import { getToken } from 'next-auth/jwt';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 jest.mock('next-auth/jwt', () => ({
   getToken: jest.fn(),

@@ -29,24 +29,8 @@ jest.mock('bcryptjs', () => ({
 describe('POST /api/auth/register', () => {
   let nextResponseJsonSpy: jest.SpyInstance;
 
-  beforeAll(() => {
-    // Mock NextResponse.json to return a test-friendly object
-    nextResponseJsonSpy = jest
-      .spyOn(NextResponse, 'json')
-      .mockImplementation((body: any, init?: any) => {
-        return {
-          status: init?.status || 200,
-          json: async () => body,
-        } as any;
-      });
-  });
-
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  afterAll(() => {
-    nextResponseJsonSpy.mockRestore();
   });
 
   it('should register a user successfully', async () => {
