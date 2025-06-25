@@ -73,6 +73,7 @@
 ### Framework Configuration
 
 - Playwright setup with ES Module support
+- Jest and React Testing Library for unit tests
 - Custom test utilities:
   - Map interaction helpers (pan, zoom, markers)
   - Filter management utilities

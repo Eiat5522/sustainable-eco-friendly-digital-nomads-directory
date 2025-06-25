@@ -42,7 +42,8 @@
 ### Testing Strategy
 
 - Playwright for end-to-end tests
-- Component-level unit tests
+- Jest and React Testing Library for unit and component tests
+- Comprehensive unit tests for core utilities like geocoding (`src/lib/geocode.ts`)
 - API mocking for reliability
 - Custom test utilities
 - Continuous integration via GitHub Actions

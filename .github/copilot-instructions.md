@@ -146,8 +146,6 @@ Be attentive to any new information about any projects you are a part of in thes
 # User Contextual
 When new information about Eiat is provided or new facts appear during conversation:
 
- 
-
 1. **Create** entities for recurring organizations, people, or events
 2. **Link** them to existing nodes with appropriate relations
 3. **Store** each fact as an observation in your memory graph

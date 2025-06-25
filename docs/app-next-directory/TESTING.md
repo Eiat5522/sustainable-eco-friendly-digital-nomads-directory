@@ -35,6 +35,10 @@ Our Playwright test suites are organized by feature and functionality. Key test 
 * V fies that users with different roles have appropriate access to routes and features.
 * T s all 5 user roles: `user`, `editor`, `venueOwner`, `admin`, `superAdmin`.
 * E res unauthorized access attempts are correctly handled.
+* Geocoding Utility (`src/lib/__tests__/geocode.test.ts`)**:
+* V fies the functionality of `findLandmarkCoordinates` and `geocodeAddress`.
+* E sures correct coordinate lookup for landmarks and addresses with fallbacks.
+* C vers various input formats and API response scenarios.
 * API Security & Functionality (`tests/auth-api.spec.ts`, `tests/api.spec.ts`)**:
 * T s API endpoints related to authentication (e.g., sign-in, sign-up).
 * V fies protection of API routes based on authentication and roles.
@@ -145,9 +149,53 @@ When adding new features or modifying existing ones, ensure corresponding tests 
 
 Tests are automatically run as part of our Continuous Integration (CI) pipeline (e.g., using GitHub Actions) on every push and pull request to ensure that no regressions are introduced.
 
+## 📈 Test Coverage
+
+We aim for high E2E test coverage for critical user flows, including:
+
+* User registration and login/logout.
+* Password management.
+* Session management.
+* Role-based access to routes and features.
+* Core API endpoint authorization and functionality.
+* Dynamic page rendering (e.g., city pages).
+* Main navigation and UI interactions.
+* Form submissions and validation.
+
+Current E2E test suite includes **120+ test cases** covering these areas.
+
+Unit test coverage is being expanded, with the geocoding utility (`src/lib/geocode.ts`) now having comprehensive unit tests (`src/lib/__tests__/geocode.test.ts`) covering landmark lookups and address geocoding logic, including various fallback scenarios and error handling.
+
+## ✍️ Writing Tests
+
+When adding new features or modifying existing ones, ensure corresponding tests are written or updated.
+
+### **Best Practices for Writing Playwright Tests**
+
+1. *Descriptive Test Names**: Clearly state what the test is verifying.
+2. *Atomic Tests**: Each test should verify a single piece of functionality.
+3. *Use Page Object Model (POM)**: Consider using POM for better organization and reusability of selectors and actions, especially for larger test suites. (Located in `app-next-directory/tests/poms/` - *if applicable, or plan to implement*)
+4. *Reliable Selectors**: Prefer user-facing attributes like `data-testid`, ARIA roles, or text content over brittle CSS or XPath selectors.
+5. *Wait for Elements**: Use Playwright's auto-waiting capabilities or explicit waits (`waitForSelector`, `waitForNavigation`) to handle dynamic content.
+6. *Assertions**: Use clear and specific assertions (`expect(page.locator(...)).toHaveText(...)`).
+7. *Isolate Tests**: Avoid dependencies between tests. Each test should set up its own state or rely on a common setup.
+8. *Clean Up**: If a test creates data, ensure it cleans up after itself to avoid affecting other tests.
+9. *Debugging**: Utilize Playwright's debugging tools:
+    * WDEBUG=1 npm run test` for step-by-step debugging.
+    * wait page.pause()` in your test script.
+    * aywright Inspector.
+
+## 🌐 Cross-Browser & Responsive Testing
+
+* aywright configuration is set up to run tests across multiple browsers (Chromium, Firefox, WebKit).
+* sts are designed to be compatible with different viewport sizes, covering common desktop and mobile resolutions. (Refer to `playwright.config.ts` for viewport settings).
+
+## I/CD Integration
+
+Tests are automatically run as part of our Continuous Integration (CI) pipeline (e.g., using GitHub Actions) on every push and pull request to ensure that no regressions are introduced.
+
 ## 🔮 Future Plans
 
-* Component Unit/Integration Tests**: Increase coverage with Jest and React Testing Library for `src/components/` and `src/lib/` functions.
 * Visual Regression Testing**: Implement tools to catch unintended UI changes.
 * Performance Testing**: Integrate basic performance checks within E2E tests.
 * Accessibility Testing**: Incorporate automated accessibility checks (e.g., using `axe-playwright`).

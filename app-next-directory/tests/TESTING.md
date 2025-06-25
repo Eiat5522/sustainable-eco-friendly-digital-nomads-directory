@@ -76,6 +76,14 @@ Common map operations are abstracted into utility functions:
 
 ## 🎯 Test Categories
 
+### Geocoding Utility Tests (`src/lib/__tests__/geocode.test.ts`)
+- Functionality of `findLandmarkCoordinates`
+- Functionality of `geocodeAddress`
+- Handling of various input formats (string, null, undefined)
+- Handling of different API response structures ({lat, lon}, {latitude, longitude}, array, empty array)
+- Error handling and fallback logic (landmark, full address fetch, city landmark, city fetch)
+- Ensures all tests pass after recent fixes
+
 ### Map Integration Tests
 - Map initialization and loading
 - Marker clustering behavior

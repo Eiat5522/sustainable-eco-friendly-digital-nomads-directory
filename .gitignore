@@ -108,6 +108,7 @@ clean-install.ps1
 .roo/**/rules.md
 **/cline_docs
 cline_docs/**/.text
+/**/*.roo
 
 # Code Index MCP cache directory
 .code_indexer/

@@ -15,6 +15,20 @@ Comprehensive unit tests have been created for the sustainable eco-friendly digi
 
 ### 1. Utility Functions
 
+#### `src/lib/__tests__/geocode.test.ts`
+
+**Purpose**: Tests the geocoding utility functions (`findLandmarkCoordinates`, `geocodeAddress`)
+**Coverage**:
+
+- ✅ `findLandmarkCoordinates` returns coordinates for a matching landmark
+- ✅ `findLandmarkCoordinates` is case-insensitive for search terms
+- ✅ `geocodeAddress` returns landmark coordinates if found
+- ✅ `geocodeAddress` returns coordinates from fetch if no landmark found
+- ✅ `geocodeAddress` returns city landmark coordinates if address fetch fails but city is a landmark
+- ✅ `geocodeAddress` returns coordinates from city fetch if address fetch fails
+- ✅ Handles null/undefined/empty inputs gracefully
+- ✅ Handles various API response formats and errors
+
 #### `src/lib/__tests__/utils.test.ts`
 
 **Purpose**: Tests the utility functions for class name merging
@@ -221,8 +235,8 @@ npm run test:ci
 
 ## Conclusion
 
-The unit test suite provides comprehensive coverage of the major classes and functions in the sustainable eco-friendly digital nomads directory application. The tests ensure reliability, maintainability, and confidence in the codebase while following industry best practices for testing React/Next.js applications.
+The unit test suite provides comprehensive coverage of the major classes and functions in the sustainable eco-friendly digital nomads directory application, including the recently fixed geocoding utility. The tests ensure reliability, maintainability, and confidence in the codebase while following industry best practices for testing React/Next.js applications.
 
-**Total Test Files**: 6
+**Total Test Files**: 7
 **Test Categories**: 5 (Utils, API, Hooks, Components, Middleware)
 **Coverage Focus**: Critical business logic, user interactions, and error handling
