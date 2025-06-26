@@ -39,8 +39,7 @@ export function jsonToSanityListing(jsonListing: JsonListing): SanityListing {
       listingCount: 0
     })),
     ecoRating: calculateEcoRating(jsonListing),
-    // @ts-expect-error: location is not in SanityListing type, but used by consumers
-        location: (jsonListing as any).coordinates
+    location: (jsonListing as any).coordinates
               ? {
                   lat: (jsonListing as any).coordinates.latitude || 0,
                   lng: (jsonListing as any).coordinates.longitude || 0,

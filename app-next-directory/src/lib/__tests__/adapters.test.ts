@@ -69,7 +69,7 @@ describe('jsonToSanityListing', () => {
     // coordinates is not in the type, but test for undefined
     const result = jsonToSanityListing(listing as any);
     // expect coordinates to default to [0, 0]
-    expect(result.location.coordinates).toEqual([0, 0]);
+    expect(result.location!.coordinates).toEqual([0, 0]);
   });
 
   it('should default priceRange and rating', () => {
