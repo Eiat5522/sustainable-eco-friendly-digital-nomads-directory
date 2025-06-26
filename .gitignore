@@ -105,10 +105,11 @@ clean-install.ps1
 **/.clinerules
 .roomodes/
 .roomodes       
-.roo/**/rules.md
+**/.roo
 **/cline_docs
 cline_docs/**/.text
 **/.roo/**/.md
+**/listings
 
 # Code Index MCP cache directory
 .code_indexer/
@@ -119,5 +120,5 @@ cline_docs/**/.text
 .vscode/mcp.json
 .secretlintrc.json
 .vscode/memory.json
- Agent.md
- .github**/*/.instructions
+ **/.github/copilot-instructions.md
+**/.vscode/chain-of-thought-mcp-data

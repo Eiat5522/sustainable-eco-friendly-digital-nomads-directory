@@ -1,7 +1,7 @@
 {
   "github.copilot.chat.completionContext.typescript.mode": "on",
   "github.copilot.chat.languageContext.fix.typescript.enabled": true,
-  "explorer.excludeGitIgnore": false,
+  "explorer.excludeGitIgnore": true,
   "search.useParentIgnoreFiles": false,
   "search.useGlobalIgnoreFiles": false,
   "terminal.integrated.tabs.defaultColor": "terminal.ansiBlue",
