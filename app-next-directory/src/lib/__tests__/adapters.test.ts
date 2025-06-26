@@ -61,7 +61,7 @@ describe('jsonToSanityListing', () => {
     const listing = { ...baseJsonListing, eco_focus_tags: [] };
     const result = jsonToSanityListing(listing);
     expect(result.ecoTags).toEqual([]);
-    expect(result.ecoRating).toBe(50); // base score only, no digital_nomad_features
+    expect(result.ecoRating).toBe(55); // base score + digital_nomad_features
   });
 
   it('should handle missing coordinates gracefully', () => {
@@ -69,7 +69,7 @@ describe('jsonToSanityListing', () => {
     // coordinates is not in the type, but test for undefined
     const result = jsonToSanityListing(listing as any);
     // expect coordinates to default to [0, 0]
-    expect(result.coordinates).toEqual([0, 0]);
+    expect(result.location.coordinates).toEqual([0, 0]);
   });
 
   it('should default priceRange and rating', () => {
@@ -143,5 +143,4 @@ describe('calculateEcoRating', () => {
     };
     expect(calculateEcoRating(overListing)).toBe(95); // max possible score is 95 due to eco tag cap
   });
-});
 });

@@ -49,7 +49,11 @@ export function jsonToSanityListing(jsonListing: JsonListing): SanityListing {
                     (jsonListing as any).coordinates.longitude || 0
                   ]
                 }
-              : undefined,
+              : {
+                  lat: 0,
+                  lng: 0,
+                  coordinates: [0, 0]
+                },
     address: jsonListing.address_string,
     rating: 4.5, // Default rating
     createdAt: new Date().toISOString(),

@@ -62,18 +62,15 @@ const mockListings: Listing[] = [
   },
 ];
 
-// Mock the entire listings module, specifically controlling getListings
-jest.mock('../listings', () => ({
-  ...jest.requireActual('../listings'), // Import and retain default behavior
-  getListings: jest.fn(() => mockListings), // Mock getListings to return our mock data
-}));
+// Mock listings.json directly. This MUST be above any imports that might use it.
+jest.mock('@/data/listings.json', () => mockListings);
 
-import * as listingsModule from '../listings';
+let listingsModule: typeof import('../listings');
 
 beforeEach(() => {
-  // Reset and re-implement the mock for getListings before each test
-  (listingsModule.getListings as jest.Mock).mockClear();
-  (listingsModule.getListings as jest.Mock).mockImplementation(() => mockListings);
+  jest.resetModules(); // Clears the module registry/cache
+  // Dynamically import the module under test AFTER mocks are set and modules reset
+  listingsModule = require('../listings');
 });
 
 afterEach(() => {
@@ -94,7 +91,7 @@ describe('getListingsByCity', () => {
   it('returns listings for a city with different case', () => {
     const result = listingsModule.getListingsByCity('CHIANG MAI');
     expect(result).toHaveLength(1);
-    expect(result[0].name).toBe('Nomad Cafe');
+    expect(result[0].name).toEqual('Nomad Cafe'); // Use toEqual for object/value comparison
   });
 
   it('returns empty array if no listings in city', () => {

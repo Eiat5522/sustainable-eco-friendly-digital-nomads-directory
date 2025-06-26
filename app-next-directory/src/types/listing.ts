@@ -23,6 +23,11 @@ export interface EcoTag {
 
 // Base listing interface
 export interface Listing {
+  location?: {
+    lat: number;
+    lng: number;
+    coordinates: [number, number];
+  };
   _id: string
   name: string
   slug: string
@@ -66,6 +71,7 @@ export interface Listing {
   amenities?: string[]
   createdAt: string
   updatedAt: string
+  coordinates?: [number, number]
 }
 
 // Specific listing type interfaces

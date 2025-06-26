@@ -4,16 +4,19 @@ import { ApiResponseHandler } from '../api-response';
 
 // Mock NextResponse
 jest.mock('next/server', () => {
-  const actualNextResponse: typeof import('next/server') = jest.requireActual('next/server');
   return {
     NextResponse: {
-      ...actualNextResponse.NextResponse,
       json: jest.fn((data, init) => {
-        // Create a real Response object to accurately simulate NextResponse.json's return
-        const response = new Response(JSON.stringify(data), { status: init?.status });
-        // Add a mock to its json() method for inspection in tests
-        response.json = jest.fn(() => Promise.resolve(data));
-        return response;
+        // This mock simplifies the NextResponse.json return.
+        // It returns a plain object that just records the data and init arguments.
+        // Tests will then assert on what NextResponse.json was called with.
+        // For the test that checks the return value, we will directly assert on the mock call.
+        return {
+          _mockData: data, // Store data for inspection
+          _mockInit: init, // Store init for inspection
+          json: () => Promise.resolve(data), // Provide a minimal json method
+          status: init?.status || 200, // Provide status for tests that check it
+        };
       }),
     },
   };
@@ -93,7 +96,7 @@ describe('ApiResponseHandler', () => {
       data: testData,
       message,
     });
-    expect(result.status).toBe(200); // Default status for success is 200
+    expect(result.status).toBe(200);
   });
 });
 

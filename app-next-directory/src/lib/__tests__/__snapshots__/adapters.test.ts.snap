@@ -30,7 +30,14 @@ exports[`jsonToSanityListing should convert a full JsonListing to SanityListing 
       "slug": "recycling",
     },
   ],
-  "location": undefined,
+  "location": {
+    "coordinates": [
+      0,
+      0,
+    ],
+    "lat": 0,
+    "lng": 0,
+  },
   "mainImage": {
     "asset": {
       "_ref": "image-reference",
