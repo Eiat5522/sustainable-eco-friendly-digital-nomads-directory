@@ -7,10 +7,6 @@
         "@modelcontextprotocol/server-filesystem",
         "${workspaceFolder}"
       ],
-      "disabled": false,
-      "autoApprove": [
-        "list_allowed_directories"
-      ]
     },
     "Desktop-Commander": {
       "command": "npx",
@@ -22,7 +18,6 @@
         "D://Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/sanity"
       ],
       "type": "stdio",
-      "disabled": true
     },
     "chroma": { // Runs the version last installed via uvx (typically Prod)
       "command": "uvx",

@@ -2,8 +2,8 @@
   "github.copilot.chat.completionContext.typescript.mode": "on",
   "github.copilot.chat.languageContext.fix.typescript.enabled": true,
   "explorer.excludeGitIgnore": true,
-  "search.useParentIgnoreFiles": false,
-  "search.useGlobalIgnoreFiles": false,
+  "search.useParentIgnoreFiles": true,
+  "search.useGlobalIgnoreFiles": true,
   "terminal.integrated.tabs.defaultColor": "terminal.ansiBlue",
   "terminal.integrated.cwd": "",
   "search.useIgnoreFiles": false,
@@ -21,4 +21,6 @@
       "allowedModels": []
     }
   },
+  "gitlens.graph.onlyFollowFirstParent": true,
+  "git.openRepositoryInParentFolders": "never",
 }

@@ -1,0 +1,15 @@
+# Build outputs (not helpful for code suggestions)
+.next/
+out/
+sanity/dist/
+sanity/.sanity/
+
+# Tooling cache and binaries
+.cache/
+.eslintcache/
+
+# Temporary files
+*.tmp
+*.temp
+*.clinerules/
+*/.specstory/*
