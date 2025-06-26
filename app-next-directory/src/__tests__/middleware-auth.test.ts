@@ -9,6 +9,52 @@
  */
 // No polyfill for Request/Response: let Next.js provide its own for middleware tests.
 
+// Mock NextResponse and NextRequest before importing middleware
+jest.mock('next/server', () => {
+  const real = jest.requireActual('next/server');
+  const headers = () => new Map();
+  return {
+    ...real,
+    NextResponse: {
+      json: (body: any, init: { status: number }) => {
+        const headerMap = new Map<string, string>();
+        return {
+          status: init.status,
+          headers: {
+            get: (key: string) => headerMap.get(key.toLowerCase()),
+            set: (key: string, value: string) => headerMap.set(key.toLowerCase(), value)
+          },
+          async json() { return body; }
+        };
+      },
+      next: () => {
+        const headerMap = new Map<string, string>();
+        return {
+          status: 200,
+          headers: {
+            get: (key: string) => headerMap.get(key.toLowerCase()),
+            set: (key: string, value: string) => headerMap.set(key.toLowerCase(), value)
+          },
+          async json() { return {}; }
+        };
+      },
+      redirect: (url: any) => {
+        const headerMap = new Map<string, string>();
+        headerMap.set('location', typeof url === 'string' ? url : url.toString());
+        return {
+          status: 307,
+          headers: {
+            get: (key: string) => headerMap.get(key.toLowerCase()),
+            set: (key: string, value: string) => headerMap.set(key.toLowerCase(), value)
+          },
+          url,
+          async json() { return {}; }
+        };
+      },
+    }
+  };
+});
+
 import { middleware } from '../middleware';
 import { getToken } from 'next-auth/jwt';
 import { NextRequest, NextResponse } from 'next/server';
@@ -16,6 +62,7 @@ import { NextRequest, NextResponse } from 'next/server';
 jest.mock('next-auth/jwt', () => ({
   getToken: jest.fn(),
 }));
+
 
 // Utility function to create a real NextRequest for tests
 function createNextRequest(url: string, options: RequestInit = {}): NextRequest {
@@ -33,6 +80,10 @@ function mockToken(role: string) {
 describe('middleware', () => {
   beforeAll(() => {
     process.env.NEXTAUTH_SECRET = 'test-secret';
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('redirects unauthenticated users from protected route', async () => {

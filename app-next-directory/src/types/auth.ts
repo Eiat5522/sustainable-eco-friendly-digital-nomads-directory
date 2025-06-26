@@ -225,7 +225,7 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       home: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
       listings: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
       listingDetail: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-      createListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      createListing: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
       editListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
       manageListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
       reviews: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },

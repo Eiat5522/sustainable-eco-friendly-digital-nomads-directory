@@ -5,9 +5,42 @@ import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
-    await connect();
-    
-    const { name, email, password } = await request.json();
+    let body: any;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'INVALID_INPUT',
+            message: 'Invalid request body: Must be valid JSON'
+          }
+        },
+        { status: 400 }
+      );
+    }
+
+    if (
+      !body ||
+      typeof body !== 'object' ||
+      Array.isArray(body)
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'INVALID_INPUT',
+            message: 'Invalid request body: Must be an object'
+          }
+        },
+        { status: 400 }
+      );
+    }
+
+    const { name, email, password } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -22,6 +55,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    await connect();
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {

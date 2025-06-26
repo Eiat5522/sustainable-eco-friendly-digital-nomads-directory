@@ -66,6 +66,9 @@ describe('carbon-awareness', () => {
       originalEnv = process.env.NEXT_PUBLIC_ELECTRICITY_MAP_TOKEN;
       process.env.NEXT_PUBLIC_ELECTRICITY_MAP_TOKEN = 'test-token';
       global.fetch = jest.fn();
+      // Clear cache to ensure test isolation
+      // @ts-ignore
+      carbon.cachedCarbonData = null;
     });
 
     afterEach(() => {
@@ -78,19 +81,18 @@ describe('carbon-awareness', () => {
      * Tests API intensity retrieval and caching logic.
      */
     it('returns intensity from API and caches it', async () => {
-      (carbon.getUserRegion as jest.Mock).mockReset();
-      (carbon.getUserRegion as jest.Mock).mockResolvedValue('US');
+      const mockRegion = jest.fn().mockResolvedValue('US-cache');
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: true,
         json: async () => ({ carbonIntensity: 123 }),
       });
 
-      const intensity1 = await carbon.getCarbonIntensity();
+      const intensity1 = await carbon.getCarbonIntensity(mockRegion);
       expect(intensity1).toBe(123);
 
       // Change fetch to throw, but should use cache
       (global.fetch as jest.Mock).mockRejectedValue(new Error('fail'));
-      const intensity2 = await carbon.getCarbonIntensity();
+      const intensity2 = await carbon.getCarbonIntensity(mockRegion);
       expect(intensity2).toBe(123);
     });
 
@@ -99,10 +101,9 @@ describe('carbon-awareness', () => {
      * Ensures fallback value is returned on fetch error.
      */
     it('returns fallback value on fetch error', async () => {
-      (carbon.getUserRegion as jest.Mock).mockReset();
-      (carbon.getUserRegion as jest.Mock).mockRejectedValue(new Error('fail'));
+      const mockRegion = jest.fn().mockRejectedValue(new Error('fail'));
       (global.fetch as jest.Mock).mockRejectedValue(new Error('fail'));
-      const intensity = await carbon.getCarbonIntensity();
+      const intensity = await carbon.getCarbonIntensity(mockRegion);
       expect(intensity).toBe(250);
     });
 
@@ -111,13 +112,12 @@ describe('carbon-awareness', () => {
      * Ensures fallback value is returned on non-ok response.
      */
     it('returns fallback value on non-ok response', async () => {
-      (carbon.getUserRegion as jest.Mock).mockReset();
-      (carbon.getUserRegion as jest.Mock).mockResolvedValue('US');
+      const mockRegion = jest.fn().mockResolvedValue('US-fallback');
       (global.fetch as jest.Mock).mockResolvedValue({
         ok: false,
         json: async () => ({}),
       });
-      const intensity = await carbon.getCarbonIntensity();
+      const intensity = await carbon.getCarbonIntensity(mockRegion);
       expect(intensity).toBe(250);
     });
   });

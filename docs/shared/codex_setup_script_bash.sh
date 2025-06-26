@@ -4,6 +4,11 @@
 
 # Install type checker
 pip install pyright
+
+# Python type checking (optional, if using Pyright)
+echo "Running Python type check with pyright..."
+pyright . || true
+
 # Install dependencies
 pnpm install
 

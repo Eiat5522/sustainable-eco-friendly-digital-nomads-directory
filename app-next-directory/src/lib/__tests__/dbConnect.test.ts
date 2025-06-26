@@ -38,7 +38,8 @@ describe('dbConnect', () => {
 
   it('returns cached connection if present', async () => {
     const fakeConn = { readyState: 1 };
-    global.mongoose.conn = fakeConn;
+    // Cast as any to satisfy type checker for test mocking
+    global.mongoose.conn = fakeConn as any;
     const result = await dbConnect();
     expect(result).toBe(fakeConn);
     expect(mongoose.connect).not.toHaveBeenCalled();

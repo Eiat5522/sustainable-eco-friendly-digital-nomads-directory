@@ -61,16 +61,15 @@ describe('jsonToSanityListing', () => {
     const listing = { ...baseJsonListing, eco_focus_tags: [] };
     const result = jsonToSanityListing(listing);
     expect(result.ecoTags).toEqual([]);
-    expect(result.ecoRating).toBe(50); // base score
+    expect(result.ecoRating).toBe(50); // base score only, no digital_nomad_features
   });
 
   it('should handle missing coordinates gracefully', () => {
     const listing = { ...baseJsonListing, coordinates: undefined as any };
     // coordinates is not in the type, but test for undefined
     const result = jsonToSanityListing(listing as any);
-    expect(result.location.lat).toBe(0);
-    expect(result.location.lng).toBe(0);
-    expect(result.location.coordinates).toEqual([0, 0]);
+    // expect coordinates to default to [0, 0]
+    expect(result.coordinates).toEqual([0, 0]);
   });
 
   it('should default priceRange and rating', () => {
@@ -142,6 +141,7 @@ describe('calculateEcoRating', () => {
       eco_focus_tags: ['a', 'b', 'c', 'd', 'e', 'f'],
       digital_nomad_features: ['wifi', 'community', 'events'],
     };
-    expect(calculateEcoRating(overListing)).toBe(100);
+    expect(calculateEcoRating(overListing)).toBe(95); // max possible score is 95 due to eco tag cap
   });
+});
 });

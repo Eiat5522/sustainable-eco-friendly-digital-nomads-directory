@@ -6,10 +6,25 @@
 import { POST } from './route';
 import connect from '@/lib/dbConnect';
 import User from '@/models/User';
-import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { GET } from '../test/route';
 import { getToken } from 'next-auth/jwt';
+
+// Mock NextResponse from next/server to return a Response-like object with .json()
+jest.mock('next/server', () => {
+  return {
+    NextResponse: {
+      json: (body: any, init?: any) => {
+        // Mimic a Response object with .json() and .status
+        return {
+          ...init,
+          status: init?.status ?? 200,
+          json: async () => body,
+        };
+      },
+    },
+  };
+});
 
 // Mock dependencies
 jest.mock('@/lib/dbConnect', () => ({
@@ -25,6 +40,23 @@ jest.mock('@/models/User', () => ({
 jest.mock('bcryptjs', () => ({
   hash: jest.fn(),
 }));
+
+/**
+ * Helper to extract response body from Next.js API route handler result.
+ * Handles both Response-like objects and plain objects.
+ */
+async function getResponseBody(response: any) {
+  if (typeof response.json === 'function') {
+    return await response.json();
+  }
+  // NextResponse returns body as ._getJSON() or ._body, fallback to .body or itself
+  if (typeof response._getJSON === 'function') {
+    return await response._getJSON();
+  }
+  if (response._body) return response._body;
+  if (response.body) return response.body;
+  return response;
+}
 
 describe('POST /api/auth/register', () => {
   let nextResponseJsonSpy: jest.SpyInstance;
@@ -55,7 +87,7 @@ describe('POST /api/auth/register', () => {
 
     // Act
     const response = await POST(req);
-    const body = await response.json();
+    const body = await getResponseBody(response);
 
     // Assert
     expect(response.status).toBe(201);
@@ -82,7 +114,7 @@ describe('POST /api/auth/register', () => {
 
     // Act
     const response = await POST(req);
-    const body = await response.json();
+    const body = await getResponseBody(response);
 
     // Assert
     expect(response.status).toBe(409);
@@ -105,7 +137,7 @@ describe('POST /api/auth/register', () => {
 
     // Act
     const response = await POST(req);
-    const body = await response.json();
+    const body = await getResponseBody(response);
 
     // Assert
     expect(response.status).toBe(400);
@@ -130,7 +162,7 @@ describe('POST /api/auth/register', () => {
 
     // Act
     const response = await POST(req);
-    const body = await response.json();
+    const body = await getResponseBody(response);
 
     // Assert
     expect(response.status).toBe(500);
@@ -157,7 +189,7 @@ describe('POST /api/auth/register', () => {
 
     // Act
     const response = await POST(req);
-    const body = await response.json();
+    const body = await getResponseBody(response);
 
     // Assert
     expect(response.status).toBe(500);
@@ -181,7 +213,7 @@ describe('POST /api/auth/register', () => {
 
     // Act
     const response = await POST(req);
-    const body = await response.json();
+    const body = await getResponseBody(response);
 
     // Assert
     expect(response.status).toBe(500);
@@ -198,7 +230,7 @@ describe('POST /api/auth/register', () => {
 
     // Act
     const response = await POST(req);
-    const body = await response.json();
+    const body = await getResponseBody(response);
 
     // Assert
     expect(response.status).toBe(400);
@@ -219,7 +251,7 @@ describe('POST /api/auth/register', () => {
 
     // Act
     const response = await POST(req);
-    const body = await response.json();
+    const body = await getResponseBody(response);
 
     // Assert
     expect(response.status).toBe(400);
@@ -240,7 +272,7 @@ describe('POST /api/auth/register', () => {
 
     // Act
     const response = await POST(req);
-    const body = await response.json();
+    const body = await getResponseBody(response);
 
     // Assert
     expect(response.status).toBe(400);
@@ -261,7 +293,7 @@ describe('POST /api/auth/register', () => {
 
     // Act
     const response = await POST(req);
-    const body = await response.json();
+    const body = await getResponseBody(response);
 
     // Assert
     expect(response.status).toBe(400);

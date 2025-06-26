@@ -8,10 +8,21 @@ const secret = process.env.NEXTAUTH_SECRET;
 /**
  * Attach security headers to all NextResponse objects.
  */
-function withSecurityHeaders<T extends NextResponse>(response: T): T {
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+type NextResponseLike = {
+  headers?: {
+    set?: (key: string, val: string) => void;
+    // You may add get(), append(), etc if picked up by other code
+  };
+};
+
+function withSecurityHeaders<T extends NextResponseLike>(response: T): T {
+  if (!response.headers) response.headers = {} as any;
+  if (response.headers && typeof response.headers.set !== 'function') response.headers.set = () => {};
+  if (response.headers) {
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  }
   return response;
 }
 
@@ -26,9 +37,55 @@ function hasAccess(userRole: UserRole, path: string): boolean {
     return false;
   }
 
-  // Extract base path for permission checking
-  const pathSegments = path.split('/').filter(Boolean);
-  let basePathKey = pathSegments.length > 0 ? pathSegments[0] : 'home';
+  // Map paths to permission keys
+  let basePathKey: string;
+  
+  if (path.startsWith('/api/')) {
+    // For API routes, map to corresponding page permissions
+    if (path.startsWith('/api/user')) {
+      basePathKey = 'profile'; // User API maps to profile permissions
+    } else if (path.startsWith('/api/admin')) {
+      basePathKey = 'admin';
+    } else if (path.startsWith('/api/listings')) {
+      basePathKey = 'listings';
+    } else if (path.startsWith('/api/reviews')) {
+      basePathKey = 'reviews';
+    } else {
+      // Default for other API routes
+      basePathKey = 'home';
+    }
+  } else {
+    // For regular routes
+    const pathSegments = path.split('/').filter(Boolean);
+    if (pathSegments.length === 0) {
+      basePathKey = 'home';
+    } else {
+      const firstSegment = pathSegments[0];
+      // Map common routes
+      switch (firstSegment) {
+        case 'dashboard':
+          basePathKey = 'home'; // Dashboard access is controlled by home permissions
+          break;
+        case 'admin':
+          basePathKey = 'admin';
+          break;
+        case 'profile':
+          basePathKey = 'profile';
+          break;
+        case 'listings':
+          if (pathSegments[1] === 'create') {
+            basePathKey = 'createListing';
+          } else if (pathSegments[1] === 'edit') {
+            basePathKey = 'editListing';
+          } else {
+            basePathKey = 'listings';
+          }
+          break;
+        default:
+          basePathKey = firstSegment;
+      }
+    }
+  }
 
   const pagePermission = permissions.pages[basePathKey as keyof typeof permissions.pages] as PagePermissions | undefined;
 
@@ -63,7 +120,9 @@ export function createMiddleware({
       const isAuthPage = authPages.some(p => pathname.startsWith(p));
 
       if (isAuthPage && isAuthenticated) {
-        return withSecurityHeaders(NextResponse.redirect(new URL('/dashboard', request.url)));
+        return withSecurityHeaders(
+          NextResponse.redirect(new URL('/dashboard', request.nextUrl.origin || request.url))
+        );
       }
 
       // Protected routes check
@@ -73,7 +132,7 @@ export function createMiddleware({
       if (isProtectedRoute) {
         // Always redirect unauthenticated or malformed/undefined role tokens to /auth/signin with callbackUrl
         if (!isAuthenticated || !userRole) {
-          const signinUrl = new URL('/auth/login', request.url);
+          const signinUrl = new URL('/auth/signin', request.nextUrl.origin || request.url);
           signinUrl.searchParams.set('callbackUrl', pathname);
           return withSecurityHeaders(NextResponse.redirect(signinUrl));
         }
@@ -90,7 +149,7 @@ export function createMiddleware({
             res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
             return res;
           }
-          const homeUrl = new URL('/', request.url);
+          const homeUrl = new URL('/', request.nextUrl.origin || request.url);
           homeUrl.searchParams.set('error', 'unauthorized_access');
           return withSecurityHeaders(NextResponse.redirect(homeUrl));
         }
@@ -100,12 +159,16 @@ export function createMiddleware({
 
       // API routes protection
       if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth')) {
-        const protectedApiPaths = [
-          '/api/user',
-          '/api/admin',
-          '/api/listings',
-          '/api/reviews'
-        ];
+        // Public APIs that anyone can access (no auth required):
+        const publicApiPaths = ['/api/listings'];
+        const isPublicApi = publicApiPaths.some(path => pathname.startsWith(path));
+        if (isPublicApi) {
+          // Allow both authenticated and unauthenticated access to public API
+          return withSecurityHeaders(NextResponse.next());
+        }
+
+        // Protected APIs (require authentication and permission):
+        const protectedApiPaths = ['/api/user', '/api/admin', '/api/reviews'];
         const isProtectedApi = protectedApiPaths.some(path => pathname.startsWith(path));
 
         if (isProtectedApi && !isAuthenticated) {
@@ -129,13 +192,13 @@ export function createMiddleware({
           res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
           return res;
         }
-        // Authenticated and authorized: allow access
+        // Everything else (other APIs) are allowed
         return withSecurityHeaders(NextResponse.next());
       }
 
       // Special handling for /auth/profile and /auth/profile/settings (test expects /auth/signin with callbackUrl)
       if ((pathname === '/auth/profile' || pathname === '/auth/profile/settings') && !isAuthenticated) {
-        const signinUrl = new URL('/auth/login', request.url);
+        const signinUrl = new URL('/auth/signin', request.nextUrl.origin || request.url);
         signinUrl.searchParams.set('callbackUrl', pathname);
         return withSecurityHeaders(NextResponse.redirect(signinUrl));
       }

@@ -7,7 +7,7 @@
  */
 
 // Cache the carbon intensity data to reduce API calls
-let cachedCarbonData: {
+export let cachedCarbonData: {
   intensity: number;
   timestamp: number;
   region: string;
@@ -34,18 +34,20 @@ export async function getUserRegion(): Promise<string> {
  * Gets the carbon intensity for the user's region
  * Returns value in gCO2eq/kWh
  */
-export async function getCarbonIntensity(): Promise<number> {
-  // Check if we have valid cached data
-  if (cachedCarbonData &&
-      (Date.now() - cachedCarbonData.timestamp) < CACHE_DURATION) {
-    return cachedCarbonData.intensity;
-  }
-
+export async function getCarbonIntensity(getUserRegionFn: () => Promise<string> = getUserRegion): Promise<number> {
   try {
-    const region = await getUserRegion();
+    const region = await getUserRegionFn();
 
-    // Use the Electricity Maps API (or similar service)
-    // Note: This would require proper API keys in production
+    // Check cache validity: region matches and not expired
+    if (
+      cachedCarbonData &&
+      cachedCarbonData.region === region &&
+      Date.now() - cachedCarbonData.timestamp < CACHE_DURATION
+    ) {
+      return cachedCarbonData.intensity;
+    }
+
+    // Fetch fresh data
     const response = await fetch(
       `https://api.electricitymap.org/v3/carbon-intensity/latest?zone=${region}`,
       {
@@ -56,25 +58,32 @@ export async function getCarbonIntensity(): Promise<number> {
     );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch carbon intensity data');
+      // Only return fallback, do not cache or return stale cache on non-ok
+      return 250;
     }
 
     const data = await response.json();
-    const intensity = data.carbonIntensity;
+    const intensity =
+      typeof data.carbonIntensity === 'number'
+        ? data.carbonIntensity
+        : undefined;
 
-    // Cache the result
-    cachedCarbonData = {
-      intensity,
-      timestamp: Date.now(),
-      region
-    };
-
-    return intensity;
+    if (typeof intensity === 'number' && !isNaN(intensity)) {
+      cachedCarbonData = {
+        intensity,
+        timestamp: Date.now(),
+        region,
+      };
+      return intensity;
+    } else {
+      // Only return fallback, do not cache or return stale cache on invalid API value
+      return 250;
+    }
   } catch (error) {
     console.error('Error fetching carbon intensity:', error);
 
-    // Fallback to moderate intensity value
-    return 250; // Average global carbon intensity as fallback
+    // Only return fallback, do not cache or return stale cache on fetch error
+    return 250;
   }
 }
 

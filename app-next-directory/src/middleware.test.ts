@@ -1,27 +1,46 @@
 import { jest } from '@jest/globals';
+// Update getToken type to allow null and token objects
 import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
-import { middleware } from '../middleware';
+import { middleware } from './middleware';
 
+type MockToken = { role?: string; email?: string } | null;
 // Mock next-auth/jwt
 jest.mock('next-auth/jwt');
 
-// Mock NextResponse
+// Update NextResponse mock to match Next.js API (static methods on function)
+const createMockResponse = (type: 'next' | 'redirect' | 'json') => ({
+  headers: {
+    set: jest.fn(),
+  },
+  type,
+  url: 'http://localhost:3000',
+  pathname: '',
+  search: '',
+});
+
 const mockNextResponse = {
-  next: jest.fn(),
-  redirect: jest.fn(),
-  json: jest.fn(),
+  next: jest.fn(() => createMockResponse('next')),
+  redirect: jest.fn(() => createMockResponse('redirect')),
+  json: jest.fn(() => createMockResponse('json')),
 };
 
+// Export NextResponse as a function with static methods (to match Next.js API)
+const NextResponse = Object.assign(
+  function () {},
+  mockNextResponse
+);
+
 jest.mock('next/server', () => ({
-  NextResponse: mockNextResponse,
+  NextResponse,
 }));
 
 describe('Middleware', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    (mockNextResponse.next as jest.Mock).mockReturnValue('mocked-next-response');
-    (mockNextResponse.redirect as jest.Mock).mockReturnValue('mocked-redirect-response');
+    // Ensure next and redirect return objects with headers.set for withSecurityHeaders
+    (mockNextResponse.next as jest.Mock).mockImplementation(() => createMockResponse('next'));
+    (mockNextResponse.redirect as jest.Mock).mockImplementation(() => createMockResponse('redirect'));
   });
 
   it('should allow access to public routes without authentication', async () => {
@@ -34,7 +53,7 @@ describe('Middleware', () => {
       headers: new Headers(),
     } as NextRequest;
 
-    (getToken as jest.Mock).mockResolvedValue(null);
+    (getToken as jest.Mock<any>).mockResolvedValue(null);
 
     const response = await middleware(mockRequest);
 
@@ -52,12 +71,15 @@ describe('Middleware', () => {
       headers: new Headers(),
     } as NextRequest;
 
-    (getToken as jest.Mock).mockResolvedValue(null);
+    (getToken as jest.Mock<any>).mockResolvedValue(null as MockToken);
 
     const response = await middleware(mockRequest);
 
     expect(mockNextResponse.redirect).toHaveBeenCalledWith(
-      new URL('/login?from=/admin', 'http://localhost:3000')
+      expect.objectContaining({
+        pathname: '/auth/signin',
+        search: expect.stringContaining('callbackUrl=%2Fadmin'),
+      })
     );
   });
 
@@ -71,7 +93,7 @@ describe('Middleware', () => {
       headers: new Headers(),
     } as NextRequest;
 
-    (getToken as jest.Mock).mockResolvedValue({
+    (getToken as jest.Mock<any>).mockResolvedValue({
       role: 'admin',
       email: 'admin@example.com',
     });
@@ -92,15 +114,18 @@ describe('Middleware', () => {
       headers: new Headers(),
     } as NextRequest;
 
-    (getToken as jest.Mock).mockResolvedValue({
+    (getToken as jest.Mock<any>).mockResolvedValue({
       role: 'user',
       email: 'user@example.com',
-    });
+    } as MockToken);
 
     const response = await middleware(mockRequest);
 
     expect(mockNextResponse.redirect).toHaveBeenCalledWith(
-      new URL('/unauthorized', 'http://localhost:3000')
+      expect.objectContaining({
+        pathname: '/',
+        search: expect.stringContaining('error=unauthorized_access'),
+      })
     );
   });
 
@@ -114,10 +139,10 @@ describe('Middleware', () => {
       headers: new Headers(),
     } as NextRequest;
 
-    (getToken as jest.Mock).mockResolvedValue({
+    (getToken as jest.Mock<any>).mockResolvedValue({
       role: 'venueOwner',
       email: 'venue@example.com',
-    });
+    } as MockToken);
 
     const response = await middleware(mockRequest);
 
@@ -135,15 +160,18 @@ describe('Middleware', () => {
       headers: new Headers(),
     } as NextRequest;
 
-    (getToken as jest.Mock).mockResolvedValue({
+    (getToken as jest.Mock<any>).mockResolvedValue({
       role: 'user',
       email: 'user@example.com',
-    });
+    } as MockToken);
 
     const response = await middleware(mockRequest);
 
     expect(mockNextResponse.redirect).toHaveBeenCalledWith(
-      new URL('/', 'http://localhost:3000')
+      expect.objectContaining({
+        pathname: '/dashboard',
+      })
     );
   });
+});
 });

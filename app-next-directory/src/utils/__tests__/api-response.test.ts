@@ -1,19 +1,29 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach, beforeAll } from '@jest/globals';
 import { NextResponse } from 'next/server';
 import { ApiResponseHandler } from '../api-response';
 
 // Mock NextResponse
 jest.mock('next/server', () => {
+  const actualNextResponse: typeof import('next/server') = jest.requireActual('next/server');
   return {
     NextResponse: {
-      json: jest.fn().mockImplementation((data, init) => {
-        const response: { data: any; status?: number } = {
-          data: data,
-          status: init?.status,
-        };
-        return response as any;
+      ...actualNextResponse.NextResponse,
+      json: jest.fn((data, init) => {
+        // Create a real Response object to accurately simulate NextResponse.json's return
+        const response = new Response(JSON.stringify(data), { status: init?.status });
+        // Add a mock to its json() method for inspection in tests
+        response.json = jest.fn(() => Promise.resolve(data));
+        return response;
       }),
     },
+  };
+});
+
+// Mock global Response.json to avoid TypeError if called accidentally
+beforeAll(() => {
+  // @ts-ignore
+  global.Response = {
+    json: jest.fn(),
   };
 });
 
@@ -69,7 +79,7 @@ describe('ApiResponseHandler', () => {
     });
   });
 
-  it('should call NextResponse.json with correct arguments and return the correct value', () => {
+  it('should call NextResponse.json with correct arguments and return the correct value', async () => {
     const testData = { id: 1, name: 'Test' };
     const message = 'Success message';
     const result = ApiResponseHandler.success(testData, message);
@@ -78,10 +88,12 @@ describe('ApiResponseHandler', () => {
       data: testData,
       message,
     });
-    expect(result).toEqual({
+    expect(await result.json()).toEqual({
+      success: true,
       data: testData,
-      status: undefined,
+      message,
     });
+    expect(result.status).toBe(200); // Default status for success is 200
   });
 });
 

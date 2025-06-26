@@ -55,18 +55,23 @@ jest.mock('next/navigation', () => ({
 }))
 
 // Mock IntersectionObserver
-global.IntersectionObserver = class IntersectionObserver {
-  constructor() {}
-  observe() {
-    return null
-  }
-  disconnect() {
-    return null
-  }
-  unobserve() {
-    return null
-  }
+class MockIntersectionObserver implements IntersectionObserver {
+  readonly root: Element | Document | null = null;
+  readonly rootMargin: string = '';
+  readonly thresholds: ReadonlyArray<number> = [];
+  constructor(
+    public callback: IntersectionObserverCallback,
+    public options?: IntersectionObserverInit
+  ) {}
+  observe = jest.fn();
+  unobserve = jest.fn();
+  disconnect = jest.fn();
+  takeRecords = jest.fn(() => []);
 }
+Object.defineProperty(MockIntersectionObserver, 'prototype', {
+  value: MockIntersectionObserver.prototype,
+});
+global.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {

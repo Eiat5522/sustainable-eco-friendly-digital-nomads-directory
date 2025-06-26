@@ -16,9 +16,17 @@ import { UserRole } from '@/types/auth';
 jest.mock('next-auth/jwt');
 const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
 
-const mockRedirect = jest.fn();
-const mockNext = jest.fn();
-const mockJson = jest.fn();
+// Helper to always return a full NextResponse-like object
+function makeMockResponse(extra = {}) {
+  return {
+    headers: { set: jest.fn() },
+    ...extra,
+  };
+}
+
+const mockRedirect = jest.fn(() => makeMockResponse());
+const mockNext = jest.fn(() => makeMockResponse());
+const mockJson = jest.fn(() => makeMockResponse());
 
 const MockNextResponse = {
   redirect: mockRedirect,
@@ -39,8 +47,16 @@ describe('Middleware', () => {
         set: jest.fn(),
       },
     });
-    mockRedirect.mockReturnValue({});
-    mockJson.mockReturnValue({});
+    mockRedirect.mockReturnValue({
+      headers: {
+        set: jest.fn(),
+      },
+    });
+    mockJson.mockReturnValue({
+      headers: {
+        set: jest.fn(),
+      },
+    });
 
     // Use the factory to inject mocks
     middleware = createMiddleware({
@@ -396,7 +412,7 @@ describe('middleware (auth/profile)', () => {
 
     expect(mockRedirect).toHaveBeenCalledWith(
       expect.objectContaining({
-        href: expect.stringContaining('/auth/login?callbackUrl=%2Fauth%2Fprofile'),
+        href: expect.stringContaining('/auth/signin?callbackUrl=%2Fauth%2Fprofile'),
       })
     );
     expect(mockNext).not.toHaveBeenCalled();
@@ -418,7 +434,7 @@ describe('middleware (auth/profile)', () => {
 
     expect(mockRedirect).toHaveBeenCalledWith(
       expect.objectContaining({
-        href: expect.stringContaining('/auth/login?callbackUrl=%2Fauth%2Fprofile%2Fsettings'),
+        href: expect.stringContaining('/auth/signin?callbackUrl=%2Fauth%2Fprofile%2Fsettings'),
       })
     );
   });

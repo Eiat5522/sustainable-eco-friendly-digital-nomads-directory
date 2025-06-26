@@ -3,46 +3,77 @@
  * Jest unit tests for listings.ts.
  * Ensures robust mocking, isolation, and modern Jest best practices.
  */
-jest.mock('../listings', () => {
-  const actual = jest.requireActual('../listings');
-  return {
-    ...actual,
-    getListings: jest.fn(),
-  };
-});
+import { Listing } from '@/types/listings';
 
-import * as listingsModule from '../listings';
-
-const mockListings = [
+const mockListings: Listing[] = [
   {
+    id: '1',
     name: 'Eco Hostel',
     slug: 'eco-hostel',
     city: 'Bangkok',
     category: 'accommodation',
+    address_string: '123 Eco St',
+    description_short: 'Eco-friendly hostel',
+    description_long: 'A very eco-friendly hostel.',
     eco_focus_tags: ['solar', 'recycling'],
+    eco_notes_detailed: 'Uses solar power and recycles everything.',
+    source_urls: ['http://example.com/eco-hostel'],
+    primary_image_url: '/images/eco-hostel.jpg',
+    gallery_image_urls: ['/images/eco-hostel-1.jpg'],
     digital_nomad_features: ['wifi', 'coworking'],
+    last_verified_date: '2025-01-01',
+    coordinates: { latitude: 13.7563, longitude: 100.5018 },
   },
   {
+    id: '2',
     name: 'Nomad Cafe',
     slug: 'nomad-cafe',
     city: 'Chiang Mai',
     category: 'cafe',
+    address_string: '456 Nomad Rd',
+    description_short: 'Cafe for digital nomads',
+    description_long: 'A great cafe with fast wifi for digital nomads.',
     eco_focus_tags: [],
+    eco_notes_detailed: 'No specific eco features.',
+    source_urls: ['http://example.com/nomad-cafe'],
+    primary_image_url: '/images/nomad-cafe.jpg',
+    gallery_image_urls: ['/images/nomad-cafe-1.jpg'],
     digital_nomad_features: ['wifi'],
+    last_verified_date: '2025-01-01',
+    coordinates: { latitude: 18.7880, longitude: 98.9870 },
   },
   {
+    id: '3',
     name: 'Green Resort',
     slug: 'green-resort',
     city: 'Bangkok',
     category: 'accommodation',
+    address_string: '789 Green Blvd',
+    description_short: 'Resort with organic food',
+    description_long: 'A beautiful resort focusing on organic produce.',
     eco_focus_tags: ['organic'],
+    eco_notes_detailed: 'Serves organic food from its own farm.',
+    source_urls: ['http://example.com/green-resort'],
+    primary_image_url: '/images/green-resort.jpg',
+    gallery_image_urls: ['/images/green-resort-1.jpg'],
     digital_nomad_features: [],
+    last_verified_date: '2025-01-01',
+    coordinates: { latitude: 13.7123, longitude: 100.5555 },
   },
 ];
 
+// Mock the entire listings module, specifically controlling getListings
+jest.mock('../listings', () => ({
+  ...jest.requireActual('../listings'), // Import and retain default behavior
+  getListings: jest.fn(() => mockListings), // Mock getListings to return our mock data
+}));
+
+import * as listingsModule from '../listings';
+
 beforeEach(() => {
-  (listingsModule.getListings as jest.Mock).mockReset();
-  (listingsModule.getListings as jest.Mock).mockReturnValue(mockListings);
+  // Reset and re-implement the mock for getListings before each test
+  (listingsModule.getListings as jest.Mock).mockClear();
+  (listingsModule.getListings as jest.Mock).mockImplementation(() => mockListings);
 });
 
 afterEach(() => {

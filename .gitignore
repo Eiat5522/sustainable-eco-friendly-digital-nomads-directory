@@ -122,3 +122,8 @@ clean-install.ps1
 .vscode/memory.json
 **/.vscode/chain-of-thought-mcp-data
 **/.sfdx
+utils/vscode-detector.js
+
+examples/vscode-conditional-usage.js
+utils/VSCodeDetector.ps1
+utils/README.md

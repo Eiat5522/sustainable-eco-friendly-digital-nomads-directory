@@ -23,7 +23,8 @@
     "test": "pnpm --filter app-next-directory test",
     "test:watch": "pnpm --filter app-next-directory test:watch",
     "test:coverage": "pnpm --filter app-next-directory test:coverage",
-    "test:ci": "pnpm --filter app-next-directory test:ci"
+    "test:ci": "pnpm --filter app-next-directory test:ci",
+    "typecheck": "tsc --noEmit"
   },
   "browserslist": [
     ">0.2%",

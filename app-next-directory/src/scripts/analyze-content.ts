@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import stringSimilarity from 'string-similarity';
+import levenshtein from 'fast-levenshtein';
 import { getClient } from '../lib/sanity/client';
 
 interface ContentAnalysisResult {
@@ -100,7 +100,10 @@ async function analyzeContent(): Promise<ContentAnalysisResult> {
       const text1 = `${listing1.description_short} ${listing1.description_long}`;
       const text2 = `${listing2.description_short} ${listing2.description_long}`;
 
-      const similarity = stringSimilarity.compareTwoStrings(text1, text2);
+      // Calculate normalized similarity using Levenshtein distance
+      const levDistance = levenshtein.get(text1, text2);
+      const maxLen = Math.max(text1.length, text2.length);
+      const similarity = maxLen === 0 ? 1 : 1 - levDistance / maxLen;
 
       if (similarity > DUPLICATE_SIMILARITY_THRESHOLD) {
         result.duplicateContent.push({
