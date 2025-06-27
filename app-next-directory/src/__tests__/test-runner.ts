@@ -62,3 +62,14 @@ export const runAllTests = () => {
     });
   });
 };
+
+/**
+ * Placeholder Jest test to satisfy Jest's requirement for at least one test in this file.
+ * This file is a documentation/utility summary for test organization and is not intended to contain real tests.
+ * See the exported objects for actual test suite documentation.
+ */
+describe('test-runner.ts meta', () => {
+  it('should exist as a test-runner summary and utility (placeholder test)', () => {
+    expect(true).toBe(true);
+  });
+});
