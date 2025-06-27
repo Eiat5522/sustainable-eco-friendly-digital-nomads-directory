@@ -25,7 +25,14 @@ const customJestConfig = {
   testEnvironment: 'jest-environment-jsdom',
   
   // Test file patterns
-  testMatch: ['**/__tests__/**/*.(ts|tsx|js)'],
+  testMatch: [
+    '**/__tests__/**/*.test.ts',
+    '**/__tests__/**/*.test.tsx',
+    '**/__tests__/**/*.test.js',
+    '**/__tests__/**/*.spec.ts',
+    '**/__tests__/**/*.spec.tsx',
+    '**/__tests__/**/*.spec.js'
+  ],
   
   // Coverage configuration (Keeping existing, as the user didn't specify changes here)
   collectCoverageFrom: [
