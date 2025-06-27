@@ -24,7 +24,19 @@ declare global {
   interface Window {
     webkitSpeechRecognition: new () => SpeechRecognition;
   }
-  
+
+  // Augment globalThis with mongoose cache for server-side usage
+  interface MongooseCache {
+    conn: import('mongoose').Mongoose | null;
+    promise: Promise<import('mongoose').Mongoose> | null;
+  }
+
+  // eslint-disable-next-line no-var
+  var mongoose: MongooseCache;
+  interface Global {
+    mongoose: MongooseCache;
+  }
+
   interface SpeechRecognition extends EventTarget {
     continuous: boolean;
     interimResults: boolean;

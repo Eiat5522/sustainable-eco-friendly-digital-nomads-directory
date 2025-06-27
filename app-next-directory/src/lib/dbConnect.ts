@@ -14,16 +14,10 @@ interface MongooseCache {
   promise: Promise<Mongoose> | null;
 }
 
-// Extend the NodeJS Global type with the mongoose cache
-declare global {
-  // eslint-disable-next-line no-var
-  var mongoose: MongooseCache;
-}
-
-let cached = global.mongoose;
+let cached = (global as typeof globalThis & { mongoose?: MongooseCache }).mongoose;
 
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+  cached = ((global as typeof globalThis & { mongoose?: MongooseCache }).mongoose = { conn: null, promise: null });
 }
 
 async function dbConnect(): Promise<Mongoose> {
@@ -45,6 +39,7 @@ async function dbConnect(): Promise<Mongoose> {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
+    cached.conn = null; // Reset the connection cache on error
     throw e;
   }
 
