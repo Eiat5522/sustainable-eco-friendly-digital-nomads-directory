@@ -1,4 +1,4 @@
-import { createClient } from '@sanity/client';
+import { createClient } from 'next-sanity';
 import imageUrlBuilder from '@sanity/image-url';
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
@@ -13,7 +13,6 @@ export const client = createClient({
   apiVersion: '2024-05-16',
   useCdn: true, // Enable CDN caching
   perspective: 'published', // Only fetch published content
-  stega: false, // Disable content editing features in production
 });
 
 // Set up preview client

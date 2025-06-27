@@ -16,6 +16,8 @@ const customJestConfig = {
   // Handle module aliases (matching paths in tsconfig.json)
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@sanity/client$': '<rootDir>/__mocks__/@sanity/client.ts',
+    '^jose$': '<rootDir>/__mocks__/jose.js',
   },
   
   testEnvironment: 'jest-environment-jsdom',
@@ -40,8 +42,9 @@ const customJestConfig = {
   // Transform configuration
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
-    // Add this line to transform jose
-    '^jose$': 'babel-jest',
+    '^.+\\.mjs$': ['babel-jest', { presets: ['next/babel'] }], // Ensure .mjs are handled
+    // Explicitly transform problematic ESM modules
+    '^(.*(jose|next-auth|openid-client).*)\\.(js|ts)$': ['babel-jest', { presets: ['next/babel'] }],
   },
   
   // Module file extensions
@@ -55,7 +58,7 @@ const customJestConfig = {
   
   // Ignore transforming ESM modules except for these packages (including all submodules)
   transformIgnorePatterns: [
-    '/node_modules/(?!((bson|next-auth|openid-client|node-fetch|@next-auth|@auth|@babel|nanoid|@sanity/client|jose)(/|$)))'
+    '/node_modules/(?!((bson|next-auth|openid-client|node-fetch|@next-auth|@auth|@babel|nanoid|@sanity/client|jose.*|preact-render-to-string)(/|$)))'
   ],
   
   // Verbose output

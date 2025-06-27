@@ -1,4 +1,34 @@
-jest.mock('@sanity/client');
+jest.mock('next-sanity', () => ({
+  createClient: jest.fn(() => ({
+    fetch: jest.fn(() => Promise.resolve([])),
+    create: jest.fn(() => Promise.resolve({ _id: 'mock-id' })),
+    update: jest.fn(() => Promise.resolve({})),
+    delete: jest.fn(() => Promise.resolve('')),
+    // Add a comprehensive mock for the patch method
+    patch: jest.fn(() => ({
+      set: jest.fn(() => ({
+        unset: jest.fn(() => ({
+          commit: jest.fn(() => Promise.resolve({})),
+        })),
+        commit: jest.fn(() => Promise.resolve({})),
+      })),
+      insert: jest.fn(() => ({
+        after: jest.fn(() => ({
+          commit: jest.fn(() => Promise.resolve({})),
+        })),
+      })),
+      diffMatchPatch: jest.fn(() => ({
+        commit: jest.fn(() => Promise.resolve({})),
+      })),
+      commit: jest.fn(() => Promise.resolve({})),
+    })),
+  })),
+  imageUrlBuilder: jest.fn(() => ({
+    image: jest.fn(() => ({
+      url: jest.fn(() => 'mock-image-url'),
+    })),
+  })),
+}));
 /**
  * Sanity HTTP Client Test Suite
  * Day 1 Sprint: API Authentication Testing
@@ -7,91 +37,35 @@ jest.mock('@sanity/client');
 
 import { SanityAPIError, sanityHTTPClient } from '../lib/sanity-http-client'
 
-// Test suite for the HTTP client
-export class SanityClientTester {
+describe('Sanity HTTP Client Test Suite', () => {
+  // Test suite for the HTTP client
+  class SanityClientTester {
 
-  async runAllTests(): Promise<void> {
-    console.log('🧪 STARTING SANITY CLIENT TEST SUITE')
-    console.log('=====================================')
-
-    try {
-      await this.testHealthCheck()
-      await this.testAuthentication()
-      await this.testReadOperations()
-
-      if (process.env.SANITY_API_TOKEN) {
-        await this.testWriteOperations()
-      } else {
-        console.log('⚠️ Skipping write tests - no API token provided')
+    async testHealthCheck(): Promise<void> {
+      const health = await sanityHTTPClient.healthCheck();
+      if (health.status !== 'ok') {
+        throw new Error('Health check failed');
       }
-
-      console.log('\n✅ ALL TESTS PASSED!')
-    } catch (error) {
-      console.error('\n❌ TEST SUITE FAILED:', error)
-      throw error
-    }
-  }
-
-  async testHealthCheck(): Promise<void> {
-    console.log('\n1. Testing Health Check...')
-
-    const health = await sanityHTTPClient.healthCheck()
-    console.log('Health status:', health.status)
-    console.log('Details:', health.details)
-
-    if (health.status !== 'ok') {
-      throw new Error('Health check failed')
     }
 
-    console.log('✅ Health check passed')
-  }
-
-  async testAuthentication(): Promise<void> {
-    console.log('\n2. Testing Authentication...')
-
-    if (!process.env.SANITY_API_TOKEN) {
-      console.log('⚠️ No API token - skipping auth test')
-      return
+    async testAuthentication(): Promise<void> {
+      if (!process.env.SANITY_API_TOKEN) {
+        // console.log('⚠️ No API token - skipping auth test');
+        return;
+      }
+      const isAuthenticated = await sanityHTTPClient.testAuthentication();
+      if (!isAuthenticated) {
+        throw new Error('Authentication test failed');
+      }
     }
 
-    const isAuthenticated = await sanityHTTPClient.testAuthentication()
-
-    if (!isAuthenticated) {
-      throw new Error('Authentication test failed')
+    async testReadOperations(): Promise<void> {
+      await sanityHTTPClient.query('*[_type == "listing"][0..2]');
+      const cityQuery = `*[_type == "city" && defined(name)][0..1]{ _id, name, country }`;
+      await sanityHTTPClient.query(cityQuery);
     }
 
-    console.log('✅ Authentication test passed')
-  }
-
-  async testReadOperations(): Promise<void> {
-    console.log('\n3. Testing Read Operations...')
-
-    try {
-      // Test basic query
-      const result = await sanityHTTPClient.query('*[_type == "listing"][0..2]')
-      console.log(`Found ${Array.isArray(result) ? result.length : 0} listings`)
-
-      // Test query with parameters
-      const cityQuery = `*[_type == "city" && defined(name)][0..1]{
-        _id,
-        name,
-        country
-      }`
-      const cities = await sanityHTTPClient.query(cityQuery)
-      console.log(`Found ${Array.isArray(cities) ? cities.length : 0} cities`)
-
-      console.log('✅ Read operations passed')
-    } catch (error) {
-      console.error('❌ Read operations failed:', error)
-      throw error
-    }
-  }
-
-  async testWriteOperations(): Promise<void> {
-    console.log('\n4. Testing Write Operations...')
-
-    try {
-      // Create test document
+    async testWriteOperations(): Promise<void> {
       const testDoc = {
         _type: 'testDocument',
         title: 'API Test Document',
@@ -101,63 +75,49 @@ export class SanityClientTester {
           environment: process.env.NODE_ENV,
           timestamp: Date.now()
         }
-      }
-
-      console.log('Creating test document...')
-      const created = await sanityHTTPClient.create(testDoc)
-      console.log(`Created document with ID: ${created._id}`)
-
-      // Update test document
-      console.log('Updating test document...')
-      const updated = await sanityHTTPClient.update(created._id, {
+      };
+      const created = await sanityHTTPClient.create(testDoc);
+      await sanityHTTPClient.update(created._id, {
         title: 'Updated API Test Document',
         updatedAt: new Date().toISOString()
-      })
-      console.log(`Updated document: ${updated._id}`)
-
-      // Clean up - delete test document
-      console.log('Cleaning up test document...')
-      await sanityHTTPClient.delete(created._id)
-      console.log('Test document deleted')
-
-      console.log('✅ Write operations passed')
-    } catch (error) {
-      console.error('❌ Write operations failed:', error)
-      throw error
+      });
+      await sanityHTTPClient.delete(created._id);
     }
-  }
 
-  async testErrorHandling(): Promise<void> {
-    console.log('\n5. Testing Error Handling...')
-
-    try {
-      // Test invalid query
-      await sanityHTTPClient.query('INVALID GROQ QUERY')
-    } catch (error) {
-      if (error instanceof SanityAPIError) {
-        console.log('✅ Error handling works - caught SanityAPIError')
-      } else {
-        throw new Error('Expected SanityAPIError but got different error type')
+    async testErrorHandling(): Promise<void> {
+      try {
+        await sanityHTTPClient.query('INVALID GROQ QUERY');
+      } catch (error) {
+        if (!(error instanceof SanityAPIError)) {
+          throw new Error('Expected SanityAPIError but got different error type');
+        }
       }
     }
   }
-}
 
-// Export test runner function
-export async function runSanityTests(): Promise<void> {
-  const tester = new SanityClientTester()
-  await tester.runAllTests()
-}
+  const tester = new SanityClientTester();
 
-// CLI runner (if run directly)
-if (require.main === module) {
-  runSanityTests()
-    .then(() => {
-      console.log('\n🎉 ALL TESTS COMPLETED SUCCESSFULLY!')
-      process.exit(0)
-    })
-    .catch((error) => {
-      console.error('\n💥 TESTS FAILED:', error)
-      process.exit(1)
-    })
-}
+  it('1. should pass health check', async () => {
+    await tester.testHealthCheck();
+  });
+
+  it('2. should pass authentication test', async () => {
+    await tester.testAuthentication();
+  });
+
+  it('3. should perform read operations successfully', async () => {
+    await tester.testReadOperations();
+  });
+
+  it('4. should perform write operations successfully (if API token provided)', async () => {
+    if (process.env.SANITY_API_TOKEN) {
+      await tester.testWriteOperations();
+    } else {
+      pending('Skipping write tests - no API token provided');
+    }
+  });
+
+  it('5. should handle errors correctly', async () => {
+    await tester.testErrorHandling();
+  });
+});
