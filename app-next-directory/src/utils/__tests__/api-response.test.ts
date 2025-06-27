@@ -1,3 +1,20 @@
+// Mock NextResponse before any imports to ensure the mock is used everywhere
+jest.mock('next/server', () => {
+  return {
+    NextResponse: {
+      json: jest.fn((data, init) => {
+        return {
+          _mockData: data,
+          _mockInit: init,
+          json: () => Promise.resolve(data),
+          status: (init as any)?.status || 200,
+          body: data,
+        } as any;
+      }),
+    },
+  };
+});
+
 import { describe, it, expect, jest, beforeEach, beforeAll } from '@jest/globals';
 import { NextResponse } from 'next/server';
 import { ApiResponseHandler } from '../api-response';
@@ -15,8 +32,9 @@ jest.mock('next/server', () => {
           _mockData: data, // Store data for inspection
           _mockInit: init, // Store init for inspection
           json: () => Promise.resolve(data), // Provide a minimal json method
-          status: init?.status || 200, // Provide status for tests that check it
-        };
+          status: (init as any)?.status || 200, // Provide status for tests that check it
+          body: data, // Add body property for compatibility with tests/code expecting it
+        } as any;
       }),
     },
   };
@@ -27,7 +45,7 @@ beforeAll(() => {
   // @ts-ignore
   global.Response = {
     json: jest.fn(),
-  };
+  } as any;
 });
 
 describe('ApiResponseHandler', () => {
