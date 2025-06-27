@@ -2,7 +2,7 @@ import { jest } from '@jest/globals';
 // Update getToken type to allow null and token objects
 import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
-import { middleware } from './middleware';
+import { createMiddleware } from './middleware';
 
 type MockToken = { role?: string; email?: string } | null;
 // Mock next-auth/jwt
@@ -36,11 +36,17 @@ jest.mock('next/server', () => ({
 }));
 
 describe('Middleware', () => {
+  let middleware: ReturnType<typeof createMiddleware>;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    // Ensure next and redirect return objects with headers.set for withSecurityHeaders
     (mockNextResponse.next as jest.Mock).mockImplementation(() => createMockResponse('next'));
     (mockNextResponse.redirect as jest.Mock).mockImplementation(() => createMockResponse('redirect'));
+    (mockNextResponse.json as jest.Mock).mockImplementation(() => createMockResponse('json'));
+    middleware = createMiddleware({
+      getToken,
+      NextResponse
+    });
   });
 
   it('should allow access to public routes without authentication', async () => {
@@ -173,5 +179,6 @@ describe('Middleware', () => {
       })
     );
   });
-});
-});
+}
+
+)
