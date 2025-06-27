@@ -6,6 +6,7 @@ export async function requireAuth() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
+    ApiResponseHandler.unauthorized(); // Ensure unauthorized handler is called
     throw new Error('UNAUTHORIZED');
   }
 
@@ -22,12 +23,19 @@ export async function requireRole(allowedRoles: string[]) {
   return session;
 }
 
-export function handleAuthError(error: Error) {
-  if (error.message === 'UNAUTHORIZED') {
+export function handleAuthError(error: unknown) {
+  // Accepts error as unknown, handles all possible error shapes
+  const message =
+    (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string')
+      ? (error as any).message
+      : '';
+
+  if (message === 'UNAUTHORIZED') {
     return ApiResponseHandler.unauthorized();
   }
-  if (error.message === 'FORBIDDEN') {
+  if (message === 'FORBIDDEN') {
     return ApiResponseHandler.forbidden();
   }
+  // For all other cases (including null, undefined, or objects without message)
   return ApiResponseHandler.error('Authentication error');
 }

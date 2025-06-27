@@ -18,17 +18,16 @@ const customJestConfig = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@sanity/client$': '<rootDir>/__mocks__/@sanity/client.ts',
     '^jose$': '<rootDir>/__mocks__/jose.js',
+    '^preact-render-to-string$': '<rootDir>/__mocks__/preact-render-to-string.js',
+    '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
   },
   
   testEnvironment: 'jest-environment-jsdom',
   
   // Test file patterns
-  testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
-    '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}',
-  ],
+  testMatch: ['**/__tests__/**/*.(ts|tsx|js)'],
   
-  // Coverage configuration
+  // Coverage configuration (Keeping existing, as the user didn't specify changes here)
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
@@ -41,10 +40,7 @@ const customJestConfig = {
   
   // Transform configuration
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['babel-jest', { presets: ['next/babel'] }],
-    '^.+\\.mjs$': ['babel-jest', { presets: ['next/babel'] }], // Ensure .mjs are handled
-    // Explicitly transform problematic ESM modules
-    '^(.*(jose|next-auth|openid-client).*)\\.(js|ts)$': ['babel-jest', { presets: ['next/babel'] }],
+    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
   
   // Module file extensions
@@ -56,15 +52,15 @@ const customJestConfig = {
     '<rootDir>/node_modules/',
   ],
   
-  // Ignore transforming ESM modules except for these packages (including all submodules)
+  // Ignore transforming ESM modules except for these packages (specifically for pnpm)
   transformIgnorePatterns: [
-    '/node_modules/(?!((bson|next-auth|openid-client|node-fetch|@next-auth|@auth|@babel|nanoid|@sanity/client|jose.*|preact-render-to-string)(/|$)))'
+    '/node_modules/(?!\\.pnpm/(?:next-auth|jose|openid-client|preact-render-to-string|preact)(?:@[^/]+)?(?:_[^/]+)?/node_modules/)/'
   ],
   
   // Verbose output
   verbose: true,
 
-  // Treat TypeScript files as ESM for Jest transform
+  // Treat TypeScript files as ESM for Jest transform (keeping existing as per user's last valid config)
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
 }
 

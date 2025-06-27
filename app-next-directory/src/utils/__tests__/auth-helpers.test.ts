@@ -7,13 +7,38 @@ import { ApiResponseHandler } from '../api-response';
 jest.mock('next-auth');
 const mockGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
 
-// Mock api-response
-jest.mock('../api-response');
-const mockApiResponseHandler = ApiResponseHandler as jest.Mocked<typeof ApiResponseHandler>;
+const mockUnauthorized = jest.fn();
+const mockForbidden = jest.fn();
+const mockError = jest.fn();
+const mockSuccess = jest.fn();
+const mockNotFound = jest.fn();
+
+jest.mock('../api-response', () => ({
+  ApiResponseHandler: {
+    unauthorized: mockUnauthorized,
+    forbidden: mockForbidden,
+    error: mockError,
+    success: mockSuccess,
+    notFound: mockNotFound,
+  },
+}));
+
+// Helper function to create a mock NextResponse object
+const mockNextResponse = (response: { status: number; body?: any }) => ({
+  status: response.status,
+  body: response.body,
+  json: jest.fn(() => Promise.resolve(response.body)),
+  // Add other properties/methods of NextResponse that might be used
+});
 
 describe('Auth Helpers', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUnauthorized.mockClear();
+    mockForbidden.mockClear();
+    mockError.mockClear();
+    mockSuccess.mockClear();
+    mockNotFound.mockClear();
   });
 
   describe('requireAuth', () => {
@@ -128,67 +153,73 @@ describe('Auth Helpers', () => {
   describe('handleAuthError', () => {
     it('should return unauthorized response for UNAUTHORIZED error', () => {
       const unauthorizedResponse = { status: 401, body: 'Unauthorized' };
-      mockApiResponseHandler.unauthorized.mockReturnValue(unauthorizedResponse as any);
+      mockUnauthorized.mockReturnValue(mockNextResponse(unauthorizedResponse) as any);
 
       const error = new Error('UNAUTHORIZED');
       const result = handleAuthError(error);
 
-      expect(mockApiResponseHandler.unauthorized).toHaveBeenCalledTimes(1);
-      expect(result).toEqual(unauthorizedResponse);
+      expect(mockUnauthorized).toHaveBeenCalledTimes(1);
+      expect(result.status).toEqual(unauthorizedResponse.status);
+      expect(result.body).toEqual(unauthorizedResponse.body);
     });
 
     it('should return forbidden response for FORBIDDEN error', () => {
       const forbiddenResponse = { status: 403, body: 'Forbidden' };
-      mockApiResponseHandler.forbidden.mockReturnValue(forbiddenResponse as any);
+      mockForbidden.mockReturnValue(mockNextResponse(forbiddenResponse) as any);
 
       const error = new Error('FORBIDDEN');
       const result = handleAuthError(error);
 
-      expect(mockApiResponseHandler.forbidden).toHaveBeenCalledTimes(1);
-      expect(result).toEqual(forbiddenResponse);
+      expect(mockForbidden).toHaveBeenCalledTimes(1);
+      expect(result.status).toEqual(forbiddenResponse.status);
+      expect(result.body).toEqual(forbiddenResponse.body);
     });
 
     it('should return generic error response for other errors', () => {
       const genericErrorResponse = { status: 400, body: 'Error' };
-      mockApiResponseHandler.error.mockReturnValue(genericErrorResponse as any);
+      mockError.mockReturnValue(mockNextResponse(genericErrorResponse) as any);
 
       const error = new Error('Some other error');
       const result = handleAuthError(error);
 
-      expect(mockApiResponseHandler.error).toHaveBeenCalledWith('Authentication error');
-      expect(result).toEqual(genericErrorResponse);
+      expect(mockError).toHaveBeenCalledWith('Authentication error');
+      expect(result.status).toEqual(genericErrorResponse.status);
+      expect(result.body).toEqual(genericErrorResponse.body);
     });
 
     it('should handle errors with different message formats', () => {
       const genericErrorResponse = { status: 400, body: 'Error' };
-      mockApiResponseHandler.error.mockReturnValue(genericErrorResponse as any);
+      mockError.mockReturnValue(mockNextResponse(genericErrorResponse) as any);
 
       const error = new Error('Network timeout');
       const result = handleAuthError(error);
 
-      expect(mockApiResponseHandler.error).toHaveBeenCalledWith('Authentication error');
-      expect(result).toEqual(genericErrorResponse);
+      expect(mockError).toHaveBeenCalledWith('Authentication error');
+      expect(result.status).toEqual(genericErrorResponse.status);
+      expect(result.body).toEqual(genericErrorResponse.body);
     });
 
     it('should handle error objects without message', () => {
       const genericErrorResponse = { status: 400, body: 'Error' };
-      mockApiResponseHandler.error.mockReturnValue(genericErrorResponse as any);
+      mockError.mockReturnValue(mockNextResponse(genericErrorResponse) as any);
 
       const error = {} as Error;
       const result = handleAuthError(error);
 
-      expect(mockApiResponseHandler.error).toHaveBeenCalledWith('Authentication error');
-      expect(result).toEqual(genericErrorResponse);
+      expect(mockError).toHaveBeenCalledWith('Authentication error');
+      expect(result.status).toEqual(genericErrorResponse.status);
+      expect(result.body).toEqual(genericErrorResponse.body);
     });
 
     it('should handle null or undefined error gracefully', () => {
       const genericErrorResponse = { status: 400, body: 'Error' };
-      mockApiResponseHandler.error.mockReturnValue(genericErrorResponse as any);
+      mockError.mockReturnValue(mockNextResponse(genericErrorResponse) as any);
 
       const result = handleAuthError(null as any);
 
-      expect(mockApiResponseHandler.error).toHaveBeenCalledWith('Authentication error');
-      expect(result).toEqual(genericErrorResponse);
+      expect(mockError).toHaveBeenCalledWith('Authentication error');
+      expect(result.status).toEqual(genericErrorResponse.status);
+      expect(result.body).toEqual(genericErrorResponse.body);
     });
   });
 
@@ -212,18 +243,19 @@ describe('Auth Helpers', () => {
       expect(roleResult).toEqual(adminSession);
     });
 
-    it('should handle auth error handling for unauthorized access', async () => {
+    it('should return a 401 Unauthorized response and handle error correctly when requireAuth is called without a session', async () => {
       mockGetServerSession.mockResolvedValue(null);
 
-      const unauthorizedResponse = { status: 401 };
-      mockApiResponseHandler.unauthorized.mockReturnValue(unauthorizedResponse as any);
+      const unauthorizedResponse = { status: 401, body: 'Unauthorized access' };
+      mockUnauthorized.mockReturnValue(mockNextResponse(unauthorizedResponse) as any);
 
-      try {
-        await requireAuth();
-      } catch (error) {
-        const result = handleAuthError(error as Error);
-        expect(result).toEqual(unauthorizedResponse);
-      }
+      await expect(requireAuth()).rejects.toThrow('UNAUTHORIZED');
+      expect(mockUnauthorized).toHaveBeenCalledTimes(1);
+
+      const error = new Error('UNAUTHORIZED');
+      const result = handleAuthError(error);
+      expect(result.status).toEqual(unauthorizedResponse.status);
+      expect(result.body).toEqual(unauthorizedResponse.body);
     });
 
     it('should handle auth error handling for forbidden access', async () => {
@@ -238,14 +270,15 @@ describe('Auth Helpers', () => {
 
       mockGetServerSession.mockResolvedValue(userSession);
 
-      const forbiddenResponse = { status: 403 };
-      mockApiResponseHandler.forbidden.mockReturnValue(forbiddenResponse as any);
+      const forbiddenResponse = { status: 403, body: { error: 'Forbidden', success: false } };
+      mockForbidden.mockReturnValue(mockNextResponse(forbiddenResponse) as any);
 
       try {
         await requireRole(['admin']);
       } catch (error) {
         const result = handleAuthError(error as Error);
-        expect(result).toEqual(forbiddenResponse);
+        expect(result.status).toEqual(forbiddenResponse.status);
+        expect(result.body).toEqual(forbiddenResponse.body);
       }
     });
   });

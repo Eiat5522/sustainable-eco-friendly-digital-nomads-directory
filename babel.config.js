@@ -1,5 +1,6 @@
 module.exports = {
   presets: [
-    'next/babel'
+    'next/babel',
+    '@babel/preset-typescript'
   ]
 };
