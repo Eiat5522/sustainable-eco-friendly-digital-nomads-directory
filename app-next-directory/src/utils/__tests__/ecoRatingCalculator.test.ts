@@ -52,9 +52,9 @@ describe('calculateEcoRating', () => {
       communityImpact: 0,
     };
     // Only weights for present fields are counted
-    // Present fields: energyEfficiency (1, 0.25), waterConservation (1, 0.2), wasteReduction (0, 0.2), sustainableMaterials (0, 0.2), communityImpact (0, 0.15)
-    // total = 1*0.25 + 1*0.2 = 0.45, weightSum = 0.25+0.2 = 0.45, result = 0.45/0.45 = 1.0
-    expect(calculateEcoRating(input)).toBeCloseTo(1.0, 2);
+    // Present fields: energyEfficiency (1, 0.25), waterConservation (1, 0.25), wasteReduction (0, 0.2), sustainableMaterials (0, 0.2), communityImpact (0, 0.15)
+    // total = 1*0.25 + 1*0.2 = 0.45, weightSum = 0.25 + 0.2 = 0.45, result = 0.45 / 0.45 = 1
+    expect(calculateEcoRating(input)).toBeCloseTo(1, 2);
   });
 
   it('returns 0 if weightSum is zero', () => {
