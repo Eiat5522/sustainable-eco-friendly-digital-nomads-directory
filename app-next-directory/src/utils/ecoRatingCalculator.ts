@@ -19,28 +19,26 @@ export type EcoRatingWeights = {
 };
 
 export function calculateEcoRating(
-  input: EcoRatingInput,
-  weights?: EcoRatingWeights
-): number {
-  const defaultWeights: EcoRatingWeights = {
+  input: Record<string, number>,
+  weights: Record<string, number> = {
     energyEfficiency: 0.25,
     waterConservation: 0.2,
     wasteReduction: 0.2,
     sustainableMaterials: 0.2,
     communityImpact: 0.15,
-  };
-
-  const mergedWeights = { ...defaultWeights, ...weights };
+  }
+): number {
   let total = 0;
   let weightSum = 0;
-
-  for (const key in mergedWeights) {
-    if (typeof input[key] === 'number' && typeof mergedWeights[key] === 'number') {
-      total += input[key] * (mergedWeights[key] as number);
-      weightSum += mergedWeights[key] as number;
+  for (const key of Object.keys(input)) {
+    const value = input[key];
+    const weight = weights[key] ?? 0;
+    // Only consider fields present in input and with non-zero weight
+    if (weight > 0) {
+      total += value * weight;
+      weightSum += weight;
     }
   }
-
   if (weightSum === 0) return 0;
   return Math.round((total / weightSum) * 100) / 100;
 }

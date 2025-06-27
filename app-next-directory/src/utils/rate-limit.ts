@@ -57,6 +57,7 @@ export function rateLimit(options: RateLimitOptions) {
     }
 
     // Check if limit exceeded
+    console.log('Key:', key, 'Count:', info ? info.count : 0);
     if (info.count >= max) {
       return {
         success: false,
@@ -125,4 +126,5 @@ export const rateLimiters = {
   }),
 };
 
+export { rateLimitStore };
 export default rateLimit;
