@@ -28,8 +28,8 @@ describe('calculateEcoRating', () => {
       sustainableMaterials: 0.1,
       communityImpact: 0.6,
     };
-    // Weighted sum: (0.8*0.1 + 0.6*0.1 + 0.4*0.1 + 0.2*0.1 + 1*0.6) / 1 = 0.08+0.06+0.04+0.02+0.6=0.8 -> rounded to 0.8
-    expect(calculateEcoRating(input, weights)).toBeCloseTo(0.8, 2);
+    const expectedEcoRating = 0.8;
+    expect(calculateEcoRating(input, weights)).toBeCloseTo(expectedEcoRating, 2);
   });
 
   it('returns 0 if all input values are zero', () => {
@@ -79,3 +79,4 @@ describe('calculateEcoRating', () => {
     expect(calculateEcoRating(input, weights)).toBe(0);
   });
 });
+

@@ -36,7 +36,7 @@ applyTo: "**"
 - **IMPORTANT:** Use #file system mcp server to help navigate the codebase.
     You must use absolute full paths with the drive letter in CAPITAL LETTER as shown in the following example: ('Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory').
     This is crucial in ensuring tools usage reliability.
-- **Forbidden** Relative paths and lowercase as drive letter will fail as they are depend on the current working directory. Tilde paths (~/...) might not work in all contexts.
+- **Caution** Relative paths and lowercase as drive letter will fail as they are depend on the current working directory. Tilde paths (~/...) might not work in all contexts.
 
   - Examples:
     ```powershell

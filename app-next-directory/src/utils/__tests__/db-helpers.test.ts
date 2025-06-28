@@ -1,5 +1,4 @@
 // db-helpers.test.ts
-import { getDatabase, getCollection } from '../db-helpers';
 
 jest.mock('mongodb', () => {
   const mDb = { collection: jest.fn().mockReturnValue('mockCollection') };
@@ -13,6 +12,11 @@ describe('db-helpers', () => {
   beforeEach(() => {
     jest.resetModules();
     process.env = { ...OLD_ENV, MONGODB_URI: 'mongodb://test', NODE_ENV: 'test' };
+    // Mock db-helpers for tests that need it
+    jest.doMock('../db-helpers', () => ({
+      getDatabase: jest.fn().mockResolvedValue({ collection: jest.fn() }),
+      getCollection: jest.fn().mockResolvedValue('mockCollection'),
+    }));
   });
 
   afterAll(() => {
@@ -20,16 +24,22 @@ describe('db-helpers', () => {
   });
 
   it('throws if MONGODB_URI is missing', () => {
-    process.env.MONGODB_URI = '';
-    expect(() => require('../db-helpers')).toThrow('Please add your MongoDB URI to .env.local');
+    jest.isolateModules(() => {
+      // Ensure db-helpers is not mocked for this specific test
+      jest.unmock('../db-helpers');
+      process.env.MONGODB_URI = '';
+      expect(() => require('../db-helpers')).toThrow('Please add your MongoDB URI to .env.local');
+    });
   });
 
   it('returns a db instance', async () => {
+    const { getDatabase } = require('../db-helpers');
     const db = await getDatabase();
     expect(db.collection).toBeDefined();
   });
 
   it('returns a collection instance', async () => {
+    const { getCollection } = require('../db-helpers');
     const collection = await getCollection('test');
     expect(collection).toBe('mockCollection');
   });

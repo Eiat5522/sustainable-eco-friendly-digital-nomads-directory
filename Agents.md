@@ -1,4 +1,4 @@
-# Agent
+# Agents
 
 ## Project-specific Notes
 

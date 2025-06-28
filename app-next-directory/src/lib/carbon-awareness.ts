@@ -5,13 +5,20 @@
  * of electricity in the user's region, which can be used to adapt
  * UI rendering and optimize for lower environmental impact.
  */
-
+ 
 // Cache the carbon intensity data to reduce API calls
 export let cachedCarbonData: {
   intensity: number;
   timestamp: number;
   region: string;
 } | null = null;
+
+/**
+ * Clears the cached carbon data (for testing or manual reset)
+ */
+export function clearCarbonCache() {
+  cachedCarbonData = null;
+}
 
 const CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
 

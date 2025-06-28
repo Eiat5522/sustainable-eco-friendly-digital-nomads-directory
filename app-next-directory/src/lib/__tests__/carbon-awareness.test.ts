@@ -67,8 +67,7 @@ describe('carbon-awareness', () => {
       process.env.NEXT_PUBLIC_ELECTRICITY_MAP_TOKEN = 'test-token';
       global.fetch = jest.fn();
       // Clear cache to ensure test isolation
-      // @ts-ignore
-      carbon.cachedCarbonData = null;
+      carbon.clearCarbonCache();
     });
 
     afterEach(() => {

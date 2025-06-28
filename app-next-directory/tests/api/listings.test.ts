@@ -38,52 +38,136 @@ test.describe('Listings API', () => {
     });
   });
 
-  // Input Validation Tests
-  test.describe('input validation', () => {
-    test('validates required fields in POST request', async ({ page }) => {
+  // Input Validation & Authorization Tests
+  test.describe('input validation and authorization', () => {
+    /**
+     * @description Ensures only premium users can create listings.
+     */
+    test('returns 403 if user is not premium', async ({ page }) => {
+      await TestHelpers.loginAsUser(page); // Not premium
+      const response = await TestHelpers.makeAuthenticatedRequest(page, '/api/listings', {
+        method: 'POST',
+        data: {
+          name: 'Test Listing',
+          cityId: 'city-1',
+          category: 'coworking',
+          description_short: 'Short desc for test',
+          description_long: 'Long description for test that is definitely more than fifty characters long for validation.',
+          imageUrl: 'https://example.com/image.jpg',
+          slug: 'test-listing-non-premium'
+        },
+      });
+      expect(response.status()).toBe(403);
+    });
+
+    /**
+     * @description Helper for premium user login (uses venue owner as premium).
+     */
+    async function loginAsPremium(page: any) {
+      // If venue owner is considered premium in your system, reuse this helper.
       await TestHelpers.loginAsVenueOwner(page);
+    }
+
+    /**
+     * @description Validates required fields in POST request.
+     */
+    test('validates required fields in POST request', async ({ page }) => {
+      await loginAsPremium(page);
 
       const response = await TestHelpers.makeAuthenticatedRequest(page, '/api/listings', {
         method: 'POST',
         data: {
           // Missing required fields
-          description: 'Test description',
+          name: '',
+          cityId: '',
+          category: '',
+          description_short: '',
+          description_long: '',
+          imageUrl: '',
+          slug: ''
         },
       });
 
       expect(response.status()).toBe(400);
       const error = await response.json();
-      expect(error.error.details).toContainEqual(expect.objectContaining({ field: 'name' }));
+      expect(error.error.details).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ path: ['name'] }),
+          expect.objectContaining({ path: ['cityId'] }),
+          expect.objectContaining({ path: ['category'] }),
+          expect.objectContaining({ path: ['description_short'] }),
+          expect.objectContaining({ path: ['description_long'] }),
+          expect.objectContaining({ path: ['imageUrl'] }),
+          expect.objectContaining({ path: ['slug'] }),
+        ])
+      );
     });
 
-    test('validates data types', async ({ page }) => {
-      await TestHelpers.loginAsVenueOwner(page);
+    /**
+     * @description Validates duplicate slug returns 409.
+     */
+    test('returns 409 for duplicate slug', async ({ page }) => {
+      await loginAsPremium(page);
+
+      const listingData = {
+        name: 'Duplicate Slug Listing',
+        cityId: 'city-dup',
+        category: 'coworking',
+        description_short: 'Short desc for duplicate',
+        description_long: 'Long description for duplicate slug test that is definitely more than fifty characters long.',
+        imageUrl: 'https://example.com/dup.jpg',
+        slug: 'duplicate-slug'
+      };
+
+      // First creation should succeed
+      const firstResponse = await TestHelpers.makeAuthenticatedRequest(page, '/api/listings', {
+        method: 'POST',
+        data: listingData,
+      });
+      expect(firstResponse.status()).toBe(200);
+
+      // Second creation with same slug should fail
+      const secondResponse = await TestHelpers.makeAuthenticatedRequest(page, '/api/listings', {
+        method: 'POST',
+        data: listingData,
+      });
+      expect(secondResponse.status()).toBe(409);
+    });
+
+    /**
+     * @description Validates success case with all required and optional fields.
+     */
+    test('creates listing with all required and optional fields', async ({ page }) => {
+      await loginAsPremium(page);
+
+      const listingData = {
+        name: 'Full Listing',
+        cityId: 'city-full',
+        category: 'coworking',
+        description_short: 'Short desc for full listing',
+        description_long: 'Long description for full listing that is definitely more than fifty characters long.',
+        imageUrl: 'https://example.com/full.jpg',
+        slug: 'full-listing',
+        eco_features: ['solar', 'recycled-materials'],
+        amenities: ['wifi', 'coffee']
+      };
 
       const response = await TestHelpers.makeAuthenticatedRequest(page, '/api/listings', {
         method: 'POST',
-        data: {
-          name: 'Test Listing',
-          description: 'Test description',
-          priceRange: 123, // Should be string
-          category: ['invalid-array'], // Should be string
-          coordinates: 'invalid', // Should be object
-        },
+        data: listingData,
       });
 
-      expect(response.status()).toBe(400);
-      const error = await response.json();
-      expect(error.error.details).toContainEqual(
-        expect.objectContaining({
-          field: 'priceRange',
-          type: 'string',
-        })
-      );
+      expect(response.status()).toBe(200);
+      const created = await response.json();
+      expect(created.name).toBe(listingData.name);
+      expect(created.eco_features).toEqual(listingData.eco_features);
+      expect(created.amenities).toEqual(listingData.amenities);
     });
   });
 
   // CRUD Operations Tests
   test.describe('CRUD operations', () => {
-    test('creates, updates, and deletes listing', async ({ page }) => {
+    test('creates, updates, and deletes listing', async ({ page, request }) => {
       await TestHelpers.loginAsVenueOwner(page);
 
       // Create
@@ -91,16 +175,18 @@ test.describe('Listings API', () => {
         method: 'POST',
         data: {
           name: 'CRUD Test Listing',
-          description: 'Test Description',
+          cityId: 'city-crud',
           category: 'coworking',
-          city: 'Bangkok',
-          ecoTags: ['solar-powered'],
+          description_short: 'Short desc for CRUD',
+          description_long: 'Long description for CRUD test that is definitely more than fifty characters long.',
+          imageUrl: 'https://example.com/crud.jpg',
+          slug: 'crud-listing'
         },
       });
 
       expect(createResponse.ok()).toBeTruthy();
-      const { listing } = await createResponse.json();
-      createdListingId = listing.id;
+      const { id: createdId } = await createResponse.json();
+      createdListingId = createdId;
 
       // Update
       const updateResponse = await TestHelpers.makeAuthenticatedRequest(
@@ -110,7 +196,8 @@ test.describe('Listings API', () => {
           method: 'PUT',
           data: {
             name: 'Updated CRUD Test Listing',
-            description: 'Updated Description',
+            description_short: 'Updated Short Desc',
+            description_long: 'Updated long description for CRUD test that is definitely more than fifty characters long.',
           },
         }
       );
@@ -148,8 +235,8 @@ test.describe('Listings API', () => {
       const data = await response.json();
 
       // Verify dates are in descending order
-      const dates = data.listings.map(l => new Date(l.createdAt));
-      const isSorted = dates.every((date, i) => i === 0 || date <= dates[i - 1]);
+      const dates = data.listings.map((l: { createdAt: string }) => new Date(l.createdAt));
+      const isSorted = dates.every((date: Date, i: number) => i === 0 || date <= dates[i - 1]);
       expect(isSorted).toBeTruthy();
     });
 
@@ -163,9 +250,9 @@ test.describe('Listings API', () => {
           expect(response.ok()).toBeTruthy();
 
           const data = await response.json();
-          const values = data.listings.map(l => l[field]);
+          const values = data.listings.map((l: Record<string, any>) => l[field]);
 
-          const isSorted = values.every((val, i) => {
+          const isSorted = values.every((val: any, i: number) => {
             if (i === 0) return true;
             return order === 'asc' ? val >= values[i - 1] : val <= values[i - 1];
           });

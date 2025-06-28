@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
-import { Button } from "./button";
+import { Button } from "./Button";
 import { Card, CardContent } from "./card";
 import { Separator } from "./separator";
 import { cn } from "@/lib/utils";

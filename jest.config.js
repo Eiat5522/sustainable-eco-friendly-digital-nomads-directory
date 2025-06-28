@@ -3,9 +3,13 @@ module.exports = {
   transformIgnorePatterns: [
     "/node_modules/(?!(bson|jose|next-auth|openid-client|node-fetch)/)"
   ],
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['./jest.setup.ts'],
   testMatch: ['**/__tests__/**/*.test.js', '**/?(*.)+(spec|test).[jt]s?(x)'],
+  testPathIgnorePatterns: [
+    "<rootDir>/app-next-directory/tests/.*\\.spec\\.ts$",
+    "<rootDir>/sanity-backup/"
+  ],
   collectCoverage: true,
   coverageDirectory: 'coverage',
   verbose: true,

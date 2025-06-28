@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || '';
     const category = searchParams.getAll('category');
-    const location = searchParams.getAll('location');
+    const destination = searchParams.getAll('destination');
     const features_amenities = searchParams.getAll('features_amenities');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
@@ -37,8 +37,8 @@ export async function GET(request: NextRequest) {
     if (category && category.length > 0) {
       groqQuery += ` && (${category.map((cat) => `category == "${cat}"`).join(' || ')})`;
     }
-    if (location && location.length > 0) {
-      groqQuery += ` && (${location.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
+    if (destination && destination.length > 0) {
+      groqQuery += ` && (${destination.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
     }
     if (features_amenities && features_amenities.length > 0) {
       groqQuery += ` && (${features_amenities.map((fa) => `array::contains(eco_features, "${fa}") || array::contains(amenities, "${fa}")`).join(' || ')})`;
@@ -103,8 +103,8 @@ export async function GET(request: NextRequest) {
     if (category && category.length > 0) {
       countQuery += ` && (${category.map((cat) => `category == "${cat}"`).join(' || ')})`;
     }
-    if (location && location.length > 0) {
-      countQuery += ` && (${location.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
+    if (destination && destination.length > 0) {
+      countQuery += ` && (${destination.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
     }
     if (features_amenities && features_amenities.length > 0) {
       countQuery += ` && (${features_amenities.map((fa) => `array::contains(eco_features, "${fa}") || array::contains(amenities, "${fa}")`).join(' || ')})`;
@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
       filters: {
         query,
         category,
-        location
+        destination
       }
     });
   } catch (error) {

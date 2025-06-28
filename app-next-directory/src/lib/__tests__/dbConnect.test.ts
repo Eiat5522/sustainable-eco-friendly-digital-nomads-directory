@@ -3,6 +3,16 @@
  * Ensures mongoose is mocked before dbConnect is imported in each test.
  */
 
+// Extend NodeJS global type for test-specific mongoose cache
+// Match the app's global.mongoose type for test compatibility
+type MongooseCache = {
+  conn: any | null;
+  promise: Promise<any> | null;
+};
+declare global {
+  // eslint-disable-next-line no-var
+  var mongoose: MongooseCache;
+}
 jest.mock('mongoose', () => {
   const connect = jest.fn().mockImplementation(() => Promise.resolve({ readyState: 1 }));
   return {

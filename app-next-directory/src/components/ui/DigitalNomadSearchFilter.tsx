@@ -1,7 +1,7 @@
 "use client"
 
 import React from 'react'
-import { Button } from "./button"
+import { Button } from "./Button"
 import { X, Search, Filter, Globe, Building, Mountain, Plane, MapPin, BriefcaseBusiness, 
   BedDouble, Utensils, Activity, Users, Coffee, Lightbulb, Wifi, Camera, Sparkles, 
   Car, Dumbbell, Bus, Leaf, Soup, ChevronDown } from "lucide-react"

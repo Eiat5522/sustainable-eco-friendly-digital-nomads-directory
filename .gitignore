@@ -127,3 +127,4 @@ utils/vscode-detector.js
 examples/vscode-conditional-usage.js
 utils/VSCodeDetector.ps1
 utils/README.md
+.github\copilot-instructions.md

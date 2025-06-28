@@ -30,15 +30,18 @@ export function calculateEcoRating(
 ): number {
   let total = 0;
   let weightSum = 0;
+  // Only include weights for input fields where value > 0 and weight > 0
   for (const key of Object.keys(input)) {
     const value = input[key];
     const weight = weights[key] ?? 0;
-    // Only consider fields present in input and with non-zero weight
-    if (weight > 0) {
+    if (value > 0 && weight > 0) {
       total += value * weight;
       weightSum += weight;
     }
   }
   if (weightSum === 0) return 0;
-  return Math.round((total / weightSum) * 100) / 100;
+  // Add Number.EPSILON to avoid floating-point rounding errors (e.g. 0.625 → 0.63)
+  const rawScore = total / weightSum;
+  const rounded = Math.round((rawScore + Number.EPSILON) * 100) / 100;
+  return rounded;
 }

@@ -28,6 +28,8 @@ async function dbConnect(): Promise<Mongoose> {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      tlsAllowInvalidCertificates: process.env.NODE_ENV === "development",
+      tls: true,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongooseInstance) => {
