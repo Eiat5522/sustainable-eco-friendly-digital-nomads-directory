@@ -49,3 +49,5 @@ async function dbConnect(): Promise<Mongoose> {
 }
 
 export default dbConnect;
+
+// Dummy comment to force TypeScript re-evaluation.

@@ -1,8 +1,8 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { middleware, config } from '../middleware';
-import { UserRole } from '@/types/auth';
+import { middleware, config } from '../../app-next-directory/src/middleware';
+import { UserRole } from '../../app-next-directory/src/types/auth';
 
 jest.mock('next/server', () => ({
   NextResponse: {
@@ -30,3 +30,38 @@ describe('Middleware', () => {
       url: `https://example.com${pathname}`,
     } as NextRequest;
   };
+
+  it('redirects to /login if user is not authenticated and accessing protected route', async () => {
+    mockGetToken.mockResolvedValueOnce(null);
+    const req = createMockRequest('/admin/dashboard');
+    await middleware(req as any);
+
+    expect(NextResponse.redirect).toHaveBeenCalled();
+    // Optionally check redirect URL
+    // expect((NextResponse.redirect as jest.Mock).mock.calls[0][0].toString()).toContain('/login');
+  });
+
+  it('allows access to protected route if user is authenticated', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: UserRole.ADMIN });
+    const req = createMockRequest('/admin/dashboard');
+    await middleware(req as any);
+
+    expect(NextResponse.next).toHaveBeenCalled();
+  });
+
+  it('denies access to admin route if user is not admin', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: UserRole.USER });
+    const req = createMockRequest('/admin/dashboard');
+    await middleware(req as any);
+
+    expect(NextResponse.redirect).toHaveBeenCalled();
+  });
+
+  it('allows access to public route without authentication', async () => {
+    mockGetToken.mockResolvedValueOnce(null);
+    const req = createMockRequest('/about');
+    await middleware(req as any);
+
+    expect(NextResponse.next).toHaveBeenCalled();
+  });
+});

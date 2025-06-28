@@ -42,10 +42,8 @@
   },
   "devDependencies": {
     "@auth/mongodb-adapter": "^3.10.0",
-    "@playwright/test": "^1.53.1",
     "cross-fetch": "^4.1.0",
     "eslint": "^9.29.0",
-    "eslint-config-next": "^15.3.4",
-    "playwright": "^1.53.1"
+    "eslint-config-next": "^15.3.4"
   }
 }

@@ -24,7 +24,7 @@ import {
     Star,
     XCircle
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface ListingStats {
   totalListings: number;
@@ -345,14 +345,15 @@ export default function ListingsPage() {
                 <Input
                   placeholder="Search listings..."
                   value={searchTerm}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+                  onChange={(e: any) => setSearchTerm((e.currentTarget as HTMLInputElement).value)}
                   className="pl-10"
                 />
               </div>
             </div>
             <select
+              aria-label="Filter by listing type"
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value as any)}
+              onChange={(e: any) => setTypeFilter((e.currentTarget as HTMLSelectElement).value as any)}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="all">All Types</option>
@@ -362,8 +363,9 @@ export default function ListingsPage() {
               <option value="activity">Activity</option>
             </select>
             <select
+              aria-label="Filter by listing status"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as any)}
+              onChange={(e: any) => setStatusFilter((e.currentTarget as HTMLSelectElement).value as any)}
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               <option value="all">All Status</option>

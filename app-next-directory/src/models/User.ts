@@ -63,3 +63,5 @@ UserSchema.index({ email: 1 }, { unique: true });
 // To prevent recompilation issues, especially in Next.js hot-reloading environments,
 // check if the model already exists.
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
+
+// Dummy comment to force TypeScript re-evaluation.

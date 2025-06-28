@@ -111,7 +111,7 @@ test.describe('Performance & Load Testing', () => {
         city: 'Bangkok',
         minPrice: 100,
         maxPrice: 500,
-        amenities: ['wifi', 'coffee', 'parking'],
+        amenities: 'wifi,coffee,parking',
         sortBy: 'price',
         sortOrder: 'asc',
         page: 1,
@@ -139,7 +139,7 @@ test.describe('Performance & Load Testing', () => {
       });
 
       // Scroll through image gallery to trigger lazy loading
-      await page.locator('[data-testid="image-gallery"]').scrollIntoView();
+      await page.locator('[data-testid="image-gallery"]').evaluate((el: HTMLElement) => el.scrollIntoView());
       await page.waitForTimeout(2000); // Allow images to load
 
       const afterImagesMemory = await page.evaluate(() => {

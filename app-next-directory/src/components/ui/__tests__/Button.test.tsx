@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { buttonVariants } from '../button';
+import { buttonVariants } from '../Button';
 
 describe('Button Component', () => {
   describe('buttonVariants function', () => {

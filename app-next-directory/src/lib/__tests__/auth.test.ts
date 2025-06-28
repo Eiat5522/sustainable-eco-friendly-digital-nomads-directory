@@ -15,8 +15,8 @@ jest.mock('../auth', () => ({
         if (user) {
           return {
             ...token,
-            id: (user as any).id ?? "test-id",
-            role: (user as any).role ?? "user",
+            id: user.id ?? "test-id",
+            role: user.role ?? "user",
             email: user.email ?? "test@example.com",
             name: user.name ?? "Test User",
             image: user.image ?? null,
@@ -25,12 +25,12 @@ jest.mock('../auth', () => ({
         }
         return {
           ...token,
-          id: (token as any).id ?? "test-id",
-          role: (token as any).role ?? "user",
-          email: (token as any).email ?? "test@example.com",
-          name: (token as any).name ?? "Test User",
-          image: (token as any).image ?? null,
-          sub: (token as any).sub ?? (token as any).id ?? "test-id",
+            id: token.id ?? "test-id",
+            role: token.role ?? "user",
+            email: token.email ?? "test@example.com",
+            name: token.name ?? "Test User",
+            image: token.image ?? null,
+            sub: token.sub ?? token.id ?? "test-id",
         } as JWT;
       },
       session: async ({ session, token }: { session: Session; token: JWT }) => {
@@ -38,8 +38,8 @@ jest.mock('../auth', () => ({
           return {
             ...session,
             user: {
-              id: token.sub ?? (token as any).id ?? "test-id",
-              role: (token as any).role ?? "user",
+              id: token.sub ?? token.id ?? "test-id",
+              role: token.role ?? "user",
               email: token.email ?? "test@example.com",
               name: token.name ?? "Test User",
               image: token.image ?? null,
@@ -51,8 +51,8 @@ jest.mock('../auth', () => ({
           ...session,
           user: {
             ...(session.user ?? {}),
-            id: token.sub ?? (token as any).id ?? "test-id",
-            role: (token as any).role ?? "user",
+            id: token.sub ?? token.id ?? "test-id",
+            role: token.role ?? "user",
             email: token.email ?? "test@example.com",
             name: token.name ?? "Test User",
             image: token.image ?? null,

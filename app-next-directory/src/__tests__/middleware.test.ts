@@ -117,9 +117,7 @@ describe('Middleware', () => {
       await middleware(request);
 
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          href: 'https://example.com/dashboard',
-        })
+        'https://example.com/dashboard'
       );
     });
 
@@ -133,9 +131,7 @@ describe('Middleware', () => {
       await middleware(request);
 
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          href: 'https://example.com/dashboard',
-        })
+        'https://example.com/dashboard'
       );
     });
 
@@ -158,9 +154,7 @@ describe('Middleware', () => {
       await middleware(request);
 
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          href: 'https://example.com/auth/signin?callbackUrl=%2Fdashboard',
-        })
+        'https://example.com/auth/signin?callbackUrl=%2Fdashboard'
       );
     });
 
@@ -171,9 +165,7 @@ describe('Middleware', () => {
       await middleware(request);
 
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          href: 'https://example.com/auth/signin?callbackUrl=%2Fadmin%2Fusers',
-        })
+        'https://example.com/auth/signin?callbackUrl=%2Fadmin%2Fusers'
       );
     });
 
@@ -184,9 +176,7 @@ describe('Middleware', () => {
       await middleware(request);
 
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          href: 'https://example.com/auth/signin?callbackUrl=%2Fprofile',
-        })
+        'https://example.com/auth/signin?callbackUrl=%2Fprofile'
       );
     });
 
@@ -312,9 +302,7 @@ describe('Middleware', () => {
       await middleware(request);
 
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          href: 'https://example.com/?error=unauthorized_access',
-        })
+        'https://example.com/?error=unauthorized_access'
       );
     });
 
@@ -364,9 +352,7 @@ describe('Middleware', () => {
       await middleware(request);
 
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          href: 'https://example.com/auth/signin?callbackUrl=%2Fdashboard',
-        })
+        'https://example.com/auth/signin?callbackUrl=%2Fdashboard'
       );
     });
 
@@ -380,9 +366,7 @@ describe('Middleware', () => {
       await middleware(request);
 
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          href: 'https://example.com/auth/signin?callbackUrl=%2Fdashboard',
-        })
+        'https://example.com/auth/signin?callbackUrl=%2Fdashboard'
       );
     });
   });
@@ -412,9 +396,7 @@ describe('Middleware', () => {
       await middleware(request as any);
 
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          href: expect.stringContaining('/auth/signin?callbackUrl=%2Fauth%2Fprofile'),
-        })
+        expect.stringContaining('/auth/signin?callbackUrl=%2Fauth%2Fprofile')
       );
       expect(mockNext).not.toHaveBeenCalled();
     });
@@ -434,9 +416,7 @@ describe('Middleware', () => {
       await middleware(request as any);
 
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.objectContaining({
-          href: expect.stringContaining('/auth/signin?callbackUrl=%2Fauth%2Fprofile%2Fsettings'),
-        })
+        expect.stringContaining('/auth/signin?callbackUrl=%2Fauth%2Fprofile%2Fsettings')
       );
     });
 

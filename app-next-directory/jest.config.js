@@ -47,7 +47,14 @@ const customJestConfig = {
   
   // Transform configuration
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(js|jsx)$': 'babel-jest',
+  },
+  globals: {
+    'ts-jest': {
+      tsconfig: './tsconfig.json',
+      isolatedModules: true,
+    },
   },
   
   // Module file extensions
@@ -57,11 +64,13 @@ const customJestConfig = {
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
+    '<rootDir>/tests/', // Ignore Playwright tests in root tests folder
+    '<rootDir>/app-next-directory/tests/', // Ignore Playwright tests in app-next-directory/tests folder
   ],
   
   // Ignore transforming ESM modules except for these packages (specifically for pnpm)
   transformIgnorePatterns: [
-    '/node_modules/(?!\\.pnpm/(?:next-auth|jose|openid-client|preact-render-to-string|preact)(?:@[^/]+)?(?:_[^/]+)?/node_modules/)/'
+    '/node_modules/(?!\\.pnpm/(?:next-auth|jose|openid-client|preact-render-to-string|preact|@panva/hkdf|next|@next|@testing-library|@babel|uuid|nanoid|node-fetch)(?:@[^/]+)?(?:_[^/]+)?/node_modules/)/'
   ],
   
   // Verbose output

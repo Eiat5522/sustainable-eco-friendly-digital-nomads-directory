@@ -159,7 +159,7 @@ test.describe('Listing Management E2E', () => {
       await userPage2.goto(`/listings/${listing.id}`);
 
       // Submit reviews simultaneously
-      const [review1, review2] = await Promise.all([
+      await Promise.all([
         TestHelpers.submitReview(userPage1, {
           rating: 5,
           comment: 'Great place!',
@@ -172,8 +172,8 @@ test.describe('Listing Management E2E', () => {
 
       // Verify both reviews were saved
       await userPage1.reload();
-      await expect(userPage1.locator(`[data-testid="review-${review1.id}"]`)).toBeVisible();
-      await expect(userPage1.locator(`[data-testid="review-${review2.id}"]`)).toBeVisible();
+      await expect(userPage1.locator('text=Great place!')).toBeVisible();
+      await expect(userPage1.locator('text=Good experience')).toBeVisible();
     });
   });
 
