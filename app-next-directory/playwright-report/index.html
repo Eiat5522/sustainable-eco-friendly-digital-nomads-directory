@@ -1,12 +1,23 @@
 
 
 <!DOCTYPE html>
-<html style='scrollbar-gutter: stable both-edges;'>
+<html lang="en">
   <head>
     <meta charset='UTF-8'>
     <meta name='color-scheme' content='dark light'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>Playwright Test Report</title>
+        <title>Playwright Test Report</title>
+        <style>
+          html {
+            @supports (scrollbar-gutter: stable both-edges) {
+              scrollbar-gutter: stable both-edges;
+            }
+          }
+    
+          body {
+            overscroll-behavior-x: auto;
+          }
+        </style>
     <script type="module">var _h=Object.defineProperty;var $h=(l,s,r)=>s in l?_h(l,s,{enumerable:!0,configurable:!0,writable:!0,value:r}):l[s]=r;var Gt=(l,s,r)=>$h(l,typeof s!="symbol"?s+"":s,r);(function(){const s=document.createElement("link").relList;if(s&&s.supports&&s.supports("modulepreload"))return;for(const c of document.querySelectorAll('link[rel="modulepreload"]'))a(c);new MutationObserver(c=>{for(const f of c)if(f.type==="childList")for(const d of f.addedNodes)d.tagName==="LINK"&&d.rel==="modulepreload"&&a(d)}).observe(document,{childList:!0,subtree:!0});function r(c){const f={};return c.integrity&&(f.integrity=c.integrity),c.referrerPolicy&&(f.referrerPolicy=c.referrerPolicy),c.crossOrigin==="use-credentials"?f.credentials="include":c.crossOrigin==="anonymous"?f.credentials="omit":f.credentials="same-origin",f}function a(c){if(c.ep)return;c.ep=!0;const f=r(c);fetch(c.href,f)}})();function e1(l){return l&&l.__esModule&&Object.prototype.hasOwnProperty.call(l,"default")?l.default:l}var bo={exports:{}},hi={},zo={exports:{}},he={};/**
  * @license React
  * react.production.min.js
