@@ -24,7 +24,7 @@ function makeMockResponse(extra = {}) {
   };
 }
 
-const mockRedirect = jest.fn(() => makeMockResponse());
+const mockRedirect = jest.fn((...args) => makeMockResponse());
 const mockNext = jest.fn(() => makeMockResponse());
 const mockJson = jest.fn(() => makeMockResponse());
 
