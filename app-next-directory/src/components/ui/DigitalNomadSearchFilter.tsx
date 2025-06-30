@@ -225,8 +225,8 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
   };
 
   // Handle search input change
-  const handleSearchChange = (e: { currentTarget: HTMLInputElement }) => {
-    const value = e.currentTarget.value;
+const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
     setSearchQuery(value);
     onSearch?.(value);
   };
@@ -282,7 +282,6 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
               <div className="flex flex-wrap gap-2">
                 {destinations.map((dest) => (
                   <FilterBadge
-                    key={dest.id}
                     variant="pill"
                     label={dest.label}
                     onRemove={
@@ -308,7 +307,6 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
               <div className="flex flex-wrap gap-2">
                 {categories.map((cat) => (
                   <FilterBadge
-                    key={cat.id}
                     variant="pill"
                     label={cat.label}
                     onRemove={
@@ -334,7 +332,6 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
               <div className="flex flex-wrap gap-2">
                 {featuresAmenities.map((feature) => (
                   <FilterBadge
-                    key={feature.id}
                     variant="pill"
                     label={feature.label}
                     onRemove={
