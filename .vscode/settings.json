@@ -16,4 +16,5 @@
   ],
   "gitlens.graph.onlyFollowFirstParent": true,
   "git.openRepositoryInParentFolders": "never",
+  "npm.packageManager": "pnpm",
 }

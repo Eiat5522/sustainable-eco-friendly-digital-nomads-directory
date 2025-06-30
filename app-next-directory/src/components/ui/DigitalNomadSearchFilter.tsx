@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react';
+import * as React from 'react';
 import { Button } from "./Button"
 import { X, Search, Filter, Globe, Building, Mountain, Plane, MapPin, BriefcaseBusiness, 
   BedDouble, Utensils, Activity, Users, Coffee, Lightbulb, Wifi, Camera, Sparkles, 
@@ -226,7 +226,7 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
 
 
 // Handle search input change
-const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
     onSearch?.(value);

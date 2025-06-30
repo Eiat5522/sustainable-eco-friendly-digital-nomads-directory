@@ -116,6 +116,20 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  const updateSettings = <K extends keyof SystemSettings, F extends keyof SystemSettings[K]>(
+    category: K,
+    field: F,
+    value: SystemSettings[K][F]
+  ) => {
+    setSettings((prev: SystemSettings) => ({
+      ...prev,
+      [category]: {
+        ...prev[category],
+        [field]: value,
+      },
+    }));
+  };
+
   const handleSaveSettings = async () => {
     try {
       setSaving(true);
