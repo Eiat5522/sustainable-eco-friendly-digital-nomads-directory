@@ -18,7 +18,7 @@
       "env": {
         "CHROMA_DATA_DIR": "D:/Eiat_Folder/AppData/Local/Cline/MCP/ChromaDB", // Replace with your actual path
       //"CHROMA_LOG_DIR":  "D:/Eiat_Folder/AppData/Local/Cline/MCP/ChromaDB",
-        "CHROMA_LOG_DIR":  "${workspaceFolder`}:/.vscode",
+        "CHROMA_LOG_DIR":  "${workspaceFolder}:/.vscode",
         "LOG_LEVEL": "INFO",
         "MCP_LOG_LEVEL": "INFO"
       }

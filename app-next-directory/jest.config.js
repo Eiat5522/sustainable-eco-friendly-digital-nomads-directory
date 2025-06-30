@@ -24,14 +24,11 @@ const customJestConfig = {
   
   testEnvironment: 'jest-environment-jsdom',
   
-  // Test file patterns
+  // Test file patterns - only match files in __tests__ directories for Jest
   testMatch: [
     '**/__tests__/**/*.test.ts',
     '**/__tests__/**/*.test.tsx',
-    '**/__tests__/**/*.test.js',
-    '**/__tests__/**/*.spec.ts',
-    '**/__tests__/**/*.spec.tsx',
-    '**/__tests__/**/*.spec.js'
+    '**/__tests__/**/*.test.js'
   ],
   
   // Coverage configuration (Keeping existing, as the user didn't specify changes here)
@@ -60,17 +57,17 @@ const customJestConfig = {
   // Module file extensions
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   
-  // Ignore patterns
+  // Ignore patterns - explicitly ignore Playwright test directories
   testPathIgnorePatterns: [
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
-    '<rootDir>/tests/', // Ignore Playwright tests in root tests folder
-    '<rootDir>/app-next-directory/tests/', // Ignore Playwright tests in app-next-directory/tests folder
+    '<rootDir>/tests/',
+    '<rootDir>/app-next-directory/tests/'
   ],
   
   // Ignore transforming ESM modules except for these packages (specifically for pnpm)
   transformIgnorePatterns: [
-    '/node_modules/(?!\\.pnpm/(?:next-auth|jose|openid-client|preact-render-to-string|preact|@panva/hkdf|next|@next|@testing-library|@babel|uuid|nanoid|node-fetch)(?:@[^/]+)?(?:_[^/]+)?/node_modules/)/'
+    '/node_modules/(?!\\.pnpm/(?:next-auth|jose|openid-client|preact-render-to-string|preact|@panva/hkdf|jose|next|@next|@testing-library|@babel|uuid|nanoid|node-fetch|next-auth/jwt)(?:@[^/]+)?(?:_[^/]+)?/node_modules/)/'
   ],
   
   // Verbose output

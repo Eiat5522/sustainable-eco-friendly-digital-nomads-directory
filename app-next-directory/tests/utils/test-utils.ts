@@ -2,7 +2,10 @@ import type { Page } from '@playwright/test';
 import { test as base, expect } from '@playwright/test';
 
 // Extend base test with custom fixtures
-export const test = base.extend({
+export const test = base.extend<{
+  authenticatedPage: Page;
+  adminPage: Page;
+}>({
   // Add authenticated page fixture
   authenticatedPage: async ({ page }, use) => {
     // Log in

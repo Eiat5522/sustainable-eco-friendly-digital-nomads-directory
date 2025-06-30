@@ -8,7 +8,9 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@app-next/types/*": ["app-next-directory/src/types/*"],
+      "@app-next/types/listings": ["app-next-directory/src/types/listings.ts"]
     }
   },
   "include": [

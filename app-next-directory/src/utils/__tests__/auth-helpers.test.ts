@@ -24,6 +24,7 @@ jest.mock('../api-response', () => ({
 
 // Now, import the module under test. It will receive the mocked dependencies.
 import { requireAuth, requireRole, handleAuthError } from '../auth-helpers';
+import { UserRole } from '../../types/auth';
 
 // Helper function to create a mock NextResponse object
 const mockNextResponse = (response: { status: number; body?: any }) => ({

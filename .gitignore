@@ -110,6 +110,7 @@ clean-install.ps1
 **/.roomodes    
 **/.roo
 **/cline_docs
+.clinerules/**/*.md
 
 
 # Code Index MCP cache directory

@@ -3,9 +3,6 @@ import type { JWT } from "next-auth/jwt";
 import type { User } from "next-auth";
 import type { AdapterUser } from "next-auth/adapters";
 
-// Define local UserRole type for test compatibility
-type UserRole = "admin" | "user";
-
 // Mock authOptions from ../auth with required callbacks and types
 jest.mock('../auth', () => ({
   __esModule: true,
@@ -66,6 +63,7 @@ jest.mock('../auth', () => ({
 // Jest unit tests for authOptions callbacks in [`auth.ts`](app-next-directory/src/lib/auth.ts:17)
 
 import authOptions from '../auth';
+import { UserRole } from '../../types/auth';
 
 describe('authOptions.callbacks', () => {
   describe('jwt', () => {
@@ -138,12 +136,12 @@ describe('authOptions.callbacks', () => {
   describe('session', () => {
     it('adds id and role to session.user if token and session.user exist', async () => {
       const session = {
-        user: { id: 'placeholder', role: 'placeholder' as UserRole, email: 'placeholder@example.com', name: 'Placeholder', image: null, emailVerified: null },
+        user: { id: 'placeholder', role: 'admin', email: 'placeholder@example.com', name: 'Placeholder', image: null, emailVerified: null },
         expires: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
       } as Session;
       const token = {
         sub: '123',
-        role: 'admin' as UserRole,
+        role: 'admin',
         email: 'test@example.com',
         name: 'Test User',
         image: null,
@@ -154,7 +152,7 @@ describe('authOptions.callbacks', () => {
         name: 'Dummy User',
         image: null,
         emailVerified: null,
-        role: 'user' as UserRole,
+        role: 'user',
       };
       const result = await authOptions.callbacks!.session!({
         session,
@@ -165,7 +163,7 @@ describe('authOptions.callbacks', () => {
           name: 'Dummy User',
           image: null,
           emailVerified: null,
-          role: 'user' as UserRole,
+          role: 'user',
         },
         newSession: {},
         trigger: "update",
@@ -176,7 +174,7 @@ describe('authOptions.callbacks', () => {
 
     it('defaults role to "user" if token.role is missing', async () => {
       const session = {
-        user: { id: 'placeholder', role: 'placeholder' as UserRole, email: 'placeholder@example.com', name: 'Placeholder', image: null, emailVerified: null },
+        user: { id: 'placeholder', role: 'user', email: 'placeholder@example.com', name: 'Placeholder', image: null, emailVerified: null },
         expires: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
       } as Session;
       const token = {
@@ -191,7 +189,7 @@ describe('authOptions.callbacks', () => {
         name: 'Dummy User',
         image: null,
         emailVerified: null,
-        role: 'user' as UserRole,
+        role: 'user',
       };
       const result = await authOptions.callbacks!.session!({
         session,
@@ -202,7 +200,7 @@ describe('authOptions.callbacks', () => {
           name: 'Dummy User',
           image: null,
           emailVerified: null,
-          role: 'user' as UserRole,
+          role: 'user',
         },
         newSession: {},
         trigger: "update",
@@ -212,12 +210,12 @@ describe('authOptions.callbacks', () => {
 
     it('returns session unchanged if session.user is missing', async () => {
       const session = {
-        user: { id: 'placeholder', role: 'placeholder' as UserRole, email: 'placeholder@example.com', name: 'Placeholder', image: null, emailVerified: null },
+        user: { id: 'placeholder', role: 'user', email: 'placeholder@example.com', name: 'Placeholder', image: null, emailVerified: null },
         expires: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
       } as Session;
       const token = {
         sub: '123',
-        role: 'admin' as UserRole,
+        role: 'admin',
         email: 'test@example.com',
         name: 'Test User',
         image: null,
@@ -230,7 +228,7 @@ describe('authOptions.callbacks', () => {
         name: 'Dummy User',
         image: null,
         emailVerified: null,
-        role: 'user' as UserRole,
+        role: 'user',
       };
       const result = await authOptions.callbacks!.session!({
         session: sessionNoUser,
@@ -241,7 +239,7 @@ describe('authOptions.callbacks', () => {
           name: 'Dummy User',
           image: null,
           emailVerified: null,
-          role: 'user' as UserRole,
+          role: 'user',
         },
         newSession: {},
         trigger: "update",

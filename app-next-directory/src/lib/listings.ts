@@ -1,45 +1,43 @@
-import listingsData from '@/data/listings.json';
-import { Listing } from '@/types/listings';
-
-export function getListings(): Listing[] {
-  return (listingsData as unknown) as Listing[];
-}
-
-export function getListingsByCategory(category: Listing['category']): Listing[] {
-  return getListings().filter(listing => listing.category === category);
-}
-
-export function getListingBySlug(slug: string): Listing | undefined {
-  return getListings().find(listing => listing.slug === slug);
-}
-
+// src/lib/listings.ts
+import { Listing } from '../types/listings';
+import listingsData from '../data/listings.json';
 
 export function getListingsByCity(city: string): Listing[] {
-  return getListings().filter(listing =>
-    listing.city.toLowerCase() === city.toLowerCase()
-  );
+  const cityLower = city.toLowerCase();
+  return (listingsData as unknown as Listing[]).filter(l => l.city.toLowerCase() === cityLower);
 }
 
-export function getUniqueCities(): string[] {
-  return Array.from(new Set(getListings().map(listing => listing.city)));
-}
-
-export function filterListings({
-  category,
-  city,
-  hasEcoTags,
-  hasDnFeatures,
-}: {
-  category?: Listing['category'];
+export interface ListingFilter {
   city?: string;
+  category?: string;
   hasEcoTags?: boolean;
   hasDnFeatures?: boolean;
-}): Listing[] {
-  return getListings().filter(listing => {
-    if (category && listing.category !== category) return false;
-    if (city && listing.city.toLowerCase() !== city.toLowerCase()) return false;
-    if (hasEcoTags && listing.eco_focus_tags.length === 0) return false;
-    if (hasDnFeatures && listing.digital_nomad_features.length === 0) return false;
-    return true;
-  });
+}
+
+export function filterListings(filters: ListingFilter = {}): Listing[] {
+  let result = (listingsData as unknown as Listing[]);
+
+  if (filters.city) {
+    const cityLower = filters.city.toLowerCase();
+    result = result.filter(l => l.city.toLowerCase() === cityLower);
+  }
+
+  if (filters.category) {
+    const catLower = filters.category.toLowerCase();
+    result = result.filter(l => l.category.toLowerCase() === catLower);
+  }
+
+  if (filters.hasEcoTags) {
+    result = result.filter(l => 
+      Array.isArray(l.eco_focus_tags) && l.eco_focus_tags.length > 0
+    );
+  }
+
+  if (filters.hasDnFeatures) {
+    result = result.filter(l => 
+      Array.isArray(l.digital_nomad_features) && l.digital_nomad_features.length > 0
+    );
+  }
+
+  return result;
 }

@@ -2,8 +2,7 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { middleware, config } from '../../app-next-directory/src/middleware';
-import { UserRole } from '../../app-next-directory/src/types/auth';
-
+/* UserRole is a type, not a runtime value. Use string literals for roles. */
 jest.mock('next/server', () => ({
   NextResponse: {
     redirect: jest.fn(),
@@ -42,7 +41,7 @@ describe('Middleware', () => {
   });
 
   it('allows access to protected route if user is authenticated', async () => {
-    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: UserRole.ADMIN });
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'admin' });
     const req = createMockRequest('/admin/dashboard');
     await middleware(req as any);
 
@@ -50,7 +49,7 @@ describe('Middleware', () => {
   });
 
   it('denies access to admin route if user is not admin', async () => {
-    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: UserRole.USER });
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
     const req = createMockRequest('/admin/dashboard');
     await middleware(req as any);
 

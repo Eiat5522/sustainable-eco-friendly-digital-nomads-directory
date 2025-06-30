@@ -3,8 +3,9 @@
  * Jest unit tests for listings.ts.
  * Ensures robust mocking, isolation, and modern Jest best practices.
  */
-import { Listing } from '@/types/listings';
+import { Listing } from '../../types/listings';
 
+// Mock data for listings
 const mockListings: Listing[] = [
   {
     id: '1',
@@ -63,19 +64,10 @@ const mockListings: Listing[] = [
 ];
 
 // Mock listings.json directly. This MUST be above any imports that might use it.
-jest.mock('@/data/listings.json', () => mockListings);
+jest.mock('../../data/listings.json', () => mockListings);
 
-let listingsModule: typeof import('../listings');
-
-beforeEach(() => {
-  jest.resetModules(); // Clears the module registry/cache
-  // Dynamically import the module under test AFTER mocks are set and modules reset
-  listingsModule = require('../listings');
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
+// Import the module under test
+import { getListingsByCity, filterListings } from '../listings';
 
 describe('getListingsByCity', () => {
   /**
@@ -83,19 +75,19 @@ describe('getListingsByCity', () => {
    * Tests city-based filtering, including case insensitivity and empty results.
    */
   it('returns listings for a city (case-insensitive)', () => {
-    const result = listingsModule.getListingsByCity('bangkok');
+    const result = getListingsByCity('bangkok');
     expect(result).toHaveLength(2);
     expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Green Resort']));
   });
 
   it('returns listings for a city with different case', () => {
-    const result = listingsModule.getListingsByCity('CHIANG MAI');
+    const result = getListingsByCity('CHIANG MAI');
     expect(result).toHaveLength(1);
     expect(result[0].name).toEqual('Nomad Cafe'); // Use toEqual for object/value comparison
   });
 
   it('returns empty array if no listings in city', () => {
-    const result = listingsModule.getListingsByCity('Phuket');
+    const result = getListingsByCity('Phuket');
     expect(result).toEqual([]);
   });
 });
@@ -103,39 +95,39 @@ describe('getListingsByCity', () => {
 describe('filterListings', () => {
   /**
    * @description
-   * Tests filtering by various criteria and combinations.
+   * Tests filtering by various criteria and combinations, aligning with DigitalNomadSearchFilter.tsx.
    */
   it('returns all listings if no filters', () => {
-    const result = listingsModule.filterListings({});
+    const result = filterListings({});
     expect(result).toHaveLength(3);
   });
 
   it('filters by category', () => {
-    const result = listingsModule.filterListings({ category: 'accommodation' });
+    const result = filterListings({ category: 'accommodation' });
     expect(result).toHaveLength(2);
     expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Green Resort']));
   });
 
   it('filters by city (case-insensitive)', () => {
-    const result = listingsModule.filterListings({ city: 'bangkok' });
+    const result = filterListings({ city: 'bangkok' });
     expect(result).toHaveLength(2);
     expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Green Resort']));
   });
 
   it('filters by hasEcoTags', () => {
-    const result = listingsModule.filterListings({ hasEcoTags: true });
+    const result = filterListings({ hasEcoTags: true });
     expect(result).toHaveLength(2);
     expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Green Resort']));
   });
 
   it('filters by hasDnFeatures', () => {
-    const result = listingsModule.filterListings({ hasDnFeatures: true });
+    const result = filterListings({ hasDnFeatures: true });
     expect(result).toHaveLength(2);
     expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Nomad Cafe']));
   });
 
   it('filters by multiple criteria', () => {
-    const result = listingsModule.filterListings({
+    const result = filterListings({
       city: 'Bangkok',
       hasEcoTags: true,
       hasDnFeatures: true,
@@ -145,7 +137,7 @@ describe('filterListings', () => {
   });
 
   it('returns empty array if no listings match', () => {
-    const result = listingsModule.filterListings({
+    const result = filterListings({
       city: 'Bangkok',
       category: 'cafe',
     });
@@ -153,7 +145,7 @@ describe('filterListings', () => {
   });
 
   it('returns empty array if all filters exclude all', () => {
-    const result = listingsModule.filterListings({
+    const result = filterListings({
       city: 'Phuket',
       category: 'accommodation',
       hasEcoTags: true,
