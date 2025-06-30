@@ -1,6 +1,6 @@
 'use client';
 
-import { Alert } from '@/components/ui/alert';
+import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -133,7 +133,7 @@ export default function SettingsPage() {
       setLoading(true);
       // TODO: Implement backup functionality
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate backup
-      setSettings((prev: SystemSettings) => ({
+      setSettings((prev: SystemSettings): SystemSettings => ({
         ...prev,
         backup: {
           ...prev.backup,
@@ -146,7 +146,7 @@ export default function SettingsPage() {
       setLoading(false);
     }
   };  const updateGeneralSettings = (field: string, value: string | boolean | number) => {
-    setSettings((prev: SystemSettings) => ({
+    setSettings((prev: SystemSettings): SystemSettings => ({
       ...prev,
       general: {
         ...prev.general,
@@ -156,7 +156,7 @@ export default function SettingsPage() {
   };
 
   const updateModerationSettings = (field: string, value: string | boolean | number | string[]) => {
-    setSettings((prev: SystemSettings) => ({
+    setSettings((prev: SystemSettings): SystemSettings => ({
       ...prev,
       moderation: {
         ...prev.moderation,
@@ -166,7 +166,7 @@ export default function SettingsPage() {
   };
 
   const updateEmailSettings = (field: string, value: string | boolean | number) => {
-    setSettings((prev: SystemSettings) => ({
+    setSettings((prev: SystemSettings): SystemSettings => ({
       ...prev,
       email: {
         ...prev.email,
@@ -175,30 +175,30 @@ export default function SettingsPage() {
     }));
   };
   const updateAnalyticsSettings = (field: string, value: string | boolean | number) => {
-    setSettings((prev: SystemSettings) => ({
+    setSettings((prev: SystemSettings): SystemSettings => ({
       ...prev,
       analytics: {
         ...prev.analytics,
         [field]: value,
-      } as typeof prev.analytics,
+      },
     }));
   };
   const updateApiSettings = (field: string, value: string | boolean | number | string[]) => {
-    setSettings((prev: SystemSettings) => ({
+    setSettings((prev: SystemSettings): SystemSettings => ({
       ...prev,
       api: {
         ...prev.api,
         [field]: value,
-      } as typeof prev.api,
+      },
     }));
   };
   const updateBackupSettings = (field: string, value: string | boolean | number) => {
-    setSettings((prev: SystemSettings) => ({
+    setSettings((prev: SystemSettings): SystemSettings => ({
       ...prev,
       backup: {
         ...prev.backup,
         [field]: value,
-      } as typeof prev.backup,
+      },
     }));
   };
 
@@ -639,6 +639,7 @@ export default function SettingsPage() {
                       <Label htmlFor="backupFrequency">Backup Frequency</Label>
                       <select
                         id="backupFrequency"
+                        title="Select backup frequency"
                         value={settings.backup.frequency}
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateBackupSettings('frequency', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"

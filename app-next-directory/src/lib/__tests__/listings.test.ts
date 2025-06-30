@@ -4,6 +4,7 @@
  * Ensures robust mocking, isolation, and modern Jest best practices.
  */
 import { Listing } from '../../types/listings';
+import { getListingsByCity, filterListings } from '../listings';
 
 // Mock data for listings
 const mockListings: Listing[] = [
@@ -65,9 +66,6 @@ const mockListings: Listing[] = [
 
 // Mock listings.json directly. This MUST be above any imports that might use it.
 jest.mock('../../data/listings.json', () => mockListings);
-
-// Import the module under test
-import { getListingsByCity, filterListings } from '../listings';
 
 describe('getListingsByCity', () => {
   /**

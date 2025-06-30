@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import React from 'react';
 import { Button } from "./Button"
 import { X, Search, Filter, Globe, Building, Mountain, Plane, MapPin, BriefcaseBusiness, 
   BedDouble, Utensils, Activity, Users, Coffee, Lightbulb, Wifi, Camera, Sparkles, 
@@ -81,7 +81,7 @@ const FilterBadge = ({
           title="Remove filter"
           aria-label={`Remove ${label} filter`}
           className="flex h-4 w-4 items-center justify-center rounded-full hover:bg-muted"
-          onClick={(e) => {
+          onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
             e.stopPropagation();
             onRemove();
           }}
@@ -224,8 +224,9 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
     onFilterChange?.(updatedFilters);
   };
 
-  // Handle search input change
-const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+// Handle search input change
+const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
     onSearch?.(value);
