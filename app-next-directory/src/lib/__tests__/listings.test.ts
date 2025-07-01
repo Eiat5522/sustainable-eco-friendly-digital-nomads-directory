@@ -79,15 +79,29 @@ describe('getListingsByCity', () => {
     expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Green Resort']));
   });
 
-  it('returns listings for a city with different case', () => {
+  it('should return listings for a city with different casing', () => {
     const result = getListingsByCity('CHIANG MAI');
     expect(result).toHaveLength(1);
-    expect(result[0].name).toEqual('Nomad Cafe'); // Use toEqual for object/value comparison
+    expect(result[0].name).toEqual('Nomad Cafe');
   });
 
-  it('returns empty array if no listings in city', () => {
+  /**
+   * @description
+   * Tests that getListingsByCity returns an empty array if no listings are found in the city.
+   */
+  it('should return an empty array if no listings in city', () => {
     const result = getListingsByCity('Phuket');
     expect(result).toEqual([]);
+  });
+
+  /**
+   * @description
+   * Tests that getListingsByCity returns all listings for a city with multiple listings.
+   */
+  it('should return all listings for a city with multiple listings', () => {
+    const result = getListingsByCity('Bangkok');
+    expect(result).toHaveLength(2);
+    expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Green Resort']));
   });
 });
 

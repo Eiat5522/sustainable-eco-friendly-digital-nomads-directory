@@ -7,32 +7,28 @@
  * Note: Both test files are needed for full coverage due to differences in mocking vs. real Next.js objects.
  */
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { createMiddleware, config } from '../middleware';
 import { UserRole } from '../types/auth';
+
+import {
+  expectRedirectCalledWith,
+  expectNextCalled,
+  expectJsonCalled,
+  expectHeaderSet
+} from '../tests/helpers/assertions';
+import {
+  makeMockRequest,
+  makeMockResponse,
+  makeMockNextResponse
+} from '../tests/mocks/factories';
 
 // Mock next-auth/jwt
 jest.mock('next-auth/jwt');
 const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
 
-// Helper to always return a full NextResponse-like object
-function makeMockResponse(extra = {}) {
-  return {
-    headers: { set: jest.fn() },
-    ...extra,
-  };
-}
-
-const mockRedirect = jest.fn((...args) => makeMockResponse());
-const mockNext = jest.fn(() => makeMockResponse());
-const mockJson = jest.fn(() => makeMockResponse());
-
-const MockNextResponse = {
-  redirect: mockRedirect,
-  next: mockNext,
-  json: mockJson,
-};
+const { redirect: mockRedirect, next: mockNext, json: mockJson, _mocks } = makeMockNextResponse();
+const MockNextResponse = { redirect: mockRedirect, next: mockNext, json: mockJson };
 
 describe('Middleware', () => {
   let middleware: ReturnType<typeof createMiddleware>;
@@ -41,38 +37,18 @@ describe('Middleware', () => {
     jest.clearAllMocks();
     process.env.NEXTAUTH_SECRET = 'test-secret';
 
-    // Default mock implementations
-    mockNext.mockReturnValue({
-      headers: {
-        set: jest.fn(),
-      },
-    });
-    mockRedirect.mockReturnValue({
-      headers: {
-        set: jest.fn(),
-      },
-    });
-    mockJson.mockReturnValue({
-      headers: {
-        set: jest.fn(),
-      },
-    });
+    // Reset mock return values
+    mockNext.mockReturnValue(makeMockResponse());
+    mockRedirect.mockReturnValue(makeMockResponse());
+    mockJson.mockReturnValue(makeMockResponse());
 
-    // Use the factory to inject mocks
     middleware = createMiddleware({
       getToken,
       NextResponse: MockNextResponse,
     });
   });
 
-  const createMockRequest = (pathname: string) => {
-    return {
-      nextUrl: {
-        pathname,
-      },
-      url: `https://example.com${pathname}`,
-    } as NextRequest;
-  };
+  const createMockRequest = makeMockRequest;
 
   describe('static files and internal routes', () => {
     it('should skip middleware for _next routes', async () => {
@@ -91,7 +67,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockNext).toHaveBeenCalled();
+      expectNextCalled(mockNext);
       expect(mockRedirect).not.toHaveBeenCalled();
     });
 
@@ -101,7 +77,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockNext).toHaveBeenCalled();
+      expectNextCalled(mockNext);
       expect(mockRedirect).not.toHaveBeenCalled();
     });
   });
@@ -116,9 +92,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        expect.stringContaining('https://example.com/dashboard')
-      );
+      expectRedirectCalledWith(mockRedirect, /dashboard/);
     });
 
     it('should redirect authenticated users from signup page to dashboard', async () => {
@@ -130,9 +104,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        expect.stringContaining('https://example.com/dashboard')
-      );
+      expectRedirectCalledWith(mockRedirect, /dashboard/);
     });
 
     it('should allow unauthenticated users to access auth pages', async () => {
@@ -141,7 +113,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockNext).toHaveBeenCalled();
+      expectNextCalled(mockNext);
       expect(mockRedirect).not.toHaveBeenCalled();
     });
   });
@@ -153,9 +125,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        expect.stringContaining('https://example.com/auth/signin?callbackUrl=%2Fdashboard')
-      );
+      expectRedirectCalledWith(mockRedirect, /auth\/signin\?callbackUrl=%2Fdashboard/);
     });
 
     it('should redirect unauthenticated users from admin to signin', async () => {
@@ -164,9 +134,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        expect.stringContaining('https://example.com/auth/signin?callbackUrl=%2Fadmin%2Fusers')
-      );
+      expectRedirectCalledWith(mockRedirect, /auth\/signin\?callbackUrl=%2Fadmin%2Fusers/);
     });
 
     it('should redirect unauthenticated users from profile to signin', async () => {
@@ -175,9 +143,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        expect.stringContaining('https://example.com/auth/signin?callbackUrl=%2Fprofile')
-      );
+      expectRedirectCalledWith(mockRedirect, /auth\/signin\?callbackUrl=%2Fprofile/);
     });
 
     it('should allow authenticated users with proper role to access protected routes', async () => {
@@ -189,7 +155,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockNext).toHaveBeenCalled();
+      expectNextCalled(mockNext);
       expect(mockRedirect).not.toHaveBeenCalled();
     });
   });
@@ -212,7 +178,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockJson).toHaveBeenCalled();
+      expectJsonCalled(mockJson);
       // Note: mockJson is defined to return a response without checking arguments
       // If you need to test the content, update the mock implementation
     });
@@ -236,7 +202,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockNext).toHaveBeenCalled();
+      expectNextCalled(mockNext);
       expect(mockJson).not.toHaveBeenCalled();
     });
   });
@@ -255,9 +221,9 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockHeaderSet).toHaveBeenCalledWith('X-Frame-Options', 'DENY');
-      expect(mockHeaderSet).toHaveBeenCalledWith('X-Content-Type-Options', 'nosniff');
-      expect(mockHeaderSet).toHaveBeenCalledWith('Referrer-Policy', 'strict-origin-when-cross-origin');
+      expectHeaderSet(mockHeaderSet, 'X-Frame-Options', 'DENY');
+      expectHeaderSet(mockHeaderSet, 'X-Content-Type-Options', 'nosniff');
+      expectHeaderSet(mockHeaderSet, 'Referrer-Policy', 'strict-origin-when-cross-origin');
     });
   });
 
@@ -266,12 +232,12 @@ describe('Middleware', () => {
       const request = createMockRequest('/dashboard');
       mockGetToken.mockRejectedValue(new Error('Token error'));
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
 
       await middleware(request);
 
       expect(consoleSpy).toHaveBeenCalledWith('Middleware error:', expect.any(Error));
-      expect(mockNext).toHaveBeenCalled();
+      expectNextCalled(mockNext);
 
       consoleSpy.mockRestore();
     });
@@ -280,11 +246,11 @@ describe('Middleware', () => {
       const request = createMockRequest('/public-page');
       mockGetToken.mockRejectedValue(new Error('JWT error'));
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
 
       await middleware(request);
 
-      expect(mockNext).toHaveBeenCalled();
+      expectNextCalled(mockNext);
       consoleSpy.mockRestore();
     });
   });
@@ -299,9 +265,8 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        expect.stringContaining('https://example.com/?error=unauthorized_access')
-      );
+      // Expect a redirect to an error page or unauthorized notice
+      expectRedirectCalledWith(mockRedirect, /error=unauthorized_access/);
     });
 
     it('should allow access for users with proper role', async () => {
@@ -313,7 +278,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockNext).toHaveBeenCalled();
+      expectNextCalled(mockNext);
       expect(mockRedirect).not.toHaveBeenCalled();
     });
 
@@ -326,7 +291,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockJson).toHaveBeenCalled();
+      expectJsonCalled(mockJson);
       // Note: mockJson is defined to return a response without checking arguments
       // If you need to test the content, update the mock implementation
     });
@@ -339,7 +304,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockNext).toHaveBeenCalled();
+      expectNextCalled(mockNext);
     });
 
     it('should handle malformed token', async () => {
@@ -348,9 +313,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        expect.stringContaining('https://example.com/auth/signin?callbackUrl=%2Fdashboard')
-      );
+      expectRedirectCalledWith(mockRedirect, 'https://example.com/auth/signin?callbackUrl=%2Fdashboard');
     });
 
     it('should handle undefined role in token', async () => {
@@ -362,9 +325,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        expect.stringContaining('https://example.com/auth/signin?callbackUrl=%2Fdashboard')
-      );
+      expectRedirectCalledWith(mockRedirect, /auth\/signin\?callbackUrl=%2Fdashboard/);
     });
   });
 
@@ -382,19 +343,14 @@ describe('Middleware', () => {
       process.env.NEXTAUTH_SECRET = 'test-secret';
     });
 
-    const createMockRequest = (pathname: string) => ({
-      nextUrl: { pathname },
-      url: `https://example.com${pathname}`,
-    });
+    const createMockRequest = makeMockRequest;
 
     it('redirects unauthenticated users to /auth/login with callbackUrl', async () => {
       (getToken as jest.Mock<any>).mockResolvedValue(null);
       const request = createMockRequest('/auth/profile');
       await middleware(request as any);
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        expect.stringContaining('https://example.com/auth/signin?callbackUrl=%2Fauth%2Fprofile')
-      );
+      expectRedirectCalledWith(mockRedirect, /auth\/signin\?callbackUrl=%2Fauth%2Fprofile/);
       expect(mockNext).not.toHaveBeenCalled();
     });
 
@@ -412,15 +368,13 @@ describe('Middleware', () => {
       const request = createMockRequest('/auth/profile/settings');
       await middleware(request as any);
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        "https://example.com/auth/signin?callbackUrl=%2Fauth%2Fprofile%2Fsettings"
-      );
+      expectRedirectCalledWith(mockRedirect, 'https://example.com/auth/signin?callbackUrl=%2Fauth%2Fprofile%2Fsettings');
     });
 
     it('handles getToken errors gracefully', async () => {
       (getToken as jest.Mock<any>).mockRejectedValue(new Error('Token error'));
       const request = createMockRequest('/auth/profile');
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
       await middleware(request as any);
 
       // Should allow request to proceed even if getToken fails
