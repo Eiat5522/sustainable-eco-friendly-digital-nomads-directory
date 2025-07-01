@@ -1,7 +1,5 @@
 import { ACCESS_CONTROL_MATRIX, PagePermissions, UserRole } from '@/types/auth';
 import { getToken } from 'next-auth/jwt';
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
 
 const secret = process.env.NEXTAUTH_SECRET;
 
@@ -99,7 +97,7 @@ export function createMiddleware({
   getToken: any,
   NextResponse: any
 }) {
-  return async function middleware(request: NextRequest) {
+  return async function middleware(request: any) {
     try {
       const token = await getToken({ req: request, secret });
       const { pathname } = request.nextUrl;
@@ -215,7 +213,14 @@ export function createMiddleware({
 }
 
 // Default export for Next.js (uses real dependencies)
-export const middleware = createMiddleware({ getToken, NextResponse });
+// Dynamically require NextResponse for runtime compatibility
+let NextResponseReal: any;
+try {
+  NextResponseReal = require('next/server').NextResponse;
+} catch {
+  NextResponseReal = undefined;
+}
+export const middleware = createMiddleware({ getToken, NextResponse: NextResponseReal });
 
 // Refined matcher configuration
 export const config = {
