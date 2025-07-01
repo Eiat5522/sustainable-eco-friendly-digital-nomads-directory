@@ -1,43 +1,58 @@
 // src/lib/listings.ts
+import listings from '../data/listings.json';
 import { Listing } from '../types/listings';
-import listingsData from '../data/listings.json';
 
 export function getListingsByCity(city: string): Listing[] {
-  const cityLower = city.toLowerCase();
-  return (listingsData as unknown as Listing[]).filter(l => l.city.toLowerCase() === cityLower);
+  return listings.filter(
+    (listing) =>
+      !!listing.city &&
+      listing.city.toLowerCase() === city.trim().toLowerCase() &&
+      (listing.category === 'coworking' ||
+        listing.category === 'cafe' ||
+        listing.category === 'accommodation')
+  ) as Listing[];
 }
 
-export interface ListingFilter {
+type FilterOptions = {
   city?: string;
-  category?: string;
+  category?: 'coworking' | 'cafe' | 'accommodation';
   hasEcoTags?: boolean;
   hasDnFeatures?: boolean;
-}
+};
 
-export function filterListings(filters: ListingFilter = {}): Listing[] {
-  let result = (listingsData as unknown as Listing[]);
-
-  if (filters.city) {
-    const cityLower = filters.city.toLowerCase();
-    result = result.filter(l => l.city.toLowerCase() === cityLower);
-  }
-
-  if (filters.category) {
-    const catLower = filters.category.toLowerCase();
-    result = result.filter(l => l.category.toLowerCase() === catLower);
-  }
-
-  if (filters.hasEcoTags) {
-    result = result.filter(l => 
-      Array.isArray(l.eco_focus_tags) && l.eco_focus_tags.length > 0
+export function filterListings(options: FilterOptions): Listing[] {
+  return listings.filter((listing) => {
+    if (options.city) {
+      if (
+        !listing.city ||
+        listing.city.toLowerCase() !== options.city.trim().toLowerCase()
+      ) {
+        return false;
+      }
+    }
+    if (options.category) {
+      if (listing.category !== options.category) {
+        return false;
+      }
+    }
+    if (options.hasEcoTags) {
+      if (!listing.eco_focus_tags || listing.eco_focus_tags.length === 0) {
+        return false;
+      }
+    }
+    if (options.hasDnFeatures) {
+      if (
+        !listing.digital_nomad_features ||
+        listing.digital_nomad_features.length === 0
+      ) {
+        return false;
+      }
+    }
+    // Ensure category is valid for Listing type
+    return (
+      listing.category === 'coworking' ||
+      listing.category === 'cafe' ||
+      listing.category === 'accommodation'
     );
-  }
-
-  if (filters.hasDnFeatures) {
-    result = result.filter(l => 
-      Array.isArray(l.digital_nomad_features) && l.digital_nomad_features.length > 0
-    );
-  }
-
-  return result;
+  }) as Listing[];
 }

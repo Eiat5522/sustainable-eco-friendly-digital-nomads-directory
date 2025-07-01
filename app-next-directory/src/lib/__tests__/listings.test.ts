@@ -6,6 +6,7 @@
 import { Listing } from '../../types/listings';
 import { getListingsByCity, filterListings } from '../listings';
 
+
 // Mock data for listings
 const mockListings: Listing[] = [
   {
@@ -101,7 +102,7 @@ describe('filterListings', () => {
   });
 
   it('filters by category', () => {
-    const result = filterListings({ category: 'accommodation' });
+    const result = filterListings({ category: 'accommodation' as 'accommodation' });
     expect(result).toHaveLength(2);
     expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Green Resort']));
   });
@@ -137,7 +138,7 @@ describe('filterListings', () => {
   it('returns empty array if no listings match', () => {
     const result = filterListings({
       city: 'Bangkok',
-      category: 'cafe',
+      category: 'cafe' as 'cafe',
     });
     expect(result).toEqual([]);
   });
@@ -145,7 +146,7 @@ describe('filterListings', () => {
   it('returns empty array if all filters exclude all', () => {
     const result = filterListings({
       city: 'Phuket',
-      category: 'accommodation',
+      category: 'accommodation' as 'accommodation',
       hasEcoTags: true,
       hasDnFeatures: true,
     });

@@ -413,7 +413,7 @@ describe('Middleware', () => {
       await middleware(request as any);
 
       expect(mockRedirect).toHaveBeenCalledWith(
-        expect.stringContaining('https://example.com/auth/signin?callbackUrl=%2Fauth%2Fprofile%2Fsettings')
+        "https://example.com/auth/signin?callbackUrl=%2Fauth%2Fprofile%2Fsettings"
       );
     });
 
