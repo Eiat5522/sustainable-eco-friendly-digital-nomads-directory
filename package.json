@@ -42,6 +42,8 @@
   },
   "devDependencies": {
     "@auth/mongodb-adapter": "^3.10.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react-hooks": "^8.0.1",
     "cross-fetch": "^4.1.0",
     "eslint": "^9.29.0",
     "eslint-config-next": "^15.3.4"

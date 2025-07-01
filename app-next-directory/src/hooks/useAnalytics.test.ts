@@ -62,12 +62,12 @@ describe('useAnalytics', () => {
 
     const { result } = renderHook(() => useAnalytics());
     act(() => {
-      result.current.track('user_signup', { method: 'email' });
+      result.current.track('listing_view', { listingId: '123', listingName: 'Test Listing', category: 'Test Category', city: 'Test City' });
     });
 
     expect(trackEvent).toHaveBeenCalledWith({
-      name: 'user_signup',
-      properties: { method: 'email' }
+      name: 'listing_view',
+      properties: { listingId: '123', listingName: 'Test Listing', category: 'Test Category', city: 'Test City' }
     });
   });
 
