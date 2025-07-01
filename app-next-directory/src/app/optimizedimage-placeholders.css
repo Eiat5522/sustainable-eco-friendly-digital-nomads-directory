@@ -1,0 +1,18 @@
+/* OptimizedImage custom background classes for placeholder images */
+.eco-placeholder-bg {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+.blur-placeholder-bg {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px);
+}
+
+/* Utility to set background-image from data attribute (for React inline removal) */
+.eco-placeholder-bg[data-bg-image],
+.blur-placeholder-bg[data-bg-image] {
+  background-image: attr(data-bg-image url);
+}

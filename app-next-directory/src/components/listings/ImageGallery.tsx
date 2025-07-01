@@ -80,11 +80,8 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
         }`}>
           {/* Loading Shimmer */}
           <div
-            className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent
+            className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent image-gallery-shimmer-bg
               ${isLoading ? 'animate-shimmer opacity-100' : 'opacity-0'}`}
-            style={{
-              backgroundSize: '200% 100%'
-            }}
           />          <Image
             src={validImages[selectedImage]}
             alt={`${alt} - Image ${selectedImage + 1}`}
@@ -122,6 +119,8 @@ export function ImageGallery({ images, alt }: ImageGalleryProps) {
                   : 'opacity-70 hover:opacity-100'
               }`}
               disabled={failedImages.has(index)}
+              title={`Show image ${index + 1}`}
+              aria-label={`Show image ${index + 1}`}
             >
               <Image
                 src={image}
