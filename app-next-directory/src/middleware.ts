@@ -18,7 +18,7 @@ type NextResponseLike = {
 function withSecurityHeaders<T extends NextResponseLike>(response: T): T {
   if (!response.headers) response.headers = {} as any;
   if (response.headers && typeof response.headers.set !== 'function') response.headers.set = () => {};
-  if (response.headers) {
+  if (response.headers && typeof response.headers.set === 'function') {
     response.headers.set('X-Frame-Options', 'DENY');
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');

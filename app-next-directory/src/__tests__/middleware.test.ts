@@ -93,7 +93,7 @@ describe('Middleware', () => {
       await middleware(request);
 
       // Fix: Match the full URL string, not just the path
-      expectRedirectCalledWith(mockRedirect, /\/dashboard/);
+      expectRedirectCalledWith(mockRedirect, /^\/dashboard$/);
     });
 
     it('should redirect authenticated users from signup page to dashboard', async () => {
@@ -105,7 +105,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expectRedirectCalledWith(mockRedirect, /dashboard/);
+      expectRedirectCalledWith(mockRedirect, /^\/dashboard$/);
     });
 
     it('should allow unauthenticated users to access auth pages', async () => {
@@ -126,7 +126,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expectRedirectCalledWith(mockRedirect, /auth\/signin\?callbackUrl=%2Fdashboard/);
+      expectRedirectCalledWith(mockRedirect, /^\/auth\/signin\?callbackUrl=%2Fdashboard$/);
     });
 
     it('should redirect unauthenticated users from admin to signin', async () => {
@@ -135,7 +135,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expectRedirectCalledWith(mockRedirect, /auth\/signin\?callbackUrl=%2Fadmin%2Fusers/);
+      expectRedirectCalledWith(mockRedirect, /^\/auth\/signin\?callbackUrl=%2Fadmin%2Fusers$/);
     });
 
     it('should redirect unauthenticated users from profile to signin', async () => {
@@ -144,7 +144,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expectRedirectCalledWith(mockRedirect, /auth\/signin\?callbackUrl=%2Fprofile/);
+      expectRedirectCalledWith(mockRedirect, /^\/auth\/signin\?callbackUrl=%2Fprofile$/);
     });
 
     it('should allow authenticated users with proper role to access protected routes', async () => {
@@ -314,7 +314,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expectRedirectCalledWith(mockRedirect, 'https://example.com/auth/signin?callbackUrl=%2Fdashboard');
+      expectRedirectCalledWith(mockRedirect, /^\/auth\/signin\?callbackUrl=%2Fdashboard$/);
     });
 
     it('should handle undefined role in token', async () => {
@@ -326,7 +326,7 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expectRedirectCalledWith(mockRedirect, /auth\/signin\?callbackUrl=%2Fdashboard/);
+      expectRedirectCalledWith(mockRedirect, /^\/auth\/signin\?callbackUrl=%2Fdashboard$/);
     });
   });
 
@@ -351,7 +351,7 @@ describe('Middleware', () => {
       const request = createMockRequest('/auth/profile');
       await middleware(request as any);
 
-      expectRedirectCalledWith(mockRedirect, /auth\/signin\?callbackUrl=%2Fauth%2Fprofile/);
+      expectRedirectCalledWith(mockRedirect, /^\/auth\/signin\?callbackUrl=%2Fauth%2Fprofile$/);
       expect(mockNext).not.toHaveBeenCalled();
     });
 
@@ -369,7 +369,10 @@ describe('Middleware', () => {
       const request = createMockRequest('/auth/profile/settings');
       await middleware(request as any);
 
-      expectRedirectCalledWith(mockRedirect, 'https://example.com/auth/signin?callbackUrl=%2Fauth%2Fprofile%2Fsettings');
+      expectRedirectCalledWith(
+       mockRedirect,
+       /^\/auth\/signin\?callbackUrl=%2Fauth%2Fprofile%2Fsettings$/
+     );
     });
 
     it('handles getToken errors gracefully', async () => {

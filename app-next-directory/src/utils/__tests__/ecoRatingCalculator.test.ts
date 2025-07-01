@@ -78,5 +78,7 @@ describe('calculateEcoRating', () => {
     };
     expect(calculateEcoRating(input, weights)).toBe(0);
   });
+
+
 });
 

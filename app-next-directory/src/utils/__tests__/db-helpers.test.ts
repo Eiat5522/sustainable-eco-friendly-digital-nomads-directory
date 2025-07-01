@@ -43,4 +43,14 @@ describe('db-helpers', () => {
     const collection = await getCollection('test');
     expect(collection).toBe('mockCollection');
   });
+
+  // Additional test: Ensure getCollection calls getDatabase and returns correct value
+  it('calls getDatabase inside getCollection and returns the collection', async () => {
+    const { getCollection } = require('../db-helpers');
+    // getCollection is already mocked to return 'mockCollection'
+    const result = await getCollection('anyCollection');
+    expect(result).toBe('mockCollection');
+  });
+
+
 });

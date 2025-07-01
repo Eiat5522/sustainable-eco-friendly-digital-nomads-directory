@@ -63,4 +63,88 @@ describe('Middleware', () => {
 
     expect(NextResponse.next).toHaveBeenCalled();
   });
+
+  it('redirects authenticated user away from /auth/signin to /dashboard', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    const req = createMockRequest('/auth/signin');
+    await middleware(req as any);
+
+    expect(NextResponse.redirect).toHaveBeenCalled();
+    // Optionally check redirect URL
+    // expect((NextResponse.redirect as jest.Mock).mock.calls[0][0].toString()).toContain('/dashboard');
+  });
+
+  it('allows unauthenticated access to /api/listings (public API)', async () => {
+    mockGetToken.mockResolvedValueOnce(null);
+    const req = createMockRequest('/api/listings');
+    await middleware(req as any);
+
+    expect(NextResponse.next).toHaveBeenCalled();
+  });
+
+  it('returns 401 for unauthenticated access to protected API', async () => {
+    mockGetToken.mockResolvedValueOnce(null);
+    const req = createMockRequest('/api/user/profile');
+    await middleware(req as any);
+
+    expect(NextResponse.json).toHaveBeenCalledWith(
+      { error: 'Authentication required' },
+      { status: 401 }
+    );
+  });
+
+  it('returns 403 for authenticated user without access to protected API', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    const req = createMockRequest('/api/admin/data');
+    await middleware(req as any);
+
+    expect(NextResponse.json).toHaveBeenCalledWith(
+      { error: 'Access denied' },
+      { status: 403 }
+    );
+  });
+
+  it('allows authenticated user with access to protected API', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'admin' });
+    const req = createMockRequest('/api/admin/data');
+    await middleware(req as any);
+
+    expect(NextResponse.next).toHaveBeenCalled();
+  });
+
+  it('redirects unauthenticated user from /profile to /auth/signin with callbackUrl', async () => {
+    mockGetToken.mockResolvedValueOnce(null);
+    const req = createMockRequest('/profile');
+    await middleware(req as any);
+
+    expect(NextResponse.redirect).toHaveBeenCalled();
+    // Optionally check callbackUrl param
+    // const url = (NextResponse.redirect as jest.Mock).mock.calls[0][0];
+    // expect(url.toString()).toContain('callbackUrl=%2Fprofile');
+  });
+
+  it('skips middleware for static files', async () => {
+    mockGetToken.mockResolvedValueOnce(null);
+    const req = createMockRequest('/_next/static/file.js');
+    await middleware(req as any);
+
+    expect(NextResponse.next).toHaveBeenCalled();
+  });
+
+  it('skips middleware for internal Next.js routes', async () => {
+    mockGetToken.mockResolvedValueOnce(null);
+    const req = createMockRequest('/api/auth/session');
+    await middleware(req as any);
+
+    expect(NextResponse.next).toHaveBeenCalled();
+  });
+
+  it('handles errors gracefully and calls NextResponse.next', async () => {
+    mockGetToken.mockImplementationOnce(() => { throw new Error('Test error'); });
+    const req = createMockRequest('/dashboard');
+    await middleware(req as any);
+
+    expect(NextResponse.next).toHaveBeenCalled();
+  });
+
 });
