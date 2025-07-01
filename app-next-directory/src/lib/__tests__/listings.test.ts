@@ -4,8 +4,6 @@
  * Ensures robust mocking, isolation, and modern Jest best practices.
  */
 import { Listing } from '../../types/listings';
-import { getListingsByCity, filterListings } from '../listings';
-
 
 // Mock data for listings
 const mockListings: Listing[] = [
@@ -65,14 +63,19 @@ const mockListings: Listing[] = [
   },
 ];
 
-// Mock listings.json directly. This MUST be above any imports that might use it.
-jest.mock('../../data/listings.json', () => mockListings);
+// Always reset modules and mock listings.json before each test suite
+beforeEach(() => {
+  jest.resetModules();
+  jest.doMock('../../data/listings.json', () => mockListings, { virtual: true });
+});
 
 describe('getListingsByCity', () => {
-  /**
-   * @description
-   * Tests city-based filtering, including case insensitivity and empty results.
-   */
+  let getListingsByCity: typeof import('../listings').getListingsByCity;
+  beforeEach(() => {
+    // Re-import after mocking
+    getListingsByCity = require('../listings').getListingsByCity;
+  });
+
   it('returns listings for a city (case-insensitive)', () => {
     const result = getListingsByCity('bangkok');
     expect(result).toHaveLength(2);
@@ -85,19 +88,11 @@ describe('getListingsByCity', () => {
     expect(result[0].name).toEqual('Nomad Cafe');
   });
 
-  /**
-   * @description
-   * Tests that getListingsByCity returns an empty array if no listings are found in the city.
-   */
   it('should return an empty array if no listings in city', () => {
     const result = getListingsByCity('Phuket');
     expect(result).toEqual([]);
   });
 
-  /**
-   * @description
-   * Tests that getListingsByCity returns all listings for a city with multiple listings.
-   */
   it('should return all listings for a city with multiple listings', () => {
     const result = getListingsByCity('Bangkok');
     expect(result).toHaveLength(2);
@@ -106,10 +101,12 @@ describe('getListingsByCity', () => {
 });
 
 describe('filterListings', () => {
-  /**
-   * @description
-   * Tests filtering by various criteria and combinations, aligning with DigitalNomadSearchFilter.tsx.
-   */
+  let filterListings: typeof import('../listings').filterListings;
+  beforeEach(() => {
+    // Re-import after mocking
+    filterListings = require('../listings').filterListings;
+  });
+
   it('returns all listings if no filters', () => {
     const result = filterListings({});
     expect(result).toHaveLength(3);

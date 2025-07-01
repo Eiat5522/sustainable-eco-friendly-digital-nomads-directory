@@ -92,7 +92,8 @@ describe('Middleware', () => {
 
       await middleware(request);
 
-      expectRedirectCalledWith(mockRedirect, /dashboard/);
+      // Fix: Match the full URL string, not just the path
+      expectRedirectCalledWith(mockRedirect, /\/dashboard/);
     });
 
     it('should redirect authenticated users from signup page to dashboard', async () => {
