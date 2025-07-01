@@ -17,7 +17,7 @@ export function useAnalytics() {
     const search = searchParams?.toString();
     trackPageView({
       title: document.title,
-      path: pathname,
+      path: pathname ?? '',
       search: search ? `?${search}` : undefined,
       referrer: document.referrer
     });
