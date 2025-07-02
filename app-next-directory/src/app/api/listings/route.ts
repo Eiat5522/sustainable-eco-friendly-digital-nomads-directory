@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 /**
  * Factory to create GET and POST handlers with injected dependencies.
@@ -19,22 +19,14 @@ export function createListingsHandlers({
       const { searchParams } = new URL(request.url);
       const page = parseInt(searchParams.get('page') || '1');
       const limit = parseInt(searchParams.get('limit') || '10');
-      const category = searchParams.get('category');
-      const featured = searchParams.get('featured') === 'true';
-      const location = searchParams.get('location');
 
       const listings = await getCollection('listings');
-
-      const filter: any = { status: 'active' };
-      if (category) filter.category = category;
-      if (location) filter.location = { $regex: location, $options: 'i' };
-      if (featured) filter['moderation.featured'] = true;
 
       const skip = (page - 1) * limit;
 
       const [results, total] = await Promise.all([
-        listings.find(filter).skip(skip).limit(limit).toArray(),
-        listings.countDocuments(filter)
+        listings.find({}).skip(skip).limit(limit).toArray(),
+        listings.countDocuments(),
       ]);
 
       const resp = ApiResponseHandler.success({
@@ -43,8 +35,8 @@ export function createListingsHandlers({
           page,
           limit,
           total,
-          pages: Math.ceil(total / limit)
-        }
+          pages: Math.ceil(total / limit),
+        },
       });
       return resp ?? {
         listings: results,
@@ -52,8 +44,8 @@ export function createListingsHandlers({
           page,
           limit,
           total,
-          pages: Math.ceil(total / limit)
-        }
+          pages: Math.ceil(total / limit),
+        },
       };
     } catch (error) {
       const errResp = ApiResponseHandler.error('Failed to fetch listings');
@@ -62,71 +54,64 @@ export function createListingsHandlers({
   }
 
   async function POST(request: Request) {
+    let user;
     try {
-      const session = await requireAuth();
+      const auth = await requireAuth();
+      user = auth.user;
+    } catch (err) {
+      return handleAuthError(err as Error);
+    }
 
-      // Only premium users can create listings
-      if ((session.user as any).plan !== 'premium') {
-        const forbiddenResp = ApiResponseHandler.forbidden();
-        return forbiddenResp ?? { error: 'Forbidden' };
-      }
+    if (!user || user.plan !== 'premium') {
+      return ApiResponseHandler.forbidden();
+    }
 
-      // Parse and validate request body
-      const body = await request.json();
-      const validationResult = createListingSchema.safeParse(body);
+    let data;
+    try {
+      data = await request.json();
+    } catch {
+      return ApiResponseHandler.error('Invalid JSON', 400);
+    }
 
-      if (!validationResult.success) {
-        const invalidResp = ApiResponseHandler.error(
-          'Invalid listing data',
-          400,
-          validationResult.error.errors
-        );
-        return invalidResp ?? {
-          error: 'Invalid listing data',
-          details: validationResult.error.errors
-        };
-      }
+    const errors = validateListingData(data);
+    if (errors.length > 0) {
+      return ApiResponseHandler.error('Invalid listing data', 400, errors);
+    }
 
-      const validatedData = validationResult.data;
-      const listings = await getCollection('listings');
+    const listings = await getCollection('listings');
+    const existingListing = await listings.findOne({ slug: data.slug });
+    if (existingListing) {
+      return ApiResponseHandler.error('Listing with this slug already exists', 409);
+    }
 
-      // Check for duplicate slug
-      const existingListing = await listings.findOne({ slug: validatedData.slug });
-      if (existingListing) {
-        const dupResp = ApiResponseHandler.error('Listing with this slug already exists', 409);
-        return dupResp ?? { error: 'Listing with this slug already exists' };
-      }
+    const newListing = {
+      ...data,
+      ownerId: user.id,
+      status: 'active',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-      const newListing = {
-        ...validatedData,
-        ownerId: session.user.id,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        status: 'active'
-      };
+    const result = await listings.insertOne(newListing);
 
-      const result = await listings.insertOne(newListing);
-
-      const postResp = ApiResponseHandler.success(
-        { id: result.insertedId, ...newListing },
-        'Listing created successfully'
-      );
-      return postResp ?? {
+    const postResp = ApiResponseHandler.success(
+      {
         id: result.insertedId,
         ...newListing,
-        message: 'Listing created successfully'
-      };
-    } catch (error) {
-      const authErrResp = handleAuthError(error as Error);
-      return authErrResp ?? { error: 'Authentication error' };
-    }
+      },
+      'Listing created successfully'
+    );
+    return postResp ?? {
+      id: result.insertedId,
+      ...newListing,
+      message: 'Listing created successfully',
+    };
   }
 
   return { GET, POST };
 }
 
 // Default exports for Next.js API routes (using real dependencies)
-import { ApiResponseHandler } from '@/utils/api-response';
 import { handleAuthError, requireAuth } from '@/utils/auth-helpers';
 import { getCollection } from '@/utils/db-helpers';
 
@@ -139,15 +124,26 @@ const { GET, POST } = createListingsHandlers({
 
 export { GET, POST };
 
-// Add schema for listing creation
-const createListingSchema = z.object({
-  title: z.string().min(3).max(100),
-  description: z.string().min(10),
-  slug: z.string().min(3).max(100).regex(/^[a-z0-9-]+$/),
-  category: z.string().min(1),
-  location: z.string().min(1),
-  // Add/adjust fields as needed for your model
-  // e.g. price: z.number().optional(),
+// --- Validation helper ---
+function validateListingData(data: any) {
+  const errors: string[] = [];
+  if (!data.title || typeof data.title !== 'string' || data.title.length < 3) {
+    errors.push('Title must be at least 3 characters.');
+  }
+  if (!data.description || typeof data.description !== 'string' || data.description.length < 10) {
+    errors.push('Description must be at least 10 characters.');
+  }
+  if (!data.slug || typeof data.slug !== 'string' || !/^[a-z0-9-]+$/.test(data.slug)) {
+    errors.push('Slug is required and must be URL-friendly.');
+  }
+  if (!data.category || typeof data.category !== 'string') {
+    errors.push('Category is required.');
+  }
+  if (!data.location || typeof data.location !== 'string') {
+    errors.push('Location is required.');
+  }
+  return errors;
+}
   // images: z.array(z.string().url()).optional(),
   // moderation: z.object({ featured: z.boolean() }).optional(),
-});
+

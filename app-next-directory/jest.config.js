@@ -19,6 +19,7 @@ const customJestConfig = {
     '<rootDir>/tests/',
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
+    '<rootDir>/src/__tests__/__mocks__/'
   ],
 }
 

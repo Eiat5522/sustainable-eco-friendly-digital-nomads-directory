@@ -14,6 +14,7 @@ module.exports = {
     "<rootDir>/app-next-directory/tests/visual/",
     "<rootDir>/app-next-directory/tests/cross-browser/",
     "<rootDir>/app-next-directory/tests/api/", // Exclude all Playwright API tests
+    "<rootDir>/sanity/",
     "<rootDir>/sanity-backup/"
   ],
   collectCoverage: true,
