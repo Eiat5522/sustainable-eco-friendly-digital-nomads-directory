@@ -1,5 +1,6 @@
 import { describe, it, expect } from '@jest/globals';
-import { buttonVariants } from '../Button';
+import { render, screen, fireEvent } from "@testing-library/react";
+import { buttonVariants, Button } from '../Button';
 
 describe('Button Component', () => {
   describe('buttonVariants function', () => {
@@ -89,5 +90,26 @@ describe('Button Component', () => {
       expect(classes).toContain('bg-primary');
       expect(classes).toContain('h-9');
     });
+  });
+
+  it("should forward props to the underlying button element", () => {
+    render(<Button data-testid="test-button" aria-label="Test Button" />);
+    const button = screen.getByTestId("test-button");
+    expect(button.getAttribute("aria-label")).toBe("Test Button");
+  });
+
+  it("should handle click events", () => {
+    const onClick = jest.fn();
+    render(<Button onClick={onClick}>Test Button</Button>);
+    const button = screen.getByRole("button", { name: "Test Button" });
+    fireEvent.click(button);
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it("should have correct accessibility attributes", () => {
+    render(<Button disabled aria-label="Disabled Button">Test Button</Button>);
+    const button = screen.getByRole("button", { name: "Disabled Button" });
+    expect((button as HTMLButtonElement).disabled).toBe(true);
+    expect(button.getAttribute("aria-label")).toBe("Disabled Button");
   });
 });

@@ -22,7 +22,7 @@ export const authOptions: AuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.sub;
+        session.user.id = token.sub ?? "";
         (session.user as any).role = token.role || 'user';
       }
       return session;

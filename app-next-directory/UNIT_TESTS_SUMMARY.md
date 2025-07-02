@@ -240,3 +240,13 @@ The unit test suite provides comprehensive coverage of the major classes and fun
 **Total Test Files**: 7
 **Test Categories**: 5 (Utils, API, Hooks, Components, Middleware)
 **Coverage Focus**: Critical business logic, user interactions, and error handling
+
+### Remaining Tasks
+
+1. **Fix TypeScript error in `updateListingsWithCoordinates` tests**: The tests for `updateListingsWithCoordinates` are currently not working due to a TypeScript error. This needs to be addressed to ensure that the function is properly tested.
+2. **Add more specific tests for `geocodeAddress`**: The existing tests for `geocodeAddress` cover basic scenarios, but more specific tests could be added to cover different API response formats, edge cases, and error conditions.
+3. **Add tests for different error scenarios in `findLandmarkCoordinates`**: The existing tests for `findLandmarkCoordinates` cover basic scenarios, but more tests could be added to cover different error conditions, such as invalid landmark data.
+4. **API Route Tests**: Unit tests for Next.js API routes
+5. **Integration Tests**: End-to-end user workflow testing
+6. **Performance Tests**: Component rendering performance
+7. **Visual Regression Tests**: UI consistency validation
