@@ -37,7 +37,7 @@ export function createListingsHandlers({
         listings.countDocuments(filter)
       ]);
 
-      return ApiResponseHandler.success({
+      const resp = ApiResponseHandler.success({
         listings: results,
         pagination: {
           page,
@@ -46,8 +46,18 @@ export function createListingsHandlers({
           pages: Math.ceil(total / limit)
         }
       });
+      return resp ?? {
+        listings: results,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit)
+        }
+      };
     } catch (error) {
-      return ApiResponseHandler.error('Failed to fetch listings');
+      const errResp = ApiResponseHandler.error('Failed to fetch listings');
+      return errResp ?? { error: 'Failed to fetch listings' };
     }
   }
 
@@ -57,7 +67,8 @@ export function createListingsHandlers({
 
       // Only premium users can create listings
       if ((session.user as any).plan !== 'premium') {
-        return ApiResponseHandler.forbidden();
+        const forbiddenResp = ApiResponseHandler.forbidden();
+        return forbiddenResp ?? { error: 'Forbidden' };
       }
 
       // Parse and validate request body
@@ -65,11 +76,15 @@ export function createListingsHandlers({
       const validationResult = createListingSchema.safeParse(body);
 
       if (!validationResult.success) {
-        return ApiResponseHandler.error(
+        const invalidResp = ApiResponseHandler.error(
           'Invalid listing data',
           400,
           validationResult.error.errors
         );
+        return invalidResp ?? {
+          error: 'Invalid listing data',
+          details: validationResult.error.errors
+        };
       }
 
       const validatedData = validationResult.data;
@@ -78,7 +93,8 @@ export function createListingsHandlers({
       // Check for duplicate slug
       const existingListing = await listings.findOne({ slug: validatedData.slug });
       if (existingListing) {
-        return ApiResponseHandler.error('Listing with this slug already exists', 409);
+        const dupResp = ApiResponseHandler.error('Listing with this slug already exists', 409);
+        return dupResp ?? { error: 'Listing with this slug already exists' };
       }
 
       const newListing = {
@@ -91,12 +107,18 @@ export function createListingsHandlers({
 
       const result = await listings.insertOne(newListing);
 
-      return ApiResponseHandler.success(
+      const postResp = ApiResponseHandler.success(
         { id: result.insertedId, ...newListing },
         'Listing created successfully'
       );
+      return postResp ?? {
+        id: result.insertedId,
+        ...newListing,
+        message: 'Listing created successfully'
+      };
     } catch (error) {
-      return handleAuthError(error as Error);
+      const authErrResp = handleAuthError(error as Error);
+      return authErrResp ?? { error: 'Authentication error' };
     }
   }
 
