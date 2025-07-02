@@ -2,9 +2,11 @@
 
 This directory contains all project documentation for the **Sustainable Eco-Friendly Digital Nomads Directory** monorepo.
 
+---
+
 ## 🗂️ Documentation Organization
 
-Documentation is organized by domain:
+Documentation is organized by domain and workstream:
 
 ```
 docs/
@@ -12,7 +14,9 @@ docs/
 ├── app-next-directory/          # Next.js app documentation
 ├── sanity/                      # Sanity CMS documentation
 ├── shared/                      # Cross-domain/project docs
-└── assets/                      # Images, diagrams, brand assets
+├── assets/                      # Images, diagrams, brand assets
+├── monorepo/                    # Monorepo-level guides
+├── Testing/                     # Testing guides and coverage
 ```
 
 ### Key Subfolders
@@ -21,12 +25,20 @@ docs/
 - `sanity/`: CMS overview, schema guides, migration, editorial workflow
 - `shared/`: Coding standards, git workflow, troubleshooting
 - `assets/`: Images, diagrams, and brand assets
+- `monorepo/`: Monorepo setup, deployment, and workspace management
+- `Testing/`: Playwright, E2E, and unit testing documentation
+
+---
 
 ## 🚦 Status
 
 - All legacy documentation migrated to this structure
-- Six key context files retained in `memory-bank/`
-- References to old doc locations are being updated
+- Six key context files retained in [`memory-bank/`](../memory-bank/)
+- All references to old doc locations updated
+- Documentation reflects completed workstreams (A–D2), admin dashboard, analytics, geo-search, and integration/testing phase readiness
+- Troubleshooting guides and deployment checklist available in [`shared/`](shared/) and [`monorepo/`](monorepo/)
+
+---
 
 ## 🔗 Quick Navigation
 
@@ -34,10 +46,20 @@ docs/
 - [Sanity CMS Overview](sanity/README.md)
 - [Coding Standards](shared/CODING_STANDARDS.md)
 - [Deployment Guide](monorepo/DEPLOYMENT_GUIDE.md)
+- [Testing Guide](Testing/README.md)
+- [Troubleshooting](shared/TROUBLESHOOTING.md)
+- [Deployment Checklist](monorepo/DEPLOYMENT_GUIDE.md#deployment-checklist)
+
+---
 
 ## 📝 Notes
 
-This documentation reflects the current npm workspaces and monorepo structure. For context and session logs, see `memory-bank/`.
+- This documentation reflects the current npm workspaces and monorepo structure.
+- For context and session logs, see [`memory-bank/`](../memory-bank/).
+- All new features, admin endpoints, and technical changes are documented in their respective sections.
+- For the latest project status, see [`memory-bank/activeContext.md`](../memory-bank/activeContext.md) and [`memory-bank/progress.md`](../memory-bank/progress.md).
+
+---
 
 ## 🚀 Quick Navigation
 
@@ -63,6 +85,9 @@ This documentation reflects the current npm workspaces and monorepo structure. F
 
 - **🚀 Production Deploy**: [`monorepo/DEPLOYMENT_GUIDE.md`](monorepo/DEPLOYMENT_GUIDE.md)
 - **🐛 Troubleshooting**: [`shared/TROUBLESHOOTING.md`](shared/TROUBLESHOOTING.md)
+- **✅ Deployment Checklist**: [`monorepo/DEPLOYMENT_GUIDE.md#deployment-checklist`](monorepo/DEPLOYMENT_GUIDE.md#deployment-checklist)
+
+---
 
 ## 📦 Workspace Context
 
@@ -79,12 +104,16 @@ This documentation reflects our **npm workspaces** structure:
 
 Each workspace has its own dedicated documentation section while shared concerns are documented in cross-cutting sections.
 
+---
+
 ## 🔄 Documentation Maintenance
 
 - **Update Frequency**: Documentation is updated with each major feature or architectural change
 - **Review Process**: Documentation changes are reviewed as part of the PR process
 - **Version Control**: All documentation is version-controlled alongside code
 - **Format**: We use Markdown with consistent formatting and emoji indicators
+
+---
 
 ## 🤝 Contributing to Documentation
 

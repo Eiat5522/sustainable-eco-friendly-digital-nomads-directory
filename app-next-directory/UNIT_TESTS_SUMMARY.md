@@ -250,3 +250,45 @@ The unit test suite provides comprehensive coverage of the major classes and fun
 5. **Integration Tests**: End-to-end user workflow testing
 6. **Performance Tests**: Component rendering performance
 7. **Visual Regression Tests**: UI consistency validation
+
+## Summary of Code CCoverage as of 3rd July 2026
+
+-------------------------|---------|----------|---------|---------|----------------------------------------------
+
+File                     | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------------|---------|----------|---------|---------|----------------------------------------------
+All files                |   86.65 |    74.48 |    92.2 |   87.25 |
+ src                     |   72.88 |    67.12 |   88.88 |   74.54 |
+  middleware.ts          |   72.88 |    67.12 |   88.88 |   74.54 | ...,44,47-53,59,71-83,93,141-148,199-201,221
+ src/app/api/listings    |   86.27 |    78.78 |     100 |      88 |
+  route.ts               |   86.27 |    78.78 |     100 |      88 | 73,125,134,137,140,143
+ src/components/ui       |     100 |    66.66 |     100 |     100 |
+  Button.tsx             |     100 |    66.66 |     100 |     100 | 45
+ src/hooks               |     100 |      100 |     100 |     100 |
+  useFilters.ts          |     100 |      100 |     100 |     100 |
+ src/lib                 |   91.62 |    71.54 |   92.59 |   91.32 |
+  adapters.ts            |     100 |    43.75 |     100 |     100 | 42-48
+  api.ts                 |     100 |      100 |     100 |     100 |
+  auth.ts                |   38.46 |        0 |       0 |   36.36 | 18-28
+  carbon-awareness.ts    |   97.05 |    71.42 |     100 |   97.05 | 87
+  dbConnect.ts           |   95.45 |    66.66 |     100 |   95.23 | 20
+  geocode.ts             |   95.52 |     85.1 |     100 |   94.44 | 47-49
+  getListingImages.js    |     100 |      100 |     100 |     100 |
+  listings.ts            |     100 |      100 |     100 |     100 |
+  mongodb.js             |   64.28 |       25 |     100 |   61.53 | 4,16-20
+  utils.ts               |     100 |      100 |     100 |     100 |
+ src/middleware          |     100 |      100 |     100 |     100 |
+  authCallbackHandler.ts |     100 |      100 |     100 |     100 |
+ src/types               |   91.66 |      100 |     100 |     100 |
+  auth.ts                |   91.66 |      100 |     100 |     100 |
+ src/utils               |   84.04 |     82.5 |      80 |   84.61 |
+  api-response.ts        |     100 |      100 |     100 |     100 |
+  auth-helpers.ts        |     100 |      100 |     100 |     100 |
+  db-helpers.ts          |      50 |       50 |       0 |      50 | 11-15,22-23,27-28
+  ecoRatingCalculator.ts |     100 |    85.71 |     100 |     100 | 36
+  rate-limit.ts          |   80.55 |    66.66 |      75 |   82.35 | 16-19,94,99
+-------------------------|---------|----------|---------|---------|----------------------------------------------
+
+Test Suites: 24 passed, 24 total
+Tests:       218 passed, 218 total
+Snapshots:   1 passed, 1 total

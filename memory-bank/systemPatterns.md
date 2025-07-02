@@ -1,35 +1,40 @@
 
-# System Patterns (Updated: May 15, 2025)
+# System Patterns
+
+**Last Updated:** July 3, 2025
+
+---
 
 ## Core Architecture
 
 - Next.js 15.3.2 (App Router, TypeScript)
 - Tailwind CSS 4.1.6
-- Leaflet.js for interactive maps (client-only)
-- StaticMapImage for SSR/SEO fallback
-- Sanity CMS for content management (secure, patched, and up-to-date)
-- MongoDB Atlas for user data
-- NextAuth.js for authentication
+- Leaflet.js (client-only interactive maps)
+- StaticMapImage (SSR/SEO fallback)
+- Sanity CMS (secure, patched, up-to-date)
+- MongoDB Atlas (user data)
+- NextAuth.js (authentication)
+
+---
 
 ## Implementation Patterns
 
 ### Map Integration
 
-- All map components use dynamic import with SSR disabled
-- MapContainer handles dynamic loading
-- StaticMapImage provides SEO-friendly fallback
-- Map logic isolated in client-only components
+- Dynamic import for all map components (SSR disabled)
+- MapContainer for dynamic loading
+- StaticMapImage for SEO fallback
+- Client-only map logic
 - Marker clustering for performance
-
 
 ### Content Management
 
-- Sanity Studio hosted on project subdomain
-- Content models defined in TypeScript
-- Real-time preview using webhooks
+- Sanity Studio on project subdomain
+- Content models in TypeScript
+- Real-time preview via webhooks
 - Asset optimization pipeline
-- Custom patch script for PrismJS vulnerabilities (see security log)
-- Security configuration: CSP, CORS, authentication, .env, schema docs
+- Custom PrismJS patch script
+- Security: CSP, CORS, authentication, .env, schema docs
 
 ### Component Architecture
 
@@ -37,18 +42,19 @@
 - Shadcn-inspired UI components
 - Reusable base components
 - Mobile-first responsive design
-- Performance-optimized loading states
+- Optimized loading states
 
-### Testing Strategy
+### Testing
 
-- Playwright for end-to-end tests
-- Jest and React Testing Library for unit and component tests
-- Comprehensive unit tests for core utilities like geocoding (`src/lib/geocode.ts`)
-- API mocking for reliability
-- Custom test utilities
-- Continuous integration via GitHub Actions
+- Playwright (E2E, visual, accessibility)
+- Jest & React Testing Library (unit/component)
+- Unit tests for core utilities (e.g., geocoding)
+- API mocking and custom test utilities
+- CI via GitHub Actions
 
-## Critical Implementation Paths
+---
+
+## Critical Paths
 
 ### Content Flow
 
@@ -61,28 +67,36 @@
 
 1. Page loads with static map fallback
 2. Dynamic map component loads client-side
-3. Markers clustered based on zoom level
+3. Markers clustered by zoom
 4. Interactive features enabled
 
-### Authentication Flow
+### Authentication
 
 1. User initiates login
 2. NextAuth.js handles provider
 3. Session established
-4. Role-based access enforced
+4. RBAC enforced
+
+---
 
 ## Design Patterns
 
-- Repository pattern for data access
-- Strategy pattern for map providers
-- Observer pattern for real-time updates
-- Factory pattern for component creation
-- Singleton pattern for global state
+- Repository (data access)
+- Strategy (map providers)
+- Observer (real-time updates)
+- Factory (component creation)
+- Singleton (global state)
+
+---
 
 ## Error Handling
 
 - Graceful degradation for map failures
 - Retry logic for API calls
 - Fallback UI components
-- Comprehensive error boundaries
+- Error boundaries
 - Detailed error logging
+
+---
+
+`attempt_completion`

@@ -1,72 +1,77 @@
 # Sustainable Eco-Friendly Digital Nomads Directory
 
-A curated monorepo providing a global platform for sustainable, eco-friendly venues and services for digital nomads, built with Next.js 15+, Sanity CMS, and modern authentication.
+A curated monorepo platform for sustainable, eco-friendly venues and services for digital nomads. Built with Next.js 15+, Sanity CMS, and modern authentication.
 
-## 🏗️ Project Architecture
+---
 
-This is a **monorepo** containing multiple interconnected applications and a unified documentation structure:
+## 🏗️ Monorepo Architecture
 
 ```
 sustainable-eco-friendly-digital-nomads-directory/
-├── app-next-directory/          # Main Next.js application
-├── sanity/                      # Sanity CMS configuration
-├── listings/                    # Data processing & migration scripts
-├── docs/                        # Project documentation (see below)
-├── memory-bank/                 # Context, logs, and session files (six key context files retained)
-└── tasks/                       # Task management files
+├── app-next-directory/   # Next.js frontend application
+├── sanity/               # Sanity CMS configuration
+├── listings/             # Data migration scripts
+├── docs/                 # Project documentation
+├── memory-bank/          # Context, logs, and session files
+└── tasks/                # Task management files
 ```
 
-- **Curated Eco-Friendly Listings**
-  - Verified sustainability practices with community-reviewed scores
-  - Comprehensive venue data with eco-certifications
-- **Advanced Search & Filtering**
-  - Full-text and multi-category filtering
-  - Geographic and eco-tag filtering
-  - Digital nomad features (WiFi, workspace, community)
-- **Authentication & User Management**
-  - NextAuth.js with role-based access
-  - Multi-tier user roles (user, editor, venueOwner, admin, superAdmin)
-- **Interactive Features**
-  - Leaflet.js maps with OpenStreetMap
-  - User reviews, favorites, and event calendar
-- **Modern UI/UX**
-  - Responsive design (Tailwind CSS)
-  - Dark mode, Framer Motion animations, accessible components
+---
+
+## 🌱 Key Features
+
+- **Curated Eco-Friendly Listings**: Verified venues, sustainability scores, certifications
+- **Advanced Search & Filtering**: Full-text, geo, eco-tag, and digital nomad features
+- **Authentication & User Management**: NextAuth.js, 5-tier RBAC, secure sessions
+- **Admin Dashboard**: Analytics, moderation, bulk operations, user management
+- **Interactive Maps**: Leaflet.js, OpenStreetMap, city carousel
+- **Modern UI/UX**: Tailwind CSS, Framer Motion, accessible components
+- **Testing & CI/CD**: Playwright, GitHub Actions, Vercel deployment
+
+---
 
 ## 🛠️ Tech Stack
 
-### Frontend
+- **Frontend**: Next.js 15+, TypeScript, Tailwind CSS, Framer Motion, Radix UI
+- **Backend/CMS**: Sanity.io, MongoDB Atlas, NextAuth.js
+- **Testing**: Playwright (E2E), Jest (unit), Zod (validation)
+- **DevOps**: GitHub Actions, Vercel
 
-- **Next.js 15+** (App Router, TypeScript)
+---
 
-- **Tailwind CSS**
-- **Framer Motion**, **Radix UI**, **React Hook Form**, **Zod**
+## 📚 Documentation
 
-### Backend & CMS
+- All documentation is in [`docs/`](docs/), with subfolders for [`sanity/`](docs/sanity/), [`app-next-directory/`](docs/app-next-directory/), and [`shared/`](docs/shared/).
+- Six key context files are retained in [`memory-bank/`](memory-bank/).
+- See [`docs/README.md`](docs/README.md) for navigation and structure.
 
-- **Sanity.io** (Headless CMS)
-- **MongoDB Atlas** (user/auth data)
+---
 
-### DevOps & Testing
+## 🚦 Project Status (July 2025)
 
-- **GitHub Actions** (CI/CD)
-- **Vercel** (deployment)
-- **Playwright** (E2E testing, reports in `app-next-directory/playwright-report/`)
-
-## 📚 Documentation Structure
-
-All documentation is now under the `docs/` directory, with subfolders for `sanity/`, `app-next-directory/`, and `shared/`. Six key context files are retained in `memory-bank/`.
-
-## 🚦 Current Status (May 2025)
-
-- Monorepo structure and documentation reorganization complete
-- Next.js app and Sanity Studio fully integrated
+- Monorepo and documentation reorganization complete
+- Next.js app, Sanity Studio, and admin dashboard fully integrated
 - All legacy docs migrated to new structure
 - Playwright test automation and reporting configured
-- Parallel workstreams A–F and pre-integration testing strategy completed
+- Workstreams A–F and pre-integration testing completed
+- Integration/testing phase ready
+
+---
 
 ## 🔜 Next Steps
 
-- Finalize README and context file updates
+- Finalize workspace README and context file updates
 - Complete reference updates to new doc locations
-- Begin next roadmap phase: user onboarding and analytics
+- Begin next roadmap phase: user onboarding, analytics, and performance optimization
+
+---
+
+## 🤝 Contributing
+
+See [`docs/README.md`](docs/README.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines on documentation, coding standards, and review process.
+
+---
+
+## 📬 Contact
+
+For access requests or questions, contact the project administrator.

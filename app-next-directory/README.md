@@ -1,21 +1,20 @@
-# Next.js Frontend - Sustainable Eco-Friendly Digital Nomads Directory
+# Next.js Frontend – Sustainable Eco-Friendly Digital Nomads Directory
 
-This is the **Next.js 14+ frontend application** for the Sustainable Eco-Friendly Digital Nomads Directory project. It provides a modern, responsive web interface with authentication, content management, and interactive features.
+This is the **Next.js 15+ frontend application** for the Sustainable Eco-Friendly Digital Nomads Directory. It delivers a modern, responsive web interface with authentication, content management, advanced search, analytics, and interactive features.
+
+---
 
 ## ✅ Implementation Status
 
-### **Authentication System - COMPLETED** 🎉
-- **Full NextAuth.js implementation** with JWT strategy
-- **Role-based access control** (5 user levels: user, editor, venueOwner, admin, superAdmin)
-- **MongoDB session management** with secure password hashing
-- **Comprehensive Playwright testing** (120+ test cases)
-- **Production-ready security** with rate limiting and input validation
+- **Authentication System**: NextAuth.js with JWT, 5-tier RBAC, MongoDB session management
+- **Admin Dashboard**: Analytics, moderation, bulk operations, user management
+- **Advanced Search**: Geo-search, eco-tag filtering, digital nomad features
+- **User Dashboard**: Favorites, analytics, preferences
+- **Interactive Maps**: Leaflet.js, city carousel, responsive design
+- **Testing**: Playwright (120+ E2E tests), Jest (unit tests)
+- **Production-Ready**: Rate limiting, input validation, secure deployment
 
-### **Current Task Progress**
-Based on the task tracking system:
-- ✅ **Tasks 1, 2, 4, 7, 14**: Completed (Next.js startup, carousel, TypeScript fixes, auth)
-- 🔄 **Tasks 3, 5, 6**: In Progress (Sanity integration, backend APIs, documentation)
-- ⏳ **Tasks 8-13**: Planned (API development, CMS integration, testing, optimization)
+---
 
 ## 🚀 Quick Start
 
@@ -34,25 +33,14 @@ npm 9.6.7+ required
    ```
 
 2. **Configure environment variables:**
-   Create `.env.local` from `.env.example`:
-
-   ```env
-   # Sanity CMS Configuration
-   NEXT_PUBLIC_SANITY_PROJECT_ID=your_sanity_project_id
-   NEXT_PUBLIC_SANITY_DATASET=production
-   SANITY_API_TOKEN=your_sanity_api_token
-
-   # MongoDB Configuration
-   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
-
-   # NextAuth Configuration
-   NEXTAUTH_URL=http://localhost:3000
-   NEXTAUTH_SECRET=your_32_char_secret
-
-   # OAuth Providers (Optional)
-   GOOGLE_CLIENT_ID=your_google_client_id
-   GOOGLE_CLIENT_SECRET=your_google_client_secret
-   ```
+   Create `.env.local` from `.env.example` and set:
+   - `NEXT_PUBLIC_SANITY_PROJECT_ID`
+   - `NEXT_PUBLIC_SANITY_DATASET`
+   - `SANITY_API_TOKEN`
+   - `MONGODB_URI`
+   - `NEXTAUTH_URL`
+   - `NEXTAUTH_SECRET`
+   - (Optional) `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 
 3. **Start development server:**
    ```bash
@@ -61,152 +49,70 @@ npm 9.6.7+ required
 
 4. **Access the application:**
    - Frontend: [http://localhost:3000](http://localhost:3000)
-   - Sanity Studio: [http://localhost:3333](http://localhost:3333) (from `/sanity` directory)
+   - Sanity Studio: [http://localhost:3333](http://localhost:3333) (from `/sanity`)
 
-## 📂 Project Architecture
+---
+
+## 📂 Project Structure
 
 ```text
 app-next-directory/
-├── public/                     # Static assets
-│   ├── images/                 # Image assets
-│   ├── icons/                  # Icon files
-│   └── fonts/                  # Custom fonts
+├── public/           # Static assets (images, icons, fonts)
 ├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── api/                # API Routes
-│   │   │   ├── auth/           # NextAuth routes
-│   │   │   ├── listings/       # Listings API
-│   │   │   └── user/           # User management API
-│   │   ├── (auth)/             # Auth-related pages
-│   │   ├── listings/           # Listings pages
-│   │   ├── cities/             # City pages
-│   │   └── layout.tsx          # Root layout
-│   ├── components/             # React components
-│   │   ├── auth/               # Authentication components
-│   │   ├── listings/           # Listing components
-│   │   ├── common/             # Shared UI components
-│   │   ├── map/                # Map components
-│   │   └── ui/                 # Base UI components (Radix)
-│   ├── lib/                    # Utility functions
-│   │   ├── sanity/             # Sanity client & queries
-│   │   ├── mongodb/            # MongoDB connection & models
-│   │   ├── auth/               # Auth configuration & helpers
-│   │   └── utils/              # General utilities
-│   ├── types/                  # TypeScript type definitions
-│   └── styles/                 # Global styles
-├── tests/                      # Playwright test suites
-│   ├── auth.spec.ts            # Authentication tests
-│   ├── rbac.spec.ts            # Role-based access tests
-│   └── utils/                  # Test utilities
-└── docs/                       # Component documentation
+│   ├── app/          # Next.js App Router, API routes, pages
+│   ├── components/   # React components (auth, listings, map, UI)
+│   ├── lib/          # Utilities (sanity, mongodb, auth, geocode)
+│   ├── types/        # TypeScript type definitions
+│   └── styles/       # Global styles
+├── tests/            # Playwright and unit test suites
+└── docs/             # Component and API documentation
 ```
 
-## 🔧 Fixing Deprecated Dependencies
+---
 
-If you see warnings for deprecated packages (such as `string-similarity`, `inflight`, or `glob`):
+## 📝 API Routes
 
-1. Replace `string-similarity` with `fastest-levenshtein`:
+- `GET /api/listings` – List all listings with filtering
+- `GET /api/listings/[slug]` – Get listing details (via Sanity)
+- `POST /api/listings` – Create new listing (admin/venueOwner)
+- `GET /api/user/dashboard` – User dashboard data
+- `GET /api/admin/stats` – Admin dashboard analytics
+- ...and more (see [`docs/API_DOCUMENTATION.md`](../docs/API_DOCUMENTATION.md))
 
-```bash
-npm uninstall string-similarity
-npm install fastest-levenshtein
-```
-
-2. Update `glob` to a modern version:
-
-```bash
-npm install glob@10.3.10
-```
-
-3. The `inflight` package is a transitive dependency. Run:
-
-```bash
-npm update
-```
-
-If warnings persist, check the root README for workspace-wide instructions.
+---
 
 ## 🎭 Testing
 
-This project uses Playwright for end-to-end testing. Our test suite covers:
-
-- Map integration and interactions
-- Listing filters and search
-- Mobile responsiveness
-- API integration
-- Error handling
+- **Playwright**: E2E tests for authentication, search, dashboard, admin features
+- **Jest**: Unit tests for utilities and components
 
 ### Running Tests
 
 ```bash
-# Install dependencies
 npm install
-
-# Install Playwright browsers
 npx playwright install --with-deps
-
-# Run all tests
 npm run test:e2e
-
-# Run specific test file
-npm run test:e2e tests/map-integration.spec.ts
-
-# Run tests in debug mode
-npm run test:debug
+npm run test:unit
 ```
 
-### Test Documentation
+See [`docs/Testing/`](../docs/Testing/) for details.
 
-For detailed information about our testing setup, please refer to:
-
-- [Testing Overview](tests/TESTING.md)
-- [Test Writing Guide](tests/WRITING_GUIDE.md)
-- [API Mocking Guide](tests/API-MOCKING.md)
-- [Test Utilities](tests/utils/README.md)
-
-### Continuous Integration
-
-Tests run automatically on:
-
-- Pull request creation/updates
-- Merges to main branch
-- Manual trigger via GitHub Actions
-
-## 📝 API Routes Documentation
-
-The Next.js app provides the following API routes:
-
-### Listings
-
-- `GET /api/listings` - List all listings with filtering options
-- `GET /api/listings/[slug]` - Get details of a specific listing
-- `POST /api/listings` - Create a new listing (authenticated, premium)
-- `PUT /api/listings/[slug]` - Update a listing (owner only)
-- `DELETE /api/listings/[slug]` - Delete a listing (owner only)
-
-### User
-
-- `GET /api/user/favorites` - Get user's favorite listings
-- `POST /api/user/favorites` - Add a listing to favorites
-- `DELETE /api/user/favorites/[id]` - Remove a listing from favorites
-
-### Authentication
-
-- `POST /api/auth/signup` - Register a new user
-- `GET /api/auth/session` - Get current session information
-
-### Other
-
-- `GET /api/blog` - Get blog posts
-- `GET /api/events` - Get upcoming sustainability events
-- `POST /api/reviews` - Submit a review for a listing
+---
 
 ## 🚀 Deployment
 
-The application is deployed on Vercel:
+- Deployed via Vercel (see [`docs/DEPLOYMENT_GUIDE.md`](../docs/DEPLOYMENT_GUIDE.md))
+- Configure environment variables in Vercel dashboard
 
-1. Connect your GitHub repository to Vercel
-2. Set the environment variables in the Vercel dashboard
-3. Deploy from the main branch
+---
 
-For more details, visit our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).
+## 📚 Documentation
+
+- [Frontend Docs](../docs/app-next-directory/)
+- [API Reference](../docs/API_DOCUMENTATION.md)
+- [Testing Guide](../docs/Testing/)
+- [Troubleshooting](../docs/shared/TROUBLESHOOTING.md)
+
+---
+
+_Last updated: July 2025_

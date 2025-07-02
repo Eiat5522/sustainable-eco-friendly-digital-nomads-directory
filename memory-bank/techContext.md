@@ -1,111 +1,93 @@
 
-# Technical Context (Updated: May 15, 2025)
+# Technical Context
+
+**Last Updated:** July 3, 2025
+
+---
 
 ## Core Technologies
 
 - Next.js 15.3.2 (App Router, TypeScript)
 - Tailwind CSS 4.1.6
-- Leaflet.js (interactive maps, client-only)
+- Leaflet.js (client-only interactive maps)
 - StaticMapImage (SSR/SEO fallback)
-- Sanity CMS (content management, now secure and up-to-date)
+- Sanity CMS (secure, patched, up-to-date)
 - MongoDB Atlas (user data)
 - NextAuth.js (authentication)
 - GitHub Actions (CI/CD)
 - Vercel (deployment)
+
+---
 
 ## Development Environment
 
 - Node.js 20+
 - pnpm or npm
 - Windows (pwsh.exe shell)
-- VS Code with recommended extensions
-- Playwright for testing
-- ESLint + Prettier for code quality
+- VS Code (recommended extensions)
+- Playwright (E2E, visual, and accessibility testing)
+- ESLint + Prettier (code quality)
+
+---
 
 ## Technical Constraints
 
 - Leaflet.js must not be imported at top level in SSR context
-- All map components must be dynamically imported with SSR disabled
-- Map logic must be isolated in client-only components
-- PrismJS vulnerability in Sanity dependencies is resolved (see security patch log)
-- Content updates must trigger page revalidation
+- All map components dynamically imported with SSR disabled
+- Map logic isolated in client-only components
+- PrismJS vulnerability resolved (see security patch log)
+- Content updates trigger page revalidation
 - Image optimization required for performance
-- Authentication required for protected routes
+- Authentication enforced for protected routes
+
+---
 
 ## Dependencies
 
-### Production
+**Production:** next, react, react-dom, tailwindcss, leaflet, @sanity/client, mongodb, next-auth, lucide-react, typescript
+**Development:** @types/node, @types/react, @types/leaflet, @playwright/test, eslint, prettier, postcss, autoprefixer
 
-- next
-- react
-- react-dom
-- tailwindcss
-- leaflet
-- @sanity/client
-- mongodb
-- next-auth
-- lucide-react
-- typescript
+---
 
-### Development
-
-- @types/node
-- @types/react
-- @types/leaflet
-- @playwright/test
-- eslint
-- prettier
-- postcss
-- autoprefixer
-
-## Tool Usage Patterns
+## Tooling & Patterns
 
 - Dynamic import for browser-only libraries
 - Static fallback components for SEO
-- Memory bank documentation for changes
+- Modular memory-bank documentation
 - Atomic component design
-- Mobile-first development
-- Test-driven development
+- Mobile-first, test-driven development
 - Continuous integration
+
+---
 
 ## Testing Strategy
 
-### Framework Configuration
-
-- Playwright setup with ES Module support
-- Jest and React Testing Library for unit tests
-- Custom test utilities:
-  - Map interaction helpers (pan, zoom, markers)
-  - Filter management utilities
-  - Common assertions
-  - Test fixtures
-  - API mocking setup
-
-### Testing Approach
-
-- End-to-end testing for critical paths
-- Component testing for UI elements
+- Playwright (E2E, visual, accessibility)
+- Jest & React Testing Library (unit/component)
+- Custom test utilities (map helpers, filter utils, API mocks)
 - API route testing with mocks
-- Performance testing for maps
-- Accessibility testing
-- Mobile responsiveness verification
+- Performance and mobile responsiveness verification
 
-## Security Considerations
+---
 
-- Secure API route implementation
-- Role-based access control
-- Authentication token management
+## Security
+
+- Secure API routes
+- Role-based access control (RBAC)
+- JWT/session management
 - Environment variable protection
 - API key security
-- CORS configuration
-- Content security policy
+- CORS and CSP configuration
 
-## Performance Optimization
+---
+
+## Performance
 
 - Image optimization pipeline
-- Map marker clustering
-- Static page generation
-- Incremental static regeneration
-- Code splitting
-- Cache strategies
-- Loading state management
+- Marker clustering for maps
+- Static page generation & ISR
+- Code splitting, caching, loading state management
+
+---
+
+`attempt_completion`
