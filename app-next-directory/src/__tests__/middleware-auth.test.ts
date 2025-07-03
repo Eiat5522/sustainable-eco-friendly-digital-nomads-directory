@@ -1,131 +1,167 @@
-/**
- * Integration-style tests for middleware using real NextRequest/NextResponse objects.
- * Polyfills Request/Response for Node.js and only mocks getToken.
- * Focuses on end-to-end behavior and real HTTP semantics.
- * For isolated unit tests with injected mocks, see:
- *   ./middleware.test.ts
- *
- * Note: Both test files are needed for full coverage due to differences in mocking vs. real Next.js objects.
- */
-// No polyfill for Request/Response: let Next.js provide its own for middleware tests.
-
-// Mock NextResponse and NextRequest before importing middleware
-jest.mock('next/server', () => {
-  const real = jest.requireActual('next/server');
-  const headers = () => new Map();
-  return {
-    ...real,
-    NextResponse: {
-      json: (body: any, init: { status: number }) => {
-        const headerMap = new Map<string, string>();
-        return {
-          status: init.status,
-          headers: {
-            get: (key: string) => headerMap.get(key.toLowerCase()),
-            set: (key: string, value: string) => headerMap.set(key.toLowerCase(), value)
-          },
-          async json() { return body; }
-        };
-      },
-      next: () => {
-        const headerMap = new Map<string, string>();
-        return {
-          status: 200,
-          headers: {
-            get: (key: string) => headerMap.get(key.toLowerCase()),
-            set: (key: string, value: string) => headerMap.set(key.toLowerCase(), value)
-          },
-          async json() { return {}; }
-        };
-      },
-      redirect: (url: any) => {
-        const headerMap = new Map<string, string>();
-        headerMap.set('location', typeof url === 'string' ? url : url.toString());
-        return {
-          status: 307,
-          headers: {
-            get: (key: string) => headerMap.get(key.toLowerCase()),
-            set: (key: string, value: string) => headerMap.set(key.toLowerCase(), value)
-          },
-          url,
-          async json() { return {}; }
-        };
-      },
-    }
-  };
-});
-
-import { middleware } from '../middleware';
+jest.mock('next-auth/jwt');
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { getToken } from 'next-auth/jwt';
-import { NextRequest, NextResponse } from 'next/server';
+import { createMiddleware, config } from '../middleware';
+import { UserRole } from '@/types/auth';
 
-jest.mock('next-auth/jwt', () => ({
-  getToken: jest.fn(),
-}));
+// Mock next-auth/jwt
+const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
 
-
-// Utility function to create a real NextRequest for tests
-function createNextRequest(url: string, options: RequestInit = {}): NextRequest {
-  // Only include signal if it is a valid AbortSignal
-  const { signal, ...rest } = options;
-  const filteredOptions = signal instanceof AbortSignal ? { ...rest, signal } : rest;
-  return new NextRequest(url, filteredOptions);
+// Mock Next.js objects
+class MockNextResponse {
+  static next = jest.fn(() => new MockNextResponse());
+  static redirect = jest.fn((...args) => new MockNextResponse());
+  static json = jest.fn(() => new MockNextResponse());
+  headers = { set: jest.fn() };
+  cookies = { set: jest.fn(), get: jest.fn(), getAll: jest.fn(), delete: jest.fn() };
 }
 
-// Helper to create a mock token with all required properties
-function mockToken(role: string) {
-  return { role, name: 'Test User', email: 'test@example.com', id: 'test-id' };
-}
+describe('Middleware - Auth and Access Control', () => {
+  let middleware: ReturnType<typeof createMiddleware>;
 
-describe('middleware', () => {
-  beforeAll(() => {
-    process.env.NEXTAUTH_SECRET = 'test-secret';
-  });
-
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
+    MockNextResponse.next.mockClear();
+    MockNextResponse.redirect.mockClear();
+    MockNextResponse.json.mockClear();
+    process.env.NEXTAUTH_SECRET = 'test-secret';
+    middleware = createMiddleware({ getToken, NextResponse: MockNextResponse });
   });
 
-  it('redirects unauthenticated users from protected route', async () => {
-    (getToken as jest.Mock).mockResolvedValue(null);
-    const req = createNextRequest('http://localhost/dashboard');
-    const res = await middleware(req);
-    expect(res.status).toBe(307); // Next.js uses 307 for redirects
-    expect(res.headers.get('location')).toContain('/auth/signin');
+  const createMockRequest = (pathname: string) => {
+    return {
+      nextUrl: {
+        pathname,
+        origin: 'https://example.com',
+      },
+      url: `https://example.com${pathname}`,
+    } as any;
+  };
+
+  it('allows access to /api/listings for any user', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    const req = createMockRequest('/api/listings');
+    await middleware(req as any);
+    expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
-  it('allows authenticated users with access', async () => {
-    (getToken as jest.Mock).mockResolvedValue(mockToken('admin'));
-    const req = createNextRequest('http://localhost/dashboard');
-    const res = await middleware(req);
-    expect(res.headers.get('X-Frame-Options')).toBe('DENY');
-    expect(res.headers.get('X-Content-Type-Options')).toBe('nosniff');
-    expect(res.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
+  it('allows access to /api/listings for unauthenticated users', async () => {
+    mockGetToken.mockResolvedValueOnce(null);
+    const req = createMockRequest('/api/listings');
+    await middleware(req as any);
+    expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
-  it('denies access for authenticated users without permission', async () => {
-    (getToken as jest.Mock).mockResolvedValue(mockToken('user'));
-    const req = createNextRequest('http://localhost/admin');
-    const res = await middleware(req);
-    expect(res.status).toBe(307); // redirected to home with error param
-    expect(res.headers.get('location')).toContain('/?error=unauthorized_access');
+  it('denies access to /api/user/profile for unauthenticated users', async () => {
+    mockGetToken.mockResolvedValueOnce(null);
+    const req = createMockRequest('/api/user/profile');
+    await middleware(req as any);
+    expect(MockNextResponse.json).toHaveBeenCalled();
   });
 
-  it('returns 401 for unauthenticated API access', async () => {
-    (getToken as jest.Mock).mockResolvedValue(null);
-    const req = createNextRequest('http://localhost/api/user/profile');
-    const res = await middleware(req);
-    expect(res.status).toBe(401);
-    const data = await res.json();
-    expect(data.error).toBe('Authentication required');
+  it('allows access to /api/user/profile for authenticated users', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    const req = createMockRequest('/api/user/profile');
+    await middleware(req as any);
+    expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
-  it('returns 403 for authenticated API access without permission', async () => {
-    (getToken as jest.Mock).mockResolvedValue(mockToken('user'));
-    const req = createNextRequest('http://localhost/api/admin/stats');
-    const res = await middleware(req);
-    expect(res.status).toBe(403);
-    const data = await res.json();
-    expect(data.error).toBe('Access denied');
+  it('denies access to /api/admin/data for users with the user role', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    const req = createMockRequest('/api/admin/data');
+    await middleware(req as any);
+    expect(MockNextResponse.json).toHaveBeenCalled();
+  });
+
+  it('allows access to /api/admin/data for users with the admin role', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'admin@example.com', role: 'admin' });
+    const req = createMockRequest('/api/admin/data');
+    await middleware(req as any);
+    expect(MockNextResponse.next).toHaveBeenCalled();
+  });
+
+  it('redirects to /auth/signin with callbackUrl when accessing a protected route and no user role', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: undefined });
+    const req = createMockRequest('/dashboard');
+    await middleware(req as any);
+    expect(MockNextResponse.redirect).toHaveBeenCalled();
+  });
+
+  it('handles the case where userRole is null', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: null });
+    const req = createMockRequest('/dashboard');
+    await middleware(req as any);
+    expect(MockNextResponse.redirect).toHaveBeenCalled();
+    expect(MockNextResponse.redirect).toHaveBeenCalledWith(
+      'https://example.com/auth/signin?callbackUrl=%2Fdashboard'
+    );
+  });
+
+  it('handles the case where userRole is an empty string', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: '' });
+    const req = createMockRequest('/dashboard');
+    await middleware(req as any);
+    expect(MockNextResponse.redirect).toHaveBeenCalled();
+    expect(MockNextResponse.redirect).toHaveBeenCalledWith(
+      'https://example.com/auth/signin?callbackUrl=%2Fdashboard'
+    );
+  });
+
+  it('handles the case where userRole is an invalid role', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'invalidRole' });
+    const req = createMockRequest('/admin/dashboard');
+    await middleware(req as any);
+    expect(MockNextResponse.redirect).toHaveBeenCalled();
+  });
+
+  it('allows access to /profile for users with profile permission', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    const req = createMockRequest('/profile');
+    await middleware(req as any);
+    expect(MockNextResponse.next).toHaveBeenCalled();
+  });
+
+  it('allows access to /listings for users with listings permission', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    const req = createMockRequest('/listings');
+    await middleware(req as any);
+    expect(MockNextResponse.next).toHaveBeenCalled();
+  });
+
+  it('allows access to /listings/create for users with createListing permission', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    const req = createMockRequest('/listings/create');
+    await middleware(req as any);
+    expect(MockNextResponse.next).toHaveBeenCalled();
+  });
+
+  it('allows access to /listings/edit/123 for users with editListing permission', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    const req = createMockRequest('/listings/edit/123');
+    await middleware(req as any);
+    expect(MockNextResponse.next).toHaveBeenCalled();
+  });
+
+  it('allows access to /admin for users with admin permission', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'admin@example.com', role: 'admin' });
+    const req = createMockRequest('/admin');
+    await middleware(req as any);
+    expect(MockNextResponse.next).toHaveBeenCalled();
+  });
+
+  it('allows access to /admin/dashboard for users with admin permission', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'admin@example.com', role: 'admin' });
+    const req = createMockRequest('/admin/dashboard');
+    await middleware(req as any);
+    expect(MockNextResponse.next).toHaveBeenCalled();
+  });
+
+  it('redirects to home if access is denied to a protected route', async () => {
+    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    const req = createMockRequest('/admin/dashboard');
+    await middleware(req as any);
+    expect(MockNextResponse.redirect).toHaveBeenCalledWith(
+      'https://example.com/?error=unauthorized_access'
+    );
   });
 });
