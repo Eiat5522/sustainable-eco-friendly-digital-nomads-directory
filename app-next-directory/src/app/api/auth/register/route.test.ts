@@ -1,8 +1,302 @@
+/**
+ * NOTE: If you see "SyntaxError: Cannot use import statement outside a module" from ESM dependencies (e.g. @panva/hkdf),
+ * update your Jest config to allow transforming ESM modules:
+ * 
+ * // jest.config.js
+ * module.exports = {
+ *   // ...existing config...
+ *   transformIgnorePatterns: [
+ *     '/node_modules/(?!(@panva|next-auth|@next-auth|@babel|uuid|@sanity|@portabletext|nanoid|lodash-es)/)',
+ *   ],
+ * };
+ * 
+ * This allows Jest to transpile ESM dependencies used by next-auth and others.
+ */
+
 // Mock global Request and NextResponse for Jest
 (global as any).Request = class {};
 (global as any).NextResponse = {
   json: jest.fn((data, init) => ({ data, ...init })),
 };
+
+// Mock global Response for tests that use the GET handler returning a native Response
+(global as any).Response = class {
+  private _body: string;
+  public status: number;
+  public headers: Map<string, string>;
+  constructor(body: string, init: { status?: number; headers?: Record<string, string> } = {}) {
+    this._body = body;
+    this.status = init.status ?? 200;
+    this.headers = new Map<string, string>();
+    if (init.headers) {
+      for (const [k, v] of Object.entries(init.headers)) {
+        this.headers.set(k, v);
+      }
+    }
+  }
+  async text() {
+    return this._body;
+  }
+  get ok() {
+    return this.status >= 200 && this.status < 300;
+  }
+  // Minimal .json() for compatibility if needed
+  async json() {
+    return JSON.parse(this._body);
+  }
+  // Mimic Headers.get()
+  get headersObj() {
+    return this.headers;
+  }
+  get headersKeys() {
+    return Array.from(this.headers.keys());
+  }
+  get headersValues() {
+    return Array.from(this.headers.values());
+  }
+  get headersRaw() {
+    return this.headers;
+  }
+  get headersAll() {
+    return this.headers;
+  }
+  get headersCount() {
+    return this.headers.size;
+  }
+  get headersArray() {
+    return Array.from(this.headers.entries());
+  }
+  get headersMap() {
+    return this.headers;
+  }
+  get headersObject() {
+    const obj: Record<string, string> = {};
+    for (const [k, v] of this.headers.entries()) obj[k] = v;
+    return obj;
+  }
+  get headersList() {
+    return Array.from(this.headers.entries());
+  }
+  get headersSet() {
+    return new Set(this.headers.values());
+  }
+  get headersGet() {
+    return (key: string) => this.headers.get(key);
+  }
+  get headersGetAll() {
+    return (key: string) => [this.headers.get(key)];
+  }
+  get headersHas() {
+    return (key: string) => this.headers.has(key);
+  }
+  get headersDelete() {
+    return (key: string) => this.headers.delete(key);
+  }
+  get headersClear() {
+    return () => this.headers.clear();
+  }
+  get headersSize() {
+    return this.headers.size;
+  }
+  get headersForEach() {
+    return this.headers.forEach.bind(this.headers);
+  }
+  get headersEntries() {
+    return this.headers.entries();
+  }
+  get headersKeysIter() {
+    return this.headers.keys();
+  }
+  get headersValuesIter() {
+    return this.headers.values();
+  }
+  get headersSymbolIterator() {
+    return this.headers[Symbol.iterator]();
+  }
+  get headersToString() {
+    return () => JSON.stringify(this.headersObject);
+  }
+  get headersGetRaw() {
+    return this.headers;
+  }
+  get headersSetRaw() {
+    return (map: Map<string, string>) => { this.headers = map; };
+  }
+  get headersGetMap() {
+    return () => this.headers;
+  }
+  get headersSetMap() {
+    return (map: Map<string, string>) => { this.headers = map; };
+  }
+  get headersGetObject() {
+    return () => this.headersObject;
+  }
+  get headersSetObject() {
+    return (obj: Record<string, string>) => {
+      this.headers.clear();
+      for (const [k, v] of Object.entries(obj)) this.headers.set(k, v);
+    };
+  }
+  get headersGetList() {
+    return () => this.headersList;
+  }
+  get headersSetList() {
+    return (list: [string, string][]) => {
+      this.headers.clear();
+      for (const [k, v] of list) this.headers.set(k, v);
+    };
+  }
+  get headersGetSet() {
+    return () => this.headersSet;
+  }
+  get headersSetSet() {
+    return (set: Set<string>) => {
+      this.headers.clear();
+      for (const v of set) this.headers.set(v, v);
+    };
+  }
+  get headersGetSize() {
+    return () => this.headers.size;
+  }
+  get headersSetSize() {
+    return (size: number) => { /* no-op */ };
+  }
+  get headersGetForEach() {
+    return this.headers.forEach.bind(this.headers);
+  }
+  get headersSetForEach() {
+    return (fn: (value: string, key: string, map: Map<string, string>) => void) => this.headers.forEach(fn);
+  }
+  get headersGetEntries() {
+    return this.headers.entries();
+  }
+  get headersSetEntries() {
+    return (entries: Iterable<[string, string]>) => {
+      this.headers.clear();
+      for (const [k, v] of entries) this.headers.set(k, v);
+    };
+  }
+  get headersGetKeys() {
+    return this.headers.keys();
+  }
+  get headersSetKeys() {
+    return (keys: Iterable<string>) => {
+      // Not meaningful for Map, so no-op
+    };
+  }
+  get headersGetValues() {
+    return this.headers.values();
+  }
+  get headersSetValues() {
+    return (values: Iterable<string>) => {
+      // Not meaningful for Map, so no-op
+    };
+  }
+  get headersGetSymbolIterator() {
+    return this.headers[Symbol.iterator]();
+  }
+  get headersSetSymbolIterator() {
+    return (iter: Iterable<[string, string]>) => {
+      this.headers.clear();
+      for (const [k, v] of iter) this.headers.set(k, v);
+    };
+  }
+  get headersGetToString() {
+    return () => JSON.stringify(this.headersObject);
+  }
+  get headersSetToString() {
+    return (str: string) => {
+      try {
+        const obj = JSON.parse(str);
+        this.headers.clear();
+        for (const [k, v] of Object.entries(obj as Record<string, string>)) this.headers.set(k, v);
+      } catch {}
+    };
+  }
+  get headersGetRawMap() {
+    return this.headers;
+  }
+  get headersSetRawMap() {
+    return (map: Map<string, string>) => { this.headers = map; };
+  }
+  get headersGetRawObject() {
+    return this.headersObject;
+  }
+  get headersSetRawObject() {
+    return (obj: Record<string, string>) => {
+      this.headers.clear();
+      for (const [k, v] of Object.entries(obj as Record<string, string>)) this.headers.set(k, v);
+    };
+  }
+  get headersGetRawList() {
+    return this.headersList;
+  }
+  get headersSetRawList() {
+    return (list: [string, string][]) => {
+      this.headers.clear();
+      for (const [k, v] of list) this.headers.set(k, v);
+    };
+  }
+  get headersGetRawSet() {
+    return this.headersSet;
+  }
+  get headersSetRawSet() {
+    return (set: Set<string>) => {
+      this.headers.clear();
+      for (const v of set) this.headers.set(v, v);
+    };
+  }
+  get headersGetRawSize() {
+    return this.headers.size;
+  }
+  get headersSetRawSize() {
+    return (size: number) => { /* no-op */ };
+  }
+  get headersGetRawForEach() {
+    return this.headers.forEach.bind(this.headers);
+  }
+  get headersSetRawForEach() {
+    return (fn: (value: string, key: string, map: Map<string, string>) => void) => this.headers.forEach(fn);
+  }
+  get headersGetRawEntries() {
+    return this.headers.entries();
+  }
+  get headersSetRawEntries() {
+    return (entries: Iterable<[string, string]>) => {
+      this.headers.clear();
+      for (const [k, v] of entries) this.headers.set(k, v);
+    };
+  }
+  get headersGetRawKeys() {
+    return this.headers.keys();
+  }
+  get headersSetRawKeys() {
+    return (keys: Iterable<string>) => {
+      // Not meaningful for Map, so no-op
+    };
+  }
+  get headersGetRawValues() {
+    return this.headers.values();
+  }
+  get headersSetRawValues() {
+    return (values: Iterable<string>) => {
+      // Not meaningful for Map, so no-op
+    };
+  }
+  get headersGetRawSymbolIterator() {
+    return this.headers[Symbol.iterator]();
+  }
+  get headersSetRawSymbolIterator() {
+    return (iter: Iterable<[string, string]>) => {
+      this.headers.clear();
+      for (const [k, v] of iter) this.headers.set(k, v);
+    };
+  }
+  get headersGetRawToString() {
+    return () => JSON.stringify(this.headersObject);
+  }
+};
+
 import { POST } from './route';
 import connect from '@/lib/dbConnect';
 import User from '@/models/User';
@@ -63,18 +357,45 @@ describe('POST /api/auth/register', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    // Ensure global Response is defined for GET handler tests
+    if (!(global as any).Response) {
+      (global as any).Response = class {
+        private _body: string;
+        public status: number;
+        public headers: Map<string, string>;
+        constructor(body: string, init: { status?: number; headers?: Record<string, string> } = {}) {
+          this._body = body;
+          this.status = init.status ?? 200;
+          this.headers = new Map<string, string>();
+          if (init.headers) {
+            for (const [k, v] of Object.entries(init.headers)) {
+              this.headers.set(k, v);
+            }
+          }
+        }
+        async text() {
+          return this._body;
+        }
+        get ok() {
+          return this.status >= 200 && this.status < 300;
+        }
+        async json() {
+          return JSON.parse(this._body);
+        }
+      };
+    }
   });
 
-  it('should register a user successfully', async () => {
+  test('should register a user successfully', async () => {
     // Arrange
     const reqBody = {
-        name: 'Test User',
-        email: 'test@example.com',
-        password: 'password123',
-      };
-      const req = {
-        json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+      name: 'Test User',
+      email: 'test@example.com',
+      password: 'password123',
+    };
+    const req = {
+      json: jest.fn().mockResolvedValue(reqBody),
+    } as any;
 
     (User.findOne as jest.Mock).mockResolvedValue(null);
     (bcrypt.hash as jest.Mock).mockResolvedValue('hashedpassword');
@@ -99,7 +420,7 @@ describe('POST /api/auth/register', () => {
     expect(User.create).toHaveBeenCalledTimes(1);
   });
 
-  it('should return 409 if user already exists', async () => {
+  test('should return 409 if user already exists', async () => {
     // Arrange
     const reqBody = {
       name: 'Test User',
@@ -124,7 +445,7 @@ describe('POST /api/auth/register', () => {
     expect(User.create).not.toHaveBeenCalled();
   });
 
-  it('should return 400 for invalid request body', async () => {
+  test('should return 400 for invalid request body', async () => {
     // Arrange
     const reqBody = {
       name: 'Test User',
@@ -146,7 +467,7 @@ describe('POST /api/auth/register', () => {
     expect(body.error.code).toBe('INVALID_INPUT');
   });
 
-  it('should return 500 if hashing password fails', async () => {
+  test('should return 500 if hashing password fails', async () => {
     // Arrange
     const reqBody = {
       name: 'Test User',
@@ -172,7 +493,7 @@ describe('POST /api/auth/register', () => {
     expect(User.create).not.toHaveBeenCalled();
   });
 
-  it('should return 500 if User.create throws', async () => {
+  test('should return 500 if User.create throws', async () => {
     // Arrange
     const reqBody = {
       name: 'Test User',
@@ -198,7 +519,7 @@ describe('POST /api/auth/register', () => {
     expect(body.error.code).toBe('SERVER_ERROR');
   });
 
-  it('should return 500 if dbConnect throws', async () => {
+  test('should return 500 if dbConnect throws', async () => {
     // Arrange
     const reqBody = {
       name: 'Test User',
@@ -222,7 +543,7 @@ describe('POST /api/auth/register', () => {
     expect(body.error.code).toBe('SERVER_ERROR');
   });
 
-  it('should return 400 if request body is missing', async () => {
+  test('should return 400 if request body is missing', async () => {
     // Arrange
     const req = {
       json: jest.fn().mockResolvedValue(undefined),
@@ -239,7 +560,7 @@ describe('POST /api/auth/register', () => {
     expect(body.error.code).toBe('INVALID_INPUT');
   });
 
-  it('should return 400 if email is missing', async () => {
+  test('should return 400 if email is missing', async () => {
     // Arrange
     const reqBody = {
       name: 'Test User',
@@ -260,7 +581,7 @@ describe('POST /api/auth/register', () => {
     expect(body.error.code).toBe('INVALID_INPUT');
   });
 
-  it('should return 400 if name is missing', async () => {
+  test('should return 400 if name is missing', async () => {
     // Arrange
     const reqBody = {
       email: 'test@example.com',
@@ -281,7 +602,7 @@ describe('POST /api/auth/register', () => {
     expect(body.error.code).toBe('INVALID_INPUT');
   });
 
-  it('should return 400 if password is missing', async () => {
+  test('should return 400 if password is missing', async () => {
     // Arrange
     const reqBody = {
       name: 'Test User',
@@ -319,6 +640,8 @@ jest.mock('next-auth/jwt', () => ({
   getToken: jest.fn(),
 }));
 
+
+// Move GET /api/auth/test tests to a top-level describe block to avoid nesting
 describe('GET /api/auth/test', () => {
   const OLD_ENV = process.env;
   let originalConsoleLog: any;
@@ -425,6 +748,4 @@ describe('GET /api/auth/test', () => {
     expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff');
     expect(response.headers.get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
   });
-
-
 });

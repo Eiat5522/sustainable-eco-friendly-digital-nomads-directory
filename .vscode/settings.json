@@ -17,4 +17,6 @@
   "gitlens.graph.onlyFollowFirstParent": true,
   "git.openRepositoryInParentFolders": "never",
   "npm.packageManager": "pnpm",
+  "jest.jestCommandLine": "",
+  "jest.enable": true,
 }

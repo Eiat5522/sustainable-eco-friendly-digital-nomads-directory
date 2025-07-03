@@ -1,0 +1,15 @@
+const config = {
+  testEnvironment: "node",
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
+  collectCoverage: true,
+  coverageDirectory: "coverage",
+  modulePaths: ["<rootDir>/src"],
+};
+
+module.exports = config;
+
+import '@testing-library/jest-dom';
+
+test('hello world!', () => {
+  expect(true).toBe(true);
+});

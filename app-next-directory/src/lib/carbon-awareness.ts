@@ -27,9 +27,14 @@ const CACHE_DURATION = 60 * 60 * 1000; // 1 hour cache
  */
 export async function getUserRegion(): Promise<string> {
   try {
-    // Use a lightweight geolocation service
     const response = await fetch('https://ipapi.co/json/');
+    if (!response.ok) {
+      throw new Error('Failed to fetch region');
+    }
     const data = await response.json();
+    if (!data || typeof data.country_code !== 'string' || data.country_code.length !== 2) {
+      throw new Error('Malformed region data');
+    }
     return data.country_code;
   } catch (error) {
     console.error('Error fetching user region:', error);
@@ -44,6 +49,9 @@ export async function getUserRegion(): Promise<string> {
 export async function getCarbonIntensity(getUserRegionFn: () => Promise<string> = getUserRegion): Promise<number> {
   try {
     const region = await getUserRegionFn();
+    if (!region || typeof region !== 'string' || region === 'UNKNOWN') {
+      throw new Error('Invalid region for carbon intensity');
+    }
 
     // Check cache validity: region matches and not expired
     if (
@@ -54,18 +62,21 @@ export async function getCarbonIntensity(getUserRegionFn: () => Promise<string> 
       return cachedCarbonData.intensity;
     }
 
-    // Fetch fresh data
+    const token = process.env.NEXT_PUBLIC_ELECTRICITY_MAP_TOKEN;
+    if (!token || typeof token !== 'string') {
+      throw new Error('Missing electricity map API token');
+    }
+
     const response = await fetch(
       `https://api.electricitymap.org/v3/carbon-intensity/latest?zone=${region}`,
       {
         headers: {
-          'auth-token': process.env.NEXT_PUBLIC_ELECTRICITY_MAP_TOKEN || '',
+          'auth-token': token,
         },
       }
     );
 
     if (!response.ok) {
-      // Only return fallback, do not cache or return stale cache on non-ok
       return 250;
     }
 
@@ -83,13 +94,10 @@ export async function getCarbonIntensity(getUserRegionFn: () => Promise<string> 
       };
       return intensity;
     } else {
-      // Only return fallback, do not cache or return stale cache on invalid API value
       return 250;
     }
   } catch (error) {
     console.error('Error fetching carbon intensity:', error);
-
-    // Only return fallback, do not cache or return stale cache on fetch error
     return 250;
   }
 }

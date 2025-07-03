@@ -1,14 +1,5 @@
 // Jest unit tests for carbon-awareness.ts
 
-// Use jest.mock to allow mocking of getUserRegion (which is a read-only export)
-jest.mock('../carbon-awareness', () => {
-  const actual = jest.requireActual('../carbon-awareness');
-  return {
-    ...actual,
-    getUserRegion: jest.fn(),
-  };
-});
-
 import * as carbon from '../carbon-awareness';
 
 /**
@@ -42,18 +33,15 @@ describe('carbon-awareness', () => {
 
     it('returns country code from API', async () => {
       (global.fetch as jest.Mock).mockResolvedValue({
+        ok: true,
         json: async () => ({ country_code: 'US' }),
       });
-      (carbon.getUserRegion as jest.Mock).mockReset();
-      (carbon.getUserRegion as jest.Mock).mockImplementation(jest.requireActual('../carbon-awareness').getUserRegion);
       const region = await carbon.getUserRegion();
       expect(region).toBe('US');
     });
 
     it('returns UNKNOWN on fetch error', async () => {
       (global.fetch as jest.Mock).mockRejectedValue(new Error('fail'));
-      (carbon.getUserRegion as jest.Mock).mockReset();
-      (carbon.getUserRegion as jest.Mock).mockImplementation(jest.requireActual('../carbon-awareness').getUserRegion);
       const region = await carbon.getUserRegion();
       expect(region).toBe('UNKNOWN');
     });

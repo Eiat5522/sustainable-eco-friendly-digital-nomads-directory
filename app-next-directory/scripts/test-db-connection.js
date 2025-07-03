@@ -6,7 +6,7 @@
  */
 
 const { MongoClient } = require('mongodb');
-require('dotenv').config({ path: '.env.local' });
+require('dotenv').config({ path: '.env.test' });
 
 async function testDatabaseConnection() {
   console.log('🔧 Testing Database Connection...\n');

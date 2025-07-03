@@ -50,7 +50,16 @@ describe('authOptions', () => {
   });
 
   it('should set NEXTAUTH_SECRET from env', () => {
-    expect(authOptions.secret).toBe('test-secret');
+    jest.resetModules();
+    process.env.NEXTAUTH_SECRET = 'test-secret';
+    // Ensure @auth/mongodb-adapter is mocked before requiring '../auth'
+    jest.doMock('@auth/mongodb-adapter', () => ({
+      MongoDBAdapter: jest.fn(() => ({})),
+    }));
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { authOptions: freshAuthOptions } = require('../auth');
+    expect(freshAuthOptions.secret).toBe('test-secret');
+    jest.dontMock('@auth/mongodb-adapter');
   });
 
   it('should set session strategy to jwt', () => {

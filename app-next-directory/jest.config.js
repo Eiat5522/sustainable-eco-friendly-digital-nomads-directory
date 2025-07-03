@@ -1,26 +1,28 @@
-const nextJest = require('next/jest')
+// Jest config for TypeScript + ESM + alias support
+/** @type {import('jest').Config} */
+const { pathsToModuleNameMapper } = require('ts-jest');
+const { compilerOptions } = require('./tsconfig.json');
 
-const createJestConfig = nextJest({
-  dir: './',
-})
-
-const customJestConfig = {
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-  testEnvironment: 'jest-environment-jsdom',
+module.exports = {
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  transform: {
+    '^.+\\.m?[tj]sx?$': 'ts-jest',
+    // If you have JS files with ESM, you can add:
+    // '^.+\\.(js|jsx)$': 'babel-jest',
+  },
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
   },
-  testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.test.ts',
-    '<rootDir>/src/**/__tests__/**/*.test.tsx',
-    '<rootDir>/src/**/__tests__/**/*.test.js'
+  transformIgnorePatterns: [
+    'node_modules/(?!(bson|mongodb|mongoose))'
   ],
-  testPathIgnorePatterns: [
-    '<rootDir>/tests/',
-    '<rootDir>/.next/',
-    '<rootDir>/node_modules/',
-    '<rootDir>/src/__tests__/__mocks__/'
-  ],
-}
-
-module.exports = createJestConfig(customJestConfig)
+  globals: {
+    'ts-jest': {
+      useESM: true,
+      tsconfig: 'tsconfig.json'
+    }
+  }
+};

@@ -16,11 +16,21 @@ export function createListingsHandlers({
 }) {
   async function GET(request: Request) {
     try {
+      if (!request || typeof request.url !== 'string') {
+        return ApiResponseHandler.error('Malformed request', 400);
+      }
       const { searchParams } = new URL(request.url);
       const page = parseInt(searchParams.get('page') || '1');
       const limit = parseInt(searchParams.get('limit') || '10');
 
+      if (isNaN(page) || isNaN(limit) || page < 1 || limit < 1) {
+        return ApiResponseHandler.error('Invalid pagination parameters', 400);
+      }
+
       const listings = await getCollection('listings');
+      if (!listings || typeof listings.find !== 'function') {
+        return ApiResponseHandler.error('Listings collection unavailable', 500);
+      }
 
       const skip = (page - 1) * limit;
 
@@ -73,12 +83,19 @@ export function createListingsHandlers({
       return ApiResponseHandler.error('Invalid JSON', 400);
     }
 
+    if (!data || typeof data !== 'object') {
+      return ApiResponseHandler.error('Missing or invalid request body', 400);
+    }
+
     const errors = validateListingData(data);
     if (errors.length > 0) {
       return ApiResponseHandler.error('Invalid listing data', 400, errors);
     }
 
     const listings = await getCollection('listings');
+    if (!listings || typeof listings.findOne !== 'function') {
+      return ApiResponseHandler.error('Listings collection unavailable', 500);
+    }
     const existingListing = await listings.findOne({ slug: data.slug });
     if (existingListing) {
       return ApiResponseHandler.error('Listing with this slug already exists', 409);
@@ -92,7 +109,12 @@ export function createListingsHandlers({
       updatedAt: new Date(),
     };
 
-    const result = await listings.insertOne(newListing);
+    let result;
+    try {
+      result = await listings.insertOne(newListing);
+    } catch (err) {
+      return ApiResponseHandler.error('Failed to create listing', 500);
+    }
 
     const postResp = ApiResponseHandler.success(
       {
@@ -108,21 +130,25 @@ export function createListingsHandlers({
     };
   }
 
-  return { GET, POST };
+  // Handler for unsupported HTTP methods
+  async function UNSUPPORTED() {
+    return ApiResponseHandler.error('Method Not Allowed', 405);
+  }
+
+  return { GET, POST, UNSUPPORTED };
 }
 
-// Default exports for Next.js API routes (using real dependencies)
 import { handleAuthError, requireAuth } from '@/utils/auth-helpers';
 import { getCollection } from '@/utils/db-helpers';
 
-const { GET, POST } = createListingsHandlers({
+const { GET, POST, UNSUPPORTED } = createListingsHandlers({
   ApiResponseHandler,
   handleAuthError,
   requireAuth,
   getCollection,
 });
 
-export { GET, POST };
+export { GET, POST, UNSUPPORTED };
 
 // --- Validation helper ---
 function validateListingData(data: any) {
