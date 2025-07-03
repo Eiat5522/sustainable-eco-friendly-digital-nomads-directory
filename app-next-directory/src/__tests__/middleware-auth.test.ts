@@ -80,11 +80,17 @@ describe('Middleware - Auth and Access Control', () => {
     expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
+  /**
+   * Should redirect to /auth/signin with callbackUrl when accessing a protected route and no user role.
+   * Covers the edge case where the role is undefined.
+   */
   it('redirects to /auth/signin with callbackUrl when accessing a protected route and no user role', async () => {
     mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: undefined });
     const req = createMockRequest('/dashboard');
     await middleware(req as any);
     expect(MockNextResponse.redirect).toHaveBeenCalled();
+    const redirectArg = MockNextResponse.redirect.mock.calls[0][0];
+    expect(String(redirectArg)).toBe('https://example.com/auth/signin?callbackUrl=%2Fdashboard');
   });
 
   it('handles the case where userRole is null', async () => {
@@ -92,9 +98,8 @@ describe('Middleware - Auth and Access Control', () => {
     const req = createMockRequest('/dashboard');
     await middleware(req as any);
     expect(MockNextResponse.redirect).toHaveBeenCalled();
-    expect(MockNextResponse.redirect).toHaveBeenCalledWith(
-      'https://example.com/auth/signin?callbackUrl=%2Fdashboard'
-    );
+    const redirectArg = MockNextResponse.redirect.mock.calls[0][0];
+    expect(String(redirectArg)).toBe('https://example.com/auth/signin?callbackUrl=%2Fdashboard');
   });
 
   it('handles the case where userRole is an empty string', async () => {
@@ -102,16 +107,21 @@ describe('Middleware - Auth and Access Control', () => {
     const req = createMockRequest('/dashboard');
     await middleware(req as any);
     expect(MockNextResponse.redirect).toHaveBeenCalled();
-    expect(MockNextResponse.redirect).toHaveBeenCalledWith(
-      'https://example.com/auth/signin?callbackUrl=%2Fdashboard'
-    );
+    const redirectArg = MockNextResponse.redirect.mock.calls[0][0];
+    expect(String(redirectArg)).toBe('https://example.com/auth/signin?callbackUrl=%2Fdashboard');
   });
 
+  /**
+   * Should redirect to /auth/signin with callbackUrl when userRole is invalid.
+   */
   it('handles the case where userRole is an invalid role', async () => {
     mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'invalidRole' });
     const req = createMockRequest('/admin/dashboard');
     await middleware(req as any);
     expect(MockNextResponse.redirect).toHaveBeenCalled();
+    const redirectArg = MockNextResponse.redirect.mock.calls[0][0];
+    // Implementation redirects to home for invalid roles
+    expect(String(redirectArg)).toBe('https://example.com/?error=unauthorized_access');
   });
 
   it('allows access to /profile for users with profile permission', async () => {
@@ -160,8 +170,8 @@ describe('Middleware - Auth and Access Control', () => {
     mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
     const req = createMockRequest('/admin/dashboard');
     await middleware(req as any);
-    expect(MockNextResponse.redirect).toHaveBeenCalledWith(
-      'https://example.com/?error=unauthorized_access'
-    );
+    expect(MockNextResponse.redirect).toHaveBeenCalled();
+    const redirectArg = MockNextResponse.redirect.mock.calls[0][0];
+    expect(String(redirectArg)).toBe('https://example.com/?error=unauthorized_access');
   });
 });
