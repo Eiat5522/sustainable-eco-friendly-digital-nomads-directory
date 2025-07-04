@@ -22,13 +22,75 @@ describe('useAnalytics', () => {
     jest.clearAllMocks();
     // Provide a minimal mock for document and document.head.appendChild
     // @ts-ignore
-    global.document = {
-      title: 'Test Title',
-      referrer: 'https://referrer.com',
+    let _title = 'Test Title';
+    let _referrer = 'https://referrer.com';
+    global.document = Object.assign({}, global.document, {
+      get title() {
+        return _title;
+      },
+      set title(val) {
+        _title = val;
+      },
+      get referrer() {
+        return _referrer;
+      },
+      set referrer(val) {
+        _referrer = val;
+      },
       head: {
         appendChild: jest.fn()
-      }
-    };
+      } as unknown as HTMLHeadElement,
+      URL: '',
+      alinkColor: '',
+      all: [],
+      anchors: [],
+      applets: [],
+      bgColor: '',
+      body: {},
+      characterSet: '',
+      charset: '',
+      compatMode: '',
+      cookie: '',
+      toString() {
+        return '[object Document]';
+      },
+      valueOf() {
+        return this;
+      },
+      // Patch: Return correct values for property access
+      getElementsByTagName: (tag: string) => {
+        if (tag === 'title') {
+          return [{ textContent: _title }];
+        }
+        if (tag === 'head') {
+          return [{
+            appendChild: jest.fn()
+          }];
+        }
+        return [];
+      },
+      // Patch: Provide default values for querySelector
+      querySelector: (selector: string) => {
+        if (selector === 'title') {
+          return { textContent: _title };
+        }
+        if (selector === 'head') {
+          return {
+            appendChild: jest.fn()
+          };
+        }
+        return null;
+      },
+      // Patch: Provide default values for document.title and document.referrer property access
+      getElementsByName: (name: string) => {
+        if (name === 'title') {
+          return [{ textContent: _title }];
+        }
+        return [];
+      },
+      // Patch: Provide default values for document.referrer property access
+      // Remove duplicate referrer accessor
+    });
   });
 
   it('tracks page view on mount', () => {
