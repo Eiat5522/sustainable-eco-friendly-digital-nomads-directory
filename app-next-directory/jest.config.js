@@ -6,11 +6,10 @@ const { compilerOptions } = require('./tsconfig.json');
 module.exports = {
   setupFiles: ['<rootDir>/jest/setEnvVars.js'],
   preset: 'ts-jest',
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.m?[tj]sx?$': 'ts-jest',
-    // If you have JS files with ESM, you can add:
-    // '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\\.(ts|tsx)$': 'ts-jest',
+    '^.+\\.(js|jsx)$': 'babel-jest'
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
@@ -18,12 +17,17 @@ module.exports = {
     ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(bson|mongodb|mongoose))'
+    'node_modules/(?!(bson|mongodb|mongoose|@?react|@?next|@?sanity|@?testing-library|@?reduxjs|@?babel|@?mui|@?date-io|@?heroicons|@?headlessui|@?popperjs|@?jotai|@?tanstack|@?radix-ui|@?zod|@?lucide|@?stripe|@?swr|@?prisma|@?auth0|@?apollo|@?graphql|@?urql|@?msw))'
   ],
   globals: {
     'ts-jest': {
       useESM: true,
       tsconfig: 'tsconfig.json'
     }
-  }
+  },
+  testPathIgnorePatterns: [
+    '/playwright/',
+    '\\.playwright\\.test\\.[jt]s$',
+    '\\.pw\\.test\\.[jt]s$'
+  ]
 };

@@ -20,8 +20,15 @@ const { usePathname, useSearchParams } = require('next/navigation');
 describe('useAnalytics', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Provide a minimal mock for document and document.head.appendChild
     // @ts-ignore
-    global.document = { title: 'Test Title', referrer: 'https://referrer.com' };
+    global.document = {
+      title: 'Test Title',
+      referrer: 'https://referrer.com',
+      head: {
+        appendChild: jest.fn()
+      }
+    };
   });
 
   it('tracks page view on mount', () => {

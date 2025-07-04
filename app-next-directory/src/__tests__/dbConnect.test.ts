@@ -17,7 +17,9 @@ describe('dbConnect', () => {
 
   it('throws if MONGODB_URI is missing', async () => {
     process.env.MONGODB_URI = '';
-    const mod = jest.requireActual('../lib/dbConnect');
+    // Ensure global.mongoose is defined to avoid undefined errors
+    (global as any).mongoose = {};
+    const mod = require('../lib/dbConnect');
     await expect(mod.default()).rejects.toThrow(/Invalid or missing MONGODB_URI/);
   });
 
