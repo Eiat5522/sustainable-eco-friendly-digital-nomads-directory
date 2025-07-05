@@ -32,6 +32,7 @@
     "not op_mini all"
   ],
   "dependencies": {
+    "@babel/preset-react": "^7.27.1",
     "@sanity/client": "^7.6.0",
     "@sanity/code-input": "^5.1.2",
     "bcrypt": "^6.0.0",

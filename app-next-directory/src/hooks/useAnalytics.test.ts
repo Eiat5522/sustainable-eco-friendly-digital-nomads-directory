@@ -115,11 +115,10 @@ describe('useAnalytics', () => {
       toString: () => ''
     });
 
-    // Ensure document.title and document.referrer are set for the test
+    // Ensure document.title is set for the test
     global.document.title = 'Test Title';
-    global.document.referrer = 'https://referrer.com';
 
-    renderHook(() => useAnalytics());
+    renderHook(() => useAnalytics({ referrer: 'https://referrer.com' }));
 
     expect(trackPageView).toHaveBeenCalledWith({
       title: 'Test Title',

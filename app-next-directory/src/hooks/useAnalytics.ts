@@ -8,7 +8,7 @@ import {
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 
-export function useAnalytics() {
+export function useAnalytics(options?: { referrer?: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -19,7 +19,7 @@ export function useAnalytics() {
       title: document.title,
       path: pathname ?? '',
       search: search ? `?${search}` : undefined,
-      referrer: document.referrer
+      referrer: options?.referrer ?? document.referrer
     });
   }, [pathname, searchParams]);
 

@@ -1,3 +1,4 @@
+import React from "react";
 import { describe, it, expect } from '@jest/globals';
 import { render, screen, fireEvent } from "@testing-library/react";
 import { buttonVariants, Button } from '../Button';
@@ -93,6 +94,7 @@ describe('Button Component', () => {
   });
 
   it("should forward props to the underlying button element", () => {
+    // React must be in scope for JSX to work in this test file.
     render(<Button data-testid="test-button" aria-label="Test Button" />);
     const button = screen.getByTestId("test-button");
     expect(button.getAttribute("aria-label")).toBe("Test Button");
