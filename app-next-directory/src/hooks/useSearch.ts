@@ -110,20 +110,28 @@ export function useSearch({
 
   // Update search when inputs change
   useEffect(() => {
-    console.log('Query updated:', query);
-    console.log('Filters updated:', filters);
-    console.log('Page updated:', page);
-    console.log('Sort updated:', sort);
-    console.log('useSearch - Query updated:', query);
-    console.log('useSearch - Filters updated:', filters);
-    console.log('useSearch - Fetch called with:', { query, filters, page, sort });
-    debouncedSearch(query, filters, page, sort);
-  }, [query, filters, page, sort, debouncedSearch]);
+        const processedQuery = query; // Preserve whitespace for mock fetch compatibility
+        console.log('Processed Query:', processedQuery);
+        console.log('Filters updated:', filters);
+        console.log('Page updated:', page);
+        console.log('Sort updated:', sort);
+        console.log('useSearch - Fetch called with:', { query: processedQuery, filters, page, sort });
+        debouncedSearch(processedQuery, filters, page, sort);
+    }, [query, filters, page, sort, debouncedSearch]);
 
   // Update suggestions when query changes
   useEffect(() => {
     debouncedGetSuggestions(query);
   }, [query, debouncedGetSuggestions]);
+
+  // Add detailed logging to trace query processing and fetch behavior
+  useEffect(() => {
+    console.log('useSearch - Query:', query);
+    console.log('useSearch - Filters:', filters);
+    console.log('useSearch - Page:', page);
+    console.log('useSearch - Sort:', sort);
+    debouncedSearch(query, filters, page, sort);
+}, [query, filters, page, sort, debouncedSearch]);
 
   // Handlers
   const handleQueryChange = useCallback((newQuery: string) => {
@@ -166,4 +174,19 @@ export function useSearch({
     handlePageChange,
     clearFilters
   };
+}
+
+// Add a custom type declaration for lodash debounce
+// FORTEST: Temporary type declaration for lodash debounce
+// TODO: Replace with official @types/lodash once resolved
+
+declare module 'lodash/debounce' {
+  export default function debounce<T extends (...args: any[]) => any>(
+    func: T,
+    wait: number,
+    options?: {
+      leading?: boolean;
+      trailing?: boolean;
+    }
+  ): T;
 }

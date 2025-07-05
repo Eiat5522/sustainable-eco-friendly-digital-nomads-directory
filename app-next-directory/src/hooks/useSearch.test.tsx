@@ -33,7 +33,7 @@ beforeEach(() => {
     console.log('Mock fetch called with:', url, options);
     // Fix query matching in mock fetch
     const parsedQuery = body.query;
-    // Refine mock fetch logic to handle exact query matches
+    // Refine mock fetch logic to ensure exact query matching
     if (parsedQuery === 'an') {
       console.log('Returning mock response for query:', parsedQuery);
       return Promise.resolve(response({ results: [{ id: 2, name: 'Banana' }], pagination: {}, isLoading: false, error: null }));
@@ -43,12 +43,8 @@ beforeEach(() => {
       return Promise.resolve(response({ results: [], pagination: {}, isLoading: false, error: null }));
     }
     if (parsedQuery === '  apple  ') {
-      console.log('Returning mock response for query:', parsedQuery);
+      console.log('Returning mock response for query with spaces:', parsedQuery);
       return Promise.resolve(response({ results: [{ id: 1, name: 'Apple' }], pagination: {}, isLoading: false, error: null }));
-    }
-    if (parsedQuery === 'test') {
-      console.log('Returning mock response for query:', parsedQuery);
-      return Promise.resolve(response({ results: [{ id: 3, name: 'Test Item' }], pagination: {}, isLoading: false, error: null }));
     }
     // Default
     console.log('Returning default mock response');
@@ -117,6 +113,7 @@ describe('useSearch', () => {
     render(<TestComponent initialQuery="" />);
     await act(async () => {
       screen.getByText('Set Query to spaced apple').click();
+      jest.advanceTimersByTime(300); // Account for debounce delay
     });
     expect(screen.getByTestId('query').textContent).toBe('  apple  ');
     expect(screen.getByTestId('results').textContent).toContain('Apple');
