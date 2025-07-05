@@ -110,6 +110,13 @@ export function useSearch({
 
   // Update search when inputs change
   useEffect(() => {
+    console.log('Query updated:', query);
+    console.log('Filters updated:', filters);
+    console.log('Page updated:', page);
+    console.log('Sort updated:', sort);
+    console.log('useSearch - Query updated:', query);
+    console.log('useSearch - Filters updated:', filters);
+    console.log('useSearch - Fetch called with:', { query, filters, page, sort });
     debouncedSearch(query, filters, page, sort);
   }, [query, filters, page, sort, debouncedSearch]);
 

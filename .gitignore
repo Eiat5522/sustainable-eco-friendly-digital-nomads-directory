@@ -129,3 +129,5 @@ examples/vscode-conditional-usage.js
 utils/VSCodeDetector.ps1
 utils/README.md
 .github\copilot-instructions.md
+app-next-directory/docs/functional-specs/sso-onboarding-pseudocode.md
+app-next-directory/docs/functional-specs/sso-onboarding-spec.md

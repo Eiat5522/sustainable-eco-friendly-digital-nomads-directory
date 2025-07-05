@@ -1,13 +1,7 @@
-import mongoose, { Mongoose } from 'mongoose';
+import type { Mongoose } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env.local';
-  throw new Error(
-    `Please define the MONGODB_URI environment variable inside ${envFile}`
-  );
-}
+// Top-level MONGODB_URI check removed to allow dynamic import and test handling
 
 interface MongooseCache {
   conn: Mongoose | null;
@@ -21,8 +15,10 @@ if (!cached) {
 }
 
 async function dbConnect(): Promise<Mongoose> {
+  // Dynamically load mongoose for mocking flexibility
+  const mongoose: any = require('mongoose');
   if (!MONGODB_URI || typeof MONGODB_URI !== 'string' || !/^mongodb(\+srv)?:\/\/.+/.test(MONGODB_URI)) {
-    throw new Error('Invalid or missing MONGODB_URI environment variable');
+    throw new Error('Invalid or missing MONGODB_URI');
   }
 
   if (cached.conn) {

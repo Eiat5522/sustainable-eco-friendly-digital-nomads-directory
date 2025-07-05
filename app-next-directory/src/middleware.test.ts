@@ -25,13 +25,8 @@ const mockNextResponse = {
 };
 
 // Export NextResponse as a function with static methods (to match Next.js API)
-const NextResponse = Object.assign(
-  function () {},
-  mockNextResponse
-);
-
 jest.mock('next/server', () => ({
-  NextResponse,
+  NextResponse: mockNextResponse,
 }));
 
 // Add a local type for NextRequest for testing
@@ -54,7 +49,7 @@ describe('Middleware', () => {
     (mockNextResponse.json as jest.Mock).mockImplementation(() => createMockResponse('json'));
     middleware = createMiddleware({
       getToken,
-      NextResponse
+      NextResponse: mockNextResponse
     });
   });
 
@@ -188,6 +183,4 @@ describe('Middleware', () => {
       })
     );
   });
-}
-
-)
+});

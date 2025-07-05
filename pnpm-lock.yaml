@@ -144,6 +144,9 @@ importers:
       leaflet.markercluster:
         specifier: ^1.5.3
         version: 1.5.3(leaflet@1.9.4)
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       lucide-react:
         specifier: ^0.523.0
         version: 0.523.0(react@19.1.0)

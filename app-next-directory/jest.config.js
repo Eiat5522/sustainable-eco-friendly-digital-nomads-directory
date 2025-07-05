@@ -5,6 +5,7 @@ const { compilerOptions } = require('./tsconfig.json');
 
 module.exports = {
   setupFiles: ['<rootDir>/jest/setEnvVars.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   transform: {
@@ -16,8 +17,8 @@ module.exports = {
     ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
   },
   transformIgnorePatterns: [
-    '<rootDir>/node_modules/.pnpm/(?!(bson|@panva\+hkdf|mongoose|next-auth|mongodb)@)',
-    'node_modules/(?!.pnpm|bson|@panva/hkdf|mongoose|next-auth|mongodb)'
+    '<rootDir>/node_modules/.pnpm/(?!(bson|@panva\+hkdf|mongoose|next-auth|mongodb|uuid|.*esm-browser.*)@)',
+    'node_modules/(?!.pnpm|bson|@panva/hkdf|mongoose|next-auth|mongodb|uuid|.*esm-browser.*)'
   ],
   globals: {
     'ts-jest': {
@@ -30,5 +31,8 @@ module.exports = {
     '\\.playwright\\.test\\.[jt]s$',
     '\\.pw\\.test\\.[jt]s$',
     'D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/', // Exclude all Playwright and E2E tests
+    // Exclude mock definition files and declaration files from test suites
+    '/__tests__/__mocks__/',
+    '\\.(d\\.ts)$',
   ]
 };

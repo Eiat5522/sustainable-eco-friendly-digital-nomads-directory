@@ -155,3 +155,25 @@ jest.mock('uuid', () => ({
 // Mock environment variables
 process.env.NEXTAUTH_SECRET = 'test-secret'
 process.env.NEXTAUTH_URL = 'http://localhost:3000'
+
+// Add Jest mocks for 'next-sanity' and '@sanity/image-url'
+import { createClient } from 'next-sanity';
+import { imageUrlBuilder } from '@sanity/image-url';
+
+jest.mock('next-sanity', () => ({
+  createClient: jest.fn(() => ({
+    fetch: jest.fn(),
+    getDocument: jest.fn(),
+    create: jest.fn(),
+    patch: jest.fn(),
+    delete: jest.fn(),
+  })),
+}));
+
+jest.mock('@sanity/image-url', () => ({
+  imageUrlBuilder: jest.fn(() => ({
+    image: jest.fn(() => ({
+      url: jest.fn(() => 'mocked-image-url'),
+    })),
+  })),
+}));

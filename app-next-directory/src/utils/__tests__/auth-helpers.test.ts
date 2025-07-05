@@ -1,26 +1,25 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { getServerSession } from 'next-auth';
 
-// Define the mock functions first
-const mockUnauthorized = jest.fn();
-const mockForbidden = jest.fn();
-const mockError = jest.fn();
-const mockSuccess = jest.fn();
-const mockNotFound = jest.fn();
+// Mock next-auth and api-response with jest.fn mocks
 
-// Mock next-auth and api-response. These are hoisted by Jest.
+// Mock next-auth
 jest.mock('next-auth');
 const mockGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
 
+// Mock api-response module with spy functions
 jest.mock('../api-response', () => ({
   ApiResponseHandler: {
-    unauthorized: mockUnauthorized,
-    forbidden: mockForbidden,
-    error: mockError,
-    success: mockSuccess,
-    notFound: mockNotFound,
+    unauthorized: jest.fn(),
+    forbidden: jest.fn(),
+    error: jest.fn(),
+    success: jest.fn(),
+    notFound: jest.fn(),
   },
 }));
+// Import the mock handlers for assertions
+const { ApiResponseHandler } = jest.requireMock('../api-response');
+const { unauthorized: mockUnauthorized, forbidden: mockForbidden, error: mockError, success: mockSuccess, notFound: mockNotFound } = ApiResponseHandler;
 
 // Now, import the module under test. It will receive the mocked dependencies.
 import { requireAuth, requireRole, handleAuthError } from '../auth-helpers';
