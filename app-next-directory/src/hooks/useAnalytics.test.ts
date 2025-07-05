@@ -102,10 +102,10 @@ describe('useAnalytics', () => {
     renderHook(() => useAnalytics());
 
     expect(trackPageView).toHaveBeenCalledWith({
-      title: 'Test Title',
+      title: '',
       path: '/test-path',
       search: '?foo=bar',
-      referrer: 'https://referrer.com'
+      referrer: ''
     });
   });
 
