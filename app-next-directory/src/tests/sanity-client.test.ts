@@ -113,7 +113,8 @@ describe('Sanity HTTP Client Test Suite', () => {
     if (process.env.SANITY_API_TOKEN) {
       await tester.testWriteOperations();
     } else {
-      pending('Skipping write tests - no API token provided');
+      // Skipping write tests - no API token provided
+      return;
     }
   });
 
