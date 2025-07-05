@@ -8,16 +8,16 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
-    '^.+\\.(js|jsx)$': 'babel-jest'
+    '^.+\\.(ts|tsx|js|jsx|mjs)$': 'babel-jest'
   },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'json', 'node'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(bson|mongodb|mongoose|@?react|@?next|@?sanity|@?testing-library|@?reduxjs|@?babel|@?mui|@?date-io|@?heroicons|@?headlessui|@?popperjs|@?jotai|@?tanstack|@?radix-ui|@?zod|@?lucide|@?stripe|@?swr|@?prisma|@?auth0|@?apollo|@?graphql|@?urql|@?msw))'
+    '<rootDir>/node_modules/.pnpm/(?!(bson|@panva\+hkdf|mongoose|next-auth|mongodb)@)',
+    'node_modules/(?!.pnpm|bson|@panva/hkdf|mongoose|next-auth|mongodb)'
   ],
   globals: {
     'ts-jest': {

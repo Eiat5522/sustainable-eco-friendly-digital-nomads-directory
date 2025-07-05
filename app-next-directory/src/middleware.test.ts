@@ -1,7 +1,6 @@
 import { jest } from '@jest/globals';
 // Update getToken type to allow null and token objects
 import { getToken } from 'next-auth/jwt';
-import { NextRequest } from 'next/server';
 import { createMiddleware } from './middleware';
 
 type MockToken = { role?: string; email?: string } | null;
@@ -34,6 +33,16 @@ const NextResponse = Object.assign(
 jest.mock('next/server', () => ({
   NextResponse,
 }));
+
+// Add a local type for NextRequest for testing
+type NextRequest = {
+  nextUrl: {
+    pathname: string;
+    searchParams: URLSearchParams;
+    origin: string;
+  };
+  headers: Headers;
+};
 
 describe('Middleware', () => {
   let middleware: ReturnType<typeof createMiddleware>;

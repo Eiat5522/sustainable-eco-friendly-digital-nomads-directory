@@ -45,7 +45,11 @@ afterEach(() => {
   jest.resetAllMocks();
 });
 
-function TestComponent({ initialQuery = '' }) {
+interface TestComponentProps {
+  initialQuery?: string;
+}
+
+const TestComponent: React.FC<TestComponentProps> = ({ initialQuery = '' }) => {
   const search = useSearch({ initialQuery, initialFilters: { query: '', ecoTags: [], hasDigitalNomadFeatures: false } });
   return (
     <>
@@ -60,7 +64,7 @@ function TestComponent({ initialQuery = '' }) {
 
 describe('useSearch', () => {
   it('should update query and results correctly', async () => {
-    render(<TestComponent />);
+    render(<TestComponent initialQuery="" />);
     expect(screen.getByTestId('query').textContent).toBe('');
     expect(screen.getByTestId('results').textContent).toBe('[]');
     await act(async () => {
@@ -71,7 +75,7 @@ describe('useSearch', () => {
   });
 
   it('should handle empty initial data', async () => {
-    render(<TestComponent />);
+    render(<TestComponent initialQuery="" />);
     expect(screen.getByTestId('query').textContent).toBe('');
     expect(screen.getByTestId('results').textContent).toBe('[]');
     await act(async () => {
@@ -82,7 +86,7 @@ describe('useSearch', () => {
   });
 
   it('should handle no matches', async () => {
-    render(<TestComponent />);
+    render(<TestComponent initialQuery="" />);
     await act(async () => {
       screen.getByText('Set Query to xyz').click();
     });
@@ -91,7 +95,7 @@ describe('useSearch', () => {
   });
 
   it('should not trim the search term before filtering', async () => {
-    render(<TestComponent />);
+    render(<TestComponent initialQuery="" />);
     await act(async () => {
       screen.getByText('Set Query to spaced apple').click();
     });

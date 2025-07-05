@@ -42,7 +42,15 @@ async function dbConnect(): Promise<Mongoose> {
         // FORTEST: Remove this log after debugging
         // eslint-disable-next-line no-console
         console.log('DEBUG: mongoose.connect returned:', mongooseInstance);
-        if (!mongooseInstance) {
+        // Stricter validation: must be object and have readyState or connection.readyState
+        if (
+          !mongooseInstance ||
+          typeof mongooseInstance !== 'object' ||
+          (
+            typeof (mongooseInstance as any).readyState !== 'number' &&
+            (!('connection' in mongooseInstance) || typeof (mongooseInstance as any).connection.readyState !== 'number')
+          )
+        ) {
           throw new Error('Mongoose did not return a valid connection');
         }
         return mongooseInstance;

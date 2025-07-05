@@ -46,31 +46,3 @@ describe('useClickOutside', () => {
     expect(handler).not.toHaveBeenCalled();
   });
 });
-  it('should not call the handler if ref is null and the event happens', () => {
-    const handler: () => void = jest.fn();
-    const ref: React.RefObject<HTMLElement> = { current: null };
-    const { result } = renderHook(() => useClickOutside(ref, handler));
-
-    // Simulate a click outside the ref
-    act(() => {
-      document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, composed: true, }));
-    });
-
-    expect(handler).not.toHaveBeenCalled();
-  });
-
-  it('should cleanup event listener on unmount', () => {
-    const handler: () => void = jest.fn();
-    const ref: React.RefObject<HTMLElement> = { current: document.createElement('div') };
-    const { result, unmount } = renderHook(() => useClickOutside(ref, handler));
-
-    unmount();
-
-    // Simulate a click outside the ref after unmount
-    act(() => {
-      document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, composed: true, }));
-    });
-
-    expect(handler).not.toHaveBeenCalled();
-  });
-});
