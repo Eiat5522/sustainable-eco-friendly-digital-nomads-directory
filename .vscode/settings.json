@@ -17,6 +17,9 @@
   "gitlens.graph.onlyFollowFirstParent": true,
   "git.openRepositoryInParentFolders": "never",
   "npm.packageManager": "pnpm",
-  "jest.jestCommandLine": "",
-  "jest.enable": true,
+  "jest.jestCommandLine": "pnpm test --",
+  "jest.enable": false,
+  "jest.debugMode": false,
+  "jest.rootPath": "/app-next-directory/src",
+  "jest.coverageFormatter": "GutterFormatter"
 }

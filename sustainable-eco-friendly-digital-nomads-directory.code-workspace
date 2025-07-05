@@ -1,0 +1,18 @@
+{
+    "folders": [
+        {
+            "path": "."
+        },
+        {
+            "path": "app-next-directory"
+        },
+        {
+            "path": "sanity"
+        }
+    ],
+    "settings": {
+        "jest.enable": true,
+        "jest.jestCommandLine": "pnpm test --",
+        "npm.packageManager": "pnpm"
+    }
+}

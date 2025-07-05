@@ -1,4 +1,4 @@
 {
   "explorer.excludeGitIgnore": true,
-  "jest.enable": false
+  "jest.enable": true
 }

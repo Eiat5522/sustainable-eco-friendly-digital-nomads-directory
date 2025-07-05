@@ -1,50 +1,54 @@
-import { renderHook, act, RenderHookResult } from '@testing-library/react-hooks';
-import { RefObject } from 'react';
+/** @jest-environment jsdom */
+import React, { useRef } from 'react';
+import { render, fireEvent } from '@testing-library/react';
 import { useClickOutside } from './useClickOutside';
+
+// Test component to use the hook in a real DOM tree
+function TestComponent({ handler }: { handler: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useClickOutside(ref, handler);
+  return <div data-testid="outside"><div ref={ref} data-testid="inside" /></div>;
+}
 
 describe('useClickOutside', () => {
   it('should call the handler when clicking outside the ref', () => {
     const handler = jest.fn();
-    const ref: RefObject<HTMLElement> = { current: document.createElement('div') };
-    const { result }: RenderHookResult<any, any> = renderHook(() => useClickOutside(ref, handler));
-
-    // Simulate a click outside the ref
-    act(() => {
-      document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, composed: true,  }));
-    });
-
+    const { getByTestId } = render(<TestComponent handler={handler} />);
+    fireEvent.mouseDown(document.body);
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
   it('should not call the handler when clicking inside the ref', () => {
     const handler = jest.fn();
-    const ref = { current: document.createElement('div') };
-    const { result } = renderHook(() => useClickOutside(ref, handler));
-
-    // Simulate a click inside the ref
-    act(() => {
-      ref.current?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, composed: true, }));
-    });
-
+    const { getByTestId } = render(<TestComponent handler={handler} />);
+    fireEvent.mouseDown(getByTestId('inside'));
     expect(handler).not.toHaveBeenCalled();
   });
 
   it('should not call the handler if ref is null', () => {
+    // Simulate null ref by not rendering the inside div
+    function NullRefComponent({ handler }: { handler: () => void }) {
+      const ref = useRef<HTMLDivElement>(null);
+      useClickOutside(ref, handler);
+      return <div data-testid="outside" />;
+    }
     const handler = jest.fn();
-    const ref = { current: null } as unknown as React.RefObject<HTMLElement>;
-    const { result } = renderHook(() => useClickOutside(ref, handler));
-
-    // Simulate a click outside the ref
-    act(() => {
-      document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, composed: true, }));
-    });
-
+    render(<NullRefComponent handler={handler} />);
+    fireEvent.mouseDown(document.body);
     expect(handler).not.toHaveBeenCalled();
   });
 
-  it('should not call the handler if ref is null and the event happens', () => {
+  it('should cleanup event listener on unmount', () => {
     const handler = jest.fn();
-    const ref = { current: null } as unknown as React.RefObject<HTMLElement>;
+    const { unmount } = render(<TestComponent handler={handler} />);
+    unmount();
+    fireEvent.mouseDown(document.body);
+    expect(handler).not.toHaveBeenCalled();
+  });
+});
+  it('should not call the handler if ref is null and the event happens', () => {
+    const handler: () => void = jest.fn();
+    const ref: React.RefObject<HTMLElement> = { current: null };
     const { result } = renderHook(() => useClickOutside(ref, handler));
 
     // Simulate a click outside the ref
@@ -56,8 +60,8 @@ describe('useClickOutside', () => {
   });
 
   it('should cleanup event listener on unmount', () => {
-    const handler = jest.fn();
-    const ref = { current: document.createElement('div') };
+    const handler: () => void = jest.fn();
+    const ref: React.RefObject<HTMLElement> = { current: document.createElement('div') };
     const { result, unmount } = renderHook(() => useClickOutside(ref, handler));
 
     unmount();
