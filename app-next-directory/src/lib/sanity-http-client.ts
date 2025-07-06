@@ -4,7 +4,7 @@
  * Date: May 24, 2025
  */
 
-import clientModule from './sanity/client'
+import { createClient } from './sanity/client'
 import type { SanityClient } from '@sanity/client'
 import { type SanityImageObject } from '@sanity/image-url/lib/types/types'
 
@@ -48,10 +48,14 @@ export class SanityHTTPClient {
     }
 
     // Read-only client (public)
-    this.client = clientModule
+    this.client = createClient(this.config)
 
     // Write client with authentication
-    this.writeClient = clientModule
+    this.writeClient = createClient({
+      ...this.config,
+      token: process.env.SANITY_API_TOKEN,
+      useCdn: false, // Always use CDN for write operations
+    })
   }
 
   private validateEnvironment(): void {
@@ -291,7 +295,13 @@ export const sanityHTTPClient = new SanityHTTPClient()
 // Export client getter functions for backward compatibility
 export const getClient = (preview = false) => {
   if (preview) {
-    return clientModule
+    return createClient({
+      projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+      dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
+      apiVersion: '2025-05-24',
+      useCdn: false,
+      perspective: 'previewDrafts',
+    })
   }
   return sanityHTTPClient.getReadClient()
 }

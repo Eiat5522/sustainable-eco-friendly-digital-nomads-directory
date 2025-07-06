@@ -8,12 +8,11 @@ jest.mock('@sanity/image-url', () => ({
   })),
 }));
 jest.mock('next-sanity', () => ({
-  createClient: jest.fn(() => ({
+  createClient: jest.fn((config) => ({
     fetch: jest.fn(() => Promise.resolve([])),
     create: jest.fn(() => Promise.resolve({ _id: 'mock-id' })),
     update: jest.fn(() => Promise.resolve({})),
     delete: jest.fn(() => Promise.resolve('')),
-    // Add a comprehensive mock for the patch method
     patch: jest.fn(() => ({
       set: jest.fn(() => ({
         unset: jest.fn(() => ({

@@ -4,7 +4,7 @@ import SanityImageUrl from '@sanity/image-url';
 // This robustly handles CJS/ESM module interop issues, which is the cause of the Jest error.
 // It attempts to use the named export from the namespace, which works in ESM,
 // and falls back to the `default` property if it's wrapped by a CJS environment like Jest.
-const createClient = SanityClient.createClient || (SanityClient as any).default?.createClient;
+export const createClient = SanityClient.createClient || (SanityClient as any).default?.createClient;
 
 export const client = createClient({
   // Fallback to dummy values if env vars are not set, which is common in test environments
