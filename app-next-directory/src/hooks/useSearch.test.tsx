@@ -13,16 +13,12 @@ beforeEach(() => {
     let text = '';
     let body: any = {};
 
-    // 1) If req.body is already a string
     if (typeof req.body === 'string') {
       text = req.body;
-    }
-    // 2) If it's a Node Buffer
-    else if (typeof Buffer !== 'undefined' && Buffer.isBuffer(req.body)) {
+    } else if (typeof Buffer !== 'undefined' && Buffer.isBuffer(req.body)) {
       text = req.body.toString('utf-8');
     }
 
-    // Parse JSON once
     if (text) {
       try {
         body = JSON.parse(text);
@@ -33,7 +29,6 @@ beforeEach(() => {
 
     const query = body.query as string | undefined;
 
-    // Return mocked payloads
     if (query === 'an') {
       return JSON.stringify({
         results: [{ id: 2, name: 'Banana' }],
@@ -61,7 +56,6 @@ beforeEach(() => {
       });
     }
 
-    // Default
     return JSON.stringify({
       results: [],
       pagination: { total: 0, page: 1, totalPages: 0, hasMore: false },

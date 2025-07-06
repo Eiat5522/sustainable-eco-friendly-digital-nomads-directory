@@ -23,8 +23,6 @@ function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value);
   useEffect(() => {
     const h = setTimeout(() => {
-      // eslint-disable-next-line no-console
-      console.log('useDebounce setDebounced', value);
       setDebounced(value);
     }, delay);
     return () => clearTimeout(h);
@@ -38,12 +36,11 @@ export function useSearch({
   initialSort,
   debounceMs = 300,
 }: UseSearchProps = {}) {
-  // state
   const [query, setQuery] = useState(initialQuery);
   const [filters, setFilters] = useState<SearchFilters>(initialFilters);
   const [sort, setSort] = useState<SortOption | undefined>(initialSort);
   const [page, setPage] = useState(1);
-  
+
   const [results, setResults] = useState<UseSearchResults>({
     results: [], error: null,
     pagination: { total: 0, page: 1, totalPages: 0, hasMore: false }
@@ -53,24 +50,13 @@ export function useSearch({
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
-  // debounced inputs
   const debouncedQuery = useDebounce(query, debounceMs);
   const debouncedSuggest = useDebounce(query, 200);
 
-  // fetch search results
   useEffect(() => {
-    // only fire if query/filter/sort/page change after debounce
     async function doSearch() {
       try {
         setIsLoading(true);
-        // DEBUG: Log the debouncedQuery and body
-        // eslint-disable-next-line no-console
-        console.log('SEARCH HOOK FETCH', debouncedQuery, {
-          query: debouncedQuery,
-          filters,
-          page,
-          sort
-        });
         const res = await fetch('/api/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -94,7 +80,6 @@ export function useSearch({
     doSearch();
   }, [debouncedQuery, filters, page, sort]);
 
-  // fetch suggestions
   useEffect(() => {
     if (debouncedSuggest.length < 2) {
       setSuggestions([]);
@@ -118,7 +103,6 @@ export function useSearch({
     return () => { canceled = true; };
   }, [debouncedSuggest]);
 
-  // handlers
   const handleQueryChange = useCallback((q: string) => {
     setQuery(q);
     setPage(1);
