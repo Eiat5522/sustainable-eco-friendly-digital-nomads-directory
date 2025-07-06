@@ -1,59 +1,78 @@
 import React from 'react';
-import { render, act, screen } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import { useSearch } from './useSearch';
-import { SearchFilters, SortOption } from '@/types/search';
-
+import fetchMock from 'jest-fetch-mock';
+import userEvent from '@testing-library/user-event';
 
 jest.useFakeTimers();
+fetchMock.enableMocks();
 
-// Mock fetch globally
 beforeEach(() => {
-  global.fetch = jest.fn((url: RequestInfo, options?: RequestInit) => {
-    const body = options && options.body ? JSON.parse(options.body as string) : {};
-    const response = (data: any): Response =>
-      ({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        headers: new Headers(),
-        url: typeof url === 'string' ? url : '',
-        redirected: false,
-        type: 'basic',
-        clone: () => response(data),
-        body: null,
-        bodyUsed: false,
-        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
-        blob: () => Promise.resolve(new Blob()),
-        formData: () => Promise.resolve(new FormData()),
-        text: () => Promise.resolve(JSON.stringify(data)),
-        json: () => Promise.resolve(data),
-      } as unknown as Response);
+  fetchMock.resetMocks();
+  fetchMock.mockResponse(async (req) => {
+    let text = '';
+    let body: any = {};
 
-    // Add logging to mock fetch for debugging
-    console.log('Mock fetch called with:', url, options);
-    // Fix query matching in mock fetch
-    const parsedQuery = body.query;
-    // Refine mock fetch logic to ensure exact query matching
-    if (parsedQuery === 'an') {
-      console.log('Returning mock response for query:', parsedQuery);
-      return Promise.resolve(response({ results: [{ id: 2, name: 'Banana' }], pagination: {}, isLoading: false, error: null }));
+    // 1) If req.body is already a string
+    if (typeof req.body === 'string') {
+      text = req.body;
     }
-    if (parsedQuery === 'xyz') {
-      console.log('Returning mock response for query:', parsedQuery);
-      return Promise.resolve(response({ results: [], pagination: {}, isLoading: false, error: null }));
+    // 2) If it's a Node Buffer
+    else if (typeof Buffer !== 'undefined' && Buffer.isBuffer(req.body)) {
+      text = req.body.toString('utf-8');
     }
-    if (parsedQuery === '  apple  ') {
-      console.log('Returning mock response for query with spaces:', parsedQuery);
-      return Promise.resolve(response({ results: [{ id: 1, name: 'Apple' }], pagination: {}, isLoading: false, error: null }));
+
+    // Parse JSON once
+    if (text) {
+      try {
+        body = JSON.parse(text);
+      } catch {
+        body = {};
+      }
     }
+
+    const query = body.query as string | undefined;
+
+    // Return mocked payloads
+    if (query === 'an') {
+      return JSON.stringify({
+        results: [{ id: 2, name: 'Banana' }],
+        pagination: { total: 1, page: 1, totalPages: 1, hasMore: false },
+        isLoading: false,
+        error: null
+      });
+    }
+
+    if (query === 'xyz') {
+      return JSON.stringify({
+        results: [],
+        pagination: { total: 0, page: 1, totalPages: 0, hasMore: false },
+        isLoading: false,
+        error: null
+      });
+    }
+
+    if (query === '  apple  ') {
+      return JSON.stringify({
+        results: [{ id: 1, name: 'Apple' }],
+        pagination: { total: 1, page: 1, totalPages: 1, hasMore: false },
+        isLoading: false,
+        error: null
+      });
+    }
+
     // Default
-    console.log('Returning default mock response');
-    return Promise.resolve(response({ results: [], pagination: {}, isLoading: false, error: null }));
-  }) as jest.MockedFunction<typeof fetch>;
+    return JSON.stringify({
+      results: [],
+      pagination: { total: 0, page: 1, totalPages: 0, hasMore: false },
+      isLoading: false,
+      error: null
+    });
+  });
 });
 
 afterEach(() => {
-  jest.resetAllMocks();
+  fetchMock.resetMocks();
   jest.clearAllTimers();
 });
 
@@ -62,7 +81,11 @@ interface TestComponentProps {
 }
 
 const TestComponent: React.FC<TestComponentProps> = ({ initialQuery = '' }) => {
-  const search = useSearch({ initialQuery, initialFilters: { query: '', ecoTags: [], hasDigitalNomadFeatures: false } });
+  const search = useSearch({
+    initialQuery,
+    initialFilters: { query: '', ecoTags: [], hasDigitalNomadFeatures: false }
+  });
+
   return (
     <>
       <span data-testid="query">{search.query}</span>
@@ -73,49 +96,66 @@ const TestComponent: React.FC<TestComponentProps> = ({ initialQuery = '' }) => {
       <button onClick={() => search.handleQueryChange('test')}>Set Query to test</button>
     </>
   );
-}
+};
 
 describe('useSearch', () => {
   it('should update query and results correctly', async () => {
     render(<TestComponent initialQuery="" />);
     expect(screen.getByTestId('query').textContent).toBe('');
     expect(screen.getByTestId('results').textContent).toBe('[]');
+
+    userEvent.click(screen.getByText('Set Query to an'));
     await act(async () => {
-      screen.getByText('Set Query to an').click();
-      jest.advanceTimersByTime(300); // Account for debounce delay
+      jest.advanceTimersByTime(300);
+      // flush microtasks
+      await Promise.resolve();
     });
-    expect(screen.getByTestId('query').textContent).toBe('an');
-    expect(screen.getByTestId('results').textContent).toContain('Banana');
+    await waitFor(() => {
+      expect(screen.getByTestId('query').textContent).toBe('an');
+      expect(screen.getByTestId('results').textContent).toContain('Banana');
+    });
   });
 
   it('should handle empty initial data', async () => {
     render(<TestComponent initialQuery="" />);
     expect(screen.getByTestId('query').textContent).toBe('');
     expect(screen.getByTestId('results').textContent).toBe('[]');
+
+    userEvent.click(screen.getByText('Set Query to test'));
     await act(async () => {
-      screen.getByText('Set Query to test').click?.(); // fallback if button not present
+      jest.advanceTimersByTime(300);
+      await Promise.resolve();
     });
-    // Query will not change since no button for 'test', but results remain empty
-    expect(screen.getByTestId('results').textContent).toBe('[]');
+    await waitFor(() => {
+      expect(screen.getByTestId('results').textContent).toBe('[]');
+    });
   });
 
   it('should handle no matches', async () => {
     render(<TestComponent initialQuery="" />);
+
+    userEvent.click(screen.getByText('Set Query to xyz'));
     await act(async () => {
-      screen.getByText('Set Query to xyz').click();
-      jest.advanceTimersByTime(300); // Account for debounce delay
+      jest.advanceTimersByTime(300);
+      await Promise.resolve();
     });
-    expect(screen.getByTestId('query').textContent).toBe('xyz');
-    expect(screen.getByTestId('results').textContent).toBe('[]');
+    await waitFor(() => {
+      expect(screen.getByTestId('query').textContent).toBe('xyz');
+      expect(screen.getByTestId('results').textContent).toBe('[]');
+    });
   });
 
   it('should not trim the search term before filtering', async () => {
     render(<TestComponent initialQuery="" />);
+
+    userEvent.click(screen.getByText('Set Query to spaced apple'));
     await act(async () => {
-      screen.getByText('Set Query to spaced apple').click();
-      jest.advanceTimersByTime(300); // Account for debounce delay
+      jest.advanceTimersByTime(300);
+      await Promise.resolve();
     });
-    expect(screen.getByTestId('query').textContent).toBe('  apple  ');
-    expect(screen.getByTestId('results').textContent).toContain('Apple');
+    await waitFor(() => {
+      expect(screen.getByTestId('query').textContent).toBe('  apple  ');
+      expect(screen.getByTestId('results').textContent).toContain('Apple');
+    });
   });
 });

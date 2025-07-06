@@ -276,5 +276,7 @@ describe('Auth Helpers', () => {
         expect(result.body).toEqual(forbiddenResponse.body);
       }
     });
+
+
   });
 });

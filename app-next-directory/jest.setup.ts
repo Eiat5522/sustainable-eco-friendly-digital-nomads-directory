@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.test' });
 import '@testing-library/jest-dom';
 import 'cross-fetch/polyfill';
+import fetchMock from 'jest-fetch-mock';
+fetchMock.enableMocks();
 
 // Polyfill for Request/Response for Jest (Node.js)
 if (typeof global.Request === 'undefined') {
@@ -158,7 +160,7 @@ process.env.NEXTAUTH_URL = 'http://localhost:3000'
 
 // Add Jest mocks for 'next-sanity' and '@sanity/image-url'
 import { createClient } from 'next-sanity';
-import { imageUrlBuilder } from '@sanity/image-url';
+import imageUrlBuilder from '@sanity/image-url';
 
 jest.mock('next-sanity', () => ({
   createClient: jest.fn(() => ({
@@ -171,7 +173,7 @@ jest.mock('next-sanity', () => ({
 }));
 
 jest.mock('@sanity/image-url', () => ({
-  imageUrlBuilder: jest.fn(() => ({
+  default: jest.fn(() => ({
     image: jest.fn(() => ({
       url: jest.fn(() => 'mocked-image-url'),
     })),
