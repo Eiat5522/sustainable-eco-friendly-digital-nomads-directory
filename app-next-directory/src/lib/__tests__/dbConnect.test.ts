@@ -5,25 +5,9 @@
 
 // Extend NodeJS global type for test-specific mongoose cache
 // Match the app's global.mongoose type for test compatibility
-type MongooseCache = {
-  conn: any | null;
-  promise: Promise<any> | null;
-};
-declare global {
-  // eslint-disable-next-line no-var
-  var mongoose: MongooseCache;
-}
-jest.mock('mongoose', () => {
-  const connect = jest.fn().mockImplementation(() => Promise.resolve({ readyState: 1 }));
-  return {
-    connect,
-    default: { connect }, // Provide a default export as well
-  };
-});
 
-/* Use import type to avoid redeclaration error */
-import type mongooseType from 'mongoose';
-let mongoose: typeof mongooseType;
+
+
 
 describe('dbConnect', () => {
   let originalEnv: any;
@@ -31,7 +15,10 @@ describe('dbConnect', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    mongoose = require('mongoose');
+    jest.doMock('mongoose', () => ({
+      connect: jest.fn().mockImplementation(() => Promise.resolve({ readyState: 1 })),
+      default: { connect: jest.fn().mockImplementation(() => Promise.resolve({ readyState: 1 })) },
+    }), { virtual: true });
     originalEnv = process.env.MONGODB_URI;
     process.env.MONGODB_URI = 'mongodb://localhost:27017/testdb';
     originalGlobal = { ...global };
@@ -43,21 +30,20 @@ describe('dbConnect', () => {
   afterEach(() => {
     process.env.MONGODB_URI = originalEnv;
     global.mongoose = originalGlobal.mongoose;
-    jest.resetModules();
+    jest.dontMock('mongoose');
   });
 
-  it('throws if MONGODB_URI is not set', () => {
+  it('throws if MONGODB_URI is not set', async () => {
     process.env.MONGODB_URI = '';
     jest.resetModules();
-    expect(() => {
-      require('../dbConnect'); // Importing the module triggers the error
-    }).toThrow(/MONGODB_URI/);
+    const dbConnect = require('../dbConnect').default;
+    await expect(dbConnect()).rejects.toThrow(/Invalid or missing MONGODB_URI/);
   });
 
   it('returns cached connection if present', async () => {
     process.env.MONGODB_URI = 'mongodb://localhost:27017/testdb';
     jest.resetModules();
-    mongoose = require('mongoose');
+    const mongoose = require('mongoose');
     const dbConnect = require('../dbConnect').default;
     const fakeConn = { readyState: 1 };
     global.mongoose.conn = fakeConn as any;
@@ -69,7 +55,7 @@ describe('dbConnect', () => {
   it('establishes new connection if not cached', async () => {
     process.env.MONGODB_URI = 'mongodb://localhost:27017/testdb';
     jest.resetModules();
-    mongoose = require('mongoose');
+    const mongoose = require('mongoose');
     const dbConnect = require('../dbConnect').default;
     const fakeConn = { readyState: 1 };
     (mongoose.connect as jest.Mock).mockResolvedValue(fakeConn);
@@ -86,7 +72,7 @@ describe('dbConnect', () => {
   it('resets promise and throws on connection error', async () => {
     process.env.MONGODB_URI = 'mongodb://localhost:27017/testdb';
     jest.resetModules();
-    mongoose = require('mongoose');
+    const mongoose = require('mongoose');
     const dbConnect = require('../dbConnect').default;
     (mongoose.connect as jest.Mock).mockRejectedValue(new Error('fail'));
     // Initialize promise to simulate in-progress connection

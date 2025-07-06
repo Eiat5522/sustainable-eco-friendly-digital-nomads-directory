@@ -18,7 +18,15 @@ jest.mock('../api-response', () => ({
   },
 }));
 // Import the mock handlers for assertions
-const { ApiResponseHandler } = jest.requireMock('../api-response');
+type MockApiResponseHandler = {
+  unauthorized: jest.Mock;
+  forbidden: jest.Mock;
+  error: jest.Mock;
+  success: jest.Mock;
+  notFound: jest.Mock;
+};
+
+const { ApiResponseHandler } = jest.requireMock('../api-response') as { ApiResponseHandler: MockApiResponseHandler };
 const { unauthorized: mockUnauthorized, forbidden: mockForbidden, error: mockError, success: mockSuccess, notFound: mockNotFound } = ApiResponseHandler;
 
 // Now, import the module under test. It will receive the mocked dependencies.
