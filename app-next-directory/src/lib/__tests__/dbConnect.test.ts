@@ -50,7 +50,7 @@ describe('dbConnect', () => {
     process.env.MONGODB_URI = '';
     jest.resetModules();
     expect(() => {
-      require('../dbConnect').default;
+      require('../dbConnect'); // Importing the module triggers the error
     }).toThrow(/MONGODB_URI/);
   });
 

@@ -66,6 +66,46 @@ export function ListingDetail({ listing }: ListingProps) {
   const hasCoords =
     typeof listing.location?.lat === 'number' &&
     typeof listing.location?.lng === 'number';
+
+  // Prepare the listing data for the map, ensuring type compatibility.
+  // This is only created if coordinates exist.
+  const mapListing = hasCoords
+    ? {
+        // The 'id' property is expected by the map. Let's use the Sanity '_id' if available,
+        // falling back to other potential id fields or a default.
+        id: (listing as any)._id ?? (listing as any).id ?? 'single-listing-map-id',
+        name: listing.name,
+        description_short: listing.description_short ?? '',
+        description_long: listing.description_long ?? '',
+        // Ensure category is one of the expected values for the map markers.
+        category: (['coworking', 'cafe', 'accommodation'].includes(listing.category ?? '')
+          ? listing.category
+          : 'coworking') as 'coworking' | 'cafe' | 'accommodation',
+        // FIX: The MapContainer's Listing type expects 'eco_focus_tags' and other properties.
+        // We map `eco_features` to `eco_focus_tags` and provide defaults for other required fields.
+        eco_focus_tags: listing.eco_features ?? [],
+        address_string: '', // Default value to satisfy the type
+        eco_notes_detailed: '', // Default value to satisfy the type
+        amenities: listing.amenities ?? [],
+        primaryImage: listing.primaryImage ?? null,
+        galleryImages: listing.galleryImages ?? [],
+        city: listing.city?.title ?? '',
+        location: listing.location,
+        website: listing.website ?? '',
+        contact_email: listing.contact_email ?? '',
+        contact_phone: listing.contact_phone ?? '',
+        price_range: listing.price_range ?? '',
+        reviews: listing.reviews ?? [],
+        // These seem to be required by the MapContainer's Listing type, so we provide defaults.
+        source_urls: [],
+        primary_image_url: '',
+        gallery_image_urls: [],
+        digital_nomad_features: [],
+        last_verified_date: '',
+        coordinates: { latitude: listing.location?.lat ?? 0, longitude: listing.location?.lng ?? 0 },
+      }
+    : null;
+
   if (hasCoords) {
     // FORTEST: Debug log for map rendering
     console.info('Rendering MapContainer with coordinates:', listing.location?.lat, listing.location?.lng);
@@ -73,6 +113,7 @@ export function ListingDetail({ listing }: ListingProps) {
     // FORTEST: Debug log for missing coordinates
     console.warn('ListingDetail: No valid coordinates for map', listing.location);
   }
+
   return (
     <article className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
       {/* Modern Image Gallery */}
@@ -432,40 +473,10 @@ export function ListingDetail({ listing }: ListingProps) {
         </div>
       )}
       {/* Map section: Only render if coordinates are present */}
-      {hasCoords ? (
+      {hasCoords && mapListing ? (
         <div className="w-full h-96 my-6">
           <MapContainer
-            listings={[
-              {
-                id: (listing as any).id ?? 'default-id',
-                name: listing.name,
-                description_short: listing.description_short ?? '',
-                description_long: listing.description_long ?? '',
-                category: (['coworking', 'cafe', 'accommodation'].includes(listing.category ?? '') 
-                  ? listing.category 
-                  : 'coworking') as 'coworking' | 'cafe' | 'accommodation',
-                eco_features: listing.eco_features ?? [],
-                amenities: listing.amenities ?? [],
-                primaryImage: listing.primaryImage ?? null,
-                galleryImages: listing.galleryImages ?? [],
-                city: listing.city?.title ?? '',
-                location: listing.location,
-                website: listing.website ?? '',
-                contact_email: listing.contact_email ?? '',
-                contact_phone: listing.contact_phone ?? '',
-                price_range: listing.price_range ?? '',
-                reviews: listing.reviews ?? [],
-                source_urls: [],
-                primary_image_url: '',
-                gallery_image_urls: [],
-                digital_nomad_features: [],
-                last_verified_date: '',
-                coordinates: {
-                  latitude: listing.location?.lat ?? null,
-                  longitude: listing.location?.lng ?? null
-                }
-              }
-            ]}
+            listings={[mapListing]}
             className="h-full w-full rounded-lg shadow"
           />
         </div>

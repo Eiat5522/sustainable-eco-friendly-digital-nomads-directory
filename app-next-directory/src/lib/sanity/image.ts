@@ -1,20 +1,10 @@
-import imageUrlBuilder from '@sanity/image-url';
-import { client } from './client';
+import { builder } from './client';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
-const builder = imageUrlBuilder(client);
-
-export function urlFor(source: any) {
+export function urlFor(source: SanityImageSource) {
+  // Gracefully handle null or undefined sources
   if (!source) {
-    console.warn('No source provided to urlFor');
-    return null;
+    return undefined;
   }
-
-  try {
-    return builder.image(source).auto('format');
-  } catch (error) {
-    console.error('Error building image URL:', error);
-    return null;
-  }
+  return builder.image(source);
 }
-
-export default urlFor;
