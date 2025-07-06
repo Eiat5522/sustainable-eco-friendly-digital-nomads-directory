@@ -5,6 +5,7 @@ import '@testing-library/jest-dom';
 import 'cross-fetch/polyfill';
 import fetchMock from 'jest-fetch-mock';
 fetchMock.enableMocks();
+import React from 'react';
 
 // Polyfill for Request/Response for Jest (Node.js)
 if (typeof global.Request === 'undefined') {
@@ -127,7 +128,6 @@ global.fetch = jest.fn(() =>
 jest.mock('jose', () => ({}));
 jest.mock('node-fetch', () => ({}));
 jest.mock('nanoid', () => ({ nanoid: () => 'mocked-nanoid' }));
-jest.mock('@sanity/client', () => ({}));
 jest.mock('@panva/hkdf', () => ({}));
 // Mock next-auth/jwt and getToken for all tests
 jest.mock('next-auth/jwt', () => ({
@@ -135,7 +135,6 @@ jest.mock('next-auth/jwt', () => ({
 }));
 
 // Mock preact-render-to-string for ESM errors
-jest.mock('@sanity/client');
 jest.mock('preact-render-to-string', () => ({
   render: () => '',
   renderToStaticMarkup: () => '',

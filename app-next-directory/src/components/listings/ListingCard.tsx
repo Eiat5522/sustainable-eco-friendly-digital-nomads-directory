@@ -1,3 +1,4 @@
+import React from 'react';
 "use client";
 import { highlightText } from '@/lib/highlight';
 import { urlFor } from '@/lib/sanity/image';
@@ -80,6 +81,8 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
       }
     } else if (typeof listing === 'object' && listing !== null && 'primary_image_url' in listing && (listing as any).primary_image_url != null && typeof (listing as any).primary_image_url === 'string') {
       return (listing as any).primary_image_url;
+    } else if (Array.isArray((listing as any).images) && (listing as any).images.length > 0) {
+      return (listing as any).images[0];
     }
     return '';
   };
@@ -127,15 +130,11 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
 
   const getLocation = () => {
     if (isSanityListing(listing)) {
-      return listing.city || '';
-    }
-    if (typeof listing === 'object' && listing !== null) {
-      if ('city' in listing && typeof (listing as any).city === 'string') {
-        return (listing as any).city;
-      }
-      if ('location' in listing && typeof (listing as any).location === 'string') {
-        return (listing as any).location;
-      }
+      return `${listing.city?.title}, ${listing.city?.country}`;
+    } else if (typeof listing === 'object' && listing !== null && 'city' in listing && typeof (listing as any).city === 'object') {
+      return `${(listing as any).city.title}, ${(listing as any).city.country}`;
+    } else if (typeof listing === 'object' && listing !== null && 'location' in listing && typeof (listing as any).location === 'string') {
+      return (listing as any).location;
     }
     return '';
   };
@@ -202,6 +201,11 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
               ? highlightText(getDescription(), searchQuery)
               : getDescription()}
           </p>
+
+          {/* Price */}
+          {(listing as any).price && (
+            <p className="text-lg font-semibold text-gray-800">${(listing as any).price}</p>
+          )}
 
           {/* Eco Tags */}
           <div className="flex flex-wrap gap-2 mt-auto">
