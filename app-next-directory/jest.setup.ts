@@ -60,6 +60,16 @@ jest.mock('next/navigation', () => ({
   },
 }))
 
+jest.mock('next/image', () => {
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: (props: any) => {
+      return React.createElement('div', { 'data-testid': 'image-mock', 'data-alt': props.alt, 'data-src': props.src });
+    },
+  };
+});
+
 // Mock IntersectionObserver
 class MockIntersectionObserver implements IntersectionObserver {
   readonly root: Element | Document | null = null;
