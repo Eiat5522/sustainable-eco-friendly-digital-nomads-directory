@@ -435,13 +435,37 @@ export function ListingDetail({ listing }: ListingProps) {
       {hasCoords ? (
         <div className="w-full h-96 my-6">
           <MapContainer
-            listings={[{
-              ...listing,
-              coordinates: {
-                latitude: listing.location?.lat,
-                longitude: listing.location?.lng
+            listings={[
+              {
+                id: (listing as any).id ?? 'default-id',
+                name: listing.name,
+                description_short: listing.description_short ?? '',
+                description_long: listing.description_long ?? '',
+                category: (['coworking', 'cafe', 'accommodation'].includes(listing.category ?? '') 
+                  ? listing.category 
+                  : 'coworking') as 'coworking' | 'cafe' | 'accommodation',
+                eco_features: listing.eco_features ?? [],
+                amenities: listing.amenities ?? [],
+                primaryImage: listing.primaryImage ?? null,
+                galleryImages: listing.galleryImages ?? [],
+                city: listing.city?.title ?? '',
+                location: listing.location,
+                website: listing.website ?? '',
+                contact_email: listing.contact_email ?? '',
+                contact_phone: listing.contact_phone ?? '',
+                price_range: listing.price_range ?? '',
+                reviews: listing.reviews ?? [],
+                source_urls: [],
+                primary_image_url: '',
+                gallery_image_urls: [],
+                digital_nomad_features: [],
+                last_verified_date: '',
+                coordinates: {
+                  latitude: listing.location?.lat ?? null,
+                  longitude: listing.location?.lng ?? null
+                }
               }
-            }]}
+            ]}
             className="h-full w-full rounded-lg shadow"
           />
         </div>

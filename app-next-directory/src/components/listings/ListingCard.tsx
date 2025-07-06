@@ -64,12 +64,15 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
         const firstGalleryImage = (listing as any).galleryImages[0];
         if (firstGalleryImage) {
           try {
-            return urlFor(firstGalleryImage)
-              .width(800)
-              .height(480)
-              .fit('crop')
-              .auto('format')
-              .url();
+            const urlBuilder = urlFor(firstGalleryImage);
+            if (urlBuilder) {
+              return urlBuilder
+                .width(800)
+                .height(480)
+                .fit('crop')
+                .auto('format')
+                .url();
+            }
           } catch (error) {
             console.error('Error generating Sanity gallery image URL:', error);
           }

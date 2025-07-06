@@ -1,3 +1,12 @@
+// Mock @sanity/image-url to prevent 'is not a function' errors in tests
+jest.mock('@sanity/image-url', () => ({
+  __esModule: true,
+  default: jest.fn(() => ({
+    image: jest.fn(() => ({
+      url: jest.fn(() => 'https://example.com/mock-image.jpg'),
+    })),
+  })),
+}));
 jest.mock('next-sanity', () => ({
   createClient: jest.fn(() => ({
     fetch: jest.fn(() => Promise.resolve([])),
@@ -21,11 +30,6 @@ jest.mock('next-sanity', () => ({
         commit: jest.fn(() => Promise.resolve({})),
       })),
       commit: jest.fn(() => Promise.resolve({})),
-    })),
-  })),
-  imageUrlBuilder: jest.fn(() => ({
-    image: jest.fn(() => ({
-      url: jest.fn(() => 'mock-image-url'),
     })),
   })),
 }));
