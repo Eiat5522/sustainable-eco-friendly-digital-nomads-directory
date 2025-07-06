@@ -1,6 +1,33 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { getServerSession } from 'next-auth';
 
+// Mock mongodb module
+jest.mock('mongodb', () => ({
+  MongoClient: jest.fn(() => ({
+    connect: jest.fn(() => Promise.resolve({
+      db: jest.fn(() => ({
+        createCollection: jest.fn(() => Promise.resolve()),
+        collection: jest.fn(() => ({
+          createIndexes: jest.fn(() => Promise.resolve()),
+        })),
+      })),
+    })),
+  })),
+}));
+
+// Mock src/lib/mongodb.ts
+jest.mock('../../lib/mongodb', () => ({
+  __esModule: true,
+  default: Promise.resolve({
+    db: jest.fn(() => ({
+      createCollection: jest.fn(() => Promise.resolve()),
+      collection: jest.fn(() => ({
+        createIndexes: jest.fn(() => Promise.resolve()),
+      })),
+    })),
+  }),
+}));
+
 // Mock next-auth and api-response with jest.fn mocks
 
 // Mock next-auth
