@@ -14,9 +14,10 @@ export function highlightText(
   text: string | null | undefined,
   searchQuery: string | null | undefined,
   options?: HighlightOptions | null
-): string | React.ReactNode {
-  // Always return a string for empty/null/undefined text
-  if (text == null || text === '') return '';
+): string | React.ReactNode | null | undefined {
+  // Return null/undefined if input is null/undefined
+  if (text == null) return text;
+  if (text === '') return '';
   // If searchQuery is null/undefined/empty, return text as string
   if (searchQuery == null || searchQuery === '' || typeof searchQuery !== 'string' || !searchQuery.trim()) {
     return String(text);
@@ -29,8 +30,8 @@ export function highlightText(
   const strText = String(text);
   const parts = strText.split(new RegExp(`(${escapedQuery})`, flags));
 
-  // If no match, return original string
-  if (parts.length === 1) return strText;
+  // If no match, return array with original string
+  if (parts.length === 1) return [strText];
 
   // Only return an array if highlighting is needed
   return parts.map((part, i) => {
@@ -55,5 +56,7 @@ export function getHighlightedText(
   options?: HighlightOptions | null
 ) {
   // Defensive: match highlightText signature
+  if (text == null) return text;
+  if (text === '') return '';
   return highlightText(text, searchQuery, options);
 }
