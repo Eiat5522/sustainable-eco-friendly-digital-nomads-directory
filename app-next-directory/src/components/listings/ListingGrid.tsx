@@ -1,4 +1,4 @@
-import { urlForImage } from '@/lib/sanity/client';
+import { urlFor as urlForImage } from '@/lib/sanity/image';
 import { type Listing } from '@/types/listings';
 import { SanityListing } from '@/types/sanity';
 import Image from 'next/image';
@@ -128,7 +128,7 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 priority={index < 3} // Prioritize loading for the first few images
-                onError={(e) => {
+                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                   console.warn('Image failed to load:', getImageUrl(listing));
                   e.currentTarget.src = '/images/sustainable_nomads.png';
                 }}

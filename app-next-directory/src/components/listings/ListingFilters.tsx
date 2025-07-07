@@ -31,20 +31,44 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
     minRating: null
   });
 
-  // Extract unique values for filter options
-  const categories = Array.from(new Set(listings.map(l => l.category)));
-  const cities = Array.from(new Set(listings.map(l => {
-    if ('city' in l && typeof l.city === 'string') return l.city;
-    return (l as Listing).city;
-  }).filter(Boolean)));
-  const allEcoTags = Array.from(new Set(listings.flatMap(l => {
-    if ('ecoTags' in l) return l.ecoTags || [];
-    return (l as Listing).eco_focus_tags || [];
-  })));
-  const allFeatures = Array.from(new Set(listings.flatMap(l => {
-    if ('nomadFeatures' in l) return l.nomadFeatures || [];
-    return (l as Listing).digital_nomad_features || [];
-  })));
+  // Extract unique values for filter options, filtering out undefined/null and ensuring strings
+  const categories = Array.from(
+    new Set(
+      listings
+        .map(l => l.category)
+        .filter(c => typeof c === 'string' && c.trim() !== '')
+    )
+  ) as string[];
+  const cities = Array.from(
+    new Set(
+      listings
+        .map(l => {
+          if ('city' in l && typeof l.city === 'string') return l.city;
+          return (l as Listing).city;
+        })
+        .filter((c): c is string => typeof c === 'string' && c.trim() !== '')
+    )
+  );
+  const allEcoTags = Array.from(
+    new Set(
+      listings
+        .flatMap(l => {
+          if ('ecoTags' in l) return Array.isArray(l.ecoTags) ? l.ecoTags : [];
+          return Array.isArray((l as Listing).eco_focus_tags) ? (l as Listing).eco_focus_tags : [];
+        })
+        .filter((t): t is string => typeof t === 'string' && t.trim() !== '')
+    )
+  );
+  const allFeatures = Array.from(
+    new Set(
+      listings
+        .flatMap(l => {
+          if ('nomadFeatures' in l) return Array.isArray(l.nomadFeatures) ? l.nomadFeatures : [];
+          return Array.isArray((l as Listing).digital_nomad_features) ? (l as Listing).digital_nomad_features : [];
+        })
+        .filter((f): f is string => typeof f === 'string' && f.trim() !== '')
+    )
+  );
 
   // Debounced search handler
   const debouncedSearch = useCallback(
@@ -126,6 +150,7 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
         <h3 className="text-lg font-semibold mb-3">Minimum Rating</h3>
         <div className="flex flex-wrap gap-2">
           <button
+            type="button"
             onClick={() => handleRatingChange(null)}
             className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
               filters.minRating === null
@@ -137,6 +162,7 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
           </button>
           {[1, 2, 3, 4, 5].map(rating => (
             <button
+              type="button"
               key={rating}
               onClick={() => handleRatingChange(rating)}
               className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
@@ -156,6 +182,7 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
         <h3 className="text-lg font-semibold mb-3">Category</h3>
         <div className="flex flex-wrap gap-2">
           <button
+            type="button"
             onClick={() => handleCategoryChange(null)}
             className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
               !filters.category
@@ -167,6 +194,7 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
           </button>
           {categories.map(category => (
             <button
+              type="button"
               key={category}
               onClick={() => handleCategoryChange(category)}
               className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
@@ -175,7 +203,9 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
                   : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
               }`}
             >
-              {category.charAt(0).toUpperCase() + category.slice(1)}
+              {typeof category === 'string' && category.length > 0
+                ? category.charAt(0).toUpperCase() + category.slice(1)
+                : 'Unknown'}
             </button>
           ))}
         </div>
@@ -183,8 +213,12 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
 
       {/* City Filter */}
       <div>
+        <label htmlFor="city-select" className="sr-only">
+          City
+        </label>
         <h3 className="text-lg font-semibold mb-3">Location</h3>
         <select
+          id="city-select"
           value={filters.city || ""}
           onChange={(e) => handleCityChange(e.target.value || null)}
           className="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
@@ -208,6 +242,7 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
             type="range"
             min="0"
             max="50000"
+            title="Maximum price"
             step="1000"
             value={filters.priceRange[1]}
             onChange={(e) => handlePriceRangeChange([filters.priceRange[0], parseInt(e.target.value)])}
@@ -255,6 +290,7 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
       {/* Reset Filters Button */}
       <div className="pt-4 border-t">
         <button
+          type="button"
           onClick={resetFilters}
           className="w-full py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
         >
