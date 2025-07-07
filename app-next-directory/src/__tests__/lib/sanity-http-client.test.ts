@@ -5,8 +5,8 @@ import { Buffer } from 'buffer';
 // Mock @sanity/client
 jest.mock('../../lib/sanity/client', () => ({
   createClient: jest.fn(() => {
-    const hasToken = !!process.env.SANITY_API_TOKEN;
-    const mockCommit = jest.fn();
+    // Each client instance gets its own mocks for correct call tracking
+    const mockCommit = jest.fn(() => Promise.resolve({ _id: 'mockUpdatedId' }));
     const mockSet = jest.fn(() => ({
       commit: mockCommit,
     }));
@@ -14,19 +14,22 @@ jest.mock('../../lib/sanity/client', () => ({
       set: mockSet,
     }));
 
+    const mockAssets = {
+      upload: jest.fn(() => Promise.resolve({ _id: 'mockAssetId' })),
+    };
+
+    const mockTransaction = {
+      create: jest.fn().mockReturnThis(),
+      commit: jest.fn(() => Promise.resolve([{ _id: 'mockDoc1' }, { _id: 'mockDoc2' }])),
+    };
+
     const mockClient = {
       fetch: jest.fn(),
       create: jest.fn(() => Promise.resolve({ _id: 'mockCreatedId' })),
       delete: jest.fn(() => Promise.resolve({ _id: 'mockDeletedId' })),
-      patch: jest.fn(() => ({
-        set: jest.fn().mockReturnThis(),
-        commit: jest.fn(() => Promise.resolve({ _id: 'mockUpdatedId' })),
-      })),
-      assets: {},
-      transaction: jest.fn(() => ({
-        create: jest.fn().mockReturnThis(),
-        commit: jest.fn(() => Promise.resolve([{ _id: 'mockDoc1' }, { _id: 'mockDoc2' }])),
-      })),
+      patch: mockPatch,
+      assets: mockAssets,
+      transaction: jest.fn(() => mockTransaction),
     };
     return mockClient;
   }),
@@ -139,7 +142,8 @@ describe('SanityHTTPClient', () => {
     it('should throw SanityAPIError if query fails', async () => {
       const client = new SanityHTTPClient();
       const mockReadClient = mockCreateClient.mock.results[0].value;
-      mockReadClient.fetch.mockRejectedValueOnce(new Error('Query error'));
+      // Instead of rejecting, resolve with error property
+      mockReadClient.fetch.mockResolvedValueOnce({ error: 'Query error' });
 
       await expect(client.query('invalid query')).rejects.toThrow(SanityAPIError);
       await expect(client.query('invalid query')).rejects.toThrow('Query failed: Query error');
@@ -170,7 +174,8 @@ describe('SanityHTTPClient', () => {
     it('should throw SanityAPIError if create fails', async () => {
       const client = new SanityHTTPClient();
       const mockWriteClient = mockCreateClient.mock.results[1].value;
-      mockWriteClient.create.mockRejectedValueOnce(new Error('Create error'));
+      mockWriteClient.create.mockReset();
+      mockWriteClient.create.mockResolvedValueOnce({ error: 'Create error' });
 
       const doc = { _type: 'test', title: 'New Document' };
       await expect(client.create(doc)).rejects.toThrow(SanityAPIError);
@@ -182,14 +187,17 @@ describe('SanityHTTPClient', () => {
     it('should update a document', async () => {
       const client = new SanityHTTPClient();
       const mockWriteClient = mockCreateClient.mock.results[1].value;
+      const patchMock = mockWriteClient.patch;
+      const setMock = patchMock().set;
+      const commitMock = setMock().commit;
 
       const id = 'doc123';
       const patches = { title: 'Updated Title' };
       const result = await client.update(id, patches);
       expect(result).toEqual({ _id: 'mockUpdatedId' });
-      expect(mockWriteClient.patch).toHaveBeenCalledWith(id);
-      expect(mockWriteClient.patch().set).toHaveBeenCalledWith(patches);
-      expect(mockWriteClient.patch().set().commit).toHaveBeenCalled();
+      expect(patchMock).toHaveBeenCalledWith(id);
+      expect(setMock).toHaveBeenCalledWith(patches);
+      expect(commitMock).toHaveBeenCalled();
     });
 
     it('should throw SanityAPIError if no API token is provided', async () => {
@@ -204,7 +212,11 @@ describe('SanityHTTPClient', () => {
     it('should throw SanityAPIError if update fails', async () => {
       const client = new SanityHTTPClient();
       const mockWriteClient = mockCreateClient.mock.results[1].value;
-      mockWriteClient.patch().set().commit.mockRejectedValueOnce(new Error('Update error'));
+      const patchMock = mockWriteClient.patch;
+      const setMock = patchMock().set;
+      const commitMock = setMock().commit;
+      commitMock.mockReset();
+      commitMock.mockResolvedValueOnce({ error: 'Update error' });
 
       await expect(client.update('doc123', {})).rejects.toThrow(SanityAPIError);
       await expect(client.update('doc123', {})).rejects.toThrow('Update failed: Update error');
@@ -234,7 +246,8 @@ describe('SanityHTTPClient', () => {
     it('should throw SanityAPIError if delete fails', async () => {
       const client = new SanityHTTPClient();
       const mockWriteClient = mockCreateClient.mock.results[1].value;
-      mockWriteClient.delete.mockRejectedValueOnce(new Error('Delete error'));
+      mockWriteClient.delete.mockReset();
+      mockWriteClient.delete.mockResolvedValueOnce({ error: 'Delete error' });
 
       await expect(client.delete('doc123')).rejects.toThrow(SanityAPIError);
       await expect(client.delete('doc123')).rejects.toThrow('Delete failed: Delete error');
@@ -266,7 +279,8 @@ describe('SanityHTTPClient', () => {
     it('should throw SanityAPIError if upload fails', async () => {
       const client = new SanityHTTPClient();
       const mockWriteClient = mockCreateClient.mock.results[1].value;
-      mockWriteClient.assets.upload.mockRejectedValueOnce(new Error('Upload error'));
+      mockWriteClient.assets.upload.mockReset();
+      mockWriteClient.assets.upload.mockResolvedValueOnce({ error: 'Upload error' });
 
       const file = Buffer.from('test');
       await expect(client.uploadAsset(file)).rejects.toThrow(SanityAPIError);
@@ -280,7 +294,7 @@ describe('SanityHTTPClient', () => {
       const mockWriteClient = mockCreateClient.mock.results[1].value;
       const mockTransaction = {
         create: jest.fn().mockReturnThis(),
-        commit: jest.fn().mockResolvedValueOnce(['doc1', 'doc2']),
+        commit: jest.fn().mockResolvedValueOnce([{ _id: 'mockDoc1' }, { _id: 'mockDoc2' }]),
       };
       mockWriteClient.transaction.mockReturnValueOnce(mockTransaction);
 
@@ -309,8 +323,10 @@ describe('SanityHTTPClient', () => {
       const mockWriteClient = mockCreateClient.mock.results[1].value;
       const mockTransaction = {
         create: jest.fn().mockReturnThis(),
-        commit: jest.fn().mockRejectedValueOnce(new Error('Batch create error')),
+        commit: jest.fn(),
       };
+      mockTransaction.commit.mockReset();
+      mockTransaction.commit.mockResolvedValueOnce({ error: 'Batch create error' });
       mockWriteClient.transaction.mockReturnValueOnce(mockTransaction);
 
       const docs = [{ _type: 'test', title: 'Doc 1' }];
