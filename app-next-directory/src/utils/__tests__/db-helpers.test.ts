@@ -2,8 +2,13 @@
 
 jest.mock('mongodb', () => {
   const mDb = { collection: jest.fn().mockReturnValue('mockCollection') };
-  const mClient = { db: jest.fn().mockReturnValue(mDb), connect: jest.fn().mockResolvedValue({ db: () => mDb }) };
-  return { MongoClient: jest.fn(() => mClient) };
+  // db should accept an optional name argument to match the real MongoClient API
+  const mClient = { db: jest.fn((name?: string) => mDb) };
+  return {
+    MongoClient: Object.assign(jest.fn(() => mClient), {
+      connect: jest.fn().mockResolvedValue(mClient)
+    })
+  };
 });
 
 describe('db-helpers', () => {
@@ -12,11 +17,7 @@ describe('db-helpers', () => {
   beforeEach(() => {
     jest.resetModules();
     process.env = { ...OLD_ENV, MONGODB_URI: 'mongodb://test', NODE_ENV: 'test' };
-    // Mock db-helpers for tests that need it
-    jest.doMock('../db-helpers', () => ({
-      getDatabase: jest.fn().mockResolvedValue({ collection: jest.fn() }),
-      getCollection: jest.fn().mockResolvedValue('mockCollection'),
-    }));
+
   });
 
   afterAll(() => {
@@ -24,12 +25,18 @@ describe('db-helpers', () => {
   });
 
   it('throws if MONGODB_URI is missing', () => {
-    jest.isolateModules(() => {
-      // Ensure db-helpers is not mocked for this specific test
-      jest.unmock('../db-helpers');
-      process.env.MONGODB_URI = '';
-      expect(() => require('../db-helpers')).toThrow('Please add your MongoDB URI to .env.local');
-    });
+    jest.resetModules();
+    // Remove the module from require cache
+    const modulePath = require.resolve('../db-helpers');
+    if (require.cache[modulePath]) {
+      delete require.cache[modulePath];
+    }
+    // Unmock db-helpers for this test
+    jest.unmock('../db-helpers');
+    process.env.MONGODB_URI = '';
+    expect(() => require('../db-helpers')).toThrow('MongoDB URI is missing. Please set the MONGODB_URI environment variable.');
+    // Restore env for other tests
+    process.env.MONGODB_URI = 'mongodb://test';
   });
 
   it('returns a db instance', async () => {
