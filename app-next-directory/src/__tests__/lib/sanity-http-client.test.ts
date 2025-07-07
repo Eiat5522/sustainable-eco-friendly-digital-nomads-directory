@@ -318,20 +318,44 @@ describe('SanityHTTPClient', () => {
       await expect(client.createMany(docs)).rejects.toThrow('Cannot create documents: No API token provided');
     });
 
+    /**
+     * Error-case: Ensures the write client (second createClient call) returns a transaction that fails.
+     * The first call (read client) returns a minimal mock.
+     */
     it('should throw SanityAPIError if batch create fails', async () => {
-      const client = new SanityHTTPClient();
-      const mockWriteClient = mockCreateClient.mock.results[1].value;
+      // Minimal read client mock
+      (createClient as jest.Mock).mockImplementationOnce(() => ({
+        fetch: jest.fn(),
+      }));
+
+      // Write client mock with error-throwing transaction
       const mockTransaction = {
         create: jest.fn().mockReturnThis(),
-        commit: jest.fn(),
+        commit: jest.fn().mockResolvedValueOnce({ error: 'Batch create error' }),
       };
-      mockTransaction.commit.mockReset();
-      mockTransaction.commit.mockResolvedValueOnce({ error: 'Batch create error' });
-      mockWriteClient.transaction.mockReturnValueOnce(mockTransaction);
+      (createClient as jest.Mock).mockImplementationOnce(() => ({
+        fetch: jest.fn(),
+        create: jest.fn(),
+        delete: jest.fn(),
+        patch: jest.fn(),
+        assets: { upload: jest.fn() },
+        transaction: jest.fn(() => mockTransaction),
+      }));
 
+      const client = new SanityHTTPClient();
       const docs = [{ _type: 'test', title: 'Doc 1' }];
+
+      // Expect error thrown
       await expect(client.createMany(docs)).rejects.toThrow(SanityAPIError);
       await expect(client.createMany(docs)).rejects.toThrow('Batch create failed: Batch create error');
+
+      // Debug log for resolved value/error
+      try {
+        await client.createMany(docs);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log('DEBUG createMany rejected:', e);
+      }
     });
   });
 

@@ -361,9 +361,11 @@ export class SanityHTTPClient {
         throw new SanityAPIError('Batch create operation returned no result')
       }
       // If result is an array, check for error objects in any element
+      console.log('RESULT in createMany:', result);
       if (Array.isArray(result)) {
         if (result.some((item: any) => item && item.error)) {
           const errorItem = result.find((item: any) => item && item.error)
+          console.log('ERROR ITEM in createMany:', errorItem);
           throw new SanityAPIError(
             `Batch create failed: ${errorItem.error}`,
             errorItem.statusCode,
@@ -376,6 +378,7 @@ export class SanityHTTPClient {
       }
       // If result itself is an error object
       if (result && result.error) {
+        console.log('ERROR OBJECT in createMany:', result);
         throw new SanityAPIError(
           `Batch create failed: ${result.error}`,
           result.statusCode,
