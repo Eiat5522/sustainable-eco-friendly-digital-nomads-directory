@@ -48,6 +48,7 @@ export interface SanityListing extends SanityDocument {
   openingHours?: string; // This might be structured
   ecoNotesDetailed?: string;
   sourceUrls?: string[];
+  price?: number; // Added for compatibility with ListingCard and tests
 
   // Fields that were in listingFields previously, but removed for card view.
   // Still useful for a "full" SanityListing type.

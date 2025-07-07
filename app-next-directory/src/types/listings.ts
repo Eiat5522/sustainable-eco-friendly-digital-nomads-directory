@@ -15,7 +15,7 @@ export interface Listing {
   slug?: string;
   name: string;
   city: string;
-  category: 'coworking' | 'cafe' | 'accommodation';
+  category?: 'coworking' | 'cafe' | 'accommodation';
   address_string: string;
   description_short: string;
   description_long: string;

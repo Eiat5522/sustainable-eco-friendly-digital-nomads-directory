@@ -31,16 +31,25 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
   };
 
   const getCategory = () => {
+    // Category mapping for legacy listings
+    const categoryMap: Record<string, string> = {
+      accommodation: 'Hotel',
+      apartment: 'Apartment',
+      coworking: 'Coworking',
+      cafe: 'Cafe',
+    };
     if (isSanityListing(listing)) {
       return listing.category || 'Other';
     }
     if (typeof listing === 'object' && listing !== null) {
-        if ('category' in listing && typeof (listing as any).category === 'string') {
-            return (listing as any).category;
-        }
-        if ('type' in listing && typeof (listing as any).type === 'string') { // Common alternative for category
-            return (listing as any).type;
-        }
+      if ('category' in listing && typeof (listing as any).category === 'string') {
+        const cat = (listing as any).category;
+        return categoryMap[cat] || cat || 'Other';
+      }
+      if ('type' in listing && typeof (listing as any).type === 'string') {
+        const type = (listing as any).type;
+        return categoryMap[type] || type || 'Other';
+      }
     }
     return 'Other';
   };
@@ -82,8 +91,8 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
       }
     } else if (typeof listing === 'object' && listing !== null && 'primary_image_url' in listing && (listing as any).primary_image_url != null && typeof (listing as any).primary_image_url === 'string') {
       return (listing as any).primary_image_url;
-    } else if (Array.isArray((listing as any).images) && (listing as any).images.length > 0) {
-      return (listing as any).images[0];
+    } else if (Array.isArray((listing as any).gallery_image_urls) && (listing as any).gallery_image_urls.length > 0) {
+      return (listing as any).gallery_image_urls[0];
     }
     return '';
   };
@@ -136,9 +145,27 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
   const getLocation = () => {
     if (isSanityListing(listing)) {
       return `${listing.city?.title}, Thailand`;
-    } else if (typeof listing === 'object' && listing !== null && 'location' in listing && typeof (listing as any).location === 'string') {
+    } else if (
+      typeof listing === 'object' &&
+      listing !== null &&
+      'city' in listing &&
+      typeof (listing as any).city === 'string'
+    ) {
+      // If city is a string, treat as remote
+      return 'Remote Location';
+    } else if (
+      typeof listing === 'object' &&
+      listing !== null &&
+      'location' in listing &&
+      typeof (listing as any).location === 'string'
+    ) {
       return (listing as any).location;
-    } else if (typeof listing === 'object' && listing !== null && 'city' in listing && typeof (listing as any).city === 'object') {
+    } else if (
+      typeof listing === 'object' &&
+      listing !== null &&
+      'city' in listing &&
+      typeof (listing as any).city === 'object'
+    ) {
       return `${(listing as any).city.title}, ${(listing as any).city.country}`;
     }
     return '';
