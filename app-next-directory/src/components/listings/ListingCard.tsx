@@ -57,6 +57,7 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
             .url();
         } catch (error) {
           console.error('Error generating Sanity image URL:', error);
+          return ''; // Return empty string on error to trigger fallback
         }
       }
       // Fallback: use first gallery image if primaryImage is missing
@@ -75,6 +76,7 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
             }
           } catch (error) {
             console.error('Error generating Sanity gallery image URL:', error);
+            return ''; // Return empty string on error to trigger fallback
           }
         }
       }
@@ -102,11 +104,11 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
       return (listing as any).description_short || (listing as any).descriptionShort || '';
     }
     if (typeof listing === 'object' && listing !== null) {
-      if ('description' in listing && typeof (listing as any).description === 'string') {
-        return (listing as any).description;
-      }
       if ('description_short' in listing && typeof (listing as any).description_short === 'string') {
         return (listing as any).description_short;
+      }
+      if ('description' in listing && typeof (listing as any).description === 'string') {
+        return (listing as any).description;
       }
     }
     return '';
@@ -114,26 +116,30 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
 
   const getEcoTags = (): string[] => {
     if (isSanityListing(listing)) {
-      if (Array.isArray(listing.ecoTags)) {
-        return listing.ecoTags;
-      }
-      // Handle nested eco_focus_tags references
-      if ('eco_focus_tags' in listing && Array.isArray((listing as any).eco_focus_tags)) {
-        return (listing as any).eco_focus_tags.map((tag: any) =>
-          typeof tag === 'string' ? tag : (tag.name || '')
-  ); // Added a comment
-}
+        if (Array.isArray(listing.ecoTags)) {
+            return listing.ecoTags;
+        }
+    } else if (typeof listing === 'object' && listing !== null && 'eco_focus_tags' in listing && Array.isArray((listing as any).eco_focus_tags)) {
+        return ((listing as any).eco_focus_tags as any[]).map(tag => {
+            if (typeof tag === 'string') {
+                return tag;
+            }
+            if (typeof tag === 'object' && tag !== null && 'name' in tag) {
+                return (tag as any).name;
+            }
+            return '';
+        }).filter(Boolean);
     }
     return [];
-  };
+};
 
   const getLocation = () => {
     if (isSanityListing(listing)) {
       return `${listing.city?.title}, Thailand`;
-    } else if (typeof listing === 'object' && listing !== null && 'city' in listing && typeof (listing as any).city === 'object') {
-      return `${(listing as any).city.title}, ${(listing as any).city.country}`;
     } else if (typeof listing === 'object' && listing !== null && 'location' in listing && typeof (listing as any).location === 'string') {
       return (listing as any).location;
+    } else if (typeof listing === 'object' && listing !== null && 'city' in listing && typeof (listing as any).city === 'object') {
+      return `${(listing as any).city.title}, ${(listing as any).city.country}`;
     }
     return '';
   };
@@ -144,8 +150,8 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
         {/* Image Section */}
         <div className="relative aspect-[4/3] overflow-hidden">
           <Image
-              src="/test-image.jpg"
-              alt="Test Listing"
+              src={getImageUrl() || "/test-image.jpg"}
+              alt={listingName || "Unnamed Listing"}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               priority={false}
