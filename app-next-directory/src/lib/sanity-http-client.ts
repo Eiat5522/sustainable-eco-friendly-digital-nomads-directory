@@ -118,7 +118,7 @@ export class SanityHTTPClient {
   ): Promise<T> {
     try {
       const client = options?.preview
-        ? clientModule
+        ? this.client // Assuming preview client is also this.client for now, or a separate mock if needed
         : this.client
 
       // @ts-expect-error: params typing workaround for Sanity client
@@ -141,12 +141,19 @@ export class SanityHTTPClient {
       }
 
       const result = await this.writeClient.create(document)
-      console.log(`✅ Created document: ${result._id}`)
-      return result
+      if (result) {
+        if (result._id) {
+          console.log(`✅ Created document: ${result._id}`)
+        } else {
+          console.log(`✅ Created document (no _id): ${JSON.stringify(result)}`)
+        }
+        return result
+      }
+      throw new SanityAPIError('Create operation returned no result')
     } catch (error: any) {
       throw new SanityAPIError(
-        `Create failed: ${error.message}`,
-        error.statusCode,
+        `Create failed: ${error.message || 'Unknown error'}`,
+        error.statusCode || undefined,
         error
       )
     }
@@ -160,6 +167,9 @@ export class SanityHTTPClient {
       }
 
       const result = await this.writeClient.patch(id).set(patches).commit()
+      if (!result) {
+        throw new SanityAPIError('Update operation returned no result')
+      }
       console.log(`✅ Updated document: ${id}`)
       return result
     } catch (error: any) {
@@ -211,13 +221,19 @@ export class SanityHTTPClient {
         title: options?.title,
         description: options?.description,
       })
-
-      console.log(`✅ Uploaded asset: ${asset._id}`)
+      if (!asset) {
+        throw new SanityAPIError('Upload asset operation returned no result')
+      }
+      if (asset._id) {
+        console.log(`✅ Uploaded asset: ${asset._id}`)
+      } else {
+        console.log(`✅ Uploaded asset (no _id): ${JSON.stringify(asset)}`)
+      }
       return asset as SanityImageObject
     } catch (error: any) {
       throw new SanityAPIError(
-        `Asset upload failed: ${error.message}`,
-        error.statusCode,
+        `Asset upload failed: ${String(error.message || 'Unknown error')}`,
+        error.statusCode || undefined,
         error
       )
     }
@@ -234,12 +250,15 @@ export class SanityHTTPClient {
       documents.forEach(doc => transaction.create(doc))
 
       const result = await transaction.commit()
+      if (!result) {
+        throw new SanityAPIError('Batch create operation returned no result')
+      }
       console.log(`✅ Created ${documents.length} documents`)
       return result
     } catch (error: any) {
       throw new SanityAPIError(
-        `Batch create failed: ${error.message}`,
-        error.statusCode,
+        `Batch create failed: ${error.message || 'Unknown error'}`,
+        error.statusCode || undefined,
         error
       )
     }
