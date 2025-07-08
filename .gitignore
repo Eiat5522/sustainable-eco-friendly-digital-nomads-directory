@@ -82,8 +82,11 @@ tasks/
 *requirement.txt
 
 #sanity backup and image staging
-**/*sanity-backup
-**/*sanity_image_staging
+**/sanity-backup/**
+**/sanity_image_staging/**
+**/*mcp.json
+examples*/**
+script*/**
 
 # Copilot
 #.copilotignore
@@ -108,11 +111,12 @@ clean-install.ps1
 
 
 #Cline & Roo
-**/.clinerules
+.clinerules/**
 **/.roomodes    
 **/.roo
 **/cline_docs
 .clinerules/**/*.md
+.clinerules\mcp-server-config-guidelines.md
 
 
 # Code Index MCP cache directory
