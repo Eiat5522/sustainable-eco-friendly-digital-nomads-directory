@@ -95,7 +95,8 @@ clean-install.ps1
 **/.specstory*
 *WORKSTREAM*
 **/listings
-!**/app-next-directory/**/**/listings
+!**/*/app-next-directory/**/**/listings
+
 **/playwright-report
 
 #Github Copilot
