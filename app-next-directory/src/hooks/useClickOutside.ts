@@ -1,11 +1,19 @@
 import { RefObject, useEffect } from 'react';
 
-export function useClickOutside(ref: RefObject<HTMLElement>, handler: () => void) {
+export function useClickOutside<
+  T extends HTMLElement = HTMLElement
+>(ref: RefObject<T>, handler: () => void) {
   useEffect(() => {
     const listener = (event: MouseEvent | TouchEvent) => {
-      if (!ref.current || ref.current.contains(event.target as Node)) {
+      if (!ref.current) return;
+      // FORTEST: Log event.target and ref.current for debugging
+      // eslint-disable-next-line no-console
+      console.log('DEBUG useClickOutside:', { eventTarget: event.target, refCurrent: ref.current });
+      if (!(event.target instanceof Node)) {
+        handler();
         return;
       }
+      if (event.target === ref.current || ref.current.contains(event.target)) return;
       handler();
     };
 

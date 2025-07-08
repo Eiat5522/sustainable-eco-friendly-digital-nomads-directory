@@ -6,7 +6,7 @@ import { useClickOutside } from './useClickOutside';
 // Test component to use the hook in a real DOM tree
 function TestComponent({ handler }: { handler: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref, handler);
+  useClickOutside(ref as React.RefObject<HTMLElement>, handler);
   return <div data-testid="outside"><div ref={ref} data-testid="inside" /></div>;
 }
 
@@ -29,7 +29,7 @@ describe('useClickOutside', () => {
     // Simulate null ref by not rendering the inside div
     function NullRefComponent({ handler }: { handler: () => void }) {
       const ref = useRef<HTMLDivElement>(null);
-      useClickOutside(ref, handler);
+      useClickOutside(ref as React.RefObject<HTMLElement>, handler);
       return <div data-testid="outside" />;
     }
     const handler = jest.fn();
