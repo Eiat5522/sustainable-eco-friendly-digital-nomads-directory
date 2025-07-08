@@ -9,7 +9,7 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.(ts|tsx|js|jsx|mjs)$': 'babel-jest'
+    '^.+\\.(js|jsx|ts|tsx|mjs)$': 'babel-jest'
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'json', 'node'],
   moduleNameMapper: {
@@ -20,12 +20,7 @@ module.exports = {
     '<rootDir>/node_modules/.pnpm/(?!(bson|@panva\+hkdf|mongoose|next-auth|mongodb|uuid|.*esm-browser.*)@)',
     'node_modules/(?!.pnpm|bson|@panva/hkdf|mongoose|next-auth|mongodb|uuid|.*esm-browser.*)'
   ],
-  globals: {
-    'ts-jest': {
-      useESM: true,
-      tsconfig: 'tsconfig.json'
-    }
-  },
+  // Removed deprecated 'globals.ts-jest' config
   testPathIgnorePatterns: [
     '/playwright/',
     '\\.playwright\\.test\\.[jt]s$',

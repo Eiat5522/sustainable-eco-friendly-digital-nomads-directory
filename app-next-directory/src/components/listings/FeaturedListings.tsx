@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { urlFor } from '@/lib/sanity/client';
+import { urlFor } from '@/lib/sanity/image';
 
 // Define a more accurate type for a dereferenced Sanity image asset
 interface SanityImageAsset {
@@ -68,19 +68,23 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
   });
 
   const getImageUrl = (listing: Listing): string => {
-    // console.log('getImageUrl - Processing listing:', JSON.stringify(listing, null, 2)); // Removed debugging log
-    // Condition changed: Check for existence of asset object (and its url or _id for robustness)
-    // since asset-> in GROQ returns the full asset document, not just a reference.
-    if (listing.primaryImage?.asset?.url) { 
-      // console.log(`getImageUrl - Found primaryImage for ${listing.name} using asset.url:`, listing.primaryImage.asset.url); // Removed debugging log
-      return urlFor(listing.primaryImage).width(500).height(300).url();
+    // Check for valid primary image asset
+    if (listing.primaryImage && listing.primaryImage.asset && listing.primaryImage.asset._id) {
+      const builder = urlFor(listing.primaryImage);
+      if (builder) {
+        return builder.width(500).height(300).url();
+      }
     }
-    if (listing.galleryImages?.[0]?.asset?.url) {
-      // console.log(`getImageUrl - Found galleryImage for ${listing.name} using asset.url:`, listing.galleryImages[0].asset.url); // Removed debugging log
-      return urlFor(listing.galleryImages[0]).width(500).height(300).url();
+    // Check for valid gallery image asset
+    const galleryImage = listing.galleryImages?.[0];
+    if (galleryImage && galleryImage.asset && galleryImage.asset._id) {
+      const builder = urlFor(galleryImage);
+      if (builder) {
+        return builder.width(500).height(300).url();
+      }
     }
-    // console.log(`getImageUrl - No image found for ${listing.name}, returning placeholder.`); // Removed debugging log
-    return '/placeholder-city.jpg'; // Return placeholder image URL
+    // Fallback placeholder
+    return '/placeholder-city.jpg';
   };
 
   if (!listings || listings.length === 0) {
@@ -123,7 +127,7 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
                         className="group-hover:scale-105 transition-transform duration-300"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33.333vw"
                         priority={true}
-                        onError={(e) => {
+                        onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                           console.warn('Featured image failed to load:', imageUrl);
                           e.currentTarget.src = '/images/sustainable_nomads.png';
                         }}
