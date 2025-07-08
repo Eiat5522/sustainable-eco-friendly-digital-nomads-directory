@@ -28,6 +28,7 @@ npm 9.6.7+ required
 ### Installation & Setup
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    ```
@@ -43,11 +44,12 @@ npm 9.6.7+ required
    - (Optional) `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 
 3. **Start development server:**
-   ```bash
+
+   ``` bash```
    npm run dev
    ```
 
-4. **Access the application:**
+   4. **Access the application:**
    - Frontend: [http://localhost:3000](http://localhost:3000)
    - Sanity Studio: [http://localhost:3333](http://localhost:3333) (from `/sanity`)
 
@@ -111,8 +113,7 @@ See [`docs/Testing/`](../docs/Testing/) for details.
 - [Frontend Docs](../docs/app-next-directory/)
 - [API Reference](../docs/API_DOCUMENTATION.md)
 - [Testing Guide](../docs/Testing/)
-- [Troubleshooting](../docs/shared/TROUBLESHOOTING.md)
 
 ---
 
-_Last updated: July 2025_
+## Last updated: July 2025**

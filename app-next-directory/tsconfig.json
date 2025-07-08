@@ -28,8 +28,7 @@
       ]
     },
     "target": "ES2017",
-    "forceConsistentCasingInFileNames": true,
-    "types": ["@testing-library/jest-dom"]
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "next-env.d.ts",
