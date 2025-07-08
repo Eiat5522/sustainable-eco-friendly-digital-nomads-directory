@@ -9,7 +9,8 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.(js|jsx|ts|tsx|mjs)$': 'babel-jest'
+    '^.+\\.(js|jsx|mjs)$': 'babel-jest',
+    '^.+\\.(ts|tsx)$': 'ts-jest'
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'json', 'node'],
   moduleNameMapper: {
