@@ -29,29 +29,34 @@ export function SearchBar({
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
 
-  useClickOutside(containerRef, () => setIsFocused(false));
+  useClickOutside<HTMLDivElement>(containerRef, () => setIsFocused(false));
 
   // Initialize speech recognition
   const initializeSpeechRecognition = () => {
     if ('webkitSpeechRecognition' in window) {
-      recognition.current = new webkitSpeechRecognition();
-      recognition.current.continuous = false;
-      recognition.current.interimResults = false;
-      recognition.current.lang = 'en-US';
+      // @ts-ignore
+      recognition.current = new window.webkitSpeechRecognition();
+      if (recognition.current) {
+        recognition.current.continuous = false;
+        recognition.current.interimResults = false;
+        recognition.current.lang = 'en-US';
+      }
 
-      recognition.current.onresult = (event: SpeechRecognitionEvent) => {
-        const transcript = event.results[0][0].transcript;
-        onChange(transcript);
-        setIsListening(false);
-      };
+      if (recognition.current) {
+        recognition.current.onresult = (event: SpeechRecognitionEvent) => {
+          const transcript = event.results[0][0].transcript;
+          onChange(transcript);
+          setIsListening(false);
+        };
 
-      recognition.current.onerror = () => {
-        setIsListening(false);
-      };
+        recognition.current.onerror = () => {
+          setIsListening(false);
+        };
 
-      recognition.current.onend = () => {
-        setIsListening(false);
-      };
+        recognition.current.onend = () => {
+          setIsListening(false);
+        };
+      }
     }
   };
 
@@ -117,8 +122,9 @@ export function SearchBar({
         {value && (
           <button
             onClick={() => onChange('')}
-            className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-300
-                     hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            aria-label="Clear search"
+            title="Clear search"
           >
             <X className="h-4 w-4" />
           </button>
@@ -156,20 +162,22 @@ export function SearchBar({
             ) : (
               <ul className="py-2">
                 {suggestions.map((suggestion, index) => (
-                  <motion.li
-                    key={index}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: index * 0.05 }}
-                  >
-                    <button
-                      onClick={() => handleSuggestionClick(suggestion)}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700
-                               text-gray-900 dark:text-gray-100"
+                  <li key={index}>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: index * 0.05 }}
                     >
-                      {suggestion}
-                    </button>
-                  </motion.li>
+                      <button
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        aria-label={`Select suggestion: ${suggestion}`}
+                        title={suggestion}
+                      >
+                        {suggestion}
+                      </button>
+                    </motion.div>
+                  </li>
                 ))}
               </ul>
             )}
