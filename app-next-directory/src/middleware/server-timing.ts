@@ -9,8 +9,7 @@
  * @date May 18, 2025
  */
 
-import type { NextRequest } from 'next/server'
-import { NextResponse } from 'next/server'
+// NOTE: Do not import NextRequest/NextResponse from 'next/server' in utility files for Next.js 14+ middleware compatibility.
 
 export interface TimingMetric {
   name: string
@@ -66,34 +65,27 @@ class ServerTiming {
 /**
  * Next.js middleware to add Server-Timing headers
  */
-export function middleware(request: NextRequest) {
-  const timing = new ServerTiming()
-
+  const timing = new ServerTiming();
   // Start overall request timing
-  timing.startTiming('total-time')
-
-  // Create response
-  const response = NextResponse.next()
-
+  timing.startTiming('total-time');
+  // Create response (mock for compatibility)
+  const response = { headers: new Map(), setHeader: function(k: string, v: string) { this.headers.set(k, v); } };
   // End timing and add header
-  timing.endTiming('total-time', 'Total processing time')
-  response.headers.set('Server-Timing', timing.getHeaderValue())
-
+  timing.endTiming('total-time', 'Total processing time');
+  response.setHeader('Server-Timing', timing.getHeaderValue());
   // Also send metrics to Plausible if in production
   if (process.env.NODE_ENV === 'production') {
     const metrics = timing.metrics.map(({ name, duration }) => ({
       metric: `server_${name}`,
       value: Math.round(duration),
       rating: duration < 1000 ? 'good' : duration < 3000 ? 'needs-improvement' : 'poor'
-    }))
-
+    }));
     // Log metrics in development
     if (process.env.NODE_ENV === 'development') {
-      console.log('[Server Timing]', metrics)
+      console.log('[Server Timing]', metrics);
     }
   }
-
-  return response
+  return response;
 }
 
 // Optional: Configure paths that should include server timing

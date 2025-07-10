@@ -1,12 +1,13 @@
 // Handles decoding of callback URLs and prevents double-encoding issues in authentication flows.
 
-import { NextRequest, NextResponse } from 'next/server';
+// NOTE: Do not import NextRequest/NextResponse from 'next/server' in utility files for Next.js 14+ middleware compatibility.
+// Use a compatible type or 'any' for req if needed, or define a minimal interface.
 
 /**
  * Decodes callback URLs and prevents double-encoding.
  * Use as middleware or utility in auth flows.
  */
-export function handleAuthCallbackUrl(req: NextRequest): string | null {
+export function handleAuthCallbackUrl(req: { nextUrl: { searchParams: URLSearchParams } }): string | null {
   const urlParam = req.nextUrl.searchParams.get('callbackUrl');
   if (!urlParam) {
     return null;

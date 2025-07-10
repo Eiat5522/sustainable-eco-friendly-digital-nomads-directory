@@ -1,4 +1,3 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { handleAuthCallbackUrl } from '../authCallbackHandler';
 
 describe('handleAuthCallbackUrl', () => {
@@ -7,7 +6,7 @@ describe('handleAuthCallbackUrl', () => {
       nextUrl: {
         searchParams: new URLSearchParams(),
       },
-    } as NextRequest;
+    };
     const result = handleAuthCallbackUrl(req);
     expect(result).toBeNull();
   });
@@ -17,7 +16,7 @@ describe('handleAuthCallbackUrl', () => {
       nextUrl: {
         searchParams: new URLSearchParams({ callbackUrl: 'https://example.com' }),
       },
-    } as NextRequest;
+    };
     const result = handleAuthCallbackUrl(req);
     expect(result).toBe('https://example.com');
   });
@@ -27,7 +26,7 @@ describe('handleAuthCallbackUrl', () => {
       nextUrl: {
         searchParams: new URLSearchParams({ callbackUrl: 'https%3A%2F%2Fexample.com%2Fpath%3Fquery%3Dvalue' }),
       },
-    } as NextRequest;
+    };
     const result = handleAuthCallbackUrl(req);
     expect(result).toBe('https://example.com/path?query=value');
   });
@@ -37,7 +36,7 @@ describe('handleAuthCallbackUrl', () => {
       nextUrl: {
         searchParams: new URLSearchParams({ callbackUrl: 'https%253A%252F%252Fexample.com' }),
       },
-    } as NextRequest;
+    };
     const result = handleAuthCallbackUrl(req);
     expect(result).toBe('https://example.com');
   });
@@ -47,7 +46,7 @@ describe('handleAuthCallbackUrl', () => {
       nextUrl: {
         searchParams: new URLSearchParams({ callbackUrl: '% ' }), // Invalid encoding
       },
-    } as NextRequest;
+    };
     const result = handleAuthCallbackUrl(req);
     expect(result).toBeNull();
   });

@@ -16,7 +16,8 @@
     "typeRoots": ["./node_modules/@types"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "composite": true
   },
   "include": [
     "*.ts",

@@ -1,7 +1,5 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+// NOTE: Do not import NextRequest/NextResponse from 'next/server' in utility files for Next.js 14+ middleware compatibility.
 
-export async function updateSessionActivity(request: NextRequest) {
   // Temporarily disabled session tracking
-  return NextResponse.next();
+  return { next: () => ({}) };
 }

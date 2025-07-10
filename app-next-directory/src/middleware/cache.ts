@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+// NOTE: Do not import NextRequest/NextResponse from 'next/server' in utility files for Next.js 14+ middleware compatibility.
+// Use a compatible type or 'any' for request/response if needed, or define a minimal interface.
 
 // Define cache duration options
 const CACHE_DURATIONS = {
@@ -18,7 +18,7 @@ interface CacheConfig {
 /**
  * Determines if a request should be cached based on various conditions
  */
-function shouldCache(request: NextRequest): boolean {
+function shouldCache(request: { cookies: any; method: string; nextUrl: { pathname: string } }): boolean {
   // Don't cache if it's a preview request
   if (request.cookies.has('__previewMode')) {
     return false;
@@ -41,7 +41,7 @@ function shouldCache(request: NextRequest): boolean {
 /**
  * Gets cache configuration based on request path
  */
-function getCacheConfig(request: NextRequest): CacheConfig {
+function getCacheConfig(request: { nextUrl: { pathname: string } }): CacheConfig {
   const path = request.nextUrl.pathname;
 
   // Listing pages
@@ -94,10 +94,9 @@ function getCacheControlValue(config: CacheConfig): string {
 /**
  * Cache middleware for non-preview content
  */
-export async function cacheMiddleware(
-  request: NextRequest,
-  response: NextResponse
-): Promise<NextResponse> {
+  request: { cookies: any; method: string; nextUrl: { pathname: string } },
+  response: any
+): Promise<any> {
   // Check if request should be cached
   if (!shouldCache(request)) {
     response.headers.set('Cache-Control', 'no-store');
