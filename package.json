@@ -37,6 +37,7 @@
     "@sanity/code-input": "^5.1.2",
     "bcrypt": "^6.0.0",
     "clsx": "^2.1.1",
+    "dotenv": "16.5.0",
     "react-hook-form": "^7.58.1",
     "resend": "^4.6.0",
     "vscode-variables": "^1.0.1"
