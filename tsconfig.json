@@ -4,6 +4,9 @@
     "module": "CommonJS",
     "strict": true,
     "esModuleInterop": true,
+    "allowJs": false,
+    "noEmit": false,
+    "composite": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
@@ -12,8 +15,7 @@
       "@/*": ["./src/*"],
       "@app-next/types/*": ["app-next-directory/src/types/*"],
       "@app-next/types/listings": ["app-next-directory/src/types/listings.ts"]
-    },
-    "composite": true
+    }
   },
   "include": [
     "tests/**/*",
@@ -23,7 +25,6 @@
     "node_modules"
   ],
   "references": [
-    { "path": "./app-next-directory" },
-    { "path": "./sanity" }
+    { "path": "./sanity"}
   ]
 }
