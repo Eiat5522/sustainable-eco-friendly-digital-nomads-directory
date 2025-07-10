@@ -8,7 +8,6 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
-    "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -29,7 +28,8 @@
     },
     "target": "ES2017",
     "forceConsistentCasingInFileNames": true,
-    "composite": true
+    "composite": true,
+    "noEmit": true
   },
   "include": [
     "next-env.d.ts",
