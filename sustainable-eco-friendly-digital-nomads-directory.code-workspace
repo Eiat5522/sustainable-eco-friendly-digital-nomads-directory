@@ -10,9 +10,8 @@
             "path": "sanity"
         }
     ],
-    "settings": {
-        "jest.enable": true,
-        "jest.jestCommandLine": "pnpm test --",
-        "npm.packageManager": "pnpm"
-    }
+    "jest.disabledWorkspaceFolders": [
+        "app-next-directory/tests",
+        "sanity"    
+    ],
 }

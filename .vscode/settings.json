@@ -20,6 +20,7 @@
   "jest.jestCommandLine": "pnpm exec jest",
   "jest.enable": true,
   "jest.debugMode": false,
+  "jest.runMode": "watch",
   "jest.rootPath": "app-next-directory/src",
   "jest.coverageFormatter": "GutterFormatter"
 }
