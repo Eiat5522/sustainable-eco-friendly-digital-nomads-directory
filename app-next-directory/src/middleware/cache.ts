@@ -94,6 +94,7 @@ function getCacheControlValue(config: CacheConfig): string {
 /**
  * Cache middleware for non-preview content
  */
+export async function cacheMiddleware(
   request: { cookies: any; method: string; nextUrl: { pathname: string } },
   response: any
 ): Promise<any> {

@@ -48,6 +48,13 @@ class ServerTiming {
   }
 
   /**
+   * Expose metrics for external access (read-only)
+   */
+  getMetrics(): TimingMetric[] {
+    return this.metrics
+  }
+
+  /**
    * Generate the Server-Timing header value
    */
   getHeaderValue(): string {
@@ -65,6 +72,7 @@ class ServerTiming {
 /**
  * Next.js middleware to add Server-Timing headers
  */
+export function middleware(request: any) {
   const timing = new ServerTiming();
   // Start overall request timing
   timing.startTiming('total-time');
@@ -75,15 +83,21 @@ class ServerTiming {
   response.setHeader('Server-Timing', timing.getHeaderValue());
   // Also send metrics to Plausible if in production
   if (process.env.NODE_ENV === 'production') {
-    const metrics = timing.metrics.map(({ name, duration }) => ({
+    const metrics = timing.getMetrics().map(({ name, duration }) => ({
       metric: `server_${name}`,
       value: Math.round(duration),
       rating: duration < 1000 ? 'good' : duration < 3000 ? 'needs-improvement' : 'poor'
     }));
-    // Log metrics in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Server Timing]', metrics);
-    }
+    // ...send metrics to Plausible...
+  }
+  // Log metrics in development
+  if (process.env.NODE_ENV === 'development') {
+    const metrics = timing.getMetrics().map(({ name, duration }) => ({
+      metric: `server_${name}`,
+      value: Math.round(duration),
+      rating: duration < 1000 ? 'good' : duration < 3000 ? 'needs-improvement' : 'poor'
+    }));
+    console.log('[Server Timing]', metrics);
   }
   return response;
 }

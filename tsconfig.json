@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
     "target": "ES6",
-    "module": "CommonJS",
+    "module": "NodeNext",
     "strict": true,
     "esModuleInterop": true,
     "allowJs": false,
-    "noEmit": false,
+    "noEmit": true,
     "composite": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "nodenext",
     "baseUrl": ".",
     "jsx": "react-jsx",
     "paths": {

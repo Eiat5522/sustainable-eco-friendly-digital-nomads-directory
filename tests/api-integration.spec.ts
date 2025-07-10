@@ -1,3 +1,4 @@
+// @jest-environment node
 import request, { Response, SuperTest, Test } from 'supertest';
 import { createServer, Server as HttpServer, IncomingMessage, ServerResponse } from 'http';
 // import next from 'next';
@@ -23,8 +24,7 @@ afterAll((): void => {
   //   server.close();
   // }
 });
-
-describe('API Integration Tests', () => {
+describe('API Integration Test', () => {
   Test('GET /api/hello returns status 200', async (): Promise<void> => {
     const res: Response = await request(server).get('/api/hello');
     expect(res.status).toBe(200);
