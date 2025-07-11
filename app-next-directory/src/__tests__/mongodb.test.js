@@ -1,5 +1,17 @@
 // Jest test for mongodb.js
 
+// Polyfill TextEncoder for Node.js/Jest environment
+if (typeof global.TextEncoder === 'undefined') {
+  const { TextEncoder } = require('util');
+  global.TextEncoder = TextEncoder;
+}
+
+// Polyfill TextDecoder for Node.js/Jest environment
+if (typeof global.TextDecoder === 'undefined') {
+  const { TextDecoder } = require('util');
+  global.TextDecoder = TextDecoder;
+}
+
 describe('mongodb.js', () => {
   const OLD_ENV = process.env;
 
