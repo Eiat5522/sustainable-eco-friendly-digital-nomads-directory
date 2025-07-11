@@ -2,33 +2,22 @@ import React from 'react';
 "use client";
 import { highlightText } from '@/lib/highlight';
 import { urlFor } from '@/lib/sanity/image';
-import { Listing } from '@/types/listings';
-import { SanityListing } from '@/types/sanity';
+import { Listing } from '../../types/listing';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 
 interface ListingCardProps {
-  listing: Listing | SanityListing;
+  listing: Listing;
   searchQuery?: string;
 }
 
 export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
   
 
-  const listingName =
-    typeof listing === 'object' && listing !== null && 'name' in listing && (listing as any).name != null && typeof (listing as any).name === 'string'
-      ? (listing as any).name
-      : '';
+  const listingName = listing.name || '';
 
-  const isSanityListing = (currentListing: Listing | SanityListing): currentListing is SanityListing => {
-    return (
-      typeof currentListing === 'object' &&
-      currentListing !== null &&
-      '_type' in currentListing &&
-      currentListing._type === 'listing'
-    );
-  };
+  // Removed SanityListing type guard
 
   const getCategory = () => {
     // Category mapping for legacy listings
@@ -38,137 +27,36 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
       coworking: 'Coworking',
       cafe: 'Cafe',
     };
-    if (isSanityListing(listing)) {
-      return listing.category || 'Other';
-    }
-    if (typeof listing === 'object' && listing !== null) {
-      if ('category' in listing && typeof (listing as any).category === 'string') {
-        const cat = (listing as any).category;
-        return categoryMap[cat] || cat || 'Other';
-      }
-      if ('type' in listing && typeof (listing as any).type === 'string') {
-        const type = (listing as any).type;
-        return categoryMap[type] || type || 'Other';
-      }
+    if ('type' in listing && typeof listing.type === 'string') {
+      return categoryMap[listing.type] || listing.type || 'Other';
     }
     return 'Other';
   };
 
   const getImageUrl = () => {
-    if (isSanityListing(listing)) {
-      if (listing.primaryImage) {
-        try {
-          return urlFor(listing.primaryImage)
-            .width(800)
-            .height(480)
-            .fit('crop')
-            .auto('format')
-            .url();
-        } catch (error) {
-          console.error('Error generating Sanity image URL:', error);
-          return ''; // Return empty string on error to trigger fallback
-        }
-      }
-      // Fallback: use first gallery image if primaryImage is missing
-      if (Array.isArray((listing as any).galleryImages) && (listing as any).galleryImages.length > 0) {
-        const firstGalleryImage = (listing as any).galleryImages[0];
-        if (firstGalleryImage) {
-          try {
-            const urlBuilder = urlFor(firstGalleryImage);
-            if (urlBuilder) {
-              return urlBuilder
-                .width(800)
-                .height(480)
-                .fit('crop')
-                .auto('format')
-                .url();
-            }
-          } catch (error) {
-            console.error('Error generating Sanity gallery image URL:', error);
-            return ''; // Return empty string on error to trigger fallback
-          }
-        }
-      }
-    } else if (typeof listing === 'object' && listing !== null && 'primary_image_url' in listing && (listing as any).primary_image_url != null && typeof (listing as any).primary_image_url === 'string') {
-      return (listing as any).primary_image_url;
-    } else if (Array.isArray((listing as any).gallery_image_urls) && (listing as any).gallery_image_urls.length > 0) {
-      return (listing as any).gallery_image_urls[0];
+    if (listing.mainImage && listing.mainImage.asset.url) {
+      return listing.mainImage.asset.url;
+    }
+    if (Array.isArray(listing.galleryImages) && listing.galleryImages.length > 0) {
+      return listing.galleryImages[0].asset.url;
     }
     return '';
   };
 
   const getListingUrl = () => {
-    let slug: string | undefined | null = null;
-    if (isSanityListing(listing)) {
-      slug = listing.slug;
-    } else if (typeof listing === 'object' && listing !== null && 'slug' in listing && typeof (listing as any).slug === 'string') {
-      slug = (listing as any).slug;
-    }
-    return `/listings/${slug || 'default-slug'}`; // Provide a fallback slug
+    return `/listings/${listing.slug || 'default-slug'}`;
   };
 
   const getDescription = () => {
-    if (isSanityListing(listing)) {
-      // Handle both description_short (from query) and descriptionShort (legacy/camelCase)
-      return (listing as any).description_short || (listing as any).descriptionShort || '';
-    }
-    if (typeof listing === 'object' && listing !== null) {
-      if ('description_short' in listing && typeof (listing as any).description_short === 'string') {
-        return (listing as any).description_short;
-      }
-      if ('description' in listing && typeof (listing as any).description === 'string') {
-        return (listing as any).description;
-      }
-    }
-    return '';
+    return listing.description || '';
   };
 
   const getEcoTags = (): string[] => {
-    if (isSanityListing(listing)) {
-        if (Array.isArray(listing.ecoTags)) {
-            return listing.ecoTags;
-        }
-    } else if (typeof listing === 'object' && listing !== null && 'eco_focus_tags' in listing && Array.isArray((listing as any).eco_focus_tags)) {
-        return ((listing as any).eco_focus_tags as any[]).map(tag => {
-            if (typeof tag === 'string') {
-                return tag;
-            }
-            if (typeof tag === 'object' && tag !== null && 'name' in tag) {
-                return (tag as any).name;
-            }
-            return '';
-        }).filter(Boolean);
-    }
-    return [];
+    return Array.isArray(listing.ecoTags) ? listing.ecoTags.map(tag => tag.name) : [];
 };
 
   const getLocation = () => {
-    if (isSanityListing(listing)) {
-      return `${listing.city?.title}, Thailand`;
-    } else if (
-      typeof listing === 'object' &&
-      listing !== null &&
-      'city' in listing &&
-      typeof (listing as any).city === 'string'
-    ) {
-      // If city is a string, treat as remote
-      return 'Remote Location';
-    } else if (
-      typeof listing === 'object' &&
-      listing !== null &&
-      'location' in listing &&
-      typeof (listing as any).location === 'string'
-    ) {
-      return (listing as any).location;
-    } else if (
-      typeof listing === 'object' &&
-      listing !== null &&
-      'city' in listing &&
-      typeof (listing as any).city === 'object'
-    ) {
-      return `${(listing as any).city.title}, ${(listing as any).city.country}`;
-    }
-    return '';
+    return `${listing.city.name}, ${listing.city.country}`;
   };
 
   return (
