@@ -8,8 +8,11 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   preset: 'ts-jest',
   testEnvironment: 'jsdom',
+  testEnvironmentOptions: {
+    customExportConditions: ["node", "node-addons"]
+  },
   transform: {
-    '^.+\\.(js|jsx|ts|tsx|mjs)$': 'babel-jest'
+    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest'
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'json', 'node'],
   moduleNameMapper: {
@@ -17,7 +20,7 @@ module.exports = {
     ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
   },
   transformIgnorePatterns: [
-    '<rootDir>/node_modules/.pnpm/(?!(bson|@panva\+hkdf|mongoose|next-auth|mongodb|uuid|.*esm-browser.*)@)',
+    '<rootDir>/node_modules/(?!(bson|@panva\\+hkdf|mongoose|next-auth|mongodb|uuid|.*esm-browser.*)@)',
     'node_modules/(?!.pnpm|bson|@panva/hkdf|mongoose|next-auth|mongodb|uuid|.*esm-browser.*)'
   ],
   // Removed deprecated 'globals.ts-jest' config

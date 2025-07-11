@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.10.0",
-    "@babel/preset-react": "^7.27.1",
     "@hookform/resolvers": "^5.1.1",
     "@panva/hkdf": "^1.2.1",
     "@portabletext/react": "^3.2.1",
@@ -66,7 +65,9 @@
     "zod": "^3.25.67"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.0",
     "@babel/preset-env": "^7.27.2",
+    "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@jest/globals": "^30.0.3",
     "@tailwindcss/postcss": "^4.1.11",

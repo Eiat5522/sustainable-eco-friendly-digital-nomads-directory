@@ -20,7 +20,7 @@
     "lint:next": "pnpm --filter app-next-directory lint",
     "lint:sanity": "pnpm --filter sanity lint",
     "lint": "pnpm lint:next",
-    "test": "pnpm --filter app-next-directory test",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "test:watch": "pnpm --filter app-next-directory test:watch",
     "test:coverage": "pnpm --filter app-next-directory test:coverage",
     "test:ci": "pnpm --filter app-next-directory test:ci",

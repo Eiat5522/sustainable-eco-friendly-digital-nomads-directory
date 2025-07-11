@@ -46,7 +46,7 @@ const HeroSection: React.FC = () => {
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.8, ease: [0.6, 0.05, 0.01, 0.9] }
+      transition: { duration: 0.8, ease: "easeInOut" }
     }
   };
 
@@ -54,7 +54,8 @@ const HeroSection: React.FC = () => {
     <section className="relative h-[90vh] min-h-[700px] overflow-hidden">
       {/* Background image with parallax effect */}
       <div className="absolute inset-0 z-0">
-        <div id="parallax-bg" className="absolute inset-0 h-[120%]">
+        {/* Ensure parent has position: relative and explicit height for Image fill */}
+        <div id="parallax-bg" className="absolute inset-0 h-[120%] relative">
           <Image
             src="/images/hero/hero_main.png"
             alt="Eco-friendly digital nomad workspace"
