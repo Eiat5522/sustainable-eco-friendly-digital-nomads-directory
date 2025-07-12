@@ -28,8 +28,6 @@ yarn-error.log*
 
 # local env files
 .env*.local
-.env.example
-.env
 
 # vercel
 .vercel
@@ -40,9 +38,9 @@ next-env.d.ts
 
 # IDE
 .idea/
+.vscode/
 *.sublime-project
 *.sublime-workspace
-
 
 # Temporary files
 *.swp
@@ -57,33 +55,3 @@ next-env.d.ts
 .Trashes
 ehthumbs.db
 Thumbs.db
-
-# Added by Claude Task Master
-# Logs
-logs
-*.log
-dev-debug.log
-# Dependency directories
-# Environment variables
-# Editor directories and files
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-# OS specific
-# Task files
-tasks.json
-tasks/
-
-# Copilot
-*.copilotignore
-*image_curation_helper.csv*
-*requirements.txt*
-*run_migration.py*
-*task_0*
-*clean-install.ps1*
-*tasks.json.bak*
-*.specstory*
-*WORKSTREAM*

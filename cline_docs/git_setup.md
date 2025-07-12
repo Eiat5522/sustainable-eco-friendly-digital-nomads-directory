@@ -3,7 +3,6 @@
 ## Current Setup
 
 ### Version Control Structure
-
 - Main repository initialized
 - Git ignore patterns configured
 - Branch strategy implemented (main, develop, feature branches)
@@ -11,22 +10,18 @@
 - Contributing guidelines established
 
 ### Development Workflow
-
 1. Main development occurs in feature branches
 2. PRs are merged into develop
 3. Release branches created from develop
 4. Releases merged to main
 
 ### Code Quality Tools
-
 1. **Prettier**
-
    - Configuration: `.prettierrc`
    - Enforces consistent code style
    - Integrated with pre-commit hooks
 
 2. **ESLint**
-
    - Uses Next.js default configuration
    - Integrated with pre-commit hooks
 
@@ -35,14 +30,12 @@
    - Ensures type safety
 
 ### Pre-commit Hooks
-
 - Format code with Prettier
 - Run TypeScript type checking
 - Run ESLint checks
 - Prevent commits with failing checks
 
 ## Branch Structure
-
 ```
 main
 └── develop
@@ -52,14 +45,12 @@ main
 ## Next Steps
 
 1. **For Developers**
-
    - Clone the repository
-   - Run `npm install` in app-next-directory directory
+   - Run `npm install` in app-scaffold directory
    - Set up your IDE with Prettier and ESLint
    - Create feature branches from develop
 
 2. **For New Features**
-
    - Create branch: `git checkout -b feature/your-feature`
    - Make changes and commit
    - Push and create PR against develop
@@ -89,7 +80,6 @@ git push -u origin feature/your-feature
 ```
 
 ## Tips
-
 - Always pull latest develop before creating feature branch
 - Keep commits atomic and well-described
 - Follow commit message conventions

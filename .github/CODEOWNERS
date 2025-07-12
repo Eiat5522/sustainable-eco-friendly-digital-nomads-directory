@@ -5,22 +5,22 @@
 *       @project-maintainers
 
 # App configuration files
-app-next-directory/next.config.*    @project-maintainers
-app-next-directory/tailwind.config.* @project-maintainers
+app-scaffold/next.config.*    @project-maintainers
+app-scaffold/tailwind.config.* @project-maintainers
 
 # Core components
-app-next-directory/src/components/* @frontend-team
+app-scaffold/src/components/* @frontend-team
 
 # Map related files
-app-next-directory/src/components/map/* @map-team
+app-scaffold/src/components/map/* @map-team
 
 # Image optimization and assets
-app-next-directory/src/components/listings/ImageGallery.tsx @image-team
-app-next-directory/src/lib/getListingImages.js @image-team
+app-scaffold/src/components/listings/ImageGallery.tsx @image-team
+app-scaffold/src/lib/getListingImages.js @image-team
 
 # Data and API
-app-next-directory/src/lib/* @backend-team
-app-next-directory/src/data/* @backend-team
+app-scaffold/src/lib/* @backend-team
+app-scaffold/src/data/* @backend-team
 
 # Documentation
 *.md    @docs-team @project-maintainers
