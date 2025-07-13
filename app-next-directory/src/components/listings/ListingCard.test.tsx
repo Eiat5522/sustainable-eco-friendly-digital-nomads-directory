@@ -63,15 +63,8 @@ describe('ListingCard', () => {
 
   test('displays price correctly', () => {
     render(<ListingCard listing={mockListing} />);
-    // Use a function matcher to handle split text nodes
-    expect(
-      screen.getByText((content, element) => {
-        // Check if the element or its children contain both "$" and "100"
-        if (!element) return false;
-        const text = element.textContent || '';
-        return text.includes('$') && text.includes('100');
-      })
-    ).toBeInTheDocument();
+    // Use getByTestId for more specific targeting
+    expect(screen.getByTestId('price')).toHaveTextContent('$100');
   });
 
   test('shows location information', () => {

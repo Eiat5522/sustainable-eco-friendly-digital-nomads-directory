@@ -44,6 +44,7 @@ export function ListingCard({ listing, searchQuery }: { listing: Listing; search
       }
     } catch {
       // fallback below
+      return listing.mainImage?.asset?.url || '/test-image.jpg';
     }
     // fallback to url or static image
     return listing.mainImage?.asset?.url || '/test-image.jpg';
@@ -62,16 +63,19 @@ export function ListingCard({ listing, searchQuery }: { listing: Listing; search
     );
   };
 
+  // Compute image URL once for consistent test/mocks
+  const imageUrl = getImageUrl();
+
   return (
     <div>
       <a href={getListingUrl()} role="link">
         <div>
           {/* Image */}
           <img
-            src={getImageUrl()}
+            src={imageUrl}
             alt={getName()}
             data-testid="image-mock"
-            data-src={getImageUrl()}
+            data-src={imageUrl}
             data-alt={getName()}
           />
         </div>
@@ -80,9 +84,7 @@ export function ListingCard({ listing, searchQuery }: { listing: Listing; search
           <h2>{highlightText(getName())}</h2>
           {/* Price (render only once, ensure correct format) */}
           {typeof listing.price !== 'undefined' && (
-            <div>
-              <span>{`$${listing.price}`}</span>
-            </div>
+            <span data-testid="price">{`$${listing.price}`}</span>
           )}
           {/* Category badge */}
           <span>{listing.type}</span>
@@ -110,5 +112,3 @@ export function ListingCard({ listing, searchQuery }: { listing: Listing; search
     </div>
   );
 }
-
-
