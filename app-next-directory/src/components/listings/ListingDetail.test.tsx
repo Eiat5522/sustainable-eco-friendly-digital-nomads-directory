@@ -63,7 +63,7 @@ const mockListingWithoutCoords = {
 
 const mockSanityListing = {
   _id: '123',
-  _type: 'listing' as const,
+  _type: 'listing',
   name: 'Cozy Apartment',
   description_short: 'A comfortable apartment in a great location.',
   description_long: '<p>Long description with <strong>HTML</strong></p>',
