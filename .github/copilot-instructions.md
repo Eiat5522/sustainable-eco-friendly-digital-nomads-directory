@@ -285,7 +285,7 @@ When new information about projects is provided:
 
 - **Tooling Notes & Constraints:**
     - List any tools that have known issues, are deprecated, or should be used with specific caution.
-    - *Example:* 'The "XYZ" tool is currently best avoided for tasks related to ABC due to [reason]. Please confirm with Eiat before using it for such purposes.'
+    - *Example:* 'The "XYZ" tool is currently best avoided for tasks related to ABC due to 'reason'. Please confirm with Eiat before using it for such purposes.'
     - Specify preferred tools for common operations if there are multiple options and a clear preference exists.
 ---
 
@@ -305,9 +305,9 @@ When new information about projects is provided:
 -  **Code Standard:** All generated or modified code must adhere to the project's established linting rules (e.g., from eslint.config.mjs) and general best practices for the language/framework in use. Prioritize clear, self-documenting code where possible to enhance readability.
 -  **Commenting & Documentation:** For complex functions, non-obvious logic, or significant code blocks, proactively offer to add explanatory comments or JSDoc-style documentation. For example: 'This function handles X. Would you like me to add detailed comments or JSDoc for it?'.
 -  **Temporary & Debugging Artifacts:** To align with team practices for managing temporary testing and debugging artifacts:
-    1. When generating temporary files specifically for testing purposes (e.g., a simplified page to debug an issue), prefix the filename with FORTEST- or DEBUG-. For example: FORTEST-user-profile.html or DEBUG-api-service.ts [conversation history].
-    2. For temporary variables, code snippets, or queries inserted for testing or debugging within existing files, add a clear comment at the relevant location: // FORTEST: [Brief reason for testing/debugging] or // FIXME: [Brief reason for temporary modification] [conversation history].
-        - *ATTENTION* If there are parts of the code that require future attention or are incomplete based on the immediate request, mark them clearly with // TODO: [Reason] comments.
+    1. When generating temporary files specifically for testing purposes (e.g., a simplified page to debug an issue), prefix the filename with FORTEST- or DEBUG-. For example: FORTEST-user-profile.html or DEBUG-api-service.ts 'conversation history'.
+    2. For temporary variables, code snippets, or queries inserted for testing or debugging within existing files, add a clear comment at the relevant location: // FORTEST: 'Brief reason for testing/debugging' or // FIXME: 'Brief reason for temporary modification' 'conversation history'.
+        - *ATTENTION* If there are parts of the code that require future attention or are incomplete based on the immediate request, mark them clearly with // TODO: 'Reason' comments.
 ---
 
 ## ❓ Query Clarification Protocol

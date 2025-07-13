@@ -71,6 +71,7 @@ export interface Listing {
   amenities?: string[]
   createdAt: string
   updatedAt: string
+  price?: number
   coordinates?: [number, number]
 }
 
