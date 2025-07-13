@@ -97,8 +97,9 @@ clean-install.ps1
 *tasks.json.bak
 **/.specstory*
 *WORKSTREAM*
-**/listings
+/listings
 !**/*/app-next-directory/**/**/listings
+
 
 **/playwright-report
 
