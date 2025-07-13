@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, easeInOut } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -46,7 +46,7 @@ const HeroSection: React.FC = () => {
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.8, ease: "easeInOut" }
+      transition: { duration: 0.8, ease: easeInOut }
     }
   };
 
@@ -55,7 +55,7 @@ const HeroSection: React.FC = () => {
       {/* Background image with parallax effect */}
       <div className="absolute inset-0 z-0">
         {/* Ensure parent has position: relative and explicit height for Image fill */}
-        <div id="parallax-bg" className="absolute inset-0 h-[120%] relative">
+        <div id="parallax-bg" className="absolute inset-0 w-full h-full relative h-[90vh]">
           <Image
             src="/images/hero/hero_main.png"
             alt="Eco-friendly digital nomad workspace"
@@ -177,7 +177,15 @@ const HeroSection: React.FC = () => {
           y: { repeat: Infinity, duration: 1.5, ease: "easeInOut" }
         }}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width={40}
+          height={40}
+          className="h-10 w-10 text-white"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
         </svg>
       </motion.div>

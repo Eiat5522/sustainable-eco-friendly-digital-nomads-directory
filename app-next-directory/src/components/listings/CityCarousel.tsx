@@ -100,7 +100,7 @@ export default function CityCarousel({ cities }: CityCarouselProps) {
                 <Link href={`/city/${city.slug}`}>
                   <div className="group relative overflow-hidden rounded-lg">
                     {/* Image Container */}
-                    <div className="relative aspect-[4/3]">
+                    <div className="relative aspect-[4/3]" style={{ position: 'relative', height: '300px' }}>
                       {city.mainImage?.asset?.url ? (
                         <Image
                           src={city.mainImage.asset.url}

@@ -11,7 +11,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel";
+} from "../ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { client } from "@/lib/sanity/client"; // Sanity client for real data
@@ -122,7 +122,7 @@ export default function EcoCityCarousel() {
                 className="max-w-[320px] pl-[20px] lg:max-w-[360px]"
               >
                 <Card className="overflow-hidden border-0 shadow-lg">
-                  <div className="group relative h-full min-h-[27rem] max-w-full overflow-hidden rounded-xl">
+                  <div className="group relative h-[27rem] max-w-full overflow-hidden rounded-xl">
                     <img
                       src={city.image}
                       alt={city.name}
