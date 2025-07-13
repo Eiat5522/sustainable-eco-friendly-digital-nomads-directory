@@ -9,7 +9,7 @@ import 'leaflet.markercluster';
 import { type Listing } from '@/types/listings';
 import '@/styles/map.css';
 
-interface MapComponentProps {
+export interface MapComponentProps {
   listings: Listing[];
   onBoundsChange?: (bounds: L.LatLngBounds) => void;
 }

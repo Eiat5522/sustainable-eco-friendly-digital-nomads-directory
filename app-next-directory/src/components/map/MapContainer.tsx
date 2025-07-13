@@ -1,18 +1,22 @@
-import React from 'react';
-"use client";
+ "use client";
+ import React from 'react';
 
 import dynamic from 'next/dynamic';
+import type { MapComponentProps } from './MapComponent';
 import { type Listing } from '@/types/listings';
 import StaticMapImage from './StaticMapImage';
 import type { LatLngBounds } from 'leaflet';
 import { cn } from '@/lib/utils';
 
-const Map = dynamic(() => import('./MapComponent'), {
-  ssr: false,
-  loading: () => <StaticMapImage listings={[]} width={1200} height={600} />
-});
+const Map = dynamic<MapComponentProps>(
+  () => import('./MapComponent.js').then((mod) => mod.default),
+  {
+    ssr: false,
+    loading: () => <StaticMapImage listings={[]} width={1200} height={600} />
+  }
+);
 
-interface MapContainerProps {
+export interface MapContainerProps {
   listings: Listing[];
   onBoundsChange?: (bounds: LatLngBounds) => void;
   className?: string;

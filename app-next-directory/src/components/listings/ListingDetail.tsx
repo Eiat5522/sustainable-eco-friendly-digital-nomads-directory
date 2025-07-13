@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import { urlFor } from '@/lib/sanity/image';
 import dynamic from 'next/dynamic';
+import type { MapContainerProps } from '../map/MapContainer';
 
 interface Review {
   rating: number
@@ -45,7 +46,10 @@ interface ListingProps {
 }
 
 // Import MapContainer for SSR-safe map rendering
-const MapContainer = dynamic(() => import('../map/MapContainer'), { ssr: false });
+const MapContainer = dynamic<MapContainerProps>(
+  () => import('../map/MapContainer.js').then((mod) => mod.default),
+  { ssr: false }
+);
 
 export function ListingDetail({ listing }: ListingProps) {
   console.info('ListingDetail rendered', listing)

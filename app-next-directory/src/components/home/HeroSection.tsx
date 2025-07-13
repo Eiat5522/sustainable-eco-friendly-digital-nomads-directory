@@ -3,8 +3,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
+// Props for optional override of default title and subtitle
+interface HeroSectionProps {
+  title?: string;
+  subtitle?: string;
+}
 
-const HeroSection: React.FC = () => {
+const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
 

@@ -1,5 +1,5 @@
-import React from 'react';
 "use client";
+import React from 'react';
 // Fallback highlightText if not found
 let highlightText: (text: string, query: string) => React.ReactNode = (text, query) => text;
 try {

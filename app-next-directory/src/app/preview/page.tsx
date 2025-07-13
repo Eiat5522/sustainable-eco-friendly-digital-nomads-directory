@@ -1,4 +1,4 @@
-import { HeroSection } from '@/components/HeroSection';
+import HeroSection from '@/components/home/HeroSection';
 import { promises as fs } from 'fs';
 import Image from 'next/image';
 import path from 'path';
