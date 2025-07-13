@@ -112,7 +112,7 @@ clean-install.ps1
 
 
 #Cline & Roo
-.clinerules/**
+**/.clinerules
 **/.roomodes    
 **/.roo
 **/cline_docs
