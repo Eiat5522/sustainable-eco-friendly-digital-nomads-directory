@@ -1,7 +1,10 @@
-jest.mock('next-auth/jwt');
+// Mock next-auth/jwt before imports
+const mockGetToken = jest.fn();
+jest.mock('next-auth/jwt', () => ({ getToken: mockGetToken }));
+
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { getToken } from 'next-auth/jwt';
 import { createMiddleware, config } from '../middleware';
+
 // ES6 class mock for NextResponse with static methods
 class MockNextResponse {
   static next = jest.fn(() => new MockNextResponse());
@@ -10,10 +13,6 @@ class MockNextResponse {
   headers = { set: jest.fn() };
   cookies = { set: jest.fn(), get: jest.fn(), getAll: jest.fn(), delete: jest.fn() };
 }
-/* UserRole is a type, not a runtime value. Use string literals for roles. */
-
-// Mock next-auth/jwt
-const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
 
 describe('Middleware', () => {
   let middleware: ReturnType<typeof createMiddleware>;
@@ -23,7 +22,7 @@ describe('Middleware', () => {
     MockNextResponse.redirect.mockClear();
     MockNextResponse.json.mockClear();
     process.env.NEXTAUTH_SECRET = 'test-secret';
-    middleware = createMiddleware({ getToken, NextResponse: MockNextResponse });
+    middleware = createMiddleware({ getToken: mockGetToken, NextResponse: MockNextResponse });
   });
 
   const createMockRequest = (pathname: string) => {
@@ -41,8 +40,6 @@ describe('Middleware', () => {
     await middleware(req as any);
 
     expect(MockNextResponse.redirect).toHaveBeenCalled();
-    // Optionally check redirect URL
-    // expect((NextResponse.redirect as jest.Mock).mock.calls[0][0].toString()).toContain('/login');
   });
 
   it('allows access to protected route if user is authenticated', async () => {
@@ -75,8 +72,6 @@ describe('Middleware', () => {
     await middleware(req as any);
 
     expect(MockNextResponse.redirect).toHaveBeenCalled();
-    // Optionally check redirect URL
-    // expect((NextResponse.redirect as jest.Mock).mock.calls[0][0].toString()).toContain('/dashboard');
   });
 
   it('allows unauthenticated access to /api/listings (public API)', async () => {
@@ -93,11 +88,6 @@ describe('Middleware', () => {
     await middleware(req as any);
 
     expect(MockNextResponse.json).toHaveBeenCalled();
-    // Optionally, check the arguments:
-    // expect(MockNextResponse.json.mock.calls[0][0]).toEqual({
-    //   body: { error: 'Authentication required' },
-    //   init: { status: 401 }
-    // });
   });
 
   it('returns 403 for authenticated user without access to protected API', async () => {
@@ -106,11 +96,6 @@ describe('Middleware', () => {
     await middleware(req as any);
 
     expect(MockNextResponse.json).toHaveBeenCalled();
-    // Optionally, check the arguments if the mock is updated to accept them:
-    // expect(MockNextResponse.json.mock.calls[0][0]).toEqual({
-    //   body: { error: 'Access denied' },
-    //   init: { status: 403 }
-    // });
   });
 
   it('allows authenticated user with access to protected API', async () => {
@@ -127,9 +112,6 @@ describe('Middleware', () => {
     await middleware(req as any);
 
     expect(MockNextResponse.redirect).toHaveBeenCalled();
-    // Optionally check callbackUrl param
-    // const url = (NextResponse.redirect as jest.Mock).mock.calls[0][0];
-    // expect(url.toString()).toContain('callbackUrl=%2Fprofile');
   });
 
   it('skips middleware for static files', async () => {
@@ -155,5 +137,4 @@ describe('Middleware', () => {
 
     expect(MockNextResponse.next).toHaveBeenCalled();
   });
-
 });

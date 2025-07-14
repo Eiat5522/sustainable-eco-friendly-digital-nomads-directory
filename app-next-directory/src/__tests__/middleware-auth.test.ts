@@ -1,11 +1,13 @@
-jest.mock('next-auth/jwt');
+// Ensure Jest mock is applied before any imports
+jest.mock('next-auth/jwt', () => ({ getToken: jest.fn() }));
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { getToken } from 'next-auth/jwt';
+// Retrieve the mocked getToken from the mocked module
+const { getToken: mockGetToken } = jest.requireMock('next-auth/jwt') as { getToken: jest.Mock };
+// Provide a shorthand alias so tests referencing getToken pass correctly
+const getToken = mockGetToken;
 import { createMiddleware, config } from '../middleware';
 import { UserRole } from '@/types/auth';
 
-// Mock next-auth/jwt
-const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
 
 // Mock Next.js objects
 class MockNextResponse {
@@ -25,7 +27,8 @@ describe('Middleware - Auth and Access Control', () => {
     MockNextResponse.redirect.mockClear();
     MockNextResponse.json.mockClear();
     process.env.NEXTAUTH_SECRET = 'test-secret';
-    middleware = createMiddleware({ getToken, NextResponse: MockNextResponse });
+    // Use the mocked getToken function
+    middleware = createMiddleware({ getToken: mockGetToken, NextResponse: MockNextResponse });
   });
 
   const createMockRequest = (pathname: string) => {

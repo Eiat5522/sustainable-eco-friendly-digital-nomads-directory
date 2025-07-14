@@ -1,21 +1,37 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { getServerSession } from 'next-auth';
-
-// Mock mongodb module
+// Mock mongodb module first before any imports
 jest.mock('mongodb', () => ({
-  MongoClient: jest.fn(() => ({
+  MongoClient: jest.fn().mockImplementation(() => ({
     connect: jest.fn(() => Promise.resolve({
       db: jest.fn(() => ({
         createCollection: jest.fn(() => Promise.resolve()),
         collection: jest.fn(() => ({
           createIndexes: jest.fn(() => Promise.resolve()),
+          findOne: jest.fn(() => Promise.resolve()),
+          insertOne: jest.fn(() => Promise.resolve()),
+          updateOne: jest.fn(() => Promise.resolve()),
+          deleteOne: jest.fn(() => Promise.resolve()),
         })),
+      })),
+    })),
+    db: jest.fn(() => ({
+      createCollection: jest.fn(() => Promise.resolve()),
+      collection: jest.fn(() => ({
+        createIndexes: jest.fn(() => Promise.resolve()),
+        findOne: jest.fn(() => Promise.resolve()),
+        insertOne: jest.fn(() => Promise.resolve()),
+        updateOne: jest.fn(() => Promise.resolve()),
+        deleteOne: jest.fn(() => Promise.resolve()),
       })),
     })),
   })),
 }));
 
-// Mock src/lib/mongodb.ts
+// Mock src/lib/mongodb/init.ts completely
+jest.mock('../../lib/mongodb/init', () => ({
+  initializeDatabase: jest.fn(() => Promise.resolve()),
+}));
+
+// Mock src/lib/mongodb.ts completely to prevent initialization
 jest.mock('../../lib/mongodb', () => ({
   __esModule: true,
   default: Promise.resolve({
@@ -23,10 +39,17 @@ jest.mock('../../lib/mongodb', () => ({
       createCollection: jest.fn(() => Promise.resolve()),
       collection: jest.fn(() => ({
         createIndexes: jest.fn(() => Promise.resolve()),
+        findOne: jest.fn(() => Promise.resolve()),
+        insertOne: jest.fn(() => Promise.resolve()),
+        updateOne: jest.fn(() => Promise.resolve()),
+        deleteOne: jest.fn(() => Promise.resolve()),
       })),
     })),
   }),
 }));
+
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { getServerSession } from 'next-auth';
 
 // Mock next-auth and api-response with jest.fn mocks
 

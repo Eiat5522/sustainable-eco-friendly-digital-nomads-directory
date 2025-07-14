@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@auth/mongodb-adapter": "^3.10.0",
+    "@swc/jest": "^0.2.39",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react-hooks": "^8.0.1",
     "cross-fetch": "^4.1.0",
