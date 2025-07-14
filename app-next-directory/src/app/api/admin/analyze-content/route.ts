@@ -1,7 +1,7 @@
 import { authOptions } from '@/lib/auth';
 import analyzeContent from '@/scripts/analyze-content';
 import { getServerSession } from 'next-auth/next';
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 
 export async function GET() {
   try {

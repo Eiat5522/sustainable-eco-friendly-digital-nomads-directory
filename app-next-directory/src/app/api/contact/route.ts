@@ -1,6 +1,6 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { rateLimit } from '@/utils/rate-limit';
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 import nodemailer from 'nodemailer';
 import { z } from 'zod';
 
@@ -46,7 +46,7 @@ const createTransporter = () => {
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting
-    const ip = request.ip ?? 'anonymous';
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'anonymous';
     const rateLimitResult = await limiter(request);
     if (!rateLimitResult.success) {
       return ApiResponseHandler.error('Too many requests. Please try again later.', 429);

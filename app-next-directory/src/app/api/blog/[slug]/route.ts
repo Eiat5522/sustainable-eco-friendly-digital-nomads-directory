@@ -1,7 +1,7 @@
 import { client as sanityClient } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { groq } from 'next-sanity';
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 
 // GROQ query for fetching a single blog post by slug
 const postQuery = groq`

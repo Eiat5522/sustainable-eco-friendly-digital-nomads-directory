@@ -2,7 +2,7 @@ import { ApiResponseHandler } from '@/utils/api-response';
 import { handleAuthError, requireAuth } from '@/utils/auth-helpers';
 import { getCollection } from '@/utils/db-helpers';
 import { getListingBySlug } from '@/lib/sanity/queries';
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 
 export async function GET(
   request: NextRequest,

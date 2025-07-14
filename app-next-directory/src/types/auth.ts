@@ -2,7 +2,7 @@
 import { DefaultSession, DefaultUser } from "next-auth";
 import { JWT } from "next-auth/jwt";
 
-export type UserRole = 'admin' | 'user' | 'editor' | 'venueOwner' | 'superAdmin';
+export type UserRole = 'admin' | 'user' | 'editor' | 'venueOwner' | 'superAdmin' | 'moderator';
 
 // Define page access permissions
 export interface PagePermissions {
@@ -168,6 +168,54 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       viewAuditLogs: true,
       exportData: true,
       submitContactForms: true,
+      viewContactSubmissions: true,
+      respondToContact: true,
+    },
+  },
+  moderator: {
+    pages: {
+      home: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      listings: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: true },
+      listingDetail: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+      createListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      editListing: { canView: false, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+      manageListing: { canView: false, canCreate: false, canEdit: true, canDelete: false, canManage: true },
+      reviews: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: true },
+      profile: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+      admin: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: true },
+      analytics: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      settings: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      contact: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+      about: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      blog: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: true },
+    },
+    features: {
+      submitListings: false,
+      editOwnListings: false,
+      editAllListings: true,
+      deleteOwnListings: false,
+      deleteAllListings: false,
+      moderateListings: true,
+      submitReviews: false,
+      editOwnReviews: false,
+      editAllReviews: true,
+      deleteOwnReviews: false,
+      deleteAllReviews: false,
+      moderateReviews: true,
+      viewUserProfiles: true,
+      editOwnProfile: true,
+      editAllProfiles: false,
+      deleteUsers: false,
+      manageUserRoles: false,
+      createContent: false,
+      editContent: true,
+      deleteContent: false,
+      publishContent: true,
+      accessAnalytics: false,
+      manageSettings: false,
+      viewAuditLogs: true,
+      exportData: false,
+      submitContactForms: false,
       viewContactSubmissions: true,
       respondToContact: true,
     },
@@ -343,8 +391,9 @@ export const ROLE_HIERARCHY: Record<UserRole, number> = {
   user: 0,
   editor: 1,
   venueOwner: 2,
-  admin: 3,
-  superAdmin: 4, // Added superAdmin to hierarchy
+  moderator: 3,
+  admin: 4,
+  superAdmin: 5,
 };
 
 export function hasHigherRole(userRole: UserRole, requiredRole: UserRole): boolean {
@@ -370,6 +419,8 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role?: UserRole;
+    refreshTokenHash?: string;
+    createdAt?: number;
   }
 }
 

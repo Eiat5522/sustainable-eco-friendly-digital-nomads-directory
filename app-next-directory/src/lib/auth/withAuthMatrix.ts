@@ -1,5 +1,5 @@
 import { getToken } from 'next-auth/jwt';
-import type { NextRequest } from 'next/server';
+import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 import { NextResponse } from 'next/server';
 import {
     ACCESS_CONTROL_MATRIX,

@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { client as sanityClient } from '@/lib/sanity/client';

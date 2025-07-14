@@ -78,8 +78,6 @@ tests/
     ├── test-fixtures.ts        # Test fixtures and data
     └── test-setup.ts          # Test environment setup helpers
 
-```
-
 ### Test Utilities
 
 #### Map Test Utils (`map-test-utils.ts`)

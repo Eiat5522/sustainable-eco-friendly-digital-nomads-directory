@@ -1,5 +1,5 @@
 import { getSearchSuggestions } from '@/lib/search';
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 
 export async function GET(request: Request) {
   try {

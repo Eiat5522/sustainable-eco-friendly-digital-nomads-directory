@@ -3,7 +3,7 @@ import { findSanityUserByEmail, updateSanityUserWithAuthDetails } from '@/lib/au
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import { getServerSession } from 'next-auth/next';
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 import { z } from 'zod';
 
 // Validation schema

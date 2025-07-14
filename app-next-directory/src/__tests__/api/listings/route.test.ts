@@ -1,3 +1,14 @@
+import { NextResponse } from 'next/server';
+
+jest.mock('next/server', () => ({
+  NextResponse: {
+    json: jest.fn((data, init) => ({
+      status: init?.status || 200,
+      json: () => Promise.resolve(data),
+    })),
+  },
+}));
+
 // Mock problematic ESM import before anything else
 jest.mock('mongodb', () => {
   const mDb = { collection: jest.fn().mockReturnValue('mockCollection') };
@@ -9,15 +20,11 @@ jest.mock('mongodb', () => {
   };
 });
 
-jest.mock('@/lib/mongodb', () => ({
-  __esModule: true,
-  default: {},
-}));
 
-import { createListingsHandlers } from '@/app/api/listings/route';
-import { getCollection } from '@/utils/db-helpers';
-import { requireAuth, handleAuthError } from '@/utils/auth-helpers';
-import { ApiResponseHandler } from '@/utils/api-response';
+
+
+
+
 
 /**
  * Mock MockNextRequest for testing since it's not exported from 'next/server'.
@@ -47,20 +54,6 @@ jest.mock('@/utils/db-helpers');
 jest.mock('@/utils/auth-helpers');
 jest.mock('@/utils/api-response');
 
-
-// Move this mock into a beforeAll block to avoid hoisting issues
-beforeAll(() => {
-  jest.mock('next/server', () => ({
-    MockNextRequest: MockNextRequest,
-    NextResponse: {
-      json: jest.fn((data, init) => ({
-        status: init?.status || 200,
-        json: () => Promise.resolve(data),
-      })),
-    },
-  }));
-});
-
 // Type assertion for mocked functions
 const getCollectionMock = getCollection as jest.Mock;
 const requireAuthMock = requireAuth as jest.Mock;
@@ -74,9 +67,9 @@ describe('Listings API Route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Explicitly mock ApiResponseHandler methods as Jest mock functions and return a value
-    ApiResponseHandlerMock.success = jest.fn((data, message) => ({ success: true, data, message }));
-    ApiResponseHandlerMock.error = jest.fn((error, status, details) => ({ success: false, error, status, ...(details && { details }) }));
-    ApiResponseHandlerMock.forbidden = jest.fn(() => ({ success: false, error: 'Forbidden', status: 403 }));
+    ApiResponseHandlerMock.success = jest.fn((data, message) => NextResponse.json({ success: true, data, message }));
+    ApiResponseHandlerMock.error = jest.fn((error, status, details) => NextResponse.json({ success: false, error, status, ...(details && { details }) }, { status }));
+    ApiResponseHandlerMock.forbidden = jest.fn(() => NextResponse.json({ success: false, error: 'Forbidden', status: 403 }, { status: 403 }));
     const handlers = createListingsHandlers({
       ApiResponseHandler: ApiResponseHandlerMock,
       handleAuthError: handleAuthErrorMock,

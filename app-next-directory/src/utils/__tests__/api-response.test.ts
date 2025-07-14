@@ -16,7 +16,7 @@ jest.mock('next/server', () => {
 });
 
 import { describe, it, expect, jest, beforeEach, beforeAll } from '@jest/globals';
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 import { ApiResponseHandler } from '../api-response';
 
 // Mock NextResponse

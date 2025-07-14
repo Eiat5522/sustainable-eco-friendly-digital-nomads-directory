@@ -1,7 +1,7 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
 import { ObjectId } from 'mongodb';
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 import { z } from 'zod';
 
 const moderationActionSchema = z.object({

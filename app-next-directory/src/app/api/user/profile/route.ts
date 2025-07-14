@@ -1,7 +1,8 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getUserById } from '@/lib/auth/serverAuth';
 import { getServerSession } from 'next-auth';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/dist/server/web/spec-extension/request';
+import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 
 /**
  * API route to get current user profile

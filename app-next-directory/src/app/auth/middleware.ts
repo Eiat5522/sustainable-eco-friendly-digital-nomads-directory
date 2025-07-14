@@ -1,6 +1,6 @@
 "use client";
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request: NextRequest) {

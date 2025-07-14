@@ -2,7 +2,8 @@ import { authOptions } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getServerSession } from 'next-auth/next';
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/dist/server/web/spec-extension/request';
+import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 
 interface AdminAnalytics {
   overview: {
@@ -221,13 +222,13 @@ async function getAdminAnalytics(): Promise<AdminAnalytics> {
         topPerformingListings: topListings || [],
         conversionRates: {
           averageClickThroughRate: listingAnalytics.length > 0
-            ? listingAnalytics.reduce((sum, item) => sum + (item.clickThroughRate || 0), 0) / listingAnalytics.length
+            ? listingAnalytics.reduce((sum: any, item: any) => sum + (item.clickThroughRate || 0), 0) / listingAnalytics.length
             : 0,
           averageTimeOnPage: listingAnalytics.length > 0
-            ? listingAnalytics.reduce((sum, item) => sum + (item.timeOnPage || 0), 0) / listingAnalytics.length
+            ? listingAnalytics.reduce((sum: any, item: any) => sum + (item.timeOnPage || 0), 0) / listingAnalytics.length
             : 0,
-          totalViews: listingAnalytics.reduce((sum, item) => sum + (item.viewCount || 0), 0),
-          totalBookmarks: listingAnalytics.reduce((sum, item) => sum + (item.bookmarkCount || 0), 0)
+          totalViews: listingAnalytics.reduce((sum: any, item: any) => sum + (item.viewCount || 0), 0),
+          totalBookmarks: listingAnalytics.reduce((sum: any, item: any) => sum + (item.bookmarkCount || 0), 0)
         },
         searchAnalytics: {
           totalSearches: 0, // To be implemented with search tracking
@@ -267,3 +268,4 @@ export async function GET(request: NextRequest) {
     return ApiResponseHandler.error('Failed to fetch admin analytics', 500);
   }
 }
+

@@ -2,7 +2,7 @@ import { authOptions } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getServerSession } from 'next-auth/next';
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 import { z } from 'zod';
 
 // Bulk operation schemas

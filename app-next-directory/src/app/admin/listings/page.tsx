@@ -193,24 +193,24 @@ export default function ListingsPage() {
     const matchesStatus = statusFilter === 'all' || listing.status === statusFilter;
     return matchesSearch && matchesType && matchesStatus;
   });
-  const getTypeBadgeVariant = (type: string): 'default' | 'secondary' | 'outline' | 'success' | 'warning' | 'destructive' | 'info' | 'muted' => {
+  const getTypeBadgeVariant = (type: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
     switch (type) {
-      case 'accommodation': return 'info';
-      case 'coworking': return 'success';
-      case 'restaurant': return 'warning';
+      case 'accommodation': return 'default';
+      case 'coworking': return 'secondary';
+      case 'restaurant': return 'outline';
       case 'activity': return 'secondary';
-      default: return 'muted';
+      default: return 'default';
     }
   };
 
-  const getStatusBadgeVariant = (status: string): 'default' | 'secondary' | 'outline' | 'success' | 'warning' | 'destructive' | 'info' | 'muted' => {
+  const getStatusBadgeVariant = (status: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
     switch (status) {
-      case 'published': return 'success';
-      case 'pending': return 'warning';
+      case 'published': return 'default';
+      case 'pending': return 'secondary';
       case 'flagged': return 'destructive';
       case 'draft': return 'outline';
       case 'rejected': return 'destructive';
-      default: return 'muted';
+      default: return 'default';
     }
   };
 

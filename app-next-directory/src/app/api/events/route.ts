@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
-import { getClient } from '@/lib/sanity/client';
+import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { client } from '@/lib/sanity/client';
 
 export async function GET(request: Request) {
   try {

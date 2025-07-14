@@ -1,12 +1,18 @@
+import { getToken as originalGetToken } from 'next-auth/jwt';
+
 // Ensure Jest mock is applied before any imports
-jest.mock('next-auth/jwt', () => ({ getToken: jest.fn() }));
+jest.mock('next-auth/jwt', () => ({
+  getToken: jest.fn(),
+}));
+
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 // Retrieve the mocked getToken from the mocked module
-const { getToken: mockGetToken } = jest.requireMock('next-auth/jwt') as { getToken: jest.Mock };
+const { getToken: mockGetToken } = jest.requireMock('next-auth/jwt') as { getToken: jest.MockedFunction<typeof originalGetToken> };
 // Provide a shorthand alias so tests referencing getToken pass correctly
 const getToken = mockGetToken;
 import { createMiddleware, config } from '../middleware';
 import { UserRole } from '@/types/auth';
+
 
 
 // Mock Next.js objects

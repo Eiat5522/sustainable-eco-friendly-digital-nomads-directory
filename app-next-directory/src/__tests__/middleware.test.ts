@@ -1,9 +1,12 @@
+import { getToken as originalGetToken } from 'next-auth/jwt';
+
 // Mock next-auth/jwt before imports
-const mockGetToken = jest.fn();
+const mockGetToken = jest.fn<typeof originalGetToken>();
 jest.mock('next-auth/jwt', () => ({ getToken: mockGetToken }));
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { createMiddleware, config } from '../middleware';
+
 
 // ES6 class mock for NextResponse with static methods
 class MockNextResponse {

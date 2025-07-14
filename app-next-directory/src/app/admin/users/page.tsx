@@ -127,22 +127,22 @@ export default function UsersPage() {
     const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
   });
-  const getRoleBadgeVariant = (role: string): 'default' | 'secondary' | 'outline' | 'success' | 'warning' | 'destructive' | 'info' | 'muted' => {
+  const getRoleBadgeVariant = (role: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
     switch (role) {
       case 'admin': return 'destructive';
-      case 'editor': return 'info';
+      case 'editor': return 'secondary';
       case 'venueOwner': return 'default';
       case 'user': return 'outline';
-      default: return 'muted';
+      default: return 'default';
     }
   };
 
-  const getStatusBadgeVariant = (status: string): 'default' | 'secondary' | 'outline' | 'success' | 'warning' | 'destructive' | 'info' | 'muted' => {
+  const getStatusBadgeVariant = (status: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
     switch (status) {
-      case 'active': return 'success';
+      case 'active': return 'default';
       case 'suspended': return 'destructive';
-      case 'pending': return 'warning';
-      default: return 'muted';
+      case 'pending': return 'secondary';
+      default: return 'default';
     }
   };
 

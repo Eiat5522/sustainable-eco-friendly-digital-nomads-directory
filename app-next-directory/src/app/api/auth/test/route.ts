@@ -3,7 +3,7 @@
  */
 
 import { getToken } from 'next-auth/jwt';
-import { NextRequest } from 'next/server';
+import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 
 // Test Edge Runtime compatibility
 export const runtime = 'edge';

@@ -1,8 +1,7 @@
+
+
 // FORTEST: Add global unhandledRejection handler to debug async issues
-process.on('unhandledRejection', (reason, promise) => {
-  // eslint-disable-next-line no-console
-  console.error('FORTEST: Unhandled Rejection at:', promise, 'reason:', reason);
-});
+
 // Jest test for dbConnect.ts
 
 describe('dbConnect', () => {
@@ -53,7 +52,8 @@ describe('dbConnect', () => {
     // FORTEST: Log to verify env
     // eslint-disable-next-line no-console
     console.log('FORTEST: MONGODB_URI in test:', process.env.MONGODB_URI);
-    const { default: dbConnect } = await import('../lib/dbConnect');
+    const dbConnectModule = await import('../lib/dbConnect.js');
+    const dbConnect = dbConnectModule.default;
     return expect(dbConnect()).rejects.toThrow(/Invalid or missing MONGODB_URI/);
     jest.dontMock('mongoose');
   });
@@ -66,7 +66,8 @@ describe('dbConnect', () => {
     jest.doMock('mongoose', () => ({ connect: mockConnect }), { virtual: true });
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
     (global as any).mongoose = { conn: { readyState: 1 }, promise: Promise.resolve({ readyState: 1 }) };
-    const { default: dbConnect } = await import('../lib/dbConnect');
+    const dbConnectModule = await import('../lib/dbConnect.js');
+    const dbConnect = dbConnectModule.default;
     const conn = await dbConnect();
     expect(conn).toEqual({ readyState: 1 });
     expect(mockConnect).not.toHaveBeenCalled();
@@ -80,7 +81,8 @@ describe('dbConnect', () => {
     }), { virtual: true });
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
     (global as any).mongoose = { conn: null, promise: null };
-    const { default: dbConnect } = await import('../lib/dbConnect');
+    const dbConnectModule = await import('../lib/dbConnect.js');
+    const dbConnect = dbConnectModule.default;
     await dbConnect();
     expect((global as any).mongoose.conn).toEqual({ readyState: 1, connection: { readyState: 1 } });
     jest.dontMock('mongoose');
@@ -93,7 +95,8 @@ describe('dbConnect', () => {
     }), { virtual: true });
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
     (global as any).mongoose = undefined;
-    const { default: dbConnect } = await import('../lib/dbConnect');
+    const dbConnectModule = await import('../lib/dbConnect.js');
+    const dbConnect = dbConnectModule.default;
     await expect(dbConnect()).rejects.toThrow(/did not return a valid connection/);
     jest.dontMock('mongoose');
   });
@@ -105,7 +108,8 @@ describe('dbConnect', () => {
     }), { virtual: true });
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
     (global as any).mongoose = undefined;
-    const { default: dbConnect } = await import('../lib/dbConnect');
+    const dbConnectModule = await import('../lib/dbConnect.js');
+    const dbConnect = dbConnectModule.default;
     await expect(dbConnect()).rejects.toThrow(/did not return a valid connection/);
     jest.dontMock('mongoose');
   });
@@ -117,7 +121,8 @@ describe('dbConnect', () => {
     }), { virtual: true });
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
     (global as any).mongoose = undefined;
-    const { default: dbConnect } = await import('../lib/dbConnect');
+    const dbConnectModule = await import('../lib/dbConnect.js');
+    const dbConnect = dbConnectModule.default;
     await expect(dbConnect()).rejects.toThrow(/did not return a valid connection/);
     jest.dontMock('mongoose');
   });
@@ -132,7 +137,8 @@ describe('dbConnect', () => {
     }), { virtual: true });
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
     (global as any).mongoose = undefined;
-    const { default: dbConnect } = await import('../lib/dbConnect');
+    const dbConnectModule = await import('../lib/dbConnect.js');
+    const dbConnect = dbConnectModule.default;
     const conn = await dbConnect();
     expect(conn).toEqual({ readyState: 1, connection: { readyState: 1 } });
     jest.dontMock('mongoose');
@@ -145,7 +151,8 @@ describe('dbConnect', () => {
     jest.doMock('mongoose', () => ({
       connect: jest.fn().mockRejectedValue(new Error('fail'))
     }), { virtual: true });
-    const { default: dbConnect } = await import('../lib/dbConnect');
+    const dbConnectModule = await import('../lib/dbConnect.js');
+    const dbConnect = dbConnectModule.default;
     await expect(dbConnect()).rejects.toThrow(/MongoDB connection error/);
     expect((global as any).mongoose.conn).toBeNull();
     expect((global as any).mongoose.promise).toBeNull();
@@ -157,7 +164,8 @@ describe('dbConnect', () => {
     delete (global as any).mongoose;
     process.env.MONGODB_URI = 'bad-uri';
     jest.doMock('mongoose', () => ({ connect: jest.fn().mockResolvedValue({ db: jest.fn() }) }), { virtual: true });
-    const { default: dbConnect } = await import('../lib/dbConnect');
+    const dbConnectModule = await import('../lib/dbConnect.js');
+    const dbConnect = dbConnectModule.default;
     await expect(dbConnect()).rejects.toThrow(/Invalid or missing MONGODB_URI/);
     jest.dontMock('mongoose');
   });
@@ -169,7 +177,8 @@ describe('dbConnect', () => {
     jest.doMock('mongoose', () => ({
       connect: () => { throw new Error('sync fail'); }
     }), { virtual: true });
-    const { default: dbConnect } = await import('../lib/dbConnect');
+    const dbConnectModule = await import('../lib/dbConnect.js');
+    const dbConnect = dbConnectModule.default;
     await expect(dbConnect()).rejects.toThrow(/Failed to connect to MongoDB/);
     jest.dontMock('mongoose');
   });
@@ -181,7 +190,8 @@ describe('dbConnect', () => {
     jest.doMock('mongoose', () => ({
       connect: jest.fn().mockResolvedValue({})
     }), { virtual: true });
-    const { default: dbConnect } = await import('../lib/dbConnect');
+    const dbConnectModule = await import('../lib/dbConnect.js');
+    const dbConnect = dbConnectModule.default;
     await expect(dbConnect()).rejects.toThrow(/did not return a valid connection/);
     jest.dontMock('mongoose');
   });

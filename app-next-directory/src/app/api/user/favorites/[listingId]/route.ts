@@ -4,7 +4,7 @@ import dbConnect from '@/lib/mongodb';
 import UserFavorite from '@/models/UserFavorite';
 import mongoose from 'mongoose';
 import { getServerSession } from 'next-auth/next';
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 
 interface Params {
   listingId: string;

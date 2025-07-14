@@ -6,7 +6,8 @@ import UserPreferences from '@/models/UserPreferences';
 import User from '@/models/User';
 import { getUserById } from '@/lib/auth/serverAuth';
 import { getServerSession } from 'next-auth';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/dist/server/web/spec-extension/request';
+import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 
 /**
  * GET /api/user/dashboard

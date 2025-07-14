@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 
