@@ -89,15 +89,15 @@ async function performModerationAction(
     status: action,
     moderatedAt: new Date().toISOString(),
     moderatedBy: { _type: 'reference', _ref: moderatorId },
-    reason,
-    notes,
+    reason: reason ?? '',
+    notes: notes ?? '',
     history: {
       _type: 'array',
       action,
       timestamp: new Date().toISOString(),
       moderator: { _type: 'reference', _ref: moderatorId },
-      reason,
-      notes
+      reason: reason ?? '',
+      notes: notes ?? ''
     }
   };
 
@@ -244,8 +244,8 @@ export async function POST(request: NextRequest) {
             item.itemType,
             validatedData.action,
             session.user.id,
-            validatedData.reason || '',
-            validatedData.notes || ''
+            validatedData.reason ?? '',
+            validatedData.notes ?? ''
           );
           results.push(result);
         } catch (error) {
@@ -267,8 +267,8 @@ export async function POST(request: NextRequest) {
         validatedData.itemType,
         validatedData.action,
         session.user.id,
-        validatedData.reason,
-        validatedData.notes
+        validatedData.reason ?? '',
+        validatedData.notes ?? ''
       );
 
       return ApiResponseHandler.success(result, 'Moderation action completed');

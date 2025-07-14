@@ -4,6 +4,7 @@ import { type ReactNode } from 'react';
 import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { MainNav } from './MainNav';
+import Link from 'next/link';
 
 // Dynamically import the preview banner to avoid SSR issues
 const PreviewBanner = dynamic(() => import('./PreviewBanner'), { ssr: false });

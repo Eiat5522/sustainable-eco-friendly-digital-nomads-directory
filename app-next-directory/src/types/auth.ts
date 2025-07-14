@@ -1,6 +1,16 @@
 // Auth types
 import { DefaultSession, DefaultUser } from "next-auth";
-import { JWT } from "next-auth/jwt";
+import { JWT as NextAuthJWT } from "next-auth/jwt";
+
+declare module "next-auth/jwt" {
+  interface JWT extends NextAuthJWT {
+    id: string;
+    role?: UserRole;
+    refreshTokenHash?: string;
+    createdAt?: number;
+    email?: string;
+  }
+}
 
 export type UserRole = 'admin' | 'user' | 'editor' | 'venueOwner' | 'superAdmin' | 'moderator';
 
@@ -196,7 +206,7 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       deleteOwnListings: false,
       deleteAllListings: false,
       moderateListings: true,
-      submitReviews: false,
+      submitReviews: true,
       editOwnReviews: false,
       editAllReviews: true,
       deleteOwnReviews: false,
@@ -401,28 +411,7 @@ export function hasHigherRole(userRole: UserRole, requiredRole: UserRole): boole
 }
 
 // Extend the built-in session types
-declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string;
-      role?: UserRole;
-    } & DefaultSession["user"];
-  }
 
-  interface User extends DefaultUser {
-    role?: UserRole;
-  }
-}
-
-// Extend the built-in JWT types
-declare module "next-auth/jwt" {
-  interface JWT {
-    id: string;
-    role?: UserRole;
-    refreshTokenHash?: string;
-    createdAt?: number;
-  }
-}
 
 // Define auth form types
 export interface SignInFormValues {

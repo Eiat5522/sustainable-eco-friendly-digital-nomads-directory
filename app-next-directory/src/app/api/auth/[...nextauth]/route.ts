@@ -165,7 +165,7 @@ const authOptions: NextAuthOptions = {
       user,
       account,
     }: {
-      token: JWT;
+      token: JWT & { id: string; role?: UserRole; };
       user?: NextAuthUser & { role?: UserRole }; // Add role to user type
       account?: Account | null;
     }) {
@@ -190,7 +190,7 @@ const authOptions: NextAuthOptions = {
       token,
     }: {
       session: Session;
-      token: JWT & { role?: UserRole }; // Add role to token type
+      token: JWT & { id: string; role?: UserRole }; // Add role to token type
     }) {
       if (session.user) {
         (session.user as any).role = token.role; // Assign role to session user
