@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from 'react';
-import { signOut, useSession } from "@auth/nextjs/react";
+import { signOut, useSession } from '@auth/nextjs';
+import { User } from "@/types/auth";
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function AuthStatus() {
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession() as { data: { user?: User } | null, status: string };
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleSignOut = async () => {

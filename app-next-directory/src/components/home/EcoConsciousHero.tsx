@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useSession } from "@auth/nextjs/react";
+import { useSession } from '@auth/nextjs';
 import { useTheme } from 'next-themes';
 import React, { useEffect, useRef, useState } from 'react';
 import { useInView } from 'react-intersection-observer';

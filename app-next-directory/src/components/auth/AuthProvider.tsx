@@ -1,6 +1,6 @@
 "use client";
 
-import { SessionProvider } from "@auth/nextjs/react";
+import { SessionProvider } from '@auth/nextjs';
 
 type AuthProviderProps = {
   children: React.ReactNode;

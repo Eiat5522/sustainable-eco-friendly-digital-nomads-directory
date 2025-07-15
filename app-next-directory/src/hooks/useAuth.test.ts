@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { useSession } from "@auth/nextjs/react";
+import { useSession } from '@auth/nextjs';
 import { useRouter, usePathname } from 'next/navigation';
 import { useRequireAuth, useIsAuthorized, useRedirectIfAuthenticated } from './useAuth';
 import { UserRole } from '@/types/auth';

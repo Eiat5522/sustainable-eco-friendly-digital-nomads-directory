@@ -21,22 +21,16 @@ export function mapSanityListingToListing(sanity: SanityListing): Listing {
       ? { asset: { _ref: sanity.primaryImage.asset._ref, url: sanity.primaryImage.asset.url || '' } }
       : { asset: { _ref: '', url: '' } },
     price_indication: sanity.price_indication || '', // Map price_indication as a string
-    priceRange: (['budget', 'moderate', 'premium'] as PriceRange[]).includes(sanity.priceRange as PriceRange)
-      ? (sanity.priceRange as PriceRange)
-      : 'budget', // Default to 'budget' if invalid
     city: sanity.city
       ? {
           _id: sanity.city._id,
           name: sanity.city.title,
-          // Fix: handle both string and object for slug
-          slug: typeof sanity.city.slug === 'string'
-            ? sanity.city.slug
-            : sanity.city.slug?.current || '',
+          slug: sanity.city.slug?.current || '',
           listingCount: sanity.city.listingCount || 0,
           country: sanity.city.country || '',
         }
       : { _id: '', name: '', slug: '', listingCount: 0, country: '' },
-    address: sanity.addressString || '',
+    address: sanity.address_string || '',
     rating: sanity.rating || 0,
     website: sanity.website || '', // Add mapping if available
     phone: sanity.phone || '', // Add mapping if available

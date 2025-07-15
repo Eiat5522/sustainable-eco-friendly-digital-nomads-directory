@@ -33,11 +33,11 @@ export interface Listing {
   slug: string
   description: string
   type: ListingType
-  priceRange: PriceRange; // Reintroduced to support general price range for listings
+  priceRange: PriceRange
   mainImage: {
     asset: {
-      _ref: string;
-      url: string;
+      _ref: string
+      url: string
     }
   }
   galleryImages?: Array<{
@@ -73,13 +73,6 @@ export interface Listing {
   updatedAt: string
   price?: number
   coordinates?: [number, number]
-  primaryImage: {
-    asset: {
-      _ref: string;
-      url: string;
-    };
-  };
-  price_indication?: string; // Added to support price indication
 }
 
 // Specific listing type interfaces

@@ -9,6 +9,8 @@ declare module "next-auth/jwt" {
     refreshTokenHash?: string;
     createdAt?: number;
     email?: string;
+    name?: string;
+    image?: string;
   }
 }
 
@@ -435,4 +437,14 @@ export interface UserProfile {
   bio?: string;
   role: UserRole;
   createdAt?: string;
+}
+
+export interface User extends DefaultUser {
+  id: string;
+  role?: UserRole;
+  refreshTokenHash?: string;
+  createdAt?: number;
+  email?: string;
+  name?: string;
+  image?: string;
 }

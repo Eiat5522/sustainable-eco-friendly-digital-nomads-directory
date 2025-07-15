@@ -1,6 +1,6 @@
 // Sign-in page component
 import SignInForm from '@/components/auth/SignInForm';
-import { getProviders } from "@auth/nextjs/react";
+import { getProviders } from '@auth/nextjs';
 
 export const metadata = {
   title: 'Sign In - Eco-Friendly Digital Nomads',

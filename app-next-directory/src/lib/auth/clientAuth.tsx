@@ -6,7 +6,7 @@
 'use client';
 
 import { UserRole } from '@/types/auth';
-import { signIn, signOut, useSession } from "@auth/nextjs/react";
+import { signIn, signOut, useSession } from '@auth/nextjs';
 import { useRouter } from 'next/navigation';
 
 /**

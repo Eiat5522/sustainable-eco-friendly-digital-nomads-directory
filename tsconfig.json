@@ -16,7 +16,8 @@
       "@/*": ["./src/*"],
       "@app-next/types/*": ["app-next-directory/src/types/*"],
       "@app-next/types/listings": ["app-next-directory/src/types/listings.ts"]
-    }
+    },
+    "lib": ["dom", "dom.iterable", "esnext"]
   },
   "include": [
     "tests/**/*",

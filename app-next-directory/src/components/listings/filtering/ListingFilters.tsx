@@ -136,8 +136,6 @@ export function ListingFilters({
         <button
           onClick={toggleMobileFilters}
           className="bg-primary-600 text-white p-4 rounded-full shadow-lg flex items-center space-x-2"
-          title="Open Filters"
-          aria-label="Open Filters"
         >
           <Filter className="h-5 w-5" />
         </button>
@@ -160,12 +158,7 @@ export function ListingFilters({
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold">Filters</h2>
-                <button
-                  onClick={toggleMobileFilters}
-                  className="text-gray-500"
-                  title="Close Filters"
-                  aria-label="Close Filters"
-                >
+                <button onClick={toggleMobileFilters} className="text-gray-500">
                   <X className="h-5 w-5" />
                 </button>
               </div>

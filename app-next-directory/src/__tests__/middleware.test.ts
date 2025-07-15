@@ -1,7 +1,6 @@
 import { auth } from '@/lib/auth';
 
 // Mock next-auth/jwt before imports
-const mockGetToken = jest.fn<typeof originalGetToken>();
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
 }));
@@ -29,7 +28,7 @@ describe('Middleware', () => {
     MockNextResponse.redirect.mockClear();
     MockNextResponse.json.mockClear();
     process.env.NEXTAUTH_SECRET = 'test-secret';
-    middleware = createMiddleware({ getToken: mockGetToken, NextResponse: MockNextResponse });
+    middleware = createMiddleware({ auth: mockAuth, NextResponse: MockNextResponse });
   });
 
   const createMockRequest = (pathname: string) => {
@@ -42,7 +41,7 @@ describe('Middleware', () => {
   };
 
   it('redirects to /login if user is not authenticated and accessing protected route', async () => {
-    mockGetToken.mockResolvedValueOnce(null);
+    mockAuth.mockResolvedValueOnce(null);
     const req = createMockRequest('/admin/dashboard');
     await middleware(req as any);
 
@@ -50,7 +49,7 @@ describe('Middleware', () => {
   });
 
   it('allows access to protected route if user is authenticated', async () => {
-    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'admin' });
+    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'admin' } });
     const req = createMockRequest('/admin/dashboard');
     await middleware(req as any);
 
@@ -58,7 +57,7 @@ describe('Middleware', () => {
   });
 
   it('denies access to admin route if user is not admin', async () => {
-    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
     const req = createMockRequest('/admin/dashboard');
     await middleware(req as any);
 
@@ -66,7 +65,7 @@ describe('Middleware', () => {
   });
 
   it('allows access to public route without authentication', async () => {
-    mockGetToken.mockResolvedValueOnce(null);
+    mockAuth.mockResolvedValueOnce(null);
     const req = createMockRequest('/about');
     await middleware(req as any);
 
@@ -74,7 +73,7 @@ describe('Middleware', () => {
   });
 
   it('redirects authenticated user away from /auth/signin to /dashboard', async () => {
-    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
     const req = createMockRequest('/auth/signin');
     await middleware(req as any);
 
@@ -82,7 +81,7 @@ describe('Middleware', () => {
   });
 
   it('allows unauthenticated access to /api/listings (public API)', async () => {
-    mockGetToken.mockResolvedValueOnce(null);
+    mockAuth.mockResolvedValueOnce(null);
     const req = createMockRequest('/api/listings');
     await middleware(req as any);
 
@@ -90,7 +89,7 @@ describe('Middleware', () => {
   });
 
   it('returns 401 for unauthenticated access to protected API', async () => {
-    mockGetToken.mockResolvedValueOnce(null);
+    mockAuth.mockResolvedValueOnce(null);
     const req = createMockRequest('/api/user/profile');
     await middleware(req as any);
 
@@ -98,7 +97,7 @@ describe('Middleware', () => {
   });
 
   it('returns 403 for authenticated user without access to protected API', async () => {
-    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'user' });
+    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
     const req = createMockRequest('/api/admin/data');
     await middleware(req as any);
 
@@ -106,7 +105,7 @@ describe('Middleware', () => {
   });
 
   it('allows authenticated user with access to protected API', async () => {
-    mockGetToken.mockResolvedValueOnce({ email: 'test@example.com', role: 'admin' });
+    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'admin' } });
     const req = createMockRequest('/api/admin/data');
     await middleware(req as any);
 
@@ -114,7 +113,7 @@ describe('Middleware', () => {
   });
 
   it('redirects unauthenticated user from /profile to /auth/signin with callbackUrl', async () => {
-    mockGetToken.mockResolvedValueOnce(null);
+    mockAuth.mockResolvedValueOnce(null);
     const req = createMockRequest('/profile');
     await middleware(req as any);
 
@@ -122,7 +121,7 @@ describe('Middleware', () => {
   });
 
   it('skips middleware for static files', async () => {
-    mockGetToken.mockResolvedValueOnce(null);
+    mockAuth.mockResolvedValueOnce(null);
     const req = createMockRequest('/_next/static/file.js');
     await middleware(req as any);
 
@@ -130,7 +129,7 @@ describe('Middleware', () => {
   });
 
   it('skips middleware for internal Next.js routes', async () => {
-    mockGetToken.mockResolvedValueOnce(null);
+    mockAuth.mockResolvedValueOnce(null);
     const req = createMockRequest('/api/auth/session');
     await middleware(req as any);
 
@@ -138,7 +137,7 @@ describe('Middleware', () => {
   });
 
   it('handles errors gracefully and calls NextResponse.next', async () => {
-    mockGetToken.mockImplementationOnce(() => { throw new Error('Test error'); });
+    mockAuth.mockImplementationOnce(() => { throw new Error('Test error'); });
     const req = createMockRequest('/dashboard');
     await middleware(req as any);
 

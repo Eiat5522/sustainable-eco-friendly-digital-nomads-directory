@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from "@auth/nextjs/react";
+import { useSession } from '@auth/nextjs';
 import { useEffect, useState } from 'react';
 
 interface AnalyticsData {

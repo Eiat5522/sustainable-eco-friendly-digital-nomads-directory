@@ -13,7 +13,7 @@
  * This allows Jest to transpile ESM dependencies used by next-auth and others.
  */
 
-// Mock global Request and NextResponse for Jest
+//    - Error handling (auth throws)
 (global as any).Request = class {};
 (global as any).NextResponse = {
   json: jest.fn((data, init) => ({ data, ...init })),
@@ -624,16 +624,8 @@ describe('POST /api/auth/register', () => {
   });
 });
 // Pseudocode plan:
-// 1. Mock next-auth/jwt's getToken to simulate JWT verification.
-// 2. Mock process.env.NEXTAUTH_SECRET and process.env.EDGE_RUNTIME as needed.
-// 3. Call the GET function with a mock NextRequest.
-// 4. Assert the returned Response status and JSON body for both success and error cases.
-// 5. Test: 
-//    - Successful JWT verification (token present)
-//    - JWT verification fails (token missing)
-//    - Edge runtime detection
-//    - Security headers present
-//    - Error handling (getToken throws)
+
+
 
 
 jest.mock('@/lib/auth', () => ({
@@ -673,12 +665,12 @@ describe('GET /api/auth/test', () => {
   }
 
   it('returns 200 and correct test results when JWT is present', async () => {
-    (getToken as jest.Mock).mockResolvedValue({
-      sub: '123',
+    mockAuth.mockResolvedValue({ user: {
+      id: '123',
       email: 'test@example.com',
       role: 'user',
       name: 'Test User',
-    });
+    } });
 
     const response = await GET(mockRequest());
     expect(response.status).toBe(200);
@@ -700,7 +692,7 @@ describe('GET /api/auth/test', () => {
   });
 
   it('returns 200 and isAuthenticated false if no JWT token', async () => {
-    (getToken as jest.Mock).mockResolvedValue(null);
+    mockAuth.mockResolvedValue(null);
 
     const response = await GET(mockRequest());
     expect(response.status).toBe(200);
@@ -711,8 +703,8 @@ describe('GET /api/auth/test', () => {
     expect(json.tests.sessionStrategy.passed).toBe(true); // still true, as .sub is undefined
   });
 
-  it('returns 500 and error message if getToken throws', async () => {
-    (getToken as jest.Mock).mockRejectedValue(new Error('JWT error'));
+  it('returns 500 and error message if auth throws', async () => {
+    mockAuth.mockRejectedValue(new Error('Auth error'));
 
     const response = await GET(mockRequest());
     expect(response.status).toBe(500);
@@ -723,12 +715,12 @@ describe('GET /api/auth/test', () => {
   });
 
   it('detects edge runtime via process.env.EDGE_RUNTIME', async () => {
-    (getToken as jest.Mock).mockResolvedValue({
-      sub: '123',
+    mockAuth.mockResolvedValue({ user: {
+      id: '123',
       email: 'test@example.com',
       role: 'user',
       name: 'Test User',
-    });
+    } });
     process.env.EDGE_RUNTIME = '1';
 
     const response = await GET(mockRequest());
@@ -738,12 +730,12 @@ describe('GET /api/auth/test', () => {
   });
 
   it('sets all security headers in the response', async () => {
-    (getToken as jest.Mock).mockResolvedValue({
-      sub: '123',
+    mockAuth.mockResolvedValue({ user: {
+      id: '123',
       email: 'test@example.com',
       role: 'user',
       name: 'Test User',
-    });
+    } });
 
     const response = await GET(mockRequest());
     expect(response.headers.get('X-Frame-Options')).toBe('DENY');

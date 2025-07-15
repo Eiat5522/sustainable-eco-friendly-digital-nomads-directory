@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { signIn } from "@auth/nextjs/react";
+import { signIn } from '@auth/nextjs';
 import { SignInFormValues } from '@/types/auth';
 
 const signInFormSchema = z.object({

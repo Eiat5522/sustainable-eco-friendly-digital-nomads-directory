@@ -1,6 +1,34 @@
+interface Listing {
+  _id: string;
+  title: string;
+  description?: string;
+  location?: {
+    city?: string;
+    country?: string;
+  };
+  images?: string[];
+  tags?: string[];
+  // Add other relevant properties here
+}
+
+interface Listing {
+  _id: string;
+  title: string;
+  description?: string;
+  location?: {
+    city?: string;
+    country?: string;
+  };
+  images?: string[];
+  tags?: string[];
+  // Add other relevant properties here
+}
+
+// TODO: Use the Listing interface in src/utils/mapSanityListingToListing.ts
+
 'use client';
 
-import { useSession } from "@auth/nextjs/react";
+import { useSession } from '@auth/nextjs';
 import { useEffect, useState } from 'react';
 
 interface ModerationItem {
@@ -76,18 +104,25 @@ export default function ModerationQueue() {
     setLoading(false);
   };
 
+  interface ModerationActionRequestBody {
+    action: 'approve' | 'reject' | 'flag';
+    itemId: string;
+    reason?: string;
+  }
+
   const handleModerationAction = async (itemId: string, action: 'approve' | 'reject' | 'flag', reason?: string) => {
+    const body: ModerationActionRequestBody = {
+      action,
+      itemId,
+      reason,
+    };
     try {
       const response = await fetch('/api/admin/moderation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          action,
-          itemId,
-          reason,
-        }),
+        body: JSON.stringify(body),
       });
 
       if (response.ok) {
@@ -311,7 +346,7 @@ export default function ModerationQueue() {
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status }: { status: 'pending' | 'approved' | 'rejected' | 'flagged' }) {
   const colors = {
     pending: 'bg-yellow-100 text-yellow-800',
     approved: 'bg-green-100 text-green-800',
