@@ -4,7 +4,9 @@ import Link from 'next/link';
 import React from 'react';
 import { useInView } from 'react-intersection-observer';
 
-const InfographicSection: React.FC = () => {
+interface InfographicSectionProps {}
+
+const InfographicSection: React.FC<InfographicSectionProps> = () => {
   const { ref, inView } = useInView({
     threshold: 0.2,
     triggerOnce: true,

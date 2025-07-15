@@ -12,13 +12,15 @@ const signInFormSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
-export default function SignInForm({ 
-  providers, 
-  callbackUrl = '/' 
-}: { 
-  providers: any;
-  callbackUrl: string;
-}) {
+interface SignInFormProps {
+  providers: Record<string, any>;
+  callbackUrl?: string;
+}
+
+export default function SignInForm({
+  providers,
+  callbackUrl = '/',
+}: SignInFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   
   const {
@@ -143,7 +145,7 @@ export default function SignInForm({
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-3">
-            {Object.values(providers).map((provider: any) => {
+            {Object.values(providers).map((provider: { id: string; name: string }) => {
               if (provider.id === 'credentials') return null;
 
               return (

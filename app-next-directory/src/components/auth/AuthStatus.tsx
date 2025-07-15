@@ -82,7 +82,7 @@ export default function AuthStatus() {
         >
           <div className="block px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
             <p>Signed in as</p>
-            <p className="font-medium truncate">{session.user.email}</p>
+            <p className="font-medium truncate">{session.user.email ?? 'N/A'}</p>
           </div>
 
           <Link

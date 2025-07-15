@@ -42,7 +42,9 @@ const statistics = [
   }
 ];
 
-const StatisticsSection: React.FC = () => {
+interface StatisticsSectionProps {}
+
+const StatisticsSection: React.FC<StatisticsSectionProps> = () => {
   const { ref, inView } = useInView({
     threshold: 0.3,
     triggerOnce: true

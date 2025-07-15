@@ -26,7 +26,7 @@ interface ProfileFormProps {
 }
 
 export default function ProfileForm({ userId, initialData }: ProfileFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const router = useRouter();

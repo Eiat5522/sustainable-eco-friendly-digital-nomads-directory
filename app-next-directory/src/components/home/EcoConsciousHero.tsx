@@ -7,9 +7,11 @@ import { useInView } from 'react-intersection-observer';
 // Carbon awareness API integration
 import { getCarbonIntensity } from '@/lib/carbon-awareness';
 
-const EcoConsciousHero: React.FC = () => {
+interface EcoConsciousHeroProps {}
+
+const EcoConsciousHero: React.FC<EcoConsciousHeroProps> = () => {
   const [carbonIntensity, setCarbonIntensity] = useState<number | null>(null);
-  const [optimizedLoading, setOptimizedLoading] = useState(true);
+  const [optimizedLoading, setOptimizedLoading] = useState<boolean>(true);
   const { data: session } = useSession();
   const { theme } = useTheme();
   const [ref, inView] = useInView({

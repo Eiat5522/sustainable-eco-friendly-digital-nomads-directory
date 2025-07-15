@@ -12,8 +12,8 @@ import CityStats from './CityStats';
 const CityPage: React.FC<CityPageProps> = ({ slug }) => {
   const [city, setCity] = useState<City | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('about');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [activeTab, setActiveTab] = useState<'about' | 'listings' | 'map'>('about');
 
   useEffect(() => {
     const loadCityData = async () => {

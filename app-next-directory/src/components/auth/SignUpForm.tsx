@@ -25,8 +25,10 @@ const signUpFormSchema = z
     path: ['confirmPassword'],
   });
 
-export default function SignUpForm() {
-  const [isLoading, setIsLoading] = useState(false);
+interface SignUpFormProps {}
+
+export default function SignUpForm({}: SignUpFormProps) {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const router = useRouter();

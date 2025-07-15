@@ -60,10 +60,12 @@ const listings = [
   }
 ];
 
-const EcoFriendlyListings: React.FC = () => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+interface EcoFriendlyListingsProps {}
+
+const EcoFriendlyListings: React.FC<EcoFriendlyListingsProps> = () => {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState<boolean>(false);
+  const [canScrollRight, setCanScrollRight] = useState<boolean>(true);
 
   const { ref, inView } = useInView({
     threshold: 0.1,

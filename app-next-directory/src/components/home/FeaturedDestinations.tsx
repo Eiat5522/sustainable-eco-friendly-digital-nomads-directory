@@ -44,7 +44,9 @@ const destinations = [
   }
 ];
 
-const FeaturedDestinations: React.FC = () => {
+interface FeaturedDestinationsProps {}
+
+const FeaturedDestinations: React.FC<FeaturedDestinationsProps> = () => {
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const { ref, inView } = useInView({
     threshold: 0.2,

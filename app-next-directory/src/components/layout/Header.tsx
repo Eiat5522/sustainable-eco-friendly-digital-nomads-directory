@@ -7,10 +7,12 @@ import React, { useState } from 'react';
 import Logo from '../common/Logo';
 import ThemeToggle from './ThemeToggle';
 
-const Header: React.FC = () => {
+interface HeaderProps {}
+
+const Header: React.FC<HeaderProps> = () => {
   const pathname = usePathname();
   const { data: session, status } = useSession();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   const isActive = (path: string) => pathname === path;
 

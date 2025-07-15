@@ -15,9 +15,11 @@ const navigationItems = [
 { name: 'Contact Us', href: '/contact', icon: Mail },
 ];
 
-export function MainNav() {
-	const [isScrolled, setIsScrolled] = useState(false);
-	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+interface MainNavProps {}
+
+export function MainNav({}: MainNavProps) {
+	const [isScrolled, setIsScrolled] = useState<boolean>(false);
+	const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 	const pathname = usePathname();
 	const { data: session, status } = useSession();
 
@@ -82,8 +84,8 @@ className={`text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:t
 								</button>
 								<div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
 									<div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
-										<p className="text-sm font-medium text-gray-900 dark:text-white truncate">{session.user?.name || 'User'}</p>
-										<p className="text-xs text-gray-500 dark:text-gray-400 truncate">{session.user?.email}</p>
+										<p className="text-sm font-medium text-gray-900 dark:text-white truncate">{session.user?.name ?? 'User'}</p>
+										<p className="text-xs text-gray-500 dark:text-gray-400 truncate">{session.user?.email ?? ''}</p>
 									</div>
 									<Link
 										href="/dashboard"
@@ -192,8 +194,8 @@ isActive
 								{session && (
 									<>
 										<div className="px-3 py-2">
-											<p className="text-sm font-medium text-gray-800 dark:text-white truncate">{session.user?.name || 'User'}</p>
-											<p className="text-xs text-gray-600 dark:text-gray-400 truncate">{session.user?.email}</p>
+											<p className="text-sm font-medium text-gray-800 dark:text-white truncate">{session.user?.name ?? 'User'}</p>
+											<p className="text-xs text-gray-600 dark:text-gray-400 truncate">{session.user?.email ?? ''}</p>
 										</div>
 										<Link href="/dashboard">
 											<span className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
