@@ -119,42 +119,26 @@ test.describe('Role-Based Access Control (RBAC)', () => {
   });
 
   test.describe('Editor Access', () => {
-    test('editor can manage content', async ({ page }) => {
-      // Login as editor
-      await page.goto('/login');
-      await page.fill('input[name="email"]', 'editor@example.com');
-      await page.fill('input[name="password"]', 'password123');
-      await page.click('button[type="submit"]');
+    test('editor can manage content', async ({ editorPage }) => {
+      await editorPage.goto('/admin/content');
 
-      await page.goto('/admin/content');
-
-      await expect(page.locator('h1:has-text("Content Management")')).toBeVisible();
-      await expect(page.locator('[data-testid="create-blog-post"]')).toBeVisible();
+      await expect(editorPage.locator('h1:has-text("Content Management")')).toBeVisible();
+      await expect(editorPage.locator('[data-testid="create-blog-post"]')).toBeVisible();
     });
 
-    test('editor can moderate listings', async ({ page }) => {
-      await page.goto('/login');
-      await page.fill('input[name="email"]', 'editor@example.com');
-      await page.fill('input[name="password"]', 'password123');
-      await page.click('button[type="submit"]');
+    test('editor can moderate listings', async ({ editorPage }) => {
+      await editorPage.goto('/admin/listings');
 
-      await page.goto('/admin/listings');
-
-      const pendingListing = page.locator('[data-testid="pending-listing"]').first();
+      const pendingListing = editorPage.locator('[data-testid="pending-listing"]').first();
       await pendingListing.locator('[data-testid="approve-listing"]').click();
 
-      await expect(page.locator('text=Listing approved')).toBeVisible();
+      await expect(editorPage.locator('text=Listing approved')).toBeVisible();
     });
 
-    test('editor cannot access user management', async ({ page }) => {
-      await page.goto('/login');
-      await page.fill('input[name="email"]', 'editor@example.com');
-      await page.fill('input[name="password"]', 'password123');
-      await page.click('button[type="submit"]');
+    test('editor cannot access user management', async ({ editorPage }) => {
+      await editorPage.goto('/admin/users');
 
-      await page.goto('/admin/users');
-
-      await expect(page.locator('text=Access denied')).toBeVisible();
+      await expect(editorPage.locator('text=Access denied')).toBeVisible();
     });
   });
 

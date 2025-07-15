@@ -27,7 +27,8 @@
       ]
     },
     "target": "ES2017",
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true
   },
   "include": [
     "next-env.d.ts",

@@ -108,7 +108,6 @@ clean-install.ps1
 
 #Test Folders
 **/test-results
-**/tests
 
 
 #Cline & Roo

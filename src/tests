@@ -1,0 +1,61 @@
+jest.setup.ts
+const { NextResponse } = require('next/server');
+
+if (typeof NextResponse.json !== 'function') {
+	NextResponse.json = jest.fn().mockReturnValue({});
+}
+
+src/middleware.test.ts
+import middleware from './middleware';
+
+lib/__tests__/auth-helpers.test.ts
+// Adjust Jest configuration to handle ESM dependencies
+module.exports = {
+	transformIgnorePatterns: [
+		"node_modules/(?!(jose|openid-client)/)"
+	]
+};
+
+lib/__tests__/listings.test.ts
+jest.mock('../path/to/getListings', () => jest.fn());
+
+lib/__tests__/api-response.test.ts
+const { NextResponse } = require('next/server');
+
+if (typeof NextResponse.json !== 'function') {
+	NextResponse.json = jest.fn().mockReturnValue({});
+}
+
+lib/__tests__/middleware-auth.test.ts
+const { NextResponse } = require('next/server');
+
+if (typeof NextResponse.json !== 'function') {
+	NextResponse.json = jest.fn().mockReturnValue({});
+}
+
+src/tests/sanity-client.test.ts
+jest.mock('@sanity/client', () => {
+	const actual = jest.requireActual('@sanity/client');
+	return {
+		...actual,
+		createClient: jest.fn(),
+		default: jest.fn().mockReturnValue({
+			createClient: jest.fn(),
+		}),
+	};
+});
+
+/*
+src/__mocks__/@sanity/client.js
+const createClient = jest.fn();
+export default createClient;
+export { createClient };
+*/
+// The above is not valid in this context. The actual mock should be in src/__mocks__/@sanity/client.js, not here.
+
+jest.config.js
+module.exports = {
+	transformIgnorePatterns: [
+		"node_modules/(?!(jose|openid-client)/)"
+	]
+};
