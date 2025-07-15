@@ -4,7 +4,7 @@ import React from 'react';
 import { Select } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/Button';
-import { FilterCondition } from '@/types/filters';
+import type { FilterCondition } from '@/types/components';
 import { X } from 'lucide-react';
 
 interface FilterConditionEditorProps {
@@ -30,7 +30,7 @@ export function FilterConditionEditor({
   const handleFieldChange = (value: string) => {
     onUpdate({
       ...condition,
-      field: value as keyof FilterCondition['field'],
+      field: value as FilterCondition['field'],
       value: '', // Reset value when field changes
     });
   };
@@ -59,8 +59,8 @@ export function FilterConditionEditor({
       case 'minRating':
         return (
           <Select
-            value={condition.value}
-            onValueChange={(val) => handleValueChange(Number(val))}
+            value={String(condition.value)}
+            onValueChange={(val: string) => handleValueChange(Number(val))}
             options={[
               { value: '1', label: '1★+' },
               { value: '2', label: '2★+' },

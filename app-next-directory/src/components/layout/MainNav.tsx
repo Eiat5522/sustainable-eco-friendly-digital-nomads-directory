@@ -153,7 +153,7 @@ className={`text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:t
 	type="button"
 	onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
 	className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
-	aria-expanded={mobileMenuOpen}
+	aria-expanded={mobileMenuOpen ? true : false}
 >
 							<span className="sr-only">Open main menu</span>
 							{mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

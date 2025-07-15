@@ -27,13 +27,12 @@ export function createCustomMarker(listing: Listing | SanityListing) {
 // Create popup content for a listing
 export function createPopupContent(listing: Listing | SanityListing) {
   // Function to get eco tags, works with both listing formats
-  const getEcoTags = (listing: Listing | SanityListing): string[] => {
-    if ('eco_focus_tags' in listing && listing.eco_focus_tags) {
-      // It's a Listing object
-      return listing.eco_focus_tags.map(tag => tag.name);
-    } else if ('ecoTags' in listing && listing.ecoTags) {
-      // It's a SanityListing object
-      return listing.ecoTags;
+  const getEcoTags = (lst: Listing | SanityListing): string[] => {
+    if ('eco_focus_tags' in lst && Array.isArray(lst.eco_focus_tags)) {
+      return lst.eco_focus_tags; // already string[]
+    }
+    if ('ecoTags' in lst && Array.isArray(lst.ecoTags)) {
+      return lst.ecoTags;
     }
     return [];
   };
@@ -44,10 +43,11 @@ export function createPopupContent(listing: Listing | SanityListing) {
 
   // Category badge
   const badge = document.createElement('span');
-  // Use 'type' for Listing and 'category' for SanityListing
+  // Determine category based on listing type
   const category = 'type' in listing ? listing.type : listing.category;
   badge.className = `category-badge category-${category}`;
-  badge.innerText = category.charAt(0).toUpperCase() + category.slice(1);
+  // category is string
+  badge.innerText = String(category).charAt(0).toUpperCase() + String(category).slice(1);
 
   // Title
   const title = document.createElement('h3');
@@ -57,7 +57,10 @@ export function createPopupContent(listing: Listing | SanityListing) {
   const description = document.createElement('p');
   description.className = 'description';
   // Use 'description' for Listing and 'descriptionShort' for SanityListing
-  description.innerText = 'description' in listing ? listing.description : listing.descriptionShort;
+  // description in API listing or description_short in Sanity
+  description.innerText = 'description' in listing
+    ? listing.description
+    : (listing as SanityListing).description_short || '';
 
   // Tags container
   const tagsContainer = document.createElement('div');

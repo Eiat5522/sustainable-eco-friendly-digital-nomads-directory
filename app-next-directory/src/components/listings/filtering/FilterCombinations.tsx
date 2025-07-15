@@ -2,11 +2,12 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import type { FilterGroup, FilterOperator } from '@/types/components';
-import { Badge } from '@/components/ui/Badge';
+import type { FilterGroup, FilterOperator, FilterCondition } from '@/types/filters';
+import { Badge } from '@/components/ui/badge';
+// Using FilterCondition from '@/types/filters'
 import { Button } from '@/components/ui/Button';
 import { PlusCircle, XCircle } from 'lucide-react';
-import { FilterConditionEditor } from './FilterConditionEditor';
+import { FilterConditionEditor } from './FilterCondition';
 
 interface FilterCombinationsProps {
   combinations: FilterGroup[];
@@ -121,7 +122,7 @@ export function FilterCombinations({
                   <FilterConditionEditor
                     key={condIndex}
                     condition={condition}
-                    onUpdate={(updatedCondition) => {
+                    onUpdate={(updatedCondition: FilterCondition) => {
                       const newCombinations = [...combinations];
                       newCombinations[index].conditions[condIndex] = updatedCondition;
                       onCombinationsChange(newCombinations);
@@ -157,4 +158,13 @@ export function FilterCombinations({
       </div>
     </div>
   );
-}
+                    <div className="pl-4 border-l-2 border-gray-200">
+                      <FilterConditionEditor
+                        conditions={group.conditions}
+                        onChange={(newConditions) => {
+                          const updated = [...combinations];
+                          updated[index].conditions = newConditions;
+                          onCombinationsChange(updated);
+                        }}
+                      />
+                    </div>

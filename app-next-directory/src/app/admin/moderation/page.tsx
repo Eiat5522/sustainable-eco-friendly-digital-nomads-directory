@@ -1,3 +1,9 @@
+"use client";
+
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react'; // Corrected import path
+import { useRouter } from 'next/navigation';
+
 interface Listing {
   _id: string;
   title: string;
@@ -25,36 +31,6 @@ interface Listing {
 }
 
 // TODO: Use the Listing interface in src/utils/mapSanityListingToListing.ts
-
-'use client';
-
-import { useSession } from '@auth/nextjs/react';
-import { useEffect, useState } from 'react';
-
-interface ModerationItem {
-  _id: string;
-  type: 'listing' | 'review' | 'blog_post' | 'user';
-  title: string;
-  content?: string;
-  status: 'pending' | 'approved' | 'rejected' | 'flagged';
-  flagReason?: string;
-  reportedAt: string;
-  reportedBy?: string;
-  author?: {
-    name: string;
-    email: string;
-  };
-}
-
-interface ModerationResponse {
-  items: ModerationItem[];
-  pagination: {
-    total: number;
-    page: number;
-    totalPages: number;
-    limit: number;
-  };
-}
 
 export default function ModerationQueue() {
   const { data: session } = useSession();
@@ -182,9 +158,11 @@ export default function ModerationQueue() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
             <select
+              id="status-filter"
+              aria-label="Filter by status" // Added accessible name
+              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2"
             >
               <option value="pending">Pending</option>
               <option value="flagged">Flagged</option>
@@ -196,9 +174,11 @@ export default function ModerationQueue() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
             <select
+              id="sort-order"
+              aria-label="Sort by" // Added accessible name
+              className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2"
             >
               <option value="all">All Types</option>
               <option value="listing">Listings</option>
@@ -253,6 +233,7 @@ export default function ModerationQueue() {
                     <input
                       type="checkbox"
                       id={`item-${item._id}`}
+                      aria-label="Select item" // Added accessible name
                       className="mt-1 h-4 w-4 text-green-600 border-gray-300 rounded"
                     />
 

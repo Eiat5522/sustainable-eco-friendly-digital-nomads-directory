@@ -6,8 +6,14 @@ import { User } from "@/types/auth";
 import Link from 'next/link';
 import Image from 'next/image';
 
+// Interface for the session data to improve type safety
+interface AuthSession {
+  data: { user?: User | null } | null;
+  status: string;
+}
+
 export default function AuthStatus() {
-  const { data: session, status } = useSession() as { data: { user?: User } | null, status: string };
+  const { data: session, status } = useSession() as AuthSession;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -17,7 +23,7 @@ export default function AuthStatus() {
   // Loading state
   if (status === 'loading') {
     return (
-      <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200"></div>
+      <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200" aria-label="Loading..."></div>
     );
   }
 
@@ -25,8 +31,8 @@ export default function AuthStatus() {
   if (!session?.user) {
     return (
       <div className="flex items-center space-x-4">
-        <Link 
-          href="/auth/signin" 
+        <Link
+          href="/auth/signin"
           className="text-sm font-medium text-green-700 hover:text-green-800"
         >
           Sign in
@@ -50,13 +56,16 @@ export default function AuthStatus() {
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-green-500"
           id="user-menu-button"
-          aria-expanded={isMenuOpen ? "true" : "false"}
+          aria-expanded={isMenuOpen ? "true" : "false"} // Updated to explicitly convert boolean to string
           aria-haspopup="true"
+          aria-controls="user-menu" // Updated to reference the menu element
+          title="Open user menu"
+          aria-label="Open user menu"
         >
           <span className="sr-only">Open user menu</span>
           {session.user.image ? (
             <div className="h-10 w-10 rounded-full overflow-hidden relative">
-              <Image 
+              <Image
                 src={session.user.image}
                 alt={session.user.name || "User avatar"}
                 fill
@@ -75,7 +84,8 @@ export default function AuthStatus() {
       </div>
 
       {isMenuOpen && (
-        <div 
+        <div
+          id="user-menu" // Added ID to match aria-controls
           className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
           role="menu"
           aria-orientation="vertical"
@@ -90,10 +100,6 @@ export default function AuthStatus() {
           <Link
             href="/profile"
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-            role="menuitem"
-            tabIndex={-1}
-            id="user-menu-item-0"
-            onClick={() => setIsMenuOpen(false)}
           >
             Your Profile
           </Link>
@@ -102,10 +108,6 @@ export default function AuthStatus() {
             <Link
               href="/admin"
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              role="menuitem"
-              tabIndex={-1}
-              id="user-menu-item-1"
-              onClick={() => setIsMenuOpen(false)}
             >
               Admin Dashboard
             </Link>
@@ -115,10 +117,6 @@ export default function AuthStatus() {
             <Link
               href="/listings/manage"
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              role="menuitem"
-              tabIndex={-1}
-              id="user-menu-item-2"
-              onClick={() => setIsMenuOpen(false)}
             >
               Manage Listings
             </Link>

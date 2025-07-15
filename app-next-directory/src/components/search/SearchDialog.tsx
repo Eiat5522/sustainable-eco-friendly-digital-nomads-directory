@@ -43,10 +43,11 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
 
   // Initialize filters from URL parameters
   useEffect(() => {
-    const query = searchParams.get('q') || '';
-    const category = searchParams.get('category') || undefined;
-    const city = searchParams.get('city') || undefined;
-    const ecoFeatures = searchParams.get('eco')?.split(',') || [];
+    const params = searchParams ?? new URLSearchParams();
+    const query = params.get('q') || '';
+    const category = params.get('category') || undefined;
+    const city = params.get('city') || undefined;
+    const ecoFeatures = params.get('eco')?.split(',') || [];
 
     setFilters({
       query,
@@ -143,6 +144,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                   className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
                 />
                 <button
+                  aria-label="Close search dialog"
                   onClick={onClose}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 >

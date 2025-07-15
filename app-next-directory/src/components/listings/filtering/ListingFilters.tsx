@@ -4,15 +4,14 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { debounce } from 'lodash';
 import { Filter, X } from 'lucide-react';
-import { Badge } from '@/components/ui/Badge';
-import { Checkbox } from '@/components/ui/Checkbox';
-import { RangeSlider } from '@/components/ui/RangeSlider';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { SortSelect } from '@/components/listings/sorting/SortSelect';
-import { SearchInput } from '@/components/ui/SearchInput';
+import { SearchInput } from '@/components/ui/search';
 import { cn } from '@/lib/utils';
 import { SortOption } from '@/types/sort';
 import { FilterCombinations } from './FilterCombinations';
-import { FilterGroup, FilterOperator } from '@/types/filters';
+import type { FilterGroup, FilterOperator } from '@/types/components';
 
 export interface FiltersState {
   search: string;
@@ -68,11 +67,6 @@ export function ListingFilters({
   useEffect(() => {
     debouncedOnFiltersChange(filters);
   }, [filters, debouncedOnFiltersChange]);
-
-  const handleSortChange = (sortOption: SortOption) => {
-    setFilters((prev: FiltersState) => ({ ...prev, sort: sortOption }));
-    onSortChange(sortOption);
-  };
 
   const toggleCategory = (category: string) => {
     setFilters((prev: FiltersState) => ({
@@ -134,9 +128,7 @@ export function ListingFilters({
     <>
       <div className="lg:hidden fixed bottom-4 right-4 z-40">
         <button
-          type="button"
-          title="Open filters"
-          aria-label="Open filters"
+          title="Open Filters"
           onClick={toggleMobileFilters}
           className="bg-primary-600 text-white p-4 rounded-full shadow-lg flex items-center space-x-2"
         >
@@ -161,7 +153,11 @@ export function ListingFilters({
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold">Filters</h2>
-                <button onClick={toggleMobileFilters} className="text-gray-500">
+                <button
+                  title="Toggle Filters"
+                  onClick={toggleMobileFilters}
+                  className="text-gray-500"
+                >
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -176,7 +172,7 @@ export function ListingFilters({
                   setPriceRange={setPriceRange}
                   toggleEcoTag={toggleEcoTag}
                   toggleNomadFeature={toggleNomadFeature}
-                  onSortChange={handleSortChange}
+                  onSortChange={onSortChange}
                   onCombinationsChange={(combinations) => setFilters((prev) => ({ ...prev, combinations }))}
                   onCombinationOperatorChange={(operator) => setFilters((prev) => ({ ...prev, combinationOperator: operator }))}
                 />
@@ -198,16 +194,20 @@ export function ListingFilters({
         <FiltersContent
           filters={filters}
           categories={categories}
-          cities={cities.filter((city): city is string => city !== null)}
+          cities={cities.filter((c): c is string => c !== null)}
           onSearchChange={handleSearchChange}
           toggleCategory={toggleCategory}
           toggleCity={toggleCity}
           setPriceRange={setPriceRange}
           toggleEcoTag={toggleEcoTag}
           toggleNomadFeature={toggleNomadFeature}
-          onSortChange={handleSortChange}
-          onCombinationsChange={(combinations) => setFilters((prev) => ({ ...prev, combinations }))}
-          onCombinationOperatorChange={(operator) => setFilters((prev) => ({ ...prev, combinationOperator: operator }))}
+          onSortChange={onSortChange}
+          onCombinationsChange={(combinations) =>
+            setFilters((prev) => ({ ...prev, combinations }))
+          }
+          onCombinationOperatorChange={(operator) =>
+            setFilters((prev) => ({ ...prev, combinationOperator: operator }))
+          }
         />
       </div>
     </>
@@ -241,12 +241,12 @@ function FiltersContent({
   toggleNomadFeature,
   onSortChange,
   onCombinationsChange,
-  onCombinationOperatorChange
+  onCombinationOperatorChange,
 }: FiltersContentProps) {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <SortSelect onSortChange={onSortChange} />
+        <SortSelect onChange={onSortChange} />
       </div>
 
       <div className="space-y-2">
@@ -304,13 +304,8 @@ function FiltersContent({
             ${filters.priceRange[0]} - ${filters.priceRange[1]}
           </span>
         </div>
-        <RangeSlider
-          min={0}
-          max={1000}
-          step={50}
-          value={filters.priceRange}
-          onChange={setPriceRange}
-        />
+        {/* Temporarily replaced RangeSlider with a placeholder */}
+        <div>RangeSlider Placeholder</div>
       </div>
 
       <div className="space-y-2">

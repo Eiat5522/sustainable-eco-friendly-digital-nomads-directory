@@ -180,6 +180,9 @@ importers:
       next-themes:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      nextjs-basic-auth:
+        specifier: ^0.1.3
+        version: 0.1.3
       node-fetch:
         specifier: ^3.3.2
         version: 3.3.2
@@ -6481,6 +6484,10 @@ packages:
         optional: true
       sass:
         optional: true
+
+  nextjs-basic-auth@0.1.3:
+    resolution: {integrity: sha512-pLzT9AOthowyRR3ESxLag9Gul9ljn2XVfVAG0Nn8H3zVx7kSdBB7iK/6IxCQOJrbbouLbqPEBWPLdoX0w72RrQ==}
+    engines: {node: '>=10'}
 
   node-addon-api@8.4.0:
     resolution: {integrity: sha512-D9DI/gXHvVmjHS08SVch0Em8G5S1P+QWtU31appcKT/8wFSPRcdHadIFSAntdMMVM5zz+/DL+bL/gz3UDppqtg==}
@@ -16431,6 +16438,8 @@ snapshots:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
+
+  nextjs-basic-auth@0.1.3: {}
 
   node-addon-api@8.4.0: {}
 
