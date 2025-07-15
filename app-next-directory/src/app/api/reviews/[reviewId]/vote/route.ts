@@ -1,7 +1,7 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
 import { ObjectId } from 'mongodb';
-import { NextRequest } from 'next/dist/server/web/spec-extension/request';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 const voteSchema = z.object({

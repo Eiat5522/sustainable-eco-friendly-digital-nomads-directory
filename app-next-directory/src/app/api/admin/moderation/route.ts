@@ -1,7 +1,7 @@
 import { authOptions } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
-import { getServerSession } from 'next-auth/next';
+import { auth } from '@/lib/auth';
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 import { z } from 'zod';
 
@@ -172,7 +172,7 @@ async function performModerationAction(
 // GET: Fetch moderation queue
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return ApiResponseHandler.unauthorized();
     }
@@ -221,7 +221,7 @@ export async function GET(request: NextRequest) {
 // POST: Perform moderation action
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return ApiResponseHandler.unauthorized();
     }

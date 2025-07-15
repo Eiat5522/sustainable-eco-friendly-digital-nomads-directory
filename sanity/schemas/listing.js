@@ -354,5 +354,41 @@ export default defineType({
         }
       ]
     }),
+    defineField({
+      name: 'phone',
+      title: 'Phone',
+      type: 'string',
+      description: 'Contact phone number for the listing.',
+    }),
+    defineField({
+      name: 'email',
+      title: 'Email',
+      type: 'string',
+      description: 'Contact email address for the listing.',
+    }),
+    defineField({
+      name: 'socialLinks',
+      title: 'Social Links',
+      type: 'object',
+      fields: [
+        { name: 'facebook', title: 'Facebook', type: 'url' },
+        { name: 'twitter', title: 'Twitter', type: 'url' },
+        { name: 'instagram', title: 'Instagram', type: 'url' },
+      ],
+      description: 'Social media links for the listing.',
+    }),
+    defineField({
+      name: 'priceRange',
+      title: 'Price Range',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Budget', value: 'budget' },
+          { title: 'Moderate', value: 'moderate' },
+          { title: 'Premium', value: 'premium' },
+        ],
+      },
+      description: 'General price range for the listing.',
+    }),
   ],
 })

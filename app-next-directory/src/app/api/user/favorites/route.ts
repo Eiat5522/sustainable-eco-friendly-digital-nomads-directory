@@ -3,7 +3,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'; // Adjusted pa
 import dbConnect from '@/lib/mongodb';
 import UserFavorite from '@/models/UserFavorite';
 import mongoose from 'mongoose';
-import { getServerSession } from 'next-auth/next';
+import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 
 /**
@@ -34,7 +34,7 @@ import { NextResponse } from 'next/dist/server/web/spec-extension/response';
  *         description: Internal server error.
  */
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session || !session.user?.id) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
@@ -99,7 +99,7 @@ export async function GET(request: Request) {
  *         description: Internal server error.
  */
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session || !session.user?.id) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });

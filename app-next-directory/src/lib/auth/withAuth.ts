@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
-import { getToken } from 'next-auth/jwt';
+import { auth } from '@/lib/auth';
 
 export async function withAuth(
   request: NextRequest,
@@ -8,14 +8,10 @@ export async function withAuth(
 ) {
   const pathname = request.nextUrl.pathname;
 
-  // Get the token from the request
-  const token = await getToken({ 
-    req: request, 
-    secret: process.env.NEXTAUTH_SECRET 
-  });
+  const session = await auth();
 
-  // If no token and trying to access protected route
-  if (!token) {
+  // If no session and trying to access protected route
+  if (!session) {
     // Create redirect URL with return path
     const url = new URL('/auth/signin', request.url);
     url.searchParams.set('callbackUrl', encodeURI(pathname));
@@ -25,7 +21,7 @@ export async function withAuth(
 
   // If roles are specified, check if user has required role
   if (requiredRoles && requiredRoles.length > 0) {
-    const userRole = token?.role as string || 'user';
+    const userRole = session?.user?.role as string || 'user';
     
     if (!requiredRoles.includes(userRole)) {
       // User doesn't have required role, redirect to unauthorized page
@@ -43,13 +39,10 @@ export async function withAuthApi(
   request: NextRequest,
   requiredRoles?: string[]
 ) {
-  const token = await getToken({ 
-    req: request, 
-    secret: process.env.NEXTAUTH_SECRET 
-  });
+  const session = await auth();
 
-  // If no token
-  if (!token) {
+  // If no session
+  if (!session) {
     return new NextResponse(
       JSON.stringify({ error: 'Unauthorized - Authentication required' }),
       { status: 401, headers: { 'Content-Type': 'application/json' } }
@@ -58,7 +51,7 @@ export async function withAuthApi(
 
   // If roles are specified, check if user has required role
   if (requiredRoles && requiredRoles.length > 0) {
-    const userRole = token?.role as string || 'user';
+    const userRole = session?.user?.role as string || 'user';
     
     if (!requiredRoles.includes(userRole)) {
       return new NextResponse(

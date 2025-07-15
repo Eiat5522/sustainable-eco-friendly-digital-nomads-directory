@@ -49,7 +49,7 @@ jest.mock('../../lib/mongodb', () => ({
 }));
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/auth';
 
 // Mock next-auth and api-response with jest.fn mocks
 

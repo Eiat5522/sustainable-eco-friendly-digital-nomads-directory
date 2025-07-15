@@ -1,8 +1,12 @@
-import { getToken as originalGetToken } from 'next-auth/jwt';
+import { auth } from '@/lib/auth';
 
 // Mock next-auth/jwt before imports
 const mockGetToken = jest.fn<typeof originalGetToken>();
-jest.mock('next-auth/jwt', () => ({ getToken: mockGetToken }));
+jest.mock('@/lib/auth', () => ({
+  auth: jest.fn(),
+}));
+
+const mockAuth = auth as jest.MockedFunction<typeof auth>;
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { createMiddleware, config } from '../middleware';

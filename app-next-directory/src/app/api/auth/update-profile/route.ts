@@ -2,7 +2,7 @@ import { authOptions } from '@/lib/auth';
 import { findSanityUserByEmail, updateSanityUserWithAuthDetails } from '@/lib/auth/userService';
 import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
-import { getServerSession } from 'next-auth/next';
+import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 import { z } from 'zod';
 
@@ -17,7 +17,7 @@ const updateProfileSchema = z.object({
 export async function PUT(request: Request) {
   try {
     // Check authentication
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user) {
       return NextResponse.json(

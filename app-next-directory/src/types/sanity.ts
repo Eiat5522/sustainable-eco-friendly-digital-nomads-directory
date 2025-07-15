@@ -25,13 +25,15 @@ export interface SanityImage {
 export interface SanityListing extends SanityDocument {
   _type: 'listing';
   name: string;
-  slug: string;
+  slug: string | { current: string }; // Ensured slug can be a string or an object with a current property
   description_short?: string;
   category?: CategoryType;
   city?: {
     _id: string;
     slug: string;
     title: string;
+    listingCount?: number; // Added to support city listing count
+    country?: string; // Added to support city country
   };
   primaryImage?: SanityImage;
   ecoTags?: string[]; // Array of resolved tag names
@@ -79,5 +81,16 @@ export interface SanityListing extends SanityDocument {
     };
     roomTypesAvailable?: string[];
     specificAmenities?: string[];
+  };
+
+  // New fields to align with updated schema
+  eco_focus_tags?: { _id: string; name: string; slug?: { current: string }; description?: string; listingCount?: number }[];
+  price_indication?: string;
+  phone?: string;
+  email?: string;
+  socialLinks?: {
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
   };
 }

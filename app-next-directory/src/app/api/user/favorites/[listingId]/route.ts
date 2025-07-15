@@ -3,8 +3,8 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'; // Adjusted pa
 import dbConnect from '@/lib/mongodb';
 import UserFavorite from '@/models/UserFavorite';
 import mongoose from 'mongoose';
-import { getServerSession } from 'next-auth/next';
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { auth } from '@/lib/auth';
+import { NextRequest } from 'next/server';
 
 interface Params {
   listingId: string;
@@ -39,7 +39,7 @@ interface Params {
  *         description: Internal server error.
  */
 export async function DELETE(request: Request, { params }: { params: Params }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session || !session.user?.id) {
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });

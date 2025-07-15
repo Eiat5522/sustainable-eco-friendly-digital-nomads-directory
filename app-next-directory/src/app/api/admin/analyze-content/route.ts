@@ -1,12 +1,12 @@
 import { authOptions } from '@/lib/auth';
 import analyzeContent from '@/scripts/analyze-content';
-import { getServerSession } from 'next-auth/next';
+import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 
 export async function GET() {
   try {
     // Check if user is authenticated and is an admin
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user || session.user.role !== 'admin') {
       return NextResponse.json(
         { success: false, message: 'Unauthorized' },

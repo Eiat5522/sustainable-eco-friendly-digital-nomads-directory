@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { NextResponse } from 'next/server';
 import { client } from '@/lib/sanity/client';
 
 export async function GET(request: Request) {
@@ -18,7 +18,7 @@ export async function GET(request: Request) {
       description
     }`;
 
-    const events = await getClient().fetch(query, { now });
+    const events = await client.fetch(query, { now });
 
     return NextResponse.json({ success: true, data: events });
   } catch (error) {

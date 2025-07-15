@@ -1,6 +1,6 @@
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getUserById } from '@/lib/auth/serverAuth';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 /**
@@ -9,7 +9,7 @@ import { redirect } from 'next/navigation';
  */
 export default async function DashboardPage() {
   // Get session on server side (Node.js runtime)
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   // Redirect if not authenticated
   if (!session?.user?.id) {

@@ -1,4 +1,4 @@
-import { getToken } from 'next-auth/jwt';
+import { auth } from '@/lib/auth';
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 import { NextResponse } from 'next/server';
 import {
@@ -278,35 +278,15 @@ export async function withAuth(
 ) {
   console.warn('withAuth is deprecated. Use withAuthMatrix for audit compliance.');
 
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET
-  });
-
-  if (!token) {
-    const url = new URL('/auth/signin', request.url);
-    url.searchParams.set('callbackUrl', encodeURI(request.nextUrl.pathname));
-    return NextResponse.redirect(url);
+  const session = await auth();
+  if (!session) {
+    return NextResponse.redirect(new URL('/auth/signin', req.url));
   }
 
-  if (requiredRoles && requiredRoles.length > 0) {
-    const userRole = token?.role as string || 'defaultUser';
+  const userRole = session?.user?.role as string || 'user';
 
-    // Map old role names to new ones
-    const roleMapping: Record<string, UserRole> = {
-      'admin': 'systemAdministrator',
-      'editor': 'systemAdministrator',
-      'venueOwner': 'venueOwner',
-      'user': 'registeredUser'
-    };
-
-    const mappedRole = roleMapping[userRole] || 'defaultUser';
-    const mappedRequiredRoles = requiredRoles.map(r => roleMapping[r] || r);
-
-    if (!mappedRequiredRoles.includes(mappedRole)) {
-      const url = new URL('/auth/unauthorized', request.url);
-      return NextResponse.redirect(url);
-    }
+  if (requiredRoles && !requiredRoles.includes(userRole)) {
+    return NextResponse.redirect(new URL('/auth/unauthorized', req.url));
   }
 
   return NextResponse.next();

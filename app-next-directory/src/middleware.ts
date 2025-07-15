@@ -1,5 +1,5 @@
 import { ACCESS_CONTROL_MATRIX, PagePermissions, UserRole } from '@/types/auth';
-import { getToken } from 'next-auth/jwt';
+import { auth } from '@/lib/auth';
 
 const secret = process.env.NEXTAUTH_SECRET;
 
@@ -220,7 +220,7 @@ try {
 } catch {
   NextResponseReal = undefined;
 }
-export const middleware = createMiddleware({ getToken, NextResponse: NextResponseReal });
+export { auth as middleware } from "@/lib/auth";
 
 // Refined matcher configuration
 export const config = {

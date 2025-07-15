@@ -1,7 +1,6 @@
 // API route for disabling preview mode
 import { draftMode } from 'next/headers';
-import { NextRequest } from 'next/dist/server/web/spec-extension/request';
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   // Disable draft mode

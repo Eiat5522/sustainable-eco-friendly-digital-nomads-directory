@@ -1,9 +1,9 @@
 import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/auth';
 import { ApiResponseHandler } from './api-response';
 
 export async function requireAuth() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session) {
     throw new Error('UNAUTHORIZED');

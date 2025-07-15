@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession } from "@auth/nextjs/react";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { UserRole } from "@/types/auth";

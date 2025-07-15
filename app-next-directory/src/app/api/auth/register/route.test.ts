@@ -302,7 +302,7 @@ import connect from '@/lib/dbConnect';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import { GET } from '../test/route';
-import { getToken } from 'next-auth/jwt';
+import { auth } from '@/lib/auth';
 
 // Mock NextResponse from next/server to return a Response-like object with .json()
 jest.mock('next/server', () => {
@@ -636,9 +636,11 @@ describe('POST /api/auth/register', () => {
 //    - Error handling (getToken throws)
 
 
-jest.mock('next-auth/jwt', () => ({
-  getToken: jest.fn(),
+jest.mock('@/lib/auth', () => ({
+  auth: jest.fn(),
 }));
+
+const mockAuth = auth as jest.MockedFunction<typeof auth>;
 
 
 // Move GET /api/auth/test tests to a top-level describe block to avoid nesting

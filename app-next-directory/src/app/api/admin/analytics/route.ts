@@ -1,7 +1,7 @@
 import { authOptions } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
-import { getServerSession } from 'next-auth/next';
+import { auth } from '@/lib/auth';
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 
@@ -246,7 +246,7 @@ async function getAdminAnalytics(): Promise<AdminAnalytics> {
 export async function GET(request: NextRequest) {
   try {
     // Check authentication and admin role
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session?.user) {
       return ApiResponseHandler.unauthorized();
     }

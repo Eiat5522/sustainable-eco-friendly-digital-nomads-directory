@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
-import { getServerSession } from 'next-auth';
+import { auth } from '@/lib/auth';
 import { authOptions } from '@/lib/auth';
 import { client as sanityClient } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
@@ -8,7 +8,7 @@ import { ApiResponseHandler } from '@/utils/api-response';
 export async function POST(request: NextRequest) {
   try {
     // Get user session
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session?.user) {
       return ApiResponseHandler.error('Authentication required', 401);

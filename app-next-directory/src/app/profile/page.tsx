@@ -1,11 +1,11 @@
 import ProfileForm from '@/components/auth/ProfileForm';
 import { authOptions } from '@/lib/auth';
 import { findSanityUserByEmail } from '@/lib/auth/userService';
-import { getServerSession } from 'next-auth/next';
+import { auth } from '@/lib/auth';
 import Image from 'next/image';
 
 export default async function ProfilePage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (!session?.user) {
     return null; // This should be caught by the layout

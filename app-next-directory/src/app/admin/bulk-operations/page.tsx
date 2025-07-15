@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useSession } from "@auth/nextjs/react";
 import { useEffect, useState } from 'react';
 
 interface BulkOperationResult {

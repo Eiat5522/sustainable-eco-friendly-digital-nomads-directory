@@ -1,6 +1,6 @@
 // Profile page layout
 import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth/next';
+import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 export const metadata = {
@@ -13,7 +13,7 @@ export default async function ProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   // Redirect if not authenticated
   if (!session) {

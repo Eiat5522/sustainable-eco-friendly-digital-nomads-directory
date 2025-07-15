@@ -3,25 +3,7 @@
 import { SanityListing } from '@/types/sanity';
 import { Listing } from '@/types/listing';
 import { ListingCard } from '@/components/listings/ListingCard';
-
-// Adapter: convert SanityListing to Listing
-function mapSanityListingToListing(sanity: SanityListing): Listing {
-  return {
-    _id: sanity._id,
-    name: sanity.name,
-    description: sanity.description_short || '',
-    type: sanity.category || '',
-    mainImage: sanity.primaryImage?.asset?.url || '',
-    address: sanity.addressString || '',
-    slug: typeof sanity.slug === 'string' ? sanity.slug : sanity.slug?.current || '',
-    ecoTags: sanity.ecoTags || [],
-    features: sanity.digital_nomad_features || [],
-    priceRange: sanity.priceRange || '',
-    rating: sanity.rating || 0,
-    city: sanity.city?.title || '',
-    // Add other fields as needed for ListingCard
-  };
-}
+import { mapSanityListingToListing } from '@/utils/mapSanityListingToListing';
 
 interface FeaturedListingsProps {
   listings: SanityListing[];

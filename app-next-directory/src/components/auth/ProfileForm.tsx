@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useSession } from "@auth/nextjs/react";
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
