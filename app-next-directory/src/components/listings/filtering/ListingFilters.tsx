@@ -134,6 +134,9 @@ export function ListingFilters({
     <>
       <div className="lg:hidden fixed bottom-4 right-4 z-40">
         <button
+          type="button"
+          title="Open filters"
+          aria-label="Open filters"
           onClick={toggleMobileFilters}
           className="bg-primary-600 text-white p-4 rounded-full shadow-lg flex items-center space-x-2"
         >

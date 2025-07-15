@@ -129,7 +129,7 @@ describe('Middleware', () => {
   });
 
   it('skips middleware for internal Next.js routes', async () => {
-    mockAuth.mockResolvedValueOnce(null);
+    mockGetToken.mockResolvedValueOnce(null);
     const req = createMockRequest('/api/auth/session');
     await middleware(req as any);
 

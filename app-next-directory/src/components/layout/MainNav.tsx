@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { BookOpen, Calendar, Home, Leaf, LogIn, Mail, Menu, UserCircle, X } from 'lucide-react';
-import { signIn, signOut, useSession } from '@auth/nextjs';
+import { signIn, signOut, useSession } from '@auth/nextjs/react';
 import { User, UserRole } from "@/types/auth";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -150,9 +150,10 @@ className={`text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:t
 							</div>
 						)}
 <button
-onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
-          aria-expanded={mobileMenuOpen}
+	type="button"
+	onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+	className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
+	aria-expanded={mobileMenuOpen}
 >
 							<span className="sr-only">Open main menu</span>
 							{mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

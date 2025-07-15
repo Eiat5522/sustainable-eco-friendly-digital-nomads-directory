@@ -28,7 +28,7 @@ interface Listing {
 
 'use client';
 
-import { useSession } from '@auth/nextjs';
+import { useSession } from '@auth/nextjs/react';
 import { useEffect, useState } from 'react';
 
 interface ModerationItem {

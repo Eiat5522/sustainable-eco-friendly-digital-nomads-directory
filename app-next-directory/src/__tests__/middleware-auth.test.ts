@@ -167,7 +167,7 @@ describe('Middleware - Auth and Access Control', () => {
   });
 
   it('allows access to /admin/dashboard for users with admin permission', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'admin@example.com', role: 'admin' } });
+    mockGetToken.mockResolvedValueOnce({ email: 'admin@example.com', role: 'admin' });
     const req = createMockRequest('/admin/dashboard');
     await middleware(req as any);
     expect(MockNextResponse.next).toHaveBeenCalled();

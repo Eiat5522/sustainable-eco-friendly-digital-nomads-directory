@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { signOut, useSession } from '@auth/nextjs';
+import { signOut, useSession } from '@auth/nextjs/react';
 import { User } from "@/types/auth";
 import Link from 'next/link';
 import Image from 'next/image';
@@ -46,10 +46,11 @@ export default function AuthStatus() {
     <div className="relative">
       <div className="flex items-center">
         <button
+          type="button"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-green-500"
           id="user-menu-button"
-          aria-expanded={isMenuOpen}
+          aria-expanded={isMenuOpen ? "true" : "false"}
           aria-haspopup="true"
         >
           <span className="sr-only">Open user menu</span>
