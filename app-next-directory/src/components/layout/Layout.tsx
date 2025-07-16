@@ -5,13 +5,14 @@ import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { MainNav } from './MainNav';
 import Link from 'next/link';
+import type { WebVitalsMetric } from '@/lib/performance/web-vitals-reporter';
 
 // Dynamically import the preview banner to avoid SSR issues
 const PreviewBanner = dynamic(() => import('./PreviewBanner'), { ssr: false });
 
 // Dynamically import web vitals reporter to avoid SSR issues
 const WebVitalsReporter = dynamic(
-  () => import('@/lib/performance/web-vitals-reporter').then((mod) => mod.WebVitalsReporter),
+  () => import('@/lib/performance/web-vitals-reporter').then((mod) => mod.WebVitalsReporter as React.FC<WebVitalsMetric>),
   { ssr: false }
 );
 

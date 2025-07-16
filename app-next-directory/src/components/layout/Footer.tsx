@@ -16,6 +16,8 @@ const handleBrowseListingsClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
   }, 800);
 };
 
+ interface FooterProps {}
+
 export default function Footer({}: FooterProps) {
   return (
     <footer className="w-full text-white bg-[rgb(33,196,93)]">

@@ -6,7 +6,7 @@ type WebVitalsMetric = {
   entries: PerformanceEntry[];
 };
 
-export function reportWebVitals(metric: WebVitalsMetric) {
+export const WebVitalsReporter = (metric: WebVitalsMetric) => {
   if (process.env.NODE_ENV === 'development') {
     console.log('Web Vitals:', {
       name: metric.name,
@@ -15,11 +15,9 @@ export function reportWebVitals(metric: WebVitalsMetric) {
     });
   }
 
-  // Send metrics to endpoint
   const url = '/api/performance/web-vitals';
   const body = JSON.stringify(metric);
 
-  // Use `navigator.sendBeacon()` if available, falling back to `fetch()`
   if (navigator.sendBeacon) {
     navigator.sendBeacon(url, body);
   } else {
@@ -29,7 +27,8 @@ export function reportWebVitals(metric: WebVitalsMetric) {
       keepalive: true,
     });
   }
-}
+};
 
-// Default export for dynamic import compatibility
-export default reportWebVitals;
+export type { WebVitalsMetric };
+
+export default WebVitalsReporter;
