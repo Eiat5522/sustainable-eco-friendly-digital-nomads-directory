@@ -19,7 +19,7 @@ const navigationItems = [
 interface MainNavProps {}
 
 export function MainNav({}: MainNavProps) {
-	const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
 	const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 	const pathname = usePathname();
 	const { data: session, status } = useSession();
@@ -63,6 +63,7 @@ className={`text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:t
 })}
 
 						{/* Auth Button/User Menu - Desktop */}
+		  {/* Auth Button/User Menu - Desktop */}
 						{status === 'loading' ? (
 							<div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
 						) : session ? (
@@ -150,10 +151,10 @@ className={`text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:t
 							</div>
 						)}
 <button
-	type="button"
-	onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-	className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
-	aria-expanded={mobileMenuOpen ? true : false}
+  type="button"
+  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+  className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
+  aria-expanded={mobileMenuOpen ? 'true' : 'false'}
 >
 							<span className="sr-only">Open main menu</span>
 							{mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

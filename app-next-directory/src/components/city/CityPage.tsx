@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchCityDetails, fetchCityListings } from '@/lib/api';
-import { City, CityPageProps, Listing, UnifiedListing } from '@/types';
+import { City, Listing } from '@/types';
 import React, { useEffect, useState } from 'react';
 import ImageCarousel from '../common/ImageCarousel';
 import LoadingSpinner from '../common/LoadingSpinner';
@@ -9,6 +9,7 @@ import { ListingGrid } from '../listings/ListingGrid';
 import CityMap from './CityMap';
 import CityStats from './CityStats';
 
+interface CityPageProps { slug: string }
 const CityPage: React.FC<CityPageProps> = ({ slug }) => {
   const [city, setCity] = useState<City | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
@@ -45,11 +46,7 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
     return <div className="container mx-auto p-6">City not found</div>;
   }
 
-  // Convert listings to unified format
-  const unifiedListings: UnifiedListing[] = listings.map(listing => ({
-    ...listing,
-    // Add any missing properties with defaults
-  }));
+  // Use raw listings array for ListingGrid and CityMap
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -142,8 +139,8 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
         {activeTab === 'listings' && (
           <div>
             <h2 className="text-xl font-semibold mb-6">Eco-Friendly Accommodations in {city.name}</h2>
-            {unifiedListings.length > 0 ? (
-              <ListingGrid listings={unifiedListings} />
+        {listings.length > 0 ? (
+          <ListingGrid listings={listings as any} />
             ) : (
               <p className="text-gray-500">No listings available for this city yet.</p>
             )}
@@ -152,7 +149,7 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
 
         {activeTab === 'map' && (
           <div className="h-96">
-            <CityMap city={city} listings={unifiedListings} />
+            <CityMap city={city} listings={listings} />
           </div>
         )}
       </div>
