@@ -47,8 +47,9 @@ const CityMap: React.FC<CityMapProps> = ({ city, listings = [] }) => {
       zoom={13}
       style={{ height: '100%', width: '100%', borderRadius: '0.5rem' }}
       // Use whenReady to get the map instance
-      whenReady={(mapInstance: L.Map) => {
-        mapRef.current = mapInstance;
+      whenReady={(...args: any[]) => {
+        // args[0] is the map instance
+        mapRef.current = args[0] as L.Map;
       }}
     >
       <TileLayer

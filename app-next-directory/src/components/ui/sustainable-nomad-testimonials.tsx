@@ -7,7 +7,7 @@ import { Card, CardContent } from "./card";
 import { Separator } from "./separator";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, Quote, Star, MapPin, Leaf, Wifi, Coffee } from 'lucide-react';
-import { motion, useAnimation, useInView } from "framer-motion";
+import { motion, useAnimation, useInView, easeOut, Variants } from "framer-motion";
 
 export interface CityTestimonial {
   id: number
@@ -128,17 +128,17 @@ export function SustainableNomadTestimonials({
     },
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
         duration: 0.5,
-        ease: "easeOut",
+        ease: easeOut,
       },
     },
-  }
+  };
 
   if (testimonials.length === 0) {
     return null

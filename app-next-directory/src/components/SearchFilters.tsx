@@ -206,17 +206,15 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onFilterChange, initialFi
             🔍 Search Radius: <span className="text-blue-600 font-semibold">{radius} km</span>
           </label>
           <div className="relative">
-            <input
-              type="range"
-              min="1"
-              max="100"
-              value={radius}
-              onChange={e => handleRadiusChange(parseInt(e.target.value))}
-              className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-              style={{
-                background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${((radius - 1) / 99) * 100}%, #E5E7EB ${((radius - 1) / 99) * 100}%, #E5E7EB 100%)`,
-              }}
-            />
+              <input
+                type="range"
+                min="1"
+                max="100"
+                value={radius}
+                onChange={e => handleRadiusChange(parseInt(e.target.value))}
+                title="Search radius"
+                className="w-full h-3 rounded-lg appearance-none cursor-pointer bg-gradient-to-r from-blue-500 via-blue-500 to-gray-300 slider"
+              />
             <div className="flex justify-between text-xs text-gray-500 mt-2">
               <span>1 km</span>
               <span className="text-gray-400">🏃‍♂️ Walking distance</span>
@@ -244,12 +242,12 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onFilterChange, initialFi
                   </div>
                 </div>
               ) : LeafletMap ? (
-                <LeafletMap
-                  center={[latitude || 0, longitude || 0]}
-                  zoom={Math.max(10 - Math.floor(radius / 20), 5)}
-                  onLocationSelect={handleLocationSelect}
-                  className="h-full w-full"
-                />
+              <LeafletMap
+                initialPosition={[latitude || 0, longitude || 0]}
+                radius={radius}
+                onLocationSelect={handleLocationSelect}
+                className="h-full w-full"
+              />
               ) : (
                 <div className="h-full flex items-center justify-center bg-gray-100">
                   <div className="text-center text-gray-500">
@@ -293,6 +291,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onFilterChange, initialFi
                 step="10"
                 value={minPriceRange}
                 onChange={e => handlePriceChange('min', parseInt(e.target.value))}
+                title="Minimum price per night"
                 className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-green"
               />
               <span className="text-sm font-medium text-gray-700 w-16">${minPriceRange}</span>
@@ -306,6 +305,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onFilterChange, initialFi
                 step="10"
                 value={maxPriceRange}
                 onChange={e => handlePriceChange('max', parseInt(e.target.value))}
+                title="Maximum price per night"
                 className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-thumb-green"
               />
               <span className="text-sm font-medium text-gray-700 w-16">${maxPriceRange}</span>
@@ -342,15 +342,13 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onFilterChange, initialFi
             min="0"
             max="100"
             value={sustainabilityScore}
+            title="Minimum sustainability score"
             onChange={e => {
               const value = parseInt(e.target.value);
               setSustainabilityScore(value);
               handleInputChange('sustainabilityScore', value);
             }}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-3"
-            style={{
-              background: `linear-gradient(to right, #10B981 0%, #10B981 ${sustainabilityScore}%, #E5E7EB ${sustainabilityScore}%, #E5E7EB 100%)`,
-            }}
+            className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-gradient-to-r from-green-500 via-green-500 to-gray-300 mt-3"
           />
           <div className="flex justify-between text-xs text-gray-500 mt-2">
             <span>Any (0)</span>
@@ -365,6 +363,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onFilterChange, initialFi
           </label>
           <select
             value={ecoCertification}
+            title="Eco certification"
             onChange={e => {
               setEcoCertification(e.target.value);
               handleInputChange('ecoCertification', e.target.value);
