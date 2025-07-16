@@ -1,7 +1,6 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
 import { ObjectId } from 'mongodb';
-import { NextRequest } from 'next/server';
 import { z } from 'zod';
 
 const voteSchema = z.object({
@@ -11,7 +10,7 @@ const voteSchema = z.object({
 
 // POST endpoint for voting on review helpfulness
 export async function POST(
-  request: NextRequest,
+  request: globalThis.Request,
   { params }: { params: { reviewId: string } }
 ) {
   try {
@@ -47,7 +46,7 @@ export async function POST(
     }
 
     // Use IP address if no user ID provided
-    const voterIdentifier = userId || request.ip || 'anonymous';
+    const voterIdentifier = userId || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous';
 
     // Check for existing vote
     const existingVote = await reviewVotes.findOne({
@@ -101,7 +100,7 @@ export async function POST(
       voterIdentifier,
       helpful,
       createdAt: new Date(),
-      ipAddress: request.ip || 'unknown',
+      ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown',
     });
 
     // Update review helpful counts
@@ -127,7 +126,7 @@ export async function POST(
 
 // GET endpoint for getting vote statistics
 export async function GET(
-  request: NextRequest,
+  request: globalThis.Request,
   { params }: { params: { reviewId: string } }
 ) {
   try {

@@ -4,7 +4,7 @@ import dbConnect from '@/lib/mongodb';
 import UserFavorite from '@/models/UserFavorite';
 import mongoose from 'mongoose';
 import { auth } from '@/lib/auth';
-import { NextRequest } from 'next/server';
+// Removed invalid import for NextRequest
 
 interface Params {
   listingId: string;
@@ -42,13 +42,13 @@ export async function DELETE(request: Request, { params }: { params: Params }) {
   const session = await auth();
 
   if (!session || !session.user?.id) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    return Response.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
   const { listingId } = params;
 
   if (!listingId || !mongoose.Types.ObjectId.isValid(listingId)) {
-    return NextResponse.json(
+    return Response.json(
       { success: false, message: 'Invalid listingId provided' },
       { status: 400 }
     );
@@ -66,16 +66,16 @@ export async function DELETE(request: Request, { params }: { params: Params }) {
     });
 
     if (!result) {
-      return NextResponse.json({ success: false, message: 'Favorite not found' }, { status: 404 });
+      return Response.json({ success: false, message: 'Favorite not found' }, { status: 404 });
     }
 
-    return NextResponse.json(
+    return Response.json(
       { success: true, message: 'Favorite removed successfully' },
       { status: 200 }
     );
   } catch (error) {
     console.error('Error removing favorite:', error);
-    return NextResponse.json(
+    return Response.json(
       { success: false, message: 'Error removing favorite' },
       { status: 500 }
     );

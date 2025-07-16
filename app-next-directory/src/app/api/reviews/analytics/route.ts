@@ -1,9 +1,8 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
-import { NextRequest } from 'next/server';
 
 // GET endpoint for review analytics and insights
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const timeRange = searchParams.get('timeRange') || '30d'; // 7d, 30d, 90d, 1y
@@ -218,7 +217,7 @@ export async function GET(request: NextRequest) {
 
     const distribution = Array.from({ length: 5 }, (_, i) => {
       const rating = i + 1;
-      const found = ratingDistribution.find(r => r._id === rating);
+      const found = ratingDistribution.find((r: any) => r._id === rating);
       return {
         rating,
         count: found?.count || 0,
@@ -228,10 +227,10 @@ export async function GET(request: NextRequest) {
     });
 
     const moderation = {
-      pending: moderationStats.find(s => s._id === 'pending')?.count || 0,
-      approved: moderationStats.find(s => s._id === 'approved')?.count || 0,
-      rejected: moderationStats.find(s => s._id === 'rejected')?.count || 0,
-      flagged: moderationStats.find(s => s._id === 'flagged')?.count || 0,
+      pending: moderationStats.find((s: any) => s._id === 'pending')?.count || 0,
+      approved: moderationStats.find((s: any) => s._id === 'approved')?.count || 0,
+      rejected: moderationStats.find((s: any) => s._id === 'rejected')?.count || 0,
+      flagged: moderationStats.find((s: any) => s._id === 'flagged')?.count || 0,
     };
 
     const response = {
@@ -242,12 +241,12 @@ export async function GET(request: NextRequest) {
         avgRating: Number(overall.avgRating?.toFixed(2)) || 0,
       },
       distribution,
-      trends: trendsData.map(d => ({
+      trends: trendsData.map((d: any) => ({
         date: d._id,
         count: d.count,
         avgRating: Number(d.avgRating?.toFixed(2)) || 0,
       })),
-      sentiment: sentimentAnalysis.map(s => ({
+      sentiment: sentimentAnalysis.map((s: any) => ({
         sentiment: s._id,
         count: s.count,
         avgRating: Number(s.avgRating?.toFixed(2)) || 0,
@@ -266,11 +265,11 @@ export async function GET(request: NextRequest) {
         maxHours: Number(responseTimeStats[0].maxResponseTime?.toFixed(2)) || 0,
         totalModerated: responseTimeStats[0].totalModerated || 0,
       } : null,
-      topListings: !listingSlug ? topListings.map(l => ({
+      topListings: !listingSlug ? topListings.map((l: any) => ({
         slug: l._id,
         avgRating: Number(l.avgRating?.toFixed(2)) || 0,
         reviewCount: l.reviewCount,
-      })) : null,
+      })) : undefined,
     };
 
     return ApiResponseHandler.success(

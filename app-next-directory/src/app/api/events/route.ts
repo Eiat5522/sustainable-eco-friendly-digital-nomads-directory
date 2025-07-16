@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server';
 import { client } from '@/lib/sanity/client';
 
 export async function GET(request: Request) {
@@ -20,12 +19,14 @@ export async function GET(request: Request) {
 
     const events = await client.fetch(query, { now });
 
-    return NextResponse.json({ success: true, data: events });
+    return new Response(JSON.stringify({ success: true, data: events }), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
     console.error('Events API Error:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch events' },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ success: false, error: 'Failed to fetch events' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }
