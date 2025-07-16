@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { City } from './CityCarousel';
+import { City } from '@/types';
 import { cn } from '@/lib/utils';
 
 // Dynamically import CityCarousel to avoid hydration mismatch
@@ -59,7 +59,7 @@ export function CitySection({ city, listingStats, className }: CitySectionProps)
           <div>
             <div className="relative aspect-4/3 rounded-lg overflow-hidden mb-6">
               <Image
-                src={city.imageUrl}
+                src={city.images?.[0] || ''}
                 alt={city.name}
                 fill
                 className="object-cover"
@@ -102,12 +102,9 @@ export function CitySection({ city, listingStats, className }: CitySectionProps)
                 </h4>
                 <div className="flex items-center gap-2">
                   <div className="flex-grow bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div
-                      className="bg-green-500 h-2 rounded-full transition-all duration-1000"
-                      style={{
-                        width: '85%'
-                      }}
-                    />
+                <div
+                  className="bg-green-500 h-2 rounded-full transition-all duration-1000 w-[85%]"
+                />
                   </div>
                   <span className="text-green-800 dark:text-green-300 font-semibold">
                     85%

@@ -7,9 +7,12 @@ import { PlausibleAnalyticsProvider } from '@/lib/analytics/plausible';
 import dynamic from 'next/dynamic';
 import { ReactNode } from 'react';
 
-// Dynamically import web vitals reporter to avoid SSR issues
+// Dynamically import web vitals reporter function then return a null component
 const WebVitalsReporter = dynamic(
-  () => import('@/lib/performance/web-vitals-reporter').then((mod) => mod.default),
+  async () => {
+    await import('@/lib/performance/web-vitals-reporter');
+    return () => null;
+  },
   { ssr: false }
 );
 

@@ -30,3 +30,6 @@ export function reportWebVitals(metric: WebVitalsMetric) {
     });
   }
 }
+
+// Default export for dynamic import compatibility
+export default reportWebVitals;
