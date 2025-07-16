@@ -1,11 +1,12 @@
-import { auth } from '@/lib/auth';
+
+import { getToken } from '@/lib/auth';
 
 // Ensure Jest mock is applied before any imports
 jest.mock('@/lib/auth', () => ({
-  auth: jest.fn(),
+  getToken: jest.fn(),
 }));
 
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
+const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { createMiddleware, config } from '../middleware';
@@ -32,7 +33,7 @@ describe('Middleware - Auth and Access Control', () => {
     MockNextResponse.json.mockClear();
     process.env.NEXTAUTH_SECRET = 'test-secret';
     // Use the mocked getToken function
-    middleware = createMiddleware({ auth: mockAuth, NextResponse: MockNextResponse });
+    middleware = createMiddleware({ getToken: mockGetToken, NextResponse: MockNextResponse });
   });
 
   const createMockRequest = (pathname: string) => {
@@ -46,42 +47,42 @@ describe('Middleware - Auth and Access Control', () => {
   };
 
   it('allows access to /api/listings for any user', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
     const req = createMockRequest('/api/listings');
     await middleware(req as any);
     expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
   it('allows access to /api/listings for unauthenticated users', async () => {
-    mockAuth.mockResolvedValueOnce(null);
+    mockGetToken.mockResolvedValueOnce(null);
     const req = createMockRequest('/api/listings');
     await middleware(req as any);
     expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
   it('denies access to /api/user/profile for unauthenticated users', async () => {
-    mockAuth.mockResolvedValueOnce(null);
+    mockGetToken.mockResolvedValueOnce(null);
     const req = createMockRequest('/api/user/profile');
     await middleware(req as any);
     expect(MockNextResponse.json).toHaveBeenCalled();
   });
 
   it('allows access to /api/user/profile for authenticated users', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
     const req = createMockRequest('/api/user/profile');
     await middleware(req as any);
     expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
   it('denies access to /api/admin/data for users with the user role', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
     const req = createMockRequest('/api/admin/data');
     await middleware(req as any);
     expect(MockNextResponse.json).toHaveBeenCalled();
   });
 
   it('allows access to /api/admin/data for users with the admin role', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'admin@example.com', role: 'admin' } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'admin@example.com', role: 'admin' } });
     const req = createMockRequest('/api/admin/data');
     await middleware(req as any);
     expect(MockNextResponse.next).toHaveBeenCalled();
@@ -92,7 +93,7 @@ describe('Middleware - Auth and Access Control', () => {
    * Covers the edge case where the role is undefined.
    */
   it('redirects to /auth/signin with callbackUrl when accessing a protected route and no user role', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: undefined } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'test@example.com', role: undefined } });
     const req = createMockRequest('/dashboard');
     await middleware(req as any);
     expect(MockNextResponse.redirect).toHaveBeenCalled();
@@ -101,7 +102,7 @@ describe('Middleware - Auth and Access Control', () => {
   });
 
   it('handles the case where userRole is null', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: null } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'test@example.com', role: null } });
     const req = createMockRequest('/dashboard');
     await middleware(req as any);
     expect(MockNextResponse.redirect).toHaveBeenCalled();
@@ -110,7 +111,7 @@ describe('Middleware - Auth and Access Control', () => {
   });
 
   it('handles the case where userRole is an empty string', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: '' } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'test@example.com', role: '' } });
     const req = createMockRequest('/dashboard');
     await middleware(req as any);
     expect(MockNextResponse.redirect).toHaveBeenCalled();
@@ -122,7 +123,7 @@ describe('Middleware - Auth and Access Control', () => {
    * Should redirect to /auth/signin with callbackUrl when userRole is invalid.
    */
   it('handles the case where userRole is an invalid role', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'invalidRole' } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'invalidRole' } });
     const req = createMockRequest('/admin/dashboard');
     await middleware(req as any);
     expect(MockNextResponse.redirect).toHaveBeenCalled();
@@ -132,49 +133,49 @@ describe('Middleware - Auth and Access Control', () => {
   });
 
   it('allows access to /profile for users with profile permission', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
     const req = createMockRequest('/profile');
     await middleware(req as any);
     expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
   it('allows access to /listings for users with listings permission', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
     const req = createMockRequest('/listings');
     await middleware(req as any);
     expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
   it('allows access to /listings/create for users with createListing permission', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
     const req = createMockRequest('/listings/create');
     await middleware(req as any);
     expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
   it('allows access to /listings/edit/123 for users with editListing permission', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
     const req = createMockRequest('/listings/edit/123');
     await middleware(req as any);
     expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
   it('allows access to /admin for users with admin permission', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'admin@example.com', role: 'admin' } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'admin@example.com', role: 'admin' } });
     const req = createMockRequest('/admin');
     await middleware(req as any);
     expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
   it('allows access to /admin/dashboard for users with admin permission', async () => {
-    mockGetToken.mockResolvedValueOnce({ email: 'admin@example.com', role: 'admin' });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'admin@example.com', role: 'admin' } });
     const req = createMockRequest('/admin/dashboard');
     await middleware(req as any);
     expect(MockNextResponse.next).toHaveBeenCalled();
   });
 
   it('redirects to home if access is denied to a protected route', async () => {
-    mockAuth.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
+    mockGetToken.mockResolvedValueOnce({ user: { email: 'test@example.com', role: 'user' } });
     const req = createMockRequest('/admin/dashboard');
     await middleware(req as any);
     expect(MockNextResponse.redirect).toHaveBeenCalled();

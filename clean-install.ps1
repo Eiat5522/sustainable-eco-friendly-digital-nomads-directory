@@ -4,8 +4,8 @@ Write-Host "🧹 Starting Clean Install Process..." -ForegroundColor Green
 # Navigate to project root
 Set-Location -Path "d:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory"
 
-# Function to clean directory
-function Clean-Directory {
+# Function to clear directory
+function Clear-Directory {
     param($path, $name)
     Write-Host "🗑️  Cleaning $name..." -ForegroundColor Yellow
 
@@ -42,10 +42,10 @@ function Clean-Directory {
     }
 }
 
-# Clean all directories
-Clean-Directory "." "Root Directory"
-Clean-Directory "app-next-directory" "Next.js App"
-Clean-Directory "sanity" "Sanity CMS"
+# Clear all directories
+Clear-Directory "." "Root Directory"
+Clear-Directory "app-next-directory" "Next.js App"
+Clear-Directory "sanity" "Sanity CMS"
 
 # Clear npm cache globally
 Write-Host "🧹 Clearing npm cache..." -ForegroundColor Yellow
