@@ -19,6 +19,13 @@
   json: jest.fn((data, init) => ({ data, ...init })),
 };
 
+// Mock Next.js server globals before any imports
+jest.mock('next/dist/server/web/spec-extension/response', () => ({
+  NextResponse: {
+    json: jest.fn((data, init) => ({ data, ...init })),
+  },
+}));
+
 // Mock global Response for tests that use the GET handler returning a native Response
 (global as any).Response = class {
   private _body: string;
@@ -314,6 +321,8 @@ jest.mock('next/server', () => {
           ...init,
           status: init?.status ?? 200,
           json: async () => body,
+          body: body, // Add direct body access for getResponseBody
+          _body: body, // Add _body for compatibility
         };
       },
     },
