@@ -162,8 +162,8 @@ export async function GET(
       }
     ]).toArray();
 
-    const helpful = voteStats.find(v => v._id === true)?.count || 0;
-    const unhelpful = voteStats.find(v => v._id === false)?.count || 0;
+    const helpful = voteStats.find((v: { _id: boolean; count: number; voters: string[] }) => v._id === true)?.count || 0;
+    const unhelpful = voteStats.find((v: { _id: boolean; count: number; voters: string[] }) => v._id === false)?.count || 0;
     const total = helpful + unhelpful;
 
     const response = {

@@ -1,22 +1,19 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getUserById } from '@/lib/auth/serverAuth';
 import { auth } from '@/lib/auth';
-import { NextRequest } from 'next/dist/server/web/spec-extension/request';
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 
 /**
  * API route to get current user profile
  * This runs in Node.js runtime (not Edge) to allow MongoDB operations
  */
-export async function GET(request: NextRequest) {
+export async function getUserProfile(request: Request) {
   try {
     // Get session (works in API routes with Node.js runtime)
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
+      return new Response(
+        JSON.stringify({ error: 'Authentication required' }),
+        { status: 401, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
@@ -24,28 +21,31 @@ export async function GET(request: NextRequest) {
     const user = await getUserById(session.user.id);
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
+      return new Response(
+        JSON.stringify({ error: 'User not found' }),
+        { status: 404, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     // Return user data (excluding sensitive information)
-    return NextResponse.json({
-      success: true,
-      data: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.image,
-        role: user.role,
-      },
-    });
+    return new Response(
+      JSON.stringify({
+        success: true,
+        data: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          role: user.role,
+        },
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
     console.error('Get user profile error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }
@@ -53,12 +53,12 @@ export async function GET(request: NextRequest) {
 /**
  * API route to update user profile
  */
-export async function PUT(request: NextRequest) {
+export async function PUT(request: Request) {
   try {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
+      return Response.json(
         { error: 'Authentication required' },
         { status: 401 }
       );
@@ -69,7 +69,7 @@ export async function PUT(request: NextRequest) {
 
     // Validate input
     if (!name || typeof name !== 'string') {
-      return NextResponse.json(
+      return Response.json(
         { error: 'Name is required and must be a string' },
         { status: 400 }
       );
@@ -79,19 +79,19 @@ export async function PUT(request: NextRequest) {
     const success = await updateUserProfile(session.user.id, { name, image });
 
     if (!success) {
-      return NextResponse.json(
+      return Response.json(
         { error: 'Failed to update profile' },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({
+    return Response.json({
       success: true,
       message: 'Profile updated successfully',
     });
   } catch (error) {
     console.error('Update user profile error:', error);
-    return NextResponse.json(
+    return Response.json(
       { error: 'Internal server error' },
       { status: 500 }
     );

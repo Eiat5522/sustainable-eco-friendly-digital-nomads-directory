@@ -7,7 +7,6 @@
 
 import { processMetricForAlert } from '@/lib/performance/alert-service';
 import { PERFORMANCE_BUDGETS } from '@/lib/performance/performance-budgets';
-import { NextRequest } from 'next/server';
 
 interface MetricData {
   name: string;
@@ -47,7 +46,7 @@ async function storePerformanceData(metricData: EnhancedMetricData): Promise<boo
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     // Parse the metrics data from the request
     const metricsData: MetricData = await request.json();
@@ -61,50 +60,45 @@ export async function POST(request: NextRequest) {
     };
 
     // Check metrics against thresholds and add status
-    if (metricsData.name && PERFORMANCE_BUDGETS.pageLoad[metricsData.name]) {
-      const budget = PERFORMANCE_BUDGETS.pageLoad[metricsData.name];
+    if (metricsData.name && (PERFORMANCE_BUDGETS.pageLoad as Record<string, any>)[metricsData.name]) {
+      const budget = (PERFORMANCE_BUDGETS.pageLoad as Record<string, any>)[metricsData.name];
       enhancedData.status =
         metricsData.value <= budget.target ? 'good' :
         metricsData.value <= budget.acceptable ? 'needs-improvement' :
         'poor';
-
-      // Process alerts for metrics that exceed thresholds
-      if (enhancedData.status === 'needs-improvement' || enhancedData.status === 'poor') {
-        await processMetricForAlert('pageLoad', metricsData.name, metricsData.value, {
-          page: metricsData.page || 'Unknown',
-          source: 'web-vitals',
-          userAgent: enhancedData.userAgent,
-          timestamp: enhancedData.timestamp,
-          delta: metricsData.delta,
-          id: metricsData.id
-        });
-      }
     }
 
-    // Store the performance data for analysis
-    await storePerformanceData(enhancedData);
-
-    // For now, we'll just log it in development
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[Performance Metrics]', enhancedData);
+    // Store the enhanced data
+    const stored = await storePerformanceData(enhancedData);
+    if (!stored) {
+      return new Response(
+        JSON.stringify({ error: 'Failed to store performance data' }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      );
     }
 
-    // Return success response
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    // Process metric for alerting
+    await processMetricForAlert(
+      {
+        name: enhancedData.name || 'Unknown',
+        value: enhancedData.value || 0,
+        status: enhancedData.status || 'unknown',
+      },
+      1000, // Example alert threshold
+      'performance',
+      () => console.log('Alert callback executed')
+    );
+
+    return new Response(
+      JSON.stringify({ success: true, data: enhancedData }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
   } catch (error) {
-    console.error('Error processing performance metrics:', error);
-
-    // Return error response
-    return new Response(JSON.stringify({
-      success: false,
-      error: 'Failed to process metrics'
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    console.error('[Performance API] Error processing metrics:', error);
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }
 
