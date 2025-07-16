@@ -38,7 +38,7 @@ export function FilterConditionEditor({ conditions, onChange }: FilterConditionE
   };
 
   const updateField = (value: string) => {
-    setNewCondition({ ...newCondition, field: value as keyof FilterCondition['field'] });
+    setNewCondition({ ...newCondition, field: value });
   };
 
   const updateValue = (value: string) => {
@@ -50,7 +50,7 @@ export function FilterConditionEditor({ conditions, onChange }: FilterConditionE
       <div className="flex items-end gap-2">
         <div className="flex-1">
           <Select
-            value={newCondition.field as string}
+            value={typeof newCondition.field === 'string' ? newCondition.field : ''}
             onValueChange={updateField}
             options={FIELD_OPTIONS}
             placeholder="Select field"
@@ -58,19 +58,20 @@ export function FilterConditionEditor({ conditions, onChange }: FilterConditionE
         </div>
         <div className="flex-1">
           <Input
-            value={newCondition.value as string || ''}
+            value={typeof newCondition.value === 'string' ? newCondition.value : newCondition.value !== undefined ? String(newCondition.value) : ''}
             onChange={(e) => updateValue(e.target.value)}
             placeholder="Enter value"
           />
         </div>
-        <button
+        <Button
           variant="outline"
           size="icon"
           onClick={addCondition}
           disabled={!newCondition.field || !newCondition.value}
+          title="Add condition"
         >
           <Plus className="h-4 w-4" />
-        </button>
+        </Button>
       </div>
 
       <div className="space-y-2">
@@ -80,14 +81,15 @@ export function FilterConditionEditor({ conditions, onChange }: FilterConditionE
               <span className="text-sm font-medium">{condition.field}:</span>
               <span className="text-sm">{condition.value}</span>
             </div>
-            <button
+            <Button
               variant="ghost"
               size="icon"
               onClick={() => removeCondition(index)}
               className="text-gray-400 hover:text-gray-600"
+              title="Remove condition"
             >
               <Trash2 className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         ))}
       </div>

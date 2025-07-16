@@ -2,7 +2,9 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import type { FilterGroup, FilterOperator, FilterCondition } from '@/types/filters';
+import type { FilterOperator } from '@/types/filters';
+import type { FilterGroup } from '@/types/components';
+import type { FilterCondition } from '@/types/components';
 import { Badge } from '@/components/ui/badge';
 // Using FilterCondition from '@/types/filters'
 import { Button } from '@/components/ui/Button';
@@ -158,13 +160,4 @@ export function FilterCombinations({
       </div>
     </div>
   );
-                    <div className="pl-4 border-l-2 border-gray-200">
-                      <FilterConditionEditor
-                        conditions={group.conditions}
-                        onChange={(newConditions) => {
-                          const updated = [...combinations];
-                          updated[index].conditions = newConditions;
-                          onCombinationsChange(updated);
-                        }}
-                      />
-                    </div>
+}

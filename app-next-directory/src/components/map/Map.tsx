@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
+import L from 'leaflet';
 import { type Listing } from '@/types/listings';
-// Import Leaflet dynamically inside useEffect to avoid SSR issues
 import 'leaflet/dist/leaflet.css';
 import { createCustomMarker, createPopupContent } from './CustomMarker';
 
@@ -25,28 +25,19 @@ export default function Map({ listings, center = [13.7563, 100.5018], zoom = 11 
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
-    // Dynamically import Leaflet only on the client side
-    import('leaflet').then(L => {
-      // Make L available globally if needed
-      window.L = L;
-      
-      // Initialize map if not already initialized
-      if (!mapRef.current) {
-        mapRef.current = L.map('map', {
+    // Initialize map if not already initialized
+    if (!mapRef.current) {
+      mapRef.current = L.map('map', {
         zoomControl: true,
         scrollWheelZoom: true,
         maxZoom: 19
       }).setView(center, zoom);
-
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(mapRef.current);
-
-      markersRef.current = L.layerGroup().addTo(mapRef.current);
-      }
-    });
+      }).addTo(mapRef.current!);
+      markersRef.current = L.layerGroup().addTo(mapRef.current!);
+    }
 
     // Clear existing markers
     if (markersRef.current) {
@@ -55,16 +46,13 @@ export default function Map({ listings, center = [13.7563, 100.5018], zoom = 11 
 
     // Add markers for listings
     listings.forEach(listing => {
-      if (listing.coordinates.latitude && listing.coordinates.longitude) {
-        const marker = L.marker(
-          [listing.coordinates.latitude, listing.coordinates.longitude],
-          { icon: createCustomMarker(listing) }
-        ).bindPopup(createPopupContent(listing), {
-          maxWidth: 300,
-          className: 'rounded-lg shadow-lg'
-        });
-
-        markersRef.current?.addLayer(marker);
+      const coords = listing.coordinates;
+      if (coords?.latitude != null && coords.longitude != null && markersRef.current) {
+        const marker = L.marker([coords.latitude, coords.longitude], { icon: createCustomMarker(listing) });
+        // bindPopup requires non-null content
+        const popup = createPopupContent(listing) as HTMLElement;
+        marker.bindPopup(popup, { maxWidth: 300, className: 'rounded-lg shadow-lg' });
+        markersRef.current.addLayer(marker);
       }
     });
 

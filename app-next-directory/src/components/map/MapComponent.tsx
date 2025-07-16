@@ -2,6 +2,10 @@
 
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
+// @ts-ignore: No types for leaflet.markercluster, use any
+type MarkerCluster = any;
+// @ts-ignore: No types for leaflet.markercluster, use any
+type MarkerClusterGroup = any;
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
@@ -17,15 +21,15 @@ export interface MapComponentProps {
 const DEFAULT_CENTER: L.LatLngTuple = [13.7563, 100.5018]; // Bangkok
 const DEFAULT_ZOOM = 12;
 
-const categoryIcons = {
+const categoryIcons: Record<NonNullable<Listing['category']>, string> = {
   coworking: '🏢',
   cafe: '☕',
-  accommodation: '🏠'
+  accommodation: '🏠',
 };
 
 export default function MapComponent({ listings, onBoundsChange }: MapComponentProps) {
   const mapRef = useRef<L.Map | null>(null);
-  const markersRef = useRef<L.MarkerClusterGroup | null>(null);
+  const markersRef = useRef<MarkerClusterGroup | null>(null);
 
   useEffect(() => {
     // Initialize map if not already initialized
@@ -41,13 +45,14 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
       });
 
       // Create marker cluster group
-      markersRef.current = L.markerClusterGroup({
+      // @ts-ignore: markerClusterGroup is provided by leaflet.markercluster plugin
+      markersRef.current = (L as any).markerClusterGroup({
         chunkedLoading: true,
         maxClusterRadius: 50,
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true,
-        iconCreateFunction: (cluster) => {
+        iconCreateFunction: (cluster: MarkerCluster) => {
           return L.divIcon({
             html: `<div class="cluster-icon">${cluster.getChildCount()}</div>`,
             className: 'custom-marker-cluster',
@@ -57,7 +62,9 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
       });
 
       // Add the marker cluster group to the map
-      mapRef.current.addLayer(markersRef.current);
+      if (markersRef.current) {
+        mapRef.current.addLayer(markersRef.current);
+      }
 
       // Setup bounds change handler
       if (onBoundsChange) {
@@ -73,12 +80,13 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
 
       if (Array.isArray(listings)) {
         listings.forEach(listing => {
-          const { latitude, longitude } = listing.coordinates || {};
-          if (!latitude || !longitude) return;
+          const latitude = listing.coordinates?.latitude;
+          const longitude = listing.coordinates?.longitude;
+          if (typeof latitude !== 'number' || typeof longitude !== 'number') return;
 
           const marker = L.marker([latitude, longitude], {
             icon: L.divIcon({
-              html: `<div class="marker-icon">${categoryIcons[listing.category]}</div>`,
+              html: `<div class="marker-icon">${listing.category ? categoryIcons[listing.category] : ''}</div>`,
               className: 'custom-marker',
               iconSize: L.point(32, 32)
             })
@@ -88,11 +96,6 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
             <div class="marker-popup">
               <h3 class="font-semibold">${listing.name}</h3>
               <p class="text-sm text-gray-600">${listing.address_string}</p>
-              <div class="mt-2">
-                ${Array.isArray(listing.eco_focus_tags) ? listing.eco_focus_tags.map(tag => 
-                  `<span class=\"inline-block px-2 py-1 mr-1 mb-1 text-xs bg-green-100 text-green-800 rounded-full\">${tag}</span>`
-                ).join('') : ''}
-              </div>
             </div>
           `);
 
@@ -103,9 +106,8 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
       // If we have listings and this is the first time, fit bounds
       if (listings.length > 0 && !mapRef.current.getBounds().getNorthEast().equals(mapRef.current.getBounds().getSouthWest())) {
         const bounds = L.latLngBounds(listings
-          .filter(l => l.coordinates.latitude && l.coordinates.longitude)
-          .map(l => [l.coordinates.latitude!, l.coordinates.longitude!] as L.LatLngTuple));
-        
+          .filter(l => typeof l.coordinates?.latitude === 'number' && typeof l.coordinates?.longitude === 'number')
+          .map(l => [l.coordinates!.latitude!, l.coordinates!.longitude!] as L.LatLngTuple));
         if (bounds.isValid()) {
           mapRef.current.fitBounds(bounds, { padding: [50, 50] });
         }

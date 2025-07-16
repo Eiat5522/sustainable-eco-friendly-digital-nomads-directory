@@ -74,7 +74,7 @@ export function FilterConditionEditor({
         return (
           <Input
             type="number"
-            value={condition.value}
+            value={condition.value === false ? '' : String(condition.value)}
             onChange={(e) => handleValueChange(Number(e.target.value))}
             min={0}
             step={100}
@@ -86,7 +86,7 @@ export function FilterConditionEditor({
         return (
           <Input
             type="text"
-            value={condition.value}
+            value={condition.value === false ? '' : String(condition.value)}
             onChange={(e) => handleValueChange(e.target.value)}
             placeholder={`Enter ${condition.field === 'ecoTags' ? 'eco tag' : 'nomad feature'}`}
           />
@@ -96,7 +96,7 @@ export function FilterConditionEditor({
         return (
           <Input
             type="text"
-            value={condition.value}
+            value={condition.value === false ? '' : String(condition.value)}
             onChange={(e) => handleValueChange(e.target.value)}
             placeholder="Enter value"
           />

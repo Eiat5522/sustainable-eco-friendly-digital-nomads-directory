@@ -13,7 +13,7 @@ interface StaticMapImageProps {
 export default function StaticMapImage({ listings }: StaticMapImageProps) {
   // Filter out listings without coordinates
   const validListings = listings.filter(
-    listing => listing.coordinates.latitude && listing.coordinates.longitude
+    listing => listing.coordinates && listing.coordinates.latitude && listing.coordinates.longitude
   );
 
   return (
@@ -45,7 +45,7 @@ export default function StaticMapImage({ listings }: StaticMapImageProps) {
         </p>
         <ul>
           {validListings.map(listing => (
-            <li key={listing._id || listing.slug || listing.id}>
+            <li key={listing.slug || listing.id}>
               {listing.name} - {listing.address_string} ({listing.category})
             </li>
           ))}

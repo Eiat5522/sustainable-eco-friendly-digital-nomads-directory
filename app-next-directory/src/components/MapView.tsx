@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import L from 'leaflet'
+// @ts-ignore: leaflet.markercluster types may be missing or incomplete
 import 'leaflet.markercluster'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 import { AnyListing } from '@/types/listing'
+
+// @ts-ignore
+import styles from './MapView.module.css'
 import { motion } from 'framer-motion'
 
 interface MapViewProps {
@@ -19,25 +23,16 @@ interface MapViewProps {
   showUserLocation?: boolean
 }
 
-// Custom icon configuration with eco-friendly styling
-const createCustomIcon = (type: string, ecoRating?: number) => {
+// Custom icon configuration (no eco styling)
+const createCustomIcon = (type: string) => {
   const iconColors: { [key: string]: string } = {
-    coworking: '#9333EA', // purple-600
-    cafe: '#CA8A04',      // yellow-600
-    accommodation: '#2563EB', // blue-600
-    restaurant: '#DC2626', // red-600
-    activities: '#16A34A', // green-600
+    coworking: '#9333EA',
+    cafe: '#CA8A04',
+    accommodation: '#2563EB',
+    restaurant: '#DC2626',
+    activities: '#16A34A',
   };
-  
-  const baseColor = iconColors[type] || '#22c55e'; // Default to green if type not found
-  
-  // Apply eco styling based on rating
-  const borderColor = ecoRating && ecoRating > 80 ? '#22c55e' : 
-                      ecoRating && ecoRating > 60 ? '#84cc16' : 
-                      ecoRating && ecoRating > 40 ? '#eab308' : '#ffffff';
-  
-  const borderWidth = ecoRating && ecoRating > 80 ? 3 : 2;
-  
+  const baseColor = iconColors[type] || '#22c55e';
   return L.divIcon({
     className: 'custom-marker-icon',
     html: `
@@ -52,13 +47,8 @@ const createCustomIcon = (type: string, ecoRating?: number) => {
         color: white;
         font-size: 14px;
         box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-        border: ${borderWidth}px solid ${borderColor};
-        transform-origin: center bottom;
-        transition: transform 0.3s ease;
       "
       class="marker-icon"
-      onmouseover="this.style.transform='scale(1.1)'"
-      onmouseout="this.style.transform='scale(1)'"
       >
         ${type[0].toUpperCase()}
       </div>
@@ -151,7 +141,7 @@ export function MapView({
       attributionControl: true,
       scrollWheelZoom: isInteractive,
       dragging: isInteractive,
-      tap: isInteractive,
+      // 'tap' is not a valid MapOptions property in @types/leaflet
     });
     
     // Apply eco filter to map if ecoView is enabled
@@ -169,13 +159,15 @@ export function MapView({
     }
     
     // Initialize marker cluster group with custom styling
-    const clusterGroup = L.markerClusterGroup({
+    // @ts-ignore: markerClusterGroup is provided by leaflet.markercluster plugin
+    const clusterGroup = (L as any).markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: 40,
       spiderfyOnMaxZoom: true,
       zoomToBoundsOnClick: true,
       disableClusteringAtZoom: showClusters ? undefined : 1, // Disable clustering if not needed
-      iconCreateFunction: (cluster) => createClusterIcon(cluster, ecoView),
+      // 'MarkerCluster' type is not available in @types/leaflet, so use 'any'
+      iconCreateFunction: (cluster: any) => createClusterIcon(cluster, ecoView),
     });
     
     clusterRef.current = clusterGroup;
@@ -241,7 +233,7 @@ export function MapView({
     if (!mapRef.current || !clusterRef.current || !isMapInitialized) return;
     
     // Track which markers need to be removed
-    const newMarkerIds = new Set(listings.map(listing => listing._id));
+    const newMarkerIds = new Set(listings.map(listing => listing.slug).filter((slug): slug is string => typeof slug === 'string'));
     const existingMarkerIds = Object.keys(markersRef.current);
     
     // Remove markers that don't exist in the new listings
@@ -257,123 +249,57 @@ export function MapView({
     let hasValidCoordinates = false;
     
     listings.forEach(listing => {
-      const { _id, location, type, name, ecoRating } = listing;
-      
-      if (!location?.coordinates || 
-          !location.coordinates[0] || 
-          !location.coordinates[1] ||
-          isNaN(location.coordinates[0]) || 
-          isNaN(location.coordinates[1])) {
-        return; // Skip invalid coordinates
+      const { slug, location, coordinates, type, name, address } = listing;
+      if (typeof slug !== 'string') return;
+      let pos: [number, number] | undefined = undefined;
+      if (location && Array.isArray(location.coordinates) && location.coordinates.length === 2) {
+        pos = [location.coordinates[0], location.coordinates[1]];
+      } else if (Array.isArray(coordinates) && coordinates.length === 2) {
+        pos = [coordinates[0], coordinates[1]];
       }
-      
-      const position: [number, number] = [location.coordinates[0], location.coordinates[1]];
-      bounds.extend(position);
+      if (!pos || isNaN(pos[0]) || isNaN(pos[1])) return;
+      bounds.extend(pos);
       hasValidCoordinates = true;
-      
-      // Create or update marker
-      if (markersRef.current[_id]) {
-        // Update existing marker position if needed
-        const currentLayer = markersRef.current[_id];
+      if (markersRef.current[slug]) {
+        const currentLayer = markersRef.current[slug];
         const currentLatLng = currentLayer.getLatLng();
-        
-        if (currentLatLng.lat !== position[0] || currentLatLng.lng !== position[1]) {
-          currentLayer.setLatLng(position);
+        if (currentLatLng.lat !== pos[0] || currentLatLng.lng !== pos[1]) {
+          currentLayer.setLatLng(pos);
         }
       } else {
-        // Create new marker
-        const icon = createCustomIcon(type, ecoRating);
-        const marker = L.marker(position, { icon });
-        
-        // Create popup with eco-friendly styling
+        const icon = createCustomIcon(type);
+        const marker = L.marker(pos, { icon });
         const popupContent = `
-          <div style="
-            padding: 8px;
-            max-width: 200px;
-            font-family: system-ui, -apple-system, sans-serif;
-          ">
-            <h3 style="
-              margin: 0 0 6px;
-              font-size: 16px;
-              font-weight: 600;
-              color: #334155;
-            ">${name}</h3>
-            
-            ${ecoRating ? `
-              <div style="
-                margin-top: 4px;
-                display: flex;
-                align-items: center;
-              ">
-                <div style="
-                  background: ${ecoRating > 80 ? '#22c55e' : ecoRating > 60 ? '#84cc16' : '#eab308'};
-                  height: 8px;
-                  width: ${Math.min(100, ecoRating)}%;
-                  border-radius: 4px;
-                "></div>
-                <span style="
-                  margin-left: 6px;
-                  font-size: 12px;
-                  color: #64748b;
-                ">${ecoRating}% eco-friendly</span>
-              </div>
-            ` : ''}
-            
+          <div style="padding:8px;max-width:200px;font-family:system-ui,-apple-system,sans-serif;">
+            <h3 style="margin:0 0 6px;font-size:16px;font-weight:600;color:#334155;">${name}</h3>
+            <p style="margin:0;font-size:13px;color:#64748b;">${address || ''}</p>
             <button 
               class="view-details-button"
-              style="
-                margin-top: 8px;
-                padding: 4px 12px;
-                background-color: #22c55e;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                font-size: 13px;
-                cursor: pointer;
-                transition: background-color 0.2s;
-              "
-              onmouseover="this.style.backgroundColor='#16a34a'"
-              onmouseout="this.style.backgroundColor='#22c55e'"
-              data-id="${_id}"
+              style="margin-top:8px;padding:4px 12px;background-color:#22c55e;color:white;border:none;border-radius:4px;font-size:13px;cursor:pointer;transition:background-color 0.2s;"
+              data-id="${slug}"
             >
               View Details
             </button>
           </div>
         `;
-        
-        const popup = L.popup({
-          closeButton: false,
-          offset: [0, -20],
-          className: 'eco-popup',
-        }).setContent(popupContent);
-        
+        const popup = L.popup({ closeButton: false, offset: [0, -20] }).setContent(popupContent);
         marker.bindPopup(popup);
-        
-        // Add click handler
         marker.on('click', () => {
-          setSelectedMarker(_id);
-          
-          if (onMarkerClick) {
-            onMarkerClick(listing);
-          }
+          setSelectedMarker(slug);
+          if (onMarkerClick) onMarkerClick(listing);
         });
-        
-        // Handle clicks on the view details button in popup
         marker.on('popupopen', () => {
           setTimeout(() => {
-            const button = document.querySelector('.view-details-button[data-id="' + _id + '"]');
+            const button = document.querySelector('.view-details-button[data-id="' + slug + '"]');
             if (button) {
               button.addEventListener('click', () => {
-                if (onMarkerClick) {
-                  onMarkerClick(listing);
-                }
+                if (onMarkerClick) onMarkerClick(listing);
               });
             }
           }, 10);
         });
-        
         clusterRef.current!.addLayer(marker);
-        markersRef.current[_id] = marker;
+        markersRef.current[slug] = marker;
       }
     });
     
@@ -406,8 +332,7 @@ export function MapView({
       {/* Map container */}
       <div 
         ref={containerRef}
-        className="w-full h-full rounded-xl overflow-hidden"
-        style={{ minHeight: '400px' }}
+        className={`w-full h-full rounded-xl overflow-hidden ${styles.mapContainer}`}
       />
       
       {/* Loading indicator */}

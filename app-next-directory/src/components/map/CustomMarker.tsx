@@ -26,16 +26,8 @@ export function createCustomMarker(listing: Listing | SanityListing) {
 
 // Create popup content for a listing
 export function createPopupContent(listing: Listing | SanityListing) {
-  // Function to get eco tags, works with both listing formats
-  const getEcoTags = (lst: Listing | SanityListing): string[] => {
-    if ('eco_focus_tags' in lst && Array.isArray(lst.eco_focus_tags)) {
-      return lst.eco_focus_tags; // already string[]
-    }
-    if ('ecoTags' in lst && Array.isArray(lst.ecoTags)) {
-      return lst.ecoTags;
-    }
-    return [];
-  };
+
+
 
   // Create popup HTML with listing data
   const popupContent = document.createElement('div');
@@ -43,42 +35,21 @@ export function createPopupContent(listing: Listing | SanityListing) {
 
   // Category badge
   const badge = document.createElement('span');
-  // Determine category based on listing type
   const category = 'type' in listing ? listing.type : listing.category;
   badge.className = `category-badge category-${category}`;
-  // category is string
   badge.innerText = String(category).charAt(0).toUpperCase() + String(category).slice(1);
 
   // Title
   const title = document.createElement('h3');
   title.innerText = listing.name;
 
-  // Description
+  // Description (always use description_short)
   const description = document.createElement('p');
   description.className = 'description';
-  // Use 'description' for Listing and 'descriptionShort' for SanityListing
-  // description in API listing or description_short in Sanity
-  description.innerText = 'description' in listing
-    ? listing.description
-    : (listing as SanityListing).description_short || '';
+  description.innerText = (listing as SanityListing).description_short || '';
 
-  // Tags container
-  const tagsContainer = document.createElement('div');
-  tagsContainer.className = 'tags-container';
-
-  // Add eco tags if available
-  const ecoTags = getEcoTags(listing);
-  if (ecoTags && ecoTags.length > 0) {
-    ecoTags.slice(0, 3).forEach(tag => {
-      const tagElement = document.createElement('span');
-      tagElement.className = 'eco-tag';
-      tagElement.innerText = tag.replace(/_/g, ' ');
-      tagsContainer.appendChild(tagElement);
-    });
-  }
-    // Link to details page
+  // Link to details page
   const link = document.createElement('a');
-  // Use 'slug' for Listing (which is a string) and 'slug.current' for SanityListing
   const slug = 'slug' in listing && typeof listing.slug === 'object' && listing.slug !== null && 'current' in listing.slug ? listing.slug.current : (listing as any).slug;
   link.href = `/listings/${slug}`;
   link.className = 'details-link';
@@ -88,7 +59,6 @@ export function createPopupContent(listing: Listing | SanityListing) {
   popupContent.appendChild(badge);
   popupContent.appendChild(title);
   popupContent.appendChild(description);
-  popupContent.appendChild(tagsContainer);
   popupContent.appendChild(link);
 
   // Add styles
@@ -124,19 +94,7 @@ export function createPopupContent(listing: Listing | SanityListing) {
       margin-bottom: 12px;
       font-size: 14px;
     }
-    .tags-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-bottom: 12px;
-    }
-    .eco-tag {
-      background-color: #E3F2FD;
-      color: #0277BD;
-      padding: 3px 6px;
-      font-size: 11px;
-      border-radius: 10px;
-    }
+    /* Removed eco-tag and tags-container styles */
     .details-link {
       display: block;
       text-align: center;
