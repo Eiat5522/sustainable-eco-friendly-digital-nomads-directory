@@ -17,7 +17,7 @@ export function mapSanityListingToListing(sanity: SanityListing): Listing {
       description: tag.description || '',
       listingCount: tag.listingCount || 0,
     })) || [],
-    primaryImage: sanity.primaryImage?.asset
+    mainImage: sanity.primaryImage?.asset
       ? { asset: { _ref: sanity.primaryImage.asset._ref, url: sanity.primaryImage.asset.url || '' } }
       : { asset: { _ref: '', url: '' } },
     price_indication: sanity.price_indication || '', // Map price_indication as a string
@@ -30,7 +30,7 @@ export function mapSanityListingToListing(sanity: SanityListing): Listing {
           country: sanity.city.country || '',
         }
       : { _id: '', name: '', slug: '', listingCount: 0, country: '' },
-    address: sanity.address_string || '',
+    address: sanity.addressString || '',
     rating: sanity.rating || 0,
     website: sanity.website || '', // Add mapping if available
     phone: sanity.phone || '', // Add mapping if available

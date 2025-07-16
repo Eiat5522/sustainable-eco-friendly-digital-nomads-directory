@@ -30,8 +30,10 @@ export interface SanityListing extends SanityDocument {
   category?: CategoryType;
   city?: {
     _id: string;
-    slug: string;
     title: string;
+    slug?: { current?: string };
+    listingCount?: number;
+    country?: string;
   };
   primaryImage?: SanityImage;
   ecoTags?: string[]; // Array of resolved tag names
@@ -49,6 +51,7 @@ export interface SanityListing extends SanityDocument {
   ecoNotesDetailed?: string;
   sourceUrls?: string[];
   price?: number; // Added for compatibility with ListingCard and tests
+  price_indication?: string;
 
   // Fields that were in listingFields previously, but removed for card view.
   // Still useful for a "full" SanityListing type.
@@ -79,5 +82,23 @@ export interface SanityListing extends SanityDocument {
     };
     roomTypesAvailable?: string[];
     specificAmenities?: string[];
+  };
+
+  // Additional fields to resolve TypeScript errors
+  eco_focus_tags?: Array<{
+    _id: string;
+    name: string;
+    slug?: { current?: string };
+    description?: string;
+    listingCount?: number;
+  }>;
+  phone?: string;
+  email?: string;
+  socialLinks?: {
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    linkedin?: string;
+    youtube?: string;
   };
 }

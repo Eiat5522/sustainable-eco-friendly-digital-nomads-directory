@@ -33,7 +33,7 @@ export interface Listing {
   slug: string
   description: string
   type: ListingType
-  priceRange: PriceRange
+  priceRange?: PriceRange; // Add the missing property
   mainImage: {
     asset: {
       _ref: string
@@ -72,6 +72,7 @@ export interface Listing {
   createdAt: string
   updatedAt: string
   price?: number
+  price_indication: string;
   coordinates?: [number, number]
 }
 

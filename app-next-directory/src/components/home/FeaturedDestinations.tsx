@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, easeInOut } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
@@ -68,7 +68,10 @@ const FeaturedDestinations: React.FC<FeaturedDestinationsProps> = () => {
 		visible: {
 			y: 0,
 			opacity: 1,
-			transition: { duration: 0.8, ease: 'easeInOut' }
+			transition: {
+				duration: 0.5,
+				ease: easeInOut
+			}
 		}
 	};
 
