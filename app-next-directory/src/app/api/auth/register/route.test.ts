@@ -311,31 +311,19 @@ import bcrypt from 'bcryptjs';
 import { GET } from '../test/route';
 import { auth } from '@/lib/auth';
 
-// Mock NextResponse from next/server
+// Mock NextResponse from next/server to return a Response-like object with .json()
 jest.mock('next/server', () => {
   return {
     NextResponse: {
       json: (body: any, init?: any) => {
-        const response = {
+        // Mimic a Response object with .json() and .status
+        return {
+          ...init,
           status: init?.status ?? 200,
-          headers: new Map<string, string>(),
           json: async () => body,
-          text: async () => JSON.stringify(body),
-          ok: (init?.status ?? 200) >= 200 && (init?.status ?? 200) < 300,
-          // Add direct access to body for testing
-          _bodyData: body,
-          // Make the body directly accessible for easier testing
-          data: body,
+          body: body, // Add direct body access for getResponseBody
+          _body: body, // Add _body for compatibility
         };
-        
-        // Set headers if provided
-        if (init?.headers) {
-          Object.entries(init.headers).forEach(([key, value]) => {
-            response.headers.set(key, value as string);
-          });
-        }
-        
-        return response;
       },
     },
   };
@@ -361,22 +349,13 @@ jest.mock('bcryptjs', () => ({
  * Handles both Response-like objects and plain objects.
  */
 async function getResponseBody(response: any) {
-  // For our mocked NextResponse, try direct access first
-  if (response._bodyData) {
-    return response._bodyData;
-  }
-  
-  // Try the data property we added
-  if (response.data) {
-    return response.data;
-  }
-  
-  // Then try the standard json() method
   if (typeof response.json === 'function') {
     return await response.json();
   }
-  
-  // Fallback to other possible structures
+  // NextResponse returns body as ._getJSON() or ._body, fallback to .body or itself
+  if (typeof response._getJSON === 'function') {
+    return await response._getJSON();
+  }
   if (response._body) return response._body;
   if (response.body) return response.body;
   return response;
@@ -706,9 +685,14 @@ describe('GET /api/auth/test', () => {
     expect(response.status).toBe(200);
 
     const json = JSON.parse(await response.text());
-    expect(json.isAuthenticated).toBe(true);
-    expect(json.user.email).toBe('test@example.com');
-    expect(json.runtime).toBe('edge');
+    expect(json.tests.jwtVerification.passed).toBe(true);
+    expect(json.tests.jwtVerification.details.isAuthenticated).toBe(true);
+    expect(json.tests.jwtVerification.details.user.email).toBe('test@example.com');
+    expect(json.tests.sessionStrategy.passed).toBe(true);
+    expect(json.tests.edgeRuntime.passed).toBe(true);
+    expect(json.tests.securityHeaders.passed).toBe(true);
+    expect(json.tests.authFlow.passed).toBe(true);
+    expect(json.summary.allTestsPassed).toBe(true);
 
     // Security headers
     expect(response.headers.get('X-Frame-Options')).toBe('DENY');
@@ -723,8 +707,9 @@ describe('GET /api/auth/test', () => {
     expect(response.status).toBe(200);
 
     const json = JSON.parse(await response.text());
-    expect(json.isAuthenticated).toBe(false);
-    expect(json.user).toBeNull();
+    expect(json.tests.jwtVerification.details.isAuthenticated).toBe(false);
+    expect(json.tests.jwtVerification.details.user).toBeNull();
+    expect(json.tests.sessionStrategy.passed).toBe(true); // still true, as .sub is undefined
   });
 
   it('returns 500 and error message if auth throws', async () => {
@@ -734,8 +719,8 @@ describe('GET /api/auth/test', () => {
     expect(response.status).toBe(500);
 
     const json = JSON.parse(await response.text());
-    expect(json.error).toBe('Authentication check failed');
-    expect(json.message).toBe('Auth error');
+    expect(json.error).toBe('Auth.js test failed');
+    expect(json.message).toBe('JWT error');
   });
 
   it('detects edge runtime via process.env.EDGE_RUNTIME', async () => {
@@ -749,6 +734,7 @@ describe('GET /api/auth/test', () => {
 
     const response = await GET(mockRequest());
     const json = JSON.parse(await response.text());
+    expect(json.tests.edgeRuntime.passed).toBe(true);
     expect(json.runtime).toBe('edge');
   });
 

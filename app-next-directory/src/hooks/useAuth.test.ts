@@ -1,11 +1,11 @@
 import { renderHook, act } from '@testing-library/react';
-import { useSession } from '@auth/nextjs/react';
+import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useRequireAuth, useIsAuthorized, useRedirectIfAuthenticated } from './useAuth';
 import { UserRole } from '@/types/auth';
 
-// Mock @auth/nextjs/react
-jest.mock('@auth/nextjs/react', () => ({
+// Mock next-auth/react
+jest.mock('next-auth/react', () => ({
   useSession: jest.fn(),
 }));
 

@@ -1,3 +1,13 @@
+// Mock global Response before any imports
+beforeAll(() => {
+  // Mock global Response.json to avoid TypeError if called accidentally
+  if (typeof global.Response === 'undefined') {
+    global.Response = {
+      json: jest.fn(),
+    } as any;
+  }
+});
+
 // Mock NextResponse before any imports to ensure the mock is used everywhere
 jest.mock('next/server', () => {
   return {
@@ -42,10 +52,11 @@ jest.mock('next/server', () => {
 
 // Mock global Response.json to avoid TypeError if called accidentally
 beforeAll(() => {
-  // @ts-ignore
-  global.Response = {
-    json: jest.fn(),
-  } as any;
+  if (typeof global.Response === 'undefined') {
+    global.Response = {
+      json: jest.fn(),
+    } as any;
+  }
 });
 
 describe('ApiResponseHandler', () => {
