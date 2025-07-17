@@ -38,8 +38,7 @@ module.exports = {
     ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
   },
   transformIgnorePatterns: [
-    '<rootDir>/node_modules/(?!(bson|@panva\\+hkdf|mongoose|next-auth|mongodb|uuid|.*esm-browser.*)@)',
-    'node_modules/(?!.pnpm|bson|@panva/hkdf|mongoose|next-auth|mongodb|uuid|.*esm-browser.*)'
+    '/node_modules/(?!(next-auth|@auth/core)/)'
   ],
   testPathIgnorePatterns: [
     '/playwright/',

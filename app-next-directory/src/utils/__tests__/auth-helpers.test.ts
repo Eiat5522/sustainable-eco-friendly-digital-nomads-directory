@@ -1,4 +1,3 @@
-
 // 1) Pull in the real Session type up front
 import type { Session } from 'next-auth';
 
