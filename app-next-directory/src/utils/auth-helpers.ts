@@ -26,17 +26,6 @@ export async function requireRole(allowedRoles: string[]) {
   return session;
 }
 
-export function validateSession(session: any): boolean {
-  if (
-    !session || 
-    !session.user || 
-    typeof session.user.email !== 'string'
-  ) {
-    return false;
-  }
-  return true;
-}
-
 export function handleAuthError(error: unknown) {
   const message = (error && typeof error === 'object' && 'message' in error && typeof (error as any).message === 'string')
     ? (error as any).message

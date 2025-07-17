@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from '@auth/nextjs/react';
+import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { UserRole } from "@/types/auth";
@@ -20,7 +20,7 @@ export function useRequireAuth(requiredRoles?: UserRole[]) {
 
     if (requiredRoles && requiredRoles.length > 0) {
       const userRole = session.user.role;
-      if (!userRole || !requiredRoles.includes(userRole)) {
+      if (!userRole || typeof userRole !== 'string' || !requiredRoles.includes(userRole as UserRole)) {
         router.push("/auth/unauthorized");
       }
     }
