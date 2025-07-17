@@ -8,6 +8,7 @@
   "private": true,
   "description": "Root package for the Sustainable Eco-Friendly Digital Nomads Directory project",
   "scripts": {
+    "test": "pnpm --filter app-next-directory test",
     "dev:next": "pnpm --filter app-next-directory dev",
     "dev:sanity": "pnpm --filter sanity dev",
     "dev": "pnpm dev:next",

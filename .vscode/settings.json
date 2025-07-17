@@ -17,10 +17,10 @@
   "gitlens.graph.onlyFollowFirstParent": true,
   "git.openRepositoryInParentFolders": "never",
   "npm.packageManager": "pnpm",
-  "jest.jestCommandLine": "pnpm exec jest",
+  "jest.jestCommandLine": "pnpm --filter app-next-directory exec jest",
   "jest.enable": true,
   "jest.debugMode": false,
-  "jest.runMode": "watch",
-  "jest.rootPath": "app-next-directory/src",
+  "jest.runMode": "on-demand",
+  "jest.rootPath": "app-next-directory",
   "jest.coverageFormatter": "GutterFormatter"
 }

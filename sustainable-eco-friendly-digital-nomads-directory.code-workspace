@@ -10,8 +10,5 @@
             "path": "sanity"
         }
     ],
-    "jest.disabledWorkspaceFolders": [
-        "app-next-directory/tests",
-        "sanity"    
-    ],
+
 }

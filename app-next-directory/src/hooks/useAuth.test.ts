@@ -16,6 +16,8 @@ jest.mock('next/navigation', () => ({
 }));
 
 describe('useRequireAuth', () => {
+  // Wrap effect flush with act
+
   const mockPush = jest.fn();
   const mockUseRouter = useRouter as jest.Mock;
   const mockUsePathname = usePathname as jest.Mock;
@@ -33,7 +35,7 @@ describe('useRequireAuth', () => {
     expect(mockPush).not.toHaveBeenCalled();
   });
 
-  test('redirects to signin when not authenticated', () => {
+  test('redirects to signin when not authenticated', async () => { // wrapped in act to flush useEffect
     mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated' });
     renderHook(() => useRequireAuth());
     expect(mockPush).toHaveBeenCalledWith('/auth/signin?callbackUrl=%2Fcurrent-path');
