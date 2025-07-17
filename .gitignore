@@ -138,3 +138,4 @@ utils/README.md
 .github\copilot-instructions.md
 app-next-directory/docs/functional-specs/sso-onboarding-pseudocode.md
 app-next-directory/docs/functional-specs/sso-onboarding-spec.md
+**/*terminal_output

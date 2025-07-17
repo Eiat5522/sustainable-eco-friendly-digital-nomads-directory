@@ -8,42 +8,42 @@ export interface ApiResponse<T = any> {
   details?: any;
 }
 
-export class ApiResponseHandler {
-  static success<T>(data: T, message?: string): NextResponse<ApiResponse<T>> {
-    return NextResponse.json({
-      success: true,
-      data,
-      message
-    });
-  }
+export const ApiResponseHandler = {
+  success: (data: any, message?: string) => {
+    return NextResponse.json(
+      { success: true, data, message }
+    );
+  },
 
-  static error(error: string, status: number = 400, details?: any): NextResponse<ApiResponse> {
-    console.log('ApiResponseHandler.error called');
-    return NextResponse.json({
-      success: false,
-      error,
-      ...(details && { details })
-    }, { status });
-  }
+  error: (
+    error: string,
+    status: number = 400,
+    details?: unknown
+  ) => {
+    const payload: any = { success: false, error };
+    if (details !== undefined) payload.details = details;
+    return NextResponse.json(payload, { status });
+  },
 
-  static notFound(resource: string = 'Resource'): NextResponse<ApiResponse> {
-    return NextResponse.json({
-      success: false,
-      error: `${resource} not found`
-    }, { status: 404 });
-  }
+  notFound: (resource?: string) => {
+    const msg = resource ? `${resource} not found` : 'Resource not found';
+    return NextResponse.json(
+      { success: false, error: msg },
+      { status: 404 }
+    );
+  },
 
-  static unauthorized(): NextResponse<ApiResponse> {
-    return NextResponse.json({
-      success: false,
-      error: 'Unauthorized access'
-    }, { status: 401 });
-  }
+  unauthorized: () => {
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized access' },
+      { status: 401 }
+    );
+  },
 
-  static forbidden(): NextResponse<ApiResponse> {
-    return NextResponse.json({
-      success: false,
-      error: 'Forbidden'
-    }, { status: 403 });
-  }
-}
+  forbidden: () => {
+    return NextResponse.json(
+      { success: false, error: 'Forbidden' },
+      { status: 403 }
+    );
+  },
+};
