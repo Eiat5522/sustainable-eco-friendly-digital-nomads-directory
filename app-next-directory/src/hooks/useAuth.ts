@@ -9,22 +9,28 @@ export function useRequireAuth(requiredRoles?: UserRole[]) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
+  const safePath = pathname ?? "/";
 
   useEffect(() => {
     if (status === "loading") return;
 
     if (!session) {
-      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`);
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(safePath)}`);
       return;
     }
 
     if (requiredRoles && requiredRoles.length > 0) {
       const userRole = session.user.role;
-      if (!userRole || typeof userRole !== 'string' || !requiredRoles.includes(userRole as UserRole)) {
+      if (
+        !userRole ||
+        typeof userRole !== 'string' ||
+        userRole === null ||
+        !requiredRoles.includes(userRole as UserRole)
+      ) {
         router.push("/auth/unauthorized");
       }
     }
-  }, [session, status, router, pathname, requiredRoles]);
+  }, [session, status, router, safePath, requiredRoles]);
 
   return { session, status };
 }

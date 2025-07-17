@@ -1,86 +1,25 @@
-// Mock mongodb module first before any imports
-jest.mock('mongodb', () => ({
-  MongoClient: jest.fn().mockImplementation(() => ({
-    connect: jest.fn(() => Promise.resolve({
-      db: jest.fn(() => ({
-        createCollection: jest.fn(() => Promise.resolve()),
-        collection: jest.fn(() => ({
-          createIndexes: jest.fn(() => Promise.resolve()),
-          findOne: jest.fn(() => Promise.resolve()),
-          insertOne: jest.fn(() => Promise.resolve()),
-          updateOne: jest.fn(() => Promise.resolve()),
-          deleteOne: jest.fn(() => Promise.resolve()),
-        })),
-      })),
-    })),
-    db: jest.fn(() => ({
-      createCollection: jest.fn(() => Promise.resolve()),
-      collection: jest.fn(() => ({
-        createIndexes: jest.fn(() => Promise.resolve()),
-        findOne: jest.fn(() => Promise.resolve()),
-        insertOne: jest.fn(() => Promise.resolve()),
-        updateOne: jest.fn(() => Promise.resolve()),
-        deleteOne: jest.fn(() => Promise.resolve()),
-      })),
-    })),
-  })),
-}));
 
-// Mock src/lib/mongodb/init.ts completely
-jest.mock('../../lib/mongodb/init', () => ({
-  initializeDatabase: jest.fn(() => Promise.resolve()),
-}));
+// 1) Pull in the real Session type up front
+import type { Session } from 'next-auth';
 
-// Mock src/lib/mongodb.ts completely to prevent initialization
-jest.mock('../../lib/mongodb', () => ({
-  __esModule: true,
-  default: Promise.resolve({
-    db: jest.fn(() => ({
-      createCollection: jest.fn(() => Promise.resolve()),
-      collection: jest.fn(() => ({
-        createIndexes: jest.fn(() => Promise.resolve()),
-        findOne: jest.fn(() => Promise.resolve()),
-        insertOne: jest.fn(() => Promise.resolve()),
-        updateOne: jest.fn(() => Promise.resolve()),
-        deleteOne: jest.fn(() => Promise.resolve()),
-      })),
-    })),
-  }),
-}));
+// 2) Auto-mock the auth module (no factory, so TS stays happy)
+jest.mock('@/lib/auth');
+import { auth } from '@/lib/auth';
+// 3) Give TS the proper call signature
+const mockAuth = auth as unknown as jest.MockedFunction<() => Promise<Session | null>>;
+
+// 4) Same pattern for your ApiResponseHandler
+jest.mock('../api-response');
+import { ApiResponseHandler } from '../api-response';
+const {
+  unauthorized: mockUnauthorized,
+  forbidden:   mockForbidden,
+  error:       mockError,
+  success:     mockSuccess,
+  notFound:    mockNotFound,
+} = ApiResponseHandler as jest.Mocked<typeof ApiResponseHandler>;
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { auth } from '@/lib/auth';
-
-// Mock next-auth and api-response with jest.fn mocks
-
-// Import getServerSession for proper typing
-import getServerSession from 'next-auth';
-jest.mock('next-auth');
-const mockGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>;
-
-// Mock api-response module with spy functions
-jest.mock('../api-response', () => ({
-  ApiResponseHandler: {
-    unauthorized: jest.fn(),
-    forbidden: jest.fn(),
-    error: jest.fn(),
-    success: jest.fn(),
-    notFound: jest.fn(),
-  },
-}));
-// Import the mock handlers for assertions
-type MockApiResponseHandler = {
-  unauthorized: jest.Mock;
-  forbidden: jest.Mock;
-  error: jest.Mock;
-  success: jest.Mock;
-  notFound: jest.Mock;
-};
-
-const { ApiResponseHandler } = jest.requireMock('../api-response') as { ApiResponseHandler: MockApiResponseHandler };
-const { unauthorized: mockUnauthorized, forbidden: mockForbidden, error: mockError, success: mockSuccess, notFound: mockNotFound } = ApiResponseHandler;
-
-// Now, import the module under test. It will receive the mocked dependencies.
 import { requireAuth, requireRole, handleAuthError } from '../auth-helpers';
 import { UserRole } from '../../types/auth';
 
@@ -113,23 +52,23 @@ describe('Auth Helpers', () => {
         expires: '2024-12-31',
       };
 
-      mockGetServerSession.mockResolvedValue(mockSession);
+      mockAuth.mockResolvedValue(mockSession);
 
       const result = await requireAuth();
 
       expect(result).toEqual(mockSession);
-      expect(mockGetServerSession).toHaveBeenCalledTimes(1);
+      expect(mockAuth).toHaveBeenCalledTimes(1);
     });
 
     it('should throw UNAUTHORIZED error when user is not authenticated', async () => {
-      mockGetServerSession.mockResolvedValue(null);
+      mockAuth.mockResolvedValue(null);
 
       await expect(requireAuth()).rejects.toThrow('UNAUTHORIZED');
-      expect(mockGetServerSession).toHaveBeenCalledTimes(1);
+      expect(mockAuth).toHaveBeenCalledTimes(1);
     });
 
     it('should throw UNAUTHORIZED error when session is undefined', async () => {
-      mockGetServerSession.mockResolvedValue(undefined as any);
+      mockAuth.mockResolvedValue(undefined as any);
 
       await expect(requireAuth()).rejects.toThrow('UNAUTHORIZED');
     });
@@ -146,7 +85,7 @@ describe('Auth Helpers', () => {
     };
 
     it('should return session when user has required role', async () => {
-      mockGetServerSession.mockResolvedValue(mockSession);
+      mockAuth.mockResolvedValue(mockSession);
 
       const result = await requireRole(['user', 'admin']);
 
@@ -159,7 +98,7 @@ describe('Auth Helpers', () => {
         user: { ...mockSession.user, role: 'admin' },
       };
 
-      mockGetServerSession.mockResolvedValue(adminSession);
+      mockAuth.mockResolvedValue(adminSession);
 
       const result = await requireRole(['admin', 'superadmin']);
 
@@ -167,19 +106,19 @@ describe('Auth Helpers', () => {
     });
 
     it('should throw FORBIDDEN error when user does not have required role', async () => {
-      mockGetServerSession.mockResolvedValue(mockSession);
+      mockAuth.mockResolvedValue(mockSession);
 
       await expect(requireRole(['admin', 'moderator'])).rejects.toThrow('FORBIDDEN');
     });
 
     it('should throw UNAUTHORIZED error when user is not authenticated', async () => {
-      mockGetServerSession.mockResolvedValue(null);
+      mockAuth.mockResolvedValue(null);
 
       await expect(requireRole(['user'])).rejects.toThrow('UNAUTHORIZED');
     });
 
     it('should handle empty allowed roles array', async () => {
-      mockGetServerSession.mockResolvedValue(mockSession);
+      mockAuth.mockResolvedValue(mockSession);
 
       await expect(requireRole([])).rejects.toThrow('FORBIDDEN');
     });
@@ -190,7 +129,7 @@ describe('Auth Helpers', () => {
         user: { ...mockSession.user, role: 'User' }, // Capital U
       };
 
-      mockGetServerSession.mockResolvedValue(userSession);
+      mockAuth.mockResolvedValue(userSession);
 
       await expect(requireRole(['user'])).rejects.toThrow('FORBIDDEN');
     });
@@ -205,7 +144,7 @@ describe('Auth Helpers', () => {
         },
       };
 
-      mockGetServerSession.mockResolvedValue(sessionWithoutRole as any);
+      mockAuth.mockResolvedValue(sessionWithoutRole as any);
 
       await expect(requireRole(['user'])).rejects.toThrow('FORBIDDEN');
     });
@@ -289,7 +228,7 @@ describe('Auth Helpers', () => {
         expires: '2024-12-31',
       };
 
-      mockGetServerSession.mockResolvedValue(adminSession);
+      mockAuth.mockResolvedValue(adminSession);
 
       const authResult = await requireAuth();
       const roleResult = await requireRole(['admin']);
@@ -299,7 +238,7 @@ describe('Auth Helpers', () => {
     });
 
     it('should return a 401 Unauthorized response and handle error correctly when requireAuth is called without a session', async () => {
-      mockGetServerSession.mockResolvedValue(null);
+      mockAuth.mockResolvedValue(null);
 
       const unauthorizedResponse = { status: 401, body: { error: 'Unauthorized access', success: false } };
       mockUnauthorized.mockReturnValue(mockNextResponse(unauthorizedResponse) as any);
@@ -322,7 +261,7 @@ describe('Auth Helpers', () => {
         expires: '2024-12-31',
       };
 
-      mockGetServerSession.mockResolvedValue(userSession);
+      mockAuth.mockResolvedValue(userSession);
 
       const forbiddenResponse = { status: 403, body: { error: 'Forbidden', success: false } };
       mockForbidden.mockReturnValue(mockNextResponse(forbiddenResponse) as any);

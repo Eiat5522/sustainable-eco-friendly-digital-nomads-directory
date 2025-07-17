@@ -4,6 +4,7 @@ const { pathsToModuleNameMapper } = require('ts-jest');
 const { compilerOptions } = require('./tsconfig.json');
 
 module.exports = {
+  extensionsToTreatAsEsm: ['.ts', '.tsx', '.js'],
   setupFiles: ['<rootDir>/jest/setEnvVars.js'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   testEnvironment: 'jsdom',
@@ -24,6 +25,7 @@ module.exports = {
             runtime: 'automatic',
           },
         },
+        moduleType: 'es6',
       },
     }],
   },
@@ -45,3 +47,8 @@ module.exports = {
     '\\.(d\\.ts)$',
   ]
 };
+// ...existing code...
+  extensionsToTreatAsEsm: ['.ts', '.tsx', '.js'],
+// ...existing code...
+        moduleType: 'es6',
+// ...existing code...
