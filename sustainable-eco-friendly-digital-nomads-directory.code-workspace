@@ -10,5 +10,8 @@
             "path": "sanity"
         }
     ],
-
+    "settings": {
+        "typescript.enablePromptUseWorkspaceTsdk": true
+    }
 }
+        

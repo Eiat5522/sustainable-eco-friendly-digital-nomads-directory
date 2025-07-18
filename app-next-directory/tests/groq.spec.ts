@@ -114,7 +114,7 @@ test.describe('Complex GROQ Queries', () => {
 
   test('getListingStats handles empty categories gracefully', async () => {
     const stats = await getListingStats()
-    const emptyCategories = stats.byCategory.filter(cat => cat.count === 0)
+    const emptyCategories = stats.byCategory.filter((cat: { category: string; count: number }) => cat.count === 0)
     expect(emptyCategories).toBeDefined()
   })
 

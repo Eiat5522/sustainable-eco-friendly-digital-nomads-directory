@@ -13,24 +13,7 @@ module.exports = {
     customExportConditions: ["node", "node-addons"]
   },
   transform: {
-    '^.+\\.(t|j)sx?$': ['@swc/jest', {
-      jsc: {
-        parser: {
-          syntax: 'typescript',
-          tsx: true,
-          decorators: true,
-          dynamicImport: true,
-        },
-        transform: {
-          react: {
-            runtime: 'automatic',
-          },
-        },
-      },
-      module: {
-        type: 'es6',
-      },
-    }],
+    '^.+\\.(t|j)sx?$': 'babel-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {

@@ -1,3 +1,4 @@
+import type { Session } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { auth } from '@/lib/auth';
 import { ApiResponseHandler } from './api-response';
@@ -12,17 +13,20 @@ export async function requireAuth() {
   return session;
 }
 
-export async function requireRole(allowedRoles: string[]) {
+export async function requireRole(allowedRoles: string[]): Promise<Session> {
   const session = await requireAuth();
-
-  if (
-    !session.user ||
-    typeof session.user.role !== 'string' ||
-    !allowedRoles.includes(session.user.role)
-  ) {
+  // If allowedRoles is empty, always forbidden
+  if (!Array.isArray(allowedRoles) || allowedRoles.length === 0) {
     throw new Error('FORBIDDEN');
   }
-
+  // If session.user.role is missing, forbidden
+  if (!session.user || typeof session.user.role !== 'string') {
+    throw new Error('FORBIDDEN');
+  }
+  // Case-sensitive match
+  if (!allowedRoles.includes(session.user.role)) {
+    throw new Error('FORBIDDEN');
+  }
   return session;
 }
 

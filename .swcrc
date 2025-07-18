@@ -14,5 +14,8 @@
     "type": "es6",
     "noInterop": false
   },
-  "sourceMaps": true
+  "sourceMaps": true,
+  "ignore": [
+    "babel.config.js"
+  ]
 }
