@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth';
+import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 import {
     ACCESS_CONTROL_MATRIX,
     hasFeaturePermission,
@@ -280,13 +281,13 @@ export async function withAuth(
 
   const session = await auth();
   if (!session) {
-    return NextResponse.redirect(new URL('/auth/signin', req.url));
+    return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
 
   const userRole = session?.user?.role as string || 'user';
 
   if (requiredRoles && !requiredRoles.includes(userRole)) {
-    return NextResponse.redirect(new URL('/auth/unauthorized', req.url));
+    return NextResponse.redirect(new URL('/auth/unauthorized', request.url));
   }
 
   return NextResponse.next();

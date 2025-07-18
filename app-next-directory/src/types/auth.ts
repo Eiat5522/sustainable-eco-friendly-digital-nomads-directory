@@ -14,7 +14,7 @@ declare module "next-auth/jwt" {
   }
 }
 
-export type UserRole = 'admin' | 'user' | 'editor' | 'venueOwner' | 'superAdmin' | 'moderator';
+export type UserRole = 'admin' | 'user' | 'editor' | 'venueOwner' | 'superAdmin' | 'moderator' | 'unidentifiedUser';
 
 // Define page access permissions
 export interface PagePermissions {
@@ -376,6 +376,54 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       respondToContact: true,
     },
   },
+  unidentifiedUser: {
+    pages: {
+      home: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      listings: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      listingDetail: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      createListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      editListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      manageListing: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      reviews: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      profile: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      admin: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      analytics: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      settings: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      contact: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
+      about: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      blog: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+    },
+    features: {
+      submitListings: false,
+      editOwnListings: false,
+      editAllListings: false,
+      deleteOwnListings: false,
+      deleteAllListings: false,
+      moderateListings: false,
+      submitReviews: false,
+      editOwnReviews: false,
+      editAllReviews: false,
+      deleteOwnReviews: false,
+      deleteAllReviews: false,
+      moderateReviews: false,
+      viewUserProfiles: false,
+      editOwnProfile: false,
+      editAllProfiles: false,
+      deleteUsers: false,
+      manageUserRoles: false,
+      createContent: false,
+      editContent: false,
+      deleteContent: false,
+      publishContent: false,
+      accessAnalytics: false,
+      manageSettings: false,
+      viewAuditLogs: false,
+      exportData: false,
+      submitContactForms: true,
+      viewContactSubmissions: false,
+      respondToContact: false,
+    },
+  },
 };
 
 // Utility functions for permission checking
@@ -400,6 +448,7 @@ export function hasFeaturePermission(
 
 // Role hierarchy for administrative purposes
 export const ROLE_HIERARCHY: Record<UserRole, number> = {
+  unidentifiedUser: -1,
   user: 0,
   editor: 1,
   venueOwner: 2,

@@ -11,9 +11,10 @@ import { requireAuth, requireRole, handleAuthError } from '../auth-helpers';
 // Import the mocked dependencies
 import { auth } from '@/lib/auth';
 import { ApiResponseHandler } from '../api-response';
+import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 
 // Type the mocked functions
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
+const mockAuth = auth as jest.Mock;
 const mockApiResponseHandler = ApiResponseHandler as jest.Mocked<typeof ApiResponseHandler>;
 
 describe('Auth Helpers', () => {
@@ -115,7 +116,7 @@ describe('Auth Helpers', () => {
   describe('handleAuthError', () => {
     it('should return unauthorized response for UNAUTHORIZED error', () => {
       const error = new Error('UNAUTHORIZED');
-      const expectedResponse = { status: 401, body: { success: false, error: 'Unauthorized access' } };
+      const expectedResponse = NextResponse.json({ success: false, error: 'Unauthorized access' }, { status: 401 });
       
       mockApiResponseHandler.unauthorized.mockReturnValue(expectedResponse);
 
@@ -127,7 +128,7 @@ describe('Auth Helpers', () => {
 
     it('should return forbidden response for FORBIDDEN error', () => {
       const error = new Error('FORBIDDEN');
-      const expectedResponse = { status: 403, body: { success: false, error: 'Forbidden' } };
+      const expectedResponse = NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
       
       mockApiResponseHandler.forbidden.mockReturnValue(expectedResponse);
 
@@ -139,7 +140,7 @@ describe('Auth Helpers', () => {
 
     it('should return generic error response for other errors', () => {
       const error = new Error('Some other error');
-      const expectedResponse = { status: 400, body: { success: false, error: 'Authentication error' } };
+      const expectedResponse = NextResponse.json({ success: false, error: 'Authentication error' }, { status: 400 });
       
       mockApiResponseHandler.error.mockReturnValue(expectedResponse);
 
@@ -151,7 +152,7 @@ describe('Auth Helpers', () => {
 
     it('should handle errors with different message formats', () => {
       const error = { message: 'Custom error format' };
-      const expectedResponse = { status: 400, body: { success: false, error: 'Authentication error' } };
+      const expectedResponse = NextResponse.json({ success: false, error: 'Authentication error' }, { status: 400 });
       
       mockApiResponseHandler.error.mockReturnValue(expectedResponse);
 
@@ -163,7 +164,7 @@ describe('Auth Helpers', () => {
 
     it('should handle error objects without message', () => {
       const error = { someProperty: 'value' };
-      const expectedResponse = { status: 400, body: { success: false, error: 'Authentication error' } };
+      const expectedResponse = NextResponse.json({ success: false, error: 'Authentication error' }, { status: 400 });
       
       mockApiResponseHandler.error.mockReturnValue(expectedResponse);
 
@@ -174,7 +175,7 @@ describe('Auth Helpers', () => {
     });
 
     it('should handle null or undefined error gracefully', () => {
-      const expectedResponse = { status: 400, body: { success: false, error: 'Authentication error' } };
+      const expectedResponse = NextResponse.json({ success: false, error: 'Authentication error' }, { status: 400 });
       
       mockApiResponseHandler.error.mockReturnValue(expectedResponse);
 
@@ -198,7 +199,7 @@ describe('Auth Helpers', () => {
 
     it('should return a 401 Unauthorized response and handle error correctly when requireAuth is called without a session', async () => {
       mockAuth.mockResolvedValue(null);
-      const expectedResponse = { status: 401, body: { success: false, error: 'Unauthorized access' } };
+      const expectedResponse = NextResponse.json({ success: false, error: 'Unauthorized access' }, { status: 401 });
       mockApiResponseHandler.unauthorized.mockReturnValue(expectedResponse);
 
       await expect(requireAuth()).rejects.toThrow('UNAUTHORIZED');
@@ -211,7 +212,7 @@ describe('Auth Helpers', () => {
 
     it('should handle auth error handling for forbidden access', async () => {
       mockAuth.mockResolvedValue(mockSession);
-      const expectedResponse = { status: 403, body: { success: false, error: 'Forbidden' } };
+      const expectedResponse = NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
       mockApiResponseHandler.forbidden.mockReturnValue(expectedResponse);
 
       await expect(requireRole(['admin'])).rejects.toThrow('FORBIDDEN');

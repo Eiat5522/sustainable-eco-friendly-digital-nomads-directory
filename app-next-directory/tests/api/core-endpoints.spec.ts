@@ -6,31 +6,31 @@ import { test, expect } from '@playwright/test';
 // Test configuration
 const API_BASE_URL = 'http://localhost:3000/api';
 
+// Test helper function for API requests - moved to global scope
+async function makeApiRequest(endpoint: string, options: RequestInit & { headers?: Record<string, string> } = {}) {
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers
+    }
+  });
+
+  return {
+    response,
+    data: response.headers.get('content-type')?.includes('application/json')
+      ? await response.json()
+      : await response.text(),
+    status: response.status,
+    headers: response.headers
+  };
+}
+
 /**
  * E.1.1 Core API Endpoints Testing
  * Testing all major API endpoints for basic functionality
  */
 test.describe('API Integration Tests - Core Endpoints', () => {
-
-  // Test helper function for API requests
-  async function makeApiRequest(endpoint: string, options = {}) {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    });
-
-    return {
-      response,
-      data: response.headers.get('content-type')?.includes('application/json')
-        ? await response.json()
-        : await response.text(),
-      status: response.status,
-      headers: response.headers
-    };
-  }
 
   test('GET /api/listings - List all listings', async () => {
     const { response, data, status } = await makeApiRequest('/listings');
