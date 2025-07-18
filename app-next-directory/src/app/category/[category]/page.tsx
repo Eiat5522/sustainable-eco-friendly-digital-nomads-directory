@@ -138,7 +138,8 @@ export default async function CategoryPage({ params }: Props) {
     })),
   };
 
-  // Group listings by city for better organization  type ListingsByCity = Record<string, Listing[]>;
+  // Group listings by city for better organization
+  type ListingsByCity = Record<string, Listing[]>;
 
   const listingsByCity = categoryListings.reduce<ListingsByCity>((acc, listing) => {
     const cityName = listing.city.name;

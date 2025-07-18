@@ -1,5 +1,4 @@
-import { NextRequest } from 'next/dist/server/web/spec-extension/request';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { client } from '@/lib/sanity/client';
 
 // Define the shape of the context parameter for Next.js 15+
@@ -44,7 +43,6 @@ export async function GET(
       costOfLiving
     }`;
 
-    const client = getClient();
     console.log('[DEBUG] Cities/[slug] API: Executing query with slug:', slug);
     const city = await client.fetch(query, { slug });
     console.log('[DEBUG] Cities/[slug] API: Query result:', city ? 'Found city' : 'No city found');

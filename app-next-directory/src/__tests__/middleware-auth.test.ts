@@ -63,6 +63,7 @@ describe('middleware authentication', () => {
     it('should handle session with undefined user', async () => {
       const mockSession: Session = {
         expires: '2024-12-31T23:59:59Z',
+        user: undefined
       };
       
       mockAuth.mockResolvedValue(mockSession as any);

@@ -1,6 +1,6 @@
 // Sign-in page component
 import SignInForm from '@/components/auth/SignInForm';
-import { getProviders } from '@auth/nextjs/react';
+import { getProviders } from 'next-auth/react';
 
 export const metadata = {
   title: 'Sign In - Eco-Friendly Digital Nomads',
@@ -36,7 +36,7 @@ async function SignInPage({
           )}
         </div>
 
-        <SignInForm providers={providers} callbackUrl={callbackUrl} />
+        <SignInForm providers={providers || {}} callbackUrl={callbackUrl} />
 
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-600">

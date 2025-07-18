@@ -1,4 +1,4 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { getUserById } from '@/lib/auth/serverAuth';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
@@ -57,7 +57,7 @@ export default async function DashboardPage() {
                 Edit Profile
               </a>
 
-              {(user.role === 'venue_owner' || user.role === 'admin') && (
+              {(user.role === 'venueOwner' || user.role === 'admin') && (
                 <a
                   href="/listings/create"
                   className="block w-full text-center bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"

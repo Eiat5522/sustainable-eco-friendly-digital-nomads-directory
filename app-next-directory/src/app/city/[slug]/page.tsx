@@ -1,5 +1,5 @@
 import CityPageClient from './CityPageClient';
-import { getClient } from '@/lib/sanity/client';
+import { client } from '@/lib/sanity/client';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 
@@ -24,7 +24,6 @@ export async function generateMetadata({ params }: CityPageParams): Promise<Meta
       }
     }`;
 
-    const client = getClient();
     const city = await client.fetch(query, { slug });
 
     if (!city) {
@@ -108,7 +107,6 @@ export default async function CityPageRoute({ params }: CityPageParams) {
       digital_nomad_features
     }`;
 
-    const client = getClient();
       const [city, listings] = await Promise.all([
       client.fetch(cityQuery, { slug }),
       client.fetch(listingsQuery, { citySlug: slug })

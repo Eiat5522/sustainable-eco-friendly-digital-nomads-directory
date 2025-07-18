@@ -1,6 +1,5 @@
 "use client";
-import { NextResponse } from 'next/server';
-import { NextRequest } from 'next/dist/server/web/spec-extension/request';
+import { NextResponse, NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 
 export { auth as middleware } from "@/lib/auth";

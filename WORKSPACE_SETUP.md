@@ -2,7 +2,7 @@
 
 # -----------------
 
-The npm workspace configuration has been moved to the root directory to fix the warning:
+The pnpm workspace configuration has been moved to the root directory to fix the warning:
 "npm warn config ignoring workspace config"
 
 ## Project Structure
