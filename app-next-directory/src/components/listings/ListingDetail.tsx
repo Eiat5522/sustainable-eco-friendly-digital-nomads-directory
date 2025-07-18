@@ -288,26 +288,30 @@ export function ListingDetail({ listing }: ListingProps) {
 
         {/* Features & Amenities */}
         <div className="grid md:grid-cols-2 gap-8 mb-8">
-          <div>
-            <h3 className="text-xl font-semibold mb-4">Eco Features</h3>
-            <ul className="space-y-2">
-              {(listing.eco_features || []).map((feature) => (
-                <li key={feature} className="flex items-center text-green-700 dark:text-green-400">
-                  <span className="mr-2">🌱</span> {feature}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-xl font-semibold mb-4">Amenities</h3>
-            <ul className="space-y-2">
-              {(listing.amenities || []).map((amenity) => (
-                <li key={amenity} className="flex items-center text-gray-700 dark:text-gray-300">
-                  <span className="mr-2">✓</span> {amenity}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {listing.eco_features && listing.eco_features.length > 0 && (
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Eco Features</h3>
+              <ul className="space-y-2">
+                {listing.eco_features.map((feature) => (
+                  <li key={feature} className="flex items-center text-green-700 dark:text-green-400">
+                    <span className="mr-2">🌱</span> {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {listing.amenities && listing.amenities.length > 0 && (
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Amenities</h3>
+              <ul className="space-y-2">
+                {listing.amenities.map((amenity) => (
+                  <li key={amenity} className="flex items-center text-gray-700 dark:text-gray-300">
+                    <span className="mr-2">✓</span> {amenity}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
 
         {/* Contact Information */}
@@ -480,7 +484,7 @@ export function ListingDetail({ listing }: ListingProps) {
       )}
       {/* Map section: Only render if coordinates are present */}
       {hasCoords && mapListing ? (
-        <div className="w-full h-96 my-6">
+        <div className="w-full h-96 my-6" data-testid="map-container">
           <MapContainer
             listings={[mapListing]}
             className="h-full w-full rounded-lg shadow"

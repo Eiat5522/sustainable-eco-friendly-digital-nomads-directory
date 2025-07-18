@@ -1,0 +1,120 @@
+import { auth } from '@/lib/auth';
+import { isAuthenticated, requireAuth } from '@/lib/auth-helpers';
+import { Session } from 'next-auth';
+
+// Mock next-auth
+jest.mock('next-auth');
+
+// Mock auth function
+jest.mock('@/lib/auth');
+
+describe('auth-helpers', () => {
+  const mockAuth = auth as jest.MockedFunction<typeof auth>;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('isAuthenticated', () => {
+    it('should return true for valid session', async () => {
+      const mockSession: Session = {
+        user: {
+          id: 'user123',
+          email: 'test@example.com',
+          name: 'Test User',
+        },
+        expires: new Date(Date.now() + 3600000).toISOString(),
+      };
+      
+      mockAuth.mockResolvedValue(mockSession);
+      
+      const result = await isAuthenticated();
+      expect(result).toBe(true);
+    });
+
+    it('should return false for null session', async () => {
+      mockAuth.mockResolvedValue(null);
+      
+      const result = await isAuthenticated();
+      expect(result).toBe(false);
+    });
+
+    it('should return false for expired session', async () => {
+      const mockSession: Session = {
+        user: {
+          id: 'user123',
+          email: 'test@example.com',
+          name: 'Test User',
+        },
+        expires: new Date(Date.now() - 3600000).toISOString(),
+      };
+      
+      mockAuth.mockResolvedValue(mockSession);
+      
+      const result = await isAuthenticated();
+      expect(result).toBe(false);
+    });
+
+    it('should return false for session without user', async () => {
+      const mockSession: Session = {
+        user: null,
+        expires: new Date(Date.now() + 3600000).toISOString(),
+      };
+      
+      mockAuth.mockResolvedValue(mockSession);
+      
+      const result = await isAuthenticated();
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('requireAuth', () => {
+    it('should return session for valid authenticated session', async () => {
+      const mockSession: Session = {
+        user: {
+          id: 'user123',
+          email: 'test@example.com',
+          name: 'Test User',
+        },
+        expires: new Date(Date.now() + 3600000).toISOString(),
+      };
+      
+      mockAuth.mockResolvedValue(mockSession);
+      
+      const result = await requireAuth();
+      expect(result).toEqual(mockSession);
+    });
+
+    it('should throw error for null session', async () => {
+      mockAuth.mockResolvedValue(null);
+      
+      await expect(requireAuth()).rejects.toThrow('Authentication required');
+    });
+
+    it('should throw error for expired session', async () => {
+      const mockSession: Session = {
+        user: {
+          id: 'user123',
+          email: 'test@example.com',
+          name: 'Test User',
+        },
+        expires: new Date(Date.now() - 3600000).toISOString(),
+      };
+      
+      mockAuth.mockResolvedValue(mockSession);
+      
+      await expect(requireAuth()).rejects.toThrow('Authentication required');
+    });
+
+    it('should throw error for session without user', async () => {
+      const mockSession: Session = {
+        user: null,
+        expires: new Date(Date.now() + 3600000).toISOString(),
+      };
+      
+      mockAuth.mockResolvedValue(mockSession);
+      
+      await expect(requireAuth()).rejects.toThrow('Authentication required');
+    });
+  });
+});
