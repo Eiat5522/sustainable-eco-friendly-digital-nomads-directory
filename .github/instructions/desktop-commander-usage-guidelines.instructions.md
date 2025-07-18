@@ -1,3 +1,6 @@
+---
+applyTo: '**'
+---
 💻 Desktop Commander MCP Server Tools Usage 💾
 
 ➡️ WORKFLOW ESSENTIALS:⬆️

@@ -14,7 +14,7 @@ declare module "next-auth/jwt" {
   }
 }
 
-export type UserRole = 'admin' | 'user' | 'editor' | 'venueOwner' | 'superAdmin' | 'moderator' | 'unidentifiedUser';
+export type UserRole = 'admin' | 'user' | 'editor' | 'venueOwner' | 'superAdmin' | 'moderator' | 'unidentifiedUser' | 'contentEditor';
 
 // Define page access permissions
 export interface PagePermissions {
