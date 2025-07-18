@@ -2,7 +2,7 @@
 
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import DigitalNomadSearchFilter from '@/components/ui/DigitalNomadSearchFilter';
-import { Alert } from '@/components/ui/alert';
+import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { WorldMapDemo } from '@/components/ui/world-map-demo';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -30,11 +30,6 @@ interface SearchPagination {
   hasMore: boolean;
 }
 
-type FetchResultsFn = (searchQuery: string, page?: number, filters?: Record<string, string | string[]>) => Promise<void>;
-type QueryChangeFn = (query: string) => void;
-type FiltersChangeFn = (filters: MultiSelectFilters) => void;
-type PageChangeFn = (page: number) => void;
-
 function SearchResultsComponent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -53,11 +48,8 @@ function SearchResultsComponent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchResults = useCallback(async (searchQuery, page = 1, filters = {}) => {
-    const q = searchQuery as string;
-    const p = page as number;
-    const f = filters as Record<string, string | string[]>;
-    if (!q.trim() && Object.values(f).every(v => (Array.isArray(v) ? v.length === 0 : !v))) {
+  const fetchResults = useCallback(async (searchQuery: string, page = 1, filters: Record<string, string | string[]> = {}) => {
+    if (!searchQuery.trim() && Object.values(filters).every(v => (Array.isArray(v) ? v.length === 0 : !v))) {
       setResults([]);
       setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
       return;
@@ -65,10 +57,10 @@ function SearchResultsComponent() {
     setIsLoading(true);
     setError(null);
     const queryParams = new URLSearchParams();
-    queryParams.set('q', q);
-    queryParams.set('page', p.toString());
+    queryParams.set('q', searchQuery);
+    queryParams.set('page', page.toString());
     queryParams.set('limit', '12');
-    Object.entries(f).forEach(([key, value]) => {
+    Object.entries(filters).forEach(([key, value]) => {
       if (Array.isArray(value)) {
         (value as string[]).forEach((v) => v && queryParams.append(key, v));
       } else if (value) {
@@ -100,21 +92,19 @@ function SearchResultsComponent() {
     }
   }, []);
 
-  const handleQueryChange = useCallback((newQuery) => {
-    const nq = newQuery as string;
-    setQuery(nq);
+  const handleQueryChange = useCallback((newQuery: string) => {
+    setQuery(newQuery);
     const queryParams = new URLSearchParams(searchParams?.toString());
-    queryParams.set('q', nq);
+    queryParams.set('q', newQuery);
     router.push(`/search?${queryParams.toString()}`);
   }, [router, searchParams]);
 
-  const handleFiltersChange = useCallback((filters) => {
-    const f = filters as MultiSelectFilters;
+  const handleFiltersChange = useCallback((filters: MultiSelectFilters) => {
     const queryParams = new URLSearchParams(searchParams?.toString());
     queryParams.delete('destination');
     queryParams.delete('category');
     queryParams.delete('features_amenities');
-    Object.entries(f).forEach(([key, values]) => {
+    Object.entries(filters).forEach(([key, values]) => {
       if (Array.isArray(values) && values.length > 0) {
         (values as string[]).forEach((value) => {
           queryParams.append(key, value);
@@ -125,9 +115,8 @@ function SearchResultsComponent() {
     router.push(`/search?${queryParams.toString()}`);
   }, [router, searchParams]);
 
-  const handlePageChange = useCallback((newPage) => {
-    const np = newPage as number;
-    setCurrentPage(np);
+  const handlePageChange = useCallback((newPage: number) => {
+    setCurrentPage(newPage);
     const currentFilters: Record<string, string | string[]> = {};
     searchParams?.forEach((value, key) => {
       const existing = currentFilters[key];
@@ -141,7 +130,7 @@ function SearchResultsComponent() {
         currentFilters[key] = value;
       }
     });
-    fetchResults(query, np, currentFilters);
+    fetchResults(query, newPage, currentFilters);
   }, [query, fetchResults, searchParams]);
 
   React.useEffect(() => {

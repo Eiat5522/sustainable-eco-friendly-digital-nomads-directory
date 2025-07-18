@@ -1,4 +1,4 @@
-import { getClient } from '@/lib/sanity/client'
+import { client } from '@/lib/sanity/client'
 import { MetadataRoute } from 'next'
 
 interface SitemapEntry {
@@ -6,6 +6,20 @@ interface SitemapEntry {
   lastModified?: string | Date
   changeFrequency?: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
   priority?: number
+}
+
+// Types for Sanity query responses
+interface ListingData {
+  slug: string;
+  _updatedAt: string;
+}
+
+interface CategoryData {
+  category: string;
+}
+
+interface CityData {
+  name: string;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -41,7 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Fetch listings
-    const listings = await getClient().fetch<{ slug: string, _updatedAt: string }[]>(
+    const listings = await client.fetch<{ slug: string, _updatedAt: string }[]>(
       `*[_type == "listing"]{
         "slug": slug.current,
         _updatedAt
@@ -49,17 +63,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ) || [];
 
     // Fetch categories
-    const categories = await getClient().fetch<{ category: string }[]>(
+    const categories = await client.fetch<{ category: string }[]>(
       `*[_type == "listing"]{category} | unique`
     ) || [];
 
     // Fetch cities
-    const cities = await getClient().fetch<{ name: string }[]>(
+    const cities = await client.fetch<{ name: string }[]>(
       `*[_type == "city"]{name}`
     ) || [];
 
     // Listing pages
-    const listingPages: SitemapEntry[] = listings.map((listing) => ({
+    const listingPages: SitemapEntry[] = listings.map((listing: { slug: string, _updatedAt: string }) => ({
       url: `${baseUrl}/listings/${listing.slug}`,
       lastModified: listing._updatedAt,
       changeFrequency: 'weekly',
@@ -67,7 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Category pages
-    const categoryPages: SitemapEntry[] = categories.map((cat) => ({
+    const categoryPages: SitemapEntry[] = categories.map((cat: { category: string }) => ({
       url: `${baseUrl}/category/${cat.category?.toLowerCase?.() ?? ''}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
@@ -75,7 +89,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // City pages
-    const cityPages: SitemapEntry[] = cities.map((city) => ({
+    const cityPages: SitemapEntry[] = cities.map((city: { name: string }) => ({
       url: `${baseUrl}/city/${city.name?.toLowerCase?.() ?? ''}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',

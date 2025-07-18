@@ -4,17 +4,29 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react'; // Corrected import path
 import { useRouter } from 'next/navigation';
 
-interface Listing {
+// Moderation-specific types
+interface ModerationItem {
   _id: string;
   title: string;
-  description?: string;
-  location?: {
-    city?: string;
-    country?: string;
+  type: 'listing' | 'review' | 'blog_post' | 'user';
+  status: 'pending' | 'approved' | 'rejected' | 'flagged';
+  content?: string;
+  reportedAt: string;
+  flagReason?: string;
+  author?: {
+    name: string;
+    id: string;
   };
-  images?: string[];
-  tags?: string[];
-  // Add other relevant properties here
+}
+
+interface ModerationResponse {
+  items: ModerationItem[];
+  pagination: {
+    total: number;
+    totalPages: number;
+    page: number;
+    limit: number;
+  };
 }
 
 interface Listing {
