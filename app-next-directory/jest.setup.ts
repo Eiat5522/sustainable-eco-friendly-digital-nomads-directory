@@ -1,20 +1,15 @@
 // Mock global.fetch for NextAuth.js session requests
 if (!global.fetch) {
-  global.fetch = jest.fn(() => Promise.resolve({
-    ok: true,
-    status: 200,
-    statusText: 'OK',
-    headers: new Headers(),
-    redirected: false,
-    type: 'basic',
-    url: '',
-    clone: jest.fn(),
-    text: () => Promise.resolve(''),
-    arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
-    blob: () => Promise.resolve(new Blob()),
-    formData: () => Promise.resolve(new FormData()),
-    json: () => Promise.resolve({ user: { name: 'Test User', email: 'test@example.com' } })
-  })) as jest.MockedFunction<typeof fetch>;
+  (global as any).fetch = jest.fn(
+    () => Promise.resolve(new Response(
+      JSON.stringify({ user: { name: 'Test User', email: 'test@example.com' } }),
+      {
+        status: 200,
+        statusText: 'OK',
+        headers: { 'Content-Type': 'application/json' }
+      }
+    ))
+  );
 }
 
 // Existing setup below
