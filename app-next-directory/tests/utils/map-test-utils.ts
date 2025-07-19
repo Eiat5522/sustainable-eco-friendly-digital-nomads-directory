@@ -8,10 +8,12 @@ export async function waitForMapLoad(page: Page) {
 
 export async function getMapBounds(page: Page) {
   return await page.evaluate(() => {
-    // @ts-expect-error - Leaflet map instance
-    const map = window.L?.map;
-    if (!map) return null;
-    const bounds = map.getBounds();
+    // Robustly retrieve Leaflet map instance from window
+    const leaflet = window.L;
+    if (!leaflet || typeof leaflet.map !== 'object' || typeof leaflet.map.getBounds !== 'function') {
+      throw new Error('Leaflet map instance is not available or not initialized on window.L.map');
+    }
+    const bounds = leaflet.map.getBounds();
     return {
       north: bounds.getNorth(),
       south: bounds.getSouth(),
@@ -23,7 +25,6 @@ export async function getMapBounds(page: Page) {
 
 export async function panMap(page: Page, lat: number, lng: number) {
   await page.evaluate(({ lat, lng }) => {
-    // @ts-expect-error - Leaflet map instance
     const map = window.L?.map;
     if (map) {
       map.panTo([lat, lng]);
