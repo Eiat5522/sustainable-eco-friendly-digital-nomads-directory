@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { imageWithAlt } from './fields'
 
 export default defineType({
   name: 'listing',
@@ -34,6 +35,17 @@ export default defineType({
       name: 'category',
       title: 'Category',
       type: 'string',
+      options: {
+        list: [
+          { title: 'Coworking Space', value: 'coworking' },
+          { title: 'Cafe', value: 'cafe' },
+          { title: 'Accommodation', value: 'accommodation' },
+          { title: 'Restaurant', value: 'restaurant' },
+          { title: 'Activities', value: 'activities' }
+        ],
+        layout: 'dropdown'
+      },
+      validation: rule => rule.required()
     }),
     defineField({
       name: 'address_string',
@@ -116,41 +128,13 @@ export default defineType({
     defineField({
       name: 'primaryImage',
       title: 'Primary Image',
-      type: 'image',
-      options: {
-        hotspot: true,
-      },
-      fields: [
-        {
-          name: 'alt',
-          type: 'string',
-          title: 'Alternative text',
-          description: 'Important for SEO and accessibility.',
-          validation: Rule => Rule.required(),
-        }
-      ]
+      ...imageWithAlt
     }),
     defineField({
       name: 'galleryImages',
       title: 'Gallery Images',
       type: 'array',
-      of: [
-        {
-          type: 'image',
-          options: {
-            hotspot: true,
-          },
-          fields: [
-            {
-              name: 'alt',
-              type: 'string',
-              title: 'Alternative text',
-              description: 'Important for SEO and accessibility.',
-              validation: Rule => Rule.required(),
-            }
-          ]
-        }
-      ],
+      of: [imageWithAlt],
     }),
     defineField({
       name: 'digital_nomad_features',

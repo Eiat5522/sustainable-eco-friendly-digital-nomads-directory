@@ -1,8 +1,9 @@
-import type { SanityListing } from '../../types/sanity';
+import type { SanityListing, LISTING_BY_SLUG_QUERYResult } from '../../types/sanity-generated';
 import { client } from './client';
+import { groq } from 'next-sanity';
 
 // GROQ query to fetch a single listing by slug
-const LISTING_BY_SLUG_QUERY = `
+const LISTING_BY_SLUG_QUERY = groq`
   *[_type == "listing" && slug.current == $slug][0] {
     _id,
     _type,
@@ -44,15 +45,15 @@ const LISTING_BY_SLUG_QUERY = `
  * Fetch a single listing from Sanity by its slug.
  * @param slug - The slug (string) of the listing
  * @param usePreview - Whether to fetch draft content (preview) or published
- * @returns A SanityListing object or null if not found
+ * @returns A GROQ query result or null if not found
  */
 export async function getListingData(
   slug: string,
   usePreview = false
-): Promise<SanityListing | null> {
+): Promise<LISTING_BY_SLUG_QUERYResult> {
   const client = client(usePreview);
   try {
-    const listing = await client.fetch<SanityListing | null>(
+    const listing = await client.fetch<LISTING_BY_SLUG_QUERYResult>(
       LISTING_BY_SLUG_QUERY,
       { slug }
     );

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
+import { NextResponse } from 'next/server';
+import type { FEATURED_LISTINGS_QUERYResult } from '@/types/sanity-generated';
 
 export async function GET() {
   const startTime = performance.now();
@@ -17,7 +19,7 @@ export async function GET() {
   
   try {
     // Corrected GROQ query to match your schema
-    const query = groq`*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {
+    const FEATURED_LISTINGS_QUERY = groq`*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {
       _id,
       name,
       "slug": slug.current,
@@ -54,7 +56,7 @@ export async function GET() {
     console.log('[DEBUG] Featured Listings API: Executing GROQ query');
     const queryStartTime = performance.now();
     
-    const listings = await client.fetch(query);
+    const listings = await client.fetch<FEATURED_LISTINGS_QUERYResult>(FEATURED_LISTINGS_QUERY);
     
     const queryEndTime = performance.now();
     console.log('[DEBUG] Featured Listings API: GROQ query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');

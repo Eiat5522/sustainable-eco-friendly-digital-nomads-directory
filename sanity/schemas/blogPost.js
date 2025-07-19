@@ -1,4 +1,6 @@
 // Sanity schema for blog posts
+import { imageWithAlt } from './fields'
+
 export default {
   name: 'blogPost',
   title: 'Blog Post',
@@ -35,8 +37,7 @@ export default {
     {
       name: 'mainImage',
       title: 'Main Image',
-      type: 'image',
-      options: { hotspot: true },
+      ...imageWithAlt
     },
     {
       name: 'excerpt',

@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { imageWithAlt } from './fields'
 
 export default defineType({
   name: 'city',
@@ -50,20 +51,8 @@ export default defineType({
     defineField({
       name: 'mainImage',
       title: 'Main Image',
-      type: 'image',
-      options: {
-        hotspot: true, // Enables image cropping/positioning
-      },
-      fields: [
-        {
-          name: 'alt',
-          type: 'string',
-          title: 'Alternative text',
-          description: 'Important for SEO and accessibility.',
-          validation: (Rule) => Rule.required(),
-        },
-      ],
-      validation: (Rule) => Rule.required(),    }),
+      ...imageWithAlt
+    }),
   ],
   preview: {
     select: {

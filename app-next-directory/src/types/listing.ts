@@ -1,6 +1,8 @@
 // Basic types
-export type ListingType = 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities'
-export type PriceRange = 'budget' | 'moderate' | 'premium'
+import { ListingCategory, PriceRange } from './enums'
+
+export type ListingType = ListingCategory
+export type PriceRangeType = PriceRange
 
 // City type
 export interface City {

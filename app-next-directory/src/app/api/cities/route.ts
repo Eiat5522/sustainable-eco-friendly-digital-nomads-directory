@@ -16,7 +16,7 @@ export async function GET() {
   }
   
   try {
-    const query = groq`*[_type == "city"] | order(_createdAt desc)[0...20] {
+    const CITIES_QUERY = groq`*[_type == "city"] | order(_createdAt desc)[0...20] {
       _id,
       title,
       "slug": slug.current,
@@ -38,7 +38,7 @@ export async function GET() {
     console.log('[DEBUG] Cities API: Executing GROQ query');
     const queryStartTime = performance.now();
     
-    const cities = await client.fetch(query);
+    const cities = await client.fetch(CITIES_QUERY);
     
     const queryEndTime = performance.now();
     console.log('[DEBUG] Cities API: GROQ query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');
