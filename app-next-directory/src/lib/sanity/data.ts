@@ -50,7 +50,7 @@ export async function getListingData(
   slug: string,
   usePreview = false
 ): Promise<SanityListing | null> {
-  const client = getClient(usePreview);
+  const client = client(usePreview);
   try {
     const listing = await client.fetch<SanityListing | null>(
       LISTING_BY_SLUG_QUERY,
