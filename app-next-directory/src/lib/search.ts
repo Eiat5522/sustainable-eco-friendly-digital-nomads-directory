@@ -1,5 +1,5 @@
 import { SearchFilters, SortOption } from '@/types/search';
-import { getClient } from './sanity/client';
+import { client } from './sanity/client';
 
 interface SearchResults {
   results: any[];
@@ -22,7 +22,7 @@ export async function searchListings(
   sort?: SortOption,
   preview = false
 ): Promise<SearchResults> {
-  const client = getClient(preview);
+  const sanityClient = client;
   const start = (page - 1) * limit;
 
   // Base query building - only include published listings
@@ -125,11 +125,11 @@ export async function searchListings(
   } [${start}...${start + limit}]`;
 
   // Execute query
-  const results = await client.fetch(groqQuery, params);
+  const results = await sanityClient.fetch(groqQuery, params);
 
   // Get total count
   const countQuery = groqQuery.replace(/\{[^}]*\} \[\d+\.\.\.\d+\]$/, '').replace('*[', 'count(*[');
-  const total = await client.fetch(countQuery, params);
+  const total = await sanityClient.fetch(countQuery, params);
 
   return {
     results,
@@ -150,7 +150,7 @@ export async function getSearchSuggestions(
   limit = 5,
   preview = false
 ): Promise<string[]> {
-  const client = getClient(preview);
+  const sanityClient = client;
 
   const groqQuery = `*[_type == "listing" && moderation.status == "published" && (
     name match $query + "*" ||
@@ -160,7 +160,7 @@ export async function getSearchSuggestions(
     "keywords": searchMetadata.keywords[]->name
   }`;
 
-  const results = await client.fetch(groqQuery, { query });
+  const results = await sanityClient.fetch(groqQuery, { query });
 
   // Extract and flatten unique suggestions
   const suggestions = new Set<string>();
@@ -188,7 +188,7 @@ export async function getSimilarListings(
   limit = 3,
   preview = false
 ): Promise<any[]> {
-  const client = getClient(preview);
+  const sanityClient = client;
 
   const query = `*[_type == "listing" && _id == $listingId][0] {
     "similar": *[_type == "listing" && _id != $listingId && moderation.status == "published"] | score(
@@ -209,5 +209,5 @@ export async function getSimilarListings(
     }
   }.similar`;
 
-  return client.fetch(query, { listingId });
+  return sanityClient.fetch(query, { listingId });
 }

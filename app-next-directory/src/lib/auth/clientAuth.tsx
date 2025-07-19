@@ -29,6 +29,9 @@ export function useAuth() {
       editor: 3,
       admin: 4,
       superAdmin: 5,
+      moderator: 6,
+      unidentifiedUser: 7,
+      contentEditor: 8
     };
 
     const userLevel = roleHierarchy[user.role as UserRole] || 0;

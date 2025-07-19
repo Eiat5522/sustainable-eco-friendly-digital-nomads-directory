@@ -1,5 +1,5 @@
 import type { SanityListing } from '../../types/sanity';
-import { getClient } from './client';
+import { client } from './client';
 
 // GROQ query to fetch a single listing by slug
 const LISTING_BY_SLUG_QUERY = `

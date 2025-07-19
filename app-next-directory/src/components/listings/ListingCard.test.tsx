@@ -52,7 +52,8 @@ describe('ListingCard', () => {
     address: '123 Listing St',
     createdAt: '2023-01-01T00:00:00Z',
     updatedAt: '2023-01-01T00:00:00Z',
-    price: 100
+    price: 100,
+    price_indication: 'moderate'
   };
 
   test('renders listing card with correct title', () => {
@@ -88,8 +89,9 @@ describe('ListingCard', () => {
       galleryImages: [],
       name: 'Unnamed Listing',
       slug: 'unnamed-listing',
-    price: 100,
-  };
+      price: 100,
+      price_indication: 'moderate',
+    };
     render(<ListingCard listing={listingWithoutImage} />);
 
     // Check for placeholder or fallback image if implemented
@@ -109,9 +111,13 @@ describe('ListingCard', () => {
   test('renders eco tags if present', () => {
     const listingWithEcoTags: Listing = {
       ...mockListing,
-      ecoTags: [], // Listing type expects EcoTag[]
-    price: 100,
-  };
+      ecoTags: [
+        { _id: 'eco1', name: 'Solar', slug: 'solar', description: 'Solar powered', listingCount: 1 },
+        { _id: 'eco2', name: 'Organic', slug: 'organic', description: 'Organic food', listingCount: 1 },
+        { _id: 'eco3', name: 'Vegan', slug: 'vegan', description: 'Vegan options', listingCount: 1 }
+      ],
+      price: 100,
+    };
     render(<ListingCard listing={listingWithEcoTags} />);
     expect(screen.getByText('Solar')).toBeInTheDocument();
     expect(screen.getByText('Organic')).toBeInTheDocument();
@@ -122,8 +128,9 @@ describe('ListingCard', () => {
     const listingWithDesc: Listing = {
       ...mockListing,
       description: 'A great place to stay with vegan options',
-    price: 100,
-  };
+      price: 100,
+      price_indication: 'moderate',
+    };
     render(<ListingCard listing={listingWithDesc} searchQuery="vegan" />);
     // Should highlight "vegan" in description
     const highlighted = screen.getByText('vegan', { selector: 'mark' });
@@ -134,7 +141,8 @@ describe('ListingCard', () => {
     const listingNoCity: Listing = { 
       ...mockListing, 
       city: { _id: '', slug: '', name: '', listingCount: 0, country: '' }, 
-      price: 100 
+      price: 100,
+      price_indication: 'moderate'
     };
     render(<ListingCard listing={listingNoCity} />);
 
@@ -143,7 +151,7 @@ describe('ListingCard', () => {
   });
 
   test('uses fallback for missing name', () => {
-    const listingNoName: Listing = { ...mockListing, name: '', price: 100 };
+    const listingNoName: Listing = { ...mockListing, name: '', price: 100, price_indication: 'moderate' };
     render(<ListingCard listing={listingNoName} />);
     expect(screen.getByText('Unnamed Listing')).toBeInTheDocument();
   });
@@ -155,20 +163,20 @@ describe('ListingCard', () => {
   });
 
   test('getListingUrl returns correct URL for SanityListing', () => {
-    const listingWithSlug: Listing = { ...mockListing, slug: 'listing-test-slug', price: 100 };
+    const listingWithSlug: Listing = { ...mockListing, slug: 'listing-test-slug', price: 100, price_indication: 'moderate' };
     render(<ListingCard listing={listingWithSlug} />);
     expect(screen.getByRole('link')).toHaveAttribute('href', '/listings/listing-test-slug');
   });
 
   test('getListingUrl returns correct URL for non-SanityListing with slug', () => {
-    const listingNonSanitySlug: Listing = { ...mockListing, slug: 'non-sanity-test-slug', price: 100 };
+    const listingNonSanitySlug: Listing = { ...mockListing, slug: 'non-sanity-test-slug', price: 100, price_indication: 'moderate' };
     render(<ListingCard listing={listingNonSanitySlug} />);
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', '/listings/non-sanity-test-slug');
   });
 
   test('getListingUrl returns default slug for missing slug', () => {
-    const listingWithoutSlug: Listing = { ...mockListing, slug: '', price: 100 };
+    const listingWithoutSlug: Listing = { ...mockListing, slug: '', price: 100, price_indication: 'moderate' };
     render(<ListingCard listing={listingWithoutSlug} />);
     expect(screen.getByRole('link')).toHaveAttribute('href', '/listings/default-slug');
   });
@@ -180,6 +188,7 @@ describe('ListingCard', () => {
       mainImage: { asset: { _ref: 'sanity-primary-image-id', url: 'mock-sanity-image-url-sanity-primary-image-id' } },
       galleryImages: [],
       price: 100,
+      price_indication: 'moderate',
     };
     render(<ListingCard listing={listingWithPrimaryImage} />);
     const image = screen.getByTestId('image-mock');
@@ -192,6 +201,7 @@ describe('ListingCard', () => {
       mainImage: { asset: { _ref: '', url: '' } }, // Ensure mainImage is missing/invalid
       galleryImages: [{ asset: { _ref: 'sanity-gallery-image-id', url: 'mock-sanity-image-url-sanity-gallery-image-id' } }],
       price: 100,
+      price_indication: 'moderate',
     };
     render(<ListingCard listing={listingWithGalleryImages} />);
     const image = screen.getByTestId('image-mock');
@@ -204,6 +214,7 @@ describe('ListingCard', () => {
       mainImage: { asset: { _ref: '', url: '/test-image.jpg' } },
       galleryImages: [],
       price: 100,
+      price_indication: 'moderate',
     };
     render(<ListingCard listing={listingWithoutAnyImage} />);
     const image = screen.getByTestId('image-mock');
@@ -219,6 +230,7 @@ describe('ListingCard', () => {
       mainImage: { asset: { _ref: 'error-image-id', url: '' } },
       galleryImages: [],
       price: 100,
+      price_indication: 'moderate',
     };
     render(<ListingCard listing={listingWithErrorPrimaryImage} />);
     const image = screen.getByTestId('image-mock');

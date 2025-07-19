@@ -1,4 +1,4 @@
-import { getClient } from './client';
+import { client } from './client';
 
 // Common field definitions
 const listingFields = `
@@ -21,7 +21,7 @@ const listingFields = `
 `;
 
 async function getAllListings(preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client(preview);
 
   const query = `*[_type == "listing" && moderation.status == "published"] {
     ${listingFields}
@@ -31,7 +31,7 @@ async function getAllListings(preview = false) {
 }
 
 async function getListingBySlug(slug: string, preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client(preview);
 
   const query = `*[_type == "listing" && slug.current == $slug][0] {
     ${listingFields},
@@ -80,7 +80,7 @@ async function getListingBySlug(slug: string, preview = false) {
 }
 
 async function getListingsByCategory(category: string, preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client(preview);
 
   const query = `*[_type == "listing" && moderation.status == "published" && category == $category] {
     ${listingFields}
@@ -90,7 +90,7 @@ async function getListingsByCategory(category: string, preview = false) {
 }
 
 async function getListingsByCity(cityName: string, preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client(preview);
 
   const query = `*[_type == "listing" && moderation.status == "published" && city->name == $cityName] {
     ${listingFields}
@@ -101,7 +101,7 @@ async function getListingsByCity(cityName: string, preview = false) {
 
 // Get all available cities for filtering
 async function getAllCities(preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client(preview);
 
   const query = `*[_type == "city"] {
     _id,
@@ -130,7 +130,7 @@ async function getAllCities(preview = false) {
 
 // Get all eco focus tags for filtering
 async function getAllEcoTags(preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client(preview);
 
   const query = `*[_type == "ecoTag"] {
     _id,
@@ -144,7 +144,7 @@ async function getAllEcoTags(preview = false) {
 
 // Search listings
 async function searchListings(searchTerm: string, preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client(preview);
 
   const query = `*[_type == "listing" && moderation.status == "published" && (
     name match $searchTerm ||
@@ -160,7 +160,7 @@ async function searchListings(searchTerm: string, preview = false) {
 
 // Get latest blog posts
 async function getLatestBlogPosts(limit = 3, preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client(preview);
 
   const query = `*[_type == "blogPost"] | order(_createdAt desc)[0...$limit] {
     _id,
@@ -177,7 +177,7 @@ async function getLatestBlogPosts(limit = 3, preview = false) {
 
 // Get featured listings for home page
 async function getFeaturedListings(preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client(preview);
 
   const query = `*[_type == "listing" && moderation.status == "published" && moderation.featured == true] {
     ${listingFields},
@@ -193,7 +193,7 @@ async function getRelatedListings(listingId: string, category: string, cityName:
     ${listingFields}
   }`;
 
-  return await getClient().fetch(query, { listingId, category, cityName });
+  return await client().fetch(query, { listingId, category, cityName });
 }
 
 // Export all functions

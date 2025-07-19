@@ -18,6 +18,7 @@ export function jsonToSanityListing(jsonListing: JsonListing): SanityListing {
     description: jsonListing.description_long,
     type: jsonListing.category as any, // Type conversion between the two formats
     priceRange: 'moderate', // Default value
+    price_indication: 'moderate', // Required field
     mainImage: {
       asset: {
         _ref: 'image-reference',

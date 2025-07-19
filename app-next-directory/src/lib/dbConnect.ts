@@ -33,7 +33,7 @@ async function dbConnect(): Promise<Mongoose> {
     };
 
     try {
-      cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
+      cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance: typeof mongoose) => {
         // DEBUG: Log the returned mongooseInstance for troubleshooting
         // FORTEST: Remove this log after debugging
         // eslint-disable-next-line no-console
