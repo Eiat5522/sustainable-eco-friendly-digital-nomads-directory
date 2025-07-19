@@ -1,0 +1,47 @@
+# Sustainable Eco-Friendly Digital Nomads Directory
+
+> A curated monorepo platform for sustainable, eco-friendly venues and services for digital nomads. Built with Next.js 15+, Sanity CMS, MongoDB Atlas, and modern authentication featuring advanced search, interactive maps, admin dashboard, and comprehensive testing infrastructure.
+
+This is a full-stack web application monorepo that combines a Next.js frontend with Sanity headless CMS for content management. The platform provides curated listings of eco-friendly venues, coworking spaces, accommodations, and services specifically designed for digital nomads who prioritize sustainability.
+
+Key technical features include role-based authentication with NextAuth.js, advanced geo-search capabilities, interactive maps using Leaflet.js, comprehensive testing with Playwright and Jest, and production deployment on Vercel with MongoDB Atlas.
+
+## Documentation
+
+- [Main README](README.md): Project overview, architecture, features, and quick start guide
+- [Contributing Guide](CONTRIBUTING.md): Git workflow, development process, and code standards
+- [Documentation Structure](docs/README.md): Complete documentation organization and navigation
+- [API Documentation](docs/API_DOCUMENTATION.md): Comprehensive API endpoints, authentication, and usage examples
+- [Deployment Guide](docs/monorepo/DEPLOYMENT_GUIDE.md): Production deployment instructions for Vercel, Sanity, and MongoDB
+- [Development Guide](docs/DEVELOPMENT_GUIDE.md): Development environment setup and workflows
+
+## Frontend Application
+
+- [Next.js App README](app-next-directory/README.md): Frontend application overview, features, and setup
+- [Next.js Configuration](app-next-directory/next.config.ts): Next.js build and runtime configuration
+- [Authentication Implementation](app-next-directory/AUTH_IMPLEMENTATION_COMPLETE.md): Complete NextAuth.js setup and RBAC system
+- [Unit Tests Summary](app-next-directory/UNIT_TESTS_SUMMARY.md): Comprehensive test coverage report and framework setup
+- [MongoDB Setup Guide](app-next-directory/MONGODB_SETUP.md): Database connection and configuration
+
+## Content Management System
+
+- [Sanity CMS README](sanity/README.md): Sanity Studio configuration, content types, and editorial workflow
+- [Schema & TypeScript Definitions](sanity_schema_and_typescript_types_definition.md): Complete data model specifications and type definitions
+- [Sanity Configuration](sanity/sanity.config.ts): Sanity Studio setup and plugin configuration
+
+## Architecture & Setup
+
+- [Workspace Setup](WORKSPACE_SETUP.md): Monorepo configuration with pnpm workspaces
+- [Package Configuration](package.json): Root package dependencies and workspace scripts
+- [TypeScript Configuration](tsconfig.json): Shared TypeScript configuration across workspaces
+
+## Examples
+
+- [VSCode Integration Example](examples/vscode-conditional-usage.js): Conditional execution patterns for different development environments
+
+## Optional
+
+- [Current Task Status](docs/currentTask.md): Development progress and active workstreams
+- [Codebase Summary](docs/codebaseSummary.md): High-level technical architecture overview
+- [Change Log](CHANGELOG.md): Version history and feature releases
+- [Project Roadmap](docs/projectRoadmap.md): Future development plans and milestones

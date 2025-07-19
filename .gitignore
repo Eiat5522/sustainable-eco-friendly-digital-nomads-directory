@@ -104,7 +104,9 @@ clean-install.ps1
 **/playwright-report
 
 #Github Copilot
-.github/instructions/tools-usage-guidelines.instructions.md
+**/*.github/instructions*/**
+**/*.github/chatmodes*/**
+**/*.github/prompts*/**
 
 #Test Folders
 **/test-results
