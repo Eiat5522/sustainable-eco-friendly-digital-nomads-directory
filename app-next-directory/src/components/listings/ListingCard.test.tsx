@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { Listing } from '../../types/listing';
+import { ListingCategory, PriceRange } from '../../types/enums';
 import { ListingCard } from './ListingCard';
 import { urlFor } from '../../lib/sanity/image';
 import { mockListings } from '@/tests/helpers/test-data';

@@ -162,4 +162,14 @@ export type AnyListing =
   | CafeListing
   | AccommodationListing
   | RestaurantListing
-  | ActivitiesListing
+  | ActivitiesListing// Listing types and enums
+
+export enum ListingCategory {
+  COWORKING = 'coworking',
+  CAFE = 'cafe',
+  ACCOMMODATION = 'accommodation',
+  RESTAURANT = 'restaurant',
+  ACTIVITIES = 'activities',
+}
+
+// ... rest of file ...

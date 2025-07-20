@@ -35,7 +35,7 @@ const LISTING_TYPES: Array<{ id: ListingCategory; label: string }> = [
   { id: ListingCategory.ACCOMMODATION, label: 'Accommodation' },
   { id: ListingCategory.RESTAURANT, label: 'Restaurants' },
   { id: ListingCategory.ACTIVITIES, label: 'Activities' },
-]
+];
 
 const PRICE_RANGES = [
   { id: 'budget', label: 'Budget Friendly' },

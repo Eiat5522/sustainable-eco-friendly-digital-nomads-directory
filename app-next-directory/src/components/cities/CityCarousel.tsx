@@ -14,8 +14,7 @@ import {
 } from "../ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import clientModule from "@/lib/sanity/client";
-const { client } = clientModule; // Sanity client for real data
+import clientModule, { client } from "@/lib/sanity/client";
 
 interface EcoCityItem {
   _id: string;

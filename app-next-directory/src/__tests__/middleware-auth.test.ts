@@ -2,24 +2,13 @@ import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals
 import type { Session } from 'next-auth';
 import type { UserRole } from '@/types/auth';
 
-// Mock the auth module and export a mock function
-let mockAuthFunction: jest.Mock<Promise<Session | null>>;
-jest.mock('@/lib/auth', () => {
-  mockAuthFunction = jest.fn();
-  return {
-    auth: mockAuthFunction,
-    authOptions: {
-      providers: [],
-    },
-    handlers: {
-      GET: jest.fn(),
-      POST: jest.fn(),
-    },
-    getToken: jest.fn(),
-  };
-});
+// Auto-mock the module
+jest.mock('@/lib/auth');
 
 import { auth } from '@/lib/auth';
+
+// Cast the imported auth to a mocked function for type safety
+const mockAuth = auth as unknown as jest.MockedFunction<() => Promise<Session | null>>;
 
 describe('middleware authentication', () => {
   beforeAll(() => {
@@ -28,12 +17,11 @@ describe('middleware authentication', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockAuthFunction.mockClear();
   });
 
   describe('auth function integration', () => {
     it('should handle null session correctly', async () => {
-      mockAuthFunction.mockResolvedValue(null);
+      mockAuth.mockResolvedValue(null);
       const session = await auth();
       expect(session).toBeNull();
     });
@@ -47,7 +35,7 @@ describe('middleware authentication', () => {
         },
         expires: '2024-12-31T23:59:59Z',
       };
-      mockAuthFunction.mockResolvedValue(mockSession);
+      mockAuth.mockResolvedValue(mockSession);
       const session = await auth();
       expect(session).toEqual(mockSession);
       expect(session?.user?.role).toBe('user');
@@ -62,7 +50,7 @@ describe('middleware authentication', () => {
         },
         expires: '2024-12-31T23:59:59Z',
       };
-      mockAuthFunction.mockResolvedValue(mockSession);
+      mockAuth.mockResolvedValue(mockSession);
       const session = await auth();
       expect(session).toEqual(mockSession);
       expect(session?.user?.role).toBe('admin');
@@ -73,7 +61,7 @@ describe('middleware authentication', () => {
         expires: '2024-12-31T23:59:59Z',
         user: undefined as any
       };
-      mockAuthFunction.mockResolvedValue(mockSession);
+      mockAuth.mockResolvedValue(mockSession);
       const session = await auth();
       expect(session).toEqual(mockSession);
       expect(session?.user).toBeUndefined();
@@ -87,7 +75,7 @@ describe('middleware authentication', () => {
         },
         expires: '2024-12-31T23:59:59Z',
       };
-      mockAuthFunction.mockResolvedValue(mockSession);
+      mockAuth.mockResolvedValue(mockSession);
       const session = await auth();
       expect(session).toEqual(mockSession);
       expect(session?.user?.role).toBeUndefined();
