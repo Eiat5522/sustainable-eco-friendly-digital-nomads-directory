@@ -39,8 +39,8 @@ describe('ListingCard', () => {
     slug: 'test-listing',
     description: 'A great place to stay',
     city: { _id: 'test-city-id', slug: 'test-city', name: 'Test City', listingCount: 1, country: 'Thailand' },
-    type: 'coworking',
-    priceRange: 'moderate',
+    type: ListingCategory.COWORKING,
+    priceRange: PriceRange.MODERATE,
     mainImage: { asset: { _ref: 'sanity-image-id', url: 'mock-sanity-image-url-sanity-image-id' } },
     galleryImages: [{ asset: { _ref: 'sanity-gallery-image-id', url: 'mock-sanity-image-url-sanity-gallery-image-id' } }],
     ecoTags: [

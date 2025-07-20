@@ -27,12 +27,14 @@ export interface ListingFilters {
   sustainabilityScore?: string;
 }
 
-const LISTING_TYPES: Array<{ id: ListingType; label: string }> = [
-  { id: 'coworking', label: 'Coworking Spaces' },
-  { id: 'cafe', label: 'Cafes' },
-  { id: 'accommodation', label: 'Accommodation' },
-  { id: 'restaurant', label: 'Restaurants' },
-  { id: 'activities', label: 'Activities' },
+import { ListingCategory } from '@/types/listing';
+
+const LISTING_TYPES: Array<{ id: ListingCategory; label: string }> = [
+  { id: ListingCategory.COWORKING, label: 'Coworking Spaces' },
+  { id: ListingCategory.CAFE, label: 'Cafes' },
+  { id: ListingCategory.ACCOMMODATION, label: 'Accommodation' },
+  { id: ListingCategory.RESTAURANT, label: 'Restaurants' },
+  { id: ListingCategory.ACTIVITIES, label: 'Activities' },
 ]
 
 const PRICE_RANGES = [
