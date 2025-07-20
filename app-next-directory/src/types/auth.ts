@@ -1,9 +1,9 @@
 // Auth types
-import { DefaultSession, DefaultUser } from "next-auth";
-import { JWT as NextAuthJWT } from "@auth/core/jwt";
+import { DefaultSession } from "next-auth";
+import { JWT as NextAuthJWT } from "next-auth/jwt";
 
 declare module "next-auth/jwt" {
-  interface JWT extends NextAuthJWT {
+  interface JWT {
     id: string;
     role?: UserRole;
     refreshTokenHash?: string;
@@ -424,7 +424,55 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       respondToContact: false,
     },
   },
-};
+},
+contentEditor: {
+  pages: {
+    home: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+    listings: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
+    listingDetail: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+    createListing: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
+    editListing: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+    manageListing: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: true },
+    reviews: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
+    profile: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+    admin: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+    analytics: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+    settings: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+    contact: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
+    about: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
+    blog: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
+  },
+  features: {
+    submitListings: true,
+    editOwnListings: true,
+    editAllListings: true,
+    deleteOwnListings: false,
+    deleteAllListings: false,
+    moderateListings: true,
+    submitReviews: true,
+    editOwnReviews: true,
+    editAllReviews: true,
+    deleteOwnReviews: false,
+    deleteAllReviews: false,
+    moderateReviews: true,
+    viewUserProfiles: true,
+    editOwnProfile: true,
+    editAllProfiles: false,
+    deleteUsers: false,
+    manageUserRoles: false,
+    createContent: true,
+    editContent: true,
+    deleteContent: false,
+    publishContent: true,
+    accessAnalytics: true,
+    manageSettings: false,
+    viewAuditLogs: false,
+    exportData: true,
+    submitContactForms: true,
+    viewContactSubmissions: true,
+    respondToContact: true,
+  },
+}
 
 // Utility functions for permission checking
 export function getUserPermissions(role: UserRole): { pages: any; features: FeaturePermissions } {
@@ -455,6 +503,7 @@ export const ROLE_HIERARCHY: Record<UserRole, number> = {
   moderator: 3,
   admin: 4,
   superAdmin: 5,
+  contentEditor: 1,
 };
 
 export function hasHigherRole(userRole: UserRole, requiredRole: UserRole): boolean {
@@ -488,7 +537,7 @@ export interface UserProfile {
   createdAt?: string;
 }
 
-export interface User extends DefaultUser {
+export interface User {
   id: string;
   role?: UserRole;
   refreshTokenHash?: string;

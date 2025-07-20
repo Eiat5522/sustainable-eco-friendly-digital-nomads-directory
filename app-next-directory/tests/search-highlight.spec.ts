@@ -1,8 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 test.describe('Search Highlighting', () => {
   // Helper function to count highlighted elements
-  const countHighlights = async (page) => {
+  const countHighlights = async (page: Page) => {
     return await page.locator('mark.bg-yellow-100').count();
   };
 

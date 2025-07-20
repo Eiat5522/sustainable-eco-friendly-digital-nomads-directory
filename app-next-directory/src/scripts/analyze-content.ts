@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import levenshtein from 'fast-levenshtein';
-import { client } from '../lib/sanity/client';
+const { client } = require('../lib/sanity/client');
 
 interface ContentAnalysisResult {
   thinContent: {
@@ -38,10 +38,11 @@ const REQUIRED_METADATA_FIELDS = [
 ];
 
 async function analyzeContent(): Promise<ContentAnalysisResult> {
-  const client = client();
+  // Use the imported client instance directly
+  const sanityClient = client;
 
   // Fetch all listings with their content
-  const listings = await client.fetch(`
+  const listings = await sanityClient.fetch(`
     *[_type == "listing"]{
       _id,
       name,

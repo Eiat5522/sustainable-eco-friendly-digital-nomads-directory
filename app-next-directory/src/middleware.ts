@@ -220,8 +220,6 @@ try {
 } catch {
   NextResponseReal = undefined;
 }
-export { auth as middleware } from "@/lib/auth";
-
 // Refined matcher configuration
 export const config = {
   matcher: [
@@ -251,8 +249,8 @@ export const config = {
   ],
 };
 
+
 // CJS/ESM compatibility for Jest
-// @ts-ignore
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { middleware, config, createMiddleware };
+  module.exports = { middleware: require('@/lib/auth').auth, config, createMiddleware };
 }

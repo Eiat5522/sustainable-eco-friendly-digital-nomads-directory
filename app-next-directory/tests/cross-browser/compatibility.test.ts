@@ -102,7 +102,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
 
       // All modern features should be supported
       Object.entries(jsFeatures).forEach(([feature, supported]) => {
-        expect(supported).toBeTruthy(`${feature} should be supported`);
+        expect(supported).toBeTruthy();
       });
     });
 
@@ -129,7 +129,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
 
       // All CSS features should be supported
       Object.entries(cssFeatures).forEach(([feature, supported]) => {
-        expect(supported).toBeTruthy(`${feature} should be supported`);
+        expect(supported).toBeTruthy();
       });
     });
   });
@@ -280,7 +280,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
             });
 
             // Add file to dataTransfer
-            const file = new File([content], 'test.png', { type: 'image/png' });
+            const file = new File([new Uint8Array(content)], 'test.png', { type: 'image/png' });
             event.dataTransfer?.items.add(file);
 
             dropZone.dispatchEvent(event);

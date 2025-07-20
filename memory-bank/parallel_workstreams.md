@@ -414,16 +414,21 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
     Errors, FileName
     ✅  src/__tests__/lib/sanity-http-client.test.ts:2
     ✅  src/utils/mapSanityListingToListing.ts:2 
-    2,  tests/api/user-dashboard.spec.ts:139
-    3,  tests/cross-browser-compatibility.test.ts:105
-    1,  tests/search-highlight.spec.ts:5
-    1,  tests/utils/test-setup.ts:47
+    ✅  tests/api/user-dashboard.spec.ts:139
+    ✅  tests/cross-browser-compatibility.test.ts:105
+    ✅  tests/search-highlight.spec.ts:5
+    ✅  tests/utils/test-setup.ts:47
 
      ## MISC.    
      
-     1  src/middleware.ts:257
-     3  src/scripts/analyze-content.ts:4
-     2  src/utils/mapSanityListingToListing.ts:2 
+     ✅  src/middleware.ts:257
+     ✅  src/scripts/analyze-content.ts:4
+     ✅  src/utils/mapSanityListingToListing.ts:2 
+
+     ## MISC 2.
+     ✅  src/types/auth.ts:2
+     ✅  src/types/listing.ts:82
+     ✅  src/__tests__/middleware-auth.test.ts:10
 
      ## Components
      1  src/components/cities/CityCarousel.tsx:17      
@@ -436,7 +441,7 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
      1  src/app/api/cities/[slug]/route.ts:2
      1  src/app/api/cities/route.ts:2
      1  src/app/api/events/route.ts:1
-     3  src/app/api/featured-listings/route.ts:1       
+     3  src/app/api/featured-listings/route.ts:1
      1  src/app/api/sanity-test/route.ts:2
      1  src/app/api/search/route.ts:1
 
@@ -464,4 +469,4 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
      3  src/lib/sanity/image.test.ts:2
      3  src/lib/sanity/image.ts:1
      1  src/lib/sanity/queries.ts:1
-
+     
