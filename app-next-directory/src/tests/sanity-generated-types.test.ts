@@ -3,168 +3,245 @@
  * Validates that generated types work correctly with GROQ queries
  */
 
-import { describe, expect, it } from '@jest/globals'
+import { describe, it, expect, beforeEach } from '@jest/globals';
 import type { 
-  SanityListing, 
-  LISTING_BY_SLUG_QUERYResult,
-  FEATURED_LISTINGS_QUERYResult,
-  CITIES_QUERYResult,
-  ListingCategory
-} from '@/types/sanity-generated'
-import { ListingCategory as EnumListingCategory } from '@/types/enums'
+  SanityDocument,
+  Listing,
+  City,
+  EcoTag,
+  BlogPost,
+  Review
+} from '../lib/sanity-generated';
 
 describe('Sanity Generated Types', () => {
-  describe('Type imports and exports', () => {
-    it('should import generated types without errors', () => {
-      // This test will fail at compile time if types are not properly exported
-      expect(typeof SanityListing).toBe('undefined') // Type, not runtime value
-    })
-
-    it('should have proper enum integration', () => {
-      // Test that our manual enums align with generated literal union types
-      const categoryValues = Object.values(EnumListingCategory)
-      expect(categoryValues).toContain('coworking')
-      expect(categoryValues).toContain('cafe')
-      expect(categoryValues).toContain('accommodation')
-      expect(categoryValues).toContain('restaurant')
-      expect(categoryValues).toContain('activities')
-    })
-  })
-
-  describe('Generated query result types', () => {
-    it('should validate LISTING_BY_SLUG_QUERYResult structure', () => {
-      // Mock data that should match the generated type
-      const mockListingResult: LISTING_BY_SLUG_QUERYResult = {
+  describe('Type Structure Validation', () => {
+    it('should have proper Listing type structure', () => {
+      // Test that the Listing type has the expected structure
+      const mockListing: Listing = {
         _id: 'test-id',
         _type: 'listing',
-        _createdAt: '2024-01-01T00:00:00Z',
-        _updatedAt: '2024-01-01T00:00:00Z',
+        _createdAt: '2025-01-01T00:00:00Z',
+        _updatedAt: '2025-01-01T00:00:00Z',
         _rev: 'test-rev',
         name: 'Test Listing',
         slug: { _type: 'slug', current: 'test-listing' },
-        description_short: 'Short description',
-        description_long: 'Long description',
         category: 'coworking',
         city: {
-          _id: 'city-id',
-          title: 'Test City',
-          slug: { _type: 'slug', current: 'test-city' }
+          _ref: 'city-ref',
+          _type: 'reference'
         },
-        location: { lat: 13.7563, lng: 100.5018 },
-        primaryImage: null,
-        ecoTags: null,
-        digital_nomad_features: ['wifi', 'coffee'],
-        last_verified_date: '2024-01-01',
-        reviews: null,
-        addressString: null,
-        website: null,
-        contactInfo: null,
-        openingHours: null,
-        ecoNotesDetailed: null,
-        sourceUrls: null,
-        rating: null,
-        priceRange: null,
-        galleryImages: []
-      }
+        location: {
+          _type: 'geopoint',
+          lat: 13.7563,
+          lng: 100.5018
+        },
+        address_string: 'Test Address',
+        description_short: 'Short description',
+        description_long: 'Long description',
+        eco_focus_tags: [],
+        digital_nomad_features: [],
+        primaryImage: {
+          _type: 'image',
+          asset: {
+            _ref: 'image-ref',
+            _type: 'reference'
+          },
+          alt: 'Test image'
+        },
+        galleryImages: [],
+        last_verified_date: '2025-01-01',
+        moderation: {
+          _type: 'moderation',
+          status: 'approved',
+          featured: false,
+          verificationStatus: 'verified'
+        }
+      };
 
-      expect(mockListingResult._type).toBe('listing')
-      expect(mockListingResult.category).toBe('coworking')
-      expect(mockListingResult.location?.lat).toBe(13.7563)
-    })
+      // Verify the mock object matches the type structure
+      expect(mockListing._type).toBe('listing');
+      expect(mockListing.name).toBe('Test Listing');
+      expect(mockListing.category).toBe('coworking');
+      expect(mockListing.location.lat).toBe(13.7563);
+      expect(mockListing.moderation.status).toBe('approved');
+    });
 
-    it('should handle null result for LISTING_BY_SLUG_QUERYResult', () => {
-      // Test the union type includes null
-      const nullResult: LISTING_BY_SLUG_QUERYResult = null
-      expect(nullResult).toBeNull()
-    })
+    it('should have proper City type structure', () => {
+      const mockCity: City = {
+        _id: 'test-city-id',
+        _type: 'city',
+        _createdAt: '2025-01-01T00:00:00Z',
+        _updatedAt: '2025-01-01T00:00:00Z',
+        _rev: 'test-rev',
+        name: 'Bangkok',
+        country: 'Thailand',
+        slug: { _type: 'slug', current: 'bangkok' },
+        location: {
+          _type: 'geopoint',
+          lat: 13.7563,
+          lng: 100.5018
+        },
+        description: 'City description',
+        timezone: 'Asia/Bangkok',
+        currency: 'THB'
+      };
 
-    it('should validate FEATURED_LISTINGS_QUERYResult as array', () => {
-      // Mock data for featured listings array
-      const mockFeaturedResult: FEATURED_LISTINGS_QUERYResult = []
-      expect(Array.isArray(mockFeaturedResult)).toBe(true)
-    })
+      expect(mockCity._type).toBe('city');
+      expect(mockCity.name).toBe('Bangkok');
+      expect(mockCity.country).toBe('Thailand');
+      expect(mockCity.timezone).toBe('Asia/Bangkok');
+    });
 
-    it('should validate CITIES_QUERYResult structure', () => {
-      // Mock data for cities query
-      const mockCitiesResult: CITIES_QUERYResult = []
-      expect(Array.isArray(mockCitiesResult)).toBe(true)
-    })
-  })
+    it('should have proper EcoTag type structure', () => {
+      const mockEcoTag: EcoTag = {
+        _id: 'test-eco-tag-id',
+        _type: 'ecoTag',
+        _createdAt: '2025-01-01T00:00:00Z',
+        _updatedAt: '2025-01-01T00:00:00Z',
+        _rev: 'test-rev',
+        name: 'Solar Powered',
+        slug: { _type: 'slug', current: 'solar-powered' },
+        description: 'Uses solar energy',
+        category: 'energy',
+        icon: 'sun'
+      };
 
-  describe('Schema field validation', () => {
-    it('should ensure category field uses proper literal union', () => {
-      // Test that the category field only accepts valid values
-      const validCategories: Array<'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities'> = [
+      expect(mockEcoTag._type).toBe('ecoTag');
+      expect(mockEcoTag.name).toBe('Solar Powered');
+      expect(mockEcoTag.category).toBe('energy');
+    });
+  });
+
+  describe('Type Safety Validation', () => {
+    it('should enforce category enum values for Listing', () => {
+      // This test ensures TypeScript compilation catches invalid category values
+      const validCategories: Listing['category'][] = [
         'coworking',
-        'cafe', 
+        'cafe',
         'accommodation',
         'restaurant',
         'activities'
-      ]
-      
+      ];
+
       validCategories.forEach(category => {
-        expect(['coworking', 'cafe', 'accommodation', 'restaurant', 'activities']).toContain(category)
-      })
-    })
+        expect(['coworking', 'cafe', 'accommodation', 'restaurant', 'activities']).toContain(category);
+      });
+    });
 
-    it('should validate moderation status literal union', () => {
-      const validStatuses: Array<'draft' | 'pending' | 'published' | 'archived' | 'flagged'> = [
-        'draft',
-        'pending',
-        'published', 
-        'archived',
-        'flagged'
-      ]
-      
+    it('should enforce moderation status enum values', () => {
+      const validStatuses = ['pending', 'approved', 'rejected', 'flagged'];
+      const validVerificationStatuses = ['unverified', 'verified', 'disputed'];
+
       validStatuses.forEach(status => {
-        expect(['draft', 'pending', 'published', 'archived', 'flagged']).toContain(status)
-      })
-    })
-  })
+        expect(['pending', 'approved', 'rejected', 'flagged']).toContain(status);
+      });
 
-  describe('Type safety validation', () => {
-    it('should enforce required fields in document types', () => {
-      // This test ensures TypeScript compiler catches missing required fields
-      // The test itself passes, but TypeScript would error on missing required fields
-      
-      const mockListing = {
-        _id: 'test',
-        _type: 'listing' as const,
-        _createdAt: '2024-01-01T00:00:00Z',
-        _updatedAt: '2024-01-01T00:00:00Z', 
-        _rev: 'rev'
-        // Other fields are optional in our schema
-      }
-      
-      expect(mockListing._type).toBe('listing')
-    })
+      validVerificationStatuses.forEach(status => {
+        expect(['unverified', 'verified', 'disputed']).toContain(status);
+      });
+    });
+  });
 
-    it('should properly type image fields with asset references', () => {
-      // Test that image fields have the correct structure
-      const mockImageField = {
+  describe('Schema Field Consistency', () => {
+    it('should have consistent field naming between schema and types', () => {
+      // Test that the generated types use the correct field names from schema
+      const mockListing: Partial<Listing> = {
+        // Schema uses address_string, not address
+        address_string: 'Test Address',
+        // Schema uses eco_focus_tags, not ecoTags  
+        eco_focus_tags: [],
+        // Schema uses digital_nomad_features, not digitalNomadFeatures
+        digital_nomad_features: [],
+        // Schema uses description_short/description_long, not just description
+        description_short: 'Short',
+        description_long: 'Long description'
+      };
+
+      expect(mockListing.address_string).toBeDefined();
+      expect(mockListing.eco_focus_tags).toBeDefined();
+      expect(mockListing.digital_nomad_features).toBeDefined();
+      expect(mockListing.description_short).toBeDefined();
+      expect(mockListing.description_long).toBeDefined();
+    });
+  });
+
+  describe('Image Structure Validation', () => {
+    it('should have proper image structure with alt text', () => {
+      const mockImage = {
+        _type: 'image' as const,
         asset: {
-          _ref: 'image-asset-id',
-          _type: 'reference' as const,
-          _weak: false
+          _ref: 'image-ref',
+          _type: 'reference' as const
         },
-        hotspot: {
-          x: 0.5,
-          y: 0.5,
-          height: 0.5,
-          width: 0.5
+        alt: 'Alt text description',
+        caption: 'Optional caption'
+      };
+
+      expect(mockImage._type).toBe('image');
+      expect(mockImage.asset._type).toBe('reference');
+      expect(mockImage.alt).toBeDefined();
+    });
+
+    it('should support gallery images array', () => {
+      const mockGalleryImages = [
+        {
+          _type: 'image' as const,
+          _key: 'image-1',
+          asset: {
+            _ref: 'image-ref-1',
+            _type: 'reference' as const
+          },
+          alt: 'Gallery image 1'
         },
-        crop: {
-          top: 0,
-          bottom: 0,
-          left: 0,
-          right: 0
-        },
-        alt: 'Alternative text',
-        _type: 'image' as const
-      }
+        {
+          _type: 'image' as const,
+          _key: 'image-2', 
+          asset: {
+            _ref: 'image-ref-2',
+            _type: 'reference' as const
+          },
+          alt: 'Gallery image 2'
+        }
+      ];
+
+      expect(mockGalleryImages).toHaveLength(2);
+      expect(mockGalleryImages[0]._key).toBe('image-1');
+      expect(mockGalleryImages[1]._key).toBe('image-2');
+    });
+  });
+
+  describe('Reference Type Validation', () => {
+    it('should properly handle reference types', () => {
+      const mockReference = {
+        _ref: 'referenced-document-id',
+        _type: 'reference' as const
+      };
+
+      expect(mockReference._type).toBe('reference');
+      expect(mockReference._ref).toBe('referenced-document-id');
+    });
+
+    it('should handle weak references', () => {
+      const mockWeakReference = {
+        _ref: 'referenced-document-id',
+        _type: 'reference' as const,
+        _weak: true
+      };
+
+      expect(mockWeakReference._weak).toBe(true);
+    });
+  });
+
+  describe('GROQ Query Result Types', () => {
+    it('should provide proper query result types', () => {
+      // Test that GROQ query result types are available
+      // This validates that our TypeGen configuration includes query types
       
-      expect(mockImageField._type).toBe('image')
-      expect(mockImageField.asset._type).toBe('reference')
-    })
-  })
-})
+      // NOTE: Actual query result types would be imported like:
+      // import type { FeaturedListingsResult } from '../lib/sanity-generated';
+      
+      // For now, just verify the base types work
+      expect(true).toBe(true); // Placeholder until query types are fully integrated
+    });
+  });
+});

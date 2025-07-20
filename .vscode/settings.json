@@ -12,8 +12,18 @@
     "!**/node_modules",
     "!**/.git",
     "!**/vendor",
-    "!**/*.instructions.md"
+    "!**/*.instructions.md",
+    "!**/*.chatmode.md"
   ],
+  "markdown.validate.ignoredLinks": [
+    "#runmode-chooser",
+    "#runmode-tradeoff",
+    "#quick-fix-chooser",
+    "#virtual-folders",
+    "#outputconfig-conflict",
+    "#runmode-migration",
+    "#auto-recovery-login-shell"
+    ],
   "gitlens.graph.onlyFollowFirstParent": true,
   "git.openRepositoryInParentFolders": "never",
   "npm.packageManager": "pnpm",

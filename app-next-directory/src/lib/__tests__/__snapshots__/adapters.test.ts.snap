@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`jsonToSanityListing should convert a full JsonListing to SanityListing format 1`] = `
 {
@@ -46,6 +46,7 @@ exports[`jsonToSanityListing should convert a full JsonListing to SanityListing 
   },
   "name": "Eco Space",
   "priceRange": "moderate",
+  "price_indication": "moderate",
   "rating": 4.5,
   "slug": "eco-space",
   "type": "coworking",
