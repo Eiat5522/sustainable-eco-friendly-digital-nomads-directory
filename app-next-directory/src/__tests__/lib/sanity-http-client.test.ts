@@ -1,5 +1,5 @@
 import { SanityHTTPClient, SanityAPIError } from '../../lib/sanity-http-client';
-import { createClient } from '../../lib/sanity/client';
+const { createClient } = require('../../lib/sanity/client');
 import { Buffer } from 'buffer';
 
 // Mock @sanity/client

@@ -412,10 +412,56 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
 ⌛ src/__tests__/__mocks__/api-response.ts
 
     Errors, FileName
-     1,  src/__tests__/lib/sanity-http-client.test.ts:2
-     2,  src/utils/mapSanityListingToListing.ts:2 
-     2,  tests/api/user-dashboard.spec.ts:139
-     3,  tests/cross-browser/compatibility.test.ts:105
-     1,  tests/search-highlight.spec.ts:5
-     1,  tests/utils/test-setup.ts:47
-  
+    ✅  src/__tests__/lib/sanity-http-client.test.ts:2
+    ✅  src/utils/mapSanityListingToListing.ts:2 
+    2,  tests/api/user-dashboard.spec.ts:139
+    3,  tests/cross-browser-compatibility.test.ts:105
+    1,  tests/search-highlight.spec.ts:5
+    1,  tests/utils/test-setup.ts:47
+
+     ## MISC.    
+     
+     1  src/middleware.ts:257
+     3  src/scripts/analyze-content.ts:4
+     2  src/utils/mapSanityListingToListing.ts:2 
+
+     ## Components
+     1  src/components/cities/CityCarousel.tsx:17      
+     5  src/components/ListingFilters.tsx:31
+     2  src/components/listings/ListingCard.test.tsx:42
+
+     ## API Routes
+     1  src/app/api/blog/[slug]/route.ts:1
+     1  src/app/api/blog/route.ts:1
+     1  src/app/api/cities/[slug]/route.ts:2
+     1  src/app/api/cities/route.ts:2
+     1  src/app/api/events/route.ts:1
+     3  src/app/api/featured-listings/route.ts:1       
+     1  src/app/api/sanity-test/route.ts:2
+     1  src/app/api/search/route.ts:1
+
+     ## Pages
+     1  src/app/blog/[slug]/page.tsx:8
+     1  src/app/blog/page.tsx:6
+     1  src/app/city/[slug]/page.tsx:2
+     3  src/app/listings/[slug]/page.tsx:51
+     1  src/app/listings/ListingsPage.tsx:52
+     1  src/app/sitemap.ts:1
+
+     ## Libraries
+     1  src/lib/adapters.ts:20
+     2  src/lib/analytics/config.ts:1
+     1  src/lib/analytics/experiments.ts:22
+     1  src/lib/mongodb/schemas/session.ts:1
+     1  src/lib/performance/budgets.ts:85
+     1  src/lib/search.ts:2
+     1  src/lib/sanity-batch-processor.ts:292
+     1  src/lib/sanity-http-client.ts:7
+     2  src/lib/sanity-image-uploader.ts:81
+     2  src/lib/sanity/client.test.ts:92
+     1  src/lib/sanity/client.ts:65
+     4  src/lib/sanity/data.ts:2
+     3  src/lib/sanity/image.test.ts:2
+     3  src/lib/sanity/image.ts:1
+     1  src/lib/sanity/queries.ts:1
+

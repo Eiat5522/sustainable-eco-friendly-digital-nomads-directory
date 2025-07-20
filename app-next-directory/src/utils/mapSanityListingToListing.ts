@@ -1,14 +1,15 @@
 import { SanityListing } from '@/types/sanity';
-import { Listing, ListingType, PriceRange, EcoTag, City } from '@/types/listing';
+import { Listing, ListingType, EcoTag, City } from '@/types/listing';
+import { PriceRange, ListingCategory } from '@/types/enums';
 
 export function mapSanityListingToListing(sanity: SanityListing): Listing {
   return {
     _id: sanity._id,
     name: sanity.name,
     description: sanity.description_short || '',
-    type: (['coworking', 'cafe', 'accommodation', 'restaurant', 'activities'] as ListingType[]).includes(sanity.category as ListingType)
-      ? (sanity.category as ListingType)
-      : 'coworking', // Default to 'coworking' if invalid
+    type: Object.values(ListingCategory).includes(sanity.category as ListingCategory)
+      ? (sanity.category as ListingCategory)
+      : ListingCategory.COWORKING, // Default to COWORKING if invalid
     slug: typeof sanity.slug === 'string' ? sanity.slug : sanity.slug?.current || '', // Handle cases where `current` is undefined
     ecoTags: sanity.eco_focus_tags?.map((tag) => ({
       _id: tag._id,
