@@ -29,7 +29,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
     <div className="container mx-auto max-w-5xl px-4 py-8">
       <article className="space-y-8">
         <div>
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-2">{listing.name}</h1>
+          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-2">{listing.name ?? ''}</h1>
           {listing.city && (
             <Link href={`/cities/${listing.city.slug}`} className="text-lg text-muted-foreground hover:text-primary">
               {listing.city.title}
@@ -48,7 +48,11 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           />
         </div>
 
-        <ListingDetail listing={listing} />
+        <ListingDetail listing={{
+          ...listing,
+          name: listing.name ?? '',
+          eco_features: listing.ecoTags as string[] ?? []
+        }} />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2 space-y-6">
@@ -112,7 +116,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               </CardContent>
             </Card>
 
-            {listing.ecoTags && listing.ecoTags.length > 0 && (
+            {listing.ecoTags && Array.isArray(listing.ecoTags) && listing.ecoTags.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Eco Tags</CardTitle>

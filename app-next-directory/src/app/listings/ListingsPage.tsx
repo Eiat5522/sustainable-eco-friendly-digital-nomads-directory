@@ -49,7 +49,7 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
       </section>      
       {/* Listings Grid */}
       <section className="mb-16">
-        <FeaturedListings listings={initialListings} />
+        <FeaturedListings listings={initialListings as (Listing | SanityListing)[]} />
       </section>
     </main>
   );

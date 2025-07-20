@@ -438,9 +438,9 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
      ## MISC 3.
     ✅ src/__tests__/middleware-auth.test.ts:6
     ✅ src/app/api/featured-listings/route.ts:1
-    []  src/types/listing.ts:2
-    []  src/app/listings/[slug]/page.tsx:51
-    []src/app/listings/ListingsPage.tsx:52
+    ✅ src/types/listing.ts:2
+    ✅ src/app/listings/[slug]/page.tsx:51
+ 
     
      ## Libraries
      1  src/lib/adapters.ts:20
