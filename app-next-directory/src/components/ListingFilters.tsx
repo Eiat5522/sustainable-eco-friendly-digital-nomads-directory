@@ -27,7 +27,7 @@ export interface ListingFilters {
   sustainabilityScore?: string;
 }
 
-import { ListingCategory } from '@/types/listing';
+import { ListingCategory } from '@/types/enums';
 
 const LISTING_TYPES: Array<{ id: ListingCategory; label: string }> = [
   { id: ListingCategory.COWORKING, label: 'Coworking Spaces' },

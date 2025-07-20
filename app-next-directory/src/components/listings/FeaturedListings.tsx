@@ -53,8 +53,11 @@ interface Listing {
   price?: number;
 }
 
+import { Listing } from '@/types/listings';
+import { SanityListing } from '@/types/sanity';
+
 interface FeaturedListingsProps {
-  listings: Listing[];
+  listings: Array<Listing | SanityListing>;
 }
 
 export default function FeaturedListings({ listings }: FeaturedListingsProps) {

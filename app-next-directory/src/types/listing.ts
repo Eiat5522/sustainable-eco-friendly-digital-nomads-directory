@@ -33,10 +33,11 @@ export interface Listing {
   _id: string
   name: string
   slug: string
-  description: string
-  type: ListingType
-  priceRange?: PriceRange; // Add the missing property
-  mainImage: {
+  description_short?: string
+  description_long?: string
+  category: ListingType
+  priceRange?: PriceRange;
+  primaryImage?: {
     asset: {
       _ref: string
       url: string
@@ -48,11 +49,11 @@ export interface Listing {
       url: string
     }
   }>
-  city: City
-  ecoTags: EcoTag[]
+  city?: City
+  ecoTags: string[]  // Changed from eco_focus_tags to match Sanity data
   ecoRating?: number
-  address: string
-  rating: number
+  addressString: string  // Changed from address_string to camelCase
+  rating?: number
   website?: string
   phone?: string
   email?: string
@@ -71,10 +72,10 @@ export interface Listing {
     sunday?: string
   }
   amenities?: string[]
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
   price?: number
-  price_indication: string;
+  priceIndication?: string;  // Changed from price_indication to camelCase
   coordinates?: [number, number]
 }
 

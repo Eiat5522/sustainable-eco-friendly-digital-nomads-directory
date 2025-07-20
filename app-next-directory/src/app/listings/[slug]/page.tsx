@@ -51,7 +51,14 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
         <ListingDetail listing={{
           ...listing,
           name: listing.name ?? '',
-          eco_features: listing.ecoTags as string[] ?? []
+          description_short: listing.description_short ?? undefined,
+          description_long: listing.description_long ?? undefined,
+          category: listing.category ?? undefined,
+          eco_features: Array.isArray(listing.ecoTags) ? listing.ecoTags : [],
+          galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : undefined,
+          city: listing.city
+            ? { ...listing.city, title: listing.city.title ?? '', slug: listing.city.slug ?? '' }
+            : undefined
         }} />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -116,13 +123,13 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               </CardContent>
             </Card>
 
-            {listing.ecoTags && Array.isArray(listing.ecoTags) && listing.ecoTags.length > 0 && (
+            {Array.isArray(listing.ecoTags) && (listing.ecoTags as string[]).length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Eco Tags</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-2">
-                  {listing.ecoTags.map((tag: string) => (
+                  {(listing.ecoTags as string[]).map((tag: string) => (
                     <Badge key={tag} variant="secondary">
                       {tag}
                     </Badge>
