@@ -80,7 +80,7 @@ export interface Listing {
 
 // Specific listing type interfaces
 export interface CoworkingListing extends Listing {
-  type: 'coworking'
+  type: ListingCategory.COWORKING
   coworkingDetails: {
     deskTypes: Array<'hot' | 'dedicated' | 'private'>
     meetingRooms: boolean
@@ -99,7 +99,7 @@ export interface CoworkingListing extends Listing {
 }
 
 export interface CafeListing extends Listing {
-  type: 'cafe'
+  type: ListingCategory.CAFE
   cafeDetails: {
     wifi: boolean
     powerOutlets: boolean
@@ -112,7 +112,7 @@ export interface CafeListing extends Listing {
 }
 
 export interface AccommodationListing extends Listing {
-  type: 'accommodation'
+  type: ListingCategory.ACCOMMODATION
   accommodationDetails: {
     roomTypes: Array<'private' | 'shared' | 'dorm'>
     minStay: number
@@ -129,7 +129,7 @@ export interface AccommodationListing extends Listing {
 }
 
 export interface RestaurantListing extends Listing {
-  type: 'restaurant'
+  type: ListingCategory.RESTAURANT
   restaurantDetails: {
     cuisine: string[]
     dietaryOptions: Array<'vegan' | 'vegetarian' | 'glutenFree' | 'dairyFree'>
@@ -142,7 +142,7 @@ export interface RestaurantListing extends Listing {
 }
 
 export interface ActivitiesListing extends Listing {
-  type: 'activities'
+  type: ListingCategory.ACTIVITIES
   activitiesDetails: {
     category: Array<'outdoor' | 'wellness' | 'culture' | 'sports'>
     duration: string

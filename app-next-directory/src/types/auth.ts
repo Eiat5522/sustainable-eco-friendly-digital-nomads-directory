@@ -136,7 +136,7 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       respondToContact: true,
     },
   },
-  superAdmin: { // Added superAdmin definition
+  superAdmin: {
     pages: {
       home: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
       listings: { canView: true, canCreate: true, canEdit: true, canDelete: true, canManage: true },
@@ -376,6 +376,54 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       respondToContact: true,
     },
   },
+  contentEditor: {
+    pages: {
+      home: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+      listings: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
+      listingDetail: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+      createListing: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
+      editListing: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+      manageListing: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: true },
+      reviews: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
+      profile: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
+      admin: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      analytics: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      settings: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
+      contact: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
+      about: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
+      blog: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
+    },
+    features: {
+      submitListings: true,
+      editOwnListings: true,
+      editAllListings: true,
+      deleteOwnListings: false,
+      deleteAllListings: false,
+      moderateListings: true,
+      submitReviews: true,
+      editOwnReviews: true,
+      editAllReviews: true,
+      deleteOwnReviews: false,
+      deleteAllReviews: false,
+      moderateReviews: true,
+      viewUserProfiles: true,
+      editOwnProfile: true,
+      editAllProfiles: false,
+      deleteUsers: false,
+      manageUserRoles: false,
+      createContent: true,
+      editContent: true,
+      deleteContent: false,
+      publishContent: true,
+      accessAnalytics: true,
+      manageSettings: false,
+      viewAuditLogs: false,
+      exportData: true,
+      submitContactForms: true,
+      viewContactSubmissions: true,
+      respondToContact: true,
+    },
+  },
   unidentifiedUser: {
     pages: {
       home: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
@@ -423,56 +471,8 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       viewContactSubmissions: false,
       respondToContact: false,
     },
-  },
-},
-contentEditor: {
-  pages: {
-    home: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-    listings: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
-    listingDetail: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-    createListing: { canView: true, canCreate: true, canEdit: false, canDelete: false, canManage: false },
-    editListing: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-    manageListing: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: true },
-    reviews: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
-    profile: { canView: true, canCreate: false, canEdit: true, canDelete: false, canManage: false },
-    admin: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-    analytics: { canView: true, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-    settings: { canView: false, canCreate: false, canEdit: false, canDelete: false, canManage: false },
-    contact: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
-    about: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: false },
-    blog: { canView: true, canCreate: true, canEdit: true, canDelete: false, canManage: true },
-  },
-  features: {
-    submitListings: true,
-    editOwnListings: true,
-    editAllListings: true,
-    deleteOwnListings: false,
-    deleteAllListings: false,
-    moderateListings: true,
-    submitReviews: true,
-    editOwnReviews: true,
-    editAllReviews: true,
-    deleteOwnReviews: false,
-    deleteAllReviews: false,
-    moderateReviews: true,
-    viewUserProfiles: true,
-    editOwnProfile: true,
-    editAllProfiles: false,
-    deleteUsers: false,
-    manageUserRoles: false,
-    createContent: true,
-    editContent: true,
-    deleteContent: false,
-    publishContent: true,
-    accessAnalytics: true,
-    manageSettings: false,
-    viewAuditLogs: false,
-    exportData: true,
-    submitContactForms: true,
-    viewContactSubmissions: true,
-    respondToContact: true,
-  },
-}
+  }
+};
 
 // Utility functions for permission checking
 export function getUserPermissions(role: UserRole): { pages: any; features: FeaturePermissions } {
@@ -511,7 +511,6 @@ export function hasHigherRole(userRole: UserRole, requiredRole: UserRole): boole
 }
 
 // Extend the built-in session types
-
 
 // Define auth form types
 export interface SignInFormValues {

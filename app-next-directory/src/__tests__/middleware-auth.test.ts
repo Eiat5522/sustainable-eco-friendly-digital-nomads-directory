@@ -7,10 +7,10 @@ import type { UserRole } from '@/types/auth';
 
 // Mock the auth function
 jest.mock('@/lib/auth', () => ({
-  auth: jest.fn<Promise<Session | null>, []>(),
+  auth: jest.fn(),
 }));
 import { auth } from '@/lib/auth';
-const mockAuth = auth as jest.MockedFunction<() => Promise<Session | null>>;
+const mockAuth = auth as jest.MockedFunction<typeof auth>;
 
 describe('middleware authentication', () => {
   beforeAll(() => {
@@ -61,7 +61,7 @@ describe('middleware authentication', () => {
     });
 
     it('should handle session with undefined user', async () => {
-      const mockSession: Session = {
+      const mockSession: Partial<Session> = {
         expires: '2024-12-31T23:59:59Z',
         user: undefined
       };
