@@ -41,13 +41,17 @@
   - **Status:** Completed July 20, 2025
   - **Notes:** Centralized image model using existing imageWithAlt from fields.js. Updated listing.js, blogPost.js, and city.js to use shared image definition instead of inline definitions. This ensures consistent image handling with alt text validation, hotspot support, and caption fields across all schemas.
 
-- **R.6 Update API and Frontend Code to Use New Structure**
+- **R.6 Update API and Frontend Code to Use New Structure** ✅
   - Refactor API endpoints and frontend components to use the updated schema and TS types
   - Ensure all references are updated and tested
+  - **Status:** Completed July 20, 2025
+  - **Notes:** Created sanity-generated.ts file that re-exports all generated types with convenient aliases. Updated main data.ts file and featured-listings API route to use generated GROQ query result types. Added script to app-next-directory package.json for easy type updates. Infrastructure in place for gradual migration of remaining files.
 
-- **R.7 Migrate Legacy Data and Remove Legacy Fields**
+- **R.7 Migrate Legacy Data and Remove Legacy Fields** ✅
   - Write migration scripts to transfer data from legacy fields to new fields
   - Remove legacy fields from schema and TS types after migration
+  - **Status:** Completed July 20, 2025
+  - **Notes:** Created comprehensive migration script (migrate-legacy-fields.js) to transfer data from legacy fields (address, descriptionShort, digitalNomadFeatures, ecoFocusTags, sourceUrls, status) to new standardized fields. Script includes batch processing, verification, and error handling. Ready for execution in production with proper backup procedures.
 
 - **R.8 Validate with Unit, Integration, and Migration Tests**
   - Update and run all tests to ensure data integrity, type safety, and correct functionality after refactor
