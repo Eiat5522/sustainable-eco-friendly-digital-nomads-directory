@@ -141,3 +141,6 @@ utils/README.md
 app-next-directory/docs/functional-specs/sso-onboarding-pseudocode.md
 app-next-directory/docs/functional-specs/sso-onboarding-spec.md
 **/*terminal_output
+**/*output.txt**
+**/*output2.txt**
+**/*results.txt
