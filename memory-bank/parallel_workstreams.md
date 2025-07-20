@@ -436,13 +436,12 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
      ✅ src/components/listings/ListingCard.test.tsx:42
 
      ## MISC 3.
-     2  src/__tests__/middleware-auth.test.ts:6
-     3  src/types/listing.ts:2
-     2  src/app/api/featured-listings/route.ts:1
-     3  src/app/listings/[slug]/page.tsx:51
-     1  src/app/listings/ListingsPage.tsx:52
+    ✅ src/__tests__/middleware-auth.test.ts:6
+    ✅ src/app/api/featured-listings/route.ts:1
+    []  src/types/listing.ts:2
+    []  src/app/listings/[slug]/page.tsx:51
+    []src/app/listings/ListingsPage.tsx:52
     
-
      ## Libraries
      1  src/lib/adapters.ts:20
      2  src/lib/analytics/config.ts:1
