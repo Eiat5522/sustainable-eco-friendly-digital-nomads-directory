@@ -433,7 +433,7 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
      ## Components
      1  src/components/cities/CityCarousel.tsx:17      
      5  src/components/ListingFilters.tsx:31
-     2  src/components/listings/ListingCard.test.tsx:42
+     3  src/components/listings/ListingCard.test.tsx:42
 
      ## API Routes
      1  src/app/api/blog/[slug]/route.ts:1

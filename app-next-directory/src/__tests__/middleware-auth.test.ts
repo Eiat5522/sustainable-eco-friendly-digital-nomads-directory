@@ -1,16 +1,25 @@
-// Import Jest first
 import { describe, it, expect, jest, beforeAll, beforeEach } from '@jest/globals';
-
-// Import types from next-auth
 import type { Session } from 'next-auth';
 import type { UserRole } from '@/types/auth';
 
-// Mock the auth function
-jest.mock('@/lib/auth', () => ({
-  auth: jest.fn(),
-}));
+// Mock the auth module and export a mock function
+let mockAuthFunction: jest.Mock<Promise<Session | null>>;
+jest.mock('@/lib/auth', () => {
+  mockAuthFunction = jest.fn();
+  return {
+    auth: mockAuthFunction,
+    authOptions: {
+      providers: [],
+    },
+    handlers: {
+      GET: jest.fn(),
+      POST: jest.fn(),
+    },
+    getToken: jest.fn(),
+  };
+});
+
 import { auth } from '@/lib/auth';
-const mockAuth = auth as jest.MockedFunction<typeof auth>;
 
 describe('middleware authentication', () => {
   beforeAll(() => {
@@ -19,11 +28,12 @@ describe('middleware authentication', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAuthFunction.mockClear();
   });
 
   describe('auth function integration', () => {
     it('should handle null session correctly', async () => {
-      mockAuth.mockResolvedValue(null as any);
+      mockAuthFunction.mockResolvedValue(null);
       const session = await auth();
       expect(session).toBeNull();
     });
@@ -37,8 +47,7 @@ describe('middleware authentication', () => {
         },
         expires: '2024-12-31T23:59:59Z',
       };
-      
-      mockAuth.mockResolvedValue(mockSession as any);
+      mockAuthFunction.mockResolvedValue(mockSession);
       const session = await auth();
       expect(session).toEqual(mockSession);
       expect(session?.user?.role).toBe('user');
@@ -53,20 +62,18 @@ describe('middleware authentication', () => {
         },
         expires: '2024-12-31T23:59:59Z',
       };
-      
-      mockAuth.mockResolvedValue(mockSession as any);
+      mockAuthFunction.mockResolvedValue(mockSession);
       const session = await auth();
       expect(session).toEqual(mockSession);
       expect(session?.user?.role).toBe('admin');
     });
 
     it('should handle session with undefined user', async () => {
-      const mockSession: Partial<Session> = {
+      const mockSession: Session = {
         expires: '2024-12-31T23:59:59Z',
-        user: undefined
+        user: undefined as any
       };
-      
-      mockAuth.mockResolvedValue(mockSession as any);
+      mockAuthFunction.mockResolvedValue(mockSession);
       const session = await auth();
       expect(session).toEqual(mockSession);
       expect(session?.user).toBeUndefined();
@@ -80,8 +87,7 @@ describe('middleware authentication', () => {
         },
         expires: '2024-12-31T23:59:59Z',
       };
-      
-      mockAuth.mockResolvedValue(mockSession as any);
+      mockAuthFunction.mockResolvedValue(mockSession);
       const session = await auth();
       expect(session).toEqual(mockSession);
       expect(session?.user?.role).toBeUndefined();
@@ -89,14 +95,12 @@ describe('middleware authentication', () => {
   });
 
   describe('middleware access control logic', () => {
-    // Test the access control logic that would be used in middleware
     it('should define proper user roles', () => {
       const userRole: UserRole = 'user';
       const adminRole: UserRole = 'admin';
       const contentEditorRole: UserRole = 'contentEditor';
       const venueOwnerRole: UserRole = 'venueOwner';
       const unidentifiedRole: UserRole = 'unidentifiedUser';
-      
       expect(userRole).toBe('user');
       expect(adminRole).toBe('admin');
       expect(contentEditorRole).toBe('contentEditor');
@@ -113,7 +117,6 @@ describe('middleware authentication', () => {
         '/api/user/profile',
         '/api/admin/stats'
       ];
-      
       protectedRoutes.forEach(route => {
         expect(route).toMatch(/^\/[a-zA-Z0-9/_-]+$/);
       });
@@ -128,7 +131,6 @@ describe('middleware authentication', () => {
         '/auth/signin',
         '/auth/signup'
       ];
-      
       publicRoutes.forEach(route => {
         expect(route).toMatch(/^\/[a-zA-Z0-9/_-]*$/);
       });
@@ -141,7 +143,6 @@ describe('middleware authentication', () => {
         '/api/listings',
         '/api/reviews'
       ];
-      
       apiRoutes.forEach(route => {
         expect(route).toMatch(/^\/api\/[a-zA-Z0-9/_-]+$/);
       });
@@ -156,10 +157,7 @@ describe('middleware authentication', () => {
     it('should handle missing NEXTAUTH_SECRET', () => {
       const originalSecret = process.env.NEXTAUTH_SECRET;
       delete (process.env as Record<string, string | undefined>).NEXTAUTH_SECRET;
-      
       expect(process.env.NEXTAUTH_SECRET).toBeUndefined();
-      
-      // Restore the secret
       process.env.NEXTAUTH_SECRET = originalSecret;
     });
   });

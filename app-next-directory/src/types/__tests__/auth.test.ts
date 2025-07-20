@@ -1,4 +1,3 @@
-
 import type { UserRole, PagePermissions, FeaturePermissions } from '../auth';
 import { getUserPermissions, hasPagePermission, hasFeaturePermission, hasHigherRole } from '../auth';
 
@@ -54,7 +53,7 @@ describe('auth types coverage', () => {
     expect(featurePerms.editAllListings).toBe(false);
   });
   it('should call getUserPermissions for all roles', () => {
-    const roles: UserRole[] = ['admin', 'user', 'editor', 'venueOwner', 'superAdmin'];
+    const roles: UserRole[] = ['admin', 'user', 'editor', 'venueOwner', 'superAdmin', 'moderator', 'unidentifiedUser', 'contentEditor'];
     for (const role of roles) {
       const perms = getUserPermissions(role);
       expect(perms).toHaveProperty('pages');
@@ -73,7 +72,7 @@ describe('auth types coverage', () => {
   });
 
   it('should check hasHigherRole for all role pairs', () => {
-    const roles: UserRole[] = ['user', 'editor', 'venueOwner', 'admin', 'superAdmin'];
+    const roles: UserRole[] = ['admin', 'user', 'editor', 'venueOwner', 'superAdmin', 'moderator', 'unidentifiedUser', 'contentEditor'];
     for (let i = 0; i < roles.length; i++) {
       for (let j = 0; j < roles.length; j++) {
         hasHigherRole(roles[i], roles[j]);
