@@ -497,9 +497,7 @@ Next steps:
 
 ### 🗒️Scratch Pad
 
-- Check whether both FeaturedListings.tsx pages are currently in use:
-  1. app-next-directory\src\components\listings\FeaturedListings.tsx
-  2. app-next-directory\src\components\home\FeaturedListings.tsx
+Develop a comprehensive schema and type mapping document for a Sanity "Listing" document. This document should visually represent the database schema, illustrating relationships between the "Listing" document and all related entities (other Sanity documents, objects, etc.). The mapping should clearly depict the structure and connections within the Sanity data model. Furthermore, the document must include a detailed table that lists all fields within the "Listing" schema, alongside their corresponding TypeScript types. This table should explicitly map each Sanity field to its appropriate TypeScript type, ensuring accurate type representation for the "Listing" document and its associated data.
 
 ### Progress Tracking
 

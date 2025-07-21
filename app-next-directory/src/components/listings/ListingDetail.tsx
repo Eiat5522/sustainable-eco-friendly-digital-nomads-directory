@@ -89,11 +89,13 @@ export function ListingDetail({ listing }: ListingProps) {
         shortDescription: listing.shortDescription ?? '',
         longDescription: listing.longDescription ?? '',
         ecoTags: listing.ecoTags ?? [],
-        ecoTags: listing.ecoTags ?? [],
-        galleryImages: [],
+        galleryImages: listing.galleryImages ?? [],
+        mainImage: listing.mainImage ?? { asset: { _ref: '', url: '/placeholder-city.jpg' } },
+        sourceUrls: [],
         digitalNomadFeatures: [],
         lastVerifiedDate: '',
-        coordinates: { latitude: listing.location?.lat ?? 0, longitude: listing.location?.lng ?? 0 },
+        coordinates: [listing.location?.lng ?? 0, listing.location?.lat ?? 0],
+        ecoDetails: {},
       }
     : null;
 

@@ -15,24 +15,24 @@ export const test = base.extend<ListingsFixtures>({
     // Provide mock listings data
     const mockData: Listing[] = [
       {
-        id: '1',
+        _id: '1',
         name: 'Test Coworking',
-        city: 'Bangkok',
-        category: 'coworking',
-        address_string: '123 Test St',
+        city: { name: 'Bangkok', slug: 'bangkok' },
+        type: 'coworking',
+        address: '123 Test St',
         coordinates: {
           latitude: 13.7563,
           longitude: 100.5018
         },
-        description_short: 'Test description',
-        description_long: 'Long description',
-        eco_focus_tags: ['zero-waste'],
-        eco_notes_detailed: 'Eco notes',
-        source_urls: [],
-        primary_image_url: '/test.jpg',
-        gallery_image_urls: [],
-        digital_nomad_features: ['wifi'],
-        last_verified_date: '2025-05-14'
+        shortDescription: 'Test description',
+        longDescription: 'Long description',
+        ecoTags: ['zero-waste'],
+        ecoNotesDetailed: 'Eco notes',
+        sourceUrls: [],
+        primaryImage_url: '/test.jpg',
+        galleryImage_urls: [],
+        digitalNomadFeatures: ['wifi'],
+        lastVerifiedate: '2025-05-14'
       }
       // Add more mock listings as needed
     ];

@@ -1,4 +1,4 @@
-import { getClient } from './client';
+import { client } from './client';
 
 // Common field definitions
 const listingFields = `
@@ -21,7 +21,7 @@ const listingFields = `
 `;
 
 async function getAllListings(preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client;
 
   const query = `*[_type == "listing" && moderation.status == "published"] {
     ${listingFields}
@@ -31,7 +31,7 @@ async function getAllListings(preview = false) {
 }
 
 async function getListingBySlug(slug: string, preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client;
 
   const query = `*[_type == "listing" && slug.current == $slug][0] {
     ${listingFields},
@@ -80,7 +80,7 @@ async function getListingBySlug(slug: string, preview = false) {
 }
 
 async function getListingsByCategory(category: string, preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client;
 
   const query = `*[_type == "listing" && moderation.status == "published" && category == $category] {
     ${listingFields}
@@ -90,7 +90,7 @@ async function getListingsByCategory(category: string, preview = false) {
 }
 
 async function getListingsByCity(cityName: string, preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client;
 
   const query = `*[_type == "listing" && moderation.status == "published" && city->name == $cityName] {
     ${listingFields}
@@ -101,7 +101,7 @@ async function getListingsByCity(cityName: string, preview = false) {
 
 // Get all available cities for filtering
 async function getAllCities(preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client;
 
   const query = `*[_type == "city"] {
     _id,
@@ -130,7 +130,7 @@ async function getAllCities(preview = false) {
 
 // Get all eco focus tags for filtering
 async function getAllEcoTags(preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client;
 
   const query = `*[_type == "ecoTag"] {
     _id,
@@ -144,7 +144,7 @@ async function getAllEcoTags(preview = false) {
 
 // Search listings
 async function searchListings(searchTerm: string, preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client;
 
   const query = `*[_type == "listing" && moderation.status == "published" && (
     name match $searchTerm ||

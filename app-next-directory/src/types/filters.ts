@@ -1,4 +1,4 @@
-import { CategoryType } from './sanity';
+import { ListingCategory } from './enums';
 
 // Filter combination operators
 export type FilterOperator = 'AND' | 'OR';
@@ -20,7 +20,7 @@ export interface FilterGroup {
 
 export interface ListingFilters {
   searchQuery?: string;
-  category?: CategoryType;
+  category?: ListingCategory;
   location?: string;
   ecoTags?: string[];
   nomadFeatures?: string[];

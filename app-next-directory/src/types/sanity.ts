@@ -1,5 +1,5 @@
 // Common types for Sanity schemas
-export type CategoryType = 'coworking' | 'cafe' | 'accommodation';
+import { ListingCategory } from './enums';
 
 // Base Sanity document interface
 export interface SanityDocument {
@@ -28,7 +28,12 @@ export interface SanityListing extends SanityDocument {
   slug: string | { current: string }; // Updated to allow slug as string or object with current property
   shortDescription?: string;
   longDescription?: string;
-  type?: CategoryType;
+  type
+  
+  
+  
+  
+  ?: ListingCategory;
   city?: {
     _id: string;
     name: string;

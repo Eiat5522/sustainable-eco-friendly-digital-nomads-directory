@@ -6,11 +6,11 @@ export type PriceRangeType = PriceRange
 
 // City type
 export interface City {
-  _id: string;
-  name: string;
-  slug: string;
-  listingCount: number;
-  country: string;
+  _id: string
+  name: string
+  slug: string
+  listingCount: number
+  country: string
 }
 
 // Eco Tag type

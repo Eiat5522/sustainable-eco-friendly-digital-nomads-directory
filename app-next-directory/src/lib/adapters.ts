@@ -4,69 +4,131 @@
 
 import { Listing as SanityListing } from '@/types/listing';
 import { Listing as JsonListing } from '@/types/listings';
-import { ListingCategory, PriceRange } from '@/types/enums';
 
-/** Converts a JSON listing to the Sanity Listing type */
-export function jsonToSanityListing(json: JsonListing): SanityListing {
+/**
+ * Converts a JSON listing format to the Sanity CMS listing format
+ * @param jsonListing The listing from listings.json
+ * @returns A listing in the Sanity format
+ */
+export function jsonToSanityListing(jsonListing: JsonListing): SanityListing {
   return {
-    _id: json._id,
-    name: json.name,
-    slug: json.slug ?? json.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-    shortDescription: json.shortDescription,
-    longDescription: json.longDescription,
-    type: json.type as ListingCategory,
-    priceRange: undefined,
-    priceIndication: json.cafeDetails?.priceIndication,
-    mainImage: json.mainImage
-      ? { asset: { _ref: json.mainImage, url: json.mainImage } }
+    _id: jsonListing._id,
+    name: jsonListing.name,
+    slug: jsonListing.slug || jsonListing.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    shortDescription: jsonListing.shortDescription,
+    longDescription: jsonListing.longDescription,
+    type: jsonListing.type,
+    mainImage: jsonListing.mainImage
+      ? { asset: { _ref: '', url: jsonListing.mainImage } }
       : undefined,
-    galleryImages: json.galleryImages?.map((url) => ({ asset: { _ref: url, url } })),
+    galleryImages: jsonListing.galleryImages
+      ? jsonListing.galleryImages.map((url: string) => ({ asset: { _ref: '', url } }))
+      : undefined,
     city: {
-      _id: json.city.slug.current,
-      name: json.city.name,
-      slug: json.city.slug.current,
+      _id: jsonListing.city.slug,
+      name: jsonListing.city.name,
+      slug: jsonListing.city.slug,
       listingCount: 0,
       country: ''
     },
-    ecoTags: json.ecoTags.map((tag, idx) => ({
+    ecoRating: calculateEcoRating(jsonListing),
+    location: jsonListing.coordinates
+      ? {
+          lat: jsonListing.coordinates.latitude || 0,
+          lng: jsonListing.coordinates.longitude || 0,
+          coordinates: [jsonListing.coordinates.latitude || 0, jsonListing.coordinates.longitude || 0]
+        }
+      : undefined,
+    address: jsonListing.address,
+    rating: undefined,
+    createdAt: jsonListing.lastVerifiedDate,
+    updatedAt: jsonListing.lastVerifiedDate,
+    digitalNomadFeatures: jsonListing.digitalNomadFeatures,
+    ecoNotesDetailed: jsonListing.ecoDetails,
+    sourceUrls: jsonListing.sourceUrls
+  };
+export function jsonToSanityListing(jsonListing: JsonListing): SanityListing {
+  return {
+    _id: jsonListing._id,
+    name: jsonListing.name,
+    slug: jsonListing.slug ?? jsonListing.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    shortDescription: jsonListing.shortDescription,
+    longDescription: jsonListing.longDescription,
+    type: jsonListing.type!,
+    address: jsonListing.address,
+    sourceUrls: jsonListing.sourceUrls,
+    mainImage: jsonListing.mainImage
+      ? { asset: { _ref: '', url: jsonListing.mainImage } }
+      : undefined,
+    galleryImages: jsonListing.galleryImages
+      ? jsonListing.galleryImages.map(url => ({ asset: { _ref: '', url } }))
+      : undefined,
+    city: {
+      _id: jsonListing.city.slug,
+      name: jsonListing.city.name,
+      slug: jsonListing.city.slug,
+      listingCount: 0,
+      country: ''
+    },
+    ecoTags: jsonListing.ecoTags.map((tag, idx) => ({
       _id: `${tag}-${idx}`,
       name: tag,
       slug: tag,
-      description: json.ecoDetails,
-      listingCount: 0,
-      icon: undefined
+      description: jsonListing.ecoDetails,
+      listingCount: 0
     })),
-    ecoRating: calculateEcoRating(json),
-    location: json.coordinates
+    ecoRating: calculateEcoRating(jsonListing),
+    location: jsonListing.coordinates
       ? {
-          lat: json.coordinates.latitude ?? 0,
-          lng: json.coordinates.longitude ?? 0,
-          coordinates: [json.coordinates.latitude ?? 0, json.coordinates.longitude ?? 0]
+          lat: jsonListing.coordinates.latitude ?? 0,
+          lng: jsonListing.coordinates.longitude ?? 0,
+          coordinates: [jsonListing.coordinates.latitude ?? 0, jsonListing.coordinates.longitude ?? 0]
         }
       : undefined,
-    coordinates: json.coordinates
-      ? [json.coordinates.latitude ?? 0, json.coordinates.longitude ?? 0]
-      : undefined,
-    address: json.address,
-    rating: undefined,
-    website: undefined,
-    phone: undefined,
-    email: undefined,
-    socialLinks: undefined,
-    hours: undefined,
-    amenities: undefined,
-    createdAt: json.lastVerifiedDate,
-    updatedAt: json.lastVerifiedDate,
-    price: undefined,
-    // removed digitalNomadFeatures and sourceUrls to match Listing interface
+    createdAt: jsonListing.lastVerifiedDate,
+    updatedAt: jsonListing.lastVerifiedDate,
+    digitalNomadFeatures: jsonListing.digitalNomadFeatures,
   };
 }
+}
 
-/** Calculate an eco rating score between 0-100 based on the listing data */
-export function calculateEcoRating(json: JsonListing): number {
+/**
+ * Calculate an eco rating score between 0-100 based on the listing data
+ */
+export function calculateEcoRating(listing: JsonListing): number {
+  // Base score starting at 50
   let score = 50;
-  score += Math.min(json.ecoTags.length * 10, 30);
-  if (json.ecoDetails.length > 50) score += 10;
-  if (json.digitalNomadFeatures.length > 0) score += 5;
+
+  // Add points for each eco tag (max 30 points)
+  const ecoTags = listing.ecoTags || listing.ecoTags || [];
+  score += Math.min(ecoTags.length * 10, 30);
+
+  // Add points if it has detailed eco notes
+  const ecoNotes = listing.ecoNotes || listing.eco_notes_detailed || '';
+  if (ecoNotes && ecoNotes.length > 50) {
+    score += 10;
+  }
+
+  // Add points for digital nomad features
+  const digitalNomadFeatures = listing.digitalNomadFeatures || listing.digital_nomad_features || [];
+  if (digitalNomadFeatures && digitalNomadFeatures.length > 0) {
+    score += 5;
+  }
+
+  // Cap the score at 100
+  return Math.min(score, 100);
+}
+export function calculateEcoRating(listing: JsonListing): number {
+  let score = 50;
+  // Add points for each eco tag (max 30 points)
+  score += Math.min(listing.ecoTags.length * 10, 30);
+  // Points for detailed eco notes
+  if (listing.ecoDetails && listing.ecoDetails.length > 50) {
+    score += 10;
+  }
+  // Points for digital nomad features
+  if (listing.digitalNomadFeatures && listing.digitalNomadFeatures.length > 0) {
+    score += 5;
+  }
   return Math.min(score, 100);
 }
