@@ -27,6 +27,7 @@ export interface SanityListing extends SanityDocument {
   name: string;
   slug: string | { current: string }; // Updated to allow slug as string or object with current property
   shortDescription?: string;
+  longDescription?: string;
   type?: CategoryType;
   city?: {
     _id: string;
@@ -36,6 +37,7 @@ export interface SanityListing extends SanityDocument {
     country?: string;
   };
   mainImage?: SanityImage;
+  galleryImages?: SanityImage[];
   ecoTags?: Array<{
     _id: string;
     name: string;
@@ -45,6 +47,7 @@ export interface SanityListing extends SanityDocument {
   }>;
   digitalNomadFeatures?: string[]; // Array of strings
   lastVerifiedDate?: string;
+  sourceUrls?: string[];
   reviews?: number; // Count of reviews
 
   // Optional fields (can be present in full document, but not always in partials like cards)

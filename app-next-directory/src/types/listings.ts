@@ -22,13 +22,13 @@ export interface Listing {
   address: string;
   shortDescription: string;
   longDescription: string;
-  ecoFeatures: string[];
+  ecoTags: string[];
   ecoDetails: string;
   sourceUrls: string[];
   mainImage: string;
-  imageGallery: string[];
-  nomadFeatures: string[];
-  verificationDate: string;
+  galleryImages: string[];
+  digitalNomadFeatures: string[];
+  lastVerifiedDate: string;
   coordinates?: Coordinates;
   coworkingDetails?: {
     operatingHours: string | null;

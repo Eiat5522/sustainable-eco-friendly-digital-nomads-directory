@@ -1,7 +1,6 @@
-#!/usr/bin/env node
-
+/*eslint no-undef: "error"*/
 /**
- * Migration Script: Legacy Field Migration for Listings
+ * Migration Sc;: Legacy Field Migration for Listings
  * 
  * This script migrates data from legacy fields to new standardized fields:
  * - address -> address_string

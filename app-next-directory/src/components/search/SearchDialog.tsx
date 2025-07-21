@@ -11,7 +11,7 @@ interface SearchFilters {
   category?: string;
   city?: string;
   priceRange?: [number, number];
-  ecoFeatures: string[];
+  ecoTags: string[];
   sustainabilityScore?: number;
   sortBy?: 'relevance' | 'rating' | 'price_low' | 'price_high';
 }
@@ -22,7 +22,7 @@ interface SearchDialogProps {
 }
 
 const categories = ['Coworking', 'Accommodation', 'Cafe', 'Restaurant', 'Activity'];
-const ecoFeatures = [
+const ecoTagsOptions = [
   'Solar Powered',
   'Zero Waste',
   'Organic Food',
@@ -36,7 +36,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
   const searchParams = useSearchParams();
   const [filters, setFilters] = useState<SearchFilters>({
     query: '',
-    ecoFeatures: [],
+    ecoTags: [],
   });
   const dialogRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -47,7 +47,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
     const query = params.get('q') || '';
     const category = params.get('category') || undefined;
     const city = params.get('city') || undefined;
-    const ecoFeatures = params.get('eco')?.split(',') || [];
+    const ecoTags = params.get('eco')?.split(',') || [];
 
     setFilters({
       query,

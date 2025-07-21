@@ -85,49 +85,9 @@ export default defineType({
       type: 'array',
       of: [{type: 'url'}],
     }),
-    // Legacy fields for compatibility with existing data
     defineField({
-      name: 'address',
-      title: 'Address (Legacy)',
-      type: 'string',
-      description: 'Legacy field for compatibility with existing data',
-    }),
-    defineField({
-      name: 'descriptionShort',
-      title: 'Short Description (Legacy)',
-      type: 'string',
-      description: 'Legacy field for compatibility with existing data',
-    }),
-    defineField({
-      name: 'digitalNomadFeatures',
-      title: 'Digital Nomad Features (Legacy)',
-      type: 'array',
-      of: [{type: 'string'}],
-      description: 'Legacy field for compatibility with existing data',
-    }),
-    defineField({
-      name: 'ecoFocusTags',
-      title: 'Eco Focus Tags (Legacy)',
-      type: 'array',
-      of: [{type: 'string'}],
-      description: 'Legacy field for compatibility with existing data',
-    }),
-    defineField({
-      name: 'sourceUrls',
-      title: 'Source URLs (Legacy)',
-      type: 'array',
-      of: [{type: 'url'}],
-      description: 'Legacy field for compatibility with existing data',
-    }),
-    defineField({
-      name: 'status',
-      title: 'Status (Legacy)',
-      type: 'string',
-      description: 'Legacy field for compatibility with existing data - use moderation.status instead',
-    }),
-    defineField({
-      name: 'primaryImage',
-      title: 'Primary Image',
+      name: 'mainImage',
+      title: 'Main Image',
       ...imageWithAlt
     }),
     defineField({
@@ -137,13 +97,13 @@ export default defineType({
       of: [imageWithAlt],
     }),
     defineField({
-      name: 'digital_nomad_features',
+      name: 'digitalNomadFeatures',
       title: 'Digital Nomad Features',
       type: 'array',
       of: [{type: 'string'}],
     }),
     defineField({
-      name: 'last_verified_date',
+      name: 'lastVerifiedDate',
       title: 'Last Verified Date',
       type: 'date',
     }),

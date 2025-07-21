@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD050 -->
 # Parallel Workstreams for Weekend Backend Implementation
 
 ## Overview
@@ -412,12 +413,12 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
 ⌛ src/__tests__/__mocks__/api-response.ts
 
     Errors, FileName
-    ✅  src/__tests__/lib/sanity-http-client.test.ts:2
-    ✅  src/utils/mapSanityListingToListing.ts:2 
-    ✅  tests/api/user-dashboard.spec.ts:139
-    ✅  tests/cross-browser-compatibility.test.ts:105
-    ✅  tests/search-highlight.spec.ts:5
-    ✅  tests/utils/test-setup.ts:47
+     ✅  src/__tests__/lib/sanity-http-client.test.ts:2
+     ✅  src/utils/mapSanityListingToListing.ts:2 
+     ✅  tests/api/user-dashboard.spec.ts:139
+     ✅  tests/cross-browser-compatibility.test.ts:105
+     ✅  tests/search-highlight.spec.ts:5
+     ✅  tests/utils/test-setup.ts:47
 
      ## MISC.    
      
@@ -436,12 +437,11 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
      ✅ src/components/listings/ListingCard.test.tsx:42
 
      ## MISC 3.
-    ✅ src/__tests__/middleware-auth.test.ts:6
-    ✅ src/app/api/featured-listings/route.ts:1
-    ✅ src/types/listing.ts:2
-    ✅ src/app/listings/[slug]/page.tsx:51
- 
-    
+     ✅ src/__tests__/middleware-auth.test.ts:6
+     ✅ src/app/api/featured-listings/route.ts:1
+     ✅ src/types/listing.ts:2
+     ✅ src/app/listings/[slug]/page.tsx:51
+     
      ## Libraries
      1  src/lib/adapters.ts:20
      2  src/lib/analytics/config.ts:1
@@ -456,7 +456,21 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
      2  src/lib/sanity/image.ts:6
      1  src/lib/sanity/queries.ts:1
      1  src/lib/search.ts:163
-
-
      
-     
+## 📝 Batch Normalization & Refactor Checklist (Listings, Cities, Images, Category-Specific Types)
+
+### Activity-Based Refactor Steps
+
+- [ ] 1. Normalize all Sanity schemas (listing.js, listings.ts, city.js, image.js, category-specific) to use camelCase and unified image field (`mainImage`)
+- [ ] 2. Normalize all TypeScript types (listing.ts, listings.ts, city.ts, image.ts, enums.ts, sanity.ts, details.ts) for camelCase and unified image field
+- [ ] 3. Create/update `listings.ts` as `export type Listings = Listing[];`
+- [ ] 4. Refactor all components to use normalized types and fields (FeaturedListings.tsx, ListingDetail.test.tsx, ListingGrid.tsx, ListingFilters.tsx, MapComponent.tsx, etc.)
+- [ ] 5. Update all test mocks to match normalized types and fields
+- [ ] 6. Run type-check and fix all TypeScript errors
+- [ ] 7. Run all tests and fix any failures
+- [ ] 8. Review for legacy field references and remove them
+- [ ] 9. Final validation: Confirm all components, types, and tests use normalized structure
+
+### Progress Tracking
+
+> Mark each item as `[x]` when completed. Only move to the next item after marking the previous as complete.

@@ -19,7 +19,7 @@ export interface FiltersState {
   cities: string[];
   priceRange: [number, number];
   ecoTags: string[];
-  nomadFeatures: string[];
+  digitalNomadFeatures: string[];
   sort?: SortOption;
   combinations: FilterGroup[];
   combinationOperator: FilterOperator;
@@ -40,7 +40,7 @@ const defaultFilters: FiltersState = {
   cities: [],
   priceRange: [0, 1000],
   ecoTags: [],
-  nomadFeatures: [],
+  digitalNomadFeatures: [],
   sort: undefined,
   combinations: [],
   combinationOperator: 'AND'
@@ -102,9 +102,9 @@ export function ListingFilters({
   const toggleNomadFeature = (feature: string) => {
     setFilters((prev: FiltersState) => ({
       ...prev,
-      nomadFeatures: prev.nomadFeatures.includes(feature)
-        ? prev.nomadFeatures.filter((f: string) => f !== feature)
-        : [...prev.nomadFeatures, feature]
+      digitalNomadFeatures: prev.digitalNomadFeatures.includes(feature)
+        ? prev.digitalNomadFeatures.filter((f: string) => f !== feature)
+        : [...prev.digitalNomadFeatures, feature]
     }));
   };
 
@@ -336,7 +336,7 @@ function FiltersContent({
           </label>
           <Checkbox
             id="wifi"
-            checked={filters.nomadFeatures.includes('wifi')}
+            checked={filters.digitalNomadFeatures.includes('wifi')}
             onCheckedChange={() => toggleNomadFeature('wifi')}
           />
         </div>
@@ -346,7 +346,7 @@ function FiltersContent({
           </label>
           <Checkbox
             id="sustainable"
-            checked={filters.nomadFeatures.includes('sustainable')}
+            checked={filters.digitalNomadFeatures.includes('sustainable')}
             onCheckedChange={() => toggleNomadFeature('sustainable')}
           />
         </div>

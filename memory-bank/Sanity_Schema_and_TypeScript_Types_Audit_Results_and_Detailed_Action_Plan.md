@@ -1,3 +1,6 @@
+<!-- markdownlint-disable MD022 -->
+<!-- markdownlint-disable MD031 -->
+<!-- markdownlint-disable MD032 -->
 # Sanity Schema and TypeScript Types Audit Results and Detailed Action Plan
 
 **Created:** July 20, 2025  

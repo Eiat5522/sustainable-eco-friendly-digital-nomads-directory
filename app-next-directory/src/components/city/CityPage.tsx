@@ -121,7 +121,7 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-2">Digital Nomad Friendly Features</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {city.nomadFeatures?.map((feature, index) => (
+                {city.digitalNomadFeatures?.map((feature, index) => (
                   <div key={index} className="flex items-start">
                     <div className="flex-shrink-0 h-6 w-6 text-green-500">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">

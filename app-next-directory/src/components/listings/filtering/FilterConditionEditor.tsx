@@ -16,7 +16,7 @@ const FIELD_OPTIONS = [
   { value: 'category', label: 'Category' },
   { value: 'location', label: 'Location' },
   { value: 'ecoTags', label: 'Eco Tags' },
-  { value: 'nomadFeatures', label: 'Nomad Features' },
+  { value: 'digitalNomadFeatures', label: 'Nomad Features' },
   { value: 'minRating', label: 'Minimum Rating' },
   { value: 'maxPriceRange', label: 'Max Price Range' },
 ];

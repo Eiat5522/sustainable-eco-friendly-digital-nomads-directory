@@ -89,13 +89,10 @@ export function ListingDetail({ listing }: ListingProps) {
         shortDescription: listing.shortDescription ?? '',
         longDescription: listing.longDescription ?? '',
         ecoTags: listing.ecoTags ?? [],
-        ecoFeatures: listing.ecoTags ?? [],
-        ecoDetails: '',
-        sourceUrls: [],
-        mainImage: '',
-        imageGallery: [],
-        nomadFeatures: [],
-        verificationDate: '',
+        ecoTags: listing.ecoTags ?? [],
+        galleryImages: [],
+        digitalNomadFeatures: [],
+        lastVerifiedDate: '',
         coordinates: { latitude: listing.location?.lat ?? 0, longitude: listing.location?.lng ?? 0 },
       }
     : null;

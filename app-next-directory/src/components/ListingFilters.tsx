@@ -21,7 +21,7 @@ export interface ListingFilters {
     radius: number;
   } | null;
   minRating?: number;
-  nomadFeatures?: string[];
+  digitalNomadFeatures?: string[];
   ecoCertification?: string[];
   accommodationType?: string[];
   sustainabilityScore?: string;
@@ -121,7 +121,7 @@ export function ListingFilters({
       multiSelect: false,
     },
     {
-      id: 'nomadFeatures',
+      id: 'digitalNomadFeatures',
       label: 'Digital Nomad Features',
       options: NOMAD_FEATURES_OPTIONS,
       multiSelect: true,
@@ -168,7 +168,7 @@ export function ListingFilters({
       minRating: currentHookFilters.minRating && currentHookFilters.minRating.length > 0
                   ? parseInt(currentHookFilters.minRating[0])
                   : undefined,
-      nomadFeatures: currentHookFilters.nomadFeatures || [],
+      digitalNomadFeatures: currentHookFilters.digitalNomadFeatures || [],
       ecoCertification: currentHookFilters.ecoCertification || [],
       accommodationType: currentHookFilters.accommodationType || [],
       sustainabilityScore: currentHookFilters.sustainabilityScore && currentHookFilters.sustainabilityScore.length > 0
