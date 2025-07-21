@@ -57,12 +57,6 @@ const MapContainer = dynamic<MapContainerProps>(
 );
 
 export function ListingDetail({ listing }: ListingProps) {
-  console.info('ListingDetail rendered', listing)
-  // FORTEST: Log the full listing and location for debugging
-  console.info('ListingDetail listing:', listing);
-  console.info('ListingDetail location:', listing.location);
-  // FORTEST: Log the full listing object for debugging
-  console.info('ListingDetail FULL listing object:', JSON.stringify(listing, null, 2));
   const reviews = listing.reviews || []
   const [mainImage, setMainImage] = useState(listing.mainImage)
   const [hoverImage, setHoverImage] = useState<string | null>(null)
@@ -105,14 +99,6 @@ export function ListingDetail({ listing }: ListingProps) {
         coordinates: { latitude: listing.location?.lat ?? 0, longitude: listing.location?.lng ?? 0 },
       }
     : null;
-
-  if (hasCoords) {
-    // FORTEST: Debug log for map rendering
-    console.info('Rendering MapContainer with coordinates:', listing.location?.lat, listing.location?.lng);
-  } else {
-    // FORTEST: Debug log for missing coordinates
-    console.warn('ListingDetail: No valid coordinates for map', listing.location);
-  }
 
   return (
     <article className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
