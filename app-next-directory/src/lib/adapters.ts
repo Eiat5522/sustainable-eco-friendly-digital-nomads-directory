@@ -110,7 +110,7 @@ export function calculateEcoRating(listing: JsonListing): number {
   }
 
   // Add points for digital nomad features
-  const digitalNomadFeatures = listing.digitalNomadFeatures || listing.digital_nomad_features || [];
+  const digitalNomadFeatures = listing.digitalNomadFeatures || listing.digitalNomadFeatures || [];
   if (digitalNomadFeatures && digitalNomadFeatures.length > 0) {
     score += 5;
   }

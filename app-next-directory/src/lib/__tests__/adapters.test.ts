@@ -81,7 +81,7 @@ describe('jsonToSanityListing', () => {
     const result = jsonToSanityListing(baseJsonListing);
     
     expect(result._id).toBe('listing-eco-space-coworking');
-    expect(result._type).toBe('listing');
+    expect(result.type).toBe('listing');
     expect(result._createdAt).toBe(MOCK_DATE);
     expect(result._updatedAt).toBe(MOCK_DATE);
     expect(result._rev).toBe('initial');

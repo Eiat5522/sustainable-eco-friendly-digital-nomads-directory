@@ -160,7 +160,7 @@ async function searchListings(searchTerm: string, preview = false) {
 
 // Get latest blog posts
 async function getLatestBlogPosts(limit = 3, preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client;
 
   const query = `*[_type == "blogPost"] | order(_createdAt desc)[0...$limit] {
     _id,
@@ -177,7 +177,7 @@ async function getLatestBlogPosts(limit = 3, preview = false) {
 
 // Get featured listings for home page
 async function getFeaturedListings(preview = false) {
-  const sanityClient = getClient(preview);
+  const sanityClient = client;
 
   const query = `*[_type == "listing" && moderation.status == "published" && moderation.featured == true] {
     ${listingFields},
@@ -193,7 +193,7 @@ async function getRelatedListings(listingId: string, category: string, cityName:
     ${listingFields}
   }`;
 
-  return await getClient().fetch(query, { listingId, category, cityName });
+  return await client.fetch(query, { listingId, category, cityName });
 }
 
 // Export all functions
