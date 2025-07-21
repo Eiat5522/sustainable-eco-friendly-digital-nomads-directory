@@ -74,7 +74,7 @@ export function ListingFilters({
       id: 'cities',
       label: 'Cities',
       options: cities.map((city) => ({
-        id: city.slug,
+        id: city.slug.current,
         label: city.name,
         count: city.listingCount,
       })),

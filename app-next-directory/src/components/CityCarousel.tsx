@@ -119,7 +119,7 @@ export function CityCarousel({ cities, onCitySelect, className = '' }: CityCarou
                   >
                     <motion.div
                       className="relative overflow-hidden rounded-lg shadow-md cursor-pointer max-w-2xl mx-auto"
-                      onClick={() => city.slug && onCitySelect?.(city.slug)}
+                      onClick={() => city.slug.current && onCitySelect?.(city.slug.current)}
                       onHoverStart={() => setHoveredIndex(index)}
                       onHoverEnd={() => setHoveredIndex(null)}
                       whileHover={{ scale: 1.02 }}

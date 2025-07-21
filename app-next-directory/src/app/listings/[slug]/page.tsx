@@ -30,8 +30,9 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
       <article className="space-y-8">
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-2">{listing.name ?? ''}</h1>
-          {listing.city && (
-            <Link href={`/cities/${listing.city.slug}`} className="text-lg text-muted-foreground hover:text-primary">
+          {listing.city && listing.city.slug && (
+            <Link href={`/cities/${typeof listing.city.slug === 'object' && 'current' in listing.city.slug ? listing.city.slug.current : listing.city.slug}`}
+              className="text-lg text-muted-foreground hover:text-primary">
               {listing.city.title}
             </Link>
           )}
@@ -62,12 +63,12 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
             ? { lat: listing.location.lat, lng: listing.location.lng }
             : undefined,
           city: listing.city
-            ? { 
+            ? {
                 _id: listing.city._id ?? '',
-                title: listing.city.title ?? '',
-                slug: (listing.city.slug && typeof listing.city.slug === 'object')
-                      ? ((listing.city.slug as any).current ?? '') 
-                      : (listing.city.slug ?? ''),
+                name: listing.city.title ?? '',
+                slug: typeof listing.city.slug === 'object' && 'current' in listing.city.slug
+                  ? listing.city.slug.current ?? ''
+                  : (listing.city.slug ?? ''),
                 listingCount: 0,
                 country: ''
               }

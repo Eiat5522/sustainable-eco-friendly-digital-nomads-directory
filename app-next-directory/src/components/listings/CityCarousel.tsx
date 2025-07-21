@@ -97,7 +97,7 @@ export default function CityCarousel({ cities }: CityCarouselProps) {
                 key={city._id}
                 className="flex-[0_0_100%] min-w-0 pl-4 sm:flex-[0_0_50%] lg:flex-[0_0_33.333%]"
               >
-                <Link href={`/city/${city.slug}`}>
+                <Link href={`/city/${city.slug.current}`}>
                   <div className="group relative overflow-hidden rounded-lg">
                     {/* Image Container */}
                     <div className="relative aspect-[4/3] h-[300px]">

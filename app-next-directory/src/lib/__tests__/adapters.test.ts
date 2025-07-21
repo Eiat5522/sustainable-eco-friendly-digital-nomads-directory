@@ -45,7 +45,7 @@ describe('jsonToSanityListing', () => {
     expect(result.name).toBe(baseJsonListing.name);
     expect(result.slug).toBe('eco-space');
     expect(result.city.name).toBe('Bangkok');
-    expect(result.city.slug).toBe('bangkok');
+    expect(result.city.slug.current).toBe('bangkok');
     expect(result.ecoTags.length).toBe(2);
     expect(result.ecoTags[0]).toMatchObject({
       _id: 'tag-0',

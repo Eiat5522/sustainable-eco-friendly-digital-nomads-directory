@@ -467,7 +467,6 @@ src/utils/mapSanityListingToListing.ts
 tests/helpers/test-data.ts
 tests/utils/test-fixtures.ts
 
-     
 ## 📝 Batch Normalization & Refactor Checklist (Listings, Cities, Images, Category-Specific Types)
 
 ### Activity-Based Refactor Steps

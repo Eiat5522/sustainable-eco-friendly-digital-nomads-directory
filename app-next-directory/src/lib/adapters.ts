@@ -22,9 +22,9 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
       : undefined,
     galleryImages: json.galleryImages?.map((url) => ({ asset: { _ref: url, url } })),
     city: {
-      _id: json.city.slug,
+      _id: json.city.slug.current,
       name: json.city.name,
-      slug: json.city.slug,
+      slug: json.city.slug.current,
       listingCount: 0,
       country: ''
     },
