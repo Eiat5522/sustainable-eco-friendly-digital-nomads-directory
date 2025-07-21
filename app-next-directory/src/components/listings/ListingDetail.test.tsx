@@ -498,7 +498,7 @@ describe('ListingDetail', () => {
     expect(screen.getByText('Cozy Apartment')).toBeInTheDocument();
   });
 
-  test('handles different category types', () => {
+  test('handles different type types', () => {
     const coworkingListing = { ...mockListing, type: 'coworking' };
     const { rerender } = render(<ListingDetail listing={coworkingListing} />);
     expect(screen.getByText('coworking in New York, USA')).toBeInTheDocument();
@@ -508,8 +508,8 @@ describe('ListingDetail', () => {
     expect(screen.getByText('cafe in New York, USA')).toBeInTheDocument();
   });
 
-  test('handles invalid category fallback', () => {
-    const invalidCategoryListing = { ...mockListing, type: 'invalid-category' };
+  test('handles invalid type fallback', () => {
+    const invalidCategoryListing = { ...mockListing, type: 'invalid-type' };
     render(<ListingDetail listing={invalidCategoryListing} />);
     
     // Should still render and the map should default to 'coworking'

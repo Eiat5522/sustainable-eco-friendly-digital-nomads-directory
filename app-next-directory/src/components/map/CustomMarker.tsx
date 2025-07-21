@@ -4,14 +4,14 @@ import { type Listing } from '@/types/listings';
 import { SanityListing } from '@/types/sanity';
 import L from 'leaflet';
 
-// Create marker icon based on listing category
+// Create marker icon based on listing type
 export function createCustomMarker(listing: Listing | SanityListing) {
-  // Determine category based on the type of listing
-  const category = 'type' in listing ? listing.type : listing.category;
+  // Determine type based on the type of listing
+  const type = 'type' in listing ? listing.type : listing.type;
 
   const markerHtml = `
-    <div class="marker-icon marker-${category}">
-      <span class="sr-only">${category} marker</span>
+    <div class="marker-icon marker-${type}">
+      <span class="sr-only">${type} marker</span>
     </div>
   `;
 
@@ -35,18 +35,18 @@ export function createPopupContent(listing: Listing | SanityListing) {
 
   // Category badge
   const badge = document.createElement('span');
-  const category = 'type' in listing ? listing.type : listing.category;
-  badge.className = `category-badge category-${category}`;
-  badge.innerText = String(category).charAt(0).toUpperCase() + String(category).slice(1);
+  const type = 'type' in listing ? listing.type : listing.type;
+  badge.className = `type-badge type-${type}`;
+  badge.innerText = String(type).charAt(0).toUpperCase() + String(type).slice(1);
 
   // Title
   const title = document.createElement('h3');
   title.innerText = listing.name;
 
-  // Description (always use description_short)
+  // Description (always use shortDescription)
   const description = document.createElement('p');
   description.className = 'description';
-  description.innerText = (listing as SanityListing).description_short || '';
+  description.innerText = (listing as SanityListing).shortDescription || '';
 
   // Link to details page
   const link = document.createElement('a');
@@ -72,7 +72,7 @@ export function createPopupContent(listing: Listing | SanityListing) {
       margin-top: 8px;
       margin-bottom: 6px;
     }
-    .category-badge {
+    .type-badge {
       display: inline-block;
       padding: 4px 8px;
       font-size: 12px;
@@ -80,13 +80,13 @@ export function createPopupContent(listing: Listing | SanityListing) {
       color: white;
       font-weight: 500;
     }
-    .category-coworking {
+    .type-coworking {
       background-color: #E67E22;
     }
-    .category-cafe {
+    .type-cafe {
       background-color: #D35400;
     }
-    .category-accommodation {
+    .type-accommodation {
       background-color: #2980B9;
     }
     .description {

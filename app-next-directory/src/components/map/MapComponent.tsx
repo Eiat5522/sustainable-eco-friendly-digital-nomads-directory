@@ -21,7 +21,7 @@ export interface MapComponentProps {
 const DEFAULT_CENTER: L.LatLngTuple = [13.7563, 100.5018]; // Bangkok
 const DEFAULT_ZOOM = 12;
 
-const categoryIcons: Record<NonNullable<Listing['category']>, string> = {
+const typeIcons: Record<NonNullable<Listing['type']>, string> = {
   coworking: '🏢',
   cafe: '☕',
   accommodation: '🏠',
@@ -86,7 +86,7 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
 
           const marker = L.marker([latitude, longitude], {
             icon: L.divIcon({
-              html: `<div class="marker-icon">${listing.category ? categoryIcons[listing.category] : ''}</div>`,
+              html: `<div class="marker-icon">${listing.type ? typeIcons[listing.type] : ''}</div>`,
               className: 'custom-marker',
               iconSize: L.point(32, 32)
             })
@@ -95,7 +95,7 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
           marker.bindPopup(`
             <div class="marker-popup">
               <h3 class="font-semibold">${listing.name}</h3>
-              <p class="text-sm text-gray-600">${listing.address_string}</p>
+              <p class="text-sm text-gray-600">${listing.address}</p>
             </div>
           `);
 

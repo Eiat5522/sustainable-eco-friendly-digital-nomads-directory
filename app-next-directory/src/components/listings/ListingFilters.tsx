@@ -57,7 +57,7 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
       listings
         .flatMap(l => {
           if ('ecoTags' in l) return Array.isArray(l.ecoTags) ? l.ecoTags : [];
-          return Array.isArray((l as Listing).eco_features) ? (l as Listing).eco_features : [];
+          return Array.isArray((l as Listing).ecoTags) ? (l as Listing).ecoTags : [];
         })
         .filter((t): t is string => typeof t === 'string' && t.trim() !== '')
     )
@@ -126,7 +126,7 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
   const resetFilters = () => {
     setFilters({
       searchQuery: '',
-      category: null,
+      type: null,
       city: null,
       ecoTags: [],
       features: [],
@@ -307,7 +307,7 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
 function getActiveFilterCount(filters: FilterState): number {
   return (
     (filters.searchQuery ? 1 : 0) +
-    (filters.category ? 1 : 0) +
+    (filters.type ? 1 : 0) +
     (filters.city ? 1 : 0) +
     (filters.minRating ? 1 : 0) +
     filters.ecoTags.length +

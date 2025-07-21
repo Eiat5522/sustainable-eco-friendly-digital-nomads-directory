@@ -461,10 +461,21 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
 
 ### Activity-Based Refactor Steps
 
-- [ ] 1. Normalize all Sanity schemas (listing.js, listings.ts, city.js, image.js, category-specific) to use camelCase and unified image field (`mainImage`)
-- [ ] 2. Normalize all TypeScript types (listing.ts, listings.ts, city.ts, image.ts, enums.ts, sanity.ts, details.ts) for camelCase and unified image field
-- [ ] 3. Create/update `listings.ts` as `export type Listings = Listing[];`
-- [ ] 4. Refactor all components to use normalized types and fields (FeaturedListings.tsx, ListingDetail.test.tsx, ListingGrid.tsx, ListingFilters.tsx, MapComponent.tsx, etc.)
+- [x] 1. Normalize all Sanity schemas (listing.js, listings.ts, city.js, image.js, category-specific) to use camelCase and unified image field (`mainImage`)
+- [x] 2. Normalize all TypeScript types (listing.ts, listings.ts, city.ts, image.ts, enums.ts, sanity.ts, details.ts) for camelCase and unified image field
+- [x] 3. Create/update `listings.ts` as `export type Listings = Listing[];`
+- [I] 4. Refactor all components to use normalized types and fields (FeaturedListings.tsx, ListingDetail.test.tsx, ListingGrid.tsx, ListingFilters.tsx, MapComponent.tsx, etc.):
+- FeaturedListings.tsx - ListingGrid.tsx (no legacy fields found)
+- ListingDetail.tsx (no legacy fields found)
+- ListingDetail.test.tsx
+- ListingFilters.tsx
+- CustomMarker.tsx
+- MapComponent.tsx
+- StaticMapImage.tsx (partial, one edit succeeded, one failed due to an unknown error)
+Next steps:
+Validate all edits by running TypeScript compiler and Jest tests.
+Investigate and resolve the error with StaticMapImage.tsx if it causes issues.
+
 - [ ] 5. Update all test mocks to match normalized types and fields
 - [ ] 6. Run type-check and fix all TypeScript errors
 - [ ] 7. Run all tests and fix any failures
@@ -473,4 +484,5 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
 
 ### Progress Tracking
 
+> Mark each item as `[I]` before executing the actual task. Do not start the tasks, if this field is not yet marked.
 > Mark each item as `[x]` when completed. Only move to the next item after marking the previous as complete.

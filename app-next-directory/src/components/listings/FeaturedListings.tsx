@@ -51,16 +51,16 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
 
   const getImageUrl = (listing: Listing | SanityListing): string => {
     // Handle Sanity listing format first (with detailed image structure)
-    if ('primaryImage' in listing && listing.primaryImage && typeof listing.primaryImage === 'object' && 'asset' in listing.primaryImage) {
-      const builder = urlFor(listing.primaryImage);
+    if ('mainImage' in listing && listing.mainImage && typeof listing.mainImage === 'object' && 'asset' in listing.mainImage) {
+      const builder = urlFor(listing.mainImage);
       if (builder) {
         return builder.width(500).height(300).url();
       }
     }
     
     // Handle simplified Listing format (string URL)
-    if ('image_main' in listing && listing.image_main) {
-      return listing.image_main;
+    if ('mainImage' in listing && listing.mainImage) {
+      return listing.mainImage;
     }
     
     // Check for gallery images in Sanity format
@@ -75,8 +75,8 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
     }
     
     // Check for gallery images in simplified format
-    if ('image_gallery' in listing && listing.image_gallery?.[0]) {
-      return listing.image_gallery[0];
+    if ('galleryImages' in listing && listing.galleryImages?.[0]) {
+      return listing.galleryImages[0];
     }
     
     // Fallback placeholder
