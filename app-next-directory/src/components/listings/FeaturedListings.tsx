@@ -22,7 +22,7 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
 
   // Helper functions to safely access union type properties
   const getListingId = (listing: Listing | SanityListing): string => {
-    return ('_id' in listing) ? listing._id : listing.id;
+    return ('_id' in listing) ? listing._id : (listing as any).id ?? '';
   };
 
   const getListingSlug = (listing: Listing | SanityListing): string => {
@@ -37,7 +37,8 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
 
   const getListingLocation = (listing: Listing | SanityListing): string => {
     if ('city' in listing && typeof listing.city === 'object' && listing.city) {
-      return listing.city.title || 'Location not specified';
+      // Handle city object with possible 'title' or fallback to 'name'
+      return (listing.city && ('title' in listing.city) ? (listing.city as any).title : listing.city?.name) || 'Location not specified';
     }
     if ('city' in listing && typeof listing.city === 'string') {
       return listing.city;
@@ -60,7 +61,8 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
     
     // Handle simplified Listing format (string URL)
     if ('mainImage' in listing && listing.mainImage) {
-      return listing.mainImage;
+      // Handle mainImage as string or object
+      return typeof listing.mainImage === 'string' ? listing.mainImage : (listing.mainImage?.asset?.url ?? '');
     }
     
     // Check for gallery images in Sanity format
@@ -76,7 +78,9 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
     
     // Check for gallery images in simplified format
     if ('galleryImages' in listing && listing.galleryImages?.[0]) {
-      return listing.galleryImages[0];
+      // Handle galleryImages[0] as string or object
+      const img = listing.galleryImages?.[0];
+      return typeof img === 'string' ? img : (img?.asset?.url ?? '');
     }
     
     // Fallback placeholder

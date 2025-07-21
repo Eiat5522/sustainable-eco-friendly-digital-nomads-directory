@@ -52,13 +52,10 @@ export interface SanityListing extends SanityDocument {
 
   // Optional fields (can be present in full document, but not always in partials like cards)
   address?: string;
-  longDescription?: any; // Can be Portable Text
-  galleryImages?: SanityImage[];
   website?: string;
   contactInfo?: string;
   operatingHours?: string; // This might be structured
   ecoNotesDetailed?: string;
-  sourceUrls?: string[];
   price?: number; // Added for compatibility with ListingCard and tests
   priceIndication?: string;
 

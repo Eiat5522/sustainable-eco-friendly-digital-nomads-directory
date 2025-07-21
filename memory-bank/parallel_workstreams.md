@@ -442,20 +442,31 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
      ✅ src/types/listing.ts:2
      ✅ src/app/listings/[slug]/page.tsx:51
      
-     ## Libraries
-     1  src/lib/adapters.ts:20
-     2  src/lib/analytics/config.ts:1
-     1  src/lib/analytics/experiments.ts:22
-     1  src/lib/mongodb/schemas/session.ts:1
-     1  src/lib/performance/budgets.ts:85
-     1  src/lib/sanity-batch-processor.ts:292
-     2  src/lib/sanity-image-uploader.ts:81
-     2  src/lib/sanity/client.test.ts:92
-     3  src/lib/sanity/data.ts:54
-     2  src/lib/sanity/image.test.ts:33
-     2  src/lib/sanity/image.ts:6
-     1  src/lib/sanity/queries.ts:1
-     1  src/lib/search.ts:163
+src/app/listings/[slug]/page.tsx
+src/components/city/CityPage.tsx
+src/components/listings/ListingDetail.tsx
+src/components/listings/ListingFilters.tsx
+src/components/map/StaticMapImage.tsx
+src/components/search/SearchDialog.tsx
+src/lib/__tests__/adapters.test.ts
+src/lib/__tests__/listings.test.ts
+src/lib/analytics/config.ts
+src/lib/analytics/experiments.ts
+src/lib/listings.ts
+src/lib/mongodb/schemas/session.ts
+src/lib/performance/budgets.ts
+src/lib/sanity-batch-processor.ts
+src/lib/sanity-image-uploader.ts
+src/lib/sanity/client.test.ts
+src/lib/sanity/data.ts
+src/lib/sanity/image.test.ts
+src/lib/sanity/image.ts
+src/lib/sanity/queries.ts
+src/lib/search.ts
+src/utils/mapSanityListingToListing.ts
+tests/helpers/test-data.ts
+tests/utils/test-fixtures.ts
+
      
 ## 📝 Batch Normalization & Refactor Checklist (Listings, Cities, Images, Category-Specific Types)
 
@@ -465,22 +476,31 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
 - [x] 2. Normalize all TypeScript types (listing.ts, listings.ts, city.ts, image.ts, enums.ts, sanity.ts, details.ts) for camelCase and unified image field
 - [x] 3. Create/update `listings.ts` as `export type Listings = Listing[];`
 - [I] 4. Refactor all components to use normalized types and fields (FeaturedListings.tsx, ListingDetail.test.tsx, ListingGrid.tsx, ListingFilters.tsx, MapComponent.tsx, etc.):
-- FeaturedListings.tsx - ListingGrid.tsx (no legacy fields found)
-- ListingDetail.tsx (no legacy fields found)
-- ListingDetail.test.tsx
-- ListingFilters.tsx
-- CustomMarker.tsx
-- MapComponent.tsx
-- StaticMapImage.tsx (partial, one edit succeeded, one failed due to an unknown error)
+
+  - FeaturedListings.tsx - ListingGrid.tsx (no legacy fields found)
+  - ListingDetail.tsx (no legacy fields found)
+  - ListingDetail.test.tsx
+  - ListingFilters.tsx
+  - CustomMarker.tsx
+  - MapComponent.tsx
+  - StaticMapImage.tsx (partial, one edit succeeded, one failed due to an unknown error)
+
 Next steps:
-Validate all edits by running TypeScript compiler and Jest tests.
-Investigate and resolve the error with StaticMapImage.tsx if it causes issues.
+
+- Validate all edits by running TypeScript compiler and Jest tests.
+- Investigate and resolve the error with StaticMapImage.tsx if it causes issues.
 
 - [ ] 5. Update all test mocks to match normalized types and fields
 - [ ] 6. Run type-check and fix all TypeScript errors
 - [ ] 7. Run all tests and fix any failures
 - [ ] 8. Review for legacy field references and remove them
 - [ ] 9. Final validation: Confirm all components, types, and tests use normalized structure
+
+### 🗒️Scratch Pad
+
+- Check whether both FeaturedListings.tsx pages are currently in use:
+  1. app-next-directory\src\components\listings\FeaturedListings.tsx
+  2. app-next-directory\src\components\home\FeaturedListings.tsx
 
 ### Progress Tracking
 

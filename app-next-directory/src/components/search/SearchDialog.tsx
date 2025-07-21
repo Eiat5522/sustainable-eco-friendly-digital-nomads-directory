@@ -53,7 +53,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
       query,
       category,
       city,
-      ecoFeatures,
+      ecoTags,
     });
   }, [searchParams]);
 
@@ -88,8 +88,8 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
       if (newFilters.query) params.set('q', newFilters.query);
       if (newFilters.category) params.set('category', newFilters.category);
       if (newFilters.city) params.set('city', newFilters.city);
-      if (newFilters.ecoFeatures.length) {
-        params.set('eco', newFilters.ecoFeatures.join(','));
+      if (newFilters.ecoTags.length) {
+        params.set('eco', newFilters.ecoTags.join(','));
       }
 
       router.push(`/listings?${params.toString()}`);
@@ -104,12 +104,12 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
     debouncedSearch(newFilters);
   };
 
-  const toggleEcoFeature = (feature: string) => {
+  const toggleEcoTag = (tag: string) => {
     const newFilters = {
       ...filters,
-      ecoFeatures: filters.ecoFeatures.includes(feature)
-        ? filters.ecoFeatures.filter(f => f !== feature)
-        : [...filters.ecoFeatures, feature],
+      ecoTags: filters.ecoTags.includes(tag)
+        ? filters.ecoTags.filter((f: string) => f !== tag)
+        : [...filters.ecoTags, tag],
     };
     setFilters(newFilters);
     debouncedSearch(newFilters);
@@ -184,24 +184,24 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                 </div>
               </div>
 
-              {/* Eco Features */}
+              {/* Eco Tags */}
               <div>
                 <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
-                  Eco Features
+                  Eco Tags
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
-                  {ecoFeatures.map(feature => (
+                  {ecoTagsOptions.map((tag: string) => (
                     <button
-                      key={feature}
-                      onClick={() => toggleEcoFeature(feature)}
+                      key={tag}
+                      onClick={() => toggleEcoTag(tag)}
                       className={`flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${
-                        filters.ecoFeatures.includes(feature)
+                        filters.ecoTags.includes(tag)
                           ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
                           : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                       }`}
                     >
                       <Leaf className="h-4 w-4 mr-2" />
-                      {feature}
+                      {tag}
                     </button>
                   ))}
                 </div>

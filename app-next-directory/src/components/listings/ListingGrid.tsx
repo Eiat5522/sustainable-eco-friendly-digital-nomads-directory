@@ -1,5 +1,5 @@
 import { urlFor as urlForImage } from '@/lib/sanity/image';
-import { type Listing } from '@/types/listings';
+import { type Listing } from '@/types/listing';
 import { SanityListing } from '@/types/sanity';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -11,21 +11,11 @@ interface ListingGridProps {
 
 export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
 
-  // Helper function to get image URL (from Sanity or directly)
+  // Helper function to get image URL
   const getImageUrl = (listing: Listing | SanityListing) => {
-    const isSanityListing = '_type' in listing || 'slug' in listing;
-
     try {
-      // Handle Sanity listing with primaryImage (from search API)
-      if (isSanityListing && 'primaryImage' in listing && listing.primaryImage?.asset?.url) {
-        const url = listing.primaryImage.asset.url;
-        if (url && typeof url === 'string' && url.startsWith('http')) {
-          return url;
-        }
-      }
-      
-      // Handle Sanity listing with mainImage (older structure)
-      if (isSanityListing && 'mainImage' in listing && listing.mainImage) {
+      // Handle Sanity listing with mainImage object
+      if ('mainImage' in listing && listing.mainImage && typeof listing.mainImage === 'object') {
         const url = urlForImage(listing.mainImage)
           .width(800)
           .height(480)
@@ -36,12 +26,6 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
           return url;
         }
       }
-      
-      // Handle direct URL from MongoDB or other sources
-      const directUrl = (listing as Listing).primary_image_url;
-      if (directUrl && typeof directUrl === 'string' && directUrl.startsWith('http')) {
-        return directUrl;
-      }
     } catch (error) {
       console.warn('Error getting image URL for listing:', listing.name, error);
     }
@@ -50,63 +34,39 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
     return '/images/sustainable_nomads.png';
   };
 
-  // Helper to get listing URL (by slug or ID) 
+  // Helper to get listing URL
   const getListingUrl = (listing: Listing | SanityListing) => {
-    const isSanityListing = '_type' in listing || 'slug' in listing;
-
-    if (isSanityListing && 'slug' in listing) {
-      return `/listings/${listing.slug}`;
-    }
-    return `/listings/${(listing as Listing).slug}`;
+    return `/listings/${listing.slug}`;
   };
 
   // Helper to get listing ID
   const getListingId = (listing: Listing | SanityListing) => {
-    return '_id' in listing ? listing._id : (listing as Listing).id;
+    return listing._id;
   };
 
   // Helper to get slug string
   const getSlugString = (listing: Listing | SanityListing) => {
-    if ('_id' in listing && 'slug' in listing) {
-      return listing.slug; // This is already a string from search API
-    }
-    return (listing as Listing).slug || '';
+    return listing.slug || '';
   };
 
-  // Helper to get eco tags (different field names in different models)
+  // Helper to get eco tags
   const getEcoTags = (listing: Listing | SanityListing) => {
-    const isSanityListing = '_type' in listing || 'slug' in listing;
-
-    return isSanityListing && 'ecoTags' in listing
-      ? listing.ecoTags
-      : (listing as Listing).eco_focus_tags;
+    return listing.ecoTags || [];
   };
 
   // Helper to get location/city
   const getLocation = (listing: Listing | SanityListing) => {
-    const isSanityListing = '_type' in listing || 'slug' in listing;
-
-    return isSanityListing
-      ? listing.city
-      : (listing as Listing).city;
+    return listing.city;
   };
 
   // Helper to get description
   const getDescription = (listing: Listing | SanityListing) => {
-    const isSanityListing = '_type' in listing || 'slug' in listing;
-
-    return isSanityListing && 'descriptionShort' in listing
-      ? listing.descriptionShort
-      : (listing as Listing).description_short;
+    return listing.shortDescription || '';
   };
 
   // Helper to get address
   const getAddress = (listing: Listing | SanityListing) => {
-    const isSanityListing = '_type' in listing || 'slug' in listing;
-
-    return isSanityListing && 'address' in listing
-      ? listing.address
-      : (listing as Listing).address_string;
+    return listing.address || '';
   };
 
   return (
@@ -136,12 +96,12 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
               <div className="absolute top-4 right-4 z-10">
                 <span className={`
                   inline-block px-3 py-1 text-sm font-medium rounded-full
-                  ${listing.category === 'coworking' ? 'bg-category-coworking text-white' :
-                    listing.category === 'cafe' ? 'bg-category-cafe text-white' :
+                  ${listing.type === 'coworking' ? 'bg-category-coworking text-white' :
+                    listing.type === 'cafe' ? 'bg-category-cafe text-white' :
                     'bg-category-accommodation text-white'}
                   shadow-sm
                 `}>
-                  {listing.category}
+                  {listing.type}
                 </span>
               </div>
             </div>
@@ -159,12 +119,12 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
             </p>
 
             <div className="flex flex-wrap gap-2 mb-4">
-              {getEcoTags(listing)?.slice(0, 3).map((tag, tagIndex) => (
+              {getEcoTags(listing)?.slice(0, 3).map((tag: any, tagIndex: number) => (
                 <span
                   key={`${getListingId(listing)}-tag-${tagIndex}`}
                   className="inline-block px-2 py-1 text-xs bg-primary-50 text-primary-700 rounded capitalize"
                 >
-                  {String(tag).replace(/_/g, ' ')}
+                  {String(tag.name || tag).replace(/_/g, ' ')}
                 </span>
               ))}
               {getEcoTags(listing) && getEcoTags(listing)!.length > 3 && (

@@ -68,7 +68,7 @@ const mockListing = {
     { _key: 'img6', asset: { _ref: '/test-image6.jpg' } }
   ],
   mainImage: { asset: { _ref: '/test-image1.jpg' } },
-  city: { name: 'New York', country: 'USA' },
+  city: { _id: 'city1', name: 'New York', country: 'USA', slug: 'new-york', listingCount: 100 },
   type: 'accommodation',
   amenities: ['WiFi', 'Parking'],
   ecoTags: ['Solar Power'],
@@ -84,17 +84,20 @@ const mockListing = {
 const mockListingWithoutCoords = {
   ...mockListing,
   location: undefined,
+  city: { _id: 'city2', name: 'NoCoords City', country: 'USA', slug: 'no-coords-city', listingCount: 0 },
 };
 
 const mockListingWithoutImages = {
   ...mockListing,
   galleryImages: undefined,
   mainImage: undefined,
+  city: { _id: 'city3', name: 'NoImages City', country: 'USA', slug: 'no-images-city', listingCount: 0 },
 };
 
 const mockListingWithoutReviews = {
   ...mockListing,
   reviews: undefined,
+  city: { _id: 'city4', name: 'NoReviews City', country: 'USA', slug: 'no-reviews-city', listingCount: 0 },
 };
 
 const mockListingMinimal = {
@@ -105,7 +108,7 @@ const mockListingMinimal = {
   location: undefined,
   galleryImages: undefined,
   mainImage: undefined,
-  city: undefined,
+  city: { _id: 'city5', name: 'Minimal City', country: 'USA', slug: 'minimal-city', listingCount: 0 },
   type: undefined,
   amenities: undefined,
   ecoTags: undefined,

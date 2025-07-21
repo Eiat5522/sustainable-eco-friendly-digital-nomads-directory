@@ -108,7 +108,7 @@ export function ListingGrid({
               </div>
 
               <p className="mb-2 text-sm text-gray-600">
-                {listing.city.name}, {listing.city.country}
+                {listing.city ? `${listing.city.name}, ${listing.city.country ?? ''}` : 'Location not specified'}
               </p>
 
               {viewMode === 'list' && (
