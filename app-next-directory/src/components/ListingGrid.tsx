@@ -112,7 +112,7 @@ export function ListingGrid({
               </p>
 
               {viewMode === 'list' && (
-                <p className="mb-4 line-clamp-2 text-sm text-gray-500">{listing.description}</p>
+                <p className="mb-4 line-clamp-2 text-sm text-gray-500">{listing.shortDescription}</p>
               )}
 
               <div className="mt-auto flex items-center justify-between">

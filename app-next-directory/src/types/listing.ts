@@ -33,11 +33,11 @@ export interface Listing {
   _id: string
   name: string
   slug: string
-  description_short?: string
-  description_long?: string
-  category: ListingType
+  shortDescription?: string
+  longDescription?: string
+  type: ListingType
   priceRange?: PriceRange;
-  primaryImage?: {
+  mainImage?: {
     asset: {
       _ref: string
       url: string
@@ -50,9 +50,9 @@ export interface Listing {
     }
   }>
   city?: City
-  ecoTags: string[]  // Changed from eco_focus_tags to match Sanity data
+  ecoTags: EcoTag[]
   ecoRating?: number
-  addressString: string  // Changed from address_string to camelCase
+  address: string
   rating?: number
   website?: string
   phone?: string

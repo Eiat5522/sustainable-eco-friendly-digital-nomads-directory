@@ -38,7 +38,7 @@ describe('ListingCard', () => {
     _id: '12345',
     name: 'Test Sanity Listing',
     slug: 'test-listing',
-    description: 'A great place to stay',
+    shortDescription: 'A great place to stay',
     city: { _id: 'test-city-id', slug: 'test-city', name: 'Test City', listingCount: 1, country: 'Thailand' },
     type: ListingCategory.COWORKING,
     priceRange: PriceRange.MODERATE,
@@ -54,7 +54,7 @@ describe('ListingCard', () => {
     createdAt: '2023-01-01T00:00:00Z',
     updatedAt: '2023-01-01T00:00:00Z',
     price: 100,
-    price_indication: 'moderate'
+    priceIndication: 'moderate'
   };
 
   test('renders listing card with correct title', () => {
@@ -91,7 +91,7 @@ describe('ListingCard', () => {
       name: 'Unnamed Listing',
       slug: 'unnamed-listing',
       price: 100,
-      price_indication: 'moderate',
+      priceIndication: 'moderate',
     };
     render(<ListingCard listing={listingWithoutImage} />);
 
@@ -128,9 +128,9 @@ describe('ListingCard', () => {
   test('highlights search query in title and description', () => {
     const listingWithDesc: Listing = {
       ...mockListing,
-      description: 'A great place to stay with vegan options',
+      shortDescription: 'A great place to stay with vegan options',
       price: 100,
-      price_indication: 'moderate',
+      priceIndication: 'moderate',
     };
     render(<ListingCard listing={listingWithDesc} searchQuery="vegan" />);
     // Should highlight "vegan" in description
@@ -143,7 +143,7 @@ describe('ListingCard', () => {
       ...mockListing, 
       city: { _id: '', slug: '', name: '', listingCount: 0, country: '' }, 
       price: 100,
-      price_indication: 'moderate'
+      priceIndication: 'moderate'
     };
     render(<ListingCard listing={listingNoCity} />);
 
@@ -152,7 +152,7 @@ describe('ListingCard', () => {
   });
 
   test('uses fallback for missing name', () => {
-    const listingNoName: Listing = { ...mockListing, name: '', price: 100, price_indication: 'moderate' };
+    const listingNoName: Listing = { ...mockListing, name: '', price: 100, priceIndication: 'moderate' };
     render(<ListingCard listing={listingNoName} />);
     expect(screen.getByText('Unnamed Listing')).toBeInTheDocument();
   });
@@ -164,20 +164,20 @@ describe('ListingCard', () => {
   });
 
   test('getListingUrl returns correct URL for SanityListing', () => {
-    const listingWithSlug: Listing = { ...mockListing, slug: 'listing-test-slug', price: 100, price_indication: 'moderate' };
+    const listingWithSlug: Listing = { ...mockListing, slug: 'listing-test-slug', price: 100, priceIndication: 'moderate' };
     render(<ListingCard listing={listingWithSlug} />);
     expect(screen.getByRole('link')).toHaveAttribute('href', '/listings/listing-test-slug');
   });
 
   test('getListingUrl returns correct URL for non-SanityListing with slug', () => {
-    const listingNonSanitySlug: Listing = { ...mockListing, slug: 'non-sanity-test-slug', price: 100, price_indication: 'moderate' };
+    const listingNonSanitySlug: Listing = { ...mockListing, slug: 'non-sanity-test-slug', price: 100, priceIndication: 'moderate' };
     render(<ListingCard listing={listingNonSanitySlug} />);
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', '/listings/non-sanity-test-slug');
   });
 
   test('getListingUrl returns default slug for missing slug', () => {
-    const listingWithoutSlug: Listing = { ...mockListing, slug: '', price: 100, price_indication: 'moderate' };
+    const listingWithoutSlug: Listing = { ...mockListing, slug: '', price: 100, priceIndication: 'moderate' };
     render(<ListingCard listing={listingWithoutSlug} />);
     expect(screen.getByRole('link')).toHaveAttribute('href', '/listings/default-slug');
   });
@@ -189,7 +189,7 @@ describe('ListingCard', () => {
       mainImage: { asset: { _ref: 'sanity-primary-image-id', url: 'mock-sanity-image-url-sanity-primary-image-id' } },
       galleryImages: [],
       price: 100,
-      price_indication: 'moderate',
+      priceIndication: 'moderate',
     };
     render(<ListingCard listing={listingWithPrimaryImage} />);
     const image = screen.getByTestId('image-mock');
@@ -202,7 +202,7 @@ describe('ListingCard', () => {
       mainImage: { asset: { _ref: '', url: '' } }, // Ensure mainImage is missing/invalid
       galleryImages: [{ asset: { _ref: 'sanity-gallery-image-id', url: 'mock-sanity-image-url-sanity-gallery-image-id' } }],
       price: 100,
-      price_indication: 'moderate',
+      priceIndication: 'moderate',
     };
     render(<ListingCard listing={listingWithGalleryImages} />);
     const image = screen.getByTestId('image-mock');
@@ -215,7 +215,7 @@ describe('ListingCard', () => {
       mainImage: { asset: { _ref: '', url: '/test-image.jpg' } },
       galleryImages: [],
       price: 100,
-      price_indication: 'moderate',
+      priceIndication: 'moderate',
     };
     render(<ListingCard listing={listingWithoutAnyImage} />);
     const image = screen.getByTestId('image-mock');
@@ -231,7 +231,7 @@ describe('ListingCard', () => {
       mainImage: { asset: { _ref: 'error-image-id', url: '' } },
       galleryImages: [],
       price: 100,
-      price_indication: 'moderate',
+      priceIndication: 'moderate',
     };
     render(<ListingCard listing={listingWithErrorPrimaryImage} />);
     const image = screen.getByTestId('image-mock');

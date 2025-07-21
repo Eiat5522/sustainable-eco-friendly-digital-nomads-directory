@@ -51,13 +51,26 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
         <ListingDetail listing={{
           ...listing,
           name: listing.name ?? '',
+          slug: listing.slug ?? undefined,
           description_short: listing.description_short ?? undefined,
           description_long: listing.description_long ?? undefined,
           category: listing.category ?? undefined,
           eco_features: Array.isArray(listing.ecoTags) ? listing.ecoTags : [],
           galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : undefined,
+          website: listing.website ?? undefined,
+          location: listing.location && listing.location.lat !== null && listing.location.lng !== null 
+            ? { lat: listing.location.lat, lng: listing.location.lng }
+            : undefined,
           city: listing.city
-            ? { ...listing.city, title: listing.city.title ?? '', slug: listing.city.slug ?? '' }
+            ? { 
+                _id: listing.city._id ?? '',
+                title: listing.city.title ?? '',
+                slug: (listing.city.slug && typeof listing.city.slug === 'object')
+                      ? ((listing.city.slug as any).current ?? '') 
+                      : (listing.city.slug ?? ''),
+                listingCount: 0,
+                country: ''
+              }
             : undefined
         }} />
 

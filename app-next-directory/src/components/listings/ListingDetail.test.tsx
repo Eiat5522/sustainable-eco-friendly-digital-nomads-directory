@@ -55,9 +55,9 @@ import { ListingDetail } from './ListingDetail';
 const mockListing = {
   _id: 'test-listing-id',
   name: 'Cozy Apartment',
-  description_short: 'A comfortable apartment in a great location.',
-  description_long: '<p>Long description with <strong>HTML</strong></p>',
-  price_range: '$150',
+  shortDescription: 'A comfortable apartment in a great location.',
+  longDescription: '<p>Long description with <strong>HTML</strong></p>',
+  priceRange: '$150',
   location: { lat: 40.7128, lng: -74.0060 },
   galleryImages: [
     { _key: 'img1', asset: { _ref: '/test-image1.jpg' } },
@@ -67,14 +67,14 @@ const mockListing = {
     { _key: 'img5', asset: { _ref: '/test-image5.jpg' } },
     { _key: 'img6', asset: { _ref: '/test-image6.jpg' } }
   ],
-  primaryImage: { asset: { _ref: '/test-image1.jpg' } },
-  city: { title: 'New York', country: 'USA' },
-  category: 'accommodation',
+  mainImage: { asset: { _ref: '/test-image1.jpg' } },
+  city: { name: 'New York', country: 'USA' },
+  type: 'accommodation',
   amenities: ['WiFi', 'Parking'],
-  eco_features: ['Solar Power'],
+  ecoTags: ['Solar Power'],
   website: 'https://example.com',
-  contact_email: 'owner@example.com',
-  contact_phone: '+1234567890',
+  email: 'owner@example.com',
+  phone: '+1234567890',
   reviews: [
     { rating: 5, comment: 'Great place!', _createdAt: '2023-01-01T00:00:00Z', author: 'Alice' },
     { rating: 4, comment: 'Good value', _createdAt: '2023-01-02T00:00:00Z', author: 'Bob' }
@@ -89,7 +89,7 @@ const mockListingWithoutCoords = {
 const mockListingWithoutImages = {
   ...mockListing,
   galleryImages: undefined,
-  primaryImage: undefined,
+  mainImage: undefined,
 };
 
 const mockListingWithoutReviews = {
@@ -99,19 +99,19 @@ const mockListingWithoutReviews = {
 
 const mockListingMinimal = {
   name: 'Minimal Listing',
-  description_short: undefined,
-  description_long: undefined,
-  price_range: undefined,
+  shortDescription: undefined,
+  longDescription: undefined,
+  priceRange: undefined,
   location: undefined,
   galleryImages: undefined,
-  primaryImage: undefined,
+  mainImage: undefined,
   city: undefined,
-  category: undefined,
+  type: undefined,
   amenities: undefined,
-  eco_features: undefined,
+  ecoTags: undefined,
   website: undefined,
-  contact_email: undefined,
-  contact_phone: undefined,
+  email: undefined,
+  phone: undefined,
   reviews: undefined,
 };
 
@@ -486,7 +486,7 @@ describe('ListingDetail', () => {
     const emptyListing = {
       ...mockListing,
       amenities: [],
-      eco_features: [],
+      ecoTags: [],
       reviews: [],
     };
     
@@ -497,17 +497,17 @@ describe('ListingDetail', () => {
   });
 
   test('handles different category types', () => {
-    const coworkingListing = { ...mockListing, category: 'coworking' };
+    const coworkingListing = { ...mockListing, type: 'coworking' };
     const { rerender } = render(<ListingDetail listing={coworkingListing} />);
     expect(screen.getByText('coworking in New York, USA')).toBeInTheDocument();
     
-    const cafeListing = { ...mockListing, category: 'cafe' };
+    const cafeListing = { ...mockListing, type: 'cafe' };
     rerender(<ListingDetail listing={cafeListing} />);
     expect(screen.getByText('cafe in New York, USA')).toBeInTheDocument();
   });
 
   test('handles invalid category fallback', () => {
-    const invalidCategoryListing = { ...mockListing, category: 'invalid-category' };
+    const invalidCategoryListing = { ...mockListing, type: 'invalid-category' };
     render(<ListingDetail listing={invalidCategoryListing} />);
     
     // Should still render and the map should default to 'coworking'

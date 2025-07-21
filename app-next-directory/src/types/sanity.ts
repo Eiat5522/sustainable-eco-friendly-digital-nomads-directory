@@ -26,32 +26,38 @@ export interface SanityListing extends SanityDocument {
   _type: 'listing';
   name: string;
   slug: string | { current: string }; // Updated to allow slug as string or object with current property
-  description_short?: string;
-  category?: CategoryType;
+  shortDescription?: string;
+  type?: CategoryType;
   city?: {
     _id: string;
-    title: string;
+    name: string;
     slug?: { current?: string };
     listingCount?: number;
     country?: string;
   };
-  primaryImage?: SanityImage;
-  ecoTags?: string[]; // Array of resolved tag names
-  digital_nomad_features?: string[]; // Array of strings
-  last_verified_date?: string;
+  mainImage?: SanityImage;
+  ecoTags?: Array<{
+    _id: string;
+    name: string;
+    slug?: { current?: string };
+    description?: string;
+    listingCount?: number;
+  }>;
+  digitalNomadFeatures?: string[]; // Array of strings
+  lastVerifiedDate?: string;
   reviews?: number; // Count of reviews
 
   // Optional fields (can be present in full document, but not always in partials like cards)
-  addressString?: string;
-  description_long?: any; // Can be Portable Text
+  address?: string;
+  longDescription?: any; // Can be Portable Text
   galleryImages?: SanityImage[];
   website?: string;
   contactInfo?: string;
-  openingHours?: string; // This might be structured
+  operatingHours?: string; // This might be structured
   ecoNotesDetailed?: string;
   sourceUrls?: string[];
   price?: number; // Added for compatibility with ListingCard and tests
-  price_indication?: string;
+  priceIndication?: string;
 
   // Fields that were in listingFields previously, but removed for card view.
   // Still useful for a "full" SanityListing type.
@@ -84,14 +90,7 @@ export interface SanityListing extends SanityDocument {
     specificAmenities?: string[];
   };
 
-  // Additional fields to resolve TypeScript errors
-  eco_focus_tags?: Array<{
-    _id: string;
-    name: string;
-    slug?: { current?: string };
-    description?: string;
-    listingCount?: number;
-  }>;
+  // Contact information
   phone?: string;
   email?: string;
   socialLinks?: {

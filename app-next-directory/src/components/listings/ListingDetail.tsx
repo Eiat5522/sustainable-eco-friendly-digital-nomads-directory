@@ -21,13 +21,18 @@ interface Location {
 }
 
 interface City {
-  title: string; // Changed from name to title to match Sanity data
-  country?: string; 
+  _id: string;
+  title: string;
+  slug: string;
+  listingCount: number;
+  country: string;
 }
 
 interface ListingProps {
   listing: {
     name: string
+    slug?: string
+    address?: string
     description_short?: string
     description_long?: string
     category?: string
@@ -80,34 +85,22 @@ export function ListingDetail({ listing }: ListingProps) {
         // The 'id' property is expected by the map. Let's use the Sanity '_id' if available,
         // falling back to other potential id fields or a default.
         id: (listing as any)._id ?? (listing as any).id ?? 'single-listing-map-id',
+        slug: listing.slug || '',
         name: listing.name,
-        description_short: listing.description_short ?? '',
-        description_long: listing.description_long ?? '',
-        // Ensure category is one of the expected values for the map markers.
+        city: listing.city?.title ?? '',
         category: (['coworking', 'cafe', 'accommodation'].includes(listing.category ?? '')
           ? listing.category
           : 'coworking') as 'coworking' | 'cafe' | 'accommodation',
-        // FIX: The MapContainer's Listing type expects 'eco_focus_tags' and other properties.
-        // We map `eco_features` to `eco_focus_tags` and provide defaults for other required fields.
-        eco_focus_tags: listing.eco_features ?? [],
-        address_string: '', // Default value to satisfy the type
-        eco_notes_detailed: '', // Default value to satisfy the type
-        amenities: listing.amenities ?? [],
-        primaryImage: listing.primaryImage ?? null,
-        galleryImages: listing.galleryImages ?? [],
-        city: listing.city?.title ?? '',
-        location: listing.location,
-        website: listing.website ?? '',
-        contact_email: listing.contact_email ?? '',
-        contact_phone: listing.contact_phone ?? '',
-        price_range: listing.price_range ?? '',
-        reviews: listing.reviews ?? [],
-        // These seem to be required by the MapContainer's Listing type, so we provide defaults.
-        source_urls: [],
-        primary_image_url: '',
-        gallery_image_urls: [],
-        digital_nomad_features: [],
-        last_verified_date: '',
+        address: listing.address ?? '',
+        description: listing.description_short ?? '',
+        description_full: listing.description_long ?? '',
+        eco_features: listing.eco_features ?? [],
+        eco_details: '',
+        source_url: [],
+        image_main: '',
+        image_gallery: [],
+        nomad_features: [],
+        verification_date: '',
         coordinates: { latitude: listing.location?.lat ?? 0, longitude: listing.location?.lng ?? 0 },
       }
     : null;

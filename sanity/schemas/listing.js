@@ -32,8 +32,8 @@ export default defineType({
       to: [{type: 'city'}],
     }),
     defineField({
-      name: 'category',
-      title: 'Category',
+      name: 'type',
+      title: 'Type',
       type: 'string',
       options: {
         list: [
@@ -48,7 +48,7 @@ export default defineType({
       validation: rule => rule.required()
     }),
     defineField({
-      name: 'address_string',
+      name: 'address',
       title: 'Address',
       type: 'string',
     }),
@@ -59,18 +59,18 @@ export default defineType({
       description: 'Geographical location (latitude & longitude) for map display',
     }),
     defineField({
-      name: 'description_short',
+      name: 'shortDescription',
       title: 'Short Description',
       type: 'string',
     }),
     defineField({
-      name: 'description_long',
+      name: 'longDescription',
       title: 'Long Description',
       type: 'text',
     }),
     defineField({
-      name: 'eco_focus_tags',
-      title: 'Eco Focus Tags',
+      name: 'ecoTags',
+      title: 'Eco Tags',
       type: 'array',
       of: [{type: 'reference', to: [{type: 'ecoTag'}]}],
     }),
@@ -80,7 +80,7 @@ export default defineType({
       type: 'text',
     }),
     defineField({
-      name: 'source_urls',
+      name: 'sourceUrls',
       title: 'Source URLs',
       type: 'array',
       of: [{type: 'url'}],

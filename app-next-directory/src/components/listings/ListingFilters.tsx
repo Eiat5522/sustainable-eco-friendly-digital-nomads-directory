@@ -12,7 +12,7 @@ interface ListingFiltersProps {
 
 interface FilterState {
   searchQuery: string;
-  category: string | null;
+  type: string | null;
   city: string | null;
   ecoTags: string[];
   features: string[];
@@ -23,7 +23,7 @@ interface FilterState {
 export default function ListingFilters({ listings, onFilterChange }: ListingFiltersProps) {
   const [filters, setFilters] = useState<FilterState>({
     searchQuery: '',
-    category: null,
+    type: null,
     city: null,
     ecoTags: [],
     features: [],
@@ -35,7 +35,10 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
   const categories = Array.from(
     new Set(
       listings
-        .map(l => l.category)
+        .map(l => {
+          if ('type' in l) return l.type;
+          return (l as Listing).type;
+        })
         .filter(c => typeof c === 'string' && c.trim() !== '')
     )
   ) as string[];
@@ -43,7 +46,7 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
     new Set(
       listings
         .map(l => {
-          if ('city' in l && typeof l.city === 'string') return l.city;
+          if ('city' in l && typeof l.city === 'object' && l.city?.name) return l.city.name;
           return (l as Listing).city;
         })
         .filter((c): c is string => typeof c === 'string' && c.trim() !== '')
@@ -54,7 +57,7 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
       listings
         .flatMap(l => {
           if ('ecoTags' in l) return Array.isArray(l.ecoTags) ? l.ecoTags : [];
-          return Array.isArray((l as Listing).eco_focus_tags) ? (l as Listing).eco_focus_tags : [];
+          return Array.isArray((l as Listing).eco_features) ? (l as Listing).eco_features : [];
         })
         .filter((t): t is string => typeof t === 'string' && t.trim() !== '')
     )
@@ -63,8 +66,8 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
     new Set(
       listings
         .flatMap(l => {
-          if ('nomadFeatures' in l) return Array.isArray(l.nomadFeatures) ? l.nomadFeatures : [];
-          return Array.isArray((l as Listing).digital_nomad_features) ? (l as Listing).digital_nomad_features : [];
+          if ('digitalNomadFeatures' in l) return Array.isArray(l.digitalNomadFeatures) ? l.digitalNomadFeatures : [];
+          return Array.isArray((l as Listing).digitalNomadFeatures) ? (l as Listing).digitalNomadFeatures : [];
         })
         .filter((f): f is string => typeof f === 'string' && f.trim() !== '')
     )
@@ -86,8 +89,8 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
     debouncedSearch(event.target.value);
   };
 
-  const handleCategoryChange = (category: string | null) => {
-    setFilters(prev => ({ ...prev, category }));
+  const handleTypeChange = (type: string | null) => {
+    setFilters(prev => ({ ...prev, type }));
   };
 
   const handleCityChange = (city: string | null) => {
@@ -177,34 +180,34 @@ export default function ListingFilters({ listings, onFilterChange }: ListingFilt
         </div>
       </div>
 
-      {/* Category Filter */}
+      {/* Type Filter */}
       <div>
-        <h3 className="text-lg font-semibold mb-3">Category</h3>
+        <h3 className="text-lg font-semibold mb-3">Type</h3>
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => handleCategoryChange(null)}
+            onClick={() => handleTypeChange(null)}
             className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-              !filters.category
+              !filters.type
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
             }`}
           >
             All
           </button>
-          {categories.map(category => (
+          {categories.map(type => (
             <button
               type="button"
-              key={category}
-              onClick={() => handleCategoryChange(category)}
+              key={type}
+              onClick={() => handleTypeChange(type)}
               className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
-                filters.category === category
+                filters.type === type
                   ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
               }`}
             >
-              {typeof category === 'string' && category.length > 0
-                ? category.charAt(0).toUpperCase() + category.slice(1)
+              {typeof type === 'string' && type.length > 0
+                ? type.charAt(0).toUpperCase() + type.slice(1)
                 : 'Unknown'}
             </button>
           ))}

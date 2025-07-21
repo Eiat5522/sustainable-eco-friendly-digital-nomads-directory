@@ -3,56 +3,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { urlFor } from '@/lib/sanity/image';
-
-// Define a more accurate type for a dereferenced Sanity image asset
-interface SanityImageAsset {
-  _id: string; // Asset ID, equivalent to what _ref would point to
-  _type: 'sanity.imageAsset';
-  url: string;
-  path: string;
-  size: number;
-  mimeType: string;
-  extension: string;
-  originalFilename?: string;
-  metadata?: {
-    lqip?: string;
-    blurHash?: string;
-    dimensions?: {
-      width: number;
-      height: number;
-      aspectRatio: number;
-    };
-    palette?: any; // Can be more specific if needed
-    hasAlpha?: boolean;
-    isOpaque?: boolean;
-  };
-  // ... any other fields your assets might have
-}
-
-interface ListingImage {
-  _type: 'image'; // Typically 'image' for the image field itself
-  alt?: string;
-  asset: SanityImageAsset; // Use the more accurate asset type
-  hotspot?: any; // Add other common image fields if used
-  crop?: any;
-}
-
-interface City {
-  _id: string;
-  name: string;
-  country: string;
-}
-
-interface Listing {
-  _id: string;
-  name: string;
-  slug: string;
-  primaryImage?: ListingImage;
-  galleryImages?: ListingImage[];
-  location?: City;
-  price?: number;
-}
-
 import { Listing } from '@/types/listings';
 import { SanityListing } from '@/types/sanity';
 
@@ -65,27 +15,70 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
   console.log('[DEBUG] FeaturedListings: Listings structure check:', {
     isArray: Array.isArray(listings),
     hasListings: !!listings,
-    firstListingId: listings?.[0]?._id,
+    firstListingId: listings?.[0] && ('_id' in listings[0]) ? listings[0]._id : listings?.[0] && ('id' in listings[0]) ? listings[0].id : 'N/A',
     firstListingName: listings?.[0]?.name,
     firstListingSlug: listings?.[0]?.slug
   });
 
-  const getImageUrl = (listing: Listing): string => {
-    // Check for valid primary image asset
-    if (listing.primaryImage && listing.primaryImage.asset && listing.primaryImage.asset._id) {
+  // Helper functions to safely access union type properties
+  const getListingId = (listing: Listing | SanityListing): string => {
+    return ('_id' in listing) ? listing._id : listing.id;
+  };
+
+  const getListingSlug = (listing: Listing | SanityListing): string => {
+    if (typeof listing.slug === 'string') {
+      return listing.slug;
+    }
+    if (typeof listing.slug === 'object' && listing.slug && 'current' in listing.slug) {
+      return listing.slug.current || '';
+    }
+    return listing.slug || '';
+  };
+
+  const getListingLocation = (listing: Listing | SanityListing): string => {
+    if ('city' in listing && typeof listing.city === 'object' && listing.city) {
+      return listing.city.title || 'Location not specified';
+    }
+    if ('city' in listing && typeof listing.city === 'string') {
+      return listing.city;
+    }
+    return 'Location not specified';
+  };
+
+  const getListingPrice = (listing: Listing | SanityListing): number | undefined => {
+    return ('price' in listing) ? listing.price : undefined;
+  };
+
+  const getImageUrl = (listing: Listing | SanityListing): string => {
+    // Handle Sanity listing format first (with detailed image structure)
+    if ('primaryImage' in listing && listing.primaryImage && typeof listing.primaryImage === 'object' && 'asset' in listing.primaryImage) {
       const builder = urlFor(listing.primaryImage);
       if (builder) {
         return builder.width(500).height(300).url();
       }
     }
-    // Check for valid gallery image asset
-    const galleryImage = listing.galleryImages?.[0];
-    if (galleryImage && galleryImage.asset && galleryImage.asset._id) {
-      const builder = urlFor(galleryImage);
-      if (builder) {
-        return builder.width(500).height(300).url();
+    
+    // Handle simplified Listing format (string URL)
+    if ('image_main' in listing && listing.image_main) {
+      return listing.image_main;
+    }
+    
+    // Check for gallery images in Sanity format
+    if ('galleryImages' in listing && listing.galleryImages?.[0]) {
+      const galleryImage = listing.galleryImages[0];
+      if (galleryImage && typeof galleryImage === 'object' && 'asset' in galleryImage) {
+        const builder = urlFor(galleryImage);
+        if (builder) {
+          return builder.width(500).height(300).url();
+        }
       }
     }
+    
+    // Check for gallery images in simplified format
+    if ('image_gallery' in listing && listing.image_gallery?.[0]) {
+      return listing.image_gallery[0];
+    }
+    
     // Fallback placeholder
     return '/placeholder-city.jpg';
   };
@@ -107,19 +100,27 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {listings.slice(0, 4).map(listing => {
             const imageUrl = getImageUrl(listing);
+            const listingId = getListingId(listing);
+            const listingSlug = getListingSlug(listing);
+            const listingLocation = getListingLocation(listing);
+            const listingPrice = getListingPrice(listing);
             // console.log(`FeaturedListings - Rendering Image for "${listing.name}": imageUrl is "${imageUrl}" (type: ${typeof imageUrl})`); // Removed targeted log
 
             return (
               <article
-                key={listing._id}
+                key={listingId}
                 className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col"
               >
-                <Link href={`/listings/${listing.slug}`} className="block group">
+                <Link href={`/listings/${listingSlug}`} className="block group">
                   <div className="relative w-full h-56 overflow-hidden">
                     {imageUrl ? (
                       <Image
                         src={imageUrl}
-                        alt={listing.primaryImage?.alt || listing.name}
+                        alt={
+                          ('primaryImage' in listing && listing.primaryImage && typeof listing.primaryImage === 'object' && 'alt' in listing.primaryImage) 
+                            ? listing.primaryImage.alt || listing.name 
+                            : listing.name
+                        }
                         width={500}
                         height={300}
                         style={{
@@ -146,24 +147,24 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
                 <div className="p-5 flex flex-col flex-grow">
                   <h3 className="text-xl font-semibold mb-2 text-gray-900">
                     <Link
-                      href={`/listings/${listing.slug}`}
+                      href={`/listings/${listingSlug}`}
                       className="hover:text-green-600 transition-colors duration-200 line-clamp-2"
                     >
                       {listing.name}
                     </Link>
                   </h3>
                   <p className="text-sm text-gray-600 mb-3 line-clamp-1">
-                    {listing.location?.name}, {listing.location?.country}
+                    {listingLocation}
                   </p>
                   <div className="mt-auto">
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-lg font-bold text-green-600">
-                        {listing.price ? `$${listing.price}` : ''}
+                        {listingPrice ? `$${listingPrice}` : ''}
                       </span>
-                      {listing.price && <span className="text-xs text-gray-500">/night</span>}
+                      {listingPrice && <span className="text-xs text-gray-500">/night</span>}
                     </div>
                     <Link
-                      href={`/listings/${listing.slug}`}
+                      href={`/listings/${listingSlug}`}
                       className="block w-full text-center bg-green-500 text-white py-2.5 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200 text-sm font-medium"
                     >
                       View Details

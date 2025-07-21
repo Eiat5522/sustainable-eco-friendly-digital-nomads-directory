@@ -11,40 +11,43 @@ export interface Coordinates {
 }
 
 export interface Listing {
-  id: string;
+  _id: string;
   slug?: string;
   name: string;
-  city: string;
-  category?: 'coworking' | 'cafe' | 'accommodation';
-  address_string: string;
-  description_short: string;
-  description_long: string;
-  eco_focus_tags: string[];
-  eco_notes_detailed: string;
-  source_urls: string[];
-  primary_image_url: string;
-  gallery_image_urls: string[];
-  digital_nomad_features: string[];
-  last_verified_date: string;
+  city: {
+    name: string;
+    slug: string;
+  };
+  type?: 'coworking' | 'cafe' | 'accommodation';
+  address: string;
+  shortDescription: string;
+  longDescription: string;
+  ecoFeatures: string[];
+  ecoDetails: string;
+  sourceUrls: string[];
+  mainImage: string;
+  imageGallery: string[];
+  nomadFeatures: string[];
+  verificationDate: string;
   coordinates?: Coordinates;
-  coworking_details?: {
-    operating_hours: string | null;
-    pricing_plans: PricingPlan[];
-    specific_amenities_coworking: string[];
+  coworkingDetails?: {
+    operatingHours: string | null;
+    pricingPlans: PricingPlan[];
+    specificAmenitiesCoworking: string[];
   };
-  cafe_details?: {
-    operating_hours: string;
-    price_indication: string;
-    menu_highlights_cafe: string[];
-    wifi_reliability_notes: string;
+  cafeDetails?: {
+    operatingHours: string;
+    priceIndication: string;
+    menuHighlightsCafe: string[];
+    wifiReliabilityNotes: string;
   };
-  accommodation_details?: {
-    accommodation_type: string;
-    price_per_night_thb_range: {
+  accommodationDetails?: {
+    accommodationType: string;
+    pricePerNightThbRange: {
       min: number;
       max: number;
     };
-    room_types_available: string[];
-    specific_amenities_accommodation: string[];
+    roomTypesAvailable: string[];
+    specificAmenitiesAccommodation: string[];
   };
 }

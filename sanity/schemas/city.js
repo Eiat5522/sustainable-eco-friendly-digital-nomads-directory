@@ -7,7 +7,7 @@ export default defineType({
   type: 'document',
   fields: [
     defineField({
-      name: 'title',
+      name: 'name',
       title: 'City Name (e.g., Chiang Mai)',
       type: 'string',
       validation: (Rule) => Rule.required(),
@@ -17,7 +17,7 @@ export default defineType({
       title: 'Slug',
       type: 'slug',
       options: {
-        source: 'title',
+        source: 'name',
         maxLength: 96,
       },
       validation: (Rule) => Rule.required(),
@@ -56,7 +56,7 @@ export default defineType({
   ],
   preview: {
     select: {
-      title: 'title',
+      title: 'name',
       subtitle: 'country',
       media: 'mainImage',
     },
