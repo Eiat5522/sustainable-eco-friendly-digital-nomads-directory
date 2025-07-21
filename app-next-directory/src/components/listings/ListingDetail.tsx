@@ -22,7 +22,7 @@ interface Location {
 
 interface City {
   _id: string;
-  title: string;
+  name: string;
   slug: string;
   listingCount: number;
   country: string;
@@ -33,19 +33,19 @@ interface ListingProps {
     name: string
     slug?: string
     address?: string
-    description_short?: string
-    description_long?: string
-    category?: string
-    eco_features?: string[]
+    shortDescription?: string
+    longDescription?: string
+    type?: string
+    ecoTags?: string[]
     amenities?: string[]
-    primaryImage?: any // Or a more specific SanityImage type if available
+    mainImage?: any // Or a more specific SanityImage type if available
     galleryImages?: any[]
     city?: City // Make city optional
     location?: Location
     website?: string
-    contact_email?: string
-    contact_phone?: string
-    price_range?: string
+    email?: string
+    phone?: string
+    priceRange?: string
     reviews?: any // Temporarily set to any to resolve mismatch. Investigate SanityListing type.
   }
 }
@@ -64,7 +64,7 @@ export function ListingDetail({ listing }: ListingProps) {
   // FORTEST: Log the full listing object for debugging
   console.info('ListingDetail FULL listing object:', JSON.stringify(listing, null, 2));
   const reviews = listing.reviews || []
-  const [mainImage, setMainImage] = useState(listing.primaryImage)
+  const [mainImage, setMainImage] = useState(listing.mainImage)
   const [hoverImage, setHoverImage] = useState<string | null>(null)
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -84,23 +84,24 @@ export function ListingDetail({ listing }: ListingProps) {
     ? {
         // The 'id' property is expected by the map. Let's use the Sanity '_id' if available,
         // falling back to other potential id fields or a default.
-        id: (listing as any)._id ?? (listing as any).id ?? 'single-listing-map-id',
+        _id: (listing as any)._id ?? (listing as any).id ?? 'single-listing-map-id',
         slug: listing.slug || '',
         name: listing.name,
-        city: listing.city?.title ?? '',
-        category: (['coworking', 'cafe', 'accommodation'].includes(listing.category ?? '')
-          ? listing.category
+        city: { name: listing.city?.name ?? '', slug: listing.city?.slug ?? '', _id: listing.city?._id ?? '', listingCount: listing.city?.listingCount ?? 0, country: listing.city?.country ?? '' },
+        type: (['coworking', 'cafe', 'accommodation'].includes(listing.type ?? '')
+          ? listing.type
           : 'coworking') as 'coworking' | 'cafe' | 'accommodation',
         address: listing.address ?? '',
-        description: listing.description_short ?? '',
-        description_full: listing.description_long ?? '',
-        eco_features: listing.eco_features ?? [],
-        eco_details: '',
-        source_url: [],
-        image_main: '',
-        image_gallery: [],
-        nomad_features: [],
-        verification_date: '',
+        shortDescription: listing.shortDescription ?? '',
+        longDescription: listing.longDescription ?? '',
+        ecoTags: listing.ecoTags ?? [],
+        ecoFeatures: listing.ecoTags ?? [],
+        ecoDetails: '',
+        sourceUrls: [],
+        mainImage: '',
+        imageGallery: [],
+        nomadFeatures: [],
+        verificationDate: '',
         coordinates: { latitude: listing.location?.lat ?? 0, longitude: listing.location?.lng ?? 0 },
       }
     : null;
@@ -261,31 +262,31 @@ export function ListingDetail({ listing }: ListingProps) {
         </div>
 
         <div className="mb-6">
-          {listing.category && listing.city && (
+          {listing.type && listing.city && (
             <h2 className="text-gray-500 dark:text-gray-400">
-              {listing.category} in {listing.city.title}{listing.city.country ? `, ${listing.city.country}` : ''}
+              {listing.type} in {listing.city.name}{listing.city.country ? `, ${listing.city.country}` : ''}
             </h2>
           )}
-          {listing.price_range && (
+          {listing.priceRange && (
             <p className="text-gray-600 dark:text-gray-300 mt-1">
-              Price Range: {listing.price_range}
+              Price Range: {listing.priceRange}
             </p>
           )}
         </div>
 
         {/* Description */}
         <div className="prose dark:prose-invert max-w-none mb-8">
-          {listing.description_short && <p className="text-lg mb-4">{listing.description_short}</p>}
-          {listing.description_long && <div dangerouslySetInnerHTML={{ __html: listing.description_long }} />}
+          {listing.shortDescription && <p className="text-lg mb-4">{listing.shortDescription}</p>}
+          {listing.longDescription && <div dangerouslySetInnerHTML={{ __html: listing.longDescription }} />}
         </div>
 
         {/* Features & Amenities */}
         <div className="grid md:grid-cols-2 gap-8 mb-8">
-          {listing.eco_features && listing.eco_features.length > 0 && (
+          {listing.ecoTags && listing.ecoTags.length > 0 && (
             <div>
               <h3 className="text-xl font-semibold mb-4">Eco Features</h3>
               <ul className="space-y-2">
-                {listing.eco_features.map((feature) => (
+                {listing.ecoTags.map((feature) => (
                   <li key={feature} className="flex items-center text-green-700 dark:text-green-400">
                     <span className="mr-2">🌱</span> {feature}
                   </li>
@@ -324,25 +325,25 @@ export function ListingDetail({ listing }: ListingProps) {
                 </a>
               </p>
             )}
-            {listing.contact_email && (
+            {listing.email && (
               <p>
                 <strong>Email:</strong>{' '}
                 <a
-                  href={`mailto:${listing.contact_email}`}
+                  href={`mailto:${listing.email}`}
                   className="text-green-600 dark:text-green-400 hover:underline"
                 >
-                  {listing.contact_email}
+                  {listing.email}
                 </a>
               </p>
             )}
-            {listing.contact_phone && (
+            {listing.phone && (
               <p>
                 <strong>Phone:</strong>{' '}
                 <a
-                  href={`tel:${listing.contact_phone}`}
+                  href={`tel:${listing.phone}`}
                   className="text-green-600 dark:text-green-400 hover:underline"
                 >
-                  {listing.contact_phone}
+                  {listing.phone}
                 </a>
               </p>
             )}

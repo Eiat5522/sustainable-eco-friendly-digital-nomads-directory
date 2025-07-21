@@ -106,7 +106,7 @@ export function ListingCard({ listing, searchQuery }: { listing: Listing; search
             ))}
           </div>
           {/* Description */}
-          <div>{highlightText(listing.description || '')}</div>
+          <div>{highlightText(listing.shortDescription || '')}</div>
         </div>
       </a>
     </div>

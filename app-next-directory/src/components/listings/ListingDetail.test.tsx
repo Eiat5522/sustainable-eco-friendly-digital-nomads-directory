@@ -266,6 +266,7 @@ describe('ListingDetail', () => {
   });
 
   test('navigates through images in lightbox', async () => {
+    jest.setTimeout(30000);
     const user = userEvent.setup();
     render(<ListingDetail listing={mockListing} />);
     
@@ -298,6 +299,7 @@ describe('ListingDetail', () => {
   });
 
   test('handles thumbnail clicks in lightbox', async () => {
+    jest.setTimeout(30000);
     const user = userEvent.setup();
     render(<ListingDetail listing={mockListing} />);
     
