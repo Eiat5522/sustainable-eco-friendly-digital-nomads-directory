@@ -4,6 +4,7 @@
 
 import { Listing as SanityListing } from '@/types/listing';
 import { JsonListing } from '@/types/sanity-compatible-json';
+import { ListingCategory } from '@/types/enums';
 
 /**
  * Converts a JSON listing format to the Sanity CMS listing format
@@ -17,8 +18,8 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
 
   // Generate slug if missing, using name
   const slug = json.slug && typeof json.slug === 'object' && 'current' in json.slug
-    ? json.slug
-    : (json.name ? { current: json.name.toLowerCase().replace(/\s+/g, '-') } : undefined);
+    ? json.slug.current
+    : (json.name ? json.name.toLowerCase().replace(/\s+/g, '-') : '');
 
   // Map city to new structure
   const city = json.city
