@@ -107,7 +107,7 @@ export default async function PreviewPage() {
                     {listing.city}
                   </span>
                   <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                    {listing.type}
+                    {listing.category}
                   </span>
                 </div>
                 <p className="text-gray-600">{listing.shortDescription}</p>

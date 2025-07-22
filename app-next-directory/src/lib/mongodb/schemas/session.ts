@@ -1,4 +1,4 @@
-import { Schema } from 'mongodb';
+// No Schema import needed for MongoDB JSON schema validation
 
 export const sessionSchema = {
   validator: {

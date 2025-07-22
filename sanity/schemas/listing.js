@@ -322,5 +322,32 @@ export default defineType({
         },
       ],
     }),
+    defineField({
+      name: 'moderationStatus',
+      title: 'Moderation Status',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Pending', value: 'pending' },
+          { title: 'Approved', value: 'approved' },
+          { title: 'Rejected', value: 'rejected' }
+        ],
+        layout: 'dropdown'
+      },
+      initialValue: 'pending',
+    }),
+    defineField({
+      name: 'verificationStatus',
+      title: 'Verification Status',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Unverified', value: 'unverified' },
+          { title: 'Verified', value: 'verified' }
+        ],
+        layout: 'dropdown'
+      },
+      initialValue: 'unverified',
+    }),
   ],
 })

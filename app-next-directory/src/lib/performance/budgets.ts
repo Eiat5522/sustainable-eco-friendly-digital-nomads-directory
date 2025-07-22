@@ -88,7 +88,7 @@ export function shouldAlert(
 ): PerformanceAlert | null {
   if (!isValidMetric(type, metricName)) return null;
 
-  const budget = PERFORMANCE_BUDGETS[type][metricName];
+  const budget = (PERFORMANCE_BUDGETS[type] as Record<string, { target: number; limit: number }>)[metricName];
   if (!budget) return null;
 
   let severity: AlertSeverity = 'info';

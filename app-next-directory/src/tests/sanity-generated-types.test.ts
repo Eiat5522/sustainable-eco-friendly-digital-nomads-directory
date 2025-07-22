@@ -36,7 +36,7 @@ describe('Sanity Generated Types', () => {
         },
         address_string: 'Test Address',
         description_short: 'Short description',
-        longDescription: 'Long description',
+        description_long: 'Long description',
         eco_focus_tags: [],
         digital_nomad_features: [],
         primaryImage: {

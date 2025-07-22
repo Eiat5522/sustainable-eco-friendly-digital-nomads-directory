@@ -1,5 +1,6 @@
-import Analytics from '@analytics/google-analytics-v4';
-import { AnalyticsBrowser } from '@vercel/analytics/react';
+import Analytics from 'analytics';
+import googleAnalytics from '@analytics/google-analytics';
+import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
 import posthog from 'posthog-js';
 
 // Load environment variables
@@ -22,19 +23,18 @@ if (typeof window !== 'undefined' && POSTHOG_TOKEN) {
 const analytics = Analytics({
   app: 'sustainable-eco-nomads',
   plugins: [
-    {
-      name: 'google-analytics',
-      measurementId: GA_MEASUREMENT_ID,
+    googleAnalytics({
+      measurementIds: [GA_MEASUREMENT_ID || ''],
       config: {
         debug: process.env.NODE_ENV === 'development'
       }
-    }
+    })
   ]
 });
 
 // Initialize Vercel Analytics
 export const vercelAnalytics = process.env.NODE_ENV === 'production'
-  ? new AnalyticsBrowser()
+  ? VercelAnalytics
   : null;
 
 // Export analytics instances

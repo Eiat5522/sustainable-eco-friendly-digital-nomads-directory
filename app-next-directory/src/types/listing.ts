@@ -79,6 +79,8 @@ export interface Listing {
   price?: number
   priceIndication?: string;  // Changed from price_indication to camelCase
   coordinates?: [number, number]
+  moderationStatus?: 'pending' | 'approved' | 'rejected';
+  verificationStatus?: 'unverified' | 'verified';
 }
 
 // Specific listing type interfaces

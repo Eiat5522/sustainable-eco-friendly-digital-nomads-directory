@@ -13,7 +13,7 @@ function mapRawToListing(rawListing: any): Listing {
     city: typeof rawListing.city === 'string'
       ? { name: rawListing.city, slug: { current: rawListing.city.toLowerCase().replace(/\s+/g, '-') } }
       : rawListing.city || { name: '', slug: { current: '' } },
-    type: rawlisting.type || rawListing.type || 'coworking',
+    type: rawListing.category || rawListing.type || 'coworking',
     address: rawListing.address_string || rawListing.address || '',
     shortDescription: rawListing.shortDescription || rawListing.shortDescription || '',
     longDescription: rawListing.longDescription || rawListing.longDescription || '',

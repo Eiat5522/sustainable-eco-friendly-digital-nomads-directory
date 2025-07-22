@@ -57,8 +57,8 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           name: listing.name ?? '',
           slug: listing.slug ?? undefined,
           shortDescription: listing.shortDescription ?? undefined,
-          longDescription: listing.longDescription ?? undefined,
-          type: listing.type ?? undefined,
+          longDescription: listing.description_long ?? undefined,
+          type: listing.category ?? undefined,
           ecoTags: Array.isArray(listing.ecoTags) ? listing.ecoTags : [],
           mainImage: Array.isArray(listing.galleryImages) && listing.galleryImages.length > 0 ? listing.galleryImages[0] : undefined,
 galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : [],
@@ -87,10 +87,10 @@ galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : []
             <div>
               <h2 className="text-2xl font-semibold border-b pb-2 mb-4">About this place</h2>
               <p className="text-muted-foreground">{listing.shortDescription}</p>
-              {listing.longDescription && (
+              {listing.description_long && (
                 <div className="prose prose-lg max-w-none mt-4">
                   {/* Assuming longDescription is a string for now. If it's Portable Text, this will need a proper renderer */}
-                  <p>{listing.longDescription}</p>
+                  <p>{listing.description_long}</p>
                 </div>
               )}
             </div>

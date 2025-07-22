@@ -12,7 +12,38 @@ import { JsonListing } from '@/types/sanity-compatible-json';
  */
 export function jsonToSanityListing(json: JsonListing): SanityListing {
   const now = new Date().toISOString();
-  const _id = json._id ?? (json.slug?.current ? `listing-${json.slug.current}` : undefined);
+  // Generate _id if missing, using name or fallback
+  const _id = (json as any)._id || (json.name ? `listing-${json.name.toLowerCase().replace(/\s+/g, '-')}` : undefined);
+
+  // Generate slug if missing, using name
+  const slug = json.slug && typeof json.slug === 'object' && 'current' in json.slug
+    ? json.slug
+    : (json.name ? { current: json.name.toLowerCase().replace(/\s+/g, '-') } : undefined);
+
+  // Map city to new structure
+  const city = json.city
+    ? {
+        _id: (json.city as any)._id || '',
+        name: json.city.name || '',
+        slug: typeof json.city.slug === 'object' && 'current' in json.city.slug
+          ? json.city.slug
+          : { current: typeof json.city.slug === 'string' ? json.city.slug : '' },
+        listingCount: (json.city as any).listingCount || 0,
+        country: (json.city as any).country || ''
+      }
+    : undefined;
+
+  // Map ecoTags to new structure
+  const ecoTags = Array.isArray(json.ecoTags)
+    ? json.ecoTags.map(tag => ({
+        _id: (tag as any)._id || '',
+        name: tag.name || '',
+        slug: tag.name ? tag.name.toLowerCase().replace(/\s+/g, '-') : '',
+        description: '',
+        listingCount: 0
+      }))
+    : [];
+
 
   // Build location with coordinates if present
   let location;
@@ -26,35 +57,38 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
   return {
     _id,
     name: json.name,
-    slug: json.slug,
-    city: json.city ? {
-      name: json.city.name,
-      slug: json.city.slug,
-    } : undefined,
-    type: (json.type === 'coworking' || json.type === 'cafe' || json.type === 'accommodation') ? json.type : undefined,
+    slug,
+
+    city,
+    type: (() => {
+      switch (json.type) {
+        case 'coworking': return ListingCategory.COWORKING;
+        case 'cafe': return ListingCategory.CAFE;
+        case 'accommodation': return ListingCategory.ACCOMMODATION;
+        case 'restaurant': return ListingCategory.RESTAURANT;
+        case 'activities': return ListingCategory.ACTIVITIES;
+        default: return ListingCategory.COWORKING;
+      }
+    })(),
     address: json.address ?? '',
     shortDescription: json.shortDescription ?? '',
     longDescription: json.longDescription ?? '',
-    ecoTags: Array.isArray(json.ecoTags)
-      ? json.ecoTags.map(tag => ({
-          _id: tag._id,
-          name: tag.name,
-          slug: { current: tag.name.toLowerCase().replace(/\s+/g, '-') },
-        }))
-      : [],
+    ecoTags,
     ecoDetails: json.ecoDetails ?? {},
     sourceUrls: json.sourceUrls ?? [],
-    mainImage: json.mainImage?.asset?.url ?? '',
+    mainImage: json.mainImage && json.mainImage.asset ? { asset: { _ref: json.mainImage.asset._ref || '', url: json.mainImage.asset.url || '' } } : undefined,
     galleryImages: Array.isArray(json.galleryImages)
-      ? json.galleryImages.map(img => img.asset?.url ?? '')
+      ? json.galleryImages
+          .map(img => img && img.asset ? { asset: { _ref: img.asset._ref || '', url: img.asset.url || '' } } : null)
+          .filter((img): img is { asset: { _ref: string; url: string } } => !!img)
       : [],
     digitalNomadFeatures: json.digitalNomadFeatures ?? [],
     lastVerifiedDate: json.lastVerifiedDate ?? '',
     moderationStatus: 'pending',
     verificationStatus: 'unverified',
     ecoRating: undefined,
-    coordinates: json.location
-      ? { latitude: json.location.lat, longitude: json.location.lng }
+    coordinates: json.location && typeof json.location.lat === 'number' && typeof json.location.lng === 'number'
+      ? [json.location.lng, json.location.lat]
       : undefined,
     createdAt: now,
     updatedAt: now,
