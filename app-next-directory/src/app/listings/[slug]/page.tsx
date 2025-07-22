@@ -64,7 +64,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           city: listing.city
             ? { 
                 _id: listing.city._id ?? '',
-                title: listing.city.title ?? '',
+                name: listing.city.name ?? '',
                 slug: (listing.city.slug.current && typeof listing.city.slug.current === 'object')
                       ? ((listing.city.slug.current as any).current ?? '') 
                       : (listing.city.slug.current ?? ''),
