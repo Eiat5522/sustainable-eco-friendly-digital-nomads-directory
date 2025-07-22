@@ -9,6 +9,7 @@ export const mockListings = [
     eco_focus_tags: ['solar_power', 'waste_reduction'],
     digital_nomad_features: ['fast_wifi', 'quiet_work_zones'],
     slug: 'test-coworking-space',
+    ecoNotesDetailed: 'Solar panels and waste reduction initiatives.',
   },
   {
     id: 'test-2',
@@ -19,6 +20,7 @@ export const mockListings = [
     eco_focus_tags: ['organic_food', 'plastic_free_initiatives'],
     digital_nomad_features: ['reliable_wifi', 'power_outlets_abundant'],
     slug: 'test-eco-cafe',
+    ecoNotesDetailed: 'Organic food and plastic-free initiatives.',
   },
 ];
 

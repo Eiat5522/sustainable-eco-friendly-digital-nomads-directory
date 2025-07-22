@@ -38,7 +38,7 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
       }
       
       // Handle direct URL from MongoDB or other sources
-      const directUrl = (listing as Listing).primary_image_url;
+      const directUrl = (listing as Listing).mainImage;
       if (directUrl && typeof directUrl === 'string' && directUrl.startsWith('http')) {
         return directUrl;
       }
@@ -62,7 +62,7 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
 
   // Helper to get listing ID
   const getListingId = (listing: Listing | SanityListing) => {
-    return '_id' in listing ? listing._id : (listing as Listing).id;
+    return '_id' in listing ? listing._id : (listing as Listing)._id;
   };
 
   // Helper to get slug string
@@ -79,7 +79,7 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
 
     return isSanityListing && 'ecoTags' in listing
       ? listing.ecoTags
-      : (listing as Listing).eco_focus_tags;
+      : (listing as Listing).ecoTags;
   };
 
   // Helper to get location/city
@@ -97,7 +97,7 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
 
     return isSanityListing && 'descriptionShort' in listing
       ? listing.descriptionShort
-      : (listing as Listing).description_short;
+      : (listing as Listing).shortDescription;
   };
 
   // Helper to get address
@@ -106,7 +106,7 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
 
     return isSanityListing && 'address' in listing
       ? listing.address
-      : (listing as Listing).address_string;
+      : (listing as Listing).address;
   };
 
   return (
@@ -136,12 +136,12 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
               <div className="absolute top-4 right-4 z-10">
                 <span className={`
                   inline-block px-3 py-1 text-sm font-medium rounded-full
-                  ${listing.category === 'coworking' ? 'bg-category-coworking text-white' :
-                    listing.category === 'cafe' ? 'bg-category-cafe text-white' :
+                  ${listing.type === 'coworking' ? 'bg-category-coworking text-white' :
+                    listing.type === 'cafe' ? 'bg-category-cafe text-white' :
                     'bg-category-accommodation text-white'}
                   shadow-sm
                 `}>
-                  {listing.category}
+                  {listing.type}
                 </span>
               </div>
             </div>

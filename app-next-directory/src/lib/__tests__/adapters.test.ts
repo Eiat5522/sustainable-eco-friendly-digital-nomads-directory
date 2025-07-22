@@ -81,14 +81,13 @@ describe('jsonToSanityListing', () => {
     const result = jsonToSanityListing(baseJsonListing);
     
     expect(result._id).toBe('listing-eco-space-coworking');
-    expect(result.type).toBe('listing');
-    expect(result._createdAt).toBe(MOCK_DATE);
-    expect(result._updatedAt).toBe(MOCK_DATE);
-    expect(result._rev).toBe('initial');
+    expect(result.type).toBe(ListingCategory.COWORKING);
+    expect(result.createdAt).toBe(MOCK_DATE);
+    expect(result.updatedAt).toBe(MOCK_DATE);
     
     expect(result.name).toBe('Eco Space Coworking');
     expect(result.slug).toEqual({ current: 'eco-space-coworking' });
-    expect(result.type).toBe(ListingCategory.COWORKING);
+ 
     expect(result.shortDescription).toBe('A sustainable coworking space');
     expect(result.longDescription).toBe('A long eco-friendly description for digital nomads with sustainable practices.');
     

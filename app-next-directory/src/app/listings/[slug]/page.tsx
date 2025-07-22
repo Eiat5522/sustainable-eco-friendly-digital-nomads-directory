@@ -52,11 +52,11 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           ...listing,
           name: listing.name ?? '',
           slug: listing.slug ?? undefined,
-          description_short: listing.description_short ?? undefined,
-          description_long: listing.description_long ?? undefined,
-          category: listing.category ?? undefined,
-          eco_features: Array.isArray(listing.ecoTags) ? listing.ecoTags : [],
-          galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : undefined,
+          shortDescription: listing.description_short ?? undefined,
+          longDescription: listing.description_long ?? undefined,
+          type: listing.category ?? undefined,
+          ecoTags: Array.isArray(listing.ecoTags) ? listing.ecoTags : [],
+          mainImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : undefined,
           website: listing.website ?? undefined,
           location: listing.location && listing.location.lat !== null && listing.location.lng !== null 
             ? { lat: listing.location.lat, lng: listing.location.lng }

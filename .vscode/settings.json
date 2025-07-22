@@ -28,11 +28,11 @@
   "gitlens.graph.onlyFollowFirstParent": true,
   "git.openRepositoryInParentFolders": "never",
   "npm.packageManager": "pnpm",
-  "jest.jestCommandLine": "pnpm --filter app-next-directory exec jest",
+  "jest.jestCommandLine": "pnpm exec jest",
   "jest.enable": true,
   "jest.debugMode": false,
   "jest.runMode": "on-demand",
-  "jest.rootPath": "app-next-directory",
+  "jest.rootPath": "app-next-directory/src",
   "jest.coverageFormatter": "GutterFormatter",
   "files.watcherExclude": {
     "listings/**": true
