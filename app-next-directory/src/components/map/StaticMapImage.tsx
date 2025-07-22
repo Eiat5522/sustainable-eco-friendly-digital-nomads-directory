@@ -45,8 +45,8 @@ export default function StaticMapImage({ listings }: StaticMapImageProps) {
         </p>
         <ul>
           {validListings.map(listing => (
-            <li key={listing.slug || listing.id}>
-              {listing.name} - {listing.address} ({listing.category})
+            <li key={listing.slug || listing._id}>
+              {listing.name} - {listing.address} ({listing.type})
             </li>
           ))}
         </ul>

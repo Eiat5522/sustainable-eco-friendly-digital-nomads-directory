@@ -531,7 +531,7 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
     "website": "https://example.com/listing",
     "contactInfo": "info@example.com / +1234567890",
     "openingHours": "Mon-Fri: 9am - 6pm, Sat: 10am - 4pm",
-    "ecoNotesDetailed": "Detailed notes about specific eco-friendly practices and sustainability efforts.",
+    "shortDescription": "Detailed notes about specific eco-friendly practices and sustainability efforts.",
     "sourceUrls": ["https://source1.com", "https://source2.com"],
     "rating": 4.7,
     "priceRange": "$$"

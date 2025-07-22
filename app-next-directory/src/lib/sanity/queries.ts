@@ -41,7 +41,7 @@ async function getListingBySlug(slug: string, preview = false) {
     addressString,
     openingHours,
     contactInfo,
-    ecoNotesDetailed,
+    shortDescription,
     sourceUrls,
     "reviews": *[_type == "review" && references(^._id)]{
       _id,
@@ -150,7 +150,7 @@ async function searchListings(searchTerm: string, preview = false) {
     name match $searchTerm ||
     descriptionShort match $searchTerm ||
     descriptionLong match $searchTerm ||
-    ecoNotesDetailed match $searchTerm
+    shortDescription match $searchTerm
   )] {
     ${listingFields}
   }`;

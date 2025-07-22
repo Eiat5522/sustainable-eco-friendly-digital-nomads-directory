@@ -89,8 +89,8 @@ describe('Sanity client module', () => {
       const originalEnv = process.env;
       process.env = {
         ...originalEnv,
-        NEXT_PUBLIC_SANITY_PROJECT_ID: undefined,
-        NEXT_PUBLIC_SANITY_DATASET: undefined,
+        NEXT_PUBLIC_SANITY_PROJECT_ID: '',
+        NEXT_PUBLIC_SANITY_DATASET: '',
       };
 
       const { createClient } = require('@sanity/client');

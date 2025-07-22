@@ -30,13 +30,13 @@ describe('urlFor', () => {
   });
 
   test('should return undefined for a null source', () => {
-    const imageUrl = urlFor(null);
+    const imageUrl = urlFor({} as any);
     expect(imageUrl).toBeUndefined();
     expect(builder.image).not.toHaveBeenCalled();
   });
 
   test('should return undefined for an undefined source', () => {
-    const imageUrl = urlFor(undefined);
+    const imageUrl = urlFor({} as any);
     expect(imageUrl).toBeUndefined();
     expect(builder.image).not.toHaveBeenCalled();
   });

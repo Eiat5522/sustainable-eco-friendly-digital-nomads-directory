@@ -30,7 +30,7 @@ const LISTING_BY_SLUG_QUERY = groq`
     website,
     contactInfo,
     openingHours,
-    ecoNotesDetailed,
+    shortDescription,
     sourceUrls,
     rating,
     priceRange,
@@ -51,9 +51,11 @@ export async function getListingData(
   slug: string,
   usePreview = false
 ): Promise<LISTING_BY_SLUG_QUERYResult> {
-  const client = client(usePreview);
+  // Use imported client directly (no redeclaration)
+  // const client = client(usePreview);
+
   try {
-    const listing = await client.fetch<LISTING_BY_SLUG_QUERYResult>(
+    const listing = await client.fetch(
       LISTING_BY_SLUG_QUERY,
       { slug }
     );

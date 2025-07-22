@@ -24,15 +24,14 @@ export const test = base.extend<ListingsFixtures>({
           latitude: 13.7563,
           longitude: 100.5018
         },
-        shortDescription: 'Test description',
         longDescription: 'Long description',
         ecoTags: ['zero-waste'],
-        ecoNotesDetailed: 'Eco notes',
+        shortDescription: 'Eco notes', //map to ecoNotesDetailed for data migration
         sourceUrls: [],
-        primaryImage_url: '/test.jpg',
-        galleryImage_urls: [],
+        mainImage: '/test.jpg',
+        galleryImages: [],
         digitalNomadFeatures: ['wifi'],
-        lastVerifiedate: '2025-05-14'
+        lastVerifiedDate: '2025-05-14'
       }
       // Add more mock listings as needed
     ];

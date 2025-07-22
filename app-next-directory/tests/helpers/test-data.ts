@@ -1,37 +1,41 @@
-import { type Listing } from '@/types/listings';
+import { type Listing } from '@/types/listing';
+import { ListingCategory } from '@/types/enums';
 
 export const mockListings: Listing[] = [
   {
     _id: '1',
     name: 'Eco-Friendly Coworking Space',
+    slug: 'eco-friendly-coworking-space',
     shortDescription: 'A sustainable coworking space with solar panels and recycling',
-    type: 'coworking',
+    type: ListingCategory.COWORKING,
     address: '123 Green Street, Bangkok',
-    ecoTags: ['solar_powered', 'zero_waste', 'recycling_program'],
+    ecoTags: [], // Use valid EcoTag enum values if available
     digitalNomadFeatures: ['high_speed_wifi', 'meeting_rooms'],
-    mainImage: '/images/sample/coworking.jpg',
-    city: { name: 'Bangkok', slug: 'bangkok' },
+    mainImage: { asset: { _ref: '', url: '/images/sample/coworking.jpg' } },
+    city: { _id: 'bangkok', name: 'Bangkok', slug: 'bangkok', listingCount: 0, country: 'Thailand' },
     longDescription: '',
-    ecoNotesDetailed: '',
     sourceUrls: [],
-    galleryImageurls: [],
-    lastVerifiedDate: ''
+    galleryImages: [],
+    updatedAt: ''
   },
   {
       _id: '2',
       name: 'Bamboo Eco Café',
+      slug: 'bamboo-eco-cafe',
       shortDescription: 'Eco-conscious café serving local organic produce and using eco-friendly practices',
       longDescription: 'A spacious, eco-friendly café in Chiang Mai focused on sustainability, offering organic food and a welcoming atmosphere for digital nomads.',
-      type: 'cafe',
+      type: ListingCategory.CAFE,
       address: '456 Bamboo Lane, Chiang Mai',
-      ecoTags: ['organic_food', 'local_sourcing', 'plastic_free'],
-      ecoNotesDetailed: 'Uses bamboo furniture, composts waste, and sources ingredients locally.',
+      ecoTags: [], // Use valid EcoTag enum values if available
       sourceUrls: ['https://bambooecocafe.example.com'],
-      primarImage: '/images/sample/cafe.jpg',
-      galleryImage: ['/images/sample/cafe1.jpg', '/images/sample/cafe2.jpg'],
+      mainImage: { asset: { _ref: '', url: '/images/sample/cafe.jpg' } },
+      galleryImages: [
+        { asset: { _ref: '', url: '/images/sample/cafe1.jpg' } },
+        { asset: { _ref: '', url: '/images/sample/cafe2.jpg' } }
+      ],
       digitalNomadFeatures: ['wifi_available', 'power_outlets'],
-      lastVerifiedDate: '2025-07-01',
-      city: { name: 'Chiang Mai', slug: 'chiangmai' },
+      updatedAt: '2025-07-01',
+      city: { _id: 'chiangmai', name: 'Chiang Mai', slug: 'chiangmai', listingCount: 0, country: 'Thailand' },
     }
 ];
 

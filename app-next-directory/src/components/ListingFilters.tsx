@@ -76,9 +76,7 @@ export function ListingFilters({
       options: cities.map((city) => ({
         id: typeof city.slug === 'string'
   ? city.slug
-  : (city.slug && typeof city.slug === 'object' && 'current' in city.slug)
-    ? city.slug.current ?? ''
-    : '',
+  : city.slug.current ?? '',
         label: city.name,
         count: city.listingCount,
       })),

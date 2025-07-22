@@ -1,4 +1,6 @@
 <!-- markdownlint-disable MD050 -->
+<!-- markdownlint-disable MD046 -->
+<!-- markdownlint-disable MD012 -->
 # Parallel Workstreams for Weekend Backend Implementation
 
 ## Overview
@@ -442,30 +444,19 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
      ✅ src/types/listing.ts:2
      ✅ src/app/listings/[slug]/page.tsx:51
      
-src/app/listings/[slug]/page.tsx
 src/components/city/CityPage.tsx
+src/components/CityCarousel.tsx
+src/components/home/FeaturedListings.tsx
+src/components/listings/CityCarousel.tsx
+src/components/listings/CitySection.tsx
 src/components/listings/ListingDetail.tsx
-src/components/listings/ListingFilters.tsx
+src/components/listings/ListingGrid.tsx
 src/components/map/StaticMapImage.tsx
 src/components/search/SearchDialog.tsx
 src/lib/__tests__/adapters.test.ts
 src/lib/__tests__/listings.test.ts
-src/lib/analytics/config.ts
-src/lib/analytics/experiments.ts
-src/lib/listings.ts
-src/lib/mongodb/schemas/session.ts
-src/lib/performance/budgets.ts
-src/lib/sanity-batch-processor.ts
-src/lib/sanity-image-uploader.ts
-src/lib/sanity/client.test.ts
-src/lib/sanity/data.ts
-src/lib/sanity/image.test.ts
-src/lib/sanity/image.ts
-src/lib/sanity/queries.ts
-src/lib/search.ts
-src/utils/mapSanityListingToListing.ts
-tests/helpers/test-data.ts
-tests/utils/test-fixtures.ts
+
+
 
 ## 📝 Batch Normalization & Refactor Checklist (Listings, Cities, Images, Category-Specific Types)
 
@@ -498,6 +489,91 @@ Next steps:
 ### 🗒️Scratch Pad
 
 Develop a comprehensive schema and type mapping document for a Sanity "Listing" document. This document should visually represent the database schema, illustrating relationships between the "Listing" document and all related entities (other Sanity documents, objects, etc.). The mapping should clearly depict the structure and connections within the Sanity data model. Furthermore, the document must include a detailed table that lists all fields within the "Listing" schema, alongside their corresponding TypeScript types. This table should explicitly map each Sanity field to its appropriate TypeScript type, ensuring accurate type representation for the "Listing" document and its associated data.
+
+The core of the error
+
+> Property ‘current’ does not exist on type ‘never’
+
+means that, according to your `City` interface, `city.slug` isn’t declared as having a `.current` property (in fact, TypeScript has concluded its type is `never`). To fix this you need to make sure that in your `types/listing.ts` (or wherever `City` lives) you give `slug` a proper union type that includes both the string case and the `{ current: string }` case. For example:
+
+```ts
+// types/listing.ts
+
+/** 
+ * E.g. if you’re pulling slugs from Sanity you might use:
+ * import type { Slug } from 'sanity';
+ * 
+ * export interface City {
+ *   name: string;
+ *   slug: Slug | string;
+ *   listingCount: number;
+ * }
+ *
+ * Or, if you want to roll your own:
+ */
+export interface City {
+  name: string;
+  slug: string | { current: string };
+  listingCount: number;
+}
+```
+
+With that in place, your mapping in `ListingFilters.tsx` can be simplified to:
+
+```ts
+options: cities.map((city) => {
+  // slug is now typed as string | { current: string }
+  const id =
+    typeof city.slug === 'string'
+      ? city.slug
+      : city.slug.current;           // safe now that TS knows slug.current exists
+
+  return {
+    id,
+    label: city.name,
+    count: city.listingCount,
+  };
+}),
+```
+
+If you want to guard more defensively (in case `current` might somehow be empty), you can still use the `?? ''` fallback:
+
+```ts
+const id =
+  typeof city.slug === 'string'
+    ? city.slug
+    : city.slug.current ?? '';
+```
+
+---
+
+### Step‑by‑step
+
+1. **Update your type definition**
+   In `types/listing.ts`, make sure `City`’s `slug` is declared as a union that includes an object with `current: string`.
+
+2. **Simplify your mapping**
+   Replace the nested ternary you had with:
+
+   ```ts
+   const id =
+     typeof city.slug === 'string'
+       ? city.slug
+       : city.slug.current;
+   ```
+
+3. **(Optional) Add a fallback**
+   If you ever expect `slug.current` to be missing or empty, you can write:
+
+   ```ts
+   const id =
+     typeof city.slug === 'string'
+       ? city.slug
+       : city.slug.current ?? '';
+   ```
+
+That will remove the “never” type entirely and let you access `.current` without TypeScript complaining.
+
 
 ### Progress Tracking
 

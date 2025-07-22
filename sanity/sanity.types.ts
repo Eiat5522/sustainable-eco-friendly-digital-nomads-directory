@@ -1186,7 +1186,7 @@ export type FEATURED_LISTINGS_QUERYResult = Array<{
 
 // Source: ../app-next-directory/src/lib/sanity/data.ts
 // Variable: LISTING_BY_SLUG_QUERY
-// Query: *[_type == "listing" && slug.current == $slug][0] {    _id,    _type,    _createdAt,    _updatedAt,    _rev,    name,    "slug": slug.current,    description_short,    description_long,    category,    city->{      _id,      title,      "slug": slug.current    },    location { lat, lng },    primaryImage,    ecoTags,    digital_nomad_features,    last_verified_date,    reviews,    addressString,    website,    contactInfo,    openingHours,    ecoNotesDetailed,    sourceUrls,    rating,    priceRange,    galleryImages[]{      ...,      asset->    }  }
+// Query: *[_type == "listing" && slug.current == $slug][0] {    _id,    _type,    _createdAt,    _updatedAt,    _rev,    name,    "slug": slug.current,    description_short,    description_long,    category,    city->{      _id,      title,      "slug": slug.current    },    location { lat, lng },    primaryImage,    ecoTags,    digital_nomad_features,    last_verified_date,    reviews,    addressString,    website,    contactInfo,    openingHours,    shortDescription,    sourceUrls,    rating,    priceRange,    galleryImages[]{      ...,      asset->    }  }
 export type LISTING_BY_SLUG_QUERYResult = {
   _id: string
   _type: 'listing'
@@ -1235,7 +1235,7 @@ export type LISTING_BY_SLUG_QUERYResult = {
   website: null
   contactInfo: null
   openingHours: null
-  ecoNotesDetailed: null
+  shortDescription: null
   sourceUrls: Array<string> | null
   rating: null
   priceRange: null
@@ -1281,6 +1281,6 @@ declare module '@sanity/client' {
     'count(*[_type == "blogPost" && defined(slug)])': CountQueryResult
     '*[_type == "city"] | order(_createdAt desc)[0...20] {\n      _id,\n      title,\n      "slug": slug.current,\n      country,\n      sustainabilityScore,\n      "mainImage": mainImage {\n        alt,\n        "asset": asset->{\n          _id,\n          url,\n          metadata {\n            dimensions,\n            lqip\n          }\n        }\n      }\n    }': CITIES_QUERYResult
     '*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {\n      _id,\n      name,\n      "slug": slug.current,\n      "primaryImage": primaryImage{\n        alt,\n        "asset": asset->{\n          _id,\n          url,\n          metadata {\n            dimensions,\n            lqip\n          }\n        }\n      },\n      "galleryImages": galleryImages[0]{\n        alt,\n        "asset": asset->{\n          _id,\n          url,\n          metadata {\n            dimensions,\n            lqip\n          }\n        }\n      },\n      "location": city->{\n        _id,\n        name,\n        country\n      },\n      price\n    }': FEATURED_LISTINGS_QUERYResult
-    '\n  *[_type == "listing" && slug.current == $slug][0] {\n    _id,\n    _type,\n    _createdAt,\n    _updatedAt,\n    _rev,\n    name,\n    "slug": slug.current,\n    description_short,\n    description_long,\n    category,\n    city->{\n      _id,\n      title,\n      "slug": slug.current\n    },\n    location { lat, lng },\n    primaryImage,\n    ecoTags,\n    digital_nomad_features,\n    last_verified_date,\n    reviews,\n    addressString,\n    website,\n    contactInfo,\n    openingHours,\n    ecoNotesDetailed,\n    sourceUrls,\n    rating,\n    priceRange,\n    galleryImages[]{\n      ...,\n      asset->\n    }\n  }\n': LISTING_BY_SLUG_QUERYResult
+    '\n  *[_type == "listing" && slug.current == $slug][0] {\n    _id,\n    _type,\n    _createdAt,\n    _updatedAt,\n    _rev,\n    name,\n    "slug": slug.current,\n    description_short,\n    description_long,\n    category,\n    city->{\n      _id,\n      title,\n      "slug": slug.current\n    },\n    location { lat, lng },\n    primaryImage,\n    ecoTags,\n    digital_nomad_features,\n    last_verified_date,\n    reviews,\n    addressString,\n    website,\n    contactInfo,\n    openingHours,\n    shortDescription,\n    sourceUrls,\n    rating,\n    priceRange,\n    galleryImages[]{\n      ...,\n      asset->\n    }\n  }\n': LISTING_BY_SLUG_QUERYResult
   }
 }

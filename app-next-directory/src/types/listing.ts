@@ -8,7 +8,7 @@ export type PriceRangeType = PriceRange
 export interface City {
   _id: string
   name: string
-  slug: string
+  slug: string | { current: string }
   listingCount: number
   country: string
 }
@@ -57,6 +57,8 @@ export interface Listing {
   website?: string
   phone?: string
   email?: string
+  digitalNomadFeatures?: string[];
+  sourceUrls?: string[];
   socialLinks?: {
     facebook?: string
     instagram?: string

@@ -60,7 +60,6 @@ export interface SanityListing extends SanityDocument {
   website?: string;
   contactInfo?: string;
   operatingHours?: string; // This might be structured
-  ecoNotesDetailed?: string;
   price?: number; // Added for compatibility with ListingCard and tests
   priceIndication?: string;
 
