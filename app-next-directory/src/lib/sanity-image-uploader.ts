@@ -16,9 +16,14 @@ export interface ImageOptimizationOptions {
   progressive?: boolean
 }
 
+// Extended SanityImageObject to include _id property
+export interface ExtendedSanityImageObject extends SanityImageObject {
+  _id: string
+}
+
 // Upload result interface
 export interface ImageUploadResult {
-  asset: SanityImageObject
+  asset: ExtendedSanityImageObject
   url: string
   metadata: {
     width: number

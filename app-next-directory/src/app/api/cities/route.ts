@@ -57,7 +57,7 @@ export async function GET() {
       // Log all city slugs for debugging
       console.log('[DEBUG] Cities API: Available city slugs:');
       cities.forEach((city: { title: string; slug: string }, index: number) => {
-        console.log(`${index + 1}. ${city.title} -> slug: "${city.slug.current}"`);
+        console.log(`${index + 1}. ${city.name} -> slug: "${city.slug}"`);
       });
     }
 

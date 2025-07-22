@@ -12,7 +12,7 @@
     "jsx": "preserve",
     "incremental": true,
     
-    "declaration": false,
+    "declaration": true,
     "typeRoots": ["./node_modules/@types"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

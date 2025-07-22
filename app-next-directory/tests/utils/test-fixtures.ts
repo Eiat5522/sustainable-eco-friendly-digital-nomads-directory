@@ -31,7 +31,12 @@ export const test = base.extend<ListingsFixtures>({
         mainImage: '/test.jpg',
         galleryImages: [],
         digitalNomadFeatures: ['wifi'],
-        lastVerifiedDate: '2025-05-14'
+        lastVerifiedDate: '2025-05-14',
+        ecoDetails: {
+          description: 'Comprehensive sustainability practices',
+          ecoTags: ['renewable-energy', 'zero-waste'],
+          certifications: ['LEED Gold', 'Green Building Standard']
+        }
       }
       // Add more mock listings as needed
     ];

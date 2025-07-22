@@ -1,6 +1,5 @@
 {
     "configurations": [
-    vsc
         {
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}"

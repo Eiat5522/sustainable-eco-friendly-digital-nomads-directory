@@ -77,27 +77,33 @@ export interface PerformanceAlert {
 /**
  * Determines if a metric should trigger an alert
  */
+function isValidMetric(type: keyof typeof PERFORMANCE_BUDGETS, metricName: string): metricName is keyof typeof PERFORMANCE_BUDGETS[typeof type] {
+  return metricName in PERFORMANCE_BUDGETS[type];
+}
+
 export function shouldAlert(
   metricName: string,
   value: number,
-  type: 'webVitals' | 'resources' | 'api' | 'features'
+  type: keyof typeof PERFORMANCE_BUDGETS
 ): PerformanceAlert | null {
-  const budget = PERFORMANCE_BUDGETS[type][metricName]
-  if (!budget) return null
+  if (!isValidMetric(type, metricName)) return null;
 
-  let severity: AlertSeverity = 'info'
-  if (value > budget.limit * 1.5) severity = 'critical'
-  else if (value > budget.limit) severity = 'error'
-  else if (value > budget.target) severity = 'warning'
-  else return null
+  const budget = PERFORMANCE_BUDGETS[type][metricName];
+  if (!budget) return null;
+
+  let severity: AlertSeverity = 'info';
+  if (value > budget.limit * 1.5) severity = 'critical';
+  else if (value > budget.limit) severity = 'error';
+  else if (value > budget.target) severity = 'warning';
+  else return null;
 
   return {
     metric: metricName,
     value,
     threshold: budget.limit,
     severity,
-    timestamp: Date.now()
-  }
+    timestamp: Date.now(),
+  };
 }
 
 /**

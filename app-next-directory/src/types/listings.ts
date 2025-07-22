@@ -23,12 +23,19 @@ export interface Listing {
   shortDescription: string;
   longDescription: string;
   ecoTags: string[];
-  ecoDetails: string;
+  ecoDetails: {
+    description?: string;
+    ecoTags?: string[];
+    certifications?: string[];
+  };
   sourceUrls: string[];
   mainImage: string;
   galleryImages: string[];
   digitalNomadFeatures: string[];
   lastVerifiedDate: string;
+  moderationStatus?: string;
+  verificationStatus?: string;
+  ecoRating?: number;
   coordinates?: Coordinates;
   coworkingDetails?: {
     operatingHours: string | null;

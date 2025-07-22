@@ -1,5 +1,6 @@
 <!-- markdownlint-disable MD050 -->
 <!-- markdownlint-disable MD046 -->
+<!-- markdownlint-disable MD010 -->
 <!-- markdownlint-disable MD012 -->
 # Parallel Workstreams for Weekend Backend Implementation
 
@@ -443,18 +444,27 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
      ✅ src/app/api/featured-listings/route.ts:1
      ✅ src/types/listing.ts:2
      ✅ src/app/listings/[slug]/page.tsx:51
-     
-src/components/city/CityPage.tsx
-src/components/CityCarousel.tsx
-src/components/home/FeaturedListings.tsx
-src/components/listings/CityCarousel.tsx
-src/components/listings/CitySection.tsx
-src/components/listings/ListingDetail.tsx
-src/components/listings/ListingGrid.tsx
-src/components/map/StaticMapImage.tsx
-src/components/search/SearchDialog.tsx
-src/lib/__tests__/adapters.test.ts
-src/lib/__tests__/listings.test.ts
+
+  src/app/api/cities/route.ts
+  src/app/listings/[slug]/page.tsx
+  src/components/city/CityPage.tsx
+  src/components/CityCarousel.tsx
+  src/components/home/FeaturedListings.tsx
+  src/components/listings/CityCarousel.tsx
+  src/components/listings/CitySection.tsx
+  src/components/listings/ListingDetail.tsx
+  src/components/listings/ListingGrid.tsx
+  src/components/search/SearchDialog.tsx
+  src/lib/__tests__/adapters.test.ts
+  src/lib/__tests__/listings.test.ts
+  src/lib/adapters.ts
+  src/lib/analytics/config.ts
+  src/lib/analytics/experiments.ts
+  src/lib/listings.ts
+  src/lib/mongodb/schemas/session.ts	src/lib/performance/budgets.ts
+  src/lib/sanity-batch-processor.ts
+  src/lib/sanity-image-uploader.ts
+  tests/utils/test-fixtures.ts
 
 
 

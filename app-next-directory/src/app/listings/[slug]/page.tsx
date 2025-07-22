@@ -36,7 +36,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                 ? listing.city.slug
                 : listing.city.slug?.current ?? ''}
             `} className="text-lg text-muted-foreground hover:text-primary">
-              {listing.city.name ?? listing.city.title ?? ''}
+              {listing.city.name ?? ''}
             </Link>
           )}
         </div>
@@ -73,7 +73,7 @@ galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : []
                 slug: listing.city && listing.city.slug
                   ? typeof listing.city.slug === 'string'
                     ? listing.city.slug
-                    : listing.city.slug.current ?? ''
+                    : listing.city.slug ?? ''
                   : '',
                 listingCount: 0,
                 country: ''
