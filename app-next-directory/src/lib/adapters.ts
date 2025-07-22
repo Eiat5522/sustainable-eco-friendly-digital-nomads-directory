@@ -47,49 +47,6 @@ export function jsonToSanityListing(jsonListing: JsonListing): SanityListing {
     ecoNotesDetailed: jsonListing.ecoDetails,
     sourceUrls: jsonListing.sourceUrls
   };
-export function jsonToSanityListing(jsonListing: JsonListing): SanityListing {
-  return {
-    _id: jsonListing._id,
-    name: jsonListing.name,
-    slug: jsonListing.slug ?? jsonListing.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-    shortDescription: jsonListing.shortDescription,
-    longDescription: jsonListing.longDescription,
-    type: jsonListing.type!,
-    address: jsonListing.address,
-    sourceUrls: jsonListing.sourceUrls,
-    mainImage: jsonListing.mainImage
-      ? { asset: { _ref: '', url: jsonListing.mainImage } }
-      : undefined,
-    galleryImages: jsonListing.galleryImages
-      ? jsonListing.galleryImages.map(url => ({ asset: { _ref: '', url } }))
-      : undefined,
-    city: {
-      _id: jsonListing.city.slug,
-      name: jsonListing.city.name,
-      slug: jsonListing.city.slug,
-      listingCount: 0,
-      country: ''
-    },
-    ecoTags: jsonListing.ecoTags.map((tag, idx) => ({
-      _id: `${tag}-${idx}`,
-      name: tag,
-      slug: tag,
-      description: jsonListing.ecoDetails,
-      listingCount: 0
-    })),
-    ecoRating: calculateEcoRating(jsonListing),
-    location: jsonListing.coordinates
-      ? {
-          lat: jsonListing.coordinates.latitude ?? 0,
-          lng: jsonListing.coordinates.longitude ?? 0,
-          coordinates: [jsonListing.coordinates.latitude ?? 0, jsonListing.coordinates.longitude ?? 0]
-        }
-      : undefined,
-    createdAt: jsonListing.lastVerifiedDate,
-    updatedAt: jsonListing.lastVerifiedDate,
-    digitalNomadFeatures: jsonListing.digitalNomadFeatures,
-  };
-}
 }
 
 /**

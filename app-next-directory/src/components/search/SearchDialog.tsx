@@ -53,7 +53,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
       query,
       category,
       city,
-      ecoFeatures,
+      ecoTags,
     });
   }, [searchParams]);
 
@@ -88,8 +88,8 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
       if (newFilters.query) params.set('q', newFilters.query);
       if (newFilters.category) params.set('category', newFilters.category);
       if (newFilters.city) params.set('city', newFilters.city);
-      if (newFilters.ecoFeatures.length) {
-        params.set('eco', newFilters.ecoFeatures.join(','));
+      if (newFilters.ecoTags.length) {
+        params.set('eco', newFilters.ecoTags.join(','));
       }
 
       router.push(`/listings?${params.toString()}`);
@@ -107,9 +107,9 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
   const toggleEcoFeature = (feature: string) => {
     const newFilters = {
       ...filters,
-      ecoFeatures: filters.ecoFeatures.includes(feature)
-        ? filters.ecoFeatures.filter(f => f !== feature)
-        : [...filters.ecoFeatures, feature],
+      ecoFeatures: filters.ecoTags.includes(feature)
+        ? filters.ecoTags.filter(f => f !== feature)
+        : [...filters.ecoTags, feature],
     };
     setFilters(newFilters);
     debouncedSearch(newFilters);
@@ -190,12 +190,12 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                   Eco Features
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
-                  {ecoFeatures.map(feature => (
+                  {ecoTags.map(feature => (
                     <button
                       key={feature}
                       onClick={() => toggleEcoFeature(feature)}
                       className={`flex items-center px-3 py-2 rounded-lg text-sm transition-colors ${
-                        filters.ecoFeatures.includes(feature)
+                        filters.ecoTags.includes(feature)
                           ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
                           : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
                       }`}

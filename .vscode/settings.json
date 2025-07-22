@@ -33,5 +33,10 @@
   "jest.debugMode": false,
   "jest.runMode": "on-demand",
   "jest.rootPath": "app-next-directory",
-  "jest.coverageFormatter": "GutterFormatter"
+  "jest.coverageFormatter": "GutterFormatter",
+  "files.watcherExclude": {
+    "listings/**": true
+  },
+  "files.autoSave": "afterDelay",
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }
