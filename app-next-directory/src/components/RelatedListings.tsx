@@ -22,7 +22,7 @@ export function RelatedListings({ listings, currentId, title = 'Related Listings
           <li key={listing.id} className="p-4 bg-stone-50 dark:bg-slate-800 rounded shadow">            <Link href={`/listings/${listing.slug || listing.id}`} className="text-lg font-semibold text-emerald-700 dark:text-emerald-300 hover:underline">
               {listing.name}
             </Link>
-            <p className="text-sm text-gray-600 dark:text-gray-300">{listing.description_short}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">{listing.shortDescription}</p>
           </li>
         ))}
       </ul>

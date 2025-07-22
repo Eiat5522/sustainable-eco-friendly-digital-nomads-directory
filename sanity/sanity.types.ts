@@ -12,6 +12,9 @@
  * ---------------------------------------------------------------------------------
  */
 
+// Declare the symbol first to avoid no-use-before-define warnings
+export declare const internalGroqTypeReferenceTo: unique symbol
+
 // Source: schema.json
 export type UserPreference = {
   _id: string
@@ -1019,7 +1022,7 @@ export type AllSanitySchemaTypes =
   | Geopoint
   | Slug
   | SanityAssetSourceData
-export declare const internalGroqTypeReferenceTo: unique symbol
+
 // Source: ../app-next-directory/src/app/api/blog/[slug]/route.ts
 // Variable: postQuery
 // Query: *[_type == "blogPost" && slug.current == $slug][0] {    _id,    title,    slug,    mainImage,    publishedAt,    excerpt,    body,    tags,    "authorName": author->name,    "authorImage": author->image,    "authorBio": author->bio,    "readingTime": round(length(pt::text(body)) / 200),    "relatedPosts": *[_type == "blogPost" && slug.current != $slug && count(tags[@ in ^.tags]) > 0] | order(publishedAt desc) [0...3] {      _id,      title,      slug,      mainImage,      publishedAt,      excerpt,      "authorName": author->name    },    _createdAt,    _updatedAt  }
@@ -1079,7 +1082,6 @@ export type PostQueryResult = {
       }
       media?: unknown
       hotspot?: SanityImageHotspot
-      crop?: SanityImageCrop
       alt?: string
       caption?: string
       _type: 'image'

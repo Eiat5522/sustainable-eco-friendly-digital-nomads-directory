@@ -31,8 +31,8 @@ export async function GET(request: NextRequest) {
         lower(city->name) match "*${searchTerm}*" ||
         city->country match "*${searchTerm}*" ||
         lower(city->country) match "*${searchTerm}*" ||
-        description_short match "*${searchTerm}*" ||
-        lower(description_short) match "*${searchTerm}*"
+        shortDescription match "*${searchTerm}*" ||
+        lower(shortDescription) match "*${searchTerm}*"
       )`;
     }
     if (category && category.length > 0) {
@@ -73,8 +73,8 @@ export async function GET(request: NextRequest) {
       },
       price,
       moderation,
-      description_short,
-      description_long,
+      shortDescription,
+      longDescription,
       eco_features,
       amenities
     }`;
@@ -97,8 +97,8 @@ export async function GET(request: NextRequest) {
         lower(city->name) match "*${searchTerm}*" ||
         city->country match "*${searchTerm}*" ||
         lower(city->country) match "*${searchTerm}*" ||
-        description_short match "*${searchTerm}*" ||
-        lower(description_short) match "*${searchTerm}*"
+        shortDescription match "*${searchTerm}*" ||
+        lower(shortDescription) match "*${searchTerm}*"
       )`;
     }
     if (category && category.length > 0) {

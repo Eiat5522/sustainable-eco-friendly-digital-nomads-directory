@@ -55,7 +55,7 @@ export async function GET(
       );
     }
 
-    console.log('[DEBUG] Cities/[slug] API: Successfully returning city:', city.title);
+    console.log('[DEBUG] Cities/[slug] API: Successfully returning city:', city.name);
     return NextResponse.json({
       success: true,
       data: city

@@ -17,7 +17,7 @@ export const test = base.extend<ListingsFixtures>({
       {
         _id: '1',
         name: 'Test Coworking',
-        city: { name: 'Bangkok', slug: 'bangkok' },
+        city: { name: 'Bangkok', slug: { current: 'bangkok' } },
         type: 'coworking',
         address: '123 Test St',
         coordinates: {
@@ -25,7 +25,7 @@ export const test = base.extend<ListingsFixtures>({
           longitude: 100.5018
         },
         longDescription: 'Long description',
-        ecoTags: ['zero-waste'],
+        ecoTags: [{ _id: '1', name: 'zero-waste', slug: { current: 'zero-waste' }, description: 'Zero waste practices' }],
         shortDescription: 'Eco notes', //map to ecoNotesDetailed for data migration
         sourceUrls: [],
         mainImage: '/test.jpg',
@@ -33,9 +33,9 @@ export const test = base.extend<ListingsFixtures>({
         digitalNomadFeatures: ['wifi'],
         lastVerifiedDate: '2025-05-14',
         ecoDetails: {
-          description: 'Comprehensive sustainability practices',
-          ecoTags: ['renewable-energy', 'zero-waste'],
-          certifications: ['LEED Gold', 'Green Building Standard']
+          description: 'Eco-friendly practices',
+          ecoTags: ['zero-waste'],
+          certifications: ['LEED Gold']
         }
       }
       // Add more mock listings as needed

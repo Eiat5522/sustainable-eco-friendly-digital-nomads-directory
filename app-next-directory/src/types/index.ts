@@ -35,7 +35,7 @@ export interface City {
   country: string;
   slug: string;
   description: string;
-  description_short?: string;
+  shortDescription?: string;
   images?: string[];
   coordinates?: {
     latitude: number;
@@ -58,8 +58,8 @@ export interface Listing {
   slug: string;
   cityId: string;
   category: string;
-  description_short: string;
-  description_long: string;
+  shortDescription: string;
+  longDescription: string;
   imageUrl: string;
   images?: string[];
   coordinates?: {

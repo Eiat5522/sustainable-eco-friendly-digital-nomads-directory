@@ -19,7 +19,11 @@ export function getExperiment(experimentId: string): Experiment | undefined {
 }
 
 export function getExperimentVariant(experiment: Experiment): ExperimentVariant {
-  return PostHog.getFeatureFlag(experiment.id) as ExperimentVariant || experiment.variants[0];
+  const flag = PostHog.getFeatureFlag(experiment.id);
+  if (typeof flag === 'string') {
+    return flag as unknown as ExperimentVariant;
+  }
+  return experiment.variants[0];
 }
 
 export function activateExperiment(experimentId: string): ExperimentVariant | null {

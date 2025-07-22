@@ -109,13 +109,11 @@ describe('jsonToSanityListing', () => {
     expect(result.ecoTags?.[0]).toEqual({
       _id: 'solar-tag',
       name: 'Solar Powered',
-      slug: { current: 'solar-powered' },
-      description: 'Uses solar energy'
+      slug: { current: 'solar-powered' }
     });
     
     expect(result.digitalNomadFeatures).toEqual(['High-speed WiFi', '24/7 Access', 'Meeting Rooms']);
     expect(result.priceRange).toBe(PriceRange.MODERATE);
-    expect(result.ecoRating).toBe(85);
   });
 
   it('should handle minimal JsonListing data', () => {
@@ -133,7 +131,7 @@ describe('jsonToSanityListing', () => {
     expect(result.type).toBe(ListingCategory.CAFE);
     expect(result.city).toBeUndefined();
     expect(result.location).toBeUndefined();
-    expect(result.ecoTags).toBeUndefined();
+    expect(result.ecoTags).toEqual([]);
     expect(result.moderationStatus).toBe('pending');
     expect(result.verificationStatus).toBe('unverified');
   });

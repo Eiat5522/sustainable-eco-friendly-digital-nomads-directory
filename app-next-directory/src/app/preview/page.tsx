@@ -15,7 +15,7 @@ type Listing = {
   name: string;
   city: string;
   category: string;
-  description_short: string;
+  shortDescription: string;
   primary_image: ListingImage;
   gallery_images: ListingImage[];
 };
@@ -107,10 +107,10 @@ export default async function PreviewPage() {
                     {listing.city}
                   </span>
                   <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                    {listing.category}
+                    {listing.type}
                   </span>
                 </div>
-                <p className="text-gray-600">{listing.description_short}</p>
+                <p className="text-gray-600">{listing.shortDescription}</p>
 
                 {listing.gallery_images && listing.gallery_images.length > 0 && (
                   <div className="mt-4">

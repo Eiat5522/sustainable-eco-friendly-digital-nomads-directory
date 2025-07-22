@@ -98,7 +98,7 @@ const CityMap: React.FC<CityMapProps> = ({ city, listings = [] }) => {
                     </div>
                   )}
                   <h3 className="font-semibold text-sm">{listing.name}</h3>
-                  <p className="text-xs text-gray-600">{listing.category}</p>
+                  <p className="text-xs text-gray-600">{listing.type}</p>
                   <button className="text-xs text-green-600 mt-1 hover:underline">
                     View Details
                   </button>

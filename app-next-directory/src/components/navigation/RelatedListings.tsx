@@ -9,7 +9,7 @@ interface Listing {
   _id: string;
   name: string;
   slug: string;
-  description_short: string;
+  shortDescription: string;
   primary_image_url: string;
   category: string;
   city: {
@@ -44,7 +44,7 @@ export function RelatedListings({
       let score = 0;
 
       // Same category
-      if (listing.category === currentListing.category) score += 3;
+      if (listing.type === currentlisting.type) score += 3;
 
       // Same city
       if (listing.city.name === currentListing.city.name) score += 2;
@@ -114,7 +114,7 @@ export function RelatedListings({
                   </p>
 
                   <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-4">
-                    {listing.description_short}
+                    {listing.shortDescription}
                   </p>
 
                   {/* Eco Features Tags */}

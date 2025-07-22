@@ -104,7 +104,7 @@ export default function CityCarousel({ cities }: CityCarouselProps) {
                       {city.mainImage?.asset?.url ? (
                         <Image
                           src={city.mainImage.asset.url}
-                          alt={city.title}
+                          alt={city.name}
                           fill
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33.333vw"
                           className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -121,7 +121,7 @@ export default function CityCarousel({ cities }: CityCarouselProps) {
 
                     {/* City Information */}
                     <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                      <h3 className="text-xl font-semibold mb-1">{city.title}</h3>
+                      <h3 className="text-xl font-semibold mb-1">{city.name}</h3>
                       <p className="text-sm text-gray-200 line-clamp-2 mb-2">
                         {city.description}
                       </p>

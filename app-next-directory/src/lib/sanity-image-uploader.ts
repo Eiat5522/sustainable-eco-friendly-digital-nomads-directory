@@ -83,12 +83,12 @@ export class SanityImageUploader {
       })
 
       // Generate optimized URL
-      const url = this.generateOptimizedUrl(asset._id)
+      const url = this.generateOptimizedUrl((asset as ExtendedSanityImageObject)._id)
 
-      console.log(`✅ Image uploaded successfully: ${asset._id}`)
+      console.log(`✅ Image uploaded successfully: ${(asset as ExtendedSanityImageObject)._id}`)
 
       return {
-        asset,
+        asset: asset as ExtendedSanityImageObject,
         url,
         metadata: {
           ...metadata,

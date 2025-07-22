@@ -12,8 +12,8 @@ const LISTING_BY_SLUG_QUERY = groq`
     _rev,
     name,
     "slug": slug.current,
-    description_short,
-    description_long,
+    shortDescription,
+    longDescription,
     category,
     city->{
       _id,

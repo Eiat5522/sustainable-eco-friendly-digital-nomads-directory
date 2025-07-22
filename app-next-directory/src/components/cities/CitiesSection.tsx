@@ -58,7 +58,7 @@ export default function CitiesSection() {
                 {city.mainImage?.asset?.url ? (
                   <Image
                     src={city.mainImage.asset.url}
-                    alt={city.mainImage.alt || city.title}
+                    alt={city.mainImage.alt || city.name}
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
@@ -70,7 +70,7 @@ export default function CitiesSection() {
                 )}
               </div>
               <div className="p-5 flex flex-col flex-grow">
-                <h3 className="text-xl font-semibold mb-1 text-green-800">{city.title}</h3>
+                <h3 className="text-xl font-semibold mb-1 text-green-800">{city.name}</h3>
                 <p className="text-sm text-gray-600 mb-2">{city.country}</p>
                 <p className="text-gray-700 mb-3 line-clamp-3">{city.description}</p>
                 <div className="flex flex-wrap gap-2 mb-3">

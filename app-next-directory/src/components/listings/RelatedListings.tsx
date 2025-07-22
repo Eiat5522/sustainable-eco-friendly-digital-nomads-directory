@@ -8,7 +8,7 @@ interface Listing {
   _id: string;
   name: string;
   slug: { current: string };
-  description_short: string;
+  shortDescription: string;
   primary_image_url: string;
   category: string;
   city: {
@@ -94,10 +94,10 @@ export function RelatedListings({ currentSlug, category, cityName }: RelatedList
                   {listing.name}
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                  {listing.city.name}, {listing.category}
+                  {listing.city.name}, {listing.type}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-                  {listing.description_short}
+                  {listing.shortDescription}
                 </p>
               </div>
             </div>

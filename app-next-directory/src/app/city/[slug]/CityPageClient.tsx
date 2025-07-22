@@ -15,7 +15,7 @@ export default function CityPageClient({ city, listings }: CityPageClientProps) 
   const breadcrumbs = [
     { name: 'Home', href: '/' },
     { name: 'Cities', href: '/cities' },
-    { name: city.title },
+    { name: city.name },
   ];
 
   return (
@@ -27,7 +27,7 @@ export default function CityPageClient({ city, listings }: CityPageClientProps) 
           {city.mainImage?.asset?.url && (
             <Image
               src={city.mainImage.asset.url}
-              alt={city.title}
+              alt={city.name}
               fill
               className="object-cover transform scale-105 motion-safe:animate-subtle-zoom"
               priority
@@ -53,7 +53,7 @@ export default function CityPageClient({ city, listings }: CityPageClientProps) 
                 transition={{ duration: 0.6 }}
               >
                 <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-                  {city.title}
+                  {city.name}
                 </h1>
                 <p className="text-lg md:text-xl text-white/90 mb-6">
                   {city.description}
@@ -136,7 +136,7 @@ export default function CityPageClient({ city, listings }: CityPageClientProps) 
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl font-bold text-gray-900 mb-8">
-              Sustainable Places in {city.title}
+              Sustainable Places in {city.name}
             </h2>
 
             {listings.length > 0 ? (
@@ -159,7 +159,7 @@ export default function CityPageClient({ city, listings }: CityPageClientProps) 
                 className="text-center py-10"
               >
                 <p className="text-xl text-gray-700">
-                  No listings found for {city.title} yet.
+                  No listings found for {city.name} yet.
                 </p>
                 <p className="text-gray-500 mt-2">
                   Check back soon or explore other cities!

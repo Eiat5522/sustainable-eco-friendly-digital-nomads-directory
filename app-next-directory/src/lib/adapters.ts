@@ -25,33 +25,39 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
 
   return {
     _id,
-    type: json.type ?? json._type ?? 'listing',
-    createdAt: now,
-    updatedAt: now,
     name: json.name,
     slug: json.slug,
-    shortDescription: json.shortDescription,
-    longDescription: json.longDescription,
-    address: json.address,
-    website: json.website,
-    phone: json.phone,
-    email: json.email,
-    city: json.city,
-    location,
-    mainImage: json.mainImage
-      ? { asset: { _ref: '', url: json.mainImage } }
+    city: json.city ? {
+      name: json.city.name,
+      slug: json.city.slug,
+    } : undefined,
+    type: (json.type === 'coworking' || json.type === 'cafe' || json.type === 'accommodation') ? json.type : undefined,
+    address: json.address ?? '',
+    shortDescription: json.shortDescription ?? '',
+    longDescription: json.longDescription ?? '',
+    ecoTags: Array.isArray(json.ecoTags)
+      ? json.ecoTags.map(tag => ({
+          _id: tag._id,
+          name: tag.name,
+          slug: { current: tag.name.toLowerCase().replace(/\s+/g, '-') },
+        }))
+      : [],
+    ecoDetails: json.ecoDetails ?? {},
+    sourceUrls: json.sourceUrls ?? [],
+    mainImage: json.mainImage?.asset?.url ?? '',
+    galleryImages: Array.isArray(json.galleryImages)
+      ? json.galleryImages.map(img => img.asset?.url ?? '')
+      : [],
+    digitalNomadFeatures: json.digitalNomadFeatures ?? [],
+    lastVerifiedDate: json.lastVerifiedDate ?? '',
+    moderationStatus: 'pending',
+    verificationStatus: 'unverified',
+    ecoRating: undefined,
+    coordinates: json.location
+      ? { latitude: json.location.lat, longitude: json.location.lng }
       : undefined,
-    galleryImages: json.galleryImages
-      ? json.galleryImages.map((url: string) => ({ asset: { _ref: '', url } }))
-      : undefined,
-    ecoTags: json.ecoTags,
-    digitalNomadFeatures: json.digitalNomadFeatures,
-    priceRange: json.priceRange,
-    lastVerifiedDate: json.lastVerifiedDate,
-    sourceUrls: json.sourceUrls,
-    ecoRating: json.ecoRating,
-    moderationStatus: json.moderationStatus ?? 'pending',
-    verificationStatus: json.verificationStatus ?? 'unverified',
+    createdAt: now,
+    updatedAt: now,
   };
 }
 

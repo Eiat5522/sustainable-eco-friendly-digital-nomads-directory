@@ -8,7 +8,7 @@ import { notFound } from 'next/navigation';
 interface Listing {
   _id: string;
   name: string;
-  description_short: string;
+  shortDescription: string;
   slug: string;
   primary_image_url: string;
   city: {
@@ -95,7 +95,7 @@ export default async function CategoryPage({ params }: Props) {
     `*[_type == "listing" && category == $category] {
       _id,
       name,
-      description_short,
+      shortDescription,
       "slug": slug.current,
       primary_image_url,
       city->{
@@ -131,7 +131,7 @@ export default async function CategoryPage({ params }: Props) {
       item: {
         '@type': 'LocalBusiness',
         name: listing.name,
-        description: listing.description_short,
+        description: listing.shortDescription,
         image: listing.primary_image_url,
         url: `${process.env.NEXT_PUBLIC_SITE_URL}/listings/${listing.slug}`,
       },
@@ -234,7 +234,7 @@ export default async function CategoryPage({ params }: Props) {
                   <div className="p-4">
                     <h3 className="text-xl font-semibold mb-2">{listing.name}</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mb-4 line-clamp-2">
-                      {listing.description_short}
+                      {listing.shortDescription}
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {listing.eco_features.slice(0, 3).map((feature: string) => (

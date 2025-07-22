@@ -70,7 +70,7 @@ export function CitySection({ city, listingStats, className }: CitySectionProps)
               {city.description}
             </p>
             <Link
-              href={`/listings?city=${city.slug.current}`}
+              href={`/listings?city=${city.slug}`}
               className="inline-block bg-primary-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-colors"
             >
               Explore {city.name}

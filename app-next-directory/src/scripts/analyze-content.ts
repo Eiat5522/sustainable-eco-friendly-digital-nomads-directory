@@ -28,8 +28,8 @@ const MINIMUM_DESCRIPTION_WORDS = 50;
 const DUPLICATE_SIMILARITY_THRESHOLD = 0.8;
 const REQUIRED_METADATA_FIELDS = [
   'name',
-  'description_short',
-  'description_long',
+  'shortDescription',
+  'longDescription',
   'primary_image_url',
   'eco_features',
   'amenities',
@@ -46,8 +46,8 @@ async function analyzeContent(): Promise<ContentAnalysisResult> {
     *[_type == "listing"]{
       _id,
       name,
-      description_short,
-      description_long,
+      shortDescription,
+      longDescription,
       primary_image_url,
       eco_features,
       amenities,
@@ -65,7 +65,7 @@ async function analyzeContent(): Promise<ContentAnalysisResult> {
   // Check each listing
   listings.forEach((listing: any) => {
     // Check for thin content
-    const description = `${listing.description_short} ${listing.description_long}`;
+    const description = `${listing.shortDescription} ${listing.longDescription}`;
     const wordCount = description.split(/\s+/).length;
 
     if (wordCount < MINIMUM_DESCRIPTION_WORDS) {
@@ -98,8 +98,8 @@ async function analyzeContent(): Promise<ContentAnalysisResult> {
       const listing1 = listings[i];
       const listing2 = listings[j];
 
-      const text1 = `${listing1.description_short} ${listing1.description_long}`;
-      const text2 = `${listing2.description_short} ${listing2.description_long}`;
+      const text1 = `${listing1.shortDescription} ${listing1.longDescription}`;
+      const text2 = `${listing2.shortDescription} ${listing2.longDescription}`;
 
       // Calculate normalized similarity using Levenshtein distance
       const levDistance = levenshtein.get(text1, text2);

@@ -38,9 +38,9 @@ export default {
       options: {
         list: [
           { title: '$ (Under $10)', value: 'budget', description: 'Budget-friendly options' },
-          { title: '$$ ($10-$30)', value: 'moderate', description: 'Moderately priced options' },
-          { title: '$$$ ($30-$60)', value: 'expensive', description: 'Higher-end dining' },
-          { title: '$$$$ (Above $60)', value: 'luxury', description: 'Luxury dining experience' }
+          { title: '$$ ($10-25)', value: 'moderate', description: 'Moderately priced' },
+          { title: '$$$ ($25-50)', value: 'expensive', description: 'Higher-end dining' },
+          { title: '$$$$ ($50+)', value: 'luxury', description: 'Premium dining experience' }
         ],
         layout: 'radio'
       },

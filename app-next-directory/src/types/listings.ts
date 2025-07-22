@@ -10,19 +10,26 @@ export interface Coordinates {
   longitude: number | null;
 }
 
+export interface EcoTag {
+  _id: string;
+  name: string;
+  slug: { current: string };
+  description?: string;
+}
+
 export interface Listing {
   _id: string;
-  slug?: string;
+  slug?: { current: string };
   name: string;
   city: {
     name: string;
-    slug: string;
+    slug: { current: string };
   };
   type?: 'coworking' | 'cafe' | 'accommodation';
   address: string;
   shortDescription: string;
   longDescription: string;
-  ecoTags: string[];
+  ecoTags: EcoTag[];
   ecoDetails: {
     description?: string;
     ecoTags?: string[];

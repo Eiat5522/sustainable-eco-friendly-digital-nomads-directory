@@ -5,7 +5,7 @@ const listingFields = `
   _id,
   name,
   "slug": slug.current,
-  description_short,
+  shortDescription,
   category,
   "location": {
     "lat": location.lat,
@@ -181,7 +181,7 @@ async function getFeaturedListings(preview = false) {
 
   const query = `*[_type == "listing" && moderation.status == "published" && moderation.featured == true] {
     ${listingFields},
-    description_short,
+    shortDescription,
     "reviews": count(*[_type == "review" && references(^._id)])
   }`;
 

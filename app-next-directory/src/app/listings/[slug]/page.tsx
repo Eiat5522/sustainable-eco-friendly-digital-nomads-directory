@@ -36,7 +36,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                 ? listing.city.slug
                 : listing.city.slug?.current ?? ''}
             `} className="text-lg text-muted-foreground hover:text-primary">
-              {listing.city.name ?? ''}
+              {listing.city.title ?? ''}
             </Link>
           )}
         </div>
@@ -56,20 +56,21 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           ...listing,
           name: listing.name ?? '',
           slug: listing.slug ?? undefined,
-          shortDescription: listing.description_short ?? undefined,
-          longDescription: listing.description_long ?? undefined,
-          type: listing.category ?? undefined,
+          shortDescription: listing.shortDescription ?? undefined,
+          longDescription: listing.longDescription ?? undefined,
+          type: listing.type ?? undefined,
           ecoTags: Array.isArray(listing.ecoTags) ? listing.ecoTags : [],
           mainImage: Array.isArray(listing.galleryImages) && listing.galleryImages.length > 0 ? listing.galleryImages[0] : undefined,
 galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : [],
           website: listing.website ?? undefined,
+          priceRange: listing.priceRange ?? undefined,
           location: listing.location && listing.location.lat !== null && listing.location.lng !== null 
             ? { lat: listing.location.lat, lng: listing.location.lng }
             : undefined,
           city: listing.city
             ? { 
                 _id: listing.city._id ?? '',
-                name: listing.city.name ?? '',
+                name: listing.city.title ?? '',
                 slug: listing.city && listing.city.slug
                   ? typeof listing.city.slug === 'string'
                     ? listing.city.slug
@@ -85,11 +86,11 @@ galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : []
           <div className="md:col-span-2 space-y-6">
             <div>
               <h2 className="text-2xl font-semibold border-b pb-2 mb-4">About this place</h2>
-              <p className="text-muted-foreground">{listing.description_short}</p>
-              {listing.description_long && (
+              <p className="text-muted-foreground">{listing.shortDescription}</p>
+              {listing.longDescription && (
                 <div className="prose prose-lg max-w-none mt-4">
-                  {/* Assuming description_long is a string for now. If it's Portable Text, this will need a proper renderer */}
-                  <p>{listing.description_long}</p>
+                  {/* Assuming longDescription is a string for now. If it's Portable Text, this will need a proper renderer */}
+                  <p>{listing.longDescription}</p>
                 </div>
               )}
             </div>

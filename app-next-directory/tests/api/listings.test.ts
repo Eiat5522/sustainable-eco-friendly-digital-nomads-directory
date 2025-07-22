@@ -51,8 +51,8 @@ test.describe('Listings API', () => {
           name: 'Test Listing',
           cityId: 'city-1',
           category: 'coworking',
-          description_short: 'Short desc for test',
-          description_long: 'Long description for test that is definitely more than fifty characters long for validation.',
+          shortDescription: 'Short desc for test',
+          longDescription: 'Long description for test that is definitely more than fifty characters long for validation.',
           imageUrl: 'https://example.com/image.jpg',
           slug: 'test-listing-non-premium'
         },
@@ -81,8 +81,8 @@ test.describe('Listings API', () => {
           name: '',
           cityId: '',
           category: '',
-          description_short: '',
-          description_long: '',
+          shortDescription: '',
+          longDescription: '',
           imageUrl: '',
           slug: ''
         },
@@ -95,8 +95,8 @@ test.describe('Listings API', () => {
           expect.objectContaining({ path: ['name'] }),
           expect.objectContaining({ path: ['cityId'] }),
           expect.objectContaining({ path: ['category'] }),
-          expect.objectContaining({ path: ['description_short'] }),
-          expect.objectContaining({ path: ['description_long'] }),
+          expect.objectContaining({ path: ['shortDescription'] }),
+          expect.objectContaining({ path: ['longDescription'] }),
           expect.objectContaining({ path: ['imageUrl'] }),
           expect.objectContaining({ path: ['slug'] }),
         ])
@@ -113,8 +113,8 @@ test.describe('Listings API', () => {
         name: 'Duplicate Slug Listing',
         cityId: 'city-dup',
         category: 'coworking',
-        description_short: 'Short desc for duplicate',
-        description_long: 'Long description for duplicate slug test that is definitely more than fifty characters long.',
+        shortDescription: 'Short desc for duplicate',
+        longDescription: 'Long description for duplicate slug test that is definitely more than fifty characters long.',
         imageUrl: 'https://example.com/dup.jpg',
         slug: 'duplicate-slug'
       };
@@ -144,8 +144,8 @@ test.describe('Listings API', () => {
         name: 'Full Listing',
         cityId: 'city-full',
         category: 'coworking',
-        description_short: 'Short desc for full listing',
-        description_long: 'Long description for full listing that is definitely more than fifty characters long.',
+        shortDescription: 'Short desc for full listing',
+        longDescription: 'Long description for full listing that is definitely more than fifty characters long.',
         imageUrl: 'https://example.com/full.jpg',
         slug: 'full-listing',
         eco_features: ['solar', 'recycled-materials'],
@@ -177,8 +177,8 @@ test.describe('Listings API', () => {
           name: 'CRUD Test Listing',
           cityId: 'city-crud',
           category: 'coworking',
-          description_short: 'Short desc for CRUD',
-          description_long: 'Long description for CRUD test that is definitely more than fifty characters long.',
+          shortDescription: 'Short desc for CRUD',
+          longDescription: 'Long description for CRUD test that is definitely more than fifty characters long.',
           imageUrl: 'https://example.com/crud.jpg',
           slug: 'crud-listing'
         },
@@ -196,8 +196,8 @@ test.describe('Listings API', () => {
           method: 'PUT',
           data: {
             name: 'Updated CRUD Test Listing',
-            description_short: 'Updated Short Desc',
-            description_long: 'Updated long description for CRUD test that is definitely more than fifty characters long.',
+            shortDescription: 'Updated Short Desc',
+            longDescription: 'Updated long description for CRUD test that is definitely more than fifty characters long.',
           },
         }
       );
