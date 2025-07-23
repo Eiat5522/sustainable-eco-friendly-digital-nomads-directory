@@ -445,26 +445,25 @@ See detailed testing strategy in `/tests/TEST_STRATEGY.md`
      ✅ src/types/listing.ts:2
      ✅ src/app/listings/[slug]/page.tsx:51
 
-  src/app/api/cities/route.ts
-  src/app/listings/[slug]/page.tsx
-  src/components/city/CityPage.tsx
-  src/components/CityCarousel.tsx
-  src/components/home/FeaturedListings.tsx
-  src/components/listings/CityCarousel.tsx
-  src/components/listings/CitySection.tsx
-  src/components/listings/ListingDetail.tsx
-  src/components/listings/ListingGrid.tsx
-  src/components/search/SearchDialog.tsx
-  src/lib/__tests__/adapters.test.ts
-  src/lib/__tests__/listings.test.ts
-  src/lib/adapters.ts
-  src/lib/analytics/config.ts
-  src/lib/analytics/experiments.ts
-  src/lib/listings.ts
-  src/lib/mongodb/schemas/session.ts	src/lib/performance/budgets.ts
-  src/lib/sanity-batch-processor.ts
-  src/lib/sanity-image-uploader.ts
-  tests/utils/test-fixtures.ts
+Found 31 errors in 16 files.
+
+Errors  Files
+     2  src/components/cities/CitiesSection.tsx:61
+     1  src/components/city/CityMap.tsx:101
+     3  src/components/city/CityPage.tsx:124
+     2  src/components/CityCarousel.tsx:122
+     2  src/components/home/FeaturedListings.tsx:24
+     3  src/components/listings/CityCarousel.tsx:100
+     1  src/components/listings/ListingDetail.tsx:468
+     2  src/components/listings/ListingGrid.tsx:20
+     1  src/components/listings/RelatedListings.tsx:97
+     1  src/components/map/StaticMapImage.tsx:48
+     2  src/components/navigation/RelatedListings.tsx:47
+     2  src/components/search/SearchDialog.tsx:193
+     1  src/lib/__tests__/adapters.test.ts:15
+     1  src/lib/adapters.ts:78
+     5  src/lib/analytics/config.ts:1
+     2  src/tests/helpers/test-data.ts:12
 
 
 
