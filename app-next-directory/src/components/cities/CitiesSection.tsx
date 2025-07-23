@@ -4,19 +4,14 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 interface City {
-  _id: string;
-  title: string;
+  id: string;
+  name: string;
   slug: string;
   country: string;
   description: string;
-  sustainabilityScore: number;
-  highlights: string[];
-  mainImage: {
-    alt?: string;
-    asset: {
-      url: string;
-    };
-  };
+  sustainabilityScore?: number;
+  highlights?: string[];
+  images?: string[];
 }
 
 export default function CitiesSection() {
@@ -58,7 +53,7 @@ export default function CitiesSection() {
                 {city.mainImage?.asset?.url ? (
                   <Image
                     src={city.mainImage.asset.url}
-                    alt={city.mainImage.alt || city.name}
+                    alt={city.images?.[0] ? city.name : 'No image'}
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

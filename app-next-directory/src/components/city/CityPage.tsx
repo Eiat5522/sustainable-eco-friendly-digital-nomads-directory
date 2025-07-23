@@ -6,7 +6,6 @@ import React, { useEffect, useState } from 'react';
 import ImageCarousel from '../common/ImageCarousel';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { ListingGrid } from '../listings/ListingGrid';
-import CityMap from './CityMap';
 import CityStats from './CityStats';
 
 interface CityPageProps { slug: string }
@@ -14,7 +13,7 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
   const [city, setCity] = useState<City | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<'about' | 'listings' | 'map'>('about');
+  const [activeTab, setActiveTab] = useState<'about' | 'listings'>('about');
 
   useEffect(() => {
     const loadCityData = async () => {
@@ -45,8 +44,6 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
   if (!city) {
     return <div className="container mx-auto p-6">City not found</div>;
   }
-
-  // Use raw listings array for ListingGrid and CityMap
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -89,16 +86,6 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
           >
             Eco-Friendly Listings
           </button>
-          <button
-            onClick={() => setActiveTab('map')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
-              activeTab === 'map'
-                ? 'border-green-500 text-green-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            Map
-          </button>
         </nav>
       </div>
 
@@ -121,7 +108,7 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-2">Digital Nomad Friendly Features</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {city.digitalNomadFeatures?.map((feature, index) => (
+                {city.nomadFeatures?.map((feature: string, index: number) => (
                   <div key={index} className="flex items-start">
                     <div className="flex-shrink-0 h-6 w-6 text-green-500">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -144,12 +131,6 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
             ) : (
               <p className="text-gray-500">No listings available for this city yet.</p>
             )}
-          </div>
-        )}
-
-        {activeTab === 'map' && (
-          <div className="h-96">
-            <CityMap city={city} listings={listings} />
           </div>
         )}
       </div>
