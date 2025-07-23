@@ -28,18 +28,12 @@ interface CitiesCarouselProps {
   cities: City[];
 }
 
-// Dynamically import CityCarousel to avoid hydration issues
-const DynamicCityCarousel = dynamic(() => import('@/components/listings/CityCarousel'), {
-  ssr: false,
-  loading: () => (
-    <div className="aspect-[2/1] lg:aspect-[3/1] bg-gray-200 animate-pulse rounded-lg" />
-  ),
-});
+import EcoCityCarousel from '../cities/CityCarousel';
 
 export default function CitiesCarousel({ cities }: CitiesCarouselProps) {
   return (
     <section className="relative">
-      <DynamicCityCarousel cities={cities} />
+      <EcoCityCarousel />
     </section>
   );
 }

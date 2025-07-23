@@ -79,7 +79,7 @@ export function ListingDetail({ listing }: ListingProps) {
         // The 'id' property is expected by the map. Let's use the Sanity '_id' if available,
         // falling back to other potential id fields or a default.
         _id: (listing as any)._id ?? (listing as any).id ?? 'single-listing-map-id',
-        slug: listing.slug || '',
+        slug: typeof listing.slug === 'string' ? { current: listing.slug } : listing.slug || { current: '' },
         name: listing.name,
         city: { name: listing.city?.name ?? '', slug: listing.city?.slug ?? '', _id: listing.city?._id ?? '', listingCount: listing.city?.listingCount ?? 0, country: listing.city?.country ?? '' },
         type: (['coworking', 'cafe', 'accommodation'].includes(listing.type ?? '')

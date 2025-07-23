@@ -7,10 +7,7 @@ import Link from 'next/link';
 import { City } from '@/types';
 import { cn } from '@/lib/utils';
 
-// Dynamically import CityCarousel to avoid hydration mismatch
-const DynamicCityCarousel = dynamic(() => import('./CityCarousel'), {
-  ssr: false,
-});
+import EcoCityCarousel from '../cities/CityCarousel';
 
 interface CitySectionProps {
   city: City;
