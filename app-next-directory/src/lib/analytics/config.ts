@@ -1,4 +1,6 @@
+// @ts-ignore
 import Analytics from 'analytics';
+// @ts-ignore
 import googleAnalytics from '@analytics/google-analytics';
 import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
 import posthog from 'posthog-js';
@@ -33,9 +35,9 @@ const analytics = Analytics({
 });
 
 // Initialize Vercel Analytics
-export const vercelAnalytics = process.env.NODE_ENV === 'production'
-  ? VercelAnalytics
-  : null;
+// VercelAnalytics is a React component, not an analytics instance with .track/.identify methods.
+// Remove .track/.identify calls and only use VercelAnalytics as a component in your app's layout.
+export const vercelAnalytics = VercelAnalytics;
 
 // Export analytics instances
 export { analytics, posthog };
@@ -73,15 +75,7 @@ export const trackPageView = async ({ title, path, referrer, search }: PageViewE
       search
     });
 
-    // Track in Vercel Analytics if available
-    if (vercelAnalytics) {
-      await vercelAnalytics.track('pageview', {
-        title,
-        path,
-        referrer,
-        search
-      });
-    }
+    // VercelAnalytics does not support .track; use only as a component in your layout.
   } catch (error) {
     console.error('Error tracking pageview:', error);
   }
@@ -92,10 +86,7 @@ export const trackEvent = async ({ name, properties }: CustomEvent) => {
     // Track in GA4
     await analytics.track(name, properties);
 
-    // Track in Vercel Analytics if available
-    if (vercelAnalytics) {
-      await vercelAnalytics.track(name, properties);
-    }
+    // VercelAnalytics does not support .track; use only as a component in your layout.
   } catch (error) {
     console.error('Error tracking event:', error);
   }
@@ -106,10 +97,7 @@ export const identifyUser = async (userId: string, traits?: Record<string, any>)
     // Identify in GA4
     await analytics.identify(userId, traits);
 
-    // Identify in Vercel Analytics if available
-    if (vercelAnalytics) {
-      await vercelAnalytics.identify(userId, traits);
-    }
+    // VercelAnalytics does not support .identify; use only as a component in your layout.
   } catch (error) {
     console.error('Error identifying user:', error);
   }
