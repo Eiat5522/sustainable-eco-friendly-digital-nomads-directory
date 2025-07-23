@@ -37,6 +37,8 @@ export interface City {
   description: string;
   shortDescription?: string;
   images?: string[];
+  mainImage?: string;
+  galleryImages?: string[];
   coordinates?: {
     latitude: number;
     longitude: number;
@@ -48,7 +50,7 @@ export interface City {
   safety?: string;
   walkability?: string;
   sustainabilityInitiatives?: string[];
-  nomadFeatures?: string[];
+  digitalNomadFeatures?: string[];
 }
 
 // Listing type

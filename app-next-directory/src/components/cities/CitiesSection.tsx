@@ -50,7 +50,7 @@ export default function CitiesSection() {
         <h2 className="text-3xl font-bold mb-10 text-center text-green-900">Eco-Friendly Cities</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {cities.map(city => (
-            <div key={city._id} className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+            <div key={city.id} className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
               <div className="relative w-full h-48">
                 {city.mainImage ? (
                   <Image
