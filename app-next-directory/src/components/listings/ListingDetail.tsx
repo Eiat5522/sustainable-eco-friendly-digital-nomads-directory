@@ -81,20 +81,43 @@ export function ListingDetail({ listing }: ListingProps) {
         _id: (listing as any)._id ?? (listing as any).id ?? 'single-listing-map-id',
         slug: typeof listing.slug === 'string' ? { current: listing.slug } : listing.slug || { current: '' },
         name: listing.name,
-        city: { name: listing.city?.name ?? '', slug: listing.city?.slug ?? '', _id: listing.city?._id ?? '', listingCount: listing.city?.listingCount ?? 0, country: listing.city?.country ?? '' },
+        city: {
+  name: listing.city?.name ?? '',
+  slug: (listing.city?.slug && typeof listing.city?.slug === 'object' && listing.city?.slug !== null && typeof (listing.city.slug as any).current === 'string')
+    ? { current: String((listing.city.slug as any).current) }
+    : { current: String(listing.city?.slug ?? '') },
+  _id: listing.city?._id ?? '',
+  listingCount: typeof listing.city?.listingCount === 'number' ? listing.city.listingCount : 0,
+  country: listing.city?.country ?? ''
+},
         type: (['coworking', 'cafe', 'accommodation'].includes(listing.type ?? '')
           ? listing.type
           : 'coworking') as 'coworking' | 'cafe' | 'accommodation',
         address: listing.address ?? '',
         shortDescription: listing.shortDescription ?? '',
         longDescription: listing.longDescription ?? '',
-        ecoTags: listing.ecoTags ?? [],
+        ecoTags: Array.isArray(listing.ecoTags)
+  ? listing.ecoTags.map((tag, idx) =>
+      typeof tag === 'string'
+        ? {
+            _id: `ecoTag-${idx}`,
+            name: tag,
+            slug: { current: tag.toLowerCase().replace(/\s+/g, '-') },
+            description: '',
+            listingCount: 0
+          }
+        : tag
+    )
+  : [],
         galleryImages: listing.galleryImages ?? [],
         mainImage: listing.mainImage ?? { asset: { _ref: '', url: '/placeholder-city.jpg' } },
         sourceUrls: [],
         digitalNomadFeatures: [],
         lastVerifiedDate: '',
-        coordinates: [listing.location?.lng ?? 0, listing.location?.lat ?? 0],
+        coordinates: {
+  latitude: listing.location?.lat ?? 0,
+  longitude: listing.location?.lng ?? 0
+},
         ecoDetails: {},
       }
     : null;

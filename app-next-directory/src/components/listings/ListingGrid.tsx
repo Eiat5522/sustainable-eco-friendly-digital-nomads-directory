@@ -17,7 +17,17 @@ export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
 
     try {
       // Handle Sanity listing with primaryImage (from search API)
-      if (isSanityListing && 'primaryImage' in listing && listing.primaryImage?.asset?.url) {
+      if (
+  isSanityListing &&
+  'primaryImage' in listing &&
+  listing.primaryImage &&
+  typeof listing.primaryImage === 'object' &&
+  'asset' in listing.primaryImage &&
+  listing.primaryImage.asset &&
+  typeof listing.primaryImage.asset === 'object' &&
+  'url' in listing.primaryImage.asset &&
+  typeof listing.primaryImage.asset.url === 'string'
+) {
         const url = listing.primaryImage.asset.url;
         if (url && typeof url === 'string' && url.startsWith('http')) {
           return url;
