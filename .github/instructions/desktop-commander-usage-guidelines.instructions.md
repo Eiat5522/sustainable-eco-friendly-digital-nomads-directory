@@ -35,7 +35,6 @@ Uncertain about File Content: use read_file or read_multiple_files to verify bef
 
 🖥️ PowerShell & Shell Usage
 
-Always specify "pwsh" as the shell parameter for all terminal operations on Windows. Omitting this can cause unexpected behavior or command failures.
 Absolute Paths Required: All file and directory operations must use absolute paths with a capital drive letter (e.g., D:\...). Relative paths or lowercase drive letters will fail.
 Temporary Output Files: For long or complex command results, write terminal output to a temporary file and read from there for easier retrieval and debugging.
 
