@@ -77,7 +77,7 @@ const CityMap: React.FC<CityMapProps> = ({ city, listings = [] }) => {
 
           return (
             <Marker
-              key={typeof listing.slug === 'string' ? listing.slug : (listing.slug && 'current' in listing.slug ? listing.slug.current : listing.id)}
+              key={typeof listing.slug === 'string' ? listing.slug : (listing.slug?.current ?? listing._id)}
               position={listingPosition}
               icon={L.divIcon({
                 className: 'custom-marker',
@@ -98,7 +98,7 @@ const CityMap: React.FC<CityMapProps> = ({ city, listings = [] }) => {
                     </div>
                   )}
                   <h3 className="font-semibold text-sm">{listing.name}</h3>
-                  <p className="text-xs text-gray-600">{('type' in listing ? listing.type : '')}</p>
+                  <p className="text-xs text-gray-600">{listing.type || ''}</p>
                   <button className="text-xs text-green-600 mt-1 hover:underline">
                     View Details
                   </button>

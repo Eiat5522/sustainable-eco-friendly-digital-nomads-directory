@@ -145,3 +145,5 @@ app-next-directory/docs/functional-specs/sso-onboarding-spec.md
 **/*output2.txt**
 **/*results.txt
 **/*test-results**
+app-next-directory/src/components/listings/RelatedListings.tsx.removed
+app-next-directory/src/components/listings/RelatedListings.tsx.bak

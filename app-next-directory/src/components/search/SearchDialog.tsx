@@ -190,7 +190,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                   Eco Features
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
-                  {digitalNomadFeature.map(feature => (
+                  {ecoTagsOptions.map((feature: string) => (
                     <button
                       key={feature}
                       onClick={() => toggleEcoFeature(feature)}

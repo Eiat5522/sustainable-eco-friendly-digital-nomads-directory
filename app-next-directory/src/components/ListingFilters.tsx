@@ -74,9 +74,9 @@ export function ListingFilters({
       id: 'cities',
       label: 'Cities',
       options: cities.map((city) => ({
-        id: typeof city.slug === 'string'
-  ? city.slug
-  : city.slug.current ?? '',
+        id: typeof city.slug === 'string' 
+          ? city.slug 
+          : city.slug?.current ?? city._id ?? '',
         label: city.name,
         count: city.listingCount,
       })),
@@ -95,7 +95,9 @@ export function ListingFilters({
       id: 'ecoTags',
       label: 'Eco Features',
       options: ecoTags.map((tag) => ({
-        id: tag.slug,
+        id: typeof tag.slug === 'string' 
+          ? tag.slug 
+          : tag.slug?.current ?? tag._id ?? '',
         label: tag.name,
         count: tag.listingCount,
       })),
