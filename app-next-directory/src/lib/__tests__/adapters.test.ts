@@ -105,7 +105,10 @@ describe('jsonToSanityListing', () => {
     expect(result.ecoTags?.[0]).toEqual({
       _id: 'solar-tag',
       name: 'Solar Powered',
-      _type: 'reference'
+      _type: 'reference',
+      slug: { current: 'solar-powered' },
+      description: '',
+      listingCount: 0
     });
     
     expect(result.digitalNomadFeatures).toEqual(['High-speed WiFi', '24/7 Access', 'Meeting Rooms']);

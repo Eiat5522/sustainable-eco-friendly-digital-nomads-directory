@@ -17,7 +17,7 @@ export interface City {
 export interface EcoTag {
   _id: string
   name: string
-  slug: string
+  slug: { current: string }
   description: string
   listingCount: number
   icon?: string
@@ -32,7 +32,7 @@ export interface Listing {
   };
   _id: string
   name: string
-  slug: string
+  slug: { current: string }
   shortDescription?: string
   longDescription?: string
   type: ListingType
@@ -78,6 +78,7 @@ export interface Listing {
   updatedAt?: string
   price?: number
   priceIndication?: string;  // Changed from price_indication to camelCase
+  lastVerifiedDate?: string;
   coordinates?: [number, number]
   moderationStatus?: 'pending' | 'approved' | 'rejected';
   verificationStatus?: 'unverified' | 'verified';

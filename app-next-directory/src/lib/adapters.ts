@@ -4,7 +4,7 @@
 
 import { Listing as SanityListing } from '@/types/listing';
 import { JsonListing } from '@/types/sanity-compatible-json';
-import { ListingCategory } from '@/types/enums';
+import { ListingCategory, PriceRange } from '@/types/enums';
 
 /**
  * Converts a JSON listing format to the Sanity CMS listing format
@@ -18,8 +18,8 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
 
   // Generate slug if missing, using name
   const slug = json.slug && typeof json.slug === 'object' && 'current' in json.slug
-    ? json.slug.current
-    : (json.name ? json.name.toLowerCase().replace(/\s+/g, '-') : '');
+    ? json.slug
+    : { current: (json.name ? json.name.toLowerCase().replace(/\s+/g, '-') : '') };
 
   // Map city to new structure
   const city = json.city
@@ -39,7 +39,8 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
     ? json.ecoTags.map(tag => ({
         _id: (tag as any)._id || '',
         name: tag.name || '',
-        slug: tag.name ? tag.name.toLowerCase().replace(/\s+/g, '-') : '',
+        _type: 'reference' as const,
+        slug: { current: tag.name ? tag.name.toLowerCase().replace(/\s+/g, '-') : '' },
         description: '',
         listingCount: 0
       }))
@@ -50,8 +51,9 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
   let location;
   if (json.location && typeof json.location.lat === 'number' && typeof json.location.lng === 'number') {
     location = {
-      ...json.location,
-      coordinates: [json.location.lng, json.location.lat]
+      lat: json.location.lat,
+      lng: json.location.lng,
+      coordinates: [json.location.lng, json.location.lat] as [number, number]
     };
   }
 
@@ -84,13 +86,13 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
           .filter((img): img is { asset: { _ref: string; url: string } } => !!img)
       : [],
     digitalNomadFeatures: json.digitalNomadFeatures ?? [],
+    priceRange: json.priceRange as PriceRange | undefined,
     lastVerifiedDate: json.lastVerifiedDate ?? '',
     moderationStatus: 'pending',
     verificationStatus: 'unverified',
     ecoRating: undefined,
-    coordinates: json.location && typeof json.location.lat === 'number' && typeof json.location.lng === 'number'
-      ? [json.location.lng, json.location.lat]
-      : undefined,
+    location,
+    coordinates: location?.coordinates as [number, number] | undefined,
     createdAt: now,
     updatedAt: now,
   };

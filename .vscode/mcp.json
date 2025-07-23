@@ -1,12 +1,15 @@
 {
   "servers": {
-    "FileSystem": {
+    "chain-of-thought": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "${workspaceFolder}"
-      ],
+      "args": ["-y", "mcp-chain-of-thought"],
+      "env": {
+        "DATA_DIR": "${workspaceFolder}/.vscode/chain-of-thought-mcp-data",
+        "ENABLE_THOUGHT_CHAIN": "true",
+        "TEMPLATES_USE": "en",
+        "ENABLE_GUI": "true",
+        "ENABLE_DETAILED_MODE": "true"
+      }
     },
     "chroma": { // Runs the version last installed via uvx (typically Prod)
       "command": "uvx",
@@ -21,17 +24,6 @@
         "CHROMA_LOG_DIR":  "${workspaceFolder}:/.vscode",
         "LOG_LEVEL": "INFO",
         "MCP_LOG_LEVEL": "INFO"
-      }
-    },
-    "chain-of-thought": {
-      "command": "npx",
-      "args": ["-y", "mcp-chain-of-thought"],
-      "env": {
-        "DATA_DIR": "${workspaceFolder}/.vscode/chain-of-thought-mcp-data",
-        "ENABLE_THOUGHT_CHAIN": "true",
-        "TEMPLATES_USE": "en",
-        "ENABLE_GUI": "true",
-        "ENABLE_DETAILED_MODE": "true"
       }
     },
   }

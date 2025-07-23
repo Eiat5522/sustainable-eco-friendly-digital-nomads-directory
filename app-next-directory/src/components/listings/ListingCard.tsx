@@ -24,11 +24,11 @@ export function ListingCard({ listing, searchQuery }: { listing: Listing; search
 
   // Helper to get listing URL
   const getListingUrl = () => {
-    if (listing.slug && listing.slug.startsWith('sanity-')) {
-      return `/listings/${listing.slug}`;
+    if (listing.slug && listing.slug.current && listing.slug.current.startsWith('sanity-')) {
+      return `/listings/${listing.slug.current}`;
     }
-    if (listing.slug) {
-      return `/listings/${listing.slug}`;
+    if (listing.slug && listing.slug.current) {
+      return `/listings/${listing.slug.current}`;
     }
     return '/listings/default-slug';
   };
