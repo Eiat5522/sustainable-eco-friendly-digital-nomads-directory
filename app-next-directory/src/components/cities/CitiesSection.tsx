@@ -11,7 +11,9 @@ interface City {
   description: string;
   sustainabilityScore?: number;
   highlights?: string[];
-  images?: string[];
+  mainImage: string;
+  galleryImages: string[];
+  digitalNomadFeatures: string[];
 }
 
 export default function CitiesSection() {
@@ -50,10 +52,10 @@ export default function CitiesSection() {
           {cities.map(city => (
             <div key={city._id} className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
               <div className="relative w-full h-48">
-                {city.mainImage?.asset?.url ? (
+                {city.mainImage ? (
                   <Image
-                    src={city.mainImage.asset.url}
-                    alt={city.images?.[0] ? city.name : 'No image'}
+                    src={city.mainImage}
+                    alt={city.name}
                     fill
                     className="object-cover"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"

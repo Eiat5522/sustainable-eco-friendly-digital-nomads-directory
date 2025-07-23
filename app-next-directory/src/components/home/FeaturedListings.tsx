@@ -1,8 +1,7 @@
 'use client';
 
 import { SanityListing } from '@/types/sanity';
-import { Listing } from '@/types/listings';
-import { ListingCategory } from '@/types/enums';
+import { Listing } from '@/types/listing';
 import { ListingCard } from '@/components/listings/ListingCard';
 
 interface FeaturedListingsProps {
@@ -24,8 +23,8 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
         // Ensure slug is a string for ListingCard
         const normalizedListing: Listing = {
           ...listing,
-          slug: listing.slug,
-          type: listing.type ?? ListingCategory.COWORKING, // fallback to a valid ListingCategory value
+          slug: typeof listing.slug === 'object' && listing.slug !== null ? listing.slug : { current: String(listing.slug) },
+          type: listing.type ?? 'coworking', // fallback to a valid ListingType value
         };
         return <ListingCard key={normalizedListing._id} listing={normalizedListing} />;
       })}

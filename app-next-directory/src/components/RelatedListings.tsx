@@ -44,7 +44,7 @@ export function RelatedListings({
       let score = 0;
 
       // Same category
-      if (listing.type && currentListing.type && listing.type === currentListing.type) score += 3;
+      if (listing.category && currentListing.category && listing.category === currentListing.category) score += 3;
 
       // Same city
       if (listing.city.name === currentListing.city.name) score += 2;

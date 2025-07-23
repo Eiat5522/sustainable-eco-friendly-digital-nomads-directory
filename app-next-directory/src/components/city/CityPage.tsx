@@ -48,12 +48,17 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-2">{city.name}</h1>
+<div className="mb-4">
+  {city.mainImage && (
+    <img src={city.mainImage} alt={city.name} className="rounded-lg shadow w-full h-64 object-cover" />
+  )}
+</div>
       <p className="text-gray-600 mb-6">{city.country}</p>
 
       {/* Image Carousel */}
       <div className="mb-8">
         <ImageCarousel
-          images={city.images || []}
+          images={city.galleryImages || []}
           alt={`Photos of ${city.name}`}
         />
       </div>
@@ -108,7 +113,7 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
             <div className="mt-8">
               <h3 className="text-lg font-semibold mb-2">Digital Nomad Friendly Features</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {city.nomadFeatures?.map((feature: string, index: number) => (
+                {city.digitalNomadFeatures?.map((feature: string, index: number) => (
                   <div key={index} className="flex items-start">
                     <div className="flex-shrink-0 h-6 w-6 text-green-500">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
