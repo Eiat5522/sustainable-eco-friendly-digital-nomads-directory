@@ -49,16 +49,16 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-2">{city.name}</h1>
 <div className="mb-4">
-  {city.mainImage && (
+  {city.mainImage ? (
     <img src={city.mainImage} alt={city.name} className="rounded-lg shadow w-full h-64 object-cover" />
-  )}
+  ) : null}
 </div>
       <p className="text-gray-600 mb-6">{city.country}</p>
 
       {/* Image Carousel */}
       <div className="mb-8">
         <ImageCarousel
-          images={city.galleryImages || []}
+          images={city.galleryImages ?? city.images ?? []}
           alt={`Photos of ${city.name}`}
         />
       </div>
