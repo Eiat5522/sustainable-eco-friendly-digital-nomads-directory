@@ -9,14 +9,12 @@ beforeAll(() => {
     toISOString: () => MOCK_DATE,
   } as any));
 });
-        _id: 'solar-tag',
-        name: 'Solar Powered',
-        _type: 'reference'
 
 describe('jsonToSanityListing', () => {
-        _id: 'recycling-tag',
-        name: 'Recycling Program',
-        _type: 'reference'
+  const baseJsonListing: JsonListing = {
+    _id: 'listing-eco-space-coworking',
+    _type: 'listing',
+    name: 'Eco Space Coworking',
     slug: { current: 'eco-space-coworking' },
     type: ListingCategory.COWORKING,
     shortDescription: 'A sustainable coworking space',
