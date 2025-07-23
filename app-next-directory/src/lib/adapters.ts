@@ -75,7 +75,7 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
     shortDescription: json.shortDescription ?? '',
     longDescription: json.longDescription ?? '',
     ecoTags,
-    ecoDetails: json.ecoDetails ?? {},
+
     sourceUrls: json.sourceUrls ?? [],
     mainImage: json.mainImage && json.mainImage.asset ? { asset: { _ref: json.mainImage.asset._ref || '', url: json.mainImage.asset.url || '' } } : undefined,
     galleryImages: Array.isArray(json.galleryImages)
