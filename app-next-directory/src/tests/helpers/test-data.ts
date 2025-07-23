@@ -5,10 +5,10 @@ export const mockListings = [
     name: 'Test Coworking Space',
     city: 'Bangkok',
     category: 'coworking',
-    shortDescription: 'A test coworking space',
+    
     eco_focus_tags: ['solar_power', 'waste_reduction'],
     digital_nomad_features: ['fast_wifi', 'quiet_work_zones'],
-    slug: 'test-coworking-space',
+    slug: { current: 'test-coworking-space' },
     shortDescription: 'Solar panels and waste reduction initiatives.',
   },
   {
@@ -16,10 +16,10 @@ export const mockListings = [
     name: 'Test Eco Cafe',
     city: 'Chiang Mai',
     category: 'cafe',
-    shortDescription: 'A test eco-friendly cafe',
+    
     eco_focus_tags: ['organic_food', 'plastic_free_initiatives'],
     digital_nomad_features: ['reliable_wifi', 'power_outlets_abundant'],
-    slug: 'test-eco-cafe',
+    slug: { current: 'test-eco-cafe' },
     shortDescription: 'Organic food and plastic-free initiatives.',
   },
 ];

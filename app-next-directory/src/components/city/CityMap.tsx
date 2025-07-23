@@ -77,7 +77,7 @@ const CityMap: React.FC<CityMapProps> = ({ city, listings = [] }) => {
 
           return (
             <Marker
-              key={listing.id}
+              key={typeof listing.slug === 'string' ? listing.slug : listing.slug?.current || listing.id}
               position={listingPosition}
               icon={L.divIcon({
                 className: 'custom-marker',

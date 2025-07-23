@@ -233,7 +233,7 @@ export function MapView({
     if (!mapRef.current || !clusterRef.current || !isMapInitialized) return;
     
     // Track which markers need to be removed
-    const newMarkerIds = new Set(listings.map(listing => listing.slug).filter((slug): slug is string => typeof slug === 'string'));
+    const newMarkerIds = new Set(listings.map(listing => typeof listing.slug === 'string' ? listing.slug : listing.slug.current));
     const existingMarkerIds = Object.keys(markersRef.current);
     
     // Remove markers that don't exist in the new listings
@@ -250,7 +250,7 @@ export function MapView({
     
     listings.forEach(listing => {
       const { slug, location, coordinates, type, name, address } = listing;
-      if (typeof slug !== 'string') return;
+      const slugStr = typeof slug === 'string' ? slug : slug.current;
       let pos: [number, number] | undefined = undefined;
       if (location && Array.isArray(location.coordinates) && location.coordinates.length === 2) {
         pos = [location.coordinates[0], location.coordinates[1]];
@@ -260,8 +260,8 @@ export function MapView({
       if (!pos || isNaN(pos[0]) || isNaN(pos[1])) return;
       bounds.extend(pos);
       hasValidCoordinates = true;
-      if (markersRef.current[slug]) {
-        const currentLayer = markersRef.current[slug];
+      if (markersRef.current[slugStr]) {
+        const currentLayer = markersRef.current[slugStr];
         const currentLatLng = currentLayer.getLatLng();
         if (currentLatLng.lat !== pos[0] || currentLatLng.lng !== pos[1]) {
           currentLayer.setLatLng(pos);
@@ -276,7 +276,7 @@ export function MapView({
             <button 
               class="view-details-button"
               style="margin-top:8px;padding:4px 12px;background-color:#22c55e;color:white;border:none;border-radius:4px;font-size:13px;cursor:pointer;transition:background-color 0.2s;"
-              data-id="${slug}"
+              data-id="${slugStr}"
             >
               View Details
             </button>
@@ -285,12 +285,12 @@ export function MapView({
         const popup = L.popup({ closeButton: false, offset: [0, -20] }).setContent(popupContent);
         marker.bindPopup(popup);
         marker.on('click', () => {
-          setSelectedMarker(slug);
+          setSelectedMarker(slugStr);
           if (onMarkerClick) onMarkerClick(listing);
         });
         marker.on('popupopen', () => {
           setTimeout(() => {
-            const button = document.querySelector('.view-details-button[data-id="' + slug + '"]');
+            const button = document.querySelector('.view-details-button[data-id="' + slugStr + '"]');
             if (button) {
               button.addEventListener('click', () => {
                 if (onMarkerClick) onMarkerClick(listing);
@@ -299,7 +299,7 @@ export function MapView({
           }, 10);
         });
         clusterRef.current!.addLayer(marker);
-        markersRef.current[slug] = marker;
+        markersRef.current[slugStr] = marker;
       }
     });
     

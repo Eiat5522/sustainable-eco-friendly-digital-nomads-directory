@@ -499,63 +499,6 @@ Next steps:
 
 Develop a comprehensive schema and type mapping document for a Sanity "Listing" document. This document should visually represent the database schema, illustrating relationships between the "Listing" document and all related entities (other Sanity documents, objects, etc.). The mapping should clearly depict the structure and connections within the Sanity data model. Furthermore, the document must include a detailed table that lists all fields within the "Listing" schema, alongside their corresponding TypeScript types. This table should explicitly map each Sanity field to its appropriate TypeScript type, ensuring accurate type representation for the "Listing" document and its associated data.
 
-The core of the error
-
-> Property ‘current’ does not exist on type ‘never’
-
-means that, according to your `City` interface, `city.slug` isn’t declared as having a `.current` property (in fact, TypeScript has concluded its type is `never`). To fix this you need to make sure that in your `types/listing.ts` (or wherever `City` lives) you give `slug` a proper union type that includes both the string case and the `{ current: string }` case. For example:
-
-```ts
-// types/listing.ts
-
-/** 
- * E.g. if you’re pulling slugs from Sanity you might use:
- * import type { Slug } from 'sanity';
- * 
- * export interface City {
- *   name: string;
- *   slug: Slug | string;
- *   listingCount: number;
- * }
- *
- * Or, if you want to roll your own:
- */
-export interface City {
-  name: string;
-  slug: string | { current: string };
-  listingCount: number;
-}
-```
-
-With that in place, your mapping in `ListingFilters.tsx` can be simplified to:
-
-```ts
-options: cities.map((city) => {
-  // slug is now typed as string | { current: string }
-  const id =
-    typeof city.slug === 'string'
-      ? city.slug
-      : city.slug.current;           // safe now that TS knows slug.current exists
-
-  return {
-    id,
-    label: city.name,
-    count: city.listingCount,
-  };
-}),
-```
-
-If you want to guard more defensively (in case `current` might somehow be empty), you can still use the `?? ''` fallback:
-
-```ts
-const id =
-  typeof city.slug === 'string'
-    ? city.slug
-    : city.slug.current ?? '';
-```
-
----
-
 ### Step‑by‑step
 
 1. **Update your type definition**
