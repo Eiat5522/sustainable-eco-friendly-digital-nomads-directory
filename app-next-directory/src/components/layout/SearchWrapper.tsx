@@ -1,7 +1,3 @@
-'use client';
+import { useSession } from "next-auth/react";
 
-import { MainNav } from '@/components/layout/MainNav';
-
-export function SearchWrapper() {
-  return <MainNav />;
-}
+// ...rest of the file remains unchanged

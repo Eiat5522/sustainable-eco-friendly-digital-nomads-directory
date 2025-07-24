@@ -9,6 +9,8 @@ Starting Sequence: At the start of a new session, use `pack_codebase` to start i
 Exploration: start with `list_directory` on root directory (.) first
 Critical: Run `problem` tool after EVERY set of code changes before completing tasks
 
+**Caution:** Relative paths and lowercase as drive letter will fail as they are depend on the current working directory. Tilde paths (~/...) might not work in all contexts.
+
 🚗 EXPLORATION STRATEGY:✈️
 
 Start: `list_directory` with path='.' (never recursive on root, this will most likely cause a timeout)
@@ -17,9 +19,10 @@ Find code: use `search_code` to find text/code patterns within file contents usi
 Read Multiple Files: read the contents of multiple files simultaneously. This is more efficient than reading files one by one when you need to analyze or compare multiple files. For example, when analysing tests and their corresponding implementation. Each file's content is returned with its path as a reference. Failed reads for individual files won't stop the entire operation.
 Before editing: use `read_file` to understand current content of the target file
 Editing & Cmdlet: Absolute full paths with the drive letter in CAPITAL LETTER as shown: ('Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory'). This is crucial to ensure reliability of navigation tools usage.
-Caution: Relative paths and lowercase as drive letter will fail as they are depend on the current working directory. Tilde paths (~/...) might not work in all contexts.
 
 ✍🏻 EDITING BEST PRACTICES:🗒️
+
+**Caution:** Relative paths and lowercase as drive letter will fail as they are depend on the current working directory. Tilde paths (~/...) might not work in all contexts.
 
 The `write_file` tool must be the primary tool Copilot uses for file editing. `write_file` tool provide better precision when compared with the `edit_block` tool. Only use `edit_block` when the change requires more than 30 lines to be added/edited.
 
