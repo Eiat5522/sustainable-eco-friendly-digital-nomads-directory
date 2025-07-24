@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import { signOut, useSession } from '@auth/nextjs/react';
 import { User } from "@/types/auth";
 import Link from 'next/link';
 import Image from 'next/image';

@@ -5,33 +5,36 @@ applyTo: '**'
 
 ➡️ WORKFLOW ESSENTIALS:⬆️
 
-Starting Sequence: At the start of a new session, use #pack_codebase to start indexing current project's codebase. After successfully #pack_codebase run #grep_repomix_output or #read_repomix_output.
-Exploration: start with list_directory on root directory (.) first
-Critical: Run problem tool after EVERY set of code changes before completing tasks
-Small Edits: (≤30 lines): use write_file with exact original content
-Large Changes: new files, or uncertain content: use edit_block
+Starting Sequence: At the start of a new session, use `pack_codebase` to start indexing current project's codebase. After successfully `pack_codebase` run `grep_repomix_output` or `read_repomix_output`.
+Exploration: start with `list_directory` on root directory (.) first
+Critical: Run `problem` tool after EVERY set of code changes before completing tasks
 
 🚗 EXPLORATION STRATEGY:✈️
 
-Start: list_directory with path='.' (never recursive on root, this will most likely cause a timeout)
-Understand structure: read key files like package.json, README, main entry points using read_file or read_multiple_files
-Find code: use search_code to find text/code patterns within file contents using ripgrep, get_file_info for file overviews
+Start: `list_directory` with path='.' (never recursive on root, this will most likely cause a timeout)
+Understand structure: read key files like package.json, README, main entry points using `read_file` or `read_multiple_files`
+Find code: use `search_code` to find text/code patterns within file contents using ripgrep, get_file_info for file overviews
 Read Multiple Files: read the contents of multiple files simultaneously. This is more efficient than reading files one by one when you need to analyze or compare multiple files. For example, when analysing tests and their corresponding implementation. Each file's content is returned with its path as a reference. Failed reads for individual files won't stop the entire operation.
-Before editing: use read_file or read_multiple_files to understand current content of the target files
+Before editing: use `read_file` to understand current content of the target file
 Editing & Cmdlet: Absolute full paths with the drive letter in CAPITAL LETTER as shown: ('Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory'). This is crucial to ensure reliability of navigation tools usage.
 Caution: Relative paths and lowercase as drive letter will fail as they are depend on the current working directory. Tilde paths (~/...) might not work in all contexts.
 
 ✍🏻 EDITING BEST PRACTICES:🗒️
 
-Small Modifications: write_file (requires exact original content match)
+The `write_file` tool must be the primary tool Copilot uses for file editing. `write_file` tool provide better precision when compared with the `edit_block` tool. Only use `edit_block` when the change requires more than 30 lines to be added/edited.
+
+Small Edits: (≤30 lines): use `write_file` with exact original content
+Large Changes: new files, or uncertain content: use `edit_block`
+
+Small Modifications: `write_file` (requires exact original content match)
 If replace_lines_code fails: read_file_code the target lines, then retry with correct content
-Large Changes: use edit_block multiple focused edits rather than one large edit. Each edit_block call should change only what needs to be changed - include just enough context to uniquely identify the text being
-After Any Changes: use problem tool to check file for errors after every edits
+Large Changes: use `edit_block` to make multiple focused edits rather than one large edit. Each `edit_block` call should change only what needs to be changed - include just enough context to uniquely identify the text being
+After Any Changes: use `problem` tool to check file for errors after every edits
 
 🛠️ ERROR HANDLING:⚠️
 
 For Tool Failures: follow the specific recovery guidance in each tool's description
-Uncertain about File Content: use read_file or read_multiple_files to verify before making changes.
+Uncertain about File Content: `use read_file` or `read_multiple_files` to verify before making changes.
 
 🖥️ PowerShell & Shell Usage
 

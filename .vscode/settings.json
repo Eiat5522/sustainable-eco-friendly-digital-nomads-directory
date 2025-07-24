@@ -3,7 +3,6 @@
   "search.useParentIgnoreFiles": true,
   "search.useGlobalIgnoreFiles": true,
   "terminal.integrated.tabs.defaultColor": "terminal.ansiBlue",
-  "terminal.integrated.cwd": "",
   "search.useIgnoreFiles": false,
   "markdownlint.lintWorkspaceGlobs": [
     "**/*.{md,mkd,mdwn,mdown,markdown,markdn,mdtxt,mdtext,workbook}",
@@ -32,7 +31,7 @@
   "jest.enable": true,
   "jest.debugMode": false,
   "jest.runMode": "on-demand",
-  "jest.rootPath": "app-next-directory/src",
+  "jest.rootPath": "app-next-directory",
   "jest.coverageFormatter": "GutterFormatter",
   "files.watcherExclude": {
     "listings/**": true
