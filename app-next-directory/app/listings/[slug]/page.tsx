@@ -1,4 +1,5 @@
 import React from 'react';
+import type { EcoTag } from '../../../sanity/sanity.types';
 import { getListingData } from '@/lib/sanity/data';
 import { urlFor } from '@/lib/sanity/image';
 import { notFound } from 'next/navigation';
@@ -55,34 +56,44 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
         <ListingDetail listing={{
           ...listing,
           name: listing.name ?? '',
-          slug: typeof listing.slug === 'string'
-  ? { current: listing.slug }
-  : listing.slug ?? undefined,
+          slug: listing.slug && typeof listing.slug.current === 'string'
+  ? { current: listing.slug.current }
+  : { current: '' },
           shortDescription: listing.shortDescription ?? undefined,
-          longDescription: listing.description_long ?? undefined,
-          type: listing.category ?? undefined,
-          ecoTags: Array.isArray(listing.ecoTags) ? listing.ecoTags : [],
+          longDescription: listing.longDescription ?? undefined,
+          type: listing.type ?? undefined,
+          ecoTags: Array.isArray(listing.ecoTags)
+  ? listing.ecoTags.map(tag => ({
+      ...tag,
+      slug: tag.slug ?? { current: '' }
+    }))
+  : [],
           mainImage: Array.isArray(listing.galleryImages) && listing.galleryImages.length > 0 ? listing.galleryImages[0] : undefined,
 galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : [],
           website: listing.website ?? undefined,
           priceRange: listing.priceRange ?? undefined,
-          location: listing.location && listing.location.lat !== null && listing.location.lng !== null 
+          location: listing.location && typeof listing.location.lat === 'number' && typeof listing.location.lng === 'number'
             ? { lat: listing.location.lat, lng: listing.location.lng }
             : undefined,
           city: listing.city
-            ? { 
+            ? {
                 _id: listing.city._id ?? '',
                 name: listing.city.title ?? '',
-                slug: listing.city && listing.city.slug
-                  ? typeof listing.city.slug === 'string'
-                    ? { current: listing.city.slug }
-                    : listing.city.slug
+                slug: listing.city.slug && typeof listing.city.slug.current === 'string'
+                  ? { current: listing.city.slug.current }
                   : { current: '' },
                 listingCount: 0,
-                country: ''
+                country: listing.city.country ?? ''
               }
             : undefined,
-          reviews: Array.isArray(listing.reviews) ? listing.reviews : [],
+          reviews: Array.isArray(listing.reviews)
+  ? listing.reviews.map(r => ({
+      ...r,
+      rating: r.rating ?? 0,
+      comment: r.comment ?? '',
+      author: typeof r.author === 'string' ? r.author : '',
+    }))
+  : [],
         }} />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -90,10 +101,10 @@ galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : []
             <div>
               <h2 className="text-2xl font-semibold border-b pb-2 mb-4">About this place</h2>
               <p className="text-muted-foreground">{listing.shortDescription}</p>
-              {listing.description_long && (
+              {listing.longDescription && (
                 <div className="prose prose-lg max-w-none mt-4">
                   {/* Assuming longDescription is a string for now. If it's Portable Text, this will need a proper renderer */}
-                  <p>{listing.description_long}</p>
+                  <p>{listing.longDescription}</p>
                 </div>
               )}
             </div>
@@ -138,24 +149,24 @@ galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : []
                     <p className="text-muted-foreground">{listing.openingHours}</p>
                   </div>
                 )}
-                {listing.last_verified_date && (
+                {listing.lastVerifiedDate && (
                   <div>
                     <h4 className="font-semibold">Last Verified</h4>
-                    <p className="text-muted-foreground">{new Date(listing.last_verified_date).toLocaleDateString()}</p>
+                    <p className="text-muted-foreground">{new Date(listing.lastVerifiedDate).toLocaleDateString()}</p>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {Array.isArray(listing.ecoTags) && (listing.ecoTags as string[]).length > 0 && (
+            {Array.isArray(listing.ecoTags) && listing.ecoTags.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Eco Tags</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-2">
-                  {(listing.ecoTags as string[]).map((tag: string) => (
-                    <Badge key={tag} variant="secondary">
-                      {tag}
+                  {listing.ecoTags.map((tag: EcoTag) => (
+                    <Badge key={tag._id} variant="secondary">
+                      {tag.name}
                     </Badge>
                   ))}
                 </CardContent>

@@ -20,7 +20,7 @@ async function inspectData() {
         name,
         slug,
         category,
-        description_short,
+        shortDescription,
         primaryImage {
           asset->{
             _id,

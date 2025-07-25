@@ -68,8 +68,7 @@ export async function GET() {
         hasName: !!listings[0].name,
         hasSlug: !!listings[0].slug,
         hasPrimaryImage: !!listings[0].primaryImage,
-        hasLocation: !!listings[0].location,
-        hasPrice: !!listings[0].price
+        hasPriceRange: !!listings[0].priceRange
       });
     }
 

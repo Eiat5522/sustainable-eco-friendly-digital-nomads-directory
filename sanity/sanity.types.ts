@@ -706,7 +706,7 @@ export type Review = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  author?: string
+  author: string
   rating?: number
   comment?: string
   date?: string
@@ -718,8 +718,9 @@ export type EcoTag = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  name?: string
+  name: string
   description?: string
+  slug: { current: string }
 }
 
 export type Listing = {
@@ -740,8 +741,8 @@ export type Listing = {
   digitalNomadFeatures?: string[]
   lastVerifiedDate?: string
   sourceUrls?: string[]
-  primaryImage?: mainImage
-  galleryImages?: galleryImages[]
+  primaryImage?: primaryImage
+  galleryImages?: GalleryImage[]
   reviews?: Review[]
   website?: string
   contactInfo?: string

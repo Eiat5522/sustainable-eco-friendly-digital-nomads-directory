@@ -11,7 +11,7 @@ const mockListings = [
       latitude: 13.7563,
       longitude: 100.5018
     },
-    description_short: 'Solar-powered coworking space with zero-waste policy',
+    shortDescription: 'Solar-powered coworking space with zero-waste policy',
     longDescription: 'Full description...',
     eco_focus_tags: ['zero-waste', 'renewable-energy'],
     eco_notes_detailed: 'Detailed eco notes...',
@@ -31,7 +31,7 @@ const mockListings = [
       latitude: 13.7584,
       longitude: 100.5066
     },
-    description_short: 'Organic cafe with plant-based options',
+    shortDescription: 'Organic cafe with plant-based options',
     longDescription: 'Full description...',
     eco_focus_tags: ['organic', 'plant-based'],
     eco_notes_detailed: 'Detailed eco notes...',

@@ -24,7 +24,7 @@ describe('Sanity Generated Types', () => {
         _rev: 'test-rev',
         name: 'Test Listing',
         slug: { _type: 'slug', current: 'test-listing' },
-        category: 'coworking',
+        type: 'coworking',
         city: {
           _ref: 'city-ref',
           _type: 'reference'
@@ -35,8 +35,8 @@ describe('Sanity Generated Types', () => {
           lng: 100.5018
         },
         address_string: 'Test Address',
-        description_short: 'Short description',
-        description_long: 'Long description',
+        shortDescription: 'Short description',
+        longDescription: 'Long description',
         eco_focus_tags: [],
         digital_nomad_features: [],
         primaryImage: {
@@ -58,7 +58,7 @@ describe('Sanity Generated Types', () => {
       expect(mockListing._id).toBe('test-id');
       expect(mockListing._type).toBe('listing');
       expect(mockListing.name).toBe('Test Listing');
-      expect(mockListing.category).toBe('coworking');
+      expect(mockListing.type).toBe('coworking');
       
       // Check optional fields are properly typed
       if (mockListing.location) {
@@ -152,8 +152,8 @@ describe('Sanity Generated Types', () => {
   });
 
   describe('Enum Value Validation', () => {
-    it('should enforce proper category enum values', () => {
-      const validCategories: Array<Listing['category']> = [
+    it('should enforce proper type enum values', () => {
+      const validCategories: Array<Listing['type']> = [
         'coworking',
         'cafe', 
         'accommodation',
@@ -161,9 +161,9 @@ describe('Sanity Generated Types', () => {
         'activities'
       ];
 
-      validCategories.forEach(category => {
-        const listing: Partial<Listing> = { category };
-        expect(listing.category).toBe(category);
+      validCategories.forEach(type => {
+        const listing: Partial<Listing> = { type };
+        expect(listing.type).toBe(type);
       });
     });
 
