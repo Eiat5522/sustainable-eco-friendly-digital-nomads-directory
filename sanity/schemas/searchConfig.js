@@ -24,7 +24,7 @@ export default defineType({
           validation: Rule => Rule.required().min(0).max(10)
         },
         {
-          name: 'eco_tags',
+          name: 'ecoTags',
           type: 'number',
           title: 'Eco Tags Boost',
           initialValue: 1.5,

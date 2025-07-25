@@ -1,6 +1,6 @@
-import type { SanityListing, LISTING_BY_SLUG_QUERYResult } from '../../types/sanity-generated';
 import { client } from './client';
 import { groq } from 'next-sanity';
+import type { Listing } from '../../../../sanity/sanity.types';
 
 // GROQ query to fetch a single listing by slug
 const LISTING_BY_SLUG_QUERY = groq`
@@ -23,10 +23,10 @@ const LISTING_BY_SLUG_QUERY = groq`
     location { lat, lng },
     primaryImage,
     ecoTags,
-    digital_nomad_features,
-    last_verified_date,
+    digitalNomadFeatures,
+    lastVerifiedDate,
     reviews[]->,
-    addressString,
+    address,
     website,
     contactInfo,
     openingHours,
@@ -50,7 +50,7 @@ const LISTING_BY_SLUG_QUERY = groq`
 export async function getListingData(
   slug: string,
   usePreview = false
-): Promise<LISTING_BY_SLUG_QUERYResult> {
+): Promise<Listing | null> {
   // Use imported client directly (no redeclaration)
   // const client = client(usePreview);
 

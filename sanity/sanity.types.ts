@@ -12,9 +12,6 @@
  * ---------------------------------------------------------------------------------
  */
 
-// Declare the symbol first to avoid no-use-before-define warnings
-export declare const internalGroqTypeReferenceTo: unique symbol
-
 // Source: schema.json
 export type UserPreference = {
   _id: string
@@ -61,7 +58,7 @@ export type SearchConfig = {
   fieldBoosts?: {
     name?: number
     description?: number
-    eco_tags?: number
+    ecoTags?: number
     city?: number
   }
   geoSearchSettings?: {
@@ -706,7 +703,7 @@ export type Review = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  author: string
+  author?: string
   rating?: number
   comment?: string
   date?: string
@@ -718,9 +715,8 @@ export type EcoTag = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  name: string
+  name?: string
   description?: string
-  slug: { current: string }
 }
 
 export type Listing = {
@@ -731,24 +727,81 @@ export type Listing = {
   _rev: string
   name?: string
   slug?: Slug
-  city?: City
-  type?: 'accommodation' | 'activities' | 'cafe' | 'coworking' | 'restaurant'
-  addressString?: string
+  city?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'city'
+  }
+  type?: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities'
+  address?: string
   location?: Geopoint
   shortDescription?: string
   longDescription?: string
-  ecoTags?: EcoTag[]
-  digitalNomadFeatures?: string[]
+  ecoTags?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'ecoTag'
+  }>
+  ecoNotesDetailed?: string
+  sourceUrls?: Array<string>
+  mainImage?: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    caption?: string
+    _type: 'image'
+  }
+  galleryImages?: Array<{
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    caption?: string
+    _type: 'image'
+    _key: string
+  }>
+  digitalNomadFeatures?: Array<string>
   lastVerifiedDate?: string
-  sourceUrls?: string[]
-  primaryImage?: primaryImage
-  galleryImages?: GalleryImage[]
-  reviews?: Review[]
-  website?: string
-  contactInfo?: string
-  openingHours?: string
-  rating?: number
-  priceRange?: string
+  coworkingDetails?: {
+    operatingHours?: string
+    pricingPlans?: Array<string>
+    specificAmenitiesCoworking?: Array<string>
+  }
+  cafeDetails?: {
+    operatingHours?: string
+    priceIndication?: string
+    menuHighlightsCafe?: Array<string>
+    wifiReliabilityNotes?: string
+  }
+  accommodationDetails?: {
+    accommodationType?: string
+    pricePerNightThbRange?: string
+    roomTypesAvailable?: Array<string>
+    specificAmenitiesAccommodation?: Array<string>
+  }
+  reviews?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'review'
+  }>
   moderation?: {
     status?: 'draft' | 'pending' | 'published' | 'archived' | 'flagged'
     featured?: boolean
@@ -756,13 +809,25 @@ export type Listing = {
     moderatorNotes?: string
   }
   searchMetadata?: {
-    keywords?: string[]
+    keywords?: Array<string>
     boost?: number
     searchExcerpt?: string
-    similarListings?: Listing[]
+    similarListings?: Array<{
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      _key: string
+      [internalGroqTypeReferenceTo]?: 'listing'
+    }>
   }
+  ecoDetails?: {
+    description?: string
+    ecoTags?: Array<string>
+    certifications?: Array<string>
+  }
+  moderationStatus?: 'pending' | 'approved' | 'rejected'
+  verificationStatus?: 'unverified' | 'verified'
 }
-
 
 export type City = {
   _id: string
@@ -770,7 +835,7 @@ export type City = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  title?: string
+  name?: string
   slug?: Slug
   country?: string
   description?: string
@@ -955,149 +1020,10 @@ export type AllSanitySchemaTypes =
   | Geopoint
   | Slug
   | SanityAssetSourceData
-
-// Source: ../app-next-directory/src/app/api/blog/[slug]/route.ts
-// Variable: postQuery
-// Query: *[_type == "blogPost" && slug.current == $slug][0] {    _id,    title,    slug,    mainImage,    publishedAt,    excerpt,    body,    tags,    "authorName": author->name,    "authorImage": author->image,    "authorBio": author->bio,    "readingTime": round(length(pt::text(body)) / 200),    "relatedPosts": *[_type == "blogPost" && slug.current != $slug && count(tags[@ in ^.tags]) > 0] | order(publishedAt desc) [0...3] {      _id,      title,      slug,      mainImage,      publishedAt,      excerpt,      "authorName": author->name    },    _createdAt,    _updatedAt  }
-export type PostQueryResult = {
-  _id: string
-  title: string | null
-  slug: Slug | null
-  mainImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    alt?: string
-    caption?: string
-    _type: 'image'
-  } | null
-  publishedAt: string | null
-  excerpt: string | null
-  body: Array<{
-    children?: Array<{
-      marks?: Array<string>
-      text?: string
-      _type: 'span'
-      _key: string
-    }>
-    style?: 'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
-    listItem?: 'bullet' | 'number'
-    markDefs?: Array<{
-      href?: string
-      _type: 'link'
-      _key: string
-    }>
-    level?: number
-    _type: 'block'
-    _key: string
-  }> | null
-  tags: Array<string> | null
-  authorName: string | null
-  authorImage: null
-  authorBio: string | null
-  readingTime: number
-  relatedPosts: Array<{
-    _id: string
-    title: string | null
-    slug: Slug | null
-    mainImage: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
-      media?: unknown
-      hotspot?: SanityImageHotspot
-      alt?: string
-      caption?: string
-      _type: 'image'
-    } | null
-    publishedAt: string | null
-    excerpt: string | null
-    authorName: string | null
-  }>
-  _createdAt: string
-  _updatedAt: string
-} | null
-
-// Source: ../app-next-directory/src/app/api/blog/route.ts
-// Variable: postsQuery
-// Query: *[_type == "blogPost" && defined(slug)] | order(publishedAt desc) [$start...$end] {    _id,    title,    slug,    mainImage,    publishedAt,    excerpt,    tags,    "authorName": author->name,    "authorImage": author->image,    "readingTime": round(length(pt::text(body)) / 200),    _updatedAt  }
-export type PostsQueryResult = Array<{
-  _id: string
-  title: string | null
-  slug: Slug | null
-  mainImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    alt?: string
-    caption?: string
-    _type: 'image'
-  } | null
-  publishedAt: string | null
-  excerpt: string | null
-  tags: Array<string> | null
-  authorName: string | null
-  authorImage: null
-  readingTime: number
-  _updatedAt: string
-}>
-// Variable: countQuery
-// Query: count(*[_type == "blogPost" && defined(slug)])
-export type CountQueryResult = number
-
-// Source: ../app-next-directory/src/app/api/cities/route.ts
-// Variable: CITIES_QUERY
-// Query: *[_type == "city"] | order(_createdAt desc)[0...20] {      _id,      title,      "slug": slug.current,      country,      sustainabilityScore,      "mainImage": mainImage {        alt,        "asset": asset->{          _id,          url,          metadata {            dimensions,            lqip          }        }      }    }
-export type CITIES_QUERYResult = Array<{
-  _id: string
-  title: string | null
-  slug: string | null
-  country: string | null
-  sustainabilityScore: number | null
-  mainImage: {
-    alt: string | null
-    asset: {
-      _id: string
-      url: string | null
-      metadata: {
-        dimensions: SanityImageDimensions | null
-        lqip: string | null
-      } | null
-    } | null
-  } | null
-}>
-
-// Source: ../app-next-directory/src/app/api/featured-listings/route.ts
-// Variable: FEATURED_LISTINGS_QUERY
-// Query: *[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {      _id,      name,      "slug": slug.current,      "primaryImage": primaryImage{        alt,        "asset": asset->{          _id,          url,          metadata {            dimensions,            lqip          }        }      },      "galleryImages": galleryImages[0]{        alt,        "asset": asset->{          _id,          url,          metadata {            dimensions,            lqip          }        }      },      "location": city->{        _id,        name,        country      },      price    }
-export type FEATURED_LISTINGS_QUERYResult = Array<{
-  _id: string
-  name: string | null
-  slug: string | null
-  primaryImage: GalleryImage | null
-  galleryImages: GalleryImage[] | null
-  city: City | null
-  priceRange: string | null
-}>
-
+export declare const internalGroqTypeReferenceTo: unique symbol
 // Source: ../app-next-directory/src/lib/sanity/data.ts
 // Variable: LISTING_BY_SLUG_QUERY
-// Query: *[_type == "listing" && slug.current == $slug][0] {    _id,    _type,    _createdAt,    _updatedAt,    _rev,    name,    "slug": slug.current,    description_short,    description_long,    category,    city->{      _id,      title,      "slug": slug.current    },    location { lat, lng },    primaryImage,    ecoTags,    digital_nomad_features,    last_verified_date,    reviews,    addressString,    website,    contactInfo,    openingHours,    shortDescription,    sourceUrls,    rating,    priceRange,    galleryImages[]{      ...,      asset->    }  }
+// Query: *[_type == "listing" && slug.current == $slug][0] {    _id,    _type,    _createdAt,    _updatedAt,    _rev,    name,    "slug": slug.current,    shortDescription,    longDescription,    category,    city->{      _id,      title,      "slug": slug.current    },    location { lat, lng },    primaryImage,    ecoTags,    digitalNomadFeatures,    lastVerifiedDate,    reviews[]->,    addressString,    website,    contactInfo,    openingHours,    shortDescription,    sourceUrls,    rating,    priceRange,    galleryImages[]{      ...,      asset->    }  }
 export type LISTING_BY_SLUG_QUERYResult = {
   _id: string
   _type: 'listing'
@@ -1105,36 +1031,84 @@ export type LISTING_BY_SLUG_QUERYResult = {
   _updatedAt: string
   _rev: string
   name: string | null
-  slug: Slug | null
+  slug: string | null
   shortDescription: string | null
   longDescription: string | null
-  type: 'accommodation' | 'activities' | 'cafe' | 'coworking' | 'restaurant' | null
-  city: City | null
-  location: Geopoint | null
-  primaryImage: GalleryImage | null
-  ecoTags: EcoTag[] | null
-  digitalNomadFeatures: string[] | null
+  category: null
+  city: {
+    _id: string
+    title: null
+    slug: string | null
+  } | null
+  location: {
+    lat: number | null
+    lng: number | null
+  } | null
+  primaryImage: null
+  ecoTags: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'ecoTag'
+  }> | null
+  digitalNomadFeatures: Array<string> | null
   lastVerifiedDate: string | null
-  reviews: Review[] | null
-  addressString: string | null
-  website: string | null
-  contactInfo: string | null
-  openingHours: string | null
-  sourceUrls: string[] | null
-  rating: number | null
-  priceRange: string | null
-  galleryImages: GalleryImage[] | null
+  reviews: Array<{
+    _id: string
+    _type: 'review'
+    _createdAt: string
+    _updatedAt: string
+    _rev: string
+    author?: string
+    rating?: number
+    comment?: string
+    date?: string
+  }> | null
+  addressString: null
+  website: null
+  contactInfo: null
+  openingHours: null
+  sourceUrls: Array<string> | null
+  rating: null
+  priceRange: null
+  galleryImages: Array<{
+    asset: {
+      _id: string
+      _type: 'sanity.imageAsset'
+      _createdAt: string
+      _updatedAt: string
+      _rev: string
+      originalFilename?: string
+      label?: string
+      title?: string
+      description?: string
+      altText?: string
+      sha1hash?: string
+      extension?: string
+      mimeType?: string
+      size?: number
+      assetId?: string
+      uploadId?: string
+      path?: string
+      url?: string
+      metadata?: SanityImageMetadata
+      source?: SanityAssetSourceData
+    } | null
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    caption?: string
+    _type: 'image'
+    _key: string
+  }> | null
 } | null
 
 // Query TypeMap
 import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
-    '\n  *[_type == "blogPost" && slug.current == $slug][0] {\n    _id,\n    title,\n    slug,\n    mainImage,\n    publishedAt,\n    excerpt,\n    body,\n    tags,\n    "authorName": author->name,\n    "authorImage": author->image,\n    "authorBio": author->bio,\n    "readingTime": round(length(pt::text(body)) / 200),\n    "relatedPosts": *[_type == "blogPost" && slug.current != $slug && count(tags[@ in ^.tags]) > 0] | order(publishedAt desc) [0...3] {\n      _id,\n      title,\n      slug,\n      mainImage,\n      publishedAt,\n      excerpt,\n      "authorName": author->name\n    },\n    _createdAt,\n    _updatedAt\n  }\n': PostQueryResult
-    '\n  *[_type == "blogPost" && defined(slug)] | order(publishedAt desc) [$start...$end] {\n    _id,\n    title,\n    slug,\n    mainImage,\n    publishedAt,\n    excerpt,\n    tags,\n    "authorName": author->name,\n    "authorImage": author->image,\n    "readingTime": round(length(pt::text(body)) / 200),\n    _updatedAt\n  }\n': PostsQueryResult
-    'count(*[_type == "blogPost" && defined(slug)])': CountQueryResult
-    '*[_type == "city"] | order(_createdAt desc)[0...20] {\n      _id,\n      title,\n      "slug": slug.current,\n      country,\n      sustainabilityScore,\n      "mainImage": mainImage {\n        alt,\n        "asset": asset->{\n          _id,\n          url,\n          metadata {\n            dimensions,\n            lqip\n          }\n        }\n      }\n    }': CITIES_QUERYResult
-    '*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {\n      _id,\n      name,\n      "slug": slug.current,\n      primaryImage,\n      galleryImages,\n      city->{\n        _id,\n        title,\n        slug,\n        country,\n        description,\n        sustainabilityScore,\n        highlights,\n        mainImage\n      },\n      priceRange\n    }': FEATURED_LISTINGS_QUERYResult
-    '\n  *[_type == "listing" && slug.current == $slug][0] {\n    _id,\n    _type,\n    _createdAt,\n    _updatedAt,\n    _rev,\n    name,\n    "slug": slug.current,\n    shortDescription,\n    longDescription,\n    type,\n    city->{\n      _id,\n      title,\n      slug,\n      country,\n      description,\n      sustainabilityScore,\n      highlights,\n      mainImage\n    },\n    location,\n    primaryImage,\n    ecoTags,\n    digitalNomadFeatures,\n    lastVerifiedDate,\n    reviews,\n    addressString,\n    website,\n    contactInfo,\n    openingHours,\n    sourceUrls,\n    rating,\n    priceRange,\n    galleryImages\n  }\n': LISTING_BY_SLUG_QUERYResult
+    '\n  *[_type == "listing" && slug.current == $slug][0] {\n    _id,\n    _type,\n    _createdAt,\n    _updatedAt,\n    _rev,\n    name,\n    "slug": slug.current,\n    shortDescription,\n    longDescription,\n    category,\n    city->{\n      _id,\n      title,\n      "slug": slug.current\n    },\n    location { lat, lng },\n    primaryImage,\n    ecoTags,\n    digitalNomadFeatures,\n    lastVerifiedDate,\n    reviews[]->,\n    addressString,\n    website,\n    contactInfo,\n    openingHours,\n    shortDescription,\n    sourceUrls,\n    rating,\n    priceRange,\n    galleryImages[]{\n      ...,\n      asset->\n    }\n  }\n': LISTING_BY_SLUG_QUERYResult
   }
 }

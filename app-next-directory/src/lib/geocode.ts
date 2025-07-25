@@ -125,7 +125,7 @@ export async function updateListingsWithCoordinates(
         listing.coordinates.longitude == null
       ) {
         const coords = await injectedGeocodeAddress(
-          listing.address_string,
+          listing.address,
           listing.city
         );
         listing.coordinates = coords;

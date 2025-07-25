@@ -34,11 +34,11 @@ describe('Sanity Generated Types', () => {
           lat: 13.7563,
           lng: 100.5018
         },
-        address_string: 'Test Address',
+        address: 'Test Address',
         shortDescription: 'Short description',
         longDescription: 'Long description',
-        eco_focus_tags: [],
-        digital_nomad_features: [],
+        ecoTags: [],
+        digitalNomadFeatures: [],
         primaryImage: {
           _type: 'image',
           asset: {
@@ -243,7 +243,7 @@ describe('Sanity Generated Types', () => {
           _ref: 'city-reference-id',
           _type: 'reference'
         },
-        eco_focus_tags: [
+        ecoTags: [
           {
             _ref: 'eco-tag-1',
             _type: 'reference',
@@ -254,8 +254,8 @@ describe('Sanity Generated Types', () => {
 
       expect(listingWithReferences.city?._ref).toBe('city-reference-id');
       expect(listingWithReferences.city?._type).toBe('reference');
-      expect(listingWithReferences.eco_focus_tags?.[0]?._ref).toBe('eco-tag-1');
-      expect(listingWithReferences.eco_focus_tags?.[0]?._key).toBe('tag-key-1');
+      expect(listingWithReferences.ecoTags?.[0]?._ref).toBe('eco-tag-1');
+      expect(listingWithReferences.ecoTags?.[0]?._key).toBe('tag-key-1');
     });
   });
 
@@ -267,17 +267,17 @@ describe('Sanity Generated Types', () => {
         _createdAt: '2025-01-01T00:00:00Z',
         _updatedAt: '2025-01-01T00:00:00Z',
         _rev: 'array-rev',
-        digital_nomad_features: ['wifi', 'power-outlets', 'quiet-space'],
-        source_urls: ['https://example.com', 'https://another.com']
+        digitalNomadFeatures: ['wifi', 'power-outlets', 'quiet-space'],
+        sourceUrls: ['https://example.com', 'https://another.com']
       };
 
-      expect(Array.isArray(listingWithArrays.digital_nomad_features)).toBe(true);
-      expect(listingWithArrays.digital_nomad_features?.length).toBe(3);
-      expect(listingWithArrays.digital_nomad_features?.[0]).toBe('wifi');
+      expect(Array.isArray(listingWithArrays.digitalNomadFeatures)).toBe(true);
+      expect(listingWithArrays.digitalNomadFeatures?.length).toBe(3);
+      expect(listingWithArrays.digitalNomadFeatures?.[0]).toBe('wifi');
       
-      expect(Array.isArray(listingWithArrays.source_urls)).toBe(true);
-      expect(listingWithArrays.source_urls?.length).toBe(2);
-      expect(listingWithArrays.source_urls?.[0]).toBe('https://example.com');
+      expect(Array.isArray(listingWithArrays.sourceUrls)).toBe(true);
+      expect(listingWithArrays.sourceUrls?.length).toBe(2);
+      expect(listingWithArrays.sourceUrls?.[0]).toBe('https://example.com');
     });
   });
 });

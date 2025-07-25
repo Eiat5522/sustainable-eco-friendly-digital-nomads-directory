@@ -6,40 +6,40 @@ const mockListings = [
     name: 'Eco Coworking Hub',
     city: 'Bangkok',
     category: 'coworking',
-    address_string: '123 Green Street, Bangkok',
+    addressString: '123 Green Street, Bangkok',
     coordinates: {
       latitude: 13.7563,
       longitude: 100.5018
     },
     shortDescription: 'Solar-powered coworking space with zero-waste policy',
     longDescription: 'Full description...',
-    eco_focus_tags: ['zero-waste', 'renewable-energy'],
-    eco_notes_detailed: 'Detailed eco notes...',
-    source_urls: ['https://example.com'],
+    ecoTags: ['zero-waste', 'renewable-energy'],
+    ecoNotesDetailed: 'Detailed eco notes...',
+    sourceUrls: ['https://example.com'],
     primary_image_url: '/images/eco-hub.jpg',
     gallery_image_urls: [],
-    digital_nomad_features: ['high-speed-wifi', 'meeting-rooms'],
-    last_verified_date: '2025-05-01'
+    digitalNomadFeatures: ['high-speed-wifi', 'meeting-rooms'],
+    lastVerifiedDate: '2025-05-01'
   },
   {
     id: '2',
     name: 'Green Cafe',
     city: 'Bangkok',
     category: 'cafe',
-    address_string: '456 Eco Road, Bangkok',
+    addressString: '456 Eco Road, Bangkok',
     coordinates: {
       latitude: 13.7584,
       longitude: 100.5066
     },
     shortDescription: 'Organic cafe with plant-based options',
     longDescription: 'Full description...',
-    eco_focus_tags: ['organic', 'plant-based'],
-    eco_notes_detailed: 'Detailed eco notes...',
-    source_urls: ['https://example.com'],
+    ecoTags: ['organic', 'plant-based'],
+    ecoNotesDetailed: 'Detailed eco notes...',
+    sourceUrls: ['https://example.com'],
     primary_image_url: '/images/green-cafe.jpg',
     gallery_image_urls: [],
-    digital_nomad_features: ['wifi', 'power-outlets'],
-    last_verified_date: '2025-05-01'
+    digitalNomadFeatures: ['wifi', 'power-outlets'],
+    lastVerifiedDate: '2025-05-01'
   }
 ];
 

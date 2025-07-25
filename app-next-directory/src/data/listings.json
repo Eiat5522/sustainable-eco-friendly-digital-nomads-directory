@@ -4,15 +4,15 @@
     "name": "Sample Listing",
     "city": "Sample City",
     "category": "coworking",
-    "address_string": "123 Sample Street",
+    "address": "123 Sample Street",
     "description_short": "A short description.",
     "description_long": "A longer description of the sample listing.",
-    "eco_focus_tags": ["eco-friendly", "sustainable"],
-    "eco_notes_detailed": "Detailed notes about eco features.",
-    "source_urls": ["https://example.com"],
+    "ecoTags": ["eco-friendly", "sustainable"],
+    "ecoNotesDetailed": "Detailed notes about eco features.",
+    "sourceUrls": ["https://example.com"],
     "primary_image_url": "https://example.com/image.jpg",
     "gallery_image_urls": ["https://example.com/gallery1.jpg"],
-    "digital_nomad_features": ["fast wifi", "community events"],
-    "last_verified_date": "2025-01-01"
+    "digitalNomadFeatures": ["fast wifi", "community events"],
+    "lastVerifiedDate": "2025-01-01"
   }
 ]

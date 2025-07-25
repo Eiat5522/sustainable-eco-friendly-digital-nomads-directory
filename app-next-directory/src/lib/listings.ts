@@ -14,21 +14,21 @@ function mapRawToListing(rawListing: any): Listing {
       ? { name: rawListing.city, slug: { current: rawListing.city.toLowerCase().replace(/\s+/g, '-') } }
       : rawListing.city || { name: '', slug: { current: '' } },
     type: rawListing.category || rawListing.type || 'coworking',
-    address: rawListing.address_string || rawListing.address || '',
+    address: rawListing.address || '',
     shortDescription: rawListing.shortDescription || rawListing.shortDescription || '',
     longDescription: rawListing.longDescription || rawListing.longDescription || '',
-    ecoTags: (rawListing.eco_focus_tags || rawListing.ecoTags || []).map((tag: any) => 
+    ecoTags: (rawListing.ecoTags || []).map((tag: any) => 
       typeof tag === 'string' ? { _id: tag, name: tag, slug: { current: tag.toLowerCase().replace(/\s+/g, '-') }, description: '' } : tag
     ),
-    sourceUrls: rawListing.source_urls || rawListing.sourceUrls || [],
+    sourceUrls: rawListing.sourceUrls || [],
     mainImage: rawListing.primary_image_url || rawListing.mainImage || '',
     galleryImages: rawListing.gallery_image_urls || rawListing.galleryImages || [],
-    digitalNomadFeatures: rawListing.digital_nomad_features || rawListing.digitalNomadFeatures || [],
-    lastVerifiedDate: rawListing.last_verified_date || rawListing.lastVerifiedDate || '',
+    digitalNomadFeatures: rawListing.digitalNomadFeatures || [],
+    lastVerifiedDate: rawListing.lastVerifiedDate || '',
     coordinates: rawListing.coordinates || { latitude: 0, longitude: 0 },
     ecoDetails: {
-      description: rawListing.eco_notes_detailed || '',
-      ecoTags: rawListing.eco_focus_tags || [],
+      description: rawListing.ecoNotesDetailed || '',
+      ecoTags: rawListing.ecoTags || [],
       certifications: []
     }
   };

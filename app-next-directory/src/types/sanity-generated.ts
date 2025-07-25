@@ -3,15 +3,15 @@
  * This file imports the auto-generated types from the Sanity directory
  */
 
-// Import all generated types from Sanity TypeGen
-export * from '../../../sanity/sanity.types'
-
-// Re-export commonly used types with more convenient names
+// Import schema types from main Sanity directory
 export type {
+  Listing,
+  City,
+  EcoTag,
+  BlogPost,
+  Review,
+  User,
   Listing as SanityListing,
-  LISTING_BY_SLUG_QUERYResult,
-  FEATURED_LISTINGS_QUERYResult,
-  CITIES_QUERYResult,
   City as SanityCity,
   EcoTag as SanityEcoTag,
   BlogPost as SanityBlogPost,

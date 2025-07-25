@@ -1,7 +1,12 @@
 import { client } from '@/lib/sanity/client';
+import type { Listing } from '../../../../sanity/sanity.types';
+
+// Extend Listing to include computed price range
+interface FeaturedListing extends Listing {
+  priceRange?: string | null;
+}
 import { groq } from 'next-sanity';
 import { NextResponse } from 'next/server';
-import type { FEATURED_LISTINGS_QUERYResult } from '@/types/sanity-generated';
 
 export async function GET() {
   const startTime = performance.now();
@@ -49,13 +54,18 @@ export async function GET() {
         name,
         country
       },
-      price
+      "priceRange": coalesce(
+        accommodationDetails.pricePerNightThbRange,
+        cafeDetails.priceIndication,
+        restaurantDetails.priceRange,
+        string(activitiesDetails.pricePerPerson.min) + "-" + string(activitiesDetails.pricePerPerson.max)
+      )
     }`;
 
     console.log('[DEBUG] Featured Listings API: Executing GROQ query');
     const queryStartTime = performance.now();
     
-    const listings = await client.fetch<FEATURED_LISTINGS_QUERYResult>(FEATURED_LISTINGS_QUERY);
+    const listings = await client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY);
     
     const queryEndTime = performance.now();
     console.log('[DEBUG] Featured Listings API: GROQ query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');

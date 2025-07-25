@@ -104,7 +104,7 @@ export default async function CityPageRoute({ params }: CityPageParams) {
       rating,
       priceRange,
       location,
-      digital_nomad_features
+      digitalNomadFeatures
     }`;
 
       const [city, listings] = await Promise.all([

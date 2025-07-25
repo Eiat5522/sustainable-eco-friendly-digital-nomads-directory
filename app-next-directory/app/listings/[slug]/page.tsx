@@ -1,5 +1,5 @@
 import React from 'react';
-import type { EcoTag } from '../../../sanity/sanity.types';
+import type { EcoTag } from '../../../../sanity/sanity.types';
 import { getListingData } from '@/lib/sanity/data';
 import { urlFor } from '@/lib/sanity/image';
 import { notFound } from 'next/navigation';
@@ -123,10 +123,10 @@ galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : []
                 <CardTitle>Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-sm">
-                {listing.addressString && (
+                {listing.address && (
                   <div>
                     <h4 className="font-semibold">Address</h4>
-                    <p className="text-muted-foreground">{listing.addressString}</p>
+                    <p className="text-muted-foreground">{listing.address}</p>
                   </div>
                 )}
                 {listing.website && (

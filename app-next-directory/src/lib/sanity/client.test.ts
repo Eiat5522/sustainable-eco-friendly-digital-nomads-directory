@@ -194,8 +194,8 @@ describe('Sanity client module', () => {
         _id: 'listing-123',
         _type: 'listing',
         category: 'coworking', // Using 'category' as per refactoring plan
-        address: '123 Test Street', // Using 'address' instead of 'address_string'
-        ecoTags: [{ _ref: 'eco-tag-1' }], // Using 'ecoTags' instead of 'eco_focus_tags'
+        address: '123 Test Street', // camelCase naming for address
+        ecoTags: [{ _ref: 'eco-tag-1' }], // camelCase naming for eco tags
         shortDescription: 'Short description', // Split description fields
         longDescription: 'Long description',
         digitalNomadFeatures: ['wifi', 'coffee'], // camelCase naming

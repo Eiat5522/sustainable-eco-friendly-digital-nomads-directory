@@ -87,9 +87,9 @@ export interface UnifiedListing {
   slug: string;
   title: string;
   city?: string;
-  address_string?: string;
-  eco_focus_tags?: string[];
-  eco_notes_detailed?: string;
+  address?: string;
+  ecoTags?: string[];
+  ecoNotesDetailed?: string;
   // Add common properties from both Listing and SanityListing
 }
 

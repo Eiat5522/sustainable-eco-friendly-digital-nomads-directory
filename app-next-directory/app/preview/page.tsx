@@ -43,8 +43,8 @@ async function getListings(): Promise<Listing[]> {
             try {
               // Try to parse JSON fields
               if (header === 'primary_image' || header === 'gallery_images' ||
-                  header === 'coordinates' || header === 'eco_focus_tags' ||
-                  header === 'digital_nomad_features') {
+                  header === 'coordinates' || header === 'ecoTags' ||
+                  header === 'digitalNomadFeatures') {
                 record[header] = JSON.parse(value);
               } else {
                 record[header] = value;

@@ -6,8 +6,8 @@ export const mockListings = [
     city: 'Bangkok',
     category: 'coworking',
     
-    eco_focus_tags: ['solar_power', 'waste_reduction'],
-    digital_nomad_features: ['fast_wifi', 'quiet_work_zones'],
+    ecoTags: ['solar_power', 'waste_reduction'],
+    digitalNomadFeatures: ['fast_wifi', 'quiet_work_zones'],
     slug: { current: 'test-coworking-space' },
     shortDescription: 'Solar panels and waste reduction initiatives.',
   },
@@ -17,8 +17,8 @@ export const mockListings = [
     city: 'Chiang Mai',
     category: 'cafe',
     
-    eco_focus_tags: ['organic_food', 'plastic_free_initiatives'],
-    digital_nomad_features: ['reliable_wifi', 'power_outlets_abundant'],
+    ecoTags: ['organic_food', 'plastic_free_initiatives'],
+    digitalNomadFeatures: ['reliable_wifi', 'power_outlets_abundant'],
     slug: { current: 'test-eco-cafe' },
     shortDescription: 'Organic food and plastic-free initiatives.',
   },

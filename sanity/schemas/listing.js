@@ -75,7 +75,7 @@ export default defineType({
       of: [{type: 'reference', to: [{type: 'ecoTag'}]}],
     }),
     defineField({
-      name: 'eco_notes_detailed',
+      name: 'ecoNotesDetailed',
       title: 'Eco Notes Detailed',
       type: 'text',
     }),
@@ -108,7 +108,7 @@ export default defineType({
       type: 'date',
     }),
     defineField({
-      name: 'coworking_details',
+      name: 'coworkingDetails',
       title: 'Coworking Details',
       type: 'object',
       options: {
@@ -117,18 +117,18 @@ export default defineType({
       },
       fields: [
         defineField({
-          name: 'operating_hours',
+          name: 'operatingHours',
           title: 'Operating Hours',
           type: 'string',
         }),
         defineField({
-          name: 'pricing_plans',
+          name: 'pricingPlans',
           title: 'Pricing Plans',
           type: 'array',
           of: [{type: 'string'}],
         }),
         defineField({
-          name: 'specific_amenities_coworking',
+          name: 'specificAmenitiesCoworking',
           title: 'Specific Amenities (Coworking)',
           type: 'array',
           of: [{type: 'string'}],
@@ -136,7 +136,7 @@ export default defineType({
       ],
     }),
     defineField({
-      name: 'cafe_details',
+      name: 'cafeDetails',
       title: 'Cafe Details',
       type: 'object',
       options: {
@@ -145,30 +145,30 @@ export default defineType({
       },
       fields: [
         defineField({
-          name: 'operating_hours',
+          name: 'operatingHours',
           title: 'Operating Hours',
           type: 'string',
         }),
         defineField({
-          name: 'price_indication',
+          name: 'priceIndication',
           title: 'Price Indication',
           type: 'string',
         }),
         defineField({
-          name: 'menu_highlights_cafe',
+          name: 'menuHighlightsCafe',
           title: 'Menu Highlights (Cafe)',
           type: 'array',
           of: [{type: 'string'}],
         }),
         defineField({
-          name: 'wifi_reliability_notes',
+          name: 'wifiReliabilityNotes',
           title: 'WiFi Reliability Notes',
           type: 'string',
         }),
       ],
     }),
     defineField({
-      name: 'accommodation_details',
+      name: 'accommodationDetails',
       title: 'Accommodation Details',
       type: 'object',
       options: {
@@ -177,23 +177,23 @@ export default defineType({
       },
       fields: [
         defineField({
-          name: 'accommodation_type',
+          name: 'accommodationType',
           title: 'Accommodation Type',
           type: 'string',
         }),
         defineField({
-          name: 'price_per_night_thb_range',
+          name: 'pricePerNightThbRange',
           title: 'Price Per Night (THB Range)',
           type: 'string',
         }),
         defineField({
-          name: 'room_types_available',
+          name: 'roomTypesAvailable',
           title: 'Room Types Available',
           type: 'array',
           of: [{type: 'string'}],
         }),
         defineField({
-          name: 'specific_amenities_accommodation',
+          name: 'specificAmenitiesAccommodation',
           title: 'Specific Amenities (Accommodation)',
           type: 'array',
           of: [{type: 'string'}],

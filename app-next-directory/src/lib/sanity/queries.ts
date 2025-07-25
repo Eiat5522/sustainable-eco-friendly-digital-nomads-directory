@@ -11,13 +11,28 @@ const listingFields = `
     "lat": location.lat,
     "lng": location.lng
   },
-  "city": city->title,
-  "primaryImage": primaryImage {
+  "city": city->{
+    _id,
+    title,
+    "slug": slug.current,
+    country
+  },
+  primaryImage {
     asset->
   },
-  "ecoTags": eco_focus_tags[]->name,
-  "digital_nomad_features": digital_nomad_features[]->name,
-  last_verified_date
+  "ecoTags": ecoTags[]->{
+    _id,
+    name,
+    "slug": slug.current
+  },
+  "digitalNomadFeatures": digitalNomadFeatures[]->{
+    _id,
+    name,
+    "slug": slug.current
+  },
+  lastVerifiedDate,
+  priceRange,
+  website
 `;
 
 async function getAllListings(preview = false) {
@@ -36,18 +51,19 @@ async function getListingBySlug(slug: string, preview = false) {
   const query = `*[_type == "listing" && slug.current == $slug][0] {
     ${listingFields},
     descriptionLong,
-    galleryImages,
-    website,
-    addressString,
+    galleryImages[]{
+      asset->
+    },
+    address,
     openingHours,
     contactInfo,
-    shortDescription,
     sourceUrls,
     "reviews": *[_type == "review" && references(^._id)]{
       _id,
       rating,
       comment,
-      author->{name}
+      author->{name},
+      _createdAt
     },
     ...select(
       category == 'coworking' => {
@@ -92,7 +108,7 @@ async function getListingsByCategory(category: string, preview = false) {
 async function getListingsByCity(cityName: string, preview = false) {
   const sanityClient = client;
 
-  const query = `*[_type == "listing" && moderation.status == "published" && city->name == $cityName] {
+  const query = `*[_type == "listing" && moderation.status == "published" && city->title == $cityName] {
     ${listingFields}
   }`;
 
@@ -189,7 +205,7 @@ async function getFeaturedListings(preview = false) {
 }
 
 async function getRelatedListings(listingId: string, category: string, cityName: string, limit = 3) {
-  const query = `*[_type == "listing" && moderation.status == "published" && _id != $listingId && (category == $category || city->name == $cityName)][0...${limit}]{
+  const query = `*[_type == "listing" && moderation.status == "published" && _id != $listingId && (category == $category || city->title == $cityName)][0...${limit}]{
     ${listingFields}
   }`;
 

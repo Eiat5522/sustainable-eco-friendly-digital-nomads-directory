@@ -290,7 +290,7 @@
               },
               "optional": true
             },
-            "eco_tags": {
+            "ecoTags": {
               "type": "objectAttribute",
               "value": {
                 "type": "number"
@@ -4520,7 +4520,7 @@
         },
         "optional": true
       },
-      "category": {
+      "type": {
         "type": "objectAttribute",
         "value": {
           "type": "union",
@@ -4549,7 +4549,7 @@
         },
         "optional": true
       },
-      "address_string": {
+      "address": {
         "type": "objectAttribute",
         "value": {
           "type": "string"
@@ -4564,21 +4564,21 @@
         },
         "optional": true
       },
-      "description_short": {
+      "shortDescription": {
         "type": "objectAttribute",
         "value": {
           "type": "string"
         },
         "optional": true
       },
-      "description_long": {
+      "longDescription": {
         "type": "objectAttribute",
         "value": {
           "type": "string"
         },
         "optional": true
       },
-      "eco_focus_tags": {
+      "ecoTags": {
         "type": "objectAttribute",
         "value": {
           "type": "array",
@@ -4622,54 +4622,10 @@
         },
         "optional": true
       },
-      "eco_notes_detailed": {
+      "ecoNotesDetailed": {
         "type": "objectAttribute",
         "value": {
           "type": "string"
-        },
-        "optional": true
-      },
-      "source_urls": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "array",
-          "of": {
-            "type": "string"
-          }
-        },
-        "optional": true
-      },
-      "address": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "descriptionShort": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "digitalNomadFeatures": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "array",
-          "of": {
-            "type": "string"
-          }
-        },
-        "optional": true
-      },
-      "ecoFocusTags": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "array",
-          "of": {
-            "type": "string"
-          }
         },
         "optional": true
       },
@@ -4683,14 +4639,7 @@
         },
         "optional": true
       },
-      "status": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "string"
-        },
-        "optional": true
-      },
-      "primaryImage": {
+      "mainImage": {
         "type": "objectAttribute",
         "value": {
           "type": "object",
@@ -4870,7 +4819,7 @@
         },
         "optional": true
       },
-      "digital_nomad_features": {
+      "digitalNomadFeatures": {
         "type": "objectAttribute",
         "value": {
           "type": "array",
@@ -4880,26 +4829,26 @@
         },
         "optional": true
       },
-      "last_verified_date": {
+      "lastVerifiedDate": {
         "type": "objectAttribute",
         "value": {
           "type": "string"
         },
         "optional": true
       },
-      "coworking_details": {
+      "coworkingDetails": {
         "type": "objectAttribute",
         "value": {
           "type": "object",
           "attributes": {
-            "operating_hours": {
+            "operatingHours": {
               "type": "objectAttribute",
               "value": {
                 "type": "string"
               },
               "optional": true
             },
-            "pricing_plans": {
+            "pricingPlans": {
               "type": "objectAttribute",
               "value": {
                 "type": "array",
@@ -4909,7 +4858,7 @@
               },
               "optional": true
             },
-            "specific_amenities_coworking": {
+            "specificAmenitiesCoworking": {
               "type": "objectAttribute",
               "value": {
                 "type": "array",
@@ -4923,26 +4872,26 @@
         },
         "optional": true
       },
-      "cafe_details": {
+      "cafeDetails": {
         "type": "objectAttribute",
         "value": {
           "type": "object",
           "attributes": {
-            "operating_hours": {
+            "operatingHours": {
               "type": "objectAttribute",
               "value": {
                 "type": "string"
               },
               "optional": true
             },
-            "price_indication": {
+            "priceIndication": {
               "type": "objectAttribute",
               "value": {
                 "type": "string"
               },
               "optional": true
             },
-            "menu_highlights_cafe": {
+            "menuHighlightsCafe": {
               "type": "objectAttribute",
               "value": {
                 "type": "array",
@@ -4952,7 +4901,7 @@
               },
               "optional": true
             },
-            "wifi_reliability_notes": {
+            "wifiReliabilityNotes": {
               "type": "objectAttribute",
               "value": {
                 "type": "string"
@@ -4963,26 +4912,26 @@
         },
         "optional": true
       },
-      "accommodation_details": {
+      "accommodationDetails": {
         "type": "objectAttribute",
         "value": {
           "type": "object",
           "attributes": {
-            "accommodation_type": {
+            "accommodationType": {
               "type": "objectAttribute",
               "value": {
                 "type": "string"
               },
               "optional": true
             },
-            "price_per_night_thb_range": {
+            "pricePerNightThbRange": {
               "type": "objectAttribute",
               "value": {
                 "type": "string"
               },
               "optional": true
             },
-            "room_types_available": {
+            "roomTypesAvailable": {
               "type": "objectAttribute",
               "value": {
                 "type": "array",
@@ -4992,7 +4941,7 @@
               },
               "optional": true
             },
-            "specific_amenities_accommodation": {
+            "specificAmenitiesAccommodation": {
               "type": "objectAttribute",
               "value": {
                 "type": "array",
@@ -5199,6 +5148,80 @@
           }
         },
         "optional": true
+      },
+      "ecoDetails": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "object",
+          "attributes": {
+            "description": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "string"
+              },
+              "optional": true
+            },
+            "ecoTags": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "array",
+                "of": {
+                  "type": "string"
+                }
+              },
+              "optional": true
+            },
+            "certifications": {
+              "type": "objectAttribute",
+              "value": {
+                "type": "array",
+                "of": {
+                  "type": "string"
+                }
+              },
+              "optional": true
+            }
+          }
+        },
+        "optional": true
+      },
+      "moderationStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "pending"
+            },
+            {
+              "type": "string",
+              "value": "approved"
+            },
+            {
+              "type": "string",
+              "value": "rejected"
+            }
+          ]
+        },
+        "optional": true
+      },
+      "verificationStatus": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "unverified"
+            },
+            {
+              "type": "string",
+              "value": "verified"
+            }
+          ]
+        },
+        "optional": true
       }
     }
   },
@@ -5237,7 +5260,7 @@
           "type": "string"
         }
       },
-      "title": {
+      "name": {
         "type": "objectAttribute",
         "value": {
           "type": "string"

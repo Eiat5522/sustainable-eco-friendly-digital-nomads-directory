@@ -229,8 +229,8 @@ describe('updateListingsWithCoordinates', () => {
 
   it('updates listings with missing coordinates', async () => {
     const listings = [
-      { name: 'A', address_string: 'Landmark A', city: 'Bangkok', coordinates: { latitude: null, longitude: null } },
-      { name: 'B', address_string: 'Somewhere', city: 'Bangkok', coordinates: { latitude: 1, longitude: 2 } },
+      { name: 'A', address: 'Landmark A', city: 'Bangkok', coordinates: { latitude: null, longitude: null } },
+      { name: 'B', address: 'Somewhere', city: 'Bangkok', coordinates: { latitude: 1, longitude: 2 } },
     ];
     // Mock readFile to only resolve for the expected path
     // Move all mocking and requiring inside the test to ensure correct order
