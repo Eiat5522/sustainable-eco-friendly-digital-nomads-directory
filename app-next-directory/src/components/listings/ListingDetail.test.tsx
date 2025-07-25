@@ -68,10 +68,10 @@ const mockListing = {
     { _key: 'img6', asset: { _ref: '/test-image6.jpg' } }
   ],
   mainImage: { asset: { _ref: '/test-image1.jpg' } },
-  city: { _id: 'city1', name: 'New York', country: 'USA', slug: 'new-york', listingCount: 100 },
+  city: { _id: 'city1', name: 'New York', country: 'USA', slug: { current: 'new-york' }, listingCount: 100 },
   type: 'accommodation',
   amenities: ['WiFi', 'Parking'],
-  ecoTags: ['Solar Power'],
+  ecoTags: [{ _id: 'tag1', name: 'Solar Power', description: '', icon: '', slug: { current: 'solar-power' } }],
   website: 'https://example.com',
   email: 'owner@example.com',
   phone: '+1234567890',
@@ -84,23 +84,24 @@ const mockListing = {
 const mockListingWithoutCoords = {
   ...mockListing,
   location: undefined,
-  city: { _id: 'city2', name: 'NoCoords City', country: 'USA', slug: 'no-coords-city', listingCount: 0 },
+  city: { _id: 'city2', name: 'NoCoords City', country: 'USA', slug: { current: 'no-coords-city' }, listingCount: 0 },
 };
 
 const mockListingWithoutImages = {
   ...mockListing,
   galleryImages: undefined,
   mainImage: undefined,
-  city: { _id: 'city3', name: 'NoImages City', country: 'USA', slug: 'no-images-city', listingCount: 0 },
+  city: { _id: 'city3', name: 'NoImages City', country: 'USA', slug: { current: 'no-images-city' }, listingCount: 0 },
 };
 
 const mockListingWithoutReviews = {
   ...mockListing,
   reviews: undefined,
-  city: { _id: 'city4', name: 'NoReviews City', country: 'USA', slug: 'no-reviews-city', listingCount: 0 },
+  city: { _id: 'city4', name: 'NoReviews City', country: 'USA', slug: { current: 'no-reviews-city' }, listingCount: 0 },
 };
 
 const mockListingMinimal = {
+  _id: 'minimal-listing-id',
   name: 'Minimal Listing',
   shortDescription: undefined,
   longDescription: undefined,
@@ -108,10 +109,10 @@ const mockListingMinimal = {
   location: undefined,
   galleryImages: undefined,
   mainImage: undefined,
-  city: { _id: 'city5', name: 'Minimal City', country: 'USA', slug: 'minimal-city', listingCount: 0 },
+  city: { _id: 'city5', name: 'Minimal City', country: 'USA', slug: { current: 'minimal-city' }, listingCount: 0 },
   type: undefined,
   amenities: undefined,
-  ecoTags: undefined,
+  ecoTags: undefined, // EcoTag[] type, so undefined is valid for missing tags
   website: undefined,
   email: undefined,
   phone: undefined,
@@ -491,7 +492,7 @@ describe('ListingDetail', () => {
     const emptyListing = {
       ...mockListing,
       amenities: [],
-      ecoTags: [],
+      ecoTags: [], // EcoTag[] type, empty array is valid
       reviews: [],
     };
     

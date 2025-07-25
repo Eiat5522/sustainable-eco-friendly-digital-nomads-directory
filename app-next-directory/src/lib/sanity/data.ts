@@ -25,7 +25,7 @@ const LISTING_BY_SLUG_QUERY = groq`
     ecoTags,
     digital_nomad_features,
     last_verified_date,
-    reviews,
+    reviews[]->,
     addressString,
     website,
     contactInfo,

@@ -8,7 +8,7 @@
   "private": true,
   "description": "Root package for the Sustainable Eco-Friendly Digital Nomads Directory project",
   "scripts": {
-    "test": "pnpm --filter app-next-directory test",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "dev:next": "pnpm --filter app-next-directory dev",
     "dev:sanity": "pnpm --filter sanity dev",
     "dev": "pnpm dev:next",
@@ -21,7 +21,6 @@
     "lint:next": "pnpm --filter app-next-directory lint",
     "lint:sanity": "pnpm --filter sanity lint",
     "lint": "pnpm lint:next",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "test:watch": "pnpm --filter app-next-directory test:watch",
     "test:coverage": "pnpm --filter app-next-directory test:coverage",
     "test:ci": "pnpm --filter app-next-directory test:ci",
@@ -49,9 +48,12 @@
     "@swc/jest": "^0.2.39",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react-hooks": "^8.0.1",
+    "@types/jest": "^30.0.0",
     "cross-fetch": "^4.1.0",
     "eslint": "^9.29.0",
     "eslint-config-next": "^15.3.4",
-    "jest-mock-extended": "^4.0.0"
+    "jest": "^30.0.4",
+    "jest-mock-extended": "^4.0.0",
+    "ts-jest": "^29.4.0"
   }
 }

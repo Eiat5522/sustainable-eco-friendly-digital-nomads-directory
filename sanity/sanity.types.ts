@@ -730,87 +730,24 @@ export type Listing = {
   _rev: string
   name?: string
   slug?: Slug
-  city?: {
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    [internalGroqTypeReferenceTo]?: 'city'
-  }
-  category?: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities'
-  address_string?: string
+  city?: City
+  type?: 'accommodation' | 'activities' | 'cafe' | 'coworking' | 'restaurant'
+  addressString?: string
   location?: Geopoint
-  description_short?: string
-  description_long?: string
-  eco_focus_tags?: Array<{
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    _key: string
-    [internalGroqTypeReferenceTo]?: 'ecoTag'
-  }>
-  eco_notes_detailed?: string
-  source_urls?: Array<string>
-  address?: string
-  descriptionShort?: string
-  digitalNomadFeatures?: Array<string>
-  ecoFocusTags?: Array<string>
-  sourceUrls?: Array<string>
-  status?: string
-  primaryImage?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    alt?: string
-    caption?: string
-    _type: 'image'
-  }
-  galleryImages?: Array<{
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    alt?: string
-    caption?: string
-    _type: 'image'
-    _key: string
-  }>
-  digital_nomad_features?: Array<string>
-  last_verified_date?: string
-  coworking_details?: {
-    operating_hours?: string
-    pricing_plans?: Array<string>
-    specific_amenities_coworking?: Array<string>
-  }
-  cafe_details?: {
-    operating_hours?: string
-    price_indication?: string
-    menu_highlights_cafe?: Array<string>
-    wifi_reliability_notes?: string
-  }
-  accommodation_details?: {
-    accommodation_type?: string
-    price_per_night_thb_range?: string
-    room_types_available?: Array<string>
-    specific_amenities_accommodation?: Array<string>
-  }
-  reviews?: Array<{
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    _key: string
-    [internalGroqTypeReferenceTo]?: 'review'
-  }>
+  shortDescription?: string
+  longDescription?: string
+  ecoTags?: EcoTag[]
+  digitalNomadFeatures?: string[]
+  lastVerifiedDate?: string
+  sourceUrls?: string[]
+  primaryImage?: mainImage
+  galleryImages?: galleryImages[]
+  reviews?: Review[]
+  website?: string
+  contactInfo?: string
+  openingHours?: string
+  rating?: number
+  priceRange?: string
   moderation?: {
     status?: 'draft' | 'pending' | 'published' | 'archived' | 'flagged'
     featured?: boolean
@@ -818,18 +755,13 @@ export type Listing = {
     moderatorNotes?: string
   }
   searchMetadata?: {
-    keywords?: Array<string>
+    keywords?: string[]
     boost?: number
     searchExcerpt?: string
-    similarListings?: Array<{
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      _key: string
-      [internalGroqTypeReferenceTo]?: 'listing'
-    }>
+    similarListings?: Listing[]
   }
 }
+
 
 export type City = {
   _id: string
@@ -1156,34 +1088,10 @@ export type FEATURED_LISTINGS_QUERYResult = Array<{
   _id: string
   name: string | null
   slug: string | null
-  primaryImage: {
-    alt: string | null
-    asset: {
-      _id: string
-      url: string | null
-      metadata: {
-        dimensions: SanityImageDimensions | null
-        lqip: string | null
-      } | null
-    } | null
-  } | null
-  galleryImages: {
-    alt: string | null
-    asset: {
-      _id: string
-      url: string | null
-      metadata: {
-        dimensions: SanityImageDimensions | null
-        lqip: string | null
-      } | null
-    } | null
-  } | null
-  location: {
-    _id: string
-    name: null
-    country: string | null
-  } | null
-  price: null
+  primaryImage: GalleryImage | null
+  galleryImages: GalleryImage[] | null
+  city: City | null
+  priceRange: string | null
 }>
 
 // Source: ../app-next-directory/src/lib/sanity/data.ts
@@ -1196,82 +1104,25 @@ export type LISTING_BY_SLUG_QUERYResult = {
   _updatedAt: string
   _rev: string
   name: string | null
-  slug: string | null
-  description_short: string | null
-  description_long: string | null
-  category: 'accommodation' | 'activities' | 'cafe' | 'coworking' | 'restaurant' | null
-  city: {
-    _id: string
-    title: string | null
-    slug: string | null
-  } | null
-  location: {
-    lat: number | null
-    lng: number | null
-  } | null
-  primaryImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    alt?: string
-    caption?: string
-    _type: 'image'
-  } | null
-  ecoTags: null
-  digital_nomad_features: Array<string> | null
-  last_verified_date: string | null
-  reviews: Array<{
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    _key: string
-    [internalGroqTypeReferenceTo]?: 'review'
-  }> | null
-  addressString: null
-  website: null
-  contactInfo: null
-  openingHours: null
-  shortDescription: null
-  sourceUrls: Array<string> | null
-  rating: null
-  priceRange: null
-  galleryImages: Array<{
-    asset: {
-      _id: string
-      _type: 'sanity.imageAsset'
-      _createdAt: string
-      _updatedAt: string
-      _rev: string
-      originalFilename?: string
-      label?: string
-      title?: string
-      description?: string
-      altText?: string
-      sha1hash?: string
-      extension?: string
-      mimeType?: string
-      size?: number
-      assetId?: string
-      uploadId?: string
-      path?: string
-      url?: string
-      metadata?: SanityImageMetadata
-      source?: SanityAssetSourceData
-    } | null
-    media?: unknown
-    hotspot?: SanityImageHotspot
-    crop?: SanityImageCrop
-    alt?: string
-    caption?: string
-    _type: 'image'
-    _key: string
-  }> | null
+  slug: Slug | null
+  shortDescription: string | null
+  longDescription: string | null
+  type: 'accommodation' | 'activities' | 'cafe' | 'coworking' | 'restaurant' | null
+  city: City | null
+  location: Geopoint | null
+  primaryImage: GalleryImage | null
+  ecoTags: EcoTag[] | null
+  digitalNomadFeatures: string[] | null
+  lastVerifiedDate: string | null
+  reviews: Review[] | null
+  addressString: string | null
+  website: string | null
+  contactInfo: string | null
+  openingHours: string | null
+  sourceUrls: string[] | null
+  rating: number | null
+  priceRange: string | null
+  galleryImages: GalleryImage[] | null
 } | null
 
 // Query TypeMap
@@ -1282,7 +1133,7 @@ declare module '@sanity/client' {
     '\n  *[_type == "blogPost" && defined(slug)] | order(publishedAt desc) [$start...$end] {\n    _id,\n    title,\n    slug,\n    mainImage,\n    publishedAt,\n    excerpt,\n    tags,\n    "authorName": author->name,\n    "authorImage": author->image,\n    "readingTime": round(length(pt::text(body)) / 200),\n    _updatedAt\n  }\n': PostsQueryResult
     'count(*[_type == "blogPost" && defined(slug)])': CountQueryResult
     '*[_type == "city"] | order(_createdAt desc)[0...20] {\n      _id,\n      title,\n      "slug": slug.current,\n      country,\n      sustainabilityScore,\n      "mainImage": mainImage {\n        alt,\n        "asset": asset->{\n          _id,\n          url,\n          metadata {\n            dimensions,\n            lqip\n          }\n        }\n      }\n    }': CITIES_QUERYResult
-    '*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {\n      _id,\n      name,\n      "slug": slug.current,\n      "primaryImage": primaryImage{\n        alt,\n        "asset": asset->{\n          _id,\n          url,\n          metadata {\n            dimensions,\n            lqip\n          }\n        }\n      },\n      "galleryImages": galleryImages[0]{\n        alt,\n        "asset": asset->{\n          _id,\n          url,\n          metadata {\n            dimensions,\n            lqip\n          }\n        }\n      },\n      "location": city->{\n        _id,\n        name,\n        country\n      },\n      price\n    }': FEATURED_LISTINGS_QUERYResult
-    '\n  *[_type == "listing" && slug.current == $slug][0] {\n    _id,\n    _type,\n    _createdAt,\n    _updatedAt,\n    _rev,\n    name,\n    "slug": slug.current,\n    description_short,\n    description_long,\n    category,\n    city->{\n      _id,\n      title,\n      "slug": slug.current\n    },\n    location { lat, lng },\n    primaryImage,\n    ecoTags,\n    digital_nomad_features,\n    last_verified_date,\n    reviews,\n    addressString,\n    website,\n    contactInfo,\n    openingHours,\n    shortDescription,\n    sourceUrls,\n    rating,\n    priceRange,\n    galleryImages[]{\n      ...,\n      asset->\n    }\n  }\n': LISTING_BY_SLUG_QUERYResult
+    '*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {\n      _id,\n      name,\n      "slug": slug.current,\n      primaryImage,\n      galleryImages,\n      city->{\n        _id,\n        title,\n        slug,\n        country,\n        description,\n        sustainabilityScore,\n        highlights,\n        mainImage\n      },\n      priceRange\n    }': FEATURED_LISTINGS_QUERYResult
+    '\n  *[_type == "listing" && slug.current == $slug][0] {\n    _id,\n    _type,\n    _createdAt,\n    _updatedAt,\n    _rev,\n    name,\n    "slug": slug.current,\n    shortDescription,\n    longDescription,\n    type,\n    city->{\n      _id,\n      title,\n      slug,\n      country,\n      description,\n      sustainabilityScore,\n      highlights,\n      mainImage\n    },\n    location,\n    primaryImage,\n    ecoTags,\n    digitalNomadFeatures,\n    lastVerifiedDate,\n    reviews,\n    addressString,\n    website,\n    contactInfo,\n    openingHours,\n    sourceUrls,\n    rating,\n    priceRange,\n    galleryImages\n  }\n': LISTING_BY_SLUG_QUERYResult
   }
 }

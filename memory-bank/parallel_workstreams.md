@@ -531,3 +531,55 @@ That will remove the “never” type entirely and let you access `.current` wit
 
 > Mark each item as `[I]` before executing the actual task. Do not start the tasks, if this field is not yet marked.
 > Mark each item as `[x]` when completed. Only move to the next item after marking the previous as complete.
+
+## 🧹 WORKSTREAM G: Legacy Types & Schema Normalization (IN PROGRESS)
+
+**Lead Developer: Full-stack/TypeScript-focused**
+**Estimated Time: 4-6 hours**
+**Dependencies: None (can start immediately)**
+**Status: IN PROGRESS July 25, 2025**
+
+### G: Legacy Cleanup & Normalization Tasks
+
+- [I] **G.1 Audit All Legacy Types, Schemas, and Queries**
+  - Identify all legacy field names, types, and query keys in the codebase (e.g., description_short, category, digital_nomad_features, last_verified_date, etc.)
+  - List all files/components affected
+
+- [ ] **G.2 Normalize Type Definitions**
+  - Update all type definitions in `sanity.types.ts` and related files to use normalized names and types (e.g., shortDescription, type, digitalNomadFeatures, lastVerifiedDate)
+  - Remove legacy type aliases and interfaces
+
+- [ ] **G.3 Refactor All Queries**
+  - Update all GROQ and TypeScript queries to use normalized field names and types
+  - Refactor query result types to match normalized structure
+
+- [ ] **G.4 Update All Usages in Codebase**
+  - Refactor all frontend and backend code to use normalized types and field names
+  - Update all components, API routes, and utility functions
+
+- [ ] **G.5 Remove Remaining Legacy References**
+  - Search for and remove any remaining legacy field references, type aliases, or query fragments
+
+- [ ] **G.6 Update Test Mocks and Fixtures**
+  - Update all test mocks and fixtures to match normalized types and fields
+
+- [ ] **G.7 Rerun Type Checks and Tests**
+  - Run TypeScript compiler and all tests to confirm error-free status
+  - Fix any remaining type errors or test failures
+
+- [ ] **G.8 Final Validation**
+  - Confirm all components, types, queries, and tests use only normalized structure
+  - Document changes and update technical documentation
+
+---
+
+### Audit Tasks Progress Tracking
+
+> Mark each item as `[I]` before executing the actual task. Mark as `[x]` when completed. Only move to the next item after marking the previous as complete.
+
+- [x] **G.1 Audit All Legacy Types, Schemas, and Queries**
+  - Legacy Listing Fields: description_short, description_long, category, digital_nomad_features, last_verified_date, address_string, eco_focus_tags, source_urls, galleryImages (legacy), reviews (legacy), city (legacy), slug (legacy), priceRange (legacy)
+  - Affected files/components: sanity.types.ts, src/lib/sanity/data.ts, src/app/listings/[slug]/page.tsx, src/components/listings/ListingDetail.tsx, src/components/listings/ListingGrid.tsx, src/components/home/FeaturedListings.tsx, src/tests/helpers/test-data.ts, src/utils/mapSanityListingToListing.ts, and any other components or API routes referencing legacy fields
+- [I] **G.2 Normalize Type Definitions**
+  - Update all type definitions in `sanity.types.ts` and related files to use normalized names and types (e.g., shortDescription, type, digitalNomadFeatures, lastVerifiedDate)
+  - Remove legacy type aliases and interfaces

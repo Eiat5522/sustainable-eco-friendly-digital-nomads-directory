@@ -1,54 +1,47 @@
 // Mock global.fetch for NextAuth.js session requests
 if (!global.fetch) {
-  (global as any).fetch = jest.fn(
-    () => Promise.resolve(new Response(
+  global.fetch = function () {
+    return Promise.resolve(new global.Response(
       JSON.stringify({ user: { name: 'Test User', email: 'test@example.com' } }),
       {
         status: 200,
         statusText: 'OK',
         headers: { 'Content-Type': 'application/json' }
       }
-    ))
-  );
+    ));
+  };
 }
 
 // Existing setup below
-import { TextEncoder, TextDecoder } from 'util';
+const { TextEncoder, TextDecoder } = require('util');
 
 // Global Response mock for Next.js API routes
 global.Response = class Response {
-  status: number;
-  statusText: string;
-  headers: Headers;
-  body: any;
-
-  constructor(body?: BodyInit | null, init?: ResponseInit) {
-    this.status = init?.status || 200;
-    this.statusText = init?.statusText || 'OK';
-    this.headers = new Headers(init?.headers);
+  constructor(body, init) {
+    this.status = (init && init.status) || 200;
+    this.statusText = (init && init.statusText) || 'OK';
+    this.headers = new Headers(init && init.headers);
     this.body = body;
   }
 
-  static json(data: any, init?: ResponseInit) {
+  static json(data, init) {
     return new Response(JSON.stringify(data), {
-      ...init,
+      ...(init || {}),
       headers: {
         'Content-Type': 'application/json',
-        ...init?.headers,
+        ...(init && init.headers ? init.headers : {}),
       },
     });
   }
-
   json() {
     return Promise.resolve(JSON.parse(this.body));
   }
-} as any;
+}
 
 // Mock Headers for global Response
 global.Headers = class Headers {
-  private headers: Record<string, string> = {};
-
-  constructor(init?: HeadersInit) {
+  constructor(init) {
+    this.headers = {};
     if (init) {
       if (Array.isArray(init)) {
         init.forEach(([key, value]) => this.headers[key] = value);
@@ -60,14 +53,14 @@ global.Headers = class Headers {
     }
   }
 
-  set(name: string, value: string) {
+  set(name, value) {
     this.headers[name] = value;
   }
 
-  get(name: string) {
+  get(name) {
     return this.headers[name];
   }
-} as any;
+}
 
 // Mock next/server globally for all tests  
 jest.mock('next/server', () => ({

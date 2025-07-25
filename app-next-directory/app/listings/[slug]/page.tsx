@@ -55,7 +55,9 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
         <ListingDetail listing={{
           ...listing,
           name: listing.name ?? '',
-          slug: listing.slug ?? undefined,
+          slug: typeof listing.slug === 'string'
+  ? { current: listing.slug }
+  : listing.slug ?? undefined,
           shortDescription: listing.shortDescription ?? undefined,
           longDescription: listing.description_long ?? undefined,
           type: listing.category ?? undefined,
@@ -73,13 +75,14 @@ galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : []
                 name: listing.city.title ?? '',
                 slug: listing.city && listing.city.slug
                   ? typeof listing.city.slug === 'string'
-                    ? listing.city.slug
-                    : listing.city.slug ?? ''
-                  : '',
+                    ? { current: listing.city.slug }
+                    : listing.city.slug
+                  : { current: '' },
                 listingCount: 0,
                 country: ''
               }
-            : undefined
+            : undefined,
+          reviews: Array.isArray(listing.reviews) ? listing.reviews : [],
         }} />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
