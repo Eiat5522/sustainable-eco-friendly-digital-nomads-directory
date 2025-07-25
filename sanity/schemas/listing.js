@@ -86,8 +86,8 @@ export default defineType({
       of: [{type: 'url'}],
     }),
     defineField({
-      name: 'mainImage',
-      title: 'Main Image',
+      name: 'primaryImage',
+      title: 'Primary Image',
       ...imageWithAlt
     }),
     defineField({

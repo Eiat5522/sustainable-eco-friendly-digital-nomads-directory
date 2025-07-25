@@ -76,7 +76,7 @@ describe('Sanity Generated Types', () => {
         _createdAt: '2025-01-01T00:00:00Z',
         _updatedAt: '2025-01-01T00:00:00Z',
         _rev: 'city-rev',
-        title: 'Bangkok',
+        name: 'Bangkok',
         slug: { _type: 'slug', current: 'bangkok' },
         country: 'Thailand',
         description: 'City description',
@@ -86,7 +86,7 @@ describe('Sanity Generated Types', () => {
 
       expect(mockCity._id).toBe('city-id');
       expect(mockCity._type).toBe('city');
-      expect(mockCity.title).toBe('Bangkok');
+      expect(mockCity.name).toBe('Bangkok');
       expect(mockCity.country).toBe('Thailand');
       expect(mockCity.sustainabilityScore).toBe(85);
     });

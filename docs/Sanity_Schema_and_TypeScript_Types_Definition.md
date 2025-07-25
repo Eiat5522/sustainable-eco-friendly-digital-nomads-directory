@@ -39,6 +39,7 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 ### Key Field Name Changes
 
 #### Core Listing Schema (`listing.js`)
+
 - `eco_notes_detailed` → `ecoNotesDetailed`
 - `coworking_details` → `coworkingDetails`
 - `cafe_details` → `cafeDetails`
@@ -47,6 +48,7 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 - `eco_details` → `ecoDetails`
 
 #### Accommodation Details (`accommodationDetails.js`)
+
 - `accommodation_type` → `accommodationType`
 - `price_range_thb` → `priceRangeThb`
 - `room_types_available` → `roomTypesAvailable`
@@ -56,6 +58,7 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 - `stay_duration` → `stayDuration`
 
 #### Activity Details (`activitiesDetails.js`)
+
 - `activity_type` → `activityType`
 - `price_per_person` → `pricePerPerson`
 - `group_size` → `groupSize`
@@ -64,6 +67,7 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 - `eco_score` → `ecoScore`
 
 #### Cafe Details (`cafeDetails.js`)
+
 - `operating_hours` → `operatingHours`
 - `price_indication` → `priceIndication`
 - `menu_highlights` → `menuHighlights`
@@ -75,6 +79,7 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 - `vegan_friendly` → `veganFriendly`
 
 #### Restaurant Details (`restaurantDetails.js`)
+
 - `cuisine_type` → `cuisineType`
 - `price_range` → `priceRange`
 - `operating_hours` → `operatingHours`
@@ -88,10 +93,12 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 ### Document Schemas
 
 #### 1. Listing Document
+
 **Type:** `listing`
 **Purpose:** Main content type for all sustainable venues and services
 
 **Key Fields:**
+
 ```javascript
 {
   name: string
@@ -123,10 +130,12 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 ```
 
 #### 2. City Document
+
 **Type:** `city`
 **Purpose:** City information for location-based filtering
 
 **Key Fields:**
+
 ```javascript
 {
   name: string
@@ -140,10 +149,12 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 ```
 
 #### 3. User Document
+
 **Type:** `user`
 **Purpose:** User profiles and authentication
 
 **Key Fields:**
+
 ```javascript
 {
   name: string
@@ -161,10 +172,12 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 ### Object Schemas
 
 #### 1. Accommodation Details
+
 **Type:** `accommodationDetails`
 **Purpose:** Detailed accommodation information
 
 **Key Fields:**
+
 ```javascript
 {
   accommodationType: string
@@ -178,10 +191,12 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 ```
 
 #### 2. Activity Details
+
 **Type:** `activitiesDetails`
 **Purpose:** Activity and experience information
 
 **Key Fields:**
+
 ```javascript
 {
   activityType: string
@@ -198,10 +213,12 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 ```
 
 #### 3. Cafe Details
+
 **Type:** `cafeDetails`
 **Purpose:** Cafe-specific information
 
 **Key Fields:**
+
 ```javascript
 {
   operatingHours: array<object>
@@ -217,10 +234,12 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 ```
 
 #### 4. Restaurant Details
+
 **Type:** `restaurantDetails`
 **Purpose:** Restaurant-specific information
 
 **Key Fields:**
+
 ```javascript
 {
   cuisineType: array<string>
@@ -237,10 +256,12 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
 ## TypeScript Type Generation
 
 ### Generated Types Location
+
 - **Sanity Types:** `sanity/sanity.types.ts`
 - **App Types:** `app-next-directory/src/types/sanity-generated.ts`
 
 ### Type Generation Command
+
 ```bash
 # Generate Sanity types
 npx sanity typegen generate
@@ -250,6 +271,7 @@ npx sanity typegen generate --out-dir=../app-next-directory/src/types/
 ```
 
 ### Example Generated Types
+
 ```typescript
 export interface Listing extends SanityDocument {
   _type: 'listing'
@@ -311,17 +333,22 @@ export interface AccommodationDetails {
 ## Testing and Validation
 
 ### Schema Validation
+
 All schemas include comprehensive validation rules:
+
 - Required fields validation
 - Min/max value constraints
 - Format validation (email, URL, etc.)
 - Custom validation logic
 
 ### Type Testing
+
 TypeScript types are tested in:
+
 - `app-next-directory/src/tests/sanity-generated-types.test.ts`
 
 ### Example Test Cases
+
 ```typescript
 describe('Sanity Generated Types', () => {
   it('should have proper Listing type structure', () => {
@@ -345,17 +372,20 @@ describe('Sanity Generated Types', () => {
 ## Migration Impact
 
 ### Benefits Achieved
+
 1. **Consistency:** All field names now use camelCase
 2. **Developer Experience:** Improved IntelliSense and type safety
 3. **Maintainability:** Easier to read and understand
 4. **Standards Compliance:** Follows JavaScript/TypeScript conventions
 
 ### Breaking Changes
+
 - All API responses will now use camelCase field names
 - Frontend components need to be updated to use new field names
 - Database queries (GROQ) need to be updated
 
 ### Migration Checklist
+
 - ✅ Schema files refactored
 - ⚠️ Update TypeScript types (run `npx sanity typegen generate`)
 - ⚠️ Update frontend components

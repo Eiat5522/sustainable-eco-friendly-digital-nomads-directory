@@ -22,7 +22,7 @@ const LISTING_BY_SLUG_QUERY = groq`
     },
     location { lat, lng },
     primaryImage,
-    ecoTags,
+    ecoTags[]->,
     digitalNomadFeatures,
     lastVerifiedDate,
     reviews[]->,

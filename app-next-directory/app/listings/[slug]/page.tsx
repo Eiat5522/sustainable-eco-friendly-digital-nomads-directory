@@ -37,7 +37,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                 ? listing.city.slug
                 : listing.city.slug?.current ?? ''}
             `} className="text-lg text-muted-foreground hover:text-primary">
-              {listing.city.title ?? ''}
+              {<listing className="city title"></listing> ?? ''}
             </Link>
           )}
         </div>
@@ -62,12 +62,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           shortDescription: listing.shortDescription ?? undefined,
           longDescription: listing.longDescription ?? undefined,
           type: listing.type ?? undefined,
-          ecoTags: Array.isArray(listing.ecoTags)
-  ? listing.ecoTags.map(tag => ({
-      ...tag,
-      slug: tag.slug ?? { current: '' }
-    }))
-  : [],
+          ecoTags: Array.isArray(listing.ecoTags) ? listing.ecoTags : [],
           mainImage: Array.isArray(listing.galleryImages) && listing.galleryImages.length > 0 ? listing.galleryImages[0] : undefined,
 galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : [],
           website: listing.website ?? undefined,
@@ -75,25 +70,8 @@ galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : []
           location: listing.location && typeof listing.location.lat === 'number' && typeof listing.location.lng === 'number'
             ? { lat: listing.location.lat, lng: listing.location.lng }
             : undefined,
-          city: listing.city
-            ? {
-                _id: listing.city._id ?? '',
-                name: listing.city.title ?? '',
-                slug: listing.city.slug && typeof listing.city.slug.current === 'string'
-                  ? { current: listing.city.slug.current }
-                  : { current: '' },
-                listingCount: 0,
-                country: listing.city.country ?? ''
-              }
-            : undefined,
-          reviews: Array.isArray(listing.reviews)
-  ? listing.reviews.map(r => ({
-      ...r,
-      rating: r.rating ?? 0,
-      comment: r.comment ?? '',
-      author: typeof r.author === 'string' ? r.author : '',
-    }))
-  : [],
+          city: listing.city ? listing.city : undefined,
+          reviews: Array.isArray(listing.reviews) ? listing.reviews : [],
         }} />
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

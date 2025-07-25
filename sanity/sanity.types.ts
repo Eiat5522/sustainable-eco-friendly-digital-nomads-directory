@@ -12,6 +12,7 @@
  * ---------------------------------------------------------------------------------
  */
 
+export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: schema.json
 export type UserPreference = {
   _id: string
@@ -747,7 +748,7 @@ export type Listing = {
   }>
   ecoNotesDetailed?: string
   sourceUrls?: Array<string>
-  mainImage?: {
+  primaryImage?: {
     asset?: {
       _ref: string
       _type: 'reference'
@@ -1020,10 +1021,9 @@ export type AllSanitySchemaTypes =
   | Geopoint
   | Slug
   | SanityAssetSourceData
-export declare const internalGroqTypeReferenceTo: unique symbol
 // Source: ../app-next-directory/src/lib/sanity/data.ts
 // Variable: LISTING_BY_SLUG_QUERY
-// Query: *[_type == "listing" && slug.current == $slug][0] {    _id,    _type,    _createdAt,    _updatedAt,    _rev,    name,    "slug": slug.current,    shortDescription,    longDescription,    category,    city->{      _id,      title,      "slug": slug.current    },    location { lat, lng },    primaryImage,    ecoTags,    digitalNomadFeatures,    lastVerifiedDate,    reviews[]->,    addressString,    website,    contactInfo,    openingHours,    shortDescription,    sourceUrls,    rating,    priceRange,    galleryImages[]{      ...,      asset->    }  }
+// Query: *[_type == "listing" && slug.current == $slug][0] {    _id,    _type,    _createdAt,    _updatedAt,    _rev,    name,    "slug": slug.current,    shortDescription,    longDescription,    category,    city->{      _id,      title,      "slug": slug.current    },    location { lat, lng },    primaryImage,    ecoTags,    digitalNomadFeatures,    lastVerifiedDate,    reviews[]->,    address,    website,    contactInfo,    openingHours,    shortDescription,    sourceUrls,    rating,    priceRange,    galleryImages[]{      ...,      asset->    }  }
 export type LISTING_BY_SLUG_QUERYResult = {
   _id: string
   _type: 'listing'
@@ -1044,7 +1044,20 @@ export type LISTING_BY_SLUG_QUERYResult = {
     lat: number | null
     lng: number | null
   } | null
-  primaryImage: null
+  primaryImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    caption?: string
+    _type: 'image'
+  } | null
   ecoTags: Array<{
     _ref: string
     _type: 'reference'
@@ -1065,7 +1078,7 @@ export type LISTING_BY_SLUG_QUERYResult = {
     comment?: string
     date?: string
   }> | null
-  addressString: null
+  address: string | null
   website: null
   contactInfo: null
   openingHours: null
@@ -1109,6 +1122,6 @@ export type LISTING_BY_SLUG_QUERYResult = {
 import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
-    '\n  *[_type == "listing" && slug.current == $slug][0] {\n    _id,\n    _type,\n    _createdAt,\n    _updatedAt,\n    _rev,\n    name,\n    "slug": slug.current,\n    shortDescription,\n    longDescription,\n    category,\n    city->{\n      _id,\n      title,\n      "slug": slug.current\n    },\n    location { lat, lng },\n    primaryImage,\n    ecoTags,\n    digitalNomadFeatures,\n    lastVerifiedDate,\n    reviews[]->,\n    addressString,\n    website,\n    contactInfo,\n    openingHours,\n    shortDescription,\n    sourceUrls,\n    rating,\n    priceRange,\n    galleryImages[]{\n      ...,\n      asset->\n    }\n  }\n': LISTING_BY_SLUG_QUERYResult
+    '\n  *[_type == "listing" && slug.current == $slug][0] {\n    _id,\n    _type,\n    _createdAt,\n    _updatedAt,\n    _rev,\n    name,\n    "slug": slug.current,\n    shortDescription,\n    longDescription,\n    category,\n    city->{\n      _id,\n      title,\n      "slug": slug.current\n    },\n    location { lat, lng },\n    primaryImage,\n    ecoTags,\n    digitalNomadFeatures,\n    lastVerifiedDate,\n    reviews[]->,\n    address,\n    website,\n    contactInfo,\n    openingHours,\n    shortDescription,\n    sourceUrls,\n    rating,\n    priceRange,\n    galleryImages[]{\n      ...,\n      asset->\n    }\n  }\n': LISTING_BY_SLUG_QUERYResult
   }
 }

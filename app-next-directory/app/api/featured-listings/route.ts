@@ -4,6 +4,17 @@ import type { Listing } from '../../../../sanity/sanity.types';
 // Extend Listing to include computed price range
 interface FeaturedListing extends Listing {
   priceRange?: string | null;
+  primaryImage?: {
+    alt?: string;
+    asset?: {
+      _id?: string;
+      url?: string;
+      metadata?: {
+        dimensions?: any;
+        lqip?: string;
+      };
+    };
+  };
 }
 import { groq } from 'next-sanity';
 import { NextResponse } from 'next/server';
