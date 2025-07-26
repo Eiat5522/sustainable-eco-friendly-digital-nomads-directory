@@ -1,3 +1,12 @@
+// jest.setup.ts
+
+// Polyfill Response and Headers for tests using node-fetch
+if (typeof global.Response === 'undefined' || typeof global.Headers === 'undefined') {
+  const fetch = require('node-fetch');
+  global.Response = fetch.Response;
+  global.Headers = fetch.Headers;
+}
+
 // Mock global.fetch for NextAuth.js session requests
 if (!global.fetch) {
   global.fetch = function () {
@@ -10,56 +19,6 @@ if (!global.fetch) {
       }
     ));
   };
-}
-
-// Existing setup below
-const { TextEncoder, TextDecoder } = require('util');
-
-// Global Response mock for Next.js API routes
-global.Response = class Response {
-  constructor(body, init) {
-    this.status = (init && init.status) || 200;
-    this.statusText = (init && init.statusText) || 'OK';
-    this.headers = new Headers(init && init.headers);
-    this.body = body;
-  }
-
-  static json(data, init) {
-    return new Response(JSON.stringify(data), {
-      ...(init || {}),
-      headers: {
-        'Content-Type': 'application/json',
-        ...(init && init.headers ? init.headers : {}),
-      },
-    });
-  }
-  json() {
-    return Promise.resolve(JSON.parse(this.body));
-  }
-}
-
-// Mock Headers for global Response
-global.Headers = class Headers {
-  constructor(init) {
-    this.headers = {};
-    if (init) {
-      if (Array.isArray(init)) {
-        init.forEach(([key, value]) => this.headers[key] = value);
-      } else if (init instanceof Headers) {
-        // Copy headers if Headers instance
-      } else {
-        Object.entries(init).forEach(([key, value]) => this.headers[key] = value);
-      }
-    }
-  }
-
-  set(name, value) {
-    this.headers[name] = value;
-  }
-
-  get(name) {
-    return this.headers[name];
-  }
 }
 
 // Mock next/server globally for all tests  

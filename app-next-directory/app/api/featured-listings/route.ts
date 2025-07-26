@@ -1,9 +1,9 @@
 import { client } from '@/lib/sanity/client';
-import type { Listing } from '../../../../sanity/sanity.types';
-
-// Extend Listing to include computed price range
-interface FeaturedListing extends Listing {
-  priceRange?: string | null;
+// Type that matches the actual GROQ query result
+interface FeaturedListing {
+  _id: string;
+  name: string;
+  slug: string;
   primaryImage?: {
     alt?: string;
     asset?: {
@@ -15,7 +15,25 @@ interface FeaturedListing extends Listing {
       };
     };
   };
+  galleryImages?: {
+    alt?: string;
+    asset?: {
+      _id?: string;
+      url?: string;
+      metadata?: {
+        dimensions?: any;
+        lqip?: string;
+      };
+    };
+  };
+  location?: {
+    _id?: string;
+    name?: string;
+    country?: string;
+  };
+  priceRange?: string | null;
 }
+
 import { groq } from 'next-sanity';
 import { NextResponse } from 'next/server';
 
