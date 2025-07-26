@@ -1,5 +1,5 @@
 import type {
-  Listing,
+  LISTING_BY_SLUG_QUERYResult,
   City,
   EcoTag,
   Review
@@ -15,9 +15,56 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ListingDetail from '@/components/listings/ListingDetail';
 
+/**
+ * Type guard function to check if the query result city is valid
+ * Based on the actual GROQ query structure in data.ts
+ */
+function isQueryResultCity(value: any): value is { 
+  _id: string; 
+  name: string; 
+  slug: { current: string }; 
+  country: string;
+  listingCount: number;
+} {
+  return (
+    value &&
+    typeof value === 'object' &&
+    '_id' in value && typeof value._id === 'string' &&
+    'name' in value && typeof value.name === 'string' &&
+    'slug' in value && value.slug && typeof value.slug === 'object' &&
+    'current' in value.slug && typeof value.slug.current === 'string' &&
+    'country' in value && typeof value.country === 'string' &&
+    'listingCount' in value && typeof value.listingCount === 'number'
+  );
+}
+
+/**
+ * Type guard function to check if a value is a canonical Slug object
+ */
+function isCanonicalSlug(value: any): value is { current: string } {
+  return (
+    value &&
+    typeof value === 'object' &&
+    'current' in value &&
+    typeof value.current === 'string'
+  );
+}
+
+/**
+ * Type guard function to check if a Geopoint has valid coordinates
+ */
+function isValidLocation(value: any): value is { lat: number; lng: number } {
+  return (
+    value &&
+    typeof value === 'object' &&
+    'lat' in value && typeof value.lat === 'number' &&
+    'lng' in value && typeof value.lng === 'number'
+  );
+}
+
 export default async function ListingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const listing: Listing | null = await getListingData(slug);
+  const listing: LISTING_BY_SLUG_QUERYResult | null = await getListingData(slug);
 
   if (!listing || !listing.name) {
     return notFound();
@@ -32,17 +79,27 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
   }
   const imageAlt = listing.primaryImage?.alt || listing.name || 'Listing image';
 
+  // Extract the city with type assertion - safe because we've checked the structure
+  const validCity = (listing.city && 
+                    typeof listing.city === 'object' && 
+                    '_id' in listing.city && 
+                    'name' in listing.city && 
+                    'slug' in listing.city && 
+                    'country' in listing.city) 
+    ? (listing.city as any) 
+    : null;
+
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8">
       <article className="space-y-8">
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-2">{listing.name ?? ''}</h1>
-          {listing.city && typeof listing.city === 'object' && 'slug' in listing.city && (
+          {validCity && (
             <Link
-              href={`/cities/${typeof listing.city.slug === 'string' ? listing.city.slug : listing.city.slug?.current ?? ''}`}
+              href={`/cities/${validCity.slug.current}`}
               className="text-lg text-muted-foreground hover:text-primary"
             >
-              {listing.city.name ?? ''}
+              {validCity.name}
             </Link>
           )}
         </div>
@@ -60,24 +117,27 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
 
         <ListingDetail
           listing={{
-            ...listing,
+            _id: listing._id,
             name: listing.name ?? '',
-            slug: listing.slug,
+            slug: isCanonicalSlug(listing.slug) ? listing.slug : { current: '' },
+            address: listing.address ?? undefined,
             shortDescription: listing.shortDescription ?? undefined,
             longDescription: listing.longDescription ?? undefined,
             ecoTags: Array.isArray(listing.ecoTags)
               ? (listing.ecoTags as any[]).filter(tag => tag && typeof tag === 'object' && '_id' in tag && 'name' in tag && 'slug' in tag)
               : [],
             galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : [],
-            city: listing.city && typeof listing.city === 'object' && '_id' in listing.city && 'slug' in listing.city && 'name' in listing.city && '_type' in listing.city
-              ? listing.city
-              : undefined,
+            location: isValidLocation(listing.location) ? listing.location : undefined,
+            city: validCity ? {
+              _id: validCity._id,
+              name: validCity.name,
+              slug: validCity.slug,
+              listingCount: validCity.listingCount,
+              country: validCity.country
+            } : undefined,
             reviews: Array.isArray(listing.reviews)
               ? (listing.reviews as any[]).filter(r => r && typeof r === 'object' && '_id' in r && 'author' in r && 'rating' in r && 'comment' in r && '_createdAt' in r)
               : [],
-// No website, contactInfo, openingHours, priceRange, or mainImage in canonical Listing
-
-
           }}
         />
 

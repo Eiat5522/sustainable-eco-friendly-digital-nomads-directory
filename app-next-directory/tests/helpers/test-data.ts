@@ -1,42 +1,90 @@
-import { type Listing } from '@/types/listing';
+import { type Listing } from '../../../sanity/sanity.types';
 import { ListingCategory } from '@/types/enums';
 
 export const mockListings: Listing[] = [
   {
     _id: '1',
+    _type: 'listing',
+    _createdAt: '2023-01-01T00:00:00Z',
+    _updatedAt: '2023-01-01T00:00:00Z',
+    _rev: 'v1',
     name: 'Eco-Friendly Coworking Space',
-    slug: { current: 'eco-friendly-coworking-space' },
+    slug: { _type: 'slug', current: 'eco-friendly-coworking-space' },
     shortDescription: 'A sustainable coworking space with solar panels and recycling',
-    type: ListingCategory.COWORKING,
+    type: 'coworking',
     address: '123 Green Street, Bangkok',
-    ecoTags: [], // Use valid EcoTag enum values if available
+    ecoTags: [], // Empty array for reference types
     digitalNomadFeatures: ['high_speed_wifi', 'meeting_rooms'],
-    mainImage: { asset: { _ref: '', url: '/images/sample/coworking.jpg' } },
-    city: { _id: 'bangkok', name: 'Bangkok', slug: { current: 'bangkok' }, listingCount: 0, country: 'Thailand' },
-    longDescription: '',
+    primaryImage: { 
+      _type: 'image',
+      asset: { 
+        _ref: 'image1-ref', 
+        _type: 'reference',
+        _weak: false
+      },
+      alt: 'Coworking space'
+    },
+    city: {
+      _ref: 'bangkok-ref',
+      _type: 'reference',
+      _weak: false
+    },
+    longDescription: 'A sustainable coworking space in the heart of Bangkok',
     sourceUrls: [],
-    galleryImages: [],
-    updatedAt: ''
+    galleryImages: []
   },
   {
-      _id: '2',
-      name: 'Bamboo Eco Café',
-      slug: { current: 'bamboo-eco-cafe' },
-      shortDescription: 'Eco-conscious café serving local organic produce and using eco-friendly practices',
-      longDescription: 'A spacious, eco-friendly café in Chiang Mai focused on sustainability, offering organic food and a welcoming atmosphere for digital nomads.',
-      type: ListingCategory.CAFE,
-      address: '456 Bamboo Lane, Chiang Mai',
-      ecoTags: [], // Use valid EcoTag enum values if available
-      sourceUrls: ['https://bambooecocafe.example.com'],
-      mainImage: { asset: { _ref: '', url: '/images/sample/cafe.jpg' } },
-      galleryImages: [
-        { asset: { _ref: '', url: '/images/sample/cafe1.jpg' } },
-        { asset: { _ref: '', url: '/images/sample/cafe2.jpg' } }
-      ],
-      digitalNomadFeatures: ['wifi_available', 'power_outlets'],
-      updatedAt: '2025-07-01',
-      city: { _id: 'chiangmai', name: 'Chiang Mai', slug: { current: 'chiangmai' }, listingCount: 0, country: 'Thailand' },
+    _id: '2',
+    _type: 'listing',
+    _createdAt: '2023-01-01T00:00:00Z',
+    _updatedAt: '2023-07-01T00:00:00Z',
+    _rev: 'v2',
+    name: 'Bamboo Eco Café',
+    slug: { _type: 'slug', current: 'bamboo-eco-cafe' },
+    shortDescription: 'Eco-conscious café serving local organic produce and using eco-friendly practices',
+    longDescription: 'A spacious, eco-friendly café in Chiang Mai focused on sustainability, offering organic food and a welcoming atmosphere for digital nomads.',
+    type: 'cafe',
+    address: '456 Bamboo Lane, Chiang Mai',
+    ecoTags: [],
+    sourceUrls: ['https://bambooecocafe.example.com'],
+    primaryImage: { 
+      _type: 'image',
+      asset: { 
+        _ref: 'image2-ref', 
+        _type: 'reference',
+        _weak: false
+      },
+      alt: 'Bamboo café'
+    },
+    galleryImages: [
+      { 
+        _type: 'image',
+        _key: 'gallery-1',
+        asset: { 
+          _ref: 'image3-ref', 
+          _type: 'reference',
+          _weak: false
+        },
+        alt: 'Café interior'
+      },
+      { 
+        _type: 'image',
+        _key: 'gallery-2',
+        asset: { 
+          _ref: 'image4-ref', 
+          _type: 'reference',
+          _weak: false
+        },
+        alt: 'Café exterior'
+      }
+    ],
+    digitalNomadFeatures: ['wifi_available', 'power_outlets'],
+    city: {
+      _ref: 'chiangmai-ref',
+      _type: 'reference',
+      _weak: false
     }
+  }
 ];
 
 export async function setupTestData() {

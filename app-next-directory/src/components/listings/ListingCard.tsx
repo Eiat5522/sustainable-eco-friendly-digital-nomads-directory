@@ -8,7 +8,7 @@ try {
   highlightText = require('@/lib/highlight').highlightText;
 } catch {}
 import { urlFor } from '@/lib/sanity/image';
-import { Listing } from '../../types/listing';
+import type { Listing } from '../../../../sanity/sanity.types';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -18,7 +18,7 @@ interface ListingCardProps {
   searchQuery?: string;
 }
 
-export function ListingCard({ listing, searchQuery }: { listing: Listing; searchQuery?: string }) {
+export function ListingCard({ listing, searchQuery }: ListingCardProps) {
   // Helper to get listing name or fallback
   const getName = () => listing.name && listing.name.trim() ? listing.name : 'Unnamed Listing';
 
@@ -36,18 +36,19 @@ export function ListingCard({ listing, searchQuery }: { listing: Listing; search
   // Helper to get image URL
   const getImageUrl = () => {
     try {
-      if (listing.mainImage?.asset?._ref) {
-        return urlFor(listing.mainImage).width(400).height(300).fit('crop').auto('format').url();
+      // Use primaryImage from canonical Listing type
+      if (listing.primaryImage?.asset?._ref) {
+        return urlFor(listing.primaryImage).width(400).height(300).fit('crop').auto('format').url();
       }
       if (listing.galleryImages && listing.galleryImages.length > 0 && listing.galleryImages[0].asset?._ref) {
         return urlFor(listing.galleryImages[0]).width(400).height(300).fit('crop').auto('format').url();
       }
     } catch {
-      // fallback below
-      return listing.mainImage?.asset?.url || '/test-image.jpg';
+      // fallback to static image
+      return '/test-image.jpg';
     }
-    // fallback to url or static image
-    return listing.mainImage?.asset?.url || '/test-image.jpg';
+    // fallback to static image
+    return '/test-image.jpg';
   };
 
   // Helper to highlight search query
@@ -82,20 +83,18 @@ export function ListingCard({ listing, searchQuery }: { listing: Listing; search
         <div>
           {/* Title */}
           <h2>{highlightText(getName())}</h2>
-          {/* Price (render only once, ensure correct format) */}
-          {typeof listing.price !== 'undefined' && (
-            <span data-testid="price">{`$${listing.price}`}</span>
-          )}
-          {/* Category badge */}
+          {/* Category badge - canonical field is 'type' */}
           <span>{listing.type}</span>
-          {/* Location */}
+          {/* Location - handle reference fields safely */}
           <span>
-            {listing.city ? `${listing.city.name}, ${listing.city.country}` : ''}
+            {listing.city && typeof listing.city === 'object' && 'name' in listing.city && 'country' in listing.city
+              ? `${(listing.city as any).name}, ${(listing.city as any).country}` 
+              : ''}
           </span>
           {/* Eco tags: always render container, fallback to default tags if empty */}
           <div>
-            {(listing.ecoTags && listing.ecoTags.length > 0
-              ? listing.ecoTags
+            {(listing.ecoTags && listing.ecoTags.length > 0 && Array.isArray(listing.ecoTags)
+              ? (listing.ecoTags as any[]).filter(tag => tag && typeof tag === 'object' && 'name' in tag)
               : [
                   { _id: 'eco1', name: 'Solar' },
                   { _id: 'eco2', name: 'Organic' },

@@ -2,7 +2,7 @@
 
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { ListingCard } from '@/components/listings/ListingCard';
-import { Listing } from '@/types/listing';
+import { Listing } from '../../../../sanity/sanity.types';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 

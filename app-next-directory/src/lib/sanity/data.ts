@@ -1,6 +1,6 @@
 import { client } from './client';
 import { groq } from 'next-sanity';
-import type { Listing } from '../../../../sanity/sanity.types';
+import type { LISTING_BY_SLUG_QUERYResult } from '../../../../sanity/sanity.types';
 
 // GROQ query to fetch a single listing by slug
 const LISTING_BY_SLUG_QUERY = groq`
@@ -11,11 +11,11 @@ const LISTING_BY_SLUG_QUERY = groq`
     _updatedAt,
     _rev,
     name,
-    "slug": slug.current,
+    slug,
     shortDescription,
     longDescription,
     category,
-    city->{
+    city-> {
       _id,
       _type,
       _createdAt,
@@ -27,7 +27,8 @@ const LISTING_BY_SLUG_QUERY = groq`
       description,
       sustainabilityScore,
       highlights,
-      mainImage
+      mainImage,
+      listingCount
     },
     location { lat, lng },
     primaryImage,
@@ -59,7 +60,7 @@ const LISTING_BY_SLUG_QUERY = groq`
 export async function getListingData(
   slug: string,
   usePreview = false
-): Promise<Listing | null> {
+): Promise<LISTING_BY_SLUG_QUERYResult | null> {
   // Use imported client directly (no redeclaration)
   // const client = client(usePreview);
 
