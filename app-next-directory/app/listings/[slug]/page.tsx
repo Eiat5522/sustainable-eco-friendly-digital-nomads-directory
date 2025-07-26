@@ -12,7 +12,15 @@ type Listing = SanityListing & {
   priceRange?: string;
 };
 
-type City = SanityCity;
+// Local City type for ListingDetail import workaround
+interface City {
+  _id: string;
+  name: string;
+  slug: { current: string };
+  listingCount: number;
+  country: string;
+}
+
 type EcoTag = SanityEcoTag;
 type Review = SanityReview;
 
@@ -85,7 +93,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
             shortDescription: listing.shortDescription ?? undefined,
             longDescription: listing.longDescription ?? undefined,
             ecoTags: Array.isArray(listing.ecoTags)
-              ? listing.ecoTags.filter(tag => tag && typeof tag === 'object' && 'name' in tag)
+              ? (listing.ecoTags as any[]).filter(tag => tag && typeof tag === 'object' && '_id' in tag && 'name' in tag && 'slug' in tag)
               : [],
             mainImage:
               Array.isArray(listing.galleryImages) && listing.galleryImages.length > 0
@@ -101,12 +109,20 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                     lng: (listing as any).location?.lng,
                   }
                 : undefined,
-            city: listing.city && typeof listing.city === 'object' && 'slug' in listing.city ? listing.city : undefined,
+            city: listing.city && typeof listing.city === 'object' && '_id' in listing.city && 'slug' in listing.city && 'name' in listing.city && 'country' in listing.city
+  ? {
+      _id: (listing.city as any)._id,
+      name: (listing.city as any).name,
+      slug: (listing.city as any).slug,
+      listingCount: 0, // default for missing field
+      country: (listing.city as any).country
+    } as City
+  : undefined, 
             reviews: Array.isArray(listing.reviews)
-              ? listing.reviews.filter(r => r && typeof r === 'object' && 'author' in r)
+              ? (listing.reviews as any[]).filter(r => r && typeof r === 'object' && '_id' in r && 'author' in r && 'rating' in r && 'comment' in r && '_createdAt' in r)
               : [],
-            contactInfo: listing.contactInfo ?? undefined,
-            openingHours: listing.openingHours ?? undefined,
+
+
           }}
         />
 

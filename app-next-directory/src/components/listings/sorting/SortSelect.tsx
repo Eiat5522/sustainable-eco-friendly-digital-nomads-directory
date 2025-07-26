@@ -9,7 +9,7 @@ interface SortSelectProps {
   className?: string;
 }
 
-export function SortSelect({ value, onChange, className = '' }: SortSelectProps): JSX.Element {
+export function SortSelect({ value, onChange, className = '' }: SortSelectProps): React.ReactElement {
   const currentValue = value ? `${value.field}-${value.direction}` : '';
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

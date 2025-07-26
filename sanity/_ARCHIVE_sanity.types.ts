@@ -829,7 +829,6 @@ export type Listing = {
   moderationStatus?: 'pending' | 'approved' | 'rejected'
   verificationStatus?: 'unverified' | 'verified'
 }
-
 export type City = {
   _id: string
   _type: 'city'
@@ -1123,5 +1122,6 @@ import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
     '\n  *[_type == "listing" && slug.current == $slug][0] {\n    _id,\n    _type,\n    _createdAt,\n    _updatedAt,\n    _rev,\n    name,\n    "slug": slug.current,\n    shortDescription,\n    longDescription,\n    category,\n    city->{\n      _id,\n      title,\n      "slug": slug.current\n    },\n    location { lat, lng },\n    primaryImage,\n    ecoTags,\n    digitalNomadFeatures,\n    lastVerifiedDate,\n    reviews[]->,\n    address,\n    website,\n    contactInfo,\n    openingHours,\n    shortDescription,\n    sourceUrls,\n    rating,\n    priceRange,\n    galleryImages[]{\n      ...,\n      asset->\n    }\n  }\n': LISTING_BY_SLUG_QUERYResult
+    // Duplicate declaration removed to fix TS2717 error
   }
 }
