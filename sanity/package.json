@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@sanity/cli": "^3.93.0",
+    "@sanity/codegen": "^4.1.1",
     "@sanity/eslint-config-studio": "^5.0.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@types/leaflet": "^1.9.18",

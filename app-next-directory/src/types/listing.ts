@@ -4,8 +4,8 @@ import { ListingCategory, PriceRange } from './enums'
 export type ListingType = ListingCategory
 export type PriceRangeType = PriceRange
 
-// City type
-export interface City {
+// LocalCity type
+export interface LocalCity {
   _id: string
   name: string
   slug: string | { current: string }
@@ -22,6 +22,7 @@ export interface EcoTag {
   listingCount: number
   icon?: string
 }
+
 
 // Base listing interface
 export interface Listing {
@@ -49,7 +50,7 @@ export interface Listing {
       url: string
     }
   }>
-  city?: City
+  city?: LocalCity
   ecoTags: EcoTag[]
   ecoRating?: number
   address: string
@@ -171,3 +172,9 @@ export type AnyListing =
   | ActivitiesListing// Listing types and enums
 
 // ... rest of file ...
+
+// ...existing code...
+
+
+
+

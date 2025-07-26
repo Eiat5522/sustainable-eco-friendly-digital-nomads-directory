@@ -17,8 +17,17 @@ const LISTING_BY_SLUG_QUERY = groq`
     category,
     city->{
       _id,
-      title,
-      "slug": slug.current
+      _type,
+      _createdAt,
+      _updatedAt,
+      _rev,
+      name,
+      slug,
+      country,
+      description,
+      sustainabilityScore,
+      highlights,
+      mainImage
     },
     location { lat, lng },
     primaryImage,

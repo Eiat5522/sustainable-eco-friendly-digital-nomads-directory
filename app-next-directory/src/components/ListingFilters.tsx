@@ -1,30 +1,28 @@
 import { FilterSystem } from '@/components/FilterSystem'
 import { FilterDefinition, useFilters } from '@/hooks/useFilters'
-import type { City, EcoTag, ListingType } from '@/types/listing'
+import type { LocalCity, EcoTag, ListingType } from '@/types/listing'
 import { useCallback, useState, useEffect } from 'react'
 
 interface ListingFiltersProps {
-  cities: City[]
+  cities: LocalCity[]
   ecoTags: EcoTag[]
   onFiltersChange: (filters: ListingFilters) => void
   className?: string
 }
 
+// Canonical ListingFilters interface: only fields present in canonical types
 export interface ListingFilters {
   searchQuery?: string;
-  cities: string[]
-  types: ListingType[]
-  ecoTags: string[]
-  priceRange: string[]
+  cities: string[];
+  types: ListingType[];
+  ecoTags: string[];
+  priceRange: string[];
   location: {
     city: string;
     radius: number;
   } | null;
   minRating?: number;
-  digitalNomadFeatures?: string[];
-  ecoCertification?: string[];
-  accommodationType?: string[];
-  sustainabilityScore?: string;
+  // Removed: digitalNomadFeatures, ecoCertification, accommodationType, sustainabilityScore
 }
 
 import { ListingCategory } from '@/types/enums';
@@ -124,30 +122,8 @@ export function ListingFilters({
       options: RATING_OPTIONS,
       multiSelect: false,
     },
-    {
-      id: 'digitalNomadFeatures',
-      label: 'Digital Nomad Features',
-      options: NOMAD_FEATURES_OPTIONS,
-      multiSelect: true,
-    },
-    {
-      id: 'ecoCertification',
-      label: 'Eco Certification',
-      options: [],
-      multiSelect: true,
-    },
-    {
-      id: 'accommodationType',
-      label: 'Accommodation Type',
-      options: [],
-      multiSelect: true,
-    },
-    {
-      id: 'sustainabilityScore',
-      label: 'Sustainability Score',
-      options: [],
-      multiSelect: false,
-    },
+    // Removed: Digital Nomad Features, Eco Certification, Accommodation Type, Sustainability Score
+
   ]
 
   const handleHookFilterChange = useCallback((hookFilters: { [groupId: string]: string[] }) => {
@@ -172,12 +148,7 @@ export function ListingFilters({
       minRating: currentHookFilters.minRating && currentHookFilters.minRating.length > 0
                   ? parseInt(currentHookFilters.minRating[0])
                   : undefined,
-      digitalNomadFeatures: currentHookFilters.digitalNomadFeatures || [],
-      ecoCertification: currentHookFilters.ecoCertification || [],
-      accommodationType: currentHookFilters.accommodationType || [],
-      sustainabilityScore: currentHookFilters.sustainabilityScore && currentHookFilters.sustainabilityScore.length > 0
-                  ? currentHookFilters.sustainabilityScore[0]
-                  : undefined,
+      // Removed: digitalNomadFeatures, ecoCertification, accommodationType, sustainabilityScore
     };
     onFiltersChange(combinedFilters);
   }, [searchQuery, currentHookFilters, onFiltersChange]);

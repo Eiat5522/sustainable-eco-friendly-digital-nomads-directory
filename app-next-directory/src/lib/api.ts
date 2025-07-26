@@ -1,4 +1,5 @@
-import { City, Listing } from '@/types';
+          import type { City } from '../../../sanity/sanity.types'
+import type { Listing } from '@/types';
 
 // City details
 export async function fetchCityDetails(slug: string): Promise<City> {

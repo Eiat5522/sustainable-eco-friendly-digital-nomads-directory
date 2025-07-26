@@ -28,8 +28,8 @@ export interface FilterGroup {
   icon?: string;
 }
 
-// City type
-export interface City {
+// LocalCity type
+export interface LocalCity {
   id: string;
   name: string;
   country: string;
@@ -76,7 +76,7 @@ export interface Listing {
   reviewCount?: number;
 }
 
-export interface CityPageProps extends Record<string, unknown> {
+export interface LocalCityPageProps extends Record<string, unknown> {
   city: string;
   listings: Listing[];
   // Add other properties as needed

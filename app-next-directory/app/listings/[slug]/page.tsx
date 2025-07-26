@@ -1,29 +1,9 @@
 import type {
-  Listing as SanityListing,
-  City as SanityCity,
-  EcoTag as SanityEcoTag,
-  Review as SanityReview
+  Listing,
+  City,
+  EcoTag,
+  Review
 } from '../../../../sanity/sanity.types';
-
-type Listing = SanityListing & {
-  website?: string;
-  contactInfo?: string;
-  openingHours?: string;
-  priceRange?: string;
-};
-
-// Local City type for ListingDetail import workaround
-interface City {
-  _id: string;
-  name: string;
-  slug: { current: string };
-  listingCount: number;
-  country: string;
-}
-
-type EcoTag = SanityEcoTag;
-type Review = SanityReview;
-
 
 import React from 'react';
 import Link from 'next/link';
@@ -59,14 +39,10 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-2">{listing.name ?? ''}</h1>
           {listing.city && typeof listing.city === 'object' && 'slug' in listing.city && (
             <Link
-              href={`/cities/${
-                typeof (listing.city as any).slug === 'string'
-                  ? (listing.city as any).slug
-                  : (listing.city as any).slug?.current ?? ''
-              }`}
+              href={`/cities/${typeof listing.city.slug === 'string' ? listing.city.slug : listing.city.slug?.current ?? ''}`}
               className="text-lg text-muted-foreground hover:text-primary"
             >
-              {(listing.city as any).title ?? ''}
+              {listing.city.name ?? ''}
             </Link>
           )}
         </div>
@@ -86,41 +62,20 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           listing={{
             ...listing,
             name: listing.name ?? '',
-            slug:
-              listing.slug && typeof listing.slug === 'string'
-                ? { current: listing.slug || '' }
-                : (listing.slug && typeof listing.slug === 'object' && listing.slug.current ? { current: listing.slug.current || '' } : { current: '' }),
+            slug: listing.slug,
             shortDescription: listing.shortDescription ?? undefined,
             longDescription: listing.longDescription ?? undefined,
             ecoTags: Array.isArray(listing.ecoTags)
               ? (listing.ecoTags as any[]).filter(tag => tag && typeof tag === 'object' && '_id' in tag && 'name' in tag && 'slug' in tag)
               : [],
-            mainImage:
-              Array.isArray(listing.galleryImages) && listing.galleryImages.length > 0
-                ? listing.galleryImages[0]
-                : undefined,
             galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : [],
-            website: listing.website ?? undefined,
-            priceRange: listing.priceRange ?? undefined,
-            location:
-              listing.city && typeof listing.city === 'object' && 'slug' in listing.city
-                ? {
-                    lat: (listing as any).location?.lat,
-                    lng: (listing as any).location?.lng,
-                  }
-                : undefined,
-            city: listing.city && typeof listing.city === 'object' && '_id' in listing.city && 'slug' in listing.city && 'name' in listing.city && 'country' in listing.city
-  ? {
-      _id: (listing.city as any)._id,
-      name: (listing.city as any).name,
-      slug: (listing.city as any).slug,
-      listingCount: 0, // default for missing field
-      country: (listing.city as any).country
-    } as City
-  : undefined, 
+            city: listing.city && typeof listing.city === 'object' && '_id' in listing.city && 'slug' in listing.city && 'name' in listing.city && '_type' in listing.city
+              ? listing.city
+              : undefined,
             reviews: Array.isArray(listing.reviews)
               ? (listing.reviews as any[]).filter(r => r && typeof r === 'object' && '_id' in r && 'author' in r && 'rating' in r && 'comment' in r && '_createdAt' in r)
               : [],
+// No website, contactInfo, openingHours, priceRange, or mainImage in canonical Listing
 
 
           }}
@@ -158,31 +113,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                     <p className="text-muted-foreground">{listing.address}</p>
                   </div>
                 )}
-                {listing.website && (
-                  <div>
-                    <h4 className="font-semibold">Website</h4>
-                    <a
-                      href={listing.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      Visit website
-                    </a>
-                  </div>
-                )}
-                {listing.contactInfo && (
-                  <div>
-                    <h4 className="font-semibold">Contact</h4>
-                    <p className="text-muted-foreground">{listing.contactInfo}</p>
-                  </div>
-                )}
-                {listing.openingHours && (
-                  <div>
-                    <h4 className="font-semibold">Hours</h4>
-                    <p className="text-muted-foreground">{listing.openingHours}</p>
-                  </div>
-                )}
+                {/* Canonical Listing does not have website, contactInfo, or openingHours fields */}
                 {listing.lastVerifiedDate && (
                   <div>
                     <h4 className="font-semibold">Last Verified</h4>

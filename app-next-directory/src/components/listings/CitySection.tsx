@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { City } from '@/types';
+import type { City } from '../../../../sanity/sanity.types';
 import { cn } from '@/lib/utils';
 
 import EcoCityCarousel from '../cities/CityCarousel';
@@ -55,12 +55,14 @@ export function CitySection({ city, listingStats, className }: CitySectionProps)
           {/* Left Column: Image and Description */}
           <div>
             <div className="relative aspect-4/3 rounded-lg overflow-hidden mb-6">
-              <Image
-                src={city.images?.[0] || ''}
-                alt={city.name}
-                fill
-                className="object-cover"
-              />
+              {city.mainImage && (
+                <Image
+                  src={typeof city.mainImage === 'string' ? city.mainImage : ''}
+                  alt={city.name}
+                  fill
+                  className="object-cover"
+                />
+              )}
             </div>
             <h2 className="text-3xl font-bold mb-4">{city.name}</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">

@@ -34,13 +34,8 @@ export interface SanityListing extends SanityDocument {
   
   
   ?: ListingCategory;
-  city?: {
-    _id: string;
-    name: string;
-    slug?: { current?: string };
-    listingCount?: number;
-    country?: string;
-  };
+  // Use canonical City type from sanity.types.ts
+  city?: import('../../../sanity/sanity.types').City;
   mainImage?: SanityImage;
   galleryImages?: SanityImage[];
   ecoTags?: Array<{

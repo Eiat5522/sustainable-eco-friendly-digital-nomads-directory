@@ -1,7 +1,8 @@
 'use client';
 
-import { SanityListing } from '@/types/sanity';
-import { Listing } from '@/types/listing';
+import type { Listing as SanityListing, City, EcoTag } from '../../../../sanity/sanity.types';
+// Use canonical types only
+
 import { ListingCategory, PriceRange } from '@/types/enums';
 import { ListingCard } from '@/components/listings/ListingCard';
 
@@ -22,29 +23,14 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       {listings.slice(0, 4).map((listing) => {
         // Ensure slug is a string for ListingCard
-        const normalizedListing: Listing = {
+        const normalizedListing: SanityListing = {
           ...listing,
           address: typeof listing.address === 'string' ? listing.address : '',
           ecoTags: Array.isArray(listing.ecoTags)
-            ? listing.ecoTags.map(tag => ({
-                ...tag,
-                slug: tag.slug && typeof tag.slug.current === 'string'
-                  ? { current: tag.slug.current }
-                  : { current: String(tag.slug?.current ?? '') },
-                description: typeof tag.description === 'string' ? tag.description : '',
-                listingCount: typeof tag.listingCount === 'number' ? tag.listingCount : 0
-              }))
+            ? listing.ecoTags.filter(tag => tag && typeof tag === 'object' && '_id' in tag && 'name' in tag)
             : [],
-          city: listing.city
-            ? {
-                _id: listing.city._id ?? '',
-                name: listing.city.name ?? '',
-                slug: typeof listing.city.slug === 'object' && listing.city.slug !== null
-                  ? { current: String(listing.city.slug.current ?? '') }
-                  : { current: String(listing.city.slug ?? '') },
-                listingCount: typeof listing.city.listingCount === 'number' ? listing.city.listingCount : 0,
-                country: listing.city.country ?? ''
-              }
+          city: listing.city && typeof listing.city === 'object' && '_id' in listing.city && 'name' in listing.city
+            ? listing.city
             : undefined,
           slug: typeof listing.slug === 'object' && listing.slug !== null ? listing.slug : { current: String(listing.slug) },
           type: listing.type ?? ListingCategory.COWORKING,

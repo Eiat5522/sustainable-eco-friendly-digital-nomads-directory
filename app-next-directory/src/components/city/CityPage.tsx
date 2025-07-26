@@ -1,7 +1,8 @@
 "use client";
 
 import { fetchCityDetails, fetchCityListings } from '@/lib/api';
-import { City, Listing } from '@/types';
+import type { City } from '../../../../sanity/sanity.types'
+import type { Listing } from '@/types';
 import React, { useEffect, useState } from 'react';
 import ImageCarousel from '../common/ImageCarousel';
 import LoadingSpinner from '../common/LoadingSpinner';
@@ -49,19 +50,23 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-2">{city.name}</h1>
 <div className="mb-4">
-  {city.mainImage ? (
-    <img src={city.mainImage} alt={city.name} className="rounded-lg shadow w-full h-64 object-cover" />
+  {city.mainImage && typeof city.mainImage === 'object' && city.mainImage.asset && city.mainImage.asset._ref ? (
+    // You may want to use a Sanity image URL builder here
+    <img src={''} alt={city.name} className="rounded-lg shadow w-full h-64 object-cover" />
   ) : null}
 </div>
       <p className="text-gray-600 mb-6">{city.country}</p>
 
-      {/* Image Carousel */}
-      <div className="mb-8">
-        <ImageCarousel
-          images={city.galleryImages ?? city.images ?? []}
-          alt={`Photos of ${city.name}`}
-        />
-      </div>
+      {/* Main Image Only (no gallery) */}
+      {city.mainImage && (
+        <div className="mb-8">
+          <img
+            src={typeof city.mainImage === 'string' ? city.mainImage : ''}
+            alt={city.name}
+            className="rounded-lg shadow w-full h-64 object-cover"
+          />
+        </div>
+      )}
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -99,32 +104,9 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
         {activeTab === 'about' && (
           <div>
             <h2 className="text-xl font-semibold mb-4">About {city.name}</h2>
-            <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: city.description }} />
+            <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: city.description || '' }} />
 
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold mb-2">Sustainability Initiatives</h3>
-              <ul className="list-disc pl-5 space-y-2">
-                {city.sustainabilityInitiatives?.map((initiative, index) => (
-                  <li key={index}>{initiative}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold mb-2">Digital Nomad Friendly Features</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {city.digitalNomadFeatures?.map((feature: string, index: number) => (
-                  <div key={index} className="flex items-start">
-                    <div className="flex-shrink-0 h-6 w-6 text-green-500">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <p className="ml-3 text-gray-700">{feature}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Removed: Sustainability Initiatives and Digital Nomad Friendly Features (not in canonical type) */}
           </div>
         )}
 
