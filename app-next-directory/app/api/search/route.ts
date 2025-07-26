@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get('q') || '';
     const category = searchParams.getAll('category');
     const destination = searchParams.getAll('destination');
-    const features_amenities = searchParams.getAll('features_amenities');
+    const featuresAmenities = searchParams.getAll('featuresAmenities');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
 
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       groqQuery += ` && (
         name match "*${searchTerm}*" ||
         lower(name) match "*${searchTerm}*" ||
-        slug.current match "*${searchTerm}*" ||
+        slug match "*${searchTerm}*" ||
         category match "*${searchTerm}*" ||
         lower(category) match "*${searchTerm}*" ||
         city->name match "*${searchTerm}*" ||
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       groqQuery += ` && (${destination.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
     }
     if (features_amenities && features_amenities.length > 0) {
-      groqQuery += ` && (${features_amenities.map((fa) => `array::contains(eco_features, "${fa}") || array::contains(amenities, "${fa}")`).join(' || ')})`;
+      groqQuery += ` && (${featuresAmenities.map((fa) => `array::contains(ecoFeatures, "${fa}") || array::contains(amenities, "${fa}")`).join(' || ')})`;
     }
 
     groqQuery += `] | order(_createdAt desc)`;
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     groqQuery += ` {
       _id,
       name,
-      "slug": slug.current,
+      "slug": slug,
       category,
       "primaryImage": primaryImage{
         ...,
@@ -69,14 +69,16 @@ export async function GET(request: NextRequest) {
       "location": city->{
         _id,
         name,
+        "slug": slug.current,
         country
       },
-      price,
+      priceRange,
       moderation,
       shortDescription,
       longDescription,
-      eco_features,
-      amenities
+      ecoFeatures,
+      amenities,
+      priceRange
     }`;
 
     // Get the results
@@ -90,7 +92,7 @@ export async function GET(request: NextRequest) {
       countQuery += ` && (
         name match "*${searchTerm}*" ||
         lower(name) match "*${searchTerm}*" ||
-        slug.current match "*${searchTerm}*" ||
+        slug match "*${searchTerm}*" ||
         category match "*${searchTerm}*" ||
         lower(category) match "*${searchTerm}*" ||
         city->name match "*${searchTerm}*" ||
@@ -108,7 +110,7 @@ export async function GET(request: NextRequest) {
       countQuery += ` && (${destination.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
     }
     if (features_amenities && features_amenities.length > 0) {
-      countQuery += ` && (${features_amenities.map((fa) => `array::contains(eco_features, "${fa}") || array::contains(amenities, "${fa}")`).join(' || ')})`;
+      countQuery += ` && (${featuresAmenities.map((fa) => `array::contains(ecoFeatures, "${fa}") || array::contains(amenities, "${fa}")`).join(' || ')})`;
     }
 
     countQuery += `])`;

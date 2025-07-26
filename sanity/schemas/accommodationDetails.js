@@ -28,29 +28,18 @@ export default {
       }
     },
     {
-      name: 'priceRangeThb',
-      title: 'Price Range (THB)',
+      name: 'pricePerNightThb',
+      title: 'Price Per Night (THB)',
       type: 'object',
       fields: [
-        {
-          name: 'min',
-          title: 'Minimum Price',
-          type: 'number',
-          validation: Rule => Rule.required().min(0).error('Minimum price must be non-negative')
-        },
-        {
-          name: 'max',
-          title: 'Maximum Price',
-          type: 'number',
-          validation: Rule => Rule.required().min(0).error('Maximum price must be non-negative')
-        }
-      ],
-      validation: Rule => Rule.custom((priceRange, context) => {
-        if (priceRange?.max < priceRange?.min) {
-          return 'Maximum price must be greater than minimum price'
-        }
-        return true
-      })
+        { name: 'min', type: 'number' },
+        { name: 'max', type: 'number' },
+      ]},
+    {
+      name: 'openingHours',
+      title: 'Opening Hours',
+      type: 'array',
+      of: [{ type: 'openingHoursEntry' }] // if relevant
     },
     {
       name: 'roomTypesAvailable',

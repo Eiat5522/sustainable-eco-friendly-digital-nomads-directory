@@ -72,7 +72,7 @@ export interface Listing {
   amenities?: string[];
   price?: number;
   currency?: string;
-  rating?: number;
+  
   reviewCount?: number;
 }
 

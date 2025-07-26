@@ -71,8 +71,8 @@ export async function GET() {
         total: cities.length,
         query_time: new Date().toISOString(),
         performance: {
-          total_time_ms: (endTime - startTime).toFixed(2),
-          query_time_ms: (queryEndTime - queryStartTime).toFixed(2)
+        totalTimeMs: (endTime - startTime).toFixed(2),
+          queryTimeMs: (queryEndTime - queryStartTime).toFixed(2)
         }
       }
     });
@@ -86,7 +86,7 @@ export async function GET() {
       details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString(),
       performance: {
-        total_time_ms: (endTime - startTime).toFixed(2)
+        totalTimeMs: (endTime - startTime).toFixed(2)
       }
     }, { status: 500 });
   }

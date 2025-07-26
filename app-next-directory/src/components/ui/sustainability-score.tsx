@@ -95,11 +95,7 @@ export function SustainabilityScore({
       <div className={cn('flex items-center', sizeClasses[size])}>
         {variant === 'leaf' ? renderLeafIcons() : renderCircleIcons()}
       </div>
-      {showLabel && (
-        <span className={cn('text-xs mt-1 font-medium', getColor())}>
-          {getLabel()} Eco-Rating
-        </span>
-      )}
+      
     </div>
   );
 }

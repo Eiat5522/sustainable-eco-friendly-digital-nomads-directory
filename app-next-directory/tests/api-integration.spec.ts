@@ -548,7 +548,6 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       // This would need a review ID from a previous test or fixture
       const response = await request.put(`${BASE_URL}/api/reviews/test-review-id`, {
         data: {
-          rating: 5,
           title: 'Updated: Excellent workspace',
           content: 'Updated review content',
         },
@@ -617,7 +616,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       expect(response.status()).toBe(200);
       const data = await response.json();
       expect(data.city).toBeDefined();
-      expect(data.city.slug.current).toBe('bangkok');
+      expect(data.city.slug).toBe('bangkok');
       expect(data.listingCount).toBeDefined();
     });
 

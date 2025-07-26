@@ -103,7 +103,7 @@ function SearchResultsComponent() {
     const queryParams = new URLSearchParams(searchParams?.toString());
     queryParams.delete('destination');
     queryParams.delete('category');
-    queryParams.delete('features_amenities');
+    queryParams.delete('featuresAmenities');
     Object.entries(filters).forEach(([key, values]) => {
       if (Array.isArray(values) && values.length > 0) {
         (values as string[]).forEach((value) => {

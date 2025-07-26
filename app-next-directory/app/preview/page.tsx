@@ -116,7 +116,7 @@ export default async function PreviewPage() {
                   <div className="mt-4">
                     <h3 className="text-lg font-semibold mb-2">Gallery</h3>
                     <div className="grid grid-cols-3 gap-2">
-                      {listing.gallery_images.map((image, idx) => (
+                      {listing.galleryImages.map((image, idx) => (
                         <div key={idx} className="relative h-20">
                           <picture>
                             <source

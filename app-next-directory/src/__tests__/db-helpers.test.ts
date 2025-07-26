@@ -35,7 +35,7 @@ describe('db-helpers', () => {
     process.env.MONGODB_URI = '';
     expect(() => require('../utils/db-helpers')).toThrow('MongoDB URI is missing. Please set the MONGODB_URI environment variable.');
     // Restore env for other tests
-    process.env.MONGODB_URI = 'mongodb://test';
+    process.env.mongodbUri = 'mongodb://test';
   });
 
   it('returns a database instance', async () => {

@@ -81,7 +81,7 @@ describe('SanityHTTPClient', () => {
       delete (process.env as any).NEXT_PUBLIC_SANITY_PROJECT_ID;
     }
     expect(() => new SanityHTTPClient()).toThrow(SanityAPIError);
-    expect(() => new SanityHTTPClient()).toThrow('Missing required environment variable: NEXT_PUBLIC_SANITY_PROJECT_ID');
+    expect(() => new SanityHTTPClient()).toThrow('Missing required environment variable: nextPublicSanityProjectId');
   });
 
   describe('testAuthentication', () => {

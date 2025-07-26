@@ -458,7 +458,7 @@ export default function BlogPostPage() {
                   <div className="p-4">
                     <h4 className="font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">
                       <Link
-                        href={`/blog/${relatedPost.slug.current}`}
+                        href={`/blog/${relatedPost.slug}`}
                         className="hover:text-green-600 dark:hover:text-green-400 transition-colors"
                       >
                         {relatedPost.title}

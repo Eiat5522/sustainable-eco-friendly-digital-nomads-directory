@@ -83,8 +83,7 @@ test.describe('API Integration Tests - Core Endpoints', () => {
 
     expect(status).toBe(200);
     expect(data).toHaveProperty('totalReviews');
-    expect(data).toHaveProperty('averageRating');
-    expect(data).toHaveProperty('ratingDistribution');
+    
   });
 
   test('GET /api/session - Session endpoint', async () => {

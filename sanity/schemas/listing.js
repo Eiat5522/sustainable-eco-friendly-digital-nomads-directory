@@ -69,8 +69,8 @@ export default defineType({
       type: 'text',
     }),
     defineField({
-      name: 'ecoTags',
-      title: 'Eco Tags',
+      name: 'ecoFocusTags',
+      title: 'Eco Focus Tags',
       type: 'array',
       of: [{type: 'reference', to: [{type: 'ecoTag'}]}],
     }),
@@ -97,10 +97,10 @@ export default defineType({
       of: [imageWithAlt],
     }),
     defineField({
-      name: 'digitalNomadFeatures',
-      title: 'Digital Nomad Features',
-      type: 'array',
-      of: [{type: 'string'}],
+        name: 'digitalNomadFeatures',
+        title: 'Digital Nomad Features',
+        type: 'array',
+        of: [{ type: 'reference', to: [{ type: 'nomadFeature' }] }]
     }),
     defineField({
       name: 'lastVerifiedDate',
@@ -108,97 +108,42 @@ export default defineType({
       type: 'date',
     }),
     defineField({
-      name: 'coworkingDetails',
-      title: 'Coworking Details',
-      type: 'object',
-      options: {
-        collapsible: true,
-        collapsed: true,
-      },
-      fields: [
-        defineField({
-          name: 'operatingHours',
-          title: 'Operating Hours',
-          type: 'string',
-        }),
-        defineField({
-          name: 'pricingPlans',
-          title: 'Pricing Plans',
-          type: 'array',
-          of: [{type: 'string'}],
-        }),
-        defineField({
-          name: 'specificAmenitiesCoworking',
-          title: 'Specific Amenities (Coworking)',
-          type: 'array',
-          of: [{type: 'string'}],
-        }),
-      ],
+        name: 'contactPhone',
+        title: 'Contact Phone',
+        type: 'string'
     }),
+    defineField({
+        name: 'contactEmail',
+        title: 'Contact Email',
+        type: 'string'
+    }),
+    defineField({
+        name: 'website',
+        title: 'Website',
+        type: 'url'
+    }),
+    defineField({
+        name: 'priceRange',
+        title: 'Price Range',
+        type: 'string',
+        options: {
+            list: [
+                { title: 'Budget', value: 'budget' },
+                { title: 'Moderate', value: 'moderate' },
+                { title: 'Premium', value: 'premium' },
+            ]
+        }
+    }),
+    
     defineField({
       name: 'cafeDetails',
       title: 'Cafe Details',
-      type: 'object',
-      options: {
-        collapsible: true,
-        collapsed: true,
-      },
-      fields: [
-        defineField({
-          name: 'operatingHours',
-          title: 'Operating Hours',
-          type: 'string',
-        }),
-        defineField({
-          name: 'priceIndication',
-          title: 'Price Indication',
-          type: 'string',
-        }),
-        defineField({
-          name: 'menuHighlightsCafe',
-          title: 'Menu Highlights (Cafe)',
-          type: 'array',
-          of: [{type: 'string'}],
-        }),
-        defineField({
-          name: 'wifiReliabilityNotes',
-          title: 'WiFi Reliability Notes',
-          type: 'string',
-        }),
-      ],
+      type: 'cafeDetails',
     }),
     defineField({
       name: 'accommodationDetails',
       title: 'Accommodation Details',
-      type: 'object',
-      options: {
-        collapsible: true,
-        collapsed: true,
-      },
-      fields: [
-        defineField({
-          name: 'accommodationType',
-          title: 'Accommodation Type',
-          type: 'string',
-        }),
-        defineField({
-          name: 'pricePerNightThbRange',
-          title: 'Price Per Night (THB Range)',
-          type: 'string',
-        }),
-        defineField({
-          name: 'roomTypesAvailable',
-          title: 'Room Types Available',
-          type: 'array',
-          of: [{type: 'string'}],
-        }),
-        defineField({
-          name: 'specificAmenitiesAccommodation',
-          title: 'Specific Amenities (Accommodation)',
-          type: 'array',
-          of: [{type: 'string'}],
-        }),
-      ],
+      type: 'accommodationDetails',
     }),
     defineField({
       name: 'reviews',

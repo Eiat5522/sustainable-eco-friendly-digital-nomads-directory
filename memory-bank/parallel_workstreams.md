@@ -583,3 +583,44 @@ That will remove the “never” type entirely and let you access `.current` wit
 - [I] **G.2 Normalize Type Definitions**
   - Update all type definitions in `sanity.types.ts` and related files to use normalized names and types (e.g., shortDescription, type, digitalNomadFeatures, lastVerifiedDate)
   - Remove legacy type aliases and interfaces
+
+## 🧩 WORKSTREAM H: Sanity Schema & Shape Realignment (IN PROGRESS)
+
+**Reference:** See [schema and shape realignment plan 20250726.md](../schema%20and%20shape%20realignment%20plan%2020250726.md) for full details and rationale for each step.
+
+**Lead Developer:** Full-stack/TypeScript-focused
+**Estimated Time:** 6-8 hours
+**Dependencies:** None (can start immediately)
+**Status:** IN PROGRESS July 26, 2025
+
+### H: Sanity Schema & Shape Realignment Tasks
+
+> Mark each item as `[I]` before executing the actual task. Mark as `[x]` when completed. Only move to the next item after marking the previous as complete.
+
+- [x] **H.1 Update/Align Sanity Schemas**
+  - Add new objects: `openingHoursEntry`, `coworkingPricingPlan`
+  - Update `coworkingDetails`, `accommodationDetails`, `cafeDetails`, `listing`, `city` schemas as specified
+  - Remove deprecated fields (e.g., `contactInfo`, legacy hours, wifiReliabilityNotes)
+- [x] **H.2 Regenerate TypeScript Types**
+  - Run `pnpm sanity-typegen` or `npx @sanity/codegen --schema sanity/schemas --output sanity/sanity.types.ts`
+- [x] **H.3 Refactor GROQ Queries & App Shapes**
+  - Update all queries to match new canonical shapes (slug as string, city as object, arrays of names, etc.)
+  - Ensure all projections use camelCase and correct field mappings
+- [x] **H.4 Remove/Replace Manual Listing Interfaces**
+  - Remove or trim `src/types/listing.ts` and related manual types
+  - Use generated types and define minimal app view models as needed
+- [x] **H.5 Refactor All Usages in App Code**
+  - Update all components, pages, and utilities to use new types and shapes
+  - Replace legacy usages (e.g., `listing.slug.current`, string city, raw tag arrays)
+- [x] **H.6 Remove Deprecated/Legacy Fields**
+  - Remove all code referencing `rating`, `contactInfo`, legacy hours, etc.
+- [x] **H.7 Update/Align API Routes**
+  - Ensure all API routes return the new canonical shape
+- [x] **H.8 Update/Align Tests & Fixtures**
+  - Update all test mocks and fixtures to match new types and shapes
+  - Update test expectations for new field structure
+- [I] **H.9 Run Type Checks & Tests**
+  - Run type-check and all tests; fix any errors or failures
+- [ ] **H.10 Final Validation & Documentation**
+  - Confirm all code, types, queries, and tests use only the new structure
+  - Update technical documentation as needed

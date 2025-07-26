@@ -340,7 +340,7 @@ describe('GET /api/auth/test', () => {
   });
 
   afterEach(() => {
-    process.env = OLD_ENV;
+    process.env = oldEnv;
   });
 
   function mockRequest() {
@@ -390,8 +390,8 @@ describe('GET /api/auth/test', () => {
     expect(json.message).toBe('JWT error');
   });
 
-  test('detects edge runtime via process.env.EDGE_RUNTIME', async () => {
-    process.env.EDGE_RUNTIME = '1';
+  test('detects edge runtime via process.env.edgeRuntime', async () => {
+    process.env.edgeRuntime = '1';
     mockAuth.mockResolvedValue({
       user: {
         id: '123',

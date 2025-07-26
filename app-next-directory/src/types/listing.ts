@@ -1,3 +1,5 @@
+// This file is now deprecated. Please use types from sanity/sanity.types.ts or src/types/appView.ts
+
 // Basic types
 import { ListingCategory, PriceRange } from './enums'
 
@@ -54,7 +56,7 @@ export interface Listing {
   ecoTags: EcoTag[]
   ecoRating?: number
   address: string
-  rating?: number
+  
   website?: string
   phone?: string
   email?: string
@@ -169,11 +171,7 @@ export type AnyListing =
   | CafeListing
   | AccommodationListing
   | RestaurantListing
-  | ActivitiesListing// Listing types and enums
-
-// ... rest of file ...
-
-// ...existing code...
+  | ActivitiesListing
 
 
 

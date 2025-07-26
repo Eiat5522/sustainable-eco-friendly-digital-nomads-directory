@@ -26,9 +26,7 @@ export async function GET(request: Request) {
     // Build sort
     const sort: any = {};
     switch (sortBy) {
-      case 'rating':
-        sort.rating = -1;
-        break;
+      
       case 'helpful':
         sort.helpfulCount = -1;
         break;

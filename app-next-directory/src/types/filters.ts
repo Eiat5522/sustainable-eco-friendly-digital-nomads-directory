@@ -24,7 +24,7 @@ export interface ListingFilters {
   location?: string;
   ecoTags?: string[];
   nomadFeatures?: string[];
-  minRating?: number;
+  
   maxPriceRange?: number;
   // New fields for advanced search filters
   minPriceRange?: number; // Minimum price for dual range slider (budget filtering)

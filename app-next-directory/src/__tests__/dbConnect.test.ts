@@ -162,7 +162,7 @@ describe('dbConnect', () => {
   it('throws on malformed URI', async () => {
     jest.resetModules();
     delete (global as any).mongoose;
-    process.env.MONGODB_URI = 'bad-uri';
+    process.env.mongodbUri = 'bad-uri';
     jest.doMock('mongoose', () => ({ connect: jest.fn().mockResolvedValue({ db: jest.fn() }) }), { virtual: true });
     const dbConnectModule = await import('../lib/dbConnect');
     const dbConnect = dbConnectModule.default;

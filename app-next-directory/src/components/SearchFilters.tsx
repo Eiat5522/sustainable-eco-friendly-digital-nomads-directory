@@ -322,39 +322,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onFilterChange, initialFi
           </div>
         </div>
 
-        {/* Enhanced Sustainability Score Filter with Star Rating */}
-        <div className="bg-gray-50 p-5 rounded-lg">
-          <label className="block text-sm font-medium text-gray-700 mb-3">
-            🌱 Minimum Sustainability Score
-          </label>
-
-          <SustainabilityStarRating
-            score={sustainabilityScore}
-            onChange={newScore => {
-              const scoreValue = newScore * 20; // Convert 1-5 stars to 0-100 scale
-              setSustainabilityScore(scoreValue);
-              handleInputChange('sustainabilityScore', scoreValue);
-            }}
-          />
-
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={sustainabilityScore}
-            title="Minimum sustainability score"
-            onChange={e => {
-              const value = parseInt(e.target.value);
-              setSustainabilityScore(value);
-              handleInputChange('sustainabilityScore', value);
-            }}
-            className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-gradient-to-r from-green-500 via-green-500 to-gray-300 mt-3"
-          />
-          <div className="flex justify-between text-xs text-gray-500 mt-2">
-            <span>Any (0)</span>
-            <span>Excellent (100)</span>
-          </div>
-        </div>
+        
 
         {/* Enhanced Eco-Certification Filter */}
         <div className="bg-gray-50 p-5 rounded-lg">

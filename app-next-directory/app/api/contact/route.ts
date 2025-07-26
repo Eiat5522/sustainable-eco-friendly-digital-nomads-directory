@@ -37,8 +37,8 @@ const createTransporter = () => {
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD, // Use app password for Gmail
+      user: process.env.gmailUser,
+      pass: process.env.gmailAppPassword, // Use app password for Gmail
     },
   });
 };
@@ -136,8 +136,8 @@ export async function POST(request: NextRequest) {
     const [adminEmail, autoReply] = await Promise.all([
       // Email to admin/support team
       transporter.sendMail({
-        from: process.env.SMTP_FROM || process.env.GMAIL_USER,
-        to: process.env.CONTACT_EMAIL || process.env.SMTP_USER || process.env.GMAIL_USER,
+        from: process.env.smtpFrom || process.env.gmailUser,
+        to: process.env.contactEmail || process.env.smtpUser || process.env.gmailUser,
         subject: emailSubject,
         html: emailBody,
         replyTo: email,
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
 
       // Auto-reply to user
       transporter.sendMail({
-        from: process.env.SMTP_FROM || process.env.GMAIL_USER,
+        from: process.env.smtpFrom || process.env.gmailUser,
         to: email,
         subject: autoReplySubject,
         html: autoReplyBody,

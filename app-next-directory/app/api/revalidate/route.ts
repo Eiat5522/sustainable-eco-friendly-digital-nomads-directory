@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const path = request.nextUrl.searchParams.get('path');
 
     // Validate the revalidation token
-    if (!token || token !== process.env.REVALIDATION_TOKEN) {
+    if (!token || token !== process.env.revalidationToken) {
       return NextResponse.json(
         { message: 'Invalid token' },
         { status: 401 }

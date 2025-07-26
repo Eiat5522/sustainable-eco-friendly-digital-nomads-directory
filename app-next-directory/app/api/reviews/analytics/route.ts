@@ -267,7 +267,6 @@ export async function GET(request: Request) {
       } : null,
       topListings: !listingSlug ? topListings.map((l: any) => ({
         slug: l._id,
-        avgRating: Number(l.avgRating?.toFixed(2)) || 0,
         reviewCount: l.reviewCount,
       })) : undefined,
     };

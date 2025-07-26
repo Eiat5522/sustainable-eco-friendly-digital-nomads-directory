@@ -85,7 +85,7 @@ export default async function CityPageRoute({ params }: CityPageParams) {
     const listingsQuery = `*[_type == "listing" && references(*[_type == "city" && slug.current == $citySlug][0]._id) && moderation.status == "published"] {
       _id,
       name,
-      "slug": slug.current,
+      slug,
       shortDescription,
       category,
       primaryImage {
@@ -101,10 +101,10 @@ export default async function CityPageRoute({ params }: CityPageParams) {
         }
       },
       ecoTags,
-      rating,
+      
       priceRange,
       location,
-      digitalNomadFeatures
+      "digitalNomadFeatures": digitalNomadFeatures[]->name
     }`;
 
       const [city, listings] = await Promise.all([

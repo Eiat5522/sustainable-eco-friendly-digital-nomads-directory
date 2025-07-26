@@ -20,18 +20,13 @@ export async function GET(
 
     const skip = (page - 1) * limit;
 
-    const [results, total, avgRating] = await Promise.all([
+    const [results, total] = await Promise.all([
       reviews.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
       reviews.countDocuments(filter),
-      reviews.aggregate([
-        { $match: filter },
-        { $group: { _id: null, avgRating: { $avg: '$rating' } } }
-      ]).toArray()
     ]);
 
     return ApiResponseHandler.success({
       reviews: results,
-      averageRating: avgRating[0]?.avgRating || 0,
       pagination: {
         page,
         limit,

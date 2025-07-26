@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     const token = request.nextUrl.searchParams.get('token');
 
     // Validate the revalidation token
-    if (!token || token !== process.env.REVALIDATION_TOKEN) {
+    if (!token || token !== process.env.revalidationToken) {
       return NextResponse.json(
         { message: 'Invalid token' },
         { status: 401 }

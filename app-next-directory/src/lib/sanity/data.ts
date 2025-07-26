@@ -38,11 +38,11 @@ const LISTING_BY_SLUG_QUERY = groq`
     reviews[]->,
     address,
     website,
-    contactInfo,
+    contactPhone, contactEmail,
+    
     openingHours,
     shortDescription,
     sourceUrls,
-    rating,
     priceRange,
     galleryImages[]{
       ...,

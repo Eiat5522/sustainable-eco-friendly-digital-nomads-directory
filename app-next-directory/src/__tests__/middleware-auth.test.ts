@@ -138,15 +138,15 @@ describe('middleware authentication', () => {
   });
 
   describe('environment configuration', () => {
-    it('should have NEXTAUTH_SECRET configured for tests', () => {
-      expect(process.env.NEXTAUTH_SECRET).toBe('test-secret');
+    it('should have nextAuthSecret configured for tests', () => {
+      expect(process.env.nextAuthSecret).toBe('test-secret');
     });
 
-    it('should handle missing NEXTAUTH_SECRET', () => {
-      const originalSecret = process.env.NEXTAUTH_SECRET;
-      delete (process.env as Record<string, string | undefined>).NEXTAUTH_SECRET;
-      expect(process.env.NEXTAUTH_SECRET).toBeUndefined();
-      process.env.NEXTAUTH_SECRET = originalSecret;
+    it('should handle missing nextAuthSecret', () => {
+      const originalSecret = process.env.nextAuthSecret;
+      delete (process.env as Record<string, string | undefined>).nextAuthSecret;
+      expect(process.env.nextAuthSecret).toBeUndefined();
+      process.env.nextAuthSecret = originalSecret;
     });
   });
 });

@@ -147,3 +147,8 @@ app-next-directory/docs/functional-specs/sso-onboarding-spec.md
 **/*test-results**
 app-next-directory/src/components/listings/RelatedListings.tsx.removed
 app-next-directory/src/components/listings/RelatedListings.tsx.bak
+app-next-directory/docs/temp_gemini_session.txt
+schema and shape realignment plan 20250726.md
+app-next-directory/docs/TASK_PROGRESS.md
+sanity/TASK_PROGRESS.md
+app-next-directory/docs/temp/temp_gemini_session.txt

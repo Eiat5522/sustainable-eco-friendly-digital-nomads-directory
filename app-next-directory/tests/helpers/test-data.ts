@@ -78,7 +78,7 @@ export const mockListings: Listing[] = [
         alt: 'Café exterior'
       }
     ],
-    digitalNomadFeatures: ['wifi_available', 'power_outlets'],
+    digitalNomadFeatures: ['wifi-available', 'power-outlets'],
     city: {
       _ref: 'chiangmai-ref',
       _type: 'reference',

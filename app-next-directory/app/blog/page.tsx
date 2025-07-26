@@ -175,7 +175,7 @@ export default function BlogPage() {
                     {/* Title */}
                     <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2">
                       <Link 
-                        href={`/blog/${post.slug.current}`}
+                        href={`/blog/${post.slug}`}
                         className="hover:text-green-600 dark:hover:text-green-400 transition-colors"
                       >
                         {post.title}
@@ -217,7 +217,7 @@ export default function BlogPage() {
                     {/* Read More Button */}
                     <div className="mt-4">
                       <Link
-                        href={`/blog/${post.slug.current}`}
+                        href={`/blog/${post.slug}`}
                         className="inline-flex items-center text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium"
                       >
                         Read more

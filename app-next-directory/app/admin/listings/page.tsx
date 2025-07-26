@@ -44,8 +44,6 @@ interface Listing {
     city: string;
     country: string;
   };
-  rating: number;
-  reviewCount: number;
   views: number;
   createdAt: string;
   updatedAt: string;
@@ -93,7 +91,7 @@ export default function ListingsPage() {
         publishedListings: 142,
         pendingListings: 8,
         flaggedListings: 3,
-        averageRating: 4.2,
+        
         totalViews: 15420,
       };
 
@@ -134,8 +132,7 @@ export default function ListingsPage() {
             city: 'San José',
             country: 'Costa Rica',
           },
-          rating: 3.2,
-          reviewCount: 8,
+          status: 'flagged',
           views: 89,
           createdAt: '2024-12-10T15:45:00Z',
           updatedAt: '2024-12-19T09:30:00Z',

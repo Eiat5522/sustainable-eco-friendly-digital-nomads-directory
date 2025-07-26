@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 interface ModerationItem {
   _id: string;
   title: string;
-  type: 'listing' | 'review' | 'blog_post' | 'user';
+  type: 'listing' | 'review' | 'blogPost' | 'user';
   status: 'pending' | 'approved' | 'rejected' | 'flagged';
   content?: string;
   reportedAt: string;
@@ -195,7 +195,7 @@ export default function ModerationQueue() {
               <option value="all">All Types</option>
               <option value="listing">Listings</option>
               <option value="review">Reviews</option>
-              <option value="blog_post">Blog Posts</option>
+              <option value="blogPost">Blog Posts</option>
               <option value="user">Users</option>
             </select>
           </div>

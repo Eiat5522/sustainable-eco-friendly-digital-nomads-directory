@@ -23,7 +23,7 @@ interface CityData {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'
+  const baseUrl = process.env.nextPublicSiteUrl || 'http://localhost:3001'
 
   // Static pages
   const staticPages: SitemapEntry[] = [

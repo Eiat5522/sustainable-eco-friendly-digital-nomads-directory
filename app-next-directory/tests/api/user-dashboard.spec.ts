@@ -67,7 +67,7 @@ test.describe('User Dashboard API', () => {
   test('should handle POST requests for analytics tracking', async ({ request }) => {
     const response = await request.post('/api/user/analytics', {
       data: {
-        eventType: 'page_view',
+        eventType: 'pageView',
         eventData: {
           page: '/listings',
           duration: 5000

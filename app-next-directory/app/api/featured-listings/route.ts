@@ -55,7 +55,7 @@ export async function GET() {
     const FEATURED_LISTINGS_QUERY = groq`*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {
       _id,
       name,
-      "slug": slug.current,
+      "slug": slug,
       "primaryImage": primaryImage{
         alt,
         "asset": asset->{
@@ -83,6 +83,8 @@ export async function GET() {
         name,
         country
       },
+      "ecoTags": ecoFocusTags[]->name,
+      "digitalNomadFeatures": digitalNomadFeatures[]->name,
       "priceRange": coalesce(
         accommodationDetails.pricePerNightThbRange,
         cafeDetails.priceIndication,
@@ -119,10 +121,10 @@ export async function GET() {
       success: true,
       metadata: {
         total: listings.length,
-        query_time: new Date().toISOString(),
+        queryTime: new Date().toISOString(),
         performance: {
-          total_time_ms: (endTime - startTime).toFixed(2),
-          query_time_ms: (queryEndTime - queryStartTime).toFixed(2)
+          totalTimeMs: (endTime - startTime).toFixed(2),
+          queryTimeMs: (queryEndTime - queryStartTime).toFixed(2)
         }
       }
     });
@@ -136,7 +138,7 @@ export async function GET() {
       details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString(),
       performance: {
-        total_time_ms: (endTime - startTime).toFixed(2)
+        totalTimeMs: (endTime - startTime).toFixed(2)
       }
     }, { status: 500 });
   }

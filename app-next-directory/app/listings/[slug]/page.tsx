@@ -1,8 +1,7 @@
 import type {
   LISTING_BY_SLUG_QUERYResult,
   City,
-  EcoTag,
-  Review
+  EcoTag
 } from '../../../../sanity/sanity.types';
 
 import React from 'react';
@@ -119,7 +118,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           listing={{
             _id: listing._id,
             name: listing.name ?? '',
-            slug: isCanonicalSlug(listing.slug) ? listing.slug : { current: '' },
+            slug: isCanonicalSlug(listing.slug) ? listing.slug : '',
             address: listing.address ?? undefined,
             shortDescription: listing.shortDescription ?? undefined,
             longDescription: listing.longDescription ?? undefined,
@@ -135,9 +134,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               listingCount: validCity.listingCount,
               country: validCity.country
             } : undefined,
-            reviews: Array.isArray(listing.reviews)
-              ? (listing.reviews as any[]).filter(r => r && typeof r === 'object' && '_id' in r && 'author' in r && 'rating' in r && 'comment' in r && '_createdAt' in r)
-              : [],
+            
           }}
         />
 
@@ -173,7 +170,36 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
                     <p className="text-muted-foreground">{listing.address}</p>
                   </div>
                 )}
-                {/* Canonical Listing does not have website, contactInfo, or openingHours fields */}
+                {listing.coworkingDetails?.openingHours && listing.coworkingDetails.openingHours.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold">Coworking Hours</h4>
+                    <ul className="text-muted-foreground">
+                      {listing.coworkingDetails.openingHours.map((h, index) => (
+                        <li key={index}>{h.day}: {h.opens} - {h.closes}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {listing.cafeDetails?.openingHours && listing.cafeDetails.openingHours.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold">Cafe Hours</h4>
+                    <ul className="text-muted-foreground">
+                      {listing.cafeDetails.openingHours.map((h, index) => (
+                        <li key={index}>{h.day}: {h.opens} - {h.closes}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {listing.accommodationDetails?.openingHours && listing.accommodationDetails.openingHours.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold">Accommodation Check-in/out</h4>
+                    <ul className="text-muted-foreground">
+                      {listing.accommodationDetails.openingHours.map((h, index) => (
+                        <li key={index}>{h.day}: {h.opens} - {h.closes}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 {listing.lastVerifiedDate && (
                   <div>
                     <h4 className="font-semibold">Last Verified</h4>
@@ -185,17 +211,15 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               </CardContent>
             </Card>
 
-            {Array.isArray(listing.ecoTags) && listing.ecoTags.some(tag => tag && typeof tag === 'object' && 'name' in tag) && (
+            {Array.isArray(listing.ecoTags) && listing.ecoTags.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Eco Tags</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-2">
-                  {listing.ecoTags
-                    .filter(tag => tag && typeof tag === 'object' && 'name' in tag)
-                    .map((tag: any) => (
-                      <Badge key={tag._id} variant="secondary">
-                        {tag.name}
+                  {listing.ecoTags.map((tag: string) => (
+                      <Badge key={tag} variant="secondary">
+                        {tag}
                       </Badge>
                     ))}
                 </CardContent>

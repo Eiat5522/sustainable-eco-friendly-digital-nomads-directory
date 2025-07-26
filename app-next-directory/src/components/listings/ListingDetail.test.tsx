@@ -477,16 +477,7 @@ describe('ListingDetail', () => {
     expect(screen.getByText(date2)).toBeInTheDocument();
   });
 
-  test('handles star rating display in reviews', () => {
-    render(<ListingDetail listing={mockListing} />);
-    
-    // Check for star ratings in reviews
-    const fiveStars = screen.getByText('★★★★★');
-    const fourStars = screen.getByText('★★★★');
-    
-    expect(fiveStars).toBeInTheDocument();
-    expect(fourStars).toBeInTheDocument();
-  });
+  
 
   test('handles empty arrays gracefully', () => {
     const emptyListing = {

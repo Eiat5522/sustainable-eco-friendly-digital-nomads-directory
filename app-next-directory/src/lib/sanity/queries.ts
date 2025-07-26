@@ -1,118 +1,32 @@
 import { client } from './client';
 
-// Common field definitions
-const listingFields = `
-  _id,
-  name,
-  "slug": slug.current,
-  shortDescription,
-  category,
-  "location": {
-    "lat": location.lat,
-    "lng": location.lng
-  },
-  "city": city->{
-    _id,
-    title,
-    "slug": slug.current,
-    country
-  },
-  primaryImage {
-    asset->
-  },
-  "ecoTags": ecoTags[]->{
-    _id,
-    name,
-    "slug": slug.current
-  },
-  "digitalNomadFeatures": digitalNomadFeatures[]->{
-    _id,
-    name,
-    "slug": slug.current
-  },
-  lastVerifiedDate,
-  priceRange,
-  website
-`;
-
-async function getAllListings(preview = false) {
-  const sanityClient = client;
-
-  const query = `*[_type == "listing" && moderation.status == "published"] {
-    ${listingFields}
-  }`;
-
-  return await sanityClient.fetch(query);
-}
-
 async function getListingBySlug(slug: string, preview = false) {
   const sanityClient = client;
 
-  const query = `*[_type == "listing" && slug.current == $slug][0] {
-    ${listingFields},
-    descriptionLong,
-    galleryImages[]{
-      asset->
+  const query = `*[_type=="listing" && slug.current==$slug][0]{
+    _id, name,
+    "slug": slug.current,
+    "city": city->{ "_id": _id, name, "slug": slug.current, country },
+    "ecoTags": ecoFocusTags[]->name,
+    "nomadFeatures": digitalNomadFeatures[]->name,
+    contactPhone, contactEmail, website,
+    priceRange,
+
+    coworkingDetails: coworking_details{
+      capacity,
+      pricingPlans[]{ type, price, period },
+      openingHours[]{ day, opens, closes }
     },
-    address,
-    openingHours,
-    contactInfo,
-    sourceUrls,
-    "reviews": *[_type == "review" && references(^._id)]{
-      _id,
-      rating,
-      comment,
-      author->{name},
-      _createdAt
+    accommodationDetails: accommodation_details{
+      pricePerNightThb{ min, max },
+      openingHours[]{ day, opens, closes }
     },
-    ...select(
-      category == 'coworking' => {
-        "coworkingDetails": {
-          operatingHours,
-          pricingPlans,
-          specificAmenities: specificAmenities_coworking
-        }
-      },
-      category == 'cafe' => {
-        "cafeDetails": {
-          operatingHours,
-          priceIndication,
-          menuHighlights: menu_highlights_cafe,
-          wifiReliabilityNotes
-        }
-      },
-      category == 'accommodation' => {
-        "accommodationDetails": {
-          accommodationType: accommodation_type,
-          pricePerNightRange: price_per_night_thb_range,
-          roomTypesAvailable: room_types_available,
-          specificAmenities: specific_amenities_accommodation
-        }
-      }
-    )
+    cafeDetails: cafe_details{
+      openingHours[]{ day, opens, closes }
+    }
   }`;
 
   return await sanityClient.fetch(query, { slug });
-}
-
-async function getListingsByCategory(category: string, preview = false) {
-  const sanityClient = client;
-
-  const query = `*[_type == "listing" && moderation.status == "published" && category == $category] {
-    ${listingFields}
-  }`;
-
-  return await sanityClient.fetch(query, { category });
-}
-
-async function getListingsByCity(cityName: string, preview = false) {
-  const sanityClient = client;
-
-  const query = `*[_type == "listing" && moderation.status == "published" && city->title == $cityName] {
-    ${listingFields}
-  }`;
-
-  return await sanityClient.fetch(query, { cityName });
 }
 
 // Get all available cities for filtering
@@ -158,22 +72,6 @@ async function getAllEcoTags(preview = false) {
   return await sanityClient.fetch(query);
 }
 
-// Search listings
-async function searchListings(searchTerm: string, preview = false) {
-  const sanityClient = client;
-
-  const query = `*[_type == "listing" && moderation.status == "published" && (
-    name match $searchTerm ||
-    descriptionShort match $searchTerm ||
-    descriptionLong match $searchTerm ||
-    shortDescription match $searchTerm
-  )] {
-    ${listingFields}
-  }`;
-
-  return await sanityClient.fetch(query, { searchTerm: `*${searchTerm}*` });
-}
-
 // Get latest blog posts
 async function getLatestBlogPosts(limit = 3, preview = false) {
   const sanityClient = client;
@@ -191,26 +89,17 @@ async function getLatestBlogPosts(limit = 3, preview = false) {
   return await sanityClient.fetch(query, { limit: limit - 1 });
 }
 
-// Get featured listings for home page
-async function getFeaturedListings(preview = false) {
-  const sanityClient = client;
+// Export all functions
+export {
+  getAllCities,
+  getAllEcoTags,
+  getLatestBlogPosts,
+  getListingBySlug,
+};
 
-  const query = `*[_type == "listing" && moderation.status == "published" && moderation.featured == true] {
-    ${listingFields},
-    shortDescription,
-    "reviews": count(*[_type == "review" && references(^._id)])
-  }`;
+// Additional alias export
+export const getCity = getListingBySlug
 
-  return await sanityClient.fetch(query);
-}
-
-async function getRelatedListings(listingId: string, category: string, cityName: string, limit = 3) {
-  const query = `*[_type == "listing" && moderation.status == "published" && _id != $listingId && (category == $category || city->title == $cityName)][0...${limit}]{
-    ${listingFields}
-  }`;
-
-  return await client.fetch(query, { listingId, category, cityName });
-}
 
 // Export all functions
 export {

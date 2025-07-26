@@ -2,5 +2,14 @@
   "extends": [
     "next/core-web-vitals",
     "next/typescript"
+  ],
+  "overrides": [
+    {
+      "files": ["sanity/sanity.types.ts"],
+      "rules":
+      {
+      "@typescript-eslint/no-use-before-define": "off"
+      }
+    }
   ]
 }

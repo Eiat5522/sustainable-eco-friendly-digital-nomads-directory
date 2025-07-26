@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       summary: {
         allTestsPassed,
       },
-      runtime: process.env.EDGE_RUNTIME ? 'edge' : 'node',
+      runtime: process.env.edgeRuntime ? 'edge' : 'node',
       isAuthenticated: !!session,
       user: session?.user || null,
     };

@@ -145,9 +145,7 @@ export function ListingFilters({
       location: currentHookFilters.location && currentHookFilters.location.length > 0
                   ? { city: currentHookFilters.location[0], radius: parseInt(currentHookFilters.location[1], 10) }
                   : null,
-      minRating: currentHookFilters.minRating && currentHookFilters.minRating.length > 0
-                  ? parseInt(currentHookFilters.minRating[0])
-                  : undefined,
+      
       // Removed: digitalNomadFeatures, ecoCertification, accommodationType, sustainabilityScore
     };
     onFiltersChange(combinedFilters);

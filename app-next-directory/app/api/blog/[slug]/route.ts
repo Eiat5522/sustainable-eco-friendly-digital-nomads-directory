@@ -8,7 +8,7 @@ const postQuery = groq`
   *[_type == "blogPost" && slug.current == $slug][0] {
     _id,
     title,
-    slug,
+    "slug": slug.current,
     mainImage,
     publishedAt,
     excerpt,
@@ -19,6 +19,7 @@ const postQuery = groq`
     "authorBio": author->bio,
     "readingTime": round(length(pt::text(body)) / 200),
     "relatedPosts": *[_type == "blogPost" && slug.current != $slug && count(tags[@ in ^.tags]) > 0] | order(publishedAt desc) [0...3] {
+      "slug": slug,
       _id,
       title,
       slug,
@@ -109,7 +110,7 @@ export async function PUT(
     if (body.action === 'increment_view') {
       // Find post ID by slug
       const post = await sanityClient.fetch(
-        groq`*[_type == "blogPost" && slug.current == $slug][0]{ _id }`,
+        groq`*[_type == "blogPost" && slug.current == $slug][0]{ _id, "slug": slug.current }`,
         { slug }
       );
 

@@ -33,6 +33,6 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     NODE_ENV: mockNodeEnv,
-    PREVIEW_SECRET: mockPreviewSecret
+    previewSecret: mockPreviewSecret
   });
 }

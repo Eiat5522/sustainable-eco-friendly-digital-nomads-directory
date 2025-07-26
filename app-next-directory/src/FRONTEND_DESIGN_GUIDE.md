@@ -45,7 +45,7 @@ Our interface employs a natural color palette with modern tech elements, creatin
 
 - **Immersive images** with subtle hover effects
 - **Dynamic highlighting** of eco-friendly features
-- **Rating systems** that visually communicate sustainability metrics
+
 - **Optimized image loading** for minimal environmental impact
 - **Responsive layout** adapts to any device
 

@@ -12,7 +12,9 @@ interface Listing {
   slug: string;
   primary_image_url: string;
   city: {
+    _id: string;
     name: string;
+    slug: string;
     country: string;
   };
   eco_features: string[];
@@ -96,10 +98,12 @@ export default async function CategoryPage({ params }: Props) {
       _id,
       name,
       shortDescription,
-      "slug": slug.current,
+      slug,
       primary_image_url,
       city->{
+        _id,
         name,
+        "slug": slug.current,
         country
       },
       eco_features,
@@ -237,7 +241,7 @@ export default async function CategoryPage({ params }: Props) {
                       {listing.shortDescription}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {listing.eco_features.slice(0, 3).map((feature: string) => (
+                      {listing.ecoFeatures.slice(0, 3).map((feature: string) => (
                         <span
                           key={feature}
                           className="px-2 py-1 text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full"
@@ -245,9 +249,9 @@ export default async function CategoryPage({ params }: Props) {
                           {feature}
                         </span>
                       ))}
-                      {listing.eco_features.length > 3 && (
+                      {listing.ecoFeatures.length > 3 && (
                         <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
-                          +{listing.eco_features.length - 3} more
+                          +{listing.ecoFeatures.length - 3} more
                         </span>
                       )}
                     </div>

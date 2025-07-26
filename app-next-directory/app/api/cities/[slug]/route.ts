@@ -15,6 +15,7 @@ export async function GET(
     console.log('[DEBUG] Cities/[slug] API: Looking for city with slug:', slug);
 
     const query = `*[_type == "city" && slug.current == $slug][0] {
+      "slug": slug.current,
       _id,
       title,
       "slug": slug.current,

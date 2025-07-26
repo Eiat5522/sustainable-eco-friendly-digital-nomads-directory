@@ -90,8 +90,8 @@ export interface SanityListing extends SanityDocument {
   };
 
   // Contact information
-  phone?: string;
-  email?: string;
+  contactPhone?: string;
+  contactEmail?: string;
   socialLinks?: {
     facebook?: string;
     twitter?: string;
