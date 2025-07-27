@@ -1,8 +1,7 @@
 import type {
   LISTING_BY_SLUG_QUERYResult,
-  City,
-  EcoTag
 } from '../../../../sanity/sanity.types';
+import { AppListingDetail, AppCity } from '@/types/appView';
 
 import React from 'react';
 import Link from 'next/link';
@@ -76,15 +75,45 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
   }
   const imageAlt = listing.primaryImage?.alt || listing.name || 'Listing image';
 
-  // Extract the city with type assertion - safe because we've checked the structure
-  const validCity = (listing.city && 
-                    typeof listing.city === 'object' && 
-                    '_id' in listing.city && 
-                    'name' in listing.city && 
-                    'slug' in listing.city && 
-                    'country' in listing.city) 
-    ? (listing.city as any) 
-    : null;
+  const appListingDetail: AppListingDetail = {
+    id: listing._id,
+    name: listing.name ?? '',
+    slug: listing.slug ?? '',
+    city: listing.city ? {
+      id: listing.city._id,
+      name: listing.city.name ?? '',
+      slug: listing.city.slug ?? '',
+      country: listing.city.country ?? ''
+    } : null,
+    ecoTags: listing.ecoTags ?? [],
+    priceRange: listing.priceRange as any,
+    website: listing.website ?? null,
+    contactPhone: listing.contactPhone ?? null,
+    contactEmail: listing.contactEmail ?? null,
+    coworkingDetails: listing.coworkingDetails ? {
+      capacity: listing.coworkingDetails.capacity ?? null,
+      pricingPlans: listing.coworkingDetails.pricingPlans ?? [],
+      openingHours: listing.coworkingDetails.openingHours ?? []
+    } : null,
+    accommodationDetails: listing.accommodationDetails ? {
+      pricePerNightThb: listing.accommodationDetails.pricePerNightThb ? {
+        min: listing.accommodationDetails.pricePerNightThb.min ?? null,
+        max: listing.accommodationDetails.pricePerNightThb.max ?? null
+      } : null,
+      openingHours: listing.accommodationDetails.openingHours ?? []
+    } : null,
+    cafeDetails: listing.cafeDetails ? {
+      openingHours: listing.cafeDetails.openingHours ?? []
+    } : null,
+    nomadFeatures: listing.nomadFeatures ?? [],
+    shortDescription: listing.shortDescription ?? undefined,
+    longDescription: listing.longDescription ?? undefined,
+    galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : [],
+    location: isValidLocation(listing.location) ? listing.location : undefined,
+    mainImage: listing.primaryImage,
+    reviews: listing.reviews,
+    type: listing.type,
+  };
 
   return (
     <div className="container mx-auto max-w-5xl px-4 py-8">
@@ -120,7 +149,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
             address: listing.address ?? undefined,
             shortDescription: listing.shortDescription ?? undefined,
             longDescription: listing.longDescription ?? undefined,
-            ecoTags: Array.isArray(listing.ecoTags)
+            ecoFocusTags: Array.isArray(listing.ecoTags)
               ? (listing.ecoTags as any[]).filter(tag => tag && typeof tag === 'object' && '_id' in tag && 'name' in tag && 'slug' in tag)
               : [],
             galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : [],

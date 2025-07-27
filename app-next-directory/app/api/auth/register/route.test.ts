@@ -340,7 +340,7 @@ describe('GET /api/auth/test', () => {
   });
 
   afterEach(() => {
-    process.env = oldEnv;
+    process.env = OLD_ENV;
   });
 
   function mockRequest() {

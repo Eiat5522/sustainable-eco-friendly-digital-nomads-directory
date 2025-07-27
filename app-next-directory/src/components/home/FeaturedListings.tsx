@@ -25,7 +25,7 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
         const canonicalListing: SanityListing = {
           ...listing,
           address: typeof listing.address === 'string' ? listing.address : '',
-          ecoTags: Array.isArray(listing.ecoTags) ? listing.ecoTags.map(tag => tag.name) : [],
+          ecoFocusTags: Array.isArray(listing.ecoFocusTags) ? listing.ecoFocusTags.map(tag => tag.name) : [],
           digitalNomadFeatures: Array.isArray(listing.digitalNomadFeatures) ? listing.digitalNomadFeatures.map(feature => feature.name) : [],
           priceRange: listing.priceRange,
           city: listing.city && typeof listing.city === 'object' && '_id' in listing.city && 'name' in listing.city && 'slug' in listing.city && '_type' in listing.city

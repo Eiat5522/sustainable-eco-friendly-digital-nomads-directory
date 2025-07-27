@@ -6,7 +6,7 @@
  */
 
 import { processMetricForAlert } from '@/lib/performance/alert-service';
-import { performanceBudgets } from '@/lib/performance/performance-budgets';
+import { PERFORMANCE_BUDGETS } from '@/lib/performance/performance-budgets';
 
 interface MetricData {
   name: string;
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
 
     // Check metrics against thresholds and add status
     if (metricsData.name && (PERFORMANCE_BUDGETS.pageLoad as Record<string, any>)[metricsData.name]) {
-      const budget = (performanceBudgets.pageLoad as Record<string, any>)[metricsData.name];
+      const budget = (PERFORMANCE_BUDGETS.pageLoad as Record<string, any>)[metricsData.name];
       enhancedData.status =
         metricsData.value <= budget.target ? 'good' :
         metricsData.value <= budget.acceptable ? 'needs-improvement' :

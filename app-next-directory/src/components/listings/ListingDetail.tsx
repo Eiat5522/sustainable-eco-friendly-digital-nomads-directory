@@ -5,53 +5,10 @@ import { urlFor } from '@/lib/sanity/image';
 import dynamic from 'next/dynamic';
 import MapContainer, { MapContainerProps } from '../map/MapContainer';
 
-interface Review {
-  rating: number;
-  comment: string;
-  _createdAt: string;
-  author: string;
-}
-
-interface Location {
-  lat: number;
-  lng: number;
-}
-
-interface City {
-  _id: string;
-  name: string;
-  slug: { current: string };
-  listingCount: number;
-  country: string;
-}
-
-interface EcoTag {
-  _id: string;
-  name: string;
-  slug: { current: string };
-}
+import { AppListingDetail } from '@/types/appView';
 
 interface ListingProps {
-  listing: {
-    _id: string;
-    name: string;
-    slug?: { current: string };
-    address?: string;
-    shortDescription?: string;
-    longDescription?: string;
-    type?: string;
-    ecoTags?: EcoTag[];
-    amenities?: string[];
-    mainImage?: any;
-    galleryImages?: any[];
-    city?: City;
-    location?: Location;
-    website?: string;
-    email?: string;
-    phone?: string;
-    priceRange?: string;
-    reviews?: Review[];
-  };
+  listing: AppListingDetail;
 }
 
 const DynamicMapContainer = dynamic<MapContainerProps>(

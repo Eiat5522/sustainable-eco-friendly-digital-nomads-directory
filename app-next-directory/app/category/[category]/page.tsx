@@ -194,7 +194,7 @@ export default async function CategoryPage({ params }: Props) {
               <p className="text-gray-600 dark:text-gray-400 text-sm">Avg. Eco Features</p>
               <p className="text-2xl font-bold">
                 {Math.round(
-                  categoryListings.reduce((acc: number, l: Listing) => acc + l.ecoFeatures.length, 0) /
+                  categoryListings.reduce((acc: number, l: Listing) => acc + l.eco_features.length, 0) /
                   Math.max(categoryListings.length, 1)
                 )}
               </p>
@@ -241,7 +241,7 @@ export default async function CategoryPage({ params }: Props) {
                       {listing.shortDescription}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {listing.ecoFeatures.slice(0, 3).map((feature: string) => (
+                      {listing.eco_features.slice(0, 3).map((feature: string) => (
                         <span
                           key={feature}
                           className="px-2 py-1 text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full"
@@ -249,9 +249,9 @@ export default async function CategoryPage({ params }: Props) {
                           {feature}
                         </span>
                       ))}
-                      {listing.ecoFeatures.length > 3 && (
+                      {listing.eco_features.length > 3 && (
                         <span className="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full">
-                          +{listing.ecoFeatures.length - 3} more
+                          +{listing.eco_features.length - 3} more
                         </span>
                       )}
                     </div>

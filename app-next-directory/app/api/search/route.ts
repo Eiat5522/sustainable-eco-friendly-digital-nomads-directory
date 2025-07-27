@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     if (destination && destination.length > 0) {
       groqQuery += ` && (${destination.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
     }
-    if (features_amenities && features_amenities.length > 0) {
+    if (featuresAmenities && featuresAmenities.length > 0) {
       groqQuery += ` && (${featuresAmenities.map((fa) => `array::contains(ecoFeatures, "${fa}") || array::contains(amenities, "${fa}")`).join(' || ')})`;
     }
 
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
     if (destination && destination.length > 0) {
       countQuery += ` && (${destination.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
     }
-    if (features_amenities && features_amenities.length > 0) {
+    if (featuresAmenities && featuresAmenities.length > 0) {
       countQuery += ` && (${featuresAmenities.map((fa) => `array::contains(ecoFeatures, "${fa}") || array::contains(amenities, "${fa}")`).join(' || ')})`;
     }
 

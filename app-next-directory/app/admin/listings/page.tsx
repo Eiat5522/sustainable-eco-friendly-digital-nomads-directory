@@ -59,6 +59,8 @@ interface Listing {
     currency: string;
     period: string;
   };
+  rating?: number;
+  reviewCount?: number;
 }
 
 export default function ListingsPage() {
@@ -69,6 +71,7 @@ export default function ListingsPage() {
     flaggedListings: 0,
     
     totalViews: 0,
+    averageRating: 0,
   });
 
   const [listings, setListings] = useState<Listing[]>([]);
@@ -87,13 +90,12 @@ export default function ListingsPage() {
 
       // TODO: Replace with actual API calls
       const mockStats: ListingStats = {
-        const mockStats: ListingStats = {
         totalListings: 156,
         publishedListings: 142,
         pendingListings: 8,
         flaggedListings: 3,
+        averageRating: 4.2, // Assuming a default average rating
         totalViews: 15420,
-      };
       };
 
       const mockListings: Listing[] = [
@@ -133,23 +135,6 @@ export default function ListingsPage() {
             city: 'San José',
             country: 'Costa Rica',
           },
-          status: 'flagged',
-          views: 89,
-          createdAt: '2024-12-10T15:45:00Z',
-          updatedAt: '2024-12-19T09:30:00Z',
-          author: {
-            id: 'user2',
-            name: 'Jane Smith',
-            email: 'jane@example.com',
-          },
-          sustainabilityScore: 78,
-          features: ['Solar Power', 'Rainwater Harvesting'],
-          price: {
-            amount: 85,
-            currency: 'USD',
-            period: 'night',
-          },
-        },
         {
           id: '3',
           title: 'Sustainable Farm-to-Table Restaurant',
@@ -406,8 +391,6 @@ export default function ListingsPage() {
                   <div className="flex items-center space-x-6">
                     <div className="text-right">
                       <div className="flex items-center gap-2 text-sm text-gray-600">
-                        
-                      <div className="text-sm text-gray-600">
                         {listing.views} views
                       </div>
                       <div className="text-sm font-medium text-green-600">
@@ -475,11 +458,11 @@ export default function ListingsPage() {
             ))}
           </div>
 
-          {filteredListings.length === 0 && (
+          {filteredListings.length === 0 &&
             <div className="text-center py-8 text-gray-500">
               No listings found matching your criteria.
             </div>
-          )}
+          }
         </CardContent>
       </Card>
     </div>

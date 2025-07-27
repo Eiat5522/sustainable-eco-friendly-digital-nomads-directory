@@ -101,18 +101,4 @@ export {
 export const getCity = getListingBySlug
 
 
-// Export all functions
-export {
-  getAllCities,
-  getAllEcoTags,
-  getAllListings,
-  getFeaturedListings,
-  getLatestBlogPosts,
-  getListingBySlug,
-  getListingsByCategory,
-  getListingsByCity,
-  searchListings
-};
 
-// Additional alias export
-export const getCity = getListingBySlug

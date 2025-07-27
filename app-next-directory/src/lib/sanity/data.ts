@@ -4,50 +4,11 @@ import type { LISTING_BY_SLUG_QUERYResult } from '../../../../sanity/sanity.type
 
 // GROQ query to fetch a single listing by slug
 const LISTING_BY_SLUG_QUERY = groq`
-  *[_type == "listing" && slug.current == $slug][0] {
+  *[_type == "listing" && slug.current == $slug][0]{
     _id,
-    _type,
-    _createdAt,
-    _updatedAt,
-    _rev,
     name,
-    slug,
-    shortDescription,
-    longDescription,
-    category,
-    city-> {
-      _id,
-      _type,
-      _createdAt,
-      _updatedAt,
-      _rev,
-      name,
-      slug,
-      country,
-      description,
-      sustainabilityScore,
-      highlights,
-      mainImage,
-      listingCount
-    },
-    location { lat, lng },
-    primaryImage,
-    ecoTags[]->,
-    digitalNomadFeatures,
-    lastVerifiedDate,
-    reviews[]->,
-    address,
-    website,
-    contactPhone, contactEmail,
-    
-    openingHours,
-    shortDescription,
-    sourceUrls,
-    priceRange,
-    galleryImages[]{
-      ...,
-      asset->
-    }
+    "slug": slug.current,
+    "city": city->{ "_id": _id, name, "slug": slug.current, country }
   }
 `;
 

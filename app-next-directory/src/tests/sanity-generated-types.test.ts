@@ -37,7 +37,7 @@ describe('Sanity Generated Types', () => {
         address: 'Test Address',
         shortDescription: 'Short description',
         longDescription: 'Long description',
-        ecoTags: [],
+        ecoFocusTags: [],
         digitalNomadFeatures: [],
         primaryImage: {
           _type: 'image',
@@ -243,7 +243,7 @@ describe('Sanity Generated Types', () => {
           _ref: 'city-reference-id',
           _type: 'reference'
         },
-        ecoTags: [
+        ecoFocusTags: [
           {
             _ref: 'eco-tag-1',
             _type: 'reference',
@@ -254,8 +254,8 @@ describe('Sanity Generated Types', () => {
 
       expect(listingWithReferences.city?._ref).toBe('city-reference-id');
       expect(listingWithReferences.city?._type).toBe('reference');
-      expect(listingWithReferences.ecoTags?.[0]?._ref).toBe('eco-tag-1');
-      expect(listingWithReferences.ecoTags?.[0]?._key).toBe('tag-key-1');
+      expect(listingWithReferences.ecoFocusTags?.[0]?._ref).toBe('eco-tag-1');
+      expect(listingWithReferences.ecoFocusTags?.[0]?._key).toBe('tag-key-1');
     });
   });
 
