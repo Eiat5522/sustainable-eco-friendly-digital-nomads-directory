@@ -13,7 +13,7 @@ export const mockListings: Listing[] = [
     shortDescription: 'A sustainable coworking space with solar panels and recycling',
     type: 'coworking',
     address: '123 Green Street, Bangkok',
-    ecoTags: [], // Empty array for reference types
+    ecoFocusTags: [], // Empty array for reference types
     digitalNomadFeatures: [
       {
         _ref: 'high_speed_wifi',
@@ -56,7 +56,7 @@ export const mockListings: Listing[] = [
     longDescription: 'A spacious, eco-friendly café in Chiang Mai focused on sustainability, offering organic food and a welcoming atmosphere for digital nomads.',
     type: 'cafe',
     address: '456 Bamboo Lane, Chiang Mai',
-    ecoTags: [],
+    ecoFocusTags: [],
     sourceUrls: ['https://bambooecocafe.example.com'],
     primaryImage: { 
       _type: 'image',

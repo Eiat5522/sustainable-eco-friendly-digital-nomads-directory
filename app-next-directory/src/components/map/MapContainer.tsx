@@ -3,7 +3,7 @@
 
 import dynamic from 'next/dynamic';
 import type { MapComponentProps } from './MapComponent';
-import { type Listing } from '@/types/listings';
+import { AppListingDetail } from '@/types/appView';
 import StaticMapImage from './StaticMapImage';
 import type { LatLngBounds } from 'leaflet';
 import { cn } from '@/lib/utils';
@@ -17,7 +17,7 @@ const Map = dynamic<MapComponentProps>(
 );
 
 export interface MapContainerProps {
-  listings: Listing[];
+  listings: AppListingDetail[];
   onBoundsChange?: (bounds: LatLngBounds) => void;
   className?: string;
 }

@@ -10,18 +10,18 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
-import { type Listing } from '@/types/listings';
+import { AppListingDetail } from '@/types/appView';
 import '@/styles/map.css';
 
 export interface MapComponentProps {
-  listings: Listing[];
+  listings: AppListingDetail[];
   onBoundsChange?: (bounds: L.LatLngBounds) => void;
 }
 
 const DEFAULT_CENTER: L.LatLngTuple = [13.7563, 100.5018]; // Bangkok
 const DEFAULT_ZOOM = 12;
 
-const typeIcons: Record<NonNullable<Listing['type']>, string> = {
+const typeIcons: Record<NonNullable<AppListingDetail['category']>, string> = {
   coworking: '🏢',
   cafe: '☕',
   accommodation: '🏠',

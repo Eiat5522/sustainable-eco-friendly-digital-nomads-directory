@@ -57,7 +57,7 @@ import { Lightbox } from '@/components/common/Lightbox';
 const mockListing: AppListingDetail = {
   id: 'test-listing-id',
   name: 'Cozy Apartment',
-  slug: 'cozy-apartment',
+  slug: 'minimal-listing',
   shortDescription: 'A comfortable apartment in a great location.',
   longDescription: '<p>Long description with <strong>HTML</strong></p>',
   priceRange: 'moderate',
@@ -106,6 +106,7 @@ const mockListingWithoutReviews: AppListingDetail = {
 const mockListingMinimal: AppListingDetail = {
   id: 'minimal-listing-id',
   name: 'Minimal Listing',
+  slug: 'minimal-listing',
   shortDescription: undefined,
   longDescription: undefined,
   priceRange: undefined,
@@ -113,7 +114,7 @@ const mockListingMinimal: AppListingDetail = {
   galleryImages: undefined,
   primaryImage: undefined,
   city: { id: 'city5', name: 'Minimal City', country: 'USA', slug: 'minimal-city' },
-  type: undefined,
+  type: 'accommodation',
   ecoTags: [],
   website: undefined,
   contactEmail: undefined,

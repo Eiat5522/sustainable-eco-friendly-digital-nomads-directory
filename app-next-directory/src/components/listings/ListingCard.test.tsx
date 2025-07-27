@@ -84,7 +84,7 @@ describe('ListingCard', () => {
       ...mockListing,
       primaryImage: undefined,
       galleryImages: [],
-      name: 'Unnamed Listing'
+      name: 'Unnamed Listing',
     };
     render(<ListingCard listing={listingWithoutImage} />);
 
@@ -131,7 +131,7 @@ describe('ListingCard', () => {
   });
 
   test('uses fallback for missing name', () => {
-    const listingNoName: AppListingCard = { ...mockListing, name: undefined };
+    const listingNoName: AppListingCard = { ...mockListing, name: '' };
     render(<ListingCard listing={listingNoName} />);
     expect(screen.getByText('Unnamed Listing')).toBeInTheDocument();
   });
@@ -145,7 +145,7 @@ describe('ListingCard', () => {
   test('getListingUrl returns correct URL for listing with slug', () => {
     const listingWithSlug: AppListingCard = { 
       ...mockListing, 
-      slug: 'test-listing',
+      slug: 'listing-test-slug',
     };
     render(<ListingCard listing={listingWithSlug} />);
     expect(screen.getByRole('link')).toHaveAttribute('href', '/listings/listing-test-slug');
