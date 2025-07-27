@@ -13,6 +13,8 @@ export type AppListingCard = {
   type?: string;
   shortDescription?: string;
   address?: string;
+  category?: string;
+  coordinates?: { lat: number; lng: number };
 };
 export type AppListingDetail = AppListingCard & {
   contactPhone?: string | null;

@@ -1,10 +1,11 @@
-import React from 'react';
 "use client";
+import React from 'react';
 
-import { type Listing } from '@/types/listings';
+
+import { AppListingDetail } from '@/types/appView';
 
 interface StaticMapImageProps {
-  listings: Listing[];
+  listings: AppListingDetail[];
   width: number;
   height: number;
 }
@@ -13,7 +14,7 @@ interface StaticMapImageProps {
 export default function StaticMapImage({ listings }: StaticMapImageProps) {
   // Filter out listings without coordinates
   const validListings = listings.filter(
-    listing => listing.coordinates && listing.coordinates.latitude && listing.coordinates.longitude
+    listing => listing.coordinates && listing.coordinates.lat && listing.coordinates.lng
   );
 
   return (
@@ -45,8 +46,8 @@ export default function StaticMapImage({ listings }: StaticMapImageProps) {
         </p>
         <ul>
           {validListings.map(listing => (
-            <li key={typeof listing.slug === 'string' ? listing.slug : listing.slug?.current || listing._id}>
-              {listing.name} - {listing.address} ({listing.type})
+            <li key={typeof listing.slug === 'string' ? listing.slug : listing.slug || listing.id}>
+              {listing.name} - {listing.address} ({listing.category})
             </li>
           ))}
         </ul>

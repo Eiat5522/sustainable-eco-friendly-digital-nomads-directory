@@ -25,6 +25,8 @@ const typeIcons: Record<NonNullable<AppListingDetail['category']>, string> = {
   coworking: '🏢',
   cafe: '☕',
   accommodation: '🏠',
+  restaurant: '🍽️',
+  activities: '🤸',
 };
 
 export default function MapComponent({ listings, onBoundsChange }: MapComponentProps) {
@@ -80,13 +82,13 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
 
       if (Array.isArray(listings)) {
         listings.forEach(listing => {
-          const latitude = listing.coordinates?.latitude;
-          const longitude = listing.coordinates?.longitude;
+          const latitude = listing.coordinates?.lat;
+          const longitude = listing.coordinates?.lng;
           if (typeof latitude !== 'number' || typeof longitude !== 'number') return;
 
           const marker = L.marker([latitude, longitude], {
             icon: L.divIcon({
-              html: `<div class="marker-icon">${listing.type ? typeIcons[listing.type] : ''}</div>`,
+              html: `<div class="marker-icon">${listing.category ? typeIcons[listing.category] : ''}</div>`,
               className: 'custom-marker',
               iconSize: L.point(32, 32)
             })
@@ -106,8 +108,8 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
       // If we have listings and this is the first time, fit bounds
       if (listings.length > 0 && !mapRef.current.getBounds().getNorthEast().equals(mapRef.current.getBounds().getSouthWest())) {
         const bounds = L.latLngBounds(listings
-          .filter(l => typeof l.coordinates?.latitude === 'number' && typeof l.coordinates?.longitude === 'number')
-          .map(l => [l.coordinates!.latitude!, l.coordinates!.longitude!] as L.LatLngTuple));
+          .filter(l => typeof l.coordinates?.lat === 'number' && typeof l.coordinates?.lng === 'number')
+          .map(l => [l.coordinates!.lat!, l.coordinates!.lng!] as L.LatLngTuple));
         if (bounds.isValid()) {
           mapRef.current.fitBounds(bounds, { padding: [50, 50] });
         }

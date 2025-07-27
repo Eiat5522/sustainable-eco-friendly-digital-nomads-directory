@@ -9,7 +9,7 @@ import type { LatLngBounds } from 'leaflet';
 import { cn } from '@/lib/utils';
 
 const Map = dynamic<MapComponentProps>(
-  () => import('./MapComponent.js').then((mod) => mod.default),
+  () => import('./MapComponent').then((mod) => mod.default),
   {
     ssr: false,
     loading: () => <StaticMapImage listings={[]} width={1200} height={600} />
