@@ -316,7 +316,7 @@ function FiltersContent({
       </div>
 
       <FilterCombinations
-        combinations={filters.combinations}
+        combinations={filters.combinations || []}
         onCombinationsChange={onCombinationsChange}
         globalOperator={filters.combinationOperator}
         onGlobalOperatorChange={onCombinationOperatorChange}

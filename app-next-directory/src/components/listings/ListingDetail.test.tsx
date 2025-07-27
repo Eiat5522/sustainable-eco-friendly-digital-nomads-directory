@@ -72,7 +72,7 @@ const mockListing: AppListingDetail = {
   ],
   primaryImage: { asset: { _ref: '/test-image1.jpg' } },
   city: { id: 'city1', name: 'New York', country: 'USA', slug: 'new-york' },
-  category: 'accommodation',
+  type: 'accommodation',
   ecoTags: ['Solar Power'],
   website: 'https://example.com',
   contactEmail: 'owner@example.com',
@@ -113,7 +113,7 @@ const mockListingMinimal: AppListingDetail = {
   galleryImages: undefined,
   primaryImage: undefined,
   city: { id: 'city5', name: 'Minimal City', country: 'USA', slug: 'minimal-city' },
-  category: undefined,
+  type: undefined,
   ecoTags: [],
   website: undefined,
   contactEmail: undefined,
@@ -494,11 +494,11 @@ describe('ListingDetail', () => {
   });
 
   test('handles different category types', () => {
-    const coworkingListing: AppListingDetail = { ...mockListing, category: 'coworking' };
+    const coworkingListing: AppListingDetail = { ...mockListing, type: 'coworking' };
     const { rerender } = render(<ListingDetail listing={coworkingListing} />);
     expect(screen.getByText('accommodation in New York, USA')).toBeInTheDocument();
     
-    const cafeListing: AppListingDetail = { ...mockListing, category: 'cafe' };
+    const cafeListing: AppListingDetail = { ...mockListing, type: 'cafe' };
     rerender(<ListingDetail listing={cafeListing} />);
     expect(screen.getByText('accommodation in New York, USA')).toBeInTheDocument();
   });

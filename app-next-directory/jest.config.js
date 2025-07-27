@@ -13,15 +13,17 @@ module.exports = {
     customExportConditions: ["node", "node-addons"]
   },
   transform: {
-    '^.+\\.(t|j)sx?$': 'babel-jest',
+    '^.+\.(t|j)sx?$': 'babel-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
-    '^@/(.*)
+    '^@/(.*)$': '<rootDir>/src/$1',
+    '^@/app/(.*)$': '<rootDir>/app/$1',
     '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
     '^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.js',
     '^next-auth/jwt$': '<rootDir>/__mocks__/next-auth/jwt.js',
-    '^next-auth/providers/credentials$': '<rootDir>/__mocks__/next-auth/providers/credentials.js',
+    '^next-auth/providers/credentials: '<rootDir>/__mocks__/next-auth/providers/credentials.js',
+    '^@/__mocks__/(.*): '<rootDir>/__mocks__/$1',
     ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
   },
   transformIgnorePatterns: [
@@ -29,49 +31,10 @@ module.exports = {
   ],
   testPathIgnorePatterns: [
     '/playwright/',
-    '\\.playwright\\.test\\.[jt]s$',
-    '\\.pw\\.test\\.[jt]s$',
+    '\\.playwright\\.test\\.[jt]s,
+    '\\.pw\\.test\\.[jt]s,
     'D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/', // Exclude all Playwright and E2E tests
     '/__tests__/__mocks__/',
-    '\\.(d\\.ts)$',
-  ]
-};
-: '<rootDir>/src/$1',
-    '^@/app/(.*)
-    '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
-    '^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.js',
-    '^next-auth/jwt$': '<rootDir>/__mocks__/next-auth/jwt.js',
-    '^next-auth/providers/credentials$': '<rootDir>/__mocks__/next-auth/providers/credentials.js',
-    ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
-  },
-  transformIgnorePatterns: [
-    '/node_modules/(?!(next-auth|@auth|jose)/)'
-  ],
-  testPathIgnorePatterns: [
-    '/playwright/',
-    '\\.playwright\\.test\\.[jt]s$',
-    '\\.pw\\.test\\.[jt]s$',
-    'D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/', // Exclude all Playwright and E2E tests
-    '/__tests__/__mocks__/',
-    '\\.(d\\.ts)$',
-  ]
-};
-: '<rootDir>/app/$1',
-    '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
-    '^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.js',
-    '^next-auth/jwt$': '<rootDir>/__mocks__/next-auth/jwt.js',
-    '^next-auth/providers/credentials$': '<rootDir>/__mocks__/next-auth/providers/credentials.js',
-    ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
-  },
-  transformIgnorePatterns: [
-    '/node_modules/(?!(next-auth|@auth|jose)/)'
-  ],
-  testPathIgnorePatterns: [
-    '/playwright/',
-    '\\.playwright\\.test\\.[jt]s$',
-    '\\.pw\\.test\\.[jt]s$',
-    'D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/', // Exclude all Playwright and E2E tests
-    '/__tests__/__mocks__/',
-    '\\.(d\\.ts)$',
+    '\\.(d\\.ts),
   ]
 };

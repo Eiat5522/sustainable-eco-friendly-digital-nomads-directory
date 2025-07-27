@@ -1,5 +1,3 @@
-// Manual Jest mock for next/server to ensure all imports use the mock
-
 exports.NextResponse = {
   json: jest.fn((data, init) => {
     return {
@@ -10,4 +8,13 @@ exports.NextResponse = {
       body: data,
     };
   }),
+};
+
+exports.createMocks = ({ method, json }) => {
+  const req = {
+    method,
+    json: async () => json,
+  };
+  const res = {};
+  return { req, res };
 };

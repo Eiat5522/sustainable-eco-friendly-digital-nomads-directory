@@ -123,7 +123,7 @@ describe('ListingCard', () => {
   test('uses fallback for missing city', () => {
     const listingNoCity: AppListingCard = { 
       ...mockListing, 
-      city: undefined
+      city: null,
     };
     render(<ListingCard listing={listingNoCity} />);
     // Should not throw, location fallback handles missing city
@@ -145,7 +145,7 @@ describe('ListingCard', () => {
   test('getListingUrl returns correct URL for listing with slug', () => {
     const listingWithSlug: AppListingCard = { 
       ...mockListing, 
-      slug: { _type: 'slug', current: 'listing-test-slug' }
+      slug: 'test-listing',
     };
     render(<ListingCard listing={listingWithSlug} />);
     expect(screen.getByRole('link')).toHaveAttribute('href', '/listings/listing-test-slug');
