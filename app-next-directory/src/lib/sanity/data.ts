@@ -41,9 +41,7 @@ const LISTING_BY_SLUG_QUERY = groq`
       capacity,
       pricingPlans[]{ type, price, period },
       openingHours[]{ day, opens, closes }
-    },
-    accommodationDetails: accommodation_details{},
-    cafeDetails: cafe_details{}
+    }
   }
 `;
 
