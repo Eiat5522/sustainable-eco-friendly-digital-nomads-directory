@@ -72,8 +72,11 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
         <div>
           {/* Title */}
           <h2>{highlightText(getName())}</h2>
-          {/* Category badge - canonical field is 'type' */}
-          <span>{listing.type}</span>
+          {/* Category badge (fallback to 'coworking' if no type) */}
+          <span>{listing.type ?? 'coworking'}</span>
+
+          {/* Price range */}
+          <span>{listing.priceRange}</span>
           {/* Location - handle reference fields safely */}
           <span>
             {listing.city && listing.city.name && listing.city.country

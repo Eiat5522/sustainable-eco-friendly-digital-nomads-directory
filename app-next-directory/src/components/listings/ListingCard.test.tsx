@@ -38,6 +38,8 @@ describe('ListingCard', () => {
     id: '12345',
     name: 'Test Listing',
     slug: 'test-listing',
+    type: ListingCategory.COWORKING,
+    priceRange: PriceRange.MODERATE,
     city: {
       id: 'test-city-id',
       name: 'Test City',
@@ -45,9 +47,17 @@ describe('ListingCard', () => {
       country: 'Testland',
     },
     ecoTags: ['eco1', 'eco2', 'eco3'],
-    priceRange: 'moderate',
+    primaryImage: {
+      _type: 'image',
+      asset: {
+        _ref: 'sanity-image-id',
+        _type: 'reference',
+        _weak: false,
+      },
+    },
+    galleryImages: [],
     website: 'https://test.com',
-    imageUrl: 'https://test.com/image.jpg',
+    shortDescription: '',
   };
 
   test('renders listing card with correct title', () => {

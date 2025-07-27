@@ -84,7 +84,6 @@ const TestComponent: React.FC<TestComponentProps> = ({ initialQuery = '' }) => {
     <>
       <span data-testid="query">{search.query}</span>
       <span data-testid="results">{search.results.map((r) => r.name).join(', ')}</span>
-      {console.log('DEBUG: search.results:', search.results)}
       <button onClick={() => search.handleQueryChange('an')}>Set Query to an</button>
       <button onClick={() => search.handleQueryChange('xyz')}>Set Query to xyz</button>
       <button onClick={() => search.handleQueryChange('  apple  ')}>Set Query to spaced apple</button>
