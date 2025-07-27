@@ -244,7 +244,7 @@ describe('Sanity Generated Types', () => {
           _type: 'reference'
         },
         ecoFocusTags: [
-          'eco-tag-1'
+          { _ref: 'eco-tag-1', _type: 'reference', _key: 'eco-tag-1' }
         ]
       };
 
