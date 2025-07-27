@@ -1,6 +1,6 @@
 import { client } from './client';
 import { groq } from 'next-sanity';
-import type { LISTING_BY_SLUG_QUERYResult } from '../../../../sanity/sanity.types';
+
 
 // GROQ query to fetch a single listing by slug
 const LISTING_BY_SLUG_QUERY = groq`
@@ -8,38 +8,14 @@ const LISTING_BY_SLUG_QUERY = groq`
     _id,
     name,
     "slug": slug.current,
-    "city": city->{ "_id": _id, name, "slug": slug.current, country },
-    "ecoTags": ecoFocusTags[]->name,
-    "nomadFeatures": digitalNomadFeatures[]->name,
-    contactPhone, contactEmail, website,
     priceRange,
-    shortDescription,
-    longDescription,
-    address,
-    location { lat, lng },
-    primaryImage{
-      ...,
-      asset->
-    },
-    galleryImages[]{
-      ...,
-      asset->
-    },
-    lastVerifiedDate,
-    reviews[]->{
-      _id,
-      _type,
-      _createdAt,
-      _updatedAt,
-      _rev,
-      author,
-      rating,
-      comment,
-      date
-    },
     coworkingDetails: coworking_details{
       capacity,
       pricingPlans[]{ type, price, period },
+      openingHours[]{ day, opens, closes }
+    },
+    accommodationDetails: accommodation_details{},
+    cafeDetails: cafe_details{
       openingHours[]{ day, opens, closes }
     }
   }
@@ -54,7 +30,7 @@ const LISTING_BY_SLUG_QUERY = groq`
 export async function getListingData(
   slug: string,
   usePreview = false
-): Promise<LISTING_BY_SLUG_QUERYResult | null> {
+): Promise<any | null> {
   // Use imported client directly (no redeclaration)
   // const client = client(usePreview);
 

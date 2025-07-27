@@ -1,6 +1,4 @@
-'use client';
-
-import React, { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { debounce } from 'lodash';
 import { Filter, X } from 'lucide-react';
@@ -12,35 +10,24 @@ import { cn } from '@/lib/utils';
 import { SortOption } from '@/types/sort';
 import { FilterCombinations } from './FilterCombinations';
 import type { FilterGroup, FilterOperator } from '@/types/components';
-
-export interface FiltersState {
-  search: string;
-  categories: string[];
-  cities: string[];
-  priceRange: [number, number];
-  ecoTags: string[];
-  digitalNomadFeatures: string[];
-  sort?: SortOption;
-  combinations: FilterGroup[];
-  combinationOperator: FilterOperator;
-}
+import { AppFilterState } from '@/types/appView';
 
 interface ListingFiltersProps {
   className?: string;
-  onFiltersChange: (filters: FiltersState) => void;
+  onFiltersChange: (filters: AppFilterState) => void;
   onSortChange: (sortOption: SortOption) => void;
   categories: string[];
   cities: string[];
   loading?: boolean;
 }
 
-const defaultFilters: FiltersState = {
-  search: '',
+const defaultFilters: AppFilterState = {
+  searchQuery: '',
   categories: [],
-  cities: [],
-  priceRange: [0, 1000],
+  location: null,
+  priceRanges: [],
   ecoTags: [],
-  digitalNomadFeatures: [],
+  nomadFeatures: [],
   sort: undefined,
   combinations: [],
   combinationOperator: 'AND'
@@ -54,22 +41,22 @@ export function ListingFilters({
   cities,
   loading = false
 }: ListingFiltersProps) {
-  const [filters, setFilters] = useState<FiltersState>(defaultFilters);
+  const [filters, setFilters] = useState<AppFilterState>(defaultFilters);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const debouncedOnFiltersChange = useCallback(
-    debounce((newFilters: FiltersState) => {
+    debounce((newFilters: AppFilterState) => {
       onFiltersChange(newFilters);
     }, 500),
     [onFiltersChange]
-  ) as (filters: FiltersState) => void;
+  ) as (filters: AppFilterState) => void;
 
   useEffect(() => {
     debouncedOnFiltersChange(filters);
   }, [filters, debouncedOnFiltersChange]);
 
   const toggleCategory = (category: string) => {
-    setFilters((prev: FiltersState) => ({
+    setFilters((prev: AppFilterState) => ({
       ...prev,
       categories: prev.categories.includes(category)
         ? prev.categories.filter((c: string) => c !== category)
@@ -77,21 +64,12 @@ export function ListingFilters({
     }));
   };
 
-  const toggleCity = (city: string) => {
-    setFilters((prev: FiltersState) => ({
-      ...prev,
-      cities: prev.cities.includes(city)
-        ? prev.cities.filter((c: string) => c !== city)
-        : [...prev.cities, city]
-    }));
-  };
-
-  const setPriceRange = (range: [number, number]) => {
-    setFilters((prev: FiltersState) => ({ ...prev, priceRange: range }));
+  const setCity = (city: string | null) => {
+    setFilters((prev: AppFilterState) => ({ ...prev, location: city }));
   };
 
   const toggleEcoTag = (tag: string) => {
-    setFilters((prev: FiltersState) => ({
+    setFilters((prev: AppFilterState) => ({
       ...prev,
       ecoTags: prev.ecoTags.includes(tag)
         ? prev.ecoTags.filter((t: string) => t !== tag)
@@ -100,16 +78,16 @@ export function ListingFilters({
   };
 
   const toggleNomadFeature = (feature: string) => {
-    setFilters((prev: FiltersState) => ({
+    setFilters((prev: AppFilterState) => ({
       ...prev,
-      digitalNomadFeatures: prev.digitalNomadFeatures.includes(feature)
-        ? prev.digitalNomadFeatures.filter((f: string) => f !== feature)
-        : [...prev.digitalNomadFeatures, feature]
+      nomadFeatures: prev.nomadFeatures.includes(feature)
+        ? prev.nomadFeatures.filter((f: string) => f !== feature)
+        : [...prev.nomadFeatures, feature]
     }));
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters((prev: FiltersState) => ({ ...prev, search: e.target.value }));
+    setFilters((prev: AppFilterState) => ({ ...prev, searchQuery: e.target.value }));
   };
 
   const toggleMobileFilters = () => {
@@ -168,13 +146,12 @@ export function ListingFilters({
                   cities={cities.filter((city): city is string => city !== null)}
                   onSearchChange={handleSearchChange}
                   toggleCategory={toggleCategory}
-                  toggleCity={toggleCity}
-                  setPriceRange={setPriceRange}
+                  setCity={setCity}
                   toggleEcoTag={toggleEcoTag}
                   toggleNomadFeature={toggleNomadFeature}
                   onSortChange={onSortChange}
-                  onCombinationsChange={(combinations) => setFilters((prev) => ({ ...prev, combinations }))}
-                  onCombinationOperatorChange={(operator) => setFilters((prev) => ({ ...prev, combinationOperator: operator }))}
+                  onCombinationsChange={(combinations) => setFilters((prev: AppFilterState) => ({ ...prev, combinations }))}
+                  onCombinationOperatorChange={(operator) => setFilters((prev: AppFilterState) => ({ ...prev, combinationOperator: operator }))}
                 />
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t">
@@ -197,8 +174,7 @@ export function ListingFilters({
           cities={cities.filter((c): c is string => c !== null)}
           onSearchChange={handleSearchChange}
           toggleCategory={toggleCategory}
-          toggleCity={toggleCity}
-          setPriceRange={setPriceRange}
+          setCity={setCity}
           toggleEcoTag={toggleEcoTag}
           toggleNomadFeature={toggleNomadFeature}
           onSortChange={onSortChange}
@@ -215,13 +191,12 @@ export function ListingFilters({
 }
 
 interface FiltersContentProps {
-  filters: FiltersState;
+  filters: AppFilterState;
   categories: string[];
   cities: string[];
   onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   toggleCategory: (category: string) => void;
-  toggleCity: (city: string) => void;
-  setPriceRange: (range: [number, number]) => void;
+  setCity: (city: string | null) => void;
   toggleEcoTag: (tag: string) => void;
   toggleNomadFeature: (feature: string) => void;
   onSortChange: (sortOption: SortOption) => void;
@@ -235,8 +210,7 @@ function FiltersContent({
   cities,
   onSearchChange,
   toggleCategory,
-  toggleCity,
-  setPriceRange,
+  setCity,
   toggleEcoTag,
   toggleNomadFeature,
   onSortChange,
@@ -254,7 +228,7 @@ function FiltersContent({
           Search
         </label>
         <SearchInput
-          value={filters.search}
+          value={filters.searchQuery}
           onChange={onSearchChange}
           placeholder="Search listings..."
           className="w-full"
@@ -286,26 +260,15 @@ function FiltersContent({
             {cities.map((city) => (
               <Badge
                 key={city}
-                variant={filters.cities.includes(city) ? 'default' : 'outline'}
+                variant={filters.location === city ? 'default' : 'outline'}
                 className="cursor-pointer"
-                onClick={() => toggleCity(city)}
+                onClick={() => setCity(filters.location === city ? null : city)}
               >
                 {city}
               </Badge>
             ))}
           </div>
         )}
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium">Price Range</h3>
-          <span className="text-sm text-gray-500">
-            ${filters.priceRange[0]} - ${filters.priceRange[1]}
-          </span>
-        </div>
-        {/* Temporarily replaced RangeSlider with a placeholder */}
-        <div>RangeSlider Placeholder</div>
       </div>
 
       <div className="space-y-2">
@@ -336,7 +299,7 @@ function FiltersContent({
           </label>
           <Checkbox
             id="wifi"
-            checked={filters.digitalNomadFeatures.includes('wifi')}
+            checked={filters.nomadFeatures.includes('wifi')}
             onCheckedChange={() => toggleNomadFeature('wifi')}
           />
         </div>
@@ -346,7 +309,7 @@ function FiltersContent({
           </label>
           <Checkbox
             id="sustainable"
-            checked={filters.digitalNomadFeatures.includes('sustainable')}
+            checked={filters.nomadFeatures.includes('sustainable')}
             onCheckedChange={() => toggleNomadFeature('sustainable')}
           />
         </div>
@@ -374,3 +337,4 @@ function LoadingFilters() {
     </div>
   );
 }
+

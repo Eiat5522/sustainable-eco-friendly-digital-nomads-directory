@@ -1,5 +1,6 @@
 "use client";
 import { AppListingCard } from '@/types/appView';
+import { urlFor } from '@/lib/sanity/image';
 
 interface ListingCardProps {
   listing: AppListingCard;

@@ -1,8 +1,8 @@
 
 
 import { NextRequest, NextResponse } from 'next/server';
-import { POST, GET } from '../../../app/api/listings/route';
-import { createMocks } from '../../../__mocks__/server.js';
+import { POST, GET } from '../../app/api/listings/route';
+import { createMocks } from '../../__mocks__/next/server';
 
 describe('Listings API', () => {
   it('should return a list of listings', async () => {

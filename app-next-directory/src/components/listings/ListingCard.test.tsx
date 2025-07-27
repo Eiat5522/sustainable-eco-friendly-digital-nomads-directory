@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { Listing } from '../../../../sanity/sanity.types';
+import { AppListingCard } from '@/types/appView';
 import { ListingCategory, PriceRange } from '../../types/enums';
 import { ListingCard } from './ListingCard';
 import { urlFor } from '../../lib/sanity/image';
@@ -34,62 +34,20 @@ jest.mock('@/lib/sanity/image', () => ({
 }));
 
 describe('ListingCard', () => {
-  const mockListing: Listing = {
-    _id: '12345',
-    _type: 'listing',
-    _createdAt: '2023-01-01T00:00:00Z',
-    _updatedAt: '2023-01-01T00:00:00Z',
-    _rev: 'v1',
+  const mockListing: AppListingCard = {
+    id: '12345',
     name: 'Test Listing',
-    slug: { _type: 'slug', current: 'test-listing' },
-    shortDescription: 'A great place to stay',
-    city: { 
-      _ref: 'test-city-id', 
-      _type: 'reference',
-      _weak: false
+    slug: 'test-listing',
+    city: {
+      id: 'test-city-id',
+      name: 'Test City',
+      slug: 'test-city',
+      country: 'Testland',
     },
-    type: 'coworking' as const,
-    primaryImage: { 
-      _type: 'image',
-      asset: { 
-        _ref: 'sanity-image-id', 
-        _type: 'reference',
-        _weak: false
-      },
-      alt: 'Test listing image'
-    },
-    galleryImages: [{ 
-      _type: 'image',
-      _key: 'gallery-1',
-      asset: { 
-        _ref: 'sanity-gallery-image-id', 
-        _type: 'reference',
-        _weak: false
-      },
-      alt: 'Gallery image'
-    }],
-    ecoTags: [
-      { 
-        _ref: 'eco1', 
-        _type: 'reference',
-        _weak: false,
-        _key: 'eco-1'
-      },
-      { 
-        _ref: 'eco2', 
-        _type: 'reference',
-        _weak: false,
-        _key: 'eco-2'
-      },
-      { 
-        _ref: 'eco3', 
-        _type: 'reference',
-        _weak: false,
-        _key: 'eco-3'
-      }
-    ],
-    address: '123 Listing St',
-    digitalNomadFeatures: ['wifi', 'power_outlets'],
+    ecoTags: ['eco1', 'eco2', 'eco3'],
+    priceRange: 'moderate',
+    website: 'https://test.com',
+    imageUrl: 'https://test.com/image.jpg',
   };
 
   test('renders listing card with correct title', () => {
@@ -100,12 +58,7 @@ describe('ListingCard', () => {
 
   test('displays price correctly', () => {
     render(<ListingCard listing={mockListing} />);
-    // Note: Since we're using reference types now, price display depends on resolved data
-    // This test may need to be updated based on component implementation
-    const priceElements = screen.getAllByText('$100');
-    if (priceElements.length > 0) {
-      expect(priceElements[0]).toBeInTheDocument();
-    }
+    expect(screen.getByText('moderate')).toBeInTheDocument();
   });
 
   test('shows location information', () => {
@@ -127,7 +80,7 @@ describe('ListingCard', () => {
   });
 
   test('handles missing images gracefully', () => {
-    const listingWithoutImage: Listing = {
+    const listingWithoutImage: AppListingCard = {
       ...mockListing,
       primaryImage: undefined,
       galleryImages: [],
@@ -155,7 +108,7 @@ describe('ListingCard', () => {
   });
 
   test('highlights search query in title and description', () => {
-    const listingWithDesc: Listing = {
+    const listingWithDesc: AppListingCard = {
       ...mockListing,
       shortDescription: 'A great place to stay with vegan options'
     };
@@ -168,7 +121,7 @@ describe('ListingCard', () => {
   });
 
   test('uses fallback for missing city', () => {
-    const listingNoCity: Listing = { 
+    const listingNoCity: AppListingCard = { 
       ...mockListing, 
       city: undefined
     };
@@ -178,7 +131,7 @@ describe('ListingCard', () => {
   });
 
   test('uses fallback for missing name', () => {
-    const listingNoName: Listing = { ...mockListing, name: undefined };
+    const listingNoName: AppListingCard = { ...mockListing, name: undefined };
     render(<ListingCard listing={listingNoName} />);
     expect(screen.getByText('Unnamed Listing')).toBeInTheDocument();
   });
@@ -190,7 +143,7 @@ describe('ListingCard', () => {
   });
 
   test('getListingUrl returns correct URL for listing with slug', () => {
-    const listingWithSlug: Listing = { 
+    const listingWithSlug: AppListingCard = { 
       ...mockListing, 
       slug: { _type: 'slug', current: 'listing-test-slug' }
     };
@@ -199,9 +152,9 @@ describe('ListingCard', () => {
   });
 
   test('getListingUrl returns correct URL for non-Sanity slug', () => {
-    const listingNonSanitySlug: Listing = { 
+    const listingNonSanitySlug: AppListingCard = { 
       ...mockListing, 
-      slug: { _type: 'slug', current: 'non-sanity-test-slug' }
+      slug: 'non-sanity-test-slug' 
     };
     render(<ListingCard listing={listingNonSanitySlug} />);
     const link = screen.getByRole('link');
@@ -209,9 +162,9 @@ describe('ListingCard', () => {
   });
 
   test('getListingUrl returns default slug for missing slug', () => {
-    const listingWithoutSlug: Listing = { 
+    const listingWithoutSlug: AppListingCard = { 
       ...mockListing, 
-      slug: { _type: 'slug', current: 'default-slug' }
+      slug: 'default-slug' 
     };
     render(<ListingCard listing={listingWithoutSlug} />);
     expect(screen.getByRole('link')).toHaveAttribute('href', '/listings/default-slug');
@@ -225,11 +178,10 @@ describe('ListingCard', () => {
   });
 
   test('getImageUrl handles missing primaryImage', () => {
-    const listingWithoutPrimary: Listing = {
+    const listingWithoutPrimary: AppListingCard = {
       ...mockListing,
       primaryImage: undefined,
       galleryImages: [{
-        _type: 'image',
         _key: 'gallery-1',
         asset: { 
           _ref: 'sanity-gallery-image-id', 
@@ -245,7 +197,7 @@ describe('ListingCard', () => {
   });
 
   test('getImageUrl returns empty string if no image sources are available', () => {
-    const listingWithoutAnyImage: Listing = {
+    const listingWithoutAnyImage: AppListingCard = {
       ...mockListing,
       primaryImage: undefined,
       galleryImages: []
@@ -259,7 +211,7 @@ describe('ListingCard', () => {
     (urlFor as jest.Mock).mockImplementationOnce(() => {
       throw new Error('Test error primaryImage');
     });
-    const listingWithErrorPrimaryImage: Listing = {
+    const listingWithErrorPrimaryImage: AppListingCard = {
       ...mockListing,
       primaryImage: { 
         _type: 'image',

@@ -10,7 +10,7 @@ async function getListingBySlug(slug: string, preview = false) {
     "ecoTags": ecoFocusTags[]->name,
     "nomadFeatures": digitalNomadFeatures[]->name,
     contactPhone, contactEmail, website,
-    priceRange,
+    priceRange, shortDescription, longDescription,
 
     coworkingDetails: coworking_details{
       capacity,

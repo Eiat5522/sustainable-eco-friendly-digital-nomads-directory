@@ -1,6 +1,10 @@
 'use client';
 
 import { AppListingCard } from '@/types/appView';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
+import { Breadcrumbs } from '@/components/navigation/Breadcrumbs';
+import { ListingCard } from '@/components/listings/ListingCard';
 
 interface CityPageClientProps {
   city: any;

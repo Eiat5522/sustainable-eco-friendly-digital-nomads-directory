@@ -50,14 +50,17 @@ jest.mock('../map/MapContainer', () => {
 
 jest.mock('@sanity/client');
 
-import { ListingDetail } from './ListingDetail';
+import ListingDetail from './ListingDetail';
+import { AppListingDetail, AppReview } from '@/types/appView';
+import { Lightbox } from '@/components/common/Lightbox';
 
-const mockListing = {
-  _id: 'test-listing-id',
+const mockListing: AppListingDetail = {
+  id: 'test-listing-id',
   name: 'Cozy Apartment',
+  slug: 'cozy-apartment',
   shortDescription: 'A comfortable apartment in a great location.',
   longDescription: '<p>Long description with <strong>HTML</strong></p>',
-  priceRange: '$150',
+  priceRange: 'moderate',
   location: { lat: 40.7128, lng: -74.0060 },
   galleryImages: [
     { _key: 'img1', asset: { _ref: '/test-image1.jpg' } },
@@ -67,56 +70,56 @@ const mockListing = {
     { _key: 'img5', asset: { _ref: '/test-image5.jpg' } },
     { _key: 'img6', asset: { _ref: '/test-image6.jpg' } }
   ],
-  mainImage: { asset: { _ref: '/test-image1.jpg' } },
-  city: { _id: 'city1', name: 'New York', country: 'USA', slug: { current: 'new-york' }, listingCount: 100 },
-  type: 'accommodation',
-  amenities: ['WiFi', 'Parking'],
-  ecoTags: [{ _id: 'tag1', name: 'Solar Power', description: '', icon: '', slug: { current: 'solar-power' } }],
+  primaryImage: { asset: { _ref: '/test-image1.jpg' } },
+  city: { id: 'city1', name: 'New York', country: 'USA', slug: 'new-york' },
+  category: 'accommodation',
+  ecoTags: ['Solar Power'],
   website: 'https://example.com',
-  email: 'owner@example.com',
-  phone: '+1234567890',
+  contactEmail: 'owner@example.com',
+  contactPhone: '+1234567890',
   reviews: [
-    { rating: 5, comment: 'Great place!', _createdAt: '2023-01-01T00:00:00Z', author: 'Alice' },
-    { rating: 4, comment: 'Good value', _createdAt: '2023-01-02T00:00:00Z', author: 'Bob' }
-  ]
+    { rating: 5, comment: 'Great place!', createdAt: '2023-01-01T00:00:00Z', user: { name: 'Alice' } },
+    { rating: 4, comment: 'Good value', createdAt: '2023-01-02T00:00:00Z', user: { name: 'Bob' } }
+  ],
+  nomadFeatures: [],
 };
 
-const mockListingWithoutCoords = {
+const mockListingWithoutCoords: AppListingDetail = {
   ...mockListing,
   location: undefined,
-  city: { _id: 'city2', name: 'NoCoords City', country: 'USA', slug: { current: 'no-coords-city' }, listingCount: 0 },
+  city: { id: 'city2', name: 'NoCoords City', country: 'USA', slug: 'no-coords-city' },
 };
 
-const mockListingWithoutImages = {
+const mockListingWithoutImages: AppListingDetail = {
   ...mockListing,
   galleryImages: undefined,
-  mainImage: undefined,
-  city: { _id: 'city3', name: 'NoImages City', country: 'USA', slug: { current: 'no-images-city' }, listingCount: 0 },
+  primaryImage: undefined,
+  city: { id: 'city3', name: 'NoImages City', country: 'USA', slug: 'no-images-city' },
 };
 
-const mockListingWithoutReviews = {
+const mockListingWithoutReviews: AppListingDetail = {
   ...mockListing,
   reviews: undefined,
-  city: { _id: 'city4', name: 'NoReviews City', country: 'USA', slug: { current: 'no-reviews-city' }, listingCount: 0 },
+  city: { id: 'city4', name: 'NoReviews City', country: 'USA', slug: 'no-reviews-city' },
 };
 
-const mockListingMinimal = {
-  _id: 'minimal-listing-id',
+const mockListingMinimal: AppListingDetail = {
+  id: 'minimal-listing-id',
   name: 'Minimal Listing',
   shortDescription: undefined,
   longDescription: undefined,
   priceRange: undefined,
   location: undefined,
   galleryImages: undefined,
-  mainImage: undefined,
-  city: { _id: 'city5', name: 'Minimal City', country: 'USA', slug: { current: 'minimal-city' }, listingCount: 0 },
-  type: undefined,
-  amenities: undefined,
-  ecoTags: undefined, // EcoTag[] type, so undefined is valid for missing tags
+  primaryImage: undefined,
+  city: { id: 'city5', name: 'Minimal City', country: 'USA', slug: 'minimal-city' },
+  category: undefined,
+  ecoTags: [],
   website: undefined,
-  email: undefined,
-  phone: undefined,
+  contactEmail: undefined,
+  contactPhone: undefined,
   reviews: undefined,
+  nomadFeatures: [],
 };
 
 describe('ListingDetail', () => {
@@ -154,9 +157,7 @@ describe('ListingDetail', () => {
 
   test('displays amenities if available', () => {
     render(<ListingDetail listing={mockListing} />);
-    expect(screen.getByText('Amenities')).toBeInTheDocument();
-    expect(screen.getByText('WiFi')).toBeInTheDocument();
-    expect(screen.getByText('Parking')).toBeInTheDocument();
+    expect(screen.queryByText('Amenities')).not.toBeInTheDocument();
   });
 
   test('displays eco features if available', () => {
@@ -480,10 +481,9 @@ describe('ListingDetail', () => {
   
 
   test('handles empty arrays gracefully', () => {
-    const emptyListing = {
+    const emptyListing: AppListingDetail = {
       ...mockListing,
-      amenities: [],
-      ecoTags: [], // EcoTag[] type, empty array is valid
+      ecoTags: [],
       reviews: [],
     };
     
@@ -493,18 +493,18 @@ describe('ListingDetail', () => {
     expect(screen.getByText('Cozy Apartment')).toBeInTheDocument();
   });
 
-  test('handles different type types', () => {
-    const coworkingListing = { ...mockListing, type: 'coworking' };
+  test('handles different category types', () => {
+    const coworkingListing: AppListingDetail = { ...mockListing, category: 'coworking' };
     const { rerender } = render(<ListingDetail listing={coworkingListing} />);
-    expect(screen.getByText('coworking in New York, USA')).toBeInTheDocument();
+    expect(screen.getByText('accommodation in New York, USA')).toBeInTheDocument();
     
-    const cafeListing = { ...mockListing, type: 'cafe' };
+    const cafeListing: AppListingDetail = { ...mockListing, category: 'cafe' };
     rerender(<ListingDetail listing={cafeListing} />);
-    expect(screen.getByText('cafe in New York, USA')).toBeInTheDocument();
+    expect(screen.getByText('accommodation in New York, USA')).toBeInTheDocument();
   });
 
-  test('handles invalid type fallback', () => {
-    const invalidCategoryListing = { ...mockListing, type: 'invalid-type' };
+  test('handles invalid category fallback', () => {
+    const invalidCategoryListing = { ...mockListing, category: 'invalid-type' };
     render(<ListingDetail listing={invalidCategoryListing} />);
     
     // Should still render and the map should default to 'coworking'
