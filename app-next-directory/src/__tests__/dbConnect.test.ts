@@ -9,8 +9,7 @@ describe('dbConnect', () => {
   let originalGlobal;
 
   beforeEach(() => {
-    jest.resetModules();
-    process.env = { ...OLD_ENV };
+    process.env = { ...OLD_ENV, MONGODB_URI: 'mongodb://localhost:27017/testdb' };
     originalGlobal = { ...global };
     // Clear mongoose cache on global
     if ((global as any).mongoose) {
@@ -41,21 +40,18 @@ describe('dbConnect', () => {
   });
 
   it('throws if MONGODB_URI is missing', async () => {
-    // Set env before resetting modules to ensure fresh import sees the right value
     // Remove MONGODB_URI from env to simulate missing variable
-    if ('MONGODB_URI' in process.env) {
-      delete (process.env as any)['MONGODB_URI'];
-    }
+    const originalMongoUri = process.env.MONGODB_URI;
+    delete (process.env as any).MONGODB_URI;
     jest.resetModules();
     delete (global as any).mongoose;
     jest.doMock('mongoose', () => ({ connect: jest.fn().mockResolvedValue({ db: jest.fn() }) }), { virtual: true });
-    // FORTEST: Log to verify env
-    // eslint-disable-next-line no-console
-    console.log('FORTEST: MONGODB_URI in test:', process.env.MONGODB_URI);
     const dbConnectModule = await import('../lib/dbConnect');
     const dbConnect = dbConnectModule.default;
-    return expect(dbConnect()).rejects.toThrow(/Invalid or missing MONGODB_URI/);
+    const result = expect(dbConnect()).rejects.toThrow(/Invalid or missing MONGODB_URI/);
+    process.env.MONGODB_URI = originalMongoUri; // Restore MONGODB_URI
     jest.dontMock('mongoose');
+    return result;
   });
 
   // Additional tests for dbConnect.ts, focusing on edge cases and cache behavior
@@ -162,7 +158,7 @@ describe('dbConnect', () => {
   it('throws on malformed URI', async () => {
     jest.resetModules();
     delete (global as any).mongoose;
-    process.env.mongodbUri = 'bad-uri';
+    process.env.MONGODB_URI = 'bad-uri';
     jest.doMock('mongoose', () => ({ connect: jest.fn().mockResolvedValue({ db: jest.fn() }) }), { virtual: true });
     const dbConnectModule = await import('../lib/dbConnect');
     const dbConnect = dbConnectModule.default;

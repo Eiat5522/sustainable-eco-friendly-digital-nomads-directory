@@ -36,13 +36,15 @@ export async function GET(request: NextRequest) {
     };
 
     const allTestsPassed = Object.values(tests).every(test => test.passed);
+    const flag = process.env.EDGE_RUNTIME ?? process.env.EDGE_RUNTIME;
+    const runtime = flag ? 'edge' : 'node';
 
     const responseData = {
       tests,
       summary: {
         allTestsPassed,
       },
-      runtime: process.env.edgeRuntime ? 'edge' : 'node',
+      runtime,
       isAuthenticated: !!session,
       user: session?.user || null,
     };

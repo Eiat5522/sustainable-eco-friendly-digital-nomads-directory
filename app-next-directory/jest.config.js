@@ -27,7 +27,7 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@/app/(.*)$': '<rootDir>/app/$1',
-    '^@/app/api/(.*)$': '<rootDir>/app/api/$1',
+    '^@/app/api/listings/route$': '<rootDir>/__mocks__/app/api/listings/route.js',
     '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
     '^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.js',
     '^next-auth/jwt$': '<rootDir>/__mocks__/next-auth/jwt.js',

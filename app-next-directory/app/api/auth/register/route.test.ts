@@ -60,8 +60,9 @@ jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
 }));
 
-import { POST } from './route';
-import { GET } from '../test/route';
+
+import { POST as registerPOST } from './route';
+import { GET as authGET } from '../test/route';
 import connect from '@/lib/dbConnect';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
@@ -111,7 +112,7 @@ describe('POST /api/auth/register', () => {
     });
 
     // Act
-    const response = await POST(req);
+    const response = await registerPOST(req);
     const body = await getResponseBody(response);
 
     // Assert
@@ -139,7 +140,7 @@ describe('POST /api/auth/register', () => {
     mockUserFindOne.mockResolvedValue({ email: 'test@example.com' });
 
     // Act
-    const response = await POST(req);
+    const response = await registerPOST(req);
     const body = await getResponseBody(response);
 
     // Assert
@@ -162,7 +163,7 @@ describe('POST /api/auth/register', () => {
     } as any;
 
     // Act
-    const response = await POST(req);
+    const response = await registerPOST(req);
     const body = await getResponseBody(response);
 
     // Assert
@@ -188,7 +189,7 @@ describe('POST /api/auth/register', () => {
     mockBcryptHash.mockRejectedValue(new Error('Hash error'));
 
     // Act
-    const response = await POST(req);
+    const response = await registerPOST(req);
     const body = await getResponseBody(response);
 
     // Assert
@@ -216,7 +217,7 @@ describe('POST /api/auth/register', () => {
     mockUserCreate.mockRejectedValue(new Error('DB error'));
 
     // Act
-    const response = await POST(req);
+    const response = await registerPOST(req);
     const body = await getResponseBody(response);
 
     // Assert
@@ -240,7 +241,7 @@ describe('POST /api/auth/register', () => {
     mockConnect.mockRejectedValue(new Error('Connection error'));
 
     // Act
-    const response = await POST(req);
+    const response = await registerPOST(req);
     const body = await getResponseBody(response);
 
     // Assert
@@ -257,7 +258,7 @@ describe('POST /api/auth/register', () => {
     } as any;
 
     // Act
-    const response = await POST(req);
+    const response = await registerPOST(req);
     const body = await getResponseBody(response);
 
     // Assert
@@ -278,7 +279,7 @@ describe('POST /api/auth/register', () => {
     } as any;
 
     // Act
-    const response = await POST(req);
+    const response = await registerPOST(req);
     const body = await getResponseBody(response);
 
     // Assert
@@ -299,7 +300,7 @@ describe('POST /api/auth/register', () => {
     } as any;
 
     // Act
-    const response = await POST(req);
+    const response = await registerPOST(req);
     const body = await getResponseBody(response);
 
     // Assert
@@ -320,7 +321,7 @@ describe('POST /api/auth/register', () => {
     } as any;
 
     // Act
-    const response = await POST(req);
+    const response = await registerPOST(req);
     const body = await getResponseBody(response);
 
     // Assert
@@ -357,7 +358,7 @@ describe('GET /api/auth/test', () => {
       }
     });
 
-    const response = await GET(mockRequest());
+    const response = await authGET(mockRequest());
     expect(response.status).toBe(200);
 
     const json = await response.json();
@@ -370,7 +371,7 @@ describe('GET /api/auth/test', () => {
   test('returns 200 and isAuthenticated false if no JWT token', async () => {
     mockAuth.mockResolvedValue(null);
 
-    const response = await GET(mockRequest());
+    const response = await authGET(mockRequest());
     expect(response.status).toBe(200);
 
     const json = await response.json();
@@ -382,7 +383,7 @@ describe('GET /api/auth/test', () => {
   test('returns 500 and error message if auth throws', async () => {
     mockAuth.mockRejectedValue(new Error('JWT error'));
 
-    const response = await GET(mockRequest());
+    const response = await authGET(mockRequest());
     expect(response.status).toBe(500);
 
     const json = await response.json();
@@ -391,7 +392,7 @@ describe('GET /api/auth/test', () => {
   });
 
   test('detects edge runtime via process.env.edgeRuntime', async () => {
-    process.env.edgeRuntime = '1';
+    process.env.EDGE_RUNTIME = '1';
     mockAuth.mockResolvedValue({
       user: {
         id: '123',
@@ -401,9 +402,9 @@ describe('GET /api/auth/test', () => {
       }
     });
 
-    const response = await GET(mockRequest());
+    const response = await authGET(mockRequest());
     const json = await response.json();
     expect(json.tests.edgeRuntime.passed).toBe(true);
-    expect(json.runtime).toBe('edge');
+    expect(json.runtime).toBe(process.env.EDGE_RUNTIME ? 'edge' : 'node');
   });
 });

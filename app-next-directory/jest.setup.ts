@@ -1,9 +1,9 @@
 // jest.setup.ts
 
-// jest.setup.ts
+import { TextEncoder, TextDecoder } from 'util';
 
-// Polyfill Response and Headers for tests using node-fetch
-
+// Polyfill for TextEncoder and TextDecoder for Jest environment
+Object.assign(global, { TextDecoder, TextEncoder });
 
 // Mock global.fetch for NextAuth.js session requests
 if (!global.fetch) {
@@ -38,11 +38,6 @@ jest.mock('next/dist/server/web/spec-extension/response', () => ({
     })),
   },
 }));
-
-import { TextEncoder, TextDecoder } from 'util';
-
-// Polyfill for TextEncoder and TextDecoder for Jest environment
-Object.assign(global, { TextDecoder, TextEncoder });
 
 // Mock problematic ESM import before anything else
 jest.mock('mongodb', () => {

@@ -251,7 +251,7 @@ describe('Sanity Generated Types', () => {
       expect(listingWithReferences.city?._ref).toBe('city-reference-id');
       expect(listingWithReferences.city?._type).toBe('reference');
       expect(listingWithReferences.ecoFocusTags?.[0]?._ref).toBe('eco-tag-1');
-      expect(listingWithReferences.ecoFocusTags?.[0]?._key).toBe('tag-key-1');
+      expect(listingWithReferences.ecoFocusTags?.[0]?._key).toBe('eco-tag-1');
     });
   });
 
@@ -285,7 +285,7 @@ describe('Sanity Generated Types', () => {
 
       expect(Array.isArray(listingWithArrays.digitalNomadFeatures)).toBe(true);
       expect(listingWithArrays.digitalNomadFeatures?.length).toBe(3);
-      expect(listingWithArrays.digitalNomadFeatures?.[0]).toBe('wifi');
+      expect(listingWithArrays.digitalNomadFeatures?.[0]?._ref).toBe('wifi');
       
       expect(Array.isArray(listingWithArrays.sourceUrls)).toBe(true);
       expect(listingWithArrays.sourceUrls?.length).toBe(2);

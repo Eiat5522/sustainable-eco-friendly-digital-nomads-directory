@@ -1,7 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { act } from 'react';
 
 // Force Jest to use the Sanity client mock
 // Mock the image utility to prevent builder.image and urlFor errors
@@ -51,8 +50,7 @@ jest.mock('../map/MapContainer', () => {
 jest.mock('@sanity/client');
 
 import ListingDetail from './ListingDetail';
-import { AppListingDetail, AppReview } from '@/types/appView';
-import { Lightbox } from '@/components/common/Lightbox';
+import { AppListingDetail } from '@/types/appView';
 
 const mockListing: AppListingDetail = {
   id: 'test-listing-id',

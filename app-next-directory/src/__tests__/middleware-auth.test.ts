@@ -139,7 +139,7 @@ describe('middleware authentication', () => {
 
   describe('environment configuration', () => {
     it('should have nextAuthSecret configured for tests', () => {
-      expect(process.env.nextAuthSecret).toBe('test-secret');
+      expect(process.env.NEXTAUTH_SECRET).toBe('test-secret');
     });
 
     it('should handle missing nextAuthSecret', () => {

@@ -83,7 +83,8 @@ const TestComponent: React.FC<TestComponentProps> = ({ initialQuery = '' }) => {
   return (
     <>
       <span data-testid="query">{search.query}</span>
-      <span data-testid="results">{JSON.stringify(search.results)}</span>
+      <span data-testid="results">{search.results.map((r) => r.name).join(', ')}</span>
+      {console.log('DEBUG: search.results:', search.results)}
       <button onClick={() => search.handleQueryChange('an')}>Set Query to an</button>
       <button onClick={() => search.handleQueryChange('xyz')}>Set Query to xyz</button>
       <button onClick={() => search.handleQueryChange('  apple  ')}>Set Query to spaced apple</button>
@@ -96,7 +97,7 @@ describe('useSearch', () => {
   it('should update query and results correctly', async () => {
     render(<TestComponent initialQuery="" />);
     expect(screen.getByTestId('query').textContent).toBe('');
-    expect(screen.getByTestId('results').textContent).toBe('[]');
+    expect(screen.getByTestId('results').textContent).toBe('');
 
     userEvent.click(screen.getByText('Set Query to an'));
     await act(async () => {
@@ -113,7 +114,7 @@ describe('useSearch', () => {
   it('should handle empty initial data', async () => {
     render(<TestComponent initialQuery="" />);
     expect(screen.getByTestId('query').textContent).toBe('');
-    expect(screen.getByTestId('results').textContent).toBe('[]');
+    expect(screen.getByTestId('results').textContent).toBe('');
 
     userEvent.click(screen.getByText('Set Query to test'));
     await act(async () => {
@@ -121,7 +122,7 @@ describe('useSearch', () => {
       await Promise.resolve();
     });
     await waitFor(() => {
-      expect(screen.getByTestId('results').textContent).toBe('[]');
+      expect(screen.getByTestId('results').textContent).toBe('');
     });
   });
 
@@ -135,7 +136,7 @@ describe('useSearch', () => {
     });
     await waitFor(() => {
       expect(screen.getByTestId('query').textContent).toBe('xyz');
-      expect(screen.getByTestId('results').textContent).toBe('[]');
+      expect(screen.getByTestId('results').textContent).toBe('');
     });
   });
 

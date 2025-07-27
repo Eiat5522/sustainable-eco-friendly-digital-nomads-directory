@@ -69,7 +69,13 @@ export function useSearch({
         });
         if (!res.ok) throw new Error('Search request failed');
         const data = await res.json();
-        setResults(data);
+        const data = await res.json();
+        console.log('DEBUG: data from API in useSearch:', data);
+        setResults({
+          results: data.results,
+          pagination: data.pagination,
+          error: null,
+        });
       } catch (err) {
         setResults(r => ({ ...r, error: err instanceof Error ? err : new Error('Unknown') }));
       } finally {
