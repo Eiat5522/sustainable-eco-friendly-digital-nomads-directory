@@ -34,7 +34,10 @@ module.exports = {
     '^next-auth/providers/credentials$': '<rootDir>/__mocks__/next-auth/providers/credentials.js',
     '^@/__mocks__/(.*)$': '<rootDir>/__mocks__/$1',
     'node-fetch': '<rootDir>/__mocks__/node-fetch.js',
-    '\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    'leaflet/dist/leaflet.css$': '<rootDir>/__mocks__/leaflet/dist/leaflet.css.js',
+    'leaflet.markercluster/dist/MarkerCluster.css$': '<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.css.js',
+    'leaflet.markercluster/dist/MarkerCluster.Default.css$': '<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.Default.css.js',
+    '\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',
     ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
   },
   transformIgnorePatterns: [

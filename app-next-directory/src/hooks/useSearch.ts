@@ -57,6 +57,9 @@ export function useSearch({
     async function doSearch() {
       try {
         setIsLoading(true);
+        // FORTEST: Debug log for query
+        // eslint-disable-next-line no-console
+        console.log('FORTEST: Query sent to API:', debouncedQuery);
         const res = await fetch('/api/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -69,8 +72,24 @@ export function useSearch({
         });
         if (!res.ok) throw new Error('Search request failed');
         const data = await res.json();
-        setResults(data);
+        // FORTEST: Debug log for API response
+        // eslint-disable-next-line no-console
+        console.log('FORTEST: API response data:', JSON.stringify(data));
+        setResults(prev => ({
+          ...prev,
+          ...data,
+          results: Array.isArray(data.results) ? data.results : [],
+          pagination: data.pagination || prev.pagination,
+          error: data.error || null
+        }));
+        // Ensure results.results is always an array for test compatibility
+        if (!Array.isArray(data.results)) {
+          setResults(prev => ({ ...prev, results: [] }));
+        }
       } catch (err) {
+        // FORTEST: Debug log for error
+        // eslint-disable-next-line no-console
+        console.log('FORTEST: Caught error in search:', err);
         setResults(r => ({ ...r, error: err instanceof Error ? err : new Error('Unknown') }));
       } finally {
         setIsLoading(false);

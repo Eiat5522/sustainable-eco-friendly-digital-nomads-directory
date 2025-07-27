@@ -1,11 +1,14 @@
 // jest.setup.ts
 
+import '@testing-library/jest-dom';
 import { TextEncoder, TextDecoder } from 'util';
 
 // Polyfill for TextEncoder and TextDecoder for Jest environment
 Object.assign(global, { TextDecoder, TextEncoder });
 
 // Mock global.fetch for NextAuth.js session requests
+// TEMPORARILY COMMENTED OUT FOR DEBUGGING useSearch tests
+/*
 if (!global.fetch) {
   global.fetch = function () {
     return Promise.resolve(new global.Response(
@@ -18,6 +21,7 @@ if (!global.fetch) {
     ));
   };
 }
+*/
 
 // Mock next/server globally for all tests  
 jest.mock('next/server', () => ({
