@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { POST, GET } from '@/app/api/listings/route';
-import { createMocks } from 'D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/__mocks__/next/server.js';
+import { createMocks } from '@/__mocks__/next/server';
 
 describe('Listings API', () => {
   it('should return a list of listings', async () => {

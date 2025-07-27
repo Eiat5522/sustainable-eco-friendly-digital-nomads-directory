@@ -13,28 +13,39 @@ module.exports = {
     customExportConditions: ["node", "node-addons"]
   },
   transform: {
-    '^.+\.(t|j)sx?$': 'babel-jest',
+    '^.+\.(t|j)sx?$': ['@swc/jest', { 
+      jsc: { 
+        transform: { 
+          react: { 
+            runtime: 'automatic' 
+          } 
+        } 
+      } 
+    }],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@/app/(.*)$': '<rootDir>/app/$1',
+    '^@/app/api/(.*)$': '<rootDir>/app/api/$1',
     '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
     '^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.js',
     '^next-auth/jwt$': '<rootDir>/__mocks__/next-auth/jwt.js',
-    '^next-auth/providers/credentials: '<rootDir>/__mocks__/next-auth/providers/credentials.js',
-    '^@/__mocks__/(.*): '<rootDir>/__mocks__/$1',
+    '^next-auth/providers/credentials$': '<rootDir>/__mocks__/next-auth/providers/credentials.js',
+    '^@/__mocks__/(.*)$': '<rootDir>/__mocks__/$1',
+    'node-fetch': '<rootDir>/__mocks__/node-fetch.js',
+    '\.(css|less|scss|sass)$': 'identity-obj-proxy',
     ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(next-auth|@auth|jose)/)'
+    '/node_modules/(?!(next-auth|@auth|jose)/)',
   ],
   testPathIgnorePatterns: [
     '/playwright/',
-    '\\.playwright\\.test\\.[jt]s,
-    '\\.pw\\.test\\.[jt]s,
+    '\\.playwright\\.test\\.[jt]s$',
+    '\\.pw\\.test\\.[jt]s$',
     'D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/', // Exclude all Playwright and E2E tests
     '/__tests__/__mocks__/',
-    '\\.(d\\.ts),
+    '\\.(d\\.ts)$',
   ]
 };

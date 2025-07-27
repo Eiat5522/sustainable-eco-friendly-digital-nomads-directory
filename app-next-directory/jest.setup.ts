@@ -1,11 +1,9 @@
 // jest.setup.ts
 
+// jest.setup.ts
+
 // Polyfill Response and Headers for tests using node-fetch
-if (typeof global.Response === 'undefined' || typeof global.Headers === 'undefined') {
-  const fetch = require('node-fetch');
-  global.Response = fetch.Response;
-  global.Headers = fetch.Headers;
-}
+
 
 // Mock global.fetch for NextAuth.js session requests
 if (!global.fetch) {
@@ -40,6 +38,8 @@ jest.mock('next/dist/server/web/spec-extension/response', () => ({
     })),
   },
 }));
+
+import { TextEncoder, TextDecoder } from 'util';
 
 // Polyfill for TextEncoder and TextDecoder for Jest environment
 Object.assign(global, { TextDecoder, TextEncoder });
