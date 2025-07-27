@@ -1,20 +1,8 @@
 "use client";
-import React from 'react';
-// Fallback highlightText if not found
-let highlightText: (text: string, query: string) => React.ReactNode = (text, query) => text;
-try {
-  // @ts-ignore
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  highlightText = require('@/lib/highlight').highlightText;
-} catch {}
-import { urlFor } from '@/lib/sanity/image';
-import type { Listing } from '../../../../sanity/sanity.types';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useState } from 'react';
+import { AppListingCard } from '@/types/appView';
 
 interface ListingCardProps {
-  listing: Listing;
+  listing: AppListingCard;
   searchQuery?: string;
 }
 
@@ -24,11 +12,11 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
 
   // Helper to get listing URL
   const getListingUrl = () => {
-    if (listing.slug && listing.slug.current && listing.slug.current.startsWith('sanity-')) {
-      return `/listings/${listing.slug.current}`;
+    if (listing.slug && listing.slug.startsWith('sanity-')) {
+      return `/listings/${listing.slug}`;
     }
-    if (listing.slug && listing.slug.current) {
-      return `/listings/${listing.slug.current}`;
+    if (listing.slug) {
+      return `/listings/${listing.slug}`;
     }
     return '/listings/default-slug';
   };
@@ -87,21 +75,21 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
           <span>{listing.type}</span>
           {/* Location - handle reference fields safely */}
           <span>
-            {listing.city && typeof listing.city === 'object' && 'name' in listing.city && 'country' in listing.city
-              ? `${(listing.city as any).name}, ${(listing.city as any).country}` 
+            {listing.city && listing.city.name && listing.city.country
+              ? `${listing.city.name}, ${listing.city.country}` 
               : ''}
           </span>
           {/* Eco tags: always render container, fallback to default tags if empty */}
           <div>
-            {(listing.ecoTags && listing.ecoTags.length > 0 && Array.isArray(listing.ecoTags)
-              ? (listing.ecoTags as any[]).filter(tag => tag && typeof tag === 'object' && 'name' in tag)
+            {(listing.ecoTags && listing.ecoTags.length > 0
+              ? listing.ecoTags
               : [
-                  { _id: 'eco1', name: 'Solar' },
-                  { _id: 'eco2', name: 'Organic' },
-                  { _id: 'eco3', name: 'Vegan' }
+                  'Solar',
+                  'Organic',
+                  'Vegan'
                 ]
-            ).map((tag: { _id: string; name: string }) => (
-              <span key={tag._id}>{tag.name}</span>
+            ).map((tag: string) => (
+              <span key={tag}>{tag}</span>
             ))}
           </div>
           {/* Description */}

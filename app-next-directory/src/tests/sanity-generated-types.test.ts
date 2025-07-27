@@ -10,7 +10,7 @@ import type {
   EcoTag,
   BlogPost,
   Review
-} from '../types/sanity-generated';
+} from '../../../sanity/sanity.types';
 
 describe('Sanity Generated Types', () => {
   describe('Type Structure Validation', () => {
@@ -244,11 +244,7 @@ describe('Sanity Generated Types', () => {
           _type: 'reference'
         },
         ecoFocusTags: [
-          {
-            _ref: 'eco-tag-1',
-            _type: 'reference',
-            _key: 'tag-key-1'
-          }
+          'eco-tag-1'
         ]
       };
 
@@ -267,7 +263,23 @@ describe('Sanity Generated Types', () => {
         _createdAt: '2025-01-01T00:00:00Z',
         _updatedAt: '2025-01-01T00:00:00Z',
         _rev: 'array-rev',
-        digitalNomadFeatures: ['wifi', 'power-outlets', 'quiet-space'],
+        digitalNomadFeatures: [
+          {
+            _ref: 'wifi',
+            _type: 'reference',
+            _key: 'wifi'
+          },
+          {
+            _ref: 'power-outlets',
+            _type: 'reference',
+            _key: 'power-outlets'
+          },
+          {
+            _ref: 'quiet-space',
+            _type: 'reference',
+            _key: 'quiet-space'
+          }
+        ],
         sourceUrls: ['https://example.com', 'https://another.com']
       };
 

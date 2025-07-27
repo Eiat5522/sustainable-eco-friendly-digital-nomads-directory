@@ -135,6 +135,22 @@ export default function ListingsPage() {
             city: 'San José',
             country: 'Costa Rica',
           },
+          views: 89,
+          createdAt: '2024-12-10T15:45:00Z',
+          updatedAt: '2024-12-19T09:30:00Z',
+          author: {
+            id: 'user2',
+            name: 'Jane Smith',
+            email: 'jane@example.com',
+          },
+          sustainabilityScore: 78,
+          features: ['Solar Power', 'Rainwater Harvesting'],
+          price: {
+            amount: 85,
+            currency: 'USD',
+            period: 'night',
+          },
+        },
         {
           id: '3',
           title: 'Sustainable Farm-to-Table Restaurant',

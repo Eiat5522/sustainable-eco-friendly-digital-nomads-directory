@@ -1,14 +1,10 @@
 'use client';
 
-import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { ListingCard } from '@/components/listings/ListingCard';
-import { Listing } from '../../../../sanity/sanity.types';
-import { motion } from 'framer-motion';
-import Image from 'next/image';
+import { AppListingCard } from '@/types/appView';
 
 interface CityPageClientProps {
   city: any;
-  listings: Listing[];
+  listings: AppListingCard[];
 }
 
 export default function CityPageClient({ city, listings }: CityPageClientProps) {
@@ -140,9 +136,9 @@ export default function CityPageClient({ city, listings }: CityPageClientProps) 
             </h2>
 
             {listings.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">                {listings.map((listing: Listing, index) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">                {listings.map((listing: AppListingCard, index) => (
                   <motion.div
-                    key={typeof listing.slug === 'string' ? listing.slug : listing.slug?.current || listing._id || index}
+                    key={listing.slug || listing.id || index}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}

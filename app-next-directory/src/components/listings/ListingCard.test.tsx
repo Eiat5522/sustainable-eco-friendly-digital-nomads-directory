@@ -89,7 +89,7 @@ describe('ListingCard', () => {
       }
     ],
     address: '123 Listing St',
-    digitalNomadFeatures: ['wifi', 'power_outlets']
+    digitalNomadFeatures: ['wifi', 'power_outlets'],
   };
 
   test('renders listing card with correct title', () => {

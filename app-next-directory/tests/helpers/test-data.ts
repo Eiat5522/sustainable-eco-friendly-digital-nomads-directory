@@ -14,7 +14,18 @@ export const mockListings: Listing[] = [
     type: 'coworking',
     address: '123 Green Street, Bangkok',
     ecoTags: [], // Empty array for reference types
-    digitalNomadFeatures: ['high_speed_wifi', 'meeting_rooms'],
+    digitalNomadFeatures: [
+      {
+        _ref: 'high_speed_wifi',
+        _type: 'reference',
+        _key: 'high_speed_wifi'
+      },
+      {
+        _ref: 'meeting_rooms',
+        _type: 'reference',
+        _key: 'meeting_rooms'
+      }
+    ],
     primaryImage: { 
       _type: 'image',
       asset: { 
@@ -78,7 +89,18 @@ export const mockListings: Listing[] = [
         alt: 'Café exterior'
       }
     ],
-    digitalNomadFeatures: ['wifi-available', 'power-outlets'],
+    digitalNomadFeatures: [
+      {
+        _ref: 'wifi-available',
+        _type: 'reference',
+        _key: 'wifi-available'
+      },
+      {
+        _ref: 'power-outlets',
+        _type: 'reference',
+        _key: 'power-outlets'
+      }
+    ],
     city: {
       _ref: 'chiangmai-ref',
       _type: 'reference',

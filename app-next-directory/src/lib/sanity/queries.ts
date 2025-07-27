@@ -89,16 +89,39 @@ async function getLatestBlogPosts(limit = 3, preview = false) {
   return await sanityClient.fetch(query, { limit: limit - 1 });
 }
 
+async function getFeaturedListings(limit = 10, preview = false) {
+  const sanityClient = client;
+
+  const query = `*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...$limit] {
+    _id,
+    name,
+    "slug": slug.current,
+    "primaryImage": primaryImage{
+      ...,
+      asset->
+    },
+    "location": city->{
+      _id,
+      name,
+      country
+    },
+    priceRange
+  }`;
+
+  return await sanityClient.fetch(query, { limit });
+}
+
 // Export all functions
 export {
   getAllCities,
   getAllEcoTags,
   getLatestBlogPosts,
   getListingBySlug,
+  getFeaturedListings,
 };
 
 // Additional alias export
-export const getCity = getListingBySlug
+export const getCity = getListingBySlug;
 
 
 
