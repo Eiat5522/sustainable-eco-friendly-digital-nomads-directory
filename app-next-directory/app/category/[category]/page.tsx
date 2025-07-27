@@ -194,7 +194,7 @@ export default async function CategoryPage({ params }: Props) {
               <p className="text-gray-600 dark:text-gray-400 text-sm">Avg. Eco Features</p>
               <p className="text-2xl font-bold">
                 {Math.round(
-                  categoryListings.reduce((acc: number, l: Listing) => acc + l.eco_features.length, 0) /
+                  categoryListings.reduce((acc: number, l: Listing) => acc + l.ecoFeatures.length, 0) /
                   Math.max(categoryListings.length, 1)
                 )}
               </p>

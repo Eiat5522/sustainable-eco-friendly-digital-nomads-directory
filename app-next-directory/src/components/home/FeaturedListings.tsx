@@ -25,19 +25,16 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
         const canonicalListing: SanityListing = {
           ...listing,
           address: typeof listing.address === 'string' ? listing.address : '',
-          ecoTags: Array.isArray(listing.ecoTags)
-            ? listing.ecoTags.filter(tag => tag && typeof tag === 'object' && '_id' in tag && 'name' in tag && 'slug' in tag)
-            : [],
+          ecoTags: Array.isArray(listing.ecoTags) ? listing.ecoTags.map(tag => tag.name) : [],
+          digitalNomadFeatures: Array.isArray(listing.digitalNomadFeatures) ? listing.digitalNomadFeatures.map(feature => feature.name) : [],
+          priceRange: listing.priceRange,
           city: listing.city && typeof listing.city === 'object' && '_id' in listing.city && 'name' in listing.city && 'slug' in listing.city && '_type' in listing.city
             ? listing.city
             : undefined,
           slug: typeof listing.slug === 'object' && listing.slug !== null && 'current' in listing.slug
             ? listing.slug
             : undefined,
-          // Remove all non-canonical fields (no priceRange, mainImage)
-          galleryImages: Array.isArray(listing.galleryImages)
-            ? listing.galleryImages.filter(img => img && typeof img === 'object' && 'asset' in img && img.asset && '_ref' in img.asset)
-            : [],
+          primaryImage: listing.primaryImage,
         };
         return <ListingCard key={canonicalListing._id} listing={canonicalListing} />;
       })}

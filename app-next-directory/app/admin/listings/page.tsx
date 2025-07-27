@@ -67,7 +67,7 @@ export default function ListingsPage() {
     publishedListings: 0,
     pendingListings: 0,
     flaggedListings: 0,
-    averageRating: 0,
+    
     totalViews: 0,
   });
 
@@ -87,12 +87,13 @@ export default function ListingsPage() {
 
       // TODO: Replace with actual API calls
       const mockStats: ListingStats = {
+        const mockStats: ListingStats = {
         totalListings: 156,
         publishedListings: 142,
         pendingListings: 8,
         flaggedListings: 3,
-        
         totalViews: 15420,
+      };
       };
 
       const mockListings: Listing[] = [
@@ -105,8 +106,8 @@ export default function ListingsPage() {
             city: 'Ubud',
             country: 'Indonesia',
           },
-          rating: 4.8,
-          reviewCount: 24,
+          rating: 3.2,
+          reviewCount: 8,
           views: 342,
           createdAt: '2024-11-15T10:30:00Z',
           updatedAt: '2024-12-18T14:20:00Z',
@@ -405,9 +406,7 @@ export default function ListingsPage() {
                   <div className="flex items-center space-x-6">
                     <div className="text-right">
                       <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Star className="h-3 w-3 text-yellow-500" />
-                        {listing.rating} ({listing.reviewCount} reviews)
-                      </div>
+                        
                       <div className="text-sm text-gray-600">
                         {listing.views} views
                       </div>

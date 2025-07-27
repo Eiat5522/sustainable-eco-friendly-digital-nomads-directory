@@ -14,7 +14,7 @@ const ECO_TAGS = [
 
 export async function GET(request: NextRequest) {
   try {
-    return NextResponse.json(ecoTags);
+    return NextResponse.json(ECO_TAGS);
   } catch (error) {
     console.error('Error fetching eco tags:', error);
     return NextResponse.json(

@@ -112,7 +112,7 @@ export default async function PreviewPage() {
                 </div>
                 <p className="text-gray-600">{listing.shortDescription}</p>
 
-                {listing.gallery_images && listing.gallery_images.length > 0 && (
+                {listing.galleryImages && listing.galleryImages.length > 0 && (
                   <div className="mt-4">
                     <h3 className="text-lg font-semibold mb-2">Gallery</h3>
                     <div className="grid grid-cols-3 gap-2">

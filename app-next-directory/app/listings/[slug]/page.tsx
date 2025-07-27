@@ -40,12 +40,10 @@ function isQueryResultCity(value: any): value is {
 /**
  * Type guard function to check if a value is a canonical Slug object
  */
-function isCanonicalSlug(value: any): value is { current: string } {
+function isCanonicalSlug(value: any): value is string {
   return (
     value &&
-    typeof value === 'object' &&
-    'current' in value &&
-    typeof value.current === 'string'
+    typeof value === 'string'
   );
 }
 
@@ -95,7 +93,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-2">{listing.name ?? ''}</h1>
           {validCity && (
             <Link
-              href={`/cities/${validCity.slug.current}`}
+              href={`/cities/${validCity.slug}`}
               className="text-lg text-muted-foreground hover:text-primary"
             >
               {validCity.name}

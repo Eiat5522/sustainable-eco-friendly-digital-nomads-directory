@@ -6,7 +6,7 @@
  */
 
 import { processMetricForAlert } from '@/lib/performance/alert-service';
-import { PERFORMANCE_BUDGETS } from '@/lib/performance/performance-budgets';
+import { performanceBudgets } from '@/lib/performance/performance-budgets';
 
 interface MetricData {
   name: string;
