@@ -101,9 +101,9 @@ describe('useSearch', () => {
     userEvent.click(screen.getByText('Set Query to an'));
     await act(async () => {
       jest.advanceTimersByTime(300);
-      // flush microtasks
       await Promise.resolve();
     });
+    // Force re-render to flush state updates
     await waitFor(() => {
       expect(screen.getByTestId('query').textContent).toBe('an');
       expect(screen.getByTestId('results').textContent).toContain('Banana');
@@ -147,6 +147,7 @@ describe('useSearch', () => {
       jest.advanceTimersByTime(300);
       await Promise.resolve();
     });
+    // Force re-render to flush state updates
     await waitFor(() => {
       expect(screen.getByTestId('query').textContent).toBe('  apple  ');
       expect(screen.getByTestId('results').textContent).toContain('Apple');
