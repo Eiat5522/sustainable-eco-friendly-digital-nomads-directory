@@ -209,9 +209,6 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
           {listing.coworkingDetails && (
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-semibold mb-4">Coworking Details</h3>
-              {listing.coworkingDetails.capacity && (
-                <p className="text-gray-700">Capacity: {listing.coworkingDetails.capacity}</p>
-              )}
               {listing.coworkingDetails.pricingPlans && listing.coworkingDetails.pricingPlans.length > 0 && (
                 <div className="mt-4">
                   <h4 className="font-semibold mb-2">Pricing Plans:</h4>
@@ -287,26 +284,29 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
             <div>
               <h2 className="text-2xl font-semibold mb-4">Restaurant Details</h2>
               <ul className="list-disc list-inside">
-                {listing.restaurantDetails.cuisine && (
-                  <li>Cuisine: {listing.restaurantDetails.cuisine.join(', ')}</li>
+                {listing.restaurantDetails.cuisineType && (
+                  <li>Cuisine: {listing.restaurantDetails.cuisineType.join(', ')}</li>
                 )}
                 {listing.restaurantDetails.dietaryOptions && (
                   <li>Dietary Options: {listing.restaurantDetails.dietaryOptions.join(', ')}</li>
                 )}
-                {listing.restaurantDetails.pricePerPerson != null && (
-                  <li>Price Per Person: {listing.restaurantDetails.pricePerPerson}</li>
+                {listing.restaurantDetails.averageMealPriceThb && (
+                  <li>Price Per Meal: {listing.restaurantDetails.averageMealPriceThb.min} - {listing.restaurantDetails.averageMealPriceThb.max} THB</li>
                 )}
-                {listing.restaurantDetails.delivery != null && (
-                  <li>Delivery Available: {listing.restaurantDetails.delivery ? 'Yes' : 'No'}</li>
+                {listing.restaurantDetails.operatingHours && (
+                  <li>Operating Hours: {listing.restaurantDetails.operatingHours}</li>
                 )}
-                {listing.restaurantDetails.takeaway != null && (
-                  <li>Takeaway: {listing.restaurantDetails.takeaway ? 'Yes' : 'No'}</li>
+                {listing.restaurantDetails.priceRange && (
+                  <li>Price Range: {listing.restaurantDetails.priceRange}</li>
                 )}
-                {listing.restaurantDetails.reservation != null && (
-                  <li>Reservation Required: {listing.restaurantDetails.reservation ? 'Yes' : 'No'}</li>
+                {listing.restaurantDetails.sustainabilityInitiatives && (
+                  <li>Sustainability Initiatives: {listing.restaurantDetails.sustainabilityInitiatives.join(', ')}</li>
                 )}
-                {listing.restaurantDetails.outdoorSeating != null && (
-                  <li>Outdoor Seating: {listing.restaurantDetails.outdoorSeating ? 'Yes' : 'No'}</li>
+                {listing.restaurantDetails.seating && (
+                  <li>Seating: {listing.restaurantDetails.seating.join(', ')}</li>
+                )}
+                {listing.restaurantDetails.workFriendly && (
+                  <li>Work Friendly: {listing.restaurantDetails.workFriendly.join(', ')}</li>
                 )}
               </ul>
             </div>
@@ -316,23 +316,32 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
             <div>
               <h2 className="text-2xl font-semibold mb-4">Activities Details</h2>
               <ul className="list-disc list-inside">
-                {listing.activitiesDetails.category && (
-                  <li>Category: {listing.activitiesDetails.category.join(', ')}</li>
+                {listing.activitiesDetails.activityType && (
+                  <li>Activity Type: {listing.activitiesDetails.activityType}</li>
                 )}
                 {listing.activitiesDetails.duration && (
-                  <li>Duration: {listing.activitiesDetails.duration}</li>
-                )}
-                {listing.activitiesDetails.difficulty && (
-                  <li>Difficulty: {listing.activitiesDetails.difficulty}</li>
+                  <li>Duration: {listing.activitiesDetails.duration.value} {listing.activitiesDetails.duration.unit}</li>
                 )}
                 {listing.activitiesDetails.groupSize && (
                   <li>Group Size: {listing.activitiesDetails.groupSize.min} - {listing.activitiesDetails.groupSize.max}</li>
                 )}
-                {listing.activitiesDetails.seasonality && (
-                  <li>Seasonality: {listing.activitiesDetails.seasonality.join(', ')}</li>
+                {listing.activitiesDetails.skillLevel && (
+                  <li>Skill Level: {listing.activitiesDetails.skillLevel}</li>
                 )}
-                {listing.activitiesDetails.equipment != null && (
-                  <li>Equipment Required: {listing.activitiesDetails.equipment ? 'Yes' : 'No'}</li>
+                {listing.activitiesDetails.sustainabilityPractices && (
+                  <li>Sustainability Practices: {listing.activitiesDetails.sustainabilityPractices.join(', ')}</li>
+                )}
+                {listing.activitiesDetails.seasonality && listing.activitiesDetails.seasonality.bestMonths && (
+                  <li>Best Months: {listing.activitiesDetails.seasonality.bestMonths.join(', ')}</li>
+                )}
+                {listing.activitiesDetails.ecoScore && listing.activitiesDetails.ecoScore.score && (
+                  <li>Eco Score: {listing.activitiesDetails.ecoScore.score}</li>
+                )}
+                {listing.activitiesDetails.languages && (
+                  <li>Languages: {listing.activitiesDetails.languages.join(', ')}</li>
+                )}
+                {listing.activitiesDetails.accessibility && listing.activitiesDetails.accessibility.wheelchairAccessible !== undefined && (
+                  <li>Wheelchair Accessible: {listing.activitiesDetails.accessibility.wheelchairAccessible ? 'Yes' : 'No'}</li>
                 )}
               </ul>
             </div>
@@ -373,6 +382,3 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
   </div>
   );
 }
-// ...existing code...
-
-

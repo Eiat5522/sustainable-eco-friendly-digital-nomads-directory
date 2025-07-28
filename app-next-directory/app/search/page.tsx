@@ -17,11 +17,7 @@ interface SearchResult {
   // Add other result properties as needed
 }
 
-interface MultiSelectFilters {
-  destination: string[];
-  category: string[];
-  features_amenities: string[];
-}
+import type { MultiSelectFilters } from '@/components/ui/DigitalNomadSearchFilter';
 
 interface SearchPagination {
   page: number;
@@ -103,7 +99,7 @@ function SearchResultsComponent() {
     const queryParams = new URLSearchParams(searchParams?.toString());
     queryParams.delete('destination');
     queryParams.delete('category');
-    queryParams.delete('featuresAmenities');
+    queryParams.delete('amenities');
     Object.entries(filters).forEach(([key, values]) => {
       if (Array.isArray(values) && values.length > 0) {
         (values as string[]).forEach((value) => {

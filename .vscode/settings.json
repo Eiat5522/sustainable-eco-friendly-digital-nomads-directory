@@ -1,6 +1,6 @@
 {
   "explorer.excludeGitIgnore": false,
-  "search.useParentIgnoreFiles": true,
+  "search.useParentIgnoreFiles": false,
   "search.useGlobalIgnoreFiles": true,
   "terminal.integrated.tabs.defaultColor": "terminal.ansiBlue",
   "search.useIgnoreFiles": false,

@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 import { cva, type VariantProps } from "class-variance-authority"
 
 // Multi-select filter state type
-interface MultiSelectFilters {
+export interface MultiSelectFilters {
   destination: string[];
   category: string[];
   nomadFeatures: string[];
