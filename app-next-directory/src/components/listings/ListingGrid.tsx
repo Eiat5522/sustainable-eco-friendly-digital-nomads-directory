@@ -48,7 +48,7 @@ export function ListingGrid({ listings }: ListingGridProps) {
               <Link href={`/listings/${listing.slug}`}>{listing.name}</Link>
             </h3>
             <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-              {listing.shortDescription || ''}
+              {listing.shortDescription || (listing as any).descriptionShort || (listing as any).description_short || ''}
             </p>
 
             <div className="flex flex-wrap gap-2 mb-4">
@@ -68,7 +68,7 @@ export function ListingGrid({ listings }: ListingGridProps) {
             </div>
 
             <div className="text-sm text-gray-500">
-              <p className="line-clamp-1">{listing.address || ''}</p>
+              <p className="line-clamp-1">{listing.address || (listing as any).addressString || (listing as any).address_string || ''}</p>
             </div>
           </div>
         </div>

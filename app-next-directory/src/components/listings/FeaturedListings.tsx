@@ -24,7 +24,24 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
         <h2 className="text-3xl font-bold mb-10 text-center text-gray-800">Featured Listings</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {listings.slice(0, 4).map(listing => {
-            const imageUrl = listing.imageUrl || '/placeholder-city.jpg';
+            // Handle Sanity image objects with fallback to direct imageUrl
+            let imageUrl = '/placeholder-city.jpg';
+            
+            // Priority 1: Use primaryImage object from Sanity with urlFor
+            if (listing.primaryImage?.asset) {
+              try {
+                const sanityImageUrl = urlFor(listing.primaryImage)?.width(500).height(300).url();
+                if (sanityImageUrl) {
+                  imageUrl = sanityImageUrl;
+                }
+              } catch (error) {
+                console.warn('Failed to generate Sanity image URL for listing:', listing.id, error);
+              }
+            }
+            // Priority 2: Use direct imageUrl if available and no primaryImage processed
+            else if (listing.imageUrl) {
+              imageUrl = listing.imageUrl;
+            }
 
             return (
               <article

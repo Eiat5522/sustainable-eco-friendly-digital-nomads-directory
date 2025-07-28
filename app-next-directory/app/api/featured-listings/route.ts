@@ -31,6 +31,7 @@ interface FeaturedListing {
     name?: string;
     country?: string;
   };
+  imageUrl?: string | null;
   priceRange?: string | null;
 }
 
@@ -78,6 +79,7 @@ export async function GET() {
           }
         }
       },
+      "imageUrl": primaryImage.asset->url,
       "location": city->{
         _id,
         name,
@@ -85,12 +87,7 @@ export async function GET() {
       },
       "ecoTags": ecoFocusTags[]->name,
       "digitalNomadFeatures": digitalNomadFeatures[]->name,
-      "priceRange": coalesce(
-        accommodationDetails.pricePerNightThbRange,
-        cafeDetails.priceIndication,
-        restaurantDetails.priceRange,
-        string(activitiesDetails.pricePerPerson.min) + "-" + string(activitiesDetails.pricePerPerson.max)
-      )
+      priceRange
     }`;
 
     console.log('[DEBUG] Featured Listings API: Executing GROQ query');
