@@ -40,6 +40,23 @@ export type AppListingDetail = AppListingCard & {
     openingHours?: Array<{ day: string; opens: string; closes: string }>;
   } | null;
   nomadFeatures: string[];
+  restaurantDetails?: {
+    cuisine?: string[];
+    dietaryOptions?: Array<'vegan'|'vegetarian'|'glutenFree'|'dairyFree'>;
+    pricePerPerson?: number;
+    delivery?: boolean;
+    takeaway?: boolean;
+    reservation?: boolean;
+    outdoorSeating?: boolean;
+  } | null;
+  activitiesDetails?: {
+    category?: Array<'outdoor'|'wellness'|'culture'|'sports'>;
+    duration?: string;
+    difficulty?: 'easy'|'moderate'|'challenging';
+    groupSize?: { min: number; max: number };
+    seasonality?: Array<'spring'|'summer'|'autumn'|'winter'>;
+    equipment?: boolean;
+  } | null;
 };
 
 export type AppReview = {

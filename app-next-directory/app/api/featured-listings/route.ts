@@ -87,7 +87,25 @@ export async function GET() {
       },
       "ecoTags": ecoFocusTags[]->name,
       "digitalNomadFeatures": digitalNomadFeatures[]->name,
-      priceRange
+      priceRange,
+      // Category-specific details
+      restaurantDetails: restaurant_details{
+        cuisine,
+        dietaryOptions,
+        pricePerPerson,
+        delivery,
+        takeaway,
+        reservation,
+        outdoorSeating
+      },
+      activitiesDetails: activities_details{
+        category,
+        duration,
+        difficulty,
+        groupSize{min, max},
+        seasonality,
+        equipment
+      }
     }`;
 
     console.log('[DEBUG] Featured Listings API: Executing GROQ query');

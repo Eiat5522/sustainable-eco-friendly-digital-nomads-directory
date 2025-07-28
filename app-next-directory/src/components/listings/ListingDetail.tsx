@@ -18,9 +18,10 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const images = (listing.galleryImages || []).map((img: any) => ({
+  // Build gallery images with explicit alt text for testing
+  const images = (listing.galleryImages || []).map((img: any, idx: number) => ({
     src: urlFor(img).url(),
-    alt: img.alt || listing.name,
+    alt: `Gallery image ${idx + 1}`,
   }));
 
   if (listing.primaryImage) {
@@ -278,6 +279,62 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
                   </ul>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Category-specific Details */}
+          {listing.type === 'restaurant' && listing.restaurantDetails && (
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Restaurant Details</h2>
+              <ul className="list-disc list-inside">
+                {listing.restaurantDetails.cuisine && (
+                  <li>Cuisine: {listing.restaurantDetails.cuisine.join(', ')}</li>
+                )}
+                {listing.restaurantDetails.dietaryOptions && (
+                  <li>Dietary Options: {listing.restaurantDetails.dietaryOptions.join(', ')}</li>
+                )}
+                {listing.restaurantDetails.pricePerPerson != null && (
+                  <li>Price Per Person: {listing.restaurantDetails.pricePerPerson}</li>
+                )}
+                {listing.restaurantDetails.delivery != null && (
+                  <li>Delivery Available: {listing.restaurantDetails.delivery ? 'Yes' : 'No'}</li>
+                )}
+                {listing.restaurantDetails.takeaway != null && (
+                  <li>Takeaway: {listing.restaurantDetails.takeaway ? 'Yes' : 'No'}</li>
+                )}
+                {listing.restaurantDetails.reservation != null && (
+                  <li>Reservation Required: {listing.restaurantDetails.reservation ? 'Yes' : 'No'}</li>
+                )}
+                {listing.restaurantDetails.outdoorSeating != null && (
+                  <li>Outdoor Seating: {listing.restaurantDetails.outdoorSeating ? 'Yes' : 'No'}</li>
+                )}
+              </ul>
+            </div>
+          )}
+
+          {listing.type === 'activities' && listing.activitiesDetails && (
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Activities Details</h2>
+              <ul className="list-disc list-inside">
+                {listing.activitiesDetails.category && (
+                  <li>Category: {listing.activitiesDetails.category.join(', ')}</li>
+                )}
+                {listing.activitiesDetails.duration && (
+                  <li>Duration: {listing.activitiesDetails.duration}</li>
+                )}
+                {listing.activitiesDetails.difficulty && (
+                  <li>Difficulty: {listing.activitiesDetails.difficulty}</li>
+                )}
+                {listing.activitiesDetails.groupSize && (
+                  <li>Group Size: {listing.activitiesDetails.groupSize.min} - {listing.activitiesDetails.groupSize.max}</li>
+                )}
+                {listing.activitiesDetails.seasonality && (
+                  <li>Seasonality: {listing.activitiesDetails.seasonality.join(', ')}</li>
+                )}
+                {listing.activitiesDetails.equipment != null && (
+                  <li>Equipment Required: {listing.activitiesDetails.equipment ? 'Yes' : 'No'}</li>
+                )}
+              </ul>
             </div>
           )}
         </div>

@@ -48,6 +48,7 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
     ecoTags: (listing as any).ecoTags || [],
     priceRange: (listing as any).priceRange,
     website: (listing as any).website,
+    category: (listing as any).category || (listing as any).type,
   }));
 
   return (

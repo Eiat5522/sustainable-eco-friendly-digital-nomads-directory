@@ -17,6 +17,25 @@ const LISTING_BY_SLUG_QUERY = groq`
     accommodationDetails: accommodation_details{},
     cafeDetails: cafe_details{
       openingHours[]{ day, opens, closes }
+    },
+    // Restaurant-specific details
+    restaurantDetails: restaurant_details{
+      cuisine,
+      dietaryOptions,
+      pricePerPerson,
+      delivery,
+      takeaway,
+      reservation,
+      outdoorSeating
+    },
+    // Activities-specific details
+    activitiesDetails: activities_details{
+      category,
+      duration,
+      difficulty,
+      groupSize{ min, max },
+      seasonality,
+      equipment
     }
   }
 `;
