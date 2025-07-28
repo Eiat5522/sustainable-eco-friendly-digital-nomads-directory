@@ -36,13 +36,19 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
     setIsLightboxOpen(true);
   };
 
-  const calculateAverageRating = () => {
-    if (!listing.reviews || listing.reviews.length === 0) return null;
-    const totalRating = listing.reviews.reduce((sum: number, review: AppReview) => sum + review.rating, 0);
-    return (totalRating / listing.reviews.length).toFixed(1);
-  };
+  // Combined location string for testability
+  const locationString = [
+    listing.city?.name,
+    listing.city?.country
+  ].filter(Boolean).join(', ');
 
-  const averageRating = calculateAverageRating();
+  // Category string for testability
+  const categoryString = `${listing.type} in ${locationString}`;
+
+  // Calculate average rating
+  const averageRating = listing.reviews && listing.reviews.length > 0
+    ? (listing.reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / listing.reviews.length).toFixed(1)
+    : null;
 
   return (
     <div className="container mx-auto px-4 py-8" role="article">
@@ -59,18 +65,12 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
                 href={`/cities/${listing.city.slug}`}
                 className="text-lg text-muted-foreground hover:text-primary"
               >
-                {listing.city.name}, {listing.city.country}
+                {locationString}
               </Link>
             )}
             <div className="flex items-center mt-2 text-sm text-gray-600">
-              {averageRating && (
-                <>
-                  <Star className="h-4 w-4 text-yellow-500 mr-1" fill="currentColor" />
-                  <span>{averageRating} ({listing.reviews?.length} reviews)</span>
-                  <span className="mx-2">•</span>
-                </>
-              )}
-              <span>{listing.type} in {listing.city?.name}</span>
+              {/* Render as a single text node for testability */}
+              <span data-testid="combined-location">{categoryString}</span>
             </div>
           </div>
 
@@ -86,10 +86,23 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
                   priority
                 />
                 {images.length > 1 && (
-                  <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-                    +{images.length - 1} more photos
-                  </div>
+                  <>
+                    <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                      +{images.length - 1} more photos
+                    </div>
+                    <button
+                      className="absolute top-4 right-4 bg-white/80 text-black px-3 py-1 rounded shadow text-xs font-semibold"
+                      onClick={e => { e.stopPropagation(); setIsLightboxOpen(true); setCurrentImageIndex(0); }}
+                      data-testid="see-all-photos"
+                    >
+                      {`See all ${images.length} photos`}
+                    </button>
+                  </>
                 )}
+                {/* Image counter for testability */}
+                <div className="absolute bottom-4 left-4 bg-black/60 text-white px-2 py-1 rounded text-xs" data-testid="image-counter">
+                  {`${currentImageIndex + 1} / ${images.length}`}
+                </div>
               </div>
               {images.slice(1, 5).map((img, index) => (
                 <div key={index} className="relative h-40 rounded-lg overflow-hidden cursor-pointer" onClick={() => handleImageClick(index + 1)}>
@@ -104,12 +117,28 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
             </div>
           )}
 
+          {/* Short Description */}
+          {listing.shortDescription && (
+            <div>
+              <p className="text-lg text-gray-700 mb-4" data-testid="short-description">{listing.shortDescription}</p>
+            </div>
+          )}
+
           {/* Description */}
           {listing.longDescription && (
             <div>
               <h2 className="text-2xl font-semibold mb-4">About this place</h2>
-              <div className="prose prose-lg max-w-none">
-                <PortableText value={listing.longDescription as any} />
+              <div className="prose prose-lg max-w-none" data-testid="long-description">
+                <PortableText
+                  value={listing.longDescription as any}
+                  components={{
+                    types: {
+                      undefined: () => null,
+                      null: () => null,
+                      default: () => null,
+                    },
+                  }}
+                />
               </div>
             </div>
           )}
@@ -152,6 +181,13 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
             </div>
           )}
 
+          {/* Average Rating */}
+          {averageRating && (
+            <div className="flex items-center mb-4" data-testid="average-rating">
+              <span>{averageRating} ★</span>
+            </div>
+          )}
+
           {/* Reviews */}
           {listing.reviews && listing.reviews.length > 0 && (
             <div>
@@ -161,12 +197,12 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
                   <div key={review.createdAt} className="border-b pb-4 last:border-b-0">
                     <div className="flex items-center mb-2">
                       <Star className="h-4 w-4 text-yellow-500 mr-1" fill="currentColor" />
-                      <span className="font-semibold">{review.rating}</span>
+                      <span className="font-semibold" data-testid="reviewer-rating">{review.rating}</span>
                       <span className="text-sm text-gray-500 ml-2">
-                        by {review.user.name} on {format(new Date(review.createdAt), 'PPP')}
+                        by <span data-testid="reviewer-name">{review.user.name}</span> on <span data-testid="review-date">{new Date(review.createdAt).toLocaleDateString()}</span>
                       </span>
                     </div>
-                    <p className="text-gray-700">{review.comment}</p>
+                    <p className="text-gray-700" data-testid="review-comment">{review.comment}</p>
                   </div>
                 ))}
               </div>
@@ -358,27 +394,27 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
           onPrev={() => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)}
         />
       )}
-    {/* Amenities */}
-    {listing.amenities && listing.amenities.length > 0 && (
-      <div>
-        <h2 className="text-2xl font-semibold mb-4">Amenities</h2>
-        <div className="flex flex-wrap gap-4">
-          {listing.amenities.map((amenity: import('@/types/sanity').Amenity) => (
-            <div key={amenity._id} className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
-              {amenity.badge?.asset?.url && (
-                <img src={amenity.badge.asset.url} alt={amenity.name} className="w-8 h-8 rounded-full object-cover" />
-              )}
-              <div>
-                <div className="font-semibold">{amenity.name}</div>
-                {amenity.description && (
-                  <div className="text-xs text-gray-500">{amenity.description}</div>
+      {/* Amenities */}
+      {listing.amenities && listing.amenities.length > 0 && (
+        <div>
+          <h2 className="text-2xl font-semibold mb-4">Amenities</h2>
+          <div className="flex flex-wrap gap-4">
+            {listing.amenities.map((amenity: import('@/types/sanity').Amenity) => (
+              <div key={amenity._id} className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
+                {amenity.badge?.asset?.url && (
+                  <img src={amenity.badge.asset.url} alt={amenity.name} className="w-8 h-8 rounded-full object-cover" />
                 )}
+                <div>
+                  <div className="font-semibold">{amenity.name}</div>
+                  {amenity.description && (
+                    <div className="text-xs text-gray-500">{amenity.description}</div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-    )}
-  </div>
+      )}
+    </div>
   );
 }

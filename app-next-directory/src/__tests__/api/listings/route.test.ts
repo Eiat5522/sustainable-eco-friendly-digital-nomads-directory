@@ -1,10 +1,9 @@
 
 
 // Unmock the listings route to test the actual implementation
-jest.unmock('@/app/api/listings/route');
-
+// import { POST, GET } from '@/app/api/listings/route';
 import { NextRequest, NextResponse } from 'next/server';
-import { POST, GET } from '@/app/api/listings/route';
+import { POST, GET } from '../../../../app/api/listings/route';
 
 // Import createMocks from the mock file
 const { createMocks } = require('../../../__mocks__/next/server');
