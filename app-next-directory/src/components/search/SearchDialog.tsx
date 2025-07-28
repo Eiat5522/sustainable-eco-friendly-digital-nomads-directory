@@ -21,7 +21,14 @@ interface SearchDialogProps {
   onClose: () => void;
 }
 
-const categories = ['Coworking', 'Accommodation', 'Cafe', 'Restaurant', 'Activity'];
+// Standardized 5 categories/types
+const categories = [
+  'Coworking',
+  'Accommodation',
+  'Cafe',
+  'Restaurant',
+  'Activities',
+];
 const ecoTagsOptions = [
   'Solar Powered',
   'Zero Waste',
@@ -107,7 +114,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
   const toggleEcoFeature = (feature: string) => {
     const newFilters = {
       ...filters,
-      ecoFeatures: filters.ecoTags.includes(feature)
+      ecoTags: filters.ecoTags.includes(feature)
         ? filters.ecoTags.filter(f => f !== feature)
         : [...filters.ecoTags, feature],
     };
