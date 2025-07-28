@@ -25,7 +25,6 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
-    '^@/(.*)$': '<rootDir>/src/$1',
     '^@/app/(.*)$': '<rootDir>/app/$1',
     '^@/app/api/listings/route$': '<rootDir>/__mocks__/app/api/listings/route.js',
     '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
