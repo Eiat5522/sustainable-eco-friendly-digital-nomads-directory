@@ -100,3 +100,22 @@ export interface SanityListing extends SanityDocument {
     youtube?: string;
   };
 }
+// ...existing code...
+
+export interface Amenity {
+  _id: string;
+  name: string;
+  description?: string;
+  badge?: {
+    asset?: {
+      url?: string;
+    };
+  };
+}
+
+export interface SanityListing extends SanityDocument {
+  // ...existing fields...
+  amenities?: Amenity[];
+  // ...existing fields...
+}
+// ...existing code...

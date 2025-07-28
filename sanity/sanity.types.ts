@@ -990,3 +990,25 @@ export type AllSanitySchemaTypes =
   | Slug
   | SanityAssetSourceData
 export declare const internalGroqTypeReferenceTo: unique symbol
+// Source: ../app-next-directory/src/lib/sanity/data.ts
+// Variable: LISTING_BY_SLUG_QUERY
+// Query: *[_type == "listing" && slug.current == $slug][0]{    _id,    name,    "slug": slug.current,    priceRange,    coworkingDetails,    accommodationDetails,    cafeDetails,    restaurantDetails,    activitiesDetails  }
+export type LISTING_BY_SLUG_QUERYResult = {
+  _id: string
+  name: string | null
+  slug: string | null
+  priceRange: 'budget' | 'moderate' | 'premium' | null
+  coworkingDetails: null
+  accommodationDetails: AccommodationDetails | null
+  cafeDetails: CafeDetails | null
+  restaurantDetails: null
+  activitiesDetails: null
+} | null
+
+// Query TypeMap
+import '@sanity/client'
+declare module '@sanity/client' {
+  interface SanityQueries {
+    '\n  *[_type == "listing" && slug.current == $slug][0]{\n    _id,\n    name,\n    "slug": slug.current,\n    priceRange,\n    coworkingDetails,\n    accommodationDetails,\n    cafeDetails,\n    restaurantDetails,\n    activitiesDetails\n  }\n': LISTING_BY_SLUG_QUERYResult
+  }
+}

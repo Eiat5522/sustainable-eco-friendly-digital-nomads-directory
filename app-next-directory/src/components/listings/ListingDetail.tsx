@@ -349,8 +349,30 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
           onPrev={() => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)}
         />
       )}
-    </div>
+    {/* Amenities */}
+    {listing.amenities && listing.amenities.length > 0 && (
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Amenities</h2>
+        <div className="flex flex-wrap gap-4">
+          {listing.amenities.map((amenity: import('@/types/sanity').Amenity) => (
+            <div key={amenity._id} className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
+              {amenity.badge?.asset?.url && (
+                <img src={amenity.badge.asset.url} alt={amenity.name} className="w-8 h-8 rounded-full object-cover" />
+              )}
+              <div>
+                <div className="font-semibold">{amenity.name}</div>
+                {amenity.description && (
+                  <div className="text-xs text-gray-500">{amenity.description}</div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
   );
 }
+// ...existing code...
 
 

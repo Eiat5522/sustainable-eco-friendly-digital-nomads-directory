@@ -9,23 +9,22 @@ export default {
   type: 'object',
   validation: Rule => Rule.required().error('Cafe details are required for cafe listings'),
   fields: [
+    // Opening hours (optional)
     { name: 'openingHours', type: 'array', of: [{ type: 'openingHoursEntry' }] },
+    // Price indication (required)
     {
       name: 'priceIndication',
       title: 'Price Indication',
       type: 'string',
       options: {
         list: [
-          { title: ''
-, value: ''
- },
-          { title: '$', value: '$' },
           { title: '$', value: '$' },
           { title: '$$', value: '$$' }
         ]
       },
       validation: Rule => Rule.required().error('Price indication is required')
     },
+    // Menu highlights (at least 2)
     {
       name: 'menuHighlights',
       title: 'Menu Highlights',
@@ -51,6 +50,7 @@ export default {
       ],
       validation: Rule => Rule.min(2).error('Please select at least 2 menu highlights')
     },
+    // Workspace amenities (at least 1)
     {
       name: 'workspaceAmenities',
       title: 'Workspace Amenities',
@@ -67,13 +67,14 @@ export default {
       },
       validation: Rule => Rule.min(1).error('Please specify workspace amenities')
     },
+    // Maximum recommended stay (hours, required)
     {
       name: 'maxRecommendedStay',
       title: 'Maximum Recommended Stay (hours)',
       type: 'number',
-      validation: Rule => Rule.required().min(1).max(12)
-        .error('Please specify a reasonable maximum stay duration between 1-12 hours')
+      validation: Rule => Rule.required().min(1).max(12).error('Please specify a reasonable maximum stay duration between 1-12 hours')
     },
+    // Typical noise level (required)
     {
       name: 'noiseLevel',
       title: 'Typical Noise Level',
@@ -89,6 +90,7 @@ export default {
       },
       validation: Rule => Rule.required()
     },
+    // Power outlet availability (object)
     {
       name: 'powerOutlets',
       title: 'Power Outlet Availability',
@@ -116,22 +118,14 @@ export default {
         }
       ]
     },
+    // Work policy (object)
     {
       name: 'workPolicy',
       title: 'Work Policy',
       type: 'object',
       fields: [
-        {
-          name: 'laptopsAllowed',
-          title: 'Laptops Allowed',
-          type: 'boolean'
-        },
-        {
-          name: 'timeLimit',
-          title: 'Time Limit (minutes)',
-          type: 'number',
-          validation: Rule => Rule.min(0)
-        },
+        { name: 'laptopsAllowed', title: 'Laptops Allowed', type: 'boolean' },
+        { name: 'timeLimit', title: 'Time Limit (minutes)', type: 'number', validation: Rule => Rule.min(0) },
         {
           name: 'peakHoursPolicy',
           title: 'Peak Hours Policy',
@@ -144,29 +138,17 @@ export default {
             ]
           }
         },
-        {
-          name: 'peakHours',
-          title: 'Peak Hours',
-          type: 'string'
-        }
+        { name: 'peakHours', title: 'Peak Hours', type: 'string' }
       ]
     },
+    // Vegan friendly (object)
     {
       name: 'veganFriendly',
       title: 'Vegan Friendly',
       type: 'object',
       fields: [
-        {
-          name: 'isVeganFriendly',
-          title: 'Is Vegan Friendly',
-          type: 'boolean'
-        },
-        {
-          name: 'veganOptions',
-          title: 'Percentage of Vegan Options',
-          type: 'number',
-          validation: Rule => Rule.min(0).max(100)
-        }
+        { name: 'isVeganFriendly', title: 'Is Vegan Friendly', type: 'boolean' },
+        { name: 'veganOptions', title: 'Percentage of Vegan Options', type: 'number', validation: Rule => Rule.min(0).max(100) }
       ]
     }
   ]

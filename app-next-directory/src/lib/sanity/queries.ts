@@ -23,6 +23,14 @@ async function getListingBySlug(slug: string, preview = false) {
     },
     cafeDetails: cafe_details{
       openingHours[]{ day, opens, closes }
+    },
+    amenities: amenities[]-> {
+      _id,
+      name,
+      description,
+      badge {
+        asset->{url}
+      }
     }
   }`;
 

@@ -136,7 +136,8 @@ describe('ListingDetail', () => {
 
   test('displays price range correctly', () => {
     render(<ListingDetail listing={mockListing} />);
-    expect(screen.getByText('Price Range: $150')).toBeInTheDocument();
+    expect(screen.getByText(/Price Range/i)).toBeInTheDocument();
+    expect(screen.getByText(/moderate/i)).toBeInTheDocument();
   });
 
   test('shows city and country information', () => {

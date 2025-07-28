@@ -1,11 +1,12 @@
 export type AppCity = { id: string; name: string; slug: string; country?: string };
+
 export type AppListingCard = {
   id: string;
   name: string;
   slug: string;
   city: AppCity | null;
   ecoTags: string[];
-  priceRange?: 'budget'|'moderate'|'premium';
+  priceRange?: 'budget' | 'moderate' | 'premium';
   website?: string | null;
   imageUrl?: string | null;
   primaryImage?: any;
@@ -16,6 +17,8 @@ export type AppListingCard = {
   category?: string;
   coordinates?: { lat: number; lng: number };
 };
+import type { Amenity } from '@/types/sanity';
+
 export type AppListingDetail = AppListingCard & {
   contactPhone?: string | null;
   contactEmail?: string | null;
@@ -28,35 +31,93 @@ export type AppListingDetail = AppListingCard & {
   lastVerifiedDate?: string | null;
   reviews?: any[];
   coworkingDetails?: {
-    capacity?: number | null;
     pricingPlans?: Array<{ type: string; price: number | null; period: string }>;
     openingHours?: Array<{ day: string; opens: string; closes: string }>;
+    internetSpeed?: { download?: number; upload?: number; lastTested?: string };
   } | null;
   accommodationDetails?: {
-    pricePerNightThb?: { min: number | null; max: number | null };
+    accommodationType?: string;
+    pricePerNightThb?: { min?: number; max?: number };
     openingHours?: Array<{ day: string; opens: string; closes: string }>;
+    roomTypesAvailable?: Array<{
+      type: string;
+      pricePerNight?: number;
+      features?: string[];
+    }>;
+    minimumStay?: number;
+    coworkingPartnership?: {
+      hasPartnership?: boolean;
+      partner?: string;
+      discountDetails?: string;
+    };
+    workspaceQuality?: {
+      hasWorkspace?: boolean;
+      workspaceType?: string;
+      workspaceFeatures?: string[];
+    };
+    stayDuration?: {
+      minimumNights?: number;
+      maximumNights?: number;
+      longTermAvailable?: boolean;
+      longTermDiscount?: string;
+    };
   } | null;
   cafeDetails?: {
     openingHours?: Array<{ day: string; opens: string; closes: string }>;
+    priceIndication?: string;
+    menuHighlights?: string[];
+    workspaceAmenities?: string[];
+    maxRecommendedStay?: number;
+    noiseLevel?: string;
+    powerOutlets?: {
+      availability?: string;
+      notes?: string;
+    };
+    workPolicy?: {
+      laptopsAllowed?: boolean;
+      timeLimit?: number;
+      peakHoursPolicy?: string;
+      peakHours?: string;
+    };
+    veganFriendly?: {
+      isVeganFriendly?: boolean;
+      veganOptions?: number;
+    };
   } | null;
-  nomadFeatures: string[];
   restaurantDetails?: {
-    cuisine?: string[];
-    dietaryOptions?: Array<'vegan'|'vegetarian'|'glutenFree'|'dairyFree'>;
-    pricePerPerson?: number;
-    delivery?: boolean;
-    takeaway?: boolean;
-    reservation?: boolean;
-    outdoorSeating?: boolean;
+    cuisineType?: string[];
+    priceRange?: 'budget' | 'moderate' | 'expensive' | 'luxury';
+    operatingHours?: string;
+    sustainabilityInitiatives?: string[];
+    dietaryOptions?: string[];
+    seating?: string[];
+    workFriendly?: string[];
+    averageMealPriceThb?: { min?: number; max?: number };
   } | null;
   activitiesDetails?: {
-    category?: Array<'outdoor'|'wellness'|'culture'|'sports'>;
-    duration?: string;
-    difficulty?: 'easy'|'moderate'|'challenging';
-    groupSize?: { min: number; max: number };
-    seasonality?: Array<'spring'|'summer'|'autumn'|'winter'>;
-    equipment?: boolean;
+    activityType?: string;
+    duration?: { value?: number; unit?: string };
+    groupSize?: { min?: number; max?: number };
+    sustainabilityPractices?: string[];
+    skillLevel?: string;
+    ecoScore?: {
+      score?: number;
+      certifications?: string[];
+      justification?: string;
+    };
+    languages?: string[];
+    accessibility?: {
+      wheelchairAccessible?: boolean;
+      mobilityLevel?: string;
+      accessibilityNotes?: string;
+    };
+    seasonality?: {
+      bestMonths?: string[];
+      weatherDependent?: boolean;
+    };
   } | null;
+  amenities?: Amenity[];
+  nomadFeatures?: string[];
 };
 
 export type AppReview = {

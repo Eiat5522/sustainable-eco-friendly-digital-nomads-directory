@@ -10,11 +10,24 @@ import { cn } from "@/lib/utils"
 import { cva, type VariantProps } from "class-variance-authority"
 
 // Multi-select filter state type
-type MultiSelectFilters = {
+interface MultiSelectFilters {
   destination: string[];
   category: string[];
   nomadFeatures: string[];
-};
+  amenities: string[];
+}
+
+// Amenity type for filter
+interface Amenity {
+  _id: string;
+  name: string;
+  description?: string;
+  badge?: {
+    asset?: {
+      url?: string;
+    };
+  };
+}
 
 // Enhanced Select Component for Nomad Features
 type NomadFeature = {
@@ -93,7 +106,6 @@ const FilterBadge = ({
   )
 }
 
-// Main Search Filter Component
 interface SearchFilterProps {
   onSearch?: (query: string) => void;
   onFilterChange?: (filters: MultiSelectFilters) => void;
@@ -105,9 +117,11 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
     destination: [],
     category: [],
     nomadFeatures: [],
+    amenities: [],
   });
   const [isFocused, setIsFocused] = React.useState(false);
   const [showFilters, setShowFilters] = React.useState(false);
+  const [amenities, setAmenities] = React.useState<Amenity[]>([]);
 
   // Standardized city/destination list
   const destinations: NomadFeature[] = [
@@ -130,5 +144,59 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
     { id: "activities", label: "Activities", value: "activities", icon: <Activity className="w-5 h-5 text-green-600" />, category: "category" },
   ];
 
-  // ...existing code for featuresAmenities, handlers, and rendering...
+  // Fetch amenities (replace with real API call)
+  React.useEffect(() => {
+    // TODO: Replace with fetch('/api/amenities') or similar
+    setAmenities([
+      { _id: '1', name: 'Fast Wi-Fi', description: 'High-speed internet', badge: { asset: { url: '/wifi.png' } } },
+      { _id: '2', name: 'Free Parking', badge: { asset: { url: '/parking.png' } } },
+      { _id: '3', name: 'Air Conditioning' },
+    ]);
+  }, []);
+
+  // Handler for selecting/deselecting amenities
+  const handleAmenitySelect = (id: string) => {
+    const updated = activeFilters.amenities.includes(id)
+      ? activeFilters.amenities.filter(aid => aid !== id)
+      : [...activeFilters.amenities, id];
+    const newFilters = { ...activeFilters, amenities: updated };
+    setActiveFilters(newFilters);
+    onFilterChange?.(newFilters);
+  };
+
+  // ...existing code for features/handlers...
+  return (
+    <div className="w-full max-w-3xl mx-auto">
+      {/* ...existing code... */}
+      {/* Amenities Filter */}
+      <div className="mt-4 space-y-4">
+        <h3 className="font-semibold">Amenities</h3>
+        <div className="flex flex-wrap gap-2">
+          {amenities.map((amenity) => (
+            <FilterBadge
+              key={amenity._id}
+              variant="pill"
+              label={amenity.name}
+              onRemove={
+                activeFilters.amenities.includes(amenity._id)
+                  ? () => handleAmenitySelect(amenity._id)
+                  : undefined
+              }
+              className={cn(
+                'cursor-pointer',
+                activeFilters.amenities.includes(amenity._id) && 'bg-primary/10'
+              )}
+              onClick={() => handleAmenitySelect(amenity._id)}
+            >
+              {amenity.badge?.asset?.url && (
+                <img src={amenity.badge.asset.url} alt={amenity.name} className="w-5 h-5 rounded-full mr-2" />
+              )}
+              {amenity.name}
+            </FilterBadge>
+          ))}
+        </div>
+      </div>
+      {/* ...existing code... */}
+    </div>
+  );
 }

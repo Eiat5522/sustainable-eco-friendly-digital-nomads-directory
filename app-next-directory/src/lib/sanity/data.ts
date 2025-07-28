@@ -1,7 +1,6 @@
 import { client } from './client';
 import { groq } from 'next-sanity';
 
-
 // GROQ query to fetch a single listing by slug
 const LISTING_BY_SLUG_QUERY = groq`
   *[_type == "listing" && slug.current == $slug][0]{
@@ -9,34 +8,11 @@ const LISTING_BY_SLUG_QUERY = groq`
     name,
     "slug": slug.current,
     priceRange,
-    coworkingDetails: coworking_details{
-      capacity,
-      pricingPlans[]{ type, price, period },
-      openingHours[]{ day, opens, closes }
-    },
-    accommodationDetails: accommodation_details{},
-    cafeDetails: cafe_details{
-      openingHours[]{ day, opens, closes }
-    },
-    // Restaurant-specific details
-    restaurantDetails: restaurant_details{
-      cuisine,
-      dietaryOptions,
-      pricePerPerson,
-      delivery,
-      takeaway,
-      reservation,
-      outdoorSeating
-    },
-    // Activities-specific details
-    activitiesDetails: activities_details{
-      category,
-      duration,
-      difficulty,
-      groupSize{ min, max },
-      seasonality,
-      equipment
-    }
+    coworkingDetails,
+    accommodationDetails,
+    cafeDetails,
+    restaurantDetails,
+    activitiesDetails
   }
 `;
 
@@ -50,9 +26,6 @@ export async function getListingData(
   slug: string,
   usePreview = false
 ): Promise<any | null> {
-  // Use imported client directly (no redeclaration)
-  // const client = client(usePreview);
-
   try {
     const listing = await client.fetch(
       LISTING_BY_SLUG_QUERY,

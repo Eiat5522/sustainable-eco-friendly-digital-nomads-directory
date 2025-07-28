@@ -9,6 +9,7 @@ export default {
   type: 'object',
   validation: Rule => Rule.required().error('Restaurant details are required for restaurant listings'),
   fields: [
+    // Cuisine type (at least one required)
     {
       name: 'cuisineType',
       title: 'Cuisine Type',
@@ -31,6 +32,7 @@ export default {
       },
       validation: Rule => Rule.required().min(1).error('Please specify at least one cuisine type')
     },
+    // Price range (required, radio)
     {
       name: 'priceRange',
       title: 'Price Range',
@@ -46,12 +48,14 @@ export default {
       },
       validation: Rule => Rule.required().error('Price range is required')
     },
+    // Operating hours (required)
     {
       name: 'operatingHours',
       title: 'Operating Hours',
       type: 'string',
       validation: Rule => Rule.required().error('Operating hours are required')
     },
+    // Sustainability initiatives (at least two)
     {
       name: 'sustainabilityInitiatives',
       title: 'Sustainability Initiatives',
@@ -71,6 +75,7 @@ export default {
       },
       validation: Rule => Rule.min(2).error('Please specify at least two sustainability initiatives')
     },
+    // Dietary options (at least one)
     {
       name: 'dietaryOptions',
       title: 'Dietary Options',
@@ -89,6 +94,7 @@ export default {
       },
       validation: Rule => Rule.min(1).error('Please specify available dietary options')
     },
+    // Seating options (at least one)
     {
       name: 'seating',
       title: 'Seating Options',
@@ -105,6 +111,7 @@ export default {
       },
       validation: Rule => Rule.min(1).error('Please specify available seating options')
     },
+    // Work-friendly features (optional)
     {
       name: 'workFriendly',
       title: 'Work-Friendly Features',
@@ -120,30 +127,16 @@ export default {
         ]
       }
     },
+    // Average meal price (min/max)
     {
       name: 'averageMealPriceThb',
       title: 'Average Meal Price (THB)',
       type: 'object',
       fields: [
-        {
-          name: 'min',
-          title: 'Minimum Price',
-          type: 'number',
-          validation: Rule => Rule.required().min(0)
-        },
-        {
-          name: 'max',
-          title: 'Maximum Price',
-          type: 'number',
-          validation: Rule => Rule.required().min(0)
-        }
+        { name: 'min', title: 'Minimum Price', type: 'number', validation: Rule => Rule.required().min(0) },
+        { name: 'max', title: 'Maximum Price', type: 'number', validation: Rule => Rule.required().min(0) }
       ],
-      validation: Rule => Rule.custom((prices, context) => {
-        if (prices?.max < prices?.min) {
-          return 'Maximum price must be greater than minimum price'
-        }
-        return true
-      })
+      validation: Rule => Rule.custom(prices => (prices?.max < prices?.min ? 'Maximum price must be greater than minimum price' : true))
     }
   ]
 }
