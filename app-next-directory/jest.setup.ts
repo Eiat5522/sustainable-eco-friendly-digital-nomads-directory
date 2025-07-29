@@ -49,7 +49,7 @@ if (!global.fetch) {
 // Mock next/server globally for all tests  
 jest.mock('next/server', () => ({
   NextResponse: {
-    json: jest.fn((data, init) => ({
+    json: jest.fn((data, init?: { status?: number }) => ({
       status: init?.status || 200,
       json: () => Promise.resolve(data),
     })),
@@ -59,7 +59,7 @@ jest.mock('next/server', () => ({
 // Mock the internal NextResponse module that we're now importing from
 jest.mock('next/dist/server/web/spec-extension/response', () => ({
   NextResponse: {
-    json: jest.fn((data, init) => ({
+    json: jest.fn((data, init?: { status?: number }) => ({
       status: init?.status || 200,
       json: () => Promise.resolve(data),
     })),
