@@ -54,6 +54,8 @@
     "eslint-config-next": "^15.3.4",
     "jest": "^30.0.4",
     "jest-mock-extended": "^4.0.0",
-    "ts-jest": "^29.4.0"
+    "ts-jest": "^29.4.0",
+    "whatwg-fetch": "^3.6.20",
+    "node-fetch": "^3.3.2"
   }
 }
