@@ -26,13 +26,13 @@ describe('Listings API', () => {
     const { req } = createMocks({
       method: 'GET',
       json: undefined,
+      url: 'http://localhost/api/listings?page=1&limit=10',
     });
-    req.url = 'http://localhost/api/listings?page=1&limit=10';
     const response = await runHandler(GET, req);
     const data = await response.json();
     expect(response.status).toBe(200);
-    expect(data.listings).toBeDefined();
-    expect(Array.isArray(data.listings)).toBe(true);
+    expect(data.data.listings).toBeDefined();
+    expect(Array.isArray(data.data.listings)).toBe(true);
   });
 
   it('should create a new listing', async () => {
@@ -51,14 +51,14 @@ describe('Listings API', () => {
         contactPhone: '123-456-7890',
         contactEmail: 'test@example.com',
       },
+        url: 'http://localhost/api/listings',
     });
-    req.url = 'http://localhost/api/listings';
     const response = await runHandler(POST, req);
     const data = await response.json();
     expect(response.status).toBe(200);
     expect(data.message).toBe('Listing created successfully');
-    expect(data.listing).toBeDefined();
-    expect(data.listing.title).toBe('Test Listing');
+        expect(data.data).toBeDefined();
+    expect(data.data.title).toBe('Test Listing');
   });
 
   it('should handle errors when fetching listings', async () => {

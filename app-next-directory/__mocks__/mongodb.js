@@ -5,9 +5,14 @@ class MockMongoClient {
   db() {
     return {
       collection: (name) => ({
-        find: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue([]) }),
+        find: jest.fn().mockReturnValue({
+          skip: jest.fn().mockReturnThis(),
+          limit: jest.fn().mockReturnThis(),
+          toArray: jest.fn().mockResolvedValue([]),
+        }),
         insertOne: jest.fn().mockResolvedValue({ insertedId: 'mock-id' }),
         findOne: jest.fn().mockResolvedValue(null),
+        countDocuments: jest.fn().mockResolvedValue(0),
       }),
     };
   }

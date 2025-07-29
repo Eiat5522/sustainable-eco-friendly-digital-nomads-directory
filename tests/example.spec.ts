@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('homepage shows correct title', async ({ page }) => {
+test('homepage shows correct title', async ({ page }: { page: any }) => {
   // Navigate to the homepage
   await page.goto('https://example.com');
 
@@ -8,7 +8,7 @@ test('homepage shows correct title', async ({ page }) => {
   await expect(page).toHaveTitle(/Example Domain/);
 });
 
-test('homepage contains expected text', async ({ page }) => {
+test('homepage contains expected text', async ({ page }: { page: any }) => {
   // Navigate to the homepage
   await page.goto('https://example.com');
 

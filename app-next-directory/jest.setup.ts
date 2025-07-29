@@ -1,6 +1,7 @@
 // jest.setup.ts
 
 import '@testing-library/jest-dom';
+import { jest } from '@jest/globals';
 import { TextEncoder, TextDecoder } from 'util';
 
 // Polyfill for TextEncoder and TextDecoder for Jest environment
