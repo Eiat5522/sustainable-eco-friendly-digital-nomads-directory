@@ -1,13 +1,15 @@
 // db-helpers.test.ts
 
 jest.mock('mongodb', () => {
+  // Mock the db object with a collection method
   const mDb = { collection: jest.fn().mockReturnValue('mockCollection') };
-  // db should accept an optional name argument to match the real MongoClient API
-  const mClient = { db: jest.fn((name?: string) => mDb) };
+  // Mock the client instance with a db method
+  class MockMongoClient {
+    connect = jest.fn().mockResolvedValue(this);
+    db = jest.fn((name) => mDb);
+  }
   return {
-    MongoClient: Object.assign(jest.fn(() => mClient), {
-      connect: jest.fn().mockResolvedValue(mClient)
-    })
+    MongoClient: MockMongoClient
   };
 });
 
@@ -17,7 +19,6 @@ describe('db-helpers', () => {
   beforeEach(() => {
     jest.resetModules();
     process.env = { ...OLD_ENV, MONGODB_URI: 'mongodb://test', NODE_ENV: 'test' };
-
   });
 
   afterAll(() => {
@@ -58,6 +59,5 @@ describe('db-helpers', () => {
     const result = await getCollection('anyCollection');
     expect(result).toBe('mockCollection');
   });
-
 
 });

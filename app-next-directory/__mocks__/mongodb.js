@@ -1,9 +1,19 @@
-module.exports = {
-  MongoClient: function () {
+class MockMongoClient {
+  connect() {
+    return Promise.resolve(this);
+  }
+  db() {
     return {
-      connect: jest.fn().mockResolvedValue({}),
-      db: jest.fn().mockReturnValue({}),
-      close: jest.fn(),
+      collection: (name) => ({
+        find: jest.fn().mockReturnValue({ toArray: jest.fn().mockResolvedValue([]) }),
+        insertOne: jest.fn().mockResolvedValue({ insertedId: 'mock-id' }),
+        findOne: jest.fn().mockResolvedValue(null),
+      }),
     };
-  },
+  }
+}
+
+module.exports = {
+  MongoClient: MockMongoClient,
+  default: MockMongoClient,
 };

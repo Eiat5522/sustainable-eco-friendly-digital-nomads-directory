@@ -5,17 +5,20 @@ if (!uri) {
   throw new Error('MongoDB URI is missing. Please set the MONGODB_URI environment variable.');
 }
 
+let client: MongoClient | undefined;
 let clientPromise: Promise<MongoClient> | undefined;
 
 if (typeof window === 'undefined') {
   // On server: use a global variable to preserve value across hot reloads
   if (!(global as any)._mongoClientPromise) {
-    (global as any)._mongoClientPromise = MongoClient.connect(uri, { });
+    client = new MongoClient(uri, {});
+    (global as any)._mongoClientPromise = client.connect();
   }
   clientPromise = (global as any)._mongoClientPromise;
 } else {
   // On client: create a new client for every call (should not be used in browser)
-  clientPromise = MongoClient.connect(uri, { });
+  client = new MongoClient(uri, {});
+  clientPromise = client.connect();
 }
 
 export async function getDatabase(): Promise<Db> {
@@ -39,5 +42,3 @@ export async function getCollection(name?: string): Promise<any> {
   }
   return db.collection(name);
 }
-
-export { clientPromise };

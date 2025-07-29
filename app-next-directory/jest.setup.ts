@@ -32,8 +32,6 @@ try {
 }
 
 // Mock global.fetch for NextAuth.js session requests
-// TEMPORARILY COMMENTED OUT FOR DEBUGGING useSearch tests
-/*
 if (!global.fetch) {
   global.fetch = function () {
     return Promise.resolve(new global.Response(
@@ -46,7 +44,6 @@ if (!global.fetch) {
     ));
   };
 }
-*/
 
 // Mock next/server globally for all tests  
 jest.mock('next/server', () => ({

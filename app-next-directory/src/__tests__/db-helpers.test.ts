@@ -1,13 +1,19 @@
 // Jest test for db-helpers.ts
 
 jest.mock('mongodb', () => {
-  const mDb = { collection: jest.fn().mockReturnValue('mockCollection') };
-  // db should accept an optional name argument to match the real MongoClient API
-  const mClient = { db: jest.fn((name?: string) => mDb) };
+  class MockMongoClient {
+    connect() {
+      return Promise.resolve(this);
+    }
+    db(name?: string) {
+      return {
+        collection: jest.fn().mockReturnValue('mockCollection'),
+      };
+    }
+  }
   return {
-    MongoClient: Object.assign(jest.fn(() => mClient), {
-      connect: jest.fn().mockResolvedValue(mClient)
-    })
+    MongoClient: MockMongoClient,
+    default: MockMongoClient,
   };
 });
 

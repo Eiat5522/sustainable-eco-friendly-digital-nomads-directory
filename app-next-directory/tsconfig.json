@@ -34,12 +34,15 @@
     "noEmit": true
   },
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "next-env.d.ts",
+    "src/components/CityCarousel.tsx.bak",
+    "src/components/listings/CityCarousel.tsx.bak",
+    "src/types/**/*.d.ts",
     "src/types/next-auth.d.ts",
-    "src/types/**/*.d.ts"
-, "src/components/listings/CityCarousel.tsx.bak", "src/components/CityCarousel.tsx.bak"  ],
+    ".next/types/**/*.ts"
+  ],
   "exclude": [
     "node_modules"
   ]

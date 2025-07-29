@@ -319,9 +319,6 @@ importers:
       dotenv:
         specifier: ^16.6.1
         version: 16.6.1
-      identity-obj-proxy:
-        specifier: ^3.0.0
-        version: 3.0.0
       jest:
         specifier: ^30.0.4
         version: 30.0.4(@types/node@24.0.14)(esbuild-register@3.6.0(esbuild@0.25.6))
@@ -349,6 +346,9 @@ importers:
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
+      whatwg-fetch:
+        specifier: ^3.6.20
+        version: 3.6.20
 
   sanity:
     dependencies:
@@ -5452,9 +5452,6 @@ packages:
     resolution: {integrity: sha512-VIZB+ibDhx7ObhAe7OVtoEbuP4h/MuOTHJ+J8h/eBXotJYl0fBgR72xDFCKgIh22OJZIOVNxBMWuhAr10r8HdA==}
     engines: {node: '>=6'}
 
-  harmony-reflect@1.6.2:
-    resolution: {integrity: sha512-HIp/n38R9kQjDEziXyDTuW3vvoxxyxjxFzXLrBr18uB47GnSt+G9D29fqrpM5ZkspMcPICud3XsBJQ4Y2URg8g==}
-
   has-bigints@1.1.0:
     resolution: {integrity: sha512-R3pbpkcIqv2Pm3dUwgjclDRVmWpTJW2DcMzcIhEXEx1oh/CEMObMm3KLmRJOdvhM7o4uQBnwr8pzRK2sJWIqfg==}
     engines: {node: '>= 0.4'}
@@ -5569,10 +5566,6 @@ packages:
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
-
-  identity-obj-proxy@3.0.0:
-    resolution: {integrity: sha512-00n6YnVHKrinT9t0d9+5yZC6UBNJANpYEQvL2LlX6Ab9lnmxzIRcEmTPuyGScvl1+jKuCICX1Z0Ab1pPKKdikA==}
-    engines: {node: '>=4'}
 
   ieee754@1.2.1:
     resolution: {integrity: sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA==}
@@ -8514,6 +8507,9 @@ packages:
   whatwg-encoding@3.1.1:
     resolution: {integrity: sha512-6qN4hJdMwfYBtE3YBTTHhoeuUrDBPZmbQaxWAqSALV/MeEnR5z1xd8UKud2RAkFoPkmB+hli1TZSnyi84xz1vQ==}
     engines: {node: '>=18'}
+
+  whatwg-fetch@3.6.20:
+    resolution: {integrity: sha512-EqhiFU6daOA8kpjOWTL0olhVOF3i7OrFzSYiGsEMB8GcXS+RrzauAERX65xMeNWVqxA6HXH2m69Z9LaKKdisfg==}
 
   whatwg-mimetype@4.0.0:
     resolution: {integrity: sha512-QaKxh0eNIi2mE9p2vEdzfagOKHCcj1pJ56EEHGQOVxp8r9/iszLUUV7v89x9O1p/T+NlTM5W7jW6+cz4Fq1YVg==}
@@ -15165,8 +15161,6 @@ snapshots:
 
   hard-rejection@2.1.0: {}
 
-  harmony-reflect@1.6.2: {}
-
   has-bigints@1.1.0: {}
 
   has-flag@3.0.0: {}
@@ -15290,10 +15284,6 @@ snapshots:
   iconv-lite@0.6.3:
     dependencies:
       safer-buffer: 2.1.2
-
-  identity-obj-proxy@3.0.0:
-    dependencies:
-      harmony-reflect: 1.6.2
 
   ieee754@1.2.1: {}
 
@@ -18915,6 +18905,8 @@ snapshots:
   whatwg-encoding@3.1.1:
     dependencies:
       iconv-lite: 0.6.3
+
+  whatwg-fetch@3.6.20: {}
 
   whatwg-mimetype@4.0.0: {}
 

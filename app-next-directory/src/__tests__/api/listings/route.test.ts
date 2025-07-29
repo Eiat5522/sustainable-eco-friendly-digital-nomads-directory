@@ -1,22 +1,35 @@
 jest.unmock('../../../../__mocks__/next/server');
-// Unmock the listings route to test the actual implementation
-// import { POST, GET } from '@/app/api/listings/route';
-import { NextRequest, NextResponse } from 'next/server';
+// Use custom mocks for NextRequest and NextResponse
 import { POST, GET } from '../../../../app/api/listings/route';
+import { createMocks, MockNextRequest, MockNextResponse } from '../../../../__mocks__/next/server';
 
-// Import createMocks directly from the mock file (workaround for ESM Jest mocking)
-import { createMocks } from '../../../../__mocks__/next/server';
+// Mock the requireAuth function to simulate an authenticated premium user for POST
+jest.mock('../../../../src/utils/auth-helpers', () => ({
+  ...jest.requireActual('../../../../src/utils/auth-helpers'),
+  requireAuth: async () => ({
+    user: {
+      id: 'test-user-id',
+      plan: 'premium',
+      role: 'admin',
+    },
+  }),
+}));
+
+// Helper to simulate Next.js API handler invocation
+function runHandler(handler: (req: any) => any, req: any): any {
+  return handler(req);
+}
 
 describe('Listings API', () => {
   it('should return a list of listings', async () => {
+    // Provide a valid URL with pagination params
     const { req } = createMocks({
       method: 'GET',
-      json: undefined, // Explicitly provide json even for GET requests
+      json: undefined,
     });
-
-    const response = await GET(req as NextRequest);
+    req.url = 'http://localhost/api/listings?page=1&limit=10';
+    const response = await runHandler(GET, req);
     const data = await response.json();
-
     expect(response.status).toBe(200);
     expect(data.listings).toBeDefined();
     expect(Array.isArray(data.listings)).toBe(true);
@@ -39,10 +52,9 @@ describe('Listings API', () => {
         contactEmail: 'test@example.com',
       },
     });
-
-    const response = await POST(req as NextRequest);
+    req.url = 'http://localhost/api/listings';
+    const response = await runHandler(POST, req);
     const data = await response.json();
-
     expect(response.status).toBe(200);
     expect(data.message).toBe('Listing created successfully');
     expect(data.listing).toBeDefined();
@@ -52,16 +64,13 @@ describe('Listings API', () => {
   it('should handle errors when fetching listings', async () => {
     // Mock the GET function to simulate an error
     const mockGet = jest.fn().mockImplementation(() => {
-      return Promise.resolve(new NextResponse(JSON.stringify({ error: 'Internal Server Error' }), {
+      return Promise.resolve(new MockNextResponse(JSON.stringify({ error: 'Internal Server Error' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       }));
     });
-
-    // @ts-ignore - Override the GET function for testing
-    const response = await mockGet(createMocks({ method: 'GET' }).req as NextRequest);
+    const response = await mockGet(new MockNextRequest({ method: 'GET', json: undefined }));
     const data = await response.json();
-
     expect(response.status).toBe(500);
     expect(data.error).toBe('Internal Server Error');
   });
@@ -69,16 +78,13 @@ describe('Listings API', () => {
   it('should handle errors when creating a new listing', async () => {
     // Mock the POST function to simulate an error
     const mockPost = jest.fn().mockImplementation(() => {
-      return Promise.resolve(new NextResponse(JSON.stringify({ error: 'Internal Server Error' }), {
+      return Promise.resolve(new MockNextResponse(JSON.stringify({ error: 'Internal Server Error' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' },
       }));
     });
-
-    // @ts-ignore - Override the POST function for testing
-    const response = await mockPost(createMocks({ method: 'POST', json: {} }).req as NextRequest);
+    const response = await mockPost(new MockNextRequest({ method: 'POST', json: {} }));
     const data = await response.json();
-
     expect(response.status).toBe(500);
     expect(data.error).toBe('Internal Server Error');
   });
