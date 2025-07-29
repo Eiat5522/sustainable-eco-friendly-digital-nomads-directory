@@ -1,4 +1,4 @@
-jest.mock('next/server');
+jest.unmock('../../../../__mocks__/next/server');
 // Unmock the listings route to test the actual implementation
 // import { POST, GET } from '@/app/api/listings/route';
 import { NextRequest, NextResponse } from 'next/server';

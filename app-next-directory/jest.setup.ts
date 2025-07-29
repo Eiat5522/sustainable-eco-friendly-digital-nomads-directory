@@ -6,6 +6,31 @@ import { TextEncoder, TextDecoder } from 'util';
 // Polyfill for TextEncoder and TextDecoder for Jest environment
 Object.assign(global, { TextDecoder, TextEncoder });
 
+// Polyfill WHATWG Request/Response/Headers for Next.js 15
+try {
+  require('whatwg-fetch');
+} catch (e) {
+  console.warn('whatwg-fetch polyfill not applied:', e);
+}
+
+// Polyfill ReadableStream for Next.js 15 API routes
+try {
+  global.ReadableStream = require('web-streams-polyfill/ponyfill').ReadableStream;
+} catch (e) {
+  console.warn('web-streams-polyfill for ReadableStream not applied:', e);
+}
+
+// Polyfill for Request, Response, Headers for Next.js API route tests (node-fetch fallback)
+try {
+  const nodeFetch = require('node-fetch');
+  global.Request = global.Request || nodeFetch.Request;
+  global.Response = global.Response || nodeFetch.Response;
+  global.Headers = global.Headers || nodeFetch.Headers;
+} catch (e) {
+  // If node-fetch is not available, warn
+  console.warn('node-fetch polyfill for Request/Response/Headers not applied:', e);
+}
+
 // Mock global.fetch for NextAuth.js session requests
 // TEMPORARILY COMMENTED OUT FOR DEBUGGING useSearch tests
 /*
@@ -42,26 +67,4 @@ jest.mock('next/dist/server/web/spec-extension/response', () => ({
     })),
   },
 }));
-
-// Mock problematic ESM import before anything else
-jest.mock('mongodb', () => {
-  const mDb = { collection: jest.fn().mockReturnValue('mockCollection') };
-  const mClient = { db: jest.fn().mockReturnValue(mDb) };
-  return {
-    MongoClient: Object.assign(jest.fn(() => mClient), {
-      connect: jest.fn().mockResolvedValue(mClient)
-    })
-  };
-});
-
-jest.mock('@/lib/mongodb', () => ({
-  __esModule: true,
-  default: {},
-}));
-
-// Mock external dependencies
-jest.mock('@/utils/db-helpers');
-jest.mock('@/utils/auth-helpers');
-jest.mock('@/utils/api-response');
-
-require('@testing-library/jest-dom');
+// ...existing code...
