@@ -1,8 +1,9 @@
 // Custom mocks for NextRequest and NextResponse for Jest/Node environment
 export class MockNextRequest {
-  constructor({ method, json }) {
+  constructor({ method, json, url }) {
     this.method = method;
     this._json = json;
+    this.url = url
   }
   json() {
     return Promise.resolve(this._json);
@@ -20,9 +21,9 @@ export class MockNextResponse {
   }
 }
 
-export function createMocks({ method, json }) {
+export function createMocks({ method, json, url }) {
   return {
-    req: new MockNextRequest({ method, json }),
+    req: new MockNextRequest({ method, json, url }),
     res: {},
   };
 }
