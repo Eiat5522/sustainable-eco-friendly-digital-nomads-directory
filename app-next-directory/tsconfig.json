@@ -37,7 +37,6 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts",
     "src/types/next-auth.d.ts",
     "src/types/**/*.d.ts"
 , "src/components/listings/CityCarousel.tsx.bak", "src/components/CityCarousel.tsx.bak"  ],

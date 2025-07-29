@@ -23,7 +23,7 @@ export type AppListingDetail = AppListingCard & {
   contactPhone?: string | null;
   contactEmail?: string | null;
   shortDescription?: string | null;
-  longDescription?: string | null;
+  longDescription?: string | any[] | null;
   address?: string | null;
   location?: any;
   primaryImage?: any;
