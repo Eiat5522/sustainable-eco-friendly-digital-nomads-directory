@@ -33,6 +33,10 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true
   },
+  "typeRoot":[
+    "./node_modules/@types",
+    "./src/types"
+  ],
   "include": [
     "**/*.ts",
     "**/*.tsx",

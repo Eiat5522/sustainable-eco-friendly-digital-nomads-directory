@@ -2,9 +2,11 @@
 
 import * as React from 'react';
 import { Button } from "./Button"
-import { X, Search, Filter, Globe, Building, Mountain, Plane, MapPin, BriefcaseBusiness, 
-  BedDouble, Utensils, Activity, Users, Coffee, Lightbulb, Wifi, Camera, Sparkles, 
-  Car, Dumbbell, Bus, Leaf, Soup, ChevronDown } from "lucide-react"
+import {
+  X, Search, Filter, Globe, Building, Mountain, Plane, MapPin, BriefcaseBusiness,
+  BedDouble, Utensils, Activity, Users, Coffee, Lightbulb, Wifi, Camera, Sparkles,
+  Car, Dumbbell, Bus, Leaf, Soup, ChevronDown
+} from "lucide-react"
 import { MotionConfig, motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 import { cva, type VariantProps } from "class-variance-authority"
@@ -57,7 +59,7 @@ const filterBadgeVariants = cva(
 
 interface FilterBadgeProps
   extends React.HTMLAttributes<HTMLSpanElement>,
-    VariantProps<typeof filterBadgeVariants> {
+  VariantProps<typeof filterBadgeVariants> {
   className?: string; // Added for explicit type recognition
   label?: string
   value?: string
@@ -76,7 +78,7 @@ const FilterBadge = ({
   ...props
 }: FilterBadgeProps & { onClick?: () => void }) => {
   return (
-    <span 
+    <span
       className={cn(filterBadgeVariants({ variant }), className)}
       onClick={onClick}
       {...props}
@@ -122,6 +124,8 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
   const [isFocused, setIsFocused] = React.useState(false);
   const [showFilters, setShowFilters] = React.useState(false);
   const [amenities, setAmenities] = React.useState<Amenity[]>([]);
+  const [amenitiesLoading, setAmenitiesLoading] = React.useState(true);
+  const [amenitiesError, setAmenitiesError] = React.useState<string | null>(null);
 
   // Standardized city/destination list
   const destinations: NomadFeature[] = [
@@ -144,14 +148,26 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
     { id: "activities", label: "Activities", value: "activities", icon: <Activity className="w-5 h-5 text-green-600" />, category: "category" },
   ];
 
-  // Fetch amenities (replace with real API call)
+  // Fetch amenities 
   React.useEffect(() => {
-    // TODO: Replace with fetch('/api/amenities') or similar
-    setAmenities([
-      { _id: '1', name: 'Fast Wi-Fi', description: 'High-speed internet', badge: { asset: { url: '/wifi.png' } } },
-      { _id: '2', name: 'Free Parking', badge: { asset: { url: '/parking.png' } } },
-      { _id: '3', name: 'Air Conditioning' },
-    ]);
+    async function fetchAmenities() {
+      try {
+        setAmenitiesLoading(true);
+        const res = await fetch('/api/amenities');
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || 'Failed to fetch amenities');
+        }
+        // Support both { amenities: Amenity[] } and direct array responses
+        setAmenities(data.amenities ?? data);
+      } catch (err) {
+        setAmenitiesError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setAmenitiesLoading(false);
+      }
+    }
+
+    fetchAmenities();
   }, []);
 
   // Handler for selecting/deselecting amenities
@@ -172,28 +188,37 @@ export default function DigitalNomadSearchFilter({ onSearch, onFilterChange }: S
       <div className="mt-4 space-y-4">
         <h3 className="font-semibold">Amenities</h3>
         <div className="flex flex-wrap gap-2">
-          {amenities.map((amenity) => (
-            <FilterBadge
-              key={amenity._id}
-              variant="pill"
-              label={amenity.name}
-              onRemove={
-                activeFilters.amenities.includes(amenity._id)
-                  ? () => handleAmenitySelect(amenity._id)
-                  : undefined
-              }
-              className={cn(
-                'cursor-pointer',
-                activeFilters.amenities.includes(amenity._id) && 'bg-primary/10'
-              )}
-              onClick={() => handleAmenitySelect(amenity._id)}
-            >
-              {amenity.badge?.asset?.url && (
-                <img src={amenity.badge.asset.url} alt={amenity.name} className="w-5 h-5 rounded-full mr-2" />
-              )}
-              {amenity.name}
-            </FilterBadge>
-          ))}
+          {amenitiesLoading && <span>Loading amenities...</span>}
+          {amenitiesError && (
+            <span className="text-red-500">Error: {amenitiesError}</span>
+          )}
+          {!amenitiesLoading && !amenitiesError &&
+            amenities.map((amenity) => (
+              <FilterBadge
+                key={amenity._id}
+                variant="pill"
+                label={amenity.name}
+                onRemove={
+                  activeFilters.amenities.includes(amenity._id)
+                    ? () => handleAmenitySelect(amenity._id)
+                    : undefined
+                }
+                className={cn(
+                  'cursor-pointer',
+                  activeFilters.amenities.includes(amenity._id) && 'bg-primary/10'
+                )}
+                onClick={() => handleAmenitySelect(amenity._id)}
+              >
+                {amenity.badge?.asset?.url && (
+                  <img
+                    src={amenity.badge.asset.url}
+                    alt={amenity.name}
+                    className="w-5 h-5 rounded-full mr-2"
+                  />
+                )}
+                {amenity.name}
+              </FilterBadge>
+            ))}
         </div>
       </div>
       {/* ...existing code... */}

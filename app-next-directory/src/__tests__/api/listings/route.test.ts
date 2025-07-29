@@ -69,7 +69,7 @@ describe('Listings API', () => {
         headers: { 'Content-Type': 'application/json' },
       }));
     });
-    const response = await mockGet(new MockNextRequest({ method: 'GET', json: undefined }));
+    const response = await mockGet(new MockNextRequest({ method: 'GET', json: undefined, url: 'http://localhost/test' }));
     const data = await response.json();
     expect(response.status).toBe(500);
     expect(data.error).toBe('Internal Server Error');
@@ -83,7 +83,7 @@ describe('Listings API', () => {
         headers: { 'Content-Type': 'application/json' },
       }));
     });
-    const response = await mockPost(new MockNextRequest({ method: 'POST', json: {} }));
+    const response = await mockPost(new MockNextRequest({ method: 'POST', json: {}, url: 'http://localhost/test' }));
     const data = await response.json();
     expect(response.status).toBe(500);
     expect(data.error).toBe('Internal Server Error');
