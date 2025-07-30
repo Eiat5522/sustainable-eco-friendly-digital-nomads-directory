@@ -33,9 +33,10 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true
   },
-  "typeRoot":[
+  "typeRoots": [
     "./node_modules/@types",
-    "./src/types"
+    "./src/types",
+    "../tests/@types"
   ],
   "include": [
     "**/*.ts",

@@ -1,7 +1,7 @@
 /// <reference types="jest" />
 // @jest-environment node
 
-import request, { Response, SuperTest, Test } from 'supertest';
+import request, { Response, Test, TestAgent } from 'supertest';
 import { createServer, Server as HttpServer, IncomingMessage, ServerResponse } from 'http';
 
 interface HelloApiResponse {
@@ -9,7 +9,7 @@ interface HelloApiResponse {
 }
 
 let server: HttpServer;
-let api: SuperTest<Test>;
+let api: TestAgent<Test>;
 
 beforeAll((): void => {
   server = createServer((req: IncomingMessage, res: ServerResponse) => {
