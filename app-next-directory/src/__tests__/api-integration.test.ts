@@ -28,3 +28,15 @@ beforeAll((): void => {
 });
 
 afterAll((): void => {
+  server.close();
+});
+
+describe('API Integration Test', () => {
+  it('GET /api/hello returns status 200 and expected body', async () => {
+    const res: Response = await api.get('/api/hello');
+    const body: HelloApiResponse = res.body as HelloApiResponse;
+
+    expect(res.status).toBe(200);
+    expect(body).toEqual({ message: 'Hello from mock server' });
+  });
+});
