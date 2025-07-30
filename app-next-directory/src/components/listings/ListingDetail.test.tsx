@@ -536,4 +536,6 @@ describe('ListingDetail', () => {
     const article = screen.getByRole('article');
     expect(article).toBeInTheDocument();
   });
+
+
 });

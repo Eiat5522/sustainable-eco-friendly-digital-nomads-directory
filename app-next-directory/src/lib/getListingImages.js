@@ -3,6 +3,10 @@ import path from 'path';
 
 export function getListingImages(listingId) {
   try {
+    // Sanitize listingId to prevent path traversal
+    if (!/^[a-zA-Z0-9_-]+$/.test(listingId)) {
+      throw new Error('Invalid listingId');
+    }
     // Define the path based on listingId (e.g., public/images/listings/<listingId>)
     // Note: process.cwd() might point to the root, not app-next-directory, adjust if needed
     // Assuming execution context is project root where app-next-directory resides

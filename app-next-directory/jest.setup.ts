@@ -3,6 +3,8 @@
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
 import { TextEncoder, TextDecoder } from 'util';
+process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'test-project';
+process.env.NEXT_PUBLIC_SANITY_DATASET = process.env.NEXT_PUBLIC_SANITY_DATASET || 'test-dataset';
 
 // Polyfill for TextEncoder and TextDecoder for Jest environment
 Object.assign(global, { TextDecoder, TextEncoder });

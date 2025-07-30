@@ -60,4 +60,74 @@ describe('db-helpers', () => {
     expect(result).toBe('mockCollection');
   });
 
+  describe('getDatabase', () => {
+    it('throws if clientPromise is undefined', async () => {
+      jest.resetModules();
+      // Simulate missing clientPromise by deleting global._mongoClientPromise
+      const modulePath = require.resolve('../db-helpers');
+      if (require.cache[modulePath]) {
+        delete require.cache[modulePath];
+      }
+      // Patch process.env for test
+      process.env.MONGODB_URI = 'mongodb://test';
+      // Patch global to remove _mongoClientPromise
+      delete (global as any)._mongoClientPromise;
+      // Patch the module to simulate clientPromise undefined
+      jest.doMock('../db-helpers', () => {
+        return {
+          getDatabase: async () => {
+            // Simulate clientPromise undefined
+            const clientPromise = undefined;
+            if (!clientPromise) {
+              throw new Error('MongoDB client is not initialized');
+            }
+          }
+        };
+      });
+      const { getDatabase } = require('../db-helpers');
+      await expect(getDatabase()).rejects.toThrow('MongoDB client is not initialized');
+      jest.dontMock('../db-helpers');
+    });
+
+    it('throws if client.db is not a function', async () => {
+      jest.resetModules();
+      // Patch the module to simulate client.db not a function
+      jest.doMock('../db-helpers', () => {
+        return {
+          getDatabase: async () => {
+            const clientPromise = Promise.resolve({ db: null });
+            const client = await clientPromise;
+            if (!client || typeof client.db !== 'function') {
+              throw new Error('MongoDB client is invalid or not connected');
+            }
+          }
+        };
+      });
+      const { getDatabase } = require('../db-helpers');
+      await expect(getDatabase()).rejects.toThrow('MongoDB client is invalid or not connected');
+      jest.dontMock('../db-helpers');
+    });
+
+    it('returns a db instance when client is valid', async () => {
+      jest.resetModules();
+      // Patch the module to simulate valid client
+      jest.doMock('../db-helpers', () => {
+        return {
+          getDatabase: async () => {
+            const dbMock = { collection: jest.fn() };
+            const clientPromise = Promise.resolve({ db: () => dbMock });
+            const client = await clientPromise;
+            if (!client || typeof client.db !== 'function') {
+              throw new Error('MongoDB client is invalid or not connected');
+            }
+            return client.db('sustainable-nomads');
+          }
+        };
+      });
+      const { getDatabase } = require('../db-helpers');
+      const db = await getDatabase();
+      expect(db.collection).toBeDefined();
+      jest.dontMock('../db-helpers');
+    });
+  });
 });

@@ -4,6 +4,18 @@ interface FeaturedListing {
   _id: string;
   name: string;
   slug: string;
+  city?: {
+    _id?: string;
+    name?: string;
+    slug?: string;
+    country?: string;
+  };
+  ecoTags?: string[];
+  nomadFeatures?: string[];
+  contactPhone?: string;
+  contactEmail?: string;
+  website?: string;
+  priceRange?: string;
   primaryImage?: {
     alt?: string;
     asset?: {
@@ -25,14 +37,20 @@ interface FeaturedListing {
         lqip?: string;
       };
     };
-  };
-  location?: {
-    _id?: string;
-    name?: string;
-    country?: string;
-  };
+  }[];
   imageUrl?: string | null;
-  priceRange?: string | null;
+  coworkingDetails?: {
+    capacity?: number;
+    pricingPlans?: Array<{ type: string; price: number; period: string }>;
+    openingHours?: Array<{ day: string; opens: string; closes: string }>;
+  };
+  accommodationDetails?: {
+    pricePerNightThb?: { min?: number; max?: number };
+    openingHours?: Array<{ day: string; opens: string; closes: string }>;
+  };
+  cafeDetails?: {
+    openingHours?: Array<{ day: string; opens: string; closes: string }>;
+  };
 }
 
 import { groq } from 'next-sanity';
@@ -100,57 +118,6 @@ export async function GET() {
         openingHours[]{ day, opens, closes }
       }
     }`;
-        alt,
-        "asset": asset->{
-          _id,
-          url,
-          metadata {
-            dimensions,
-            lqip
-          }
-        }
-      },
-      "galleryImages": galleryImages[0]{
-        alt,
-        "asset": asset->{
-          _id,
-          url,
-          metadata {
-            dimensions,
-            lqip
-          }
-        }
-      },
-      "imageUrl": primaryImage.asset->url,
-      "location": city->{
-        _id,
-        name,
-        country
-      },
-      "ecoTags": ecoFocusTags[]->name,
-      "digitalNomadFeatures": digitalNomadFeatures[]->name,
-      priceRange,
-      shortDescription,
-      // Category-specific details
-      restaurantDetails: restaurantDetails{
-        cuisine,
-        dietaryOptions,
-        pricePerPerson,
-        delivery,
-        takeaway,
-        reservation,
-        outdoorSeating
-      },
-      activitiesDetails: activitiesDetails{
-        category,
-        duration,
-        difficulty,
-        groupSize{min, max},
-        seasonality,
-        equipment
-      }
-    }`;
-
     console.log('[DEBUG] Featured Listings API: Executing GROQ query');
     const queryStartTime = performance.now();
     
@@ -165,7 +132,7 @@ export async function GET() {
       id: listing._id,
       name: listing.name,
       slug: listing.slug || '',
-      city: listing.city ? {
+      city: listing.city?.name ? {
         id: listing.city._id || '',
         name: listing.city.name || '',
         slug: listing.city.slug || '',
