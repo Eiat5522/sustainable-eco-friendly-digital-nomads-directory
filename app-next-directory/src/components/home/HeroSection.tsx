@@ -15,6 +15,12 @@ interface HeroSectionProps {
 const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Ensure component is mounted on client before hydration
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Parallax effect
   useEffect(() => {
@@ -63,14 +69,20 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
       {/* Background image with parallax effect */}
       <div className="absolute inset-0 z-0">
         {/* Ensure parent has position: relative and explicit height for Image fill */}
-        <div id="parallax-bg" className="absolute inset-0 w-full h-full relative h-[90vh]">
+        <div 
+          id="parallax-bg" 
+          className="relative w-full h-full overflow-hidden"
+          style={{ position: 'relative', width: '100%', height: '100%' }}
+        >
           <Image
             src="/images/hero/hero_main.png"
             alt="Eco-friendly digital nomad workspace"
-            fill
+            width={1920}
+            height={1080}
             priority
             sizes="100vw"
-            className="object-cover"
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
           />
           <div className="absolute inset-0 bg-gradient-to-r from-green-900/80 to-green-800/40 backdrop-blur-[2px]" />
         </div>
@@ -114,9 +126,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
                   name="search"
                   placeholder="Search destinations, eco-lodges, or co-working spaces..."
                   className="w-full h-14 px-5 pr-12 rounded-lg text-lg bg-white/90 backdrop-blur-md border-0 focus:ring-2 focus:ring-green-400"
-                  value={searchQuery}
+                  value={isMounted ? searchQuery : ''}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   autoComplete="off"
+                  suppressHydrationWarning={true}
+                  key="hero-search-input"
                 />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

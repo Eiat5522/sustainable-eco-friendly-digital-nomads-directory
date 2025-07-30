@@ -56,8 +56,50 @@ export async function GET() {
     const FEATURED_LISTINGS_QUERY = groq`*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {
       _id,
       name,
-      "slug": slug,
-      "primaryImage": primaryImage{
+      "slug": slug.current,
+      city: city->{ _id, name, "slug": slug.current, country },
+      ecoTags: ecoFocusTags[]->name,
+      nomadFeatures: digitalNomadFeatures[]->name,
+      contactPhone,
+      contactEmail,
+      website,
+      priceRange,
+      primaryImage: primaryImage{
+        alt,
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions,
+            lqip
+          }
+        }
+      },
+      galleryImages: galleryImages[]{
+        alt,
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions,
+            lqip
+          }
+        }
+      },
+      imageUrl: primaryImage.asset->url,
+      coworkingDetails: coworkingDetails{
+        capacity,
+        pricingPlans[]{ type, price, period },
+        openingHours[]{ day, opens, closes }
+      },
+      accommodationDetails: accommodationDetails{
+        pricePerNightThb{ min, max },
+        openingHours[]{ day, opens, closes }
+      },
+      cafeDetails: cafeDetails{
+        openingHours[]{ day, opens, closes }
+      }
+    }`;
         alt,
         "asset": asset->{
           _id,
@@ -88,8 +130,9 @@ export async function GET() {
       "ecoTags": ecoFocusTags[]->name,
       "digitalNomadFeatures": digitalNomadFeatures[]->name,
       priceRange,
+      shortDescription,
       // Category-specific details
-      restaurantDetails: restaurant_details{
+      restaurantDetails: restaurantDetails{
         cuisine,
         dietaryOptions,
         pricePerPerson,
@@ -98,7 +141,7 @@ export async function GET() {
         reservation,
         outdoorSeating
       },
-      activitiesDetails: activities_details{
+      activitiesDetails: activitiesDetails{
         category,
         duration,
         difficulty,
@@ -117,25 +160,39 @@ export async function GET() {
     console.log('[DEBUG] Featured Listings API: GROQ query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');
     console.log('[DEBUG] Featured Listings API: Found', listings.length, 'listings');
     
-    // Log data structure for first listing if available
-    if (listings.length > 0) {
-      console.log('[DEBUG] Featured Listings API: Sample listing structure:', {
-        hasId: !!listings[0]._id,
-        hasName: !!listings[0].name,
-        hasSlug: !!listings[0].slug,
-        hasPrimaryImage: !!listings[0].primaryImage,
-        hasPriceRange: !!listings[0].priceRange
-      });
-    }
+    // Transform listings to DTO shape
+    const dtoListings = listings.map(listing => ({
+      id: listing._id,
+      name: listing.name,
+      slug: listing.slug || '',
+      city: listing.city ? {
+        id: listing.city._id || '',
+        name: listing.city.name || '',
+        slug: listing.city.slug || '',
+        country: listing.city.country || ''
+      } : null,
+      ecoTags: Array.isArray(listing.ecoTags) ? listing.ecoTags : [],
+      nomadFeatures: Array.isArray(listing.nomadFeatures) ? listing.nomadFeatures : [],
+      priceRange: listing.priceRange || undefined,
+      website: listing.website || null,
+      imageUrl: listing.imageUrl || null,
+      primaryImage: listing.primaryImage || null,
+      galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : [],
+      contactPhone: listing.contactPhone || null,
+      contactEmail: listing.contactEmail || null,
+      coworkingDetails: listing.coworkingDetails || null,
+      accommodationDetails: listing.accommodationDetails || null,
+      cafeDetails: listing.cafeDetails || null
+    }));
 
     const endTime = performance.now();
     console.log('[DEBUG] Featured Listings API: Total request time', (endTime - startTime).toFixed(2), 'ms');
 
     return NextResponse.json({
-      listings,
+      listings: dtoListings,
       success: true,
       metadata: {
-        total: listings.length,
+        total: dtoListings.length,
         queryTime: new Date().toISOString(),
         performance: {
           totalTimeMs: (endTime - startTime).toFixed(2),

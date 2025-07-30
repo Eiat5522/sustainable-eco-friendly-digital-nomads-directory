@@ -73,10 +73,6 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.0",
-    "@babel/preset-env": "^7.28.0",
-    "@babel/preset-react": "^7.27.1",
-    "@babel/preset-typescript": "^7.27.1",
     "@jest/globals": "^30.0.5",
     "@swc/jest": "^0.2.39",
     "@tailwindcss/postcss": "^4.1.11",
@@ -97,7 +93,6 @@
     "@types/supertest": "^6.0.3",
     "@vercel/analytics": "^1.5.0",
     "autoprefixer": "^10.4.21",
-    "babel-jest": "^30.0.5",
     "dotenv": "^16.6.1",
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",

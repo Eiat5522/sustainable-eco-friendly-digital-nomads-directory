@@ -8,14 +8,16 @@ export function HeroSection() {
     <div className="relative bg-gray-800 text-white">
       {/* Background Image with Next.js Image component */}
       <div className="absolute inset-0 z-0">
-        <Image
-          src="/images/hero/hero_main.png"
-          alt="Digital nomad workspace"
-          fill
-          className="object-cover"
-          priority
-          quality={90}
-        />
+        <div className="relative w-full h-full">
+          <Image
+            src="/images/hero/hero_main.png"
+            alt="Digital nomad workspace"
+            fill
+            className="object-cover"
+            priority
+            quality={90}
+          />
+        </div>
         {/* Overlay */}
         <div className="absolute inset-0 bg-black bg-opacity-50 z-10"></div>
       </div>
