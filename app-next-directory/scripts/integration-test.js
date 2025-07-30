@@ -25,6 +25,12 @@ function log(message, color = 'reset') {
 }
 
 async function runCommand(command, args = [], description = '') {
+  // Only allow whitelisted commands for safety
+  const allowedCommands = ['node', 'npm'];
+  if (!allowedCommands.includes(command)) {
+    log(`❌ Unsafe command detected: ${command}`, 'red');
+    return Promise.reject(new Error(`Unsafe command: ${command}`));
+  }
   return new Promise((resolve, reject) => {
     if (description) {
       log(`🔧 ${description}`, 'blue');
@@ -32,7 +38,7 @@ async function runCommand(command, args = [], description = '') {
 
     const process = spawn(command, args, {
       stdio: 'pipe',
-      shell: true
+      shell: false
     });
 
     let stdout = '';

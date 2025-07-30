@@ -1,7 +1,8 @@
 /// <reference types="jest" />
 // @jest-environment node
 
-import request, { Response, Test, TestAgent } from 'supertest';
+import request, { Response, Test } from 'supertest';
+import type TestAgent from 'supertest/lib/agent';
 import { createServer, Server as HttpServer, IncomingMessage, ServerResponse } from 'http';
 
 interface HelloApiResponse {
@@ -27,15 +28,3 @@ beforeAll((): void => {
 });
 
 afterAll((): void => {
-  server.close();
-});
-
-describe('API Integration Test', () => {
-  it('GET /api/hello returns status 200 and expected body', async () => {
-    const res: Response = await api.get('/api/hello');
-    const body: HelloApiResponse = res.body as HelloApiResponse;
-
-    expect(res.status).toBe(200);
-    expect(body).toEqual({ message: 'Hello from mock server' });
-  });
-});

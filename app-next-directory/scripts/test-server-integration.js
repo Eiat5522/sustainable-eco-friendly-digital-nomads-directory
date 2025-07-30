@@ -6,7 +6,7 @@
  */
 
 const { spawn } = require('child_process');
-const http = require('http');
+const https = require('https');
 
 function log(message, color = 'reset') {
   const colors = {
@@ -21,7 +21,9 @@ function log(message, color = 'reset') {
 
 async function testEndpoint(url, expectedStatus = 200, description = '') {
   return new Promise((resolve) => {
-    const request = http.get(url, (res) => {
+    // Use https for secure requests
+    const protocol = url.startsWith('https://') ? https : require('http');
+    const request = protocol.get(url, (res) => {
       const success = res.statusCode === expectedStatus;
       const status = success ? '✅' : '❌';
       const color = success ? 'green' : 'red';
@@ -63,7 +65,7 @@ async function runServerIntegrationTest() {
 
   const serverProcess = spawn('npm', ['run', 'dev'], {
     stdio: 'pipe',
-    shell: true
+    shell: false
   });
 
   let serverOutput = '';

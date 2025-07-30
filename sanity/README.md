@@ -22,19 +22,19 @@ Sanity Studio serves as the **headless CMS backend** for managing:
 
 ```bash
 Node.js 18.17.0+ required
-npm 9.6.7+ required
+pnpm 8.6.3+ required
 ```
 
 ### Setup & Development
 
 1. **Install dependencies:**
    ```bash
-   npm install
+   pnpm install
    ```
 
 2. **Start the Sanity Studio:**
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 3. **Access the studio:**
@@ -73,22 +73,27 @@ sustainable-eco-friendly-digital-nomads-directory/
 - **Blog Post**: Editorial content, SEO fields, author attribution
 - **Site Configuration**: Global settings, navigation, contact info
 
+**Note**: The schemas have been recently realigned to improve consistency and support DTO-based data handling.
+
 ---
 
 ## 🔧 Development Commands
 
 ```bash
 # Start development studio
-npm run dev
+pnpm dev
 
 # Build for production
-npm run build
+pnpm build
 
 # Deploy studio to Sanity hosting
-npm run deploy
+pnpm deploy
 
 # Deploy GraphQL API
-npm run deploy-graphql
+pnpm deploy-graphql
+
+# Generate TypeScript types for schemas
+pnpm codegen
 ```
 
 ---
@@ -101,6 +106,7 @@ Sanity Studio connects to the Next.js frontend through:
 - **@sanity/image-url**: Optimized images
 - **Webhooks**: Real-time content sync
 - **Preview Mode**: Draft content preview in Next.js
+- **Sanity Codegen**: Automatically generates TypeScript types for schemas, ensuring type safety and consistency across the application.
 
 ---
 
@@ -123,4 +129,4 @@ For access requests, contact the project administrator.
 
 ---
 
-_Last updated: July 2025_
+_Last updated: July 30, 2025_

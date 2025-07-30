@@ -51,7 +51,9 @@ sustainable-eco-friendly-digital-nomads-directory/
 
 - Monorepo and documentation reorganization complete
 - Next.js app, Sanity Studio, and admin dashboard fully integrated
-- All legacy docs migrated to new structure
+- Sanity schemas updated and aligned with frontend requirements
+- Sanity codegen integrated for TypeScript type generation
+- DTOs adopted for consistent data handling in the Next.js app
 - Playwright test automation and reporting configured
 - Workstreams A–F and pre-integration testing completed
 - Integration/testing phase ready

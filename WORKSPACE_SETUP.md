@@ -29,6 +29,12 @@ npm run build
 
 # Run linting on Next.js app
 npm run lint
+
+# Generate TypeScript types for Sanity schemas
+npm run codegen:sanity
+
+# Run type-checking across the workspace
+npm run typecheck
 ```
 
 ## Configuration
@@ -42,3 +48,8 @@ The shared npm configuration is now in the root `.npmrc` file with:
 - workspaces=true
 
 This ensures npm properly recognizes the workspace structure and applies the configuration consistently.
+
+## Sanity Codegen and DTO Integration
+
+- **Sanity Codegen**: Automatically generates TypeScript types for Sanity schemas. Run `npm run codegen:sanity` to update types after modifying schemas.
+- **DTO Adoption**: The Next.js app uses Data Transfer Objects (DTOs) for consistent data handling. DTOs are defined in `app-next-directory/src/types/appView.ts` and align with the generated Sanity types.

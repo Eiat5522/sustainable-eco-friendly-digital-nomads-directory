@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import DOMPurify from 'dompurify'
 
 interface FilterOption {
   id: string
@@ -88,9 +89,10 @@ export function FilterSystem({
   // Helper to render SVG icons safely
   const renderIcon = (iconString?: string) => {
     if (!iconString) return null
-    
+    // Sanitize SVG string before injecting
+    const sanitized = DOMPurify.sanitize(iconString, { USE_PROFILES: { svg: true } })
     return (
-      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" dangerouslySetInnerHTML={{ __html: iconString }} />
+      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" dangerouslySetInnerHTML={{ __html: sanitized }} />
     )
   }
 
