@@ -120,7 +120,7 @@ describe('db-helpers', () => {
             if (!client || typeof client.db !== 'function') {
               throw new Error('MongoDB client is invalid or not connected');
             }
-            return client.db('sustainable-nomads');
+            return client.db();
           }
         };
       });

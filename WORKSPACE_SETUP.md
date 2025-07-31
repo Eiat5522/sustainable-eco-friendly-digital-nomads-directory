@@ -1,13 +1,11 @@
-# NPM Workspace Setup
+# PNPM Workspace Setup
 
-# -----------------
-
-The pnpm workspace configuration has been moved to the root directory to fix the warning:
+The npm workspace configuration has been dropped in favour of pnpm workspace configuration and has been moved to the root directory to fix the warning:
 "npm warn config ignoring workspace config"
 
 ## Project Structure
 
-This project is set up as an npm workspace with the following structure:
+This project is set up as an pnpm workspace with the following structure:
 
 - Root: Contains shared configuration and workspace settings
 - app-next-directory: Next.js application
@@ -19,22 +17,29 @@ You can run any script for either workspace directly from the root:
 
 ```bash
 # Run Next.js development server
-npm run dev:next
+pnpm dev:next
 
 # Run Sanity development server
-npm run dev:sanity
+pnpm dev:sanity
 
 # Build both workspaces
-npm run build
+pnpm run build
 
 # Run linting on Next.js app
-npm run lint
+pnpm run lint
 
 # Generate TypeScript types for Sanity schemas
-npm run codegen:sanity
+pnpm run codegen:sanity
 
 # Run type-checking across the workspace
-npm run typecheck
+pnpm tcs --noEmit:next
+
+# Execute Unit Tests (Jest)
+pnpm exec jest
+
+# Install Playwright CLI
+npx playwright install
+
 ```
 
 ## Configuration
