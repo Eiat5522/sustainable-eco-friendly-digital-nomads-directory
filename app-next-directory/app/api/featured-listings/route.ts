@@ -1,4 +1,5 @@
 import { client } from '@/lib/sanity/client';
+import type { AppListingCard, AppListingDetail, AppCity } from '@/types/appView';
 // Type that matches the actual GROQ query result
 interface FeaturedListing {
   _id: string;
@@ -75,7 +76,7 @@ export async function GET() {
       _id,
       name,
       "slug": slug.current,
-      city: city->{ _id, name, "slug": slug.current, country },
+      city: city->{ _id, name, slug: slug.current, country },
       ecoTags: ecoFocusTags[]->name,
       nomadFeatures: digitalNomadFeatures[]->name,
       contactPhone,
