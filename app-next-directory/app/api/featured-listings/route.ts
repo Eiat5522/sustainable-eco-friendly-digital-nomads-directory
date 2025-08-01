@@ -82,7 +82,7 @@ export async function GET() {
       contactEmail,
       website,
       priceRange,
-      primaryImage: primaryImage{
+      primaryImage{
         alt,
         asset->{
           _id,
@@ -93,7 +93,7 @@ export async function GET() {
           }
         }
       },
-      galleryImages: galleryImages[]{
+      galleryImages[] {
         alt,
         asset->{
           _id,
@@ -104,18 +104,18 @@ export async function GET() {
           }
         }
       },
-      imageUrl: primaryImage.asset->url,
-      coworkingDetails: coworkingDetails{
+      "imageUrl": primaryImage.asset->url,
+      coworkingDetails{
         capacity,
-        pricingPlans[]{ type, price, period },
-        openingHours[]{ day, opens, closes }
+        pricingPlans[] { type, price, period },
+        openingHours[] { day, opens, closes }
       },
-      accommodationDetails: accommodationDetails{
-        pricePerNightThb{ min, max },
-        openingHours[]{ day, opens, closes }
+      accommodationDetails{
+        pricePerNightThb { min, max },
+        openingHours[] { day, opens, closes }
       },
-      cafeDetails: cafeDetails{
-        openingHours[]{ day, opens, closes }
+      cafeDetails{
+        openingHours[] { day, opens, closes }
       }
     }`;
     console.log('[DEBUG] Featured Listings API: Executing GROQ query');
@@ -133,7 +133,6 @@ export async function GET() {
       name: listing.name,
       slug: listing.slug || '',
       city: listing.city?.name ? {
-        id: listing.city._id || '',
         name: listing.city.name || '',
         slug: listing.city.slug || '',
         country: listing.city.country || ''

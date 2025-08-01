@@ -40,7 +40,7 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
     name: listing.name,
     slug: (listing as any).slug?.current || (listing as any).slug,
     city: (listing as any).city ? {
-      id: (listing as any).city._id,
+      id: (listing as any).city.id,
       name: (listing as any).city.name,
       slug: (listing as any).city.slug?.current || (listing as any).city.slug,
       country: (listing as any).city.country,

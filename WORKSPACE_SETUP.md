@@ -13,26 +13,26 @@ This project is set up as an pnpm workspace with the following structure:
 
 ## Running Scripts from the Root
 
-You can run any script for either workspace directly from the root:
+You can run scripts for each workspace directly from the root using `pnpm`:
 
 ```bash
 # Run Next.js development server
-pnpm dev:next
+pnpm --filter ./app-next-directory dev
 
 # Run Sanity development server
-pnpm dev:sanity
+pnpm --filter ./sanity dev
 
 # Build both workspaces
 pnpm run build
 
-# Run linting on Next.js app
+# Run linting
 pnpm run lint
 
 # Generate TypeScript types for Sanity schemas
 pnpm run codegen:sanity
 
-# Run type-checking across the workspace
-pnpm tcs --noEmit:next
+# Run type-checking for Next.js app
+pnpm tsc --noEmit
 
 # Execute Unit Tests (Jest)
 pnpm exec jest
@@ -40,19 +40,26 @@ pnpm exec jest
 # Install Playwright CLI
 npx playwright install
 
+# Execute All Tests (Playwright)
+pnpm test
+
 ```
 
 ## Configuration
 
-The shared npm configuration is now in the root `.npmrc` file with:
+The project uses a `.npmrc` file in the root directory for shared npm configuration:
 
-- legacy-peer-deps=true
-- strict-peer-dependencies=false
-- auto-install-peers=true
-- resolution-mode=highest
-- workspaces=true
+```txt
+legacy-peer-deps=true
+strict-peer-dependencies=false
+auto-install-peers=true
+resolution-mode=highest
+workspaces=true
+```
 
 This ensures npm properly recognizes the workspace structure and applies the configuration consistently.
+
+**Environment Variables:** Store secrets and sensitive information in Vercel or Cloudflare environment variables. This practice ensures security and proper management of sensitive data.
 
 ## Sanity Codegen and DTO Integration
 

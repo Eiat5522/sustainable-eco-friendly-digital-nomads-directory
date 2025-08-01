@@ -11,11 +11,21 @@
   //      "ENABLE_DETAILED_MODE": "true"
   //    }
   //  },
-    "chroma": { // Runs the version last installed via uvx (typically Prod)
-      "command": "uvx",
-      "args": [
-        "chroma-mcp-server",
-        "--client-type=persistent",
+  //    "sanity": {
+  //     "command": "npx",
+  //      "args": ["-y", "@sanity/mcp-server@latest"],
+  //      "env": {
+  //        "SANITY_PROJECT_ID": "sc70w3cr",
+  //        "SANITY_DATASET": "production",
+  //        "SANITY_API_TOKEN": "sk6HhGTlWXYUWS1V1rbhC9xJIrkILhB7fYo0Sf6QudDpufMIMJspkPxcvoD4OPdgHbRXJlEtwz5oX2B2sD1QWvDxyekRmuoir59a760t8eT5jZnzDwTEBdVVAMpkeQUZsicVHQO1Y5xN2PKNGolOVgMIADNNvwbDX1iWn0vuhCZDSXPybYMW",
+  //        "MCP_USER_ROLE": "developer"
+  //      }
+  //   },
+      "chroma": { // Runs the version last installed via uvx (typically Prod)
+        "command": "uvx",
+        "args": [
+          "chroma-mcp-server",
+          "--client-type=persistent",
         "--embedding-function=default" // Example: Choose your embedding function
       ],
       "env": {

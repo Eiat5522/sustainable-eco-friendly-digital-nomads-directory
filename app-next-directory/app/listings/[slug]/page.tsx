@@ -31,7 +31,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
     name: listing.name,
     slug: listing.slug || '',
     city: listing.city ? {
-      id: listing.city._id,
+      id: listing.city.id,
       name: listing.city.name || '',
       slug: listing.city.slug || '',
       country: listing.city.country || ''

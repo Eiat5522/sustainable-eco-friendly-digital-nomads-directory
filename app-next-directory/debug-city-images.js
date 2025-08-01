@@ -53,7 +53,7 @@ async function debugCityAndImages() {
     `);
 
     cities.forEach((city, index) => {
-      console.log(`${index + 1}. Title: "${city.title}", Name: "${city.name}", ID: ${city._id}`);
+      console.log(`${index + 1}. Title: "${city.title}", Name: "${city.name}", ID: ${city.id}`);
     });
 
     // Test if city references are broken
