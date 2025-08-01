@@ -1,9 +1,10 @@
 import { signIn } from "next-auth/react";
 import SignInForm from '@/components/auth/SignInForm';
 import { getProviders } from 'next-auth/react';
+import type { Metadata } from 'next';
 
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Sign In - Eco-Friendly Digital Nomads',
   description: 'Sign in to your account on the Sustainable Eco-Friendly Digital Nomads Directory',
 };
