@@ -1,3 +1,56 @@
-import { useSession } from "next-auth/react";
+'use client';
 
-// ...rest of the file remains unchanged
+import { useSession } from "next-auth/react";
+import { UserRole, hasPagePermission, hasFeaturePermission } from "../types/auth";
+
+/**
+ * Custom hook to access authentication state and user information
+ * @returns Authentication state and user data
+ */
+export function useAuth() {
+  const { data: session, status } = useSession();
+
+  const user = session?.user;
+  const userRole = (user as any)?.role as UserRole || 'unidentifiedUser';
+
+  return {
+    // Authentication state
+    isAuthenticated: !!session,
+    isLoading: status === 'loading',
+    
+    // User data
+    user,
+    userRole,
+    
+    // Utility functions
+    hasPagePermission: (page: string, action: string) => {
+      return hasPagePermission(userRole, page as any, action as any);
+    },
+    
+    hasFeaturePermission: (feature: string) => {
+      return hasFeaturePermission(userRole, feature as any);
+    },
+    
+    // Session status
+    status,
+  };
+}
+
+/**
+ * Hook to check if user has specific role
+ * @param requiredRole - Role to check against
+ * @returns Boolean indicating if user has the required role
+ */
+export function useRequireRole(requiredRole: UserRole) {
+  const { userRole } = useAuth();
+  return userRole === requiredRole;
+}
+
+/**
+ * Hook to check if user has admin privileges
+ * @returns Boolean indicating if user is admin or superAdmin
+ */
+export function useIsAdmin() {
+  const { userRole } = useAuth();
+  return userRole === 'admin' || userRole === 'superAdmin';
+}
