@@ -1,6 +1,6 @@
+// PATCH: Align GROQ query and DTO mapping with appView.ts
 import { client } from '@/lib/sanity/client';
 import type { AppListingCard, AppListingDetail, AppCity } from '@/types/appView';
-// Type that matches the actual GROQ query result
 interface FeaturedListing {
   _id: string;
   name: string;
@@ -17,6 +17,11 @@ interface FeaturedListing {
   contactEmail?: string;
   website?: string;
   priceRange?: string;
+  type?: string;
+  shortDescription?: string;
+  address?: string;
+  category?: string;
+  coordinates?: { lat: number; lng: number };
   primaryImage?: {
     alt?: string;
     asset?: {
@@ -71,18 +76,29 @@ export async function GET() {
   }
   
   try {
-    // Corrected GROQ query to match your schema
+    // Corrected GROQ query to match your schema and DTO
     const FEATURED_LISTINGS_QUERY = groq`*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {
       _id,
       name,
       "slug": slug.current,
-      city: city->{ _id, name, slug: slug.current, country },
-      ecoTags: ecoFocusTags[]->name,
-      nomadFeatures: digitalNomadFeatures[]->name,
+      "city": city->{ _id, name, "slug": slug.current, country },
+      "ecoTags": ecoFocusTags[]->name,
+      "nomadFeatures": digitalNomadFeatures[]->name,
+      "amenities": amenities[]-> {
+        _id,
+        name,
+        description,
+        badge
+      },
       contactPhone,
       contactEmail,
       website,
       priceRange,
+      type,
+      shortDescription,
+      address,
+      category,
+      coordinates,
       primaryImage{
         alt,
         asset->{
@@ -134,12 +150,14 @@ export async function GET() {
       name: listing.name,
       slug: listing.slug || '',
       city: listing.city?.name ? {
+        id: listing.city._id || '',
         name: listing.city.name || '',
         slug: listing.city.slug || '',
         country: listing.city.country || ''
       } : null,
       ecoTags: Array.isArray(listing.ecoTags) ? listing.ecoTags : [],
       nomadFeatures: Array.isArray(listing.nomadFeatures) ? listing.nomadFeatures : [],
+      amenities: Array.isArray(listing.amenities) ? listing.amenities : [],
       priceRange: listing.priceRange || undefined,
       website: listing.website || null,
       imageUrl: listing.imageUrl || null,
@@ -149,7 +167,12 @@ export async function GET() {
       contactEmail: listing.contactEmail || null,
       coworkingDetails: listing.coworkingDetails || null,
       accommodationDetails: listing.accommodationDetails || null,
-      cafeDetails: listing.cafeDetails || null
+      cafeDetails: listing.cafeDetails || null,
+      type: listing.type || undefined,
+      shortDescription: listing.shortDescription || undefined,
+      address: listing.address || undefined,
+      category: listing.category || undefined,
+      coordinates: listing.coordinates || undefined
     }));
 
     const endTime = performance.now();

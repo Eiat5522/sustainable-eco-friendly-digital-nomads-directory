@@ -139,6 +139,22 @@ export default defineType({
       hidden: ({ parent }) => parent?.category !== 'cafe'
     }),
     defineField({
+      name: 'category',
+      title: 'Category',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Coworking Space', value: 'coworking' },
+          { title: 'Cafe', value: 'cafe' },
+          { title: 'Accommodation', value: 'accommodation' },
+          { title: 'Restaurant', value: 'restaurant' },
+          { title: 'Activities', value: 'activities' }
+        ],
+        layout: 'dropdown'
+      },
+      validation: Rule => Rule.required()
+    }),
+    defineField({
       name: 'coworkingDetails',
       title: 'Coworking Details',
       type: 'coworkingDetails',

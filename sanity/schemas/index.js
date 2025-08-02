@@ -1,7 +1,7 @@
 import accommodationDetails from './accommodationDetails.js';
 import activitiesDetails from './activitiesDetails.js';
 import address from './address.js';
-import amenities from './amenities.js';
+import amenity from './amenity.js';
 import blogPost from './blogPost.js';
 import cafeDetails from './cafeDetails.js';
 import city from './city.js';
@@ -35,7 +35,7 @@ export const schemaTypes = [
   accommodationDetails,
   activitiesDetails,
   address,
-  amenities,
+  amenity,
   cafeDetails,
   comment,
   coworkingDetails,
