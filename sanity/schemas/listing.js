@@ -124,19 +124,37 @@ export default defineType({
       name: 'accommodationDetails',
       title: 'Accommodation Details',
       type: 'accommodationDetails',
-      hidden: ({ parent }) => parent?.category !== 'accommodation'
+      hidden: ({ parent }) => parent?.category !== 'accommodation',
+      validation: Rule => Rule.custom((value, context) => {
+        if (context.parent?.category === 'accommodation' && !value) {
+          return 'Accommodation details are required for accommodation listings';
+        }
+        return true;
+      })
     }),
     defineField({
       name: 'activitiesDetails',
       title: 'Activities Details',
       type: 'activitiesDetails',
-      hidden: ({ parent }) => parent?.category !== 'activities'
+      hidden: ({ parent }) => parent?.category !== 'activities',
+      validation: Rule => Rule.custom((value, context) => {
+        if (context.parent?.category === 'activities' && !value) {
+          return 'Activity details are required for activity listings';
+        }
+        return true;
+      })
     }),
     defineField({
       name: 'cafeDetails',
       title: 'Cafe Details',
       type: 'cafeDetails',
-      hidden: ({ parent }) => parent?.category !== 'cafe'
+      hidden: ({ parent }) => parent?.category !== 'cafe',
+      validation: Rule => Rule.custom((value, context) => {
+        if (context.parent?.category === 'cafe' && !value) {
+          return 'Cafe details are required for cafe listings';
+        }
+        return true;
+      })
     }),
     defineField({
       name: 'category',
@@ -158,13 +176,25 @@ export default defineType({
       name: 'coworkingDetails',
       title: 'Coworking Details',
       type: 'coworkingDetails',
-      hidden: ({ parent }) => parent?.category !== 'coworking'
+      hidden: ({ parent }) => parent?.category !== 'coworking',
+      validation: Rule => Rule.custom((value, context) => {
+        if (context.parent?.category === 'coworking' && !value) {
+          return 'Coworking details are required for coworking spaces';
+        }
+        return true;
+      })
     }),
     defineField({
       name: 'restaurantDetails',
       title: 'Restaurant Details',
       type: 'restaurantDetails',
-      hidden: ({ parent }) => parent?.category !== 'restaurant'
+      hidden: ({ parent }) => parent?.category !== 'restaurant',
+      validation: Rule => Rule.custom((value, context) => {
+        if (context.parent?.category === 'restaurant' && !value) {
+          return 'Restaurant details are required for restaurant listings';
+        }
+        return true;
+      })
     }),
     defineField({
       name: 'reviews',

@@ -20,7 +20,7 @@
   "dependencies": {
     "@auth/mongodb-adapter": "^3.10.0",
     "@sanity/code-input": "5.1.2",
-    "@sanity/vision": "3.93.0",
+    "@sanity/vision": "3.99.0",
     "leaflet.markercluster": "^1.5.3",
     "node-fetch": "^3.3.2",
     "react": "^19.1.0",
