@@ -1,3 +1,4 @@
+"use client";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 import { AnimatePresence, motion } from 'framer-motion';
@@ -37,7 +38,7 @@ export function MainNav({}: MainNavProps) {
 				<div className="flex h-16 items-center justify-between">
 					<div className="flex items-center">
 						<Link href="/" className="flex items-center group">
-							<Leaf className="h-8 w-8 text-primary-500 transition-transform group-hover:rotate-12" />
+							<Leaf className="text-primary-500 transition-transform group-hover:rotate-12" />
 							<span className="ml-2 text-xl font-medium text-gray-900 dark:text-white">
 								EcoNomads
 							</span>

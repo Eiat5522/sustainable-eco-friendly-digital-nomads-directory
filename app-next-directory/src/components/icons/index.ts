@@ -1,0 +1,11 @@
+export { default as LeafIcon } from './leaf.svg';
+export { default as MapPinIcon } from './map-pin.svg';
+export { default as SearchIcon } from './search.svg';
+export { default as XIcon } from './x.svg';
+export { default as LogInIcon } from './log-in.svg';
+export { default as MenuIcon } from './menu.svg';
+export { default as UserCircleIcon } from './user-circle.svg';
+export { default as HomeIcon } from './home.svg';
+export { default as CalendarIcon } from './calendar.svg';
+export { default as BookOpenIcon } from './book-open.svg';
+export { default as MailIcon } from './mail.svg';

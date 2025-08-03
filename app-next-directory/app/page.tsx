@@ -7,6 +7,7 @@ import CitiesCarousel from '@/components/home/CitiesCarousel';
 import WhyChooseUs from '@/components/home/WhyChooseUs';
 import CTASection from '@/components/home/CTASection';
 import SustainableNomadTestimonials from '@/components/ui/sustainable-nomad-testimonials';
+import { Home } from 'lucide-react';
 
 export default function HomePage() {
   const [listings, setListings] = useState([]);
@@ -62,6 +63,7 @@ export default function HomePage() {
 
   return (
     <div>
+      <Home />
       <HeroSection />
       <FeaturedListings listings={listings} />
       <CitiesCarousel cities={cities} />
