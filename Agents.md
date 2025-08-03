@@ -2,20 +2,26 @@
 
 ## Project-specific Notes
 
-- **Tech stack:** Next.js 14+ (App Router), Tailwind CSS, Sanity, MongoDB Atlas, Leaflet.js, Vercel, Stripe, NextAuth.js.
+- **Tech stack:** Next.js 14+ (App Router), Tailwind CSS, Sanity, MongoDB Atlas, Leaflet.js, Vercel, NextAuth.js.
 - **Monorepo structure:**
   - `app-next-directory/` – Next.js app
   - `sanity/` – Sanity Studio
 - **Start scripts:**
   - Next.js: `pnpm --filter ./app-next-directory dev`
   - Sanity: `pnpm --filter ./sanity dev`
-- **Environment variables:** Store secrets in Vercel/Cloudflare environment config.
-- **Security:** Use exact versions for critical packages, regular `npm audit`, and keep Next.js updated.
-- **Testing:** Use Playwright for E2E, Vitest/Jest for unit tests.
+
+- **Security:** Use exact versions for critical packages, regular `pnpm audit`, and keep Next.js updated.
+- **Testing:** Use Playwright for E2E, Jest for unit & integration tests.
 - **Content editing:** Sanity Studio is used for CMS, with role-based access.
-- **Deployment:** Merging to `main` triggers Vercel deployment.
 
 ---
+
+## Dev Environment Tips
+
+- Run `pnpm install` --filter <project_name> to add the package to your workspace so ESLint and TypeScript can see it.
+- To run type check `cd app-next-directory` then use `pnpm tsc --noEmit`
+- Use 'pnpm exec jest' to execute unit tests in the root folder.
+- Check the name field inside each package's package.json to confirm the right name.
 
 ## Sanity CLI Proxy Configuration (Windows/PowerShell)
 

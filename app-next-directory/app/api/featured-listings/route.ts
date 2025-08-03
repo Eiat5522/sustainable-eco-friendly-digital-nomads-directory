@@ -13,6 +13,12 @@ interface FeaturedListing {
   };
   ecoTags?: string[];
   nomadFeatures?: string[];
+  amenities?: Array<{
+    _id: string;
+    name: string;
+    description?: string;
+    badge?: string;
+  }>;
   contactPhone?: string;
   contactEmail?: string;
   website?: string;
