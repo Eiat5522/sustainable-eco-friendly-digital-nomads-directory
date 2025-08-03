@@ -2,7 +2,7 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { BookOpen, Calendar, Home, Leaf, LogIn, Mail, Menu, UserCircle, X } from 'lucide-react';
+import { BookOpen, Calendar, Home, Leaf, LogIn, Mail, Menu, UserCircle, UserPlus, X } from 'lucide-react';
 import { User, UserRole } from "@/types/auth";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -110,28 +110,46 @@ className={`text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:t
 								</div>
 							</div>
 						) : (
-							<button
-								onClick={() => signIn()
-}
-								className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-								aria-label="Sign in"
-							>
-								<LogIn className="mr-1.5 h-4 w-4" />
-								Login
-							</button>
+							<div className="flex items-center space-x-3">
+								<button
+									onClick={() => signIn()}
+									className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+									aria-label="Sign in"
+								>
+									<LogIn className="mr-1.5 h-4 w-4" />
+									Sign In
+								</button>
+								<Link
+									href="/auth/signup"
+									className="flex items-center text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-md transition-colors"
+									aria-label="Sign up"
+								>
+									<UserPlus className="mr-1.5 h-4 w-4" />
+									Sign Up
+								</Link>
+							</div>
 						)}
 					</div>
 
 {/* Mobile menu button */}
 <div className="flex md:hidden items-center space-x-2">
 {status !== 'loading' && !session && (
-							<button
-								onClick={() => signIn()}
-								className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-								aria-label="Sign in"
-							>
-								<LogIn className="h-5 w-5" />
-							</button>
+							<>
+								<button
+									onClick={() => signIn()}
+									className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+									aria-label="Sign in"
+								>
+									<LogIn className="h-5 w-5" />
+								</button>
+								<Link
+									href="/auth/signup"
+									className="p-2 rounded-md bg-primary-600 hover:bg-primary-700 text-white transition-colors"
+									aria-label="Sign up"
+								>
+									<UserPlus className="h-5 w-5" />
+								</Link>
+							</>
 						)}
 						{status !== 'loading' && session && (
 							<div className="relative group">
