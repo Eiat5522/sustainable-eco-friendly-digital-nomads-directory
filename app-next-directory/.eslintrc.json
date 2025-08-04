@@ -11,5 +11,11 @@
       "@typescript-eslint/no-use-before-define": "off"
       }
     }
-  ]
+  ],
+  "plugins": [
+    "sustainable-images"
+  ],
+  "rules": {
+    "sustainable-images/require-sanity-image-helper": "warn"
+  }
 }

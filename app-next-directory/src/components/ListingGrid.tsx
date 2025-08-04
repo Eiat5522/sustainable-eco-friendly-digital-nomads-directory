@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import SanityImage from "@/components/SanityImage";
 import { OptimizedImage } from './OptimizedImage'
 import type { AnyListing } from '@/types/listing'
 
@@ -54,12 +55,14 @@ export function ListingGrid({
                 viewMode === 'list' ? 'h-48 w-48 flex-shrink-0' : 'aspect-[4/3]'
               }`}
             >
-              <OptimizedImage
+              <SanityImage
                 image={listing.mainImage}
                 alt={listing.name}
                 fill
                 sizes={viewMode === 'list' ? '12rem' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
                 className="object-cover"
+                fallbackSrc="/images/fallback.png"
+                fallbackAlt="Image unavailable"
               />
               
               {/* Eco Tags Overlay */}

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, easeInOut } from 'framer-motion';
+import SanityImage from "@/components/SanityImage";
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -69,7 +70,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
             className="relative w-full h-full overflow-hidden"
             style={{ position: 'relative', width: '100%', height: '100%' }}
           >
-            <Image
+            <SanityImage
+              image={null}
               src="/images/hero/hero_main.png"
               alt="Eco-friendly digital nomad workspace"
               width={1920}
@@ -78,6 +80,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
               sizes="100vw"
               className="absolute inset-0 w-full h-full object-cover"
               style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+              fallbackSrc="/images/hero/hero_main.png"
+              fallbackAlt="Eco-friendly digital nomad workspace"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-green-900/80 to-green-800/40 backdrop-blur-[2px]" />
           </div>

@@ -1,5 +1,6 @@
 "use client";
 import { AppListingCard } from '@/types/appView';
+import SanityImage from "@/components/SanityImage";
 import { urlFor } from '@/lib/sanity/image';
 
 interface ListingCardProps {
@@ -61,12 +62,14 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
       <a href={getListingUrl()} role="link">
         <div>
           {/* Image */}
-          <img
-            src={imageUrl}
+          <SanityImage
+            image={listing.primaryImage || (listing.galleryImages && listing.galleryImages[0])}
             alt={getName()}
+            width={400}
+            height={300}
+            fallbackSrc="/test-image.jpg"
+            fallbackAlt="Image unavailable"
             data-testid="image-mock"
-            data-src={imageUrl}
-            data-alt={getName()}
           />
         </div>
         <div>

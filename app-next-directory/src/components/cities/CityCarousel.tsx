@@ -14,6 +14,7 @@ import {
 } from "../ui/carousel";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import SanityImage from "@/components/SanityImage";
 import Image from "next/image";
 
 interface EcoCityItem {
@@ -101,13 +102,15 @@ const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
               >
                 <Card className="overflow-hidden border-0 shadow-lg">
                   <div className="group relative h-[27rem] max-w-full overflow-hidden rounded-xl">
-                    <Image
-  src={city.image}
+                    <SanityImage
+  image={city.image}
   alt={city.name}
   fill
   sizes="(max-width: 768px) 100vw, 360px"
   className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
   loading="lazy"
+  fallbackSrc="/images/fallback.png"
+  fallbackAlt="Image unavailable"
 />
                     <div className="absolute top-4 right-4">
                       <Badge className="bg-green-600 hover:bg-green-700 flex items-center gap-1 px-3 py-1.5 text-white">

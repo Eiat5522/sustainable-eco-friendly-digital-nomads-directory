@@ -1,0 +1,7 @@
+## Sanity Image Rendering Checklist
+
+- [ ] All Sanity images use the `SanityImage` helper.
+- [ ] All images have valid `src` and descriptive `alt` attributes.
+- [ ] Fallback logic is present for missing/invalid images.
+- [ ] Parent containers for images using `fill` layout are styled with `position: relative` and explicit sizing.
+- [ ] Accessibility reviewed for all images (meaningful alt text, decorative images use empty alt).
