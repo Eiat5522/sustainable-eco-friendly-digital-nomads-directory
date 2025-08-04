@@ -13,8 +13,8 @@ import {
   CarouselPrevious,
 } from "../ui/carousel";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import clientModule, { client } from "@/lib/sanity/client";
+import { Card } from "@/components/ui/card";
+import Image from "next/image";
 
 interface EcoCityItem {
   _id: string;
@@ -24,30 +24,11 @@ interface EcoCityItem {
   image: string;
 }
 
-export default function EcoCityCarousel() {
-  const [cities, setCities] = useState<EcoCityItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
   const [carouselApi, setCarouselApi] = useState<CarouselApi | undefined>(undefined);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  useEffect(() => {
-    async function fetchCities() {
-      try {
-        const query = `*[_type == "city"]{ _id, name, sustainabilityScore, highlights, "image": mainImage.asset->url }`;
-        const data: EcoCityItem[] = await client.fetch(query);
-        setCities(data);
-      } catch (err) {
-        console.error("Error fetching cities from Sanity:", err);
-        setError("Failed to load cities.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchCities();
-  }, []);
 
   useEffect(() => {
     if (!carouselApi) return;
@@ -62,9 +43,6 @@ export default function EcoCityCarousel() {
       carouselApi.off("select", updateSelection);
     };
   }, [carouselApi]);
-
-  if (isLoading) return <div>Loading cities...</div>;
-  if (error) return <div>Error: {error}</div>;
 
   return (
     <section className="py-24 bg-gradient-to-b from-green-50/50 to-transparent">
@@ -123,13 +101,14 @@ export default function EcoCityCarousel() {
               >
                 <Card className="overflow-hidden border-0 shadow-lg">
                   <div className="group relative h-[27rem] max-w-full overflow-hidden rounded-xl">
-                    <img
-                      src={city.image}
-                      alt={city.name}
-                      className="absolute h-full w-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 h-full bg-gradient-to-b from-black/0 via-black/40 to-black/80 mix-blend-multiply" />
-
+                    <Image
+  src={city.image}
+  alt={city.name}
+  fill
+  sizes="(max-width: 768px) 100vw, 360px"
+  className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
+  loading="lazy"
+/>
                     <div className="absolute top-4 right-4">
                       <Badge className="bg-green-600 hover:bg-green-700 flex items-center gap-1 px-3 py-1.5 text-white">
                         <Leaf className="size-4" />
@@ -147,7 +126,7 @@ export default function EcoCityCarousel() {
                           Eco Highlights
                         </h4>
                         <ul className="space-y-1">
-                          {city.highlights.map((highlight, idx) => (
+                          {(city.highlights || []).map((highlight, idx) => (
                             <li key={idx} className="flex items-center gap-2 text-sm">
                               <span className="size-1.5 rounded-full bg-green-400"></span>
                               {highlight}
@@ -188,3 +167,5 @@ export default function EcoCityCarousel() {
     </section>
   );
 };
+
+export default EcoCityCarousel;

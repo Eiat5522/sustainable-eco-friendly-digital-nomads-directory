@@ -31,9 +31,17 @@ interface CitiesCarouselProps {
 import EcoCityCarousel from '../cities/CityCarousel';
 
 export default function CitiesCarousel({ cities }: CitiesCarouselProps) {
+  const ecoCities = cities.map((city) => ({
+    _id: city._id,
+    name: city.title,
+    image: city.mainImage?.asset?.url,
+    sustainabilityScore: city.sustainabilityScore,
+    highlights: city.highlights,
+  }));
+
   return (
     <section className="relative">
-      <EcoCityCarousel />
+      <EcoCityCarousel cities={ecoCities} />
     </section>
   );
 }

@@ -81,7 +81,9 @@ export function filterListings(options: FilterOptions): Listing[] {
       return (
         listing.type === 'coworking' ||
         listing.type === 'cafe' ||
-        listing.type === 'accommodation'
+        listing.type === 'accommodation' ||
+        listing.type === 'activity' ||
+        listing.type === 'restaurant'
       );
     });
 }
@@ -135,6 +137,5 @@ export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
     cafeDetails: raw.cafeDetails,
     restaurantDetails: raw.restaurantDetails,
     activitiesDetails: raw.activitiesDetails,
-    moderation: raw.moderation,
   };
 }

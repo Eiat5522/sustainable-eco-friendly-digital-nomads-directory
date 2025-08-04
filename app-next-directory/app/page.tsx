@@ -11,6 +11,7 @@ import SustainableNomadTestimonials from '@/components/ui/sustainable-nomad-test
 
 export default function HomePage() {
   const [listings, setListings] = useState([]);
+  const [cities, setCities] = useState([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -42,14 +43,23 @@ export default function HomePage() {
         console.error('[ERROR] HomePage: Failed to fetch data:', error);
       }
     }
+    async function fetchCities() {
+      try {
+        const citiesResponse = await fetch('/api/cities').then(res => res.json());
+        setCities(citiesResponse.cities || []);
+      } catch (error) {
+        console.error('[ERROR] HomePage: Failed to fetch cities:', error);
+      }
+    }
     fetchData();
+    fetchCities();
   }, []);
 
   return (
     <div>
       <HeroSection />
       <FeaturedListings listings={listings} />
-      <EcoCityCarousel />
+      <EcoCityCarousel cities={cities} />
       <StatisticsSection />
       <WhyChooseUs />
       <SustainableNomadTestimonials />

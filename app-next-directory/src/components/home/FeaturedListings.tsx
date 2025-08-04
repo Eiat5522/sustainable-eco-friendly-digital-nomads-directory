@@ -28,7 +28,7 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
     ecoTags: (listing as any).ecoFocusTags || [],
     priceRange: (listing as any).priceRange,
     website: (listing as any).website,
-    primaryImage: (listing as any).primaryImage,
+    primaryImage: (listing as any).mainImage,
     galleryImages: (listing as any).galleryImages,
     shortDescription: (listing as any).shortDescription,
     longDescription: (listing as any).longDescription,
