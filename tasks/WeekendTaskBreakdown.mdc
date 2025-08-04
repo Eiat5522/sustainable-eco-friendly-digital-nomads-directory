@@ -1,0 +1,43 @@
+Timeline: May 24 - September 24, 2025
+
+Task/Subtask                                    |May 24|  Jun  |  Jul  |  Aug  |  Sep  |
+                                               |  -31 | 1-30  | 1-31  | 1-31  | 1-24  |
+============================================================================================================
+
+A. BLOG MVP LAUNCH                             |████████████████████████████████████|      |      |      |
+├─ Schema & Studio Setup                       |████████|                        |      |      |      |
+├─ Preview Plugin & Meta Integration           |    ████████████|                 |      |      |      |
+├─ Front-end Landing Page                      |        ████████████████|         |      |      |      |
+├─ Front-end Post Page                         |            ████████████████████| |      |      |      |
+├─ SEO QA & Accessibility Audit               |                ████████████████████|     |      |      |
+└─ Soft Launch & Analytics Setup              |                    ████████████████████|  |      |      |
+
+B. MONETIZATION ENABLEMENT                     |    ████████████████████████████████████████████|      |      |
+├─ Newsletter Signup Integration               |    ████████████████|             |      |      |      |
+├─ Lead Gen Tracking (blog CTAs)               |        ████████████████████|     |      |      |      |
+└─ Advertising/Featured Listings MVP          |            ████████████████████████████████|  |      |
+
+C. SANITY DATA MIGRATION                       |████████████████|                 |      |      |      |
+├─ Complete HTTP API Client                    |████████|                        |      |      |      |
+├─ Test API Authentication                     |████████|                        |      |      |      |
+├─ Image Upload & Optimization                 |    ████████|                    |      |      |      |
+├─ Batch Processing & Validation               |        ████████|                |      |      |      |
+└─ Rollback & Error Recovery                   |            ████████|            |      |      |      |
+
+D. DOCUMENTATION & QA                          |████████████████████████|         |      |      |      |
+├─ Update Technical Docs                       |████████████████|                |      |      |      |
+├─ Troubleshooting Guide                       |████████████████|                |      |      |      |
+└─ Logging & Debugging Docs                   |████████████████|                |      |      |      |
+
+E. PERFORMANCE & ACCESSIBILITY                 |        ████████████████████████████████|      |      |
+├─ Image Optimization Pipeline                 |        ████████|                |      |      |      |
+└─ Lighthouse & WCAG 2.1 AA Compliance        |                ████████████████████████|      |      |
+
+REVENUE MILESTONES                             |      |      |      |      |      |
+├─ Month 1: Blog Launch & Newsletter Setup     |      |██████|      |      |      |
+├─ Month 2: Lead Gen & First Partnerships      |      |      |██████|      |      |
+├─ Month 3: Featured Listings Revenue          |      |      |      |██████|      |
+└─ Month 4: $3K/month Target                   |      |      |      |      |██████|
+
+CRITICAL PATH DEPENDENCIES:                    |      |      |      |      |      |
+Sanity Migration → Blog Content → SEO → Revenue|████████████████████████████████████████████████████████|

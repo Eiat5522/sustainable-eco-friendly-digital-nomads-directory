@@ -1,7 +1,5 @@
-"""
-Python dependencies for Sanity CMS migration scripts
-Sustainable Digital Nomads Directory - Backend Integration
-"""
+#Python dependencies for Sanity CMS migration scripts
+#Sustainable Digital Nomads Directory - Backend Integration
 
 # Core async HTTP and API libraries
 aiohttp==3.9.1

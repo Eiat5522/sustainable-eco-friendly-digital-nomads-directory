@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = () => {
         <div className="flex items-center">
           <Link href="/" className="flex items-center mr-8">
             <Logo />
-            <span className="font-bold text-xl ml-2 text-gray-800 dark:text-white">Leaf & Laptop</span>
+            <span className="font-bold text-2xl ml-3 align-middle text-gray-800 dark:text-white">Leaf & Laptop</span>
           </Link>
 
           <nav className="hidden md:flex space-x-6">

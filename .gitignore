@@ -74,10 +74,6 @@ dev-debug.log
 *.sln
 *.sw?
 # OS specific
-# Task files
-tasks.json
-tasks/
-
 #.txt
 *requirement.txt
 
@@ -152,3 +148,9 @@ schema and shape realignment plan 20250726.md
 app-next-directory/docs/TASK_PROGRESS.md
 sanity/TASK_PROGRESS.md
 app-next-directory/docs/temp/temp_gemini_session.txt
+
+.vscode
+
+# Task files
+# tasks.json
+# tasks/ 

@@ -1,0 +1,100 @@
+Sustainable Eco‑Friendly Digital Nomads Directory – Detail Pages PRD
+Project Overview
+This Product Requirements Document (PRD) defines the scope and requirements for the Detail Pages initiative in the Sustainable Eco‑Friendly Digital Nomads Directory project. The goal of this branch is to deliver rich, informative, and interactive detail pages for each sustainable workspace, accommodation, or experience listed in the directory. At present the platform has a robust homepage, listing grid and basic navigation. The next step is to turn individual listing views into engaging story‑telling pages that showcase eco‑credentials, amenities, imagery, user feedback, and location information. A successful outcome will allow users to confidently evaluate a listing and take an action (e.g., contact the host, bookmark, or share), while maintaining fast performance and high design quality.
+Problem Statement
+Users browsing the directory can currently view listings on a grid but cannot access comprehensive information about each location. Without detailed pages, users must rely on short summaries and static images, which limits their ability to make decisions or trust the sustainability claims. Competitors offer rich detail pages with photo galleries, maps, reviews and eco‑badges. To remain competitive and to fulfil our mission of transparency, we need fully‑featured detail pages that integrate all available data and allow users to interact seamlessly.
+Goals & Objectives
+1.	Present comprehensive information for each listing including description, photos, amenities, eco‑features and sustainability certifications.
+2.	Enhance user engagement through interactive components such as image galleries, carousels, reviews and maps.
+3.	Improve navigation and SEO by implementing dynamic routes in Next.js. The codebase already sets up a dynamic route under app/src/app/listings/[id]/page.tsx for individual listing details[1]; this branch will fully implement and style that page.
+4.	Ensure performance and accessibility by optimizing image loading, providing appropriate alt text and using responsive layouts.
+5.	Lay the groundwork for scalable content management via Sanity CMS integration for listings, cities and tags.
+Core Features
+•	Dynamic listing detail page: A new page served at /listings/[slug] (or [id]) that fetches data from Sanity CMS and displays the full listing. This page is built using Next.js App Router and dynamic route configuration[1].
+•	Hero section with immersive imagery: A large hero image with overlaid title and tagline. The hero uses responsive, optimized images loaded via next/image with blur placeholders and optional parallax scrolling for city detail pages[2].
+•	Image gallery & carousel: A dedicated component to display multiple photos. The existing ImageGallery.tsx and CityCarousel.tsx components provide the foundation[3]. The gallery should support swipe navigation, modal viewing, and lazy loading.
+•	Listing details section: Includes description, amenities, eco‑features, certifications, house rules, pricing and availability. An amenities list component will use icons and tooltips.
+•	Map integration: An embedded map (Google Maps or Mapbox) showing the exact location with markers. Data is fetched from Sanity (latitude/longitude) and displayed in an interactive map.
+•	Reviews & ratings: A review section pulls user reviews from the Review API and displays star ratings, comments and aggregate scores. Users can scroll through reviews and filter by rating.
+•	Call‑to‑action (CTA): Prominent buttons for “Contact Host”, “Check Availability” or “Bookmark”, depending on user state. These CTAs integrate with existing form system and favorites dashboard.
+•	SEO & share metadata: Dynamic meta tags (title, description, Open Graph) to improve search engine visibility and sharing on social networks.
+User Experience
+User Personas
+Persona	Goals	Needs
+Digital Nomad	Find eco‑friendly workspaces and accommodations while travelling	Clear information about amenities, pricing, sustainability and location; ability to view photos and read reviews
+Eco‑conscious Traveller	Choose places with verified eco‑credentials	Trustworthy sustainability badges, transparent environmental policies and user feedback
+Host/Owner	Showcase sustainable property and attract eco‑minded visitors	Easy way to display property details, respond to enquiries and receive reviews
+User Flows
+1.	Browse → View Details → CTA: A user searches or browses listings, selects a card, views the detail page and clicks a CTA (e.g., contact host). The listing detail page must load quickly, display rich content and allow the user to take action.
+2.	City Page → Listing Detail: Users viewing a city carousel can click on a listing to navigate to its detail page. The existing city detail pages and carousel integration should be leveraged[2].
+UI/UX Considerations
+•	Consistency with existing components: Use established design patterns from ListingCard, ListingGrid, ImageGallery and CityCarousel[3]. The style should match the modern aesthetic with hover effects and responsive grids.
+•	Performance: Implement lazy loading of images and code‑splitting for interactive components. Pre‑fetch data for above‑the‑fold content.
+•	Accessibility: Ensure keyboard navigation for carousels, proper alt text for images, and high contrast for text overlays.
+•	Animations: Use subtle animations via Framer Motion similar to city detail pages for smoother transitions[2].
+Technical Architecture
+Component/Layer	Description
+Next.js App Router	Dynamic route at app/src/app/listings/[id]/page.tsx for each listing[1]. Server‑side component fetches listing data from Sanity using GROQ and passes it to client components.
+Sanity CMS	Stores listings, images, categories, tags and review references. Provides GROQ queries and image URL builder functions for optimized delivery.
+Image Handling	Uses next/image for responsive images, blur placeholders and lazy loading. ImageGallery component reuses existing gallery logic[3].
+
+API Integration	Calls internal APIs for reviews, search, contact form submissions and authentication. Leverages existing backend endpoints (contact form, reviews, user dashboard).
+Map Integration	External map provider (Mapbox or Google Maps) integrated as a client component; coordinates retrieved from Sanity.
+State Management	Relies on React context or Redux (if adopted) for user state (e.g., favorites), with local component state for gallery modals and map interactions.
+Security & Auth	Protected actions (e.g., contacting host) require user authentication through the existing NextAuth implementation.
+Development Roadmap
+The development should proceed iteratively, focusing on getting a usable detail page online quickly and then layering enhancements. Timelines are relative and may overlap depending on team capacity.
+1.	Foundation (Infrastructure & Data Fetching)
+2.	Scaffold dynamic route and page component under app/src/app/listings/[id]/page.tsx[1].
+3.	Implement GROQ queries to fetch listing details, images, coordinates and reviews from Sanity.
+4.	Set up TypeScript interfaces for listing data and ensure type safety across components.
+5.	Basic UI & Content Display
+6.	Build hero section with main image and listing name.
+7.	Render listing description, amenities and eco‑features with simple styling.
+8.	Add a static map placeholder with coordinates; integrate next/image for hero image.
+9.	Interactive Components
+10.	Integrate ImageGallery for multiple photos[3] and implement modal viewing.
+11.	Develop review section fetching data from review API. Display star ratings and comments, with pagination.
+12.	Add CTA buttons connecting to existing contact form system.
+13.	Map & Geo Enhancements
+14.	Replace static map with interactive map component (Mapbox/Google Maps) using listing coordinates. Support panning and zooming.
+15.	Add directions and neighbourhood information where available.
+16.	Performance & SEO Optimization
+17.	Implement lazy loading for images and code splitting for client components.
+18.	Add dynamic meta tags using Next.js metadata API for each listing.
+19.	Optimize bundle size and adopt incremental static regeneration (ISR) where appropriate.
+20.	Polish & Accessibility
+21.	Refine responsive design for all breakpoints.
+22.	Add animations and transitions inspired by the city detail pages[2].
+23.	Conduct accessibility testing (keyboard, screen reader) and fix issues.
+Logical Dependency Chain
+1.	Data Schema & Migration → Listing detail pages rely on complete and accurate data in Sanity. Ensure schemas and migration scripts are finalized (already completed per Sanity implementation plan).
+2.	Dynamic Route Setup → Without the route skeleton, no UI can be built. Foundation work must come first.
+3.	Data Fetching & Types → Implement queries and types before constructing components so that data structures are clear.
+4.	Basic UI → Build static content sections before adding interactivity.
+5.	Interactive Components (Gallery, Reviews, Map) → These rely on data and UI scaffolding; implement sequentially to manage complexity.
+6.	Optimization & SEO → After core functionality is in place, focus on performance and metadata.
+7.	Final Polish & Testing → Accessibility and UX improvements come last to fine‑tune the experience.
+Project Milestones
+Milestone	Description	Expected Completion
+M1 – Route & Data Setup	Create dynamic route, define TypeScript interfaces, implement GROQ queries to fetch listing details and images. Basic page renders static content.	Week 1 (target Aug 10, 2025)
+M2 – Core UI Completion	Build hero section, description, amenities and eco‑features; integrate static map; ensure responsive layout.	Week 2 (target Aug 17, 2025)
+M3 – Interactive Components	Integrate ImageGallery, reviews section and CTA buttons; connect to contact form and reviews API.	Week 3 (target Aug 24, 2025)
+M4 – Map Integration	Implement interactive map component with markers and directions; ensure performance on mobile.	Week 4 (target Aug 31, 2025)
+M5 – SEO & Optimization	Add dynamic meta tags, implement lazy loading and code splitting, optimize images and bundle size.	Week 5 (target Sep 7, 2025)
+M6 – Polish & Launch	Conduct accessibility testing, add animations and final styling; perform user acceptance testing and prepare for production deployment.	Week 6 (target Sep 14, 2025)
+The milestones provide a phased plan for delivering fully‑featured detail pages. Dates reflect approximate weekly sprints beginning the week of Aug 4, 2025 (based on the current date in Bangkok). Adjustments can be made depending on team velocity and unforeseen blockers.
+Risks & Mitigations
+Risk	Impact	Mitigation
+Incomplete or inconsistent data	Missing fields in Sanity could cause broken UI or errors.	Validate data schemas and add fallback displays; coordinate with content team to ensure required fields are populated.
+Performance bottlenecks from images and maps	Large images or map scripts can slow page load.	Optimize images through Sanity’s image pipeline and next/image; lazy load map scripts; use skeleton loaders.
+Complexity of interactive components	Carousels, modals and maps introduce cross‑browser compatibility issues.	Leverage existing ImageGallery and CityCarousel components[3]; reuse proven libraries (Embla, Framer Motion)[2]; write unit and integration tests.
+SEO regressions	Poorly configured metadata can harm search ranking.	Implement dynamic metadata early, test with SEO analysis tools and update robots sitemap.
+Timeline slippage	Ambitious feature set may overrun schedule.	Prioritize milestones; build MVP quickly and iteratively add features. Defer non‑critical niceties to later sprints.
+Appendix
+The active context document notes that modern city detail pages with parallax backgrounds, Embla carousels and responsive images have already been implemented[2]. This initiative should reuse the same design language and performance optimizations. The codebase summary outlines the directory structure for dynamic routes and the existing components such as ImageGallery.tsx, CityCarousel.tsx and ListingCard.tsx[1][3]. These references serve as a guide for building new components and ensuring alignment with the rest of the application.
+________________________________________
+[1] [3] codebaseSummary.md
+https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory/blob/8da042953cdb6b702f2bf9bbfafc432e58c82b28/cline_docs/codebaseSummary.md
+[2] activeContext.md
+https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory/blob/8da042953cdb6b702f2bf9bbfafc432e58c82b28/memory-bank/activeContext.md

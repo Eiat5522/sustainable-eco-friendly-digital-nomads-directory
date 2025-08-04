@@ -57,7 +57,7 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
   const imageUrl = getImageUrl();
 
   return (
-    <div>
+    <div className="flex flex-col h-full justify-between bg-white rounded-lg shadow-md p-4">
       <a href={getListingUrl()} role="link">
         <div>
           {/* Image */}
@@ -92,8 +92,8 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
                   'Organic',
                   'Vegan'
                 ]
-            ).map((tag: string) => (
-              <span key={tag}>{tag}</span>
+            ).map((tag: string, i: number) => (
+              <span key={tag + '-' + i}>{tag}</span>
             ))}
           </div>
           {/* Description */}
