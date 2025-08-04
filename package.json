@@ -44,6 +44,14 @@
     "vscode-variables": "^1.0.1"
   },
   "devDependencies": {
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "eslint"
+      ]
+    }
+  },
     "@auth/mongodb-adapter": "^3.10.0",
     "@swc/jest": "^0.2.39",
     "@testing-library/dom": "^10.4.0",
@@ -58,5 +66,5 @@
     "ts-jest": "^29.4.0",
     "whatwg-fetch": "^3.6.20",
     "node-fetch": "^3.3.2"
-  }
 }
+

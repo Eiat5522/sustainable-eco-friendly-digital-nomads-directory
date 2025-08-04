@@ -25,9 +25,21 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
       slug: (listing as any).city.slug?.current || (listing as any).city.slug,
       country: (listing as any).city.country,
     } : null,
-    ecoTags: (listing as any).ecoTags || [],
+    ecoTags: (listing as any).ecoFocusTags || [],
     priceRange: (listing as any).priceRange,
     website: (listing as any).website,
+    primaryImage: (listing as any).primaryImage,
+    galleryImages: (listing as any).galleryImages,
+    shortDescription: (listing as any).shortDescription,
+    longDescription: (listing as any).longDescription,
+    address: (listing as any).address,
+    coordinates: (listing as any).location,
+    category: (listing as any).category,
+    contactPhone: (listing as any).contactPhone,
+    contactEmail: (listing as any).contactEmail,
+    type: (listing as any).type,
+    reviews: (listing as any).reviews,
+    moderation: (listing as any).moderation,
   }));
 
   return (

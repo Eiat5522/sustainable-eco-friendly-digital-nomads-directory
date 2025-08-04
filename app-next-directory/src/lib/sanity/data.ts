@@ -7,12 +7,50 @@ const LISTING_BY_SLUG_QUERY = groq`
     _id,
     name,
     "slug": slug.current,
+    city->{
+      _id,
+      name,
+      "slug": slug.current,
+      country
+    },
+    type,
+    category,
+    address,
+    location,
+    primaryImage,
+    galleryImages,
+    ecoFocusTags[]->{
+      _id,
+      name
+    },
     priceRange,
+    contactPhone,
+    contactEmail,
+    website,
+    shortDescription,
+    longDescription,
+    reviews[]->{
+      _id,
+      rating,
+      comment,
+      user->{
+        _id,
+        name
+      },
+      createdAt
+    },
+    amenities[]->{
+      _id,
+      name,
+      description,
+      badge
+    },
     coworkingDetails,
     accommodationDetails,
     cafeDetails,
     restaurantDetails,
-    activitiesDetails
+    activitiesDetails,
+    moderation
   }
 `;
 
@@ -31,7 +69,10 @@ export async function getListingData(
       LISTING_BY_SLUG_QUERY,
       { slug }
     );
-    return listing;
+    // Map the raw listing to the DTO
+    if (!listing) return null;
+    const { mapSanityListingToAppListingDetail } = await import('@/lib/listings');
+    return mapSanityListingToAppListingDetail(listing);
   } catch (error) {
     console.error("Error fetching listing data for slug:", slug, error);
     return null;

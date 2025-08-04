@@ -104,12 +104,5 @@
     "ts-jest": "^29.4.0",
     "typescript": "^5.8.3",
     "whatwg-fetch": "^3.6.20"
-  },
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "eslint"
-      ]
-    }
   }
 }

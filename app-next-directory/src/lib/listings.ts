@@ -85,3 +85,56 @@ export function filterListings(options: FilterOptions): Listing[] {
       );
     });
 }
+
+// Maps a raw Sanity listing result to AppListingDetail DTO
+import { AppListingDetail, AppCity } from '@/types/appView';
+
+export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
+  return {
+    id: raw._id,
+    name: raw.name,
+    slug: raw.slug,
+    city: raw.city
+      ? {
+          id: raw.city._id,
+          name: raw.city.name,
+          slug: raw.city.slug,
+          country: raw.city.country,
+        }
+      : null,
+    type: raw.type,
+    category: raw.category,
+    address: raw.address,
+    coordinates: raw.location
+      ? { lat: raw.location.lat, lng: raw.location.lng }
+      : undefined,
+    primaryImage: raw.primaryImage,
+    galleryImages: raw.galleryImages,
+    ecoTags: (raw.ecoFocusTags || []).map((tag: any) => tag.name),
+    priceRange: raw.priceRange,
+    contactPhone: raw.contactPhone,
+    contactEmail: raw.contactEmail,
+    website: raw.website,
+    shortDescription: raw.shortDescription,
+    longDescription: raw.longDescription,
+    reviews: (raw.reviews || []).map((review: any) => ({
+      id: review._id,
+      rating: review.rating,
+      comment: review.comment,
+      user: review.user ? { id: review.user._id, name: review.user.name } : null,
+      createdAt: review.createdAt,
+    })),
+    amenities: (raw.amenities || []).map((amenity: any) => ({
+      id: amenity._id,
+      name: amenity.name,
+      description: amenity.description,
+      badge: amenity.badge,
+    })),
+    coworkingDetails: raw.coworkingDetails,
+    accommodationDetails: raw.accommodationDetails,
+    cafeDetails: raw.cafeDetails,
+    restaurantDetails: raw.restaurantDetails,
+    activitiesDetails: raw.activitiesDetails,
+    moderation: raw.moderation,
+  };
+}
