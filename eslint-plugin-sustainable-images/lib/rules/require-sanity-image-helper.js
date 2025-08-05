@@ -17,8 +17,7 @@ module.exports = {
       JSXOpeningElement(node) {
         if (
           (node.name.name === "img" || node.name.name === "Image") &&
-          node.attributes.some(attr => {
-            if (!attributes.some(attr => attr.name && attr.name.name === "fallbackAlt"))
+          !node.attributes.some(attr => attr.name && attr.name.name === "fallbackAlt")
         ) {
           context.report({ node, messageId: "requireFallback" });
         }

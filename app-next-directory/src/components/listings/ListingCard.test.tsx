@@ -36,13 +36,6 @@ jest.mock('@/lib/sanity/image', () => ({
       url: jest.fn(() => `mock-sanity-image-url-${source.asset._ref}`),
     };
   }),
-  urlFor: jest.fn((source) => ({
-    width: jest.fn().mockReturnThis(),
-    height: jest.fn().mockReturnThis(),
-    fit: jest.fn().mockReturnThis(),
-    auto: jest.fn().mockReturnThis(),
-    url: jest.fn(() => `mock-sanity-image-url-${source?.asset?._ref}`),
-  })),
 }));
 
 describe('ListingCard', () => {
@@ -102,18 +95,6 @@ describe('ListingCard', () => {
   });
 
   test('handles missing images gracefully', () => {
-  test('handles urlFor errors gracefully', () => {
-    jest.spyOn(require('@/lib/sanity/image'), 'urlFor').mockImplementationOnce(() => {
-      throw new Error('Simulated urlFor error');
-    });
-    const listingWithValidImage: AppListingCard = {
-      ...mockListing,
-      primaryImage: mockListing.primaryImage, // Keep valid image to trigger urlFor
-      galleryImages: [],
-      name: 'Test Listing with urlFor Error',
-    };
-    // …rest of the test…
-  });
     const listingWithoutImage: AppListingCard = {
       ...mockListing,
       primaryImage: undefined,
@@ -127,6 +108,22 @@ describe('ListingCard', () => {
     const image = screen.getByTestId('image-mock');
     expect(image).toHaveAttribute('data-src', '/test-image.jpg');
     expect(image).toHaveAttribute('data-alt', 'Unnamed Listing');
+  });
+
+  test('handles urlFor errors gracefully', () => {
+    jest.spyOn(require('@/lib/sanity/image'), 'urlFor').mockImplementationOnce(() => {
+      throw new Error('Simulated urlFor error');
+    });
+    const listingWithValidImage: AppListingCard = {
+      ...mockListing,
+      primaryImage: mockListing.primaryImage, // Keep valid image to trigger urlFor
+      galleryImages: [],
+      name: 'Test Listing with urlFor Error',
+    };
+    render(<ListingCard listing={listingWithValidImage} />);
+    const image = screen.getByTestId('image-mock');
+    expect(image).toHaveAttribute('data-src', '/test-image.jpg');
+    expect(image).toHaveAttribute('data-alt', 'Test Listing with urlFor Error');
   });
 
   test('renders category badge', () => {
@@ -204,14 +201,14 @@ describe('ListingCard', () => {
     expect(screen.getByRole('link')).toHaveAttribute('href', '/listings/default-slug');
   });
 
-  test('getImageUrl returns URL from primaryImage', () => {
+  test('image URL is correct for primaryImage', () => {
     render(<ListingCard listing={mockListing} />);
     const image = screen.getByTestId('image-mock');
     expect(image).toBeInTheDocument();
-    // Image URL generation depends on component implementation
+    expect(image).toHaveAttribute('data-src', expect.stringContaining('mock-sanity-image-url-sanity-image-id'));
   });
 
-  test('getImageUrl handles missing primaryImage', () => {
+  test('image URL is correct for galleryImages when primaryImage is missing', () => {
     const listingWithoutPrimary: AppListingCard = {
       ...mockListing,
       primaryImage: undefined,
@@ -228,9 +225,10 @@ describe('ListingCard', () => {
     render(<ListingCard listing={listingWithoutPrimary} />);
     const image = screen.getByTestId('image-mock');
     expect(image).toBeInTheDocument();
+    expect(image).toHaveAttribute('data-src', expect.stringContaining('mock-sanity-image-url-sanity-gallery-image-id'));
   });
 
-  test('getImageUrl returns empty string if no image sources are available', () => {
+  test('image URL is fallback if no image sources are available', () => {
     const listingWithoutAnyImage: AppListingCard = {
       ...mockListing,
       primaryImage: undefined,
@@ -238,12 +236,12 @@ describe('ListingCard', () => {
     };
     render(<ListingCard listing={listingWithoutAnyImage} />);
     const image = screen.getByTestId('image-mock');
-    expect(image).toBeInTheDocument(); // Component should handle gracefully
+    expect(image).toBeInTheDocument();
+    expect(image).toHaveAttribute('data-src', '/test-image.jpg');
   });
 
-  test('getImageUrl handles error in urlFor for primaryImage', () => {
+  test('image URL is fallback if urlFor throws for primaryImage', () => {
     (urlFor as jest.Mock).mockImplementationOnce(() => {
-      console.log('Simulating error in urlFor mock');
       throw new Error('Test error primaryImage');
     });
     const listingWithErrorPrimaryImage: AppListingCard = {
