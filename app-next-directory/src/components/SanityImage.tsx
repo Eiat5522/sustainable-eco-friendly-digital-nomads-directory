@@ -26,16 +26,19 @@ export function SanityImage({
   const src = image ? urlFor(image)?.width(width).height(height).url() : fallbackSrc;
   const validAlt = alt && alt.trim() ? alt : fallbackAlt;
 
-  return (
+  // Extract onError and fill from rest props
+  const { onError: userOnError, fill, ...imageProps } = rest;  return (
     <Image
       src={src || fallbackSrc}
       alt={validAlt}
-      width={width}
-      height={height}
-      {...rest}
+      {...imageProps}
+      {...(fill ? { fill } : { width, height })}
       onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
         if (e.currentTarget.src !== fallbackSrc) {
           e.currentTarget.src = fallbackSrc;
+        }
+        if (typeof userOnError === 'function') {
+          userOnError(e);
         }
       }}
     />

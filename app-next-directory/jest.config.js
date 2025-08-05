@@ -25,7 +25,8 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
-    '^@/app/(.*)$': '<rootDir>/app/$1',
+    '^tree-sitter-.*$': '<rootDir>/__mocks__/tree-sitter.js',
+    
     '^@/app/api/listings/route$': '<rootDir>/__mocks__/app/api/listings/route.js',
     '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
     '^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.js',
@@ -46,7 +47,7 @@ module.exports = {
     '/playwright/',
     '\\.playwright\\.test\\.[jt]s$',
     '\\.pw\\.test\\.[jt]s$',
-    'D:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/tests/', // Exclude all Playwright and E2E tests
+    '<rootDir>/tests/', // Exclude all Playwright and E2E tests
     '/__tests__/__mocks__/',
     '\\.(d\\.ts)$',
   ]

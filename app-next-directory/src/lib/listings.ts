@@ -112,7 +112,7 @@ export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
       : undefined,
     primaryImage: raw.primaryImage,
     galleryImages: raw.galleryImages,
-    ecoTags: (raw.ecoFocusTags || []).map((tag: any) => tag.name),
+    ecoTags: Array.isArray(raw.ecoFocusTags) ? raw.ecoFocusTags.map((tag: any) => tag.name) : [],
     priceRange: raw.priceRange,
     contactPhone: raw.contactPhone,
     contactEmail: raw.contactEmail,

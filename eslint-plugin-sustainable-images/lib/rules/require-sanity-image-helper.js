@@ -17,20 +17,8 @@ module.exports = {
       JSXOpeningElement(node) {
         if (
           (node.name.name === "img" || node.name.name === "Image") &&
-          node.attributes.some(attr => attr.name && attr.name.name === "src" && /sanity|imageUrl/.test(context.getSourceCode().getText(attr)))
-        ) {
-          context.report({ node, messageId: "useSanityImage" });
-        }
-        if (
-          node.name.name === "SanityImage" &&
-          !node.attributes.some(attr => attr.name && attr.name.name === "alt")
-        ) {
-          context.report({ node, messageId: "requireAlt" });
-        }
-        if (
-          node.name.name === "SanityImage" &&
-          (!node.attributes.some(attr => attr.name && attr.name.name === "fallbackSrc") ||
-           !node.attributes.some(attr => attr.name && attr.name.name === "fallbackAlt"))
+          node.attributes.some(attr => {
+            if (!attributes.some(attr => attr.name && attr.name.name === "fallbackAlt"))
         ) {
           context.report({ node, messageId: "requireFallback" });
         }

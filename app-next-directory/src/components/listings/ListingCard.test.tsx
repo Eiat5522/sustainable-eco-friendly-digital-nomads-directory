@@ -24,6 +24,18 @@ jest.mock('../../lib/sanity/client', () => ({
 }));
 
 jest.mock('@/lib/sanity/image', () => ({
+  urlFor: jest.fn((source) => {
+    if (!source || !source.asset || !source.asset._ref) {
+      throw new Error('Invalid source');
+    }
+    return {
+      width: jest.fn().mockReturnThis(),
+      height: jest.fn().mockReturnThis(),
+      fit: jest.fn().mockReturnThis(),
+      auto: jest.fn().mockReturnThis(),
+      url: jest.fn(() => `mock-sanity-image-url-${source.asset._ref}`),
+    };
+  }),
   urlFor: jest.fn((source) => ({
     width: jest.fn().mockReturnThis(),
     height: jest.fn().mockReturnThis(),
@@ -90,6 +102,18 @@ describe('ListingCard', () => {
   });
 
   test('handles missing images gracefully', () => {
+  test('handles urlFor errors gracefully', () => {
+    jest.spyOn(require('@/lib/sanity/image'), 'urlFor').mockImplementationOnce(() => {
+      throw new Error('Simulated urlFor error');
+    });
+    const listingWithValidImage: AppListingCard = {
+      ...mockListing,
+      primaryImage: mockListing.primaryImage, // Keep valid image to trigger urlFor
+      galleryImages: [],
+      name: 'Test Listing with urlFor Error',
+    };
+    // …rest of the test…
+  });
     const listingWithoutImage: AppListingCard = {
       ...mockListing,
       primaryImage: undefined,
@@ -219,6 +243,7 @@ describe('ListingCard', () => {
 
   test('getImageUrl handles error in urlFor for primaryImage', () => {
     (urlFor as jest.Mock).mockImplementationOnce(() => {
+      console.log('Simulating error in urlFor mock');
       throw new Error('Test error primaryImage');
     });
     const listingWithErrorPrimaryImage: AppListingCard = {

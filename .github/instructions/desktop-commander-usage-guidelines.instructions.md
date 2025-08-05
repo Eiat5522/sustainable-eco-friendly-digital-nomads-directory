@@ -5,7 +5,6 @@ applyTo: '**'
 
 ➡️ WORKFLOW ESSENTIALS:⬆️
 
-Starting Sequence: At the start of a new session, use `pack_codebase` to start indexing current project's codebase. After successfully `pack_codebase` run `grep_repomix_output` or `read_repomix_output`.
 Exploration: start with `list_directory` on root directory (.) first
 Critical: Run `problem` tool after EVERY set of code changes before completing tasks
 

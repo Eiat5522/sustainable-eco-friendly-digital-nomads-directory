@@ -26,18 +26,18 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
   // Helper to get image URL
   const getImageUrl = () => {
     try {
-      // Use primaryImage from canonical Listing type
-      if (listing.primaryImage?.asset?._ref) {
+      if (listing.primaryImage) {
+        // urlFor may throw, so wrap in try/catch
         return urlFor(listing.primaryImage).width(400).height(300).fit('crop').auto('format').url();
       }
-      if (listing.galleryImages && listing.galleryImages.length > 0 && listing.galleryImages[0].asset?._ref) {
+      if (listing.galleryImages && listing.galleryImages.length > 0) {
         return urlFor(listing.galleryImages[0]).width(400).height(300).fit('crop').auto('format').url();
       }
-    } catch {
-      // fallback to static image
+    } catch (err) {
+      // Fallback to default image if urlFor throws
       return '/test-image.jpg';
     }
-    // fallback to static image
+    // Fallback if no images
     return '/test-image.jpg';
   };
 

@@ -43,6 +43,7 @@
     "resend": "^4.6.0",
     "vscode-variables": "^1.0.1"
   },
+  "jest": "./app-next-directory/jest.config.js",
   "devDependencies": {
   },
   "pnpm": {
