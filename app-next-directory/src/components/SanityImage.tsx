@@ -27,7 +27,9 @@ export function SanityImage({
   const validAlt = alt && alt.trim() ? alt : fallbackAlt;
 
   // Extract onError and fill from rest props
-  const { onError: userOnError, fill, ...imageProps } = rest;  return (
+  const { onError: userOnError, fill, ...imageProps } = rest;
+  
+  return (
     <Image
       src={src || fallbackSrc}
       alt={validAlt}

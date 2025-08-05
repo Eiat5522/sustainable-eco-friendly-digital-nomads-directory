@@ -26,6 +26,12 @@ interface EcoCityItem {
 }
 
 const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
+  useEffect(() => {
+    console.log('[DEBUG] CityCarousel received cities:', cities);
+    cities.forEach(city => {
+      console.log('[DEBUG] City image:', city.image);
+    });
+  }, [cities]);
   const [carouselApi, setCarouselApi] = useState<CarouselApi | undefined>(undefined);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);

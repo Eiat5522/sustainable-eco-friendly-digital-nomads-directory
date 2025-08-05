@@ -46,6 +46,7 @@ export default function HomePage() {
     async function fetchCities() {
       try {
         const citiesResponse = await fetch('/api/cities').then(res => res.json());
+        console.log('[DEBUG] City API response:', citiesResponse);
         setCities(citiesResponse.cities || []);
       } catch (error) {
         console.error('[ERROR] HomePage: Failed to fetch cities:', error);

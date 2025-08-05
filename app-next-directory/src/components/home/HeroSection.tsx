@@ -61,7 +61,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
 
   return (
     <>
-      <section className="relative h-[90vh] min-h-[700px] overflow-hidden">
+      <section className="relative h-[80vh] min-h-[600px] max-h-[800px] overflow-hidden">
         {/* Background image with parallax effect */}
         <div className="absolute inset-0 z-0">
           {/* Ensure parent has position: relative and explicit height for Image fill */}

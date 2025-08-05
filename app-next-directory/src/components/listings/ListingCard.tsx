@@ -38,20 +38,18 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
           .url();
       }
       // 3) No images at all → fallback
-      return '/test-image.jpg';
+      return '/images/test-image.jpg';
     } catch (err) {
       // On any urlFor error, use fallback
-      return '/test-image.jpg';
+      return '/images/test-image.jpg';
     }
   }, [listing.primaryImage, listing.galleryImages]);
 
   const altText = listing.name?.trim() !== '' ? listing.name : 'Unnamed Listing';
 
   return (
-    <Link href={getListingUrl(listing)}>
-      <a className="block border rounded-lg overflow-hidden">
-        <div className="w-full h-48 relative">
-          <Image
+    <Link href={getListingUrl(listing)} className="block border rounded-lg overflow-hidden">
+        <div className="w-full h-48 relative">          <Image
             src={imageUrl}
             alt={altText}
             fill
@@ -77,7 +75,6 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
             {listing.type?.toLowerCase() ?? ''} 
           </span>
         </div>
-      </a>
     </Link>
   );
 }
