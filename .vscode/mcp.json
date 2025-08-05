@@ -24,7 +24,7 @@
         "CHROMA_LOG_DIR":  "${workspaceFolder}/.vscode",
         "LOG_LEVEL": "INFO",
         "MCP_LOG_LEVEL": "INFO"
-      }
-    },
-  }
+             }
+        }
+    }
 }

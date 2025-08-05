@@ -34,7 +34,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -61,7 +61,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
 
   return (
     <>
-      <section className="relative h-[80vh] min-h-[600px] max-h-[800px] overflow-hidden">
+      <section className="relative h-[clamp(60svh, 80vh, 100svh)] overflow-hidden">
         {/* Background image with parallax effect */}
         <div className="absolute inset-0 z-0">
           {/* Ensure parent has position: relative and explicit height for Image fill */}
