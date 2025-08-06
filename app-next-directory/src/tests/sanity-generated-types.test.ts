@@ -58,7 +58,7 @@ describe('Sanity Generated Types', () => {
       expect(mockListing._id).toBe('test-id');
       expect(mockListing._type).toBe('listing');
       expect(mockListing.name).toBe('Test Listing');
-      expect(mockListing.type).toBe('coworking');
+      expect(mockListing._type).toBe('coworking');
       
       // Check optional fields are properly typed
       if (mockListing.location) {
@@ -153,7 +153,7 @@ describe('Sanity Generated Types', () => {
 
   describe('Enum Value Validation', () => {
     it('should enforce proper type enum values', () => {
-      const validCategories: Array<Listing['type']> = [
+      const validCategories: Array<Listing['_type']> = [
         'coworking',
         'cafe', 
         'accommodation',
@@ -163,7 +163,7 @@ describe('Sanity Generated Types', () => {
 
       validCategories.forEach(type => {
         const listing: Partial<Listing> = { type };
-        expect(listing.type).toBe(type);
+        expect(listing._type).toBe(type);
       });
     });
 
@@ -244,7 +244,7 @@ describe('Sanity Generated Types', () => {
           _type: 'reference'
         },
         ecoFocusTags: [
-          { _ref: 'eco-tag-1', _type: 'reference', _key: 'eco-tag-1' }
+          { _ref: 'eco-tag-1', _type: 'reference', _weak: false, _key: 'eco-tag-1' }
         ]
       };
 
@@ -264,21 +264,9 @@ describe('Sanity Generated Types', () => {
         _updatedAt: '2025-01-01T00:00:00Z',
         _rev: 'array-rev',
         digitalNomadFeatures: [
-          {
-            _ref: 'wifi',
-            _type: 'reference',
-            _key: 'wifi'
-          },
-          {
-            _ref: 'power-outlets',
-            _type: 'reference',
-            _key: 'power-outlets'
-          },
-          {
-            _ref: 'quiet-space',
-            _type: 'reference',
-            _key: 'quiet-space'
-          }
+          { _ref: 'wifi', _type: 'reference', _key: 'wifi' },
+          { _ref: 'power-outlets', _type: 'reference', _key: 'power-outlets' },
+          { _ref: 'quiet-space', _type: 'reference', _key: 'quiet-space' }
         ],
         sourceUrls: ['https://example.com', 'https://another.com']
       };

@@ -103,6 +103,7 @@
     "tailwindcss": "^4.1.11",
     "ts-jest": "^29.4.0",
     "typescript": "^5.8.3",
-    "whatwg-fetch": "^3.6.20"
+    "whatwg-fetch": "^3.6.20",
+    "@playwright/test": "^1.45.0"
   }
 }

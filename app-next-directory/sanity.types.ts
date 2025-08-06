@@ -541,25 +541,97 @@ export type EcoTag = {
 }
 
 export type Listing = {
-  _id: string
-  _type: 'listing'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  name?: string
+  _id: string;
+  _type: 'listing';
+  _createdAt: string;
+  _updatedAt: string;
+  _rev: string;
+  name?: string;
+  slug?: Slug;
+  city?: {
+    _ref: string;
+    _type: 'reference';
+    _weak?: boolean;
+    [internalGroqTypeReferenceTo]?: 'city';
+  };
+  type?: string;
+  category?: string;
+  address?: string;
+  location?: Geopoint;
+  primaryImage?: {
+    asset?: {
+      _ref: string;
+      _type: 'reference';
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    caption?: string;
+    _type: 'image';
+  };
+  galleryImages?: Array<{
+    asset?: {
+      _ref: string;
+      _type: 'reference';
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset';
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    alt?: string;
+    caption?: string;
+    _type: 'image';
+    _key: string;
+  }>;
+  ecoFocusTags?: Array<{
+    _ref: string;
+    _type: 'reference';
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: 'ecoTag';
+  }>;
+  priceRange?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  website?: string;
+  shortDescription?: string;
+  longDescription?: Array<any>;
+  reviews?: Array<{
+    _ref: string;
+    _type: 'reference';
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: 'review';
+  }>;
   amenities?: Array<{
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    _key: string
-    [internalGroqTypeReferenceTo]?: 'amenity'
-  }>
-  accommodationDetails?: AccommodationDetails
-  activitiesDetails?: ActivitiesDetails
-  cafeDetails?: CafeDetails
-  coworkingDetails?: CoworkingDetails
-  restaurantDetails?: RestaurantDetails
-}
+    _ref: string;
+    _type: 'reference';
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: 'amenity';
+  }>;
+  coworkingDetails?: CoworkingDetails;
+  accommodationDetails?: AccommodationDetails;
+  cafeDetails?: CafeDetails;
+  restaurantDetails?: RestaurantDetails;
+  activitiesDetails?: ActivitiesDetails;
+  moderation?: {
+    status?: 'pending' | 'approved' | 'rejected';
+    featured?: boolean;
+  };
+  digitalNomadFeatures?: Array<{
+    _ref: string;
+    _type: 'reference';
+    _weak?: boolean;
+    _key: string;
+    [internalGroqTypeReferenceTo]?: 'nomadFeature';
+  }>;
+  sourceUrls?: Array<string>;
+};
 
 export type RestaurantDetails = {
   _type: 'restaurantDetails'
@@ -929,57 +1001,6 @@ export type AllSanitySchemaTypes =
   | Slug
   | SanityAssetSourceData
 export declare const internalGroqTypeReferenceTo: unique symbol
-// Source: ../app-next-directory/src/lib/sanity/data.ts
-// Variable: LISTING_BY_SLUG_QUERY
-// Query: *[_type == "listing" && slug.current == $slug][0]{    _id,    name,    "slug": slug.current,    city->{      _id,      name,      "slug": slug.current,      country    },    type,    category,    address,    location,    primaryImage,    galleryImages,    ecoFocusTags[]->{      _id,      name    },    priceRange,    contactPhone,    contactEmail,    website,    shortDescription,    longDescription,    reviews[]->{      _id,      rating,      comment,      user->{        _id,        name      },      createdAt    },    amenities[]->{      _id,      name,      description,      badge    },    coworkingDetails,    accommodationDetails,    cafeDetails,    restaurantDetails,    activitiesDetails,    moderation  }
-export type LISTING_BY_SLUG_QUERYResult = {
-  _id: string
-  name: string | null
-  slug: null
-  city: null
-  type: null
-  category: null
-  address: null
-  location: null
-  primaryImage: null
-  galleryImages: null
-  ecoFocusTags: null
-  priceRange: null
-  contactPhone: null
-  contactEmail: null
-  website: null
-  shortDescription: null
-  longDescription: null
-  reviews: null
-  amenities: Array<{
-    _id: string
-    name: string | null
-    description: string | null
-    badge: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
-      media?: unknown
-      hotspot?: SanityImageHotspot
-      crop?: SanityImageCrop
-      _type: 'image'
-    } | null
-  }> | null
-  coworkingDetails: CoworkingDetails | null
-  accommodationDetails: AccommodationDetails | null
-  cafeDetails: CafeDetails | null
-  restaurantDetails: RestaurantDetails | null
-  activitiesDetails: ActivitiesDetails | null
-  moderation: null
-} | null
 
-// Query TypeMap
-import '@sanity/client'
-declare module '@sanity/client' {
-  interface SanityQueries {
-    '\n  *[_type == "listing" && slug.current == $slug][0]{\n    _id,\n    name,\n    "slug": slug.current,\n    city->{\n      _id,\n      name,\n      "slug": slug.current,\n      country\n    },\n    type,\n    category,\n    address,\n    location,\n    primaryImage,\n    galleryImages,\n    ecoFocusTags[]->{\n      _id,\n      name\n    },\n    priceRange,\n    contactPhone,\n    contactEmail,\n    website,\n    shortDescription,\n    longDescription,\n    reviews[]->{\n      _id,\n      rating,\n      comment,\n      user->{\n        _id,\n        name\n      },\n      createdAt\n    },\n    amenities[]->{\n      _id,\n      name,\n      description,\n      badge\n    },\n    coworkingDetails,\n    accommodationDetails,\n    cafeDetails,\n    restaurantDetails,\n    activitiesDetails,\n    moderation\n  }\n': LISTING_BY_SLUG_QUERYResult
-  }
-}
+
+

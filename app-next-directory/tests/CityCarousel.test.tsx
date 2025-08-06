@@ -8,14 +8,14 @@ describe('EcoCityCarousel', () => {
       name: 'Eco City 1',
       sustainabilityScore: 85,
       highlights: ['Green Energy', 'Low Emissions'],
-      image: 'https://via.placeholder.com/150',
+      image: { asset: { url: 'https://via.placeholder.com/150' } },
     },
     {
       _id: '2',
       name: 'Eco City 2',
       sustainabilityScore: 90,
       highlights: ['Recycling Programs', 'Bike Lanes'],
-      image: 'https://via.placeholder.com/150',
+      image: { asset: { url: 'https://via.placeholder.com/150' } },
     },
   ];
 

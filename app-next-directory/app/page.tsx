@@ -9,9 +9,12 @@ import StatisticsSection from '@/components/home/StatisticsSection';
 import CTASection from '@/components/home/CTASection';
 import SustainableNomadTestimonials from '@/components/ui/sustainable-nomad-testimonials';
 
+import type { EcoCityItem } from '@/components/cities/CityCarousel';
+import type { SanityImage as SanityImageType } from '@/types/appView';
+
 export default function HomePage() {
   const [listings, setListings] = useState([]);
-  const [cities, setCities] = useState([]);
+  const [cities, setCities] = useState<EcoCityItem[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -45,13 +48,48 @@ export default function HomePage() {
     }
     async function fetchCities() {
       try {
-        const citiesResponse = await fetch('/api/cities').then(res => res.json());
+        const citiesResponse: CitiesApiResponse = await fetch('/api/cities').then(res => res.json());
         console.log('[DEBUG] City API response:', citiesResponse);
-        setCities(citiesResponse.cities || []);
+        const mappedCities: EcoCityItem[] = (citiesResponse.cities || []).map((city: RawCity) => ({
+          _id: city._id,
+          name: city.name,
+          sustainabilityScore: city.sustainabilityScore,
+          highlights: city.highlights || [],
+          image: city.image, // This should now be a SanityImage object from the API
+        }));
+        setCities(mappedCities);
       } catch (error) {
         console.error('[ERROR] HomePage: Failed to fetch cities:', error);
       }
     }
+
+interface CitiesApiResponse {
+  cities: RawCity[];
+  success: boolean;
+  metadata: any;
+}
+
+interface RawCity {
+  _id: string;
+  name: string;
+  slug: string;
+  country: string;
+  sustainabilityScore: number;
+  highlights: string[];
+  image: {
+    alt?: string;
+    _type: 'image';
+    asset?: {
+      _id?: string;
+      _ref?: string;
+      url?: string;
+      metadata?: {
+        dimensions?: any;
+        lqip?: string;
+      };
+    };
+  };
+}
     fetchData();
     fetchCities();
   }, []);

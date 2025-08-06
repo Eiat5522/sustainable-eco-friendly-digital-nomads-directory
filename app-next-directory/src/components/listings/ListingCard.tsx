@@ -36,9 +36,9 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
           .auto('format')
           .url();
       }
-      return '/test-image.jpg';
+      return '/images/test-image.jpg';
     } catch (err) {
-      return '/test-image.jpg';
+      return '/images/test-image.jpg';
     }
   }, [listing.primaryImage, listing.galleryImages]);
 
@@ -52,7 +52,7 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
           alt={altText}
           fill
           className="object-cover"
-          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = '/test-image.jpg'; }}
+          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = '/images/test-image.jpg'; }}
           {...(isTestEnv && {
             'data-testid': 'image-mock',
             'data-src': imageUrl,

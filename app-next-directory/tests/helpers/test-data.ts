@@ -53,11 +53,20 @@ export const mockListings: Listing[] = [
     name: 'Bamboo Eco Café',
     slug: { _type: 'slug', current: 'bamboo-eco-cafe' },
     shortDescription: 'Eco-conscious café serving local organic produce and using eco-friendly practices',
-    longDescription: 'A spacious, eco-friendly café in Chiang Mai focused on sustainability, offering organic food and a welcoming atmosphere for digital nomads.',
+    longDescription: [],
     type: 'cafe',
     address: '456 Bamboo Lane, Chiang Mai',
     ecoFocusTags: [],
     sourceUrls: ['https://bambooecocafe.example.com'],
+    location: {
+      _type: 'geopoint',
+      lat: 18.7883,
+      lng: 98.9853
+    },
+    moderation: {
+      status: 'approved',
+      featured: true,
+    },
     primaryImage: { 
       _type: 'image',
       asset: { 

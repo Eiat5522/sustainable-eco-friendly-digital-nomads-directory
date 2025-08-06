@@ -1,18 +1,65 @@
 # Agents
 
-## Project-specific Notes
+## Project Overview
 
-- **Tech stack:** Next.js 14+ (App Router), Tailwind CSS, Sanity, MongoDB Atlas, Leaflet.js, Vercel, NextAuth.js.
-- **Monorepo structure:**
-  - `app-next-directory/` – Next.js app
-  - `sanity/` – Sanity Studio
-- **Start scripts:**
-  - Next.js: `pnpm --filter ./app-next-directory dev`
-  - Sanity: `pnpm --filter ./sanity dev`
+- Monorepo for eco-friendly digital nomad venues/services.
+- Major apps: `app-next-directory` (Next.js frontend), `sanity` (Sanity CMS).
+- Data: MongoDB Atlas, Sanity schemas, DTOs for type safety.
 
-- **Security:** Use exact versions for critical packages, regular `pnpm audit`, and keep Next.js updated.
-- **Testing:** Use Playwright for E2E, Jest for unit & integration tests.
-- **Content editing:** Sanity Studio is used for CMS, with role-based access.
+## Architecture & Data Flow
+
+- Next.js 15+ frontend (`app-next-directory/`): TypeScript, Tailwind CSS, Framer Motion, Radix UI.
+- Sanity Studio (`sanity/`): Content management, schema-driven, codegen for TypeScript types.
+- DTOs: Defined in `app-next-directory/src/types/appView.ts`, always align with generated Sanity types.
+- Listings, user/auth, and admin features use strict RBAC (NextAuth.js).
+
+## Developer Workflows
+
+- Use `pnpm` for all workspace scripts (see `WORKSPACE_SETUP.md`):
+  - `pnpm --filter ./app-next-directory dev` – Next.js dev server
+  - `pnpm --filter ./sanity dev` – Sanity Studio dev server
+  - `pnpm run codegen:sanity` – Regenerate TypeScript types after schema changes
+  - `pnpm exec jest` – Run unit tests
+  - `pnpm test` – Run Playwright E2E tests
+- Store secrets in Vercel/Cloudflare env vars (never in code).
+- Use `.npmrc` for workspace config; see root for settings.
+
+## Patterns & Conventions
+
+- API routes: REST-like, under `app-next-directory/src/app/api/*`, strict JSON envelopes.
+- DTOs: All data passed between frontend/backend must use DTOs.
+- Sanity images: Use helper in `src/components/SanityImage.tsx` for safe rendering, fallback, and accessibility.
+- Testing: Playwright for E2E, Jest for unit, Zod for validation.
+- All code must pass lint/type checks before PR merge (see CI config).
+
+## Integration Points
+
+- NextAuth.js for authentication and RBAC.
+- Leaflet.js for interactive maps.
+- Sanity codegen for schema/type alignment.
+- Vercel for deployment (auto on merge to `main`).
+
+## Examples
+
+- See `app-next-directory/README.md` for frontend setup.
+- See `sanity/README.md` for CMS setup.
+- See `docs/API_DOCUMENTATION.md` for endpoint specs.
+
+## Key Files/Directories
+
+- `app-next-directory/src/types/appView.ts` – DTO definitions
+- `app-next-directory/src/components/SanityImage.tsx` – Sanity image rendering
+- `sanity/sanity.config.ts` – Sanity Studio config
+- `docs/` – All project documentation
+- `memory-bank/` – Context/session files
+
+## Code Review Checklist
+
+- All images use safe rendering helper.
+- API routes follow strict structure.
+- DTOs match Sanity types.
+- No secrets in code.
+- All new code covered by tests.
 
 ---
 

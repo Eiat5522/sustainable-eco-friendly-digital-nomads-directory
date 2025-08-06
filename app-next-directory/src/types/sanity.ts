@@ -10,98 +10,6 @@ export interface SanityDocument {
   _rev: string;
 }
 
-// Image asset interface
-export interface SanityImage {
-  _type: 'image';
-  asset: {
-    _ref: string;
-    _type: 'reference';
-    url?: string;
-  };
-  alt?: string;
-}
-
-// Interface for listings from Sanity
-export interface SanityListing extends SanityDocument {
-  _type: 'listing';
-  name: string;
-  slug: string | { current: string }; // Updated to allow slug as string or object with current property
-  shortDescription?: string;
-  longDescription?: string;
-  type
-  
-  
-  
-  
-  ?: ListingCategory;
-  // Use canonical City type from sanity.types.ts
-  city?: import('../../../sanity/sanity.types').City;
-  mainImage?: SanityImage;
-  galleryImages?: SanityImage[];
-  ecoTags?: Array<{
-    _id: string;
-    name: string;
-    slug?: { current?: string };
-    description?: string;
-    listingCount?: number;
-  }>;
-  digitalNomadFeatures?: string[]; // Array of strings
-  lastVerifiedDate?: string;
-  sourceUrls?: string[];
-  reviews?: number; // Count of reviews
-
-  // Optional fields (can be present in full document, but not always in partials like cards)
-  address?: string;
-  website?: string;
-  contactInfo?: string;
-  operatingHours?: string; // This might be structured
-  price?: number; // Added for compatibility with ListingCard and tests
-  priceIndication?: string;
-
-  // Fields that were in listingFields previously, but removed for card view.
-  // Still useful for a "full" SanityListing type.
-  rating?: number;
-  priceRange?: string;
-
-  // Category specific details (optional)
-  coworkingDetails?: {
-    operatingHours?: string; // Keep optional if not always present
-    pricingPlans?: Array<{
-      type: string;
-      price: number;
-      period: string;
-    }>;
-    specificAmenities?: string[];
-  };
-  cafeDetails?: {
-    operatingHours?: string; // Keep optional if not always present
-    priceIndication?: string;
-    menuHighlights?: string[];
-    wifiReliabilityNotes?: string;
-  };
-  accommodationDetails?: {
-    accommodationType?: string;
-    pricePerNightRange?: { // Keep optional if not always present
-      min?: number; // Make sub-fields optional too
-      max?: number;
-    };
-    roomTypesAvailable?: string[];
-    specificAmenities?: string[];
-  };
-
-  // Contact information
-  contactPhone?: string;
-  contactEmail?: string;
-  socialLinks?: {
-    facebook?: string;
-    twitter?: string;
-    instagram?: string;
-    linkedin?: string;
-    youtube?: string;
-  };
-}
-// ...existing code...
-
 export interface Amenity {
   _id: string;
   name: string;
@@ -112,10 +20,3 @@ export interface Amenity {
     };
   };
 }
-
-export interface SanityListing extends SanityDocument {
-  // ...existing fields...
-  amenities?: Amenity[];
-  // ...existing fields...
-}
-// ...existing code...

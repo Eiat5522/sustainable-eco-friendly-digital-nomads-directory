@@ -1,6 +1,6 @@
 import { ListingCard } from '@/components/listings/ListingCard';
 import { AppListingCard } from '@/types/appView';
-import { SanityListing } from '@/types/sanity';
+import { Listing as SanityListing } from '../../../sanity.types';
 
 interface FeaturedListingsProps {
   listings: SanityListing[];
@@ -17,7 +17,7 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
 
   const featuredListings: AppListingCard[] = listings.map(listing => ({
     id: (listing as any)._id || (listing as any).id,
-    name: listing.name,
+    name: listing.name || '',
     slug: (listing as any).slug?.current || (listing as any).slug,
     city: (listing as any).city ? {
       id: (listing as any).city.id,
@@ -28,7 +28,7 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
     ecoTags: (listing as any).ecoFocusTags || [],
     priceRange: (listing as any).priceRange,
     website: (listing as any).website,
-    primaryImage: (listing as any).mainImage,
+    primaryImage: listing.primaryImage,
     galleryImages: (listing as any).galleryImages,
     shortDescription: (listing as any).shortDescription,
     longDescription: (listing as any).longDescription,

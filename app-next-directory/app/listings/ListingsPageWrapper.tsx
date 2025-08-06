@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { type Listing } from '@/types/listings';
-import { type SanityListing } from '@/types/sanity';
+import { Listing as SanityListing } from '../../sanity.types';
 import ListingsPage from './ListingsPage';
 
 export default function ListingsPageWrapper() {

@@ -2,7 +2,7 @@ import FeaturedListings from '@/components/listings/FeaturedListings';
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { type Listing } from '@/types/listings';
-import { type SanityListing } from '@/types/sanity';
+import { type Listing as SanityListing } from '../../sanity.types';
 import { AppListingCard } from '@/types/appView';
 
 interface ListingsPageProps {
@@ -37,7 +37,7 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
 
   const featuredListings: AppListingCard[] = initialListings.map(listing => ({
     id: (listing as any)._id || (listing as any).id,
-    name: listing.name,
+    name: listing.name || '',
     slug: (listing as any).slug?.current || (listing as any).slug,
     city: (listing as any).city ? {
       id: (listing as any).city.id,

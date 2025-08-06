@@ -1,5 +1,21 @@
 export type AppCity = { id: string; name: string; slug: string; country?: string };
 
+export type SanityImage = {
+  _type?: 'image';
+  _ref?: string;
+  alt?: string;
+  asset?: {
+      _id?: string;
+      _ref?: string;
+      _type?: 'reference';
+      url?: string;
+      metadata?: {
+        dimensions?: any;
+        lqip?: string;
+      };
+    };
+};
+
 export type AppListingCard = {
   id: string;
   name: string;
@@ -9,8 +25,8 @@ export type AppListingCard = {
   priceRange?: 'budget' | 'moderate' | 'premium';
   website?: string | null;
   imageUrl?: string | null;
-  primaryImage?: any;
-  galleryImages?: any[];
+  primaryImage?: SanityImage;
+  galleryImages?: SanityImage[];
   type?: string;
   shortDescription?: string;
   address?: string;

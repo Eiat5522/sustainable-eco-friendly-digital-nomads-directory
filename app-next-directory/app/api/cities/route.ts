@@ -18,12 +18,13 @@ export async function GET() {
   try {
     const CITIES_QUERY = groq`*[_type == "city"] | order(_createdAt desc)[0...20] {
       _id,
-      title,
+      name,
       "slug": slug.current,
       country,
       sustainabilityScore,
-      "mainImage": mainImage {
+      "image": mainImage {
         alt,
+        _type,
         "asset": asset->{
           _id,
           url,
@@ -37,41 +38,30 @@ export async function GET() {
 
     console.log('[DEBUG] Cities API: Executing GROQ query');
     const queryStartTime = performance.now();
-    
-    const cities = await client.fetch(CITIES_QUERY);
-    
+    const cities = await client.fetch<RawCity[]>(CITIES_QUERY);
     const queryEndTime = performance.now();
-    console.log('[DEBUG] Cities API: GROQ query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');
-    console.log('[DEBUG] Cities API: Found', cities.length, 'cities');
-      // Log data structure for first city if available
-    if (cities.length > 0) {
-      console.log('[DEBUG] Cities API: Sample city structure:', {
-        hasId: !!cities[0]._id,
-        hasTitle: !!cities[0].title,
-        hasSlug: !!cities[0].slug,
-        hasCountry: !!cities[0].country,
-        hasMainImage: !!cities[0].mainImage,
-        hasSustainabilityScore: !!cities[0].sustainabilityScore
-      });
-      
-      // Log all city slugs for debugging
-      console.log('[DEBUG] Cities API: Available city slugs:');
-      cities.forEach((city: { title: string; slug: string }, index: number) => {
-        console.log(`${index + 1}. ${city.title} -> slug: "${city.slug}"`);
-      });
-    }
+
+    const dtoListCities = cities.map(city => ({
+      _id: city._id,
+      name: city.name,
+      slug: city.slug,
+      country: city.country,
+      sustainabilityScore: city.sustainabilityScore,
+      highlights: city.highlights || [],
+      image: city.image || { _type: 'image', asset: { _ref: '' } },
+    }));
 
     const endTime = performance.now();
     console.log('[DEBUG] Cities API: Total request time', (endTime - startTime).toFixed(2), 'ms');
 
     return NextResponse.json({
-      cities,
+      cities: dtoListCities,
       success: true,
       metadata: {
-        total: cities.length,
+        total: dtoListCities.length,
         query_time: new Date().toISOString(),
         performance: {
-        totalTimeMs: (endTime - startTime).toFixed(2),
+          totalTimeMs: (endTime - startTime).toFixed(2),
           queryTimeMs: (queryEndTime - queryStartTime).toFixed(2)
         }
       }
@@ -90,4 +80,27 @@ export async function GET() {
       }
     }, { status: 500 });
   }
+}
+
+interface RawCity {
+  _id: string;
+  name: string;
+  slug: string;
+  country: string;
+  sustainabilityScore: number;
+  highlights: string[];
+  image: {
+    alt?: string;
+    _type: 'image';
+    asset?: {
+      _id?: string;
+      _ref?: string;
+      _type?: 'reference';
+      url?: string;
+      metadata?: {
+        dimensions?: any;
+        lqip?: string;
+      };
+    };
+  };
 }

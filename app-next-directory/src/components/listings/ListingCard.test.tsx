@@ -57,7 +57,6 @@ describe('ListingCard', () => {
       asset: {
         _ref: 'sanity-image-id',
         _type: 'reference',
-        _weak: false,
       },
     },
     galleryImages: [],
@@ -106,7 +105,7 @@ describe('ListingCard', () => {
     // Check for placeholder or fallback image if implemented
     expect(screen.getByText('Unnamed Listing')).toBeInTheDocument();
     const image = screen.getByTestId('image-mock');
-    expect(image).toHaveAttribute('data-src', '/test-image.jpg');
+    expect(image).toHaveAttribute('data-src', '/images/test-image.jpg');
     expect(image).toHaveAttribute('data-alt', 'Unnamed Listing');
   });
 
@@ -122,7 +121,7 @@ describe('ListingCard', () => {
     };
     render(<ListingCard listing={listingWithValidImage} />);
     const image = screen.getByTestId('image-mock');
-    expect(image).toHaveAttribute('data-src', '/test-image.jpg');
+    expect(image).toHaveAttribute('data-src', '/images/test-image.jpg');
     expect(image).toHaveAttribute('data-alt', 'Test Listing with urlFor Error');
   });
 
@@ -216,8 +215,7 @@ describe('ListingCard', () => {
         _key: 'gallery-1',
         asset: { 
           _ref: 'sanity-gallery-image-id', 
-          _type: 'reference',
-          _weak: false
+          _type: 'reference'
         },
         alt: 'Gallery image'
       }]
@@ -237,7 +235,7 @@ describe('ListingCard', () => {
     render(<ListingCard listing={listingWithoutAnyImage} />);
     const image = screen.getByTestId('image-mock');
     expect(image).toBeInTheDocument();
-    expect(image).toHaveAttribute('data-src', '/test-image.jpg');
+    expect(image).toHaveAttribute('data-src', '/images/test-image.jpg');
   });
 
   test('image URL is fallback if urlFor throws for primaryImage', () => {
@@ -251,7 +249,6 @@ describe('ListingCard', () => {
         asset: { 
           _ref: 'error-image-id', 
           _type: 'reference',
-          _weak: false
         },
         alt: 'Error image'
       },
@@ -259,6 +256,6 @@ describe('ListingCard', () => {
     };
     render(<ListingCard listing={listingWithErrorPrimaryImage} />);
     const image = screen.getByTestId('image-mock');
-    expect(image).toHaveAttribute('data-src', '/test-image.jpg'); // Fallback
+    expect(image).toHaveAttribute('data-src', '/images/test-image.jpg'); // Fallback
   });
 });

@@ -6,7 +6,7 @@ import { urlFor } from '@/lib/sanity/image';
 import { PortableText } from '@portabletext/react';
 import { MapContainer } from '@/components/map';
 import { AppListingDetail, AppCity, AppReview } from '@/types/appView';
-import { SanityImage } from '@/types/sanity';
+import { SanityImage } from '@/types/appView';
 import { Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { Lightbox } from '@/components/common/Lightbox';
@@ -22,7 +22,7 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Fallback image path for when images fail to load or are unavailable
-  const FALLBACK_IMAGE_PATH = '/test-image.jpg';
+  const FALLBACK_IMAGE_PATH = '/images/test-image.jpg';
 
   // Build gallery images with explicit alt text for testing
   const images = (listing.galleryImages || []).map((img: SanityImage, idx: number) => {
@@ -106,7 +106,7 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
                     'data-src': images[0].src,
                     'data-alt': images[0].alt,
                   })}
-                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = '/test-image.jpg'; }}
+                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = '/images/test-image.jpg'; }}
                   sizes="(max-width: 768px) 100vw, 66vw"
                 />
                 {images.length > 1 && (
@@ -135,7 +135,7 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
                     alt={img.alt}
                     fill
                     className="object-cover"
-                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = '/test-image.jpg'; }}
+                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = '/images/test-image.jpg'; }}
                     loading="lazy"
                     sizes="(max-width: 768px) 50vw, 33vw"
                   />

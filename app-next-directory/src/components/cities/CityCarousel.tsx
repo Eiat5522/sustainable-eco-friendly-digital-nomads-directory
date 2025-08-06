@@ -17,12 +17,14 @@ import { Card } from "@/components/ui/card";
 import SanityImage from "@/components/SanityImage";
 import Image from "next/image";
 
-interface EcoCityItem {
+import type { SanityImage as SanityImageType } from "@/types/appView";
+
+export interface EcoCityItem {
   _id: string;
   name: string;
   sustainabilityScore: number;
   highlights: string[];
-  image: string;
+    image: any;
 }
 
 const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
@@ -103,7 +105,7 @@ const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
         >
           <CarouselContent className="ml-0 2xl:ml-[max(8rem,calc(50vw-700px))] 2xl:mr-[max(0rem,calc(50vw-700px))]">
             {cities.map((city) => {
-              const imageSrc = city.image || '/images/fallback.png';
+              const imageSrc = city.image?.asset?.url || '/images/fallback.png';
               return (
                 <CarouselItem
                   key={city._id}
@@ -111,8 +113,8 @@ const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
                 >
                   <Card className="overflow-hidden border-0 shadow-lg">
                     <div className="group relative h-[27rem] max-w-full overflow-hidden rounded-xl">
-<SanityImage
-                        image={imageSrc}
+                      <SanityImage
+                        image={city.image}
                         alt={city.name || 'Image unavailable'}
                         fill
                         sizes="(max-width: 768px) 100vw, 360px"
