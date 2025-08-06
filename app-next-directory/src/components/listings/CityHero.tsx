@@ -21,11 +21,13 @@ export function CityHero({
   listingsCount,
   className,
 }: CityHeroProps) {
+  const isTestEnv = process.env.NODE_ENV === 'test';
   return (
     <div className={cn("relative w-full min-h-[400px] md:min-h-[500px]", className)}>
       {/* Background Image */}
       <div className="absolute inset-0">
         const isTestEnv = process.env.NODE_ENV === 'test';
+const isTestEnv = process.env.NODE_ENV === 'test';
 <Image
           src={imageUrl}
           alt={name}

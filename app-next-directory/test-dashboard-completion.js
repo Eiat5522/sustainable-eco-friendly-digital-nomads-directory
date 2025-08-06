@@ -5,7 +5,13 @@
  * 1. Complete favorites system
  * 2. User preference management
  * 3. User analytics implementation
+ * 
+ * @fileoverview Node.js script for testing dashboard completion
+ * @env node
  */
+
+/* eslint-env node */
+/* global require, __dirname, console, module */
 
 const fs = require('fs');
 const path = require('path');
@@ -64,11 +70,6 @@ requiredModels.forEach(model => {
     }
   } catch (err) {
     console.log(`  ⚠️  ${model} - UNSAFE PATH`);
-    modelsExist = false;
-  }
-    console.log(`  ✅ ${model} - EXISTS`);
-  } else {
-    console.log(`  ❌ ${model} - MISSING`);
     modelsExist = false;
   }
 });
@@ -167,6 +168,9 @@ try {
       console.log(`  ❌ ${feature} - MISSING`);
     }
   });
+  } catch (error) {
+    console.log('  ❌ Could not analyze dashboard structure');
+  }
 } catch (error) {
   console.log('  ❌ Could not analyze dashboard structure');
 }

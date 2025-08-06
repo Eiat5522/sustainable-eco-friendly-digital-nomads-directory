@@ -11,6 +11,7 @@ import CityStats from './CityStats';
 
 interface CityPageProps { slug: string }
 const CityPage: React.FC<CityPageProps> = ({ slug }) => {
+  const isTestEnv = process.env.NODE_ENV === 'test';
   const [city, setCity] = useState<City | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -49,12 +50,6 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-2">{city.name}</h1>
-<div className="mb-4">
-  {city.mainImage && typeof city.mainImage === 'object' && city.mainImage.asset && city.mainImage.asset._ref ? (
-    // You may want to use a Sanity image URL builder here
-    <img src={''} alt={city.name} className="rounded-lg shadow w-full h-64 object-cover" />
-  ) : null}
-</div>
       <p className="text-gray-600 mb-6">{city.country}</p>
 
       {/* Main Image Only (no gallery) */}

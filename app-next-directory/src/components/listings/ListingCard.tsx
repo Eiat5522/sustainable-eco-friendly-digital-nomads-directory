@@ -17,6 +17,7 @@ const getListingUrl = (listing: AppListingCard) => {
 };
 
 export function ListingCard({ listing, searchQuery }: ListingCardProps) {
+  const isTestEnv = process.env.NODE_ENV === 'test';
   const imageUrl = useMemo(() => {
     try {
       if (listing.primaryImage?.asset?._ref) {
@@ -51,12 +52,12 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
           alt={altText}
           fill
           className="object-cover"
-          data-testid="image-mock"
-          data-src={imageUrl}
-          data-alt={altText}
-          onError={(e) => { (e.target as HTMLImageElement).src = '/test-image.jpg'; }}
-          priority={false}
-          loading="lazy"
+          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = '/test-image.jpg'; }}
+          {...(isTestEnv && {
+            'data-testid': 'image-mock',
+            'data-src': imageUrl,
+            'data-alt': altText,
+          })}
         />
       </div>
         <div className="p-4">

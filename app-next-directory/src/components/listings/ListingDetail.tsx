@@ -16,8 +16,12 @@ interface ListingDetailProps {
 }
 
 export default function ListingDetail({ listing }: ListingDetailProps) {
+  const isTestEnv = process.env.NODE_ENV === 'test';
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Fallback image path for when images fail to load or are unavailable
+  const FALLBACK_IMAGE_PATH = '/test-image.jpg';
 
   // Build gallery images with explicit alt text for testing
   const images = (listing.galleryImages || []).map((img: any, idx: number) => {
@@ -29,7 +33,7 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
         };
       }
     } catch {}
-    return { src: '/test-image.jpg', alt: `Gallery image ${idx + 1}` };
+    return { src: FALLBACK_IMAGE_PATH, alt: `Gallery image ${idx + 1}` };
   }).filter(Boolean);
 
   if (listing.primaryImage && listing.primaryImage.asset?._ref) {
@@ -38,7 +42,7 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
       alt: listing.primaryImage.alt || listing.name,
     });
   } else {
-    images.unshift({ src: '/test-image.jpg', alt: listing.name });
+    images.unshift({ src: FALLBACK_IMAGE_PATH, alt: listing.name });
   }
 
   const handleImageClick = (index: number) => {

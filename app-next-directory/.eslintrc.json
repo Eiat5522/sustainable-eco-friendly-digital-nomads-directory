@@ -10,6 +10,22 @@
       {
       "@typescript-eslint/no-use-before-define": "off"
       }
+    },
+    {
+      "files": ["*.js"],
+      "env": {
+        "node": true
+      },
+      "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "script"
+      },
+      "globals": {
+        "require": "readonly",
+        "__dirname": "readonly",
+        "console": "readonly",
+        "module": "readonly"
+      }
     }
   ],
   "plugins": [

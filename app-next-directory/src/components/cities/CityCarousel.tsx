@@ -26,6 +26,7 @@ interface EcoCityItem {
 }
 
 const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
+  const isTestEnv = process.env.NODE_ENV === 'test';
   useEffect(() => {
     console.log('[DEBUG] CityCarousel received cities:', cities);
     cities.forEach(city => {
@@ -110,7 +111,6 @@ const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
                 >
                   <Card className="overflow-hidden border-0 shadow-lg">
                     <div className="group relative h-[27rem] max-w-full overflow-hidden rounded-xl">
-                      const isTestEnv = process.env.NODE_ENV === 'test';
 <SanityImage
                         image={imageSrc}
                         alt={city.name || 'Image unavailable'}
