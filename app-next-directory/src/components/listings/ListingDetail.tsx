@@ -6,6 +6,7 @@ import { urlFor } from '@/lib/sanity/image';
 import { PortableText } from '@portabletext/react';
 import { MapContainer } from '@/components/map';
 import { AppListingDetail, AppCity, AppReview } from '@/types/appView';
+import { SanityImage } from '@/types/sanity';
 import { Star } from 'lucide-react';
 import { format } from 'date-fns';
 import { Lightbox } from '@/components/common/Lightbox';
@@ -24,7 +25,7 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
   const FALLBACK_IMAGE_PATH = '/test-image.jpg';
 
   // Build gallery images with explicit alt text for testing
-  const images = (listing.galleryImages || []).map((img: any, idx: number) => {
+  const images = (listing.galleryImages || []).map((img: SanityImage, idx: number) => {
     try {
       if (img?.asset?._ref) {
         return {

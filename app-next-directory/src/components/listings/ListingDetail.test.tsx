@@ -13,6 +13,13 @@ jest.mock('../../lib/sanity/image', () => ({
     }))
   })),
   urlFor: jest.fn(() => ({
+    width: jest.fn(() => ({
+      height: jest.fn(() => ({
+        auto: jest.fn(() => ({
+          url: jest.fn(() => 'http://localhost/mock-image.jpg')
+        }))
+      }))
+    })),
     url: jest.fn(() => 'http://localhost/mock-image.jpg')
   }))
 }));
