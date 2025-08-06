@@ -62,7 +62,6 @@
     "cross-fetch": "^4.1.0",
     "eslint": "^9.29.0",
     "eslint-config-next": "^15.3.4",
-    "jest": "^30.0.4",
     "jest-mock-extended": "^4.0.0",
     "ts-jest": "^29.4.0",
     "whatwg-fetch": "^3.6.20",

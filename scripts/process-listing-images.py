@@ -37,7 +37,7 @@ class ImageProcessor:
 
     def generate_image_hash(self, url):
         """Generate a unique hash for the image URL"""
-        return hashlib.md5(url.encode()).hexdigest()
+        return hashlib.sha256(url.encode()).hexdigest()
 
     def download_image(self, url, listing_id):
         """Download image from URL to temporary directory"""

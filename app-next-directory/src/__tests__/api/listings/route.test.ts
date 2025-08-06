@@ -88,4 +88,197 @@ describe('Listings API', () => {
     expect(response.status).toBe(500);
     expect(data.error).toBe('Internal Server Error');
   });
+
+  it('should reject POST if user is not premium', async () => {
+    jest.resetModules();
+    jest.doMock('../../../../src/utils/auth-helpers', () => ({
+      requireAuth: async () => ({
+        user: {
+          id: 'test-user-id',
+          plan: 'free',
+          role: 'user',
+        },
+      }),
+    }));
+    const { POST } = require('../../../../app/api/listings/route');
+    const { req } = createMocks({
+      method: 'POST',
+      json: {
+        title: 'Test Listing',
+        slug: 'test-listing',
+        category: 'coworking',
+        description: 'A valid description',
+        location: 'Bangkok, Thailand',
+      },
+      url: 'http://localhost/api/listings',
+    });
+    const response = await runHandler(POST, req);
+    expect(response.status).toBe(403);
+
+    // Restore original mock
+    jest.resetModules();
+    jest.unmock('../../../../src/utils/auth-helpers');
+  });
+  it('should return 400 for invalid pagination params', async () => {
+    const { req } = createMocks({
+      method: 'GET',
+      url: 'http://localhost/api/listings?page=0&limit=0',
+      json: undefined,
+    });
+    const response = await runHandler(GET, req);
+    expect(response.status).toBe(400);
+  });
+
+  it('should return 400 for malformed request', async () => {
+    const response = await runHandler(GET, {});
+    expect(response.status).toBe(400);
+  });
+
+  it('should return 400 for invalid listing data', async () => {
+    const { req } = createMocks({
+      method: 'POST',
+      json: {
+        title: 'Te', // too short
+        slug: 'invalid slug!', // not url-friendly
+        category: '',
+        description: 'short',
+        location: '',
+      },
+      url: 'http://localhost/api/listings',
+    });
+    const response = await runHandler(POST, req);
+    expect(response.status).toBe(400);
+    const data = await response.json();
+    expect(data.error).toBe('Invalid listing data');
+    expect(Array.isArray(data.details)).toBe(true);
+    expect(data.details.length).toBeGreaterThan(0);
+  });
+
+  it('should return 400 for missing request body', async () => {
+    const { req } = createMocks({
+      method: 'POST',
+      json: undefined,
+      url: 'http://localhost/api/listings',
+    });
+    const response = await runHandler(POST, req);
+    expect(response.status).toBe(400);
+  });
+
+  it('should return 405 for unsupported method', async () => {
+    const { UNSUPPORTED } = require('../../../../app/api/listings/route');
+    const response = await runHandler(UNSUPPORTED, {});
+    expect(response.status).toBe(405);
+  });
+});
+
+// --- Additional Coverage Tests ---
+
+describe('Listings API - Edge Cases', () => {
+  // Mock dependencies for error branches
+  const mockApiResponseHandler = {
+    error: jest.fn((msg, status = 500, details) => ({
+      status,
+      json: async () => ({ error: msg, details }),
+    })),
+    forbidden: jest.fn(() => ({ status: 403, json: async () => ({ error: 'Forbidden' }) })),
+    success: jest.fn((data, message) => ({
+      status: 200,
+      json: async () => ({ data, message }),
+    })),
+  };
+
+  const mockHandleAuthError = jest.fn(() => ({ status: 401, json: async () => ({ error: 'Auth error' }) }));
+
+  const validUser = { user: { id: 'id', plan: 'premium' } };
+
+  it('should return error if listings collection is unavailable (GET)', async () => {
+    const handler = require('../../../../app/api/listings/route').createListingsHandlers({
+      ApiResponseHandler: mockApiResponseHandler,
+      handleAuthError: mockHandleAuthError,
+      requireAuth: async () => validUser,
+      getCollection: async () => undefined,
+    }).GET;
+    const req = { url: 'http://localhost/api/listings?page=1&limit=10', json: undefined };
+    const resp = await handler(req);
+    expect(resp.status).toBe(500);
+  });
+
+  it('should return error if listings collection is unavailable (POST)', async () => {
+    const handler = require('../../../../app/api/listings/route').createListingsHandlers({
+      ApiResponseHandler: mockApiResponseHandler,
+      handleAuthError: mockHandleAuthError,
+      requireAuth: async () => validUser,
+      getCollection: async () => undefined,
+    }).POST;
+    const req = { json: async () => ({ title: 'Test', slug: 'test', category: 'cat', description: 'descdescdesc', location: 'loc' }) };
+    const resp = await handler(req);
+    expect(resp.status).toBe(500);
+  });
+
+  it('should return error for duplicate slug', async () => {
+    const handler = require('../../../../app/api/listings/route').createListingsHandlers({
+      ApiResponseHandler: mockApiResponseHandler,
+      handleAuthError: mockHandleAuthError,
+      requireAuth: async () => validUser,
+      getCollection: async () => ({
+        findOne: async () => ({ slug: 'test' }),
+      }),
+    }).POST;
+    const req = { json: async () => ({ title: 'Test', slug: 'test', category: 'cat', description: 'descdescdesc', location: 'loc' }) };
+    const resp = await handler(req);
+    expect(resp.status).toBe(409);
+  });
+
+  it('should handle DB errors in insertOne', async () => {
+    const handler = require('../../../../app/api/listings/route').createListingsHandlers({
+      ApiResponseHandler: mockApiResponseHandler,
+      handleAuthError: mockHandleAuthError,
+      requireAuth: async () => validUser,
+      getCollection: async () => ({
+        findOne: async () => null,
+        insertOne: async () => { throw new Error('DB error'); },
+      }),
+    }).POST;
+    const req = { json: async () => ({ title: 'Test', slug: 'test', category: 'cat', description: 'descdescdesc', location: 'loc' }) };
+    const resp = await handler(req);
+    expect(resp.status).toBe(500);
+  });
+
+  it('should handle invalid JSON in POST', async () => {
+    const handler = require('../../../../app/api/listings/route').createListingsHandlers({
+      ApiResponseHandler: mockApiResponseHandler,
+      handleAuthError: mockHandleAuthError,
+      requireAuth: async () => validUser,
+      getCollection: async () => ({}),
+    }).POST;
+    const req = { json: async () => { throw new Error('Invalid JSON'); } };
+    const resp = await handler(req);
+    expect(resp.status).toBe(400);
+  });
+
+  // Individual validation errors
+  const invalidBodies = [
+    { title: '', slug: 'valid-slug', category: 'cat', description: 'descdescdesc', location: 'loc' }, // title
+    { title: 'Test', slug: '', category: 'cat', description: 'descdescdesc', location: 'loc' }, // slug
+    { title: 'Test', slug: 'valid-slug', category: '', description: 'descdescdesc', location: 'loc' }, // category
+    { title: 'Test', slug: 'valid-slug', category: 'cat', description: '', location: 'loc' }, // description
+    { title: 'Test', slug: 'valid-slug', category: 'cat', description: 'descdescdesc', location: '' }, // location
+  ];
+  invalidBodies.forEach((body, idx) => {
+    const invalidField = Object.entries(body).find(([k, v]) => !v)?.[0] ?? 'unknown';
+    it(`should return 400 for invalid field ${invalidField}`, async () => {
+      const handler = require('../../../../app/api/listings/route').createListingsHandlers({
+        ApiResponseHandler: mockApiResponseHandler,
+        handleAuthError: mockHandleAuthError,
+        requireAuth: async () => validUser,
+        getCollection: async () => ({
+          findOne: async () => null,
+          insertOne: async () => ({ insertedId: 'id' }),
+        }),
+      }).POST;
+      const req = { json: async () => body };
+      const resp = await handler(req);
+      expect(resp.status).toBe(400);
+    });
+  });
 });

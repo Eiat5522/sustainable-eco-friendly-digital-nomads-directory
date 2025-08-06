@@ -14,6 +14,11 @@ console.log('🔍 Testing User Dashboard API Completion (Task 5.6)');
 console.log('================================================\n');
 
 // Test 1: Check if all required API endpoints exist
+function isSafePath(base, target) {
+  const resolved = path.resolve(base, target);
+  return resolved.startsWith(path.resolve(base));
+}
+
 const requiredEndpoints = [
   'src/app/api/user/dashboard/route.ts',
   'src/app/api/user/favorites/route.ts',
@@ -27,7 +32,7 @@ console.log('✅ Test 1: API Endpoint Existence');
 let endpointsExist = true;
 requiredEndpoints.forEach(endpoint => {
   const fullPath = path.join(__dirname, endpoint);
-  if (fs.existsSync(fullPath)) {
+  if (isSafePath(__dirname, endpoint) && fs.existsSync(fullPath)) {
     console.log(`  ✅ ${endpoint} - EXISTS`);
   } else {
     console.log(`  ❌ ${endpoint} - MISSING`);
@@ -47,7 +52,20 @@ console.log('\n✅ Test 2: Database Model Existence');
 let modelsExist = true;
 requiredModels.forEach(model => {
   const fullPath = path.join(__dirname, model);
-  if (fs.existsSync(fullPath)) {
+  try {
+    if (!isSafePath(__dirname, model)) {
+      throw new Error(`Unsafe path detected: ${model}`);
+    }
+    if (fs.existsSync(fullPath)) {
+      console.log(`  ✅ ${model} - EXISTS`);
+    } else {
+      console.log(`  ❌ ${model} - MISSING`);
+      modelsExist = false;
+    }
+  } catch (err) {
+    console.log(`  ⚠️  ${model} - UNSAFE PATH`);
+    modelsExist = false;
+  }
     console.log(`  ✅ ${model} - EXISTS`);
   } else {
     console.log(`  ❌ ${model} - MISSING`);
@@ -60,7 +78,11 @@ console.log('\n✅ Test 3: API Implementation Completeness');
 
 const checkApiImplementation = (filePath, requiredMethods) => {
   try {
-    const content = fs.readFileSync(path.join(__dirname, filePath), 'utf8');
+    const fullPath = path.join(__dirname, filePath);
+    if (!isSafePath(__dirname, filePath)) {
+      throw new Error(`Unsafe path detected: ${filePath}`);
+    }
+    const content = fs.readFileSync(fullPath, 'utf8');
     const results = requiredMethods.map(method => {
       const hasMethod = content.includes(`export async function ${method}`);
       return { method, implemented: hasMethod };
@@ -121,10 +143,12 @@ analyticsResults.forEach(result => {
 // Test 4: Check for comprehensive dashboard data structure
 console.log('\n✅ Test 4: Dashboard Data Structure Completeness');
 try {
-  const dashboardContent = fs.readFileSync(
-    path.join(__dirname, 'src/app/api/user/dashboard/route.ts'),
-    'utf8'
-  );
+  const dashboardPath = path.join(__dirname, 'src/app/api/user/dashboard/route.ts');
+  try {
+    if (!isSafePath(__dirname, 'src/app/api/user/dashboard/route.ts')) {
+      throw new Error('Unsafe file path');
+    }
+    const dashboardContent = fs.readFileSync(dashboardPath, 'utf8');
 
   const requiredDashboardFeatures = [
     'profile',
@@ -147,6 +171,31 @@ try {
   console.log('  ❌ Could not analyze dashboard structure');
 }
 
+// test-dashboard-completion.js
+
+const listingsStatus = 'complete';
+const reviewsStatus = 'incomplete';
+const imagesStatus = 'complete';
+const sanityStatus = 'complete';
+
+const dashboardChecks = [
+  { name: 'Listings', status: listingsStatus },
+  { name: 'Reviews', status: reviewsStatus },
+  { name: 'Images', status: imagesStatus },
+  { name: 'Sanity', status: sanityStatus },
+];
+
+function checkDashboardCompletion(checks) {
+  return checks.every(check => check.status === 'complete');
+}
+
+// Example usage/test
+if (checkDashboardCompletion(dashboardChecks)) {
+  console.log('Dashboard is complete!');
+} else {
+  console.log('Dashboard is not complete.');
+}
+
 // Summary
 console.log('\n🎯 Task 5.6 Completion Summary');
 console.log('==============================');
@@ -163,3 +212,8 @@ if (allImplemented) {
   console.log('❌ Some components are missing or incomplete');
   console.log('🔧 Additional work needed before Task 5.6 can be marked complete');
 }
+
+module.exports = {
+  dashboardChecks,
+  checkDashboardCompletion,
+};

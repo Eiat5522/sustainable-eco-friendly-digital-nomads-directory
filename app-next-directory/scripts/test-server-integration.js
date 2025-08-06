@@ -8,6 +8,16 @@
 const { spawn } = require('child_process');
 const https = require('https');
 
+// Helper to validate URLs
+function isValidUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return ['http:', 'https:'].includes(parsed.protocol);
+  } catch {
+    return false;
+  }
+}
+
 function log(message, color = 'reset') {
   const colors = {
     reset: '\x1b[0m',
@@ -23,7 +33,13 @@ async function testEndpoint(url, expectedStatus = 200, description = '') {
   return new Promise((resolve) => {
     // Use https for secure requests
     const protocol = url.startsWith('https://') ? https : require('http');
-    const request = protocol.get(url, (res) => {
+    // Validate URL before making request
+  if (!isValidUrl(url)) {
+    log(`❌ Invalid URL: ${url}`, 'red');
+    resolve(false);
+    return;
+  }
+  const request = protocol.get(url, (res) => {
       const success = res.statusCode === expectedStatus;
       const status = success ? '✅' : '❌';
       const color = success ? 'green' : 'red';
@@ -65,7 +81,7 @@ async function runServerIntegrationTest() {
 
   const serverProcess = spawn('npm', ['run', 'dev'], {
     stdio: 'pipe',
-    shell: false
+    shell: false // Avoid shell: true for security
   });
 
   let serverOutput = '';

@@ -110,13 +110,19 @@ const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
                 >
                   <Card className="overflow-hidden border-0 shadow-lg">
                     <div className="group relative h-[27rem] max-w-full overflow-hidden rounded-xl">
-                      <SanityImage
+                      const isTestEnv = process.env.NODE_ENV === 'test';
+<SanityImage
                         image={imageSrc}
                         alt={city.name || 'Image unavailable'}
                         fill
                         sizes="(max-width: 768px) 100vw, 360px"
                         className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                         loading="lazy"
+                        {...(isTestEnv && {
+                          'data-testid': 'city-carousel-image',
+                          'data-src': imageSrc,
+                          'data-alt': city.name || 'Image unavailable',
+                        })}
                       />
                       <div className="absolute top-4 right-4">
                         <Badge className="bg-green-600 hover:bg-green-700 flex items-center gap-1 px-3 py-1.5 text-white">

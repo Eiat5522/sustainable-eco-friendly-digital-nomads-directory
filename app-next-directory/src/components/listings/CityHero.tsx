@@ -25,12 +25,18 @@ export function CityHero({
     <div className={cn("relative w-full min-h-[400px] md:min-h-[500px]", className)}>
       {/* Background Image */}
       <div className="absolute inset-0">
-        <Image
+        const isTestEnv = process.env.NODE_ENV === 'test';
+<Image
           src={imageUrl}
           alt={name}
           fill
           className="object-cover"
           priority
+          {...(isTestEnv && {
+            'data-testid': 'city-hero-image',
+            'data-src': imageUrl,
+            'data-alt': name,
+          })}
         />
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />

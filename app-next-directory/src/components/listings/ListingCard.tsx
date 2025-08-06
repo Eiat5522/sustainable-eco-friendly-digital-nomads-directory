@@ -19,7 +19,6 @@ const getListingUrl = (listing: AppListingCard) => {
 export function ListingCard({ listing, searchQuery }: ListingCardProps) {
   const imageUrl = useMemo(() => {
     try {
-      // 1) Try primary image
       if (listing.primaryImage?.asset?._ref) {
         return urlFor(listing.primaryImage)
           .width(400)
@@ -28,8 +27,7 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
           .auto('format')
           .url();
       }
-      // 2) Fallback to first gallery image
-      if (listing.galleryImages && listing.galleryImages.length > 0) {
+      if (listing.galleryImages && listing.galleryImages.length > 0 && listing.galleryImages[0]?.asset?._ref) {
         return urlFor(listing.galleryImages[0])
           .width(400)
           .height(300)
@@ -37,11 +35,9 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
           .auto('format')
           .url();
       }
-      // 3) No images at all → fallback
-      return '/images/test-image.jpg';
+      return '/test-image.jpg';
     } catch (err) {
-      // On any urlFor error, use fallback
-      return '/images/test-image.jpg';
+      return '/test-image.jpg';
     }
   }, [listing.primaryImage, listing.galleryImages]);
 
@@ -49,17 +45,20 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
 
   return (
     <Link href={getListingUrl(listing)} className="block border rounded-lg overflow-hidden">
-        <div className="w-full h-48 relative">          <Image
-            src={imageUrl}
-            alt={altText}
-            fill
-            className="object-cover"
-            data-testid="image-mock"
-            // allow the jest mock to pick up data-src and data-alt
-            data-src={imageUrl}
-            data-alt={altText}
-          />
-        </div>
+      <div className="w-full h-48 relative">
+        <Image
+          src={imageUrl}
+          alt={altText}
+          fill
+          className="object-cover"
+          data-testid="image-mock"
+          data-src={imageUrl}
+          data-alt={altText}
+          onError={(e) => { (e.target as HTMLImageElement).src = '/test-image.jpg'; }}
+          priority={false}
+          loading="lazy"
+        />
+      </div>
         <div className="p-4">
           <h2 className="text-lg font-semibold">
             {searchQuery
