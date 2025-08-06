@@ -48,6 +48,12 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
   const getImageUrl = () => {
     if (isSanityListing(listing)) {
       if (listing.mainImage) {
+        // First try to get direct URL from mock data
+        if (listing.mainImage.asset && typeof listing.mainImage.asset === 'object' && 'url' in listing.mainImage.asset) {
+          return (listing.mainImage.asset as any).url;
+        }
+        
+        // Fallback to Sanity URL builder (for real Sanity data)
         try {
           return urlFor(listing.mainImage)
             .width(800)
@@ -57,13 +63,23 @@ export function ListingCard({ listing, searchQuery = '' }: ListingCardProps) {
             .url();
         } catch (error) {
           console.error('Error generating Sanity image URL:', error);
-          return '';
+          // Last resort fallback with data URI
+          const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+            <rect width="800" height="480" fill="#22c55e"/>
+            <text x="400" y="240" text-anchor="middle" font-family="Arial" font-size="20" fill="white">${listingName || 'Listing'}</text>
+          </svg>`;
+          return `data:image/svg+xml;base64,${btoa(svg)}`;
         }
       }
     } else if (typeof listing === 'object' && listing !== null && 'primary_image_url' in listing && typeof (listing as any).primary_image_url === 'string') {
       return (listing as any).primary_image_url;
     }
-    return '';
+    // Default fallback
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+      <rect width="800" height="480" fill="#22c55e"/>
+      <text x="400" y="240" text-anchor="middle" font-family="Arial" font-size="20" fill="white">${listingName || 'No Image'}</text>
+    </svg>`;
+    return `data:image/svg+xml;base64,${btoa(svg)}`;
   };
 
   const getListingUrl = () => {

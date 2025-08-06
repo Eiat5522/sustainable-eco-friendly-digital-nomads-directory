@@ -95,6 +95,12 @@ export default function CityCarousel({ cities }: CityCarouselProps) {
 
   const getImageUrl = (city: City) => {
     if (city.mainImage) {
+      // First try to get direct URL from mock data
+      if (city.mainImage.asset && city.mainImage.asset.url) {
+        return city.mainImage.asset.url;
+      }
+      
+      // Fallback to Sanity URL builder (for real Sanity data)
       try {
         return urlFor(city.mainImage)
           .width(800)
@@ -104,10 +110,20 @@ export default function CityCarousel({ cities }: CityCarouselProps) {
           .url();
       } catch (error) {
         console.error('Error generating Sanity image URL for city:', city.title, error);
-        return city.mainImage?.asset?.url || '';
+        // Last resort fallback with data URI
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+          <rect width="800" height="600" fill="#22c55e"/>
+          <text x="400" y="300" text-anchor="middle" font-family="Arial" font-size="24" fill="white">${city.title}</text>
+        </svg>`;
+        return `data:image/svg+xml;base64,${btoa(svg)}`;
       }
     }
-    return '';
+    // Default fallback
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+      <rect width="800" height="600" fill="#22c55e"/>
+      <text x="400" y="300" text-anchor="middle" font-family="Arial" font-size="24" fill="white">No Image</text>
+    </svg>`;
+    return `data:image/svg+xml;base64,${btoa(svg)}`;
   };
 
   return (

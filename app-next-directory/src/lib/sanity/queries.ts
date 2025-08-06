@@ -1,4 +1,5 @@
 import { getClient } from './client';
+import { mockCities, mockFeaturedListings } from '../mockData';
 
 // Common field definitions
 const listingFields = `
@@ -97,31 +98,36 @@ async function getListingsByCity(cityName: string, preview = false) {
 
 // Get all available cities for filtering
 async function getAllCities(preview = false) {
-  const sanityClient = getClient(preview);
+  try {
+    const sanityClient = getClient(preview);
 
-  const query = `*[_type == "city"] {
-    _id,
-    title,
-    "slug": slug.current,
-    country,
-    description,
-    sustainabilityScore,
-    highlights,
-    mainImage {
-      asset->{
-        _id,
-        url,
-        metadata {
-          dimensions {
-            width,
-            height
+    const query = `*[_type == "city"] {
+      _id,
+      title,
+      "slug": slug.current,
+      country,
+      description,
+      sustainabilityScore,
+      highlights,
+      mainImage {
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions {
+              width,
+              height
+            }
           }
         }
       }
-    }
-  }`;
+    }`;
 
-  return await sanityClient.fetch(query);
+    return await sanityClient.fetch(query);
+  } catch (error) {
+    console.warn('Failed to fetch cities from Sanity, using mock data:', error.message);
+    return mockCities;
+  }
 }
 
 // Get all eco focus tags for filtering
@@ -173,17 +179,22 @@ async function getLatestBlogPosts(limit = 3, preview = false) {
 
 // Get featured listings for home page
 async function getFeaturedListings(preview = false) {
-  const sanityClient = getClient(preview);
+  try {
+    const sanityClient = getClient(preview);
 
-  const query = `*[_type == "listing" && moderation.featured == true] {
-    ${listingFields},
-    description_short,
-    priceRange,
-    rating,
-    "reviews": *[_type == "review" && references(^._id)] | count
-  }`;
+    const query = `*[_type == "listing" && moderation.featured == true] {
+      ${listingFields},
+      description_short,
+      priceRange,
+      rating,
+      "reviews": *[_type == "review" && references(^._id)] | count
+    }`;
 
-  return await sanityClient.fetch(query);
+    return await sanityClient.fetch(query);
+  } catch (error) {
+    console.warn('Failed to fetch featured listings from Sanity, using mock data:', error.message);
+    return mockFeaturedListings;
+  }
 }
 
 async function getRelatedListings(listingId: string, category: string, cityName: string, limit = 3) {
