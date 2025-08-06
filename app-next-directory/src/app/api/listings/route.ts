@@ -18,20 +18,20 @@ const createListingSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
- try {
-   const { searchParams } = new URL(request.url);
-   const page = parseInt(searchParams.get('page') || '1');
-   const limit = parseInt(searchParams.get('limit') || '10');
-   const category = searchParams.get('category');
-+ 26 |     const featured = searchParams.get('featured') === 'true';
-   const location = searchParams.get('location');
+  try {
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const category = searchParams.get('category');
+    const featured = searchParams.get('featured') === 'true';
+    const location = searchParams.get('location');
 
     const listings = await getCollection('listings');
 
     const filter: any = { status: 'active' };
     if (category) filter.category = category;
     if (location) filter.location = { $regex: location, $options: 'i' };
-+ 33 |     if (featured) filter['moderation.featured'] = true;
+    if (featured) filter['moderation.featured'] = true;
 
     const skip = (page - 1) * limit;
 

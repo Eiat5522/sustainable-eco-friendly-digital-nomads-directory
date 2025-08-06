@@ -3,9 +3,9 @@
 import { FilterSidebar } from '@/components/listings/FilterSidebar';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { SearchBar } from '@/components/search/SearchBar';
-import { Alert } from '@/components/ui/alert';
+import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { Pagination } from '@/components/ui/pagination';
+import { Pagination } from '@/components/ui/Pagination';
 import { useSearch } from '@/hooks/useSearch';
 import type { SearchFilters } from '@/types/search';
 import { AnimatePresence, motion } from 'framer-motion';

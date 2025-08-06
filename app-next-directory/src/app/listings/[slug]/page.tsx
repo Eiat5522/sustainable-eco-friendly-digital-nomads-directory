@@ -3,6 +3,7 @@ import { ImageGallery } from '@/components/listings/ImageGallery';
 import { ListingDetail } from '@/components/listings/ListingDetail';
 import { RelatedListings } from '@/components/listings/RelatedListings';
 import { getClient } from '@/lib/sanity/client';
+import { getListingBySlug } from '@/lib/sanity/queries';
 import { Metadata, ResolvingMetadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -62,7 +63,7 @@ interface Listing {
 async function getAllListingSlugs() {
   const client = getClient();
   const slugs = await client.fetch<Array<{ slug: { current: string } }>>(
-    `*[_type == "listing" && defined(slug.current)]{ "slug": slug ,\n        featured\n      }`
+    `*[_type == "listing" && defined(slug.current)]{ "slug": slug }`
   );
   return slugs.map((item) => ({
     slug: item.slug.current,
@@ -84,14 +85,7 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   try {
     // Fetch from Sanity by slug
-    const sanityListing = await getClient().fetch<Listing>(
-      `*[_type == "listing" && slug.current == $slug][0]{
-        name,
-        description_short,
-        primary_image_url,
-      ,\n        featured\n      }`,
-      { slug: params.slug }
-    );
+    const sanityListing = await getListingBySlug(params.slug);
 
     if (sanityListing) {
       return {
@@ -126,39 +120,7 @@ export async function generateMetadata(
 export default async function ListingPage({ params }: Props) {
   try {
     // Fetch from Sanity by slug
-    const sanityListing = await getClient().fetch<Listing>(
-      `*[_type == "listing" && slug.current == $slug][0]{
-        _id,
-        name,
-        slug,
-        descriptionShort,
-        descriptionLong,
-        category,
-        city->{name, country},
-        location,
-        images[]{
-          asset->{
-            url,
-            metadata
-          }
-        },
-        "primary_image_url": images[0].asset->url,
-        ecoTags,
-        amenities,
-        contact_phone,
-        contact_email,
-        website,
-        price_range,
-        reviews[]{
-          rating,
-          comment,
-          author,
-          "date": _createdAt
-        },
-        sustainabilityScore
-      ,\n        featured\n      }`,
-      { slug: params.slug }
-    );
+    const sanityListing = await getListingBySlug(params.slug);
 
     if (sanityListing) {
       console.log("Fetched Sanity Listing:", JSON.stringify(sanityListing, null, 2));
@@ -168,7 +130,7 @@ export default async function ListingPage({ params }: Props) {
           <Breadcrumbs
             items={[
               { label: 'Listings', href: '/listings' },
-              { label: sanityListing.name, href: `/listings/${params.slug,\n        featured\n      }` },
+              { label: sanityListing.name, href: `/listings/${params.slug}` },
             ]}
           />
 
@@ -177,7 +139,7 @@ export default async function ListingPage({ params }: Props) {
               <div className="mb-8">
                 <ImageGallery
                   images={sanityListing.images.map(img => img.asset.url)}
-                  alt={`Photos of ${sanityListing.name,\n        featured\n      }`}
+                  alt={`Photos of ${sanityListing.name}`}
                 />
               </div>
             )}

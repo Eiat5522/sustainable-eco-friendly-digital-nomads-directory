@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
+import { urlFor } from '@/lib/sanity/image';
 
 interface SanityImage {
   asset: {
@@ -70,7 +71,9 @@ export default function CityCarousel({ cities }: CityCarouselProps) {
 
   const scrollNext = useCallback(() => {
     if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);  const onSelect = useCallback(() => {
+  }, [emblaApi]);
+
+  const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setPrevBtnDisabled(!emblaApi.canScrollPrev());
     setNextBtnDisabled(!emblaApi.canScrollNext());
@@ -80,15 +83,32 @@ export default function CityCarousel({ cities }: CityCarouselProps) {
   useEffect(() => {
     if (!emblaApi) return;
 
-    onSelect(emblaApi);
-    emblaApi.on('select', () => onSelect(emblaApi));
-    emblaApi.on('reInit', () => onSelect(emblaApi));
+    onSelect();
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
 
     return () => {
-      emblaApi.off('select', () => onSelect(emblaApi));
-      emblaApi.off('reInit', () => onSelect(emblaApi));
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
     };
   }, [emblaApi, onSelect]);
+
+  const getImageUrl = (city: City) => {
+    if (city.mainImage) {
+      try {
+        return urlFor(city.mainImage)
+          .width(800)
+          .height(600)
+          .fit('crop')
+          .auto('format')
+          .url();
+      } catch (error) {
+        console.error('Error generating Sanity image URL for city:', city.title, error);
+        return city.mainImage?.asset?.url || '';
+      }
+    }
+    return '';
+  };
 
   return (
     <section className="relative py-8 bg-gradient-to-b from-gray-50 to-white">
@@ -105,9 +125,9 @@ export default function CityCarousel({ cities }: CityCarouselProps) {
                   <div className="group relative overflow-hidden rounded-lg">
                     {/* Image Container */}
                     <div className="relative aspect-[4/3]">
-                      {city.mainImage?.asset?.url ? (
+                      {getImageUrl(city) ? (
                         <Image
-                          src={city.mainImage.asset.url}
+                          src={getImageUrl(city)}
                           alt={city.title}
                           fill
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33.333vw"
