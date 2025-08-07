@@ -37,7 +37,8 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
 
   const featuredListings: AppListingCard[] = initialListings.map(listing => ({
     id: (listing as any)._id || (listing as any).id,
-    name: listing.name || '',
+    // Cast kept locally to avoid leaking `any` upstream
+    name: (listing as any).name ?? '',
     slug: (listing as any).slug?.current || (listing as any).slug,
     city: (listing as any).city ? {
       id: (listing as any).city.id,

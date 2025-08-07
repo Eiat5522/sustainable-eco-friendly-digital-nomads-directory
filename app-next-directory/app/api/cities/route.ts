@@ -22,6 +22,7 @@ export async function GET() {
       "slug": slug.current,
       country,
       sustainabilityScore,
+      highlights,
       "image": mainImage {
         alt,
         _type,
@@ -88,17 +89,15 @@ interface RawCity {
   slug: string;
   country: string;
   sustainabilityScore: number;
-  highlights: string[];
-  image: {
+  highlights?: string[];
+  image?: {
     alt?: string;
     _type: 'image';
     asset?: {
       _id?: string;
-      _ref?: string;
-      _type?: 'reference';
       url?: string;
       metadata?: {
-        dimensions?: any;
+        dimensions?: { width: number; height: number };
         lqip?: string;
       };
     };

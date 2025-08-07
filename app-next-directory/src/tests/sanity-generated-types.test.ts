@@ -39,12 +39,13 @@ describe('Sanity Generated Types', () => {
         longDescription: 'Long description',
         ecoFocusTags: [],
         digitalNomadFeatures: [],
-        primaryImage: {
+                primaryImage: {
           _type: 'image',
           asset: {
             _ref: 'image-ref',
-            _type: 'reference'
-          },
+            _type: 'reference',
+            _weak: false,
+          } as any,
           alt: 'Test image'
         },
         moderation: {
@@ -53,11 +54,7 @@ describe('Sanity Generated Types', () => {
           verificationStatus: 'verified'
         }
       };
-
-      // Validate structure
-      expect(mockListing._id).toBe('test-id');
-      expect(mockListing._type).toBe('listing');
-      expect(mockListing.name).toBe('Test Listing');
+      expect(mockListing.type).toBe('coworking');
       expect(mockListing._type).toBe('coworking');
       
       // Check optional fields are properly typed

@@ -1,4 +1,4 @@
-nst { createClient } = require('@sanity/client');
+const { createClient } = require('@sanity/client');
 
 // Create client
 const client = createClient({

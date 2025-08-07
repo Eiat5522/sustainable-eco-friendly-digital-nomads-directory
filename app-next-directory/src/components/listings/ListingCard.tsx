@@ -52,7 +52,12 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
           alt={altText}
           fill
           className="object-cover"
-          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = '/images/test-image.jpg'; }}
+          onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+            const FALLBACK_IMAGE = '/images/test-image.jpg';
+            const img = e.target as HTMLImageElement;
+            if (img.src.endsWith(FALLBACK_IMAGE)) return; // already attempted fallback
+            img.src = FALLBACK_IMAGE;
+          }}
           {...(isTestEnv && {
             'data-testid': 'image-mock',
             'data-src': imageUrl,

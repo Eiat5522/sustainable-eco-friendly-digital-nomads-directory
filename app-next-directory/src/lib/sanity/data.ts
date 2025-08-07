@@ -16,7 +16,7 @@ const LISTING_BY_SLUG_QUERY = groq`
     type,
     category,
     address,
-    location,
+    location{lat, lng, alt},
     primaryImage,
     galleryImages,
     ecoFocusTags[]->{
@@ -50,7 +50,15 @@ const LISTING_BY_SLUG_QUERY = groq`
     cafeDetails,
     restaurantDetails,
     activitiesDetails,
-    moderation
+    digitalNomadFeatures[]->{
+      _id,
+      name,
+      slug,
+      description,
+      icon
+    },
+    sourceUrls[],
+    moderation{status, featured, verificationStatus}
   }
 `;
 

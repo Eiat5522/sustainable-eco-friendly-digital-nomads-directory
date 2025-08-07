@@ -106,7 +106,7 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
                     'data-src': images[0].src,
                     'data-alt': images[0].alt,
                   })}
-                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = '/images/test-image.jpg'; }}
+                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE_PATH; }}
                   sizes="(max-width: 768px) 100vw, 66vw"
                 />
                 {images.length > 1 && (
@@ -135,7 +135,7 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
                     alt={img.alt}
                     fill
                     className="object-cover"
-                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = '/images/test-image.jpg'; }}
+                    onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE_PATH; }}
                     loading="lazy"
                     sizes="(max-width: 768px) 50vw, 33vw"
                   />

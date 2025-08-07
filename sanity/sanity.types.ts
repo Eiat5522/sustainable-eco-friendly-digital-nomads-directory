@@ -931,7 +931,7 @@ export type AllSanitySchemaTypes =
 export declare const internalGroqTypeReferenceTo: unique symbol
 // Source: ../app-next-directory/src/lib/sanity/data.ts
 // Variable: LISTING_BY_SLUG_QUERY
-// Query: *[_type == "listing" && slug.current == $slug][0]{    _id,    name,    "slug": slug.current,    city->{      _id,      name,      "slug": slug.current,      country    },    type,    category,    address,    location,    primaryImage,    galleryImages,    ecoFocusTags[]->{      _id,      name    },    priceRange,    contactPhone,    contactEmail,    website,    shortDescription,    longDescription,    reviews[]->{      _id,      rating,      comment,      user->{        _id,        name      },      createdAt    },    amenities[]->{      _id,      name,      description,      badge    },    coworkingDetails,    accommodationDetails,    cafeDetails,    restaurantDetails,    activitiesDetails,    moderation  }
+// Query: *[_type == "listing" && slug.current == $slug][0]{    _id,    name,    "slug": slug.current,    city->{      _id,      name,      "slug": slug.current,      country    },    type,    category,    address,    location{lat, lng, alt},    primaryImage,    galleryImages,    ecoFocusTags[]->{      _id,      name    },    priceRange,    contactPhone,    contactEmail,    website,    shortDescription,    longDescription,    reviews[]->{      _id,      rating,      comment,      user->{        _id,        name      },      createdAt    },    amenities[]->{      _id,      name,      description,      badge    },    coworkingDetails,    accommodationDetails,    cafeDetails,    restaurantDetails,    activitiesDetails,    digitalNomadFeatures[]->{      _id,      name,      slug,      description,      icon    },    sourceUrls[],    moderation{status, featured, verificationStatus}  }
 export type LISTING_BY_SLUG_QUERYResult = {
   _id: string
   name: string | null
@@ -973,6 +973,8 @@ export type LISTING_BY_SLUG_QUERYResult = {
   cafeDetails: CafeDetails | null
   restaurantDetails: RestaurantDetails | null
   activitiesDetails: ActivitiesDetails | null
+  digitalNomadFeatures: null
+  sourceUrls: null
   moderation: null
 } | null
 
@@ -980,6 +982,6 @@ export type LISTING_BY_SLUG_QUERYResult = {
 import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
-    '\n  *[_type == "listing" && slug.current == $slug][0]{\n    _id,\n    name,\n    "slug": slug.current,\n    city->{\n      _id,\n      name,\n      "slug": slug.current,\n      country\n    },\n    type,\n    category,\n    address,\n    location,\n    primaryImage,\n    galleryImages,\n    ecoFocusTags[]->{\n      _id,\n      name\n    },\n    priceRange,\n    contactPhone,\n    contactEmail,\n    website,\n    shortDescription,\n    longDescription,\n    reviews[]->{\n      _id,\n      rating,\n      comment,\n      user->{\n        _id,\n        name\n      },\n      createdAt\n    },\n    amenities[]->{\n      _id,\n      name,\n      description,\n      badge\n    },\n    coworkingDetails,\n    accommodationDetails,\n    cafeDetails,\n    restaurantDetails,\n    activitiesDetails,\n    moderation\n  }\n': LISTING_BY_SLUG_QUERYResult
+    '\n  *[_type == "listing" && slug.current == $slug][0]{\n    _id,\n    name,\n    "slug": slug.current,\n    city->{\n      _id,\n      name,\n      "slug": slug.current,\n      country\n    },\n    type,\n    category,\n    address,\n    location{lat, lng, alt},\n    primaryImage,\n    galleryImages,\n    ecoFocusTags[]->{\n      _id,\n      name\n    },\n    priceRange,\n    contactPhone,\n    contactEmail,\n    website,\n    shortDescription,\n    longDescription,\n    reviews[]->{\n      _id,\n      rating,\n      comment,\n      user->{\n        _id,\n        name\n      },\n      createdAt\n    },\n    amenities[]->{\n      _id,\n      name,\n      description,\n      badge\n    },\n    coworkingDetails,\n    accommodationDetails,\n    cafeDetails,\n    restaurantDetails,\n    activitiesDetails,\n    digitalNomadFeatures[]->{\n      _id,\n      name,\n      slug,\n      description,\n      icon\n    },\n    sourceUrls[],\n    moderation{status, featured, verificationStatus}\n  }\n': LISTING_BY_SLUG_QUERYResult
   }
 }

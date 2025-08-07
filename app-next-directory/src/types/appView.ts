@@ -16,6 +16,8 @@ export type SanityImage = {
     };
 };
 
+export type SanityGalleryImage = SanityImage & { _key: string };
+
 export type AppListingCard = {
   id: string;
   name: string;
@@ -26,7 +28,7 @@ export type AppListingCard = {
   website?: string | null;
   imageUrl?: string | null;
   primaryImage?: SanityImage;
-  galleryImages?: SanityImage[];
+  galleryImages?: SanityGalleryImage[];
   type?: string;
   shortDescription?: string;
   address?: string;
