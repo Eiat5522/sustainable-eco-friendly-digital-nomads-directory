@@ -25,7 +25,7 @@ export const test = base.extend<ListingsFixtures>({
           longitude: 100.5018
         },
         longDescription: 'Long description',
-        ecoTags: [{ _id: '1', name: 'zero-waste', slug: { current: 'zero-waste' }, description: 'Zero waste practices' }],
+        ecoFocusTags: [{ _id: '1', name: 'zero-waste', slug: { current: 'zero-waste' }, description: 'Zero waste practices' }],
         shortDescription: 'Eco notes', //map to ecoNotesDetailed for data migration
         sourceUrls: [],
         mainImage: '/test.jpg',

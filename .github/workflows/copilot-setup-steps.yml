@@ -1,0 +1,44 @@
+# .github/workflows/copilot-agent-env.yml
+name: Setup Copilot Agent Environment
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, detail-pages]
+
+jobs:
+  setup-copilot-agent-env:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install project dependencies
+        run: pnpm install
+
+      - name: Preinstall Copilot Agent tools
+        run: |
+          pnpm add -g @playwright/mcp@latest
+          pnpm add -g @sanity/mcp-server@latest
+          pnpm add -g ref-tools-mcp@latest
+
+      - name: Set environment variables for Copilot Agent
+        run: |
+          echo "REF_API_KEY=ref-03e29ed6b45d8216ad36" >> $GITHUB_ENV
+          echo "SANITY_PROJECT_ID=sc70w3cr" >> $GITHUB_ENV
+          echo "SANITY_DATASET=production" >> $GITHUB_ENV
+          echo "SANITY_API_TOKEN=skNVjIa74K4yQWW8H2y5HAeQrxNzLcfM35c6pftrxXtnqr0IiOnicSMOH4EDqZ4KqAaTm7fFLpBpvmx0tiWDCFqEBtrOH4ewZIvi7exfbQcQmZjwYYhpb0d5h7Sawh95JJkHgs8EXkXDkI8gUMNHdnidcuR5qMuYLHdiStGKJSUHRrKwz4vW" >> $GITHUB_ENV
+          echo "MCP_USER_ROLE=developer" >> $GITHUB_ENV
+
+      # Optionally, run tests or other setup steps
+      - name: Run tests
+        run: pnpm test
