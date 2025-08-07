@@ -19,7 +19,9 @@ function mapRawToListing(rawListing: any): Listing {
     longDescription: rawListing.longDescription || rawListing.longDescription || '',
     mainImage: rawListing.primary_image_url || rawListing.mainImage || '',
     galleryImages: rawListing.gallery_image_urls || rawListing.galleryImages || [],
-    digitalNomadFeatures: rawListing.digitalNomadFeatures || [],
+    digitalNomadFeatures: (rawListing.digitalNomadFeatures || []).map((feature: any) =>
+      typeof feature === 'string' ? feature : feature.name
+    ),
     lastVerifiedDate: rawListing.lastVerifiedDate || '',
     location: rawListing.location || { lat: 0, lng: 0 },
   };
