@@ -1,14 +1,9 @@
-"use client";
-
-import { type Listing } from '@/types/listings';
-import { Listing as SanityListing } from '../../../sanity.types';
-import L from 'leaflet';
+"use client";  title.innerText = 'name' in listing ? listing.name ?? '' : '';import L from 'leaflet';
 
 // Create marker icon based on listing type
 export function createCustomMarker(listing: Listing | SanityListing) {
   // Determine type based on the type of listing
-  const type: string = listing.type !== undefined ? listing.type : '';
-
+  const type: string = 'type' in listing ? listing.type ?? '' : '';
   const markerHtml = `
     <div class="marker-icon marker-${type}">
       <span class="sr-only">${type} marker</span>
@@ -36,17 +31,17 @@ export function createPopupContent(listing: Listing | SanityListing) {
   // Category badge
   const badge = document.createElement('span');
   // Normalize the listing type in one step
-  const type = listing.type ?? '';
+  const type = (listing as any).type ?? '';
   badge.className = `type-badge type-${type}`;
   badge.innerText = type ? type[0].toUpperCase() + type.slice(1) : '';
   // Title
   const title = document.createElement('h3');
-  title.innerText = listing.name;
+  title.innerText = listing.name ?? '';
 
   // Description (always use shortDescription)
   const description = document.createElement('p');
   description.className = 'description';
-  description.innerText = (listing as SanityListing).shortDescription || '';
+  description.innerText = (listing as any).shortDescription ?? '';
 
   // Link to details page
   const link = document.createElement('a');

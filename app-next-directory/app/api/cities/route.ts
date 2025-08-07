@@ -49,7 +49,7 @@ export async function GET() {
       country: city.country,
       sustainabilityScore: city.sustainabilityScore,
       highlights: city.highlights || [],
-      image: city.image || { _type: 'image', asset: { _ref: '' } },
+      image: city.image || { _type: 'image', asset: { _id: '', url: '', metadata: { dimensions: { width: 0, height: 0 }, lqip: '' } } },
     }));
 
     const endTime = performance.now();

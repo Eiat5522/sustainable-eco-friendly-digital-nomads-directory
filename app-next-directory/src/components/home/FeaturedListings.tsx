@@ -50,7 +50,7 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
           <p className="text-lg text-gray-600">Discover our top eco-friendly accommodations and workspaces</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 p-4 md:p-6">
-          {featuredListings.slice(0, 4).map((listing) => (
+          {featuredListings.slice(0, 4).map((listing: AppListingCard, index: number) => (
             <ListingCard key={listing.id} listing={listing} />
           ))}
         </div>
@@ -59,19 +59,23 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
   );
 };
 
-function logListing(listing, index) {
+function logListing(listing: AppListingCard, index: number) {
   console.log(`${index + 1}. ${listing.name}`);
-  console.log(`   Slug: ${listing.slug?.current || 'NO SLUG'}`);
+  console.log(`   Slug: ${listing.slug || 'NO SLUG'}`);
   console.log(`   Category: ${listing.category}`);
-  console.log(`   City: ${listing.city?.title || 'NO CITY'}`);
+  console.log(`   City: ${listing.city?.name || 'NO CITY'}`);
   console.log(`   Image: ${listing.primaryImage?.asset?.url ? 'HAS IMAGE' : 'NO IMAGE'}`);
   if (listing.primaryImage?.asset?.url) {
     console.log(`   Image URL: ${listing.primaryImage.asset.url}`);
   }
   console.log('');
 }
-
-function logCity(city, index) {
+interface LogCityData {
+  title: string;
+  slug?: { current: string };
+  mainImage?: { asset?: { url: string } };
+}
+function logCity(city: LogCityData, index: number) {
   console.log(`${index + 1}. ${city.title}`);
   console.log(`   Slug: ${city.slug?.current || 'NO SLUG'}`);
   console.log(`   Image: ${city.mainImage?.asset?.url ? 'HAS IMAGE' : 'NO IMAGE'}`);
@@ -80,7 +84,4 @@ function logCity(city, index) {
   }
   console.log('');
 }
-
-featuredListings.forEach(logListing);
-
 export default FeaturedListings;
