@@ -35,10 +35,10 @@ export function createPopupContent(listing: Listing | SanityListing) {
 
   // Category badge
   const badge = document.createElement('span');
-  const type: string = listing.type !== undefined ? listing.type : '';
+  // Normalize the listing type in one step
+  const type = listing.type ?? '';
   badge.className = `type-badge type-${type}`;
-    badge.innerText = (type || '').charAt(0).toUpperCase() + (type || '').slice(1);
-
+  badge.innerText = type ? type[0].toUpperCase() + type.slice(1) : '';
   // Title
   const title = document.createElement('h3');
   title.innerText = listing.name;

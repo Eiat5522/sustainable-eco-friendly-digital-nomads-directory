@@ -400,25 +400,6 @@ export type Amenity = {
   }
 }
 
-export type Amenities = {
-  _type: 'amenities'
-  wifiQuality?: 'high_speed' | 'good' | 'basic' | 'limited' | 'none'
-  wifiSpeed?: number
-  powerOutlets?: 'abundant' | 'limited' | 'none'
-  seating?: 'comfortable' | 'standard' | 'limited'
-  airConditioning?: boolean
-  quietSpace?: boolean
-  meetingRooms?: boolean
-  phoneBooths?: boolean
-  printers?: boolean
-  parking?: boolean
-  bikeParking?: boolean
-  showers?: boolean
-  lockers?: boolean
-  kitchen?: boolean
-  additionalAmenities?: Array<string>
-}
-
 export type Address = {
   _type: 'address'
   streetAddress?: string
@@ -547,6 +528,57 @@ export type Listing = {
   _updatedAt: string
   _rev: string
   name?: string
+  slug?: Slug
+  shortDescription?: string
+  longDescription?: string
+  city?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'city'
+  }
+  type?: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities'
+  address?: string
+  location?: Geopoint
+  primaryImage?: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  galleryImages?: Array<{
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+    _key: string
+  }>
+  ecoFocusTags?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'ecoTag'
+  }>
+  digitalNomadFeatures?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'nomadFeature'
+  }>
   amenities?: Array<{
     _ref: string
     _type: 'reference'
@@ -554,11 +586,29 @@ export type Listing = {
     _key: string
     [internalGroqTypeReferenceTo]?: 'amenity'
   }>
+  priceRange?: 'budget' | 'moderate' | 'premium'
+  contactPhone?: string
+  contactEmail?: string
+  website?: string
   accommodationDetails?: AccommodationDetails
   activitiesDetails?: ActivitiesDetails
   cafeDetails?: CafeDetails
+  category?: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities'
   coworkingDetails?: CoworkingDetails
   restaurantDetails?: RestaurantDetails
+  reviews?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'review'
+  }>
+  moderation?: {
+    status?: 'draft' | 'pending' | 'published' | 'archived' | 'flagged'
+    featured?: boolean
+    verificationStatus?: 'unverified' | 'verified' | 'needs_verification'
+    moderatorNotes?: string
+  }
 }
 
 export type RestaurantDetails = {
@@ -903,7 +953,6 @@ export type AllSanitySchemaTypes =
   | EcoInitiatives
   | Comment
   | Amenity
-  | Amenities
   | Address
   | BlogPost
   | User
@@ -935,22 +984,63 @@ export declare const internalGroqTypeReferenceTo: unique symbol
 export type LISTING_BY_SLUG_QUERYResult = {
   _id: string
   name: string | null
-  slug: null
-  city: null
-  type: null
-  category: null
-  address: null
-  location: null
-  primaryImage: null
-  galleryImages: null
-  ecoFocusTags: null
-  priceRange: null
-  contactPhone: null
-  contactEmail: null
-  website: null
-  shortDescription: null
-  longDescription: null
-  reviews: null
+  slug: string | null
+  city: {
+    _id: string
+    name: string | null
+    slug: string | null
+    country: string | null
+  } | null
+  type: 'accommodation' | 'activities' | 'cafe' | 'coworking' | 'restaurant' | null
+  category: 'accommodation' | 'activities' | 'cafe' | 'coworking' | 'restaurant' | null
+  address: string | null
+  location: {
+    lat: number | null
+    lng: number | null
+    alt: number | null
+  } | null
+  primaryImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  } | null
+  galleryImages: Array<{
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+    _key: string
+  }> | null
+  ecoFocusTags: Array<{
+    _id: string
+    name: string | null
+  }> | null
+  priceRange: 'budget' | 'moderate' | 'premium' | null
+  contactPhone: string | null
+  contactEmail: string | null
+  website: string | null
+  shortDescription: string | null
+  longDescription: string | null
+  reviews: Array<{
+    _id: string
+    rating: number | null
+    comment: string | null
+    user: null
+    createdAt: null
+  }> | null
   amenities: Array<{
     _id: string
     name: string | null
@@ -973,9 +1063,32 @@ export type LISTING_BY_SLUG_QUERYResult = {
   cafeDetails: CafeDetails | null
   restaurantDetails: RestaurantDetails | null
   activitiesDetails: ActivitiesDetails | null
-  digitalNomadFeatures: null
+  digitalNomadFeatures: Array<{
+    _id: string
+    name: string | null
+    slug: Slug | null
+    description: string | null
+    icon: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      caption?: string
+      _type: 'image'
+    } | null
+  }> | null
   sourceUrls: null
-  moderation: null
+  moderation: {
+    status: 'archived' | 'draft' | 'flagged' | 'pending' | 'published' | null
+    featured: boolean | null
+    verificationStatus: 'needs_verification' | 'unverified' | 'verified' | null
+  } | null
 } | null
 
 // Query TypeMap

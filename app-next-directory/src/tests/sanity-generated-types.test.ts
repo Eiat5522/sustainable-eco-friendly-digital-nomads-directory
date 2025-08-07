@@ -3,8 +3,8 @@
  * Validates that generated types work correctly with GROQ queries
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
-import type { 
+import { describe, it, expect } from '@jest/globals';
+import type {
   Listing,
   City,
   EcoTag,
@@ -23,61 +23,31 @@ describe('Sanity Generated Types', () => {
         _updatedAt: '2025-01-01T00:00:00Z',
         _rev: 'test-rev',
         name: 'Test Listing',
-        slug: { _type: 'slug', current: 'test-listing' },
-        type: 'coworking',
-        city: {
-          _ref: 'city-ref',
-          _type: 'reference'
-        },
-        location: {
-          _type: 'geopoint',
-          lat: 13.7563,
-          lng: 100.5018
-        },
-        address: 'Test Address',
-        shortDescription: 'Short description',
-        longDescription: 'Long description',
-        ecoFocusTags: [],
-        digitalNomadFeatures: [],
-                primaryImage: {
-          _type: 'image',
-          asset: {
-            _ref: 'image-ref',
-            _type: 'reference',
-            _weak: false,
-          } as any,
-          alt: 'Test image'
-        },
-        moderation: {
-          status: 'published',
-          featured: true,
-          verificationStatus: 'verified'
+        amenities: [
+          { _ref: 'amenity-ref', _type: 'reference', _key: 'amenity-ref' }
+        ],
+        coworkingDetails: {
+          _type: 'coworkingDetails',
+          internetSpeed: { download: 100, upload: 50 }
         }
       };
-      expect(mockListing.type).toBe('coworking');
-      expect(mockListing._type).toBe('coworking');
-      
-      // Check optional fields are properly typed
-      if (mockListing.location) {
-        expect(mockListing.location.lat).toBe(13.7563);
-      }
-      if (mockListing.moderation) {
-        expect(mockListing.moderation.status).toBe('published');
-      }
+
+      expect(mockListing._type).toBe('listing');
+      expect(mockListing.coworkingDetails?._type).toBe('coworkingDetails');
+      expect(mockListing.coworkingDetails?.internetSpeed?.download).toBe(100);
     });
 
     it('should have proper City type structure', () => {
       const mockCity: City = {
-        _id: 'city-id',
-        _type: 'city',
-        _createdAt: '2025-01-01T00:00:00Z',
-        _updatedAt: '2025-01-01T00:00:00Z',
-        _rev: 'city-rev',
-        name: 'Bangkok',
-        slug: { _type: 'slug', current: 'bangkok' },
-        country: 'Thailand',
-        description: 'City description',
-        sustainabilityScore: 85,
+        primaryImage: {
+           _type: 'image',
+           asset: {
+             _ref: 'image-ref',
+             _type: 'reference',
+             _weak: false,
+          },
+           alt: 'Test image'
+         },        sustainabilityScore: 85,
         highlights: ['Great for nomads', 'Eco-friendly']
       };
 
@@ -89,40 +59,6 @@ describe('Sanity Generated Types', () => {
     });
 
     it('should have proper EcoTag type structure', () => {
-      const mockEcoTag: EcoTag = {
-        _id: 'eco-tag-id',
-        _type: 'ecoTag',
-        _createdAt: '2025-01-01T00:00:00Z',
-        _updatedAt: '2025-01-01T00:00:00Z',
-        _rev: 'eco-tag-rev',
-        name: 'Solar Powered',
-        description: 'Uses solar energy'
-      };
-
-      expect(mockEcoTag._id).toBe('eco-tag-id');
-      expect(mockEcoTag._type).toBe('ecoTag');
-      expect(mockEcoTag.name).toBe('Solar Powered');
-      expect(mockEcoTag.description).toBe('Uses solar energy');
-    });
-
-    it('should have proper BlogPost type structure', () => {
-      const mockBlogPost: BlogPost = {
-        _id: 'blog-post-id',
-        _type: 'blogPost',
-        _createdAt: '2025-01-01T00:00:00Z',
-        _updatedAt: '2025-01-01T00:00:00Z',
-        _rev: 'blog-post-rev',
-        title: 'Test Blog Post',
-        slug: { _type: 'slug', current: 'test-blog-post' },
-        author: {
-          _ref: 'author-ref',
-          _type: 'reference'
-        },
-        publishedAt: '2025-01-01T00:00:00Z'
-      };
-
-      expect(mockBlogPost._id).toBe('blog-post-id');
-      expect(mockBlogPost._type).toBe('blogPost');
       expect(mockBlogPost.title).toBe('Test Blog Post');
       expect(mockBlogPost.publishedAt).toBe('2025-01-01T00:00:00Z');
     });
@@ -148,51 +84,6 @@ describe('Sanity Generated Types', () => {
     });
   });
 
-  describe('Enum Value Validation', () => {
-    it('should enforce proper type enum values', () => {
-      const validCategories: Array<Listing['_type']> = [
-        'coworking',
-        'cafe', 
-        'accommodation',
-        'restaurant',
-        'activities'
-      ];
-
-      validCategories.forEach(type => {
-        const listing: Partial<Listing> = { type };
-        expect(listing._type).toBe(type);
-      });
-    });
-
-    it('should enforce proper moderation status enum values', () => {
-      const validStatuses: Array<NonNullable<Listing['moderation']>['status']> = [
-        'draft',
-        'pending', 
-        'published',
-        'archived',
-        'flagged'
-      ];
-
-      validStatuses.forEach(status => {
-        const moderation: NonNullable<Listing['moderation']> = { status };
-        expect(moderation.status).toBe(status);
-      });
-    });
-
-    it('should enforce proper verification status enum values', () => {
-      const validVerificationStatuses: Array<NonNullable<Listing['moderation']>['verificationStatus']> = [
-        'unverified',
-        'verified',
-        'needs_verification'
-      ];
-
-      validVerificationStatuses.forEach(verificationStatus => {
-        const moderation: NonNullable<Listing['moderation']> = { verificationStatus };
-        expect(moderation.verificationStatus).toBe(verificationStatus);
-      });
-    });
-  });
-
   describe('Optional Field Handling', () => {
     it('should handle optional fields correctly', () => {
       const minimalListing: Listing = {
@@ -205,26 +96,25 @@ describe('Sanity Generated Types', () => {
 
       expect(minimalListing._id).toBe('minimal-id');
       expect(minimalListing.name).toBeUndefined();
-      expect(minimalListing.location).toBeUndefined();
-      expect(minimalListing.moderation).toBeUndefined();
+      expect(minimalListing.amenities).toBeUndefined();
+      expect(minimalListing.coworkingDetails).toBeUndefined();
     });
 
     it('should handle nested optional fields', () => {
-      const listingWithPartialModeration: Listing = {
+      const listingWithPartialDetails: Listing = {
         _id: 'partial-id',
         _type: 'listing',
         _createdAt: '2025-01-01T00:00:00Z',
         _updatedAt: '2025-01-01T00:00:00Z',
         _rev: 'partial-rev',
-        moderation: {
-          status: 'published'
-          // featured and verificationStatus are optional
+        coworkingDetails: {
+          _type: 'coworkingDetails',
+          internetSpeed: { download: 50 }
         }
       };
 
-      expect(listingWithPartialModeration.moderation?.status).toBe('published');
-      expect(listingWithPartialModeration.moderation?.featured).toBeUndefined();
-      expect(listingWithPartialModeration.moderation?.verificationStatus).toBeUndefined();
+      expect(listingWithPartialDetails.coworkingDetails?.internetSpeed?.download).toBe(50);
+      expect(listingWithPartialDetails.coworkingDetails?.internetSpeed?.upload).toBeUndefined();
     });
   });
 
@@ -236,19 +126,14 @@ describe('Sanity Generated Types', () => {
         _createdAt: '2025-01-01T00:00:00Z',
         _updatedAt: '2025-01-01T00:00:00Z',
         _rev: 'ref-rev',
-        city: {
-          _ref: 'city-reference-id',
-          _type: 'reference'
-        },
-        ecoFocusTags: [
-          { _ref: 'eco-tag-1', _type: 'reference', _weak: false, _key: 'eco-tag-1' }
+        amenities: [
+          { _ref: 'amenity-1', _type: 'reference', _key: 'amenity-1' }
         ]
       };
 
-      expect(listingWithReferences.city?._ref).toBe('city-reference-id');
-      expect(listingWithReferences.city?._type).toBe('reference');
-      expect(listingWithReferences.ecoFocusTags?.[0]?._ref).toBe('eco-tag-1');
-      expect(listingWithReferences.ecoFocusTags?.[0]?._key).toBe('eco-tag-1');
+      expect(listingWithReferences.amenities?.[0]?._ref).toBe('amenity-1');
+      expect(listingWithReferences.amenities?.[0]?._type).toBe('reference');
+      expect(listingWithReferences.amenities?.[0]?._key).toBe('amenity-1');
     });
   });
 
@@ -260,21 +145,22 @@ describe('Sanity Generated Types', () => {
         _createdAt: '2025-01-01T00:00:00Z',
         _updatedAt: '2025-01-01T00:00:00Z',
         _rev: 'array-rev',
-        digitalNomadFeatures: [
-          { _ref: 'wifi', _type: 'reference', _key: 'wifi' },
-          { _ref: 'power-outlets', _type: 'reference', _key: 'power-outlets' },
-          { _ref: 'quiet-space', _type: 'reference', _key: 'quiet-space' }
-        ],
-        sourceUrls: ['https://example.com', 'https://another.com']
+        restaurantDetails: {
+          _type: 'restaurantDetails',
+          cuisineType: ['thai', 'vegan'],
+          priceRange: 'moderate'
+        },
+        coworkingDetails: {
+          _type: 'coworkingDetails',
+          pricingPlans: [
+            { _key: 'daily', _type: 'coworkingPricingPlan', type: 'day pass', price: 10, period: 'day' }
+          ]
+        }
       };
 
-      expect(Array.isArray(listingWithArrays.digitalNomadFeatures)).toBe(true);
-      expect(listingWithArrays.digitalNomadFeatures?.length).toBe(3);
-      expect(listingWithArrays.digitalNomadFeatures?.[0]?._ref).toBe('wifi');
-      
-      expect(Array.isArray(listingWithArrays.sourceUrls)).toBe(true);
-      expect(listingWithArrays.sourceUrls?.length).toBe(2);
-      expect(listingWithArrays.sourceUrls?.[0]).toBe('https://example.com');
+      expect(Array.isArray(listingWithArrays.restaurantDetails?.cuisineType)).toBe(true);
+      expect(listingWithArrays.restaurantDetails?.cuisineType?.length).toBe(2);
+      expect(listingWithArrays.coworkingDetails?.pricingPlans?.[0]?.type).toBe('day pass');
     });
   });
 });

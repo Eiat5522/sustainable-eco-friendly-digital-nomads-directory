@@ -35,22 +35,24 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
     }
   }, [searchParams, router]);
 
-  const featuredListings: AppListingCard[] = initialListings.map(listing => ({
-    id: (listing as any)._id || (listing as any).id,
-    // Cast kept locally to avoid leaking `any` upstream
-    name: (listing as any).name ?? '',
-    slug: (listing as any).slug?.current || (listing as any).slug,
-    city: (listing as any).city ? {
-      id: (listing as any).city.id,
-      name: (listing as any).city.name,
-      slug: (listing as any).city.slug?.current || (listing as any).city.slug,
-      country: (listing as any).city.country,
-    } : null,
-    ecoTags: (listing as any).ecoTags || [],
-    priceRange: (listing as any).priceRange,
-    website: (listing as any).website,
-    category: (listing as any).category || (listing as any).type,
-  }));
+  const featuredListings: AppListingCard[] = initialListings.map(listing => {
+    const l = listing as any;
+    return {
+      id: l._id || l.id,
+      name: l.name ?? '',
+      slug: l.slug?.current || l.slug,
+      city: l.city ? {
+        id: l.city.id,
+        name: l.city.name,
+        slug: l.city.slug?.current || l.city.slug,
+        country: l.city.country,
+      } : null,
+      ecoTags: l.ecoTags || [],
+      priceRange: l.priceRange,
+      website: l.website,
+      category: l.category || l.type,
+    };
+  });
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

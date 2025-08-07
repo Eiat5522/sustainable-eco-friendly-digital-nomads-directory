@@ -59,4 +59,28 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
   );
 };
 
+function logListing(listing, index) {
+  console.log(`${index + 1}. ${listing.name}`);
+  console.log(`   Slug: ${listing.slug?.current || 'NO SLUG'}`);
+  console.log(`   Category: ${listing.category}`);
+  console.log(`   City: ${listing.city?.title || 'NO CITY'}`);
+  console.log(`   Image: ${listing.primaryImage?.asset?.url ? 'HAS IMAGE' : 'NO IMAGE'}`);
+  if (listing.primaryImage?.asset?.url) {
+    console.log(`   Image URL: ${listing.primaryImage.asset.url}`);
+  }
+  console.log('');
+}
+
+function logCity(city, index) {
+  console.log(`${index + 1}. ${city.title}`);
+  console.log(`   Slug: ${city.slug?.current || 'NO SLUG'}`);
+  console.log(`   Image: ${city.mainImage?.asset?.url ? 'HAS IMAGE' : 'NO IMAGE'}`);
+  if (city.mainImage?.asset?.url) {
+    console.log(`   Image URL: ${city.mainImage.asset.url}`);
+  }
+  console.log('');
+}
+
+featuredListings.forEach(logListing);
+
 export default FeaturedListings;

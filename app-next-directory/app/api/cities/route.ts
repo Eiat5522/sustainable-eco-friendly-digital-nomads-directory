@@ -99,7 +99,7 @@ interface RawCity {
       metadata?: {
         dimensions?: { width: number; height: number };
         lqip?: string;
-      };
-    };
-  };
+        };
+      }
+    }   
 }

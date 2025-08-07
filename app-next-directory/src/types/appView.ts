@@ -16,7 +16,10 @@ export type SanityImage = {
     };
 };
 
-export type SanityGalleryImage = SanityImage & { _key: string };
+export type SanityGalleryImage = SanityImage & {
+  _type: 'image';
+  _key: string;
+};
 
 export type AppListingCard = {
   id: string;

@@ -68,10 +68,12 @@ const LISTING_BY_SLUG_QUERY = groq`
  * @param usePreview - Whether to fetch draft content (preview) or published
  * @returns A GROQ query result or null if not found
  */
+import type { AppListingDetail } from '@/types/appView';
+
 export async function getListingData(
   slug: string,
   usePreview = false
-): Promise<any | null> {
+): Promise<AppListingDetail | null> {
   try {
     const listing = await client.fetch(
       LISTING_BY_SLUG_QUERY,
