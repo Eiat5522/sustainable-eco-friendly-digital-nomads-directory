@@ -39,15 +39,23 @@ describe('Sanity Generated Types', () => {
 
     it('should have proper City type structure', () => {
       const mockCity: City = {
-        primaryImage: {
-           _type: 'image',
-           asset: {
-             _ref: 'image-ref',
-             _type: 'reference',
-             _weak: false,
+        _id: 'city-id',
+        _type: 'city',
+        _createdAt: '2025-01-01T00:00:00Z',
+        _updatedAt: '2025-01-01T00:00:00Z',
+        _rev: 'city-rev',
+        name: 'Bangkok',
+        country: 'Thailand',
+        mainImage: {
+          _type: 'image',
+          asset: {
+            _ref: 'image-ref',
+            _type: 'reference',
+            _weak: false,
           },
-           alt: 'Test image'
-         },        sustainabilityScore: 85,
+          alt: 'Test image'
+        },
+        sustainabilityScore: 85,
         highlights: ['Great for nomads', 'Eco-friendly']
       };
 
@@ -59,10 +67,20 @@ describe('Sanity Generated Types', () => {
     });
 
     it('should have proper EcoTag type structure', () => {
-      expect(mockBlogPost.title).toBe('Test Blog Post');
-      expect(mockBlogPost.publishedAt).toBe('2025-01-01T00:00:00Z');
+      const mockEcoTag: EcoTag = {
+        _id: 'ecotag-id',
+        _type: 'ecoTag',
+        _createdAt: '2025-01-01T00:00:00Z',
+        _updatedAt: '2025-01-01T00:00:00Z',
+        _rev: 'ecotag-rev',
+        name: 'Solar Powered',
+        description: 'Uses solar energy for operations',
+    };
+      expect(mockEcoTag._id).toBe('ecotag-id');
+      expect(mockEcoTag._type).toBe('ecoTag');
+      expect(mockEcoTag.name).toBe('Solar Powered');
+      expect(mockEcoTag.description).toBe('Uses solar energy for operations');
     });
-
     it('should have proper Review type structure', () => {
       const mockReview: Review = {
         _id: 'review-id',

@@ -27,7 +27,7 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
   const imageAlt = listing.primaryImage?.alt || listing.name || 'Listing image';
 
   const appListing: AppListingDetail = {
-    id: listing._id,
+    id: listing.id,
     name: listing.name,
     slug: listing.slug || '',
     city: listing.city ? {
