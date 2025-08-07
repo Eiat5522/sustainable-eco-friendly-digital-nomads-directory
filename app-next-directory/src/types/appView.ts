@@ -1,4 +1,4 @@
-export type AppCity = { id: string; name: string; slug: string; country?: string };
+export type AppCity = { id: string; name: string; slug: string; country?: string; sustainabilityScore?: number; highlights?: string[]; mainImage?: SanityImage };
 
 export type SanityImage = {
   _type?: 'image';
@@ -26,7 +26,8 @@ export type AppListingCard = {
   name: string;
   slug: string;
   city: AppCity | null;
-  ecoTags: string[];
+  ecoFocusTags: string[];
+  digitalNomadFeatures?: string[];
   priceRange?: 'budget' | 'moderate' | 'premium';
   website?: string | null;
   imageUrl?: string | null;
@@ -36,7 +37,7 @@ export type AppListingCard = {
   shortDescription?: string;
   address?: string;
   category?: string;
-  coordinates?: { lat: number; lng: number };
+  location?: { lat: number; lng: number };
 };
 import type { Amenity } from '@/types/sanity';
 
@@ -46,7 +47,6 @@ export type AppListingDetail = AppListingCard & {
   shortDescription?: string | null;
   longDescription?: string | any[] | null;
   address?: string | null;
-  location?: any;
   primaryImage?: any;
   galleryImages?: any[];
   lastVerifiedDate?: string | null;
@@ -89,7 +89,7 @@ export type AppListingDetail = AppListingCard & {
     menuHighlights?: string[];
     workspaceAmenities?: string[];
     maxRecommendedStay?: number;
-    noiseLevel?: string;
+    noiseLevel?: 'very_quiet' | 'low' | 'moderate' | 'high' | 'very_loud';
     powerOutlets?: {
       availability?: string;
       notes?: string;
@@ -138,7 +138,7 @@ export type AppListingDetail = AppListingCard & {
     };
   } | null;
   amenities?: Amenity[];
-  nomadFeatures?: string[];
+  digitalNomadFeatures?: string[];
 };
 
 export type AppReview = {
@@ -157,8 +157,8 @@ export type AppReview = {
 export type AppFilterState = {
   location: string | null;
   categories: string[];
-  ecoTags: string[];
-  nomadFeatures: string[];
+  ecoFocusTags: string[];
+  digitalNomadFeatures: string[];
   priceRanges: string[];
   searchQuery: string;
   sort?: any;

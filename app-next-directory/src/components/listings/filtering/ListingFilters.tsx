@@ -26,8 +26,8 @@ const defaultFilters: AppFilterState = {
   categories: [],
   location: null,
   priceRanges: [],
-  ecoTags: [],
-  nomadFeatures: [],
+  ecoFocusTags: [],
+  digitalNomadFeatures: [],
   sort: undefined,
   combinations: [],
   combinationOperator: 'AND'
@@ -71,18 +71,18 @@ export function ListingFilters({
   const toggleEcoTag = (tag: string) => {
     setFilters((prev: AppFilterState) => ({
       ...prev,
-      ecoTags: prev.ecoTags.includes(tag)
-        ? prev.ecoTags.filter((t: string) => t !== tag)
-        : [...prev.ecoTags, tag]
+      ecoFocusTags: prev.ecoFocusTags.includes(tag)
+        ? prev.ecoFocusTags.filter((t: string) => t !== tag)
+        : [...prev.ecoFocusTags, tag]
     }));
   };
 
-  const toggleNomadFeature = (feature: string) => {
+  const toggleDigitalNomadFeature = (feature: string) => {
     setFilters((prev: AppFilterState) => ({
       ...prev,
-      nomadFeatures: prev.nomadFeatures.includes(feature)
-        ? prev.nomadFeatures.filter((f: string) => f !== feature)
-        : [...prev.nomadFeatures, feature]
+      digitalNomadFeatures: prev.digitalNomadFeatures.includes(feature)
+        ? prev.digitalNomadFeatures.filter((f: string) => f !== feature)
+        : [...prev.digitalNomadFeatures, feature]
     }));
   };
 
@@ -148,7 +148,7 @@ export function ListingFilters({
                   toggleCategory={toggleCategory}
                   setCity={setCity}
                   toggleEcoTag={toggleEcoTag}
-                  toggleNomadFeature={toggleNomadFeature}
+                  toggleNomadFeature={toggleDigitalNomadFeature}
                   onSortChange={onSortChange}
                   onCombinationsChange={(combinations) => setFilters((prev: AppFilterState) => ({ ...prev, combinations }))}
                   onCombinationOperatorChange={(operator) => setFilters((prev: AppFilterState) => ({ ...prev, combinationOperator: operator }))}
@@ -176,7 +176,7 @@ export function ListingFilters({
           toggleCategory={toggleCategory}
           setCity={setCity}
           toggleEcoTag={toggleEcoTag}
-          toggleNomadFeature={toggleNomadFeature}
+          toggleNomadFeature={toggleDigitalNomadFeature}
           onSortChange={onSortChange}
           onCombinationsChange={(combinations) =>
             setFilters((prev) => ({ ...prev, combinations }))
@@ -198,7 +198,7 @@ interface FiltersContentProps {
   toggleCategory: (category: string) => void;
   setCity: (city: string | null) => void;
   toggleEcoTag: (tag: string) => void;
-  toggleNomadFeature: (feature: string) => void;
+  toggleDigitalNomadFeature: (feature: string) => void;
   onSortChange: (sortOption: SortOption) => void;
   onCombinationsChange: (combinations: FilterGroup[]) => void;
   onCombinationOperatorChange: (operator: FilterOperator) => void;
@@ -212,7 +212,7 @@ function FiltersContent({
   toggleCategory,
   setCity,
   toggleEcoTag,
-  toggleNomadFeature,
+  toggleDigitalNomadFeature,
   onSortChange,
   onCombinationsChange,
   onCombinationOperatorChange,
@@ -278,7 +278,7 @@ function FiltersContent({
             <div key={tag} className="flex items-center space-x-2">
               <Checkbox
                 id={`eco-${tag}`}
-                checked={filters.ecoTags.includes(tag)}
+                checked={filters.ecoFocusTags.includes(tag)}
                 onCheckedChange={() => toggleEcoTag(tag)}
               />
               <label
@@ -299,8 +299,8 @@ function FiltersContent({
           </label>
           <Checkbox
             id="wifi"
-            checked={filters.nomadFeatures.includes('wifi')}
-            onCheckedChange={() => toggleNomadFeature('wifi')}
+            checked={filters.digitalNomadFeatures.includes('wifi')}
+            onCheckedChange={() => toggleDigitalNomadFeature('wifi')}
           />
         </div>
         <div className="flex items-center justify-between">
@@ -309,8 +309,8 @@ function FiltersContent({
           </label>
           <Checkbox
             id="sustainable"
-            checked={filters.nomadFeatures.includes('sustainable')}
-            onCheckedChange={() => toggleNomadFeature('sustainable')}
+            checked={filters.digitalNomadFeatures.includes('sustainable')}
+            onCheckedChange={() => toggleDigitalNomadFeature('sustainable')}
           />
         </div>
       </div>

@@ -108,7 +108,12 @@ async function getFeaturedListings(limit = 10, preview = false) {
       ...,
       asset->
     },
-    "location": city->{
+    galleryImages[]{
+      ...,
+      asset->
+    },
+    location,
+    "city": city->{
       _id,
       name,
       country

@@ -47,7 +47,7 @@ export const test = base.extend<ListingsFixtures>({
   defaultFilters: async ({}, use) => {
     await use({
       categories: ['coworking', 'cafe', 'accommodation'],
-      ecoTags: [
+          ecoFocusTags: [
         'zero-waste',
         'renewable-energy',
         'plant-based',

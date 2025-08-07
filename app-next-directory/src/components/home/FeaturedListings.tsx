@@ -25,7 +25,8 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
       slug: (listing as any).city.slug?.current || (listing as any).city.slug,
       country: (listing as any).city.country,
     } : null,
-    ecoTags: (listing as any).ecoFocusTags || [],
+    ecoFocusTags: (listing as any).ecoFocusTags || [],
+    digitalNomadFeatures: (listing as any).digitalNomadFeatures || [],
     priceRange: (listing as any).priceRange,
     website: (listing as any).website,
     primaryImage: (listing as any).primaryImage,
@@ -33,13 +34,7 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
     shortDescription: (listing as any).shortDescription,
     longDescription: (listing as any).longDescription,
     address: (listing as any).address,
-    coordinates: (listing as any).location,
-    category: (listing as any).category,
-    contactPhone: (listing as any).contactPhone,
-    contactEmail: (listing as any).contactEmail,
-    type: (listing as any).type,
-    reviews: (listing as any).reviews,
-    moderation: (listing as any).moderation,
+    location: (listing as any).location,
   }));
 
   return (
@@ -56,32 +51,6 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
         </div>
       </div>
     </section>
-  );
+  )
 };
-
-function logListing(listing: AppListingCard, index: number) {
-  console.log(`${index + 1}. ${listing.name}`);
-  console.log(`   Slug: ${listing.slug || 'NO SLUG'}`);
-  console.log(`   Category: ${listing.category}`);
-  console.log(`   City: ${listing.city?.name || 'NO CITY'}`);
-  console.log(`   Image: ${listing.primaryImage?.asset?.url ? 'HAS IMAGE' : 'NO IMAGE'}`);
-  if (listing.primaryImage?.asset?.url) {
-    console.log(`   Image URL: ${listing.primaryImage.asset.url}`);
-  }
-  console.log('');
-}
-interface LogCityData {
-  title: string;
-  slug?: { current: string };
-  mainImage?: { asset?: { url: string } };
-}
-function logCity(city: LogCityData, index: number) {
-  console.log(`${index + 1}. ${city.title}`);
-  console.log(`   Slug: ${city.slug?.current || 'NO SLUG'}`);
-  console.log(`   Image: ${city.mainImage?.asset?.url ? 'HAS IMAGE' : 'NO IMAGE'}`);
-  if (city.mainImage?.asset?.url) {
-    console.log(`   Image URL: ${city.mainImage.asset.url}`);
-  }
-  console.log('');
-}
 export default FeaturedListings;

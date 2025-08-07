@@ -33,11 +33,12 @@ const LISTING_BY_SLUG_QUERY = groq`
       _id,
       rating,
       comment,
-      user->{
-        _id,
-        name
+      "userId": user._ref,
+      "user": user->{
+        name,
+        image
       },
-      createdAt
+      "createdAt": _createdAt
     },
     amenities[]->{
       _id,
@@ -57,7 +58,6 @@ const LISTING_BY_SLUG_QUERY = groq`
       description,
       icon
     },
-    sourceUrls[],
     moderation{status, featured, verificationStatus}
   }
 `;

@@ -1,4 +1,4 @@
-import { type Listing } from '../../../sanity/sanity.types';
+import { type Listing } from '@/types/sanity.types';
 import { ListingCategory } from '@/types/enums';
 
 export const mockListings: Listing[] = [

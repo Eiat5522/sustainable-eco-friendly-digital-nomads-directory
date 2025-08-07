@@ -29,21 +29,20 @@ export interface Listing {
   address: string;
   shortDescription: string;
   longDescription: string;
-  ecoTags: EcoTag[];
-  ecoDetails: {
-    description?: string;
-    ecoTags?: string[];
-    certifications?: string[];
-  };
-  sourceUrls: string[];
-  mainImage: string;
-  galleryImages: string[];
+  ecoFocusTags: EcoTag[];
+  mainImage?: string;
+  galleryImages?: string[];
+  priceRange?: string;
+  website?: string;
+  category?: string;
+  primaryImage?: any;
   digitalNomadFeatures: string[];
   lastVerifiedDate: string;
   moderationStatus?: string;
   verificationStatus?: string;
   ecoRating?: number;
   coordinates?: Coordinates;
+  location?: { lat: number; lng: number };
   coworkingDetails?: {
     operatingHours: string | null;
     pricingPlans: PricingPlan[];

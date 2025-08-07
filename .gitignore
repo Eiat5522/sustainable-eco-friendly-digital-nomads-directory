@@ -154,3 +154,5 @@ app-next-directory/docs/temp/temp_gemini_session.txt
 # Task files
 # tasks.json
 # tasks/ 
+.taskmaster/config.json
+.vscode/mcp.json

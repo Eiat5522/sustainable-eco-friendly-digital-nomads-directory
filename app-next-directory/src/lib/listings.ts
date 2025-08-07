@@ -17,20 +17,11 @@ function mapRawToListing(rawListing: any): Listing {
     address: rawListing.address || '',
     shortDescription: rawListing.shortDescription || rawListing.shortDescription || '',
     longDescription: rawListing.longDescription || rawListing.longDescription || '',
-    ecoTags: (rawListing.ecoTags || []).map((tag: any) => 
-      typeof tag === 'string' ? { _id: tag, name: tag, slug: { current: tag.toLowerCase().replace(/\s+/g, '-') }, description: '' } : tag
-    ),
-    sourceUrls: rawListing.sourceUrls || [],
     mainImage: rawListing.primary_image_url || rawListing.mainImage || '',
     galleryImages: rawListing.gallery_image_urls || rawListing.galleryImages || [],
     digitalNomadFeatures: rawListing.digitalNomadFeatures || [],
     lastVerifiedDate: rawListing.lastVerifiedDate || '',
-    coordinates: rawListing.coordinates || { latitude: 0, longitude: 0 },
-    ecoDetails: {
-      description: rawListing.ecoNotesDetailed || '',
-      ecoTags: rawListing.ecoTags || [],
-      certifications: []
-    }
+    location: rawListing.location || { lat: 0, lng: 0 },
   };
 }
 
@@ -107,12 +98,12 @@ export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
     type: raw.type,
     category: raw.category,
     address: raw.address,
-    coordinates: raw.location
+    location: raw.location
       ? { lat: raw.location.lat, lng: raw.location.lng }
       : undefined,
     primaryImage: raw.primaryImage,
     galleryImages: raw.galleryImages,
-    ecoTags: Array.isArray(raw.ecoFocusTags) ? raw.ecoFocusTags.map((tag: any) => tag.name) : [],
+    ecoFocusTags: Array.isArray(raw.ecoFocusTags) ? raw.ecoFocusTags.map((tag: any) => tag.name) : [],
     priceRange: raw.priceRange,
     contactPhone: raw.contactPhone,
     contactEmail: raw.contactEmail,
@@ -137,5 +128,6 @@ export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
     cafeDetails: raw.cafeDetails,
     restaurantDetails: raw.restaurantDetails,
     activitiesDetails: raw.activitiesDetails,
+    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures) ? raw.digitalNomadFeatures.map((feature: any) => feature.name) : [],
   };
 }

@@ -51,7 +51,7 @@ describe('ListingCard', () => {
       slug: 'test-city',
       country: 'Testland',
     },
-    ecoTags: ['eco1', 'eco2', 'eco3'],
+    ecoFocusTags: ['eco1', 'eco2', 'eco3'],
     primaryImage: {
       _type: 'image',
       asset: {
@@ -212,6 +212,7 @@ describe('ListingCard', () => {
       ...mockListing,
       primaryImage: undefined,
       galleryImages: [{
+        _type: 'image',
         _key: 'gallery-1',
         asset: { 
           _ref: 'sanity-gallery-image-id', 

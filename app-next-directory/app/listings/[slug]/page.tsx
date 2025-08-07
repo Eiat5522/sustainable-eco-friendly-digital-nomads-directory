@@ -36,8 +36,8 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
       slug: listing.city.slug || '',
       country: listing.city.country || ''
     } : null,
-    ecoTags: listing.ecoTags || [],
-    nomadFeatures: listing.nomadFeatures || [],
+    ecoFocusTags: listing.ecoFocusTags || [],
+    digitalNomadFeatures: listing.digitalNomadFeatures || [],
     contactPhone: listing.contactPhone,
     contactEmail: listing.contactEmail,
     website: listing.website,
@@ -156,13 +156,13 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
               </CardContent>
             </Card>
 
-            {Array.isArray(appListing.ecoTags) && appListing.ecoTags.length > 0 && (
+            {Array.isArray(appListing.ecoFocusTags) && appListing.ecoFocusTags.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Eco Tags</CardTitle>
                 </CardHeader>
                 <CardContent className="flex flex-wrap gap-2">
-                  {appListing.ecoTags.map((tag: string) => (
+                  {appListing.ecoFocusTags.map((tag: string) => (
                       <Badge key={tag} variant="secondary">
                         {tag}
                       </Badge>

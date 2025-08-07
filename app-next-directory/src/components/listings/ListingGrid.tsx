@@ -52,7 +52,7 @@ export function ListingGrid({ listings }: ListingGridProps) {
             </p>
 
             <div className="flex flex-wrap gap-2 mb-4">
-              {listing.ecoTags?.slice(0, 3).map((tag, tagIndex) => (
+              {listing.ecoFocusTags?.slice(0, 3).map((tag, tagIndex) => (
                 <span
                   key={`${listing.id}-tag-${tagIndex}`}
                   className="inline-block px-2 py-1 text-xs bg-primary-50 text-primary-700 rounded capitalize"
@@ -60,9 +60,9 @@ export function ListingGrid({ listings }: ListingGridProps) {
                   {String(tag).replace(/_/g, ' ')}
                 </span>
               ))}
-              {listing.ecoTags && listing.ecoTags.length > 3 && (
+              {listing.ecoFocusTags && listing.ecoFocusTags.length > 3 && (
                 <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
-                  +{listing.ecoTags.length - 3} more
+                  +{listing.ecoFocusTags.length - 3} more
                 </span>
               )}
             </div>

@@ -86,17 +86,41 @@ const mockListing: AppListingDetail = {
   priceRange: 'moderate',
   location: { lat: 40.7128, lng: -74.0060 },
   galleryImages: [
-    { _key: 'img1', asset: { _ref: '/test-image1.jpg' } },
-    { _key: 'img2', asset: { _ref: '/test-image2.jpg' } },
-    { _key: 'img3', asset: { _ref: '/test-image3.jpg' } },
-    { _key: 'img4', asset: { _ref: '/test-image4.jpg' } },
-    { _key: 'img5', asset: { _ref: '/test-image5.jpg' } },
-    { _key: 'img6', asset: { _ref: '/test-image6.jpg' } }
+    {
+      _type: 'image',
+      _key: 'image1',
+      asset: { _ref: 'image-ref-1' }
+    },
+    {
+      _type: 'image',
+      _key: 'image2',
+      asset: { _ref: 'image-ref-2' }
+    },
+    {
+      _type: 'image',
+      _key: 'image3',
+      asset: { _ref: 'image-ref-3' }
+    },
+    {
+      _type: 'image',
+      _key: 'image4',
+      asset: { _ref: 'image-ref-4' }
+    },
+    {
+      _type: 'image',
+      _key: 'image5',
+      asset: { _ref: 'image-ref-5' }
+    },
+    {
+      _type: 'image',
+      _key: 'image6',
+      asset: { _ref: 'image-ref-6' }
+    },
   ],
   primaryImage: { asset: { _ref: '/test-image1.jpg' } },
   city: { id: 'city1', name: 'New York', country: 'USA', slug: 'new-york' },
   type: 'accommodation',
-  ecoTags: ['Solar Power'],
+  ecoFocusTags: ['Solar Power'],
   website: 'https://example.com',
   contactEmail: 'owner@example.com',
   contactPhone: '+1234567890',
@@ -104,7 +128,7 @@ const mockListing: AppListingDetail = {
     { rating: 5, comment: 'Great place!', createdAt: '2023-01-01T00:00:00Z', user: { name: 'Alice' } },
     { rating: 4, comment: 'Good value', createdAt: '2023-01-02T00:00:00Z', user: { name: 'Bob' } }
   ],
-  nomadFeatures: [],
+  digitalNomadFeatures: [],
 };
 
 const mockListingWithoutCoords: AppListingDetail = {
@@ -138,12 +162,12 @@ const mockListingMinimal: AppListingDetail = {
   primaryImage: undefined,
   city: { id: 'city5', name: 'Minimal City', country: 'USA', slug: 'minimal-city' },
   type: 'accommodation',
-  ecoTags: [],
+  ecoFocusTags: [],
   website: undefined,
   contactEmail: undefined,
   contactPhone: undefined,
   reviews: undefined,
-  nomadFeatures: [],
+  digitalNomadFeatures: [],
 };
 
 describe('ListingDetail', () => {
@@ -504,7 +528,7 @@ describe('ListingDetail', () => {
   test('handles empty arrays gracefully', () => {
     const emptyListing: AppListingDetail = {
       ...mockListing,
-      ecoTags: [],
+      ecoFocusTags: [],
       reviews: [],
     };
     

@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import { defineField, defineType } from 'sanity'
 
 export default defineType({
   name: 'review',
@@ -6,9 +6,18 @@ export default defineType({
   type: 'document',
   fields: [
     defineField({
-      name: 'author',
-      title: 'Author',
-      type: 'string',
+      name: 'user',
+      title: 'User',
+      type: 'reference',
+      to: [{ type: 'user' }],
+      validation: Rule => Rule.required(),
+    }),
+    defineField({
+      name: 'listing',
+      title: 'Listing',
+      type: 'reference',
+      to: [{ type: 'listing' }],
+      validation: Rule => Rule.required(),
     }),
     defineField({
       name: 'rating',
@@ -20,11 +29,6 @@ export default defineType({
       name: 'comment',
       title: 'Comment',
       type: 'text',
-    }),
-    defineField({
-      name: 'date',
-      title: 'Date',
-      type: 'date',
     }),
   ],
 })

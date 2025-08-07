@@ -19,10 +19,9 @@ const postQuery = groq`
     "authorBio": author->bio,
     "readingTime": round(length(pt::text(body)) / 200),
     "relatedPosts": *[_type == "blogPost" && slug.current != $slug && count(tags[@ in ^.tags]) > 0] | order(publishedAt desc) [0...3] {
-      "slug": slug,
+      "slug": slug.current,
       _id,
       title,
-      slug,
       mainImage,
       publishedAt,
       excerpt,

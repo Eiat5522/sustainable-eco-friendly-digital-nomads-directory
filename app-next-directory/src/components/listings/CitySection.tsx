@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { City } from '../../../../sanity/sanity.types';
+import type { City } from '@/types/sanity.types';
 import { cn } from '@/lib/utils';
 
 import EcoCityCarousel from '../cities/CityCarousel';

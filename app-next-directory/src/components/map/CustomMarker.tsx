@@ -1,4 +1,7 @@
-"use client";  title.innerText = 'name' in listing ? listing.name ?? '' : '';import L from 'leaflet';
+"use client";
+import type { Listing } from '@/types/listings';
+import type { Listing as SanityListing } from '../../../sanity.types';
+import L from 'leaflet';
 
 // Create marker icon based on listing type
 export function createCustomMarker(listing: Listing | SanityListing) {

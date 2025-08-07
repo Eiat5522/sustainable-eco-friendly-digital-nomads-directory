@@ -14,7 +14,7 @@ interface StaticMapImageProps {
 export default function StaticMapImage({ listings }: StaticMapImageProps) {
   // Filter out listings without coordinates
   const validListings = listings.filter(
-    listing => listing.coordinates && listing.coordinates.lat && listing.coordinates.lng
+    listing => listing.location && listing.location.lat && listing.location.lng
   );
 
   return (

@@ -10,21 +10,29 @@
   //      "ENABLE_GUI": "true",
   //      "ENABLE_DETAILED_MODE": "true"
   //    }
-  //  },
-    "chroma": { // Runs the version last installed via uvx (typically Prod)
-        "command": "uvx",
-        "args": [
-          "chroma-mcp-server",
-          "--client-type=persistent",
-          "--embedding-function=default" // Example: Choose your embedding function
-      ],
-      "env": {
-        "CHROMA_DATA_DIR": "D:/Eiat_Folder/AppData/Local/Cline/MCP/ChromaDB", // Replace with your actual path
-      //"CHROMA_LOG_DIR":  "D:/Eiat_Folder/AppData/Local/Cline/MCP/ChromaDB",
-        "CHROMA_LOG_DIR":  "${workspaceFolder}/.vscode",
-        "LOG_LEVEL": "INFO",
-        "MCP_LOG_LEVEL": "INFO"
-             }
+  //    },
+       "task-master-ai": {
+          "command": "npx",
+            "args": ["-y", "--package=task-master-ai", "task-master-ai"],
+            "env": {
+                "GOOGLE_API_KEY": "AIzaSyCHM1rf3ij4bRx5wLIhQRTuvf879VzoG4AE",
+                "OPENROUTER_API_KEY": "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"
+              },
+            "type": "stdio"
+        },     
+        "chroma": { // Runs the version last installed via uvx (typically Prod)
+            "command": "uvx",
+            "args": [
+                "chroma-mcp-server",
+                "--client-type=persistent",
+                "--embedding-function=default" // Example: Choose your embedding function
+        ],
+            "env": {
+                "CHROMA_DATA_DIR": "D:/Eiat_Folder/AppData/Local/Cline/MCP/ChromaDB", // Replace with your actual path
+                "CHROMA_LOG_DIR":  "${workspaceFolder}/.vscode",
+                "LOG_LEVEL": "INFO",
+                "MCP_LOG_LEVEL": "INFO"
+            }
         }
     }
 }

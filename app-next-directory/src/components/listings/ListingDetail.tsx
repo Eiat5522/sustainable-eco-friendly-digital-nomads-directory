@@ -171,11 +171,11 @@ export default function ListingDetail({ listing }: ListingDetailProps) {
           )}
 
           {/* Eco Features */}
-          {listing.ecoTags && listing.ecoTags.length > 0 && (
+          {listing.ecoFocusTags && listing.ecoFocusTags.length > 0 && (
             <div>
               <h2 className="text-2xl font-semibold mb-4">Eco Features</h2>
               <div className="flex flex-wrap gap-2">
-                {listing.ecoTags.map((tag: string) => (
+                {listing.ecoFocusTags.map((tag: string) => (
                   <Badge key={tag} variant="secondary">
                     {tag}
                   </Badge>

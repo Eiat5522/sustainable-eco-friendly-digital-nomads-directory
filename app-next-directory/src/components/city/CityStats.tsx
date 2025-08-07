@@ -1,4 +1,4 @@
-import type { City } from '../../../../sanity/sanity.types';
+import type { City } from '@/types/sanity.types';
 import React from 'react';
 
 interface CityStatsProps {

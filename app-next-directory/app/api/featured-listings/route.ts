@@ -1,6 +1,6 @@
 // PATCH: Align GROQ query and DTO mapping with appView.ts
 import { client } from '@/lib/sanity/client';
-import type { AppListingCard, AppListingDetail, AppCity } from '@/types/appView';
+import type { AppListingCard, AppListingDetail, AppCity, SanityImage } from '@/types/appView';
 interface FeaturedListing {
   _id: string;
   name: string;
@@ -11,13 +11,13 @@ interface FeaturedListing {
     slug?: string;
     country?: string;
   };
-  ecoTags?: string[];
-  nomadFeatures?: string[];
+  ecoFocusTags?: string[];
+  digitalNomadFeatures?: string[];
   amenities?: Array<{
     _id: string;
     name: string;
     description?: string;
-    badge?: string;
+    badge?: SanityImage;
   }>;
   contactPhone?: string;
   contactEmail?: string;
@@ -27,29 +27,9 @@ interface FeaturedListing {
   shortDescription?: string;
   address?: string;
   category?: string;
-  coordinates?: { lat: number; lng: number };
-  primaryImage?: {
-    alt?: string;
-    asset?: {
-      _id?: string;
-      url?: string;
-      metadata?: {
-        dimensions?: any;
-        lqip?: string;
-      };
-    };
-  };
-  galleryImages?: {
-    alt?: string;
-    asset?: {
-      _id?: string;
-      url?: string;
-      metadata?: {
-        dimensions?: any;
-        lqip?: string;
-      };
-    };
-  }[];
+  location?: { lat: number; lng: number };
+  primaryImage?: SanityImage;
+  galleryImages?: SanityImage[];
   imageUrl?: string | null;
   coworkingDetails?: {
     capacity?: number;
@@ -88,14 +68,25 @@ export async function GET() {
       name,
       "slug": slug.current,
       "city": city->{ _id, name, "slug": slug.current, country },
-      "ecoTags": ecoFocusTags[]->name,
-      "nomadFeatures": digitalNomadFeatures[]->name,
+      "ecoFocusTags": ecoFocusTags[]->name,
+            "digitalNomadFeatures": digitalNomadFeatures[]->name,
       "amenities": amenities[]-> {
         _id,
         name,
         description,
-        badge
+        badge{
+          asset->{
+            _id,
+            url,
+            metadata {
+              dimensions,
+              lqip
+            }
+          }
+        }
       },
+      primaryImage,
+      galleryImages,
       contactPhone,
       contactEmail,
       website,
@@ -104,7 +95,7 @@ export async function GET() {
       shortDescription,
       address,
       category,
-      coordinates,
+      location,
       primaryImage{
         alt,
         asset->{
@@ -161,14 +152,17 @@ export async function GET() {
         slug: listing.city.slug || '',
         country: listing.city.country || ''
       } : null,
-      ecoTags: Array.isArray(listing.ecoTags) ? listing.ecoTags : [],
-      nomadFeatures: Array.isArray(listing.nomadFeatures) ? listing.nomadFeatures : [],
-      amenities: Array.isArray(listing.amenities) ? listing.amenities : [],
+      ecoFocusTags: Array.isArray(listing.ecoFocusTags) ? listing.ecoFocusTags : [],
+      digitalNomadFeatures: Array.isArray(listing.digitalNomadFeatures) ? listing.digitalNomadFeatures : [],
+      amenities: Array.isArray(listing.amenities) ? listing.amenities.map(amenity => ({
+        ...amenity,
+        badge: amenity.badge || undefined
+      })) : [],
       priceRange: listing.priceRange || undefined,
       website: listing.website || null,
       imageUrl: listing.imageUrl || null,
       primaryImage: listing.primaryImage || null,
-      galleryImages: Array.isArray(listing.galleryImages) ? listing.galleryImages : [],
+      galleryImages: listing.galleryImages || [],
       contactPhone: listing.contactPhone || null,
       contactEmail: listing.contactEmail || null,
       coworkingDetails: listing.coworkingDetails || null,
@@ -178,7 +172,7 @@ export async function GET() {
       shortDescription: listing.shortDescription || undefined,
       address: listing.address || undefined,
       category: listing.category || undefined,
-      coordinates: listing.coordinates || undefined
+      location: listing.location || undefined
     }));
 
     const endTime = performance.now();

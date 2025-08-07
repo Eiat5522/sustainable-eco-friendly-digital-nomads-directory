@@ -1,8 +1,8 @@
 import FeaturedListings from '@/components/listings/FeaturedListings';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { type Listing } from '@/types/listings';
-import { type Listing as SanityListing } from '../../sanity.types';
+import { type Listing as SanityListing } from '@/types/sanity.types';
 import { AppListingCard } from '@/types/appView';
 
 interface ListingsPageProps {
@@ -35,24 +35,33 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
     }
   }, [searchParams, router]);
 
-  const featuredListings: AppListingCard[] = initialListings.map(listing => {
-    const l = listing as any;
-    return {
-      id: l._id || l.id,
-      name: l.name ?? '',
-      slug: l.slug?.current || l.slug,
-      city: l.city ? {
-        id: l.city.id,
-        name: l.city.name,
-        slug: l.city.slug?.current || l.city.slug,
-        country: l.city.country,
-      } : null,
-      ecoTags: l.ecoTags || [],
-      priceRange: l.priceRange,
-      website: l.website,
-      category: l.category || l.type,
-    };
-  });
+  const isSanityListing = (l: Listing | SanityListing): l is SanityListing =>
+    '_id' in l;
+
+    const featuredListings: AppListingCard[] = useMemo(() => {
+    return initialListings.map(l => {
+      const id = isSanityListing(l) ? l._id : l.id;
+      return {
+        id: id,
+        name: l.name ?? '',
+        slug: l.slug?.current || l.slug,
+        city: l.city ? {
+          id: l.city.id,
+          name: l.city.name,
+          slug: l.city.slug?.current || l.city.slug,
+          country: l.city.country,
+        } : null,
+        ecoFocusTags: l.ecoFocusTags || [],
+        digitalNomadFeatures: l.digitalNomadFeatures || [],
+        priceRange: l.priceRange,
+        website: l.website,
+        category: l.category || l.type,
+        primaryImage: l.primaryImage,
+        galleryImages: l.galleryImages,
+        location: l.location,
+      };
+    });
+  }, [initialListings]);
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

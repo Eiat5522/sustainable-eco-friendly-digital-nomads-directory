@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchCityDetails, fetchCityListings } from '@/lib/api';
-import type { City } from '../../../../sanity/sanity.types'
+import type { City } from '@/types/sanity.types'
 import type { Listing } from '@/types';
 import React, { useEffect, useState } from 'react';
 import ImageCarousel from '../common/ImageCarousel';
