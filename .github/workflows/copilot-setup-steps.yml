@@ -27,10 +27,8 @@ jobs:
 
       - name: Preinstall Copilot Agent tools
         run: |
-          pnpm add -g @playwright/mcp@latest
+          pnpm add -g @playwright/mcp@1.2.3   # ← replace with tested version
           pnpm add -g @sanity/mcp-server@latest
-          pnpm add -g ref-tools-mcp@latest
-
-      # Optionally, run tests or other setup steps
+          pnpm add -g ref-tools-mcp@latest      # Optionally, run tests or other setup steps
       - name: Run tests
         run: pnpm test
