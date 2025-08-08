@@ -35,7 +35,7 @@ export async function fetchBySlug(type: string, slug: string, preview = false) {
       "related": *[_type == $type && slug.current != $slug][0..2]{
         title,
         slug,
-        "imageUrl": mainImage.asset->url
+        "imageUrl": primaryImage.asset->url
       }
     }`,
     { type, slug }

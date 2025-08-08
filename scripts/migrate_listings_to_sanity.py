@@ -346,7 +346,7 @@ def test_migration(client, num_listings=2):
                             )
 
                             if image_asset and '_id' in image_asset:
-                                sanity_doc["mainImage"] = {
+                                sanity_doc["primaryImage"] = {
                                     "_type": "image",
                                     "asset": {
                                         "_type": "reference",
@@ -578,7 +578,7 @@ def main():
                         )
 
                         if image_asset and '_id' in image_asset:
-                            sanity_doc["mainImage"] = {
+                            sanity_doc["primaryImage"] = {
                                 "_type": "image",
                                 "asset": {
                                     "_type": "reference",

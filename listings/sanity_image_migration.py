@@ -166,7 +166,7 @@ class SanityImageMigration:
 
                         # Update listing document in Sanity
                         await self.client.patch(row["id"]).set({
-                            "mainImage": sanity_asset
+                            "primaryImage": sanity_asset
                         }).commit()
 
                         self.stats["successful"] += 1

@@ -56,7 +56,7 @@ export function ListingGrid({
               }`}
             >
               <SanityImage
-                image={listing.mainImage}
+                image={listing.primaryImage}
                 alt={listing.name}
                 fill
                 sizes={viewMode === 'list' ? '12rem' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}

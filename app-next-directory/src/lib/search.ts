@@ -111,7 +111,7 @@ export async function searchListings(
       coordinates
     },
     coordinates,
-    mainImage {
+    "primaryImage": primaryImage {
       asset->,
       alt
     },
@@ -203,7 +203,7 @@ export async function getSimilarListings(
       descriptionShort,
       category,
       "city": city->name,
-      mainImage,
+      primaryImage,
       "ecoTags": ecoFocusTags[]->name,
       _score
     }

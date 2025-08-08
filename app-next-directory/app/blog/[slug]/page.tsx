@@ -12,7 +12,7 @@ interface BlogPost {
   _id: string;
   title: string;
   slug: { current: string };
-  mainImage?: any;
+  primaryImage?: any;
   publishedAt: string;
   excerpt?: string;
   body?: any[];
@@ -262,10 +262,10 @@ export default function BlogPostPage() {
         {/* Article */}
         <article className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
           {/* Featured Image */}
-          {post.mainImage && (
+          {post.primaryImage && (
             <div className="relative h-64 md:h-96 w-full overflow-hidden">
               <Image
-                src={urlFor(post.mainImage).width(1200).height(600).url()}
+                src={urlFor(post.primaryImage).width(1200).height(600).url()}
                 alt={post.title}
                 fill
                 priority
@@ -444,10 +444,10 @@ export default function BlogPostPage() {
                   key={relatedPost._id}
                   className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
                 >
-                  {relatedPost.mainImage && (
+                  {relatedPost.primaryImage && (
                     <div className="relative h-32 w-full overflow-hidden">
                       <Image
-                        src={urlFor(relatedPost.mainImage).width(300).height(150).url()}
+                        src={urlFor(relatedPost.primaryImage).width(300).height(150).url()}
                         alt={relatedPost.title}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"

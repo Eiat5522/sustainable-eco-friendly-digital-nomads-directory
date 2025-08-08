@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: CityPageParams): Promise<Meta
     const query = `*[_type == "city" && slug.current == $slug][0] {
       title,
       description,
-      mainImage {
+      primaryImage {
         asset->{
           url
         }
@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: CityPageParams): Promise<Meta
       title: `${city.name} | Eco-Friendly Digital Nomad Destination`,
       description: city.description || `Discover sustainable and eco-friendly places to stay and work remotely in ${city.name}.`,
       openGraph: {
-        images: [city.mainImage?.asset?.url || '/images/default-city.jpg'],
+        images: [city.primaryImage?.asset?.url || '/images/default-city.jpg'],
       },
     };
   } catch (error) {
@@ -60,7 +60,7 @@ export default async function CityPageRoute({ params }: CityPageParams) {
       country,
       sustainabilityScore,
       highlights,
-      mainImage {
+      primaryImage {
         asset->{
           _id,
           url,

@@ -8,13 +8,13 @@
     },
     "research": {
       "provider": "perplexity",
-      "modelId": "sonar-pro",
+      "modelId": "sonar",
       "maxTokens": 8700,
       "temperature": 0.1
     },
     "fallback": {
       "provider": "google",
-      "modelId": "gemini-2.5-flash-preview-04-17",
+      "modelId": "gemini-2.0-flash-lite",
       "maxTokens": 1048000,
       "temperature": 0.2
     }

@@ -55,9 +55,9 @@ export function CitySection({ city, listingStats, className }: CitySectionProps)
           {/* Left Column: Image and Description */}
           <div>
             <div className="relative aspect-4/3 rounded-lg overflow-hidden mb-6">
-              {city.mainImage && (
+              {city.primaryImage && (
                 <Image
-                  src={typeof city.mainImage === 'string' ? city.mainImage : ''}
+                  src={typeof city.primaryImage === 'string' ? city.primaryImage : ''}
                   alt={city.name}
                   fill
                   className="object-cover"

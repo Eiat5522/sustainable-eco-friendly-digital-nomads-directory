@@ -90,7 +90,7 @@ export async function searchListings(query: string): Promise<SearchResult[]> {
       type: 'coworking',
       description: 'A great coworking space',
       city: 'Bangkok',
-      mainImage: { asset: { url: 'https://example.com/image.jpg' } }
+      primaryImage: { asset: { url: 'https://example.com/image.jpg' } }
     }
   ]
 }

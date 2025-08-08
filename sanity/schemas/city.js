@@ -49,8 +49,8 @@ export default defineType({
       description: 'List key sustainability features or attractions.',
     }),
     defineField({
-      name: 'mainImage',
-      title: 'Main Image',
+      name: 'primaryImage',
+      title: 'Primary Image',
       ...imageWithAlt
     }),
   ],
@@ -58,7 +58,7 @@ export default defineType({
     select: {
       title: 'name',
       subtitle: 'country',
-      media: 'mainImage',
+      media: 'primaryImage',
     },
   },
 })

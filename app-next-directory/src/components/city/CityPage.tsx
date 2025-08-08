@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchCityDetails, fetchCityListings } from '@/lib/api';
-import type { City } from '@/types/sanity.types'
+import type { City } from '@/sanity.types'
 import type { Listing } from '@/types';
 import React, { useEffect, useState } from 'react';
 import ImageCarousel from '../common/ImageCarousel';
@@ -53,10 +53,10 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
       <p className="text-gray-600 mb-6">{city.country}</p>
 
       {/* Main Image Only (no gallery) */}
-      {city.mainImage && (
+      {city.primaryImage && (
         <div className="mb-8">
           <img
-            src={typeof city.mainImage === 'string' ? city.mainImage : ''}
+            src={typeof city.primaryImage === 'string' ? city.primaryImage : ''}
             alt={city.name}
             className="rounded-lg shadow w-full h-64 object-cover"
           />

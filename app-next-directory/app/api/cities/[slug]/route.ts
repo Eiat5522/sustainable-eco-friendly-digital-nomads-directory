@@ -23,7 +23,7 @@ export async function GET(
       country,
       sustainabilityScore,
       highlights,
-      mainImage {
+      primaryImage {
         asset->{
           _id,
           url,

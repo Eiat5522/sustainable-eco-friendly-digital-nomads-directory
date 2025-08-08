@@ -30,7 +30,7 @@ export interface Listing {
   shortDescription: string;
   longDescription: string;
   ecoFocusTags: EcoTag[];
-  mainImage?: string;
+  primaryImage?: string;
   galleryImages?: string[];
   priceRange?: string;
   website?: string;

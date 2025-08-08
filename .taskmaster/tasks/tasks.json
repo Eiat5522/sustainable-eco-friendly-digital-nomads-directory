@@ -1,0 +1,148 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Create Dynamic Route for Listing Detail Pages",
+        "description": "Set up the Next.js dynamic route for listing detail pages.",
+        "details": "Create the file app/src/app/listings/[id]/page.tsx. Configure the dynamic route to accept a listing ID (or slug). Ensure the route correctly handles different listing IDs.",
+        "testStrategy": "Verify the route functions correctly by navigating to a listing detail page using different listing IDs. Check for 404 errors for invalid IDs.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Implement GROQ Queries for Listing Data",
+        "description": "Implement GROQ queries to fetch listing data from Sanity CMS.",
+        "details": "Write GROQ queries to fetch all necessary data for a listing: description, amenities, eco-features, images, coordinates, reviews, and any other relevant information. Use the Sanity client to execute these queries within the Next.js server component.",
+        "testStrategy": "Test the GROQ queries by logging the fetched data to the console and verifying that all required fields are present and contain the correct data types.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Define TypeScript Interfaces for Listing Data",
+        "description": "Define TypeScript interfaces for listing data.",
+        "details": "Create TypeScript interfaces to represent the structure of the data fetched from Sanity. This will ensure type safety across the application and prevent errors. Define interfaces for listings, amenities, eco-features, reviews, and any other relevant data structures.",
+        "testStrategy": "Ensure that the TypeScript interfaces are correctly defined and that the data fetched from Sanity conforms to these interfaces. Use TypeScript's type checking to validate data consistency.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Build Hero Section",
+        "description": "Build the hero section with the main image and listing name.",
+        "details": "Implement the hero section using the next/image component for responsive image loading. Display the listing name and a tagline (if available) overlaid on the hero image. Use blur placeholders for improved loading experience.",
+        "testStrategy": "Verify that the hero image loads correctly, the listing name is displayed, and the image is responsive across different screen sizes. Check the blur placeholder functionality.",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Render Listing Details",
+        "description": "Render the listing description, amenities, and eco-features.",
+        "details": "Display the listing description, amenities, and eco-features fetched from Sanity. Use a clear and readable layout. For amenities, consider using an icon-based list with tooltips for additional information.",
+        "testStrategy": "Verify that the description, amenities, and eco-features are displayed correctly and that the layout is responsive. Check the functionality of the tooltips (if implemented).",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Integrate Image Gallery",
+        "description": "Integrate the ImageGallery component for displaying multiple photos.",
+        "details": "Reuse the existing ImageGallery.tsx component. Implement modal viewing for the images. Ensure lazy loading of images for performance optimization.",
+        "testStrategy": "Verify that the image gallery displays the correct images, that the modal view works correctly, and that images load lazily. Test swipe navigation.",
+        "priority": "medium",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Develop Review Section",
+        "description": "Develop a review section to display user reviews.",
+        "details": "Fetch reviews from the Review API. Display star ratings, comments, and aggregate scores. Implement pagination if there are many reviews.",
+        "testStrategy": "Verify that the review section displays the correct reviews, star ratings, and aggregate scores. Test pagination if implemented.",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Add CTA Buttons",
+        "description": "Add CTA buttons connecting to existing contact form system.",
+        "details": "Implement \"Contact Host\", \"Check Availability\", and \"Bookmark\" buttons. Connect these buttons to the existing contact form system and favorites dashboard. Ensure user authentication for protected actions.",
+        "testStrategy": "Verify that the CTA buttons function correctly and redirect users to the appropriate actions. Test the contact form submission and bookmarking functionality.",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Integrate Interactive Map",
+        "description": "Integrate an interactive map component (Mapbox or Google Maps).",
+        "details": "Use the listing coordinates fetched from Sanity to display an interactive map. Support panning and zooming. Consider adding directions and neighborhood information where available.",
+        "testStrategy": "Verify that the map displays the correct location, supports panning and zooming, and that directions (if implemented) function correctly.",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Implement SEO and Performance Optimizations",
+        "description": "Implement SEO and performance optimizations.",
+        "details": "Add dynamic meta tags using the Next.js metadata API. Implement lazy loading for images and code splitting for client components. Optimize image sizes and bundle size. Consider using Incremental Static Regeneration (ISR) where appropriate.",
+        "testStrategy": "Verify that the dynamic meta tags are correctly generated and that the page performs well. Use SEO analysis tools to check for any issues. Test image loading and lazy loading.",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-08T09:54:11.597Z",
+      "updated": "2025-08-08T09:54:11.597Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

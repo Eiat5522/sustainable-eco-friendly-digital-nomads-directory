@@ -40,7 +40,7 @@ export interface Listing {
   longDescription?: string
   type: ListingType
   priceRange?: PriceRange;
-  mainImage?: {
+  primaryImage?: {
     asset: {
       _ref: string
       url: string

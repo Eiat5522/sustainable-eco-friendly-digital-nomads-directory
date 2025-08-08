@@ -2,8 +2,9 @@ import FeaturedListings from '@/components/listings/FeaturedListings';
 import { useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { type Listing } from '@/types/listings';
-import { type Listing as SanityListing } from '@/types/sanity.types';
+import { type Listing as SanityListing } from '@/../sanity.types';
 import { AppListingCard } from '@/types/appView';
+import { mapSanityListingToCard } from '@/lib/listings';
 
 interface ListingsPageProps {
   initialListings: Array<Listing | SanityListing>;
@@ -22,11 +23,7 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
         'cafes': 'Cafe',
         'restaurants': 'Restaurant',
         'accommodation': 'Accommodation',
-        'retail': 'Retail',
-        'offices': 'Office',
-        'fashion': 'Fashion',
-        'community': 'Community',
-        'events': 'Events'
+        'activities': 'Activities'
       };
 
       const searchTerm = categoryMap[category] || category;
@@ -35,32 +32,15 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
     }
   }, [searchParams, router]);
 
-  const isSanityListing = (l: Listing | SanityListing): l is SanityListing =>
-    '_id' in l;
-
-    const featuredListings: AppListingCard[] = useMemo(() => {
+  const featuredListings: AppListingCard[] = useMemo(() => {
     return initialListings.map(l => {
-      const id = isSanityListing(l) ? l._id : l.id;
-      return {
-        id: id,
-        name: l.name ?? '',
-        slug: l.slug?.current || l.slug,
-        city: l.city ? {
-          id: l.city.id,
-          name: l.city.name,
-          slug: l.city.slug?.current || l.city.slug,
-          country: l.city.country,
-        } : null,
-        ecoFocusTags: l.ecoFocusTags || [],
-        digitalNomadFeatures: l.digitalNomadFeatures || [],
-        priceRange: l.priceRange,
-        website: l.website,
-        category: l.category || l.type,
-        primaryImage: l.primaryImage,
-        galleryImages: l.galleryImages,
-        location: l.location,
-      };
-    });
+      try {
+        return mapSanityListingToCard(l);
+      } catch (e) {
+        console.warn('[WARN] Failed to map listing on listings page', (l as any)?._id || (l as any)?.id, e);
+        return null as any;
+      }
+    }).filter(Boolean);
   }, [initialListings]);
 
   return (

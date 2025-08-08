@@ -51,11 +51,11 @@ async function inspectCityReferences() {
       console.log(`${index + 1}. ${city.title || city.name} (ID: ${city.id})`);
     });
 
-      if (city.mainImage?.asset) {
-        console.log('- Image Asset ID:', city.mainImage.asset._id);
-        console.log('- Image URL:', city.mainImage.asset.url);
+      if (city.primaryImage?.asset) {
+        console.log('- Image Asset ID:', city.primaryImage.asset._id);
+        console.log('- Image URL:', city.primaryImage.asset.url);
         console.log('- Image Dimensions:',
-          `${city.mainImage.asset.metadata?.dimensions?.width}x${city.mainImage.asset.metadata?.dimensions?.height}`);
+          `${city.primaryImage.asset.metadata?.dimensions?.width}x${city.primaryImage.asset.metadata?.dimensions?.height}`);
       } else {
         console.log('- Image: No image data');
       }
@@ -77,8 +77,8 @@ async function testImageUrls() {
       console.log('\n=== TESTING IMAGE URL GENERATION ===');
 
       for (const city of cities) {
-        if (city.mainImage?.asset) {
-          const imageUrl = city.mainImage.asset.url;
+        if (city.primaryImage?.asset) {
+          const imageUrl = city.primaryImage.asset.url;
           console.log(`\nTesting image for ${city.title}:`);
           console.log('Original URL:', imageUrl);
 

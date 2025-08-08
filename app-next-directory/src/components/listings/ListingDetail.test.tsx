@@ -290,8 +290,8 @@ describe('ListingDetail', () => {
     render(<ListingDetail listing={mockListing} />);
     
     // Find and click the main image
-    const mainImage = screen.getAllByRole('img')[0];
-    await user.click(mainImage);
+    const primaryImage = screen.getAllByRole('img')[0];
+    await user.click(primaryImage);
     
     // Check if lightbox is opened
     await waitFor(() => {
@@ -304,8 +304,8 @@ describe('ListingDetail', () => {
     render(<ListingDetail listing={mockListing} />);
     
     // Open lightbox
-    const mainImage = screen.getAllByRole('img')[0];
-    await user.click(mainImage);
+    const primaryImage = screen.getAllByRole('img')[0];
+    await user.click(primaryImage);
     
     // Wait for lightbox to open
     await waitFor(() => {
@@ -328,8 +328,8 @@ describe('ListingDetail', () => {
     render(<ListingDetail listing={mockListing} />);
     
     // Open lightbox
-    const mainImage = screen.getAllByRole('img')[0];
-    await user.click(mainImage);
+    const primaryImage = screen.getAllByRole('img')[0];
+    await user.click(primaryImage);
     
     // Wait for lightbox to open
     await waitFor(() => {
@@ -379,8 +379,8 @@ describe('ListingDetail', () => {
     render(<ListingDetail listing={mockListing} />);
     
     // Open lightbox
-    const mainImage = screen.getAllByRole('img')[0];
-    await user.click(mainImage);
+    const primaryImage = screen.getAllByRole('img')[0];
+    await user.click(primaryImage);
     
     // Wait for lightbox to open
     await waitFor(() => {
@@ -494,8 +494,8 @@ describe('ListingDetail', () => {
     render(<ListingDetail listing={mockListing} />);
     
     // Open lightbox
-    const mainImage = screen.getAllByRole('img')[0];
-    await user.click(mainImage);
+    const primaryImage = screen.getAllByRole('img')[0];
+    await user.click(primaryImage);
     
     // Wait for lightbox to open
     await waitFor(() => {

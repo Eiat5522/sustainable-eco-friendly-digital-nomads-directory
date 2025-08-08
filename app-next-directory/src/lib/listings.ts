@@ -3,6 +3,9 @@ import listings from '../data/listings.json';
 import { Listing } from '../types/listings';
 
 // Function to map raw JSON to Listing objects
+/**
+ * TEMP legacy JSON -> Listing mapper (to be deprecated once all data served via Sanity DTO layer)
+ */
 function mapRawToListing(rawListing: any): Listing {
   return {
     _id: rawListing.id || rawListing._id || '',
@@ -15,9 +18,10 @@ function mapRawToListing(rawListing: any): Listing {
       : rawListing.city || { name: '', slug: { current: '' } },
     type: rawListing.category || rawListing.type || 'coworking',
     address: rawListing.address || '',
-    shortDescription: rawListing.shortDescription || rawListing.shortDescription || '',
-    longDescription: rawListing.longDescription || rawListing.longDescription || '',
-    mainImage: rawListing.primary_image_url || rawListing.mainImage || '',
+    shortDescription: rawListing.shortDescription || '',
+    longDescription: rawListing.longDescription || '',
+    // Legacy field names normalisation: expose both primaryImage (legacy) and primaryImage (DTO aligned)
+    primaryImage: rawListing.primary_image_url || rawListing.primaryImage || '',
     galleryImages: rawListing.gallery_image_urls || rawListing.galleryImages || [],
     digitalNomadFeatures: (rawListing.digitalNomadFeatures || []).map((feature: any) =>
       typeof feature === 'string' ? feature : feature.name
@@ -82,13 +86,45 @@ export function filterListings(options: FilterOptions): Listing[] {
 }
 
 // Maps a raw Sanity listing result to AppListingDetail DTO
-import { AppListingDetail, AppCity } from '@/types/appView';
+import { AppListingDetail, AppListingCard, AppCity } from '@/types/appView';
+
+export function isSanityListing(raw: any): boolean {
+  return !!raw && typeof raw === 'object' && typeof raw._id === 'string' && typeof raw.name === 'string';
+}
+
+export function mapSanityListingToCard(raw: any): AppListingCard {
+  if (!isSanityListing(raw)) {
+    throw new Error('Invalid Sanity listing object');
+  }
+  return {
+    id: raw._id,
+    name: raw.name || '',
+    slug: typeof raw.slug === 'string' ? raw.slug : raw.slug?.current || '',
+    city: raw.city && raw.city.name ? {
+      id: raw.city._id || '',
+      name: raw.city.name || '',
+      slug: typeof raw.city.slug === 'string' ? raw.city.slug : raw.city.slug?.current || '',
+      country: raw.city.country
+    } : null,
+    ecoFocusTags: Array.isArray(raw.ecoFocusTags) ? raw.ecoFocusTags.map((t: any) => typeof t === 'string' ? t : t?.name).filter(Boolean) : [],
+    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures) ? raw.digitalNomadFeatures.map((f: any) => typeof f === 'string' ? f : f?.name).filter(Boolean) : [],
+    priceRange: raw.priceRange,
+    website: raw.website || null,
+    primaryImage: raw.primaryImage,
+    galleryImages: raw.galleryImages,
+    shortDescription: raw.shortDescription,
+    address: raw.address,
+    category: raw.category,
+    location: raw.location ? { lat: raw.location.lat, lng: raw.location.lng } : undefined,
+    type: raw.type
+  };
+}
 
 export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
   return {
     id: raw._id,
     name: raw.name,
-    slug: raw.slug,
+    slug: typeof raw.slug === 'string' ? raw.slug : raw.slug?.current, // normalize to string
     city: raw.city
       ? {
           id: raw.city._id,
@@ -112,13 +148,13 @@ export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
     website: raw.website,
     shortDescription: raw.shortDescription,
     longDescription: raw.longDescription,
-    reviews: (raw.reviews || []).map((review: any) => ({
+    reviews: Array.isArray(raw.reviews) ? raw.reviews.map((review: any) => ({
       id: review._id,
       rating: review.rating,
       comment: review.comment,
-      user: review.user ? { id: review.user._id, name: review.user.name } : null,
+      user: review.user ? { name: review.user.name, image: review.user.image } : undefined,
       createdAt: review.createdAt,
-    })),
+    })) : [],
     amenities: (raw.amenities || []).map((amenity: any) => ({
       id: amenity._id,
       name: amenity.name,

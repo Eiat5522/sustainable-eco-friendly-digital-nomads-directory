@@ -11,7 +11,7 @@ interface City {
   description: string;
   sustainabilityScore?: number;
   highlights?: string[];
-  mainImage: string;
+  primaryImage: string;
   galleryImages: string[];
   digitalNomadFeatures: string[];
 }
@@ -52,9 +52,9 @@ export default function CitiesSection() {
           {cities.map(city => (
             <div key={city.id} className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
               <div className="relative w-full h-48">
-                {city.mainImage ? (
+                {city.primaryImage ? (
                   <Image
-                    src={city.mainImage}
+                    src={city.primaryImage}
                     alt={city.name}
                     fill
                     className="object-cover"

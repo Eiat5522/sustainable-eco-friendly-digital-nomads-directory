@@ -52,7 +52,7 @@ async function inspectData() {
         _id,
         title,
         slug,
-        mainImage {
+        primaryImage {
           asset->{
             _id,
             url
@@ -64,9 +64,9 @@ async function inspectData() {
         cities.forEach((city, index) => {
             console.log(`${index + 1}. ${city.title}`);
             console.log(`   Slug: ${city.slug?.current || 'NO SLUG'}`);
-            console.log(`   Image: ${city.mainImage?.asset?.url ? 'HAS IMAGE' : 'NO IMAGE'}`);
-            if (city.mainImage?.asset?.url) {
-                console.log(`   Image URL: ${city.mainImage.asset.url}`);
+            console.log(`   Image: ${city.primaryImage?.asset?.url ? 'HAS IMAGE' : 'NO IMAGE'}`);
+            if (city.primaryImage?.asset?.url) {
+                console.log(`   Image URL: ${city.primaryImage.asset.url}`);
             }
             console.log('');
         });

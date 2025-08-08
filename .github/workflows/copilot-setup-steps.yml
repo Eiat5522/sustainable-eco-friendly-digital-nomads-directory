@@ -1,4 +1,4 @@
-# .github/workflows/copilot-agent-env.yml
+# .github/workflows/copilot-setup-steps.yml
 name: Setup Copilot Agent Environment
 
 on:

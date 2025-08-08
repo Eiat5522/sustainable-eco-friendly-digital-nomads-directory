@@ -442,7 +442,7 @@ export type BlogPost = {
     [internalGroqTypeReferenceTo]?: 'user'
   }
   publishedAt?: string
-  mainImage?: {
+  primaryImage?: {
     asset?: {
       _ref: string
       _type: 'reference'
@@ -746,7 +746,7 @@ export type City = {
   description?: string
   sustainabilityScore?: number
   highlights?: Array<string>
-  mainImage?: {
+  primaryImage?: {
     asset?: {
       _ref: string
       _type: 'reference'

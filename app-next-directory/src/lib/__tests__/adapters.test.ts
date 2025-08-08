@@ -33,7 +33,7 @@ describe('jsonToSanityListing', () => {
       listingCount: 25,
       country: 'Thailand'
     },
-    mainImage: {
+    primaryImage: {
       _type: 'image',
       asset: {
         _ref: 'image-main-ref',

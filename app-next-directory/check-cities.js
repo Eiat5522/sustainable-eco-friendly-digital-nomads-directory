@@ -10,7 +10,7 @@ async function checkCities() {
         title,
         "slug": slug.current,
         description,
-        mainImage {
+        primaryImage {
           asset->{
             url
           }

@@ -49,7 +49,7 @@ async function getAllCities(preview = false) {
     description,
     sustainabilityScore,
     highlights,
-    mainImage {
+    "primaryImage": primaryImage {
       asset->{
         _id,
         url,
@@ -89,7 +89,7 @@ async function getLatestBlogPosts(limit = 3, preview = false) {
     title,
     "slug": slug.current,
     excerpt,
-    mainImage,
+    "primaryImage": primaryImage,
     _createdAt,
     "author": author->name
   }`;

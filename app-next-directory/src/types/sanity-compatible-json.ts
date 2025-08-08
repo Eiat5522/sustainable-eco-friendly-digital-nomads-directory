@@ -25,7 +25,7 @@ export interface JsonListing {
     listingCount: number;
     country: string;
   };
-  mainImage?: {
+  primaryImage?: {
     _type: 'image';
     asset: {
       _ref: string;

@@ -79,7 +79,7 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
     ecoTags,
 
     sourceUrls: json.sourceUrls ?? [],
-    mainImage: json.mainImage && json.mainImage.asset ? { asset: { _ref: json.mainImage.asset._ref || '', url: json.mainImage.asset.url || '' } } : undefined,
+    primaryImage: json.primaryImage && json.primaryImage.asset ? { asset: { _ref: json.primaryImage.asset._ref || '', url: json.primaryImage.asset.url || '' } } : undefined,
     galleryImages: Array.isArray(json.galleryImages)
       ? json.galleryImages
           .map(img => img && img.asset ? { asset: { _ref: img.asset._ref || '', url: img.asset.url || '' } } : null)

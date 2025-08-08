@@ -13,7 +13,7 @@ export async function GET(request: Request) {
       endDate,
       location,
       ecoInitiatives,
-      "imageUrl": mainImage.asset->url,
+      "imageUrl": primaryImage.asset->url,
       description
     }`;
 

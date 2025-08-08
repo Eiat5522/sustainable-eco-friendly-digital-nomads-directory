@@ -35,8 +35,8 @@ export default {
       initialValue: () => new Date().toISOString(),
     },
     {
-      name: 'mainImage',
-      title: 'Main Image',
+      name: 'primaryImage',
+      title: 'Primary Image',
       ...imageWithAlt
     },
     {

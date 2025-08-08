@@ -9,7 +9,7 @@ const postQuery = groq`
     _id,
     title,
     "slug": slug.current,
-    mainImage,
+    "primaryImage": primaryImage,
     publishedAt,
     excerpt,
     body,
@@ -22,7 +22,7 @@ const postQuery = groq`
       "slug": slug.current,
       _id,
       title,
-      mainImage,
+      "primaryImage": primaryImage,
       publishedAt,
       excerpt,
       "authorName": author->name

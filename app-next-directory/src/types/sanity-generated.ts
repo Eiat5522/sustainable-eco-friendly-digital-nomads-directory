@@ -17,4 +17,4 @@ export type {
   BlogPost as SanityBlogPost,
   Review as SanityReview,
   User as SanityUser
-} from '@/types/sanity.types'
+} from '@/sanity.types'

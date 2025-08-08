@@ -111,7 +111,7 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
   longDescription: text
   ecoTags: array<reference(ecoTag)>
   ecoNotesDetailed: text
-  mainImage: image
+  primary: image
   galleryImages: array<image>
   digitalNomadFeatures: array<string>
   lastVerifiedDate: date
@@ -144,7 +144,7 @@ All schema files in `sanity/schemas/` have been successfully refactored to use c
   description: text
   sustainabilityScore: number
   highlights: array<string>
-  mainImage: image
+  primary: image
 }
 ```
 
@@ -285,7 +285,7 @@ export interface Listing extends SanityDocument {
   longDescription?: string
   ecoTags?: Array<Reference>
   ecoNotesDetailed?: string
-  mainImage?: ImageAsset
+  primary?: ImageAsset
   galleryImages?: Array<ImageAsset>
   digitalNomadFeatures?: Array<string>
   lastVerifiedDate?: string

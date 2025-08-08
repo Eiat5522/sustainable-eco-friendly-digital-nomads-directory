@@ -42,7 +42,7 @@ export interface SearchResult {
     lat: number;
     lng: number;
   };
-  mainImage: {
+  primaryImage: {
     asset: {
       _ref: string;
       url: string;

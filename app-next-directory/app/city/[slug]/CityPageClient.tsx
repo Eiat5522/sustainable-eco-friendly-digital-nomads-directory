@@ -24,9 +24,9 @@ export default function CityPageClient({ city, listings }: CityPageClientProps) 
       <section className="relative h-[80vh] w-full overflow-hidden">
         {/* Background Image with Parallax Effect */}
         <div className="absolute inset-0">
-          {city.mainImage?.asset?.url && (
+          {city.primaryImage?.asset?.url && (
             <Image
-              src={city.mainImage.asset.url}
+              src={city.primaryImage.asset.url}
               alt={city.name}
               fill
               className="object-cover transform scale-105 motion-safe:animate-subtle-zoom"

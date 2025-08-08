@@ -39,7 +39,7 @@ export interface SearchResult {
   type: string
   description: string
   city: string
-  mainImage?: {
+  primaryImage?: {
     asset: {
       url: string
     }

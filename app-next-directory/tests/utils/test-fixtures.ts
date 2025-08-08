@@ -28,7 +28,7 @@ export const test = base.extend<ListingsFixtures>({
         ecoFocusTags: [{ _id: '1', name: 'zero-waste', slug: { current: 'zero-waste' }, description: 'Zero waste practices' }],
         shortDescription: 'Eco notes', //map to ecoNotesDetailed for data migration
         sourceUrls: [],
-        mainImage: '/test.jpg',
+        primaryImage: '/test.jpg',
         galleryImages: [],
         digitalNomadFeatures: ['wifi'],
         lastVerifiedDate: '2025-05-14',

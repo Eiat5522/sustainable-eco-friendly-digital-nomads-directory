@@ -7,7 +7,7 @@ interface City {
   title: string;
   description: string;
   slug: string;
-  mainImage: {
+  primaryImage: {
     asset: {
       _id: string;
       url: string;
@@ -34,7 +34,7 @@ export default function CitiesCarousel({ cities }: CitiesCarouselProps) {
   const ecoCities = cities.map((city) => ({
     _id: city._id,
     name: city.title,
-    image: city.mainImage?.asset?.url,
+    image: city.primaryImage?.asset?.url,
     sustainabilityScore: city.sustainabilityScore,
     highlights: city.highlights,
   }));

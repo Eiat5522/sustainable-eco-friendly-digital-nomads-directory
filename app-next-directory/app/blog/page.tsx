@@ -9,7 +9,7 @@ interface BlogPost {
   _id: string;
   title: string;
   slug: { current: string };
-  mainImage?: any;
+  primaryImage?: any;
   publishedAt: string;
   excerpt?: string;
   tags?: string[];
@@ -144,10 +144,10 @@ export default function BlogPage() {
                   className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
                 >
                   {/* Featured Image */}
-                  {post.mainImage && (
+                  {post.primaryImage && (
                     <div className="relative h-48 w-full overflow-hidden">
                       <Image
-                        src={urlFor(post.mainImage).width(400).height(200).url()}
+                        src={urlFor(post.primaryImage).width(400).height(200).url()}
                         alt={post.title}
                         fill
                         priority

@@ -23,7 +23,7 @@ export async function GET() {
       country,
       sustainabilityScore,
       highlights,
-      "image": mainImage {
+      "image": primaryImage { // TODO: rename field in schema to primaryImage later
         alt,
         _type,
         "asset": asset->{

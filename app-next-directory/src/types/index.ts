@@ -37,7 +37,7 @@ export interface LocalCity {
   description: string;
   shortDescription?: string;
   images?: string[];
-  mainImage?: string;
+  primaryImage?: string;
   galleryImages?: string[];
   coordinates?: {
     latitude: number;
