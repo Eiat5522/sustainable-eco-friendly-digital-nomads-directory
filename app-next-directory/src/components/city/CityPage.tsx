@@ -1,10 +1,9 @@
 "use client";
 
 import { fetchCityDetails, fetchCityListings } from '@/lib/api';
-import type { City } from '@/sanity.types'
+import type { City } from '@/types/sanity.types';
 import type { Listing } from '@/types';
 import React, { useEffect, useState } from 'react';
-import ImageCarousel from '../common/ImageCarousel';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { ListingGrid } from '../listings/ListingGrid';
 import CityStats from './CityStats';
