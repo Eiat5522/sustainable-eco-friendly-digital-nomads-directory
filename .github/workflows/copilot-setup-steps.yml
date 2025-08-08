@@ -31,14 +31,6 @@ jobs:
           pnpm add -g @sanity/mcp-server@latest
           pnpm add -g ref-tools-mcp@latest
 
-      - name: Set environment variables for Copilot Agent
-        run: |
-          echo "REF_API_KEY=ref-03e29ed6b45d8216ad36" >> $GITHUB_ENV
-          echo "SANITY_PROJECT_ID=sc70w3cr" >> $GITHUB_ENV
-          echo "SANITY_DATASET=production" >> $GITHUB_ENV
-          echo "SANITY_API_TOKEN=skNVjIa74K4yQWW8H2y5HAeQrxNzLcfM35c6pftrxXtnqr0IiOnicSMOH4EDqZ4KqAaTm7fFLpBpvmx0tiWDCFqEBtrOH4ewZIvi7exfbQcQmZjwYYhpb0d5h7Sawh95JJkHgs8EXkXDkI8gUMNHdnidcuR5qMuYLHdiStGKJSUHRrKwz4vW" >> $GITHUB_ENV
-          echo "MCP_USER_ROLE=developer" >> $GITHUB_ENV
-
       # Optionally, run tests or other setup steps
       - name: Run tests
         run: pnpm test

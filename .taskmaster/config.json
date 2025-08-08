@@ -31,12 +31,7 @@
     "responseLanguage": "English",
     "defaultTag": "master",
     "azureOpenaiBaseURL": "https://your-endpoint.openai.azure.com/",
-    "userId": "1234567890",
-    "env": {
-        "GOOGLE_API_KEY": "AIzaSyCHM1rf3ij4bRx5wLIhQRTuvf879VzoG4A",
-        "OPENROUTER_API_KEY": "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",
-        "GITHUB_API_KEY": "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"
-    }
+    "userId": "1234567890"
   },
   "claudeCode": {}
 }

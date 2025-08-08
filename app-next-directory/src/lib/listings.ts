@@ -61,7 +61,7 @@ export function filterListings(options: FilterOptions): Listing[] {
         }
       }
       if (options.hasEcoTags) {
-        if (!listing.ecoTags || listing.ecoTags.length === 0) {
+        if (!listing.ecoFocusTags || listing.ecoFocusTags.length === 0) {
           return false;
         }
       }
