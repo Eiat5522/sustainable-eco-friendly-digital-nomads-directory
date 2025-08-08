@@ -17,17 +17,9 @@ import { Card } from "@/components/ui/card";
 import SanityImage from "@/components/SanityImage";
 import Image from "next/image";
 
-import type { SanityImage as SanityImageType } from "@/types/appView";
+import type { AppCity } from '@/types/appView';
 
-export interface EcoCityItem {
-  _id: string;
-  name: string;
-  sustainabilityScore: number;
-  highlights: string[];
-    image: any;
-}
-
-const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
+export const EcoCityCarousel = ({ cities = [] }: { cities: AppCity[] }) => {
   const isTestEnv = process.env.NODE_ENV === 'test';
   useEffect(() => {
     console.log('[DEBUG] CityCarousel received cities:', cities);
@@ -114,7 +106,7 @@ const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
                   <Card className="overflow-hidden border-0 shadow-lg">
                     <div className="group relative h-[27rem] max-w-full overflow-hidden rounded-xl">
                       <SanityImage
-                        image={city.image}
+                        image={city.primaryImage}
                         alt={city.name || 'Image unavailable'}
                         fill
                         sizes="(max-width: 768px) 100vw, 360px"
