@@ -94,7 +94,8 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
         );
 
         validListings.forEach(listing => {
-          const marker = L.marker([listing.location!.lat!, listing.location!.lng!], {
+          const { lat, lng } = listing.location!;
+          const marker = L.marker([lat, lng], {
             icon: L.divIcon({
               html: `<div class="marker-icon">${listing.category ? typeIcons[listing.category] || '📍' : '📍'}</div>`,
               className: 'custom-marker',
