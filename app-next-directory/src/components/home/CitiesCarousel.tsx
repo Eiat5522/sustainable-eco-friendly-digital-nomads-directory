@@ -34,7 +34,7 @@ export default function CitiesCarousel({ cities }: CitiesCarouselProps) {
   const ecoCities = cities.map((city) => ({
     _id: city._id,
     name: city.title,
-    image: city.primaryImage?.asset?.url,
+    image: city.primaryImage, // Pass the full SanityImage object instead of just the URL
     sustainabilityScore: city.sustainabilityScore,
     highlights: city.highlights,
   }));

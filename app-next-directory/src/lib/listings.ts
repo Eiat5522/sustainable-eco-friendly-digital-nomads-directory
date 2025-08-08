@@ -20,9 +20,14 @@ function mapRawToListing(rawListing: any): Listing {
     address: rawListing.address || '',
     shortDescription: rawListing.shortDescription || '',
     longDescription: rawListing.longDescription || '',
-    // Legacy field names normalisation: expose both primaryImage (legacy) and primaryImage (DTO aligned)
-    primaryImage: rawListing.primary_image_url || rawListing.primaryImage || '',
-    galleryImages: rawListing.gallery_image_urls || rawListing.galleryImages || [],
+    ecoFocusTags: rawListing.ecoFocusTags || [],
+    // Handle both legacy string URLs and SanityImage objects
+    primaryImage: normalizeImageField(rawListing.primaryImage, rawListing.primary_image_url),
+    galleryImages: Array.isArray(rawListing.galleryImages) 
+      ? rawListing.galleryImages.map((img: any) => 
+          typeof img === 'string' ? { asset: { url: img } } : img
+        )
+      : rawListing.gallery_image_urls?.map((url: string) => ({ asset: { url } })) || [],
     digitalNomadFeatures: (rawListing.digitalNomadFeatures || []).map((feature: any) =>
       typeof feature === 'string' ? feature : feature.name
     ),
