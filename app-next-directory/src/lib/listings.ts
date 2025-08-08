@@ -154,7 +154,6 @@ export function mapSanityListingToCard(raw: any): AppListingCard {
 }
 
 export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
-export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
   const baseCard = mapSanityListingToCard(raw);
   
   return {
@@ -187,5 +186,4 @@ export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
     activitiesDetails: raw.activitiesDetails,
     lastVerifiedDate: raw.lastVerifiedDate,
   };
-}
 }

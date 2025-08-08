@@ -7,7 +7,7 @@ import Link from 'next/link';
 import type { City } from '@/types/sanity.types';
 import { cn } from '@/lib/utils';
 
-import EcoCityCarousel from '../cities/CityCarousel';
+import EcoCityCarousel from '@/components/cities/CityCarousel';
 
 interface CitySectionProps {
   city: City;

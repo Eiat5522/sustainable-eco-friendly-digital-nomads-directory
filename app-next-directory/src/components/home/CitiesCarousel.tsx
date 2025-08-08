@@ -28,7 +28,7 @@ interface CitiesCarouselProps {
   cities: City[];
 }
 
-import EcoCityCarousel from '../cities/CityCarousel';
+import EcoCityCarousel from '@/components/cities/CityCarousel';
 
 export default function CitiesCarousel({ cities }: CitiesCarouselProps) {
   const ecoCities = cities.map((city) => ({

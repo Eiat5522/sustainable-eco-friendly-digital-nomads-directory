@@ -4,6 +4,12 @@
  * Ensures robust mocking, isolation, and modern Jest best practices.
  */
 import { Listing } from '../../types/listings';
+import { 
+  mapSanityListingToCard, 
+  mapSanityCity, 
+  isSanityListing, 
+  isSanityCity 
+} from '../listings';
 
 // Mock data for listings
 const mockListings: Listing[] = [
@@ -169,5 +175,152 @@ describe('filterListings', () => {
       hasDnFeatures: true,
     });
     expect(result).toEqual([]);
+  });
+});
+
+describe('Type Guards and Mapping Functions', () => {
+  describe('isSanityListing', () => {
+    it('should return true for valid Sanity listing', () => {
+      const validListing = {
+        _type: 'listing',
+        _id: 'test-id',
+        name: 'Test Listing'
+      };
+      expect(isSanityListing(validListing)).toBe(true);
+    });
+
+    it('should return false for invalid listing', () => {
+      expect(isSanityListing(null)).toBe(false);
+      expect(isSanityListing({})).toBe(false);
+      expect(isSanityListing({ _type: 'city' })).toBe(false);
+    });
+  });
+
+  describe('isSanityCity', () => {
+    it('should return true for valid Sanity city', () => {
+      const validCity = {
+        _type: 'city',
+        _id: 'test-city-id',
+        name: 'Test City'
+      };
+      expect(isSanityCity(validCity)).toBe(true);
+    });
+
+    it('should return false for invalid city', () => {
+      expect(isSanityCity(null)).toBe(false);
+      expect(isSanityCity({})).toBe(false);
+      expect(isSanityCity({ _type: 'listing' })).toBe(false);
+    });
+  });
+
+  describe('mapSanityCity', () => {
+    it('should map Sanity city to AppCity DTO', () => {
+      const rawCity = {
+        _id: 'city-123',
+        name: 'Bangkok',
+        slug: { current: 'bangkok' },
+        country: 'Thailand',
+        sustainabilityScore: 85,
+        highlights: ['Green spaces', 'Eco transport'],
+        mainImage: {
+          asset: { url: 'https://example.com/image.jpg' }
+        }
+      };
+
+      const result = mapSanityCity(rawCity);
+      
+      expect(result).toEqual({
+        id: 'city-123',
+        name: 'Bangkok',
+        slug: 'bangkok',
+        country: 'Thailand',
+        sustainabilityScore: 85,
+        highlights: ['Green spaces', 'Eco transport'],
+        mainImage: {
+          asset: { url: 'https://example.com/image.jpg' }
+        }
+      });
+    });
+
+    it('should handle null city', () => {
+      expect(mapSanityCity(null)).toBe(null);
+      expect(mapSanityCity(undefined)).toBe(null);
+    });
+
+    it('should handle string slug', () => {
+      const rawCity = {
+        _id: 'city-123',
+        name: 'Bangkok',
+        slug: 'bangkok-string',
+      };
+
+      const result = mapSanityCity(rawCity);
+      expect(result?.slug).toBe('bangkok-string');
+    });
+  });
+
+  describe('mapSanityListingToCard', () => {
+    it('should map complete Sanity listing to AppListingCard', () => {
+      const rawListing = {
+        _id: 'listing-123',
+        name: 'Test Coworking Space',
+        slug: { current: 'test-coworking' },
+        city: {
+          _id: 'city-123',
+          name: 'Bangkok',
+          slug: { current: 'bangkok' },
+          country: 'Thailand'
+        },
+        type: 'coworking',
+        category: 'workspace',
+        address: '123 Test Street',
+        location: { lat: 13.7563, lng: 100.5018 },
+        primaryImage: {
+          asset: { url: 'https://example.com/primary.jpg' }
+        },
+        galleryImages: [
+          { _key: 'img1', asset: { url: 'https://example.com/gallery1.jpg' } }
+        ],
+        ecoFocusTags: [
+          { name: 'Solar Power' },
+          'Recycling'
+        ],
+        digitalNomadFeatures: [
+          { name: 'High-speed WiFi' },
+          'Meeting rooms'
+        ],
+        priceRange: 'moderate',
+        website: 'https://example.com',
+        shortDescription: 'A great coworking space'
+      };
+
+      const result = mapSanityListingToCard(rawListing);
+
+      expect(result.id).toBe('listing-123');
+      expect(result.name).toBe('Test Coworking Space');
+      expect(result.slug).toBe('test-coworking');
+      expect(result.ecoFocusTags).toEqual(['Solar Power', 'Recycling']);
+      expect(result.digitalNomadFeatures).toEqual(['High-speed WiFi', 'Meeting rooms']);
+    });
+
+    it('should handle missing or null data gracefully', () => {
+      const minimalListing = {
+        _id: 'listing-minimal'
+      };
+
+      const result = mapSanityListingToCard(minimalListing);
+
+      expect(result.id).toBe('listing-minimal');
+      expect(result.name).toBe('');
+      expect(result.slug).toBe('');
+      expect(result.city).toBe(null);
+      expect(result.ecoFocusTags).toEqual([]);
+      expect(result.digitalNomadFeatures).toEqual([]);
+    });
+
+    it('should throw error for null listing', () => {
+      expect(() => mapSanityListingToCard(null)).toThrow('Cannot map null or undefined listing');
+      expect(() => mapSanityListingToCard(undefined)).toThrow('Cannot map null or undefined listing');
+    });
   });
 });
