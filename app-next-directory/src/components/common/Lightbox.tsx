@@ -75,14 +75,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                   className={`w-2 h-2 rounded-full ${
                     index === currentIndex ? 'bg-white' : 'bg-white/50'
                   }`}
-                  onClick={() => {
-                    const diff = index - currentIndex;
-                    if (diff > 0) {
-                      for (let i = 0; i < diff; i++) onNext();
-                    } else if (diff < 0) {
-                      for (let i = 0; i < Math.abs(diff); i++) onPrev();
-                    }
-                  }}
+                  onClick={() => onNavigateToIndex(index)}
                   aria-label={`Go to image ${index + 1}`}
                 />
               ))}
