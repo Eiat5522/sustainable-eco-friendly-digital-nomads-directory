@@ -22,7 +22,13 @@ function mapRawToListing(rawListing: any): Listing {
     longDescription: rawListing.longDescription || '',
     ecoFocusTags: rawListing.ecoFocusTags || [],
     // Handle both legacy string URLs and SanityImage objects
-    primaryImage: normalizeImageField(rawListing.primaryImage, rawListing.primary_image_url),
+    primaryImage: rawListing.primaryImage || rawListing.primary_image_url ? {
+      asset: { 
+        url: typeof rawListing.primaryImage === 'string' 
+          ? rawListing.primaryImage 
+          : rawListing.primaryImage?.asset?.url || rawListing.primary_image_url 
+      }
+    } : undefined,
     galleryImages: Array.isArray(rawListing.galleryImages) 
       ? rawListing.galleryImages.map((img: any) => 
           typeof img === 'string' ? { asset: { url: img } } : img
@@ -153,6 +159,7 @@ export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
     website: raw.website,
     shortDescription: raw.shortDescription,
     longDescription: raw.longDescription,
+    lastVerifiedDate: raw.lastVerifiedDate,
     reviews: Array.isArray(raw.reviews) ? raw.reviews.map((review: any) => ({
       id: review._id,
       rating: review.rating,
@@ -161,7 +168,7 @@ export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
       createdAt: review.createdAt,
     })) : [],
     amenities: (raw.amenities || []).map((amenity: any) => ({
-      id: amenity._id,
+      _id: amenity._id,
       name: amenity.name,
       description: amenity.description,
       badge: amenity.badge,

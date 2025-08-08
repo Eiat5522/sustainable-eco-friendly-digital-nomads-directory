@@ -47,4 +47,3 @@ export default async function ListingPage({ params }: { params: Promise<{ slug: 
 
   return <ListingDetail listing={appListing} />;
 }
-}
