@@ -32,11 +32,15 @@ const typeIcons: Record<NonNullable<AppListingDetail['category']>, string> = {
 export default function MapComponent({ listings, onBoundsChange }: MapComponentProps) {
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<MarkerClusterGroup | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Make sure we have a container element
+    if (!containerRef.current) return;
+
     // Initialize map if not already initialized
     if (!mapRef.current) {
-      mapRef.current = L.map('map', {
+      mapRef.current = L.map(containerRef.current, {
         center: DEFAULT_CENTER,
         zoom: DEFAULT_ZOOM,
         layers: [
@@ -71,7 +75,9 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
       // Setup bounds change handler
       if (onBoundsChange) {
         mapRef.current.on('moveend', () => {
-          onBoundsChange(mapRef.current!.getBounds());
+          if (mapRef.current) {
+            onBoundsChange(mapRef.current.getBounds());
+          }
         });
       }
     }
@@ -81,14 +87,16 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
       markersRef.current.clearLayers();
 
       if (Array.isArray(listings)) {
-        listings.forEach(listing => {
-          const latitude = listing.location?.lat;
-          const longitude = listing.location?.lng;
-          if (typeof latitude !== 'number' || typeof longitude !== 'number') return;
+        const validListings = listings.filter(listing => 
+          listing.location && 
+          typeof listing.location.lat === 'number' && 
+          typeof listing.location.lng === 'number'
+        );
 
-          const marker = L.marker([latitude, longitude], {
+        validListings.forEach(listing => {
+          const marker = L.marker([listing.location!.lat!, listing.location!.lng!], {
             icon: L.divIcon({
-              html: `<div class="marker-icon">${listing.category ? typeIcons[listing.category] : ''}</div>`,
+              html: `<div class="marker-icon">${listing.category ? typeIcons[listing.category] || '📍' : '📍'}</div>`,
               className: 'custom-marker',
               iconSize: L.point(32, 32)
             })
@@ -97,21 +105,19 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
           marker.bindPopup(`
             <div class="marker-popup">
               <h3 class="font-semibold">${listing.name}</h3>
-              <p class="text-sm text-gray-600">${listing.address}</p>
+              <p class="text-sm text-gray-600">${listing.address || 'No address available'}</p>
             </div>
           `);
 
           markersRef.current?.addLayer(marker);
         });
-      }
 
-      // If we have listings and this is the first time, fit bounds
-      if (listings.length > 0 && !mapRef.current.getBounds().getNorthEast().equals(mapRef.current.getBounds().getSouthWest())) {
-        const bounds = L.latLngBounds(listings
-          .filter(l => typeof l.location?.lat === 'number' && typeof l.location?.lng === 'number')
-          .map(l => [l.location!.lat!, l.location!.lng!] as L.LatLngTuple));
-        if (bounds.isValid()) {
-          mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+        // Fit bounds to show all markers if we have valid listings
+        if (validListings.length > 0) {
+          const bounds = L.latLngBounds(validListings.map(l => [l.location!.lat!, l.location!.lng!] as L.LatLngTuple));
+          if (bounds.isValid()) {
+            mapRef.current.fitBounds(bounds, { padding: [20, 20] });
+          }
         }
       }
     }
@@ -125,5 +131,5 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
     };
   }, [listings, onBoundsChange]);
 
-  return <div id="map" className="w-full h-full" />;
+  return <div ref={containerRef} className="w-full h-full" />;
 }

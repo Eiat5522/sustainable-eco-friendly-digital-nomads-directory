@@ -1,4 +1,5 @@
 import React from 'react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface LightboxProps {
   images: { src: string; alt: string }[];
@@ -20,36 +21,73 @@ export const Lightbox: React.FC<LightboxProps> = ({
   const currentImage = images[currentIndex];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
-      <div className="relative">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90"
+      onClick={onClose}
+    >
+      <div className="relative max-w-7xl max-h-full p-4" onClick={e => e.stopPropagation()}>
+        {/* Close button */}
         <button
-          className="absolute top-2 right-2 text-white text-2xl z-10"
+          className="absolute top-2 right-2 text-white hover:text-gray-300 z-10 p-2"
           onClick={onClose}
           aria-label="Close gallery"
         >
-          &times;
+          <X size={24} />
         </button>
-        <button
-          className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white text-4xl z-10"
-          onClick={onPrev}
-          aria-label="Previous image"
-        >
-          &lt;
-        </button>
-        <button
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white text-4xl z-10"
-          onClick={onNext}
-          aria-label="Next image"
-        >
-          &gt;
-        </button>
+        
+        {/* Navigation buttons */}
+        {images.length > 1 && (
+          <>
+            <button
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 z-10 p-2"
+              onClick={onPrev}
+              aria-label="Previous image"
+            >
+              <ChevronLeft size={32} />
+            </button>
+            <button
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300 z-10 p-2"
+              onClick={onNext}
+              aria-label="Next image"
+            >
+              <ChevronRight size={32} />
+            </button>
+          </>
+        )}
+        
+        {/* Main image */}
         <img
           src={currentImage.src}
           alt={currentImage.alt}
-          className="max-w-full max-h-screen object-contain"
+          className="max-w-full max-h-screen object-contain rounded-lg"
         />
-        <div className="absolute bottom-4 left-0 right-0 text-center text-white text-lg">
-          {currentIndex + 1} / {images.length}
+        
+        {/* Image counter and navigation dots */}
+        <div className="absolute bottom-4 left-0 right-0 text-center">
+          <div className="text-white text-lg mb-2" data-testid="image-counter">
+            {currentIndex + 1} / {images.length}
+          </div>
+          {images.length > 1 && (
+            <div className="flex justify-center space-x-2">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    index === currentIndex ? 'bg-white' : 'bg-white/50'
+                  }`}
+                  onClick={() => {
+                    const diff = index - currentIndex;
+                    if (diff > 0) {
+                      for (let i = 0; i < diff; i++) onNext();
+                    } else if (diff < 0) {
+                      for (let i = 0; i < Math.abs(diff); i++) onPrev();
+                    }
+                  }}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
