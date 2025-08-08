@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { urlFor } from '@/lib/sanity/image';
 import { AppListingCard } from '@/types/appView';
+import { getImageUrlOrPlaceholder } from '@/lib/image-helpers';
+import SanityImage from '@/components/SanityImage';
 
 interface FeaturedListingsProps {
   listings: AppListingCard[];
@@ -24,25 +25,6 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
         <h2 className="text-3xl font-bold mb-10 text-center text-gray-800">Featured Listings</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {listings.slice(0, 4).map(listing => {
-            // Handle Sanity image objects with fallback to direct imageUrl
-            let imageUrl = '/placeholder-city.jpg';
-            
-            // Priority 1: Use primaryImage object from Sanity with urlFor
-            if (listing.primaryImage?.asset) {
-              try {
-                const sanityImageUrl = urlFor(listing.primaryImage)?.width(500).height(300).url();
-                if (sanityImageUrl) {
-                  imageUrl = sanityImageUrl;
-                }
-              } catch (error) {
-                console.warn('Failed to generate Sanity image URL for listing:', listing.id, error);
-              }
-            }
-            // Priority 2: Use direct imageUrl if available and no primaryImage processed
-            else if (listing.imageUrl) {
-              imageUrl = listing.imageUrl;
-            }
-
             return (
               <article
                 key={listing.id}
@@ -50,23 +32,15 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
               >
                 <Link href={`/listings/${listing.slug}`} className="block group">
                   <div className="relative w-full h-56 overflow-hidden">
-                    <Image
-                      src={imageUrl}
+                    <SanityImage
+                      image={listing.primaryImage}
                       alt={listing.name}
                       width={500}
                       height={300}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
-                      className="group-hover:scale-105 transition-transform duration-300"
+                      className="group-hover:scale-105 transition-transform duration-300 w-full h-full object-cover"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33.333vw"
                       priority={true}
-                      onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                        console.warn('Featured image failed to load:', imageUrl);
-                        e.currentTarget.src = '/images/sustainable_nomads.png';
-                      }}
+                      fallbackSrc={getImageUrlOrPlaceholder(listing.primaryImage, 'listing')}
                     />
                   </div>
                 </Link>
@@ -80,7 +54,7 @@ export default function FeaturedListings({ listings }: FeaturedListingsProps) {
                     </Link>
                   </h3>
                   <p className="text-sm text-gray-600 mb-3 line-clamp-1">
-                    {listing.city?.name}, {listing.city?.country}
+                    {listing.city?.name}{listing.city?.country && `, ${listing.city.country}`}
                   </p>
                   <div className="mt-auto">
                     <div className="flex items-center justify-between mb-4">

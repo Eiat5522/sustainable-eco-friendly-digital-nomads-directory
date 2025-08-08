@@ -19,6 +19,9 @@ function mapRawToListing(rawListing: any): Listing {
     longDescription: rawListing.longDescription || rawListing.longDescription || '',
     mainImage: rawListing.primary_image_url || rawListing.mainImage || '',
     galleryImages: rawListing.gallery_image_urls || rawListing.galleryImages || [],
+    ecoFocusTags: (rawListing.ecoFocusTags || []).map((tag: any) =>
+      typeof tag === 'string' ? tag : tag.name
+    ),
     digitalNomadFeatures: (rawListing.digitalNomadFeatures || []).map((feature: any) =>
       typeof feature === 'string' ? feature : feature.name
     ),
@@ -82,42 +85,94 @@ export function filterListings(options: FilterOptions): Listing[] {
 }
 
 // Maps a raw Sanity listing result to AppListingDetail DTO
-import { AppListingDetail, AppCity } from '@/types/appView';
+import { AppListingDetail, AppListingCard, AppCity, SanityImage, SanityGalleryImage } from '@/types/appView';
+import type { Listing as SanityListing, City as SanityCity } from '@/types/sanity.types';
 
-export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
+/**
+ * Type guard to check if an object is a valid Sanity listing
+ */
+export function isSanityListing(obj: any): obj is SanityListing {
+  return obj && typeof obj === 'object' && obj._type === 'listing' && obj._id;
+}
+
+/**
+ * Type guard to check if an object is a valid Sanity city
+ */
+export function isSanityCity(obj: any): obj is SanityCity {
+  return obj && typeof obj === 'object' && obj._type === 'city' && obj._id;
+}
+
+/**
+ * Map a Sanity city to AppCity DTO
+ */
+export function mapSanityCity(city: any): AppCity | null {
+  if (!city) return null;
+  
+  return {
+    id: city._id,
+    name: city.name || '',
+    slug: typeof city.slug === 'string' ? city.slug : city.slug?.current || '',
+    country: city.country,
+    sustainabilityScore: city.sustainabilityScore,
+    highlights: city.highlights || [],
+    mainImage: city.mainImage || city.image || null
+  };
+}
+
+/**
+ * Map a Sanity listing to AppListingCard DTO
+ */
+export function mapSanityListingToCard(raw: any): AppListingCard {
+  if (!raw) {
+    throw new Error('Cannot map null or undefined listing');
+  }
+
   return {
     id: raw._id,
-    name: raw.name,
-    slug: raw.slug,
-    city: raw.city
-      ? {
-          id: raw.city._id,
-          name: raw.city.name,
-          slug: raw.city.slug,
-          country: raw.city.country,
-        }
-      : null,
+    name: raw.name || '',
+    slug: typeof raw.slug === 'string' ? raw.slug : raw.slug?.current || '',
+    city: raw.city ? mapSanityCity(raw.city) : null,
     type: raw.type,
     category: raw.category,
     address: raw.address,
     location: raw.location
       ? { lat: raw.location.lat, lng: raw.location.lng }
       : undefined,
-    primaryImage: raw.primaryImage,
-    galleryImages: raw.galleryImages,
-    ecoFocusTags: Array.isArray(raw.ecoFocusTags) ? raw.ecoFocusTags.map((tag: any) => tag.name) : [],
+    primaryImage: raw.primaryImage || null,
+    galleryImages: Array.isArray(raw.galleryImages) ? raw.galleryImages : [],
+    ecoFocusTags: Array.isArray(raw.ecoFocusTags) 
+      ? raw.ecoFocusTags.map((tag: any) => typeof tag === 'string' ? tag : tag.name).filter(Boolean)
+      : [],
+    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures)
+      ? raw.digitalNomadFeatures.map((feature: any) => typeof feature === 'string' ? feature : feature.name).filter(Boolean)
+      : [],
     priceRange: raw.priceRange,
-    contactPhone: raw.contactPhone,
-    contactEmail: raw.contactEmail,
     website: raw.website,
     shortDescription: raw.shortDescription,
+    imageUrl: raw.imageUrl, // For backward compatibility
+  };
+}
+
+export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
+export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
+  const baseCard = mapSanityListingToCard(raw);
+  
+  return {
+    ...baseCard,
+    contactPhone: raw.contactPhone,
+    contactEmail: raw.contactEmail,
     longDescription: raw.longDescription,
     reviews: (raw.reviews || []).map((review: any) => ({
       id: review._id,
-      rating: review.rating,
-      comment: review.comment,
-      user: review.user ? { id: review.user._id, name: review.user.name } : null,
-      createdAt: review.createdAt,
+      listingId: raw._id,
+      userId: review.user?._id || '',
+      rating: review.rating || 0,
+      comment: review.comment || '',
+      createdAt: review.createdAt || new Date().toISOString(),
+      user: {
+        name: review.user?.name || 'Anonymous',
+        image: review.user?.image || undefined,
+      },
     })),
     amenities: (raw.amenities || []).map((amenity: any) => ({
       id: amenity._id,
@@ -130,6 +185,7 @@ export function mapSanityListingToAppListingDetail(raw: any): AppListingDetail {
     cafeDetails: raw.cafeDetails,
     restaurantDetails: raw.restaurantDetails,
     activitiesDetails: raw.activitiesDetails,
-    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures) ? raw.digitalNomadFeatures.map((feature: any) => feature.name) : [],
+    lastVerifiedDate: raw.lastVerifiedDate,
   };
+}
 }

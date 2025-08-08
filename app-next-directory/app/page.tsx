@@ -8,13 +8,13 @@ import WhyChooseUs from '@/components/home/WhyChooseUs';
 import StatisticsSection from '@/components/home/StatisticsSection';
 import CTASection from '@/components/home/CTASection';
 import SustainableNomadTestimonials from '@/components/ui/sustainable-nomad-testimonials';
+import { mapSanityCity } from '@/lib/listings';
 
-import type { EcoCityItem } from '@/components/cities/CityCarousel';
-import type { SanityImage as SanityImageType } from '@/types/appView';
+import type { AppCity } from '@/types/appView';
 
 export default function HomePage() {
   const [listings, setListings] = useState([]);
-  const [cities, setCities] = useState<EcoCityItem[]>([]);
+  const [cities, setCities] = useState<AppCity[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -46,22 +46,39 @@ export default function HomePage() {
         console.error('[ERROR] HomePage: Failed to fetch data:', error);
       }
     }
+    
     async function fetchCities() {
       try {
         const citiesResponse: CitiesApiResponse = await fetch('/api/cities').then(res => res.json());
         console.log('[DEBUG] City API response:', citiesResponse);
-        const mappedCities: EcoCityItem[] = (citiesResponse.cities || []).map((city: RawCity) => ({
-          _id: city._id,
-          name: city.name,
-          sustainabilityScore: city.sustainabilityScore,
-          highlights: city.highlights || [],
-          image: city.image, // This should now be a SanityImage object from the API
-        }));
+        
+        // Map raw cities to AppCity DTOs using the mapping helper
+        const mappedCities: AppCity[] = (citiesResponse.cities || [])
+          .map((city: RawCity) => mapSanityCity(city))
+          .filter((city): city is AppCity => city !== null);
+          
         setCities(mappedCities);
       } catch (error) {
         console.error('[ERROR] HomePage: Failed to fetch cities:', error);
       }
     }
+
+    fetchData();
+    fetchCities();
+  }, []);
+
+  return (
+    <div>
+      <HeroSection />
+      <FeaturedListings listings={listings} />
+      <EcoCityCarousel cities={cities} />
+      <StatisticsSection />
+      <WhyChooseUs />
+      <SustainableNomadTestimonials />
+      <CTASection />
+    </div>
+  );
+}
 
 interface CitiesApiResponse {
   cities: RawCity[];
@@ -89,20 +106,4 @@ interface RawCity {
       };
     };
   };
-}
-    fetchData();
-    fetchCities();
-  }, []);
-
-  return (
-    <div>
-      <HeroSection />
-      <FeaturedListings listings={listings} />
-      <EcoCityCarousel cities={cities} />
-      <StatisticsSection />
-      <WhyChooseUs />
-      <SustainableNomadTestimonials />
-      <CTASection />
-    </div>
-  );
 }

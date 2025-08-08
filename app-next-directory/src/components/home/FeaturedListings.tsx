@@ -1,9 +1,9 @@
 import { ListingCard } from '@/components/listings/ListingCard';
 import { AppListingCard } from '@/types/appView';
-import { Listing as SanityListing } from '../../../sanity.types';
+import { mapSanityListingToCard } from '@/lib/listings';
 
 interface FeaturedListingsProps {
-  listings: SanityListing[];
+  listings: any[]; // Raw Sanity listings
 }
 
 const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
@@ -15,27 +15,17 @@ const FeaturedListings: React.FC<FeaturedListingsProps> = ({ listings }) => {
     );
   }
 
-  const featuredListings: AppListingCard[] = listings.map(listing => ({
-    id: (listing as any)._id || (listing as any).id,
-    name: listing.name || '',
-    slug: (listing as any).slug?.current || (listing as any).slug,
-    city: (listing as any).city ? {
-      id: (listing as any).city.id,
-      name: (listing as any).city.name,
-      slug: (listing as any).city.slug?.current || (listing as any).city.slug,
-      country: (listing as any).city.country,
-    } : null,
-    ecoFocusTags: (listing as any).ecoFocusTags || [],
-    digitalNomadFeatures: (listing as any).digitalNomadFeatures || [],
-    priceRange: (listing as any).priceRange,
-    website: (listing as any).website,
-    primaryImage: (listing as any).primaryImage,
-    galleryImages: (listing as any).galleryImages,
-    shortDescription: (listing as any).shortDescription,
-    longDescription: (listing as any).longDescription,
-    address: (listing as any).address,
-    location: (listing as any).location,
-  }));
+  // Map raw Sanity listings to AppListingCard DTOs using the mapping helper
+  const featuredListings: AppListingCard[] = listings
+    .map(listing => {
+      try {
+        return mapSanityListingToCard(listing);
+      } catch (error) {
+        console.warn('Failed to map listing:', listing._id, error);
+        return null;
+      }
+    })
+    .filter((listing): listing is AppListingCard => listing !== null);
 
   return (
     <section className="py-16 bg-white relative z-10" aria-labelledby="featured-listings-heading">

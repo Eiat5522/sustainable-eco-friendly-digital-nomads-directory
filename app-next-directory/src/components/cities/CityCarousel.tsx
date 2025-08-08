@@ -15,19 +15,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import SanityImage from "@/components/SanityImage";
-import Image from "next/image";
+import { getImageUrlOrPlaceholder } from "@/lib/image-helpers";
 
-import type { SanityImage as SanityImageType } from "@/types/appView";
+import type { AppCity } from "@/types/appView";
 
-export interface EcoCityItem {
-  _id: string;
-  name: string;
-  sustainabilityScore: number;
-  highlights: string[];
-    image: any;
+interface CityCarouselProps {
+  cities: AppCity[];
 }
 
-const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
+const EcoCityCarousel = ({ cities = [] }: CityCarouselProps) => {
   const isTestEnv = process.env.NODE_ENV === 'test';
   useEffect(() => {
     console.log('[DEBUG] CityCarousel received cities:', cities);
@@ -105,21 +101,22 @@ const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
         >
           <CarouselContent className="ml-0 2xl:ml-[max(8rem,calc(50vw-700px))] 2xl:mr-[max(0rem,calc(50vw-700px))]">
             {cities.map((city) => {
-              const imageSrc = city.image?.asset?.url || '/images/fallback.png';
+              const imageSrc = getImageUrlOrPlaceholder(city.mainImage, 'city');
               return (
                 <CarouselItem
-                  key={city._id}
+                  key={city.id}
                   className="max-w-[320px] pl-[20px] lg:max-w-[360px]"
                 >
                   <Card className="overflow-hidden border-0 shadow-lg">
                     <div className="group relative h-[27rem] max-w-full overflow-hidden rounded-xl">
                       <SanityImage
-                        image={city.image}
+                        image={city.mainImage}
                         alt={city.name || 'Image unavailable'}
                         fill
                         sizes="(max-width: 768px) 100vw, 360px"
                         className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
                         loading="lazy"
+                        fallbackSrc={imageSrc}
                         {...(isTestEnv && {
                           'data-testid': 'city-carousel-image',
                           'data-src': imageSrc,
@@ -130,7 +127,7 @@ const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
                         <Badge className="bg-green-600 hover:bg-green-700 flex items-center gap-1 px-3 py-1.5 text-white">
                           <Leaf className="size-4" />
                           <span className="text-sm font-medium">
-                            {city.sustainabilityScore}/100
+                            {city.sustainabilityScore || 0}/100
                           </span>
                         </Badge>
                       </div>
@@ -189,3 +186,4 @@ const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
 };
 
 export default EcoCityCarousel;
+export type { CityCarouselProps };
