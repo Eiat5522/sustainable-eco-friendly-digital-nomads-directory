@@ -22,11 +22,7 @@ function mapRawToListing(rawListing: any): Listing {
     longDescription: rawListing.longDescription || '',
     ecoFocusTags: rawListing.ecoFocusTags || [],
     // Handle both legacy string URLs and SanityImage objects
-    primaryImage: typeof rawListing.primaryImage === 'string' 
-      ? { asset: { url: rawListing.primaryImage } }
-      : rawListing.primary_image_url 
-        ? { asset: { url: rawListing.primary_image_url } }
-        : rawListing.primaryImage || null,
+    primaryImage: normalizeImageField(rawListing.primaryImage, rawListing.primary_image_url),
     galleryImages: Array.isArray(rawListing.galleryImages) 
       ? rawListing.galleryImages.map((img: any) => 
           typeof img === 'string' ? { asset: { url: img } } : img
