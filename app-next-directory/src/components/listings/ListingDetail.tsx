@@ -1,4 +1,10 @@
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
+
+// Dynamically import map component to avoid SSR issues
+const ImprovedMap = dynamic(() => import('@/components/map/ImprovedMap'), { 
+  loading: () => <div className="h-64 bg-gray-200 rounded-lg flex items-center justify-center">Loading map...</div>
+});
 
 interface Review {
   rating: number
@@ -44,18 +50,7 @@ export function ListingDetail({ listing }: ListingProps) {
 
   return (
     <article className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-      {/* Header */}
-      <div className="relative h-64 md:h-96">
-        <Image
-          src={listing.primary_image_url}
-          alt={listing.name}
-          fill
-          className="object-cover"
-          priority
-        />
-      </div>
-
-      {/* Content */}
+      {/* Content - Removed duplicate primary image display */}
       <div className="p-6 md:p-8">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -110,6 +105,25 @@ export function ListingDetail({ listing }: ListingProps) {
             </ul>
           </div>
         </div>
+
+        {/* Location Map */}
+        {listing.location && (
+          <div className="mb-8">
+            <h3 className="text-xl font-semibold mb-4">Location</h3>
+            <ImprovedMap 
+              listings={[{
+                coordinates: {
+                  latitude: listing.location.lat,
+                  longitude: listing.location.lng
+                },
+                name: listing.name,
+                category: listing.category
+              }]}
+              center={[listing.location.lat, listing.location.lng]}
+              zoom={15}
+            />
+          </div>
+        )}
 
         {/* Contact Information */}
         <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 mb-8">

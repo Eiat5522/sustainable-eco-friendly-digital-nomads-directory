@@ -4,10 +4,31 @@ import type { Configuration } from 'webpack';
 
 const nextConfig = {
   images: {
-    domains: [
-      'maps.googleapis.com', // For Google Static Maps
-      'unpkg.com', // For Leaflet marker icons
-      'cdn.sanity.io' // For Sanity images
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'maps.googleapis.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'unpkg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.sanity.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'picsum.photos',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdnjs.cloudflare.com',
+      }
     ],
   },
   webpack: (config: Configuration) => {

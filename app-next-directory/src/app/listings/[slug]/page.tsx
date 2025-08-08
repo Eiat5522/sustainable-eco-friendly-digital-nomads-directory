@@ -166,9 +166,9 @@ export default async function ListingPage({ params }: Props) {
       return (
         <main className="container mx-auto py-12 px-4 sm:px-6">
           <Breadcrumbs
-            items={[
-              { label: 'Listings', href: '/listings' },
-              { label: sanityListing.name, href: `/listings/${params.slug}` },
+            segments={[
+              { name: 'Listings', href: '/listings' },
+              { name: sanityListing.name, href: `/listings/${params.slug}` },
             ]}
           />
 
@@ -183,12 +183,24 @@ export default async function ListingPage({ params }: Props) {
             )}
 
             <ListingDetail listing={{
-              ...sanityListing,
-              description_short: sanityListing.descriptionShort || "",
-              description_long: sanityListing.descriptionLong || "",
-              eco_features: sanityListing.ecoTags || [],
-              gallery_images: sanityListing.images?.map(img => img.asset.url) || [],
-              reviews: sanityListing.reviews || []
+              name: sanityListing.name,
+              description_short: sanityListing.descriptionShort || sanityListing.description_short || "",
+              description_long: sanityListing.descriptionLong || sanityListing.description_long || "",
+              category: sanityListing.category,
+              eco_features: sanityListing.ecoTags || sanityListing.eco_features || [],
+              amenities: sanityListing.amenities || [],
+              primary_image_url: sanityListing.primary_image_url || sanityListing.images?.[0]?.asset?.url || "",
+              gallery_images: sanityListing.images?.map(img => img.asset?.url).filter(Boolean) || [],
+              city: sanityListing.city || { name: "", country: "" },
+              location: sanityListing.location,
+              website: sanityListing.website,
+              contact_email: sanityListing.contact_email,
+              contact_phone: sanityListing.contact_phone,
+              price_range: sanityListing.price_range,
+              reviews: (sanityListing.reviews || []).map(review => ({
+                ...review,
+                _createdAt: review.date || review._createdAt || new Date().toISOString()
+              }))
             }} />
           </article>
 
