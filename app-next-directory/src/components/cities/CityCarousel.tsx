@@ -24,7 +24,7 @@ export interface EcoCityItem {
   name: string;
   sustainabilityScore: number;
   highlights: string[];
-    image: any;
+  image: SanityImageType;
 }
 
 const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {

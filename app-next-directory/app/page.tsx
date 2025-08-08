@@ -10,11 +10,11 @@ import StatisticsSection from '@/components/home/StatisticsSection';
 import CTASection from '@/components/home/CTASection';
 import SustainableNomadTestimonials from '@/components/ui/sustainable-nomad-testimonials';
 
+import type { AppListingCard, AppCity } from '@/types/appView';
 import type { EcoCityItem } from '@/components/cities/CityCarousel';
-import type { SanityImage as SanityImageType } from '@/types/appView';
 
 export default function HomePage() {
-  const [listings, setListings] = useState<any[]>([]);
+  const [listings, setListings] = useState<AppListingCard[]>([]);
   const [cities, setCities] = useState<EcoCityItem[]>([]);
 
   useEffect(() => {
@@ -49,21 +49,21 @@ export default function HomePage() {
           }
         }).filter(Boolean);
         console.log('[DEBUG] HomePage: Setting state with', mapped.length, 'mapped listings');
-        setListings(mapped as any[]);
+        setListings(mapped);
       } catch (error) {
         console.error('[ERROR] HomePage: Failed to fetch data:', error);
       }
     }
     async function fetchCities() {
       try {
-        const citiesResponse: CitiesApiResponse = await fetch('/api/cities').then(res => res.json());
+        const citiesResponse = await fetch('/api/cities').then(res => res.json());
         console.log('[DEBUG] City API response:', citiesResponse);
-        const mappedCities: EcoCityItem[] = (citiesResponse.cities || []).map((city: RawCity) => ({
+        const mappedCities: EcoCityItem[] = (citiesResponse.cities || []).map((city: any) => ({
           _id: city._id,
           name: city.name,
           sustainabilityScore: city.sustainabilityScore,
           highlights: city.highlights || [],
-          image: city.image, // This should now be a SanityImage object from the API
+          image: city.image, // Using normalized SanityImage object from API
         }));
         setCities(mappedCities);
       } catch (error) {
@@ -71,33 +71,6 @@ export default function HomePage() {
       }
     }
 
-interface CitiesApiResponse {
-  cities: RawCity[];
-  success: boolean;
-  metadata: any;
-}
-
-interface RawCity {
-  _id: string;
-  name: string;
-  slug: string;
-  country: string;
-  sustainabilityScore: number;
-  highlights: string[];
-  image: {
-    alt?: string;
-    _type: 'image';
-    asset?: {
-      _id?: string;
-      _ref?: string;
-      url?: string;
-      metadata?: {
-        dimensions?: any;
-        lqip?: string;
-      };
-    };
-  };
-}
     fetchData();
     fetchCities();
   }, []);
