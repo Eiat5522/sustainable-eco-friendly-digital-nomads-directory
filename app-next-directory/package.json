@@ -76,6 +76,7 @@
   },
   "devDependencies": {
     "@jest/globals": "^30.0.5",
+    "@playwright/test": "^1.45.0",
     "@swc/jest": "^0.2.39",
     "@tailwindcss/postcss": "^4.1.11",
     "@testing-library/jest-dom": "^6.6.4",
@@ -96,6 +97,7 @@
     "@vercel/analytics": "^1.5.0",
     "autoprefixer": "^10.4.21",
     "dotenv": "^16.6.1",
+    "eslint": "^9.32.0",
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
     "jest-fetch-mock": "^3.0.3",
@@ -105,7 +107,6 @@
     "tailwindcss": "^4.1.11",
     "ts-jest": "^29.4.0",
     "typescript": "^5.8.3",
-    "whatwg-fetch": "^3.6.20",
-    "@playwright/test": "^1.45.0"
+    "whatwg-fetch": "^3.6.20"
   }
 }
