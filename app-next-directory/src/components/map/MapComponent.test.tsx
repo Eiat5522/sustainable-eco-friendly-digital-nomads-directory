@@ -34,8 +34,8 @@ jest.mock('leaflet', () => {
 jest.mock('leaflet.markercluster', () => ({}));
 
 const listings = [
-  { name: 'A', category: 'cafe', address: 'addr', coordinates: { lat: 1, lng: 2 } },
-  { name: 'B', category: 'coworking', address: 'addr2', coordinates: { lat: 3, lng: 4 } },
+  { name: 'A', category: 'cafe', address: 'addr', location: { lat: 1, lng: 2 } },
+  { name: 'B', category: 'coworking', address: 'addr2', location: { lat: 3, lng: 4 } },
 ] as any[];
 
 afterEach(() => {
@@ -45,7 +45,7 @@ afterEach(() => {
 test('initializes map and markers', () => {
   render(<MapComponent listings={listings} />);
   const mocks = (L as any).__mocks;
-  expect(L.map).toHaveBeenCalledWith('map', expect.any(Object));
+  expect(L.map).toHaveBeenCalledWith(expect.any(HTMLElement), expect.any(Object));
   expect(mocks.markerMock).toHaveBeenCalledTimes(2);
   expect(mocks.markerClusterGroupInstance.addLayer).toHaveBeenCalledTimes(2);
 });

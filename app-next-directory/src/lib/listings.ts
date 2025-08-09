@@ -38,8 +38,18 @@ function mapRawToListing(rawListing: any): Listing {
     address: rawListing.address || '',
     shortDescription: rawListing.shortDescription || '',
     longDescription: rawListing.longDescription || '',
-    primaryImage: rawListing.primary_image_url || rawListing.primaryImage || '',
-    galleryImages: rawListing.gallery_image_urls || rawListing.galleryImages || [],
+    primaryImage: rawListing.primaryImage || rawListing.primary_image_url ? {
+      asset: {
+        url: typeof rawListing.primaryImage === 'string'
+          ? rawListing.primaryImage
+          : rawListing.primaryImage?.asset?.url || rawListing.primary_image_url
+      }
+    } : undefined,
+    galleryImages: Array.isArray(rawListing.galleryImages)
+      ? rawListing.galleryImages.map((img: any) =>
+          typeof img === 'string' ? { asset: { url: img } } : img
+        )
+      : rawListing.gallery_image_urls?.map((url: string) => ({ asset: { url } })) || [],
     ecoFocusTags,
     digitalNomadFeatures: (rawListing.digitalNomadFeatures || []).map((feature: any) =>
       typeof feature === 'string' ? feature : feature?.name
@@ -191,20 +201,26 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
     contactEmail: (raw as any).contactEmail,
     website: raw.website ?? undefined,
     shortDescription: raw.shortDescription,
-    longDescription: (raw as any).longDescription,
-    reviews: Array.isArray((raw as any).reviews) ? (raw as any).reviews.map((review: any) => ({
+    longDescription: raw.longDescription,
+    lastVerifiedDate: (raw as any).lastVerifiedDate,
+    reviews: Array.isArray(raw.reviews) ? raw.reviews.map((review: any) => ({
       id: review._id,
       rating: review.rating,
       comment: review.comment,
       user: review.user ? { name: review.user.name, image: review.user.image } : undefined,
       createdAt: review.createdAt,
     })) : [],
-    amenities: Array.isArray(raw.amenities) ? raw.amenities.map(a => a.name || a) : [],
+    amenities: (raw.amenities || []).map((amenity: any) => ({
+      _id: amenity._id,
+      name: amenity.name,
+      description: amenity.description,
+      badge: amenity.badge,
+    })),
     coworkingDetails: (raw as any).coworkingDetails,
     accommodationDetails: (raw as any).accommodationDetails,
     cafeDetails: (raw as any).cafeDetails,
     restaurantDetails: (raw as any).restaurantDetails,
     activitiesDetails: (raw as any).activitiesDetails,
-    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures) ? raw.digitalNomadFeatures.map((feature: any) => (typeof feature === 'string' ? feature : feature?.name)) : [],
+    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures) ? raw.digitalNomadFeatures.map((feature: any) => feature.name) : [],
   };
 }

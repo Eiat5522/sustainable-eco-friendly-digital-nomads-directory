@@ -19,7 +19,15 @@ import Image from "next/image";
 
 import type { AppCity } from '@/types/appView';
 
-export const EcoCityCarousel = ({ cities = [] }: { cities: AppCity[] }) => {
+export interface EcoCityItem {
+  _id: string;
+  name: string;
+  sustainabilityScore: number;
+  highlights: string[];
+  image: SanityImageType;
+}
+
+const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
   const isTestEnv = process.env.NODE_ENV === 'test';
   useEffect(() => {
     console.log('[DEBUG] CityCarousel received cities:', cities);

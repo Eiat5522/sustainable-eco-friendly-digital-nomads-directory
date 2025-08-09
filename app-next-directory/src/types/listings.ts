@@ -1,3 +1,5 @@
+import type { SanityImage } from './appView';
+
 export interface PricingPlan {
   name: string;
   price: number;
@@ -30,10 +32,11 @@ export interface Listing {
   shortDescription: string;
   longDescription: string;
   ecoFocusTags: EcoTag[];
-  primaryImage?: string;
-  galleryImages?: string[];
+  primaryImage?: SanityImage;
+  galleryImages?: SanityImage[];
   priceRange?: string;
   website?: string;
+  category?: string; // Resolved conflict: keeping this line
   digitalNomadFeatures: string[];
   lastVerifiedDate: string;
   moderationStatus?: string;
