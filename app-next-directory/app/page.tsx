@@ -9,10 +9,13 @@ import StatisticsSection from '@/components/home/StatisticsSection';
 import CTASection from '@/components/home/CTASection';
 import SustainableNomadTestimonials from '@/components/ui/sustainable-nomad-testimonials';
 
-import type { AppListingCard, AppCity } from '@/types/appView';
+import type { AppCity } from '@/types/appView';
+
+type ListingCard = Awaited<ReturnType<typeof import('@/lib/listings')["mapSanityListingToCard"]>>; // More robust for async and property access
+// TODO: Export ListingCard from a shared types module for long-term stability
 
 export default function HomePage() {
-  const [listings, setListings] = useState<AppListingCard[]>([]);
+  const [listings, setListings] = useState<ListingCard[]>([]);
   const [cities, setCities] = useState<AppCity[]>([]);
 
   useEffect(() => {

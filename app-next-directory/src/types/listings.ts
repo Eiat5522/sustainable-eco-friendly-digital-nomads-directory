@@ -25,7 +25,7 @@ export interface Listing {
     name: string;
     slug: { current: string };
   };
-  type?: 'coworking' | 'cafe' | 'accommodation';
+  type: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities' ;
   address: string;
   shortDescription: string;
   longDescription: string;
@@ -34,8 +34,6 @@ export interface Listing {
   galleryImages?: string[];
   priceRange?: string;
   website?: string;
-  category?: string;
-  primaryImage?: any;
   digitalNomadFeatures: string[];
   lastVerifiedDate: string;
   moderationStatus?: string;

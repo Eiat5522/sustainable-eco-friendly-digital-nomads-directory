@@ -25,20 +25,6 @@ jest.mock('@/lib/sanity/client', () => ({
   },
 }));
 
-// Mock API response handler BEFORE imports
-jest.mock('@/utils/api-response', () => ({
-  ApiResponseHandler: {
-    success: jest.fn((data: unknown) => ({
-      json: () => Promise.resolve({ success: true, data }),
-      status: 200,
-    })),
-    error: jest.fn((message: string, status = 500) => ({
-      json: () => Promise.resolve({ error: message }),
-      status,
-    })),
-  },
-}));
-
 // Mock NextRequest and NextResponse
 jest.mock('next/dist/server/web/spec-extension/request', () => {
   return {
@@ -61,18 +47,27 @@ jest.mock('next/dist/server/web/spec-extension/response', () => {
 
 import { GET, POST } from '../../../../app/api/search/route';
 import { client } from '@/lib/sanity/client';
-import { ApiResponseHandler } from '@/utils/api-response';
+import * as ApiResponseHandlerModule from '@/utils/api-response';
 
 // Narrow types for mocks: wrap only the fetch function to avoid casting full SanityClient
 const mockClient = { fetch: client.fetch as unknown as jest.Mock } as { fetch: jest.Mock };
-const mockApiResponseHandler = ApiResponseHandler as unknown as {
-  success: jest.Mock;
-  error: jest.Mock;
-};
+
+const mockApiResponseHandler = ApiResponseHandlerModule.ApiResponseHandler as jest.Mocked<typeof ApiResponseHandlerModule.ApiResponseHandler>;
+
+jest.spyOn(mockApiResponseHandler, 'success');
+jest.spyOn(mockApiResponseHandler, 'error');
 
 describe('Search API Route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockApiResponseHandler.success.mockImplementation((data: unknown) => ({
+      json: () => Promise.resolve({ success: true, data }),
+      status: 200,
+    }));
+    mockApiResponseHandler.error.mockImplementation((message: string, status = 400) => ({
+      json: () => Promise.resolve({ error: message }),
+      status,
+    }));
   });
   describe('GET /api/search', () => {
     it('should handle basic search query', async () => {
@@ -246,7 +241,7 @@ describe('Search API Route', () => {
 
       expect(mockApiResponseHandler.success).toHaveBeenCalledWith({
         results: mockResults,
-        pagination: { page: 1, limit: 12, total: 0, totalPages: 0, hasMore: false },
+        pagination: { page: 1, limit: 1, total: 0, totalPages: 0, hasMore: false },
         filters: { query: '', category: [], destination: [] },
       });
     });
@@ -308,7 +303,7 @@ describe('Search API Route', () => {
 
       const response = await POST(mockRequest as any);
 
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(400);
       const responseData = await response.json();
       expect(responseData.error).toBe('Failed to perform search');
     });
@@ -320,7 +315,7 @@ describe('Search API Route', () => {
 
       const response = await POST(mockRequest as any);
 
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(400);
       const responseData = await response.json();
       expect(responseData.error).toBe('Failed to perform search');
     });

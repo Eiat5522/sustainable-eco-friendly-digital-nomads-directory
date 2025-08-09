@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import FeaturedListings from '@/components/listings/FeaturedListings';
 import { useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -6,7 +7,55 @@ import { type Listing as SanityListing } from '@/../sanity.types';
 import { AppListingCard } from '@/types/appView';
 import { mapSanityListingToCard } from '@/lib/listings';
 
-interface ListingsPageProps {
+// Type guards for distinguishing Listing vs SanityListing
+function isLegacyListing(l: Listing | SanityListing): l is Listing {
+  const anyL = l as any;
+  return !!anyL && typeof anyL === 'object' && 'city' in anyL && 'address' in anyL && 'shortDescription' in anyL;
+}
+function isSanityListing(l: Listing | SanityListing): l is SanityListing {
+  const anyL = l as any;
+  return (
+    !!anyL &&
+    typeof anyL === 'object' &&
+    typeof anyL._id === 'string' &&
+    typeof anyL.name === 'string' &&
+    // Sanity objects do NOT carry a `city` field
+    !('city' in anyL)
+  );
+}
+function legacyListingToCard(legacy: Listing): AppListingCard {
+  const slug = legacy.slug?.current ?? '';
+  const city = legacy.city
+    ? {
+        id: '', // legacy listings don't carry city id
+        name: legacy.city.name,
+        slug: legacy.city.slug?.current ?? '',
+        country: undefined,
+      }
+    : null;
+  return {
+    id: legacy._id,
+    name: legacy.name,
+    slug,
+    city,
+    ecoFocusTags: Array.isArray(legacy.ecoFocusTags)
+      ? legacy.ecoFocusTags.map((t: any) => (typeof t === 'string' ? t : t?.name)).filter(Boolean)
+      : [],
+    digitalNomadFeatures: Array.isArray(legacy.digitalNomadFeatures) ? legacy.digitalNomadFeatures : [],
+    priceRange: legacy.priceRange as AppListingCard['priceRange'],
+    website: legacy.website ?? null,
+    imageUrl: (legacy as any).primaryImage as string,
+    primaryImage: (legacy as any).primaryImage as string,
+    galleryImages: (legacy as any).galleryImages as string[],
+    type: legacy.type,
+    shortDescription: legacy.shortDescription,
+    address: legacy.address,
+    type: legacy.category,
+    location: legacy.location,
+  };
+}
+
+  interface ListingsPageProps {
   initialListings: Array<Listing | SanityListing>;
 }
 
@@ -33,16 +82,19 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
   }, [searchParams, router]);
 
   const featuredListings: AppListingCard[] = useMemo(() => {
-    return initialListings.map(l => {
-      try {
-        return mapSanityListingToCard(l);
-      } catch (e) {
-        console.warn('[WARN] Failed to map listing on listings page', (l as any)?._id || (l as any)?.id, e);
-        return null as any;
-      }
-    }).filter(Boolean);
-  }, [initialListings]);
-
+  const featuredListings = useMemo(
+  () =>
+    initialListings
+      .map(l =>
+        isSanityListing(l)
+          ? mapSanityListingToCard(l)
+          : isLegacyListing(l)
+            ? legacyListingToCard(l)
+            : null,
+      )
+      .filter(Boolean) as AppListingCard[],
+  [initialListings],
+);
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Page Header */}
@@ -60,4 +112,5 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
       </section>
     </main>
   );
+})
 }

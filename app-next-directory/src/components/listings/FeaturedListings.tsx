@@ -1,7 +1,19 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { urlFor } from '@/lib/sanity/image';
 import { AppListingCard } from '@/types/appView';
+
+// Code-split ListingCard to avoid loading it when not rendering the home variant
+import type { ListingCard } from '@/components/listings/ListingCard';
+
+const ListingCard = dynamic<React.ComponentType<{ listing: AppListingCard }>>(
+  () => import('@/components/listings/ListingCard').then(m => m.ListingCard),
+  {
+    loading: () => <div className="flex items-center justify-center h-32"><span>Loading...</span></div>,
+    ssr: false,
+  }
+);
 
 interface FeaturedListingsProps {
   listings: AppListingCard[];
@@ -27,10 +39,12 @@ export default function FeaturedListings({ listings, variant = 'listings' }: Fea
         {isHome && <p className="text-lg text-gray-600 mb-8 text-center">Discover our top eco-friendly accommodations and workspaces</p>}
         <div className={isHome ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 p-4 md:p-6' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8'}>
           {listings.slice(0, 4).map(listing => {
-            // Handle Sanity image objects with fallback to direct imageUrl
+            if (isHome) {
+              return <ListingCard key={listing.id} listing={listing} />;
+            }
+
+            // Compute imageUrl only for non-home variant
             let imageUrl = '/placeholder-city.jpg';
-            
-            // Priority 1: Use primaryImage object from Sanity with urlFor
             if (listing.primaryImage?.asset) {
               try {
                 const sanityImageUrl = urlFor(listing.primaryImage)?.width(500).height(300).url();
@@ -40,16 +54,12 @@ export default function FeaturedListings({ listings, variant = 'listings' }: Fea
               } catch (error) {
                 console.warn('Failed to generate Sanity image URL for listing:', listing.id, error);
               }
-            }
-            // Priority 2: Use direct imageUrl if available and no primaryImage processed
-            else if (listing.imageUrl) {
+            } else if (listing.imageUrl) {
               imageUrl = listing.imageUrl;
             }
+            // FORTEST: Ensure all listing types are handled for image selection
+            // TODO: Audit for new types in LISTING_TYPES and add custom logic if needed
 
-            if (isHome) {
-              const { ListingCard } = require('@/components/listings/ListingCard');
-              return <ListingCard key={listing.id} listing={listing} />;
-            }
             return (
               <article
                 key={listing.id}

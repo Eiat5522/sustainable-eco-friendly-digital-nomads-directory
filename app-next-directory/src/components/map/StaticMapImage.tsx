@@ -12,10 +12,15 @@ interface StaticMapImageProps {
 
 // Renders a simple static representation for SSR and SEO
 export default function StaticMapImage({ listings }: StaticMapImageProps) {
-  // Filter out listings without coordinates
-  const validListings = listings.filter(
-    listing => listing.location && listing.location.lat && listing.location.lng
-  );
+  // Filter out listings that lack coordinates (support both legacy and new shapes).
+  // Treat 0 as valid; avoid truthy checks and `any` casts.
+  const hasCoords = (l: AppListingDetail) => {
+    const lat = l?.location?.lat ?? (l as any)?.coordinates?.lat;
+    const lng = l?.location?.lng ?? (l as any)?.coordinates?.lng;
+    return typeof lat === 'number' && Number.isFinite(lat) &&
+           typeof lng === 'number' && Number.isFinite(lng);
+  };
+  const validListings = listings.filter(hasCoords);
 
   return (
     <div className="relative w-full h-[600px] rounded-lg shadow-lg overflow-hidden bg-gray-100">
@@ -45,11 +50,18 @@ export default function StaticMapImage({ listings }: StaticMapImageProps) {
           including eco-friendly coworking spaces, cafes, and accommodations.
         </p>
         <ul>
-          {validListings.map(listing => (
-            <li key={typeof listing.slug === 'string' ? listing.slug : listing.slug || listing.id}>
-              {listing.name} - {listing.address} ({listing.category})
-            </li>
-          ))}
+          {validListings.map((listing: any) => {
+            const slugKey =
+              typeof listing.slug === 'string'
+                ? listing.slug
+                : listing.slug?.current || listing.id || listing.name;
+            const category = listing.category ?? listing?.type ?? 'listing';
+            return (
+              <li key={slugKey}>
+                {listing.name} - {listing.address} ({category})
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>

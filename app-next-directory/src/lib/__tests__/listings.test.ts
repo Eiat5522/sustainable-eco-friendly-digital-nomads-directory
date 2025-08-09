@@ -21,8 +21,8 @@ const mockListings: Listing[] = [
     ],
     priceRange: 'moderate',
     website: 'http://example.com/eco-hostel',
-    category: 'accommodation',
-    primaryImage: { asset: { _ref: 'image-ref-1' } },
+    type: 'accommodation',
+    primaryImage: { _type: 'image', asset: { _ref: 'image-ref-1' } },
     galleryImages: [],
     digitalNomadFeatures: ['high_speed_wifi', 'meeting_rooms'],
     lastVerifiedDate: '2025-01-01',
@@ -41,8 +41,11 @@ const mockListings: Listing[] = [
     priceRange: 'budget',
     website: 'http://example.com/nomad-cafe',
     category: 'cafe',
-    primaryImage: { asset: { _ref: 'image-ref-2' } },
-    galleryImages: ['image-ref-3', 'image-ref-4'],
+    primaryImage: { _type: 'image', asset: { _ref: 'image-ref-2' } },
+    galleryImages: [
+  { _type: 'image', _key: 'img3', asset: { _ref: 'image-ref-3' } },
+  { _type: 'image', _key: 'img4', asset: { _ref: 'image-ref-4' } }
+],
     digitalNomadFeatures: ['wifi-available', 'power-outlets'],
     lastVerifiedDate: '2025-01-01',
     location: { lat: 18.7880, lng: 98.9870 },
@@ -62,8 +65,10 @@ const mockListings: Listing[] = [
     priceRange: 'premium',
     website: 'http://example.com/green-resort',
     category: 'accommodation',
-    primaryImage: { asset: { _ref: 'image-ref-5' } },
-    galleryImages: ['image-ref-6'],
+    primaryImage: { _type: 'image', asset: { _ref: 'image-ref-5' } },
+    galleryImages: [
+  { _type: 'image', _key: 'img6', asset: { _ref: 'image-ref-6' } }
+],
     digitalNomadFeatures: [],
     lastVerifiedDate: '2025-01-01',
     location: { lat: 13.7123, lng: 100.5555 },
@@ -86,7 +91,11 @@ describe('getListingsByCity', () => {
   it('returns listings for a city (case-insensitive)', () => {
     const result = getListingsByCity('bangkok');
     expect(result).toHaveLength(2);
-    expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Green Resort']));
+    expect(result.map(l => l.name))
+      .toEqual(expect.arrayContaining([
+        'Eco-Friendly Coworking Space',
+        'Green Resort'
+      ]));
   });
 
   it('should return listings for a city with different casing', () => {
@@ -103,7 +112,8 @@ describe('getListingsByCity', () => {
   it('should return all listings for a city with multiple listings', () => {
     const result = getListingsByCity('Bangkok');
     expect(result).toHaveLength(2);
-    expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Green Resort']));
+    expect(result.map(l => l.name))
+      .toEqual(expect.arrayContaining(['Eco-Friendly Coworking Space', 'Green Resort']));
   });
 });
 
@@ -122,25 +132,29 @@ describe('filterListings', () => {
   it('filters by category', () => {
     const result = filterListings({ category: 'accommodation' as 'accommodation' });
     expect(result).toHaveLength(2);
-    expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Green Resort']));
+    expect(result.map(l => l.name))
+      .toEqual(expect.arrayContaining(['Eco-Friendly Coworking Space', 'Green Resort']));
   });
 
   it('filters by city (case-insensitive)', () => {
     const result = filterListings({ city: 'bangkok' });
     expect(result).toHaveLength(2);
-    expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Green Resort']));
+    expect(result.map(l => l.name))
+      .toEqual(expect.arrayContaining(['Eco-Friendly Coworking Space', 'Green Resort']));
   });
 
   it('filters by hasEcoTags', () => {
     const result = filterListings({ hasEcoTags: true });
     expect(result).toHaveLength(2);
-    expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Green Resort']));
+    expect(result.map(l => l.name))
+      .toEqual(expect.arrayContaining(['Eco-Friendly Coworking Space', 'Green Resort']));
   });
 
   it('filters by hasDnFeatures', () => {
     const result = filterListings({ hasDnFeatures: true });
     expect(result).toHaveLength(2);
-    expect(result.map(l => l.name)).toEqual(expect.arrayContaining(['Eco Hostel', 'Nomad Cafe']));
+    expect(result.map(l => l.name))
+      .toEqual(expect.arrayContaining(['Eco-Friendly Coworking Space', 'Nomad Cafe']));
   });
 
   it('filters by multiple criteria', () => {
@@ -150,7 +164,7 @@ describe('filterListings', () => {
       hasDnFeatures: true,
     });
     expect(result).toHaveLength(1);
-    expect(result[0].name).toBe('Eco Hostel');
+    expect(result[0].name).toBe('Eco-Friendly Coworking Space');
   });
 
   it('returns empty array if no listings match', () => {

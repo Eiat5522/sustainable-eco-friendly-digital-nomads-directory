@@ -6,8 +6,10 @@ import { motion } from 'framer-motion';
 import { Breadcrumbs } from '@/components/navigation/Breadcrumbs';
 import { ListingCard } from '@/components/listings/ListingCard';
 
+import { type AppCity, type AppListingCard } from '@/types/appView';
+
 interface CityPageClientProps {
-  city: any;
+  city: AppCity;
   listings: AppListingCard[];
 }
 

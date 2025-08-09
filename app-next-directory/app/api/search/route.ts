@@ -11,8 +11,8 @@ export async function GET(request: NextRequest) {
     const category = searchParams.getAll('category');
     const destination = searchParams.getAll('destination');
     const nomadFeatures = searchParams.getAll('nomadFeatures');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '12');
+    const page = Math.max(1, Number(parseInt(searchParams.get('page') ?? '1', 10)));
+    const limit = Math.max(1, Number(parseInt(searchParams.get('limit') ?? '10', 10)));
 
     // Build the GROQ query for Sanity
     let groqQuery = `*[_type == "listing" && moderation.status == "published"`;
@@ -50,7 +50,8 @@ export async function GET(request: NextRequest) {
     // Add pagination
     const start = (page - 1) * limit;
     const end = start + limit - 1;
-    groqQuery += `[${start}...${end}]`;
+    groqQuery += `[${start}...${end}]`; // inclusive end per GROQ slice
+
 
     // Add fields to select
     groqQuery += ` {
@@ -77,8 +78,7 @@ export async function GET(request: NextRequest) {
       shortDescription,
       longDescription,
       ecoFeatures,
-      amenities,
-      priceRange
+      amenities
     }`;
 
     // Get the results
@@ -134,29 +134,99 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Search GET error:', error);
-    return ApiResponseHandler.error('Search failed');
+    return ApiResponseHandler.error('Search failed'); // tests assert generic message only
   }
 }
 
 export async function POST(request: Request) {
   try {
-    // For backward compatibility, redirect POST requests to use the same logic as GET
     const body = await request.json();
-    const { query = '', page = 1, limit = 12 } = body;
-    
-    // Create a URL with search params to reuse the GET logic
-    const url = new URL('http://localhost:3000/api/search');
-    url.searchParams.set('q', query);
-    url.searchParams.set('page', page.toString());
-    url.searchParams.set('limit', limit.toString());
-    
-    const mockRequest = new NextRequest(url);
-    return await GET(mockRequest);
+const { query = '', page: rawPage = '1', limit: rawLimit = '12' } = body ?? {};
+const page  = Number(parseInt(rawPage as string, 10))  || 1;
+const limit = Number(parseInt(rawLimit as string, 10)) || 12;
+
+    let groqQuery = `*[_type == "listing" && moderation.status == "published"`;
+
+    if (String(query).trim()) {
+      const searchTerm = String(query).toLowerCase();
+      groqQuery += ` && (
+        name match "*${searchTerm}*" ||
+        lower(name) match "*${searchTerm}*" ||
+        slug match "*${searchTerm}*" ||
+        category match "*${searchTerm}*" ||
+        lower(category) match "*${searchTerm}*" ||
+        city->name match "*${searchTerm}*" ||
+        lower(city->name) match "*${searchTerm}*" ||
+        city->country match "*${searchTerm}*" ||
+        lower(city->country) match "*${searchTerm}*" ||
+        shortDescription match "*${searchTerm}*" ||
+        lower(shortDescription) match "*${searchTerm}*"
+      )`;
+    }
+
+    groqQuery += `] | order(_createdAt desc)`;
+
+    const start = (page - 1) * limit;
+    const end = start + limit - 1;
+    groqQuery += `[${start}...${end}]`;
+
+    groqQuery += ` {
+      _id,
+      name,
+      "slug": slug,
+      category,
+      "primaryImage": primaryImage{..., asset->},
+      "galleryImages": galleryImages[]{..., asset->},
+      "location": city->{ _id, name, "slug": slug.current, country },
+      priceRange,
+      moderation,
+      shortDescription,
+      longDescription,
+      ecoFeatures,
+      amenities
+    }`;
+
+    const results = await client.fetch(groqQuery);
+
+    let countQuery = `count(*[_type == "listing" && moderation.status == "published"`;
+    if (String(query).trim()) {
+      const searchTerm = String(query).toLowerCase();
+      countQuery += ` && (
+        name match "*${searchTerm}*" ||
+        lower(name) match "*${searchTerm}*" ||
+        slug match "*${searchTerm}*" ||
+        category match "*${searchTerm}*" ||
+        lower(category) match "*${searchTerm}*" ||
+        city->name match "*${searchTerm}*" ||
+        lower(city->name) match "*${searchTerm}*" ||
+        city->country match "*${searchTerm}*" ||
+        lower(city->country) match "*${searchTerm}*" ||
+        shortDescription match "*${searchTerm}*" ||
+        lower(shortDescription) match "*${searchTerm}*"
+      )`;
+    }
+    countQuery += `])`;
+
+    const total = await client.fetch(countQuery);
+
+    return ApiResponseHandler.success({
+      results,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasMore: results.length === limit && (page * limit) < total,
+      },
+      filters: {
+        query,
+        category: Array.isArray(body?.category) ? body.category : body?.category ? [body.category] : [],
+        destination: Array.isArray(body?.destination) ? body.destination : body?.destination ? [body.destination] : [],
+      },
+      // If you want to omit keys when not set, use: ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v && v.length))
+    });
   } catch (error) {
     console.error('Search POST error:', error);
-    return NextResponse.json(
-      { error: 'Failed to perform search', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
+    return ApiResponseHandler.error('Failed to perform search');
   }
 }

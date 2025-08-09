@@ -82,17 +82,23 @@ export default function MapComponent({ listings, onBoundsChange }: MapComponentP
 
       if (Array.isArray(listings)) {
         listings.forEach(listing => {
-          const latitude = listing.location?.lat;
-          const longitude = listing.location?.lng;
-          if (typeof latitude !== 'number' || typeof longitude !== 'number') return;
+          const latRaw = (listing as any)?.coordinates?.lat ?? listing.location?.lat;
+          const lngRaw = (listing as any)?.coordinates?.lng ?? listing.location?.lng;
+          const lat = typeof latRaw === 'string' ? parseFloat(latRaw) : latRaw;
+          const lng = typeof lngRaw === 'string' ? parseFloat(lngRaw) : lngRaw;
+          if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
-          const marker = L.marker([latitude, longitude], {
-            icon: L.divIcon({
-              html: `<div class="marker-icon">${listing.category ? typeIcons[listing.category] : ''}</div>`,
-              className: 'custom-marker',
-              iconSize: L.point(32, 32)
-            })
-          });
+          // use the lowercase factory and addLayer for each marker
+          const marker = L.marker(
+            [lat, lng],
+            {
+              icon: L.divIcon({
+                html: `<div class="marker-icon">${listing.category ? typeIcons[listing.category as keyof typeof typeIcons] ?? '' : ''}</div>`,
+                className: 'custom-marker',
+                iconSize: L.point(32, 32)
+              })
+            }
+          );
 
           marker.bindPopup(`
             <div class="marker-popup">

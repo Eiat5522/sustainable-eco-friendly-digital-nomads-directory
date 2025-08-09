@@ -27,12 +27,12 @@ export const test = base.extend<ListingsFixtures>({
         longDescription: 'Long description',
         ecoFocusTags: [{ _id: '1', name: 'zero-waste', slug: { current: 'zero-waste' }, description: 'Zero waste practices' }],
         shortDescription: 'Eco notes', //map to ecoNotesDetailed for data migration
-        sourceUrls: [],
+        website: 'www.test.com',
         primaryImage: '/test.jpg',
         galleryImages: [],
         digitalNomadFeatures: ['wifi'],
         lastVerifiedDate: '2025-05-14',
-        ecoDetails: {
+        ecoNotesDetailed: {
           description: 'Eco-friendly practices',
           ecoTags: ['zero-waste'],
           certifications: ['LEED Gold']
@@ -47,7 +47,7 @@ export const test = base.extend<ListingsFixtures>({
   defaultFilters: async ({}, use) => {
     await use({
       categories: ['coworking', 'cafe', 'accommodation'],
-          ecoFocusTags: [
+          ecoTags: [
         'zero-waste',
         'renewable-energy',
         'plant-based',

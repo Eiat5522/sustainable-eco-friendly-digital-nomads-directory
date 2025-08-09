@@ -18,17 +18,17 @@ applyTo: "**"
   - _Example prompt:_ 'This code should resolve the issue with X. Does this complete task Y, or a part of it?' or 'Now that we've outlined the plan for Z, shall I update its status to \'in-progress\'?'
 
 - **Tech Stack**: Familiarize yourself with the tech stack used in the project, including Next.js, Tailwind CSS, Sanity, MongoDB, Leaflet.js, Vercel, Stripe, and NextAuth.js.
-  []: # 📂
-  []: # ├── app-next-directory # Next.js app root
-  []: # │ ├── src # Source code
-  []: # │ ├── public # Static assets
-  []: # │ ├── package.json # App dependencies
-  []: # │ └── ...
-  []: # └── sanity # Sanity Studio root
-  []: # ├── schemas # Custom schema definitions
-  []: # ├── sanity.config.js # Main Sanity configuration
-  []: # └── ...
-  []: # ```
+    📂
+    ├── app-next-directory # Next.js app root
+    │ ├── src # Source code
+    │ ├── public # Static assets
+    │ ├── package.json # App dependencies
+    │ └── ...
+    └── sanity # Sanity Studio root
+    ├── schemas # Custom schema definitions
+    ├── sanity.config.js # Main Sanity configuration
+    └── ...
+    ```
 
 ## 📑 **Directory Navigation with File System MCP server in Powerhell 7 **
 - **Change Directory Best Practices:** - **Change Directory**: Use PowerShell's `Set-Location` cmdlet to change directories in the terminal.

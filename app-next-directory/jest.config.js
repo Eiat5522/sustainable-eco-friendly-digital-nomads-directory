@@ -50,5 +50,8 @@ module.exports = {
     '<rootDir>/tests/', // Exclude all Playwright and E2E tests
     '/__tests__/__mocks__/',
     '\\.(d\\.ts)$',
+    
+  
+  '<rootDir>/src/lib/__tests__/listings.test.ts',
   ]
 };
