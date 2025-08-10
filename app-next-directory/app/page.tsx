@@ -11,6 +11,7 @@ import SustainableNomadTestimonials from '@/components/ui/sustainable-nomad-test
 
 import type { AppListingCard, AppCity } from '@/types/appView';
 import type { EcoCityItem } from '@/components/cities/CityCarousel';
+import { mapSanityListingToCard } from '@/lib/listings';
 
 export default function HomePage() {
   const [listings, setListings] = useState<AppListingCard[]>([]);
@@ -20,6 +21,7 @@ export default function HomePage() {
       try {
         const featuredListingsResponse = await fetch('/api/featured-listings').then(res => res.json());
         const featuredListings = featuredListingsResponse.listings || [];
+        console.log('[DEBUG] HomePage: Raw featured listings:', featuredListings);
         console.log('[DEBUG] HomePage: Mapping', featuredListings.length, 'raw listings to AppListingCard DTO');
         const mapped = featuredListings.map((l: any) => {
           try {

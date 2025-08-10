@@ -198,7 +198,7 @@ interface FiltersContentProps {
   toggleCategory: (category: string) => void;
   setCity: (city: string | null) => void;
   toggleEcoTag: (tag: string) => void;
-  toggleDigitalNomadFeature: (feature: string) => void;
+  toggleNomadFeature: (feature: string) => void;
   onSortChange: (sortOption: SortOption) => void;
   onCombinationsChange: (combinations: FilterGroup[]) => void;
   onCombinationOperatorChange: (operator: FilterOperator) => void;
@@ -212,7 +212,7 @@ function FiltersContent({
   toggleCategory,
   setCity,
   toggleEcoTag,
-  toggleDigitalNomadFeature,
+  toggleNomadFeature, // Changed this
   onSortChange,
   onCombinationsChange,
   onCombinationOperatorChange,
@@ -300,7 +300,7 @@ function FiltersContent({
           <Checkbox
             id="wifi"
             checked={filters.digitalNomadFeatures.includes('wifi')}
-            onCheckedChange={() => toggleDigitalNomadFeature('wifi')}
+            onCheckedChange={() => toggleNomadFeature('wifi')}
           />
         </div>
         <div className="flex items-center justify-between">
@@ -310,7 +310,7 @@ function FiltersContent({
           <Checkbox
             id="sustainable"
             checked={filters.digitalNomadFeatures.includes('sustainable')}
-            onCheckedChange={() => toggleDigitalNomadFeature('sustainable')}
+            onCheckedChange={() => toggleNomadFeature('sustainable')}
           />
         </div>
       </div>

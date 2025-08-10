@@ -39,18 +39,32 @@ function mapRawToListing(rawListing: any): Listing {
     shortDescription: rawListing.shortDescription || '',
     longDescription: rawListing.longDescription || '',
     primaryImage: rawListing.primaryImage || rawListing.primary_image_url ? {
+      _type: 'image', // Add _type
       asset: {
+        _ref: 'placeholder-ref', // Placeholder ref, as we don't have actual Sanity asset refs here
+        _type: 'reference', // Add _type
         url: typeof rawListing.primaryImage === 'string'
           ? rawListing.primaryImage
           : rawListing.primaryImage?.asset?.url || rawListing.primary_image_url
       }
     } : undefined,
     galleryImages: Array.isArray(rawListing.galleryImages)
-      ? rawListing.galleryImages.map((img: any) =>
-          typeof img === 'string' ? { asset: { url: img } } : img
-        )
-      : rawListing.gallery_image_urls?.map((url: string) => ({ asset: { url } })) || [],
-    ecoFocusTags,
+      ? rawListing.galleryImages.map((img: any) => {
+          if (typeof img === 'string') {
+            return { _type: 'image', asset: { url: img } };
+          }
+          // If this is already a Sanity image, keep it untouched
+          if (img && typeof img === 'object' && (img._type === 'image' || img.asset?._ref)) {
+            return img;
+          }
+          // Coerce plain object with a url on asset (or top-level) to a normalized shape
+          const url = img?.asset?.url ?? img?.url;
+          return url ? { _type: 'image', asset: { url } } : img;
+        })
+      : (rawListing.gallery_image_urls?.map((url: string) => ({
+          _type: 'image',
+          asset: { url },
+        })) || []),
     digitalNomadFeatures: (rawListing.digitalNomadFeatures || []).map((feature: any) =>
       typeof feature === 'string' ? feature : feature?.name
     ).filter(Boolean),
@@ -141,8 +155,7 @@ export function isSanityListing(raw: any): raw is SanityListingRaw {
   return (
     typeof raw?._id === 'string' &&
     typeof raw?.name === 'string' &&
-    raw?.slug && typeof raw.slug === 'object' && typeof raw.slug.current === 'string' &&
-    raw?.city && typeof raw.city === 'object' && typeof raw.city.name === 'string'
+    raw?.slug && typeof raw.slug === 'object' && typeof raw.slug.current === 'string'
   );
 }
 

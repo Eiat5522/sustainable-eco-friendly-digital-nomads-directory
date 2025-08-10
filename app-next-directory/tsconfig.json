@@ -27,11 +27,15 @@
       ],
       "@/app/*": [
         "./app/*"
+      ],
+      "sanity.types": [
+        "./sanity.types.ts"
       ]
     },
     "target": "ES2017",
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
   "typeRoots": [
     "./node_modules/@types",

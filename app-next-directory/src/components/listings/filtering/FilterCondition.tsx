@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Select } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select.tsx';
+import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/Button';
 import type { FilterCondition } from '@/types/components';
 import { X } from 'lucide-react';

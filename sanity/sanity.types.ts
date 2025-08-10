@@ -12,3 +12,1102 @@
  * ---------------------------------------------------------------------------------
  */
 
+// Source: schema.json
+export type OpeningHoursEntry = {
+  _type: 'openingHoursEntry'
+  day?: 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun'
+  opens?: string
+  closes?: string
+}
+
+export type CoworkingPricingPlan = {
+  _type: 'coworkingPricingPlan'
+  type?: string
+  price?: number
+  period?: string
+}
+
+export type UserPreference = {
+  _id: string
+  _type: 'userPreference'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  user?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'user'
+  }
+  preferredCategories?: Array<string>
+  preferredCities?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'city'
+  }>
+  preferredEcoTags?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'ecoTag'
+  }>
+  priceRangePreference?: 'budget' | 'midRange' | 'premium'
+  notificationPreferences?: {
+    email?: boolean
+    push?: boolean
+    frequency?: 'daily' | 'weekly' | 'monthly'
+  }
+  lastUpdated?: string
+}
+
+export type SearchConfig = {
+  _id: string
+  _type: 'searchConfig'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  fieldBoosts?: {
+    name?: number
+    description?: number
+    ecoTags?: number
+    city?: number
+  }
+  geoSearchSettings?: {
+    defaultRadius?: number
+    maxRadius?: number
+  }
+  facetedSearchConfig?: Array<{
+    fieldName?: string
+    displayName?: string
+    type?: 'categorical' | 'range' | 'boolean' | 'date'
+    rangeConfig?: {
+      min?: number
+      max?: number
+      step?: number
+    }
+    categoryConfig?: {
+      multiSelect?: boolean
+      showCount?: boolean
+    }
+    _key: string
+  }>
+  sortOptions?: Array<{
+    field?: string
+    displayName?: string
+    direction?: 'asc' | 'desc'
+    _key: string
+  }>
+  performanceSettings?: {
+    cacheDuration?: number
+    maxResults?: number
+    paginationSize?: number
+  }
+}
+
+export type SearchBoost = {
+  _id: string
+  _type: 'searchBoost'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name?: string
+  boost?: number
+  description?: string
+}
+
+export type RichText = {
+  _type: 'richText'
+  content?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
+          _key: string
+        }>
+        style?: 'normal' | 'h1' | 'h2' | 'h3' | 'blockquote'
+        listItem?: 'bullet' | 'number'
+        markDefs?: Array<
+          | {
+              href?: string
+              blank?: boolean
+              _type: 'link'
+              _key: string
+            }
+          | {
+              reference?:
+                | {
+                    _ref: string
+                    _type: 'reference'
+                    _weak?: boolean
+                    [internalGroqTypeReferenceTo]?: 'listing'
+                  }
+                | {
+                    _ref: string
+                    _type: 'reference'
+                    _weak?: boolean
+                    [internalGroqTypeReferenceTo]?: 'blogPost'
+                  }
+              _type: 'internalReference'
+              _key: string
+            }
+        >
+        level?: number
+        _type: 'block'
+        _key: string
+      }
+    | {
+        asset?: {
+          _ref: string
+          _type: 'reference'
+          _weak?: boolean
+          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+        }
+        media?: unknown
+        hotspot?: SanityImageHotspot
+        crop?: SanityImageCrop
+        alt?: string
+        caption?: string
+        _type: 'image'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & Code)
+  >
+  excerpt?: string
+  metadata?: {
+    keywords?: Array<string>
+    readTime?: number
+  }
+}
+
+export type NomadFeature = {
+  _id: string
+  _type: 'nomadFeature'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name?: string
+  slug?: Slug
+  description?: string
+  icon?: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    caption?: string
+    _type: 'image'
+  }
+}
+
+export type ModerationStatus = {
+  _id: string
+  _type: 'moderationStatus'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  item?:
+    | {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'listing'
+      }
+    | {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'review'
+      }
+    | {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'comment'
+      }
+  status?: 'pending' | 'approved' | 'rejected' | 'changes_needed' | 'flagged'
+  moderatorNotes?: string
+  moderatedBy?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'user'
+  }
+  moderatedAt?: string
+  userReports?: Array<{
+    reportedBy?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'user'
+    }
+    reason?: string
+    details?: string
+    reportedAt?: string
+    _key: string
+  }>
+}
+
+export type ListingAnalytics = {
+  _id: string
+  _type: 'listingAnalytics'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  listing?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'listing'
+  }
+  viewCount?: number
+  bookmarkCount?: number
+  clickThroughRate?: number
+  lastUpdated?: string
+  timeOnPage?: number
+}
+
+export type EventRegistration = {
+  _id: string
+  _type: 'eventRegistration'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  event?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'event'
+  }
+  user?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'user'
+  }
+  registrationDate?: string
+  status?: 'pending' | 'confirmed' | 'cancelled' | 'attended'
+  notes?: string
+}
+
+export type Event = {
+  _id: string
+  _type: 'event'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title?: string
+  description?: string
+  venue?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'listing'
+  }
+  startDate?: string
+  endDate?: string
+  city?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'city'
+  }
+  image?: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  link?: string
+}
+
+export type EcoInitiatives = {
+  _type: 'ecoInitiatives'
+  sustainableEnergy?: 'fully_renewable' | 'partially_renewable' | 'energy_efficient' | 'standard'
+  wasteManagement?: boolean
+  waterConservation?: boolean
+  localSourcing?: boolean
+  plasticFree?: boolean
+  veganOptions?: boolean
+  certifications?: Array<string>
+  additionalInitiatives?: Array<string>
+}
+
+export type Comment = {
+  _id: string
+  _type: 'comment'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  post?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'blogPost'
+  }
+  user?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'user'
+  }
+  content?: string
+  createdAt?: string
+  approved?: boolean
+  parent?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'comment'
+  }
+}
+
+export type Amenity = {
+  _id: string
+  _type: 'amenity'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name?: string
+  description?: string
+  badge?: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+}
+
+export type Address = {
+  _type: 'address'
+  streetAddress?: string
+  city?: string
+  province?: string
+  postalCode?: string
+}
+
+export type BlogPost = {
+  _id: string
+  _type: 'blogPost'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title?: string
+  slug?: Slug
+  author?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'user'
+  }
+  publishedAt?: string
+  primaryImage?: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    caption?: string
+    _type: 'image'
+  }
+  excerpt?: string
+  body?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
+    listItem?: 'bullet' | 'number'
+    markDefs?: Array<{
+      href?: string
+      _type: 'link'
+      _key: string
+    }>
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+  tags?: Array<string>
+}
+
+export type Review = {
+  _id: string
+  _type: 'review'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  user?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'user'
+  }
+  listing?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'listing'
+  }
+  rating?: number
+  comment?: string
+}
+
+export type User = {
+  _id: string
+  _type: 'user'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name?: string
+  email?: string
+  avatar?: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  bio?: string
+  role?: 'user' | 'editor' | 'venueOwner' | 'admin'
+  ownedListings?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'listing'
+  }>
+  reviews?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'review'
+  }>
+  lastActive?: string
+  createdAt?: string
+}
+
+export type EcoTag = {
+  _id: string
+  _type: 'ecoTag'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name?: string
+  description?: string
+}
+
+export type Listing = {
+  _id: string
+  _type: 'listing'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name?: string
+  slug?: Slug
+  shortDescription?: string
+  longDescription?: string
+  city?: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'city'
+  }
+  type?: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities'
+  address?: string
+  location?: Geopoint
+  primaryImage?: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  galleryImages?: Array<{
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+    _key: string
+  }>
+  ecoFocusTags?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'ecoTag'
+  }>
+  digitalNomadFeatures?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'nomadFeature'
+  }>
+  amenities?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'amenity'
+  }>
+  priceRange?: 'budget' | 'moderate' | 'premium'
+  contactPhone?: string
+  contactEmail?: string
+  website?: string
+  accommodationDetails?: AccommodationDetails
+  activitiesDetails?: ActivitiesDetails
+  cafeDetails?: CafeDetails
+  category?: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities'
+  coworkingDetails?: CoworkingDetails
+  restaurantDetails?: RestaurantDetails
+  reviews?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'review'
+  }>
+  moderation?: {
+    status?: 'draft' | 'pending' | 'published' | 'archived' | 'flagged'
+    featured?: boolean
+    verificationStatus?: 'unverified' | 'verified' | 'needs_verification'
+    moderatorNotes?: string
+  }
+}
+
+export type RestaurantDetails = {
+  _type: 'restaurantDetails'
+  cuisineType?: Array<string>
+  priceRange?: 'budget' | 'moderate' | 'expensive' | 'luxury'
+  operatingHours?: string
+  sustainabilityInitiatives?: Array<string>
+  dietaryOptions?: Array<string>
+  seating?: Array<string>
+  workFriendly?: Array<string>
+  averageMealPriceThb?: {
+    min?: number
+    max?: number
+  }
+}
+
+export type CoworkingDetails = {
+  _type: 'coworkingDetails'
+  pricingPlans?: Array<
+    {
+      _key: string
+    } & CoworkingPricingPlan
+  >
+  openingHours?: Array<
+    {
+      _key: string
+    } & OpeningHoursEntry
+  >
+  internetSpeed?: {
+    download?: number
+    upload?: number
+    lastTested?: string
+  }
+}
+
+export type CafeDetails = {
+  _type: 'cafeDetails'
+  openingHours?: Array<
+    {
+      _key: string
+    } & OpeningHoursEntry
+  >
+  priceIndication?: '$' | '$$'
+  menuHighlights?: Array<
+    | 'specialty_coffee_beans'
+    | 'sourdough_bread_pastries'
+    | 'extensive_vegan_options'
+    | 'fresh_pressed_juices_smoothies'
+    | 'brunch_menu'
+    | 'local_thai_dishes'
+    | 'craft_beer_wine'
+    | 'organic_ingredients'
+    | 'gluten_free_options'
+    | 'plant_based_menu'
+  >
+  workspaceAmenities?: Array<string>
+  maxRecommendedStay?: number
+  noiseLevel?: 'very_quiet' | 'low' | 'moderate' | 'high' | 'very_loud'
+  powerOutlets?: {
+    availability?: 'abundant' | 'good' | 'limited' | 'very_limited' | 'none'
+    notes?: string
+  }
+  workPolicy?: {
+    laptopsAllowed?: boolean
+    timeLimit?: number
+    peakHoursPolicy?: 'always' | 'limited_peak' | 'no_peak'
+    peakHours?: string
+  }
+  veganFriendly?: {
+    isVeganFriendly?: boolean
+    veganOptions?: number
+  }
+}
+
+export type ActivitiesDetails = {
+  _type: 'activitiesDetails'
+  activityType?:
+    | 'yoga_wellness'
+    | 'outdoor_adventure'
+    | 'cultural_experience'
+    | 'eco_tour'
+    | 'cooking_class'
+    | 'meditation_mindfulness'
+    | 'community_service'
+    | 'sustainable_workshop'
+  pricePerPerson?: {
+    min?: number
+    max?: number
+  }
+  duration?: {
+    value?: number
+    unit?: 'hours' | 'days'
+  }
+  groupSize?: {
+    min?: number
+    max?: number
+  }
+  sustainabilityPractices?: Array<string>
+  skillLevel?: 'beginner' | 'intermediate' | 'advanced' | 'all_levels'
+  ecoScore?: {
+    score?: number
+    certifications?: Array<string>
+    justification?: string
+  }
+  languages?: Array<string>
+  accessibility?: {
+    wheelchairAccessible?: boolean
+    mobilityLevel?: 'easy' | 'moderate' | 'challenging' | 'difficult'
+    accessibilityNotes?: string
+  }
+  seasonality?: {
+    bestMonths?: Array<string>
+    weatherDependent?: boolean
+  }
+}
+
+export type AccommodationDetails = {
+  _type: 'accommodationDetails'
+  accommodationType?:
+    | 'hotel'
+    | 'guesthouse'
+    | 'bungalow'
+    | 'resort'
+    | 'hostel'
+    | 'apartment_condo'
+    | 'villa'
+    | 'eco_lodge'
+  pricePerNightThb?: {
+    min?: number
+    max?: number
+  }
+  openingHours?: Array<
+    {
+      _key: string
+    } & OpeningHoursEntry
+  >
+  roomTypesAvailable?: Array<{
+    type?:
+      | 'single'
+      | 'double'
+      | 'twin'
+      | 'studio'
+      | 'one_bedroom'
+      | 'two_bedroom'
+      | 'dormitory'
+      | 'suite'
+    pricePerNight?: number
+    features?: Array<string>
+    _key: string
+  }>
+  minimumStay?: number
+  coworkingPartnership?: {
+    hasPartnership?: boolean
+    partner?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'listing'
+    }
+    discountDetails?: string
+  }
+  workspaceQuality?: {
+    hasWorkspace?: boolean
+    workspaceType?: 'proper_desk' | 'ergonomic' | 'basic' | 'shared'
+    workspaceFeatures?: Array<string>
+  }
+  stayDuration?: {
+    minimumNights?: number
+    maximumNights?: number
+    longTermAvailable?: boolean
+    longTermDiscount?: string
+  }
+}
+
+export type City = {
+  _id: string
+  _type: 'city'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name?: string
+  slug?: Slug
+  country?: string
+  description?: string
+  sustainabilityScore?: number
+  highlights?: Array<string>
+  primaryImage?: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    caption?: string
+    _type: 'image'
+  }
+}
+
+export type Code = {
+  _type: 'code'
+  language?: string
+  filename?: string
+  code?: string
+  highlightedLines?: Array<number>
+}
+
+export type SanityImagePaletteSwatch = {
+  _type: 'sanity.imagePaletteSwatch'
+  background?: string
+  foreground?: string
+  population?: number
+  title?: string
+}
+
+export type SanityImagePalette = {
+  _type: 'sanity.imagePalette'
+  darkMuted?: SanityImagePaletteSwatch
+  lightVibrant?: SanityImagePaletteSwatch
+  darkVibrant?: SanityImagePaletteSwatch
+  vibrant?: SanityImagePaletteSwatch
+  dominant?: SanityImagePaletteSwatch
+  lightMuted?: SanityImagePaletteSwatch
+  muted?: SanityImagePaletteSwatch
+}
+
+export type SanityImageDimensions = {
+  _type: 'sanity.imageDimensions'
+  height?: number
+  width?: number
+  aspectRatio?: number
+}
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot'
+  x?: number
+  y?: number
+  height?: number
+  width?: number
+}
+
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop'
+  top?: number
+  bottom?: number
+  left?: number
+  right?: number
+}
+
+export type SanityFileAsset = {
+  _id: string
+  _type: 'sanity.fileAsset'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  originalFilename?: string
+  label?: string
+  title?: string
+  description?: string
+  altText?: string
+  sha1hash?: string
+  extension?: string
+  mimeType?: string
+  size?: number
+  assetId?: string
+  uploadId?: string
+  path?: string
+  url?: string
+  source?: SanityAssetSourceData
+}
+
+export type SanityImageAsset = {
+  _id: string
+  _type: 'sanity.imageAsset'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  originalFilename?: string
+  label?: string
+  title?: string
+  description?: string
+  altText?: string
+  sha1hash?: string
+  extension?: string
+  mimeType?: string
+  size?: number
+  assetId?: string
+  uploadId?: string
+  path?: string
+  url?: string
+  metadata?: SanityImageMetadata
+  source?: SanityAssetSourceData
+}
+
+export type SanityImageMetadata = {
+  _type: 'sanity.imageMetadata'
+  location?: Geopoint
+  dimensions?: SanityImageDimensions
+  palette?: SanityImagePalette
+  lqip?: string
+  blurHash?: string
+  hasAlpha?: boolean
+  isOpaque?: boolean
+}
+
+export type Geopoint = {
+  _type: 'geopoint'
+  lat?: number
+  lng?: number
+  alt?: number
+}
+
+export type Slug = {
+  _type: 'slug'
+  current?: string
+  source?: string
+}
+
+export type SanityAssetSourceData = {
+  _type: 'sanity.assetSourceData'
+  name?: string
+  id?: string
+  url?: string
+}
+
+export type AllSanitySchemaTypes =
+  | OpeningHoursEntry
+  | CoworkingPricingPlan
+  | UserPreference
+  | SearchConfig
+  | SearchBoost
+  | RichText
+  | NomadFeature
+  | ModerationStatus
+  | ListingAnalytics
+  | EventRegistration
+  | Event
+  | EcoInitiatives
+  | Comment
+  | Amenity
+  | Address
+  | BlogPost
+  | Review
+  | User
+  | EcoTag
+  | Listing
+  | RestaurantDetails
+  | CoworkingDetails
+  | CafeDetails
+  | ActivitiesDetails
+  | AccommodationDetails
+  | City
+  | Code
+  | SanityImagePaletteSwatch
+  | SanityImagePalette
+  | SanityImageDimensions
+  | SanityImageHotspot
+  | SanityImageCrop
+  | SanityFileAsset
+  | SanityImageAsset
+  | SanityImageMetadata
+  | Geopoint
+  | Slug
+  | SanityAssetSourceData
+export declare const internalGroqTypeReferenceTo: unique symbol
+// Source: ../app-next-directory/src/lib/sanity/data.ts
+// Variable: LISTING_BY_SLUG_QUERY
+// Query: *[_type == "listing" && slug.current == $slug][0]{    _id,    name,    "slug": slug.current,    city->{      _id,      name,      "slug": slug.current,      country    },    type,    category,    address,    location{lat, lng, alt},    primaryImage,    galleryImages,    ecoFocusTags[]->{      _id,      name    },    priceRange,    contactPhone,    contactEmail,    website,    shortDescription,    longDescription,    reviews[]->{      _id,      rating,      comment,      "userId": user._ref,      "user": user->{        name,        image      },      "createdAt": _createdAt    },    amenities[]->{      _id,      name,      description,      badge    },    coworkingDetails,    accommodationDetails,    cafeDetails,    restaurantDetails,    activitiesDetails,    digitalNomadFeatures[]->{      _id,      name,      slug,      description,      icon    },    moderation{status, featured, verificationStatus}  }
+export type LISTING_BY_SLUG_QUERYResult = {
+  _id: string
+  name: string | null
+  slug: string | null
+  city: {
+    _id: string
+    name: string | null
+    slug: string | null
+    country: string | null
+  } | null
+  type: 'accommodation' | 'activities' | 'cafe' | 'coworking' | 'restaurant' | null
+  category: 'accommodation' | 'activities' | 'cafe' | 'coworking' | 'restaurant' | null
+  address: string | null
+  location: {
+    lat: number | null
+    lng: number | null
+    alt: number | null
+  } | null
+  primaryImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  } | null
+  galleryImages: Array<{
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+    _key: string
+  }> | null
+  ecoFocusTags: Array<{
+    _id: string
+    name: string | null
+  }> | null
+  priceRange: 'budget' | 'moderate' | 'premium' | null
+  contactPhone: string | null
+  contactEmail: string | null
+  website: string | null
+  shortDescription: string | null
+  longDescription: string | null
+  reviews: Array<{
+    _id: string
+    rating: number | null
+    comment: string | null
+    userId: string | null
+    user: {
+      name: string | null
+      image: null
+    } | null
+    createdAt: string
+  }> | null
+  amenities: Array<{
+    _id: string
+    name: string | null
+    description: string | null
+    badge: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      _type: 'image'
+    } | null
+  }> | null
+  coworkingDetails: CoworkingDetails | null
+  accommodationDetails: AccommodationDetails | null
+  cafeDetails: CafeDetails | null
+  restaurantDetails: RestaurantDetails | null
+  activitiesDetails: ActivitiesDetails | null
+  digitalNomadFeatures: Array<{
+    _id: string
+    name: string | null
+    slug: Slug | null
+    description: string | null
+    icon: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      caption?: string
+      _type: 'image'
+    } | null
+  }> | null
+  moderation: {
+    status: 'archived' | 'draft' | 'flagged' | 'pending' | 'published' | null
+    featured: boolean | null
+    verificationStatus: 'needs_verification' | 'unverified' | 'verified' | null
+  } | null
+} | null
+
+// Query TypeMap
+import '@sanity/client'
+declare module '@sanity/client' {
+  interface SanityQueries {
+    '\n  *[_type == "listing" && slug.current == $slug][0]{\n    _id,\n    name,\n    "slug": slug.current,\n    city->{\n      _id,\n      name,\n      "slug": slug.current,\n      country\n    },\n    type,\n    category,\n    address,\n    location{lat, lng, alt},\n    primaryImage,\n    galleryImages,\n    ecoFocusTags[]->{\n      _id,\n      name\n    },\n    priceRange,\n    contactPhone,\n    contactEmail,\n    website,\n    shortDescription,\n    longDescription,\n    reviews[]->{\n      _id,\n      rating,\n      comment,\n      "userId": user._ref,\n      "user": user->{\n        name,\n        image\n      },\n      "createdAt": _createdAt\n    },\n    amenities[]->{\n      _id,\n      name,\n      description,\n      badge\n    },\n    coworkingDetails,\n    accommodationDetails,\n    cafeDetails,\n    restaurantDetails,\n    activitiesDetails,\n    digitalNomadFeatures[]->{\n      _id,\n      name,\n      slug,\n      description,\n      icon\n    },\n    moderation{status, featured, verificationStatus}\n  }\n': LISTING_BY_SLUG_QUERYResult
+  }
+}

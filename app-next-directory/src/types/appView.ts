@@ -1,4 +1,4 @@
-export type AppCity = { id: string; name: string; slug: string; country?: string; sustainabilityScore?: number; highlights?: string[]; primaryImage?: SanityImage };
+export type AppCity = { id: string; name: string; slug: string; country?: string; sustainabilityScore?: number; highlights?: string[]; primaryImage?: SanityImage; description?: string; };
 
 export type SanityImage = {
   _type?: 'image';

@@ -24,6 +24,7 @@ export function SanityImage({
   ...rest
 }: SanityImageProps) {
   const src = image ? urlFor(image)?.width(width).height(height).url() : fallbackSrc;
+  console.log('[DEBUG] SanityImage src:', src, 'image prop:', image);
   const validAlt = alt && alt.trim() ? alt : fallbackAlt;
 
   // Extract onError and fill from rest props

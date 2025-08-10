@@ -51,6 +51,7 @@ async function getAllCities(preview = false) {
     highlights,
     "primaryImage": primaryImage {
       asset->{
+        _ref,
         _id,
         url,
         metadata {

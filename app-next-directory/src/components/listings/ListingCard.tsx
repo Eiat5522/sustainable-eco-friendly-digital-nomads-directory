@@ -6,7 +6,7 @@ import type { AppListingCard } from '@/types/appView';
 import { ListingCategory, PriceRange } from '@/types/enums';
 import { urlFor } from '@/lib/sanity/image';
 
-interface ListingCardProps {
+export interface ListingCardProps {
   listing: AppListingCard;
   searchQuery?: string;
 }

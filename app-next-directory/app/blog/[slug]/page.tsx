@@ -8,6 +8,20 @@ import { useSession } from 'next-auth/react';
 import { urlFor } from '@/lib/sanity/client';
 import { PortableText } from '@portabletext/react';
 
+import { SanityImageCrop, SanityImageHotspot } from 'sanity.types';
+
+interface SanityImage {
+  _type: 'image';
+  asset: {
+    _ref: string;
+    _type: 'reference';
+  };
+  hotspot?: SanityImageHotspot;
+  crop?: SanityImageCrop;
+  alt?: string;
+  caption?: string;
+}
+
 interface BlogPost {
   _id: string;
   title: string;
@@ -18,7 +32,7 @@ interface BlogPost {
   body?: any[];
   tags?: string[];
   authorName?: string;
-  authorImage?: any;
+  authorImage?: SanityImage; // Assuming authorImage is also a SanityImage
   authorBio?: string;
   readingTime?: number;
   viewCount?: number;

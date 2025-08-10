@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { type Listing } from '@/types/listings';
 import { type Listing as SanityListing } from '@/../sanity.types';
-import { AppListingCard } from '@/types/appView';
+import { AppListingCard, SanityImage, SanityGalleryImage } from '@/types/appView';
 import { mapSanityListingToCard } from '@/lib/listings';
 
 // Type guards for distinguishing Listing vs SanityListing
@@ -33,6 +33,34 @@ function legacyListingToCard(legacy: Listing): AppListingCard {
         country: undefined,
       }
     : null;
+
+  // Helper to convert a string URL to a basic SanityImage structure
+  const toSanityImage = (url: string | undefined): SanityImage | undefined => {
+    if (!url) return undefined;
+    return {
+      _type: 'image',
+      asset: {
+        _ref: 'placeholder-ref', // Placeholder ref, as legacy data doesn't have it
+        _type: 'reference',
+        url: url,
+      },
+    };
+  };
+
+  // Helper to convert string URLs to SanityGalleryImage array
+  const toSanityGalleryImages = (urls: string[] | undefined): SanityGalleryImage[] | undefined => {
+    if (!urls || !Array.isArray(urls)) return undefined;
+    return urls.map(url => ({
+      _type: 'image',
+      _key: url, // Use URL as a unique key for simplicity
+      asset: {
+        _ref: 'placeholder-ref',
+        _type: 'reference',
+        url: url,
+      },
+    }));
+  };
+
   return {
     id: legacy._id,
     name: legacy.name,
@@ -44,13 +72,12 @@ function legacyListingToCard(legacy: Listing): AppListingCard {
     digitalNomadFeatures: Array.isArray(legacy.digitalNomadFeatures) ? legacy.digitalNomadFeatures : [],
     priceRange: legacy.priceRange as AppListingCard['priceRange'],
     website: legacy.website ?? null,
-    imageUrl: (legacy as any).primaryImage as string,
-    primaryImage: (legacy as any).primaryImage as string,
-    galleryImages: (legacy as any).galleryImages as string[],
+    primaryImage: toSanityImage((legacy as any).primaryImage || (legacy as any).imageUrl), // Use helper
+    galleryImages: toSanityGalleryImages((legacy as any).galleryImages), // Use helper
     type: legacy.type,
     shortDescription: legacy.shortDescription,
     address: legacy.address,
-    type: legacy.category,
+    category: legacy.category,
     location: legacy.location,
   };
 }
@@ -81,20 +108,20 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
     }
   }, [searchParams, router]);
 
-  const featuredListings: AppListingCard[] = useMemo(() => {
-  const featuredListings = useMemo(
-  () =>
-    initialListings
-      .map(l =>
-        isSanityListing(l)
-          ? mapSanityListingToCard(l)
-          : isLegacyListing(l)
-            ? legacyListingToCard(l)
-            : null,
-      )
-      .filter(Boolean) as AppListingCard[],
-  [initialListings],
-);
+  const featuredListings: AppListingCard[] = useMemo(
+    () =>
+      initialListings
+        .map(l =>
+          isSanityListing(l)
+            ? mapSanityListingToCard(l)
+            : isLegacyListing(l)
+              ? legacyListingToCard(l)
+              : null,
+        )
+        .filter(Boolean) as AppListingCard[],
+    [initialListings],
+  );
+
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       {/* Page Header */}
@@ -112,5 +139,4 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
       </section>
     </main>
   );
-})
 }

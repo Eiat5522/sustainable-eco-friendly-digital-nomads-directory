@@ -3,12 +3,11 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { urlFor } from '@/lib/sanity/image';
 import { AppListingCard } from '@/types/appView';
+import type { ListingCardProps } from '@/components/listings/ListingCard';
 
 // Code-split ListingCard to avoid loading it when not rendering the home variant
-import type { ListingCard } from '@/components/listings/ListingCard';
-
-const ListingCard = dynamic<React.ComponentType<{ listing: AppListingCard }>>(
-  () => import('@/components/listings/ListingCard').then(m => m.ListingCard),
+const DynamicListingCard = dynamic<ListingCardProps>(
+  () => import('@/components/listings/ListingCard').then(m => m.ListingCard as any),
   {
     loading: () => <div className="flex items-center justify-center h-32"><span>Loading...</span></div>,
     ssr: false,
@@ -18,9 +17,10 @@ const ListingCard = dynamic<React.ComponentType<{ listing: AppListingCard }>>(
 interface FeaturedListingsProps {
   listings: AppListingCard[];
   variant?: 'home' | 'listings';
+  searchQuery?: string;
 }
 
-export default function FeaturedListings({ listings, variant = 'listings' }: FeaturedListingsProps) {
+export default function FeaturedListings({ listings, variant = 'listings', searchQuery }: FeaturedListingsProps) {
   if (!listings || listings.length === 0) {
     return (
       <section className="py-12">
@@ -40,7 +40,7 @@ export default function FeaturedListings({ listings, variant = 'listings' }: Fea
         <div className={isHome ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 p-4 md:p-6' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8'}>
           {listings.slice(0, 4).map(listing => {
             if (isHome) {
-              return <ListingCard key={listing.id} listing={listing} />;
+              return <DynamicListingCard key={listing.id} listing={listing} searchQuery={searchQuery} />;
             }
 
             // Compute imageUrl only for non-home variant

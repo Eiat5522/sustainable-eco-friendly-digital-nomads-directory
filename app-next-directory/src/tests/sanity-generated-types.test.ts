@@ -47,7 +47,7 @@ describe('Sanity Generated Types', () => {
         _rev: 'city-rev',
         name: 'Bangkok',
         country: 'Thailand',
-        image: {
+        primaryImage: {
           _type: 'image',
           asset: {
             _ref: 'image-ref',
@@ -89,16 +89,12 @@ describe('Sanity Generated Types', () => {
         _createdAt: '2025-01-01T00:00:00Z',
         _updatedAt: '2025-01-01T00:00:00Z',
         _rev: 'review-rev',
-        user: { _ref: 'user-id', _type: 'reference' },
-        listing: { _ref: 'listing-id', _type: 'reference' },
         rating: 5,
         comment: 'Great place!',
       };
 
       expect(mockReview._id).toBe('review-id');
       expect(mockReview._type).toBe('review');
-      expect(mockReview.user?._ref).toBe('user-id');
-      expect(mockReview.listing?._ref).toBe('listing-id');
       expect(mockReview.rating).toBe(5);
       expect(mockReview.comment).toBe('Great place!');
     });

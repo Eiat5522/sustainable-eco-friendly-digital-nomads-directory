@@ -48,6 +48,7 @@ jest.mock('next/dist/server/web/spec-extension/response', () => {
 import { GET, POST } from '../../../../app/api/search/route';
 import { client } from '@/lib/sanity/client';
 import * as ApiResponseHandlerModule from '@/utils/api-response';
+import { NextResponse } from 'next/server';
 
 // Narrow types for mocks: wrap only the fetch function to avoid casting full SanityClient
 const mockClient = { fetch: client.fetch as unknown as jest.Mock } as { fetch: jest.Mock };
@@ -60,14 +61,14 @@ jest.spyOn(mockApiResponseHandler, 'error');
 describe('Search API Route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockApiResponseHandler.success.mockImplementation((data: unknown) => ({
-      json: () => Promise.resolve({ success: true, data }),
-      status: 200,
-    }));
-    mockApiResponseHandler.error.mockImplementation((message: string, status = 400) => ({
-      json: () => Promise.resolve({ error: message }),
-      status,
-    }));
+    mockApiResponseHandler.success.mockImplementation((data: unknown) => {
+      // Use the mocked NextResponse.json and cast to any
+      return NextResponse.json({ success: true, data }, { status: 200 }) as any;
+    });
+    mockApiResponseHandler.error.mockImplementation((message: string, status = 400) => {
+      // Use the mocked NextResponse.json and cast to any
+      return NextResponse.json({ error: message }, { status }) as any;
+    });
   });
   describe('GET /api/search', () => {
     it('should handle basic search query', async () => {

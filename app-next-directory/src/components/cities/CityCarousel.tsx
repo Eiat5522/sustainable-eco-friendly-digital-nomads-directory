@@ -17,7 +17,7 @@ import { Card } from "@/components/ui/card";
 import SanityImage from "@/components/SanityImage";
 import Image from "next/image";
 
-import type { AppCity } from '@/types/appView';
+import type { AppCity, SanityImage as SanityImageType } from '@/types/appView';
 
 export interface EcoCityItem {
   _id: string;
@@ -114,7 +114,7 @@ const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
                   <Card className="overflow-hidden border-0 shadow-lg">
                     <div className="group relative h-[27rem] max-w-full overflow-hidden rounded-xl">
                       <SanityImage
-                        image={city.primaryImage}
+                        image={city.image}
                         alt={city.name || 'Image unavailable'}
                         fill
                         sizes="(max-width: 768px) 100vw, 360px"

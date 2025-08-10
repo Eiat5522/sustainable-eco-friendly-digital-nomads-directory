@@ -33,19 +33,17 @@
   ],
   "dependencies": {
     "@babel/preset-react": "^7.27.1",
-    "@sanity/client": "^7.6.0",
-    "@sanity/code-input": "^5.1.2",
+    "@sanity/client": "^7.8.2",
+    "@sanity/code-input": "^5.2.1",
     "bcrypt": "^6.0.0",
     "clsx": "^2.1.1",
     "dotenv": "16.5.0",
     "react-countup": "^6.5.3",
-    "react-hook-form": "^7.58.1",
-    "resend": "^4.6.0",
+    "react-hook-form": "^7.62.0",
+    "resend": "^4.8.0",
     "vscode-variables": "^1.0.1"
   },
   "jest": "./app-next-directory/jest.config.js",
-  "devDependencies": {
-  },
   "pnpm": {
     "peerDependencyRules": {
       "ignoreMissing": [
@@ -53,18 +51,17 @@
       ]
     }
   },
-    "@auth/mongodb-adapter": "^3.10.0",
-    "@swc/jest": "^0.2.39",
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/react-hooks": "^8.0.1",
-    "@types/jest": "^30.0.0",
-    "@playwright/test": "^1.54.2",
-    "cross-fetch": "^4.1.0",
-    "eslint": "^9.29.0",
-    "eslint-config-next": "^15.3.4",
-    "jest-mock-extended": "^4.0.0",
-    "ts-jest": "^29.4.0",
-    "whatwg-fetch": "^3.6.20",
-    "node-fetch": "^3.3.2"
+  "@auth/mongodb-adapter": "^3.10.0",
+  "@swc/jest": "^0.2.39",
+  "@testing-library/dom": "^10.4.0",
+  "@testing-library/react-hooks": "^8.0.1",
+  "@types/jest": "^30.0.0",
+  "@playwright/test": "^1.54.2",
+  "cross-fetch": "^4.1.0",
+  "eslint": "^9.29.0",
+  "eslint-config-next": "^15.3.4",
+  "jest-mock-extended": "^4.0.0",
+  "ts-jest": "^29.4.0",
+  "whatwg-fetch": "^3.6.20",
+  "node-fetch": "^3.3.2"
 }
-

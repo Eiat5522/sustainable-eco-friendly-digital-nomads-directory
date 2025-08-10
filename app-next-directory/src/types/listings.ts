@@ -1,4 +1,4 @@
-import type { SanityImage } from './appView';
+import type { SanityImage, SanityGalleryImage } from './appView';
 
 export interface PricingPlan {
   name: string;
@@ -33,7 +33,7 @@ export interface Listing {
   longDescription: string;
   ecoFocusTags: EcoTag[];
   primaryImage?: SanityImage;
-  galleryImages?: SanityImage[];
+  galleryImages?: SanityGalleryImage[];
   priceRange?: string;
   website?: string;
   category?: string; // Resolved conflict: keeping this line

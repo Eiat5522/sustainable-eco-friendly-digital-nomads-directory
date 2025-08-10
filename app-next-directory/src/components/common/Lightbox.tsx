@@ -7,6 +7,7 @@ interface LightboxProps {
   onClose: () => void;
   onNext: () => void;
   onPrev: () => void;
+  onNavigateToIndex?: (index: number) => void;
 }
 
 export const Lightbox: React.FC<LightboxProps> = ({
@@ -15,6 +16,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
   onClose,
   onNext,
   onPrev,
+  onNavigateToIndex,
 }) => {
   if (!images || images.length === 0) return null;
 
@@ -75,7 +77,7 @@ export const Lightbox: React.FC<LightboxProps> = ({
                   className={`w-2 h-2 rounded-full ${
                     index === currentIndex ? 'bg-white' : 'bg-white/50'
                   }`}
-                  onClick={() => onNavigateToIndex(index)}
+                  onClick={() => onNavigateToIndex?.(index)}
                   aria-label={`Go to image ${index + 1}`}
                 />
               ))}
