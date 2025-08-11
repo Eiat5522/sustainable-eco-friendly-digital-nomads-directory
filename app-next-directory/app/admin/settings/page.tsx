@@ -159,17 +159,70 @@ export default function SettingsPage() {
     } finally {
       setLoading(false);
     }
-  };  const updateGeneralSettings = (field: string, value: string | boolean | number) => {
-    setSettings((prev: SystemSettings): SystemSettings => ({
-      ...prev,
-      general: {
-        ...prev.general,
-        [field]: value,
-      },
-    }));
-  };
+  };  const updateGeneralSettings = <F extends keyof SystemSettings['general']>(
+  field: F,
+  value: SystemSettings['general'][F]
+) => {
+  setSettings(prev => ({
+    ...prev,
+    general: {
+      ...prev.general,
+      [field]: value,
+    },
+  }));
+};
 
-  const updateModerationSettings = (field: string, value: string | boolean | number | string[]) => {
+const updateAppearanceSettings = <F extends keyof SystemSettings['appearance']>(
+  field: F,
+  value: SystemSettings['appearance'][F]
+) => {
+  setSettings(prev => ({
+    ...prev,
+    appearance: {
+      ...prev.appearance,
+      [field]: value,
+    },
+  }));
+};
+
+const updateSecuritySettings = <F extends keyof SystemSettings['security']>(
+  field: F,
+  value: SystemSettings['security'][F]
+) => {
+  setSettings(prev => ({
+    ...prev,
+    security: {
+      ...prev.security,
+      [field]: value,
+    },
+  }));
+};
+
+const updateNotificationsSettings = <F extends keyof SystemSettings['notifications']>(
+  field: F,
+  value: SystemSettings['notifications'][F]
+) => {
+  setSettings(prev => ({
+    ...prev,
+    notifications: {
+      ...prev.notifications,
+      [field]: value,
+    },
+  }));
+};
+
+const updateIntegrationsSettings = <F extends keyof SystemSettings['integrations']>(
+  field: F,
+  value: SystemSettings['integrations'][F]
+) => {
+  setSettings(prev => ({
+    ...prev,
+    integrations: {
+      ...prev.integrations,
+      [field]: value,
+    },
+  }));
+};  const updateModerationSettings = (field: string, value: string | boolean | number | string[]) => {
     setSettings((prev: SystemSettings): SystemSettings => ({
       ...prev,
       moderation: {

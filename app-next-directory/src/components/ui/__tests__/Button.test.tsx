@@ -1,7 +1,6 @@
 import React from "react";
-import { describe, it, expect } from '@jest/globals';
-import { render, screen, fireEvent } from "@testing-library/react";
-import { buttonVariants, Button } from '../button';
+import { describe, it, expect, jest } from '@jest/globals';import { render, screen, fireEvent } from "@testing-library/react";
+import { buttonVariants, Button } from '../Button';
 
 describe('Button Component', () => {
   describe('buttonVariants function', () => {
@@ -113,5 +112,4 @@ describe('Button Component', () => {
     const button = screen.getByRole("button", { name: "Disabled Button" });
     expect((button as HTMLButtonElement).disabled).toBe(true);
     expect(button.getAttribute("aria-label")).toBe("Disabled Button");
-  });
-});
+  })});
