@@ -38,18 +38,36 @@ jest.mock('@/lib/sanity/client', () => ({
 }));
 
 // Mock NextRequest and NextResponse
-jest.mock('next/server', () => ({
-  NextRequest: jest.fn().mockImplementation((url: string, options?: any) => ({
-    url,
-    json: options?.body ? jest.fn().mockResolvedValue(JSON.parse(options.body)) : jest.fn(),
-  })),
-  NextResponse: {
-    json: jest.fn((data: any, options?: { status?: number }) => ({
-      json: () => Promise.resolve(data),
-      status: options?.status || 200,
-    })),
-  },
-}));
+jest.mock('next/server', () => {
+  class MockNextResponse {
+    private _data: any;
+    public status: number;
+    constructor(data: any, status = 200) {
+      this._data = data;
+      this.status = status;
+    }
+    json = async () => this._data;
+  }
+  return {
+    NextRequest: jest.fn().mockImplementation((url: string, options?: any) => {
+      return {
+        url,
+        json: jest.fn().mockImplementation(() => {
+          if (options?.body === undefined) return Promise.resolve(undefined);
+          try {
+            return Promise.resolve(JSON.parse(options.body));
+          } catch (e) {
+            // Let tests override this mock when they want to simulate invalid JSON
+            return Promise.reject(e);
+          }
+        }),
+      };
+    }),
+    NextResponse: {
+      json: jest.fn((data: any, options?: { status?: number }) => new MockNextResponse(data, options?.status ?? 200)),
+    },
+  };
+});
 
 import { GET, POST } from '../../../../app/api/search/route';
 import { client } from '@/lib/sanity/client';
