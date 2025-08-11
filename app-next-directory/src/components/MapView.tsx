@@ -66,7 +66,7 @@ const createClusterIcon = (cluster: any, ecoView = false) => {
   
   // In eco view, we add some leaf styling to clusters
   const leafAccent = ecoView ? `
-    <svg viewBox="0 0 24 24" fill="#ffffff" style="position: absolute; top: -8px; right: -8px; width: 16px; height: 16px; opacity: 0.85;">
+    <svg className="icon" viewBox="0 0 24 24" fill="#ffffff" style="position: absolute; top: -8px; right: -8px; width: 16px; height: 16px; opacity: 0.85;">
       <path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z" />
     </svg>
   ` : '';
@@ -358,7 +358,7 @@ export function MapView({
               }
             }}
           >
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
           </motion.button>
@@ -374,7 +374,7 @@ export function MapView({
                 }
               }}
             >
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="icon" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
@@ -386,7 +386,7 @@ export function MapView({
       {/* Eco badge */}
       {ecoView && (
         <div className="absolute top-4 right-4 bg-primary-500/90 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-lg z-10 flex items-center">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="mr-1.5">
+          <svg className="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="mr-1.5">
             <path d="M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z" />
           </svg>
           Eco View

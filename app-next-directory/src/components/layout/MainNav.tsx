@@ -26,9 +26,13 @@ export function MainNav({}: MainNavProps) {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      const scrolled = window.scrollY > 10;
+      setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev));
     };
-    window.addEventListener('scroll', handleScroll);
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initialize on mount
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -72,48 +76,66 @@ export function MainNav({}: MainNavProps) {
               {status === 'loading' ? (
                 <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
               ) : session ? (
-                <div className="relative group">
-                  <button
-                    className="flex items-center justify-center w-9 h-9 rounded-full overflow-hidden border-2 border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                    aria-label="User menu"
-                  >
-                    {session.user?.image ? (
-                      <img
-                        src={session.user.image}
-                        alt={session.user.name || 'User profile'}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-100">
-                        {session.user?.name?.charAt(0)?.toUpperCase() || <UserCircle className="h-5 w-5" />}
-                      </div>
-                    )}
-                  </button>
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{session.user?.name ?? 'User'}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{session.user?.email ?? ''}</p>
-                    </div>
-                    <Link
-                      href="/dashboard"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      Dashboard
-                    </Link>
-                    <Link
-                      href="/account"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      Account Settings
-                    </Link>
-                    <button
-                      onClick={() => signOut()}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      Sign out
-                    </button>
-                  </div>
-                </div>
+<div className="relative group">
+  <button
+    className="flex items-center justify-center w-9 h-9 rounded-full overflow-hidden border-2 border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+    aria-label="User menu"
+    aria-haspopup="menu"
+    aria-expanded="false"
+  >
+    {session.user?.image ? (
+      <img
+        src={session.user.image}
+        alt={session.user.name || 'User profile'}
+        className="w-full h-full object-cover"
+      />
+    ) : (
+      <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-100">
+        {session.user?.name?.charAt(0)?.toUpperCase() || <UserCircle className="h-5 w-5" />}
+      </div>
+    )}
+  </button>
+  <div
+    className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200"
+    role="menu"
+  >
+    <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+        {session.user?.name ?? 'User'}
+      </p>
+      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+        {session.user?.email ?? ''}
+      </p>
+    </div>
+    <Link
+      href="/dashboard"
+      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+    >
+      Dashboard
+    </Link>
+    <Link
+      href="/account"
+      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+    >
+      Account Settings
+    </Link>
+    <button
+      onClick={() => signOut()}
+      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+    >
+      Sign out
+    </button>
+  </div>
+</div>
+    </Link>
+    <button
+      onClick={() => signOut()}
+      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+    >
+      Sign out
+    </button>
+  </div>
+</div>
               ) : (
                 <>
                   <button
@@ -181,8 +203,9 @@ export function MainNav({}: MainNavProps) {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
               aria-expanded={mobileMenuOpen ? "true" : "false"}
+              aria-controls="mobile-menu"
             >
-              <span className="sr-only">Open main menu</span>
+              <span className="sr-only">{mobileMenuOpen ? 'Close main menu' : 'Open main menu'}</span>
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
@@ -252,4 +275,3 @@ isActive
 		</header>
   );
 }
-

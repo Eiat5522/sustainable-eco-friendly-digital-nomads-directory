@@ -120,7 +120,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
                 onClick={() => setIsSearchOpen(true)}
                 className="w-full h-14 px-5 pr-12 rounded-lg text-lg bg-white/90 backdrop-blur-md border-0 focus:ring-2 focus:ring-green-400 text-left text-gray-500 flex items-center"
               >
-                <svg
+                <svg className="icon"
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5 mr-4 text-gray-500"
                   fill="none"
@@ -179,7 +179,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
             y: { repeat: Infinity, duration: 1.5, ease: "easeInOut" }
           }}
         >
-          <svg
+          <svg className="icon"
             xmlns="http://www.w3.org/2000/svg"
             width={40}
             height={40}

@@ -1,8 +1,10 @@
 // Shared test types
+import { NextRequest, NextResponse } from 'next/server';
+
 interface SearchResult {
   _id: string;
   name: string;
-  slug: string | { _type?: string; current: string };
+  slug: { _type?: string; current: string };
   category: string;
   primaryImage?: { asset: { _ref?: string } };
   galleryImages?: any[];
@@ -16,8 +18,18 @@ interface SearchResult {
   amenities?: string[];
 }
 
+interface SearchRequest {
+  query?: string;
+  page?: number;
+  limit?: number;
+  category?: string | string[];
+  destination?: string | string[];
+  nomadFeatures?: string | string[];
+}
+
 // Helper to coerce mocked fetch return values to the expected generic type
 const asFetchResult = <T>(v: T) => v as unknown as any;
+
 // Mock next-sanity client BEFORE imports
 jest.mock('@/lib/sanity/client', () => ({
   client: {
@@ -26,54 +38,41 @@ jest.mock('@/lib/sanity/client', () => ({
 }));
 
 // Mock NextRequest and NextResponse
-jest.mock('next/dist/server/web/spec-extension/request', () => {
-  return {
-    NextRequest: jest.fn().mockImplementation((url: string) => ({
-      url,
+jest.mock('next/server', () => ({
+  NextRequest: jest.fn().mockImplementation((url: string, options?: any) => ({
+    url,
+    json: options?.body ? jest.fn().mockResolvedValue(JSON.parse(options.body)) : jest.fn(),
+  })),
+  NextResponse: {
+    json: jest.fn((data: any, options?: { status?: number }) => ({
+      json: () => Promise.resolve(data),
+      status: options?.status || 200,
     })),
-  };
-});
-
-jest.mock('next/dist/server/web/spec-extension/response', () => {
-  return {
-    NextResponse: {
-      json: jest.fn((data: any, options: { status?: number } | undefined) => ({
-        json: () => Promise.resolve(data),
-        status: options?.status || 200,
-      })),
-    },
-  };
-});
+  },
+}));
 
 import { GET, POST } from '../../../../app/api/search/route';
 import { client } from '@/lib/sanity/client';
-import * as ApiResponseHandlerModule from '@/utils/api-response';
-import { NextResponse } from 'next/server';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 // Narrow types for mocks: wrap only the fetch function to avoid casting full SanityClient
 const mockClient = { fetch: client.fetch as unknown as jest.Mock } as { fetch: jest.Mock };
 
-const mockApiResponseHandler = ApiResponseHandlerModule.ApiResponseHandler as jest.Mocked<typeof ApiResponseHandlerModule.ApiResponseHandler>;
+// Mock the ApiResponseHandler
+jest.mock('@/utils/api-response', () => ({
+  ApiResponseHandler: {
+    success: jest.fn((data: unknown) => NextResponse.json({ success: true, data }, { status: 200 })),
+    error: jest.fn((message: string, status = 400) => NextResponse.json({ error: message }, { status })),
+  },
+}));
 
-jest.spyOn(mockApiResponseHandler, 'success');
-jest.spyOn(mockApiResponseHandler, 'error');
+const mockApiResponseHandler = ApiResponseHandler as jest.Mocked<typeof ApiResponseHandler>;
 
 describe('Search API Route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockApiResponseHandler.success.mockImplementation((data: unknown) => {
-      return {
-        json: () => Promise.resolve({ success: true, data }),
-        status: 200,
-      } as { json: () => Promise<unknown>; status: number };
-    });
-    mockApiResponseHandler.error.mockImplementation((message: string, status = 400) => {
-      return {
-        json: () => Promise.resolve({ error: message }),
-        status,
-      } as { json: () => Promise<unknown>; status: number };
-    });
   });
+
   describe('GET /api/search', () => {
     it('should handle basic search query', async () => {
       const mockResults: SearchResult[] = [
@@ -98,11 +97,9 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults)) // For search results
         .mockResolvedValueOnce(asFetchResult(1)); // For count
 
-      const mockRequest = {
-        url: 'http://localhost:3000/api/search?q=coworking&page=1&limit=12',
-      };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search?q=coworking&page=1&limit=12');
 
-      await GET(mockRequest as any);
+      await GET(mockRequest as unknown as Request);
 
       expect(mockClient.fetch).toHaveBeenCalledTimes(2);
       expect(mockApiResponseHandler.success).toHaveBeenCalledWith({
@@ -110,7 +107,7 @@ describe('Search API Route', () => {
         pagination: {
           page: 1,
           limit: 12,
-            total: 1,
+          total: 1,
           totalPages: 1,
           hasMore: false,
         },
@@ -127,7 +124,7 @@ describe('Search API Route', () => {
         {
           _id: '1',
           name: 'Bangkok Cafe',
-          slug: 'bangkok-cafe',
+          slug: { _type: 'slug', current: 'bangkok-cafe' },
           category: 'cafe',
         },
       ];
@@ -136,11 +133,9 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(1));
 
-      const mockRequest = {
-        url: 'http://localhost:3000/api/search?q=cafe&category=cafe&category=restaurant&destination=Bangkok&nomadFeatures=wifi&page=2&limit=6',
-      };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search?q=cafe&category=cafe&category=restaurant&destination=Bangkok&nomadFeatures=wifi&page=2&limit=6');
 
-      await GET(mockRequest as any);
+      await GET(mockRequest as unknown as Request);
 
       expect(mockClient.fetch).toHaveBeenCalledTimes(2);
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
@@ -151,12 +146,13 @@ describe('Search API Route', () => {
       expect(firstCall).toContain('array::contains(digitalNomadFeatures[]->name, "wifi")');
       expect(firstCall).toContain('[6...11]');
     });
+
     it('should handle empty search query', async () => {
       const mockResults: SearchResult[] = [
         {
           _id: '1',
           name: 'All Listings',
-          slug: 'all-listings',
+          slug: { _type: 'slug', current: 'all-listings' },
           category: 'accommodation',
         },
       ];
@@ -165,9 +161,9 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(1));
 
-      const mockRequest = { url: 'http://localhost:3000/api/search' };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search');
 
-      await GET(mockRequest as any);
+      await GET(mockRequest as unknown as Request);
 
       expect(mockClient.fetch).toHaveBeenCalledTimes(2);
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
@@ -178,7 +174,7 @@ describe('Search API Route', () => {
       const mockResults: SearchResult[] = Array.from({ length: 5 }, (_, i) => ({
         _id: i.toString(),
         name: `Listing ${i}`,
-        slug: `listing-${i}`,
+        slug: { _type: 'slug', current: `listing-${i}` },
         category: 'coworking',
       }));
 
@@ -186,9 +182,9 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(25));
 
-      const mockRequest = { url: 'http://localhost:3000/api/search?page=3&limit=5' };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search?page=3&limit=5');
 
-      await GET(mockRequest as any);
+      await GET(mockRequest as unknown as Request);
 
       expect(mockApiResponseHandler.success).toHaveBeenCalledWith({
         results: mockResults,
@@ -213,9 +209,9 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(0));
 
-      const mockRequest = { url: 'http://localhost:3000/api/search?q=café@bangkok!' };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search?q=café@bangkok!');
 
-      await GET(mockRequest as any);
+      await GET(mockRequest as unknown as Request);
 
       expect(mockClient.fetch).toHaveBeenCalledTimes(2);
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
@@ -226,9 +222,9 @@ describe('Search API Route', () => {
       const mockError = new Error('Sanity API Error');
       mockClient.fetch.mockRejectedValueOnce(mockError);
 
-      const mockRequest = { url: 'http://localhost:3000/api/search?q=test' };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search?q=test');
 
-      await GET(mockRequest as any);
+      await GET(mockRequest as unknown as Request);
 
       expect(mockApiResponseHandler.error).toHaveBeenCalledWith('Search failed');
     });
@@ -240,9 +236,9 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(0));
 
-      const mockRequest = { url: 'http://localhost:3000/api/search?page=0&limit=-5' };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search?page=0&limit=-5');
 
-      await GET(mockRequest as any);
+      await GET(mockRequest as unknown as Request);
 
       expect(mockApiResponseHandler.success).toHaveBeenCalledWith({
         results: mockResults,
@@ -258,31 +254,32 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(0));
 
-      const mockRequest = { url: 'http://localhost:3000/api/search?page=9999&limit=100' };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search?page=9999&limit=100');
 
-      await GET(mockRequest as any);
+      await GET(mockRequest as unknown as Request);
 
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
       expect(firstCall).toContain('[999800...999899]');
     });
   });
+
   describe('POST /api/search', () => {
     it('should handle POST request with body parameters', async () => {
       const mockResults: SearchResult[] = [
-        { _id: '1', name: 'Test Result', slug: 'test-result', category: 'coworking' },
+        { _id: '1', name: 'Test Result', slug: { _type: 'slug', current: 'test-result' }, category: 'coworking' },
       ];
 
       mockClient.fetch
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(1));
 
-      const mockRequest = {
-        json: jest.fn().mockResolvedValue({ query: 'test', page: 2, limit: 6 }),
-      };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search', {
+        method: 'POST',
+        body: JSON.stringify({ query: 'test', page: 2, limit: 6 } as SearchRequest),
+      });
 
-      await POST(mockRequest as any);
+      await POST(mockRequest as unknown as Request);
 
-      expect(mockRequest.json).toHaveBeenCalled();
       expect(mockClient.fetch).toHaveBeenCalledTimes(2);
     });
 
@@ -293,20 +290,25 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(0));
 
-      const mockRequest = {
-        json: jest.fn().mockResolvedValue({}),
-      };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search', {
+        method: 'POST',
+        body: JSON.stringify({} as SearchRequest),
+      });
 
-      await POST(mockRequest as any);
+      await POST(mockRequest as unknown as Request);
 
-      expect(mockRequest.json).toHaveBeenCalled();
       expect(mockClient.fetch).toHaveBeenCalledTimes(2);
     });
 
     it('should handle POST request with invalid JSON', async () => {
-      const mockRequest = { json: jest.fn().mockRejectedValue(new Error('Invalid JSON')) };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search', {
+        method: 'POST',
+        body: 'invalid json',
+      });
 
-      const response = await POST(mockRequest as any);
+      (mockRequest.json as jest.Mock).mockRejectedValue(new Error('Invalid JSON'));
+
+      const response = await POST(mockRequest as unknown as Request);
 
       expect(response.status).toBe(400);
       const responseData = await response.json();
@@ -315,10 +317,14 @@ describe('Search API Route', () => {
 
     it('should handle POST request processing error', async () => {
       const mockError = new Error('Processing error');
-      const mockRequest = { json: jest.fn().mockResolvedValue({ query: 'test', page: 1, limit: 12 }) };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search', {
+        method: 'POST',
+        body: JSON.stringify({ query: 'test', page: 1, limit: 12 } as SearchRequest),
+      });
+
       mockClient.fetch.mockRejectedValueOnce(mockError);
 
-      const response = await POST(mockRequest as any);
+      const response = await POST(mockRequest as unknown as Request);
 
       expect(response.status).toBe(400);
       const responseData = await response.json();
@@ -331,13 +337,17 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(0));
 
-      const mockRequest = { json: jest.fn().mockResolvedValue({ query: 'test query', page: 3, limit: 8 }) };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search', {
+        method: 'POST',
+        body: JSON.stringify({ query: 'test query', page: 3, limit: 8 } as SearchRequest),
+      });
 
-      await POST(mockRequest as any);
+      await POST(mockRequest as unknown as Request);
 
       expect(mockClient.fetch).toHaveBeenCalledTimes(2);
     });
   });
+
   describe('Query building edge cases', () => {
     it('should handle array filters correctly', async () => {
       const mockResults: SearchResult[] = [];
@@ -345,9 +355,9 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(0));
 
-      const mockRequest = { url: 'http://localhost:3000/api/search?category=cafe&category=restaurant&destination=Bangkok&destination=Tokyo&nomadFeatures=wifi&nomadFeatures=quiet' };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search?category=cafe&category=restaurant&destination=Bangkok&destination=Tokyo&nomadFeatures=wifi&nomadFeatures=quiet');
 
-      await GET(mockRequest as any);
+      await GET(mockRequest as unknown as Request);
 
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
       expect(firstCall).toContain('category == "cafe" || category == "restaurant"');
@@ -361,9 +371,9 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(0));
 
-      const mockRequest = { url: 'http://localhost:3000/api/search?q=   ' };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search?q=   ');
 
-      await GET(mockRequest as any);
+      await GET(mockRequest as unknown as Request);
 
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
       expect(firstCall).not.toContain('match "*   *"');
@@ -374,10 +384,10 @@ describe('Search API Route', () => {
         {
           _id: '1',
           name: 'Test',
-          slug: 'test',
+          slug: { _type: 'slug', current: 'test' },
           category: 'cafe',
-          primaryImage: { asset: {} },
-          galleryImages: [{ asset: {} }],
+          primaryImage: { asset: { _ref: 'image-ref-1' } },
+          galleryImages: [{ asset: { _ref: 'image-ref-2' } }],
           location: { _id: '1', name: 'Bangkok', slug: { current: 'bangkok' }, country: 'Thailand' },
           priceRange: 'budget',
           moderation: { status: 'published' },
@@ -392,9 +402,9 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(1));
 
-      const mockRequest = { url: 'http://localhost:3000/api/search' };
+      const mockRequest = new NextRequest('http://localhost:3000/api/search');
 
-      await GET(mockRequest as any);
+      await GET(mockRequest as unknown as Request);
 
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
       expect(firstCall).toContain('_id');

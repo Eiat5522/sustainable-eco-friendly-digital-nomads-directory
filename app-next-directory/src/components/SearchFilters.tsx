@@ -177,7 +177,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onFilterChange, initialFi
               className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg
+              <svg className="icon"
                 className="h-5 w-5 text-gray-400"
                 fill="none"
                 stroke="currentColor"
@@ -251,7 +251,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({ onFilterChange, initialFi
               ) : (
                 <div className="h-full flex items-center justify-center bg-gray-100">
                   <div className="text-center text-gray-500">
-                    <svg
+                    <svg className="icon"
                       className="h-12 w-12 mx-auto mb-2 text-gray-400"
                       fill="none"
                       stroke="currentColor"

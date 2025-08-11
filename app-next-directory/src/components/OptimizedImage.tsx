@@ -36,7 +36,7 @@ const builder = imageUrlBuilder(getClient())
 // SVG eco-friendly placeholder generator
 const generateEcoPlaceholder = () => {
   const leafPattern = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
+    <svg className="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">
       <rect width="400" height="300" fill="#e6f5ec"/>
       <path d="M80,90 C120,40 160,180 200,120 S280,60 320,150" stroke="#4ade80" fill="none" stroke-width="2" opacity="0.3"/>
       <g transform="translate(100, 100)" opacity="0.5">
@@ -158,7 +158,7 @@ export function OptimizedImage({
         className={`bg-gray-200 flex items-center justify-center optimized-image-placeholder${fill ? ' fill' : ''} ${className}`}
         // Removed inline style, now handled by CSS class
       >
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-gray-400">
+        <svg className="icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-gray-400">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       </div>
@@ -171,7 +171,7 @@ export function OptimizedImage({
         className={`bg-gray-100 flex flex-col items-center justify-center optimized-image-placeholder${fill ? ' fill' : ''} ${className}`}
         // Removed inline style, now handled by CSS class
       >
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-gray-400 mb-2">
+        <svg className="icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-gray-400 mb-2">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
         <span className="text-xs text-gray-500">Failed to load image</span>

@@ -56,7 +56,7 @@ export function SustainabilityScore({
   // Render leaf icons
   const renderLeafIcons = () => {
     return Array.from({ length: 5 }).map((_, i) => (
-      <svg 
+      <svg className="icon" 
         key={i} 
         xmlns="http://www.w3.org/2000/svg" 
         viewBox="0 0 24 24" 
@@ -75,7 +75,7 @@ export function SustainabilityScore({
   // Render circle icons
   const renderCircleIcons = () => {
     return Array.from({ length: 5 }).map((_, i) => (
-      <svg 
+      <svg className="icon" 
         key={i} 
         xmlns="http://www.w3.org/2000/svg" 
         viewBox="0 0 24 24"

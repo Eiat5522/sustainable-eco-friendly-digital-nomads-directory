@@ -7,7 +7,7 @@ import type { FilterGroup } from '@/types/components';
 import type { FilterCondition } from '@/types/components';
 import { Badge } from '@/components/ui/badge';
 // Using FilterCondition from '@/types/filters'
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { PlusCircle, XCircle } from 'lucide-react';
 import { FilterConditionEditor } from './FilterCondition';
 

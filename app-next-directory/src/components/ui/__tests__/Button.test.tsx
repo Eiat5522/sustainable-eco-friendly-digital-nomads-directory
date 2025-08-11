@@ -1,7 +1,7 @@
 import React from "react";
 import { describe, it, expect } from '@jest/globals';
 import { render, screen, fireEvent } from "@testing-library/react";
-import { buttonVariants, Button } from '../Button';
+import { buttonVariants, Button } from '../button';
 
 describe('Button Component', () => {
   describe('buttonVariants function', () => {

@@ -136,7 +136,7 @@ export function ListingGrid({
                       exit={{ opacity: 0, scale: 0.8 }}
                       className="rounded-full bg-green-50 p-2 text-green-600 transition-colors hover:bg-green-100"
                     >
-                      <svg
+                      <svg className="icon"
                         className="h-4 w-4"
                         fill="none"
                         viewBox="0 0 24 24"
