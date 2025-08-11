@@ -37,46 +37,32 @@ jest.mock('@/lib/sanity/client', () => ({
   },
 }));
 
-// Mock NextRequest and NextResponse
-jest.mock('next/server', () => ({
-  NextRequest: jest.fn().mockImplementation((url: string, options?: any) => ({
-    url,
-    json: options?.body
-      ? jest.fn().mockResolvedValue(
-          typeof options.body === 'string'
-            ? (() => {
-                try {
-                  return JSON.parse(options.body);
-                } catch {
-                  return {};
-                }
-              })()
-            : options.body
-        )
-      : jest.fn(),
-  })),
-  NextResponse: {
-    json: jest.fn((data: any, options?: { status?: number }) => ({
-      json: () => Promise.resolve(data),
-      status: options?.status || 200,
-    })),
-  },
-}));
+// Mock NextRequest and NextResponse (clean, unified)
+jest.mock('next/server', () => {
+  return {
+    NextRequest: jest.fn().mockImplementation((url: string, options?: any) => {
+      const body = options?.body;
       return {
         url,
         json: jest.fn().mockImplementation(() => {
-          if (options?.body === undefined) return Promise.resolve(undefined);
+          if (body === undefined) return Promise.resolve(undefined);
           try {
-            return Promise.resolve(JSON.parse(options.body));
+            return Promise.resolve(typeof body === 'string' ? JSON.parse(body) : body);
           } catch (e) {
-            // Let tests override this mock when they want to simulate invalid JSON
+            // Allow tests to override to simulate invalid JSON
             return Promise.reject(e);
           }
         }),
-      };
+        // Minimal props some code may touch
+        nextUrl: new URL(url),
+        cookies: { get: jest.fn(), set: jest.fn(), delete: jest.fn() },
+      } as any;
     }),
     NextResponse: {
-      json: jest.fn((data: any, options?: { status?: number }) => new MockNextResponse(data, options?.status ?? 200)),
+      json: jest.fn((data: any, options?: { status?: number }) => ({
+        json: () => Promise.resolve(data),
+        status: options?.status ?? 200,
+      })),
     },
   };
 });
