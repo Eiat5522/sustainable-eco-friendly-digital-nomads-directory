@@ -1,16 +1,5 @@
 import { client } from '@/lib/sanity/client';
-// Note: resolve ApiResponseHandler at runtime so Jest can mock it reliably in tests
-const getApiResponseHandler = async () => {
-  try {
-    // Prefer CommonJS require when available (Jest).
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const mod = require('@/utils/api-response');
-    return mod.ApiResponseHandler;
-  } catch {
-    const mod = await import('@/utils/api-response');
-    return mod.ApiResponseHandler;
-  }
-};
+import { ApiResponseHandler } from '@/utils/api-response';
 import { groq } from 'next-sanity';
 import { NextRequest, NextResponse } from 'next/server';
 

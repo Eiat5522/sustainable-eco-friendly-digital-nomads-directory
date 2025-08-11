@@ -45,7 +45,7 @@ jest.mock('next/server', () => {
       return {
         url,
         json: jest.fn().mockImplementation(() => {
-          if (body === undefined) return Promise.resolve(undefined);
+          if (body === undefined || body === null) return Promise.resolve(body);
           try {
             return Promise.resolve(typeof body === 'string' ? JSON.parse(body) : body);
           } catch (e) {
@@ -115,7 +115,7 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?q=coworking&page=1&limit=12');
 
-      await GET(mockRequest as unknown as Request);
+      await GET(mockRequest as any);
 
       expect(mockClient.fetch).toHaveBeenCalledTimes(2);
       expect(mockApiResponseHandler.success).toHaveBeenCalledWith({
@@ -151,7 +151,7 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?q=cafe&category=cafe&category=restaurant&destination=Bangkok&nomadFeatures=wifi&page=2&limit=6');
 
-      await GET(mockRequest as unknown as Request);
+      await GET(mockRequest as any);
 
       expect(mockClient.fetch).toHaveBeenCalledTimes(2);
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
@@ -179,7 +179,7 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search');
 
-      await GET(mockRequest as unknown as Request);
+      await GET(mockRequest as any);
 
       expect(mockClient.fetch).toHaveBeenCalledTimes(2);
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
@@ -200,7 +200,7 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?page=3&limit=5');
 
-      await GET(mockRequest as unknown as Request);
+      await GET(mockRequest as any);
 
       expect(mockApiResponseHandler.success).toHaveBeenCalledWith({
         results: mockResults,
@@ -227,7 +227,7 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?q=café@bangkok!');
 
-      await GET(mockRequest as unknown as Request);
+      await GET(mockRequest as any);
 
       expect(mockClient.fetch).toHaveBeenCalledTimes(2);
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
@@ -240,7 +240,7 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?q=test');
 
-      await GET(mockRequest as unknown as Request);
+      await GET(mockRequest as any);
 
       expect(mockApiResponseHandler.error).toHaveBeenCalledWith('Search failed');
     });
@@ -254,7 +254,7 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?page=0&limit=-5');
 
-      await GET(mockRequest as unknown as Request);
+      await GET(mockRequest as any);
 
       expect(mockApiResponseHandler.success).toHaveBeenCalledWith({
         results: mockResults,
@@ -272,7 +272,7 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?page=9999&limit=100');
 
-      await GET(mockRequest as unknown as Request);
+      await GET(mockRequest as any);
 
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
       expect(firstCall).toContain('[999800...999899]');
@@ -324,7 +324,7 @@ describe('Search API Route', () => {
 
       (mockRequest.json as jest.Mock).mockRejectedValue(new Error('Invalid JSON'));
 
-      const response = await POST(mockRequest as unknown as Request);
+      const response = await POST(mockRequest as any);
 
       expect(response.status).toBe(400);
       const responseData = await response.json();
@@ -340,7 +340,7 @@ describe('Search API Route', () => {
 
       mockClient.fetch.mockRejectedValueOnce(mockError);
 
-      const response = await POST(mockRequest as unknown as Request);
+      const response = await POST(mockRequest as any);
 
       expect(response.status).toBe(400);
       const responseData = await response.json();
@@ -373,7 +373,7 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?category=cafe&category=restaurant&destination=Bangkok&destination=Tokyo&nomadFeatures=wifi&nomadFeatures=quiet');
 
-      await GET(mockRequest as unknown as Request);
+      await GET(mockRequest as any);
 
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
       expect(firstCall).toContain('category == "cafe" || category == "restaurant"');
@@ -389,7 +389,7 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?q=   ');
 
-      await GET(mockRequest as unknown as Request);
+      await GET(mockRequest as any);
 
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
       expect(firstCall).not.toContain('match "*   *"');
@@ -420,7 +420,7 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search');
 
-      await GET(mockRequest as unknown as Request);
+      await GET(mockRequest as any);
 
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
       expect(firstCall).toContain('_id');

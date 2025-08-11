@@ -59,6 +59,8 @@ export function WorldMap({
         ref={svgRef}
         viewBox="0 0 800 400"
         className="icon w-full h-full absolute inset-0 pointer-events-none select-none"
+        aria-hidden="true"
+        focusable="false"
       >
         {dots.map((dot, i) => {
           const startPoint = projectPoint(dot.start.lat, dot.start.lng);

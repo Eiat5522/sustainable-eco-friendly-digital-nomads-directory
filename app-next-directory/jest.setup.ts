@@ -69,13 +69,20 @@ jest.mock('next/dist/server/web/spec-extension/response', () => ({
 }));
 
 // Ensure ApiResponseHandler is mockable across ESM boundaries for all tests
-jest.mock('@/utils/api-response', () => ({
-  ApiResponseHandler: {
-    success: jest.fn((data: unknown) => ({ status: 200, json: () => Promise.resolve({ success: true, data }) })),
-    error: jest.fn((message: string, status = 400) => ({ status, json: () => Promise.resolve({ error: message }) })),
-    notFound: jest.fn(),
-    unauthorized: jest.fn(),
-    forbidden: jest.fn(),
-  },
-}));
-
+jest.mock('@/utils/api-response', () => {
+  const actual = jest.requireActual('@/utils/api-response');
+  const res = (body: unknown, status = 200) => ({
+    status,
+    json: () => Promise.resolve(body),
+  });
+  return {
+    ...actual,
+    ApiResponseHandler: {
+      success: jest.fn((data: unknown) => res({ success: true, data }, 200)),
+      error:   jest.fn((message: string, status = 400) => res({ error: message }, status)),
+      notFound:      jest.fn((message = 'Not Found')    => res({ error: message }, 404)),
+      unauthorized:  jest.fn((message = 'Unauthorized')  => res({ error: message }, 401)),
+      forbidden:     jest.fn((message = 'Forbidden')     => res({ error: message }, 403)),
+    },
+  };
+});

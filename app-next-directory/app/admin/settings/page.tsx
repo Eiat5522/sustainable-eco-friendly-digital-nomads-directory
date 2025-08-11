@@ -17,7 +17,7 @@ import {
     Save,
     Shield
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface SystemSettings {
   general: {
@@ -115,6 +115,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const saveTimeoutRef = useRef<number | null>(null);
 
   const updateSettings = <K extends keyof SystemSettings, F extends keyof SystemSettings[K]>(
     category: K,
@@ -136,12 +137,14 @@ export default function SettingsPage() {
       // TODO: Implement actual settings save API call
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
       setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = window.setTimeout(() => setSaveSuccess(false), 3000);
     } catch (error) {
       console.error('Error saving settings:', error);
     } finally {
       setSaving(false);
-    }  };
+    }
+  };
   const handleRunBackup = async () => {
     try {
       setLoading(true);
@@ -172,57 +175,10 @@ export default function SettingsPage() {
   }));
 };
 
-const updateAppearanceSettings = <F extends keyof SystemSettings['appearance']>(
-  field: F,
-  value: SystemSettings['appearance'][F]
-) => {
-  setSettings(prev => ({
-    ...prev,
-    appearance: {
-      ...prev.appearance,
-      [field]: value,
-    },
-  }));
-};
+// Note: appearance, security, notifications, and integrations sections are not part of SystemSettings currently.
+// If/when those sections are added, reintroduce typed updaters similar to updateGeneralSettings above.
 
-const updateSecuritySettings = <F extends keyof SystemSettings['security']>(
-  field: F,
-  value: SystemSettings['security'][F]
-) => {
-  setSettings(prev => ({
-    ...prev,
-    security: {
-      ...prev.security,
-      [field]: value,
-    },
-  }));
-};
-
-const updateNotificationsSettings = <F extends keyof SystemSettings['notifications']>(
-  field: F,
-  value: SystemSettings['notifications'][F]
-) => {
-  setSettings(prev => ({
-    ...prev,
-    notifications: {
-      ...prev.notifications,
-      [field]: value,
-    },
-  }));
-};
-
-const updateIntegrationsSettings = <F extends keyof SystemSettings['integrations']>(
-  field: F,
-  value: SystemSettings['integrations'][F]
-) => {
-  setSettings(prev => ({
-    ...prev,
-    integrations: {
-      ...prev.integrations,
-      [field]: value,
-    },
-  }));
-};  const updateModerationSettings = (field: string, value: string | boolean | number | string[]) => {
+const updateModerationSettings = (field: string, value: string | boolean | number | string[]) => {
     setSettings((prev: SystemSettings): SystemSettings => ({
       ...prev,
       moderation: {
@@ -268,6 +224,12 @@ const updateIntegrationsSettings = <F extends keyof SystemSettings['integrations
       },
     }));
   };
+
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    };
+  }, []);
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">

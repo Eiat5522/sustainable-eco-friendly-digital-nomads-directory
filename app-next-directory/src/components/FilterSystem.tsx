@@ -101,9 +101,9 @@ export function FilterSystem({
       <div className="hidden lg:block bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
         <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
-            <svg className="icon w-5 h-5 mr-2 text-primary-500" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <svg className="icon w-5 h-5 mr-2 text-primary-500" viewBox="0 0 24 24" fill="currentColor">
               <path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3H19C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" />
-            </svg>
+            </svg>            </svg>
             Filters
           </h2>
           
@@ -143,10 +143,11 @@ export function FilterSystem({
                         {activeOptions.length}
                       </span>
                     )}
-                    
-                    <svg className={`icon w-5 h-5 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="currentColor" aria-hidden="true">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
+                    <svg 
+                      className={`icon w-5 h-5 text-gray-500 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >                    </svg>
                   </div>
                 </button>
                 
@@ -192,7 +193,6 @@ export function FilterSystem({
                                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                         </motion.svg>
                                       )}
-                                    </div>
 
                                     {option.icon && (
                                       <span className="mr-2 text-gray-500">{renderIcon(option.icon)}</span>
@@ -212,7 +212,7 @@ export function FilterSystem({
                                     </span>
                                   )}
                                 </button>
-                              </div>
+                              </div>                              </div>
                             )
                           })}
                         </div>

@@ -2,7 +2,7 @@
 
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import DigitalNomadSearchFilter from '@/components/ui/DigitalNomadSearchFilter';
-import { Alert } from '@/components/ui/alert';
+import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { WorldMapDemo } from '@/components/ui/world-map-demo';
 import { AnimatePresence, motion } from 'framer-motion';
