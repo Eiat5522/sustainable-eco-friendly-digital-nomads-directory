@@ -101,8 +101,9 @@ export function FilterSystem({
       <div className="hidden lg:block bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700">
         <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
-            <svg className="icon" viewBox="0 0 24 24" className="w-5 h-5 mr-2 text-primary-500" fill="currentColor">
-            <svg className="icon w-5 h-5 mr-2 text-primary-500" viewBox="0 0 24 24" fill="currentColor">            </svg>
+            <svg className="icon w-5 h-5 mr-2 text-primary-500" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3H19C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" />
+            </svg>
             Filters
           </h2>
           
@@ -143,9 +144,7 @@ export function FilterSystem({
                       </span>
                     )}
                     
-                    <svg className="icon" 
-                    <svg className={`icon w-5 h-5 text-gray-500 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}                       fill="currentColor"
-                    >
+                    <svg className={`icon w-5 h-5 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="currentColor" aria-hidden="true">
                       <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                   </div>
@@ -193,7 +192,8 @@ export function FilterSystem({
                                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                         </motion.svg>
                                       )}
-                                        <svg className="icon h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">                                    
+                                    </div>
+
                                     {option.icon && (
                                       <span className="mr-2 text-gray-500">{renderIcon(option.icon)}</span>
                                     )}
@@ -211,7 +211,8 @@ export function FilterSystem({
                                       {option.count}
                                     </span>
                                   )}
-                                  <svg className="icon h-4 w-4" fill="currentColor" viewBox="0 0 20 20">                              </div>
+                                </button>
+                              </div>
                             )
                           })}
                         </div>
@@ -259,17 +260,18 @@ export function FilterSystem({
                     <div className="flex-1 overflow-y-auto py-6 px-4">
                       <div className="flex items-center justify-between mb-6">
                         <h2 className="text-lg font-medium text-gray-900 dark:text-white flex items-center">
-                          <svg className="icon" viewBox="0 0 24 24" className="w-5 h-5 mr-2 text-primary-500" fill="currentColor">
+                          <svg className="icon w-5 h-5 mr-2 text-primary-500" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                             <path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3H19C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z" />
                           </svg>
                           Filters
                         </h2>
                         <button
-                          <svg className="icon w-5 h-5 mr-2 text-primary-500" viewBox="0 0 24 24" fill="currentColor">                          className="-mr-2 w-10 h-10 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                          className="-mr-2 w-10 h-10 flex items-center justify-center rounded-full text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
                           onClick={() => setMobileFiltersOpen(false)}
+                          aria-label="Close menu"
                         >
                           <span className="sr-only">Close menu</span>
-                          <svg className="icon" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="icon h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
@@ -283,11 +285,12 @@ export function FilterSystem({
                             className="flex items-center justify-center w-full px-4 py-2 rounded-lg bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-300"
                             onClick={clearAll}
                           >
-                            <svg className="icon" className="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <svg className="icon w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                               <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                             </svg>
                             Clear all filters ({getActiveFilterCount()})
-                            <svg className="icon w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">                        </div>
+                          </motion.button>
+                        </div>
                       )}
                       
                       {/* Mobile filter groups */}
@@ -315,14 +318,8 @@ export function FilterSystem({
                                     )}
                                   </div>
                                   <span className="ml-6 flex items-center">
-                                    <svg className="icon"
-                                      className={`h-5 w-5 transition-transform ${openGroup === group.id ? 'transform rotate-180' : ''}`}
-                                      viewBox="0 0 20 20"
-                                      fill="currentColor"
-                                    <svg className={`icon h-5 w-5 transition-transform ${openGroup === group.id ? 'transform rotate-180' : ''}`}                                        fillRule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clipRule="evenodd"
-                                      />
+                                    <svg className={`icon h-5 w-5 transition-transform ${openGroup === group.id ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                                     </svg>
                                   </span>
                                 </button>
@@ -370,7 +367,7 @@ export function FilterSystem({
                                                     </motion.svg>
                                                   )}
                                                 </div>
-                                                
+
                                                 {option.icon && (
                                                   <span className="mr-2 text-gray-400">{renderIcon(option.icon)}</span>
                                                 )}
@@ -440,7 +437,7 @@ export function FilterSystem({
                     className="flex-shrink-0 ml-1 text-primary-500 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-200 focus:outline-none"
                     onClick={() => toggleFilter(groupId, optionId)}
                   >
-                    <svg className="icon" className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="icon h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                   </button>

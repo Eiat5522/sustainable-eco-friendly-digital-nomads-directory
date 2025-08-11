@@ -1,12 +1,9 @@
 'use client';
-import { SessionProvider } from "next-auth/react";
 
-import Footer from '@/components/layout/Footer';
-import { MainNav } from '@/components/layout/MainNav';
-import { SearchDialog } from '@/components/search/SearchDialog';
-import { AnalyticsProvider } from '@/components/AnalyticsProvider';
+import { ReactNode } from 'react';
+import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider as NextThemeProvider } from 'next-themes';
-import { ReactNode, useState } from 'react';
+import { AnalyticsProvider } from '@/components/AnalyticsProvider';
 
 function ThemeProvider({ children }: { children: ReactNode }) {
   return (
@@ -26,20 +23,11 @@ interface ClientRootLayoutProps {
 }
 
 export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-
   return (
     <SessionProvider>
       <AnalyticsProvider>
         <ThemeProvider>
-          <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-            <MainNav />
-            <SearchDialog isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
-            <main className="flex-grow pt-16">
-              {children}
-            </main>
-            <Footer />
-          </div>
+          {children}
         </ThemeProvider>
       </AnalyticsProvider>
     </SessionProvider>

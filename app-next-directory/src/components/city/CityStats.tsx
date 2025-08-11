@@ -12,7 +12,7 @@ const CityStats: React.FC<CityStatsProps> = ({ city }) => {
       label: 'Sustainability Score',
       value: city.sustainabilityScore,
       icon: (
-        <svg className="icon" xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="icon h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
           <text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor">{city.sustainabilityScore}</text>
         </svg>
@@ -22,10 +22,10 @@ const CityStats: React.FC<CityStatsProps> = ({ city }) => {
       label: 'Highlights',
       value: city.highlights.join(', '),
       icon: (
-        <svg className="icon h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="icon h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
         </svg>
-    },
+    )},
   ].filter(Boolean);
 
 

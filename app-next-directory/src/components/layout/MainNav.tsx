@@ -44,7 +44,7 @@ export function MainNav({}: MainNavProps) {
             <Link href="/" className="flex items-center group" aria-label="Leaf & Laptop — Home">
               <div className="relative">
                 <Leaf aria-hidden="true" className="text-primary-500 transition-transform group-hover:rotate-12 h-8 w-8" />
-+    <Laptop aria-hidden="true" className="absolute -bottom-1 -right-2 text-gray-600 dark:text-gray-400 h-4 w-4" />
+                <Laptop aria-hidden="true" className="absolute -bottom-1 -right-2 text-gray-600 dark:text-gray-400 h-4 w-4" />
               </div>
               <span className="ml-2 text-xl font-medium text-gray-900 dark:text-white">
                 Leaf & Laptop
@@ -59,7 +59,7 @@ export function MainNav({}: MainNavProps) {
                 const Icon = item.icon;
                 const isActive =
                 pathname === item.href ||
-                (item.href !== '/' && pathname.startsWith(item.href + '/'));
+                (item.href !== '/' && (pathname?.startsWith(item.href + '/') ?? false));
                 return (
                   <Link
                     key={item.name}
