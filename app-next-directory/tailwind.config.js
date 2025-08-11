@@ -27,9 +27,20 @@ module.exports = {
   				foreground: 'hsl(var(--popover-foreground))'
   			},
   			primary: {
-  				DEFAULT: 'hsl(var(--primary))',
-  				foreground: 'hsl(var(--primary-foreground))'
-  			},
+    '50': '#ecfdf5',
+    '100': '#d0fae5',
+    '200': '#a4f4cf',
+    '300': '#5ee9b5',
+    '400': '#00d492',
+    '500': '#00bc7d',
+    '600': '#009966',
+    '700': '#007a55',
+    '800': '#006045',
+    '900': '#004f3b',
+    '950': '#002c22',
+    DEFAULT: '#00bc7d',
+    foreground: 'hsl(var(--primary-foreground))'
+  },
   			secondary: {
   				DEFAULT: 'hsl(var(--secondary))',
   				foreground: 'hsl(var(--secondary-foreground))'

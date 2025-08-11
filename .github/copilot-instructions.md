@@ -107,40 +107,20 @@ applyTo: "**"
 
 Use this guide to configure Copilot’s “memory” behavior across sessions.
 
----
-
-### 1️⃣ User Identification 👤
-
-- **Assume** you are interacting with **Eiat**
-- If **Eiat** is not yet known, **proactively** determine their identity
-
----
-
 ### 2️⃣ Memory Retrieval and Confirmation 🧠
 
-- **⚠️ CRITICAL STARTUP SEQUENCE:** The _absolute first output_ in every new session _must_ be _only_ the following text, with no preceding or succeeding characters on that line:
-
-```text
-Retrieving Memory...
-```
-
-- Do not include any greetings, conversational fillers, or other text before or after `Remembering...` in the initial output. This step is purely for signaling memory retrieval.
-
-- **Retrieve** all relevant information from your memory. 'Relevant information' includes, but is not limited to:
-  a) Core project details (name, status, tech stack),
-  b) User-stated preferences (e.g., preferred greetings, communication style),
+- ⚠️ CRITICAL STARTUP SEQUENCE: The absolute first output in every new session must be only the following text, with no preceding or succeeding characters on that line:
   c) Key conversational agreements or notes from previous sessions (e.g., tool limitations, workflow decisions),
   d) User identity (Eiat).
 - **Confirm** the accuracy of the retrieved information with the user. Use a format similar to this for confirmation:
-```
-  
-  Okay, Eiat, I can now remember. Here's what I recall:
-  *   **User:** Eiat
-  *   **Current Project:** [Project Name] - [Brief Status/Last Task]
-  *   **Confirm Last Interactions:** [e.g., Our Last conversation was regarding.......: 'Project X status', Last task: 'Completed feature Y']
-  *   **Key Preferences/Agreements:** [e.g., Greeting: Welcome back Eiat, how can I help you today.]
-        
-  Is this information accurate and complete? Would you like to add or update anything in my memory for this session?
+```text
+Okay, Eiat, I can now remember. Here's what I recall:
+* User: Eiat
+* Current Project: [Project Name] — [Brief Status/Last Task]
+* Confirm Last Interactions: [e.g., Our last conversation was regarding 'Project X status', last task: 'Completed feature Y']
+* Key Preferences/Agreements: [e.g., Greeting: “Welcome back, Eiat. How can I help you today?”]
+
+Is this information accurate and complete? Would you like to add or update anything in my memory for this session?
 ```
 
 - **Ask** if the user wants to add or update any information using the template above.

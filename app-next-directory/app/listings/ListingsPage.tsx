@@ -48,19 +48,21 @@ function legacyListingToCard(legacy: Listing): AppListingCard {
   };
 
   // Helper to convert string URLs to SanityGalleryImage array
-  const toSanityGalleryImages = (urls: string[] | undefined): SanityGalleryImage[] | undefined => {
-    if (!urls || !Array.isArray(urls)) return undefined;
-    return urls.map(url => ({
-      _type: 'image',
-      _key: url, // Use URL as a unique key for simplicity
-      asset: {
-        _ref: 'placeholder-ref',
-        _type: 'reference',
-        url: url,
-      },
-    }));
+  const toSanityGalleryImages = (urls: string[] | undefined): SanityGalleryImage[] => {
+    if (!Array.isArray(urls) || urls.length === 0) return [];
+    return urls
+      .filter(Boolean)
+      .map((url, idx) => ({
+        _type: 'image',
+        // Prefix with index to reduce collision chances if duplicate URLs exist
+        _key: `${idx}-${url}`,
+        asset: {
+          _ref: 'placeholder-ref',
+          _type: 'reference',
+          url: url,
+        },
+      }));
   };
-
   return {
     id: legacy._id,
     name: legacy.name,

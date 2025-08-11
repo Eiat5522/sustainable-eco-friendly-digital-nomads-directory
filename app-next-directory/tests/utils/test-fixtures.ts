@@ -31,9 +31,8 @@ export const test = base.extend<ListingsFixtures>({
         primaryImage: {
           _type: 'image',
           asset: {
-            _ref: 'placeholder-ref',
             _type: 'reference',
-            url: '/test.jpg',
+            _ref: 'image-test-123456-800x600-jpg',
           },
         },
         galleryImages: [],

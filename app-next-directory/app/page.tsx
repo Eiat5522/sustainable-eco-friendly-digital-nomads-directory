@@ -9,45 +9,74 @@ import StatisticsSection from '@/components/home/StatisticsSection';
 import CTASection from '@/components/home/CTASection';
 import SustainableNomadTestimonials from '@/components/ui/sustainable-nomad-testimonials';
 
-import type { AppListingCard, AppCity } from '@/types/appView';
+import type { AppListingCard, AppCity, SanityImage } from '@/types/appView';
 import type { EcoCityItem } from '@/components/cities/CityCarousel';
 import { mapSanityListingToCard } from '@/lib/listings';
 
+type RawListing = Parameters<typeof mapSanityListingToCard>[0];
+type ListingCard = ReturnType<typeof mapSanityListingToCard>;
+
+// Add response interfaces for typed JSON parsing
+interface FeaturedListingsResponse {
+  listings?: RawListing[];
+}
+
+interface CityAPIItem {
+  _id: string;
+  name: string;
+  sustainabilityScore: number;
+  highlights?: string[];
+  image: SanityImage;
+}
+
+interface CitiesResponse {
+  cities?: CityAPIItem[];
+}
+
 export default function HomePage() {
-  const [listings, setListings] = useState<AppListingCard[]>([]);
+  const [listings, setListings] = useState<ListingCard[]>([]);
   const [cities, setCities] = useState<EcoCityItem[]>([]);
+
   useEffect(() => {
-    async function fetchData() {
+    async function fetchData(): Promise<void> {
       try {
-        const featuredListingsResponse = await fetch('/api/featured-listings').then(res => res.json());
+        const featuredListingsResponse: FeaturedListingsResponse =
+          await fetch('/api/featured-listings').then(res => res.json());
         const featuredListings = featuredListingsResponse.listings || [];
         console.log('[DEBUG] HomePage: Raw featured listings:', featuredListings);
-        console.log('[DEBUG] HomePage: Mapping', featuredListings.length, 'raw listings to AppListingCard DTO');
-        const mapped = featuredListings.map((l: any) => {
-          try {
-            return mapSanityListingToCard(l);
-          } catch (e) {
-            console.warn('[WARN] Failed to map listing', l?._id || l?.id, e);
-            return null;
-          }
-        }).filter(Boolean);
-        console.log('[DEBUG] HomePage: Setting state with', mapped.length, 'mapped listings');
+                if (process.env.NODE_ENV !== 'production') {
+          console.log('[DEBUG] HomePage: Mapping', featuredListings.length, 'raw listings to AppListingCard DTO');
+        }
+        const mapped = featuredListings
+          .map((l: RawListing) => {
+            try {
+              return mapSanityListingToCard(l);
+            } catch (e) {
+              console.warn('[WARN] Failed to map listing', l, e);
+              return null;
+            }
+          })
+          .filter((x): x is ListingCard => x !== null);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[DEBUG] HomePage: Setting state with', mapped.length, 'mapped listings');
+        }
         setListings(mapped);
       } catch (error) {
         console.error('[ERROR] HomePage: Failed to fetch listings:', error);
       }
     }
 
-    async function fetchCities() {
+    async function fetchCities(): Promise<void> {
       try {
-        const citiesResponse = await fetch('/api/cities').then(res => res.json());
+        const citiesResponse: CitiesResponse =
+          await fetch('/api/cities').then(res => res.json());
         console.log('[DEBUG] City API response:', citiesResponse);
-        const mappedCities: EcoCityItem[] = (citiesResponse.cities || []).map((city: any) => ({
+        const mappedCities: EcoCityItem[] = (citiesResponse.cities || []).map((city: CityAPIItem) => ({
           _id: city._id,
           name: city.name,
           sustainabilityScore: city.sustainabilityScore,
           highlights: city.highlights || [],
-          image: city.image, // Using normalized SanityImage object from API
+          image: city.image,
         }));
         setCities(mappedCities);
       } catch (error) {

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 // ImageProps is not exported from next/image in Next.js 13+.
 // Use React.ComponentProps<typeof Image> for type safety.
@@ -23,13 +24,20 @@ export function SanityImage({
   fallbackAlt = 'Image unavailable',
   ...rest
 }: SanityImageProps) {
-  const src = image ? urlFor(image)?.width(width).height(height).url() : fallbackSrc;
-  console.log('[DEBUG] SanityImage src:', src, 'image prop:', image);
+  const [hasError, setHasError] = useState(false);
+  const imageSrc = image ? urlFor(image)?.width(width).height(height).url() : fallbackSrc;
+  
+  const src = hasError ? fallbackSrc : imageSrc;
+
+  useEffect(() => {
+    setHasError(false);
+  }, [imageSrc]); // Reset error state if the image src changes
+
   const validAlt = alt && alt.trim() ? alt : fallbackAlt;
 
   // Extract onError and fill from rest props
   const { onError: userOnError, fill, ...imageProps } = rest;
-  
+
   return (
     <Image
       src={src || fallbackSrc}
@@ -37,8 +45,8 @@ export function SanityImage({
       {...imageProps}
       {...(fill ? { fill } : { width, height })}
       onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-        if (e.currentTarget.src !== fallbackSrc) {
-          e.currentTarget.src = fallbackSrc;
+        if (!hasError) {
+          setHasError(true);
         }
         if (typeof userOnError === 'function') {
           userOnError(e);
