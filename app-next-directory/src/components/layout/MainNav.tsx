@@ -41,10 +41,10 @@ export function MainNav({}: MainNavProps) {
       <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center group">
+            <Link href="/" className="flex items-center group" aria-label="Leaf & Laptop — Home">
               <div className="relative">
-                <Leaf className="text-primary-500 transition-transform group-hover:rotate-12 h-8 w-8" />
-                <Laptop className="absolute -bottom-1 -right-2 text-xs text-gray-600 dark:text-gray-400 h-4 w-4" />
+                <Leaf aria-hidden="true" className="text-primary-500 transition-transform group-hover:rotate-12 h-8 w-8" />
++    <Laptop aria-hidden="true" className="absolute -bottom-1 -right-2 text-gray-600 dark:text-gray-400 h-4 w-4" />
               </div>
               <span className="ml-2 text-xl font-medium text-gray-900 dark:text-white">
                 Leaf & Laptop
@@ -57,7 +57,9 @@ export function MainNav({}: MainNavProps) {
             <div className="hidden md:flex md:items-center md:space-x-6 lg:space-x-8">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.href;
+                const isActive =
+                pathname === item.href ||
+                (item.href !== '/' && pathname.startsWith(item.href + '/'));
                 return (
                   <Link
                     key={item.name}

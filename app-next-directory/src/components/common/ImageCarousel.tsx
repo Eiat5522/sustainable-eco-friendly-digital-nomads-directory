@@ -100,7 +100,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
             className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow text-gray-800 z-10 focus:outline-none focus:ring-2 focus:ring-green-500"
             aria-label="Previous image"
           >
-            <svg className="icon" xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="icon h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
@@ -113,10 +113,9 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
             className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow text-gray-800 z-10 focus:outline-none focus:ring-2 focus:ring-green-500"
             aria-label="Next image"
           >
-            <svg className="icon" xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="icon h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+            </svg>          </button>
         </>
       )}
 

@@ -38,18 +38,30 @@ jest.mock('@/lib/sanity/client', () => ({
 }));
 
 // Mock NextRequest and NextResponse
-jest.mock('next/server', () => {
-  class MockNextResponse {
-    private _data: any;
-    public status: number;
-    constructor(data: any, status = 200) {
-      this._data = data;
-      this.status = status;
-    }
-    json = async () => this._data;
-  }
-  return {
-    NextRequest: jest.fn().mockImplementation((url: string, options?: any) => {
+jest.mock('next/server', () => ({
+  NextRequest: jest.fn().mockImplementation((url: string, options?: any) => ({
+    url,
+    json: options?.body
+      ? jest.fn().mockResolvedValue(
+          typeof options.body === 'string'
+            ? (() => {
+                try {
+                  return JSON.parse(options.body);
+                } catch {
+                  return {};
+                }
+              })()
+            : options.body
+        )
+      : jest.fn(),
+  })),
+  NextResponse: {
+    json: jest.fn((data: any, options?: { status?: number }) => ({
+      json: () => Promise.resolve(data),
+      status: options?.status || 200,
+    })),
+  },
+}));
       return {
         url,
         json: jest.fn().mockImplementation(() => {
@@ -84,7 +96,7 @@ jest.mock('@/utils/api-response', () => ({
   },
 }));
 
-const mockApiResponseHandler = ApiResponseHandler as jest.Mocked<typeof ApiResponseHandler>;
+const mockApiResponseHandler = (jest.requireMock('@/utils/api-response').ApiResponseHandler as unknown) as { success: jest.Mock; error: jest.Mock };
 
 describe('Search API Route', () => {
   beforeEach(() => {

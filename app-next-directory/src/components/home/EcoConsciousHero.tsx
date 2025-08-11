@@ -205,8 +205,15 @@ const EcoConsciousHero: React.FC<EcoConsciousHeroProps> = () => {
               <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
               Using eco-friendly rendering
               <span className="tooltip ml-1 cursor-help" title="This page adapts its visual complexity based on your region's current carbon intensity">
-                <svg className="icon" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="icon h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                  focusable="false"
+                >                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </span>
             </div>

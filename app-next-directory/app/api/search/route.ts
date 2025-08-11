@@ -1,5 +1,16 @@
 import { client } from '@/lib/sanity/client';
-import { ApiResponseHandler } from '@/utils/api-response';
+// Note: resolve ApiResponseHandler at runtime so Jest can mock it reliably in tests
+const getApiResponseHandler = async () => {
+  try {
+    // Prefer CommonJS require when available (Jest).
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const mod = require('@/utils/api-response');
+    return mod.ApiResponseHandler;
+  } catch {
+    const mod = await import('@/utils/api-response');
+    return mod.ApiResponseHandler;
+  }
+};
 import { groq } from 'next-sanity';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -116,6 +127,7 @@ export async function GET(request: NextRequest) {
 
     const total = await client.fetch(countQuery);
 
+    const ApiResponseHandler = await getApiResponseHandler();
     return ApiResponseHandler.success({
       results: results,
       pagination: {
@@ -133,6 +145,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Search GET error:', error);
+    const ApiResponseHandler = await getApiResponseHandler();
     return ApiResponseHandler.error('Search failed'); // tests assert generic message only
   }
 }
@@ -208,6 +221,7 @@ const limit = Number(parseInt(rawLimit as string, 10)) || 12;
 
     const total = await client.fetch(countQuery);
 
+    const ApiResponseHandler = await getApiResponseHandler();
     return ApiResponseHandler.success({
       results,
       pagination: {
@@ -226,6 +240,7 @@ const limit = Number(parseInt(rawLimit as string, 10)) || 12;
     });
   } catch (error) {
     console.error('Search POST error:', error);
+    const ApiResponseHandler = await getApiResponseHandler();
     return ApiResponseHandler.error('Failed to perform search');
   }
 }
