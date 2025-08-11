@@ -1,18 +1,14 @@
-import { SessionProvider } from "next-auth/react";
 import React from "react";
-import { MainNav } from "@/components/layout/MainNav";
-import Footer from "@/components/layout/Footer";
 import "./globals.css";
+import ClientRootLayout from "./ClientRootLayout";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
-        <SessionProvider>
-          <MainNav />
+    <html lang="en" suppressHydrationWarning>
+      <body className="min-h-screen antialiased">
+        <ClientRootLayout>
           {children}
-          <Footer />
-        </SessionProvider>
+        </ClientRootLayout>
       </body>
     </html>
   );

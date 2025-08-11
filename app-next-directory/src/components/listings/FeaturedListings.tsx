@@ -6,13 +6,12 @@ import { AppListingCard } from '@/types/appView';
 import type { ListingCardProps } from '@/components/listings/ListingCard';
 
 // Code-split ListingCard to avoid loading it when not rendering the home variant
+import { Suspense } from 'react';
+
 const DynamicListingCard = dynamic<ListingCardProps>(
-  () => import('@/components/listings/ListingCard').then(m => m.ListingCard as any),
-  {
-    loading: () => <div className="flex items-center justify-center h-32"><span>Loading...</span></div>,
-    ssr: false,
-  }
+  () => import('@/components/listings/ListingCard').then(m => m.ListingCard as any)
 );
+
 
 interface FeaturedListingsProps {
   listings: AppListingCard[];
@@ -40,7 +39,11 @@ export default function FeaturedListings({ listings, variant = 'listings', searc
         <div className={isHome ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 p-4 md:p-6' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8'}>
           {listings.slice(0, 4).map(listing => {
             if (isHome) {
-              return <DynamicListingCard key={listing.id} listing={listing} searchQuery={searchQuery} />;
+              return (
+                <Suspense fallback={<div className="flex items-center justify-center h-32"><span>Loading...</span></div>}>
+                  <DynamicListingCard key={listing.id} listing={listing} searchQuery={searchQuery} />
+                </Suspense>
+              );
             }
 
             // Compute imageUrl only for non-home variant

@@ -185,6 +185,9 @@ importers:
       react:
         specifier: ^18.3.1
         version: 18.3.1
+      react-cookie-consent:
+        specifier: ^9.0.0
+        version: 9.0.0(react@18.3.1)
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
@@ -6055,6 +6058,9 @@ packages:
   jose@6.0.12:
     resolution: {integrity: sha512-T8xypXs8CpmiIi78k0E+Lk7T2zlK4zDyg+o1CZ4AkOHgDg98ogdP2BeZ61lTFKFyoEwJ9RgAgN+SdM3iPgNonQ==}
 
+  js-cookie@2.2.1:
+    resolution: {integrity: sha512-HvdH2LzI/EAZcUwA8+0nKNtWHqS+ZmijLA30RwZA0bo7ToCckjK5MkGhjED9KoRcXO6BaGI3I9UIzSA1FKFPOQ==}
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -7238,6 +7244,12 @@ packages:
     resolution: {integrity: sha512-852AwyIsbWJ5o1LkQVAZsVK3iLjMxOfKZuxqeGd/RfD+j1GqHb6j3DSHLtpu4HhFbQHsP2DzxjJyKR6luv4D8w==}
     peerDependencies:
       react: ^17.0.0 || ^18.0.0 || ^19.0.0 || ^0.0.0-experimental
+
+  react-cookie-consent@9.0.0:
+    resolution: {integrity: sha512-Blyj+m+Zz7SFHYqT18p16EANgnSg2sIyU6Yp3vk83AnOnSW7qnehPkUe4+8+qxztJrNmCH5GP+VHsWzAKVOoZA==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>=16'
 
   react-copy-to-clipboard@5.1.0:
     resolution: {integrity: sha512-k61RsNgAayIJNoy9yDsYzDe/yAZAzEbEgcz3DZMhF686LEyukcE1hzurxe85JandPUG+yTfGVFzuEw3xt8WP/A==}
@@ -11025,8 +11037,8 @@ snapshots:
       '@portabletext/keyboard-shortcuts': 1.1.0
       '@portabletext/patches': 1.1.5
       '@portabletext/to-html': 2.0.14
-      '@sanity/schema': 3.99.0(@types/react@19.1.9)
-      '@sanity/types': 3.99.0(@types/react@19.1.9)
+      '@sanity/schema': 3.99.0(@types/react@19.1.9)(debug@4.4.1)
+      '@sanity/types': 3.99.0(@types/react@19.1.9)(debug@4.4.1)
       '@xstate/react': 6.0.0(@types/react@19.1.9)(react@18.3.1)(xstate@5.20.1)
       debug: 4.4.1(supports-color@8.1.1)
       get-random-values-esm: 1.0.2
@@ -12314,7 +12326,7 @@ snapshots:
   '@sanity/insert-menu@1.1.13(@emotion/is-prop-valid@1.2.2)(@sanity/types@3.99.0(@types/react@19.1.9)(debug@4.4.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@sanity/icons': 3.7.4(react@18.3.1)
-      '@sanity/types': 3.99.0(@types/react@19.1.9)
+      '@sanity/types': 3.99.0(@types/react@19.1.9)(debug@4.4.1)
       '@sanity/ui': 2.16.11(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       lodash: 4.17.21
       react: 18.3.1
@@ -12690,22 +12702,6 @@ snapshots:
       - debug
       - supports-color
 
-  '@sanity/schema@3.99.0(@types/react@19.1.9)':
-    dependencies:
-      '@sanity/descriptors': 1.1.1
-      '@sanity/generate-help-url': 3.0.0
-      '@sanity/types': 3.99.0(@types/react@19.1.9)
-      arrify: 2.0.1
-      groq-js: 1.17.3
-      humanize-list: 1.0.1
-      leven: 3.1.0
-      lodash: 4.17.21
-      object-inspect: 1.13.4
-    transitivePeerDependencies:
-      - '@types/react'
-      - debug
-      - supports-color
-
   '@sanity/schema@3.99.0(@types/react@19.1.9)(debug@4.4.1)':
     dependencies:
       '@sanity/descriptors': 1.1.1
@@ -12881,17 +12877,9 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@sanity/types@3.99.0(@types/react@19.1.9)':
-    dependencies:
-      '@sanity/client': 7.8.1
-      '@sanity/media-library-types': 1.0.0
-      '@types/react': 19.1.9
-    transitivePeerDependencies:
-      - debug
-
   '@sanity/types@3.99.0(@types/react@19.1.9)(debug@4.4.1)':
     dependencies:
-      '@sanity/client': 7.8.1(debug@4.4.1)
+      '@sanity/client': 7.8.1
       '@sanity/media-library-types': 1.0.0
       '@types/react': 19.1.9
     transitivePeerDependencies:
@@ -13169,7 +13157,7 @@ snapshots:
     dependencies:
       '@sanity/client': 7.8.1
     optionalDependencies:
-      '@sanity/types': 3.99.0(@types/react@19.1.9)
+      '@sanity/types': 3.99.0(@types/react@19.1.9)(debug@4.4.1)
 
   '@sanity/visual-editing@2.15.4(@emotion/is-prop-valid@1.2.2)(@sanity/client@7.8.1)(@sanity/types@3.99.0(@types/react@19.1.9))(next@15.4.4(@babel/core@7.28.0)(@playwright/test@1.54.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.8.3)':
     dependencies:
@@ -16622,6 +16610,8 @@ snapshots:
 
   jose@6.0.12: {}
 
+  js-cookie@2.2.1: {}
+
   js-tokens@4.0.0: {}
 
   js-yaml@3.14.1:
@@ -17750,6 +17740,11 @@ snapshots:
     dependencies:
       react: 19.1.0
 
+  react-cookie-consent@9.0.0(react@18.3.1):
+    dependencies:
+      js-cookie: 2.2.1
+      react: 18.3.1
+
   react-copy-to-clipboard@5.1.0(react@18.3.1):
     dependencies:
       copy-to-clipboard: 3.3.3
@@ -18295,10 +18290,10 @@ snapshots:
       '@sanity/mutator': 3.99.0(@types/react@19.1.9)
       '@sanity/presentation-comlink': 1.0.26(@sanity/client@7.8.1)(@sanity/types@3.99.0(@types/react@19.1.9)(debug@4.4.1))
       '@sanity/preview-url-secret': 2.1.14(@sanity/client@7.8.1)
-      '@sanity/schema': 3.99.0(@types/react@19.1.9)
+      '@sanity/schema': 3.99.0(@types/react@19.1.9)(debug@4.4.1)
       '@sanity/sdk': 0.0.0-alpha.25(@types/react@19.1.9)(debug@4.4.1)(immer@10.1.1)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))
       '@sanity/telemetry': 0.8.1(react@18.3.1)
-      '@sanity/types': 3.99.0(@types/react@19.1.9)
+      '@sanity/types': 3.99.0(@types/react@19.1.9)(debug@4.4.1)
       '@sanity/ui': 2.16.11(@emotion/is-prop-valid@1.2.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.3.1)(react@18.3.1)(styled-components@6.1.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@sanity/util': 3.99.0(@types/react@19.1.9)(debug@4.4.1)
       '@sanity/uuid': 3.0.2

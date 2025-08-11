@@ -11,7 +11,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input.tsx';
+import { Input } from '@/components/ui/input';
 import { Calendar, Mail, MoreHorizontal, Search, UserCheck, Users, UserX } from 'lucide-react';
 import { useEffect, useState } from 'react';
 

@@ -1,5 +1,6 @@
 import type { SanityImage, SanityGalleryImage } from './appView';
 
+export type GalleryImage = SanityGalleryImage | SanityImage;
 export interface PricingPlan {
   name: string;
   price: number;
@@ -33,7 +34,7 @@ export interface Listing {
   longDescription: string;
   ecoFocusTags: EcoTag[];
   primaryImage?: SanityImage;
-  galleryImages?: SanityGalleryImage[];
+  galleryImages?: GalleryImage[];
   priceRange?: string;
   website?: string;
   category?: string; // Resolved conflict: keeping this line

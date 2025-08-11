@@ -62,12 +62,16 @@ describe('Search API Route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockApiResponseHandler.success.mockImplementation((data: unknown) => {
-      // Use the mocked NextResponse.json and cast to any
-      return NextResponse.json({ success: true, data }, { status: 200 }) as any;
+      return {
+        json: () => Promise.resolve({ success: true, data }),
+        status: 200,
+      } as { json: () => Promise<unknown>; status: number };
     });
     mockApiResponseHandler.error.mockImplementation((message: string, status = 400) => {
-      // Use the mocked NextResponse.json and cast to any
-      return NextResponse.json({ error: message }, { status }) as any;
+      return {
+        json: () => Promise.resolve({ error: message }),
+        status,
+      } as { json: () => Promise<unknown>; status: number };
     });
   });
   describe('GET /api/search', () => {

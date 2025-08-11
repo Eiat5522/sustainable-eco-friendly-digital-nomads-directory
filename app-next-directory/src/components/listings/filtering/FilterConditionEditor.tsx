@@ -1,8 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/input.tsx';
-import { Select } from '@/components/ui/select.tsx';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import type { FilterCondition } from '@/types/components';
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
@@ -75,8 +75,8 @@ export function FilterConditionEditor({ conditions, onChange }: FilterConditionE
       </div>
 
       <div className="space-y-2">
-        {conditions.map((condition, index) => (
-          <div key={index} className="flex items-center justify-between p-2 rounded-md bg-gray-50">
+        {conditions.map((condition) => (
+          <div key={`${condition.field}:${String(condition.value)}`} className="flex items-center justify-between p-2 rounded-md bg-gray-50">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">{condition.field}:</span>
               <span className="text-sm">{condition.value}</span>

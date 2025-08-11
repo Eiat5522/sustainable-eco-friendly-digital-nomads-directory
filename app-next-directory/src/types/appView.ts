@@ -1,3 +1,5 @@
+import type { PortableTextBlock } from '@portabletext/types';
+
 export type AppCity = { id: string; name: string; slug: string; country?: string; sustainabilityScore?: number; highlights?: string[]; primaryImage?: SanityImage; description?: string; };
 
 export type SanityImage = {

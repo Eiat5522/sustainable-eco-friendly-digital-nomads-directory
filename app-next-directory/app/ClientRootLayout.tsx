@@ -1,7 +1,8 @@
+'use client';
 import { SessionProvider } from "next-auth/react";
 
-import Footer from '@/components/layout/Footer'; // Added Footer import
-import { MainNav } from '@/components/layout/MainNav'; // Corrected import path
+import Footer from '@/components/layout/Footer';
+import { MainNav } from '@/components/layout/MainNav';
 import { SearchDialog } from '@/components/search/SearchDialog';
 import { AnalyticsProvider } from '@/components/AnalyticsProvider';
 import { ThemeProvider as NextThemeProvider } from 'next-themes';
@@ -32,16 +33,12 @@ export default function ClientRootLayout({ children }: ClientRootLayoutProps) {
       <AnalyticsProvider>
         <ThemeProvider>
           <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-            {' '}
-            {/* Added flex flex-col */}
             <MainNav />
             <SearchDialog isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
             <main className="flex-grow pt-16">
-              {' '}
-              {/* Added flex-grow */}
               {children}
             </main>
-            <Footer /> {/* Added Footer component */}
+            <Footer />
           </div>
         </ThemeProvider>
       </AnalyticsProvider>

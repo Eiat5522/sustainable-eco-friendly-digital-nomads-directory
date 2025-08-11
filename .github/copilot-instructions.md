@@ -1,11 +1,11 @@
 ---
 applyTo: "**"
 ---
-# 📦 Github Copilot Instruction🚀
+# 📦 Github Copilot Instructions 🚀
 
-# Instructions File Permissions
-
-## **This file is read-only for Copilot. It cannot be modified or deleted by Copilot. Any changes to this file must be made manually by Eiat and Eiat only.**
+**File: .github/CODEOWNERS**
+**Enforce that only @Eiat can modify this instructions file:**
+**.github/copilot-instructions.md @Eiat**
 
 ## Sustainable Digital Nomads Directory – AI Agent Coding Guidelines
 
@@ -29,57 +29,10 @@ applyTo: "**"
 - **Image Fields:** Always include `alt` text and use `hotspot: true` for cropping.
 - **Validation:** Use Sanity's validation API (e.g., `Rule.required()`) for data integrity.
 
-### 5. Directory Navigation
+### 5. Directory Navigation (Desktop Commander Requirements)
+
 - Use PowerShell’s `Set-Location` with absolute paths and capitalized drive letters (e.g., `Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory"`).
-- Never use relative paths or lowercase drive letters.
-
-#### 7. Code Quality
-- Adhere to linting and best practices for TypeScript, Next.js, and Sanity.
-- For complex logic, offer to add comments or JSDoc documentation.
-- Mark temporary/debug code with `FORTEST:` or `FIXME:` comments.
-
-### 8. Editing & Tooling
-- Use desktop-commander tools for file operations.
-- For small edits (≤30 lines), use exact content match.
-- For large changes, use focused edit blocks.
-- Validate files for errors after every change.
-
-### 9. Security
-- Use exact versions for critical packages.
-- Store secrets in environment configuration (Vercel/Cloudflare).
-- Enforce HTTPS, secure headers, and rate limiting.
-
-## 📑 Rules of Conduct
-
-- **Memory Management**: Use the provided memory management guidelines to retrieve, confirm, and update information about the user and projects.
-- **Task Management**: Follow the Workstream Documentation {".\\memory-bank\\parallel_workstreams\\*"} to track latest Project's status, Before a Task is to be CONSIDERDED as Completed, Copilot must reassure that the task is actually completed. If the Tasks is UX/UI related. An #MCP Tool #Playwrite or #BrowserTool must be use for confirmation. Only then Copilot must Update Task Status to Complete.
-- **Task Policies**: Immediately after a status change, whether from 'Not Started' to 'In Progress' or 'In Progress' to 'Completed'. You must ensure Tasks Statuses are Updated accordingly in Real-Time. Do not report to the User after every status change. Only report back mid Workstream when 1. Copilot is struck and cannot progress. 2. Only if the User explicitely asks for a status update. 3. When the whole Workstream is Completed.
-- **Workstream Completeness Confirmation**: In order to confirm that a Workstream has been Completed. After a Workstream is fully completed, Copilot must Report the latest status and details of the Workstream. Only after this confirmation, Copilot can proceed check the Workstream as Completed and only then can Copilot move on to the next Workstream.
-- **Proactive Task Linking:** When providing solutions, code, or completing a request that appears to correspond to a known task (e.g., from a task file or a previously discussed objective), proactively ask if the user would like to mark that task as in-progress, completed, or if the solution addresses a specific sub-task.
-  - _Example prompt:_ 'This code should resolve the issue with X. Does this complete task Y, or a part of it?' or 'Now that we've outlined the plan for Z, shall I update its status to \'in-progress\'?'
-
-- **Tech Stack**: Familiarize yourself with the tech stack used in the project, including Next.js, Tailwind CSS, Sanity, MongoDB, Leaflet.js, Vercel, Stripe, and NextAuth.js.
-  []: # 📂
-  []: # ├── app-next-directory # Next.js app root
-  []: # │ ├── src # Source code
-  []: # │ ├── public # Static assets
-  []: # │ ├── package.json # App dependencies
-  []: # │ └── ...
-  []: # └── sanity # Sanity Studio root
-  []: # ├── schemas # Custom schema definitions
-  []: # ├── sanity.config.js # Main Sanity configuration
-  []: # └── ...
-  []: # ```
-
-## 📑 **Directory Navigation with File System MCP server in Powerhell 7 **
-- **Change Directory Best Practices:** - **Change Directory**: Use PowerShell's `Set-Location` cmdlet to change directories in the terminal.
-    For example, `Set-Location -Path "src\components"` to navigate to the components directory.
-- **IMPORTANT:** Use #file system mcp server to help navigate the codebase.
-    You must use absolute full paths with the drive letter in CAPITAL LETTER as shown in the following example: ('Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory').
-    This is crucial in ensuring tools usage reliability.
-- **Caution** Relative paths and lowercase as drive letter will fail as they are depend on the current working directory. Tilde paths (~/...) might not work in all contexts.
-
-  - Examples:
+ - Examples:
     ```powershell
     # Navigate to project root
     Set-Location -Path "D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory"
@@ -102,6 +55,46 @@ applyTo: "**"
 - Validate paths before navigation
 - Handle spaces and special characters properly
 - Use `Push-Location`/`Pop-Location` for temporary navigation
+
+#### 7. Code Quality
+- Adhere to linting and best practices for TypeScript, Next.js, and Sanity.
+- For complex logic, offer to add comments or JSDoc documentation.
+- Mark temporary/debug code with `TODO:` or `FIXME:` comments. Reserve `FORTEST-` for temporary file names only.
+
+### 8. Editing & Tooling
+- Use desktop-commander tools for file operations.
+- For small edits (≤30 lines), use exact content match.
+- For large changes, use focused edit blocks.
+- Validate files for errors after every change.
+
+### 9. Security
+- Use exact versions and commit pnpm-lock.yaml. Enable automated security updates (Dependabot/Renovate).
+- Store secrets in environment configuration (Vercel/Cloudflare).
+- Enforce HTTPS, secure headers, and rate limiting.
+
+## 📑 Rules of Conduct
+
+- **Memory Management**: Use the provided memory management guidelines to retrieve, confirm, and update information about the user and projects.
+- **Task Management**: Follow the Workstream Documentation {".\\memory-bank\\parallel_workstreams\\*"} to track latest Project's status, Before a Task is to be CONSIDERDED as Completed, Copilot must reassure that the task is actually completed. If the Tasks is UX/UI related. An #MCP Tool #Playwrite or #BrowserTool must be use for confirmation. Only then Copilot must Update Task Status to Complete.
+- **Task Policies**: Immediately after a status change, whether from 'Not Started' to 'In Progress' or 'In Progress' to 'Completed'. You must ensure Tasks Statuses are Updated accordingly in Real-Time. Do not report to the User after every status change. Only report back mid Workstream when 1. Copilot is struck and cannot progress. 2. Only if the User explicitely asks for a status update. 3. When the whole Workstream is Completed.
+- **Workstream Completeness Confirmation**: In order to confirm that a Workstream has been Completed. After a Workstream is fully completed, Copilot must Report the latest status and details of the Workstream. Only after this confirmation, Copilot can proceed check the Workstream as Completed and only then can Copilot move on to the next Workstream.
+- **Proactive Task Linking:** When providing solutions, code, or completing a request that appears to correspond to a known task (e.g., from a task file or a previously discussed objective), proactively ask if the user would like to mark that task as in-progress, completed, or if the solution addresses a specific sub-task.
+  - _Example prompt:_ 'This code should resolve the issue with X. Does this complete task Y, or a part of it?' or 'Now that we've outlined the plan for Z, shall I update its status to \'in-progress\'?'
+
+- **Tech Stack**: Familiarize yourself with the tech stack used in the project, including Next.js, Tailwind CSS, Sanity, MongoDB, Leaflet.js, Vercel, Stripe, and NextAuth.js.
+
+```
+📂
+├── app-next-directory # Next.js app root
+│ ├── src # Source code
+│ ├── public # Static assets
+│ ├── package.json # App dependencies
+│ └── ...
+└── sanity # Sanity Studio root
+├── schemas # Custom schema definitions
+├── sanity.config.js # Main Sanity configuration
+└── ...
+```
 
 ## 🤖 GitHub Copilot Custom Instruction: Memory Management
 
@@ -132,7 +125,7 @@ Is this information accurate and complete? Would you like to add or update anyth
 ```
 
 - **Key Terminology:** `memory`: Refers to the AI's store of recalled information about the user, projects, and past interactions. Always use this term in all user-facing communication regarding recalled information. Avoid using synonyms like 'knowledge base', 'database', 'information store', 'recall banks', etc.
-- Always refer to your knowledge graph as your **“memory”**
+- Always refer to your stored context as your **“memory”** in user-facing text.
 ---
 
 ### 3️⃣ Memory Gathering 📋
@@ -196,12 +189,13 @@ When new information about projects is provided:
 - Ensure compliance with data privacy regulations
 ---
 
-##  🛠️ Tooling Guidelines & Known Constraints**
+## 🛠️ Tooling Guidelines & Known Constraints
 
-- **Tooling Notes & Constraints:**
-    - List any tools that have known issues, are deprecated, or should be used with specific caution.
+**Tooling Notes & Constraints:**
+    - List tools with known issues or deprecations and preferred alternatives. If none, add: “None currently.”alternatives
     - *Example:* 'The "XYZ" tool is currently best avoided for tasks related to ABC due to 'reason'. Please confirm with Eiat before using it for such purposes.'
     - Specify preferred tools for common operations if there are multiple options and a clear preference exists.
+
 ---
 
 ## ⚠️ Error Handling & Escalation Protocol
@@ -220,9 +214,12 @@ When new information about projects is provided:
 -  **Code Standard:** All generated or modified code must adhere to the project's established linting rules (e.g., from eslint.config.mjs) and general best practices for the language/framework in use. Prioritize clear, self-documenting code where possible to enhance readability.
 -  **Commenting & Documentation:** For complex functions, non-obvious logic, or significant code blocks, proactively offer to add explanatory comments or JSDoc-style documentation. For example: 'This function handles X. Would you like me to add detailed comments or JSDoc for it?'.
 -  **Temporary & Debugging Artifacts:** To align with team practices for managing temporary testing and debugging artifacts:
-    1. When generating temporary files specifically for testing purposes (e.g., a simplified page to debug an issue), prefix the filename with FORTEST- or DEBUG-. For example: FORTEST-user-profile.html or DEBUG-api-service.ts 'conversation history'.
-    2. For temporary variables, code snippets, or queries inserted for testing or debugging within existing files, add a clear comment at the relevant location: // FORTEST: 'Brief reason for testing/debugging' or // FIXME: 'Brief reason for temporary modification' 'conversation history'.
-        - *ATTENTION* If there are parts of the code that require future attention or are incomplete based on the immediate request, mark them clearly with // TODO: 'Reason' comments.
+    
+    1. When generating temporary files for testing (e.g., a simplified page to debug an issue), prefix the filename with FORTEST- or DEBUG-. Example: FORTEST-user-profile.html or DEBUG-api-service.ts.
+    2. For temporary code within existing files, add: // FORTEST: <brief reason> or // FIXME: <brief reason>. Remove before merging.
+
+    - *ATTENTION* If there are parts of the code that require future attention or are incomplete based on the immediate request, mark them clearly with // TODO: 'Reason' comments.
+
 ---
 
 ## ❓ Query Clarification Protocol
@@ -243,7 +240,6 @@ When new information about projects is provided:
 ## Copilot Instructions for Sustainable Digital Nomads Directory
 ### Overview
 This document provides detailed instructions for GitHub Copilot to assist in the development of the Sustainable Digital Nomads Directory project. It includes guidelines for memory management, task management, and directory navigation using PowerShell 7.
-### Task Management
-For this project, please adhere to the task management guidelines outlined in the "📑 **Rules Set**" section at the beginning of this document. This includes proactive task linking and updating task statuses as appropriate.
+
 ### Directory Navigation
-When navigating the project directory, please use PowerShell 7 and follow the best practices and examples provided in the "📑 **Directory Navigation with PowerShell 7**" section of this document.
+When navigating the project directory, use PowerShell 7 and follow the best practices in “5. Directory Navigation (Desktop Commander Requirements)”.
