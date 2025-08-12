@@ -79,10 +79,15 @@ async function runServerIntegrationTest() {
 
   log('\n🔧 Starting development server...', 'blue');
 
-  const serverProcess = spawn('npm', ['run', 'dev'], {
-    stdio: 'pipe',
-    shell: false // Avoid shell: true for security
-  });
+  const service = process.env.SERVICE || process.argv[2] || 'dev';
+  const serverProcess = spawn(
+    process.platform === 'win32' ? 'npm.cmd' : 'npm',
+    ['run', service],
+    {
+      stdio: 'pipe',
+      shell: false // Avoid shell: true for security
+    }
+  );
 
   let serverOutput = '';
   serverProcess.stdout.on('data', (data) => {
@@ -93,12 +98,21 @@ async function runServerIntegrationTest() {
     serverOutput += data.toString();
   });
 
+  serverProcess.on('error', (err) => {
+    log(`❌ Failed to start dev server: ${err.message}`, 'red');
+  });
   // Wait for server to start
   log('⏳ Waiting for server to start...', 'yellow');
   const serverReady = await waitForServer('http://localhost:3000');
 
   if (!serverReady) {
     log('❌ Server failed to start within 30 seconds', 'red');
+        const tail = serverOutput.slice(-2000);
+    if (tail) {
+      log('--- Server output (last 2000 chars) ---', 'yellow');
+      console.log(tail);
+      log('---------------------------------------', 'yellow');
+    }
     serverProcess.kill();
     return false;
   }
@@ -151,7 +165,7 @@ async function runServerIntegrationTest() {
     log('🎉 All endpoints are working correctly!', 'green');
     log('✅ Authentication system is properly integrated', 'green');
     log('\n🎯 Ready for manual testing:', 'blue');
-    log('  1. npm run dev', 'blue');
+    log(`  1. npm run ${service}`, 'blue');
     log('  2. Visit http://localhost:3000', 'blue');
     log('  3. Test registration: /register', 'blue');
     log('  4. Test login: /login', 'blue');

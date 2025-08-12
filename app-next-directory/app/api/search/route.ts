@@ -1,7 +1,9 @@
 import { client } from '@/lib/sanity/client';
-import { ApiResponseHandler } from '@/utils/api-response';
 import { groq } from 'next-sanity';
 import { NextRequest, NextResponse } from 'next/server';
+
+// <all lines removed – use ApiResponseHandler directly>
+const apiResponseModulePromise = import('@/utils/api-response');
 
 export async function GET(request: NextRequest) {
   try {
@@ -116,7 +118,7 @@ export async function GET(request: NextRequest) {
 
     const total = await client.fetch(countQuery);
 
-    const ApiResponseHandler = await getApiResponseHandler();
+    const { ApiResponseHandler } = await apiResponseModulePromise;
     return ApiResponseHandler.success({
       results: results,
       pagination: {
@@ -134,7 +136,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Search GET error:', error);
-    const ApiResponseHandler = await getApiResponseHandler();
+    const { ApiResponseHandler } = await apiResponseModulePromise;
     return ApiResponseHandler.error('Search failed'); // tests assert generic message only
   }
 }
@@ -210,7 +212,7 @@ const limit = Number(parseInt(rawLimit as string, 10)) || 12;
 
     const total = await client.fetch(countQuery);
 
-    const ApiResponseHandler = await getApiResponseHandler();
+    const { ApiResponseHandler } = await apiResponseModulePromise;
     return ApiResponseHandler.success({
       results,
       pagination: {
@@ -222,14 +224,15 @@ const limit = Number(parseInt(rawLimit as string, 10)) || 12;
       },
       filters: {
         query,
-        category: Array.isArray(body?.category) ? body.category : body?.category ? [body.category] : [],
-        destination: Array.isArray(body?.destination) ? body.destination : body?.destination ? [body.destination] : [],
+        category: body?.category ? (Array.isArray(body.category) ? body.category : [body.category]) : [],
+        destination: body?.destination ? (Array.isArray(body.destination) ? body.destination : [body.destination]) : [],
       },
-      // If you want to omit keys when not set, use: ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v && v.length))
+category: body?.category ? (Array.isArray(body.category) ? body.category : [body.category]) : [],
++        destination: body?.destination ? (Array.isArray(body.destin      // If you want to omit keys when not set, use: ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v && v.length))
     });
   } catch (error) {
     console.error('Search POST error:', error);
-    const ApiResponseHandler = await getApiResponseHandler();
+    const { ApiResponseHandler } = await apiResponseModulePromise;
     return ApiResponseHandler.error('Failed to perform search');
   }
 }

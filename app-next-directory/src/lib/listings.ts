@@ -1,6 +1,3 @@
-// @ts-nocheck
-/* eslint-disable */
-/* istanbul ignore file */
 // src/lib/listings.ts
 import listings from '../data/listings.json';
 import { Listing } from '../types/listings';
@@ -152,11 +149,17 @@ export type SanityListingRaw = {
 };
 
 export function isSanityListing(raw: any): raw is SanityListingRaw {
-  return (
-    typeof raw?._id === 'string' &&
-    typeof raw?.name === 'string' &&
-    raw?.slug && typeof raw.slug === 'object' && typeof raw.slug.current === 'string'
-  );
+  const hasId = typeof raw?._id === 'string' && raw._id.trim().length > 0;
+  const hasName =
+    typeof raw?.name === 'string' && raw.name.trim().length > 0;
+  const hasSlug =
+    raw?.slug &&
+    typeof raw.slug === 'object' &&
+    raw.slug._type === 'slug' &&
+    typeof raw.slug.current === 'string' &&
+    raw.slug.current.trim().length > 0;
+
+  return hasId && hasName && hasSlug;
 }
 
 export function mapSanityListingToCard(raw: unknown): AppListingCard {
@@ -167,18 +170,16 @@ export function mapSanityListingToCard(raw: unknown): AppListingCard {
     id: raw._id,
     name: raw.name || '',
     slug: typeof raw.slug === 'string' ? raw.slug : raw.slug?.current || '',
-    city: raw.city && raw.city.name ? {
+    city: raw.city ? {
+    id: raw._id || (raw as any).id || '',
+    name: raw.name || '',
+    slug: typeof raw.slug === 'string' ? raw.slug : raw.slug?.current || '',      country: raw.city.country ?? undefined
+    city: raw.city ? {
       id: raw.city._id || '',
       name: raw.city.name || '',
-      slug: typeof raw.city.slug === 'string' ? raw.city.slug : raw.city.slug?.current || '',
+      slug: raw.city.slug?.current || '',
       country: raw.city.country
-    } : null,
-    ecoFocusTags: Array.isArray(raw.ecoFocusTags) ? raw.ecoFocusTags.map((t: any) => typeof t === 'string' ? t : t?.name).filter(Boolean) : [],
-    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures) ? raw.digitalNomadFeatures.map((f: any) => typeof f === 'string' ? f : f?.name).filter(Boolean) : [],
-    priceRange: raw.priceRange,
-    website: raw.website || null,
-    primaryImage: raw.primaryImage,
-    galleryImages: raw.galleryImages,
+    } : null,    galleryImages: raw.galleryImages,
     shortDescription: raw.shortDescription,
     address: raw.address,
     category: raw.category,
@@ -216,19 +217,33 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
     shortDescription: raw.shortDescription,
     longDescription: raw.longDescription,
     lastVerifiedDate: (raw as any).lastVerifiedDate,
-    reviews: Array.isArray(raw.reviews) ? raw.reviews.map((review: any) => ({
-      id: review._id,
-      rating: review.rating,
-      comment: review.comment,
-      user: review.user ? { name: review.user.name, image: review.user.image } : undefined,
-      createdAt: review.createdAt,
-    })) : [],
-    amenities: (raw.amenities || []).map((amenity: any) => ({
-      _id: amenity._id,
-      name: amenity.name,
-      description: amenity.description,
-      badge: amenity.badge,
-    })),
+    reviews: Array.isArray(raw.reviews)
+      ? raw.reviews
+          .filter((review: any) => review && typeof review === 'object')
+          .map((review: any) => ({
+            id: review?._id ?? '',
+            rating: review?.rating ?? null,
+            comment: review?.comment ?? '',
+            user:
+              review?.user && typeof review.user === 'object'
+                ? {
+                    name: review.user?.name ?? '',
+                    image: review.user?.image ?? ''
+                  }
+                : undefined,
+            createdAt: review?.createdAt ?? null
+          }))
+      : [],
+    amenities: Array.isArray(raw.amenities)
+      ? raw.amenities
+          .filter((amenity: any) => amenity && typeof amenity === 'object')
+          .map((amenity: any) => ({
+            _id: amenity?._id ?? undefined,
+            name: amenity?.name ?? undefined,
+            description: amenity?.description ?? undefined,
+            badge: amenity?.badge ?? undefined
+          }))
+      : [],
     coworkingDetails: (raw as any).coworkingDetails,
     accommodationDetails: (raw as any).accommodationDetails,
     cafeDetails: (raw as any).cafeDetails,

@@ -74,5 +74,10 @@ module.exports = {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require('tailwindcss-animate'),
+require('@tailwindcss/forms')({ strategy: 'class' }),
+require('@tailwindcss/typography'),
+require('@tailwindcss/line-clamp')
+  ],
 }

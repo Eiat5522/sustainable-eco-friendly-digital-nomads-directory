@@ -54,7 +54,7 @@ export function MainNav({}: MainNavProps) {
 
           <div className="hidden md:flex items-center space-x-4">
             {/* Desktop Navigation */}
-            <div className="hidden md:flex md:items-center md:space-x-6 lg:space-x-8">
+            <div className="md:flex md:items-center md:space-x-6 lg:space-x-8">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive =
@@ -74,7 +74,7 @@ export function MainNav({}: MainNavProps) {
             </div>
 
             {/* Auth Button/User Menu - Desktop */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 ml-auto">
               {status === 'loading' ? (
                 <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
               ) : session ? (

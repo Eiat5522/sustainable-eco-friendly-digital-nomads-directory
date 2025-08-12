@@ -127,14 +127,14 @@ export default function UsersPage() {
     const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
   });
-  const getRoleBadgeVariant = (role: User['role']): 'default' | 'secondary' |
-    switch (role) {
-      case 'admin'; return 'destructive';
-      case 'editor'; return 'secondary';
-      case 'venueOwner'; return 'default';
-      case 'user'; return 'outline';
-      default: return 'default';
-    }
+    const getRoleBadgeVariant = (role: User['role']): 'default' | 'secondary' | 'outline' | 'destructive' => {
+    const map: Record<User['role'], 'default' | 'secondary' | 'outline' | 'destructive'> = {
+      admin: 'destructive',
+      editor: 'secondary',
+      venueOwner: 'default',
+      user: 'outline',
+    };
+    return map[role];
   };
 
   const getStatusBadgeVariant = (status: User['status']): 'default' | 'secondary' | 'outline' | 'destructive' => {

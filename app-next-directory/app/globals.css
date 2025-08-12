@@ -66,9 +66,12 @@ body {
   color: hsl(var(--foreground));
 }
 
-/* Add border only to elements that need it. Example: */
-.card, .button, .input, .popover, .list, .table, .modal {
-  @apply border border-border;
+@layer components {
+  /* Add border only to elements that need it. Example: */
+  .card, .button, .input, .popover, .list, .table, .modal {
+    @apply border;
+    border-color: hsl(var(--border));
+  }
 }
 
 

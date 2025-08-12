@@ -1,5 +1,6 @@
 {
   "name": "sustainable-eco-friendly-digital-nomads-directory-root",
+  "packageManager": "pnpm@8.15.0",
   "workspaces": [
     "app-next-directory",
     "sanity"
@@ -32,7 +33,6 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@babel/preset-react": "^7.27.1",
     "@sanity/client": "^7.8.2",
     "@sanity/code-input": "^5.2.1",
     "bcrypt": "^6.0.0",
@@ -49,7 +49,25 @@
       "ignoreMissing": [
         "eslint"
       ]
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@swc/core",
+      "@tailwindcss/oxide",
+      "esbuild",
+      "sharp",
+      "prisma",
+      "@prisma/engines",
+      "better-sqlite3",
+      "sqlite3",
+      "@parcel/watcher",
+      "fsevents",
+      "playwright",
+      "@playwright/test",
+      "node-gyp",
+      "canvas",
+      "node-sass",
+      "@next/swc"
+    ]
   },
   "@auth/mongodb-adapter": "^3.10.0",
   "@swc/jest": "^0.2.39",
@@ -63,5 +81,8 @@
   "jest-mock-extended": "^4.0.0",
   "ts-jest": "^29.4.0",
   "whatwg-fetch": "^3.6.20",
-  "node-fetch": "^3.3.2"
+  "node-fetch": "^3.3.2",
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
 }
