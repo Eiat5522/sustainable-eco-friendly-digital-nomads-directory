@@ -21,7 +21,7 @@ export function SearchInput({ value, onChange, placeholder = 'Search listings...
         onChange={handleChange}
         placeholder={placeholder}
         data-testid="search-input"
-        className="w-full px-4 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+        className="ui-input w-full px-4 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
       />
     </div>
   );

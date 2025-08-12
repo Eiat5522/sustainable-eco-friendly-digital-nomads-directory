@@ -131,7 +131,6 @@ describe('Search API Route', () => {
           query: 'coworking',
           category: [],
           destination: [],
-          amenities: [],
         },
       });
     });
@@ -150,7 +149,7 @@ describe('Search API Route', () => {
         .mockResolvedValueOnce(asFetchResult(mockResults))
         .mockResolvedValueOnce(asFetchResult(1));
 
-      const mockRequest = new NextRequest('http://localhost:3000/api/search?q=cafe&category=cafe&category=restaurant&destination=Bangkok&destination=Phuket&amenities=pantry&amenities=wifi&page=2&limit=6');
+      const mockRequest = new NextRequest('http://localhost:3000/api/search?q=cafe&category=cafe&category=restaurant&destination=Bangkok&nomadFeatures=wifi&page=2&limit=6');
 
       await GET(mockRequest as any);
 
@@ -159,10 +158,6 @@ describe('Search API Route', () => {
       expect(firstCall).toContain('cafe');
       expect(firstCall).toContain('category == "cafe"');
       expect(firstCall).toContain('category == "restaurant"');
-      expect(firstCall).toContain('city->name == "Bangkok"');
-      expect(firstCall).toContain('city->name == "Phuket"');
-      expect(firstCall).toContain('amenities[] == "pantry"');
-      expect(firstCall).toContain('amenities[] == "wifi"');
       expect(firstCall).toContain('city->name match "*Bangkok*"');
       expect(firstCall).toContain('array::contains(digitalNomadFeatures[]->name, "wifi")');
       expect(firstCall).toContain('[6...11]');

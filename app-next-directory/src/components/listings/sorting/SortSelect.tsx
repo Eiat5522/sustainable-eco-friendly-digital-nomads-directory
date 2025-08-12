@@ -33,7 +33,7 @@ export function SortSelect({ value, onChange, className = '' }: SortSelectProps)
         id="sort-select"
         value={currentValue}
         onChange={handleChange}
-        className="form-select rounded-lg border-gray-300 text-sm focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
+        className="ui-input form-select rounded-lg border-gray-300 text-sm focus:border-green-500 focus:ring-green-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300"
       >
         {DEFAULT_SORT_OPTIONS.map((option) => (
           <option key={`${option.field}-${option.direction}`} value={`${option.field}-${option.direction}`}>

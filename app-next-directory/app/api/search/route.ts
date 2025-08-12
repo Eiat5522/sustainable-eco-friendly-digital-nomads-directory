@@ -118,21 +118,22 @@ export async function GET(request: NextRequest) {
 
     // ApiResponseHandler is already available from static import
     return ApiResponseHandler.success({
-    // ApiResponseHandler is already available from static import        page,
+      results,
+      pagination: {
+        page,
         limit,
         total,
         totalPages: Math.ceil(total / limit),
-        hasMore: page * limit < total
+        hasMore: page * limit < total,
       },
       filters: {
         query,
         category,
-        destination
-      }
+        destination,
+      },
     });
   } catch (error) {
     console.error('Search GET error:', error);
-    const { ApiResponseHandler } = await apiResponseModulePromise;
     return ApiResponseHandler.error('Search failed'); // tests assert generic message only
   }
 }
@@ -208,7 +209,7 @@ const limit = Number(parseInt(rawLimit as string, 10)) || 12;
 
     const total = await client.fetch(countQuery);
 
-    const { ApiResponseHandler } = await apiResponseModulePromise;
+    import { ApiResponseHandler } from '@/lib/apiResponseHandler';
     return ApiResponseHandler.success({
       results,
       pagination: {
@@ -220,14 +221,11 @@ const limit = Number(parseInt(rawLimit as string, 10)) || 12;
       },
       filters: {
         query,
-       filters: {
-         query,
-         category: body?.category ? (Array.isArray(body.category) ? body.category : [body.category]) : [],
-         destination: body?.destination ? (Array.isArray(body.destination) ? body.destination : [body.destination]) : []
-       },
+        category: body?.category ? (Array.isArray(body.category) ? body.category : [body.category]) : [],
+        destination: body?.destination ? (Array.isArray(body.destination) ? body.destination : [body.destination]) : []
+      },
     });  } catch (error) {
     console.error('Search POST error:', error);
-    const { ApiResponseHandler } = await apiResponseModulePromise;
     return ApiResponseHandler.error('Failed to perform search');
   }
 }

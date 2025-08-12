@@ -45,7 +45,7 @@ export function ListingCard({ listing, searchQuery }: ListingCardProps) {
   const altText = listing.name?.trim() !== '' ? listing.name : 'Unnamed Listing';
 
   return (
-    <Link href={getListingUrl(listing)} className="block border rounded-lg overflow-hidden">
+    <Link href={getListingUrl(listing)} className="ui-card block border rounded-lg overflow-hidden">
       <div className="w-full h-48 relative">
         <Image
           src={imageUrl}

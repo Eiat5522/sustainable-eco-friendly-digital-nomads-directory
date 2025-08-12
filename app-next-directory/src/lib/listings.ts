@@ -62,9 +62,10 @@ function mapRawToListing(rawListing: any): Listing {
           _type: 'image',
           asset: { url },
         })) || []),
-    digitalNomadFeatures: (rawListing.digitalNomadFeatures || []).map((feature: any) =>
-      typeof feature === 'string' ? feature : feature?.name
-    ).filter(Boolean),
+    digitalNomadFeatures: (rawListing.digitalNomadFeatures || []).map((feature: any) => {
+      const name = typeof feature === 'string' ? feature : feature?.name;
+      return name ? name : null;
+    }).filter(Boolean) as string[],
     lastVerifiedDate: rawListing.lastVerifiedDate || '',
     location: rawListing.location || { lat: 0, lng: 0 },
   } as Listing;
@@ -75,13 +76,16 @@ export function getListingsByCity(city: string): Listing[] {
   const cityLower = city.trim().toLowerCase();
   return listings
     .filter(raw => {
-      const rawCity = typeof raw.city === 'string' ? raw.city : raw.city?.name;
-      const type = raw.category === 'activities' ? 'activity' : (raw.category || raw.type || 'coworking');
+      const rawCity = typeof raw.city === 'string'
+        ? raw.city
+        : (raw.city && typeof raw.city === 'object' && 'name' in raw.city
+            ? (raw.city as { name: string }).name
+            : undefined);
+      const type = raw.category === 'activities' ? 'activity' : (raw.category || 'coworking');
       return rawCity && rawCity.trim().toLowerCase() === cityLower && allowedTypes.has(type);
     })
     .map(mapRawToListing);
-}
-}
+    }
 
 type FilterOptions = {
   city?: string;
@@ -116,7 +120,7 @@ export function filterListings(options: FilterOptions): Listing[] {
   }
 
   // Finally enforce valid listing types
-  const validTypes = ['coworking', 'cafe', 'accommodation', 'activity', 'restaurant'] as const;
+  const validTypes = ['coworking', 'cafe', 'accommodation', 'activities', 'restaurant'] as const;
   return result.filter((l) => l.type !== undefined && validTypes.includes(l.type));
 }
 
@@ -169,30 +173,39 @@ export function isSanityListing(raw: any): raw is SanityListingRaw {
 export function mapSanityListingToCard(raw: unknown): AppListingCard {
   if (!isSanityListing(raw)) {
     throw new Error('Invalid Sanity listing object');
-    slug: typeof raw.slug === 'string' ? raw.slug : raw.slug?.current || '',
-    city: raw.city ? {
-      id: raw.city._id || '',
-      name: raw.city.name || '',
-      slug: raw.city.slug?.current || '',
-      country: raw.city.country
-    } : null,
-    ecoFocusTags: raw.ecoFocusTags,
-    digitalNomadFeatures: raw.digitalNomadFeatures,
+  }
+
+  // Helper to normalize tags/features
+  const normalizeTags = (tags: Array<string | { name?: string }> | undefined) =>
+    Array.isArray(tags)
+      ? tags.map((tag: any) => (typeof tag === 'string' ? tag : tag?.name)).filter(Boolean)
+      : [];
+
+  return {
+    id: raw._id,
+    name: raw.name,
+    slug: raw.slug.current, // AppListingCard expects string slug
+    city: raw.city
+      ? {
+          id: raw.city._id,
+          name: raw.city.name,
+          slug: raw.city.slug.current,
+          country: raw.city.country,
+        }
+      : null,
+    ecoFocusTags: normalizeTags(raw.ecoFocusTags),
+    digitalNomadFeatures: normalizeTags(raw.digitalNomadFeatures),
     priceRange: raw.priceRange,
     website: raw.website,
     primaryImage: raw.primaryImage,
-    galleryImages: raw.galleryImages,          country: raw.city.country
-        }
-      : null,
-    galleryImages: raw.galleryImages,
+    galleryImages: raw.galleryImages || [], // Ensure it's an array
     shortDescription: raw.shortDescription,
     address: raw.address,
     category: raw.category,
-    location: raw.location ? { lat: raw.location.lat, lng: raw.location.lng } : undefined,
+    location: raw.location
+      ? { lat: raw.location.lat, lng: raw.location.lng }
+      : undefined,
     type: raw.type,
-    ecoFocusTags: Array.isArray(raw.ecoFocusTags)
-      ? raw.ecoFocusTags.map((tag: any) => (typeof tag === 'string' ? tag : tag?.name))
-      : [],
   };
 }
 

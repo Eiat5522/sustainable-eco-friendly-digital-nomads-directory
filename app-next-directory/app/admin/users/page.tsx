@@ -138,7 +138,6 @@ export default function UsersPage() {
   // Defensive fallback for unexpected role values
   return map[role] ?? 'default';
 };
-  };
 
   const getStatusBadgeVariant = (status: User['status']): 'default' | 'secondary' | 'outline' | 'destructive' => {
     switch (status) {
