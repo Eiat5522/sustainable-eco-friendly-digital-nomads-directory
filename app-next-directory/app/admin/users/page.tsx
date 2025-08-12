@@ -128,13 +128,16 @@ export default function UsersPage() {
     return matchesSearch && matchesRole && matchesStatus;
   });
     const getRoleBadgeVariant = (role: User['role']): 'default' | 'secondary' | 'outline' | 'destructive' => {
-    const map: Record<User['role'], 'default' | 'secondary' | 'outline' | 'destructive'> = {
-      admin: 'destructive',
-      editor: 'secondary',
-      venueOwner: 'default',
-      user: 'outline',
-    };
-    return map[role];
+  // Use a record for clarity and type safety
+  const map: Record<User['role'], 'default' | 'secondary' | 'outline' | 'destructive'> = {
+    admin: 'destructive',
+    editor: 'secondary',
+    venueOwner: 'default',
+    user: 'outline',
+  };
+  // Defensive fallback for unexpected role values
+  return map[role] ?? 'default';
+};
   };
 
   const getStatusBadgeVariant = (status: User['status']): 'default' | 'secondary' | 'outline' | 'destructive' => {

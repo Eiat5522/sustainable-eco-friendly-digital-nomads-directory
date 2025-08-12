@@ -71,13 +71,55 @@ module.exports = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+      typography: ({ theme }) => ({
+        DEFAULT: {
+          css: {
+            color: 'hsl(var(--foreground))',
+            h1: { color: 'hsl(var(--foreground))' },
+            h2: { color: 'hsl(var(--foreground))' },
+            h3: { color: 'hsl(var(--foreground))' },
+            h4: { color: 'hsl(var(--foreground))' },
+            h5: { color: 'hsl(var(--foreground))' },
+            h6: { color: 'hsl(var(--foreground))' },
+            code: { color: 'hsl(var(--foreground))' },
+            pre: { color: 'hsl(var(--foreground))' },
+            blockquote: { color: 'hsl(var(--muted-foreground))' },
+            a: {
+              color: theme('colors.primary.DEFAULT'),
+              '&:hover': {
+                color: theme('colors.primary.foreground'),
+              },
+            },
+          },
+        },
+        invert: {
+          css: {
+            color: 'hsl(var(--foreground))',
+            h1: { color: 'hsl(var(--foreground))' },
+            h2: { color: 'hsl(var(--foreground))' },
+            h3: { color: 'hsl(var(--foreground))' },
+            h4: { color: 'hsl(var(--foreground))' },
+            h5: { color: 'hsl(var(--foreground))' },
+            h6: { color: 'hsl(var(--foreground))' },
+            code: { color: 'hsl(var(--foreground))' },
+            pre: { color: 'hsl(var(--foreground))' },
+            blockquote: { color: 'hsl(var(--muted-foreground))' },
+            a: {
+              color: theme('colors.primary.DEFAULT'),
+              '&:hover': {
+                color: theme('colors.primary.foreground'),
+              },
+            },
+          },
+        },
+      }),
   	}
   },
   plugins: [
     require('tailwindcss-animate'),
-require('@tailwindcss/forms')({ strategy: 'class' }),
-require('@tailwindcss/typography'),
-require('@tailwindcss/line-clamp')
+    require('@tailwindcss/forms')({ strategy: 'class' }),
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/line-clamp')
   ],
 }

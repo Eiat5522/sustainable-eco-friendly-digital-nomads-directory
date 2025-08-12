@@ -81,8 +81,20 @@
   "jest-mock-extended": "^4.0.0",
   "ts-jest": "^29.4.0",
   "whatwg-fetch": "^3.6.20",
-  "node-fetch": "^3.3.2",
   "devDependencies": {
+    "@auth/mongodb-adapter": "^3.10.0",
+    "@swc/jest": "^0.2.39",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react-hooks": "^8.0.1",
+    "@types/jest": "^30.0.0",
+    "@playwright/test": "^1.54.2",
+    "cross-fetch": "^4.1.0",
+    "eslint": "^9.29.0",
+    "eslint-config-next": "^15.3.4",
+    "jest-mock-extended": "^4.0.0",
+    "ts-jest": "^29.4.0",
+    "whatwg-fetch": "^3.6.20",
+    "node-fetch": "^3.3.2",
     "typescript": "^5.8.3"
   }
 }

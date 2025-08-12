@@ -7,9 +7,9 @@ import slugify from 'slugify';
 /**
  * TEMP legacy JSON -> Listing mapper (to be deprecated once all data served via Sanity DTO layer)
  */
+import { toSlug } from './utils/slug';
+
 function mapRawToListing(rawListing: any): Listing {
-  const toSlug = (name: string) =>
-  slugify(name, { lower: true, strict: true, locale: 'en' });
 
 // drop empty _id – let the backend supply a stable id
   const ecoTagsRaw = rawListing.ecoFocusTags || rawListing.ecoTags || [];
@@ -31,7 +31,7 @@ function mapRawToListing(rawListing: any): Listing {
     city: typeof rawListing.city === 'string'
       ? { name: rawListing.city, slug: { current: toSlug(rawListing.city) } }
       : rawListing.city || { name: '', slug: { current: '' } },
-    type: rawListing.category || rawListing.type || 'coworking',
+    type: rawListing.category === 'activities' ? 'activity' : (rawListing.category || rawListing.type || 'coworking'),
     address: rawListing.address || '',
     shortDescription: rawListing.shortDescription || '',
     longDescription: rawListing.longDescription || '',
@@ -71,15 +71,16 @@ function mapRawToListing(rawListing: any): Listing {
 }
 
 export function getListingsByCity(city: string): Listing[] {
+  const allowedTypes = new Set(['coworking', 'cafe', 'accommodation', 'activity', 'restaurant']);
+  const cityLower = city.trim().toLowerCase();
   return listings
-    .map(mapRawToListing)  // First map to typed Listing objects
-    .filter((listing) =>
-      !!listing.city &&
-      listing.city.name?.toLowerCase() === city.trim().toLowerCase() &&
-      (listing.type === 'coworking' ||
-        listing.type === 'cafe' ||
-        listing.type === 'accommodation')
-    );
+    .filter(raw => {
+      const rawCity = typeof raw.city === 'string' ? raw.city : raw.city?.name;
+      const type = raw.category === 'activities' ? 'activity' : (raw.category || raw.type || 'coworking');
+      return rawCity && rawCity.trim().toLowerCase() === cityLower && allowedTypes.has(type);
+    })
+    .map(mapRawToListing);
+}
 }
 
 type FilterOptions = {
@@ -146,6 +147,9 @@ export type SanityListingRaw = {
   category?: string;
   location?: { lat: number; lng: number };
   type?: string;
+  longDescription?: string;
+  reviews?: any[];
+  amenities?: any[];
 };
 
 export function isSanityListing(raw: any): raw is SanityListingRaw {
@@ -165,26 +169,30 @@ export function isSanityListing(raw: any): raw is SanityListingRaw {
 export function mapSanityListingToCard(raw: unknown): AppListingCard {
   if (!isSanityListing(raw)) {
     throw new Error('Invalid Sanity listing object');
-  }
-  return {
-    id: raw._id,
-    name: raw.name || '',
     slug: typeof raw.slug === 'string' ? raw.slug : raw.slug?.current || '',
-    city: raw.city ? {
-    id: raw._id || (raw as any).id || '',
-    name: raw.name || '',
-    slug: typeof raw.slug === 'string' ? raw.slug : raw.slug?.current || '',      country: raw.city.country ?? undefined
     city: raw.city ? {
       id: raw.city._id || '',
       name: raw.city.name || '',
       slug: raw.city.slug?.current || '',
       country: raw.city.country
-    } : null,    galleryImages: raw.galleryImages,
+    } : null,
+    ecoFocusTags: raw.ecoFocusTags,
+    digitalNomadFeatures: raw.digitalNomadFeatures,
+    priceRange: raw.priceRange,
+    website: raw.website,
+    primaryImage: raw.primaryImage,
+    galleryImages: raw.galleryImages,          country: raw.city.country
+        }
+      : null,
+    galleryImages: raw.galleryImages,
     shortDescription: raw.shortDescription,
     address: raw.address,
     category: raw.category,
     location: raw.location ? { lat: raw.location.lat, lng: raw.location.lng } : undefined,
-    type: raw.type
+    type: raw.type,
+    ecoFocusTags: Array.isArray(raw.ecoFocusTags)
+      ? raw.ecoFocusTags.map((tag: any) => (typeof tag === 'string' ? tag : tag?.name))
+      : [],
   };
 }
 
@@ -249,6 +257,6 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
     cafeDetails: (raw as any).cafeDetails,
     restaurantDetails: (raw as any).restaurantDetails,
     activitiesDetails: (raw as any).activitiesDetails,
-    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures) ? raw.digitalNomadFeatures.map((feature: any) => feature.name) : [],
+    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures) ? raw.digitalNomadFeatures.map((feature: any) => typeof feature === 'string' ? feature : feature?.name) : [],
   };
 }

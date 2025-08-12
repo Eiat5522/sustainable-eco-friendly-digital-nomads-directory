@@ -2,9 +2,7 @@ import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import { NextRequest, NextResponse } from 'next/server';
 
-// <all lines removed – use ApiResponseHandler directly>
-const apiResponseModulePromise = import('@/utils/api-response');
-
+import { ApiResponseHandler } from '@/utils/api-response';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -118,11 +116,9 @@ export async function GET(request: NextRequest) {
 
     const total = await client.fetch(countQuery);
 
-    const { ApiResponseHandler } = await apiResponseModulePromise;
+    // ApiResponseHandler is already available from static import
     return ApiResponseHandler.success({
-      results: results,
-      pagination: {
-        page,
+    // ApiResponseHandler is already available from static import        page,
         limit,
         total,
         totalPages: Math.ceil(total / limit),
@@ -224,13 +220,12 @@ const limit = Number(parseInt(rawLimit as string, 10)) || 12;
       },
       filters: {
         query,
-        category: body?.category ? (Array.isArray(body.category) ? body.category : [body.category]) : [],
-        destination: body?.destination ? (Array.isArray(body.destination) ? body.destination : [body.destination]) : [],
-      },
-category: body?.category ? (Array.isArray(body.category) ? body.category : [body.category]) : [],
-+        destination: body?.destination ? (Array.isArray(body.destin      // If you want to omit keys when not set, use: ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v && v.length))
-    });
-  } catch (error) {
+       filters: {
+         query,
+         category: body?.category ? (Array.isArray(body.category) ? body.category : [body.category]) : [],
+         destination: body?.destination ? (Array.isArray(body.destination) ? body.destination : [body.destination]) : []
+       },
+    });  } catch (error) {
     console.error('Search POST error:', error);
     const { ApiResponseHandler } = await apiResponseModulePromise;
     return ApiResponseHandler.error('Failed to perform search');

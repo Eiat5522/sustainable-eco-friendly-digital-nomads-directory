@@ -1,17 +1,15 @@
-import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { FlatCompat } from "@eslint/eslintrc";
 import { Linter } from 'eslint';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
 });
 
+/** @type {import('eslint').Linter.FlatConfig[]} */
 const eslintConfig = [
-  // Explicit ignores are required with flat config.
   {
     ignores: [
       "**/node_modules/**",
