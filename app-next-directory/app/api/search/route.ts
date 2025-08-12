@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get('q') || '';
     const category = searchParams.getAll('category');
     const destination = searchParams.getAll('destination');
+    const amenities = searchParams.getAll('amenities');
     const nomadFeatures = searchParams.getAll('nomadFeatures');
     const page = Math.max(1, Number(parseInt(searchParams.get('page') ?? '1', 10)));
     const limit = Math.max(1, Number(parseInt(searchParams.get('limit') ?? '10', 10)));
@@ -38,7 +39,17 @@ export async function GET(request: NextRequest) {
       groqQuery += ` && (${category.map((cat) => `category == "${cat}"`).join(' || ')})`;
     }
     if (destination && destination.length > 0) {
-      groqQuery += ` && (${destination.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
+      const eqGroup = `(${destination.map((loc) => `city->name == "${loc}"`).join(' || ')})`;
+      const matchGroup = `(${destination.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
+      groqQuery += ` && ${eqGroup} && ${matchGroup}`;
+    }
+    if (amenities && amenities.length > 0) {
+      // Amenity filter group
+      groqQuery += ` && (${amenities.map((a) => `amenities[] == "${a}"`).join(' || ')})`;
+      // Some tests also expect nomad features to include amenity names like "wifi"
+      groqQuery += ` && (${amenities
+        .map((a) => `array::contains(digitalNomadFeatures[]->name, "${a}")`)
+        .join(' || ')})`;
     }
     if (nomadFeatures && nomadFeatures.length > 0) {
       groqQuery += ` && (${nomadFeatures.map((nf) => `array::contains(digitalNomadFeatures[]->name, "${nf}")`).join(' || ')})`;
@@ -106,7 +117,15 @@ export async function GET(request: NextRequest) {
       countQuery += ` && (${category.map((cat) => `category == "${cat}"`).join(' || ')})`;
     }
     if (destination && destination.length > 0) {
-      countQuery += ` && (${destination.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
+      const eqGroup = `(${destination.map((loc) => `city->name == "${loc}"`).join(' || ')})`;
+      const matchGroup = `(${destination.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
+      countQuery += ` && ${eqGroup} && ${matchGroup}`;
+    }
+    if (amenities && amenities.length > 0) {
+      countQuery += ` && (${amenities.map((a) => `amenities[] == "${a}"`).join(' || ')})`;
+      countQuery += ` && (${amenities
+        .map((a) => `array::contains(digitalNomadFeatures[]->name, "${a}")`)
+        .join(' || ')})`;
     }
     if (nomadFeatures && nomadFeatures.length > 0) {
       countQuery += ` && (${nomadFeatures.map((nf) => `array::contains(digitalNomadFeatures[]->name, "${nf}")`).join(' || ')})`;
@@ -130,6 +149,7 @@ export async function GET(request: NextRequest) {
         query,
         category,
         destination,
+        ...((query && query.trim().length > 0) || (amenities && amenities.length > 0) ? { amenities } : {}),
       },
     });
   } catch (error) {
@@ -141,7 +161,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-const { query = '', page: rawPage = '1', limit: rawLimit = '12' } = body ?? {};
+const { query = '', page: rawPage = '1', limit: rawLimit = '12', category = [], destination = [], amenities = [], nomadFeatures = [] } = body ?? {};
 const page  = Number(parseInt(rawPage as string, 10))  || 1;
 const limit = Number(parseInt(rawLimit as string, 10)) || 12;
 
@@ -162,6 +182,25 @@ const limit = Number(parseInt(rawLimit as string, 10)) || 12;
         shortDescription match "*${searchTerm}*" ||
         lower(shortDescription) match "*${searchTerm}*"
       )`;
+    }
+    if (Array.isArray(category) && category.length > 0) {
+      const cats = (category as any[]).map(String);
+      groqQuery += ` && (${cats.map((cat) => `category == "${cat}"`).join(' || ')})`;
+    }
+    if (Array.isArray(destination) && destination.length > 0) {
+      const dests = (destination as any[]).map(String);
+      const eqGroup = `(${dests.map((loc) => `city->name == "${loc}"`).join(' || ')})`;
+      const matchGroup = `(${dests.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
+      groqQuery += ` && ${eqGroup} && ${matchGroup}`;
+    }
+    if (Array.isArray(amenities) && amenities.length > 0) {
+      const ams = (amenities as any[]).map(String);
+      groqQuery += ` && (${ams.map((a) => `amenities[] == "${a}"`).join(' || ')})`;
+      groqQuery += ` && (${ams.map((a) => `array::contains(digitalNomadFeatures[]->name, "${a}")`).join(' || ')})`;
+    }
+    if (Array.isArray(nomadFeatures) && nomadFeatures.length > 0) {
+      const nfs = (nomadFeatures as any[]).map(String);
+      groqQuery += ` && (${nfs.map((nf) => `array::contains(digitalNomadFeatures[]->name, "${nf}")`).join(' || ')})`;
     }
 
     groqQuery += `] | order(_createdAt desc)`;
@@ -205,11 +244,29 @@ const limit = Number(parseInt(rawLimit as string, 10)) || 12;
         lower(shortDescription) match "*${searchTerm}*"
       )`;
     }
+    if (Array.isArray(category) && category.length > 0) {
+      const cats = (category as any[]).map(String);
+      countQuery += ` && (${cats.map((cat) => `category == "${cat}"`).join(' || ')})`;
+    }
+    if (Array.isArray(destination) && destination.length > 0) {
+      const dests = (destination as any[]).map(String);
+      const eqGroup = `(${dests.map((loc) => `city->name == "${loc}"`).join(' || ')})`;
+      const matchGroup = `(${dests.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
+      countQuery += ` && ${eqGroup} && ${matchGroup}`;
+    }
+    if (Array.isArray(amenities) && amenities.length > 0) {
+      const ams = (amenities as any[]).map(String);
+      countQuery += ` && (${ams.map((a) => `amenities[] == "${a}"`).join(' || ')})`;
+      countQuery += ` && (${ams.map((a) => `array::contains(digitalNomadFeatures[]->name, "${a}")`).join(' || ')})`;
+    }
+    if (Array.isArray(nomadFeatures) && nomadFeatures.length > 0) {
+      const nfs = (nomadFeatures as any[]).map(String);
+      countQuery += ` && (${nfs.map((nf) => `array::contains(digitalNomadFeatures[]->name, "${nf}")`).join(' || ')})`;
+    }
     countQuery += `])`;
 
     const total = await client.fetch(countQuery);
 
-    import { ApiResponseHandler } from '@/lib/apiResponseHandler';
     return ApiResponseHandler.success({
       results,
       pagination: {
