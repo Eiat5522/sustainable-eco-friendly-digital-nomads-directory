@@ -11,8 +11,11 @@ const signInFormSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
+import { getProviders } from "next-auth/react";
+type ProvidersMap = NonNullable<Awaited<ReturnType<typeof getProviders>>>;
+
 interface SignInFormProps {
-  providers: Record<string, any>;
+  providers: ProvidersMap | null;
   callbackUrl?: string;
 }
 

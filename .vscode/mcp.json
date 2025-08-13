@@ -13,13 +13,15 @@
   //    },
     "task-master-ai": {
       "command": "npx",
-      "args": ["-y", "--package=task-master-ai@<PINNED_VERSION>", "task-master-ai"],
+      "args": ["-y", "--package=task-master-ai@0.24.0", "task-master-ai"],
       "env": {
         "GOOGLE_API_KEY": "${env:GOOGLE_API_KEY}",
-        "OPENROUTER_API_KEY": "${env:OPENROUTER_API_KEY}"
+        "OPENROUTER_API_KEY": "${env:OPENROUTER_API_KEY}",
+        "TASK_MASTER_AI_VERSION": "0.24.0"
       },
       "type": "stdio"
-    },    "chroma": {
+    },
+    "chroma": {
         "command": "uvx",
         "args": [
             "chroma-mcp-server",

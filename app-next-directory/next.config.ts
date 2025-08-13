@@ -1,4 +1,10 @@
+// <reference types="webpack" />
 import type { NextConfig } from 'next'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const APP_DIR = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+import type { Configuration } from 'webpack'
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -18,7 +24,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  webpack(config: any) {
+  webpack(config: Configuration) {
+    // Ensure @ alias resolves to this app's src directory
+    config.resolve = config.resolve || {}
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      '@': path.resolve(APP_DIR, 'src'),
+    }
+
     config.module.rules.push({
       test: /\.svg$/i,
       issuer: /\.[jt]sx?$/,

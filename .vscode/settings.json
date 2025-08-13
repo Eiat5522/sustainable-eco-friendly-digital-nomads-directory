@@ -41,5 +41,5 @@
   "[javascript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
   },
-  "terminal.integrated.cwd": "${workspaceFolder}"
+  "terminal.integrated.cwd": "${workspaceFolder}/app-next-directory"
 }

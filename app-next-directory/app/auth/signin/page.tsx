@@ -1,25 +1,34 @@
-import { signIn } from "next-auth/react";
-import SignInForm from '@/components/auth/SignInForm';
-import { getProviders } from 'next-auth/react';
 import type { Metadata } from 'next';
-
+import SignInProviders from './SignInProviders';
 
 export const metadata: Metadata = {
   title: 'Sign In - Eco-Friendly Digital Nomads',
   description: 'Sign in to your account on the Sustainable Eco-Friendly Digital Nomads Directory',
 };
 
-async function SignInPage({
+function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
+  // Next.js App Router passes `searchParams` as a plain object, not a Promise.
+  searchParams?: { callbackUrl?: string | string[]; error?: string | string[] };
 }) {
-  const providers = await getProviders();
-  const resolvedSearchParams = await searchParams;
-  const callbackUrl = resolvedSearchParams.callbackUrl || '/';
-  const error = resolvedSearchParams.error;
-
-  return (
+  // This is a Server Component; derive values synchronously and pass to the client component.
+  const rawCallback =
+    Array.isArray(searchParams?.callbackUrl)
+      ? searchParams.callbackUrl[0]
+      : searchParams.callbackUrl;
+  // Prevent open redirects: only allow same-origin relative paths.
+  const callbackUrl =
+    typeof rawCallback === 'string' &&
+    rawCallback.startsWith('/') &&
+    !rawCallback.startsWith('//')
+      ? rawCallback
+      : '/';
+  const rawError =
+    Array.isArray(searchParams?.error)
+      ? searchParams.error[0]
+      : searchParams.error;
+  const error = typeof rawError === 'string' ? rawError : undefined;  return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
         <div className="text-center">
@@ -37,9 +46,7 @@ async function SignInPage({
             </div>
           )}
         </div>
-
-        <SignInForm providers={providers || {}} callbackUrl={callbackUrl} />
-
+        <SignInProviders callbackUrl={callbackUrl} error={error} />
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-600">
             Don't have an account?{' '}

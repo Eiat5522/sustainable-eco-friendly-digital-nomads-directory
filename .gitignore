@@ -157,4 +157,4 @@ app-next-directory/docs/temp/temp_gemini_session.txt
 .taskmaster/config.json
 .vscode/mcp.json
 # Memory bank artifacts (ignore entire directory to avoid committing chat transcripts)
-memory-bank/
+**/memory-bank/

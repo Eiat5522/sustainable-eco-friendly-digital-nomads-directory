@@ -14,7 +14,12 @@ export const Popover: React.FC<PopoverProps> = ({ open, onOpenChange, className,
   );
 };
 
+import { Slot } from "@radix-ui/react-slot";
+
 export const PopoverTrigger = ({ asChild, children, ...props }: any) => {
+  if (asChild) {
+    return <Slot {...props}>{children}</Slot>;
+  }
   return (
     <button type="button" {...props}>
       {children}

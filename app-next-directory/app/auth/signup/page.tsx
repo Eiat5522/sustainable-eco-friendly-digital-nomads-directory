@@ -1,5 +1,6 @@
-// Sign-up page component
+// Next Auth Sign-up page component
 import SignUpForm from '@/components/auth/SignUpForm';
+
 
 export const metadata = {
   title: 'Create Account - Eco-Friendly Digital Nomads',
