@@ -37,9 +37,9 @@ export default function ScrollToTopButton() {
       className="ui-button fixed bottom-4 right-4 z-50 bg-green-500 text-white p-3 rounded-full shadow-md hover:bg-green-600 transition-colors"
       aria-label="Scroll to Top"
     >
-      <svg className="icon"
+      <svg
+        className="icon h-6 w-6"
         xmlns="http://www.w3.org/2000/svg"
-        className="h-6 w-6"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"

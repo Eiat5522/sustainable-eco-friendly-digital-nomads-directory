@@ -1,7 +1,7 @@
 'use client';
 
 import { ListingGrid } from '@/components/listings/ListingGrid';
-import DigitalNomadSearchFilter from '@/components/ui/DigitalNomadSearchFilter';
+import DigitalNomadSearch from '@/components/ui/DigitalNomadSearch';
 import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { WorldMapDemo } from '@/components/ui/world-map-demo';
@@ -10,14 +10,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import React, { useCallback, useState } from 'react';
 
-// Type definitions
+// Types
 interface SearchResult {
   id: string;
   title: string;
-  // Add other result properties as needed
 }
-
-import type { MultiSelectFilters } from '@/components/ui/DigitalNomadSearchFilter';
 
 interface SearchPagination {
   page: number;
@@ -26,12 +23,19 @@ interface SearchPagination {
   hasMore: boolean;
 }
 
+// Filters payload emitted by DigitalNomadSearch
+interface DnFilters {
+  searchText: string;
+  destinations: string[];
+  categories: string[];
+  amenities: string[];
+}
+
 function SearchResultsComponent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialQuery = searchParams?.get('q') || '';
 
-  // State with proper typing
   const [query, setQuery] = useState<string>(initialQuery);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -39,95 +43,105 @@ function SearchResultsComponent() {
     page: 1,
     total: 0,
     totalPages: 0,
-    hasMore: false
+    hasMore: false,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchResults = useCallback(async (searchQuery: string, page = 1, filters: Record<string, string | string[]> = {}) => {
-    if (!searchQuery.trim() && Object.values(filters).every(v => (Array.isArray(v) ? v.length === 0 : !v))) {
-      setResults([]);
-      setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    const queryParams = new URLSearchParams();
-    queryParams.set('q', searchQuery);
-    queryParams.set('page', page.toString());
-    queryParams.set('limit', '12');
-    Object.entries(filters).forEach(([key, value]) => {
-      if (Array.isArray(value)) {
-        (value as string[]).forEach((v) => v && queryParams.append(key, v));
-      } else if (value) {
-        queryParams.set(key, value as string);
+  const fetchResults = useCallback(
+    async (
+      searchQuery: string,
+      page = 1,
+      filters: Record<string, string | string[]> = {}
+    ) => {
+      if (
+        !searchQuery.trim() &&
+        Object.values(filters).every((v) => (Array.isArray(v) ? v.length === 0 : !v))
+      ) {
+        setResults([]);
+        setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
+        return;
       }
-    });
-
-    try {
-      const response = await fetch(`/api/search?${queryParams.toString()}`);
-      
-      if (!response.ok) {
-        throw new Error('Search request failed');
-      }
-
-      const data = await response.json();
-      
-      if (data.success) {
-        setResults(data.data.results || []);
-        setPagination(data.data.pagination || { page: 1, total: 0, totalPages: 0, hasMore: false });
-      } else {
-        throw new Error(data.error || 'Search failed');
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Unknown error occurred'));
-      setResults([]);
-      setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  const handleQueryChange = useCallback((newQuery: string) => {
-    setQuery(newQuery);
-    const queryParams = new URLSearchParams(searchParams?.toString());
-    queryParams.set('q', newQuery);
-    router.push(`/search?${queryParams.toString()}`);
-  }, [router, searchParams]);
-
-  const handleFiltersChange = useCallback((filters: MultiSelectFilters) => {
-    const queryParams = new URLSearchParams(searchParams?.toString());
-    queryParams.delete('destination');
-    queryParams.delete('category');
-    queryParams.delete('amenities');
-    Object.entries(filters).forEach(([key, values]) => {
-      if (Array.isArray(values) && values.length > 0) {
-        (values as string[]).forEach((value) => {
-          queryParams.append(key, value);
-        });
-      }
-    });
-    queryParams.set('page', '1');
-    router.push(`/search?${queryParams.toString()}`);
-  }, [router, searchParams]);
-
-  const handlePageChange = useCallback((newPage: number) => {
-    setCurrentPage(newPage);
-    const currentFilters: Record<string, string | string[]> = {};
-    searchParams?.forEach((value, key) => {
-      const existing = currentFilters[key];
-      if (existing) {
-        if (Array.isArray(existing)) {
-          (existing as string[]).push(value);
-        } else {
-          currentFilters[key] = [existing as string, value];
+      setIsLoading(true);
+      setError(null);
+      const queryParams = new URLSearchParams();
+      queryParams.set('q', searchQuery);
+      queryParams.set('page', page.toString());
+      queryParams.set('limit', '12');
+      Object.entries(filters).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          (value as string[]).forEach((v) => v && queryParams.append(key, v));
+        } else if (value) {
+          queryParams.set(key, value as string);
         }
-      } else {
-        currentFilters[key] = value;
+      });
+
+      try {
+        const response = await fetch(`/api/search?${queryParams.toString()}`);
+        if (!response.ok) throw new Error('Search request failed');
+        const data = await response.json();
+        if (data.success) {
+          setResults(data.data.results || []);
+          setPagination(
+            data.data.pagination || { page: 1, total: 0, totalPages: 0, hasMore: false }
+          );
+        } else {
+          throw new Error(data.error || 'Search failed');
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Unknown error occurred'));
+        setResults([]);
+        setPagination({ page: 1, total: 0, totalPages: 0, hasMore: false });
+      } finally {
+        setIsLoading(false);
       }
-    });
-    fetchResults(query, newPage, currentFilters);
-  }, [query, fetchResults, searchParams]);
+    },
+    []
+  );
+
+  const handleFiltersChange = useCallback(
+    (filters: DnFilters) => {
+      const queryParams = new URLSearchParams(searchParams?.toString());
+      // reset relevant params
+      queryParams.delete('destination');
+      queryParams.delete('category');
+      queryParams.delete('amenities');
+      // update q from searchText when provided
+      if (typeof filters.searchText === 'string') {
+        queryParams.set('q', filters.searchText);
+      }
+      // map plural keys -> API param keys
+      const unique = (arr: string[]) => Array.from(new Set(arr.map((v) => v.trim()).filter(Boolean)));
+      unique(filters.destinations || []).forEach((v) => queryParams.append('destination', v));
+      unique(filters.categories || []).forEach((v) => queryParams.append('category', v));
+      unique(filters.amenities || []).forEach((v) => queryParams.append('amenities', v));
+
+      queryParams.set('page', '1');
+      router.push(`/search?${queryParams.toString()}`);
+    },
+    [router, searchParams]
+  );
+
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      setCurrentPage(newPage);
+      const currentFilters: Record<string, string | string[]> = {};
+      searchParams?.forEach((value, key) => {
+        const existing = currentFilters[key];
+        if (existing) {
+          if (Array.isArray(existing)) {
+            (existing as string[]).push(value);
+          } else {
+            currentFilters[key] = [existing as string, value];
+          }
+        } else {
+          currentFilters[key] = value;
+        }
+      });
+      fetchResults(query, newPage, currentFilters);
+    },
+    [query, fetchResults, searchParams]
+  );
 
   React.useEffect(() => {
     const currentFilters: Record<string, string | string[]> = {};
@@ -158,11 +172,8 @@ function SearchResultsComponent() {
       </div>
 
       <div className="mb-8">
+        <DigitalNomadSearch onFiltersChange={handleFiltersChange} />
         <h1 className="text-3xl font-bold mb-4">Search Results</h1>
-        <DigitalNomadSearchFilter
-          onSearch={handleQueryChange}
-          onFilterChange={handleFiltersChange}
-        />
       </div>
 
       <div className="w-full">
@@ -174,12 +185,7 @@ function SearchResultsComponent() {
         </div>
 
         {error && (
-          <Alert
-            type="error"
-            title="Search Error"
-            message={error.message}
-            className="mb-6"
-          />
+          <Alert type="error" title="Search Error" message={error.message} className="mb-6" />
         )}
 
         <AnimatePresence mode="wait">
@@ -200,8 +206,8 @@ function SearchResultsComponent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              {/* Map SearchResult[] to Listing[] or cast as any[] for ListingGrid */}
-              <ListingGrid listings={results as any[]} />
+              {/* Map API results to AppListingCard to satisfy ListingGrid typing */}
+              <ListingGrid listings={results as unknown as import('@/types/appView').AppListingCard[]} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -236,7 +242,7 @@ const SearchResultsWithSuspense = dynamic(
   () => Promise.resolve(SearchResultsComponent),
   {
     ssr: false,
-    loading: () => <div>Loading...</div>
+    loading: () => <div>Loading...</div>,
   }
 );
 

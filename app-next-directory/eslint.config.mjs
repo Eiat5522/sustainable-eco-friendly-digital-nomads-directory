@@ -32,5 +32,39 @@ const eslintConfig = [
     },
   },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/ban-ts-comment": ["warn", { "ts-expect-error": "allow-with-description", "minimumDescriptionLength": 3 }],
+      "@typescript-eslint/no-empty-object-type": "warn",
+      "@typescript-eslint/prefer-as-const": "warn",
+      "@typescript-eslint/no-require-imports": "warn",
+      "react-hooks/rules-of-hooks": "warn",
+      "react/no-unescaped-entities": "warn",
+      "react/display-name": "warn",
+      "@next/next/no-html-link-for-pages": "warn",
+      "import/no-anonymous-default-export": "warn",
+      "no-var": "warn",
+      "prefer-const": "warn",
+      "react/jsx-key": "warn",
+      "react/jsx-no-comment-textnodes": "warn"
+    }
+  },
+  {
+    files: ["**/*.test.*", "**/__tests__/**/*", "**/tests/**/*"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "react/display-name": "off"
+    }
+  },
+  {
+    files: ["**/*.d.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-empty-object-type": "off"
+    }
+  },
 ];
 export default eslintConfig;

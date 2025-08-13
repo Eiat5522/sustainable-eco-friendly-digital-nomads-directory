@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import { NextRequest, NextResponse } from 'next/server';
-
 import { ApiResponseHandler } from '@/utils/api-response';
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -135,7 +136,6 @@ export async function GET(request: NextRequest) {
 
     const total = await client.fetch(countQuery);
 
-    // ApiResponseHandler is already available from static import
     return ApiResponseHandler.success({
       results,
       pagination: {
@@ -149,7 +149,8 @@ export async function GET(request: NextRequest) {
         query,
         category,
         destination,
-        ...((query && query.trim().length > 0) || (amenities && amenities.length > 0) ? { amenities } : {}),
+        amenities: amenities || [],
+        nomadFeatures: nomadFeatures || [],
       },
     });
   } catch (error) {
@@ -159,6 +160,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: Request) {
+  // ApiResponseHandler statically imported at top so Jest mock applies
   try {
     const body = await request.json();
 const { query = '', page: rawPage = '1', limit: rawLimit = '12', category = [], destination = [], amenities = [], nomadFeatures = [] } = body ?? {};

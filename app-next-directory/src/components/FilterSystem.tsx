@@ -27,12 +27,11 @@ interface FilterSystemProps {
 }
 
 // SVG icons for common filter categories
-import {
-  AmenitiesIcon,
-  SustainabilityIcon,
-  LocationIcon,
-  PriceIcon
-} from './icons';
+// Note: icons package currently exports only a subset; provide fallbacks
+import { LeafIcon as AmenitiesIcon } from './icons';
+import { LeafIcon as SustainabilityIcon } from './icons';
+import { MapPinIcon as LocationIcon } from './icons';
+import { LeafIcon as PriceIcon } from './icons';
 
 const filterIcons: Record<string, React.ComponentType> = {
   amenities: AmenitiesIcon,

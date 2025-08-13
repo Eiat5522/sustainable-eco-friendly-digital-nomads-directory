@@ -94,10 +94,10 @@ export default function SignUpForm({}: SignUpFormProps) {
       <div className="rounded-md bg-green-50 p-4 mt-6">
         <div className="flex">
           <div className="flex-shrink-0">
-            <svg className="icon" 
-              className="h-5 w-5 text-green-400" 
-              xmlns="http://www.w3.org/2000/svg" 
-              viewBox="0 0 20 20" 
+            <svg
+              className="icon h-5 w-5 text-green-400"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
               fill="currentColor"
             >
               <path 
@@ -124,10 +124,10 @@ export default function SignUpForm({}: SignUpFormProps) {
         <div className="rounded-md bg-red-50 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="icon" 
-                className="h-5 w-5 text-red-400" 
-                xmlns="http://www.w3.org/2000/svg" 
-                viewBox="0 0 20 20" 
+              <svg
+                className="icon h-5 w-5 text-red-400"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
                 fill="currentColor"
               >
                 <path 

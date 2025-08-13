@@ -41,5 +41,5 @@
   "[javascript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
   },
-  "terminal.integrated.cwd": "sustainable-eco-friendly-digital-nomads-directory"
+  "terminal.integrated.cwd": "${workspaceFolder}"
 }

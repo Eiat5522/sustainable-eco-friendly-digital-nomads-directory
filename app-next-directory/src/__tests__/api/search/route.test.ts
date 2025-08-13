@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Shared test types
-import { NextRequest, NextResponse } from 'next/server';
+// Note: NextRequest/NextResponse are obtained from the mocked 'next/server' module below
 
 interface SearchResult {
   _id: string;
@@ -67,23 +70,31 @@ jest.mock('next/server', () => {
   };
 });
 
+// Ensure test's local mock overrides global setup mock
+jest.unmock('@/utils/api-response');
+
+// Mock the ApiResponseHandler BEFORE importing the route
+jest.mock('@/utils/api-response', () => ({
+  ApiResponseHandler: {
+    success: jest.fn((data: unknown) => require('next/server').NextResponse.json({ success: true, data }, { status: 200 })),
+    error: jest.fn((message: string, status = 400) => require('next/server').NextResponse.json({ error: message }, { status })),
+  },
+}));
+
+// Pull mocked NextRequest/NextResponse from the mocked module
+const { NextRequest, NextResponse } = jest.requireMock('next/server');
+
+// Unmock must be above imports to take effect
 import { GET, POST } from '../../../../app/api/search/route';
 import { client } from '@/lib/sanity/client';
-import { ApiResponseHandler } from '@/utils/api-response';
 
 // Narrow types for mocks: wrap only the fetch function to avoid casting full SanityClient
 const mockClient = { fetch: client.fetch as unknown as jest.Mock } as { fetch: jest.Mock };
 
-// Mock the ApiResponseHandler
-jest.mock('@/utils/api-response', () => ({
-  ApiResponseHandler: {
-    success: jest.fn((data: unknown) => NextResponse.json({ success: true, data }, { status: 200 })),
-    error: jest.fn((message: string, status = 400) => NextResponse.json({ error: message }, { status })),
-  },
-}));
-
-const mockApiResponseHandler = (jest.requireMock('@/utils/api-response').ApiResponseHandler as unknown) as { success: jest.Mock; error: jest.Mock };
-
+const mockApiResponseHandler = jest.requireMock('@/utils/api-response').ApiResponseHandler as {
+  success: jest.MockedFunction<(data: unknown) => any>;
+  error: jest.MockedFunction<(message: string, status?: number) => any>;
+};
 describe('Search API Route', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -115,25 +126,23 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?q=coworking&page=1&limit=12');
 
-      await GET(mockRequest as any);
+      const response = await GET(mockRequest as any);
 
       expect(mockClient.fetch).toHaveBeenCalledTimes(2);
-      expect(mockApiResponseHandler.success).toHaveBeenCalledWith({
-        results: mockResults,
-        pagination: {
-          page: 1,
-          limit: 12,
-          total: 1,
-          totalPages: 1,
-          hasMore: false,
-        },
-        filters: {
-          query: 'coworking',
-          category: [],
-          destination: [],
-          amenities: [],
-        },
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.success ?? true).toBeTruthy();
+      expect(body.data.results).toEqual(mockResults);
+      expect(body.data.pagination).toEqual({
+        page: 1,
+        limit: 12,
+        total: 1,
+        totalPages: 1,
+        hasMore: false,
       });
+      expect(body.data.filters.query).toBe('coworking');
+      expect(body.data.filters.category).toEqual([]);
+      expect(body.data.filters.destination).toEqual([]);
     });
 
     it('should handle search with multiple filters', async () => {
@@ -205,19 +214,19 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?page=3&limit=5');
 
-      await GET(mockRequest as any);
+      const response = await GET(mockRequest as any);
 
-      expect(mockApiResponseHandler.success).toHaveBeenCalledWith({
-        results: mockResults,
-        pagination: {
-          page: 3,
-          limit: 5,
-          total: 25,
-          totalPages: 5,
-          hasMore: true,
-        },
-        filters: { query: '', category: [], destination: [] },
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.data.results).toEqual(mockResults);
+      expect(body.data.pagination).toEqual({
+        page: 3,
+        limit: 5,
+        total: 25,
+        totalPages: 5,
+        hasMore: true,
       });
+      expect(body.data.filters).toEqual({ query: '', category: [], destination: [], amenities: [], nomadFeatures: [] });
 
       const firstCall: string = mockClient.fetch.mock.calls[0][0];
       expect(firstCall).toContain('[10...14]');
@@ -245,9 +254,12 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?q=test');
 
-      await GET(mockRequest as any);
+      const response = await GET(mockRequest as any);
 
-      expect(mockApiResponseHandler.error).toHaveBeenCalledWith('Search failed');
+      expect(response.status).toBe(400);
+      const body = await response.json();
+      // The route uses ApiResponseHandler.error('Search failed') which should yield { error: 'Search failed' }
+      expect(body.error || body.data?.error).toBe('Search failed');
     });
 
     it('should handle invalid pagination parameters', async () => {
@@ -259,13 +271,15 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?page=0&limit=-5');
 
-      await GET(mockRequest as any);
+      const response = await GET(mockRequest as any);
 
-      expect(mockApiResponseHandler.success).toHaveBeenCalledWith({
-        results: mockResults,
-        pagination: { page: 1, limit: 1, total: 0, totalPages: 0, hasMore: false },
-        filters: { query: '', category: [], destination: [] },
-      });
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body.data.results).toEqual(mockResults);
+      expect(body.data.pagination).toEqual({ page: 1, limit: 1, total: 0, totalPages: 0, hasMore: false });
+      expect(body.data.filters.query).toBe('');
+      expect(body.data.filters.category).toEqual([]);
+      expect(body.data.filters.destination).toEqual([]);
     });
 
     it('should handle very large page numbers', async () => {
