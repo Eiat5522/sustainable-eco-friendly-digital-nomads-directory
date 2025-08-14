@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -87,6 +87,31 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   label,
 }) => {
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  // Debounce the query to avoid expensive filtering on each keypress
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query.trim()), 200);
+    return () => clearTimeout(t);
+  }, [query]);
+
+  // Derive filtered options (case-insensitive match on label or value)
+  const filteredOptions = options.filter((opt) => {
+    if (!debouncedQuery) return true;
+    const q = debouncedQuery.toLowerCase();
+    return (
+      opt.label.toLowerCase().includes(q) ||
+      opt.value.toLowerCase().includes(q)
+    );
+  });
+
+  // Ensure selected items are visible in the list even if they don't match the query
+  const visibleOptions = Array.from(
+    new Map(
+      [...filteredOptions, ...options.filter((o) => selectedValues.includes(o.value))].map((o) => [o.value, o])
+    ).values()
+  );
 
   const onNativeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const values = Array.from(e.target.selectedOptions).map((o) => o.value);
@@ -122,6 +147,18 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
 
       <PopoverContent className="w-[300px] p-3 border border-gray-200 shadow-lg bg-white" align="start">
         <label className="sr-only" id={`${label}-label`}>{label}</label>
+
+        <div className="mb-2">
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search..."
+            className="w-full p-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200"
+            aria-label={`Filter ${label}`}
+          />
+        </div>
+
         <select
           aria-labelledby={`${label}-label`}
           multiple
@@ -129,12 +166,13 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           onChange={onNativeChange}
           className="w-full h-48 overflow-auto p-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200"
         >
-          {options.map((opt) => (
+          {visibleOptions.map((opt) => (
             <option key={opt.value} value={opt.value} className="flex items-center gap-2">
               {opt.label}
             </option>
           ))}
         </select>
+
         <div className="mt-2 flex justify-end">
           <button
             type="button"

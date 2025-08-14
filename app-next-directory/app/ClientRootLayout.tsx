@@ -39,27 +39,49 @@ function ToolbarA11yPatch() {
       (anchor as HTMLElement).setAttribute('inert', '');
     };
 
+    // Track anchors we already observe for attribute changes
+    const observed = new WeakSet<Element>();
+
     const patchAll = () => {
       document
         .querySelectorAll('stagewise-companion-anchor')
         .forEach(apply);
     };
 
-    // Run once on mount
+    // Observe only the anchors for attribute re-introductions
+    const observeAnchors = () => {
+      document
+        .querySelectorAll('stagewise-companion-anchor')
+        .forEach((anchor) => {
+          if (!observed.has(anchor)) {
+            observer.observe(anchor, {
+              attributes: true,
+              attributeFilter: ['role', 'tabindex', 'aria-hidden', 'inert'],
+              subtree: false,
+            });
+            observed.add(anchor);
+          }
+        });
+    };
+
+    // Observe DOM for late inserts globally; do not listen to attributes globally
+    const observer = new MutationObserver((records) => {
+      if (records.some((r) => r.type === 'childList')) {
+        patchAll();
+        observeAnchors();
+      }
+      for (const r of records) {
+        if (r.type === 'attributes') {
+          const anchor = (r.target as Element).closest?.('stagewise-companion-anchor');
+          if (anchor) apply(anchor);
+        }
+      }
+    });
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    // Run once on mount (after observer creation) and attach attribute observers
     patchAll();
-
-    // Observe DOM for late inserts or attribute re-introductions
-    const observer = new MutationObserver(() => {
-      patchAll();
-    });
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['role', 'tabindex'],
-    });
-
-    return () => observer.disconnect();
+    observeAnchors();    return () => observer.disconnect();
   }, []);
   return null;
 }

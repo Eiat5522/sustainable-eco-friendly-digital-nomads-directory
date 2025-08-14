@@ -13,7 +13,7 @@
     "test:ci": "jest --ci --coverage --watchAll=false",
     "codegen:sanity": "npx @sanity/codegen --schema sanity/schemas --output sanity/sanity.types.ts",
     "typecheck": "tsc --noEmit",
-    "analyze": "cross-env ANALYZE=true pnpm build && pnpm next-bundle-analyzer || true",
+    "analyze": "cross-env ANALYZE=true pnpm build",
     "update-sanity-types": "cd ../sanity && npm run update-types"
   },
   "dependencies": {
@@ -82,7 +82,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^13.0.0",
+    "@next/bundle-analyzer": "^15.4.4",
     "@jest/globals": "^30.0.5",
     "@portabletext/types": "^2.0.13",
     "@swc/jest": "^0.2.39",
