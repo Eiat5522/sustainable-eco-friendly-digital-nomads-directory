@@ -42,24 +42,24 @@ export default function Header({ className = '' }: Readonly<HeaderProps>) {
   const pathname = usePathname();
   const { data: session, status } = useSession();
 
+  // Handle scroll shadow/bg
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY > 10;
       setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev));
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
-
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    if (mobileMenuOpen) setMobileMenuOpen(false);
+  }, [pathname, mobileMenuOpen]);
+
   const handleMobileMenuToggle = () => {
     setMobileMenuOpen(!mobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setMobileMenuOpen(false);
   };
 
   // === extracted auth section ===
@@ -74,8 +74,6 @@ export default function Header({ className = '' }: Readonly<HeaderProps>) {
         <button
           className="flex items-center justify-center w-9 h-9 rounded-full overflow-hidden border-2 border-primary-500 hover:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 hover:scale-105"
           aria-label="User menu"
-          aria-haspopup="menu"
-          aria-expanded="false"
         >
           {session.user?.image ? (
             <Image
@@ -140,7 +138,6 @@ export default function Header({ className = '' }: Readonly<HeaderProps>) {
         <button
           onClick={() => signIn()}
           className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-          aria-label="Sign in"
         >
           <LogIn className="mr-1.5 h-4 w-4" />
           Sign In
@@ -149,7 +146,6 @@ export default function Header({ className = '' }: Readonly<HeaderProps>) {
         <Link
           href="/auth/signup"
           className="flex items-center text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
-          aria-label="Sign up"
         >
           <UserPlus className="mr-1.5 h-4 w-4" />
           Sign Up
@@ -173,8 +169,7 @@ export default function Header({ className = '' }: Readonly<HeaderProps>) {
           <div className="flex items-center">
             <Link 
               href="/" 
-              className="flex items-center group transition-transform hover:scale-105" 
-              aria-label="Sustainable Digital Nomads Directory — Home"
+              className="flex items-center group transition-transform hover:scale-105"
             >
               <div className="relative">
                 <Leaf 
@@ -211,9 +206,7 @@ export default function Header({ className = '' }: Readonly<HeaderProps>) {
                         : 'text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400'
                     }`}
                   >
-                    <Icon className={`mr-1.5 h-4 w-4 transition-colors ${
-                      isActive ? 'text-primary-600 dark:text-primary-400' : ''
-                    }`} />
+                    <Icon className={`mr-1.5 h-4 w-4 ${isActive ? 'text-primary-600 dark:text-primary-400' : ''}`} />
                     <span>{item.name}</span>
                     {isActive && (
                       <motion.div
@@ -231,40 +224,33 @@ export default function Header({ className = '' }: Readonly<HeaderProps>) {
             {/* Auth Section - Desktop */}
             <div className="flex items-center space-x-3 border-l border-gray-200 dark:border-gray-700 pl-6">
               <ThemeToggle />
-              
               {desktopAuthContent}
             </div>
           </div>
 
-          {/* Mobile menu button and auth */}
+          {/* Mobile Controls */}
           <div className="flex md:hidden items-center space-x-2">
             <ThemeToggle />
-            
             {status !== 'loading' && !session && (
               <>
                 <button
                   onClick={() => signIn()}
-                  className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  aria-label="Sign in"
+                  className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                 >
                   <LogIn className="h-5 w-5" />
                 </button>
                 <Link
                   href="/auth/signup"
-                  className="p-2 rounded-md bg-primary-600 hover:bg-primary-700 text-white transition-colors"
-                  aria-label="Sign up"
+                  className="p-2 rounded-md bg-primary-600 hover:bg-primary-700 text-white"
                 >
                   <UserPlus className="h-5 w-5" />
                 </Link>
               </>
             )}
-            
             {status !== 'loading' && session && (
               <div className="relative">
                 <button
                   className="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border-2 border-primary-500"
-                  aria-label="User menu"
-                  onClick={handleMobileMenuToggle}
                 >
                   {session.user?.image ? (
                     <Image
@@ -282,15 +268,11 @@ export default function Header({ className = '' }: Readonly<HeaderProps>) {
                 </button>
               </div>
             )}
-            
             <button
               type="button"
               onClick={handleMobileMenuToggle}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors"
-              aria-expanded={mobileMenuOpen ? "true" : "false"}
-              aria-controls="mobile-menu"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
             >
-              <span className="sr-only">{mobileMenuOpen ? 'Close main menu' : 'Open main menu'}</span>
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
@@ -318,7 +300,6 @@ export default function Header({ className = '' }: Readonly<HeaderProps>) {
                   <Link 
                     key={item.name} 
                     href={item.href}
-                    onClick={closeMobileMenu}
                     className={`flex items-center px-3 py-3 rounded-lg text-base font-medium transition-colors ${
                       isActive
                         ? 'bg-primary-50 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
@@ -331,7 +312,6 @@ export default function Header({ className = '' }: Readonly<HeaderProps>) {
                 );
               })}
 
-              {/* Mobile Auth/User actions */}
               {session && (
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
                   <div className="px-3 py-2 mb-2">
@@ -344,26 +324,24 @@ export default function Header({ className = '' }: Readonly<HeaderProps>) {
                   </div>
                   
                   <Link 
-                    href="/dashboard" 
-                    onClick={closeMobileMenu}
-                    className="flex items-center px-3 py-2 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    href="/dashboard"
+                    className="flex items-center px-3 py-2 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     <User className="mr-3 h-5 w-5" />
                     Dashboard
                   </Link>
                   
                   <Link 
-                    href="/profile" 
-                    onClick={closeMobileMenu}
-                    className="flex items-center px-3 py-2 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    href="/profile"
+                    className="flex items-center px-3 py-2 rounded-lg text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     <Settings className="mr-3 h-5 w-5" />
                     Settings
                   </Link>
                   
                   <button
-                    onClick={() => { signOut(); closeMobileMenu(); }}
-                    className="flex items-center w-full px-3 py-2 rounded-lg text-base font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    onClick={() => { signOut(); }}
+                    className="flex items-center w-full px-3 py-2 rounded-lg text-base font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
                     <LogIn className="mr-3 h-5 w-5 rotate-180" />
                     Sign out
