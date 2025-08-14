@@ -20,7 +20,6 @@
   - `pnpm --filter ./sanity dev` – Sanity Studio dev server
   - `pnpm --filter ./sanity schema extract` - Extract Sanity Schemas after schema changes
   - `pnpm --sflter ./sanity typegen generate` - Generate TypeScript Types after extracting schemas
-  - `pnpm run codegen:sanity` – Regenerate TypeScript types after schema changes
   - `pnpm --filter ./app-next-directory exec jest` – Run unit tests
   - `pnpm test` – Run Playwright E2E tests
 - Store secrets in Vercel/Cloudflare env vars (never in code).

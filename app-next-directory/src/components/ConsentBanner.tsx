@@ -51,14 +51,12 @@ export function ConsentBanner() {
         padding: '0.5rem 1rem',
         borderRadius: '0.375rem',
       }}
-      declineButtonAriaLabel="Decline cookie consent"
-      ariaDeclineLabel="Decline cookie consent"    >
-      <p className="text-sm leading-relaxed mb-2">
+    >      <p className="text-sm leading-relaxed mb-2">
         We use cookies and similar technologies to help personalize content, enhance your experience, and analyze our traffic.
         We also share information about your use of our site with our analytics partners.
       </p>
       <p className="text-xs leading-relaxed">
-        By clicking "Accept", you consent to the use of these technologies. You can manage your preferences at any time through our{' '}
+        By clicking &quot;Accept&quot;, you consent to the use of these technologies. You can manage your preferences at any time through our{' '}
         <a
           href="/privacy"
           className="underline hover:text-primary-500 transition-colors"
