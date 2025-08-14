@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tailwind CSS Test</title>
+    <link rel="stylesheet" href="http://localhost:3001/_next/static/css/app/layout.css">
+    <style>
+        body { margin: 20px; font-family: Arial, sans-serif; }
+        .test-section { 
+            margin: 20px 0; 
+            padding: 20px; 
+            border: 2px solid #ccc;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tailwind CSS Classes Test</h1>
+    
+    <div class="test-section">
+        <h2>Hidden Class Test</h2>
+        <div class="hidden bg-red-500 text-white p-4">
+            This should be HIDDEN (not visible) - Red background
+        </div>
+        <div class="bg-green-500 text-white p-4">
+            This should be VISIBLE - Green background
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Responsive Classes Test</h2>
+        <div class="hidden md:flex bg-blue-500 text-white p-4">
+            Hidden on mobile, Flex on medium+ screens (Blue background)
+        </div>
+        <div class="block md:hidden bg-purple-500 text-white p-4">
+            Visible on mobile, Hidden on medium+ screens (Purple background)
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Basic Utility Classes Test</h2>
+        <div class="bg-yellow-200 p-4 rounded-lg shadow-md">
+            <p class="text-gray-800 font-bold text-lg">
+                If you can see styles here, Tailwind is working!
+            </p>
+            <p class="text-sm text-gray-600 mt-2">
+                Yellow background, padding, rounded corners, shadow
+            </p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Screen Size Information</h2>
+        <div class="text-xs bg-gray-100 p-2 rounded">
+            <div class="block sm:hidden">Current: Extra Small (xs) - less than 640px</div>
+            <div class="hidden sm:block md:hidden">Current: Small (sm) - 640px to 767px</div>
+            <div class="hidden md:block lg:hidden">Current: Medium (md) - 768px to 1023px</div>
+            <div class="hidden lg:block xl:hidden">Current: Large (lg) - 1024px to 1279px</div>
+            <div class="hidden xl:block">Current: Extra Large (xl) - 1280px and up</div>
+        </div>
+    </div>
+</body>
+</html>

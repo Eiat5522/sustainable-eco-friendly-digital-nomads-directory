@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import HeroSection from '@/components/home/HeroSection';
 import FeaturedListings from '@/components/home/FeaturedListingsUnified';
 import EcoCityCarousel from '@/components/cities/CityCarousel';
@@ -65,14 +65,16 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div>
-      <HeroSection />
-      <FeaturedListings listings={listings} />
-      <EcoCityCarousel cities={cities} />
-      <StatisticsSection />
-      <WhyChooseUs />
-      <SustainableNomadTestimonials />
-      <CTASection />
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <div>
+        <HeroSection />
+        <FeaturedListings listings={listings} />
+        <EcoCityCarousel cities={cities} />
+        <StatisticsSection />
+        <WhyChooseUs />
+        <SustainableNomadTestimonials />
+        <CTASection />
+      </div>
+    </Suspense>
   );
 }

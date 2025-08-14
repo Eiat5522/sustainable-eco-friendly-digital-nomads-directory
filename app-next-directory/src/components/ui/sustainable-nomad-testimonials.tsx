@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { Button } from "./Button";
 import { Card, CardContent } from "./card";
@@ -87,9 +87,9 @@ export function SustainableNomadTestimonials({
   autoRotateInterval = 7000,
   showSustainabilityScore = true,
   className,
-}: SustainableNomadTestimonialsProps) {
+}: Readonly<SustainableNomadTestimonialsProps>) {
   const [activeIndex, setActiveIndex] = useState<number>(0)
-  const sectionRef = { current: null }
+  const sectionRef = useRef<HTMLElement | null>(null)
   const isInView = useInView(sectionRef, { once: true, amount: 0.2 })
   const controls = useAnimation()
 
@@ -97,7 +97,7 @@ export function SustainableNomadTestimonials({
     if (autoRotateInterval <= 0 || testimonials.length <= 1) return
 
     const interval = setInterval(() => {
-      setActiveIndex((activeIndex + 1) % testimonials.length)
+      setActiveIndex((prev) => (prev + 1) % testimonials.length)
     }, autoRotateInterval)
 
     return () => clearInterval(interval)
@@ -146,7 +146,7 @@ export function SustainableNomadTestimonials({
   const currentTestimonial = testimonials[activeIndex]
 
   return (
-    <section ref={sectionRef} id="sustainable-nomad-testimonials" className={cn("py-16 md:py-32 relative overflow-hidden bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50", className)}>
+    <section ref={sectionRef} id="sustainable-nomad-testimonials" className={cn("py-16 md:py-32 relative overflow-hidden bg-green-50", className)}>
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMzNGQzOTkiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
       
       <div className="container mx-auto px-4 md:px-6 relative z-10">
@@ -188,16 +188,16 @@ export function SustainableNomadTestimonials({
                 <Card
                   key={testimonial.id}
                   className={cn(
-                    "absolute inset-0 transition-all duration-700 border-green-200 bg-white/80 backdrop-blur-sm",
+                    "absolute inset-0 transition-all duration-700 border border-green-100 bg-white shadow-sm rounded-xl",
                     index === activeIndex
-                      ? "opacity-100 translate-x-0 shadow-xl shadow-green-100/50"
+                      ? "opacity-100 translate-x-0 shadow-lg"
                       : "opacity-0 translate-x-[100px] pointer-events-none",
                   )}
                 >
                   <CardContent className="p-6 md:p-8 h-full flex flex-col">
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-4">
-                        <Avatar className="h-14 w-14 border-2 border-green-200">
+                        <Avatar className="h-12 w-12 border-2 border-green-100">
                           <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
                           <AvatarFallback className="bg-green-100 text-green-700">
                             {testimonial.name.charAt(0)}
@@ -216,7 +216,7 @@ export function SustainableNomadTestimonials({
                       <div className="text-right">
                         <div className="flex mb-2">
                           {[...Array(testimonial.rating)].map((_, i) => (
-                            <Star key={i} className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                            <Star key={i} className="h-4 w-4 text-yellow-500" />
                           ))}
                         </div>
                         {showSustainabilityScore && (
@@ -231,8 +231,8 @@ export function SustainableNomadTestimonials({
                     </div>
 
                     <div className="mb-4">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 border border-green-200">
-                        <MapPin className="h-3 w-3 text-green-600" />
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-50 border border-green-100">
+                        <MapPin className="h-4 w-4 text-green-600" />
                         <span className="text-sm font-medium text-green-700">{testimonial.city}, Thailand</span>
                       </div>
                     </div>
@@ -240,7 +240,7 @@ export function SustainableNomadTestimonials({
                     <Separator className="my-4 bg-green-200" />
 
                     <p className="flex-1 text-gray-700 text-base/relaxed mb-6">
-                      "{testimonial.content}"
+                      {`"${testimonial.content}"`}
                     </p>
 
                     <div className="space-y-3">
