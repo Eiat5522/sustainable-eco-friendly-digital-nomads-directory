@@ -1,10 +1,20 @@
 import React from "react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Sustainable Eco-Friendly Digital Nomads Directory',
+    template: '%s | Sustainable Eco-Friendly Digital Nomads Directory',
+  },
+
+  description: 'Discover eco-friendly cities and resources for digital nomads. Listings, guides, and community tips for low-impact remote living in Thailand and beyond.'
+};
 import "./globals.css";
 import { TwentyFirstToolbar } from '@21st-extension/toolbar-next';
 import { MainNav } from '@/components/layout/MainNav';
 import ClientRootLayout from './ClientRootLayout';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { readonly children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">

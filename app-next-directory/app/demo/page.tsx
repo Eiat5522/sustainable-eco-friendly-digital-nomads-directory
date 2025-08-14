@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import ListingDetail from '@/components/listings/ListingDetail';
 import { AppListingDetail } from '@/types/appView';

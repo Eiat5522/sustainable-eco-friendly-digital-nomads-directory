@@ -158,3 +158,4 @@ app-next-directory/docs/temp/temp_gemini_session.txt
 .vscode/mcp.json
 # Memory bank artifacts (ignore entire directory to avoid committing chat transcripts)
 **/memory-bank/
+app-next-directory/docs/temp/Advance search in the Search Dialog.jpeg

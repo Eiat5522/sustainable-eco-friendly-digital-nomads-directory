@@ -6,7 +6,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
-import { SearchDialog } from '../search/SearchDialog';
+import dynamic from 'next/dynamic';
+const SearchDialog = dynamic(() => import('../search/SearchDialog').then((mod) => mod.SearchDialog), {
+  ssr: false,
+  loading: () => null,
+});
 
 // Props for optional override of default title and subtitle
 interface HeroSectionProps {

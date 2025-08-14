@@ -150,10 +150,15 @@ export function OptimizedImage({
   useEffect(() => {
     if (inView && !loaded && imageUrl) {
       console.log('OptimizedImage - Image is in view, starting to load:', imageUrl);
+      if (typeof window !== 'undefined') {
       const img = new window.Image()
       img.src = imageUrl
       img.onload = handleImageLoad
       img.onerror = handleImageError
+    } else {
+      // Server-side: skip creating Image object
+      console.debug('OptimizedImage - SSR: skipping image prefetch', imageUrl);
+    }
     }
   }, [inView, imageUrl, loaded])
 

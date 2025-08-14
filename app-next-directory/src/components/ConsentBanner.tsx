@@ -37,13 +37,13 @@ export function ConsentBanner() {
         padding: '1rem',
       }}
       buttonStyle={{
-        background: '#10b981',
+      background: '#047857', // darker green (AA contrast with white)
         color: 'white',
         fontSize: '14px',
         padding: '0.5rem 1rem',
         borderRadius: '0.375rem',
       }}
-      declineButtonStyle={{
+      ariaAcceptLabel="Accept cookies"      declineButtonStyle={{
         background: 'transparent',
         border: '1px solid #d1d5db',
         color: isDark ? '#f3f4f6' : '#111827',
@@ -51,8 +51,8 @@ export function ConsentBanner() {
         padding: '0.5rem 1rem',
         borderRadius: '0.375rem',
       }}
-      expires={365} // Cookie expires after 1 year
-    >
+      declineButtonAriaLabel="Decline cookie consent"
+      ariaDeclineLabel="Decline cookie consent"    >
       <p className="text-sm leading-relaxed mb-2">
         We use cookies and similar technologies to help personalize content, enhance your experience, and analyze our traffic.
         We also share information about your use of our site with our analytics partners.

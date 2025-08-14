@@ -204,7 +204,7 @@ export function SustainableNomadTestimonials({
                           </AvatarFallback>
                         </Avatar>
                         <div className="text-left">
-                          <h4 className="font-semibold text-gray-900">{testimonial.name}</h4>
+                          <h3 className="font-semibold text-gray-900">{testimonial.name}</h3>
                           <p className="text-sm text-gray-600 font-medium">{testimonial.role}</p>
                           <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
                             <MapPin className="h-3 w-3" />
@@ -244,10 +244,10 @@ export function SustainableNomadTestimonials({
                     </p>
 
                     <div className="space-y-3">
-                      <h5 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                      <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
                         <Leaf className="h-4 w-4 text-green-600" />
                         Key Sustainability Features
-                      </h5>
+                      </h4>
                       <div className="flex flex-wrap gap-2">
                         {testimonial.highlights.map((highlight, i) => (
                           <span
