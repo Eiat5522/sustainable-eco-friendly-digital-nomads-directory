@@ -6,13 +6,13 @@
       "name": "Next.js: debug server-side",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev",
+      "command": "pnpm dev",
       "cwd": "${workspaceFolder}/app-next-directory"
     },
     {
       "name": "Next.js: debug client-side",
       "type": "chrome",
-      "request": "launch",
+      "request": "attach",
       "url": "http://localhost:3000"
     },
     {

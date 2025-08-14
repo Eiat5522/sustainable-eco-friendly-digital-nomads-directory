@@ -20,7 +20,13 @@ interface FeaturedListingsProps {
 }
 
 export default function FeaturedListings({ listings, variant = 'listings', searchQuery }: FeaturedListingsProps) {
+  const isHome = variant === 'home';
+
+  // Suppress empty message on Home variant to avoid flashing on initial load
   if (!listings || listings.length === 0) {
+    if (isHome) {
+      return null;
+    }
     return (
       <section className="py-12">
         <div className="container mx-auto px-4 text-center">
@@ -29,36 +35,57 @@ export default function FeaturedListings({ listings, variant = 'listings', searc
       </section>
     );
   }
-
-  const isHome = variant === 'home';
   return (
     <section className={isHome ? 'py-16 bg-white relative z-10' : 'py-12 bg-gray-50'}>
       <div className="container mx-auto px-4">
         <h2 className={isHome ? 'text-3xl font-bold text-gray-900 mb-4 text-center' : 'text-3xl font-bold mb-10 text-center text-gray-800'}>Featured Listings</h2>
         {isHome && <p className="text-lg text-gray-600 mb-8 text-center">Discover our top eco-friendly accommodations and workspaces</p>}
         <div className={isHome ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-12 p-4 md:p-6' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8'}>
-          {listings.slice(0, 4).map(listing => {
+          {(() => {
+            const displayListings = isHome ? listings.slice(0, 4) : listings;
+            return displayListings.map(listing => {
+            // Guard against missing slugs to avoid bad URLs
+            if (!listing?.slug || typeof listing.slug !== 'string' || listing.slug.trim() === '') {
+              return null;
+            }
+
             if (isHome) {
               return (
-                <Suspense fallback={<div className="flex items-center justify-center h-32"><span>Loading...</span></div>}>
-                  <DynamicListingCard key={listing.id} listing={listing} searchQuery={searchQuery} />
+                <Suspense key={listing.id} fallback={<div className="flex items-center justify-center h-32"><span>Loading...</span></div>}>
+                  <DynamicListingCard listing={listing} searchQuery={searchQuery} />
                 </Suspense>
               );
             }
 
             // Compute imageUrl only for non-home variant
             let imageUrl = '/placeholder-city.jpg';
-            if (listing.primaryImage?.asset) {
+            // Prefer direct DTO imageUrl if provided
+            if (listing.imageUrl) {
+              imageUrl = listing.imageUrl;
+            } else if (listing.primaryImage?.asset) {
               try {
-                const sanityImageUrl = urlFor(listing.primaryImage)?.width(500).height(300).url();
-                if (sanityImageUrl) {
-                  imageUrl = sanityImageUrl;
-                }
+                const sanityImageUrl = urlFor(listing.primaryImage)
+                  ?.width(500)
+                  .height(300)
+                  .fit('crop')
+                  .auto('format')
+                  .url();
+                if (sanityImageUrl) imageUrl = sanityImageUrl;
               } catch (error) {
                 console.warn('Failed to generate Sanity image URL for listing:', listing.id, error);
               }
-            } else if (listing.imageUrl) {
-              imageUrl = listing.imageUrl;
+            } else if (listing.galleryImages && listing.galleryImages.length > 0 && listing.galleryImages[0]?.asset) {
+              try {
+                const sanityImageUrl = urlFor(listing.galleryImages[0])
+                  ?.width(500)
+                  .height(300)
+                  .fit('crop')
+                  .auto('format')
+                  .url();
+                if (sanityImageUrl) imageUrl = sanityImageUrl;
+              } catch (error) {
+                console.warn('Failed to generate Sanity gallery image URL for listing:', listing.id, error);
+              }
             }
             // FORTEST: Ensure all listing types are handled for image selection
             // TODO: Audit for new types in LISTING_TYPES and add custom logic if needed
@@ -99,14 +126,18 @@ export default function FeaturedListings({ listings, variant = 'listings', searc
                       {listing.name}
                     </Link>
                   </h3>
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-1">
-                    {listing.city?.name}, {listing.city?.country}
-                  </p>
+                  {(listing.city?.name || listing.city?.country) && (
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-1">
+                      {[listing.city?.name, listing.city?.country].filter(Boolean).join(', ')}
+                    </p>
+                  )}
                   <div className="mt-auto">
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-lg font-bold text-green-600">
-                        {listing.priceRange}
-                      </span>
+                      {listing.priceRange && (
+                        <span className="text-lg font-bold text-green-600">
+                          {listing.priceRange}
+                        </span>
+                      )}
                     </div>
                     <Link
                       href={`/listings/${listing.slug}`}
@@ -118,7 +149,8 @@ export default function FeaturedListings({ listings, variant = 'listings', searc
                 </div>
               </article>
             );
-          })}
+            });
+          })()}
         </div>
       </div>
     </section>

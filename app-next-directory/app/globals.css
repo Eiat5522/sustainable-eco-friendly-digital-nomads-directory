@@ -60,6 +60,23 @@ body {
   color: hsl(var(--foreground));
 }
 
+/* Header animations and transitions */
+.header-blur {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles for better accessibility */
+.focus-visible:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
 @layer components {
   /* Add border only to elements that need it. Example: */
   .ui-card, .ui-button, .ui-input, .ui-popover, .ui-list, .ui-table, .ui-modal {

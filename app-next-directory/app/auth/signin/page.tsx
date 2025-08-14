@@ -15,8 +15,8 @@ function SignInPage({
   // This is a Server Component; derive values synchronously and pass to the client component.
   const rawCallback =
     Array.isArray(searchParams?.callbackUrl)
-      ? searchParams.callbackUrl[0]
-      : searchParams.callbackUrl;
+      ? searchParams?.callbackUrl?.[0]
+      : searchParams?.callbackUrl;
   // Prevent open redirects: only allow same-origin relative paths.
   const callbackUrl =
     typeof rawCallback === 'string' &&
@@ -26,8 +26,8 @@ function SignInPage({
       : '/';
   const rawError =
     Array.isArray(searchParams?.error)
-      ? searchParams.error[0]
-      : searchParams.error;
+      ? searchParams?.error?.[0]
+      : searchParams?.error;
   const error = typeof rawError === 'string' ? rawError : undefined;  return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
@@ -61,4 +61,3 @@ function SignInPage({
 }
 
 export default SignInPage;
-

@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     if (destination && destination.length > 0) {
       const eqGroup = `(${destination.map((loc) => `city->name == "${loc}"`).join(' || ')})`;
       const matchGroup = `(${destination.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
-      groqQuery += ` && ${eqGroup} && ${matchGroup}`;
+      groqQuery += ` && (${eqGroup} || ${matchGroup})`;
     }
     if (amenities && amenities.length > 0) {
       // Amenity filter group
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
     if (destination && destination.length > 0) {
       const eqGroup = `(${destination.map((loc) => `city->name == "${loc}"`).join(' || ')})`;
       const matchGroup = `(${destination.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
-      countQuery += ` && ${eqGroup} && ${matchGroup}`;
+      countQuery += ` && (${eqGroup} || ${matchGroup})`;
     }
     if (amenities && amenities.length > 0) {
       countQuery += ` && (${amenities.map((a) => `amenities[] == "${a}"`).join(' || ')})`;
@@ -186,14 +186,14 @@ const limit = Number(parseInt(rawLimit as string, 10)) || 12;
       )`;
     }
     if (Array.isArray(category) && category.length > 0) {
-      const cats = (category as any[]).map(String);
+      const cats = category.map(String);
       groqQuery += ` && (${cats.map((cat) => `category == "${cat}"`).join(' || ')})`;
     }
     if (Array.isArray(destination) && destination.length > 0) {
       const dests = (destination as any[]).map(String);
       const eqGroup = `(${dests.map((loc) => `city->name == "${loc}"`).join(' || ')})`;
       const matchGroup = `(${dests.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
-      groqQuery += ` && ${eqGroup} && ${matchGroup}`;
+      groqQuery += ` && (${eqGroup} || ${matchGroup})`;
     }
     if (Array.isArray(amenities) && amenities.length > 0) {
       const ams = (amenities as any[]).map(String);
@@ -247,14 +247,14 @@ const limit = Number(parseInt(rawLimit as string, 10)) || 12;
       )`;
     }
     if (Array.isArray(category) && category.length > 0) {
-      const cats = (category as any[]).map(String);
+      const cats = category.map(String);
       countQuery += ` && (${cats.map((cat) => `category == "${cat}"`).join(' || ')})`;
     }
     if (Array.isArray(destination) && destination.length > 0) {
       const dests = (destination as any[]).map(String);
       const eqGroup = `(${dests.map((loc) => `city->name == "${loc}"`).join(' || ')})`;
       const matchGroup = `(${dests.map((loc) => `city->name match "*${loc}*"`).join(' || ')})`;
-      countQuery += ` && ${eqGroup} && ${matchGroup}`;
+      countQuery += `(${eqGroup} || ${matchGroup})`;
     }
     if (Array.isArray(amenities) && amenities.length > 0) {
       const ams = (amenities as any[]).map(String);
@@ -276,7 +276,7 @@ const limit = Number(parseInt(rawLimit as string, 10)) || 12;
         limit,
         total,
         totalPages: Math.ceil(total / limit),
-        hasMore: results.length === limit && (page * limit) < total,
+        hasMore: (page * limit) < total,
       },
       filters: {
         query,

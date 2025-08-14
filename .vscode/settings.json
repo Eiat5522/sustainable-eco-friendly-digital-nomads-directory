@@ -41,5 +41,12 @@
   "[javascript]": {
     "editor.defaultFormatter": "vscode.typescript-language-features"
   },
-  "terminal.integrated.cwd": "${workspaceFolder}/app-next-directory"
+  "terminal.integrated.cwd": "${workspaceFolder}/app-next-directory",
+  "chat.mcp.serverSampling": {
+    "Digital Nomads Directory/.vscode/mcp.json: task-master-ai": {
+      "allowedModels": [
+        "copilot/gpt-4.1"
+      ]
+    }
+  }
 }

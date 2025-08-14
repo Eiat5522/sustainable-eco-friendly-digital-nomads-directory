@@ -10,6 +10,7 @@ import SignInForm from '@/components/auth/SignInForm';
 
 interface Props {
   callbackUrl: string;
+  error?: string | undefined; // Added error prop
 }
 
 export default function SignInProviders({ callbackUrl }: Props) {

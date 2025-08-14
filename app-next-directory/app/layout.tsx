@@ -1,19 +1,26 @@
 import React from "react";
 import "./globals.css";
 import { TwentyFirstToolbar } from '@21st-extension/toolbar-next';
+import { MainNav } from '@/components/layout/MainNav';
+import ClientRootLayout from './ClientRootLayout';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 z-50 rounded bg-white px-3 py-2 text-black"
-        >
-          Skip to main content
-        </a>
-        <TwentyFirstToolbar config={{ plugins: [] }} />
-        <main id="main-content" tabIndex={-1}>{children}</main>
+    <html lang="en" suppressHydrationWarning>
+      <body className="min-h-screen bg-background font-sans antialiased">
+        <ClientRootLayout>
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 z-[100] rounded bg-white dark:bg-gray-900 px-3 py-2 text-black dark:text-white shadow-lg"
+          >
+            Skip to main content
+          </a>
+          <TwentyFirstToolbar config={{ plugins: [] }} />
+          <MainNav />
+          <main id="main-content" tabIndex={-1} className="pt-16">
+            {children}
+          </main>
+        </ClientRootLayout>
       </body>
     </html>
   );

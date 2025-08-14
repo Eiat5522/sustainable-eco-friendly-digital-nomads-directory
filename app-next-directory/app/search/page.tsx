@@ -77,7 +77,8 @@ function SearchResultsComponent() {
       });
 
       try {
-        const response = await fetch(`/api/search?${queryParams.toString()}`);
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+        const response = await fetch(`${baseUrl}/api/search?${queryParams.toString()}`);
         if (!response.ok) throw new Error('Search request failed');
         const data = await response.json();
         if (data.success) {

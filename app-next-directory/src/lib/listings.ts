@@ -130,6 +130,11 @@ import { AppListingDetail, AppListingCard } from '@/types/appView';
 // Narrow unknown raw to Sanity listing-shaped object (not AppListingCard) with required fields
 import type { SanityImage, SanityGalleryImage } from '@/types/appView';
 
+const normalizeTags = (tags: Array<string | { name?: string }> | undefined) =>
+  Array.isArray(tags)
+    ? tags.map((tag: any) => (typeof tag === 'string' ? tag : tag?.name)).filter(Boolean)
+    : [];
+
 export type SanityListingRaw = {
   _id: string;
   name: string;
@@ -154,10 +159,18 @@ export type SanityListingRaw = {
   longDescription?: string;
   reviews?: any[];
   amenities?: any[];
+  contactPhone?: string;
+  contactEmail?: string;
+  lastVerifiedDate?: string;
+  coworkingDetails?: any;
+  accommodationDetails?: any;
+  cafeDetails?: any;
+  restaurantDetails?: any;
+  activitiesDetails?: any;
 };
 
 export function isSanityListing(raw: any): raw is SanityListingRaw {
-  const hasId = typeof raw?._id === 'string' && raw._id.trim().length > 0;
+  const hasId = (typeof raw?._id === 'string' && raw._id.trim().length > 0) || (typeof raw?.id === 'string' && raw.id.trim().length > 0);
   const hasName =
     typeof raw?.name === 'string' && raw.name.trim().length > 0;
   const hasSlug =
@@ -174,12 +187,6 @@ export function mapSanityListingToCard(raw: unknown): AppListingCard {
   if (!isSanityListing(raw)) {
     throw new Error('Invalid Sanity listing object');
   }
-
-  // Helper to normalize tags/features
-  const normalizeTags = (tags: Array<string | { name?: string }> | undefined) =>
-    Array.isArray(tags)
-      ? tags.map((tag: any) => (typeof tag === 'string' ? tag : tag?.name)).filter(Boolean)
-      : [];
 
   return {
     id: raw._id,
@@ -205,20 +212,19 @@ export function mapSanityListingToCard(raw: unknown): AppListingCard {
     location: raw.location
       ? { lat: raw.location.lat, lng: raw.location.lng }
       : undefined,
-    type: raw.type,
+    type: raw.type
   };
 }
-
 export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppListingDetail {
   return {
     id: raw._id,
     name: raw.name,
-    slug: typeof raw.slug === 'string' ? raw.slug : (raw.slug?.current ?? ''), // normalize to string
+    slug: raw.slug.current, // AppListingDetail expects string slug
     city: raw.city
       ? {
           id: raw.city._id || '',
           name: raw.city.name || '',
-          slug: typeof raw.city.slug === 'string' ? raw.city.slug : (raw.city.slug as any)?.current,
+          slug: raw.city.slug.current, // AppListingDetail expects string slug
           country: raw.city.country,
         }
       : null,
@@ -230,14 +236,14 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
       : undefined,
     primaryImage: raw.primaryImage,
     galleryImages: raw.galleryImages,
-    ecoFocusTags: Array.isArray(raw.ecoFocusTags) ? raw.ecoFocusTags.map((tag: any) => (typeof tag === 'string' ? tag : tag?.name)) : [],
+    ecoFocusTags: normalizeTags(raw.ecoFocusTags),
     priceRange: raw.priceRange,
-    contactPhone: (raw as any).contactPhone,
-    contactEmail: (raw as any).contactEmail,
+    contactPhone: raw.contactPhone,
+    contactEmail: raw.contactEmail,
     website: raw.website ?? undefined,
     shortDescription: raw.shortDescription,
     longDescription: raw.longDescription,
-    lastVerifiedDate: (raw as any).lastVerifiedDate,
+    lastVerifiedDate: raw.lastVerifiedDate,
     reviews: Array.isArray(raw.reviews)
       ? raw.reviews
           .filter((review: any) => review && typeof review === 'object')
@@ -265,11 +271,11 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
             badge: amenity?.badge ?? undefined
           }))
       : [],
-    coworkingDetails: (raw as any).coworkingDetails,
-    accommodationDetails: (raw as any).accommodationDetails,
-    cafeDetails: (raw as any).cafeDetails,
-    restaurantDetails: (raw as any).restaurantDetails,
-    activitiesDetails: (raw as any).activitiesDetails,
-    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures) ? raw.digitalNomadFeatures.map((feature: any) => typeof feature === 'string' ? feature : feature?.name) : [],
+    coworkingDetails: raw.coworkingDetails,
+    accommodationDetails: raw.accommodationDetails,
+    cafeDetails: raw.cafeDetails,
+    restaurantDetails: raw.restaurantDetails,
+    activitiesDetails: raw.activitiesDetails,
+    digitalNomadFeatures: normalizeTags(raw.digitalNomadFeatures),
   };
 }
