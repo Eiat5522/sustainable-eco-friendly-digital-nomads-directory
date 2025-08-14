@@ -4,11 +4,11 @@ import { ListingGrid } from '@/components/listings/ListingGrid';
 import DigitalNomadSearch from '@/components/ui/DigitalNomadSearch';
 import { Alert } from '@/components/ui/Alert';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
-import { WorldMapDemo } from '@/components/ui/world-map-demo';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import React, { useCallback, useState } from 'react';
+import { Leaf, Laptop } from 'lucide-react';
 
 // Types
 interface SearchResult {
@@ -70,9 +70,9 @@ function SearchResultsComponent() {
       queryParams.set('limit', '12');
       Object.entries(filters).forEach(([key, value]) => {
         if (Array.isArray(value)) {
-          (value as string[]).forEach((v) => v && queryParams.append(key, v));
+          value.forEach((v) => v && queryParams.append(key, v));
         } else if (value) {
-          queryParams.set(key, value as string);
+          queryParams.set(key, value);
         }
       });
 
@@ -131,9 +131,9 @@ function SearchResultsComponent() {
         const existing = currentFilters[key];
         if (existing) {
           if (Array.isArray(existing)) {
-            (existing as string[]).push(value);
+            existing.push(value);
           } else {
-            currentFilters[key] = [existing as string, value];
+            currentFilters[key] = [existing, value];
           }
         } else {
           currentFilters[key] = value;
@@ -141,7 +141,7 @@ function SearchResultsComponent() {
       });
       fetchResults(query, newPage, currentFilters);
     },
-    [query, fetchResults, searchParams]
+    [query, searchParams, fetchResults]
   );
 
   React.useEffect(() => {
@@ -167,19 +167,26 @@ function SearchResultsComponent() {
   }, [searchParams, fetchResults]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-12">
-        <WorldMapDemo />
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold text-green-800 flex items-center gap-3">
+          <Leaf className="h-8 w-8 text-green-600" />
+          Leaf & Laptop
+          <Laptop className="h-8 w-8 text-emerald-600" />
+        </h1>
+        <p className="text-green-700">
+          Discover eco-friendly workspaces and sustainable destinations for conscious digital nomads.
+        </p>
       </div>
 
-      <div className="mb-8">
-        <DigitalNomadSearch onFiltersChange={handleFiltersChange} />
-        <h1 className="text-3xl font-bold mb-4">Search Results</h1>
-      </div>
+      <DigitalNomadSearch
+        onFiltersChange={handleFiltersChange}
+        className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6 shadow-sm"
+      />
 
-      <div className="w-full">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
         <div className="mb-6 flex items-center justify-between">
-          <p className="text-gray-600">
+          <p className="text-green-700">
             {pagination.total} listings found
             {query && ` for "${query}"`}
           </p>
@@ -218,17 +225,17 @@ function SearchResultsComponent() {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage <= 1}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300"
+              className="px-4 py-2 bg-green-200 text-green-800 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-300"
             >
               Previous
             </button>
-            <span className="px-4 py-2 text-gray-700">
+            <span className="px-4 py-2 text-green-700">
               Page {currentPage} of {pagination.totalPages}
             </span>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage >= pagination.totalPages}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-300"
+              className="px-4 py-2 bg-green-200 text-green-800 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-300"
             >
               Next
             </button>

@@ -22,6 +22,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { ThemeToggle } from "./layout/ThemeToggle";
+import Image from 'next/image';
 
 const navigationItems = [
   { name: 'Home', href: '/', icon: Home },
@@ -35,7 +36,7 @@ interface HeaderProps {
   className?: string;
 }
 
-export default function Header({ className = '' }: HeaderProps) {
+export default function Header({ className = '' }: Readonly<HeaderProps>) {
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const pathname = usePathname();
@@ -60,6 +61,103 @@ export default function Header({ className = '' }: HeaderProps) {
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
   };
+
+  // === extracted auth section ===
+  let desktopAuthContent;
+  if (status === 'loading') {
+    desktopAuthContent = (
+      <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+    );
+  } else if (session) {
+    desktopAuthContent = (
+      <div className="relative group">
+        <button
+          className="flex items-center justify-center w-9 h-9 rounded-full overflow-hidden border-2 border-primary-500 hover:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 hover:scale-105"
+          aria-label="User menu"
+          aria-haspopup="menu"
+          aria-expanded="false"
+        >
+          {session.user?.image ? (
+            <Image
+              src={session.user.image}
+              alt={session.user.name || 'User profile'}
+              width={36}
+              height={36}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-100">
+              {session.user?.name?.charAt(0)?.toUpperCase() || <UserCircle className="h-5 w-5" />}
+            </div>
+          )}
+        </button>
+
+        {/* Dropdown Menu */}
+        <div
+          className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200 transform scale-95 group-hover:scale-100 border border-gray-200 dark:border-gray-700"
+          role="menu"
+        >
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+              {session.user?.name ?? 'User'}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              {session.user?.email ?? ''}
+            </p>
+          </div>
+          
+          <Link
+            href="/dashboard"
+            className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            <User className="mr-3 h-4 w-4" />
+            Dashboard
+          </Link>
+          
+          <Link
+            href="/profile"
+            className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            <Settings className="mr-3 h-4 w-4" />
+            Settings
+          </Link>
+          
+          <div className="border-t border-gray-100 dark:border-gray-700 mt-1 pt-1">
+            <button
+              onClick={() => signOut()}
+              className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+            >
+              <LogIn className="mr-3 h-4 w-4 rotate-180" />
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  } else {
+    desktopAuthContent = (
+      <div className="flex items-center space-x-3">
+        <button
+          onClick={() => signIn()}
+          className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+          aria-label="Sign in"
+        >
+          <LogIn className="mr-1.5 h-4 w-4" />
+          Sign In
+        </button>
+        
+        <Link
+          href="/auth/signup"
+          className="flex items-center text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
+          aria-label="Sign up"
+        >
+          <UserPlus className="mr-1.5 h-4 w-4" />
+          Sign Up
+        </Link>
+      </div>
+    );
+  }
+  // === end extracted section ===
 
   return (
     <header 
@@ -134,91 +232,7 @@ export default function Header({ className = '' }: HeaderProps) {
             <div className="flex items-center space-x-3 border-l border-gray-200 dark:border-gray-700 pl-6">
               <ThemeToggle />
               
-              {status === 'loading' ? (
-                <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
-              ) : session ? (
-                <div className="relative group">
-                  <button
-                    className="flex items-center justify-center w-9 h-9 rounded-full overflow-hidden border-2 border-primary-500 hover:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 hover:scale-105"
-                    aria-label="User menu"
-                    aria-haspopup="menu"
-                    aria-expanded="false"
-                  >
-                    {session.user?.image ? (
-                      <img
-                        src={session.user.image}
-                        alt={session.user.name || 'User profile'}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-100">
-                        {session.user?.name?.charAt(0)?.toUpperCase() || <UserCircle className="h-5 w-5" />}
-                      </div>
-                    )}
-                  </button>
-                  
-                  {/* Dropdown Menu */}
-                  <div
-                    className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-xl py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200 transform scale-95 group-hover:scale-100 border border-gray-200 dark:border-gray-700"
-                    role="menu"
-                  >
-                    <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                        {session.user?.name ?? 'User'}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        {session.user?.email ?? ''}
-                      </p>
-                    </div>
-                    
-                    <Link
-                      href="/dashboard"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <User className="mr-3 h-4 w-4" />
-                      Dashboard
-                    </Link>
-                    
-                    <Link
-                      href="/profile"
-                      className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <Settings className="mr-3 h-4 w-4" />
-                      Settings
-                    </Link>
-                    
-                    <div className="border-t border-gray-100 dark:border-gray-700 mt-1 pt-1">
-                      <button
-                        onClick={() => signOut()}
-                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                      >
-                        <LogIn className="mr-3 h-4 w-4 rotate-180" />
-                        Sign Out
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => signIn()}
-                    className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-                    aria-label="Sign in"
-                  >
-                    <LogIn className="mr-1.5 h-4 w-4" />
-                    Sign In
-                  </button>
-                  
-                  <Link
-                    href="/auth/signup"
-                    className="flex items-center text-sm font-medium bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg"
-                    aria-label="Sign up"
-                  >
-                    <UserPlus className="mr-1.5 h-4 w-4" />
-                    Sign Up
-                  </Link>
-                </div>
-              )}
+              {desktopAuthContent}
             </div>
           </div>
 
@@ -253,10 +267,12 @@ export default function Header({ className = '' }: HeaderProps) {
                   onClick={handleMobileMenuToggle}
                 >
                   {session.user?.image ? (
-                    <img 
-                      src={session.user.image} 
-                      alt={session.user.name || 'User profile'} 
-                      className="w-full h-full object-cover" 
+                    <Image
+                      src={session.user.image}
+                      alt={session.user.name || 'User profile'}
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <div className="w-full h-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-100">
