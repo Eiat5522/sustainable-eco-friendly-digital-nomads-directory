@@ -161,3 +161,4 @@ app-next-directory/docs/temp/temp_gemini_session.txt
 app-next-directory/docs/temp/Advance search in the Search Dialog.jpeg
 app-next-directory/.gitignore
 ./app-next-directory/temp/**
+app-next-directory/app/head.tsx.bak

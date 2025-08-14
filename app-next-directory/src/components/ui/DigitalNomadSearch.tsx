@@ -2,16 +2,13 @@
 
 import * as React from "react";
 import { useState, useCallback } from "react";
-import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import {
   MapPin,
   Search,
   ChevronDown,
-  Check,
   Leaf,
   Laptop,
   TreePine,
@@ -71,7 +68,7 @@ const AMENITIES: FilterOption[] = [
   { value: "eco-transport", label: "Eco Transport", icon: <Car className="h-4 w-4 text-green-600" /> },
 ];
 
-// Multi-select dropdown component
+// Multi-select dropdown component (accessible native select in Popover)
 interface MultiSelectDropdownProps {
   options: FilterOption[];
   selectedValues: string[];
@@ -91,11 +88,9 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
 
-  const handleSelect = (value: string) => {
-    const newValues = selectedValues.includes(value)
-      ? selectedValues.filter((v) => v !== value)
-      : [...selectedValues, value];
-    onSelectionChange(newValues);
+  const onNativeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const values = Array.from(e.target.selectedOptions).map((o) => o.value);
+    onSelectionChange(values);
   };
 
   const getDisplayText = () => {
@@ -110,46 +105,45 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
+        <button
+          type="button"
+          aria-haspopup="listbox"
           aria-expanded={open}
-          className="w-full justify-between h-12 px-4 border-gray-200 hover:border-green-400 hover:bg-green-50 transition-colors rounded-lg"
+          className="w-full flex items-center justify-between h-12 px-4 border border-gray-200 hover:border-gray-300 bg-white transition-colors rounded-lg"
+          onClick={() => setOpen((v) => !v)}
         >
           <div className="flex items-center gap-2 min-w-0">
             {icon}
-            <span className="truncate">{getDisplayText()}</span>
+            <span className="truncate text-sm text-gray-700">{getDisplayText()}</span>
           </div>
           <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
-        </Button>
+        </button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0 border-green-200 shadow-lg" align="start">
-        <Command>
-          <CommandList>
-            <CommandEmpty>No {label.toLowerCase()} found.</CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => (
-                <CommandItem
-                  key={option.value}
-                  onSelect={() => handleSelect(option.value)}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <Checkbox
-                    checked={selectedValues.includes(option.value)}
-                    onCheckedChange={() => handleSelect(option.value)}
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label={`Toggle ${option.label}`}
-                  />
-                  {option.icon}
-                  <span>{option.label}</span>
-                  {selectedValues.includes(option.value) && (
-                    <Check className="ml-auto h-4 w-4 text-green-600" />
-                  )}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
+
+      <PopoverContent className="w-[300px] p-3 border border-gray-200 shadow-lg bg-white" align="start">
+        <label className="sr-only" id={`${label}-label`}>{label}</label>
+        <select
+          aria-labelledby={`${label}-label`}
+          multiple
+          value={selectedValues}
+          onChange={onNativeChange}
+          className="w-full h-48 overflow-auto p-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200"
+        >
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value} className="flex items-center gap-2">
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <div className="mt-2 flex justify-end">
+          <button
+            type="button"
+            className="px-3 py-1 text-sm text-gray-700 bg-gray-50 border rounded mr-2"
+            onClick={() => setOpen(false)}
+          >
+            Done
+          </button>
+        </div>
       </PopoverContent>
     </Popover>
   );
