@@ -1,17 +1,17 @@
-import { NextResponse } from 'next/server';
+import { MetadataRoute } from 'next';
 
-const DEFAULT_HOST = 'https://example.com';
+export default function robots(): MetadataRoute.Robots {
+  const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
+  const siteUrl = rawSiteUrl.replace(/\/+$/, '');
 
-export function GET() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || DEFAULT_HOST;
-
-  const content = `User-agent: *\nAllow: /\nSitemap: ${siteUrl.replace(/\/$/, '')}/sitemap.xml\n`;
-
-  return new NextResponse(content, {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600'
-    }
-  });
+  return {
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/admin/', '/api/private/'],
+      },
+    ],
+    sitemap: `${siteUrl}/sitemap.xml`,
+  };
 }

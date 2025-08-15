@@ -44,7 +44,7 @@ export function ListingGrid(
           <Link href={href}>
               <div className="relative h-48 overflow-hidden group block">
                 <Image
-                  src={listing.imageUrl || '/images/sustainable_nomads.png'}
+                  src={listing.imageUrl || '/images/fallback.png'}
                   alt={listing.name || 'Listing image'}
                   fill
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -52,9 +52,9 @@ export function ListingGrid(
                   priority={index < 3}
                   onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                     // Prevent infinite loop if the fallback fails too
-                    if (e.currentTarget.src.includes('/images/sustainable_nomads.png')) return;
+                    if (e.currentTarget.src.includes('/images/fallback.png')) return;
                     console.warn('Image failed to load:', listing.imageUrl);
-                    e.currentTarget.src = '/images/sustainable_nomads.png';
+                    e.currentTarget.src = '/images/fallback.png';
                   }}
                 />
                 <div className="absolute top-4 right-4 z-10">

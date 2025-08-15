@@ -58,7 +58,7 @@ export default function FeaturedListings({ listings, variant = 'listings', searc
             }
 
             // Compute imageUrl only for non-home variant
-            let imageUrl = '/placeholder-city.jpg';
+            let imageUrl = '/images/fallback.png';
             // Prefer direct DTO imageUrl if provided
             if (listing.imageUrl) {
               imageUrl = listing.imageUrl;
@@ -112,7 +112,7 @@ export default function FeaturedListings({ listings, variant = 'listings', searc
                       priority={true}
                       onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
                         console.warn('Featured image failed to load:', imageUrl);
-                        e.currentTarget.src = '/images/sustainable_nomads.png';
+                        e.currentTarget.src = '/images/fallback.png';
                       }}
                     />
                   </div>

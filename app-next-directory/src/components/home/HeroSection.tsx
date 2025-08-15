@@ -74,18 +74,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({ title, subtitle }) => {
             className="relative w-full h-full overflow-hidden"
             style={{ position: 'relative', width: '100%', height: '100%' }}
           >
-            <SanityImage
-              image={null}
+            <Image
               src="/images/hero/hero_main.png"
               alt="Eco-friendly digital nomad workspace"
-              width={1920}
-              height={1080}
+              fill
               priority
               sizes="100vw"
-              className="absolute inset-0 w-full h-full object-cover"
-              style={{ objectFit: 'cover', width: '100%', height: '100%' }}
-              fallbackSrc="/images/hero/hero_main.png"
-              fallbackAlt="Eco-friendly digital nomad workspace"
+              className="absolute inset-0 object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-green-900/80 to-green-800/40 backdrop-blur-[2px]" />
           </div>

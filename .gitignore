@@ -115,7 +115,7 @@ clean-install.ps1
 **/.roo
 **/cline_docs
 .clinerules/**/*.md
-.clinerules\mcp-server-config-guidelines.md
+.clinerules/mcp-server-config-guidelines.md
 
 
 # Code Index MCP cache directory
@@ -133,7 +133,6 @@ utils/vscode-detector.js
 examples/vscode-conditional-usage.js
 utils/VSCodeDetector.ps1
 utils/README.md
-.github\copilot-instructions.md
 app-next-directory/docs/functional-specs/sso-onboarding-pseudocode.md
 app-next-directory/docs/functional-specs/sso-onboarding-spec.md
 **/*terminal_output
@@ -157,9 +156,7 @@ app-next-directory/docs/temp/temp_gemini_session.txt
 **/memory-bank/
 app-next-directory/docs/temp/Advance search in the Search Dialog.jpeg
 app-next-directory/.gitignore
-./app-next-directory/temp/**
+*/**/app-next-directory/temp/**
 app-next-directory/app/head.tsx.bak
-
-# Task files
-# tasks.json
-# tasks/ 
+.taskmaster/state.json
+examples/*/**
