@@ -151,9 +151,6 @@ app-next-directory/docs/temp/temp_gemini_session.txt
 
 .vscode
 
-# Task files
-# tasks.json
-# tasks/ 
 .taskmaster/config.json
 .vscode/mcp.json
 # Memory bank artifacts (ignore entire directory to avoid committing chat transcripts)
@@ -162,3 +159,7 @@ app-next-directory/docs/temp/Advance search in the Search Dialog.jpeg
 app-next-directory/.gitignore
 ./app-next-directory/temp/**
 app-next-directory/app/head.tsx.bak
+
+# Task files
+# tasks.json
+# tasks/ 

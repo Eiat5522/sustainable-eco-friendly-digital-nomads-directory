@@ -45,7 +45,8 @@
   "chat.mcp.serverSampling": {
     "Digital Nomads Directory/.vscode/mcp.json: task-master-ai": {
       "allowedModels": [
-        "copilot/gpt-4.1"
+        "copilot/gpt-4.1",
+        "copilot/gpt-5-mini"
       ]
     }
   }

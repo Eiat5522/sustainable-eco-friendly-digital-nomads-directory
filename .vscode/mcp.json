@@ -1,39 +1,13 @@
 {
-  "servers": {
-  //  "chain-of-thought": {
-  //    "command": "npx",
-  //    "args": ["-y", "mcp-chain-of-thought"],
-  //    "env": {
-  //      "DATA_DIR": "${workspaceFolder}/.vscode/chain-of-thought-mcp-data",
-  //      "ENABLE_THOUGHT_CHAIN": "true",
-  //      "TEMPLATES_USE": "en",
-  //      "ENABLE_GUI": "true",
-  //      "ENABLE_DETAILED_MODE": "true"
-  //    }
-  //    },
-    "task-master-ai": {
-      "command": "npx",
-      "args": ["-y", "--package=task-master-ai@0.24.0", "task-master-ai"],
-      "env": {
-        "GOOGLE_API_KEY": "${env:GOOGLE_API_KEY}",
-        "OPENROUTER_API_KEY": "${env:OPENROUTER_API_KEY}",
-        "TASK_MASTER_AI_VERSION": "0.24.0"
-      },
-      "type": "stdio"
-    },
-    "chroma": {
-        "command": "uvx",
-        "args": [
-            "chroma-mcp-server",
-            "--client-type=persistent",
-            "--embedding-function=default"
-        ],       
+    "servers": {
+		"task-master-ai": {
+            "command": "npx",
+            "args": ["-y", "--package=task-master-ai", "task-master-ai"],
             "env": {
-                "CHROMA_DATA_DIR": "D:/Eiat_Folder/AppData/Local/Cline/MCP/ChromaDB", // Replace with your actual path
-                "CHROMA_LOG_DIR":  "${workspaceFolder}/.vscode",
-                "LOG_LEVEL": "INFO",
-                "MCP_LOG_LEVEL": "INFO"
-            }
-        }
-    }
+                "GOOGLE_KEY": "${env:GOOGLE_API_KEY}",
+                "OPENROUTER_KEY": "${env:OPENROUTER_API_KEY}"
+            },
+            "type": "stdio"
+        }   
+	}   
 }
