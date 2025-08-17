@@ -43,8 +43,9 @@
   },
   "terminal.integrated.cwd": "${workspaceFolder}/app-next-directory",
   "chat.mcp.serverSampling": {
-    "Digital Nomads Directory/.vscode/mcp.json: task-master-ai": {
+    "Digital Nomads Directory/.vscode/mcp.json: chroma": {
       "allowedModels": [
+        "copilot/gpt-4", 
         "copilot/gpt-4.1",
         "copilot/gpt-5-mini"
       ]

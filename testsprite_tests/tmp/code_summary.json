@@ -1,0 +1,80 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "Next.js 15",
+    "React 18",
+    "Tailwind CSS",
+    "Sanity CMS",
+    "MongoDB (Mongoose, mongodb driver)",
+    "Jest",
+    "Playwright",
+    "Vercel"
+  ],
+  "features": [
+    {
+      "name": "Frontend Next.js app",
+      "description": "Main Next.js 15 frontend application with App Router, pages/components, API routes, and styling.",
+      "files": [
+        "app-next-directory/src/",
+        "app-next-directory/pages/",
+        "app-next-directory/public/",
+        "app-next-directory/next.config.ts"
+      ]
+    },
+    {
+      "name": "Sanity CMS integration",
+      "description": "Sanity Studio config, schemas, and codegen integration for content management.",
+      "files": [
+        "sanity/",
+        "app-next-directory/sanity/",
+        "sanity/schemas/"
+      ]
+    },
+    {
+      "name": "Listings domain",
+      "description": "Models, pages, and components for listing venues, including listing card components, map integration, and filters.",
+      "files": [
+        "app-next-directory/src/components/listings/",
+        "app-next-directory/src/lib/listings/",
+        "listings/"
+      ]
+    },
+    {
+      "name": "Authentication",
+      "description": "NextAuth.js and custom adapters for MongoDB; session and RBAC handling.",
+      "files": [
+        "app-next-directory/src/app/api/auth/",
+        "app-next-directory/src/lib/auth/",
+        "app-next-directory/pages/api/auth/"
+      ]
+    },
+    {
+      "name": "Testing setup",
+      "description": "Jest unit tests and Playwright E2E tests with configuration and helpers.",
+      "files": [
+        "app-next-directory/jest.config.js",
+        "app-next-directory/playwright.config.ts",
+        "app-next-directory/tests/",
+        "app-next-directory/jest/",
+        "app-next-directory/jest.setup.ts"
+      ]
+    },
+    {
+      "name": "Maps & Geolocation",
+      "description": "Leaflet map components and clustering for interactive maps on listing pages.",
+      "files": [
+        "app-next-directory/src/components/maps/",
+        "app-next-directory/src/components/city-carousel/"
+      ]
+    },
+    {
+      "name": "Image handling & staging",
+      "description": "Sanity image pipelines and local staging area for image curation.",
+      "files": [
+        "sanity_image_staging/",
+        "app-next-directory/src/lib/images/",
+        "scripts/test-image-upload.js"
+      ]
+    }
+  ]
+}

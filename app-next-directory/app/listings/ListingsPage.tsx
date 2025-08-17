@@ -1,4 +1,5 @@
-/* eslint-disable complexity */
+'use client';
+
 import FeaturedListings from '@/components/listings/FeaturedListings';
 import { useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -9,22 +10,27 @@ import { mapSanityListingToCard } from '@/lib/listings';
 
 // Type guards for distinguishing Listing vs SanityListing
 function isLegacyListing(l: Listing | SanityListing): l is Listing {
-  const anyL = l as any;
-  return !!anyL && typeof anyL === 'object' && 'city' in anyL && 'address' in anyL && 'shortDescription' in anyL;
-}
-function isSanityListing(l: Listing | SanityListing): l is SanityListing {
-  const anyL = l as any;
   return (
-    !!anyL &&
-    typeof anyL === 'object' &&
-    typeof anyL._id === 'string' &&
-    typeof anyL.name === 'string' &&
-    // Sanity objects do NOT carry a `city` field
-    !('city' in anyL)
+    l !== null &&
+    typeof l === 'object' &&
+    'city' in l &&
+    'address' in l &&
+    'shortDescription' in l
   );
 }
+
+function isSanityListing(l: Listing | SanityListing): l is SanityListing {
+  return (
+    l !== null &&
+    typeof l === 'object' &&
+    '_id' in l && typeof (l as any)._id === 'string' &&
+    'name' in l && typeof (l as any).name === 'string' &&
+    !('city' in l)
+  );
+}
+
 function legacyListingToCard(legacy: Listing): AppListingCard {
-  const slug = legacy.slug?.current ?? '';
+  const slug = legacy.slug?.current ?? legacy._id ?? '';
   const city = legacy.city
     ? {
         id: '', // legacy listings don't carry city id
@@ -84,11 +90,19 @@ function legacyListingToCard(legacy: Listing): AppListingCard {
   };
 }
 
-  interface ListingsPageProps {
+interface ListingsPageProps {
   initialListings: Array<Listing | SanityListing>;
 }
 
-export default function ListingsPage({ initialListings }: ListingsPageProps) {
+const CATEGORY_MAP: Record<string, string> = {
+  coworking: 'Coworking',
+  cafes: 'Cafe',
+  restaurants: 'Restaurant',
+  accommodation: 'Accommodation',
+  activities: 'Activities',
+};
+
+export default function ListingsPage({ initialListings }: Readonly<ListingsPageProps>) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -96,15 +110,8 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
     const category = searchParams?.get('category');
     if (category) {
       // Redirect old category URLs to search page
-      const categoryMap: { [key: string]: string } = {
-        'coworking': 'Coworking',
-        'cafes': 'Cafe',
-        'restaurants': 'Restaurant',
-        'accommodation': 'Accommodation',
-        'activities': 'Activities'
-      };
 
-      const searchTerm = categoryMap[category] || category;
+      const searchTerm = CATEGORY_MAP[category] || category;
       router.replace(`/search?q=${encodeURIComponent(searchTerm)}`);
       return;
     }
@@ -120,7 +127,7 @@ export default function ListingsPage({ initialListings }: ListingsPageProps) {
               ? legacyListingToCard(l)
               : null,
         )
-        .filter(Boolean) as AppListingCard[],
+        .filter((x): x is AppListingCard => Boolean(x)),
     [initialListings],
   );
 

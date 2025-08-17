@@ -204,6 +204,9 @@ function SearchResultsComponent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="flex justify-center items-center min-h-[400px]"
+              data-testid="search-loading"
+              role="status"
+              aria-label="Loading search results"
             >
               <LoadingSpinner />
             </motion.div>
@@ -213,10 +216,37 @@ function SearchResultsComponent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-            >
-              {/* Map API results to AppListingCard to satisfy ListingGrid typing */}
-              <ListingGrid listings={results as unknown as import('@/types/appView').AppListingCard[]} />
-            </motion.div>
+              role="region"
+              aria-label="Search results"
+              data-testid="search-results"
+            >// Add this helper (e.g. above your component)
+const mapSearchResultsToListings = (
+  results: SearchResult[]
+): import('@/types/appView').AppListingCard[] => {
+  return results.map(result => ({
+    id: result.id,
+    title: result.title,
+    // TODO: map or default any other AppListingCard properties here
+  }));
+};
+
+// …
+
+// Replace the inline cast with the mapper
+              <ListingGrid listings={mapSearchResultsToListings(results)} />const mapSearchResultsToListings = (
+  results: SearchResult[]
+): import('@/types/appView').AppListingCard[] => {
+  return results.map(result => ({
+    id: result.id,
+    title: result.title,
+    // TODO: map or default any other AppListingCard properties here
+  }));
+};
+
+// …
+
+// Replace the inline cast with the mapper
+              <ListingGrid listings={mapSearchResultsToListings(results)} />            </motion.div>
           )}
         </AnimatePresence>
 
@@ -250,7 +280,11 @@ const SearchResultsWithSuspense = dynamic(
   () => Promise.resolve(SearchResultsComponent),
   {
     ssr: false,
-    loading: () => <div>Loading...</div>,
+    loading: () => (
+      <div data-testid="search-loading" className="flex justify-center items-center min-h-[400px]">
+        <LoadingSpinner />
+      </div>
+    ),
   }
 );
 

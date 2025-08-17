@@ -145,8 +145,11 @@ const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
                             Eco Highlights
                           </h4>
                           <ul className="space-y-1">
-                            {(city.highlights || []).map((highlight, idx) => (
-                              <li key={idx} className="flex items-center gap-2 text-sm">
+                           {(city.highlights || []).map((highlight, idx) => (
+                              <li key={`${highlight}-${idx}`} className="flex items-center gap-2 text-sm">
+
+
+
                                 <span className="size-1.5 rounded-full bg-green-400"></span>
                                 {highlight}
                               </li>
@@ -170,9 +173,9 @@ const EcoCityCarousel = ({ cities = [] }: { cities: EcoCityItem[] }) => {
           </CarouselContent>
         </Carousel>
         <div className="mt-8 flex justify-center gap-2">
-          {cities.map((_, index) => (
+          {cities.map((city, index) => (
             <button
-              key={index}
+              key={city._id}
               className={`h-2 w-2 rounded-full transition-colors ${
                 currentSlide === index ? "bg-green-600" : "bg-green-200"
               }`}

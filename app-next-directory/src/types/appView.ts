@@ -47,13 +47,12 @@ export type AppListingDetail = AppListingCard & {
   contactPhone?: string | null;
   contactEmail?: string | null;
   shortDescription?: string | null;
-  longDescription?: string | any[] | null;
+  longDescription?: string | PortableTextBlock[] | null;
   address?: string | null;
-  primaryImage?: any;
-  galleryImages?: any[];
+  primaryImage?: SanityImage;
+  galleryImages?: SanityGalleryImage[];
   lastVerifiedDate?: string | null;
-  reviews?: any[];
-  coworkingDetails?: {
+  reviews?: AppReview[];  coworkingDetails?: {
     pricingPlans?: Array<{ type: string; price: number | null; period: string }>;
     openingHours?: Array<{ day: string; opens: string; closes: string }>;
     internetSpeed?: { download?: number; upload?: number; lastTested?: string };

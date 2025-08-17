@@ -33,7 +33,7 @@ export function SanityImage({
     setHasError(false);
   }, [imageSrc]); // Reset error state if the image src changes
 
-  const validAlt = alt && alt.trim() ? alt : fallbackAlt;
+  const validAlt = alt?.trim() || fallbackAlt;
 
   // Extract onError and fill from rest props
   const { onError: userOnError, fill, ...imageProps } = rest;

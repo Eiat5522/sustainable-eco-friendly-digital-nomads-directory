@@ -240,7 +240,13 @@ export default function ListingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div
+        className="flex items-center justify-center min-h-screen"
+        data-testid="admin-listings-loading"
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+      >
         <div className="text-lg">Loading listings...</div>
       </div>
     );
@@ -253,9 +259,14 @@ export default function ListingsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Listings Management</h1>
           <p className="text-gray-600 mt-2">Manage directory listings, reviews, and content quality</p>
         </div>
-        <Button onClick={fetchListings} disabled={loading}>
-          Refresh Data
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button onClick={fetchListings} disabled={loading}>
+            Refresh Data
+          </Button>
+          <Button onClick={() => { /* shortcut to moderation tools */ }} variant="ghost" data-testid="moderate-button">
+            Moderation
+          </Button>
+        </div>
       </div>
 
       {/* Listing Statistics */}
@@ -328,6 +339,30 @@ export default function ListingsPage() {
       </div>
 
       {/* Listings Management */}
+      {listingStats.flaggedListings > 0 && (
+        <div
+          data-testid="flagged-listings"
+          className="mb-6 bg-yellow-50 border border-yellow-200 rounded p-4"
+          role="region"
+          aria-labelledby="flagged-listings-heading"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 id="flagged-listings-heading" className="font-semibold text-yellow-800">Flagged Listings</h3>
+              <p className="text-sm text-yellow-700">{listingStats.flaggedListings} items require attention</p>
+            </div>
+            <div>
+              <Button
+                onClick={() => setStatusFilter('flagged')}
+                variant="outline"
+                data-testid="review-flagged"
+              >
+                Review Flagged
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>Directory Listings</CardTitle>
@@ -379,7 +414,11 @@ export default function ListingsPage() {
           {/* Listings List */}
           <div className="space-y-4">
             {filteredListings.map((listing) => (
-              <div key={listing.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+              <div
+                key={listing.id}
+                className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                data-testid={listing.status === 'pending' ? 'pending-listing' : undefined}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <span className="text-2xl">{getTypeIcon(listing.type)}</span>
@@ -442,6 +481,7 @@ export default function ListingsPage() {
                           <DropdownMenuItem
                             onClick={() => handleListingAction(listing.id, 'publish')}
                             className="text-green-600"
+                            data-testid="approve-listing"
                           >
                             Approve & Publish
                           </DropdownMenuItem>
@@ -463,6 +503,7 @@ export default function ListingsPage() {
                         <DropdownMenuItem
                           onClick={() => handleListingAction(listing.id, 'delete')}
                           className="text-red-600"
+                          data-testid="delete-button"
                         >
                           Delete Listing
                         </DropdownMenuItem>

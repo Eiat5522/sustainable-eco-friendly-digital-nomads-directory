@@ -1,0 +1,128 @@
+{
+  "meta": {
+    "project": "Listing Detail Page",
+    "date": "2025-08-17",
+    "prepared_by": "Software Development Manager"
+  },
+  "product_overview": "The Listing Detail Page enables users to explore complete venue details including images, amenities, sustainability metrics, and location maps, with seamless integration for content editors via Sanity CMS. It targets digital nomads and eco-conscious venue seekers, enhancing discovery through rich interactions and accessibility.",
+  "core_goals": [
+    "Provide comprehensive, SEO-optimized venue details to help digital nomads discover eco-friendly venues.",
+    "Ensure robust uniqueness and consistency of listings with city+slug validation.",
+    "Deliver a rich user experience with image galleries, interactive maps, and sustainability metrics.",
+    "Support content management and preview for admins via Sanity CMS with real-time content updates.",
+    "Ensure accessibility and performance with keyboard navigation, lazy loading, and reduced content layout shifting."
+  ],
+  "key_features": [
+    "Dynamic Next.js server-rendered page fetching listing data by city and slug via GROQ queries to Sanity.",
+    "Custom validation to guarantee uniqueness of city+slug for listings.",
+    "ListingGallery component with image carousel supporting keyboard, swipe, reduced motion, and reserved aspect ratio for CLS avoidance.",
+    "SustainabilityMetrics component displaying venue eco-scores and badges.",
+    "Leaflet MapEmbed with client-only dynamic import showing location with required attributions.",
+    "RelatedListings slider that lazy loads and server-renders the first slide for LCP improvement.",
+    "Sanity CMS integration for editable content with preview mode and draft support.",
+    "On-demand Incremental Static Regeneration (ISR) triggered by Sanity webhooks for freshness.",
+    "404 handling with Next.js notFound and custom 404 page for missing or invalid slugs.",
+    "SEO enhancements including canonical URLs, prev/next link relations, meta tags, and structured data."
+  ],
+  "user_flow_summary": [
+    "Visitor searches venues and clicks a listing link leading to /listings/:city/:slug page.",
+    "The server fetches listing data via Sanity GROQ query respecting published/draft mode.",
+    "Page displays ListingCard summary, a fully functional ListingGallery carousel, ListingDetails, SustainabilityMetrics, and a Leaflet Map centered on venue coordinates.",
+    "Visitor can navigate images via keyboard or swipe, observing accessibility standards and reduced motion preferences.",
+    "User browses related eco-friendly venues via a slider.",
+    "Admins preview draft versions in authenticated mode and edit listings via Sanity Studio.",
+    "Upon listing publish/update, webhook triggers revalidation to update listing content seamlessly."
+  ],
+  "validation_criteria": [
+    "Page renders full listing details at /listings/:city/:slug with images, map, and sustainability metrics visible.",
+    "Page returns custom 404 on missing or invalid slugs.",
+    "SEO meta tags, canonical URL, and structured data are present and accurate per listing.",
+    "Image carousel preloads first image, reserves layout space, and supports keyboard/swipe/ARIA roles.",
+    "MapEmbed is client-only, correctly sized, and provides proper tile attribution.",
+    "RelatedListings slider lazy-loads offscreen slides and server-renders the first slide.",
+    "Unit tests for ListingCard and ListingGallery pass successfully.",
+    "E2E test confirms gallery and map load on opening a listing.",
+    "City+slug uniqueness enforced in Sanity validation rules to prevent collisions.",
+    "ISR and preview modes work as expected, with content updating on webhook triggers."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "Next.js 15",
+      "React 18",
+      "Tailwind CSS",
+      "Sanity CMS",
+      "MongoDB (Mongoose, mongodb driver)",
+      "Jest",
+      "Playwright",
+      "Vercel"
+    ],
+    "features": [
+      {
+        "name": "Frontend Next.js app",
+        "description": "Main Next.js 15 frontend application with App Router, pages/components, API routes, and styling.",
+        "files": [
+          "app-next-directory/src/",
+          "app-next-directory/pages/",
+          "app-next-directory/public/",
+          "app-next-directory/next.config.ts"
+        ]
+      },
+      {
+        "name": "Sanity CMS integration",
+        "description": "Sanity Studio config, schemas, and codegen integration for content management.",
+        "files": [
+          "sanity/",
+          "app-next-directory/sanity/",
+          "sanity/schemas/"
+        ]
+      },
+      {
+        "name": "Listings domain",
+        "description": "Models, pages, and components for listing venues, including listing card components, map integration, and filters.",
+        "files": [
+          "app-next-directory/src/components/listings/",
+          "app-next-directory/src/lib/listings/",
+          "listings/"
+        ]
+      },
+      {
+        "name": "Authentication",
+        "description": "NextAuth.js and custom adapters for MongoDB; session and RBAC handling.",
+        "files": [
+          "app-next-directory/src/app/api/auth/",
+          "app-next-directory/src/lib/auth/",
+          "app-next-directory/pages/api/auth/"
+        ]
+      },
+      {
+        "name": "Testing setup",
+        "description": "Jest unit tests and Playwright E2E tests with configuration and helpers.",
+        "files": [
+          "app-next-directory/jest.config.js",
+          "app-next-directory/playwright.config.ts",
+          "app-next-directory/tests/",
+          "app-next-directory/jest/",
+          "app-next-directory/jest.setup.ts"
+        ]
+      },
+      {
+        "name": "Maps & Geolocation",
+        "description": "Leaflet map components and clustering for interactive maps on listing pages.",
+        "files": [
+          "app-next-directory/src/components/maps/",
+          "app-next-directory/src/components/city-carousel/"
+        ]
+      },
+      {
+        "name": "Image handling & staging",
+        "description": "Sanity image pipelines and local staging area for image curation.",
+        "files": [
+          "sanity_image_staging/",
+          "app-next-directory/src/lib/images/",
+          "scripts/test-image-upload.js"
+        ]
+      }
+    ]
+  }
+}

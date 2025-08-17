@@ -6,10 +6,16 @@ import { AppListingCard } from '@/types/appView';
 import type { ListingCardProps } from '@/components/listings/ListingCard';
 
 // Code-split ListingCard to avoid loading it when not rendering the home variant
-import { Suspense } from 'react';
-
 const DynamicListingCard = dynamic<ListingCardProps>(
-  () => import('@/components/listings/ListingCard').then(m => m.ListingCard as any)
+  () => import('@/components/listings/ListingCard').then(m => ({ default: m.ListingCard })),
+  {
+    // Provide a small, layout-stable loading placeholder to minimize layout shift
+    loading: () => (
+      <div className="flex items-center justify-center h-32" aria-hidden="true">
+        <span className="text-sm text-gray-500">Loading...</span>
+      </div>
+    ),
+  }
 );
 
 
@@ -51,9 +57,11 @@ export default function FeaturedListings({ listings, variant = 'listings', searc
 
             if (isHome) {
               return (
-                <Suspense key={listing.id} fallback={<div className="flex items-center justify-center h-32"><span>Loading...</span></div>}>
-                  <DynamicListingCard listing={listing} searchQuery={searchQuery} />
-                </Suspense>
+                <DynamicListingCard
+                  key={listing.id}
+                  listing={listing}
+                  searchQuery={searchQuery}
+                />
               );
             }
 
@@ -100,14 +108,8 @@ export default function FeaturedListings({ listings, variant = 'listings', searc
                     <Image
                       src={imageUrl}
                       alt={listing.name}
-                      width={500}
-                      height={300}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover'
-                      }}
-                      className="group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33.333vw"
                       priority={true}
                       onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
@@ -156,4 +158,3 @@ export default function FeaturedListings({ listings, variant = 'listings', searc
     </section>
   );
 }
-

@@ -107,7 +107,7 @@ export default async function CityPageRoute({ params }: CityPageParams) {
       "digitalNomadFeatures": digitalNomadFeatures[]->name
     }`;
 
-      const [city, listings] = await Promise.all([
+    const [city, listings] = await Promise.all([
       client.fetch(cityQuery, { slug }),
       client.fetch(listingsQuery, { citySlug: slug })
     ]);

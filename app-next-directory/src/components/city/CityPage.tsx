@@ -7,10 +7,10 @@ import React, { useEffect, useState } from 'react';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { ListingGrid } from '../listings/ListingGrid';
 import CityStats from './CityStats';
+import SanityImage from '../SanityImage';
 
 interface CityPageProps { slug: string }
 const CityPage: React.FC<CityPageProps> = ({ slug }) => {
-  const isTestEnv = process.env.NODE_ENV === 'test';
   const [city, setCity] = useState<City | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -54,11 +54,18 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
       {/* Main Image Only (no gallery) */}
       {city.primaryImage && (
         <div className="mb-8">
-          <img
-            src={typeof city.primaryImage === 'string' ? city.primaryImage : ''}
-            alt={city.name}
-            className="rounded-lg shadow w-full h-64 object-cover"
-          />
+          <div className="relative w-full aspect-[25/8] rounded-lg overflow-hidden shadow">
+            <SanityImage
+              image={city.primaryImage}
+              alt={city.name}
+              fill
+              width={1200}
+              height={384}
+              sizes="(max-width: 640px) 100vw, 1200px"
+              className="object-cover"
+              priority
+            />
+          </div>
         </div>
       )}
 
@@ -108,7 +115,7 @@ const CityPage: React.FC<CityPageProps> = ({ slug }) => {
           <div>
             <h2 className="text-xl font-semibold mb-6">Eco-Friendly Accommodations in {city.name}</h2>
         {listings.length > 0 ? (
-          <ListingGrid listings={listings as any} />
+          <ListingGrid listings={listings} />
             ) : (
               <p className="text-gray-500">No listings available for this city yet.</p>
             )}

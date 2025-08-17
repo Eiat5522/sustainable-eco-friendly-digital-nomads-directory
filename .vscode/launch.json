@@ -7,7 +7,8 @@
       "type": "node-terminal",
       "request": "launch",
       "command": "pnpm dev",
-      "cwd": "${workspaceFolder}/app-next-directory"
+      "cwd": "${workspaceFolder}/app-next-directory",
++     "env": { "NODE_OPTIONS": "--inspect" }
     },
     {
       "name": "Next.js: debug client-side",
@@ -41,7 +42,7 @@
         "killOnServerStop": true,
         "pattern": "- Local:.+(https?://.+)",
         "uriFormat": "%s",
-        "webRoot": "${workspaceFolder}"
+        "webRoot": "${workspaceFolder}/app-next-directory"
       }
     }
   ]
