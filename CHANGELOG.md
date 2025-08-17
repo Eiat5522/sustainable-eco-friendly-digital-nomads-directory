@@ -8,6 +8,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Documentation index (INDEX.md) with comprehensive navigation
+- Formalized changelog process in CONTRIBUTING.md
+- Cross-references between documentation files
+
+### Changed
+- Enhanced documentation structure and discoverability
+- Updated contributing guidelines with changelog workflow
+
+## [0.1.3] - 2025-01-XX
+
+### Added
+- Monorepo documentation organization complete
+- Next.js app, Sanity Studio, and admin dashboard fully integrated
+- Sanity schemas updated and aligned with frontend requirements
+- Sanity codegen integrated for TypeScript type generation
+- DTOs adopted for consistent data handling in the Next.js app
+- Playwright test automation and reporting configured
+- Workstreams A–F and pre-integration testing completed
+
+### Changed
+- Documentation migrated to new structure under `docs/` directory
+- Project references updated to new documentation locations
+- Workspace management improved with npm workspaces
+
+### Technical
+- Integration/testing phase readiness achieved
+- All legacy documentation migrated and updated
+- Six key context files retained in `memory-bank/`
+
+## [0.1.0] - 2025-05-13
+
+### Added
 - Initial project setup with Next.js 15.3.2
 - Image optimization implementation using Next.js Image component
 - Interactive map integration with Leaflet.js
@@ -34,10 +66,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented TypeScript types for listings
 - Added proper image sizing and quality settings
 
-## [0.1.0] - 2025-05-13
-- Initial release with core functionality
-  - Basic listing display
-  - Image optimization
-  - Interactive map
-  - Responsive design
-  - Dark mode support
+---
+
+## Changelog Process
+
+This changelog follows the format established in [CONTRIBUTING.md](CONTRIBUTING.md#changelog-process). 
+
+**For Contributors**: Add entries to the `[Unreleased]` section when making changes. See the [changelog process documentation](CONTRIBUTING.md#changelog-process) for detailed guidelines.
+
+**For Releases**: The release manager will move unreleased changes to the appropriate version section and add release dates.
