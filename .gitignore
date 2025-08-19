@@ -121,15 +121,6 @@ clean-install.ps1
 # Code Index MCP cache directory
 .code_indexer/
 
-# Repomix MCP files
-**/repomix-instruction.md
-**/.secretlintrc.json
-.secretlintrc.json
-.vscode/memory.json
-**/.vscode/chain-of-thought-mcp-data
-**/.sfdx
-utils/vscode-detector.js
-
 examples/vscode-conditional-usage.js
 utils/VSCodeDetector.ps1
 utils/README.md
@@ -140,21 +131,28 @@ app-next-directory/docs/functional-specs/sso-onboarding-spec.md
 **/*output2.txt**
 **/*results.txt
 **/*test-results**
-app-next-directory/src/components/listings/RelatedListings.tsx.removed
-app-next-directory/src/components/listings/RelatedListings.tsx.bak
+
+
 app-next-directory/docs/temp_gemini_session.txt
 schema and shape realignment plan 20250726.md
 app-next-directory/docs/TASK_PROGRESS.md
 sanity/TASK_PROGRESS.md
 app-next-directory/docs/temp/temp_gemini_session.txt
 
-.vscode
 
+.vscode*/**
+.vscode/memory.json
+**/*.vscode/chain-of-thought-mcp-data
+.vscode/mcp.json
+utils/vscode-detector.js
+
+
+# Task Mater MCP
+.taskmaster/state.json
 .taskmaster/config.json
 app-next-directory/.taskmaster/config.json
 sanity/.taskmaster/config.json
-.taskmaster/state.json
-.vscode/mcp.json
+
 # Memory bank artifacts (ignore entire directory to avoid committing chat transcripts)
 **/*memory-bank*/**
 app-next-directory/docs/temp/Advance search in the Search Dialog.jpeg
@@ -168,8 +166,14 @@ app-next-directory/testsprite_tests/tmp/**
 **/*testsprite*/**
 
 # Repomix
+**/repomix-instruction.md
 **/*.repomix*/**
 repomix-output.xml
 repomix-output.xmlschemaAndFrontendShape.xml
+**/.secretlintrc.json
+.secretlintrc.json
 include_exclude_glob_patterns.txt
-include_exclude_glob_patterns.txt
+
+# Repomix Allow Path
+!.repomix/config/schemaAndFrontendShape-repomix.config.json
+
