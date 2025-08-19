@@ -50,5 +50,9 @@
         "copilot/gpt-5-mini"
       ]
     }
+  },
+  "sonarlint.connectedMode.project": {
+    "connectionId": "eiat5522",
+    "projectKey": "Eiat5522_sustainable-eco-friendly-digital-nomads-directory"
   }
 }

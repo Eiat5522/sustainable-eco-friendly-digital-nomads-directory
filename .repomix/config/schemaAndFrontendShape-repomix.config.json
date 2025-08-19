@@ -1,0 +1,31 @@
+{
+  "output": {
+    "filePath": "d:\\Eiat_Folder\\MyProjects\\MyOtherProjects\\sustainable-eco-friendly-digital-nomads-directory\\repomix-output.xml",
+    "style": "xml",
+    "parsableStyle": true,
+    "headerText": "",
+    "instructionFilePath": "repomix-instruction.md",
+    "fileSummary": true,
+    "directoryStructure": true,
+    "removeComments": true,
+    "removeEmptyLines": true,
+    "topFilesLength": 10,
+    "showLineNumbers": true,
+    "copyToClipboard": true,
+    "includeEmptyDirectories": false,
+    "compress": true
+  },
+  "include": [],
+  "ignore": {
+    "useGitignore": true,
+    "useDefaultPatterns": true,
+    "customPatterns": []
+  },
+  "security": {
+    "enableSecurityCheck": true
+  },
+  "tokenCount": {
+    "encoding": "o200k_base"
+  },
+  "cwd": "d:\\Eiat_Folder\\MyProjects\\MyOtherProjects\\sustainable-eco-friendly-digital-nomads-directory"
+}

@@ -1,3 +1,14 @@
+// NOTE: City documents intentionally do NOT include a `location` geopoint.
+// The `Listing` document stores a `location` geopoint (lat/lng) for map display.
+// Keep city as a reference on a Listing and dereference (city->) in GROQ when you need city.name/country.
+// City schema intentionally does NOT include a location/geopoint field.
+// All location/geopoint data is stored on Listing documents only.
+// This prevents confusion and enforces a single source of geospatial truth.
+// Example GROQ usage:
+// *[_type == "listing" && defined(city)]{
+//   ...,
+//   "cityName": city->name,
+//   "country": city->country
 import { defineField, defineType } from 'sanity'
 import { imageWithAlt } from './fields'
 

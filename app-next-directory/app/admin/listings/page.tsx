@@ -33,17 +33,12 @@ interface ListingStats {
   flaggedListings: number;
   averageRating: number;
   totalViews: number;
-}
 
 interface Listing {
   id: string;
   title: string;
-  type: 'accommodation' | 'coworking' | 'restaurant' | 'activity';
+  type: 'accommodation' | 'cafe' | 'coworking' | 'restaurant' | 'activity'; 
   status: 'published' | 'pending' | 'flagged' | 'draft' | 'rejected';
-  location: {
-    city: string;
-    country: string;
-  };
   views: number;
   createdAt: string;
   updatedAt: string;
@@ -77,7 +72,7 @@ export default function ListingsPage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'accommodation' | 'coworking' | 'restaurant' | 'activity'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'accommodation' | 'cafe' | 'coworking' | 'restaurant' | 'activity' | 'cafe'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'pending' | 'flagged' | 'draft' | 'rejected'>('all');
 
   useEffect(() => {
@@ -192,9 +187,10 @@ export default function ListingsPage() {
     const matchesStatus = statusFilter === 'all' || listing.status === statusFilter;
     return matchesSearch && matchesType && matchesStatus;
   });
-  const getTypeBadgeVariant = (type: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
+  const getTypeBadgeVariant = (type: Listing['type']): 'default' | 'secondary' | 'outline' | 'destructive' => {
     switch (type) {
       case 'accommodation': return 'default';
+      case 'cafe': return 'outline';
       case 'coworking': return 'secondary';
       case 'restaurant': return 'outline';
       case 'activity': return 'secondary';
@@ -223,9 +219,10 @@ export default function ListingsPage() {
     }
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = (type: Listing['type']) => {
     switch (type) {
       case 'accommodation': return '🏠';
+      case 'cafe': return '☕';
       case 'coworking': return '💼';
       case 'restaurant': return '🍽️';
       case 'activity': return '🎯';
@@ -340,10 +337,9 @@ export default function ListingsPage() {
 
       {/* Listings Management */}
       {listingStats.flaggedListings > 0 && (
-        <div
+        <section
           data-testid="flagged-listings"
           className="mb-6 bg-yellow-50 border border-yellow-200 rounded p-4"
-          role="region"
           aria-labelledby="flagged-listings-heading"
         >
           <div className="flex items-center justify-between">
@@ -361,7 +357,7 @@ export default function ListingsPage() {
               </Button>
             </div>
           </div>
-        </div>
+        </section>
       )}
       <Card>
         <CardHeader>
@@ -392,6 +388,7 @@ export default function ListingsPage() {
             >
               <option value="all">All Types</option>
               <option value="accommodation">Accommodation</option>
+              <option value="cafe">Cafe</option>
               <option value="coworking">Co-working</option>
               <option value="restaurant">Restaurant</option>
               <option value="activity">Activity</option>
@@ -524,4 +521,5 @@ export default function ListingsPage() {
       </Card>
     </div>
   );
+}
 }

@@ -80,9 +80,13 @@ function legacyListingToCard(legacy: Listing): AppListingCard {
     digitalNomadFeatures: Array.isArray(legacy.digitalNomadFeatures) ? legacy.digitalNomadFeatures : [],
     priceRange: legacy.priceRange as AppListingCard['priceRange'],
     website: legacy.website ?? null,
-    primaryImage: toSanityImage((legacy as any).primaryImage || (legacy as any).imageUrl), // Use helper
-    galleryImages: toSanityGalleryImages((legacy as any).galleryImages), // Use helper
-    type: legacy.type,
+    primaryImage: toSanityImage(
+      typeof (legacy as any).primaryImage === 'string' ? (legacy as any).primaryImage :
+      typeof (legacy as any).imageUrl === 'string' ? (legacy as any).imageUrl : undefined
+    ),
+    galleryImages: toSanityGalleryImages(
+      Array.isArray((legacy as any).galleryImages) ? (legacy as any).galleryImages : undefined
+    ),    type: legacy.type,
     shortDescription: legacy.shortDescription,
     address: legacy.address,
     category: legacy.category,

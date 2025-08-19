@@ -93,7 +93,7 @@ clean-install.ps1
 *tasks.json.bak
 **/.specstory*
 *WORKSTREAM*
-/listings
+/listings/**/*
 !**/*/app-next-directory/**/**/listings
 
 
@@ -159,3 +159,5 @@ app-next-directory/.gitignore
 */**/app-next-directory/temp/**
 app-next-directory/app/head.tsx.bak
 .taskmaster/state.json
+testsprite_tests/tmp/config.json
+testsprite_tests/tmp/

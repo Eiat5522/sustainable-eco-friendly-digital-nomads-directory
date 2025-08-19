@@ -1,0 +1,122 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Markdown Preview</title>
+      <style>
+        body {
+          font-family: sans-serif;
+          padding: 40px;
+          line-height: 1.6;
+          background: #fdfdfd;
+          color: #333;
+        }
+        pre {
+          background: #f4f4f4;
+          padding: 10px;
+          border-radius: 5px;
+          overflow-x: auto;
+        }
+        code {
+          font-family: monospace;
+          background: #eee;
+          padding: 2px 4px;
+        }
+        table {
+          border-collapse: collapse;
+          width: 100%;
+          margin-top: 20px;
+        }
+        th, td {
+          border: 1px solid #ccc;
+          padding: 8px 12px;
+          text-align: left;
+        }
+        th {
+          background-color: #f2f2f2;
+          font-weight: bold;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>Testsprite Frontend Test Report</h1>
+<p>Date: 2025-08-18
+Project: sustainable-eco-friendly-digital-nomads-directory
+Scope: Frontend (codebase)
+Local endpoint: http://localhost:3000</p>
+<h2>Summary</h2>
+<p>The frontend test plan was generated successfully (testsprite_tests/testsprite_frontend_test_plan.json, 11 scenarios: TC001–TC011). Code generation and execution via the interactive CLI was skipped in non-interactive mode. This report summarizes the current plan, environment, and recommended next steps to execute tests reliably in CI/local.</p>
+<h2>Environment &amp; Config Detected</h2>
+<ul>
+<li>Tech stack: Next.js (App Router), TypeScript, Tailwind, Sanity, MongoDB/Mongoose, NextAuth, Jest, Playwright</li>
+<li>Plan file: testsprite_tests/testsprite_frontend_test_plan.json</li>
+<li>PRDs: testsprite_tests/tmp/prd_files/prd.md, listing-detail-prd.md (updated with Leaflet SSR guidance)</li>
+<li>Config (testsprite_tests/tmp/config.json):
+<ul>
+<li>status: committed</li>
+<li>type: frontend, scope: codebase</li>
+<li>localEndpoint: http://localhost:3000</li>
+</ul>
+</li>
+</ul>
+<h2>Key Scenarios (extract)</h2>
+<ul>
+<li>TC001 Search with map: filter by geo/category/eco-tags; map pins update; requests debounced.</li>
+<li>TC002 Listing detail: images carousel, amenities, sustainability metrics, centered map, related listings, SEO, a11y.</li>
+<li>TC003 Auth &amp; RBAC: user, venue owner, admin boundaries; unauthorized API rejections.</li>
+<li>TC004 Admin moderation: flagged listings/reviews; bulk actions.</li>
+<li>TC005 Venue owner via Sanity: create/edit/publish; duplicate slug prevention per city.</li>
+<li>TC006 Reviews moderation: submit → pending → approve/reject.</li>
+<li>TC007 Image performance: Sanity pipeline + Next.js optimization.</li>
+<li>TC008 SEO &amp; A11y: meta, canonical, structured data, ARIA, keyboard nav.</li>
+<li>TC009 Webhook revalidation: publish triggers ISR invalidation.</li>
+<li>TC010 Env validation: required variables present; clear errors when missing.</li>
+<li>TC011 E2E discovery: search → detail → favorite.</li>
+</ul>
+<h2>Execution Notes</h2>
+<ul>
+<li>The default Testsprite CLI path invoked required interactivity. Use the provided MCP tool or run locally in a terminal.</li>
+<li>Ensure the app is running before E2E-like steps (http://localhost:3000). Start with:
+<ul>
+<li>pnpm --filter ./app-next-directory dev</li>
+</ul>
+</li>
+</ul>
+<h2>Recommended Next Steps</h2>
+<ol>
+<li>Local run (terminal):</li>
+</ol>
+<pre><code class="language-pwsh"># from repo root
+pnpm --filter ./app-next-directory dev
+# in another terminal, run Jest or Playwright as needed
+pnpm --filter ./app-next-directory test
+</code></pre>
+<ol start="2">
+<li>Non-interactive Testsprite execution (suggested):</li>
+</ol>
+<ul>
+<li>Use the MCP tool in this workspace: testsprite_generate_code_and_execute with:
+<ul>
+<li>projectName: sustainable-eco-friendly-digital-nomads-directory</li>
+<li>projectPath: .  # use repo root or a workspace-relative path; avoid absolute local paths in docs</li>
+<li>testIds: [] (all) or subset like [&quot;TC001&quot;,&quot;TC002&quot;]</li>
+</ul>
+</li>
+</ul>
+<ol start="3">
+<li>Prioritize building stubs for TC001–TC004 to lock core flows.</li>
+</ol>
+<h2>Artifacts</h2>
+<ul>
+<li>Plan: testsprite_tests/testsprite_frontend_test_plan.json</li>
+<li>PRD: testsprite_tests/tmp/prd_files/prd.md (updated), listing-detail-prd.md</li>
+<li>Code summary: testsprite_tests/tmp/code_summary.json</li>
+</ul>
+<h2>Status</h2>
+<p>Plan generated. Report saved. Awaiting test code generation/execution step (can be triggered via MCP tool or terminal).</p>
+
+    </body>
+    </html>
+  

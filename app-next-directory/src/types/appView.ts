@@ -1,5 +1,13 @@
 import type { PortableTextBlock } from '@portabletext/types';
 
+// TODO: Align Sanity image types with official Sanity schema types from @sanity/image-url and asset docs.
+// Temporary local type to correctly represent runtime shape.
+export type SanityImageDimensions = {
+  width?: number;
+  height?: number;
+  aspectRatio?: number;
+};
+
 export type AppCity = { id: string; name: string; slug: string; country?: string; sustainabilityScore?: number; highlights?: string[]; primaryImage?: SanityImage; description?: string; };
 
 export type SanityImage = {
@@ -12,7 +20,7 @@ export type SanityImage = {
       _type?: 'reference';
       url?: string;
       metadata?: {
-        dimensions?: any;
+        dimensions?: SanityImageDimensions;
         lqip?: string;
       };
     };
@@ -36,8 +44,7 @@ export type AppListingCard = {
   primaryImage?: SanityImage;
   galleryImages?: SanityGalleryImage[];
   type?: string;
-  shortDescription?: string;
-  address?: string;
+  shortDescription?: string;  address?: string;
   category?: string;
   location?: { lat: number; lng: number };
 };

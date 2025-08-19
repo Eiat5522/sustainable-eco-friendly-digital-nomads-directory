@@ -1,79 +1,116 @@
 {
   "tech_stack": [
     "TypeScript",
-    "Next.js 15",
-    "React 18",
+    "Next.js (App Router)",
+    "React",
     "Tailwind CSS",
     "Sanity CMS",
-    "MongoDB (Mongoose, mongodb driver)",
+    "MongoDB / Mongoose",
+    "Node.js",
+    "pnpm",
     "Jest",
     "Playwright",
-    "Vercel"
+    "Vercel",
+    "Stripe",
+    "NextAuth.js"
   ],
   "features": [
     {
-      "name": "Frontend Next.js app",
-      "description": "Main Next.js 15 frontend application with App Router, pages/components, API routes, and styling.",
+      "name": "Admin Listings Page",
+      "description": "Client-side admin UI for listing management including stats, search, filters, and actions (approve/flag/reject/delete). Uses UI primitives from src/components/ui and mock data until API is implemented.",
       "files": [
-        "app-next-directory/src/",
-        "app-next-directory/pages/",
-        "app-next-directory/public/",
-        "app-next-directory/next.config.ts"
+        "app-next-directory/app/admin/listings/page.tsx",
+        "app-next-directory/src/types/listing.ts",
+        "app-next-directory/src/components/ui/Button.tsx",
+        "app-next-directory/src/components/ui/card.tsx"
       ]
     },
     {
-      "name": "Sanity CMS integration",
-      "description": "Sanity Studio config, schemas, and codegen integration for content management.",
+      "name": "Reusable UI components",
+      "description": "Design-system style UI primitives (Badge, Button, Card, Input, DropdownMenu, etc.) used across app pages and admin UI.",
       "files": [
-        "sanity/",
-        "app-next-directory/sanity/",
-        "sanity/schemas/"
+        "app-next-directory/src/components/ui/badge.tsx",
+        "app-next-directory/src/components/ui/Button.tsx",
+        "app-next-directory/src/components/ui/card.tsx",
+        "app-next-directory/src/components/ui/input.tsx",
+        "app-next-directory/src/components/ui/dropdown-menu.tsx"
       ]
     },
     {
-      "name": "Listings domain",
-      "description": "Models, pages, and components for listing venues, including listing card components, map integration, and filters.",
+      "name": "Sanity CMS Schemas & Studio",
+      "description": "Sanity document schemas and studio configuration for content (listing, city, blogPost, author, siteConfig).",
       "files": [
-        "app-next-directory/src/components/listings/",
-        "app-next-directory/src/lib/listings/",
-        "listings/"
+        "sanity/schemas/listing.js",
+        "sanity/schemas/city.js",
+        "sanity/sanity.config.ts",
+        "sanity/schemas/blogPost.js"
       ]
     },
     {
-      "name": "Authentication",
-      "description": "NextAuth.js and custom adapters for MongoDB; session and RBAC handling.",
+      "name": "API routes & server logic",
+      "description": "Server-side API endpoints for app integrations and webhooks (Stripe, Sanity previews, auth), located under app-next-directory/src/app/api or pages/api depending on structure.",
       "files": [
-        "app-next-directory/src/app/api/auth/",
-        "app-next-directory/src/lib/auth/",
-        "app-next-directory/pages/api/auth/"
+        "app-next-directory/src/app/api/*",
+        "app-next-directory/pages/api/*"
       ]
     },
     {
-      "name": "Testing setup",
-      "description": "Jest unit tests and Playwright E2E tests with configuration and helpers.",
+      "name": "Type definitions",
+      "description": "Centralized TypeScript types for domain models (listings, users, sanity types).",
+      "files": [
+        "app-next-directory/src/types/listing.ts",
+        "app-next-directory/global.d.ts",
+        "app-next-directory/sanity.types.ts"
+      ]
+    },
+    {
+      "name": "Testing",
+      "description": "Unit and integration tests using Jest and end-to-end tests with Playwright. Project contains examples and setup guides for tests.",
       "files": [
         "app-next-directory/jest.config.js",
-        "app-next-directory/playwright.config.ts",
-        "app-next-directory/tests/",
-        "app-next-directory/jest/",
-        "app-next-directory/jest.setup.ts"
+        "app-next-directory/jest.setup.ts",
+        "playwright.config.ts",
+        "tests/**"
       ]
     },
     {
-      "name": "Maps & Geolocation",
-      "description": "Leaflet map components and clustering for interactive maps on listing pages.",
+      "name": "Scripts & Dev tooling",
+      "description": "Convenience scripts for setup and local dev (setup.sh, run-sanity-proxy.ps1, run_migration.py) and the monorepo pnpm workspace config.",
       "files": [
-        "app-next-directory/src/components/maps/",
-        "app-next-directory/src/components/city-carousel/"
+        "setup.sh",
+        "run-sanity-proxy.ps1",
+        "run_migration.py",
+        "pnpm-workspace.yaml",
+        "package.json"
       ]
     },
     {
-      "name": "Image handling & staging",
-      "description": "Sanity image pipelines and local staging area for image curation.",
+      "name": "Listings data model & fixtures",
+      "description": "Sample data, quick test scripts for cities and listings, and fixtures used in unit tests and for local inspection.",
       "files": [
-        "sanity_image_staging/",
-        "app-next-directory/src/lib/images/",
-        "scripts/test-image-upload.js"
+        "app-next-directory/test-city-data.js",
+        "app-next-directory/test-featured-listings.js",
+        "image_curation_helper.csv"
+      ]
+    },
+    {
+      "name": "Docs & project guides",
+      "description": "Various onboarding and setup guides located across the repo; candidate files to consolidate into docs/ (README.md, WORKSPACE_SETUP.md, MONGODB_SETUP.md, QUICK_MONGODB_SETUP.md, JEST_SETUP_GUIDE.md, etc.).",
+      "files": [
+        "README.md",
+        "WORKSPACE_SETUP.md",
+        "MONGODB_SETUP.md",
+        "QUICK_MONGODB_SETUP.md",
+        "app-next-directory/JEST_SETUP_GUIDE.md",
+        "docs/**"
+      ]
+    },
+    {
+      "name": "CI / Release traces",
+      "description": "Project contains CHANGELOG.md and some CI config hints; needs consolidation (GitHub Actions config may exist in .github/).",
+      "files": [
+        "CHANGELOG.md",
+        ".github/workflows/**"
       ]
     }
   ]

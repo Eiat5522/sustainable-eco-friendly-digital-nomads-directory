@@ -12,6 +12,22 @@
  * ---------------------------------------------------------------------------------
  */
 
+// Custom additions: reference and image asset union support
+export type SanityReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+}
+
+export interface SanityImageAsset {
+  _id: string
+  url?: string
+  metadata?: {
+    dimensions?: { width?: number; height?: number; aspectRatio?: number }
+    lqip?: string
+  }
+}
+
 // Source: schema.json
 export type OpeningHoursEntry = {
   _type: 'openingHoursEntry'
@@ -160,12 +176,7 @@ export type RichText = {
         _key: string
       }
     | {
-        asset?: {
-          _ref: string
-          _type: 'reference'
-          _weak?: boolean
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-        }
+        asset?: SanityReference | SanityImageAsset
         media?: unknown
         hotspot?: SanityImageHotspot
         crop?: SanityImageCrop
@@ -195,12 +206,7 @@ export type NomadFeature = {
   slug?: Slug
   description?: string
   icon?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -323,12 +329,7 @@ export type Event = {
     [internalGroqTypeReferenceTo]?: 'city'
   }
   image?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -387,12 +388,7 @@ export type Amenity = {
   name?: string
   description?: string
   badge?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -443,12 +439,7 @@ export type BlogPost = {
   }
   publishedAt?: string
   primaryImage?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -487,12 +478,7 @@ export type User = {
   name?: string
   email?: string
   avatar?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -747,12 +733,7 @@ export type City = {
   sustainabilityScore?: number
   highlights?: Array<string>
   primaryImage?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -832,9 +813,20 @@ export type SanityFileAsset = {
   path?: string
   url?: string
   source?: SanityAssetSourceData
-}
-
-export type SanityImageAsset = {
+},
+export type [{
+	"resource": "/d:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/sanity.types.ts",
+	"owner": "typescript",
+	"code": "2300",
+	"severity": 8,
+	"message": "Duplicate identifier 'SanityImageAsset'.",
+	"source": "ts",
+	"startLineNumber": 818,
+	"startColumn": 13,
+	"endLineNumber": 818,
+	"endColumn": 29,
+	"origin": "extHost1"
+}] = {
   _id: string
   _type: 'sanity.imageAsset'
   _createdAt: string
@@ -956,12 +948,7 @@ export type LISTING_BY_SLUG_QUERYResult = {
     name: string | null
     description: string | null
     badge: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityReference | SanityImageAsset
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop

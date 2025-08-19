@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { AppListingCard } from '@/types/appView';
-import { ListingCategory, PriceRange } from '@/types/enums';
+import { ListingType, PriceRange } from '@/types/enums';
 import { urlFor } from '@/lib/sanity/image';
 
 export interface ListingCardProps {
