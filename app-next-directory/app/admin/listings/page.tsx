@@ -33,11 +33,12 @@ interface ListingStats {
   flaggedListings: number;
   averageRating: number;
   totalViews: number;
+}
 
 interface Listing {
   id: string;
   title: string;
-  type: 'accommodation' | 'cafe' | 'coworking' | 'restaurant' | 'activity'; 
+  type: 'accommodation' | 'cafe' | 'coworking' | 'restaurant' | 'activity';
   status: 'published' | 'pending' | 'flagged' | 'draft' | 'rejected';
   views: number;
   createdAt: string;
@@ -99,10 +100,6 @@ export default function ListingsPage() {
           title: 'Eco-Friendly Co-working Space in Bali',
           type: 'coworking',
           status: 'published',
-          location: {
-            city: 'Ubud',
-            country: 'Indonesia',
-          },
           rating: 3.2,
           reviewCount: 8,
           views: 342,
@@ -126,10 +123,6 @@ export default function ListingsPage() {
           title: 'Solar-Powered Accommodation in Costa Rica',
           type: 'accommodation',
           status: 'flagged',
-          location: {
-            city: 'San José',
-            country: 'Costa Rica',
-          },
           views: 89,
           createdAt: '2024-12-10T15:45:00Z',
           updatedAt: '2024-12-19T09:30:00Z',
@@ -151,10 +144,6 @@ export default function ListingsPage() {
           title: 'Sustainable Farm-to-Table Restaurant',
           type: 'restaurant',
           status: 'pending',
-          location: {
-            city: 'Lisbon',
-            country: 'Portugal',
-          },
           rating: 4.5,
           reviewCount: 15,
           views: 123,
@@ -180,9 +169,11 @@ export default function ListingsPage() {
   };
 
   const filteredListings = listings.filter(listing => {
-    const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         listing.location.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         listing.location.country.toLowerCase().includes(searchTerm.toLowerCase());
+    const q = searchTerm.toLowerCase();
+    const matchesSearch =
+      listing.title.toLowerCase().includes(q) ||
+      listing.author.name.toLowerCase().includes(q) ||
+      (listing.features && listing.features.some(f => f.toLowerCase().includes(q)));
     const matchesType = typeFilter === 'all' || listing.type === typeFilter;
     const matchesStatus = statusFilter === 'all' || listing.status === statusFilter;
     return matchesSearch && matchesType && matchesStatus;
@@ -426,7 +417,7 @@ export default function ListingsPage() {
                       </div>
                       <p className="text-sm text-gray-600 flex items-center gap-2">
                         <MapPin className="h-3 w-3" />
-                        {listing.location.city}, {listing.location.country}
+                        {listing.author.name}
                       </p>
                       <p className="text-xs text-gray-500">
                         by {listing.author.name} • Created: {new Date(listing.createdAt).toLocaleDateString()}
@@ -521,5 +512,4 @@ export default function ListingsPage() {
       </Card>
     </div>
   );
-}
 }

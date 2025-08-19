@@ -151,13 +151,25 @@ app-next-directory/docs/temp/temp_gemini_session.txt
 .vscode
 
 .taskmaster/config.json
+app-next-directory/.taskmaster/config.json
+sanity/.taskmaster/config.json
+.taskmaster/state.json
 .vscode/mcp.json
 # Memory bank artifacts (ignore entire directory to avoid committing chat transcripts)
-**/memory-bank/
+**/*memory-bank*/**
 app-next-directory/docs/temp/Advance search in the Search Dialog.jpeg
 app-next-directory/.gitignore
-*/**/app-next-directory/temp/**
+**/app-next-directory/temp/**/*
 app-next-directory/app/head.tsx.bak
-.taskmaster/state.json
-testsprite_tests/tmp/config.json
-testsprite_tests/tmp/
+
+# TestSprite MCP
+**/*testsprite_tests/*/**
+app-next-directory/testsprite_tests/tmp/**
+**/*testsprite*/**
+
+# Repomix
+**/*.repomix*/**
+repomix-output.xml
+repomix-output.xmlschemaAndFrontendShape.xml
+include_exclude_glob_patterns.txt
+include_exclude_glob_patterns.txt

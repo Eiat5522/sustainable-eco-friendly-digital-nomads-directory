@@ -81,10 +81,12 @@ function legacyListingToCard(legacy: Listing): AppListingCard {
     priceRange: legacy.priceRange as AppListingCard['priceRange'],
     website: legacy.website ?? null,
     primaryImage: toSanityImage(
-      typeof (legacy as any).primaryImage === 'string' ? (legacy as any).primaryImage :
-      typeof (legacy as any).imageUrl === 'string' ? (legacy as any).imageUrl : undefined
-    ),
-    galleryImages: toSanityGalleryImages(
+      typeof (legacy as any).primaryImage === 'string' && (legacy as any).primaryImage.trim().length > 0
+        ? (legacy as any).primaryImage.trim()
+        : typeof (legacy as any).imageUrl === 'string' && (legacy as any).imageUrl.trim().length > 0
+          ? (legacy as any).imageUrl.trim()
+          : undefined
+    ),    galleryImages: toSanityGalleryImages(
       Array.isArray((legacy as any).galleryImages) ? (legacy as any).galleryImages : undefined
     ),    type: legacy.type,
     shortDescription: legacy.shortDescription,

@@ -814,20 +814,7 @@ export type SanityFileAsset = {
   url?: string
   source?: SanityAssetSourceData
 },
-export type [{
-	"resource": "/d:/Eiat_Folder/MyProjects/MyOtherProjects/sustainable-eco-friendly-digital-nomads-directory/app-next-directory/sanity.types.ts",
-	"owner": "typescript",
-	"code": "2300",
-	"severity": 8,
-	"message": "Duplicate identifier 'SanityImageAsset'.",
-	"source": "ts",
-	"startLineNumber": 818,
-	"startColumn": 13,
-	"endLineNumber": 818,
-	"endColumn": 29,
-	"origin": "extHost1"
-}] = {
-  _id: string
+export type SanityImageAsset = {  _id: string
   _type: 'sanity.imageAsset'
   _createdAt: string
   _updatedAt: string
