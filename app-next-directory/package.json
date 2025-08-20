@@ -14,7 +14,7 @@
     "codegen:sanity": "npx @sanity/codegen --schema sanity/schemas --output sanity/sanity.types.ts",
     "typecheck": "tsc --noEmit",
     "analyze": "cross-env ANALYZE=true pnpm build",
-    "update-sanity-types": "cd ../sanity && npm run update-types"
+    "update-sanity-types": "cd ../sanity && npm run update-types && cd .. && pnpm run -C . types:postprocess"
   },
   "dependencies": {
     "@21st-extension/react": "^0.5.14",

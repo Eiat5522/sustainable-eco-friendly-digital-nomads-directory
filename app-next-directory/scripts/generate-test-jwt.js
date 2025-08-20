@@ -17,7 +17,13 @@ function parseArg(name) {
 
 (async () => {
   const secretInput = parseArg('secret') || process.env.NEXTAUTH_SECRET || 'test-secret';
-  const role = parseArg('role') || 'admin';
+  const validRoles = ['admin', 'user', 'venueOwner'];
+  const inputRole = parseArg('role') || 'admin';
+  if (!validRoles.includes(inputRole)) {
+    console.error(`Invalid role: ${inputRole}. Valid roles: ${validRoles.join(', ')}`);
+    process.exit(1);
+  }
+  const role = inputRole;
   const id = `test-${Math.random().toString(36).slice(2, 9)}`;
   const email = `${id}@example.com`;
 

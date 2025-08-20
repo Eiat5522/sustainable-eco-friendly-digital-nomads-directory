@@ -4,11 +4,85 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { FeaturedListingDTO } from '@/types/dto';
 
-
 interface FeaturedListingsProps {
   listings: FeaturedListingDTO[];
   variant?: 'home' | 'listings';
   searchQuery?: string;
+}
+
+/**
+ * ListingCard - extracted child component so hooks are only used at component top-level.
+ * Inputs:
+ *  - listing: FeaturedListingDTO
+ * Behavior:
+ *  - Manages image src state and onError fallback
+ *  - Renders the card UI previously inline in the map callback
+ */
+function ListingCard({ listing }: { listing: FeaturedListingDTO }) {
+  const [imageSrc, setImageSrc] = useState(listing.imageUrl || '/images/fallback.png');
+
+  return (
+    <article
+      key={listing.id}
+      className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col"
+    >
+      <Link href={`/listings/${listing.slug}`} className="block group">
+        <div className="relative w-full h-56 overflow-hidden">
+          <Image
+            src={imageSrc}
+            alt={listing.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33.333vw"
+            priority={true}
+            onError={() => setImageSrc('/images/fallback.png')}
+          />
+        </div>
+      </Link>
+      <div className="p-5 flex flex-col flex-grow">
+        <h3 className="text-xl font-semibold mb-2 text-gray-900">
+          <Link
+            href={`/listings/${listing.slug}`}
+            className="hover:text-green-600 transition-colors duration-200 line-clamp-2"
+          >
+            {listing.name}
+          </Link>
+        </h3>
+
+        {listing.city && (
+          <p className="text-sm text-gray-600 mb-3 line-clamp-1">
+            {listing.city}
+          </p>
+        )}
+
+        {listing.amenityNames && listing.amenityNames.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-3">
+            {listing.amenityNames.slice(0, 3).map((amenity) => (
+              <span 
+                key={`${listing.id}-${amenity}`}
+                className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded"
+              >
+                {amenity}
+              </span>
+            ))}
+            {listing.amenityNames.length > 3 && (
+              <span className="text-xs text-gray-500">
+                +{listing.amenityNames.length - 3} more
+              </span>
+            )}
+          </div>
+        )}
+        <div className="mt-auto">
+          <Link
+            href={`/listings/${listing.slug}`}
+            className="block w-full text-center bg-green-500 text-white py-2.5 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200 text-sm font-medium"
+          >
+            View Details
+          </Link>
+        </div>
+      </div>
+    </article>
+  );
 }
 
 export default function FeaturedListings({ 
@@ -48,76 +122,9 @@ export default function FeaturedListings({
           {listings
             .filter(listing => listing?.slug && listing.slug.trim() !== '')
             .slice(0, isHome ? 4 : listings.length)
-            .map(listing => {
-            const [imageSrc, setImageSrc] = useState(listing.imageUrl || '/images/fallback.png');
-
-            return (
-              <article
-                key={listing.id}
-                className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col"
-              >
-                <Link href={`/listings/${listing.slug}`} className="block group">
-                  <div className="relative w-full h-56 overflow-hidden">
-                    <Image
-                      src={imageSrc}
-                      alt={listing.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33.333vw"
-                      priority={true}
-                      onError={() => {
-                        setImageSrc('/images/fallback.png');
-                      }}
-                    />
-                  </div>
-                </Link>
-                
-                <div className="p-5 flex flex-col flex-grow">
-                  <h3 className="text-xl font-semibold mb-2 text-gray-900">
-                    <Link
-                      href={`/listings/${listing.slug}`}
-                      className="hover:text-green-600 transition-colors duration-200 line-clamp-2"
-                    >
-                      {listing.name}
-                    </Link>
-                  </h3>
-                  
-                  {listing.city && (
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-1">
-                      {listing.city}
-                    </p>
-                  )}
-                  
-                  {listing.amenityNames && listing.amenityNames.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {listing.amenityNames.slice(0, 3).map((amenity) => (
-                        <span 
-                          key={`${listing.id}-${amenity}`}
-                          className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded"
-                        >
-                          {amenity}
-                        </span>
-                      ))}
-                      {listing.amenityNames.length > 3 && (
-                        <span className="text-xs text-gray-500">
-                          +{listing.amenityNames.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  
-                  <div className="mt-auto">
-                    <Link
-                      href={`/listings/${listing.slug}`}
-                      className="block w-full text-center bg-green-500 text-white py-2.5 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200 text-sm font-medium"
-                    >
-                      View Details
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
+            .map((listing, index) => (
+              <ListingCard listing={listing} key={listing.id ?? listing.slug ?? index} />
+            ))}
         </div>
       </div>
     </section>

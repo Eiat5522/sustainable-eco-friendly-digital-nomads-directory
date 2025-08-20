@@ -85,18 +85,15 @@ examples*/**
 script*/**
 
 # Copilot
-#.copilotignore
-*image_curation_helper.csv
-*run_migration.py
+
+image_curation_helper.csv
+run_migration.py
 *task_0
 clean-install.ps1
 *tasks.json.bak
 **/.specstory*
 *WORKSTREAM*
 /listings/**/*
-!**/*/app-next-directory/**/**/listings
-
-
 **/playwright-report
 
 #Github Copilot
@@ -166,14 +163,14 @@ app-next-directory/testsprite_tests/tmp/**
 **/*testsprite*/**
 
 # Repomix
-**/repomix-instruction.md
-**/*.repomix*/**
-repomix-output.xml
-repomix-output.xmlschemaAndFrontendShape.xml
+repomix-output*.xml
 **/.secretlintrc.json
-.secretlintrc.json
-include_exclude_glob_patterns.txt
 
-# Repomix Allow Path
+# Allow Path
+!**/*/app-next-directory/**/listings
 !.repomix/config/schemaAndFrontendShape-repomix.config.json
 
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md

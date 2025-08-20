@@ -28,6 +28,24 @@ const toMoney = (amount?: number, currency = 'THB', unit?: 'night' | 'meal' | 'h
 const toOpening = (arr?: Array<{ day: string; opens: string; closes: string }>): OpeningHour[] | undefined =>
   Array.isArray(arr) ? arr.map(({ day, opens, closes }) => ({ day, opens, closes })) : undefined;
 
+// Sanitize Sanity geopoint input to ensure consumers get { lat, lng } or undefined
+function toGeoPoint(geo?: { lat?: number; lng?: number } | null): { lat: number; lng: number } | undefined {
+  if (geo && typeof geo.lat === 'number' && typeof geo.lng === 'number' && !isNaN(geo.lat) && !isNaN(geo.lng)) {
+    return { lat: geo.lat, lng: geo.lng };
+  }
+  return undefined;
+}
+
+// Validate and clamp a value into a 0..100 percentage number; return undefined for invalid inputs
+function toPercentage0To100(val: unknown): number | undefined {
+  if (val == null) return undefined;
+  const num = typeof val === 'number' ? val : Number(val);
+  if (!Number.isFinite(num) || Number.isNaN(num)) return undefined;
+  if (num < 0) return 0;
+  if (num > 100) return 100;
+  return num;
+}
+
 // Input shape for coworking pricing plans from Sanity
 type CoworkingPlanIn = { type?: string; price?: number; period?: string; features?: string[] };
 
@@ -64,8 +82,7 @@ const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
       name: sanityListing.city.name,
       slug: sanityListing.city.slug?.current ?? '',
       country: sanityListing.city.country ?? '',
-      sustainabilityScore: sanityListing.city.sustainabilityScore as unknown as Percentage0To100,
-      highlights: sanityListing.city.highlights,
+      sustainabilityScore: toPercentage0To100(sanityListing.city.sustainabilityScore) as Percentage0To100 | undefined,      highlights: sanityListing.city.highlights,
       description: sanityListing.city.description
     } : null,
     imageUrl,
@@ -78,7 +95,7 @@ const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
     priceRange: sanityListing.priceRange,
     website: sanityListing.website,
     address: sanityListing.address,
-    location: sanityListing.location,
+    location: toGeoPoint(sanityListing.location),
     shortDescription: sanityListing.shortDescription,
     amenityNames: (sanityListing.amenities ?? [])
       .map((a: { name?: string } | null | undefined) => a?.name)
@@ -177,9 +194,9 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
       contactEmail: sanityListing.contactEmail,
       activityDetails: {
         activityType: s.activityType,
-        duration: typeof s.duration?.value === 'number' && s.duration?.unit ? `${s.duration.value} ${s.duration.unit}` : undefined,
-        skillLevel: s.skillLevel,
-        languages: s.languages
+        duration: s.duration,
+        difficulty: s.difficulty,
+        // Add other activity-specific fields as needed
       }
     };
     return detailDTO;
@@ -204,20 +221,7 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
     };
     return detailDTO;
   }
-
-  // Fallback: return base dto casted as never to surface missing branches during dev
-  return {
-    ...baseDTO,
-    longDescription: sanityListing.longDescription,
-    galleryImages,
-    amenities: (sanityListing.amenities ?? []).map(a => ({
-      id: a._id,
-      name: a.name,
-      slug: a.slug?.current ?? '',
-      icon: a.icon,
-      category: a.category
-    })),
-    contactPhone: sanityListing.contactPhone,
-    contactEmail: sanityListing.contactEmail,
-  } as unknown as ListingDetailDTO;
+  // Log warning for unexpected types
+  // For unexpected types, throw an error to prevent runtime issues
+  throw new Error(`Unsupported listing type: ${sanityListing.type}. Expected one of: coworking, cafe, restaurant, activities, accommodation`);
 }

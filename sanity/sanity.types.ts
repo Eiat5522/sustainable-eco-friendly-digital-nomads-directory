@@ -160,12 +160,7 @@ export type RichText = {
         _key: string
       }
     | {
-        asset?: {
-          _ref: string
-          _type: 'reference'
-          _weak?: boolean
-          [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-        }
+        asset?: SanityReference | SanityImageAsset
         media?: unknown
         hotspot?: SanityImageHotspot
         crop?: SanityImageCrop
@@ -195,12 +190,7 @@ export type NomadFeature = {
   slug?: Slug
   description?: string
   icon?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -323,12 +313,7 @@ export type Event = {
     [internalGroqTypeReferenceTo]?: 'city'
   }
   image?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -387,12 +372,7 @@ export type Amenity = {
   name?: string
   description?: string
   badge?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -424,12 +404,7 @@ export type BlogPost = {
   }
   publishedAt?: string
   primaryImage?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -490,12 +465,7 @@ export type User = {
   name?: string
   email?: string
   avatar?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -551,24 +521,14 @@ export type Listing = {
   address?: string
   location?: Geopoint
   primaryImage?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
     _type: 'image'
   }
   galleryImages?: Array<{
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -807,12 +767,7 @@ export type City = {
   sustainabilityScore?: number
   highlights?: Array<string>
   primaryImage?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -1009,24 +964,14 @@ export type LISTING_BY_SLUG_QUERYResult = {
     alt: number | null
   } | null
   primaryImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
     _type: 'image'
   } | null
   galleryImages: Array<{
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityReference | SanityImageAsset
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -1059,12 +1004,7 @@ export type LISTING_BY_SLUG_QUERYResult = {
     name: string | null
     description: string | null
     badge: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityReference | SanityImageAsset
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -1082,12 +1022,7 @@ export type LISTING_BY_SLUG_QUERYResult = {
     slug: Slug | null
     description: string | null
     icon: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityReference | SanityImageAsset
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop

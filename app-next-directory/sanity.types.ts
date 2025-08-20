@@ -12,21 +12,6 @@
  * ---------------------------------------------------------------------------------
  */
 
-// Custom additions: reference and image asset union support
-export type SanityReference = {
-  _ref: string
-  _type: 'reference'
-  _weak?: boolean
-}
-
-export interface SanityImageAsset {
-  _id: string
-  url?: string
-  metadata?: {
-    dimensions?: { width?: number; height?: number; aspectRatio?: number }
-    lqip?: string
-  }
-}
 
 // Source: schema.json
 export type OpeningHoursEntry = {

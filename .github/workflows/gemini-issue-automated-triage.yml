@@ -60,23 +60,47 @@ jobs:
         with:
           github-token: '${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}'
           script: |-
-            const { data: labels } = await github.rest.issues.listLabelsForRepo({
+            const labels = await github.paginate(
+              github.rest.issues.listLabelsForRepo,
+              { owner: context.repo.owner, repo: context.repo.repo, per_page: 100 }
+            );
+            const labelNames = labels.map(label => label.name);
+            core.setOutput('available_labels', labelNames.join(','));            core.info(`Found ${labelNames.length} labels: ${labelNames.join(', ')}`);
+            return labelNames;
+
+      - name: 'Resolve Issue Inputs'
+        id: 'resolve_issue'
+        uses: 'actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea'
+        env:
+          DISPATCH_ISSUE_NUMBER: '${{ inputs.issue_number }}'
+        with:
+          github-token: '${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}'
+          script: |-
+            const issueNumber =
+              context.payload.issue?.number ??
+              (process.env.DISPATCH_ISSUE_NUMBER ? parseInt(process.env.DISPATCH_ISSUE_NUMBER, 10) : undefined);
+            if (!issueNumber) {
+              core.setFailed('Issue number is not available for this event.');
+              return;
+            }
+            const { data: issue } = await github.rest.issues.get({
               owner: context.repo.owner,
               repo: context.repo.repo,
+              issue_number: issueNumber,
             });
-            const labelNames = labels.map(label => label.name);
-            core.setOutput('available_labels', labelNames.join(','));
-            core.info(`Found ${labelNames.length} labels: ${labelNames.join(', ')}`);
-            return labelNames;
+            core.setOutput('issue_number', String(issue.number));
+            core.setOutput('issue_title', issue.title || '');
+            core.setOutput('issue_body', issue.body || '');
+
 
       - name: 'Run Gemini Issue Analysis'
         uses: 'google-github-actions/run-gemini-cli@v0'
         id: 'gemini_issue_analysis'
         env:
           GITHUB_TOKEN: '' # Do not pass any auth token here since this runs on untrusted inputs
-          ISSUE_TITLE: '${{ github.event.issue.title }}'
-          ISSUE_BODY: '${{ github.event.issue.body }}'
-          ISSUE_NUMBER: '${{ github.event.issue.number }}'
+          ISSUE_TITLE: '${{ steps.resolve_issue.outputs.issue_title }}'
+          ISSUE_BODY: '${{ steps.resolve_issue.outputs.issue_body }}'
+          ISSUE_NUMBER: '${{ steps.resolve_issue.outputs.issue_number }}'
           REPOSITORY: '${{ github.repository }}'
           AVAILABLE_LABELS: '${{ steps.get_labels.outputs.available_labels }}'
         with:
@@ -159,7 +183,7 @@ jobs:
 
             // Set labels based on triage result
             if (parsedLabels.labels_to_set && parsedLabels.labels_to_set.length > 0) {
-              await github.rest.issues.setLabels({
+              await github.rest.issues.addLabels({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issueNumber,

@@ -109,6 +109,18 @@ jobs:
             IS_PR="true"
           fi
 
+          # Validate required fields (validate number immediately; validate request after removing the mention)
+          if [[ -z "${ISSUE_NUMBER}" || "${ISSUE_NUMBER}" == "null" ]]; then
+            echo "Error: Could not extract issue/PR number from event" >&2
+            exit 1
+          fi
+          # Remove the bot mention and surrounding whitespace before validating content.
+          _SANITIZED_USER_REQUEST=$(echo "${USER_REQUEST:-}" | sed 's/.*@gemini-cli//' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+          if [[ -z "${_SANITIZED_USER_REQUEST}" || "${USER_REQUEST}" == "null" ]]; then
+            echo "Error: Could not extract user request from event" >&2
+            exit 1
+          fi
+
           # Clean up user request
           USER_REQUEST=$(echo "${USER_REQUEST}" | sed 's/.*@gemini-cli//' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
