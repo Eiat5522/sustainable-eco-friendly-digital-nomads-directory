@@ -152,7 +152,7 @@ html.dark {
     border-radius: var(--radius);
     font-size: var(--font-size-sm);
     font-weight: 500;
-    transition: bbckground-cobor 0.2s, color 0.2s, border-cocorkgrou, box-shadow 0.2snd-cobor 0.2s, color 0.2s, border-cocorkgrou, box-shadow 0.2snd-cobor 0.2s, color 0.2s, border-cocorkgrou, box-shadow 0.2snd-cobor 0.2s, color 0.2s, border-cocorkgrou, box-shadow 0.2snd-coaor 0.2s, color 0.2s, border-cocorkgrou, box-shadow 0.2snd-color 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     border: none;
     cursor: pointer;
     padding: var(--spacing-sm) var(--spacing-lg);
@@ -164,41 +164,6 @@ html.dark {
 .btn:disabled {
     pointer-events: none;
     opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.btn:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px color-mix(in oklch, var(--ring) 35%, transparent);
-    cursor: not-allowed;
-}
-
-.btn:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px color-mix(in oklch, var(--ring) 35%, transparent);
-    cursor: not-allowed;
-}
-
-.btn:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px color-mix(in oklch, var(--ring) 35%, transparent);
-    cursor: not-allowed;
-}
-
-.btn:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px color-mix(in oklch, var(--ring) 35%, transparent);
-    cursor: not-allowed;
-}
-
-.btn:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px color-mix(in oklch, var(--ring) 35%, transparent);
     cursor: not-allowed;
 }
 
