@@ -1,0 +1,323 @@
+Perfect—let’s lock in a clean, UI-only rebuild plan that keeps your DTO/API layer intact and avoids the current styling/import chaos.
+
+# Proposed UI-Only Structure (Next.js App Router + Tailwind v4)
+
+```
+app-next-directory/
+├─ app/
+│  ├─ layout.tsx                // root layout, imports globals.css, renders <Header/><Footer/>
+│  ├─ globals.css               // Tailwind v4 base + light resets
+│  ├─ page.tsx                  // Home: uses <FeaturedListingsSection/> + <CityCarouselSection/>
+│  ├─ listings/
+│  │  └─ [slug]/page.tsx        // ListingDetail page (UI composition)
+│  ├─ city/
+│  │  └─ [slug]/page.tsx        // CityDetail page (UI composition with ListingGrid)
+│  └─ search/
+│     └─ page.tsx               // Advanced search (query + multi-filters + results + auto-redirect)
+│
+├─ src/components/
+│  ├─ layout/
+│  │  ├─ Header.tsx
+│  │  └─ Footer.tsx
+│  ├─ cards/
+│  │  ├─ ListingCard.tsx        // REUSE (ensure href=/listings/[slug])
+│  │  └─ CityCard.tsx           // NEW (links to /city/[slug])
+│  ├─ sections/
+│  │  ├─ FeaturedListingsSection.tsx   // NEW (uses ListingGrid)
+│  │  └─ CityCarouselSection.tsx       // NEW (horizontal scroll or Embla later)
+│  ├─ listings/
+│  │  └─ ListingGrid.tsx        // REUSE for all grids (home, city page, search)
+│  └─ search/
+│     ├─ SearchBox.tsx          // Wrapper (can re-export your DigitalNomadSearch)
+│     ├─ FiltersSidebar.tsx     // Wrapper (can re-export your DigitalNomadSearchFilter)
+│     └─ ActiveFiltersBar.tsx   // (optional) pills to show active filters
+```
+
+### Why this shape?
+
+* Keeps **cards/grids** reusable across Featured, City Detail, and Search (your `ListingCard`/`ListingGrid` already exist and are close to ready) .
+* Pushes **page composition** and **routing** into `app/…/page.tsx` files so navigation is consistent (slug/city slugs come from your existing types/queries). Your types already include `AppListingCard` and city shapes that fit this nicely. &#x20;
+
+---
+
+# Minimal foundations
+
+## 1) Tailwind v4 globals
+
+Create/replace `app/globals.css`:
+
+```css
+@import "tailwindcss";
+
+/* small DX niceties */
+:root { color-scheme: light dark; }
+html, body { height: 100%; }
+body { font-family: var(--font-sans, ui-sans-serif, system-ui, Segoe UI, Roboto, Helvetica, Apple Color Emoji, Segoe UI Emoji); }
+.container { margin-inline: auto; padding-inline: 1rem; width: 100%; max-width: 80rem; }
+```
+
+(You can later add an `@theme` block for design tokens, but this is enough to restore sane styling quickly.)
+
+## 2) Root layout
+
+`app/layout.tsx`:
+
+```tsx
+import './globals.css';
+import type { ReactNode } from 'react';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <Header />
+        <main>{children}</main>
+        <Footer />
+      </body>
+    </html>
+  );
+}
+```
+
+---
+
+# Page shells (UI-only)
+
+## Home
+
+`app/page.tsx`:
+
+```tsx
+import FeaturedListingsSection from '@/components/sections/FeaturedListingsSection';
+import CityCarouselSection from '@/components/sections/CityCarouselSection';
+
+// UI-only: pass mocked data now; later wire to your DTO/API loaders
+export default function HomePage() {
+  return (
+    <div className="container py-8 space-y-8">
+      <FeaturedListingsSection listings={[]} />
+      <CityCarouselSection cities={[]} />
+    </div>
+  );
+}
+```
+
+## Listing Detail
+
+`app/listings/[slug]/page.tsx`:
+
+```tsx
+import type { Metadata } from 'next';
+import type { AppListingDetail } from '@/types/appView';
+
+function ListingDetailView({ listing }: { listing: AppListingDetail }) {
+  return (
+    <div className="container py-8">
+      <div className="mb-4 text-2xl font-semibold">{listing.name}</div>
+      {/* images, meta, amenities, rich text, etc. */}
+    </div>
+  );
+}
+
+export default async function ListingDetailPage({ params }: { params: { slug: string } }) {
+  // UI-only shell for now; keep your existing DTO/API.
+  // const detail = await getListingBySlugDTO(params.slug)
+  const detail = null as unknown as AppListingDetail;
+  return <ListingDetailView listing={detail} />;
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  return { title: `${params.slug} – Listing` };
+}
+```
+
+(Your `LISTING_BY_SLUG_QUERYResult` already contains all fields you need to render this later. Keep DTO mapping in your data layer. )
+
+## City Detail
+
+`app/city/[slug]/page.tsx`:
+
+```tsx
+import { ListingGrid } from '@/components/listings/ListingGrid';
+import type { AppCity, AppListingCard } from '@/types/appView';
+
+function CityDetailView({ city, listings }: { city: AppCity; listings: AppListingCard[] }) {
+  return (
+    <div className="container py-8 space-y-6">
+      <div>
+        <div className="text-2xl font-semibold">{city.name}</div>
+        {city.country && <div className="text-muted-foreground">{city.country}</div>}
+      </div>
+      <ListingGrid listings={listings} />
+    </div>
+  );
+}
+
+export default async function CityDetailPage({ params }: { params: { slug: string } }) {
+  // UI-only shell; wire to existing queries later.
+  const city = { id: 'x', name: params.slug, slug: params.slug } as AppCity;
+  const listings: AppListingCard[] = [];
+  return <CityDetailView city={city} listings={listings} />;
+}
+```
+
+(You already have a `CityPageClient` that expects `{ city, listings }`—this composition mirrors that contract. )
+
+## Advanced Search (with auto-redirect)
+
+`app/search/page.tsx` (UI stub; keeps the redirect behavior):
+
+```tsx
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ListingGrid } from '@/components/listings/ListingGrid';
+import SearchBox from '@/components/search/SearchBox';
+import FiltersSidebar from '@/components/search/FiltersSidebar';
+import type { AppListingCard } from '@/types/appView';
+
+export default function SearchPage() {
+  const router = useRouter();
+  const params = useSearchParams();
+
+  // derive user selections from QS
+  const q = params.get('q') ?? '';
+  const cities = params.getAll('city');
+  const types = params.getAll('type');
+  const amenities = params.getAll('amenity');
+
+  const body = useMemo(() => ({ query: q, cities, types, amenities }), [q, cities, types, amenities]);
+
+  const [listings, setListings] = useState<AppListingCard[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        // UI-only: replace with your real fetch later
+        const results: AppListingCard[] = [];
+        if (!cancelled) setListings(results);
+
+        // auto-redirect if exactly one
+        if (!cancelled && results.length === 1 && results[0].slug) {
+          router.replace(`/listings/${results[0].slug}`);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [body, router]);
+
+  return (
+    <div className="container grid grid-cols-1 gap-6 py-8 lg:grid-cols-[280px_1fr]">
+      <aside className="rounded-xl border p-4">
+        <FiltersSidebar />
+      </aside>
+      <main className="space-y-4">
+        <SearchBox initialValue={q} />
+        {loading ? <div>Loading…</div> : <ListingGrid listings={listings} />}
+      </main>
+    </div>
+  );
+}
+```
+
+---
+
+# Sections & cards
+
+## Featured Listings section
+
+`src/components/sections/FeaturedListingsSection.tsx`:
+
+```tsx
+import { ListingGrid } from '@/components/listings/ListingGrid';
+import type { AppListingCard } from '@/types/appView';
+
+export default function FeaturedListingsSection({ listings }: { listings: AppListingCard[] }) {
+  return (
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold">Featured</h2>
+      <ListingGrid listings={listings} />
+    </section>
+  );
+}
+```
+
+You can continue to keep your existing `FeaturedListingsUnified` if you prefer (it already wraps the base and takes `FeaturedListingDTO[]`). If so, just use that inside `Home` and map DTO→Card once upstream. &#x20;
+
+## City carousel section
+
+`src/components/sections/CityCarouselSection.tsx`:
+
+```tsx
+import Link from 'next/link';
+import Image from 'next/image';
+import type { AppCity } from '@/types/appView';
+
+export default function CityCarouselSection({ cities }: { cities: AppCity[] }) {
+  return (
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold">Explore cities</h2>
+      <div className="flex gap-4 overflow-x-auto pb-2">
+        {cities.map((c) => (
+          <Link key={c.slug} href={`/city/${c.slug}`} className="min-w-[220px]">
+            <div className="relative h-36 w-56 overflow-hidden rounded-xl border">
+              {c.primaryImage?.asset?.url ? (
+                <Image src={c.primaryImage.asset.url} alt={c.name} fill sizes="224px" className="object-cover" />
+              ) : <div className="h-full w-full bg-muted" />}
+            </div>
+            <div className="mt-2 text-sm">{c.name}</div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+```
+
+---
+
+# Reuse + tiny patches
+
+## Reuse `ListingGrid` & `ListingCard`
+
+Your `ListingGrid` and `ListingCard` are already close to what we need. Just ensure `ListingCard` links to the detail page via slug (so all sections—Featured, City Detail, Search—navigate correctly). The file already has a `getListingUrl` and a `<Link …>` spot; ensure the href is `/listings/${slug}`. &#x20;
+
+**Patch sketch** inside `ListingCard.tsx`:
+
+```tsx
+const getListingUrl = (listing: AppListingCard) => listing?.slug ? `/listings/${listing.slug}` : '#';
+
+// later
+<Link href={getListingUrl(listing)} aria-label={`View ${listing.name}`}>
+  {/* card content */}
+</Link>
+```
+
+(Keep the rendering exactly as you have; this just standardizes navigation.)
+
+---
+
+# Hooking this to your existing data later
+
+* **Types**: App types like `AppListingCard` already match the card/grid needs and cross-page reuse.&#x20;
+* **Detail data**: Your Sanity query result (`LISTING_BY_SLUG_QUERYResult`) already includes city, type, images, tags, price, contact, long/short descriptions, amenities, and reviews—perfect for the Listing Detail UI. Wire your DTO transformer back in when ready. &#x20;
+* **City detail**: You already have a client component that expects `{ city, listings }`, so this new City page composition is aligned.&#x20;
+
+---
+
+## TL;DR plan
+
+* Stand up **Tailwind + layout** first (Header/Footer visible).
+* Drop in **Home** using `FeaturedListingsSection` + `CityCarouselSection`.
+* Implement **/listings/\[slug]**, **/city/\[slug]**, **/search** shells now (UI only).
+* Reuse your **ListingCard/ListingGrid**, with the tiny link patch for slug routing.
+* Once UI is stable, connect DTO/API and turn on the real fetchers/endpoints.
+

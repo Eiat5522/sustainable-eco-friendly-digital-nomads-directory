@@ -97,7 +97,9 @@ Meta Info: The page should also show meta details like “Last Verified: [date]�
 Similar Listings: At the bottom of the listing page, the site will suggest Similar Listings that the user might be interested in. This could be implemented by showing other listings in the same city and category, or using a curated list from the CMS (there’s a field for similar listings references in the schema
 
 ). The purpose is to keep the user engaged and exploring other venues. For example, on a café listing page, it might show 2-3 other cafes in that city or region.
+
 2. User Accounts & Profiles
+
 The platform includes a user account system to enable personalized features (like adding reviews and favorites) and to differentiate access for various roles. We will implement authentication via email/password initially, using NextAuth.js (a robust auth library). Key requirements:
 User Registration & Login: Visitors can create an account using their email and a password. The registration flow will include email verification (sending a confirmation link) to ensure valid sign-ups. Logging in will start a session so the user can perform account-related actions. We’ll provide standard Log In and Sign Up pages, plus support for password reset (in case a user forgets their password, they can request a reset link via email). All authentication flows must be secure (passwords stored hashed, etc.) and user-friendly with clear feedback on errors.
 Social Login (Optional/Nice-to-have): In the future, we may allow login via Google, Facebook, or other OAuth providers to simplify onboarding. This is not mandatory for MVP, but the system (NextAuth) is capable of it, so design the auth in a way that can extend to social logins (e.g., buttons for “Continue with Google” can be present but it’s acceptable to add in a later phase).
@@ -116,7 +118,9 @@ User Profile Management: Each user will have a basic profile page where they can
 Favorites List: A logged-in user can view all the listings they have marked as favorite. This might be a simple page under their account (or a section on the profile page) showing a list of their bookmarked venues, with links to those listing pages. This feature helps users keep track of places they are interested in visiting. We will ensure that favorites persist in the user’s account (stored in the database) so they’re available on any device once logged in. Removing a favorite will also update this list immediately.
 Notifications (Email): When a user registers, they receive a welcome/verification email. If they submit a listing suggestion or a review, they might receive a confirmation email (to acknowledge receipt). Also, if their suggested listing is approved, the system could send a notification email saying “Your listing has been published!” Similarly, password resets and other account actions will trigger emails. We will integrate an email service (like SendGrid or Resend) for these transactional emails. All emails should use a consistent template/branding and be written in clear language. (Real-time on-site notifications are not planned for MVP, aside from perhaps inline messages like “Your review has been submitted.” Email suffices for now for any needed alerts.)
 Account Deletion and Data Export: In line with good practice (and likely legal compliance like GDPR), we should allow a user to delete their account and remove personal data. This would typically be a button in profile settings “Delete my account” which prompts confirmation. Deleting an account would remove their personal data from our databases (but perhaps keep their reviews as anonymous, or also delete them – we must decide policy). Similarly, we might allow a user to request an export of their data (though given minimal data, this might not be heavily used). These are nice-to-have features that could be added in later phases, but it’s good to note them as requirements for completeness.
+
 3. Reviews & Ratings System
+
 The ability for users to leave reviews is vital for community engagement and trust-building on the platform. The review system’s requirements include:
 Posting Reviews: Logged-in users can add a review to any listing. A review consists of a star rating (1 to 5 stars) and a text comment. We will require at least a rating and a brief comment (e.g., minimum 20 characters) to ensure reviews are informative. The UI will clearly indicate the rating scale (1 star = poor, 5 stars = excellent) and ask users to focus their comments on the nomad and eco-friendly aspects (perhaps a note like “How was the Wi-Fi? Did you notice sustainable practices?” to guide feedback). When submitted, the review is time-stamped and associated with the user’s account (so we know the author).
 Displaying Reviews: Reviews on a listing page will be listed in order (most recent first by default, or possibly highest rated first – but recency is usually better for temporal context). Each review display will show the reviewer’s name (or username), their rating with star icons, the date, and their comment text. If a review is lengthy, we might truncate and let users expand it. We might also summarize – e.g., show an overall average rating atop the listing page as mentioned, possibly broken down by aspect if we gather such data (for now, just an overall rating average).
@@ -324,3 +328,511 @@ Set Up Development Environment: Ensure all team members can run the project, acc
 Development Phase Execution: Start implementing Phase 1 features, track progress, and test iteratively. Use the roadmap to stay on track and adjust if needed. After Phase 1 completion, do a review before moving to Phase 2 (perhaps even a soft launch or internal demo to validate the core usage). Then continue with Phase 2 features, and so on.
 Monitoring and Analytics Setup: Before public launch, configure monitoring (error tracking with a tool like Sentry, performance monitoring, and analytics) to catch any runtime issues and gather usage data from day one.
 Launch Plan: Plan the marketing and community outreach around the launch. Possibly coordinate with some initial users to seed reviews or get feedback. Prepare any content (blog posts announcing the launch, etc.).
+
+Refactoring Scope
+
+Awesome—let’s wire up the three flows you described and make the navigation airtight:
+
+1. Featured Listings on Home → Listing Detail by `slug`
+2. City Carousel on Home → City Detail → any Listing Card → Listing Detail
+3. Advanced Search/Filter page → results; if exactly one result → auto‑redirect to its Listing Detail
+
+Below are **drop‑in files** and **surgical edits** that match your repo’s conventions and types. I’ll keep paths/components consistent with what’s already inside your packed repo.
+
+---
+
+# 1) Featured Listings (Home)
+
+You already have a thin wrapper `FeaturedListingsUnified` that feeds data into `components/listings/FeaturedListings` (good!). The only contract we must guarantee is that every card links to `/listings/[slug]`.
+
+## A. Make linking explicit in `ListingCard` (small patch)
+
+Your `ListingCard` already has `getListingUrl(...)` and a `<Link ...>` spot. Ensure it resolves to `/listings/${slug}`. If it already does, you can skip—but here’s a safe patch:
+
+```tsx
+// app-next-directory/src/components/listings/ListingCard.tsx
+// ...
+const getListingUrl = (listing: AppListingCard) => {
+  const slug = listing.slug?.toString().trim();
+  return slug ? `/listings/${slug}` : '#';
+};
+
+// later in the JSX
+<Link href={getListingUrl(listing)} aria-label={`View ${listing.name}`}>
+  {/* ...card content... */}
+</Link>
+```
+
+This lines up with the `AppListingCard` type you’re using for cards and respects the “detail by slug” rule you set. (Your file already declares `getListingUrl` and a `<Link ...>` anchor, we’re just affirming the href logic.)&#x20;
+
+> Why here? Because all three flows (Home Featured, City page results, Search results) reuse `ListingCard`, so this one fix guarantees navigation everywhere.
+
+No changes are required in `FeaturedListingsUnified` unless you want to add a small prop pass‑through. The wrapper already imports the base and types correctly.&#x20;
+
+---
+
+# 2) City Carousel (Home) → City Detail
+
+You mentioned “CityCaruosel” (typo); let’s implement a reusable **CityCarousel** component and a simple **City pill** card that links to `/city/[slug]`. Your repo already has an `AppCity` type and a `CityPageClient` consuming `{ city, listings }`—so we’ll align to that shape. &#x20;
+
+## A. New: `CityCarousel.tsx`
+
+```tsx
+// app-next-directory/src/components/cities/CityCarousel.tsx
+'use client';
+
+import Link from 'next/link';
+import Image from 'next/image';
+import { type AppCity } from '@/types/appView';
+
+export interface EcoCityItem extends AppCity {}
+
+interface CityCarouselProps {
+  cities: EcoCityItem[];
+  title?: string;
+}
+
+export default function CityCarousel({ cities, title = 'Explore Cities' }: CityCarouselProps) {
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xl font-semibold">{title}</h2>
+      </div>
+
+      <div className="flex gap-4 overflow-x-auto pb-2">
+        {cities.map((c) => (
+          <Link
+            key={c.slug}
+            href={`/city/${c.slug}`}
+            className="min-w-[220px] flex-shrink-0 rounded-xl border bg-background hover:bg-accent hover:text-accent-foreground"
+            aria-label={`Browse ${c.name}`}
+          >
+            <div className="relative h-36 w-56 overflow-hidden rounded-t-xl">
+              {c.primaryImage?.asset?.url ? (
+                <Image
+                  src={c.primaryImage.asset.url}
+                  alt={c.name}
+                  fill
+                  sizes="224px"
+                  className="object-cover"
+                />
+              ) : (
+                <div className="h-full w-full bg-muted" />
+              )}
+            </div>
+            <div className="p-3">
+              <div className="text-base font-medium">{c.name}</div>
+              {c.country && <div className="text-sm text-muted-foreground">{c.country}</div>}
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+```
+
+* Uses your `AppCity` shape (id, name, slug, country, primaryImage).&#x20;
+* City detail route assumed `/city/[slug]` (you already have `app/city/[slug]/CityPageClient.tsx`).&#x20;
+
+## B. Home usage
+
+```tsx
+// app-next-directory/src/components/home/HomeSections.tsx (example aggregator)
+// import FeaturedListingsUnified from '@/components/home/FeaturedListingsUnified';
+// import CityCarousel from '@/components/cities/CityCarousel';
+
+// <FeaturedListingsUnified listings={featuredListingDTOs} />
+// <CityCarousel cities={selectedCities} />
+```
+
+*(Use whatever Home container you already have; the idea is just to render both sections and rely on the links.)*
+
+---
+
+# 3) Advanced Search & Filter page (multi‑select, combinable, auto‑redirect if one hit)
+
+We’ll build a dedicated **/search** route that:
+
+* Accepts **text query** + multi‑select **city**, **type** (formerly category), and **amenities**.
+* Updates the URL query string for shareability.
+* Queries your **Sanity** dataset via a simple API route (`app/api/search/route.ts`).
+* Renders results via your existing `ListingCard` grid and **auto‑redirects** if the result length is exactly 1.
+* Reuses your types and aligns to the way you already fetch Sanity data. You already have Sanity types that include `slug`, `city`, `amenities`, etc.&#x20;
+
+### A. API route: `app/api/search/route.ts`
+
+```ts
+// app-next-directory/app/api/search/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { client } from '@/lib/sanity/client'; // same client used by your queries file
+import { groq } from 'next-sanity';
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const {
+      query = '',
+      cities = [] as string[],          // city slugs
+      types = [] as string[],           // 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities'
+      amenities = [] as string[],       // amenity names (or slugs)
+      limit = 50,
+      offset = 0,
+    } = body ?? {};
+
+    // Build dynamic GROQ filters
+    const filters: string[] = ['_type == "listing"', 'defined(slug.current)', 'moderation.status == "published"'];
+    const params: Record<string, any> = { limit, offset };
+
+    if (query && query.trim()) {
+      params.q = query.trim();
+      // match on name, shortDescription, longDescription
+      filters.push(`(name match $q || shortDescription match $q || longDescription match $q)`);
+    }
+
+    if (Array.isArray(cities) && cities.length) {
+      params.cities = cities;
+      filters.push(`city->slug.current in $cities`);
+    }
+
+    if (Array.isArray(types) && types.length) {
+      params.types = types;
+      // Your schema uses "type" (and also category in some places); prefer `type`
+      filters.push(`type in $types`);
+    }
+
+    if (Array.isArray(amenities) && amenities.length) {
+      params.amenities = amenities;
+      // amenity names (or slugs) – adjust if you store slug: amenity->slug.current
+      filters.push(`count(amenities[]->name[ @ in $amenities ]) > 0`);
+    }
+
+    const base = `*[
+      ${filters.join(' && ')}
+    ] | order(_createdAt desc)`;
+
+    const resultQuery = groq`${base}{
+      _id,
+      name,
+      "slug": slug.current,
+      city->{
+        _id,
+        name,
+        "slug": slug.current,
+        country
+      },
+      type,
+      address,
+      location{lat,lng},
+      primaryImage,
+      galleryImages,
+      ecoFocusTags[]->{
+        _id, name
+      },
+      priceRange,
+      website,
+      shortDescription
+    } [ $offset ... $offset + $limit ]`;
+
+    const countQuery = groq`count(${base})`;
+
+    const [listings, total] = await Promise.all([
+      client.fetch(resultQuery, params),
+      client.fetch(countQuery, params),
+    ]);
+
+    return NextResponse.json({ listings, total });
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message ?? 'Search failed' }, { status: 500 });
+  }
+}
+```
+
+* Uses the **Sanity Listing** fields (slug, city, type, amenities, priceRange, etc.) represented in your types.&#x20;
+* Your existing query definitions show `LISTING_BY_SLUG_QUERY` fields mapping (so we know what’s available).&#x20;
+
+### B. Search UI page: `app/search/page.tsx`
+
+```tsx
+// app-next-directory/app/search/page.tsx
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ListingGrid } from '@/components/listings/ListingGrid';
+import type { AppListingCard } from '@/types/appView';
+
+type Option = { label: string; value: string };
+
+const cityOptions: Option[] = [
+  { label: 'Bangkok', value: 'bangkok' },
+  { label: 'Phuket', value: 'phuket' },
+  { label: 'Krabi', value: 'krabi' },
+  // TODO: feed dynamically from Sanity if you prefer
+];
+
+const typeOptions: Option[] = [
+  { label: 'Coworking', value: 'coworking' },
+  { label: 'Cafe', value: 'cafe' },
+  { label: 'Accommodation', value: 'accommodation' },
+  { label: 'Restaurant', value: 'restaurant' },
+  { label: 'Activities', value: 'activities' },
+];
+
+const amenityOptions: Option[] = [
+  { label: 'Free Wifi', value: 'Free Wifi' },
+  { label: 'Work/Laptop friendly', value: 'Work/Laptop friendly' },
+  // add more as needed; or source from Sanity Amenity list
+];
+
+function useArrayQS(key: string) {
+  const params = useSearchParams();
+  return useMemo(
+    () => params.getAll(key).filter(Boolean),
+    [params, key]
+  );
+}
+
+function useStrQS(key: string, fallback = '') {
+  const params = useSearchParams();
+  return useMemo(() => params.get(key) ?? fallback, [params, key, fallback]);
+}
+
+export default function SearchPage() {
+  const router = useRouter();
+  const params = useSearchParams();
+
+  const q = useStrQS('q');
+  const qsCities = useArrayQS('city');
+  const qsTypes = useArrayQS('type');
+  const qsAmenities = useArrayQS('amenity');
+
+  const [loading, setLoading] = useState(false);
+  const [listings, setListings] = useState<AppListingCard[]>([]);
+  const [total, setTotal] = useState(0);
+
+  // derive body from QS
+  const body = useMemo(() => ({
+    query: q,
+    cities: qsCities,
+    types: qsTypes,
+    amenities: qsAmenities,
+    limit: 50,
+    offset: 0,
+  }), [q, qsCities, qsTypes, qsAmenities]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+
+        // Map minimal server shape to AppListingCard used by your ListingCard component
+        // (slug, name, city, primaryImage/galleries, priceRange, website...)
+        const cards: AppListingCard[] = (data?.listings ?? []).map((l: any) => ({
+          id: l._id,
+          name: l.name,
+          slug: l.slug,
+          city: l.city
+            ? {
+                id: l.city._id,
+                name: l.city.name,
+                slug: l.city.slug,
+                country: l.city.country,
+              }
+            : null,
+          ecoFocusTags: (l.ecoFocusTags ?? []).map((t: any) => t?.name).filter(Boolean),
+          digitalNomadFeatures: [],
+          priceRange: l.priceRange ?? undefined,
+          website: l.website ?? null,
+          imageUrl: l.primaryImage?.asset?.url ?? undefined,
+          primaryImage: l.primaryImage,
+          galleryImages: l.galleryImages ?? [],
+          type: l.type ?? undefined,
+          shortDescription: l.shortDescription ?? undefined,
+          address: l.address ?? undefined,
+          category: l.type ?? undefined,
+          location: l.location ?? undefined,
+        }));
+
+        if (!cancelled) {
+          setListings(cards);
+          setTotal(data?.total ?? 0);
+        }
+
+        // Auto-redirect if exactly one result
+        if (!cancelled && Array.isArray(cards) && cards.length === 1 && cards[0].slug) {
+          router.replace(`/listings/${cards[0].slug}`);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [body, router]);
+
+  // form handlers update QS
+  function updateParam(name: string, values: string[]) {
+    const next = new URLSearchParams(params.toString());
+    next.delete(name);
+    values.forEach(v => next.append(name, v));
+    router.replace(`/search?${next.toString()}`);
+  }
+  function updateSingle(name: string, value: string) {
+    const next = new URLSearchParams(params.toString());
+    if (value) next.set(name, value); else next.delete(name);
+    router.replace(`/search?${next.toString()}`);
+  }
+
+  return (
+    <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-8 lg:grid-cols-[280px_1fr]">
+      {/* Filters */}
+      <aside className="rounded-xl border p-4">
+        <div className="mb-4 text-lg font-semibold">Filters</div>
+
+        <label className="mb-2 block text-sm font-medium">Search</label>
+        <input
+          className="mb-4 w-full rounded-md border px-3 py-2"
+          type="search"
+          placeholder="Find places..."
+          defaultValue={q}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              updateSingle('q', (e.target as HTMLInputElement).value);
+            }
+          }}
+        />
+
+        <div className="mb-4">
+          <div className="mb-2 text-sm font-medium">City</div>
+          <div className="flex flex-wrap gap-2">
+            {cityOptions.map((o) => {
+              const active = qsCities.includes(o.value);
+              return (
+                <button
+                  key={o.value}
+                  className={`rounded-full border px-3 py-1 text-sm ${active ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
+                  onClick={() => {
+                    const next = active ? qsCities.filter(v => v !== o.value) : [...qsCities, o.value];
+                    updateParam('city', next);
+                  }}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <div className="mb-2 text-sm font-medium">Type</div>
+          <div className="flex flex-wrap gap-2">
+            {typeOptions.map((o) => {
+              const active = qsTypes.includes(o.value);
+              return (
+                <button
+                  key={o.value}
+                  className={`rounded-full border px-3 py-1 text-sm ${active ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
+                  onClick={() => {
+                    const next = active ? qsTypes.filter(v => v !== o.value) : [...qsTypes, o.value];
+                    updateParam('type', next);
+                  }}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mb-2">
+          <div className="mb-2 text-sm font-medium">Amenities</div>
+          <div className="flex flex-wrap gap-2">
+            {amenityOptions.map((o) => {
+              const active = qsAmenities.includes(o.value);
+              return (
+                <button
+                  key={o.value}
+                  className={`rounded-full border px-3 py-1 text-sm ${active ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
+                  onClick={() => {
+                    const next = active ? qsAmenities.filter(v => v !== o.value) : [...qsAmenities, o.value];
+                    updateParam('amenity', next);
+                  }}
+                >
+                  {o.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </aside>
+
+      {/* Results */}
+      <main>
+        <div className="mb-4 flex items-center justify-between">
+          <h1 className="text-xl font-semibold">Search Results</h1>
+          <div className="text-sm text-muted-foreground">
+            {loading ? 'Loading…' : `${total} result${total === 1 ? '' : 's'}`}
+          </div>
+        </div>
+
+        <ListingGrid listings={listings} />
+      </main>
+    </div>
+  );
+}
+```
+
+* Results are rendered with your existing `ListingGrid` which uses `AppListingCard`; that’s why we mapped returned objects to this shape.&#x20;
+* The **auto‑redirect** is handled in the `useEffect` right after fetching: if exactly one card is present, we `router.replace('/listings/[slug]')`.
+
+> If you prefer the advanced search under `/listings`, rename the folder/file to `app/listings/page.tsx` and keep the same code. Your repo currently has `app/listings/ListingsPage.tsx`, but no `page.tsx`. You can either **use this new `/search` route** or **replace `ListingsPage.tsx` with `page.tsx`** and merge logic.&#x20;
+
+---
+
+# 4) Featured Listings section (Home) – simple usage
+
+Your `FeaturedListingsUnified` wrapper is already set to pass `FeaturedListingDTO[]` into `components/listings/FeaturedListings`. Keep it as the single source on Home:
+
+```tsx
+// app-next-directory/src/components/home/FeaturedListingsUnified.tsx
+// already imports types & base component correctly
+// export default function FeaturedListingsUnified({ listings }: Props) { ... }
+```
+
+That file already imports `FeaturedListingDTO`; we’re just confirming the contract.  Also, your `FeaturedListingDTO` type includes exactly the fields needed for a simple card grid: id, name, slug, imageUrl, city, amenityNames.&#x20;
+
+If you want Featured cards to reuse `ListingCard` for consistency, you can map `FeaturedListingDTO → AppListingCard` inline (small adapter), or keep your existing `FeaturedListings` card design—either way the link behavior will be correct because `ListingCard` now links by slug.
+
+---
+
+# 5) City Detail Page
+
+You already have a client page component for a city detail (`CityPageClient`) and a legacy `CityPage` that renders a `ListingGrid`. With the new **CityCarousel** sending people to `/city/[slug]`, ensure that your City detail page populates listings and renders them via `ListingGrid` (so cards follow the same link behavior). &#x20;
+
+---
+
+## QA Checklist (fast)
+
+* Click a **Featured** card on Home → opens `/listings/[slug]`.
+* Click a **City** pill on Home → opens `/city/[slug]` → click a listing card → `/listings/[slug]`.
+* Go to **/search**:
+
+  * Type **“coffee”**, select **City: (Bangkok OR Phuket)** + **Type: (Cafe OR Restaurant)** + **Amenity: (Free Wifi OR Work/Laptop friendly)** → results.
+  * If **exactly one** matched listing → auto‑redirects to `/listings/[slug]`.
+  * Otherwise listings render; clicking a card goes to the detail page.
+
+---
+
+## Notes on data contracts
+
+* **Types**: You’re already using `AppListingCard` for rendering and `FeaturedListingDTO` for Featured; both are present in your codebase. &#x20;
+* **Sanity fields**: The API query mirrors your listing fields such as `slug.current`, `city->slug.current`, `amenities[]->name`, etc., consistent with your generated Sanity types.&#x20;
+
+---

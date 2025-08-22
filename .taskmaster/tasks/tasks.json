@@ -1,0 +1,945 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "dependencies": [],
+        "description": "Set up the Next.js project with the App Router, TypeScript, Tailwind CSS, and Shadcn UI.",
+        "details": "Initialize a new Next.js project. Configure TypeScript, Tailwind CSS, and install the Shadcn UI library. Set up the basic project structure, including folder organization for components, pages, and utilities. Ensure that the project builds and runs without errors.",
+        "id": 1,
+        "priority": "high",
+        "status": "pending",
+        "testStrategy": "Verify that the project builds successfully and that the basic UI components from Shadcn UI render correctly.",
+        "title": "Project Setup and Configuration",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize Next.js Project",
+            "description": "Create a new Next.js project using the App Router.",
+            "dependencies": [],
+            "details": "Use `create-next-app` to initialize the project.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Configure TypeScript",
+            "description": "Set up TypeScript in the Next.js project.",
+            "dependencies": [
+              "1.1"
+            ],
+            "details": "Configure TypeScript settings and ensure type checking works.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Configure Tailwind CSS and Shadcn UI",
+            "description": "Install and configure Tailwind CSS and Shadcn UI.",
+            "dependencies": [
+              "1.2"
+            ],
+            "details": "Install Tailwind CSS and Shadcn UI libraries, configure the Tailwind CSS configuration file, and set up the necessary components from Shadcn UI.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Set up Folder Structure and Basic Components",
+            "description": "Create the basic project folder structure and set up initial components.",
+            "dependencies": [
+              "1.3"
+            ],
+            "details": "Organize folders for components, pages, and utilities. Create basic components like a layout and navigation bar.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          1
+        ],
+        "description": "Define the Sanity CMS schema for Listings, Cities, EcoTags, and Reviews.",
+        "details": "Create the necessary schemas in Sanity for Listings (name, slug, city reference, category, descriptions, tags, images, features, contact info, moderation fields, review references), Cities (name, slug, country, description, sustainabilityScore, highlights, main image), EcoTags (name), and Reviews (rating, comment, author name, date). Configure the Sanity Studio to allow content creation and editing for these schemas.",
+        "id": 2,
+        "priority": "high",
+        "status": "pending",
+        "testStrategy": "Verify that the schemas are correctly defined in Sanity and that content editors can create and edit entries for each content type.",
+        "title": "Define Sanity CMS Schema",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define Listing schema",
+            "description": "Define the schema for Listings, including fields for name, slug, city reference, category, descriptions, tags, images, features, contact info, moderation fields, and review references.",
+            "dependencies": [],
+            "details": "Create the schema in Sanity with the specified fields and relationships.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Define City schema",
+            "description": "Define the schema for Cities, including fields for name, slug, country, description, sustainabilityScore, highlights, and main image.",
+            "dependencies": [],
+            "details": "Create the schema in Sanity with the specified fields.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Define EcoTag schema",
+            "description": "Define the schema for EcoTags, including a name field.",
+            "dependencies": [],
+            "details": "Create the schema in Sanity with the name field.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Define Review schema",
+            "description": "Define the schema for Reviews, including fields for rating, comment, author name, and date.",
+            "dependencies": [],
+            "details": "Create the schema in Sanity with the specified fields.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Configure Sanity Studio",
+            "description": "Configure the Sanity Studio to allow content creation and editing for the defined schemas.",
+            "dependencies": [
+              "2.1",
+              "2.2",
+              "2.3",
+              "2.4"
+            ],
+            "details": "Set up the Sanity Studio to enable content editors to create and edit entries for Listings, Cities, EcoTags, and Reviews.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          2
+        ],
+        "description": "Implement the basic structure for the Home page, including the search bar and navigation.",
+        "details": "Create the Home page component. Implement the search bar component, allowing users to enter keywords. Set up the main navigation with links to key sections (Explore/Find Listings, Cities, Blog, etc.) and user account options (Login/Signup or Profile icon).",
+        "id": 3,
+        "priority": "high",
+        "status": "pending",
+        "testStrategy": "Verify that the Home page renders correctly, the search bar is present, and the navigation links function as expected.",
+        "title": "Implement Home Page Structure",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Home page component",
+            "description": "Create the Home page component.",
+            "dependencies": [],
+            "details": "Create the basic Home page component structure.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Search Bar component",
+            "description": "Implement the search bar component, allowing users to enter keywords.",
+            "dependencies": [],
+            "details": "Implement the search bar component with input field and functionality.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement Navigation component",
+            "description": "Set up the main navigation with links to key sections (Explore/Find Listings, Cities, Blog, etc.) and user account options (Login/Signup or Profile icon).",
+            "dependencies": [],
+            "details": "Implement the navigation bar with links to key sections and user account options.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          2
+        ],
+        "description": "Fetch and display Featured Listings on the Home page.",
+        "details": "Create a component to fetch Featured Listings from Sanity. Display the featured listings in a visually appealing format (e.g., a carousel or grid). Ensure that each listing card links to the Listing Detail page.",
+        "id": 4,
+        "priority": "high",
+        "status": "pending",
+        "testStrategy": "Verify that the featured listings are displayed correctly and that clicking on a listing card navigates to the correct detail page.",
+        "title": "Display Featured Listings on Home Page",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Component to Fetch Featured Listings",
+            "description": "Create a component to fetch featured listings from Sanity.",
+            "dependencies": [],
+            "details": "Implement the logic to fetch featured listings from the Sanity CMS. This should include setting up the Sanity client and querying for the relevant data.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Design Featured Listing Card Component",
+            "description": "Design the featured listing card component.",
+            "dependencies": [],
+            "details": "Create a reusable component to display the featured listing information. This should include the listing's image, title, description, and any other relevant details. Ensure the card links to the Listing Detail page.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement Carousel/Grid Layout",
+            "description": "Implement the carousel/grid layout.",
+            "dependencies": [
+              "4.1",
+              "4.2"
+            ],
+            "details": "Choose a layout (carousel or grid) to display the featured listings. Integrate the listing card component and the data fetching component to display the listings in the chosen layout.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          2
+        ],
+        "description": "Create City pages and display a list of listings for each city.",
+        "details": "Create a City page component. Fetch city data from Sanity. Display the city's name, image, and overview. List the listings associated with that city, using the ListingCard component. Implement the CityCarousel component to display cities on the home page.",
+        "id": 5,
+        "priority": "high",
+        "status": "pending",
+        "testStrategy": "Verify that the City pages render correctly, display the city information, and list the listings associated with that city. Verify that the CityCarousel on the home page functions correctly.",
+        "title": "Implement City Pages",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create City page component",
+            "description": "Create the City page component.",
+            "dependencies": [],
+            "details": "Create the basic structure and layout for the City page.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Fetch and display city data",
+            "description": "Fetch city data from Sanity and display it on the City page.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Fetch city name, image, and overview from Sanity and display them within the City page component.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Display listings for the city",
+            "description": "List the listings associated with the city on the City page.",
+            "dependencies": [
+              "5.2"
+            ],
+            "details": "Use the ListingCard component to display listings. Fetch listings data based on the city.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement CityCarousel component",
+            "description": "Implement the CityCarousel component to display cities on the home page.",
+            "dependencies": [],
+            "details": "Create a carousel component to display cities on the home page.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          2,
+          5
+        ],
+        "description": "Implement the Listing Detail page to display detailed information about each venue.",
+        "details": "Create the Listing Detail page component. Fetch listing data from Sanity based on the slug. Display the venue's name, category, address, images, description, eco-friendly practices, digital nomad features, map location, reviews, and external links. Implement the map component using Leaflet.",
+        "id": 6,
+        "priority": "high",
+        "status": "pending",
+        "testStrategy": "Verify that the Listing Detail page displays all the required information correctly, including images, descriptions, eco-friendly practices, digital nomad features, and the map. Test the map functionality.",
+        "title": "Implement Listing Detail Page",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Listing Detail Page Component",
+            "description": "Create the React component for the Listing Detail page.",
+            "dependencies": [],
+            "details": "Set up the basic structure and layout of the page.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Fetch and Display Listing Data",
+            "description": "Fetch listing data from Sanity based on the slug and display the venue's information.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Implement the Sanity query to retrieve data. Display the venue's name, category, address, images, description, eco-friendly practices, digital nomad features, reviews, and external links.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement Map Component",
+            "description": "Implement the map component using Leaflet to display the venue's location.",
+            "dependencies": [
+              "6.2"
+            ],
+            "details": "Integrate Leaflet and display the map with the venue's location marker.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          2,
+          6
+        ],
+        "description": "Implement the Search and Filter functionality.",
+        "details": "Create a Search page component. Implement the search bar and filter options (city, category, eco-tags, digital nomad features). Implement the API route for search functionality. Display search results using the ListingCard component. Implement auto-redirect to listing detail page if only one result is found.",
+        "id": 7,
+        "priority": "high",
+        "status": "pending",
+        "testStrategy": "Verify that the search bar and filters function correctly, and that search results are displayed accurately. Test the auto-redirect functionality.",
+        "title": "Implement Search and Filter Functionality",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Search Page Component and Implement Search Bar",
+            "description": "Create the Search page component and implement the search bar functionality.",
+            "dependencies": [],
+            "details": "Create the Search page component. Implement the search bar with input field and search button.  Handle user input for search queries.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Filter Options and API Route",
+            "description": "Implement filter options (city, category, eco-tags, digital nomad features) and the API route for search functionality.",
+            "dependencies": [],
+            "details": "Implement filter options for city, category, eco-tags, and digital nomad features. Implement the API route to handle search queries and filter parameters.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Display Search Results and Implement Auto-Redirect",
+            "description": "Display search results using the ListingCard component and implement auto-redirect to listing detail page if only one result is found.",
+            "dependencies": [
+              "7.1",
+              "7.2"
+            ],
+            "details": "Display search results using the ListingCard component. Implement auto-redirect to the listing detail page if only one result is found.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          1
+        ],
+        "description": "Implement user authentication using NextAuth.js.",
+        "details": "Set up NextAuth.js for user registration, login, and password reset. Configure the MongoDB adapter for user data storage. Implement email verification.",
+        "id": 8,
+        "priority": "medium",
+        "status": "pending",
+        "testStrategy": "Verify that users can register, log in, and reset their passwords successfully. Test the email verification process.",
+        "title": "Implement User Authentication",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up NextAuth.js",
+            "description": "Configure NextAuth.js for user authentication.",
+            "dependencies": [],
+            "details": "Install and configure NextAuth.js in the project. Set up providers (e.g., credentials, email).",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Configure MongoDB Adapter",
+            "description": "Set up the MongoDB adapter for NextAuth.js.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Install the MongoDB adapter. Configure the connection to the MongoDB database. Define the schema for user data.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement Registration and Login",
+            "description": "Implement user registration and login functionality.",
+            "dependencies": [
+              "8.1",
+              "8.2"
+            ],
+            "details": "Create registration and login forms. Implement the logic to handle user registration and login using NextAuth.js.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Implement Email Verification",
+            "description": "Implement email verification for new user accounts.",
+            "dependencies": [
+              "8.3"
+            ],
+            "details": "Send verification emails to new users. Implement the logic to verify email addresses.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          8,
+          6
+        ],
+        "description": "Implement the Reviews and Ratings system.",
+        "details": "Allow logged-in users to post reviews on listings. Implement a form for submitting reviews, including a star rating and comment. Display reviews on the Listing Detail page. Implement review moderation capabilities for administrators.",
+        "id": 9,
+        "priority": "medium",
+        "status": "pending",
+        "testStrategy": "Verify that users can submit reviews, that reviews are displayed correctly, and that administrators can moderate reviews.",
+        "title": "Implement Reviews and Ratings System",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Review Submission Form",
+            "description": "Implement a form for logged-in users to submit reviews, including a star rating and comment.",
+            "dependencies": [],
+            "details": "Design and implement a user-friendly form with star rating and comment fields. Ensure the form validates user input and handles submission errors.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Display Reviews on Listing Detail Page",
+            "description": "Display submitted reviews on the Listing Detail page.",
+            "dependencies": [
+              "9.1"
+            ],
+            "details": "Fetch and display reviews associated with a listing. Format the reviews for readability, including the star rating and comment.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement Review Moderation",
+            "description": "Implement review moderation capabilities for administrators.",
+            "dependencies": [],
+            "details": "Create an admin interface to view, approve, and reject reviews. Implement functionality to flag inappropriate content.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          8,
+          6
+        ],
+        "description": "Implement the Favorites and Bookmarking feature.",
+        "details": "Allow logged-in users to favorite listings. Implement a UI element (e.g., a heart icon) to toggle favoriting. Store favorites in the user's profile. Create a Favorites page to display the user's bookmarked venues.",
+        "id": 10,
+        "priority": "medium",
+        "status": "pending",
+        "testStrategy": "Verify that users can favorite and unfavorite listings, and that their favorites are displayed correctly on the Favorites page.",
+        "title": "Implement Favorites and Bookmarking",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Favoriting Functionality",
+            "description": "Allow logged-in users to favorite listings and implement a UI element to toggle favoriting.",
+            "dependencies": [],
+            "details": "Implement the backend logic to handle favoriting and unfavoriting listings. Add a UI element (e.g., a heart icon) to each listing to allow users to toggle the favorite status. Ensure the UI updates immediately after the user interacts with the element.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Store Favorites in User Profile",
+            "description": "Store the user's favorited listings in their profile.",
+            "dependencies": [
+              "10.1"
+            ],
+            "details": "Update the user's profile data to include a list of favorited listing IDs. Ensure the data is persisted in the database. Consider the data structure for storing the favorites (e.g., an array of listing IDs).",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Create Favorites Page",
+            "description": "Create a Favorites page to display the user's bookmarked venues.",
+            "dependencies": [
+              "10.2"
+            ],
+            "details": "Design and implement a dedicated page to display the user's favorited listings. Fetch the user's favorites from their profile and display the corresponding listings. Ensure the page is accessible and user-friendly.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          8
+        ],
+        "description": "Implement User Profile Management.",
+        "details": "Allow users to edit their profile information (name, avatar). Allow users to change their password. Display user activity (reviews, favorites).",
+        "id": 11,
+        "priority": "medium",
+        "status": "pending",
+        "testStrategy": "Verify that users can edit their profile information and that their changes are saved correctly.",
+        "title": "Implement User Profile Management",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Profile Information Editing",
+            "description": "Allow users to edit their profile information (name, avatar).",
+            "dependencies": [],
+            "details": "Implement the UI and backend logic for users to modify their name and avatar.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Password Change Functionality",
+            "description": "Allow users to change their password.",
+            "dependencies": [],
+            "details": "Implement the UI and backend logic for users to change their password securely.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Display User Activity",
+            "description": "Display user activity (reviews, favorites).",
+            "dependencies": [],
+            "details": "Fetch and display user's reviews and favorites on their profile page.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          8
+        ],
+        "description": "Implement the Listing Submission form.",
+        "details": "Create a form for users to suggest new listings. Implement the backend route to create a pending listing in Sanity. Notify administrators of new submissions.",
+        "id": 12,
+        "priority": "medium",
+        "status": "pending",
+        "testStrategy": "Verify that users can submit new listings and that administrators are notified of new submissions.",
+        "title": "Implement Listing Submission Form",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create the form UI",
+            "description": "Design and implement the user interface for the listing submission form.",
+            "dependencies": [],
+            "details": "Develop the form using appropriate UI components, including input fields for listing details, and ensure a user-friendly experience.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement backend route",
+            "description": "Create the backend route to handle listing submissions and create a pending listing in Sanity.",
+            "dependencies": [],
+            "details": "Develop an API endpoint to receive form data, validate the data, and store the listing information in Sanity with a 'pending' status.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement admin notification",
+            "description": "Implement the notification system to alert administrators of new listing submissions.",
+            "dependencies": [],
+            "details": "Set up a mechanism (e.g., email) to notify administrators when a new listing is submitted, including relevant listing details.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          2,
+          12
+        ],
+        "description": "Implement the Moderation Workflow for Listings.",
+        "details": "Allow administrators to review and verify pending listings. Implement the workflow to change the status of listings to Published, Archived, or Rejected. Implement content verification and updates, including the 'Last Verified Date'.",
+        "id": 13,
+        "priority": "medium",
+        "status": "pending",
+        "testStrategy": "Verify that administrators can review, verify, and publish/reject listings. Test the content verification and update process.",
+        "title": "Implement Moderation Workflow for Listings",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Develop Admin Review Interface",
+            "description": "Create the interface for administrators to review and verify pending listings.",
+            "dependencies": [],
+            "details": "Design and implement the UI components for administrators to view listing details, including content, images, and other relevant information. Include options for administrators to change the listing status.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Status Workflow",
+            "description": "Implement the workflow to change the status of listings.",
+            "dependencies": [
+              "13.1"
+            ],
+            "details": "Implement the logic to transition listings between statuses: Pending, Published, Archived, and Rejected. Ensure proper data validation and error handling during status changes.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Integrate Content Verification and Updates",
+            "description": "Implement content verification and updates, including the 'Last Verified Date'.",
+            "dependencies": [
+              "13.2"
+            ],
+            "details": "Implement content verification logic to check listing data. Add functionality to update the 'Last Verified Date' field upon verification. Ensure data integrity and consistency.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          2
+        ],
+        "description": "Implement the Blog section.",
+        "details": "Create a Blog section with a list of blog posts. Implement the Blog Post page to display individual articles. Integrate the blog with the Sanity CMS.",
+        "id": 14,
+        "priority": "medium",
+        "status": "pending",
+        "testStrategy": "Verify that the Blog section displays blog posts correctly and that individual blog posts can be viewed.",
+        "title": "Implement Blog Section",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create the blog listing page",
+            "description": "Develop the page that displays a list of blog posts.",
+            "dependencies": [],
+            "details": "Design and implement the layout for the blog listing page. Fetch and display blog post summaries (title, excerpt, date, author, featured image).",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Create the blog post page",
+            "description": "Develop the page to display individual blog posts.",
+            "dependencies": [],
+            "details": "Design and implement the layout for the blog post page. Fetch and display the full content of a selected blog post.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Integrate with Sanity CMS",
+            "description": "Integrate the blog section with the Sanity CMS.",
+            "dependencies": [],
+            "details": "Set up the Sanity schema for blog posts. Implement the logic to fetch blog post data from Sanity and display it on the blog listing and blog post pages.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          1
+        ],
+        "description": "Implement the About Us, Contact, Terms of Service, and Privacy Policy pages.",
+        "details": "Create static informational pages for About Us, Contact, Terms of Service, and Privacy Policy. Implement a contact form with email sending functionality.",
+        "id": 15,
+        "priority": "medium",
+        "status": "pending",
+        "testStrategy": "Verify that the static pages render correctly and that the contact form functions as expected.",
+        "title": "Implement Static Informational Pages",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create About Us page",
+            "description": "Create the About Us static informational page.",
+            "dependencies": [],
+            "details": "Create the About Us page content and implement the page.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Create Contact page with form",
+            "description": "Create the Contact page with a contact form and email sending functionality.",
+            "dependencies": [],
+            "details": "Implement the Contact page content, the contact form, and the email sending functionality.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Create Terms and Privacy pages",
+            "description": "Create the Terms of Service and Privacy Policy static informational pages.",
+            "dependencies": [],
+            "details": "Create the Terms of Service and Privacy Policy page content and implement the pages.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          1
+        ],
+        "description": "Implement SEO best practices.",
+        "details": "Ensure all pages have unique, descriptive titles and meta descriptions. Implement friendly URL structures. Generate a sitemap.xml.",
+        "id": 16,
+        "priority": "medium",
+        "status": "pending",
+        "testStrategy": "Verify that the website's SEO is optimized by checking page titles, meta descriptions, and the sitemap.",
+        "title": "Implement SEO Best Practices",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement unique titles and meta descriptions",
+            "description": "Ensure all pages have unique, descriptive titles and meta descriptions.",
+            "dependencies": [],
+            "details": "Ensure all pages have unique, descriptive titles and meta descriptions.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement friendly URL structures",
+            "description": "Implement friendly URL structures.",
+            "dependencies": [],
+            "details": "Implement friendly URL structures.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Generate sitemap.xml",
+            "description": "Generate sitemap.xml.",
+            "dependencies": [],
+            "details": "Generate sitemap.xml.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          1,
+          6
+        ],
+        "description": "Implement performance optimizations.",
+        "details": "Optimize images. Lazy-load images. Implement code-splitting. Optimize queries.",
+        "id": 17,
+        "priority": "medium",
+        "status": "pending",
+        "testStrategy": "Verify that the website loads quickly and that images are optimized.",
+        "title": "Implement Performance Optimizations",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Optimize Images",
+            "description": "Optimize images for web performance.",
+            "dependencies": [],
+            "details": "Compress images, use appropriate image formats (WebP), and ensure proper image sizing.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Implement Lazy-Loading for Images",
+            "description": "Implement lazy-loading for images to improve initial page load time.",
+            "dependencies": [],
+            "details": "Use the 'loading' attribute or a JavaScript library to defer image loading until they are near the viewport.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement Code-Splitting",
+            "description": "Implement code-splitting to reduce the initial JavaScript bundle size.",
+            "dependencies": [],
+            "details": "Split the application code into smaller chunks that can be loaded on demand.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          1,
+          6
+        ],
+        "description": "Ensure accessibility compliance.",
+        "details": "Use semantic HTML. Ensure sufficient color contrast. Enable keyboard navigation. Add alt text to images.",
+        "id": 18,
+        "priority": "medium",
+        "status": "pending",
+        "testStrategy": "Verify that the website is accessible by testing with screen readers and other accessibility tools.",
+        "title": "Ensure Accessibility Compliance",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Semantic HTML",
+            "description": "Use semantic HTML elements to structure the content.",
+            "dependencies": [],
+            "details": "Replace generic `<div>` elements with semantic HTML5 elements like `<article>`, `<aside>`, `<nav>`, `<header>`, `<footer>`, `<main>`, etc. Ensure proper use of headings (`<h1>` to `<h6>`) to define content hierarchy.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Ensure Sufficient Color Contrast",
+            "description": "Verify sufficient color contrast between text and background.",
+            "dependencies": [],
+            "details": "Use a color contrast checker tool to ensure a minimum contrast ratio of 4.5:1 for normal text and 3:1 for large text (18pt or 14pt bold). Address any contrast issues by adjusting colors.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Enable Keyboard Navigation and Add Alt Text",
+            "description": "Ensure keyboard navigation and add alt text to images.",
+            "dependencies": [],
+            "details": "Test the website's navigation using only the keyboard (Tab, Shift+Tab, Enter, Spacebar). Add descriptive alt text to all images, providing context for screen reader users. Ensure all interactive elements are focusable and have a clear visual focus state.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          1,
+          8,
+          9,
+          12
+        ],
+        "description": "Implement security measures.",
+        "details": "Use industry-standard practices for authentication. Validate and sanitize user-provided data. Implement security headers. Keep dependencies up-to-date.",
+        "id": 19,
+        "priority": "high",
+        "status": "pending",
+        "testStrategy": "Perform security testing and audits to ensure the website is secure.",
+        "title": "Implement Security Measures",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Authentication",
+            "description": "Implement industry-standard authentication practices.",
+            "dependencies": [],
+            "details": "Use secure authentication methods (e.g., JWT, OAuth). Implement multi-factor authentication. Securely store user credentials.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Validate and Sanitize Data",
+            "description": "Validate and sanitize all user-provided data.",
+            "dependencies": [],
+            "details": "Implement input validation on the client and server-side. Sanitize data to prevent XSS and SQL injection attacks. Escape output appropriately.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Implement Security Headers and Dependency Updates",
+            "description": "Implement security headers and keep dependencies up-to-date.",
+            "dependencies": [],
+            "details": "Implement security headers (e.g., Content-Security-Policy, X-Frame-Options). Regularly update dependencies to patch security vulnerabilities. Automate dependency updates where possible.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      },
+      {
+        "dependencies": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "description": "Conduct thorough testing and quality assurance.",
+        "details": "Test all core user flows. Test the website on different devices and browsers. Fix any bugs or UX issues.",
+        "id": 20,
+        "priority": "high",
+        "status": "pending",
+        "testStrategy": "Perform comprehensive testing to ensure the website functions correctly and meets all requirements.",
+        "title": "Conduct Thorough Testing and Quality Assurance",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Test Core User Flows",
+            "description": "Test all core user flows to ensure they function as expected.",
+            "dependencies": [],
+            "details": "Verify the functionality of key user flows such as searching for listings, viewing listing details, submitting listings, and user account management.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 2,
+            "title": "Cross-Browser and Device Testing",
+            "description": "Test the website on different devices and browsers.",
+            "dependencies": [],
+            "details": "Test the website on various browsers (Chrome, Firefox, Safari, Edge) and devices (desktops, tablets, and mobile phones) to ensure responsiveness and compatibility.",
+            "status": "pending",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Bug and UX Issue Resolution",
+            "description": "Fix any bugs or UX issues identified during testing.",
+            "dependencies": [
+              "20.1",
+              "20.2"
+            ],
+            "details": "Identify and fix any bugs or UX issues found during testing. This includes fixing broken links, improving responsiveness, and addressing usability concerns.",
+            "status": "pending",
+            "testStrategy": ""
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-21T21:22:01.048Z",
+      "updated": "2025-08-21T21:22:01.048Z",
+      "description": "Tasks for master context"
+    }
+  }
+}
