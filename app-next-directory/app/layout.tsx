@@ -11,7 +11,8 @@ export const metadata: Metadata = {
 };
 import "./globals.css";
 import { TwentyFirstToolbar } from '@21st-extension/toolbar-next';
-import { MainNav } from '@/components/layout/MainNav';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 import ClientRootLayout from './ClientRootLayout';
 
 export default function RootLayout({ children }: { readonly children: React.ReactNode }) {
@@ -26,10 +27,11 @@ export default function RootLayout({ children }: { readonly children: React.Reac
             Skip to main content
           </a>
           <TwentyFirstToolbar config={{ plugins: [] }} />
-          <MainNav />
+          <Header />
           <main id="main-content" tabIndex={-1} className="pt-16">
             {children}
           </main>
+          <Footer />
         </ClientRootLayout>
       </body>
     </html>
