@@ -54,16 +54,16 @@
 			"taskTitle": "Implement Advanced Search Page with Auto-Redirect",
 			"complexityScore": 8,
 			"recommendedSubtasks": 4,
-			"expansionPrompt": "Break down the search page implementation into: 1) Creating the `app/search/page.tsx` file and basic structure. 2) Implementing the search bar and filter sidebar. 3) Implementing the listing grid. 4) Implementing the auto-redirect functionality.",
-			"reasoning": "This task is complex due to the integration of search, filtering, and auto-redirect. Breaking it down into smaller, more manageable steps allows for focused development and testing of each feature."
+			"expansionPrompt": "Break down the listing detail page into: 1. Build page layout and sections (gallery, details, map). 2. Fetch listing by slug/id with loading, error, and not-found states. 3. Render reviews and related listings.",
+			"reasoning": "UI composition plus data fetching and error handling warrant separation into clear deliverables."
 		},
 		{
 			"taskId": 7,
 			"taskTitle": "Implement Featured Listings Section",
 			"complexityScore": 4,
 			"recommendedSubtasks": 2,
-			"expansionPrompt": "Break down the featured listings section into: 1) Creating the `FeaturedListingsSection.tsx` file and basic structure. 2) Integrating the `ListingGrid` component and passing the `listings` prop.",
-			"reasoning": "This is a relatively straightforward component implementation. Breaking it down into creating the component structure and integrating the ListingGrid simplifies the process."
+			"expansionPrompt": "Break down search and filter into: 1. Design filter schema (price, tags, city). 2. Implement server-side query endpoints with pagination. 3. Build client UI with debounced inputs and URL-sync.",
+			"reasoning": "Combines data modeling, backend querying, and interactive UI."
 		},
 		{
 			"taskId": 8,
@@ -78,16 +78,16 @@
 			"taskTitle": "Update ListingCard to use Slug for Navigation",
 			"complexityScore": 5,
 			"recommendedSubtasks": 2,
-			"expansionPrompt": "Break down the update into: 1) Modifying the `ListingCard` component to use the slug for the link. 2) Verifying the navigation across different sections (Featured, City Detail, Search).",
-			"reasoning": "This task involves modifying an existing component and verifying its behavior. Breaking it down into the modification and verification steps makes it easier to test."
+			"expansionPrompt": "Break down reviews and ratings into: 1. Define DB schema and constraints. 2. Create CRUD APIs with moderation hooks. 3. Build UI components and aggregate rating display.",
+			"reasoning": "Multiple data flows and validation steps justify dedicated subtasks."
 		},
 		{
 			"taskId": 10,
 			"taskTitle": "Create Search Wrapper Components",
 			"complexityScore": 6,
 			"recommendedSubtasks": 3,
-			"expansionPrompt": "Break down the wrapper component creation into: 1) Creating the `SearchBox.tsx` wrapper. 2) Creating the `FiltersSidebar.tsx` wrapper. 3) Verifying the correct prop handling and rendering.",
-			"reasoning": "This task involves creating wrapper components, which can be broken down into creating each wrapper and verifying its functionality."
+			"expansionPrompt": "Break down favorites/bookmarking into: 1. Model user favorites store. 2. Add API endpoints with authentication/authorization checks. 3. Integrate UI with optimistic updates.",
+			"reasoning": "State is user-specific and security-sensitive; separation reduces risk."
 		}
 	]
 }

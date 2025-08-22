@@ -174,3 +174,5 @@ repomix-output*.xml
 
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
+app-next-directory/app/listings/ListingsPageWrapper.tsx.bak
+app-next-directory/app/listings/ListingsPage.tsx.bak

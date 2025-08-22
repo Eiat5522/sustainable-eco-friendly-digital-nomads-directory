@@ -79,7 +79,8 @@
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "@shadcn/ui": "^0.1.0"
   },
   "devDependencies": {
     "@jest/globals": "^30.0.5",
@@ -114,7 +115,7 @@
     "postcss": "^8.5.6",
     "posthog-js": "^1.258.2",
     "supertest": "^7.1.4",
-    "tailwindcss": "^4.1.11",
+    "tailwindcss": "^4.0.0",
     "ts-jest": "^29.4.0",
     "typescript": "^5.9.2",
     "webpack": "^5.101.1",
