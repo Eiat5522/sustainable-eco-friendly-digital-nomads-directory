@@ -1,674 +1,211 @@
-Product Requirements Document: Sustainable Eco‑Friendly Digital Nomads Directory (Refactor Project)
-Project Overview
-The Sustainable Eco-Friendly Digital Nomads Directory is a web platform that helps remote workers (digital nomads) find sustainable, eco-friendly venues and services in Thailand. The product addresses the need for environmentally conscious travelers to easily discover coworking spaces, accommodations, cafés, and other services that align with sustainable practices. By providing verified information on eco-friendly features (like renewable energy use or community initiatives) and digital nomad amenities (reliable Wi-Fi, workspaces, etc.), the platform empowers users to make informed choices that support sustainable travel. Built with Next.js (React) and a modern tech stack, the directory will deliver a fast, intuitive user experience while ensuring content is up-to-date through a headless CMS backend. The refactoring project’s goal is to comprehensively define and implement all core features of the website – from content discovery to user engagement – in a structured, maintainable way. Key Goals and Objectives:
-Comprehensive Directory: Curate a thorough list of eco-friendly venues across Thailand (e.g. green hotels, co-working hubs, cafes) with detailed information on their services and sustainability practices.
-Empower Digital Nomads: Enable users to easily find places that meet both their remote work needs and eco-values, improving their experience living and working in Thailand.
-Promote Sustainability: Highlight venues’ sustainable initiatives (solar power, recycling programs, etc.) and foster an eco-conscious community by featuring user reviews and ratings on sustainability.
-Easy Content Management: Allow content managers/admins to update listings and moderate user contributions via an integrated CMS (Sanity), ensuring information remains accurate and moderated without direct code changes.
-Scalable & Maintainable Platform: Refactor the codebase to use best practices (modular architecture, design system, latest Next.js features) for long-term scalability, easy addition of new features, and performance optimization.
-Target Audience
-The primary audience is digital nomads relocating to or traveling in Thailand, who are seeking sustainable living and working options. These users are typically remote workers or entrepreneurs, often tech-savvy and socially conscious, who need reliable infrastructure (internet, work-friendly spaces) and prefer businesses that minimize environmental impact. They will use the directory to find places to stay, work, eat, and socialize that align with their lifestyle. Key characteristics and needs of this audience include:
-Remote Work Needs: High-speed internet, comfortable work areas, and communities of other nomads are important. They will filter for features like Wi-Fi quality, coworking facilities, and events for networking.
-Eco-Conscious Values: They actively seek out accommodations or cafes with green practices (e.g. renewable energy, plastic-free policies). The platform should clearly showcase each listing’s eco-friendly attributes and certifications.
-Local Exploration: As newcomers to Thailand’s cities, they need guidance on where to go. City-specific information (climate, cost, culture) and highlights of sustainable attractions or services in each city will be valuable.
-Convenience & Trust: They prefer an easy-to-use, fast site with trustworthy information. User reviews and verified data (e.g. “verified by our team” badges) will help build trust that the listings are reliable and community-endorsed.
-Secondary audiences include local sustainable business owners (who may use the platform to reach nomads by getting their venues listed) and eco-conscious travelers visiting Thailand for shorter stays. However, the product will primarily cater to the needs of digital nomads in terms of features and content emphasis.
-Scope and Constraints
-Geographic Scope: The directory will focus exclusively on Thailand. All listings are located within Thailand’s cities and regions. Major nomad hubs like Bangkok, Chiang Mai, Phuket, etc., will be covered. (Expansion to other countries or global coverage is out-of-scope for now but can be considered in the future.)
-Content Scope: Listings will include sustainable businesses relevant to nomads: co-working spaces, eco-friendly cafés/restaurants, “green” accommodations (hotels, hostels, co-living spaces), and possibly other services (e.g. sustainable tour operators or community hubs) if applicable. Each listing is curated to meet a baseline of sustainability criteria (e.g. having certain eco-friendly practices) so that the directory maintains a clear focus. Non-eco-friendly or unrelated businesses will not be listed.
-Content Source: All listing content is internally managed through Sanity CMS. Content is added and edited by the project team (or approved contributors) via the Sanity Studio interface. There are no external scraped or third-party feeds populating the listings – quality is maintained through manual curation and verification. (User-generated content is limited to reviews and suggestions, which are subject to moderation.)
-Design/Technology Constraints: The product will use a Next.js 15+ front-end with the new App Router in TypeScript
-
-. The UI is built with Tailwind CSS v4 and uses the Shadcn UI library (Radix UI components) for a consistent, accessible design system
-
-. This constraint ensures development speed and design consistency but means all styling will follow the defined Tailwind design tokens and component guidelines. The site must be responsive (mobile-first design for travelers on the go) and support dark mode out of the box
-
-.
-Out of Scope: The initial refactoring will not include building a native mobile app or supporting languages other than English. It will also avoid complex features like in-app payments or booking systems – the directory is informational (with outbound links) rather than a booking platform. Any extensive partner integrations (e.g. pulling in data from external booking APIs) are not planned at this stage to keep scope manageable. Additionally, advanced community features (forums, direct messaging between users) are outside the current scope.
-User Experience & User Journeys
-The product should offer a simple, intuitive user experience that caters to the journey of a digital nomad discovering sustainable options in Thailand. Below are key user personas and their typical flows through the product:
-Persona 1 – “Explorer” (Digital Nomad User): Alice is a remote software developer planning to spend a few months in Chiang Mai. She visits the site to research where she can work and live sustainably. Her journey: she lands on the homepage and uses the search bar to input “Chiang Mai coworking”. She filters results to show only Coworking Spaces in Chiang Mai, and sorts by rating. She clicks on a listing to view the Listing Detail page with rich information (description, amenities, eco-friendly practices, user reviews, and a map). She reads that the space uses solar panels and has a composting program – aligning with her values. She also sees other digital nomad features listed, like “24/7 access and community events”. After comparing a few listings, she marks one as a favorite (for future reference, requiring her to create an account). She then navigates to the City page for Chiang Mai, where she reads an overview of Chiang Mai’s sustainability score and highlights
-
-
- – e.g., good air quality part of year, many organic markets – which reinforces her decision. She finally signs up and leaves a review on the coworking space after visiting it, to help future users.
-Persona 2 – “Eco Business Owner”: Ben runs a small eco-friendly guesthouse in Phuket. He wants to attract digital nomads. On the site, he finds the “Add Listing” (Submit a Listing) page or call-to-action. Ben fills out a form with his venue details (name, category = Accommodation, address, descriptions, sustainable practices, images). The form is submitted to the site administrators as a “pending” listing for review. An admin later reviews and verifies the info (possibly contacting Ben for proof of certain eco practices) and then publishes the listing so it appears on the website. Ben can then see his guesthouse listed; in the future he may claim the listing as the owner to update details or respond to reviews. (Note: The owner interaction is limited in MVP; direct editing by owners might be introduced in later phases via a special account role.)
-Persona 3 – “Admin/Content Curator”: Cara is an administrator for the site. She uses the Sanity CMS to input new listings and ensure data consistency. When Ben’s submission comes in, Cara receives a notification (or checks a moderation queue in the CMS or admin dashboard). She verifies the content meets guidelines (sustainability criteria) and sets the listing’s status to “Published”. She can also mark exceptional venues as “Featured” so they show up prominently on the homepage
-
-. Cara regularly monitors incoming user reviews; if any review is inappropriate or spammy, she can remove it via an admin tool or CMS. She also updates the “Last Verified Date” on listings periodically to indicate information freshness
-
-. Additionally, Cara writes blog articles (e.g., “Top 5 Eco Retreats in Thailand”) via the CMS, which appear in the Blog section of the site, helping drive engagement and SEO.
-General User Flow Notes: The site’s navigation should make it effortless to jump between high-level browsing (by city or category) and specific details. For example, from the homepage, a user can select a city to see all listings there, or use search filters to narrow down by category or eco-tag across all of Thailand. Once on a listing detail, the page may suggest similar listings (e.g., other eco-friendly cafés in the same city) to encourage exploration. A consistent header menu will provide quick access to key sections: Home, Search, Cities, Blog, and user account options (login/profile) if applicable. Throughout the journey, the interface must remain clear, with no ambiguity in labels or instructions – e.g., using icons and text to denote features (🌱 for eco features, 💻 for digital nomad facilities) and tooltips or info modals for any potentially unclear terms. The tone of content and labels should be friendly and straightforward, suitable for an international audience.
-Core Features and Requirements
-1. Listing Catalog & Discovery
-Home Page: The homepage will serve as a starting point for discovery. It should prominently feature a search bar (allowing keyword search for cities, venue names, categories) and call-to-action buttons for common tasks (e.g., “Browse by City”, “Suggest a Listing”). The home page can highlight Featured Listings – a few top-rated or editor-picked venues that exemplify eco-friendly nomad spots – to immediately show the value of the directory. It may also show a teaser of major cities (with an image and sustainability score snippet) and/or latest blog posts. The design is welcoming and quickly orients users on what the site offers. City Pages: For each key city (e.g., Bangkok, Chiang Mai, Phuket), there will be a dedicated page. This page displays the city’s name, an image, and a brief descriptive overview emphasizing its appeal to digital nomads and eco-friendliness. Example: “Chiang Mai – A mountainous city known for its digital nomad community and improving air quality. Sustainability initiatives include bike-sharing and organic farms…”. The page will show the city’s Sustainability Score (0–100) which is a summary indicator of how eco-friendly the city is
-
-. It will also list a few eco highlights (bullet points like “Excellent air quality in winter months” or “Has city-wide recycling program”) drawn from the CMS
-
-. Below this intro, the Listings in that City are displayed. Users can filter or sort this city-specific list by category (coworking, cafe, accommodation, etc.) or by rating. A small city map may be present showing pins for the listings in that city for geographic context. City pages help users narrow focus to one location and see all options there at a glance. Listings Index & Categories: Users can browse all listings via either a global search or by selecting a category. The platform will support broad categories such as Coworking Spaces, Cafés & Restaurants, Accommodations, etc. There isn’t a separate static page per category initially (since Thailand-wide category listing can be achieved via search filters), but the UI will allow filtering by category easily. For instance, a user could filter to see all “Accommodations” in Thailand or in a specific city. The category of each listing is stored and displayed (e.g., on a listing card it might say “Category: Coworking Space”). This categorization is used for filtering logic. If feasible, the site can provide quick category links (e.g., “Explore Coworking Spaces”, which effectively performs a search filter for that category). Search & Advanced Filtering: The platform provides a powerful search function to sift through listings. Users can search by keywords (matching listing name, description, etc.) with support for full-text search on relevant fields. They can also apply filters to refine results: by Category, by City/Location, and by specific tags or features. Notably, users can filter by Eco-Tags (sustainability features) and by Digital Nomad Features, to find listings that meet certain criteria. For example, a user could filter for venues that have the “solar-powered” tag, or those marked with “fast Wi-Fi”. The system supports multi-filter combinations (e.g., show cafes in Bangkok with “Plastic-Free” tag). This advanced filtering capability is a core feature
-
-. The UI for filters will likely be a sidebar or dropdown on search results with checkboxes or multi-select inputs for each filter category. Search results should update in real-time or on submission of the filters, showing matching listings as a list of cards with key info. Each result card will typically show a thumbnail image, name, category, location (city), a short description or highlight, and maybe an icon summary of its eco/nomad features (like a Wi-Fi icon if it has great Wi-Fi, a leaf icon if it’s notably green). Users can click on any result to go to the detailed page.
-Performance Consideration: The search and filter operations should be efficient even as the number of listings grows. Initially, with Thailand-only data, this might be a few hundred listings, which Sanity’s querying or a simple in-memory filter can handle. If the data scales up, we may integrate a search indexing service (like Algolia or similar) for faster full-text search. For now, the implementation will likely use Sanity’s GROQ queries or API routes to filter data on the backend. We will ensure that search is fast and yields relevant results (e.g., boosting exact matches in title higher
-
-, and possibly using additional keywords field to improve search relevance
-
-).
-Geo-Filtering/Map: The search interface may include an option to view results on a map. Using the integrated map component, users can see pins of listings matching their search, which helps visualize proximity. (For example, a nomad could see which co-working is near a certain neighborhood.) Each listing in Sanity has a geolocation (latitude/longitude) stored so that it can be placed on the map
-
-. The map view is pan/zoomable and might allow filtering by drawing an area (nice-to-have, can be later). At minimum, on the listing detail page there will be a small map showing that listing’s location with a marker.
-Listing Detail Page: This is the core page for each venue/listing, aggregating all information a user needs about that venue. Requirements for the listing detail page:
-Basic Info: Display the name of the venue, category, and exact address (with a link to open in Google Maps or another navigation app). Also show the city and perhaps neighborhood. If the user is logged in and has certain roles, we might show additional info like an “Edit this listing” link for owners/admins (permission-based).
-Images Gallery: Show the primary image prominently (hero image/banner) and allow the user to scroll through a gallery of additional images. All images have appropriate alt text for accessibility
-
-. Users should be able to click to enlarge images or view them in a lightbox.
-Description: Show both a short summary (couple of lines) and a longer description of the venue. The short description gives a quick overview (e.g., “Cozy co-working space in old town with a community garden”), while the detailed description provides in-depth information like history, mission, sustainability initiatives, etc. These come from the CMS fields for each listing.
-Eco-Friendly Practices: Highlight the listing’s sustainability features. This can include a list of Eco-Tags associated with the listing (for example: Solar Powered, Recycling Program, Locally Sourced Food). These tags are stored per listing
-
- and should be displayed as badges or icons. If the listing has a special write-up about its eco practices (“Eco Notes Detailed” field), that text is shown as well (perhaps in an expandable section for those interested in more background).
-Digital Nomad Features: Also display the digital nomad-friendly features of the venue. This might be a list of amenities important to remote workers: e.g., High-Speed WiFi, Dedicated Desks, Air Conditioning, Community Events, Coffee & Snacks, etc. These come from the listing’s digital_nomad_features array
-
-. This info helps a user quickly assess if the place suits working needs.
-Category-Specific Details: Depending on the category of the listing, show additional relevant details:
-For Co-working Spaces: list operating hours, types of pricing plans (day pass, monthly, etc.), and specific amenities (e.g., conference room, standing desks)
-
-
-.
-For Cafés: show hours, an indication of price or typical spend, any menu highlights (especially sustainable or vegan options), and notes on WiFi reliability
-
-
-.
-For Accommodations: show the type (hotel, hostel, co-living), approximate price range per night, available room types, and key amenities (e.g., kitchen access, co-working area, free bikes)
-
-
-.
-These fields ensure the user gets a complete picture tailored to the type of venue. They will be presented clearly, possibly in a key-value list or icon set (for example, a bed icon with “Private rooms and dorms available” for accommodations).
-Map Location: Embed a small interactive map (using Leaflet with OpenStreetMap data) showing the venue’s exact location with a pin. This helps users see where it is and what’s nearby. The map should be zoomed appropriately to show local context. If multiple listings are in view, potentially show those too (though for a single listing page, typically one pin is fine).
-Reviews & Ratings: The listing page will include a user reviews section where travelers can read feedback from others and see an average rating. At the top of this section, show an average star rating (1–5 stars) if reviews exist, and the count of reviews. Below, list individual reviews including the reviewer’s name (or anonymized handle), the rating score (1–5 stars), date, and their comments. Reviews are stored in the CMS and associated with listings
-
-
-. The UI should perhaps show 3-5 reviews by default and allow expanding to view more or paginating if there are many. If no reviews yet, display a message like “Be the first to review this place” with a call-to-action button for logged-in users to add a review.
-Add Review: A logged-in user can submit a new review from the listing page. This will involve a form with a star rating input (1 to 5) and a text box for comments. Upon submission, the review will either immediately display (if we allow instant posting) or go into a pending state for moderation (depending on moderation policy, likely the latter for safety). For MVP, reviews might be posted immediately but with ability for admin to remove if needed – however, given quality concerns, we might require admin approval in the workflow. We will clarify moderation in a later section. In any case, the review system needs to prevent spam and abuse (e.g., by requiring login and possibly limiting one review per user per listing).
-Favorites & Bookmarking: If a user is logged in, they should see an option (e.g., a heart icon) to favorite or bookmark the listing. Clicking it will save that listing to their personal list of favorites. This helps users build a shortlist of places they are interested in. (The icon should toggle state when favorited, and perhaps a toast or message confirms “Added to your favorites”.) Favoriting is a quick action and should be reflected in the user’s profile or a “Favorites” page.
-Call to Action & External Links: The listing detail page should help the user act on the information. For example, provide a link to the venue’s website or booking page (open in new tab) if available, so the user can make a reservation or learn more. Also include a contact method – this could be an email or phone number for the venue (if provided in the CMS) or a “Contact Venue” button if we decide to facilitate contact via our site (not likely needed initially). If the venue offers online booking or we have an affiliate link, that can be integrated here in the future.
-Meta Info: The page should also show meta details like “Last Verified: [date]” which indicates when the data was last confirmed by the team
-
-. This builds trust that info is current. Additionally, if the listing was user-submitted, it might show “Submitted by [username]” and a note if it’s awaiting verification (“information not verified” warning if applicable). We will also indicate if the listing is Verified (a flag meaning our team has checked its sustainability claims) – for example, a badge or text “✅ Verified Eco-Friendly” if the verificationStatus is set to verified
-
-.
-Similar Listings: At the bottom of the listing page, the site will suggest Similar Listings that the user might be interested in. This could be implemented by showing other listings in the same city and category, or using a curated list from the CMS (there’s a field for similar listings references in the schema
-
-). The purpose is to keep the user engaged and exploring other venues. For example, on a café listing page, it might show 2-3 other cafes in that city or region.
-
-2. User Accounts & Profiles
-
-The platform includes a user account system to enable personalized features (like adding reviews and favorites) and to differentiate access for various roles. We will implement authentication via email/password initially, using NextAuth.js (a robust auth library). Key requirements:
-User Registration & Login: Visitors can create an account using their email and a password. The registration flow will include email verification (sending a confirmation link) to ensure valid sign-ups. Logging in will start a session so the user can perform account-related actions. We’ll provide standard Log In and Sign Up pages, plus support for password reset (in case a user forgets their password, they can request a reset link via email). All authentication flows must be secure (passwords stored hashed, etc.) and user-friendly with clear feedback on errors.
-Social Login (Optional/Nice-to-have): In the future, we may allow login via Google, Facebook, or other OAuth providers to simplify onboarding. This is not mandatory for MVP, but the system (NextAuth) is capable of it, so design the auth in a way that can extend to social logins (e.g., buttons for “Continue with Google” can be present but it’s acceptable to add in a later phase).
-User Roles and Permissions: The application will employ role-based access control using NextAuth session data. There are multiple user roles defined, each with different permissions
-
-:
-General User: A normal registered user (default role). Can create reviews, favorite listings, and manage their own profile. Cannot add new listings directly (except via a suggestion form) and cannot edit content not owned by them. No admin capabilities.
-Moderator/Editor: A content editor role (trusted user or staff) who can log into an admin interface or CMS to manage content. Editors can approve or reject listings and reviews, edit listing details in the CMS, and generally ensure quality. They do not have full system rights like managing user accounts, but they handle content moderation.
-Venue Owner: A special role for business owners. This role might be assigned when a user who owns a venue is verified. A venueOwner could be allowed to suggest edits to their listing or respond to reviews on their listing. (Initial implementation might not fully empower this role, but we plan the structure for it.) They have more access to their own listing’s data but not others.
-Admin: Full administrators with access to all data and management tools. Admins can manage user roles, remove content, feature listings, etc. They have access to an admin dashboard if provided, or they can use the CMS for many tasks.
-SuperAdmin: Possibly a higher-level admin (for example, the site owner/developer role) with rights to manage lower admins and perform dangerous operations. In practical terms, Admin and SuperAdmin are similar for product requirements; these roles ensure we can differentiate if needed (e.g., SuperAdmin can manage platform settings or have database access).
-The system will enforce these permissions such that protected pages or actions are only accessible to the appropriate roles. For example, attempting to access the admin moderation page as a general user will show an “Unauthorized” error page (these NextAuth guard pages exist in the system
-
-).
-User Profile Management: Each user will have a basic profile page where they can edit personal information (name, avatar, bio if we allow). At minimum, they should be able to change their display name (or it could default from email before they set one) and upload a profile picture. They should also be able to update their password, and set preferences like opting into newsletters (if we have any) or choosing to enable dark mode (though dark mode could also just follow system setting automatically). If feasible, the profile can show their activity: e.g., list of reviews they’ve written, their favorite listings bookmarked, etc., for the user’s reference. This is mostly for their own use, but could be expanded into a public profile if the community aspect grows (not in initial scope to have public user profiles).
-Favorites List: A logged-in user can view all the listings they have marked as favorite. This might be a simple page under their account (or a section on the profile page) showing a list of their bookmarked venues, with links to those listing pages. This feature helps users keep track of places they are interested in visiting. We will ensure that favorites persist in the user’s account (stored in the database) so they’re available on any device once logged in. Removing a favorite will also update this list immediately.
-Notifications (Email): When a user registers, they receive a welcome/verification email. If they submit a listing suggestion or a review, they might receive a confirmation email (to acknowledge receipt). Also, if their suggested listing is approved, the system could send a notification email saying “Your listing has been published!” Similarly, password resets and other account actions will trigger emails. We will integrate an email service (like SendGrid or Resend) for these transactional emails. All emails should use a consistent template/branding and be written in clear language. (Real-time on-site notifications are not planned for MVP, aside from perhaps inline messages like “Your review has been submitted.” Email suffices for now for any needed alerts.)
-Account Deletion and Data Export: In line with good practice (and likely legal compliance like GDPR), we should allow a user to delete their account and remove personal data. This would typically be a button in profile settings “Delete my account” which prompts confirmation. Deleting an account would remove their personal data from our databases (but perhaps keep their reviews as anonymous, or also delete them – we must decide policy). Similarly, we might allow a user to request an export of their data (though given minimal data, this might not be heavily used). These are nice-to-have features that could be added in later phases, but it’s good to note them as requirements for completeness.
-
-3. Reviews & Ratings System
-
-The ability for users to leave reviews is vital for community engagement and trust-building on the platform. The review system’s requirements include:
-Posting Reviews: Logged-in users can add a review to any listing. A review consists of a star rating (1 to 5 stars) and a text comment. We will require at least a rating and a brief comment (e.g., minimum 20 characters) to ensure reviews are informative. The UI will clearly indicate the rating scale (1 star = poor, 5 stars = excellent) and ask users to focus their comments on the nomad and eco-friendly aspects (perhaps a note like “How was the Wi-Fi? Did you notice sustainable practices?” to guide feedback). When submitted, the review is time-stamped and associated with the user’s account (so we know the author).
-Displaying Reviews: Reviews on a listing page will be listed in order (most recent first by default, or possibly highest rated first – but recency is usually better for temporal context). Each review display will show the reviewer’s name (or username), their rating with star icons, the date, and their comment text. If a review is lengthy, we might truncate and let users expand it. We might also summarize – e.g., show an overall average rating atop the listing page as mentioned, possibly broken down by aspect if we gather such data (for now, just an overall rating average).
-Review Moderation: To maintain quality, the system will include moderation capabilities for reviews. Administrators (or assigned moderators) can remove or edit reviews that violate guidelines (e.g., offensive language, spam, irrelevant content). We will have usage guidelines in place (like “no hate speech, keep reviews relevant”) possibly presented when writing a review. Technically, a review could be stored with a field like status (approved/pending). For MVP, we might auto-approve all new reviews and rely on after-the-fact moderation (simply deleting or marking hidden any bad ones). In a later phase, we might implement a workflow where new reviews are flagged as “pending” and require an admin to approve before they become public (this ensures nothing bad goes live, but it’s more friction and requires admin attention). The PRD’s direction is to be determined by how much moderation overhead is acceptable initially. Given we want a high-quality directory, we lean toward either at least light automated spam filtering (e.g., check if content looks spammy) and/or community flagging (users can “Report” a review) in addition to admin oversight.
-Rating Calculation: The average rating for each listing should be calculated and displayed. This can be done on the fly (each time a listing page loads, compute mean of all review scores) or precomputed and stored (e.g., update the listing’s data in CMS or a separate field whenever a new review is added). Simpler initial approach: compute on fly by querying the reviews. With the likely moderate volume of reviews, performance is fine. For display, we’ll show something like “4.5/5 ★ (based on 10 reviews)”. We should also handle edge cases: if no reviews, say “No reviews yet”; if only one, say “based on 1 review”.
-Preventing Abuse: Each user can generally only post one review per listing (they can edit their review or post an updated one, but we don’t want one person spamming multiple reviews for the same place). Also, if a user hasn’t actually visited a place, they shouldn’t review (this is hard to enforce, but we might include a disclaimer or rely on community reporting bogus reviews). We will not implement complex verification (like purchase verification) for reviews at this time. However, to improve trust, perhaps an admin/editor could mark certain reviews as “verified visit” if they have evidence, but this is not core. A simpler mechanism: require that a user at least provides some profile info, and potentially if we detect suspicious activity (e.g., a brand new account posting many 5-star reviews for one venue), admins will investigate. In future, we could add features like upvoting reviews (was this review helpful?)
-
- or allowing owners to respond to reviews, but those are enhancements for later.
-4. Listing Submission & Moderation
-To grow the directory, users or business owners should be able to suggest new listings or updates to existing listings. Additionally, content moderation is needed to ensure quality and accuracy. Requirements:
-Submit New Listing (Suggestion Form): The site will have a page (accessible via a prominent button like “Add a Listing” on the nav or footer) where anyone can fill out a form to suggest a new venue to add. The form fields will correspond to the listing data needed: e.g., Name, Category (dropdown of our allowed categories), City (possibly also a dropdown of Thai cities we focus on, plus an “Other” if needed), Address, short description, and a section to describe its eco-friendly practices (with maybe a checklist of common eco features or a text field). We will also allow an image upload (at least one photo of the venue) to give a visual. The user submitting should provide their contact info (if they are an owner or just a user who wants to suggest). On submission, this data is sent to our backend – likely creating a new entry in the CMS as status = “pending” (not published)
-
-. Admins are then notified (via an email or by checking an admin page) about the new suggestion. The UI will show a success message like “Thank you! Your suggestion has been submitted and is pending review.”
-Moderation Workflow for Listings: Admins or Editors will periodically review pending listings. They will verify the information: possibly checking the venue’s website or contacting the submitter. If it meets the criteria, they will change its status to Published so it goes live on the site
-
-. If it’s not suitable (e.g., not eco-friendly enough or duplicate entry), they might reject it – possibly marking it as “Archived” or “Rejected” (we have statuses like archived/flagged in the schema for this purpose
-
-). Admin should also be able to edit the content for clarity or formatting before publishing. This workflow can happen directly in the Sanity CMS (where status is a field) or via a custom admin panel in the app that interfaces with the backend. Initially, using Sanity’s own interface is acceptable since it has the fields and the team can operate there. We will document the moderation guidelines so the process is consistent.
-Content Verification and Updates: Many listings will be initially populated by our team (seed data). Each listing has a Verification Status field (unverified vs verified)
-
-. Published listings might start as “unverified” if added by users or scraped from external info, and then an editor can mark “verified” once they have confirmed the eco-friendly claims (e.g., saw certificates or visited the place). This status should be visible internally and possibly to users (with a “verified” label on fully vetted ones). The product requires a clear approach to keep listings updated – hence the Last Verified Date stored per listing
-
-. Admins need to periodically update this date when they audit a listing (say every 6-12 months) to ensure ongoing accuracy. If a listing becomes outdated or the business closes, admins should mark it as “Archived” (so it’s not shown to users but kept in the database for record). If users report issues (e.g., “This café closed down”), admins will act on that by updating or archiving.
-Editing & Ownership Claims: In future iterations, we may implement a system where a venue owner can “claim” their listing by verifying their identity/business (maybe via an official email or code). Once claimed, they could update certain fields of their listing (description, hours, etc.) subject to admin approval. For now, all editing of listings is expected to be done by admins through the CMS. However, we will keep the door open for implementing an owner dashboard that restricts editing to specific fields and then submits changes for moderation. This can greatly keep content fresh from the source, but it introduces complexity in verification – thus it might be a Phase 3 feature (see Roadmap).
-Admin Dashboard (Web App): In addition to the CMS, we might create a simple admin section on the website for common moderation tasks, so that admins don’t always have to go into Sanity Studio. This could include: viewing pending listing submissions and approving them, managing reported reviews, featuring listings, etc. This dashboard would be protected (accessible only to Admin roles). It would use our existing backend APIs to fetch/update data. Since we already rely on Sanity for content storage, building this is optional – the team might use Sanity’s UI initially. But an integrated dashboard can provide a more tailored moderation experience (for example, listing all pending items in one view, with quick Approve/Reject buttons). This is noted as a desirable feature but might be built in a second phase.
-Automated Moderation Aids: We will implement basic anti-spam and content validation on submissions. For example, the listing submission form will have required fields and some format validation (so we don’t get junk data). We can also include a CAPTCHA or invisible spam check on the form to prevent bots
-
-. Likewise, for reviews, we might leverage a simple heuristic or an external service for profanity filtering. These measures are to ensure that moderation can be manageable and the platform isn’t flooded with low-quality content.
-5. Additional Content: Blog & Informational Pages
-Beyond the directory of listings, the platform will feature editorial content to engage users and improve SEO (search engine presence). This includes a Blog/Articles section and other supporting pages:
-Blog Section: The site will have a blog where the team can post articles relevant to sustainable travel, digital nomad tips in Thailand, city guides, interviews with eco entrepreneurs, etc. Each blog post is managed in the CMS (Sanity) and contains a title, slug, body content (rich text), author, publish date, and optional cover image. Blog posts will be displayed in a list (paginated if many) on a main Blog page, sorted by most recent. Users can click an article to read the full post on a dedicated Blog Post page. The blog post page should support rich text elements, images, and perhaps embedded videos or maps if needed. It should also allow social sharing (e.g., share to Twitter/Facebook) via share buttons. Comments on blog posts are not planned for initial release (to keep things simple and avoid needing moderation there as well). If engagement is desired, we might integrate a third-party commenting widget or a custom comment system later, but likely not in MVP. The blog will help drive traffic (people searching for “eco-friendly living in Bangkok” might find our article and then discover the directory). Thus, SEO-friendly practices are crucial here (meaning proper HTML structure, meta tags, and including relevant keywords).
-Static Informational Pages: There will be a few simple pages such as About Us, Contact, Terms of Service, and Privacy Policy.
-About Us: outlines the mission (promoting sustainable nomad lifestyle), the team behind the site, and perhaps any partners or supporters.
-Contact: provides a way to get in touch. This could be a contact form (name, email, message) that sends an email to the site administrators. We will implement this contact form with necessary validation and a backend email send (again via an email service). Alternatively or additionally, we can list an email address for direct contact. The contact form should have spam protection (e.g., a simple challenge or rate limiting).
-Terms & Privacy: standard text to which users agree when using the site. We need to ensure compliance with data privacy laws since we handle user accounts and possibly cookies for analytics. The Privacy Policy will mention what data we collect (email, reviews, etc.) and how it’s used. Terms of Service will include guidelines for content (like users should post truthful reviews, etc.) and limitations of liability. These are mostly static and can be stored as Markdown content or directly in the Next.js pages.
-Events Calendar (Future): Mentioned as an idea is an “event calendar”. This could be a feature where we list upcoming events relevant to digital nomads or sustainability (e.g., a green tech meetup, or a nomad conference in Thailand, or a local workshop on permaculture). If implemented, it might integrate with a calendar UI and allow users to see what’s happening in various cities. However, this is considered a future enhancement (Phase 3), not a core feature now. It requires having data sources for events (possibly user-submitted or curated via another CMS collection) and a calendar interface. We note it here to acknowledge the planned feature: an Events page where events are listed by date and city, and possibly the ability for users or admins to add events. This will increase community engagement when rolled out.
-6. User Interface & Design System
-The design of the platform will follow a modern, clean aesthetic with a focus on clarity and ease of use. Key UI/UX requirements and principles:
-Responsive Design: Every page and component must be fully responsive, adapting to mobile phones, tablets, and desktops. Many users will be on mobile devices as they travel, so mobile-first design is essential. On smaller screens, the layout should stack gracefully, menus may collapse into a hamburger menu, and interactive elements should be touch-friendly. We will test on common devices to ensure usability (including both iOS and Android browsers).
-Tailwind & Shadcn UI Library: The implementation will utilize Tailwind CSS for styling, ensuring a consistent spacing, typography, and color system. A pre-defined design system (likely with some branding colors reflecting eco-friendliness – e.g. greens, blues) will be used. The Shadcn UI library (built on Radix UI) provides accessible, pre-styled components that fit well with Tailwind. We will use Shadcn components for elements like modals, dropdowns, accordions, etc., to maintain consistency. This ensures things like our dropdown filters, dialogs (e.g., confirm delete account), or tooltips are all uniform in style and behavior. Radix UI under the hood means these components are accessible (keyboard navigation, screen-reader friendly) by default, which aligns with our requirement for accessibility.
-Visual Style & Branding: The look-and-feel should convey sustainability and modern nomad life. This might involve a light color scheme with earthy tones and clean sans-serif typography. We’ll also support Dark Mode out of the box
-
-, as many users may prefer dark mode especially for evening usage. Icons and illustrations will be used to enhance understanding (e.g., a leaf icon for eco, a laptop for nomad). The branding (logo, colors) will be applied site-wide for a professional appearance. Importantly, content (text and data) should be presented in a clean layout without clutter – plenty of whitespace and clear grouping of sections.
-Navigation & Information Architecture: A consistent header will appear on all pages with the site logo (clickable to Home), main navigation links (Explore/Find Listings, Cities, Blog, etc.), and user account menu (Login/Signup or Profile icon if logged in). The footer will contain secondary navigation (About, Contact, Terms, possibly social media links). The structure should make it obvious where to find different things. For instance, a user wanting to find a place should intuitively use either the search bar or the “Explore” link which leads to the search page with filters. We will likely implement a dedicated Search Results page that the homepage search bar leads into, where all filters can be adjusted. The site structure might be: Home, Cities (list or dropdown of city pages), Blog, and an Account area.
-Clarity and Feedback: All interactive actions (forms, buttons) should give immediate feedback. For example, when submitting a form, the user sees a success message or field error highlights if something is wrong. If a user tries to add a favorite but is not logged in, the system should prompt them to log in (e.g., show a login modal or redirect to login with a message). Error messages will be in plain language (no technical jargon) and guiding (e.g., “Please fill out all required fields” or “Invalid email format”). There should be no ambiguity in what a button does – labels should be explicit (“Submit Review” instead of just “Submit”).
-Accessibility: The site will adhere to WCAG accessibility standards. This includes using semantic HTML (proper headings, lists, labels on forms), ensuring sufficient color contrast for text, and enabling keyboard navigation for all interactive components. Images have alt text (as noted, all listing images require alt descriptions
-
-). We will test the site with screen reader tools to confirm that, for instance, the star rating can be understood (we might add screen-reader-only text for “4 out of 5 stars”). Focus states will be clearly visible for keyboard users. In summary, no user should be prevented from using the core features due to a disability.
-Performance & Optimization: From a UX perspective, the site should load quickly and feel snappy. We will use Next.js features like static generation for pages and code-splitting. Images will be optimized (resized appropriately, using modern formats when possible). There is a script to optimize images in the repo, indicating that images will be compressed for web use. We will lazy-load images in lists (so off-screen images don’t all load at once). The map component should not block page load – it can load asynchronously. Also, heavy data (like list of all listings) will be loaded as needed or paginated, to avoid huge payloads. The goal is to keep the page interactive within a couple of seconds on typical connections.
-SEO Considerations: All pages should have unique, descriptive titles and meta descriptions. For example, a listing page title might be “Green Coworking Space – Chiang Mai – Eco Nomads Directory” which includes relevant keywords. The Next.js app will handle setting these meta tags, possibly using data from the CMS (the listing schema even had a searchExcerpt for customizing search snippet
-
-). We’ll also ensure the URL structure is friendly: using slugs for cities and listings (e.g., /cities/chiang-mai or /listing/green-coworking-chiang-mai)
-
-
-. This not only benefits SEO but also makes URLs readable. The site map (sitemap.xml) will list all key pages for search engines. Additionally, we plan to integrate basic analytics (Google Analytics or privacy-friendly alternative) to track page views and user flows, which indirectly helps us refine SEO/content strategy by seeing what users search for.
-In summary, the UI will be modern, consistent, and user-friendly, leveraging the Tailwind+Shadcn design system to eliminate ambiguity in user interaction. The focus is on content readability (clear typography), intuitive navigation, and aligning with the overall theme of sustainability (possibly reflected in design motifs or images). The design should instill confidence in the site’s reliability and mission, encouraging users to use it as a go-to resource during their stay in Thailand.
-Technical Architecture
-Platform Overview
-The application is structured as a monolithic web application with a modern Jamstack-like architecture. It consists of: a Next.js front-end (which also handles server-side rendering and API routes), a Sanity.io headless CMS for content, and a MongoDB database for user accounts and other dynamic data. All components are cloud-hosted and integrated via well-defined APIs. The architecture favors server-side rendering (SSR) and static generation for speed and SEO, while using client-side interactivity for dynamic features like filtering. Below is a breakdown of the main technical components and how they interact:
-Next.js 15+ Application: The front-end is built on Next.js, utilizing the App Router (which provides an improved structure for pages, layouts, and data fetching). Pages like listing details and city pages will likely be statically generated (SSG) at build time or on-demand when new content is published, because the content doesn’t change too frequently. This yields fast load times and good SEO (pre-rendered HTML). We will use Incremental Static Regeneration (ISR) so that when content in CMS updates, the Next site can revalidate and update those pages after a certain interval or on a webhook trigger. For pages that require real-time data (e.g., search results which might be more dynamic or personalized content), Next.js server-side rendering or API routes will be used. Next.js also provides built-in optimizations like image optimization and bundling which we will leverage. The app is written in TypeScript for type safety across the codebase.
-Sanity CMS (Content Backend): Sanity.io is the source of truth for all directory content. We have defined schemas for Listings, City, EcoTag (for sustainability tags), Review, and potentially Blog Post, etc. The Next.js app fetches data from Sanity via its client API (either using Sanity’s JavaScript client or via GROQ queries in getStaticProps/getServerSideProps). Since content is mostly read-heavy (many more reads than writes), Sanity’s CDN and query capabilities will be sufficient. On the write side, content editors use the Sanity Studio (a separate interface) to manage content. For certain user actions like submitting a listing or adding a review, the Next.js app will actually perform writes to Sanity under the hood (e.g., by calling Sanity’s mutation API from an API route). This requires an authenticated service account token for our app to use (securely stored). Example: when a user submits a review, our API route will create a new review document in Sanity and patch the corresponding listing document to reference that review in its reviews array
-
-. We chose Sanity for its flexibility and real-time content capabilities. It also allows us to easily query for combined data, like “get all listings in city X with category Y” which can be done in one query.
-Data Model: Key data collections in Sanity include:
-City: documents containing city info (name, country, description, sustainabilityScore, highlights, main image)
-
-
-.
-Listing: documents for each venue with fields as detailed earlier (name, slug, city reference, category, descriptions, tags, images, features, contact info possibly, and embedded sub-objects for category-specific info)
-
-
-. It also contains moderation fields (status, featured, verification)
-
-
- and an array of references to Review documents. If a listing is marked featured, we might also maintain a separate list or query in the app for all featured ones to display on home.
-EcoTag: a simple reference list of eco-friendly tags (like a taxonomy)
-
-. Listings reference these tags to avoid duplication and to allow filtering by tag easily.
-Review: each review is a document with rating, comment, author name, date
-
-
-. (In the future, we might link reviews to user accounts instead of just storing author name as text, but initially this is how it’s structured in CMS for simplicity.) Reviews are linked to listings as mentioned.
-Blog Post: (if using CMS for blog) documents with fields like title, slug, content, author, etc.
-We might also have collections for any other structured content like an Events collection in the future or a global settings document (to store things like site-wide settings or featured list IDs).
-Sanity allows real-time previews and live updates. For example, if an editor publishes a change, we could use Sanity’s webhook to trigger a revalidation of the Next.js pages so changes go live almost immediately. We will set up these webhooks for critical content types (like Listings and Blog).
-User Database (MongoDB): User accounts and authentication data are handled outside of Sanity. We use MongoDB Atlas as our user database
-
-, which stores user credentials and profile info required by NextAuth. NextAuth will manage a users collection (with hashed passwords or OAuth credentials), sessions collection, etc., as part of its adapter. Additionally, for user-specific data like favorites, we have options: we could store favorites within the user document in Mongo (embedding an array of listing IDs), or store it in Sanity (but since Sanity is more for content, we prefer to keep user data separate for security). We will likely extend the user schema in Mongo to include a list of favorite listing slugs or IDs, and our app can cross-reference that with Sanity data when showing favorites. MongoDB (or any database chosen for NextAuth, potentially PostgreSQL, but the stack mentions Mongo) will be accessed via serverless functions in Next (using an ORM or the NextAuth adapters directly). The database is cloud-hosted, providing high availability and scalability for user data.
-NextAuth Authentication: NextAuth.js provides the middleware and API routes for auth (e.g., /api/auth/[...nextauth]). It handles verifying credentials, setting cookies for sessions, etc. We will configure it to use the MongoDB adapter. NextAuth will also be configured with our defined roles: upon login, it will include the user’s role in the session JWT. We will implement authorization checks in Next.js routes or server-side functions to ensure pages are protected. For example, the admin pages will use Next.js middleware to restrict access to only those with admin role, otherwise return 401 Unauthorized (which our app will handle by showing an error page)
-
-. All password reset/email verification flows will use NextAuth (or custom flows if needed with tokens emailed via our email service).
-APIs and Serverless Functions: We will create various API endpoints (using Next.js API routes or the new route handlers in the App directory) to handle form submissions and any complex operations:
-A POST /api/contact for the contact form, which sends an email out.
-A POST /api/submit-listing for listing suggestions, which will take the form data and create a draft in Sanity via Sanity’s mutation API.
-A POST /api/reviews for submitting a review, which writes to Sanity as described.
-Possibly a GET /api/search endpoint if we decide to implement search server-side (taking query params for filters and returning results). Alternatively, we might fetch directly from the front-end using Sanity client, but an API gives more control (and hides our Sanity keys). We might do an API route that queries Sanity and returns JSON results of listings for a given filter set.
-Any other admin actions (e.g., an endpoint to approve a listing if not using CMS directly).
-Each of these endpoints will include necessary security (e.g., anti-CSRF tokens on forms or NextAuth session check for actions that require login). They’ll run in a serverless context on Vercel, scaling as needed with demand.
-Third-Party Integrations:
-Map Service: Using Leaflet.js for maps with OpenStreetMap tiles means we don’t need a third-party API key (OSM is open). We will however likely use a free OSM tiles provider or self-hosted tiles if needed. The map component in our Next.js app will load the Leaflet library and render maps client-side. Coordinates for listings come from our data (as discussed, either geocoded beforehand or input manually). If we need geocoding (converting addresses to lat/long), we might use a service like Google Geocoding API or OpenCage during data entry (not something users do, but maybe an offline script like the migration one has done). For dynamic user input addresses (like if owners add a listing with an address), we might call a geocoding API in the submission process to get coordinates to store. This is an implementation detail – initial dataset likely already has coordinates as we saw placeholders for location.
-Email Service: For all outgoing emails (verification, password reset, contact form, etc.), we will integrate with an email sending service. The previous development notes mention either Resend or SendGrid
-
-. We’ll use one of these via API. This requires storing API keys securely in environment variables. The system should handle email failures gracefully (e.g., if an email doesn’t send, log it and maybe retry or alert admin).
-Analytics: We plan to embed an analytics script (like Google Analytics or a privacy-centric one) to track usage. This doesn’t affect functionality but should be mentioned from a tech perspective. We’ll ensure it doesn’t slow down the site (load it asynchronously) and is compliant with privacy preferences (we may show a cookie consent banner if required by law, especially if using GA).
-Deployment & CI/CD: The app will be deployed on Vercel (as indicated by tech stack)
-
-. Vercel will handle building the Next.js app and serving it via their edge network. We will set up a continuous deployment pipeline: when code is pushed to the main branch (or appropriate branch), tests run (using  Actions CI) and then Vercel auto-deploys if tests pass. The Sanity studio could either be deployed on Sanity’s own managed service or also self-hosted on Vercel as part of the monorepo – but given monorepo, likely the Sanity Studio is also deployed (maybe at /studio or a separate subdomain). This won’t directly affect end-users except by ensuring content updates flow smoothly. We should also configure proper environment variables on Vercel (for DB string, Sanity token, API keys).
-Testing: We will use Playwright for end-to-end testing
-
- and possibly Jest for unit tests. The PRD expects quality assurance: the refactored product should be thoroughly tested to avoid regressions. Critical flows like search, login, and submissions will have automated tests. This ensures that as we iterate, we maintain reliability.
-Data Flow Summary
-To illustrate a typical interaction: when a user visits a city page, Next.js will fetch the list of published listings for that city from Sanity (either at build time or on request). The data comes via a GROQ query filtering by city reference and status = published. Next builds the HTML and serves it. When a logged-in user submits a review on a listing page, the browser calls our /api/reviews route with the review data; the server (Next API) validates the session, then creates a new document in Sanity for the review and updates the listing’s review reference array. Sanity instantly stores it, and our API returns success. The next time someone fetches that listing (or via revalidation), the new review appears. If the review requires approval, we might mark it differently and filter unapproved ones out of the query. Similarly, for adding a listing: user fills form -> /api/submit-listing -> Next API writes to Sanity (status pending) -> admin later changes status to published. Because of ISR or webhooks, that new listing will then be included on the site. This coherent flow ensures content and user contributions are integrated seamlessly.
-Security & Compliance
-Security is critical since we handle user accounts and content. Key measures include:
-Authentication Security: Use industry-standard practices via NextAuth. Passwords are never stored in plain text (NextAuth uses bcrypt or similar hashing). We will enforce a strong password policy (minimum length, complexity) and possibly have rate limiting on login attempts to prevent brute force attacks. Session tokens will be secure, HTTP-only cookies. We’ll also consider using HTTPS everywhere (Vercel provides SSL by default).
-Authorization & Data Protection: Only authorized roles can perform sensitive actions (like moderation or editing content). The API routes will double-check user roles in the server (never trust just front-end to hide admin features). For example, the submit-listing endpoint can be open to all (even guests, if we allow suggestion without account), but the approve-listing endpoint will require admin. Access to the CMS itself is also secured by Sanity’s role system (only our team or invited contributors can log in to Sanity Studio).
-Validation & Sanitization: All user-provided data (form inputs for listings, reviews, contact messages) will be validated and sanitized. We will use libraries like Zod or built-in validation to ensure no malicious script can be injected (e.g., strip out HTML tags from reviews, limit length of inputs). This prevents XSS and keeps content clean. On the display side, we will carefully render user content to avoid any script execution (e.g., reviews might be plain text, or if we allow a bit of formatting in certain fields, we’ll use a safe renderer).
-Dependency and Platform Security: We will keep Next.js and dependencies up-to-date. The refactor will remove any known vulnerable packages. Vercel and Mongo Atlas are responsible for the underlying infrastructure security (patching, etc.), which is an advantage of using those managed services. We will perform some security testing (maybe using static analysis or dependency audits, which  provides) and consider a penetration test if feasible before launch.
-Privacy Compliance: We will ensure our use of user data complies with privacy policies. We’ll obtain user consent where needed (for analytics cookies, perhaps via a cookie banner). Users can request deletion of their data, which our team will handle by removing their account from the DB and anonymizing their reviews. We won’t share user data with third parties. These principles will be stated in the Privacy Policy, and our implementation will follow them.
-Development Roadmap
-To deliver this product in a manageable way, we will break development into phases. Each phase focuses on a set of features that build upon the previous, guided by necessity, user value, and implementation effort. We outline three main phases:
-Phase 1: Core Directory Launch (MVP)
-Objective: Deliver the essential functionality so that users can discover listings and read content without needing an account. This phase prioritizes features that are absolutely necessary for the site to be useful and showcases our unique value (sustainable nomad listings). It avoids complex interactivity that can be added later. Included Features:
-Basic Listing Browsing: Home page with search bar; Ability to view listings by city and category, and navigate to listing detail pages.
-Listing Detail Pages: Complete detail page for each listing with all relevant info (descriptions, eco features, nomad features, images, etc.)
-
-
-. The page will also show an (initially empty) reviews section and average rating (e.g., “No reviews yet” or a placeholder) – the functionality to add reviews comes later, but the structure is in place. A map section on the detail page showing location is implemented too.
-City Pages: Pages for major cities with an overview and list of listings. Filtering by category on city page can be included if straightforward, or at least separate listing sections per category on the city page.
-Search & Filter: A functional search results page where users can search by keyword and filter by city and category (and possibly by one or two top eco-tags). This includes implementing the filter UI and hooking it to query the listings from CMS. We will support the basic filtering as planned (multi-category and text search)
-
-, though some advanced filtering (like filtering by multiple tags concurrently) might be simplified at first if needed. The core is users can find relevant listings easily.
-Static Content Pages: About Us, Contact form, Terms, Privacy pages set up. The contact form will send emails to admin.
-Blog (basic): The blog section can be introduced in Phase 1 if content team is ready. It includes listing blog posts and a post detail page. This is actually relatively simple to implement (since it’s mostly static content from CMS). If the team plans to have launch articles, include this. If content is not ready, this can be deferred to phase 2. (Assuming we want SEO boost, we include it now.)
-CMS Integration: All content (cities, listings, blog posts) is fetched from Sanity. Ensure that the CMS structure is fully integrated with the front-end (e.g., GROQ queries are written, environment variables for Sanity project ID and token are set). The initial dataset of listings and cities will be loaded. The site should be deployable and seeded with at least some content for each section.
-Design System & UI: Tailwind styling and Shadcn components are applied consistently across all pages developed in this phase. The site should be visually polished and responsive. Dark mode support should work (e.g., via a toggle or automatic detection).
-Basic Analytics: Add Google Analytics (or similar) script to begin tracking visits.
-Quality: Before moving to Phase 2, we will test the core user flows: searching for a listing, navigating pages, and using the site on mobile. Fix any major bugs or UX issues. Performance tuning (like checking page weight) is done so MVP is smooth.
-Exclusions in Phase 1: User accounts, login, posting reviews, and adding listings are not active in this phase. Any UI elements related to those (e.g., “Log in to review” buttons) can be present but will direct users to a placeholder or info (like “Coming soon” or prompt to sign up for updates). Essentially, Phase 1 delivers a rich informational site akin to a digital guidebook, but without interactive community contributions yet. This lets us launch sooner and gather initial user interest/feedback.
-Phase 2: User Engagement & Contribution
-Objective: Introduce interactive features that allow users to participate (accounts, reviews, favorites, submissions). This phase builds on the stable content platform from Phase 1 and significantly increases the value by fostering a community and more dynamic content. The features here have high user impact, though they come with more complexity (which is why they are after MVP). Included Features:
-User Accounts & Authentication: Enable full sign-up/login functionality. Users can create accounts, log in, and access a basic profile page. Email verification and password reset flows are implemented. Possibly also allow social logins if we choose to at this stage (if not, those can wait to Phase 3).
-Reviews System Active: Logged-in users can now post reviews on listings. All front-end forms and backend logic for reviews are completed. This includes updating the listing detail page to show the review form for logged-in users, and processing submissions via the API to Sanity. Also implement moderation tools for reviews: perhaps a simple admin view of all new reviews or an email notification to admin for each new review, so they can be monitored. The front-end will now display real user reviews and the computed average rating for each listing. We should also update the search listing cards to perhaps show a star rating summary if available (helpful for users scanning results).
-Favorites & Profile Enhancements: Logged-in users can favorite listings. The UI (heart icons etc.) becomes functional and favorites are stored. Create a “Favorites” page or section where a user can see all their saved places. The profile page is expanded to allow editing user info (name, etc.) and viewing their contributions (maybe list their reviews given).
-User Notifications: Set up basic transactional emails for user actions (welcome email on sign-up, maybe a “thank you for your review” email). Also, if a user submitted a listing, notify them on status change (e.g., “Your listing suggestion has been approved!” email).
-Listing Submission Form: The “Add Listing” functionality goes live. Build the submission form page and its backend route to create a pending listing. Possibly require login for submitting a listing to reduce spam (or at least require a verifiable email). On submission, show confirmation and perhaps list the new submission in user’s profile (like “Your submissions”). Admin interface: ensure admins can see pending submissions, either by logging into Sanity Studio or an admin page listing them. The workflow to approve/reject should be defined and tested.
-Owner Role (basic): If we have identified some venue owners, we could pilot giving them accounts with a “venueOwner” role. In this phase, that role might not have special capabilities yet aside from maybe a label. But as a stretch, we could allow a claimed owner to respond to reviews on their listing via their account. That is a nice-to-have and could even be Phase 3. For Phase 2, the main thing is to create the pipeline for normal users to contribute content (reviews, listings) and interact (favorites).
-Improved Search/Filtering: Using feedback from phase 1, refine the search. For example, add more filter options if needed (eco-tags filtering fully implemented if not done yet, or multi-select filters). Possibly add a “sort by” option for search results (e.g., by rating, by newest listing). If the dataset is larger now, consider introducing an indexing mechanism or at least test search performance.
-Blog & Content Updates: If blog wasn’t launched in Phase 1, launch it here. If it was, continue adding content. Possibly introduce a newsletter signup on the blog or footer (so users can subscribe to updates, which increases engagement). Newsletter signup can be a simple form integrated with an email marketing tool – this is optional, but worth noting as an engagement feature.
-Mobile Optimization & UX Tweaks: After adding interactive features, revisit the mobile experience and overall UX. Ensure things like login flows are smooth on mobile, modals are working, etc. Incorporate user feedback from Phase 1 launch (for example, if users asked for a certain filter or found something confusing, address it here).
-Testing & Hardening: Because Phase 2 involves user data and more complex flows, we will do thorough testing. Write additional unit tests for the new APIs (reviews, submissions). Perform security testing on these input points (simulate bad inputs, ensure no data leaks). Also test the upgrade path: existing data from Phase 1 remains intact (e.g., existing listings still show up, now with new reviews possibly). We should also test role restrictions (e.g., a non-admin cannot access any admin endpoints).
-Phase 2 delivers the full interactive platform: by its end, we have a directory where users can log in, contribute reviews, save favorites, and even help expand the listings. This should boost the platform’s value greatly, as content will grow and become more community-driven. It also establishes processes for content moderation which are important for scaling.
-Phase 3: Advanced Features & Optimization
-Objective: Enhance the platform with additional features and improvements that, while not strictly necessary for core function, provide significant value or strategic advantage. This includes deeper community features, scalability improvements, and potential revenue-related features. Phase 3 is more open-ended and can be broken into sub-iterations; the items here are high impact but also higher effort or requiring the foundation of phases 1 & 2 to already be in place. Possible features in Phase 3:
-Events Calendar: Implement the community events/meetups calendar feature. Create an “Events” content type in CMS and corresponding pages in the app. Allow admins (or trusted users) to add events (with title, date/time, location, description, maybe link to external RSVP). Display events by city or date, and possibly allow users to filter events similar to listings. This keeps users returning to the site frequently, not just as a one-time lookup.
-Community Engagement Features: Introduce elements like review upvotes (“Was this review helpful?” thumbs up) so the most useful reviews surface to top
-
-, or allow venue owners to reply to reviews publicly (“Owner response”). We could also gamify contributions: e.g., user badges for top reviewers or a count of contributions on profiles. Another idea is a forum or Q&A section where nomads can ask questions about a city or seek recommendations, but that is a large feature and might be out-of-scope unless demand is clear – still, it’s worth noting as a potential community-building addition.
-Personalization: With more data on user behavior, we could add personalized elements. For example, on the homepage show content tailored to the user (if we know they like a certain city or category from their favorites). Or send personalized email updates (“There’s a new café in your favorite city”). Implementing this would involve tracking user preferences and an algorithm for suggestions. This is definitely a later-phase item once we have enough usage.
-Performance Scaling: As the user base and content grow, invest in performance improvements. For instance, if search becomes heavy, integrate an external search service (like Algolia/Meili) to offload search queries and provide instant results. If traffic is very high, consider using a CDN for the API responses or optimizing database indexes, etc. Also monitor and optimize build times (if content grows significantly, static generation might slow down; using ISR and caching becomes important).
-Multi-Tenancy / Expansion: Prepare the system to handle multiple countries or a broader geographic range if expansion is planned. This could involve adding a Country model, adjusting the navigation (perhaps listing countries then cities), and ensuring content structure supports it. It might also entail translating the site to other languages for non-English users. These are major efforts and would be done when the strategy calls for expanding beyond Thailand. The PRD acknowledges this as a future possibility but not immediate.
-Monetization Features: Once the platform has a solid user base, we can introduce ways to generate revenue ethically. Some options: featured placements (venues pay to be “featured” or higher in search – we’d need to mark them as sponsored), affiliate links (for example, link to booking platforms for accommodations and earn commission), or a paid membership for users that offers perks (though in this context, perhaps not likely). We will design any monetization such that it doesn’t compromise user trust (i.e., clearly label sponsored content, and maintain neutrality in normal listings vs paid). Payment integration (Stripe, etc.) would be needed for some of these – which would be a new aspect to add.
-Mobile App or PWA: Evaluate building a Progressive Web App experience – the site is already responsive, but making it a PWA could allow offline access to saved info or push notifications for new content. Alternatively, if user demand is high, we might consider developing a companion mobile app for iOS/Android in the future, reusing much of the web logic. This is outside the web PRD’s immediate scope, but it’s an eventual consideration.
-Advanced Admin Tools: Build more sophisticated admin dashboards and perhaps integrate analytics for admin view (e.g., see site usage stats, see which listings are most popular, etc.). Also implement bulk management features in CMS (like flagging multiple outdated listings). We may also incorporate a content versioning or audit log to track changes (Sanity has history per document already). If needed, implement backup routines for the CMS data (though Sanity is managed, it’s good to periodically export data for safe-keeping).
-AI Integration (Exploratory): As a cutting-edge idea, possibly integrate AI to enhance user experience – for example, an AI chatbot that can answer questions like “What’s the best area in Bangkok for digital nomads interested in sustainability?” by drawing from our content. Or use AI to analyze user reviews sentiment, or auto-suggest tags for new listings based on description. This is not a confirmed requirement, but something to keep in mind if it aligns with the product vision later (since 2025 tech trends often involve such features).
-Phase 3 items will be prioritized based on user feedback and business direction after phases 1 and 2 are live. Not all may be implemented at once; we will choose the features that provide the greatest value relative to their cost. Importantly, by Phase 3 the product should already be solid – these are enhancements to maintain growth and competitive edge.
-Logical Dependency & Development Priorities
-The development plan should follow a logical sequence to build a usable product early and then layer on enhancements:
-Foundation Setup: Start with setting up the design system, project architecture (Next.js, CMS schema, database connections). This includes defining all data schemas in Sanity and ensuring we can query them, and implementing NextAuth basics. Much of this was already scaffolded in the existing project (monorepo, NextAuth infra, CMS config)
-
-
-. We first ensure that baseline is working (e.g., can we fetch a listing from CMS and render it, can we sign up a user in dev environment). This foundation is necessary before building features on top.
-Static Pages & Content Display: Implement the listing pages (city page, listing detail page) and static content pages (About, etc.) early. By focusing on read-only content first, we get the main site flow visible. It’s important to see the listings and navigation in place. This also includes integrating the map component on listing pages and verifying the performance. Once we have a few example listings showing up correctly, it’s a big milestone – we have something “usable” (even if not feature-complete).
-Search & Filtering: Next, implement the search functionality because it ties together the content. Having search working means a user can find the listing pages we built. Search involves both front-end UI and hooking to backend queries. It’s logically dependent on content being in place, and it will likely involve refining how we query the CMS. Doing this early (in Phase 1) ensures that the data model supports the queries we need (for example, if we find we need an additional index or field to filter by tag efficiently, we can adjust the CMS schema or data structures before going too far).
-User Accounts & Auth: After the core browsing experience is solid, we implement authentication. This unlocks the ability to then build user-specific features. The dependency logic here is that reviews and favorites require user accounts, so we must have auth done before enabling those features. Implementing auth earlier (beginning of Phase 2) is wise so that we can test protected routes and role logic gradually as we add those sections.
-Interactive Feature Implementation: Once auth is in, we proceed to build reviews and favorites (and any other logged-in features like profile management). Reviews might come first as it’s a key community feature – we build the form, storage, display, then test that pipeline. Favorites is a bit simpler (just toggling a relation) so it can follow. The listing submission form can be developed in parallel or after reviews, since it touches different parts (it’s more about writing to CMS rather than reading). We’ll likely do favorites last among these, as it’s least complex and somewhat independent (just needs user login, which by then is done).
-Moderation Tools & Admin: As soon as we have any user-generated content flowing (reviews or submissions), we should implement at least minimal admin tools to manage them. That might be as easy as giving admins instructions to use Sanity Studio to monitor new docs. But if building a custom admin UI, it should come after those features are working, focusing on efficiency for the team. The logical dependency is: user content flows first, then admin UI to manage it. (We can moderate manually in DB for initial testing, but should not launch without giving admins the means to moderate easily.)
-Polish & Non-functional Requirements: Throughout development, but especially towards end of each phase, ensure we address non-functional aspects: performance optimizations (e.g., test page load with many listings), security audits, and cross-browser/device testing. These tasks depend on having the features in place to test. So after implementing major features in a phase, allocate time to polish UI details, fix any accessibility issues found, and optimize queries or code where needed.
-Testing and QA: Write tests as we implement features (e.g., unit tests for util functions, integration tests for API routes). But a final regression test before release of each phase is needed. For example, before launching Phase 1, test all pages for broken links, test search with various inputs, etc. Before launching Phase 2, test all new user flows (account creation, posting a review, etc.). This sequential testing ensures each layer of features doesn’t break earlier ones.
-By following this chain, we ensure that at each step we have a working product that could be demonstrated or even used in a limited capacity. We “get as quickly as possible to something usable/visible front end that works” – which is essentially Phase 1 delivering a browsable directory. Then we carefully add the layers of interaction in Phase 2 without overwhelming the development process. This logical sequencing also helps with team focus: content and frontend first, then auth, then contributions, then extras.
-Risks and Mitigations
-Developing and launching this platform comes with several risks. We identify key risks and how we plan to mitigate them:
-Content Sufficiency & Quality Risk: The value of the directory depends on having enough listings with reliable information. If we launch with too few listings or incomplete data, users may not find it useful. Mitigation: Before launch, ensure a critical mass of listings in the main cities (e.g., at least 10-20 good listings per major city, covering various categories). Leverage manual research and partnerships to populate data. Also clearly indicate if the site is still growing (so early users understand more content is coming). Use the verification status fields to be transparent about which entries have been confirmed
-
-. Having a blog with useful content can also keep early users engaged even if some directory content is still filling out.
-User Adoption Risk: There is a risk that digital nomads might not discover or use the platform, either due to lack of awareness or preference for existing solutions (like generic travel sites or Facebook groups). Mitigation: Implement strong SEO practices so that search engines surface our site for relevant queries (“eco-friendly co-working Thailand”, “digital nomad Chiang Mai” etc.). The blog content will help attract organic traffic. Additionally, plan a marketing strategy: share the site in digital nomad communities, possibly partner with sustainable travel bloggers or influencers for exposure. Once users arrive, ensure the value proposition is clear (the homepage should clearly state it’s for eco-conscious nomads). A clean UX and visible community contributions (reviews) will encourage them to trust and return.
-Development Scope Creep: The scope of features is broad; there’s a risk of trying to do too much at once, causing delays or quality issues. Mitigation: Stick to the phased approach. Clearly delineate what is in Phase 1 vs Phase 2. If during development a feature is taking too long or proving complex (e.g., real-time filtering might be tricky), be willing to simplify or push it to the next phase to keep the schedule. Regularly review progress against the PRD to avoid feature drift. The PRD’s detailed breakdown can serve as a checklist to prevent off-track developments.
-Technical Integration Challenges: There could be unforeseen issues integrating Next.js with Sanity, NextAuth, or other libraries (e.g., a compatibility issue with Next.js 15 and some plugin). Mitigation: Use known stable versions and read documentation/examples for similar setups. We have a Development Guide (in docs) to follow best practices. Write integration tests early (for example, test a round-trip of data: create a dummy listing in Sanity, see if Next can fetch and render it). Having a staging environment to test end-to-end before production is also important – Vercel preview deployments can serve this purpose.
-Performance Scaling Risk: As content or traffic grows, pages might slow down (especially if lots of client-side JS for maps or filtering). Mitigation: Use performance best practices from the start: SSR/SSG content, paginate lists if they become large, utilize caching (browser and CDN caching for static assets and maybe API responses). Monitor performance (using web vitals analytics) and be ready to optimize (like moving heavy computations server-side or employing caching strategies). Because we plan for expansion, choosing scalable solutions like cloud DB and a headless CMS was intentional. We can also consider load testing for anticipated traffic to ensure the architecture holds up.
-Security & Abuse: With user-generated content and accounts, there’s risk of spam, fake accounts, or malicious content injection. Mitigation: Implement the validations and moderation as described. Use CAPTCHA for public forms (submission, contact)
-
- to deter bots. Monitor logs for any suspicious activity. Keep dependencies updated to patch known vulnerabilities. Also enforce secure headers (Next can set things like Content Security Policy to prevent XSS, etc.). Regularly back up the database and CMS content so that if something goes wrong (like data corruption or an admin error), we can recover.
-User Trust & Moderation: If unmoderated, user reviews or submissions could reduce trust (e.g., a venue getting falsely accused in a review, or someone tries to list a place that isn’t truly eco-friendly, undermining our credibility). Mitigation: Establish clear community guidelines for reviews and content. Have an active moderation plan – at least one admin should periodically check new entries and reviews. We’ve built tools like status flags and an easy way to mark content as “flagged”
-
- which we can use if something needs to be removed pending a decision. Respond to issues quickly (e.g., if a business contacts us to dispute a review or ask for removal, handle it promptly to maintain goodwill). In essence, commit resources (time) to moderation as an ongoing operational task, not just a technical feature.
-Timeline Risks: If this refactor is time-sensitive (the PRD mention of a weekend sprint was internal
-
-, but for full project likely we have more time), missing deadlines can be an issue. Mitigation: Prioritize critical features for each phase and potentially launch in beta to gather feedback. Use the roadmap to guide development, and don’t let secondary features delay the core launch. If necessary, reduce scope of Phase 1 to make a launch date (for example, if blog content isn’t ready, it can launch slightly later, that’s fine). Also ensure to allocate time for testing and content entry, which are often underestimated.
-By anticipating these risks and following the mitigations, we aim to deliver a robust product with minimal hiccups. Regular reviews, user testing (maybe get a few friendly nomads to try a beta), and agile adjustments will further help in managing risk throughout development and launch.
-Conclusion & Next Steps
-This Product Requirements Document outlines an end-to-end vision for the Sustainable Eco-Friendly Digital Nomads Directory. It defines the target users and their needs, enumerates features in detail, and specifies how the system will be built using a modern tech stack. The PRD serves as a blueprint for the refactoring project, ensuring that designers, developers, and stakeholders have a shared understanding of what will be delivered and why it’s important. Next Steps: With this PRD in hand, the team should proceed to:
-Technical Design & Task Breakdown: Architects/developers can break down the features into specific tasks or user stories. For example, tasks for “Implement City page template”, “Build review submission API”, etc., mapped to the phases. Identify any additional technical research needed (e.g., confirming the best approach for search filtering or testing the email service integration).
-Design Mockups/Prototypes: If not already done, create high-fidelity design mockups for key pages (Home, Listing Detail, Search results, etc.) following the described UI guidelines. This will ensure the UI meets the requirements and gives developers a clear target. Iterate with feedback from stakeholders or a small user sample.
-Set Up Development Environment: Ensure all team members can run the project, access the CMS, etc. Import the initial content (listings and cities) into Sanity so that there’s data to work with.
-Development Phase Execution: Start implementing Phase 1 features, track progress, and test iteratively. Use the roadmap to stay on track and adjust if needed. After Phase 1 completion, do a review before moving to Phase 2 (perhaps even a soft launch or internal demo to validate the core usage). Then continue with Phase 2 features, and so on.
-Monitoring and Analytics Setup: Before public launch, configure monitoring (error tracking with a tool like Sentry, performance monitoring, and analytics) to catch any runtime issues and gather usage data from day one.
-Launch Plan: Plan the marketing and community outreach around the launch. Possibly coordinate with some initial users to seed reviews or get feedback. Prepare any content (blog posts announcing the launch, etc.).
-
-Refactoring Scope
-
-Awesome—let’s wire up the three flows you described and make the navigation airtight:
-
-1. Featured Listings on Home → Listing Detail by `slug`
-2. City Carousel on Home → City Detail → any Listing Card → Listing Detail
-3. Advanced Search/Filter page → results; if exactly one result → auto‑redirect to its Listing Detail
-
-Below are **drop‑in files** and **surgical edits** that match your repo’s conventions and types. I’ll keep paths/components consistent with what’s already inside your packed repo.
-
----
-
-# 1) Featured Listings (Home)
-
-You already have a thin wrapper `FeaturedListingsUnified` that feeds data into `components/listings/FeaturedListings` (good!). The only contract we must guarantee is that every card links to `/listings/[slug]`.
-
-## A. Make linking explicit in `ListingCard` (small patch)
-
-Your `ListingCard` already has `getListingUrl(...)` and a `<Link ...>` spot. Ensure it resolves to `/listings/${slug}`. If it already does, you can skip—but here’s a safe patch:
-
-```tsx
-// app-next-directory/src/components/listings/ListingCard.tsx
-// ...
-const getListingUrl = (listing: AppListingCard) => {
-  const slug = listing.slug?.toString().trim();
-  return slug ? `/listings/${slug}` : '#';
-};
-
-// later in the JSX
-<Link href={getListingUrl(listing)} aria-label={`View ${listing.name}`}>
-  {/* ...card content... */}
-</Link>
+Perfect—let’s lock in a clean, UI-only rebuild plan that keeps your DTO/API layer intact and avoids the current styling/import chaos.
+
+# Proposed UI-Only Structure (Next.js App Router + Tailwind v4)
+
+```
+app-next-directory/
+├─ app/
+│  ├─ layout.tsx                // root layout, imports globals.css, renders <Header/><Footer/>
+│  ├─ globals.css               // Tailwind v4 base + light resets
+│  ├─ page.tsx                  // Home: uses <FeaturedListingsSection/> + <CityCarouselSection/>
+│  ├─ listings/
+│  │  └─ [slug]/page.tsx        // ListingDetail page (UI composition)
+│  ├─ city/
+│  │  └─ [slug]/page.tsx        // CityDetail page (UI composition with ListingGrid)
+│  └─ search/
+│     └─ page.tsx               // Advanced search (query + multi-filters + results + auto-redirect)
+│
+├─ src/components/
+│  ├─ layout/
+│  │  ├─ Header.tsx
+│  │  └─ Footer.tsx
+│  ├─ cards/
+│  │  ├─ ListingCard.tsx        // REUSE (ensure href=/listings/[slug])
+│  │  └─ CityCard.tsx           // NEW (links to /city/[slug])
+│  ├─ sections/
+│  │  ├─ FeaturedListingsSection.tsx   // NEW (uses ListingGrid)
+│  │  └─ CityCarouselSection.tsx       // NEW (horizontal scroll or Embla later)
+│  ├─ listings/
+│  │  └─ ListingGrid.tsx        // REUSE for all grids (home, city page, search)
+│  └─ search/
+│     ├─ SearchBox.tsx          // Wrapper (can re-export your DigitalNomadSearch)
+│     ├─ FiltersSidebar.tsx     // Wrapper (can re-export your DigitalNomadSearchFilter)
+│     └─ ActiveFiltersBar.tsx   // (optional) pills to show active filters
 ```
 
-This lines up with the `AppListingCard` type you’re using for cards and respects the “detail by slug” rule you set. (Your file already declares `getListingUrl` and a `<Link ...>` anchor, we’re just affirming the href logic.)&#x20;
+### Why this shape?
 
-> Why here? Because all three flows (Home Featured, City page results, Search results) reuse `ListingCard`, so this one fix guarantees navigation everywhere.
-
-No changes are required in `FeaturedListingsUnified` unless you want to add a small prop pass‑through. The wrapper already imports the base and types correctly.&#x20;
+* Keeps **cards/grids** reusable across Featured, City Detail, and Search (your `ListingCard`/`ListingGrid` already exist and are close to ready) .
+* Pushes **page composition** and **routing** into `app/…/page.tsx` files so navigation is consistent (slug/city slugs come from your existing types/queries). Your types already include `AppListingCard` and city shapes that fit this nicely. &#x20;
 
 ---
 
-# 2) City Carousel (Home) → City Detail
+# Minimal foundations
 
-You mentioned “CityCaruosel” (typo); let’s implement a reusable **CityCarousel** component and a simple **City pill** card that links to `/city/[slug]`. Your repo already has an `AppCity` type and a `CityPageClient` consuming `{ city, listings }`—so we’ll align to that shape. &#x20;
+## 1) Tailwind v4 globals
 
-## A. New: `CityCarousel.tsx`
+Create/replace `app/globals.css`:
+
+```css
+@import "tailwindcss";
+
+/* small DX niceties */
+:root { color-scheme: light dark; }
+html, body { height: 100%; }
+body { font-family: var(--font-sans, ui-sans-serif, system-ui, Segoe UI, Roboto, Helvetica, Apple Color Emoji, Segoe UI Emoji); }
+.container { margin-inline: auto; padding-inline: 1rem; width: 100%; max-width: 80rem; }
+```
+
+(You can later add an `@theme` block for design tokens, but this is enough to restore sane styling quickly.)
+
+## 2) Root layout
+
+`app/layout.tsx`:
 
 ```tsx
-// app-next-directory/src/components/cities/CityCarousel.tsx
-'use client';
+import './globals.css';
+import type { ReactNode } from 'react';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { type AppCity } from '@/types/appView';
-
-export interface EcoCityItem extends AppCity {}
-
-interface CityCarouselProps {
-  cities: EcoCityItem[];
-  title?: string;
-}
-
-export default function CityCarousel({ cities, title = 'Explore Cities' }: CityCarouselProps) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-semibold">{title}</h2>
-      </div>
-
-      <div className="flex gap-4 overflow-x-auto pb-2">
-        {cities.map((c) => (
-          <Link
-            key={c.slug}
-            href={`/city/${c.slug}`}
-            className="min-w-[220px] flex-shrink-0 rounded-xl border bg-background hover:bg-accent hover:text-accent-foreground"
-            aria-label={`Browse ${c.name}`}
-          >
-            <div className="relative h-36 w-56 overflow-hidden rounded-t-xl">
-              {c.primaryImage?.asset?.url ? (
-                <Image
-                  src={c.primaryImage.asset.url}
-                  alt={c.name}
-                  fill
-                  sizes="224px"
-                  className="object-cover"
-                />
-              ) : (
-                <div className="h-full w-full bg-muted" />
-              )}
-            </div>
-            <div className="p-3">
-              <div className="text-base font-medium">{c.name}</div>
-              {c.country && <div className="text-sm text-muted-foreground">{c.country}</div>}
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
+    <html lang="en">
+      <body>
+        <Header />
+        <main>{children}</main>
+        <Footer />
+      </body>
+    </html>
   );
 }
 ```
 
-* Uses your `AppCity` shape (id, name, slug, country, primaryImage).&#x20;
-* City detail route assumed `/city/[slug]` (you already have `app/city/[slug]/CityPageClient.tsx`).&#x20;
-
-## B. Home usage
-
-```tsx
-// app-next-directory/src/components/home/HomeSections.tsx (example aggregator)
-// import FeaturedListingsUnified from '@/components/home/FeaturedListingsUnified';
-// import CityCarousel from '@/components/cities/CityCarousel';
-
-// <FeaturedListingsUnified listings={featuredListingDTOs} />
-// <CityCarousel cities={selectedCities} />
-```
-
-*(Use whatever Home container you already have; the idea is just to render both sections and rely on the links.)*
-
 ---
 
-# 3) Advanced Search & Filter page (multi‑select, combinable, auto‑redirect if one hit)
+# Page shells (UI-only)
 
-We’ll build a dedicated **/search** route that:
+## Home
 
-* Accepts **text query** + multi‑select **city**, **type** (formerly category), and **amenities**.
-* Updates the URL query string for shareability.
-* Queries your **Sanity** dataset via a simple API route (`app/api/search/route.ts`).
-* Renders results via your existing `ListingCard` grid and **auto‑redirects** if the result length is exactly 1.
-* Reuses your types and aligns to the way you already fetch Sanity data. You already have Sanity types that include `slug`, `city`, `amenities`, etc.&#x20;
+`app/page.tsx`:
 
-### A. API route: `app/api/search/route.ts`
+```tsx
+import FeaturedListingsSection from '@/components/sections/FeaturedListingsSection';
+import CityCarouselSection from '@/components/sections/CityCarouselSection';
 
-```ts
-// app-next-directory/app/api/search/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { client } from '@/lib/sanity/client'; // same client used by your queries file
-import { groq } from 'next-sanity';
-
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const {
-      query = '',
-      cities = [] as string[],          // city slugs
-      types = [] as string[],           // 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities'
-      amenities = [] as string[],       // amenity names (or slugs)
-      limit = 50,
-      offset = 0,
-    } = body ?? {};
-
-    // Build dynamic GROQ filters
-    const filters: string[] = ['_type == "listing"', 'defined(slug.current)', 'moderation.status == "published"'];
-    const params: Record<string, any> = { limit, offset };
-
-    if (query && query.trim()) {
-      params.q = query.trim();
-      // match on name, shortDescription, longDescription
-      filters.push(`(name match $q || shortDescription match $q || longDescription match $q)`);
-    }
-
-    if (Array.isArray(cities) && cities.length) {
-      params.cities = cities;
-      filters.push(`city->slug.current in $cities`);
-    }
-
-    if (Array.isArray(types) && types.length) {
-      params.types = types;
-      // Your schema uses "type" (and also category in some places); prefer `type`
-      filters.push(`type in $types`);
-    }
-
-    if (Array.isArray(amenities) && amenities.length) {
-      params.amenities = amenities;
-      // amenity names (or slugs) – adjust if you store slug: amenity->slug.current
-      filters.push(`count(amenities[]->name[ @ in $amenities ]) > 0`);
-    }
-
-    const base = `*[
-      ${filters.join(' && ')}
-    ] | order(_createdAt desc)`;
-
-    const resultQuery = groq`${base}{
-      _id,
-      name,
-      "slug": slug.current,
-      city->{
-        _id,
-        name,
-        "slug": slug.current,
-        country
-      },
-      type,
-      address,
-      location{lat,lng},
-      primaryImage,
-      galleryImages,
-      ecoFocusTags[]->{
-        _id, name
-      },
-      priceRange,
-      website,
-      shortDescription
-    } [ $offset ... $offset + $limit ]`;
-
-    const countQuery = groq`count(${base})`;
-
-    const [listings, total] = await Promise.all([
-      client.fetch(resultQuery, params),
-      client.fetch(countQuery, params),
-    ]);
-
-    return NextResponse.json({ listings, total });
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message ?? 'Search failed' }, { status: 500 });
-  }
+// UI-only: pass mocked data now; later wire to your DTO/API loaders
+export default function HomePage() {
+  return (
+    <div className="container py-8 space-y-8">
+      <FeaturedListingsSection listings={[]} />
+      <CityCarouselSection cities={[]} />
+    </div>
+  );
 }
 ```
 
-* Uses the **Sanity Listing** fields (slug, city, type, amenities, priceRange, etc.) represented in your types.&#x20;
-* Your existing query definitions show `LISTING_BY_SLUG_QUERY` fields mapping (so we know what’s available).&#x20;
+## Listing Detail
 
-### B. Search UI page: `app/search/page.tsx`
+`app/listings/[slug]/page.tsx`:
 
 ```tsx
-// app-next-directory/app/search/page.tsx
+import type { Metadata } from 'next';
+import type { AppListingDetail } from '@/types/appView';
+
+function ListingDetailView({ listing }: { listing: AppListingDetail }) {
+  return (
+    <div className="container py-8">
+      <div className="mb-4 text-2xl font-semibold">{listing.name}</div>
+      {/* images, meta, amenities, rich text, etc. */}
+    </div>
+  );
+}
+
+export default async function ListingDetailPage({ params }: { params: { slug: string } }) {
+  // UI-only shell for now; keep your existing DTO/API.
+  // const detail = await getListingBySlugDTO(params.slug)
+  const detail = null as unknown as AppListingDetail;
+  return <ListingDetailView listing={detail} />;
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  return { title: `${params.slug} – Listing` };
+}
+```
+
+(Your `LISTING_BY_SLUG_QUERYResult` already contains all fields you need to render this later. Keep DTO mapping in your data layer. )
+
+## City Detail
+
+`app/city/[slug]/page.tsx`:
+
+```tsx
+import { ListingGrid } from '@/components/listings/ListingGrid';
+import type { AppCity, AppListingCard } from '@/types/appView';
+
+function CityDetailView({ city, listings }: { city: AppCity; listings: AppListingCard[] }) {
+  return (
+    <div className="container py-8 space-y-6">
+      <div>
+        <div className="text-2xl font-semibold">{city.name}</div>
+        {city.country && <div className="text-muted-foreground">{city.country}</div>}
+      </div>
+      <ListingGrid listings={listings} />
+    </div>
+  );
+}
+
+export default async function CityDetailPage({ params }: { params: { slug: string } }) {
+  // UI-only shell; wire to existing queries later.
+  const city = { id: 'x', name: params.slug, slug: params.slug } as AppCity;
+  const listings: AppListingCard[] = [];
+  return <CityDetailView city={city} listings={listings} />;
+}
+```
+
+(You already have a `CityPageClient` that expects `{ city, listings }`—this composition mirrors that contract. )
+
+## Advanced Search (with auto-redirect)
+
+`app/search/page.tsx` (UI stub; keeps the redirect behavior):
+
+```tsx
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ListingGrid } from '@/components/listings/ListingGrid';
+import SearchBox from '@/components/search/SearchBox';
+import FiltersSidebar from '@/components/search/FiltersSidebar';
 import type { AppListingCard } from '@/types/appView';
-
-type Option = { label: string; value: string };
-
-const cityOptions: Option[] = [
-  { label: 'Bangkok', value: 'bangkok' },
-  { label: 'Phuket', value: 'phuket' },
-  { label: 'Krabi', value: 'krabi' },
-  // TODO: feed dynamically from Sanity if you prefer
-];
-
-const typeOptions: Option[] = [
-  { label: 'Coworking', value: 'coworking' },
-  { label: 'Cafe', value: 'cafe' },
-  { label: 'Accommodation', value: 'accommodation' },
-  { label: 'Restaurant', value: 'restaurant' },
-  { label: 'Activities', value: 'activities' },
-];
-
-const amenityOptions: Option[] = [
-  { label: 'Free Wifi', value: 'Free Wifi' },
-  { label: 'Work/Laptop friendly', value: 'Work/Laptop friendly' },
-  // add more as needed; or source from Sanity Amenity list
-];
-
-function useArrayQS(key: string) {
-  const params = useSearchParams();
-  return useMemo(
-    () => params.getAll(key).filter(Boolean),
-    [params, key]
-  );
-}
-
-function useStrQS(key: string, fallback = '') {
-  const params = useSearchParams();
-  return useMemo(() => params.get(key) ?? fallback, [params, key, fallback]);
-}
 
 export default function SearchPage() {
   const router = useRouter();
   const params = useSearchParams();
 
-  const q = useStrQS('q');
-  const qsCities = useArrayQS('city');
-  const qsTypes = useArrayQS('type');
-  const qsAmenities = useArrayQS('amenity');
+  // derive user selections from QS
+  const q = params.get('q') ?? '';
+  const cities = params.getAll('city');
+  const types = params.getAll('type');
+  const amenities = params.getAll('amenity');
 
-  const [loading, setLoading] = useState(false);
+  const body = useMemo(() => ({ query: q, cities, types, amenities }), [q, cities, types, amenities]);
+
   const [listings, setListings] = useState<AppListingCard[]>([]);
-  const [total, setTotal] = useState(0);
-
-  // derive body from QS
-  const body = useMemo(() => ({
-    query: q,
-    cities: qsCities,
-    types: qsTypes,
-    amenities: qsAmenities,
-    limit: 50,
-    offset: 0,
-  }), [q, qsCities, qsTypes, qsAmenities]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       try {
-        const res = await fetch('/api/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-        const data = await res.json();
+        // UI-only: replace with your real fetch later
+        const results: AppListingCard[] = [];
+        if (!cancelled) setListings(results);
 
-        // Map minimal server shape to AppListingCard used by your ListingCard component
-        // (slug, name, city, primaryImage/galleries, priceRange, website...)
-        const cards: AppListingCard[] = (data?.listings ?? []).map((l: any) => ({
-          id: l._id,
-          name: l.name,
-          slug: l.slug,
-          city: l.city
-            ? {
-                id: l.city._id,
-                name: l.city.name,
-                slug: l.city.slug,
-                country: l.city.country,
-              }
-            : null,
-          ecoFocusTags: (l.ecoFocusTags ?? []).map((t: any) => t?.name).filter(Boolean),
-          digitalNomadFeatures: [],
-          priceRange: l.priceRange ?? undefined,
-          website: l.website ?? null,
-          imageUrl: l.primaryImage?.asset?.url ?? undefined,
-          primaryImage: l.primaryImage,
-          galleryImages: l.galleryImages ?? [],
-          type: l.type ?? undefined,
-          shortDescription: l.shortDescription ?? undefined,
-          address: l.address ?? undefined,
-          category: l.type ?? undefined,
-          location: l.location ?? undefined,
-        }));
-
-        if (!cancelled) {
-          setListings(cards);
-          setTotal(data?.total ?? 0);
-        }
-
-        // Auto-redirect if exactly one result
-        if (!cancelled && Array.isArray(cards) && cards.length === 1 && cards[0].slug) {
-          router.replace(`/listings/${cards[0].slug}`);
+        // auto-redirect if exactly one
+        if (!cancelled && results.length === 1 && results[0].slug) {
+          router.replace(`/listings/${results[0].slug}`);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -677,162 +214,198 @@ export default function SearchPage() {
     return () => { cancelled = true; };
   }, [body, router]);
 
-  // form handlers update QS
-  function updateParam(name: string, values: string[]) {
-    const next = new URLSearchParams(params.toString());
-    next.delete(name);
-    values.forEach(v => next.append(name, v));
-    router.replace(`/search?${next.toString()}`);
-  }
-  function updateSingle(name: string, value: string) {
-    const next = new URLSearchParams(params.toString());
-    if (value) next.set(name, value); else next.delete(name);
-    router.replace(`/search?${next.toString()}`);
-  }
-
   return (
-    <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-8 lg:grid-cols-[280px_1fr]">
-      {/* Filters */}
+    <div className="container grid grid-cols-1 gap-6 py-8 lg:grid-cols-[280px_1fr]">
       <aside className="rounded-xl border p-4">
-        <div className="mb-4 text-lg font-semibold">Filters</div>
-
-        <label className="mb-2 block text-sm font-medium">Search</label>
-        <input
-          className="mb-4 w-full rounded-md border px-3 py-2"
-          type="search"
-          placeholder="Find places..."
-          defaultValue={q}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              updateSingle('q', (e.target as HTMLInputElement).value);
-            }
-          }}
-        />
-
-        <div className="mb-4">
-          <div className="mb-2 text-sm font-medium">City</div>
-          <div className="flex flex-wrap gap-2">
-            {cityOptions.map((o) => {
-              const active = qsCities.includes(o.value);
-              return (
-                <button
-                  key={o.value}
-                  className={`rounded-full border px-3 py-1 text-sm ${active ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
-                  onClick={() => {
-                    const next = active ? qsCities.filter(v => v !== o.value) : [...qsCities, o.value];
-                    updateParam('city', next);
-                  }}
-                >
-                  {o.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <div className="mb-2 text-sm font-medium">Type</div>
-          <div className="flex flex-wrap gap-2">
-            {typeOptions.map((o) => {
-              const active = qsTypes.includes(o.value);
-              return (
-                <button
-                  key={o.value}
-                  className={`rounded-full border px-3 py-1 text-sm ${active ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
-                  onClick={() => {
-                    const next = active ? qsTypes.filter(v => v !== o.value) : [...qsTypes, o.value];
-                    updateParam('type', next);
-                  }}
-                >
-                  {o.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="mb-2">
-          <div className="mb-2 text-sm font-medium">Amenities</div>
-          <div className="flex flex-wrap gap-2">
-            {amenityOptions.map((o) => {
-              const active = qsAmenities.includes(o.value);
-              return (
-                <button
-                  key={o.value}
-                  className={`rounded-full border px-3 py-1 text-sm ${active ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
-                  onClick={() => {
-                    const next = active ? qsAmenities.filter(v => v !== o.value) : [...qsAmenities, o.value];
-                    updateParam('amenity', next);
-                  }}
-                >
-                  {o.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <FiltersSidebar />
       </aside>
-
-      {/* Results */}
-      <main>
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Search Results</h1>
-          <div className="text-sm text-muted-foreground">
-            {loading ? 'Loading…' : `${total} result${total === 1 ? '' : 's'}`}
-          </div>
-        </div>
-
-        <ListingGrid listings={listings} />
+      <main className="space-y-4">
+        <SearchBox initialValue={q} />
+        {loading ? <div>Loading…</div> : <ListingGrid listings={listings} />}
       </main>
     </div>
   );
 }
 ```
 
-* Results are rendered with your existing `ListingGrid` which uses `AppListingCard`; that’s why we mapped returned objects to this shape.&#x20;
-* The **auto‑redirect** is handled in the `useEffect` right after fetching: if exactly one card is present, we `router.replace('/listings/[slug]')`.
-
-> If you prefer the advanced search under `/listings`, rename the folder/file to `app/listings/page.tsx` and keep the same code. Your repo currently has `app/listings/ListingsPage.tsx`, but no `page.tsx`. You can either **use this new `/search` route** or **replace `ListingsPage.tsx` with `page.tsx`** and merge logic.&#x20;
-
 ---
 
-# 4) Featured Listings section (Home) – simple usage
+# Sections & cards
 
-Your `FeaturedListingsUnified` wrapper is already set to pass `FeaturedListingDTO[]` into `components/listings/FeaturedListings`. Keep it as the single source on Home:
+## Featured Listings section
+
+`src/components/sections/FeaturedListingsSection.tsx`:
 
 ```tsx
-// app-next-directory/src/components/home/FeaturedListingsUnified.tsx
-// already imports types & base component correctly
-// export default function FeaturedListingsUnified({ listings }: Props) { ... }
+import { ListingGrid } from '@/components/listings/ListingGrid';
+import type { AppListingCard } from '@/types/appView';
+
+export default function FeaturedListingsSection({ listings }: { listings: AppListingCard[] }) {
+  return (
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold">Featured</h2>
+      <ListingGrid listings={listings} />
+    </section>
+  );
+}
 ```
 
-That file already imports `FeaturedListingDTO`; we’re just confirming the contract.  Also, your `FeaturedListingDTO` type includes exactly the fields needed for a simple card grid: id, name, slug, imageUrl, city, amenityNames.&#x20;
+You can continue to keep your existing `FeaturedListingsUnified` if you prefer (it already wraps the base and takes `FeaturedListingDTO[]`). If so, just use that inside `Home` and map DTO→Card once upstream. &#x20;
 
-If you want Featured cards to reuse `ListingCard` for consistency, you can map `FeaturedListingDTO → AppListingCard` inline (small adapter), or keep your existing `FeaturedListings` card design—either way the link behavior will be correct because `ListingCard` now links by slug.
+## City carousel section
+
+`src/components/sections/CityCarouselSection.tsx`:
+
+```tsx
+import Link from 'next/link';
+import Image from 'next/image';
+import type { AppCity } from '@/types/appView';
+
+export default function CityCarouselSection({ cities }: { cities: AppCity[] }) {
+  return (
+    <section className="space-y-3">
+      <h2 className="text-xl font-semibold">Explore cities</h2>
+      <div className="flex gap-4 overflow-x-auto pb-2">
+        {cities.map((c) => (
+          <Link key={c.slug} href={`/city/${c.slug}`} className="min-w-[220px]">
+            <div className="relative h-36 w-56 overflow-hidden rounded-xl border">
+              {c.primaryImage?.asset?.url ? (
+                <Image src={c.primaryImage.asset.url} alt={c.name} fill sizes="224px" className="object-cover" />
+              ) : <div className="h-full w-full bg-muted" />}
+            </div>
+            <div className="mt-2 text-sm">{c.name}</div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+```
 
 ---
 
-# 5) City Detail Page
+# Reuse + tiny patches
 
-You already have a client page component for a city detail (`CityPageClient`) and a legacy `CityPage` that renders a `ListingGrid`. With the new **CityCarousel** sending people to `/city/[slug]`, ensure that your City detail page populates listings and renders them via `ListingGrid` (so cards follow the same link behavior). &#x20;
+## Reuse `ListingGrid` & `ListingCard`
+
+Your `ListingGrid` and `ListingCard` are already close to what we need. Just ensure `ListingCard` links to the detail page via slug (so all sections—Featured, City Detail, Search—navigate correctly). The file already has a `getListingUrl` and a `<Link …>` spot; ensure the href is `/listings/${slug}`. &#x20;
+
+**Patch sketch** inside `ListingCard.tsx`:
+
+```tsx
+const getListingUrl = (listing: AppListingCard) => listing?.slug ? `/listings/${listing.slug}` : '#';
+
+// later
+<Link href={getListingUrl(listing)} aria-label={`View ${listing.name}`}>
+  {/* card content */}
+</Link>
+```
+
+(Keep the rendering exactly as you have; this just standardizes navigation.)
+
+---
+
+# Hooking this to your existing data later
+
+* **Types**: App types like `AppListingCard` already match the card/grid needs and cross-page reuse.&#x20;
+* **Detail data**: Your Sanity query result (`LISTING_BY_SLUG_QUERYResult`) already includes city, type, images, tags, price, contact, long/short descriptions, amenities, and reviews—perfect for the Listing Detail UI. Wire your DTO transformer back in when ready. &#x20;
+* **City detail**: You already have a client component that expects `{ city, listings }`, so this new City page composition is aligned.&#x20;
 
 ---
 
-## QA Checklist (fast)
+## TL;DR plan
 
-* Click a **Featured** card on Home → opens `/listings/[slug]`.
-* Click a **City** pill on Home → opens `/city/[slug]` → click a listing card → `/listings/[slug]`.
-* Go to **/search**:
+* Stand up **Tailwind + layout** first (Header/Footer visible).
+* Drop in **Home** using `FeaturedListingsSection` + `CityCarouselSection`.
+* Implement **/listings/\[slug]**, **/city/\[slug]**, **/search** shells now (UI only).
+* Reuse your **ListingCard/ListingGrid**, with the tiny link patch for slug routing.
+* Once UI is stable, connect DTO/API and turn on the real fetchers/endpoints.
 
-  * Type **“coffee”**, select **City: (Bangkok OR Phuket)** + **Type: (Cafe OR Restaurant)** + **Amenity: (Free Wifi OR Work/Laptop friendly)** → results.
-  * If **exactly one** matched listing → auto‑redirects to `/listings/[slug]`.
-  * Otherwise listings render; clicking a card goes to the detail page.
+🛠️ Overall Goal
 
----
+Refactor app-next-directory so that it uses the modern Next.js App Router structure with Tailwind v4 and shadcn UI. The data (DTOs, API layer, Sanity integration) should remain untouched. Focus purely on UI components, page structure, and navigation flow.
 
-## Notes on data contracts
+✅ Tasks Breakdown for Codex
 
-* **Types**: You’re already using `AppListingCard` for rendering and `FeaturedListingDTO` for Featured; both are present in your codebase. &#x20;
-* **Sanity fields**: The API query mirrors your listing fields such as `slug.current`, `city->slug.current`, `amenities[]->name`, etc., consistent with your generated Sanity types.&#x20;
+Root Layout & Globals
 
----
+Create app-next-directory/app/layout.tsx if it doesn’t exist. It should import globals.css and wrap all pages with <Header /> and <Footer /> components (see below).
+
+Set up a new app-next-directory/app/globals.css to import Tailwind CSS and define any project‑wide styles.
+
+Create minimal src/components/layout/Header.tsx and Footer.tsx if they’re missing. The header should display the site logo and basic nav links; the footer can show copyright or site description.
+
+Home Page
+
+Replace the old home page with a new file at app-next-directory/app/page.tsx.
+
+This page should render FeaturedListingsSection and CityCarouselSection (defined below) and pass placeholder data for now.
+
+Section Components
+
+Under src/components/sections/, add:
+
+FeaturedListingsSection.tsx: accepts listings: AppListingCard[] and renders a heading plus a ListingGrid using the existing ListingGrid component.
+
+CityCarouselSection.tsx: accepts cities: AppCity[] and displays a horizontal scroll of city cards. Each card links to /city/[slug]. You can base this off the existing components/listings/CityCarousel.tsx.
+
+Be sure to import and re-use existing types from src/types/appView.ts (like AppListingCard and AppCity).
+
+Detail Pages
+
+Add app-next-directory/app/listings/[slug]/page.tsx. Use the existing ListingDetail component from src/components/listings/ListingDetail.tsx to render full listing details. For now, stub the data fetch (e.g., leave a comment where real data will be loaded later).
+
+Add app-next-directory/app/city/[slug]/page.tsx. Show the city name, maybe some high‑level info, and use the existing CityStats and ListingGrid components to list all listings in that city.
+
+Search Page
+
+Create app-next-directory/app/search/page.tsx. This page should:
+
+Display a search bar and filters sidebar.
+
+When a search is executed and exactly one listing is returned, automatically redirect to that listing’s detail page.
+
+Use ListingGrid to show search results.
+
+For the search bar, wrap the existing DigitalNomadSearch.tsx component inside a new wrapper (see next task).
+
+Search Components
+
+Under src/components/search/, add:
+
+SearchBox.tsx: a simple wrapper around DigitalNomadSearch.tsx from src/components/ui. Keep props minimal (e.g., initialValue and an onSearch callback).
+
+FiltersSidebar.tsx: a wrapper around DigitalNomadSearchFilter.tsx, mapping its outputs into search query parameters.
+
+These wrappers let you reuse existing advanced search/filter UIs while fitting the new page structure.
+
+Listing Card Update
+
+In src/components/listings/ListingCard.tsx, verify that the card’s link uses the slug to build the path:
+
+const getListingUrl = (listing: AppListingCard) => {
+  return listing.slug ? `/listings/${listing.slug}` : '#';
+};
+Task Breakdown
+
+Ensure the <Link> component points to this URL so clicking any listing always goes to its detail page.
+
+Cleanup & Navigation
+
+Remove or archive old pages like ListingsPage.tsx and ListingsPageWrapper.tsx which are not part of the new App Router flow.
+
+Ensure navigation flows: Featured cards link to /listings/[slug], city cards link to /city/[slug], and the search page links to detail pages.
+
+Ensure Build & Style Compatibility
+
+Confirm the project runs with npm run dev on the branch, adjusting next.config.js or tailwind.config.js if necessary.
+
+Make sure the layout and sections render correctly in both mobile and desktop views, using Tailwind’s responsive classes.
+
+Types & Imports
+
+Where new components need types like AppListingCard or AppCity, import them from src/types/appView.ts.
+
+Keep all new components typed and use consistent prop naming (e.g., listings, cities).
+
+

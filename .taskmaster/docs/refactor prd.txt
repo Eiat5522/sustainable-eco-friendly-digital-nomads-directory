@@ -321,3 +321,91 @@ const getListingUrl = (listing: AppListingCard) => listing?.slug ? `/listings/${
 * Reuse your **ListingCard/ListingGrid**, with the tiny link patch for slug routing.
 * Once UI is stable, connect DTO/API and turn on the real fetchers/endpoints.
 
+🛠️ Overall Goal
+
+Refactor app-next-directory so that it uses the modern Next.js App Router structure with Tailwind v4 and shadcn UI. The data (DTOs, API layer, Sanity integration) should remain untouched. Focus purely on UI components, page structure, and navigation flow.
+
+✅ Tasks Breakdown for Codex
+
+Root Layout & Globals
+
+Create app-next-directory/app/layout.tsx if it doesn’t exist. It should import globals.css and wrap all pages with <Header /> and <Footer /> components (see below).
+
+Set up a new app-next-directory/app/globals.css to import Tailwind CSS and define any project‑wide styles.
+
+Create minimal src/components/layout/Header.tsx and Footer.tsx if they’re missing. The header should display the site logo and basic nav links; the footer can show copyright or site description.
+
+Home Page
+
+Replace the old home page with a new file at app-next-directory/app/page.tsx.
+
+This page should render FeaturedListingsSection and CityCarouselSection (defined below) and pass placeholder data for now.
+
+Section Components
+
+Under src/components/sections/, add:
+
+FeaturedListingsSection.tsx: accepts listings: AppListingCard[] and renders a heading plus a ListingGrid using the existing ListingGrid component.
+
+CityCarouselSection.tsx: accepts cities: AppCity[] and displays a horizontal scroll of city cards. Each card links to /city/[slug]. You can base this off the existing components/listings/CityCarousel.tsx.
+
+Be sure to import and re-use existing types from src/types/appView.ts (like AppListingCard and AppCity).
+
+Detail Pages
+
+Add app-next-directory/app/listings/[slug]/page.tsx. Use the existing ListingDetail component from src/components/listings/ListingDetail.tsx to render full listing details. For now, stub the data fetch (e.g., leave a comment where real data will be loaded later).
+
+Add app-next-directory/app/city/[slug]/page.tsx. Show the city name, maybe some high‑level info, and use the existing CityStats and ListingGrid components to list all listings in that city.
+
+Search Page
+
+Create app-next-directory/app/search/page.tsx. This page should:
+
+Display a search bar and filters sidebar.
+
+When a search is executed and exactly one listing is returned, automatically redirect to that listing’s detail page.
+
+Use ListingGrid to show search results.
+
+For the search bar, wrap the existing DigitalNomadSearch.tsx component inside a new wrapper (see next task).
+
+Search Components
+
+Under src/components/search/, add:
+
+SearchBox.tsx: a simple wrapper around DigitalNomadSearch.tsx from src/components/ui. Keep props minimal (e.g., initialValue and an onSearch callback).
+
+FiltersSidebar.tsx: a wrapper around DigitalNomadSearchFilter.tsx, mapping its outputs into search query parameters.
+
+These wrappers let you reuse existing advanced search/filter UIs while fitting the new page structure.
+
+Listing Card Update
+
+In src/components/listings/ListingCard.tsx, verify that the card’s link uses the slug to build the path:
+
+const getListingUrl = (listing: AppListingCard) => {
+  return listing.slug ? `/listings/${listing.slug}` : '#';
+};
+Task Breakdown
+
+Ensure the <Link> component points to this URL so clicking any listing always goes to its detail page.
+
+Cleanup & Navigation
+
+Remove or archive old pages like ListingsPage.tsx and ListingsPageWrapper.tsx which are not part of the new App Router flow.
+
+Ensure navigation flows: Featured cards link to /listings/[slug], city cards link to /city/[slug], and the search page links to detail pages.
+
+Ensure Build & Style Compatibility
+
+Confirm the project runs with npm run dev on the branch, adjusting next.config.js or tailwind.config.js if necessary.
+
+Make sure the layout and sections render correctly in both mobile and desktop views, using Tailwind’s responsive classes.
+
+Types & Imports
+
+Where new components need types like AppListingCard or AppCity, import them from src/types/appView.ts.
+
+Keep all new components typed and use consistent prop naming (e.g., listings, cities).
+
+
