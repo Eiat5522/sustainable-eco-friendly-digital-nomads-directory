@@ -31,7 +31,6 @@ export default function RootLayout({ children }: { readonly children: React.Reac
           <main id="main-content" tabIndex={-1} className="pt-16">
             {children}
           </main>
-          <Footer />
         </ClientRootLayout>
       </body>
     </html>
