@@ -1,78 +1,36 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import HeroSection from '@/components/home/HeroSection';
-import FeaturedListings from '@/components/home/FeaturedListingsUnified';
-import EcoCityCarousel from '@/components/cities/CityCarousel';
-import WhyChooseUs from '@/components/home/WhyChooseUs';
-import StatisticsSection from '@/components/home/StatisticsSection';
-import CTASection from '@/components/home/CTASection';
-import SustainableNomadTestimonials from '@/components/ui/sustainable-nomad-testimonials';
-
-import type { EcoCityItem } from '@/components/cities/CityCarousel';
-import { mapSanityListingToCard } from '@/lib/listings';
-import { getFeaturedListings, getAllCities } from '@/lib/sanity/queries';
-
-type RawListing = Parameters<typeof mapSanityListingToCard>[0];
-type ListingCard = ReturnType<typeof mapSanityListingToCard>;
-
-type RawCity = {
-  _id: string;
-  title: string;
-  sustainabilityScore?: number | null;
-  highlights?: string[] | null;
-  primaryImage?: unknown;
-};
+import FeaturedListingsSection from "@/components/sections/FeaturedListingsSection";
+import CityCarouselSection from "@/components/sections/CityCarouselSection";
+import { AppListingCard, AppCity } from "@/types/appView";
 
 export default function HomePage() {
-  const [listings, setListings] = useState<ListingCard[]>([]);
-  const [cities, setCities] = useState<EcoCityItem[]>([]);
+  const listings: AppListingCard[] = [
+    {
+      id: "1",
+      name: "Eco Coworking Space",
+      slug: "eco-coworking-space",
+      city: null,
+      ecoFocusTags: ["solar"],
+      imageUrl: "/images/fallback.png",
+    },
+  ];
 
-  useEffect(() => {
-    async function fetchContent(): Promise<void> {
-      try {
-        const [featuredListings, cityData] = await Promise.all([
-          getFeaturedListings(),
-          getAllCities(),
-        ]);
-
-        const mappedListings = (featuredListings || [])
-          .map((l: RawListing) => {
-            try {
-              return mapSanityListingToCard(l);
-            } catch (e) {
-              console.warn('[WARN] Failed to map listing', l, e);
-              return null;
-            }
-          })
-          .filter((x: ListingCard | null): x is ListingCard => x !== null);
-        setListings(mappedListings);
-
-        const mappedCities: EcoCityItem[] = (cityData || []).map((city: RawCity) => ({
-          _id: city._id,
-          name: city.title,
-          sustainabilityScore: city.sustainabilityScore ?? 0,
-          highlights: city.highlights ?? [],
-          image: city.primaryImage as EcoCityItem['image'],
-        }));
-        setCities(mappedCities);
-      } catch (error) {
-        console.error('[ERROR] HomePage: Failed to load content:', error);
-      }
-    }
-
-    fetchContent();
-  }, []);
+  const cities: AppCity[] = [
+    {
+      id: "1",
+      name: "Green City",
+      slug: "green-city",
+      country: "Wonderland",
+      sustainabilityScore: 90,
+      highlights: ["Bike friendly"],
+      primaryImage: { asset: { url: "/images/fallback.png" } },
+    },
+  ];
 
   return (
-      <div>
-        <HeroSection />
-        <FeaturedListings listings={listings} />
-        <EcoCityCarousel cities={cities} />
-        <StatisticsSection />
-        <WhyChooseUs />
-        <SustainableNomadTestimonials />
-        <CTASection />
-      </div>
+    <main>
+      <FeaturedListingsSection listings={listings} />
+      <CityCarouselSection cities={cities} />
+    </main>
   );
 }
+
