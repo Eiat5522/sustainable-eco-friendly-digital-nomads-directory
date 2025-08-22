@@ -29,7 +29,7 @@ jobs:
           PNPM_HOME=$(pnpm bin -g)
           echo "PNPM_HOME=$PNPM_HOME" >> "$GITHUB_ENV"
           echo "$PNPM_HOME" >> "$GITHUB_PATH"      - name: Install project dependencies
-        run: pnpm install
+          pnpm install
 
       - name: Preinstall Copilot Agent tools
         run: |

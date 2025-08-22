@@ -80,7 +80,7 @@
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.1.0",
     "zod": "^3.25.76",
-    "@shadcn/ui": "^0.1.0"
+    "@shadcn/ui": "^0.0.4"
   },
   "devDependencies": {
     "@jest/globals": "^30.0.5",
