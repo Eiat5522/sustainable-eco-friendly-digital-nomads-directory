@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface City {
   id: string;
@@ -50,7 +51,11 @@ export default function CitiesSection() {
         <h2 className="text-3xl font-bold mb-10 text-center text-green-900">Eco-Friendly Cities</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {cities.map(city => (
-            <div key={city.id} className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+            <Link
+              key={city.id}
+              href={`/city/${city.slug}`}
+              className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col hover:shadow-xl transition-shadow"
+            >
               <div className="relative w-full h-48">
                 {city.primaryImage ? (
                   <Image
@@ -82,7 +87,7 @@ export default function CitiesSection() {
                   <span className="text-lg font-bold text-green-600">{city.sustainabilityScore}</span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

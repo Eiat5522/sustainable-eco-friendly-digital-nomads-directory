@@ -191,13 +191,13 @@ describe('ListingCard', () => {
     expect(link).toHaveAttribute('href', '/listings/non-sanity-test-slug');
   });
 
-  test('getListingUrl returns default slug for missing slug', () => {
-    const listingWithoutSlug: AppListingCard = { 
-      ...mockListing, 
-      slug: 'default-slug' 
+  test('getListingUrl falls back to # when slug is missing', () => {
+    const listingWithoutSlug: AppListingCard = {
+      ...mockListing,
+      slug: undefined,
     };
     render(<ListingCard listing={listingWithoutSlug} />);
-    expect(screen.getByRole('link')).toHaveAttribute('href', '/listings/default-slug');
+    expect(screen.getByRole('link')).toHaveAttribute('href', '#');
   });
 
   test('image URL is correct for primaryImage', () => {
