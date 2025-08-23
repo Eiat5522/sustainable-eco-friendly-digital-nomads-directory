@@ -798,7 +798,7 @@ export type SanityFileAsset = {
   path?: string
   url?: string
   source?: SanityAssetSourceData
-},
+}
 export type SanityImageAsset = {  _id: string
   _type: 'sanity.imageAsset'
   _createdAt: string

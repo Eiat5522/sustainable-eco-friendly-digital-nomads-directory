@@ -1,6 +1,6 @@
 {
   "name": "sustainable-eco-friendly-digital-nomads-directory-root",
-  "packageManager": "pnpm@8.15.0",
+  "packageManager": "pnpm@10.15.0",
   "workspaces": [
     "app-next-directory",
     "sanity"
@@ -35,7 +35,7 @@
     "not op_mini all"
   ],
   "dependencies": {
-    "@sanity/client": "^7.8.2",
+    "@sanity/client": "^7.9.0",
     "@sanity/code-input": "^5.2.1",
     "bcrypt": "^6.0.0",
     "clsx": "^2.1.1",
@@ -70,20 +70,27 @@
       "prisma",
       "sharp",
       "sqlite3"
+    ],
+    "ignoredBuiltDependencies": [
+      "bcrypt",
+      "core-js",
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
     ]
   },
   "devDependencies": {
     "@auth/mongodb-adapter": "^3.10.0",
-    "@playwright/test": "^1.54.2",
+    "@playwright/test": "^1.55.0",
     "@swc/jest": "^0.2.39",
-    "@testing-library/dom": "^10.4.0",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/react-hooks": "^8.0.1",
     "@types/jest": "^30.0.0",
     "cross-fetch": "^4.1.0",
-    "eslint": "^9.29.0",
-    "eslint-config-next": "^15.3.4",
+    "eslint": "^9.34.0",
+    "eslint-config-next": "^15.5.0",
     "jest-mock-extended": "^4.0.0",
-    "ts-jest": "^29.4.0",
+    "ts-jest": "^29.4.1",
     "typescript": "5.9.2"
   }
 }

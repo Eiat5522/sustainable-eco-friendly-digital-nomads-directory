@@ -3648,6 +3648,22 @@
         },
         "optional": true
       },
+      "coworkingDetails": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "coworkingDetails"
+        },
+        "optional": true
+      },
+      "restaurantDetails": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "inline",
+          "name": "restaurantDetails"
+        },
+        "optional": true
+      },
       "category": {
         "type": "objectAttribute",
         "value": {
@@ -3674,22 +3690,6 @@
               "value": "activities"
             }
           ]
-        },
-        "optional": true
-      },
-      "coworkingDetails": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "inline",
-          "name": "coworkingDetails"
-        },
-        "optional": true
-      },
-      "restaurantDetails": {
-        "type": "objectAttribute",
-        "value": {
-          "type": "inline",
-          "name": "restaurantDetails"
         },
         "optional": true
       },
