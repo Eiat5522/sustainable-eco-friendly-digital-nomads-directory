@@ -12,8 +12,7 @@ export interface ListingCardProps {
 }
 
 const getListingUrl = (listing: AppListingCard) => {
-  const slug = listing.slug ?? listing.id;
-  return `/listings/${slug}`;
+  return listing.slug ? `/listings/${listing.slug}` : '#';
 };
 
 export function ListingCard({ listing, searchQuery }: ListingCardProps) {
