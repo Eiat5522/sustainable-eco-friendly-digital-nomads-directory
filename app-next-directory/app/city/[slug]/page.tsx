@@ -1,124 +1,37 @@
-import CityPageClient from './CityPageClient';
-import { client } from '@/lib/sanity/client';
-import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
+import CityStats from "@/components/city/CityStats";
+import { ListingGrid } from "@/components/listings/ListingGrid";
+import { AppCity, AppListingCard } from "@/types/appView";
+import type { City as SanityCity } from "@/types/sanity.types";
 
-interface CityPageParams {
-  params: Promise<{
-    slug: string;
-  }>;
-}
-
-export async function generateMetadata({ params }: CityPageParams): Promise<Metadata> {
-  try {
-    const { slug } = await params;
-    
-    // Fetch city details directly from Sanity for metadata
-    const query = `*[_type == "city" && slug.current == $slug][0] {
-      title,
-      description,
-      primaryImage {
-        asset->{
-          url
-        }
-      }
-    }`;
-
-    const city = await client.fetch(query, { slug });
-
-    if (!city) {
-      return {
-        title: 'City Not Found',
-        description: 'The requested city could not be found.',
-      };
-    }
-
-    return {
-      title: `${city.name} | Eco-Friendly Digital Nomad Destination`,
-      description: city.description || `Discover sustainable and eco-friendly places to stay and work remotely in ${city.name}.`,
-      openGraph: {
-        images: [city.primaryImage?.asset?.url || '/images/default-city.jpg'],
-      },
-    };
-  } catch (error) {
-    return {
-      title: 'City Not Found',
-      description: 'The requested city could not be found.',
-    };
-  }
-}
-
-export default async function CityPageRoute({ params }: CityPageParams) {
-  try {
-    const { slug } = await params;
-    // Fetch city details
-    const cityQuery = `*[_type == "city" && slug.current == $slug][0] {
-      _id,
-      title,
-      "slug": slug.current,
-      description,
-      country,
-      sustainabilityScore,
-      highlights,
-      primaryImage {
-        asset->{
-          _id,
-          url,
-          metadata {
-            dimensions {
-              width,
-              height
-            }
-          }
-        }
-      },
-      coordinates,
-      climate,
-      safety,
-      walkability,
-      airQuality,
-      internetSpeed,
-      costOfLiving
-    }`;
-
-    // Fetch city listings
-    const listingsQuery = `*[_type == "listing" && references(*[_type == "city" && slug.current == $citySlug][0]._id) && moderation.status == "published"] {
-      _id,
-      name,
+async function getCityData(slug: string): Promise<{ city: AppCity; listings: AppListingCard[] }> {
+  // TODO: Replace with real data fetching logic
+  return {
+    city: {
+      id: slug,
+      name: "Sample City",
       slug,
-      shortDescription,
-      category,
-      primaryImage {
-        asset->{
-          _id,
-          url,
-          metadata {
-            dimensions {
-              width,
-              height
-            }
-          }
-        }
-      },
-      ecoTags,
-      
-      priceRange,
-      location,
-      "digitalNomadFeatures": digitalNomadFeatures[]->name
-    }`;
+      country: "",
+      sustainabilityScore: 0,
+      highlights: [],
+      description: "",
+    },
+    listings: [],
+  };
+}
 
-    const [city, listings] = await Promise.all([
-      client.fetch(cityQuery, { slug }),
-      client.fetch(listingsQuery, { citySlug: slug })
-    ]);
+export default async function CityPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const { city, listings } = await getCityData(slug);
+  const sanityCity = city as unknown as SanityCity;
 
-    if (!city) {
-      notFound();
-    }
-
-    return <CityPageClient city={city} listings={listings} />;
-  } catch (error) {
-    console.error('Error fetching city data:', error);
-    notFound();
-  }
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-4xl font-bold mb-4">{city.name}</h1>
+      {city.description && <p className="mb-8">{city.description}</p>}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <CityStats city={sanityCity} />
+      </div>
+      <ListingGrid listings={listings} />
+    </div>
+  );
 }
