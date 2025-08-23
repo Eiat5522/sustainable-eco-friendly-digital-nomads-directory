@@ -35,7 +35,7 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 .venv*
-.*env*
+
 
 # vercel
 .vercel
@@ -64,8 +64,6 @@ node_modules/
 # Task files
 tasks.json
 tasks/
-
-
 
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
