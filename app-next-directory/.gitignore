@@ -35,6 +35,7 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 .venv*
+.*env*
 
 # vercel
 .vercel
@@ -50,8 +51,7 @@ logs
 dev-debug.log
 # Dependency directories
 node_modules/
-# Environment variables
-.env
+
 # Editor directories and files
 .idea
 .vscode
@@ -65,3 +65,7 @@ node_modules/
 tasks.json
 tasks/
 
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
