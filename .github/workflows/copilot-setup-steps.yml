@@ -1,4 +1,3 @@
-# .github/workflows/copilot-setup-steps.yml
 name: Setup Copilot Agent Environment
 
 on:
@@ -23,12 +22,12 @@ jobs:
         run: npm install -g pnpm
 
       - name: Setup pnpm global bin directory
+        run: pnpm setup
+
+      - name: Set PNPM_HOME and add to PATH
         run: |
-          pnpm setup
-          # Expose PNPM_HOME and add pnpm global bin to PATH for subsequent steps
-          PNPM_HOME=$(pnpm bin -g)
-          echo "PNPM_HOME=$PNPM_HOME" >> "$GITHUB_ENV"
-          echo "$PNPM_HOME" >> "$GITHUB_PATH"
+          echo "PNPM_HOME=$(pnpm bin -g)" >> $GITHUB_ENV
+          echo "$(pnpm bin -g)" >> $GITHUB_PATH
 
       - name: Install project dependencies
         run: pnpm install --no-frozen-lockfile
