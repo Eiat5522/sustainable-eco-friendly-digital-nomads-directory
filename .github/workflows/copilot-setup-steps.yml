@@ -28,6 +28,7 @@ jobs:
         run: |
           echo "PNPM_HOME=$(pnpm bin -g)" >> $GITHUB_ENV
           echo "$(pnpm bin -g)" >> $GITHUB_PATH
+          
 
       - name: Install project dependencies
         run: pnpm install --no-frozen-lockfile

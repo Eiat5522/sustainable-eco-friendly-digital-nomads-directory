@@ -1,27 +1,194 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
 
-:root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-neo-primary: var(--neo-primary);
+  --color-neo-secondary: var(--neo-secondary);
+  --color-neo-accent: var(--neo-accent);
+  --color-neo-success: var(--neo-success);
+  --color-neo-surface: var(--neo-surface);
+  --color-neo-text-primary: var(--neo-text-primary);
+  --color-neo-text-secondary: var(--neo-text-secondary);
+  --color-neo-border: var(--neo-border);
+  --color-neo-shadow: var(--neo-shadow);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+:root {
+  --radius: 8px;
+  --background: #F8FAFC;
+  --foreground: #1F2937;
+  --card: #FFFFFF;
+  --card-foreground: #1F2937;
+  --popover: #FFFFFF;
+  --popover-foreground: #1F2937;
+  --primary: #4F46E5;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F59E0B;
+  --secondary-foreground: #1F2937;
+  --muted: #F1F5F9;
+  --muted-foreground: #6B7280;
+  --accent: #EF4444;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --border: #000000;
+  --input: #FFFFFF;
+  --ring: #4F46E5;
+  --chart-1: #4F46E5;
+  --chart-2: #F59E0B;
+  --chart-3: #10B981;
+  --chart-4: #EF4444;
+  --chart-5: #8B5CF6;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1F2937;
+  --sidebar-primary: #4F46E5;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #F1F5F9;
+  --sidebar-accent-foreground: #1F2937;
+  --sidebar-border: #000000;
+  --sidebar-ring: #4F46E5;
+  --neo-primary: #4F46E5;
+  --neo-secondary: #F59E0B;
+  --neo-accent: #EF4444;
+  --neo-success: #10B981;
+  --neo-surface: #FFFFFF;
+  --neo-text-primary: #1F2937;
+  --neo-text-secondary: #6B7280;
+  --neo-border: #000000;
+  --neo-shadow: #000000;
+}
+
+.dark {
+  --background: #0F172A;
+  --foreground: #F8FAFC;
+  --card: #1E293B;
+  --card-foreground: #F8FAFC;
+  --popover: #1E293B;
+  --popover-foreground: #F8FAFC;
+  --primary: #6366F1;
+  --primary-foreground: #F8FAFC;
+  --secondary: #FBBF24;
+  --secondary-foreground: #0F172A;
+  --muted: #334155;
+  --muted-foreground: #94A3B8;
+  --accent: #F87171;
+  --accent-foreground: #F8FAFC;
+  --destructive: #F87171;
+  --border: #FFFFFF;
+  --input: #1E293B;
+  --ring: #6366F1;
+  --neo-primary: #6366F1;
+  --neo-secondary: #FBBF24;
+  --neo-accent: #F87171;
+  --neo-success: #34D399;
+  --neo-surface: #1E293B;
+  --neo-text-primary: #F8FAFC;
+  --neo-text-secondary: #94A3B8;
+  --neo-border: #FFFFFF;
+  --neo-shadow: #FFFFFF;
+}
+
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  margin: auto;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-family: 'Inter', sans-serif;
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+@utility neo-card {
+  @apply bg-neo-surface border-4 border-neo-border shadow-[8px_8px_0px_0px] shadow-neo-shadow;
+}
+
+@utility neo-button {
+  @apply border-4 border-neo-border shadow-[4px_4px_0px_0px] shadow-neo-shadow font-bold transition-all duration-150;
+}
+
+@utility neo-button-hover {
+  @apply hover:shadow-[2px_2px_0px_0px] hover:translate-x-[2px] hover:translate-y-[2px];
+}
+
+@utility neo-input {
+  @apply border-4 border-neo-border bg-neo-surface shadow-[inset_4px_4px_0px_0px] shadow-neo-shadow/20;
+}
+
+@utility heading-display {
+  font-family: 'Space Grotesk', sans-serif;
+  @apply font-bold text-neo-text-primary;
+}
+
+@utility heading-xl {
+  @apply heading-display text-4xl md:text-5xl lg:text-6xl leading-tight;
+}
+
+@utility heading-lg {
+  @apply heading-display text-2xl md:text-3xl lg:text-4xl leading-tight;
+}
+
+@utility heading-md {
+  @apply heading-display text-xl md:text-2xl leading-tight;
+}
+
+@utility heading-sm {
+  @apply heading-display text-lg md:text-xl leading-tight;
+}
+
+@utility body-lg {
+  @apply text-lg text-neo-text-secondary leading-relaxed;
+}
+
+@utility body-md {
+  @apply text-base text-neo-text-secondary leading-relaxed;
+}
+
+@utility body-sm {
+  @apply text-sm text-neo-text-secondary leading-relaxed;
 }
