@@ -4,7 +4,7 @@
  * Date: May 24, 2025
  */
 
-import { type SanityImageObject } from '@sanity/image-url/lib/types/types'
+import type { SanityImageObject } from '../types/external/sanity-image'
 import { sanityHTTPClient } from './sanity-http-client'
 
 // Image optimization settings

@@ -146,8 +146,7 @@ task-master analyze-complexity --research
 task-master expand --all --research
 ```
 
-If tasks already exist, you can append new information using `parse-prd --append`. This adds generated tasks to the existing list.
-Example: `task-master parse-prd --append .taskmaster/docs/prd.txt`
+If tasks already exist, another PRD can be parsed (with new information only!) using parse-prd with --append flag. This will add the generated tasks to the existing list of tasks..
 
 #### 2. Daily Development Loop
 

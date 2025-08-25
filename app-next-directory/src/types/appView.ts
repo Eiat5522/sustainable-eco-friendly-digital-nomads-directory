@@ -1,33 +1,11 @@
-import type { PortableTextBlock } from '@portabletext/types';
-
-// TODO: Align Sanity image types with official Sanity schema types from @sanity/image-url and asset docs.
-// Temporary local type to correctly represent runtime shape.
-export type SanityImageDimensions = {
-  width?: number;
-  height?: number;
-  aspectRatio?: number;
-};
+import type { PortableTextBlock } from './external/portabletext';
+import type { SanityImageObject } from './external/sanity-image';
 
 export type AppCity = { id: string; name: string; slug: string; country?: string; sustainabilityScore?: number; highlights?: string[]; primaryImage?: SanityImage; description?: string; };
 
-export type SanityImage = {
-  _type?: 'image';
-  _ref?: string;
-  alt?: string;
-  asset?: {
-      _id?: string;
-      _ref?: string;
-      _type?: 'reference';
-      url?: string;
-      metadata?: {
-        dimensions?: SanityImageDimensions;
-        lqip?: string;
-      };
-    };
-};
+export type SanityImage = SanityImageObject;
 
-export type SanityGalleryImage = SanityImage & {
-  _type: 'image';
+export type SanityGalleryImage = SanityImageObject & {
   _key: string;
 };
 

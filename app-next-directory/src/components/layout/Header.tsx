@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
 import React from 'react'
 import Link from 'next/link'
 import { NeoButton } from '@/components/ui/neo-button'
 import { NeoBadge } from '@/components/ui/neo-badge'
-import { User } from 'lucide-react'
+import { User, Menu } from 'lucide-react'
 
 export function Header() {
   return (
@@ -19,6 +19,15 @@ export function Header() {
           </div>
 
           {/* Navigation */}
+          {/* Mobile menu trigger (scaffold) */}
+          <button
+            type="button"
+            aria-label="Open menu"
+            className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
+          >
+            <Menu size={20} />
+            <span className="sr-only">Open menu</span>
+          </button>
           <nav className="hidden md:flex items-center space-x-8">
             <Link href="/about" className="body-md hover:text-neo-primary font-semibold transition-colors">
               About us

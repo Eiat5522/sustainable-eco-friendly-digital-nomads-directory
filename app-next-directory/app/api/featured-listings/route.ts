@@ -146,12 +146,15 @@ export async function GET() {
       id: listing._id,
       name: listing.name,
       slug: listing.slug || '',
-      city: listing.city?.name ? {
-        id: listing.city._id || '',
-        name: listing.city.name || '',
-        slug: listing.city.slug || '',
-        country: listing.city.country || ''
-      } : null,
+      city: listing.city
+        ? {
+            id: listing.city._id || '',
+            name: listing.city.name || '',
+            slug: listing.city.slug || '',
+            country: listing.city.country || ''
+          }
+        : null,
+      cityName: listing.city?.name || '',
       ecoFocusTags: Array.isArray(listing.ecoFocusTags) ? listing.ecoFocusTags : [],
       digitalNomadFeatures: Array.isArray(listing.digitalNomadFeatures) ? listing.digitalNomadFeatures : [],
       amenities: Array.isArray(listing.amenities) ? listing.amenities.map(amenity => ({

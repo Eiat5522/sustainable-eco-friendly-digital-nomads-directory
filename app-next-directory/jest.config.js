@@ -7,7 +7,7 @@ module.exports = {
   // Treat TS/JS files as ESM for SWC/Jest
   extensionsToTreatAsEsm: ['.ts', '.tsx', '.jsx'],
   setupFiles: ['<rootDir>/jest/setEnvVars.js'],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts', '<rootDir>/__mocks__/node.ts'],
   testEnvironment: 'jsdom',
   testEnvironmentOptions: {
     customExportConditions: ["node", "node-addons"]

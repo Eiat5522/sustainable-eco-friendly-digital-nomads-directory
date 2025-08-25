@@ -2,11 +2,23 @@
 
 import React from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { NeoCard, NeoCardContent } from '@/components/ui/neo-card'
 import { NeoBadge } from '@/components/ui/neo-badge'
 import { Star, Quote } from 'lucide-react'
 
-const testimonials = [
+interface Testimonial {
+  id: number
+  name: string
+  role: string
+  location: string
+  avatar: string
+  rating: number
+  text: string
+  venue: string
+}
+
+const testimonials: Testimonial[] = [
   {
     id: 1,
     name: 'Sarah Chen',
@@ -52,7 +64,7 @@ export function TestimonialsSection() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {testimonials.map((testimonial) => (
-            <NeoCard key={testimonial.id} variant="elevated" className="group hover:shadow-[16px_16px_0px_0px] transition-all duration-300">
+            <NeoCard key={testimonial.id} variant="elevated" className="hover:shadow-[16px_16px_0px_0px] transition-all duration-300">
               <NeoCardContent className="p-8">
                 {/* Quote Icon */}
                 <div className="w-12 h-12 bg-neo-primary rounded-full flex items-center justify-center mb-6">
@@ -61,15 +73,28 @@ export function TestimonialsSection() {
 
                 {/* Rating */}
                 <div className="flex items-center space-x-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} size={16} className="text-neo-secondary fill-current" />
+                  <span className="sr-only">{`${Math.round(testimonial.rating)} out of 5 stars`}</span>
+                  {Array.from(
+                    { length: Math.max(0, Math.min(5, Math.round(testimonial.rating))) }
+                  ).map((_, i) => (
+                    <Star
+                      key={i}
+                      size={16}
+                      className="text-neo-secondary fill-current"
+                      aria-hidden="true"
+                      focusable="false"
+                    />
                   ))}
+                  {/* Optional: render empty stars to keep width consistent */}
+                  {/* {Array.from({ length: 5 - Math.max(0, Math.min(5, Math.round(testimonial.rating))) }).map((_, i) => (
+                    <Star key={`empty-${i}`} size={16} className="text-neo-secondary/30" aria-hidden="true" focusable="false" />
+                  ))} */}
                 </div>
 
                 {/* Testimonial Text */}
-                <p className="body-md mb-6 italic">
-                  "{testimonial.text}"
-                </p>
+                <blockquote className="body-md mb-6 italic">
+                  “{testimonial.text}”
+                </blockquote>
 
                 {/* Venue Badge */}
                 <NeoBadge variant="success" size="sm" className="mb-6">
@@ -83,9 +108,9 @@ export function TestimonialsSection() {
                       src={testimonial.avatar}
                       alt={testimonial.name}
                       fill
+                      sizes="48px"
                       className="object-cover"
-                    />
-                  </div>
+                    />                  </div>
                   <div>
                     <h4 className="heading-sm">{testimonial.name}</h4>
                     <p className="body-sm text-neo-text-secondary">{testimonial.role}</p>
@@ -101,17 +126,23 @@ export function TestimonialsSection() {
         <div className="text-center mt-16">
           <NeoCard variant="flat" className="inline-block p-8 bg-gradient-to-r from-neo-secondary to-orange-400">
             <NeoCardContent>
-              <h3 className="heading-md mb-4 text-neo-text-primary">Share Your Experience</h3>
-              <p className="body-lg mb-6 text-neo-text-primary max-w-xl">
+              <h3 className="heading-md mb-4 text-white">Share Your Experience</h3>
+              <p className="body-lg mb-6 text-white max-w-xl">
                 Help fellow nomads by sharing your experiences with sustainable venues
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="neo-button neo-button-hover bg-neo-primary text-white px-6 py-3 rounded-lg font-bold">
-                  Write a Review
-                </button>
-                <button className="neo-button neo-button-hover bg-transparent text-neo-text-primary border-neo-text-primary px-6 py-3 rounded-lg font-bold">
-                  Join Community
-                </button>
+<Link
+  href="/write-review"
+  className="neo-button neo-button-hover bg-neo-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-neo-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+>
+  Write a Review
+</Link>
+<Link
+  href="/community"
+  className="neo-button neo-button-hover bg-transparent text-white border border-white px-6 py-3 rounded-lg font-bold hover:bg-white hover:text-neo-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+>
+  Join Community
+</Link>
               </div>
             </NeoCardContent>
           </NeoCard>

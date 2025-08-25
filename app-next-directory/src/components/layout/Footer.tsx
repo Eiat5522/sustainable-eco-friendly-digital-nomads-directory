@@ -35,13 +35,14 @@ const footerLinks = {
 }
 
 const socialLinks = [
-  { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
-  { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
-  { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+  { icon: Twitter, href: 'https://twitter.com/sustainablenomads', label: 'Twitter' },
+  { icon: Instagram, href: 'https://instagram.com/sustainablenomads', label: 'Instagram' },
+  { icon: Linkedin, href: 'https://linkedin.com/company/sustainablenomads', label: 'LinkedIn' },
   { icon: Mail, href: 'mailto:hello@sustainablenomads.com', label: 'Email' }
 ]
 
 export function Footer() {
+  const year = new Date().getFullYear()
   return (
     <footer className="bg-neo-text-primary text-white border-t-4 border-neo-border">
       <div className="container mx-auto px-4 py-16">
@@ -52,15 +53,28 @@ export function Footer() {
             <p className="body-lg mb-6 text-blue-100 max-w-2xl mx-auto">
               Get weekly updates on new sustainable venues, eco-travel tips, and nomad community highlights
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-              <NeoInput 
-                placeholder="Enter your email" 
+            <form
+              className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
+              onSubmit={(e) => { e.preventDefault(); /* TODO: wire up newsletter signup */ }}
+              noValidate
+            >
+              <label htmlFor="newsletter-email" className="sr-only">Email address</label>
+              <NeoInput
+                id="newsletter-email"
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                autoComplete="email"
+                inputMode="email"
+                aria-describedby="newsletter-help"
+                required
                 className="flex-1 bg-white text-neo-text-primary"
               />
-              <NeoButton variant="secondary" size="md">
+              <NeoButton variant="secondary" size="md" type="submit">
                 Subscribe
               </NeoButton>
-            </div>
+            </form>
+            <p id="newsletter-help" className="sr-only">We send occasional updates. Unsubscribe anytime.</p>
           </div>
         </NeoCard>
 
@@ -78,19 +92,18 @@ export function Footer() {
               Connecting conscious travelers with sustainable venues worldwide
             </p>
             <div className="flex space-x-3">
-              {socialLinks.map((social) => {
-                const Icon = social.icon
-                return (
-                  <Link
-                    key={social.label}
-                    href={social.href}
-                    className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-neo-secondary hover:text-neo-text-primary transition-colors duration-200"
-                    aria-label={social.label}
-                  >
-                    <Icon size={18} />
-                  </Link>
-                )
-              })}
+              {socialLinks.map(({ icon: Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  className="!w-5 !h-5 bg-white/10 rounded-lg flex items-center justify-center hover:bg-neo-secondary hover:text-neo-text-primary transition-colors duration-200"
+                  aria-label={label}
+                  target={href.startsWith('http') ? '_blank' : undefined}
+                  rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                >
+                  <Icon size={18} aria-hidden="true" focusable="false" />
+                </a>
+              ))}
             </div>
           </div>
 
@@ -151,7 +164,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="body-sm text-gray-400 mb-4 md:mb-0">
-            © 2024 SustainableNomads. All rights reserved.
+            © {year} SustainableNomads. All rights reserved.
           </p>
           <div className="flex items-center space-x-4">
             <span className="body-sm text-gray-400">Made with</span>

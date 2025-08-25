@@ -6,7 +6,7 @@
 
 import { createClient } from './sanity/client'
 import type { SanityClient } from '@sanity/client'
-import { type SanityImageObject } from '@sanity/image-url/lib/types/types'
+import type { SanityImageObject } from '../types/external/sanity-image'
 import type { SanityDocument } from '../types/sanity'
 
 // Configuration interface
@@ -317,16 +317,15 @@ export class SanityHTTPClient {
       } else {
         console.log(`✅ Uploaded asset (no _id): ${JSON.stringify(asset)}`)
       }
-      return asset as unknown as SanityImageObject
-    } catch (error: any) {
-      if (error instanceof SanityAPIError) throw error
-      throw new SanityAPIError(
-        `Asset upload failed: ${error.message}`,
-        error.statusCode || undefined,
-        error
-      )
-    }
-  }
+      // Convert asset document to a Sanity image field object
+      const imageObject: SanityImageObject = {
+        _type: 'image',
+        asset: {
+          _type: 'reference',
+          _ref: asset._id,
+        },
+      }
+      return imageObject
 
   // Batch operations
   async createMany(documents: any[]): Promise<SanityDocument[]> {

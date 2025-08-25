@@ -2,6 +2,11 @@
 // File: src/types/dto.ts
 // Clean, frontend-optimized data shapes
 
+export interface ImageDimensionsDTO {
+  width?: number;
+  height?: number;
+}
+
 export interface CityDTO {
   id: string;
   name: string;
@@ -10,7 +15,8 @@ export interface CityDTO {
   /** 0–100 sustainability index; higher is better */
   sustainabilityScore?: Percentage0To100;
   highlights?: string[];
-  imageUrl?: string;
+  imageUrl?: string | null;
+  imageDimensions?: ImageDimensionsDTO | null;
   description?: string;
 }
 
