@@ -2,11 +2,15 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { NeoButton } from '@/components/ui/neo-button'
 import { NeoBadge } from '@/components/ui/neo-badge'
 import { User, Menu } from 'lucide-react'
 
 export function Header() {
+  const { data: session } = useSession()
+  const authLink = session ? '/auth/login' : '/auth/signup'
+
   return (
     <header className="w-full bg-background border-b-4 border-neo-border">
       <div className="container mx-auto px-4 py-4">
@@ -51,9 +55,12 @@ export function Header() {
             <NeoButton asChild variant="outline" size="md">
               <Link href="/listings/new">Add Your Listing</Link>
             </NeoButton>
-            <div className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center">
+            <Link
+              href={authLink}
+              className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center"
+            >
               <User size={20} className="text-neo-text-primary" />
-            </div>
+            </Link>
           </div>
         </div>
       </div>
