@@ -53,8 +53,8 @@ export function CityCarousel() {
   }, [cities.length]);
 
   const router = useRouter();
-  const handleExploreCity = (cityId: string) => {
-    router.push(`/cities/${cityId}`);
+  const handleExploreCity = (citySlug: string) => {
+    router.push(`/city/${citySlug}`);
   };
 
   if (loading) {
@@ -202,7 +202,7 @@ export function CityCarousel() {
                     variant="primary"
                     size="sm"
                     aria-label={`Explore ${city.name}`}
-                    onClick={() => handleExploreCity(city.id)}
+                    onClick={() => handleExploreCity(city.slug)}
                   >
                     Explore City
                   </NeoButton>
