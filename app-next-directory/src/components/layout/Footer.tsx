@@ -30,7 +30,7 @@ const footerLinks = {
     { name: 'Privacy Policy', href: '/privacy' },
     { name: 'Terms of Service', href: '/terms' },
     { name: 'Cookie Policy', href: '/cookies' },
-    { name: 'Contact', href: '/contact' }
+    { name: 'Contact', href: '/contact-us' }
   ]
 }
 
@@ -55,11 +55,7 @@ export function Footer() {
             <p className="body-lg mb-6 text-blue-100 max-w-2xl mx-auto">
               Get weekly updates on new sustainable venues, eco-travel tips, and nomad community highlights
             </p>
-            <form
-              className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
-              onSubmit={(e) => { e.preventDefault(); /* TODO: wire up newsletter signup */ }}
-              noValidate
-            >
+            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
               <label htmlFor="newsletter-email" className="sr-only">Email address</label>
               <NeoInput
                 id="newsletter-email"
@@ -74,10 +70,12 @@ export function Footer() {
                 required
                 className="flex-1 bg-white text-neo-text-primary"
               />
-              <NeoButton variant="secondary" size="md" type="submit">
-                Subscribe
-              </NeoButton>
-            </form>
+              <Link href={`/contact-us?type=newsletter&email=${encodeURIComponent(email)}`} passHref>
+                <NeoButton variant="secondary" size="md" as="a">
+                  Subscribe
+                </NeoButton>
+              </Link>
+            </div>
             <p id="newsletter-help" className="sr-only">We send occasional updates. Unsubscribe anytime.</p>
           </div>
         </NeoCard>

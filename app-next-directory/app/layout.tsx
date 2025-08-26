@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: 'Discover sustainable coworking spaces, cafes, accommodations, and activities for conscious digital nomads worldwide.',
 }
 
+import ClientRootLayout from './ClientRootLayout'
+
 export default function RootLayout({
   children,
 }: {
@@ -17,7 +19,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <ClientRootLayout>{children}</ClientRootLayout>
+      </body>
     </html>
   )
 }
