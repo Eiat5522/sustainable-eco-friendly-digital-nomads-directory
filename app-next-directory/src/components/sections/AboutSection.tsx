@@ -88,7 +88,10 @@ export function AboutSection() {
                 Add your favorite eco-friendly spots and help fellow nomads travel responsibly.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/venues/new" className="neo-button neo-button-hover inline-flex items-center justify-center whitespace-nowrap rounded-lg font-bold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 h-14 px-8 py-4 text-lg bg-neo-secondary text-neo-text-primary hover:bg-neo-secondary/90">
+                <Link
+                  href="/venues/new"
+                  className="neo-button neo-button-hover inline-flex items-center justify-center whitespace-nowrap rounded-lg font-bold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 h-14 px-8 py-4 text-lg bg-neo-secondary text-neo-text-primary hover:bg-neo-secondary/90"
+                >
                   Add a Venue
                 </Link>
 

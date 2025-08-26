@@ -12,8 +12,6 @@
 
 # testing
 /coverage
-/playwright-report/*
-/test-results/*
 
 # next.js
 /.next/
@@ -34,8 +32,6 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-.venv*
-
 
 # vercel
 .vercel
@@ -43,27 +39,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Added by Claude Task Master
-# Logs
-logs
-*.log
-dev-debug.log
-# Dependency directories
-node_modules/
-
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-# OS specific
-# Task files
-tasks.json
-tasks/
-
-#Ignore vscode AI rules
-.github\instructions\codacy.instructions.md
+/dist

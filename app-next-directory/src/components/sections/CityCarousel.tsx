@@ -1,100 +1,153 @@
-"use client"
+'use client';
 
-import React, { useEffect, useState } from 'react'
-import Image from 'next/image'
-import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card'
-import { NeoButton } from '@/components/ui/neo-button'
-import { NeoBadge } from '@/components/ui/neo-badge'
-import { ChevronLeft, ChevronRight, Leaf, MapPin } from 'lucide-react'
-import type { CityDTO } from '@/types/dto'
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { NeoButton } from '@/components/ui/neo-button';
+import { NeoBadge } from '@/components/ui/neo-badge';
+import { NeoCard, NeoCardContent } from '@/components/ui/neo-card';
+import { ChevronLeft, ChevronRight, Leaf } from 'lucide-react';
+import type { CityDTO } from '@/types/dto';
 
 export function CityCarousel() {
-  const [cities, setCities] = useState<CityDTO[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [currentIndex, setCurrentIndex] = React.useState(0)
+  const [cities, setCities] = useState<CityDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Slider metrics (keep in sync with w-80 and gap-8)
+  const CARD_WIDTH = 320;
+  const GAP = 32;
+  const STEP = CARD_WIDTH + GAP;
 
   useEffect(() => {
+    const ac = new AbortController();
     const fetchCities = async () => {
       try {
-        const response = await fetch('/api/cities')
+        const response = await fetch('/api/cities', { signal: ac.signal });
         if (!response.ok) {
-          throw new Error('Failed to fetch cities')
+          throw new Error('Failed to fetch cities');
         }
-        const data = await response.json()
-        setCities(data.cities)
+        const data = await response.json();
+        const list = Array.isArray(data?.cities) ? data.cities : [];
+        setCities(list);
+        setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred')
+        // Ignore abort errors
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        setError(
+          err instanceof Error ? err.message : 'An unknown error occurred'
+        );
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchCities()
-  }, [])
+    fetchCities();
+    return () => ac.abort();
+  }, []);
 
+  // Clamp index if cities shrink or load with fewer items
+  useEffect(() => {
+    setCurrentIndex((idx) => Math.min(idx, Math.max(0, cities.length - 1)));
+  }, [cities.length]);
+
+  const router = useRouter();
   const handleExploreCity = (cityId: string) => {
-    // TODO: Implement navigation to city details page
-    console.log(`Exploring city with id: ${cityId}`)
-  }
+    router.push(`/cities/${cityId}`);
+  };
 
   if (loading) {
     return (
-      <section className="py-16 bg-gradient-to-r from-green-50 to-blue-50">
-        <div className="container mx-auto px-4 text-center">
-          <p className="body-lg">Loading cities...</p>
+      <section
+        className="py-16 bg-gradient-to-r from-green-50 to-blue-50"
+        aria-busy="true"
+      >
+        <div
+          className="container mx-auto px-4 text-center"
+          role="status"
+          aria-live="polite"
+        >
+          <p className="body-lg">Loading cities…</p>
         </div>
       </section>
-    )
+    );
   }
 
   if (error) {
     return (
       <section className="py-16 bg-gradient-to-r from-green-50 to-blue-50">
         <div className="container mx-auto px-4 text-center">
-          <p className="body-lg text-red-500">Error: {error}</p>
+          <p className="body-lg text-red-500" role="alert">
+            Error: {error}
+          </p>
         </div>
       </section>
-    )
+    );
   }
 
   return (
     <section className="py-16 bg-gradient-to-r from-green-50 to-blue-50">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-12">
+        <div className="flex justify-between items-center mb-8">
           <div>
-            <h2 className="heading-lg mb-4">Top Sustainable Cities</h2>
+            <h2 className="heading-lg">Featured Cities</h2>
             <p className="body-lg text-neo-text-secondary">
-              Explore cities leading the way in sustainable living and digital nomad infrastructure
+              Discover your next eco-friendly destination
             </p>
           </div>
-          
           <div className="hidden md:flex space-x-2">
-            <NeoButton 
-              variant="outline" 
+            <NeoButton
+              variant="outline"
               size="sm"
-              onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
-              disabled={currentIndex === 0}
+              aria-label="Previous cities"
+              aria-controls="city-carousel-track"
+              onClick={() => setCurrentIndex((i) => Math.max(0, i - 1))}
+              disabled={currentIndex <= 0 || cities.length === 0}
             >
               <ChevronLeft size={20} />
             </NeoButton>
-            <NeoButton 
-              variant="outline" 
+            <NeoButton
+              variant="outline"
               size="sm"
-              onClick={() => setCurrentIndex(Math.min(cities.length - 1, currentIndex + 1))}
-              disabled={currentIndex === cities.length - 1}
+              aria-label="Next cities"
+              aria-controls="city-carousel-track"
+              onClick={() =>
+                setCurrentIndex((i) =>
+                  Math.min(i + 1, Math.max(0, cities.length - 1))
+                )
+              }
+              disabled={
+                cities.length === 0 ||
+                currentIndex >= Math.max(0, cities.length - 1)
+              }
             >
               <ChevronRight size={20} />
             </NeoButton>
           </div>
         </div>
 
-        <div className="flex transition-transform duration-300 gap-8" style={{ transform: `translateX(-${currentIndex * 320}px)` }}>
+        <div
+          id="city-carousel-track"
+          className="flex transition-transform duration-300 gap-8 overflow-hidden will-change-transform"
+          role="list"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowLeft')
+              setCurrentIndex((i) => Math.max(0, i - 1));
+            if (e.key === 'ArrowRight')
+              setCurrentIndex((i) =>
+                Math.min(i + 1, Math.max(0, cities.length - 1))
+              );
+          }}
+          style={{ transform: `translateX(-${currentIndex * STEP}px)` }}
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {cities.map((city) => (
             <NeoCard
               key={city.id}
-              variant="elevated"
-             role="listitem"
+              role="listitem"
               className="w-80 flex-none group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 overflow-hidden"
             >
               <div className="relative h-56 -m-6 mb-4">
@@ -103,20 +156,22 @@ export function CityCarousel() {
                     src={city.imageUrl}
                     alt={`${city.name}, ${city.country}`}
                     fill
+                    sizes="320px"
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    // keep Next/Image layout responsive; dimensions are advisory for consumers
-                    // when we have explicit dimensions we leave them available in DTO for other components
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gray-200 flex items-center justify-center"> 
+                  <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
                     <span className="text-neo-text-secondary">No image</span>
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                
+
                 <div className="absolute top-4 left-4 flex space-x-2">
                   {city.sustainabilityScore && (
-                    <NeoBadge variant="success" className="flex items-center space-x-1">
+                    <NeoBadge
+                      variant="success"
+                      className="flex items-center space-x-1"
+                    >
                       <Leaf size={12} />
                       <span>{city.sustainabilityScore}%</span>
                     </NeoBadge>
@@ -131,23 +186,33 @@ export function CityCarousel() {
 
               <NeoCardContent className="px-6 pb-6">
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {city.highlights?.map((highlight) => (
-                    <NeoBadge key={highlight} variant="outline" size="sm">
+                  {city.highlights?.map((highlight, i) => (
+                    <NeoBadge
+                      key={`${city.id}-${i}`}
+                      variant="outline"
+                      size="sm"
+                    >
                       {highlight}
                     </NeoBadge>
                   ))}
                 </div>
-                
+
                 <div className="flex items-center justify-between">
-                  <NeoButton variant="primary" size="sm" onClick={() => handleExploreCity(city.id)}>
+                  <NeoButton
+                    variant="primary"
+                    size="sm"
+                    aria-label={`Explore ${city.name}`}
+                    onClick={() => handleExploreCity(city.id)}
+                  >
                     Explore City
                   </NeoButton>
                 </div>
               </NeoCardContent>
             </NeoCard>
           ))}
+          </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

@@ -1,0 +1,23 @@
+import '../../app/globals.css'
+import type { Metadata } from 'next'
+import { Inter, Space_Grotesk } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'] })
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'SustainableNomads - Eco-Friendly Digital Nomad Directory',
+  description: 'Discover sustainable coworking spaces, cafes, accommodations, and activities for conscious digital nomads worldwide.',
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>{children}</body>
+    </html>
+  )
+}

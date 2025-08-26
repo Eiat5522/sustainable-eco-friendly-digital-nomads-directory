@@ -1,8 +1,9 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import Image from 'next/image'
-import { NeoCard, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card'
+import { SectionHeader } from '@/components/ui/SectionHeader'
+import { VenueCard } from '@/components/ui/VenueCard'
+import { mockFeaturedVenues } from './featuredVenuesMockData'
 import type { FeaturedListingDTO } from '@/types/dto'
 
 export function FeaturedListings() {
@@ -13,12 +14,9 @@ export function FeaturedListings() {
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        const response = await fetch('/api/featured-listings')
-        if (!response.ok) {
-          throw new Error('Failed to fetch featured listings')
-        }
-        const data = await response.json()
-        setListings(data.listings)
+        // Simulate API call - in production this would fetch from /api/featured-listings
+        await new Promise(resolve => setTimeout(resolve, 500))
+        setListings(mockFeaturedVenues)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred')
       } finally {
@@ -52,32 +50,17 @@ export function FeaturedListings() {
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="heading-lg mb-4">Featured Sustainable Venues</h2>
-          <p className="body-lg max-w-2xl mx-auto">
-            Handpicked eco-friendly spaces that prioritize sustainability without compromising on quality
-          </p>
-        </div>
+        <SectionHeader 
+          title="Featured Sustainable Venues"
+          description="Handpicked eco-friendly spaces that prioritize sustainability without compromising on quality"
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {listings.map((listing, idx) => (
-            <NeoCard key={listing.id} variant="elevated" className="group hover:shadow-[16px_16px_0px_0px] transition-all duration-300">
-              <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
-                {listing.imageUrl && (
-                  <Image
-                    src={listing.imageUrl}
-                    alt={`${listing.name} — sustainable ${(listing.type || 'venue').toLowerCase()} in ${listing.city?.name ?? 'unknown city'}`}
-                    fill
-                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                )}
-              </div>
-
-              <NeoCardHeader>
-                <NeoCardTitle>{listing.name}</NeoCardTitle>
-              </NeoCardHeader>
-            </NeoCard>
+          {listings.map((listing) => (
+            <VenueCard 
+              key={listing.id} 
+              venue={listing}
+            />
           ))}
         </div>
       </div>

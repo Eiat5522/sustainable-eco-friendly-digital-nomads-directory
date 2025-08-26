@@ -1,1 +1,5 @@
-export type { PortableTextBlock } from '@portabletext/types'
+export type {
+  PortableTextBlock,
+  PortableTextSpan,
+  PortableTextMarkDefinition
+} from '@portabletext/types'

@@ -1,4 +1,4 @@
-# Task Master AI - Agent Integration Guide
+# Gemini - Agent Integration Guide
 
 ## Essential Commands
 
@@ -42,19 +42,15 @@ task-master generate                                         # Update task markd
 - `.taskmaster/tasks/tasks.json` - Main task data file (auto-managed)
 - `.taskmaster/config.json` - AI model configuration (use `task-master models` to modify)
 - `.taskmaster/docs/prd.txt` - Product Requirements Document for parsing
-- `.taskmaster/tasks/*.txt` - Individual task files (auto-generated from tasks.json)
-- `.env` - API keys for CLI usage
+- `.taskmaster/tasks/*.md` - Individual task files (auto-generated from tasks.json)
+- `.env` - API keys for CLI usage### GEMINI CLI Integration Files
 
-### Claude Code Integration Files
-
-- `CLAUDE.md` - Auto-loaded context for Claude Code (this file)
+- `GEMINI.md` - Auto-loaded context for GEMINI CLI (this file)
+- `GEMINI.md` - Integration guide (this file)
+- `CLAUDE.md` - Auto-loaded context for Claude Code (optional copy of this guide)
 - `.claude/settings.json` - Claude Code tool allowlist and preferences
 - `.claude/commands/` - Custom slash commands for repeated workflows
-- `.mcp.json` - MCP server configuration (project-specific)
-
-### Directory Structure
-
-```
+- `.mcp.json` - MCP server configuration (project-specific)```
 project/
 ├── .taskmaster/
 │   ├── tasks/              # Task files directory
@@ -68,17 +64,17 @@ project/
 │   ├── templates/         # Template files
 │   │   └── example_prd.txt  # Example PRD template
 │   └── config.json        # AI models & settings
-├── .claude/
-│   ├── settings.json      # Claude Code configuration
+├── .GEMINI/
+│   ├── settings.json      # GEMINI CLI configuration
 │   └── commands/         # Custom slash commands
 ├── .env                  # API keys
 ├── .mcp.json            # MCP configuration
-└── CLAUDE.md            # This file - auto-loaded by Claude Code
+└── GEMINI.md            # This file - auto-loaded by GEMINI CLI
 ```
 
 ## MCP Integration
 
-Task Master provides an MCP server that Claude Code can connect to. Configure in `.mcp.json`:
+Task Master provides an MCP server that GEMINI CLI can connect to. Configure in `.mcp.json`:
 
 ```json
 {
@@ -128,7 +124,7 @@ analyze_project_complexity; // = task-master analyze-complexity
 complexity_report; // = task-master complexity-report
 ```
 
-## Claude Code Workflow Integration
+## GEMINI CLI Workflow Integration
 
 ### Standard Development Workflow
 
@@ -146,8 +142,7 @@ task-master analyze-complexity --research
 task-master expand --all --research
 ```
 
-If tasks already exist, another PRD can be parsed (with new information only!) using parse-prd with --append flag. This will add the generated tasks to the existing list of tasks..
-
+If tasks already exist, additional PRDs can be parsed using the `--append` flag with `parse-prd`. This will add the newly generated tasks to the existing task list without overwriting existing tasks.
 #### 2. Daily Development Loop
 
 ```bash
@@ -162,24 +157,24 @@ task-master update-subtask --id=<id> --prompt="implementation notes..."
 task-master set-status --id=<id> --status=done
 ```
 
-#### 3. Multi-Claude Workflows
+#### 3. Multi-GEMINI Workflows
 
-For complex projects, use multiple Claude Code sessions:
+For complex projects, use multiple GEMINI CLI sessions:
 
 ```bash
 # Terminal 1: Main implementation
-cd project && claude
+cd project && GEMINI
 
 # Terminal 2: Testing and validation
-cd project-test-worktree && claude
+cd project-test-worktree && GEMINI
 
 # Terminal 3: Documentation updates
-cd project-docs-worktree && claude
+cd project-docs-worktree && GEMINI
 ```
 
 ### Custom Slash Commands
 
-Create `.claude/commands/taskmaster-next.md`:
+Create `.GEMINI/commands/taskmaster-next.md`:
 
 ```markdown
 Find the next available Task Master task and show its details.
@@ -192,7 +187,7 @@ Steps:
 4. Suggest the first implementation step
 ```
 
-Create `.claude/commands/taskmaster-complete.md`:
+Create `.GEMINI/commands/taskmaster-complete.md`:
 
 ```markdown
 Complete a Task Master task: $ARGUMENTS
@@ -208,7 +203,7 @@ Steps:
 
 ## Tool Allowlist Recommendations
 
-Add to `.claude/settings.json`:
+Add to `.GEMINI/settings.json`:
 
 ```json
 {
@@ -218,7 +213,7 @@ Add to `.claude/settings.json`:
     "Bash(git commit:*)",
     "Bash(git add:*)",
     "Bash(npm run *)",
-    "mcp__task_master_ai__*"
+    "mcp__task_master-ai__*"
   ]
 }
 ```
@@ -230,7 +225,6 @@ Add to `.claude/settings.json`:
 At least **one** of these API keys must be configured:
 
 - `ANTHROPIC_API_KEY` (Claude models) - **Recommended**
-- `PERPLEXITY_API_KEY` (Research features) - **Highly recommended**
 - `OPENAI_API_KEY` (GPT models)
 - `GOOGLE_API_KEY` (Gemini models)
 - `MISTRAL_API_KEY` (Mistral models)
@@ -246,10 +240,9 @@ An API key is required for any provider used across any of the 3 roles defined i
 task-master models --setup
 
 # Set specific models
-task-master models --set-main claude-3-5-sonnet-20241022
+task-master models --set-main CLAUDE-3-5-sonnet-20241022
 task-master models --set-research perplexity-llama-3.1-sonar-large-128k-online
-task-master models --set-fallback gpt-4o-mini
-```
+task-master models --set-main claude-3-5-sonnet-20241022```
 
 ## Task Structure & IDs
 
@@ -284,16 +277,14 @@ task-master models --set-fallback gpt-4o-mini
 }
 ```
 
-## Claude Code Best Practices with Task Master
+## GEMINI CLI Best Practices with Task Master
 
 ### Context Management
 
 - Use `/clear` between different tasks to maintain focus
-- This CLAUDE.md file is automatically loaded for context
+- Use `/clear` between different tasks to maintain focus
+- CLAUDE.md is automatically loaded for context. If you are reading GEMINI.md, consider duplicating it to CLAUDE.md for auto-load.
 - Use `task-master show <id>` to pull specific task context when needed
-
-### Iterative Implementation
-
 1. `task-master show <subtask-id>` - Understand requirements
 2. Explore codebase and plan implementation
 3. `task-master update-subtask --id=<id> --prompt="detailed plan"` - Log plan
@@ -308,13 +299,11 @@ For large migrations or multi-step processes:
 
 1. Create a markdown PRD file describing the new changes: `touch task-migration-checklist.md` (prds can be .txt or .md)
 2. Use Taskmaster to parse the new prd with `task-master parse-prd --append` (also available in MCP)
-3. Use Taskmaster to expand the newly generated tasks into subtasks. Consdier using `analyze-complexity` with the correct --to and --from IDs (the new ids) to identify the ideal subtask amounts for each task. Then expand them.
+1. Create a markdown PRD file describing the new changes: `touch task-migration-checklist.md` (prds can be .txt or .md)
+2. Use Taskmaster to parse the new prd with `task-master parse-prd --append` (also available in MCP)
+3. Use Taskmaster to expand the newly generated tasks into subtasks. Consider using `analyze-complexity` with the correct --to and --from IDs (the new IDs) to identify the ideal subtask amounts for each task. Then expand them.
 4. Work through items systematically, checking them off as completed
-5. Use `task-master update-subtask` to log progress on each task/subtask and/or updating/researching them before/during implementation if getting stuck
-
-### Git Integration
-
-Task Master works well with `gh` CLI:
+5. Use `task-master update-subtask` to log progress on each task/subtask and/or updating/researching them before/during implementation if getting stuckTask Master works well with `gh` CLI:
 
 ```bash
 # Create PR for completed task
@@ -331,9 +320,9 @@ git commit -m "feat: implement JWT auth (task 1.2)"
 git worktree add ../project-auth feature/auth-system
 git worktree add ../project-api feature/api-refactor
 
-# Run Claude Code in each worktree
-cd ../project-auth && claude    # Terminal 1: Auth work
-cd ../project-api && claude     # Terminal 2: API work
+# Run GEMINI CLI in each worktree
+cd ../project-auth && GEMINI    # Terminal 1: Auth work
+cd ../project-api && GEMINI     # Terminal 2: API work
 ```
 
 ## Troubleshooting
@@ -355,7 +344,7 @@ task-master models --set-fallback gpt-4o-mini
 
 - Check `.mcp.json` configuration
 - Verify Node.js installation
-- Use `--mcp-debug` flag when starting Claude Code
+- Use `--mcp-debug` flag when starting GEMINI CLI
 - Use CLI as fallback if MCP unavailable
 
 ### Task File Sync Issues
@@ -392,16 +381,12 @@ These commands make AI calls and may take up to a minute:
 - Task markdown files in `tasks/` are auto-generated
 - Run `task-master generate` after manual changes to tasks.json
 
-### Claude Code Session Management
+### GEMINI CLI Session Management
 
-- Use `/clear` frequently to maintain focused context
-- Create custom slash commands for repeated Task Master workflows
-- Configure tool allowlist to streamline permissions
-- Use headless mode for automation: `claude -p "task-master next"`
-
-### Multi-Task Updates
-
-- Use `update --from=<id>` to update multiple future tasks
+- Never manually edit `tasks.json` - use commands instead
+- Never manually edit `.taskmaster/config.json` - use `task-master models`
+- Task markdown files in `tasks/` are auto-generated
+- Run `task-master generate` after CLI/MCP updates to tasks, or if tasks.json was modified by external tooling (not recommended), to re-sync markdown files- Use `update --from=<id>` to update multiple future tasks
 - Use `update-task --id=<id>` for single task updates
 - Use `update-subtask --id=<id>` for implementation logging
 
@@ -414,4 +399,4 @@ These commands make AI calls and may take up to a minute:
 
 ---
 
-_This guide ensures Claude Code has immediate access to Task Master's essential functionality for agentic development workflows._
+_This guide ensures GEMINI CLI has immediate access to Task Master's essential functionality for agentic development workflows._

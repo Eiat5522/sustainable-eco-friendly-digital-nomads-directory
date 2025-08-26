@@ -48,8 +48,8 @@ export function Header() {
 
           {/* CTA Button */}
           <div className="flex items-center space-x-4">
-            <NeoButton variant="outline" size="md">
-              Add Your Listing
+            <NeoButton asChild variant="outline" size="md">
+              <Link href="/listings/new">Add Your Listing</Link>
             </NeoButton>
             <div className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center">
               <User size={20} className="text-neo-text-primary" />

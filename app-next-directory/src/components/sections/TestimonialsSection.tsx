@@ -73,24 +73,18 @@ export function TestimonialsSection() {
 
                 {/* Rating */}
                 <div className="flex items-center space-x-1 mb-4">
-                  <span className="sr-only">{`${Math.round(testimonial.rating)} out of 5 stars`}</span>
-                  {Array.from(
-                    { length: Math.max(0, Math.min(5, Math.round(testimonial.rating))) }
-                  ).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className="text-neo-secondary fill-current"
-                      aria-hidden="true"
-                      focusable="false"
-                    />
-                  ))}
-                  {/* Optional: render empty stars to keep width consistent */}
-                  {/* {Array.from({ length: 5 - Math.max(0, Math.min(5, Math.round(testimonial.rating))) }).map((_, i) => (
-                    <Star key={`empty-${i}`} size={16} className="text-neo-secondary/30" aria-hidden="true" focusable="false" />
-                  ))} */}
-                </div>
-
+<div className="flex items-center space-x-1 mb-4">
+  <span className="sr-only">{`${testimonial.rating} out of 5 stars`}</span>
+  {Array.from({ length: 5 }).map((_, i) => (
+    <Star
+      key={i}
+      size={16}
+      className={i < testimonial.rating ? "text-neo-secondary fill-current" : "text-neo-secondary/30"}
+      aria-hidden="true"
+      focusable="false"
+    />
+  ))}
+</div>
                 {/* Testimonial Text */}
                 <blockquote className="body-md mb-6 italic">
                   “{testimonial.text}”
@@ -110,8 +104,11 @@ export function TestimonialsSection() {
                       fill
                       sizes="48px"
                       className="object-cover"
-                    />                  </div>
-                  <div>
+                      onError={(e) => {
+                        e.currentTarget.src = '/images/default-avatar.png'
+                      }}
+                    />
+                  </div>                  <div>
                     <h4 className="heading-sm">{testimonial.name}</h4>
                     <p className="body-sm text-neo-text-secondary">{testimonial.role}</p>
                     <p className="body-sm text-neo-text-secondary">{testimonial.location}</p>

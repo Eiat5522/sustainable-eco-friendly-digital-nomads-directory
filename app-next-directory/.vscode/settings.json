@@ -1,0 +1,8 @@
+{
+    "jest.enable": false,
+    "jest.debugMode": false,
+    "jest.jestCommandLine": "pnpm test",
+    "jest.rootPath": "src",
+    "jest.coverageFormatter": "GutterFormatter",
+    "jest.runMode": "on-save"
+}

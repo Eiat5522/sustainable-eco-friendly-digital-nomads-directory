@@ -1,4 +1,3 @@
-import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import { FeaturedListings } from '../FeaturedListings'
 import { server } from '@/mocks/server'
@@ -25,6 +24,9 @@ const mockListings: FeaturedListingDTO[] = [
 ]
 
 describe('FeaturedListings', () => {
+  afterEach(() => {
+    server.resetHandlers()
+  })
   it('renders loading state initially', () => {
     render(<FeaturedListings />)
     expect(screen.getByText(/loading featured listings/i)).toBeInTheDocument()
@@ -59,8 +61,10 @@ describe('FeaturedListings', () => {
 
     render(<FeaturedListings />)
 
-    await waitFor(() => {
-      expect(screen.getByText(/error: failed to fetch featured listings/i)).toBeInTheDocument()
-    })
+    expect(await screen.findByText(/error: failed to fetch featured listings/i)).toBeInTheDocument()
+    expect(screen.queryByText('Eco-friendly Coworking Space')).not.toBeInTheDocument()
+    expect(screen.queryByText('Sustainable Cafe')).not.toBeInTheDocument()
+    expect(screen.queryByText(/loading featured listings/i)).not.toBeInTheDocument()
+    expect(screen.queryAllByRole('img')).toHaveLength(0)
   })
 })

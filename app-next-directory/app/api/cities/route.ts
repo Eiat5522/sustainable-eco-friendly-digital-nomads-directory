@@ -43,18 +43,17 @@ export async function GET() {
     const queryEndTime = performance.now();
 
     const dtoListCities = cities.map(city => ({
-      _id: city._id,
+      id: city._id,
       name: city.name,
       slug: city.slug,
       country: city.country,
       sustainabilityScore: city.sustainabilityScore,
       highlights: city.highlights || [],
-      // keep the raw image object available, but also expose explicit client-friendly fields
-      image: city.image || { _type: 'image', asset: { _id: '', url: '', metadata: { dimensions: { width: 0, height: 0 }, lqip: '' } } },
-      imageUrl: city.image?.asset?.url || null,
-      imageDimensions: city.image?.asset?.metadata?.dimensions || null,
+      image: city.image ?? null,
+      imageAlt: city.image?.alt ?? null,
+      imageUrl: city.image?.asset?.url ?? null,
+      imageDimensions: city.image?.asset?.metadata?.dimensions ?? null,
     }));
-
     const endTime = performance.now();
     console.log('[DEBUG] Cities API: Total request time', (endTime - startTime).toFixed(2), 'ms');
 

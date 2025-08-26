@@ -42,7 +42,9 @@ const socialLinks = [
 ]
 
 export function Footer() {
-  const year = new Date().getFullYear()
+  const year = new Date().getFullYear();
+  const [email, setEmail] = React.useState('');
+  const [errors, setErrors] = React.useState({ email: '' });
   return (
     <footer className="bg-neo-text-primary text-white border-t-4 border-neo-border">
       <div className="container mx-auto px-4 py-16">
@@ -66,7 +68,9 @@ export function Footer() {
                 placeholder="Enter your email"
                 autoComplete="email"
                 inputMode="email"
-                aria-describedby="newsletter-help"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                aria-invalid={errors.email ? 'true' : 'false'}
                 required
                 className="flex-1 bg-white text-neo-text-primary"
               />
@@ -96,7 +100,7 @@ export function Footer() {
                 <a
                   key={label}
                   href={href}
-                  className="!w-5 !h-5 bg-white/10 rounded-lg flex items-center justify-center hover:bg-neo-secondary hover:text-neo-text-primary transition-colors duration-200"
+                  className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center hover:bg-neo-secondary hover:text-neo-text-primary transition-colors duration-200"
                   aria-label={label}
                   target={href.startsWith('http') ? '_blank' : undefined}
                   rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}

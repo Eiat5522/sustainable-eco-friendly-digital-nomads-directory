@@ -80,7 +80,7 @@
         "details": "Create `app/page.tsx`. Import and render `FeaturedListingsSection` and `CityCarouselSection`. Pass empty arrays or mock data to these sections initially. Ensure the page structure includes a container for layout consistency.",
         "id": 3,
         "priority": "high",
-        "status": "in-progress",
+        "status": "done",
         "testStrategy": "Verify that the home page renders without errors and that the `FeaturedListingsSection` and `CityCarouselSection` are displayed. Check for correct layout and spacing.",
         "title": "Implement Home Page",
         "subtasks": [
@@ -90,7 +90,7 @@
             "description": "Create the `app/page.tsx` file and implement the basic page structure, including a container for layout consistency. Import and render `FeaturedListingsSection` and `CityCarouselSection` with initial mock data.",
             "dependencies": [],
             "details": "Create `app/page.tsx`. Implement the basic structure with a container. Import and render `FeaturedListingsSection` and `CityCarouselSection`. Pass empty arrays or mock data to these sections initially.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -101,7 +101,7 @@
               "3.1"
             ],
             "details": "Create `src/components/sections/FeaturedListingsSection.tsx`. Render a heading and the `ListingGrid` component, passing the `listings` prop. Use existing types from `src/types/appView.ts`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -112,7 +112,7 @@
               "3.1"
             ],
             "details": "Create `src/components/sections/CityCarouselSection.tsx`. Display a horizontal scroll of city cards, each linking to `/city/[slug]`. Use the existing `CityCarousel` component as a reference. Use existing types from `src/types/appView.ts`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -121,40 +121,81 @@
         "dependencies": [
           2
         ],
-        "description": "Create the listing detail page shell using the new Next.js App Router structure.",
-        "details": "Create `app/listings/[slug]/page.tsx`. Import and render the `ListingDetailView` component. Implement the `generateMetadata` function to set the page title. For now, stub the data fetch by setting `detail = null as unknown as AppListingDetail;`",
+        "description": "Create the listing detail page shell using the new Next.js App Router structure, including basic error handling and loading state. This task expands on the initial implementation by incorporating placeholder content and basic data fetching simulation.",
+        "details": "Create `app/listings/[slug]/page.tsx`. Import and render the `ListingDetailView` component. Implement the `generateMetadata` function to set the page title, using the listing's title (if available) or a default title. Simulate data fetching using `useEffect` and `useState` to represent loading, success, and error states. Initially, set `detail` to `null` and display a loading indicator. After a simulated delay (e.g., 1 second), simulate a successful fetch by setting `detail` to a mock `AppListingDetail` object, or simulate an error by setting an error state. Implement basic error handling to display an error message if the data fetching fails. Consider edge cases such as a missing or invalid slug.",
         "id": 4,
-        "priority": "high",
-        "status": "pending",
-        "testStrategy": "Verify that the listing detail page renders without errors and that the page title is set correctly. Ensure that the placeholder content is displayed.",
-        "title": "Implement Listing Detail Page Shell",
+        "priority": "medium",
+        "status": "done",
+        "testStrategy": "Verify that the listing detail page renders without errors. Check that the page title is set correctly, using both a valid listing slug and an invalid slug. Confirm that the loading indicator is displayed initially. After the simulated delay, verify that the placeholder content (or the mock data) is displayed if the fetch is successful. If an error is simulated, verify that the error message is displayed correctly. Test with different slug values to ensure proper routing and data handling. Use browser developer tools to inspect the page and confirm the correct rendering of components and data.",
+        "title": "Enhanced Listing Detail Page Shell with Data Fetching Simulation",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create `app/listings/[slug]/page.tsx` file",
-            "description": "Create the file and set up the basic structure for the listing detail page.",
+            "title": "Create ListingDetailView Component Shell",
+            "description": "Implement the basic structure of the `ListingDetailView` component, including placeholders for all listing details (title, description, images, price, etc.). Use semantic HTML elements for better structure and accessibility.",
             "dependencies": [],
-            "details": "Create the file `app/listings/[slug]/page.tsx` with the necessary imports and initial setup.",
-            "status": "pending",
-            "testStrategy": ""
+            "details": "Create the `ListingDetailView` component. Use placeholder text or skeleton UI components to represent the data that will be fetched. Ensure the layout is responsive and adapts to different screen sizes. Consider using a CSS framework like Tailwind CSS or a component library for styling.",
+            "status": "done",
+            "testStrategy": "Verify that the basic layout of the `ListingDetailView` component renders correctly. Check for responsiveness across different screen sizes. Ensure all placeholder elements are present."
           },
           {
             "id": 2,
-            "title": "Implement `generateMetadata` function",
-            "description": "Implement the `generateMetadata` function to set the page title.",
-            "dependencies": [],
-            "details": "Implement the `generateMetadata` function to set the page title dynamically based on the listing.",
-            "status": "pending",
-            "testStrategy": ""
+            "title": "Implement Dynamic Metadata",
+            "description": "Implement the `generateMetadata` function to dynamically set the page title and meta description. Handle cases where the listing data is not yet available (e.g., during loading).",
+            "dependencies": [
+              "1"
+            ],
+            "details": "Inside `app/listings/[slug]/page.tsx`, implement `generateMetadata`. Use the listing's title for the page title, and a brief description for the meta description. If the listing data is not yet available (e.g., `detail` is null), use a default title and description. Consider using a library for SEO optimization.",
+            "status": "done",
+            "testStrategy": "Verify that the page title and meta description are correctly set for both valid and invalid listing slugs. Use browser developer tools to inspect the `<head>` section of the page."
           },
           {
             "id": 3,
-            "title": "Render `ListingDetailView` component with placeholder content",
-            "description": "Render the `ListingDetailView` component with placeholder content and stub the data fetch.",
-            "dependencies": [],
-            "details": "Import and render the `ListingDetailView` component. Stub the data fetch by setting `detail = null as unknown as AppListingDetail;`",
-            "status": "pending",
-            "testStrategy": ""
+            "title": "Simulate Data Fetching with Loading, Success, and Error States",
+            "description": "Simulate data fetching using `useEffect` and `useState`. Implement loading, success, and error states. Simulate a network delay using `setTimeout` to mimic real-world data fetching.",
+            "dependencies": [
+              "1"
+            ],
+            "details": "Use `useState` to manage the loading, error, and detail states. In `useEffect`, simulate a data fetch by using `setTimeout`. In the success case, update the `detail` state with a mock `AppListingDetail` object. In the error case, update the error state with an appropriate error message. Consider using a utility function to generate mock data.",
+            "status": "done",
+            "testStrategy": "Verify that the loading indicator is displayed initially. After the simulated delay, verify that the placeholder content (or the mock data) is displayed if the fetch is successful. If an error is simulated, verify that the error message is displayed correctly."
+          },
+          {
+            "id": 4,
+            "title": "Implement Basic Error Handling",
+            "description": "Implement basic error handling to display an error message if the data fetching fails. Provide a user-friendly error message and consider options for retrying the fetch.",
+            "dependencies": [
+              "3"
+            ],
+            "details": "Check for errors in the `useEffect` hook. If an error occurs, display an error message within the `ListingDetailView` component. Consider adding a 'Retry' button that re-triggers the data fetching. Log the error to the console for debugging purposes.",
+            "status": "done",
+            "testStrategy": "Verify that the error message is displayed correctly when a data fetching error is simulated. Test the 'Retry' functionality (if implemented). Check the console for any logged errors."
+          },
+          {
+            "id": 5,
+            "title": "Handle Invalid Slug Input",
+            "description": "Handle edge cases such as a missing or invalid slug. Redirect to a 404 page or display an appropriate error message if the slug is invalid.",
+            "dependencies": [
+              "3"
+            ],
+            "details": "In `app/listings/[slug]/page.tsx`, check if the slug is valid before attempting to fetch data. If the slug is invalid, redirect to a 404 page or display an error message. Consider using a regular expression to validate the slug format.",
+            "status": "done",
+            "testStrategy": "Test with both valid and invalid slugs. Verify that the correct page (listing detail or 404) is displayed for each case. Check the URL in the browser to ensure proper routing."
+          },
+          {
+            "id": 6,
+            "title": "Comprehensive Testing and Validation",
+            "description": "Conduct thorough testing of the listing detail page, including different scenarios and edge cases. Use browser developer tools to inspect the page and confirm the correct rendering of components and data.",
+            "dependencies": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5"
+            ],
+            "details": "Test with valid and invalid slugs. Simulate both successful and failed data fetching scenarios. Verify that the loading indicator, placeholder content, and error messages are displayed correctly in each scenario. Check the page title and meta description. Use browser developer tools to inspect the network requests and the rendered HTML.",
+            "status": "done",
+            "testStrategy": "Create a comprehensive test plan that covers all the scenarios. Use browser developer tools to inspect the page and confirm the correct rendering of components and data. Check the console for any errors or warnings."
           }
         ]
       },
@@ -408,7 +449,7 @@
     ],
     "metadata": {
       "created": "2025-08-22T06:52:17.901Z",
-      "updated": "2025-08-22T08:44:00.472Z",
+      "updated": "2025-08-26T07:03:28.475Z",
       "description": "Tasks for master context"
     }
   }
