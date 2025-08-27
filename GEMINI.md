@@ -47,29 +47,30 @@ task-master generate                                         # Update task markd
 
 - `GEMINI.md` - Auto-loaded context for GEMINI CLI (this file)
 - `GEMINI.md` - Integration guide (this file)
-- `CLAUDE.md` - Auto-loaded context for Claude Code (optional copy of this guide)
-- `.claude/settings.json` - Claude Code tool allowlist and preferences
-- `.claude/commands/` - Custom slash commands for repeated workflows
-- `.mcp.json` - MCP server configuration (project-specific)```
+- `GEMINI.md` - Auto-loaded context for GEMINI CLI (optional copy of this guide)
+- `~/.gemini/settings.json` - GEMINI CLI tool allowlist and preferences
+- `~/.gemini/settings.json` - MCP server configuration (project-specific)```
+
 project/
 ├── .taskmaster/
-│   ├── tasks/              # Task files directory
-│   │   ├── tasks.json      # Main task database
-│   │   ├── task-1.md      # Individual task files
+│   ├── tasks/               # Task files directory
+│   │   ├── tasks.json       # Main task database
+│   │   ├── task-1.md        # Individual task files
 │   │   └── task-2.md
-│   ├── docs/              # Documentation directory
-│   │   ├── prd.txt        # Product requirements
-│   ├── reports/           # Analysis reports directory
+│   ├── docs/                # Documentation directory
+│   │   ├── prd.txt          # Product requirements
+│   ├── reports/             # Analysis reports directory
 │   │   └── task-complexity-report.json
-│   ├── templates/         # Template files
+│   ├── templates/           # Template files
 │   │   └── example_prd.txt  # Example PRD template
-│   └── config.json        # AI models & settings
+│   └── config.json          # AI models & settings
 ├── .GEMINI/
-│   ├── settings.json      # GEMINI CLI configuration
-│   └── commands/         # Custom slash commands
-├── .env                  # API keys
-├── .mcp.json            # MCP configuration
-└── GEMINI.md            # This file - auto-loaded by GEMINI CLI
+│   ├── settings.json        # GEMINI CLI configuration
+│   └── commands/            # Custom slash commands
+├── .env                     # API keys
+├── .mcp.json                # MCP configuration
+├── AGENT.md                 # This file is use by all coding assistance
+└── GEMINI.md                # This file - auto-loaded by GEMINI CLI
 ```
 
 ## MCP Integration
@@ -283,7 +284,7 @@ task-master models --set-main claude-3-5-sonnet-20241022```
 
 - Use `/clear` between different tasks to maintain focus
 - Use `/clear` between different tasks to maintain focus
-- CLAUDE.md is automatically loaded for context. If you are reading GEMINI.md, consider duplicating it to CLAUDE.md for auto-load.
+- GEMINI.md is automatically loaded for context. If you are reading GEMINI.md, consider duplicating it to GEMINI.md for auto-load.
 - Use `task-master show <id>` to pull specific task context when needed
 1. `task-master show <subtask-id>` - Understand requirements
 2. Explore codebase and plan implementation
@@ -331,9 +332,9 @@ cd ../project-api && GEMINI     # Terminal 2: API work
 
 ```bash
 # Check API keys are configured
-cat .env                           # For CLI usage
-
-# Verify model configuration
+# Verify presence of expected keys without printing values
+grep -E '^(ANTHROPIC_API_KEY|PERPLEXITY_API_KEY|OPENAI_API_KEY|GOOGLE_API_KEY|XAI_API_KEY|OPENROUTER_API_KEY|MISTRAL_API_KEY|AZURE_OPENAI_)=' .env \
+  | sed 's/=.*/=<set>/'# Verify model configuration
 task-master models
 
 # Test with different model

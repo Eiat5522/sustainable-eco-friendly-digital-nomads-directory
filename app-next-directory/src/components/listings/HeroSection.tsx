@@ -1,4 +1,5 @@
-import React from 'react';
+'use client';
+// (Remove the erroneous and unnecessary React import line)
 import Image from 'next/image';
 import { MapPin, Heart } from 'lucide-react';
 import { NeoCard, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';

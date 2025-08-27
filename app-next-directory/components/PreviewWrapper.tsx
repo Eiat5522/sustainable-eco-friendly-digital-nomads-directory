@@ -10,7 +10,7 @@ interface PreviewWrapperProps {
 
 export default function PreviewWrapper({ children }: PreviewWrapperProps) {
   return (
-    <ErrorBoundary>
+    <ErrorBoundary fallback={<div role="alert" className="preview-error">Something went wrong while rendering the preview.</div>}>
       <div className="preview-container">
         {children}
       </div>

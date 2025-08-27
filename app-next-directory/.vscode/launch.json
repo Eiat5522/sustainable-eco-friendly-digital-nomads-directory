@@ -7,7 +7,7 @@
             "runtimeArgs": [
                 "--remote-debugging-port=9222"
             ],
-            "url": "c:\\Users\\Dev\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.1.9\\out\\startpage\\index.html",
+                "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}",
             "userDataDir": true,
             "presentation": {
@@ -22,7 +22,7 @@
                 "--headless",
                 "--remote-debugging-port=9222"
             ],
-            "url": "c:\\Users\\Dev\\.vscode\\extensions\\ms-edgedevtools.vscode-edge-devtools-2.1.9\\out\\startpage\\index.html",
+                "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}", 
             "userDataDir": true,
             "presentation": {
@@ -30,8 +30,8 @@
             }
         },
         {
-            "type": "vscode-edge-devtools.debug",
-            "name": "Open Edge DevTools",
+            "type": "vscode-chrome-devtools.debug",
+            "name": "Open Chrome DevTools",
             "request": "attach",
             "url": "http://localhost:3000",
             "webRoot": "${workspaceFolder}",
@@ -56,7 +56,6 @@
             "cwd": "d:\\Eiat_Folder\\MyProjects\\MyOtherProjects\\sustainable-eco-friendly-digital-nomads-directory\\app-next-directory",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "disableOptimisticBPs": true,
             "runtimeExecutable": "npm"
         }
     ]

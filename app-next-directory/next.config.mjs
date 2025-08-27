@@ -3,7 +3,8 @@ import fs from 'fs';
 
 const nextConfig = {
   distDir: 'dist',
-  productionBrowserSourceMaps: process.env.NODE_ENV === 'production',
+  // Avoid publicly exposing source maps in production. Use hidden client maps instead.
+  productionBrowserSourceMaps: false,
   reactStrictMode: false,
   typescript: {
     ignoreBuildErrors: true,
@@ -13,20 +14,25 @@ const nextConfig = {
   },
   env: {},
   images: {
+-    remotePatterns: [
+-      {
+-        protocol: 'https',
+-        hostname: '**',
+-      },
+-      {
+-        protocol: 'http',
+-        hostname: '**',
+-      },
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
-      {
-        protocol: 'http',
-        hostname: '**',
-      },
+      { protocol: 'https', hostname: 'images.example.com' },
+      { protocol: 'https', hostname: 'cdn.example.org' },
     ],
   },
-  webpack: (config, options) => {
-    config.devtool =
-      process.env.NODE_ENV === 'production' ? 'source-map' : false;
+  webpack: (config, { dev, isServer }) => {
+    // Only set devtool for the client in production; keep Next defaults otherwise.
+    if (!dev && !isServer) {
+      config.devtool = 'hidden-source-map';
+    }
     config.optimization = {
       ...config.optimization,
       minimize: false,

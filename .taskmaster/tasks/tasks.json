@@ -207,7 +207,7 @@
         "details": "Create `app/city/[slug]/page.tsx`. Render the `CityDetailView` component. Pass mock data for `city` and `listings`. Ensure the page structure includes the city name and a `ListingGrid` component.",
         "id": 5,
         "priority": "high",
-        "status": "pending",
+        "status": "done",
         "testStrategy": "Verify that the city detail page renders without errors and that the city name and listing grid are displayed. Check for correct layout and spacing.",
         "title": "Implement City Detail Page Shell",
         "subtasks": [
@@ -217,7 +217,7 @@
             "description": "Create the file structure for the city detail page.",
             "dependencies": [],
             "details": "Create the file `app/city/[slug]/page.tsx`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -228,7 +228,7 @@
               "5.1"
             ],
             "details": "Render the `CityDetailView` component. Ensure the page structure includes the city name and a `ListingGrid` component.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -239,7 +239,7 @@
               "5.2"
             ],
             "details": "Pass mock data for `city` and `listings` to the components.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -252,7 +252,7 @@
         "details": "Create `app/search/page.tsx`. Implement the search page with a search bar, filter sidebar, and listing grid. Use `useRouter` and `useSearchParams` to handle query parameters and auto-redirect to the listing detail page if only one result is found. Wrap the existing `DigitalNomadSearch` and `DigitalNomadSearchFilter` components.",
         "id": 6,
         "priority": "high",
-        "status": "pending",
+        "status": "in-progress",
         "testStrategy": "Verify that the search page renders without errors. Test the search functionality, filter application, and auto-redirect behavior. Ensure the listing grid displays search results correctly.",
         "title": "Implement Advanced Search Page with Auto-Redirect",
         "subtasks": [
@@ -262,7 +262,7 @@
             "description": "Create the `app/search/page.tsx` file and set up the basic structure for the search page.",
             "dependencies": [],
             "details": "Create the file and add basic HTML structure, including placeholders for the search bar, filter sidebar, and listing grid.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": ""
           },
           {
@@ -273,7 +273,7 @@
               "6.1"
             ],
             "details": "Integrate the `DigitalNomadSearch` and `DigitalNomadSearchFilter` components. Handle user input and filter selections.",
-            "status": "pending",
+            "status": "cancelled",
             "testStrategy": ""
           },
           {
@@ -284,7 +284,7 @@
               "6.2"
             ],
             "details": "Integrate the listing grid component and display search results based on the search query and filter selections.",
-            "status": "pending",
+            "status": "cancelled",
             "testStrategy": ""
           },
           {
@@ -308,7 +308,7 @@
         "details": "Create `src/components/sections/FeaturedListingsSection.tsx`. Render a heading and the `ListingGrid` component, passing the `listings` prop. Use existing types from `src/types/appView.ts`.",
         "id": 7,
         "priority": "medium",
-        "status": "pending",
+        "status": "done",
         "testStrategy": "Verify that the featured listings section renders correctly on the home page and displays the listing grid. Check for correct layout and spacing.",
         "title": "Implement Featured Listings Section",
         "subtasks": [
@@ -318,7 +318,7 @@
             "description": "Create the `src/components/sections/FeaturedListingsSection.tsx` file and set up the basic component structure, including a heading.",
             "dependencies": [],
             "details": "Create the file and add a basic heading element.  This sets up the foundation for the component.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -329,7 +329,7 @@
               "7.1"
             ],
             "details": "Import `ListingGrid` and render it within `FeaturedListingsSection.tsx`. Pass the `listings` prop, using existing types from `src/types/appView.ts`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -342,7 +342,7 @@
         "details": "Create `src/components/sections/CityCarouselSection.tsx`. Display a horizontal scroll of city cards, each linking to `/city/[slug]`. Use the existing `CityCarousel` component as a reference. Use existing types from `src/types/appView.ts`.",
         "id": 8,
         "priority": "medium",
-        "status": "pending",
+        "status": "done",
         "testStrategy": "Verify that the city carousel section renders correctly on the home page and displays city cards. Check for correct layout, spacing, and navigation to city detail pages.",
         "title": "Implement City Carousel Section",
         "subtasks": [
@@ -352,7 +352,7 @@
             "description": "Create the `src/components/sections/CityCarouselSection.tsx` file and implement the basic structure.",
             "dependencies": [],
             "details": "Create the file and set up the basic component structure, including necessary imports and initial layout elements. Refer to the `CityCarousel` component for guidance.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -363,7 +363,7 @@
               "8.1"
             ],
             "details": "Import and render the `CityCarousel` component. Pass the necessary data (e.g., city data) as props. Ensure each city card links to the correct `/city/[slug]` page.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -420,7 +420,7 @@
             "description": "Create `src/components/search/SearchBox.tsx` as a wrapper around `DigitalNomadSearch.tsx`.",
             "dependencies": [],
             "details": "Implement the wrapper component, ensuring it correctly passes props to `DigitalNomadSearch.tsx`.",
-            "status": "pending",
+            "status": "cancelled",
             "testStrategy": ""
           },
           {
@@ -429,7 +429,7 @@
             "description": "Create `src/components/search/FiltersSidebar.tsx` as a wrapper around `DigitalNomadSearchFilter.tsx`.",
             "dependencies": [],
             "details": "Implement the wrapper component, ensuring it correctly passes props to `DigitalNomadSearchFilter.tsx`.",
-            "status": "pending",
+            "status": "cancelled",
             "testStrategy": ""
           },
           {
@@ -449,7 +449,7 @@
     ],
     "metadata": {
       "created": "2025-08-22T06:52:17.901Z",
-      "updated": "2025-08-26T07:03:28.475Z",
+      "updated": "2025-08-26T18:41:02.640Z",
       "description": "Tasks for master context"
     }
   }

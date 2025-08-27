@@ -21,10 +21,15 @@ export function InteractiveMap({ location, address, name, className }: Interacti
     // Dynamically import Leaflet to avoid SSR issues
     const initMap = async () => {
       try {
-        const L = await import('leaflet');
-        
+        // Support both ESM default and namespace exports
+        const LeafletMod = await import('leaflet');
+        const L = (LeafletMod as any).default || LeafletMod;
         // Import Leaflet CSS
         if (typeof window !== 'undefined') {
+          // Check if CSS is already loaded
+          const existingLink = document.querySelector('link[href*="leaflet"]');
+          if (existingLink) return;
+          
           const link = document.createElement('link');
           link.rel = 'stylesheet';
           link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
@@ -43,22 +48,32 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Add marker
-        const customIcon = L.divIcon({
-          html: `<div class="w-8 h-8 bg-neo-primary rounded-full flex items-center justify-center text-white shadow-lg">
-                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                   </svg>
-                 </div>`,
-          className: 'custom-marker',
-          iconSize: [32, 32],
-          iconAnchor: [16, 32]
-        });
+    const createCustomMarkerIcon = (L: any) => {
+    return L.divIcon({
+    html: `<div class="w-8 h-8 bg-neo-primary rounded-full flex items-center justify-center text-white shadow-lg">
+             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+             </svg>
+           </div>`,
+    className: 'custom-marker',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32]
+  });
+});
 
+        const customIcon = createCustomMarkerIcon(L);
+        const titleEl = document.createElement('strong');
+        titleEl.textContent = name;
+        popupContent.appendChild(titleEl);
+        if (address) {
+          popupContent.appendChild(document.createElement('br'));
+          const addrEl = document.createElement('span');
+          addrEl.textContent = address;
+          popupContent.appendChild(addrEl);
+        }
         L.marker([location.lat, location.lng], { icon: customIcon })
           .addTo(map)
-          .bindPopup(`<strong>${name}</strong><br/>${address || 'Location'}`);
-
+          .bindPopup(popupContent);
         mapInstanceRef.current = map;
       } catch (error) {
         console.error('Failed to load map:', error);

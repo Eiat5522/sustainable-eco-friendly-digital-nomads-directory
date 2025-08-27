@@ -32,7 +32,8 @@ task-master expand --all --research               # Expand all eligible tasks
 task-master add-dependency --id=<id> --depends-on=<id>       # Add task dependency
 task-master move --from=<id> --to=<id>                       # Reorganize task hierarchy
 task-master validate-dependencies                            # Check for dependency issues
-task-master generate                                         # Update task markdown files (usually auto-called)- `AGENT.md` - LLM-ready project specific instructions to be used by all LLMs working in this repository. All agents must retrieve their context from this file at project root.
+task-master generate                                         # Update task markdown files (usually auto-called)
+- `AGENT.md` - LLM-ready project specific instructions to be used by all LLMs working in this repository. All agents must retrieve their context from this file at project root.
 - `.mcp.json` - MCP server configuration (project-specific)
 
 ### Directory Structure
@@ -46,8 +47,8 @@ task-master generate                                         # Update task markd
 
 ### LLMs Integration Files
 
-- `AGENT.md` - LLMs ready project specific instructions to be use by all LLMs working in this Repository. All agents must retrieve their context for from the file at project rootto place this guide’s content)
-- `.mcp.json` - MCP server configuration (project-specific)### Directory Structure
+- `AGENT.md` - LLMs ready project specific instructions to be use by all LLMs working in this Repository. All agents must retrieve their context from the file at project root to place this guide’s content)
+- `/.vscode/mcp.json` - MCP server configuration (project-specific)### Directory Structure
 
 ```
 project/
@@ -93,10 +94,14 @@ get_tasks; // = task-master list
 next_task; // = task-master next
 get_task; // = task-master show <id>
 set_task_status; // = task-master set-status
+```
+
 ### Essential MCP Tools
 > Security note: Do not store API keys in `.mcp.json`. Export them in your shell/session or put them in a local `.env` that is added to `.gitignore`. The MCP client inherits environment variables at runtime.
 
-expand_task; // = task-master expandupdate_subtask; // = task-master update-subtask
+```javascript
+expand_task; // = task-master expand
+update_subtask; // = task-master update-subtask
 update; // = task-master update
 
 // Analysis
