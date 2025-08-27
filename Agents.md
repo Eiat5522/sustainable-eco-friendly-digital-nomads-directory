@@ -47,10 +47,8 @@ task-master generate                                         # Update task markd
 
 ### LLMs Integration Files
 
-- `AGENT.md` - LLMs ready project specific instructions to be use by all LLMs working in this Repository. All agents must retrieve their context from the file at project root to place this guide’s content)
-- `/.vscode/mcp.json` - MCP server configuration (project-specific)### Directory Structure
-
-```
+- `AGENT.md` - LLM-ready, project-specific instructions used by all LLMs in this repository. Agents should load context from this file at the project root.
+- `.vscode/mcp.json` - MCP server configuration for VS Code (project-specific)```
 project/
 ├── .taskmaster/
 │   ├── tasks/              # Task files directory

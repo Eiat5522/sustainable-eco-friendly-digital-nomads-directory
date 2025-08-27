@@ -273,7 +273,7 @@
               "6.1"
             ],
             "details": "Integrate the `DigitalNomadSearch` and `DigitalNomadSearchFilter` components. Handle user input and filter selections.",
-            "status": "cancelled",
+            "status": "pending",
             "testStrategy": ""
           },
           {
@@ -416,10 +416,10 @@
         "subtasks": [
           {
             "id": 1,
-            "title": "Create SearchBox.tsx Wrapper",
-            "description": "Create `src/components/search/SearchBox.tsx` as a wrapper around `DigitalNomadSearch.tsx`.",
+            "title": "Adopt Direct Search Integration",
+            "description": "Adopt direct usage of DigitalNomadSearch and DigitalNomadSearchFilter in app/search/page.tsx; remove wrapper components.",
+            "details": "Use these components directly. Ensure correct prop wiring and state flow. Remove/ignore prior wrappers (SearchBox.tsx, FiltersSidebar.tsx).",
             "dependencies": [],
-            "details": "Implement the wrapper component, ensuring it correctly passes props to `DigitalNomadSearch.tsx`.",
             "status": "cancelled",
             "testStrategy": ""
           },
@@ -434,13 +434,10 @@
           },
           {
             "id": 3,
-            "title": "Verify Prop Handling and Rendering",
-            "description": "Verify the correct prop handling and rendering of the wrapper components.",
-            "dependencies": [
-              "10.1",
-              "10.2"
-            ],
-            "details": "Test that the search bar and filter sidebar render correctly and that props are correctly passed and used within the wrapped components.",
+            "title": "Validate Direct Search Integration (No Wrappers)",
+            "description": "Verify prop wiring and rendering for direct usage of DigitalNomadSearch and DigitalNomadSearchFilter in app/search/page.tsx (no wrappers).",
+            "dependencies": [],
+            "details": "Ensure the search bar and filter sidebar render correctly when used directly. Validate end-to-end state flow (query params → filters → results).",
             "status": "pending",
             "testStrategy": ""
           }

@@ -10,23 +10,23 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts', '<rootDir>/__mocks__/node.ts'],
   testEnvironment: 'jsdom',
   testEnvironmentOptions: {
-    customExportConditions: ["node", "node-addons"]
+    customExportConditions: ['node', 'node-addons'],
   },
   transform: {
-    '^.+\.(t|j)sx?$': ['@swc/jest', { 
-      jsc: { 
-        transform: { 
-          react: { 
-            runtime: 'automatic' 
-          } 
-        } 
-      } 
-    }],
+    '^.+\\.(t|j)sx?$': ['@swc/jest', {
+      jsc: {
+        transform: {
+          react: {
+            runtime: 'automatic'
+          }
+        }
+      },
+      module: { type: 'es6' }
+    }]
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     '^tree-sitter-.*$': '<rootDir>/__mocks__/tree-sitter.js',
-    
     '^@/app/api/listings/route$': '<rootDir>/__mocks__/app/api/listings/route.js',
     '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
     '^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.js',
@@ -49,9 +49,7 @@ module.exports = {
     '\\.pw\\.test\\.[jt]s$',
     '<rootDir>/tests/', // Exclude all Playwright and E2E tests
     '/__tests__/__mocks__/',
-    '\\.(d\\.ts)$',
-    
-  
-  '<rootDir>/src/lib/__tests__/listings.test.ts',
+    '\\.d\\.ts$',
+    '<rootDir>/src/lib/__tests__/listings.test.ts'
   ]
 };

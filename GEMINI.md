@@ -47,30 +47,18 @@ task-master generate                                         # Update task markd
 
 - `GEMINI.md` - Auto-loaded context for GEMINI CLI (this file)
 - `GEMINI.md` - Integration guide (this file)
-- `GEMINI.md` - Auto-loaded context for GEMINI CLI (optional copy of this guide)
+- `AGENT.md` - Supplemental agent guide (not auto-loaded)
 - `~/.gemini/settings.json` - GEMINI CLI tool allowlist and preferences
-- `~/.gemini/settings.json` - MCP server configuration (project-specific)```
-
+- `.mcp.json` - MCP server configuration (project-specific)
+```text
 project/
-├── .taskmaster/
-│   ├── tasks/               # Task files directory
-│   │   ├── tasks.json       # Main task database
-│   │   ├── task-1.md        # Individual task files
-│   │   └── task-2.md
-│   ├── docs/                # Documentation directory
-│   │   ├── prd.txt          # Product requirements
-│   ├── reports/             # Analysis reports directory
-│   │   └── task-complexity-report.json
-│   ├── templates/           # Template files
-│   │   └── example_prd.txt  # Example PRD template
-│   └── config.json          # AI models & settings
 ├── .GEMINI/
-│   ├── settings.json        # GEMINI CLI configuration
-│   └── commands/            # Custom slash commands
-├── .env                     # API keys
-├── .mcp.json                # MCP configuration
-├── AGENT.md                 # This file is use by all coding assistance
-└── GEMINI.md                # This file - auto-loaded by GEMINI CLI
+│   ├── settings.json
+│   └── commands/
+├── .env
+├── .mcp.json
+├── AGENT.md
+└── GEMINI.md
 ```
 
 ## MCP Integration
@@ -333,10 +321,10 @@ cd ../project-api && GEMINI     # Terminal 2: API work
 ```bash
 # Check API keys are configured
 # Verify presence of expected keys without printing values
-grep -E '^(ANTHROPIC_API_KEY|PERPLEXITY_API_KEY|OPENAI_API_KEY|GOOGLE_API_KEY|XAI_API_KEY|OPENROUTER_API_KEY|MISTRAL_API_KEY|AZURE_OPENAI_)=' .env \
-  | sed 's/=.*/=<set>/'# Verify model configuration
-task-master models
-
+# Verify presence of expected keys without printing values
+grep -E '^(ANTHROPIC_API_KEY|PERPLEXITY_API_KEY|OPENAI_API_KEY|GOOGLE_API_KEY|XAI_API_KEY|OPENROUTER_API_KEY|MISTRAL_API_KEY|AZURE_OPENAI_API_KEY|OLLAMA_API_KEY)=' .env \
+  | sed 's/=.*/=<set>/'
+# Verify model configuration
 # Test with different model
 task-master models --set-fallback gpt-4o-mini
 ```

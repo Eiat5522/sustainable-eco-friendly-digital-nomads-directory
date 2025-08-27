@@ -3,17 +3,20 @@
 import React, { useEffect, useRef } from 'react';
 import { MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type * as Leaflet from 'leaflet';
 
 interface InteractiveMapProps {
-  location?: { lat: number; lng: number };
-  address?: string;
-  name: string;
-  className?: string;
+  readonly location?: Readonly<{ lat: number; lng: number }>;
+  readonly address?: string;
+  readonly name: string;
+  readonly className?: string;
 }
 
 export function InteractiveMap({ location, address, name, className }: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<any>(null);
+  const mapInstanceRef = useRef<Leaflet.Map | null>(null);
+  const LRef = useRef<typeof Leaflet | null>(null);
+
 
   useEffect(() => {
     if (!location || !mapRef.current) return;
@@ -22,18 +25,25 @@ export function InteractiveMap({ location, address, name, className }: Interacti
     const initMap = async () => {
       try {
         // Support both ESM default and namespace exports
-        const LeafletMod = await import('leaflet');
-        const L = (LeafletMod as any).default || LeafletMod;
+        if (!LRef.current) {
+          const mod = (await import('leaflet')) as typeof import('leaflet') & { default?: typeof import('leaflet') };
+          LRef.current = mod.default ?? mod;
+        }
+        const L = LRef.current!;
         // Import Leaflet CSS
         if (typeof window !== 'undefined') {
-          // Check if CSS is already loaded
-          const existingLink = document.querySelector('link[href*="leaflet"]');
-          if (existingLink) return;
-          
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-          document.head.appendChild(link);
+          // Check if CSS is already loaded; only inject if missing
+          const existingLink = document.getElementById('leaflet-css') as HTMLLinkElement | null;
+          if (!existingLink) {
+            const link = document.createElement('link');
+            link.id = 'leaflet-css';
+            link.rel = 'stylesheet';
+            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+            // Optional hardening if you keep CDN: SRI + crossorigin
+            // link.integrity = '<sha384-hash>';
+            // link.crossOrigin = '';
+            document.head.appendChild(link);
+          }
         }
 
         // Initialize map
@@ -48,20 +58,20 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-    const createCustomMarkerIcon = (L: any) => {
-    return L.divIcon({
-    html: `<div class="w-8 h-8 bg-neo-primary rounded-full flex items-center justify-center text-white shadow-lg">
-             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-               <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-             </svg>
-           </div>`,
-    className: 'custom-marker',
-    iconSize: [32, 32],
-    iconAnchor: [16, 32]
-  });
-});
+    const createCustomMarkerIcon = (L: typeof Leaflet) =>
+      L.divIcon({
+        html: `<div class="w-8 h-8 bg-neo-primary rounded-full flex items-center justify-center text-white shadow-lg">
+                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                 </svg>
+               </div>`,
+        className: 'custom-marker',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+      }) as Leaflet.Icon;
 
         const customIcon = createCustomMarkerIcon(L);
+        const popupContent = document.createElement('div');
         const titleEl = document.createElement('strong');
         titleEl.textContent = name;
         popupContent.appendChild(titleEl);
@@ -88,7 +98,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
         mapInstanceRef.current = null;
       }
     };
-  }, [location, address, name]);
+  }, [location?.lat, location?.lng])
 
   // Fallback when no location is provided
   if (!location) {

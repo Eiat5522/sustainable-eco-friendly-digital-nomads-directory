@@ -12,20 +12,14 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  env: {},
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NODE_ENV === 'production' ? 'https://your-production-url.com' : 'http://localhost:3000',
+  },
   images: {
--    remotePatterns: [
--      {
--        protocol: 'https',
--        hostname: '**',
--      },
--      {
--        protocol: 'http',
--        hostname: '**',
--      },
     remotePatterns: [
-      { protocol: 'https', hostname: 'images.example.com' },
-      { protocol: 'https', hostname: 'cdn.example.org' },
+      { protocol: 'https', hostname: 'images.example.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'cdn.example.org', pathname: '/**' },
+
     ],
   },
   webpack: (config, { dev, isServer }) => {

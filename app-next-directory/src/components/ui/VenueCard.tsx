@@ -24,7 +24,8 @@ export function VenueCard({ venue, className }: VenueCardProps) {
           {venue.imageUrl && (
             <Image
               src={venue.imageUrl}
-              alt={[venue.name, venue.city].filter(Boolean).join(' — ')}
+              alt=""
+              aria-hidden={true}
 
               fill
               sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"

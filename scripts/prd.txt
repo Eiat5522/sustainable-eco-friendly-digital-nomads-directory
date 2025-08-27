@@ -1,7 +1,6 @@
-Product Requirements Document: Sustainable Eco‑Friendly Digital Nomads Directory (Refactor Project)If geocoding is required, use Google Geocoding API or OpenCage during data entry or in the submission workflow to persist lat/long. Initial datasets likely already include coordinates (placeholders exist for location).Testing Strategy: Use Playwright for end-to-end tests and Jest or Vitest for unit/integration. In E2E, stub tile and geocoding requests; assert graceful fallbacks when map keys are missing or invalid.
+Product Requirements Document: Sustainable Eco-Friendly Digital Nomads Directory (Refactor Project)
 
-Project OverviewTesting: Use Playwright for end-to-end tests and Jest (or Vitest) for unit/integration. In E2E, stub tile and geocoding network requests, and assert graceful fallbacks when map keys are missing.Project Overview
-
+Project Overview
 The Sustainable Eco-Friendly Digital Nomads Directory is a web platform that helps remote workers (digital nomads) find sustainable, eco-friendly venues and services in Thailand. The product addresses the need for environmentally conscious travelers to easily discover coworking spaces, accommodations, cafés, and other services that align with sustainable practices. By providing verified information on eco-friendly features (like renewable energy use or community initiatives) and digital nomad amenities (reliable Wi-Fi, workspaces, etc.), the platform empowers users to make informed choices that support sustainable travel. Built with Next.js (React) and a modern tech stack, the directory will deliver a fast, intuitive user experience while ensuring content is up-to-date through a headless CMS backend. The refactoring project’s goal is to comprehensively define and implement all core features of the website – from content discovery to user engagement – in a structured, maintainable way. Key Goals and Objectives:
 Comprehensive Directory: Curate a thorough list of eco-friendly venues across Thailand (e.g. green hotels, co-working hubs, cafes) with detailed information on their services and sustainability practices.
 Empower Digital Nomads: Enable users to easily find places that meet both their remote work needs and eco-values, improving their experience living and working in Thailand.
@@ -19,13 +18,9 @@ Scope and Constraints
 Geographic Scope: The directory will focus exclusively on Thailand. All listings are located within Thailand’s cities and regions. Major nomad hubs like Bangkok, Chiang Mai, Phuket, etc., will be covered. (Expansion to other countries or global coverage is out-of-scope for now but can be considered in the future.)
 Content Scope: Listings will include sustainable businesses relevant to nomads: co-working spaces, eco-friendly cafés/restaurants, “green” accommodations (hotels, hostels, co-living spaces), and possibly other services (e.g. sustainable tour operators or community hubs) if applicable. Each listing is curated to meet a baseline of sustainability criteria (e.g. having certain eco-friendly practices) so that the directory maintains a clear focus. Non-eco-friendly or unrelated businesses will not be listed.
 Content Source: All listing content is internally managed through Sanity CMS. Content is added and edited by the project team (or approved contributors) via the Sanity Studio interface. There are no external scraped or third-party feeds populating the listings – quality is maintained through manual curation and verification. (User-generated content is limited to reviews and suggestions, which are subject to moderation.)
-If geocoding is required, use Google Geocoding API or OpenCage during data entry or in the submission workflow to persist lat/long. Initial datasets likely already include coordinates (placeholders exist for location).
 
-Testing: Use P
-. The UI is built with Tailwind CSS v4 and uses the Shadcn UI library (Radix UI components) for a consistent, accessible design system
 
-. This constraint ensures development speed and design consistency but means all styling will follow the defined Tailwind design tokens and component guidelines. The site must be responsive (mobile-first design for travelers on the go) and support dark mode out of the box
-
+The UI is built with Tailwind CSS v4 and uses the Shadcn UI library (Radix UI components) for a consistent, accessible design system
 .
 Out of Scope: The initial refactoring will not include building a native mobile app or supporting languages other than English. It will also avoid complex features like in-app payments or booking systems – the directory is informational (with outbound links) rather than a booking platform. Any extensive partner integrations (e.g. pulling in data from external booking APIs) are not planned at this stage to keep scope manageable. Additionally, advanced community features (forums, direct messaging between users) are outside the current scope.
 User Experience & User Journeys

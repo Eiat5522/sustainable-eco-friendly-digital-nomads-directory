@@ -1,5 +1,4 @@
 'use client';
-// (Remove the erroneous and unnecessary React import line)
 import Image from 'next/image';
 import { MapPin, Heart } from 'lucide-react';
 import { NeoCard, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
@@ -21,7 +20,7 @@ export function HeroSection({ listing, isFavorited = false, onToggleFavorite }: 
             src={listing.imageUrl}
             alt={`${listing.name} - ${listing.city?.name} sustainable venue`}
             fill
-            sizes="(min-width: 768px) 100vw, 100vw"
+            sizes="100vw"
             className="object-cover"
             priority
           />
