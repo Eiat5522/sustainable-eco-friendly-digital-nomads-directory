@@ -2,7 +2,40 @@
 
 A curated directory of sustainable, eco-friendly venues and services for digital nomads in Thailand, built with Next.js.
 
-## Features
+## ⚡ 2-Minute Quick Start
+
+Get the project running in 2 minutes:
+
+```bash
+# 1. Clone and install dependencies
+git clone https://github.com/Eiat5522/sustainable-eco-friendly-digital-nomads-directory.git
+cd sustainable-eco-friendly-digital-nomads-directory
+npm install
+
+# 2. Setup environment
+cp .env.example app-next-directory/.env.local
+# Edit app-next-directory/.env.local with your MongoDB and Sanity credentials
+
+# 3. Start development server
+npm run dev
+# → Open http://localhost:3000
+```
+
+**Need help with setup?** See the [Complete Onboarding Guide](./docs/ONBOARDING.md)
+
+### Windows PowerShell
+```powershell
+# Alternative: Use clean install script
+.\clean-install.ps1
+```
+
+### Environment Setup
+- **MongoDB**: Free tier at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+- **Sanity CMS**: Free account at [sanity.io](https://sanity.io)
+- **Configuration**: See [Environment Guide](./docs/ENVIRONMENT.md)
+
+## 🏗️ Project Architecture
+
 
 - 🌱 Curated eco-friendly listings
 - 📍 Interactive map integration
