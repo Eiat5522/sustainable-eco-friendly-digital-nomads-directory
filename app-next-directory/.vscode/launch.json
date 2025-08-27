@@ -32,7 +32,8 @@
         {
             "type": "pwa-chrome",
             "name": "Chrome: Launch (JS Debugger)",
-            "request": "launch",            "url": "${env:DEV_SERVER_URL}",
+            "request": "launch",
+            "url": "${config:devServer.url}",
             "webRoot": "${workspaceFolder}",
             "presentation": {
                 "hidden": true

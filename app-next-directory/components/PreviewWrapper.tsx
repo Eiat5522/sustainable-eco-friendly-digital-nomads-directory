@@ -2,19 +2,25 @@
 'use client'
 
 import { ReactNode } from 'react'
-import ErrorBoundary from '@kombai/react-error-boundary'
+import ErrorBoundary, { type FallbackProps } from '@kombai/react-error-boundary'
 
 interface PreviewWrapperProps {
   children: ReactNode
 }
 
-export default function PreviewWrapper({ children }: PreviewWrapperProps) {
+export default function PreviewWrapper({ children }: Readonly<PreviewWrapperProps>) {
   return (
     <ErrorBoundary
-      fallbackRender={({ resetErrorBoundary }) => (
+      onError={(error, info) => {
+        console.error('Preview rendering failed:', error, info)
+      }}
+      fallbackRender={({ error, resetErrorBoundary }) => (
         <div role="alert" className="preview-error">
           <p>Something went wrong while rendering the preview.</p>
-          <button type="button" onClick={resetErrorBoundary}>Try again</button>
+         {process.env.NODE_ENV !== 'production' && error?.message && (
+            <p className="preview-error-details">{error.message}</p>
+          )}
+          <button type="button" autoFocus onClick={resetErrorBoundary}>Try again</button>
         </div>
       )}
     >

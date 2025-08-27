@@ -420,7 +420,7 @@
             "description": "Adopt direct usage of DigitalNomadSearch and DigitalNomadSearchFilter in app/search/page.tsx; remove wrapper components.",
             "details": "Use these components directly. Ensure correct prop wiring and state flow. Remove/ignore prior wrappers (SearchBox.tsx, FiltersSidebar.tsx).",
             "dependencies": [],
-            "status": "cancelled",
+           "status": "pending",
             "testStrategy": ""
           },
           {

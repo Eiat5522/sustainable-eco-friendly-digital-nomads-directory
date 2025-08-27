@@ -7,8 +7,9 @@ import { authOptions } from '@/lib/auth';
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
 
-  if (!session || !session.user) {
-    return new NextResponse('Unauthorized', { status: 401 });
+  const userId = session?.user && 'id' in session.user ? (session.user.id as string | undefined) : undefined;
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
     const newComment = await client.create({
       _type: 'comment',
       post: { _type: 'reference', _ref: postId },
-      user: { _type: 'reference', _ref: session.user.id },
+      user: { _type: 'reference', _ref: userId },
       content,
       approved: false,
     });

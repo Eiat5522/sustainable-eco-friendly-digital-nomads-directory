@@ -1,7 +1,5 @@
 # Gemini - Agent Integration Guide
 
-## Essential Commands
-
 ### Core Workflow Commands
 
 ```bash
@@ -52,17 +50,11 @@ task-master generate                                         # Update task markd
 - `.mcp.json` - MCP server configuration (project-specific)
 ```text
 project/
-├── .GEMINI/
-│   ├── settings.json
-│   └── commands/
+project/
 ├── .env
 ├── .mcp.json
 ├── AGENT.md
 └── GEMINI.md
-```
-
-## MCP Integration
-
 Task Master provides an MCP server that GEMINI CLI can connect to. Configure in `.mcp.json`:
 
 ```json

@@ -4,7 +4,7 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import Facebook from "next-auth/providers/facebook";
 import Twitter from "next-auth/providers/twitter";
-import Microsoft from "next-auth/providers/microsoft";
+import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 import { authenticateUser } from "@/lib/auth/serverAuth";
@@ -40,10 +40,10 @@ export const authOptions: NextAuthConfig = {
       clientId: process.env.X_CLIENT_ID!,
       clientSecret: process.env.X_CLIENT_SECRET!,
     }),
-    Microsoft({
-      clientId: process.env.MICROSOFT_CLIENT_ID!,
-      clientSecret: process.env.MICROSOFT_CLIENT_SECRET!,
-      tenantId: "common",
+    MicrosoftEntraID({
+      clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID!,
+      clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET!,
+      tenantId: process.env.AUTH_MICROSOFT_ENTRA_ID_TENANT_ID!,
     }),
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,

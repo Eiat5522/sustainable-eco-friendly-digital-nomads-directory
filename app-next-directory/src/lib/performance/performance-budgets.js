@@ -6,7 +6,7 @@
  * @date May 15, 2025
  */
 
-const PERFORMANCE_BUDGETS = {
+export const PERFORMANCE_BUDGETS = {
   // Page Load Metrics (measured in milliseconds)
   pageLoad: {
     // First Contentful Paint - when first text/image is painted
@@ -187,7 +187,7 @@ const PERFORMANCE_BUDGETS = {
  * @param {number} value - The measured value
  * @returns {string} - 'good', 'needs-improvement', or 'poor'
  */
-function evaluatePerformanceMetric(category, metric, value) {
+export function evaluatePerformanceMetric(category, metric, value) {
   if (!PERFORMANCE_BUDGETS[category] || !PERFORMANCE_BUDGETS[category][metric]) {
     console.warn(`Unknown performance metric: ${category}.${metric}`);
     return 'unknown';
@@ -211,7 +211,7 @@ function evaluatePerformanceMetric(category, metric, value) {
 /**
  * Utility to get the threshold values for a specific metric
  */
-function getMetricThresholds(category, metric) {
+export function getMetricThresholds(category, metric) {
   if (!PERFORMANCE_BUDGETS[category] || !PERFORMANCE_BUDGETS[category][metric]) {
     console.warn(`Unknown performance metric: ${category}.${metric}`);
     return null;
@@ -219,9 +219,3 @@ function getMetricThresholds(category, metric) {
   
   return PERFORMANCE_BUDGETS[category][metric];
 }
-
-module.exports = {
-  PERFORMANCE_BUDGETS,
-  evaluatePerformanceMetric,
-  getMetricThresholds
-};

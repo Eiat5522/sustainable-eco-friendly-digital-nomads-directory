@@ -11,7 +11,7 @@ interface HeroSectionProps {
   onToggleFavorite?: () => void;
 }
 
-export function HeroSection({ listing, isFavorited = false, onToggleFavorite }: HeroSectionProps) {
+export function HeroSection({ listing, isFavorited = false, onToggleFavorite }: Readonly<HeroSectionProps>) {
   return (
     <NeoCard variant="elevated" className="mb-8">
       <div className="relative h-64 md:h-80 mb-6 overflow-hidden rounded-lg">

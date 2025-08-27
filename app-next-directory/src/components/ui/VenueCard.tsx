@@ -10,7 +10,7 @@ interface VenueCardProps {
   className?: string;
 }
 
-export function VenueCard({ venue, className }: VenueCardProps) {
+export function VenueCard({ venue, className }: Readonly<VenueCardProps>) {
   return (
     <Link href={`/listings/${venue.slug}`} className="block">
       <NeoCard 

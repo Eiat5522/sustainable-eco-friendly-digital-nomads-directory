@@ -6,7 +6,12 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     const posts = await client.fetch(
-      groq`*[_type == "blogPost"] | order(publishedAt desc)`
+      groq`*[
+        _type == "blogPost" &&
+        !(_id in path('drafts.**')) &&
+        defined(publishedAt) &&
+        publishedAt <= now()
+      ] | order(publishedAt desc, _createdAt desc)`
     );
     return NextResponse.json(posts);
   } catch (error) {

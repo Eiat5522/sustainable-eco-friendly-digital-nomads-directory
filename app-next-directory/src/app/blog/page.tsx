@@ -1,12 +1,28 @@
 
 import Link from 'next/link';
 
-async function getPosts() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blog`, { cache: 'no-store' });
-  if (!res.ok) {
-    throw new Error('Failed to fetch posts');
+type Post = {
+  _id: string;
+  title: string;
+  excerpt?: string | null;
+  slug: { current: string };
+};
+
+async function getPosts(): Promise<Post[]> {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!baseUrl) {
+    throw new Error('Missing env NEXT_PUBLIC_API_URL');
   }
-  return res.json();
+  const url = new URL('/api/blog', baseUrl).toString();
+  const res = await fetch(url, { cache: 'no-store' });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch posts: ${res.status} ${res.statusText}`);
+  }
+  const data = (await res.json()) as unknown;
+  if (!Array.isArray(data)) {
+    throw new Error('Invalid posts payload: expected an array');
+  }
+  return data as Post[];
 }
 
 export default async function BlogPage() {
