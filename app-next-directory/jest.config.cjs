@@ -46,11 +46,11 @@ module.exports = {
   ],
   testPathIgnorePatterns: [
     '/playwright/',
-    '\.playwright\.test\.[jt]',
-    '\.pw\.test\.[jt]',
+    '/.playwright/.test/.[jt]',
+    '/.pw/.test/.[jt]',
     '<rootDir>/tests/', // Exclude all Playwright and E2E tests
     '/__tests__/__mocks__/',
-    '\.d\.ts',
+    '/.d/.ts',
     '<rootDir>/src/lib/__tests__/listings.test.ts'
   ],
   resolver: 'jest-pnp-resolver'
