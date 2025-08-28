@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { client } from '@/lib/sanity/client';
+import { getCityBySlug } from '@/lib/data/city';
 
 // Define the shape of the context parameter for Next.js 15+
 type RouteContext = {
@@ -12,58 +12,13 @@ export async function GET(
 ) {
   try {
     const { slug } = await context.params;
-    console.log('[DEBUG] Cities/[slug] API: Looking for city with slug:', slug);
-
-    const query = `*[_type == "city" && slug.current == $slug][0] {
-      "slug": slug.current,
-      _id,
-      title,
-      "slug": slug.current,
-      description,
-      country,
-      sustainabilityScore,
-      highlights,
-      primaryImage {
-        asset->{
-          _id,
-          url,
-          metadata {
-            dimensions {
-              width,
-              height
-            }
-          }
-        }
-      },
-      coordinates,
-      climate,
-      safety,
-      walkability,
-      airQuality,
-      internetSpeed,
-      costOfLiving
-    }`;
-
-    console.log('[DEBUG] Cities/[slug] API: Executing query with slug:', slug);
-    const city = await client.fetch(query, { slug });
-    console.log('[DEBUG] Cities/[slug] API: Query result:', city ? 'Found city' : 'No city found');
-
+    const city = await getCityBySlug(slug);
     if (!city) {
-      console.log('[DEBUG] Cities/[slug] API: City not found, returning 404');
-      return NextResponse.json(
-        { error: 'City not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'City not found' }, { status: 404 });
     }
-
-    console.log('[DEBUG] Cities/[slug] API: Successfully returning city:', city.name);
-    return NextResponse.json({
-      success: true,
-      data: city
-    });
-
+    return NextResponse.json({ success: true, city });
   } catch (error) {
-    console.error('[ERROR] Cities/[slug] API: Error fetching city details:', error);
+    console.error('[ERROR] Cities/[slug] API:', error);
     return NextResponse.json(
       { error: 'Failed to fetch city details' },
       { status: 500 }

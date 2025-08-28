@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { NeoButton } from '@/components/ui/neo-button'
@@ -8,12 +7,7 @@ import { NeoBadge } from '@/components/ui/neo-badge'
 import { User, Menu } from 'lucide-react'
 
 export function Header() {
-  const { data: session } = useSession()
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const { data: session, status } = useSession()
 
   const authLink = session ? '/auth/login' : '/auth/signup'
 
@@ -61,7 +55,7 @@ export function Header() {
             <NeoButton asChild variant="outline" size="md">
               <Link href="/listings/new">Add Your Listing</Link>
             </NeoButton>
-            {mounted && (
+            {status !== 'loading' && (
               <Link
                 href={authLink}
                 className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center"

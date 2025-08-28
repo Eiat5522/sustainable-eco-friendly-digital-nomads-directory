@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useId } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { NeoButton } from '@/components/ui/neo-button';
@@ -13,7 +13,14 @@ export function CityCarousel() {
   const [cities, setCities] = useState<CityDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    const announcer = document.getElementById('carousel-announcer');
+    if (announcer && cities.length > 0) {
+      announcer.textContent = `Now viewing ${cities[currentIndex].name}`;
+    }
+  }, [currentIndex, cities]);
 
   // Slider metrics (keep in sync with w-80 and gap-8)
   const CARD_WIDTH = 320;
@@ -101,7 +108,7 @@ export function CityCarousel() {
               variant="outline"
               size="sm"
               aria-label="Previous cities"
-              aria-controls="city-carousel-track"
+              aria-controls={trackId}
               onClick={() => setCurrentIndex((i) => Math.max(0, i - 1))}
               disabled={currentIndex <= 0 || cities.length === 0}
             >
@@ -111,7 +118,7 @@ export function CityCarousel() {
               variant="outline"
               size="sm"
               aria-label="Next cities"
-              aria-controls="city-carousel-track"
+              aria-controls={trackId}
               onClick={() =>
                 setCurrentIndex((i) =>
                   Math.min(i + 1, Math.max(0, cities.length - 1))
@@ -129,27 +136,33 @@ export function CityCarousel() {
 
         <div className="overflow-hidden">
           <div
-            id="city-carousel-track"
-            className="flex transition-transform duration-300 gap-8 will-change-transform"
+            id={trackId}
+            className="flex transition-transform duration-300 motion-reduce:transition-none gap-8 will-change-transform"
+
             role="list"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === 'ArrowLeft')
+              if (e.key === 'ArrowLeft') {
+                e.preventDefault();
                 setCurrentIndex((i) => Math.max(0, i - 1));
-              if (e.key === 'ArrowRight')
+              }
+              if (e.key === 'ArrowRight') {
+                e.preventDefault();
                 setCurrentIndex((i) =>
                   Math.min(i + 1, Math.max(0, cities.length - 1))
                 );
+              }
             }}
             style={{ transform: `translateX(-${currentIndex * STEP}px)` }}
-            aria-live="polite"
-            aria-atomic="true"
           >
-            {cities.map((city) => (
+            {cities.map((city, idx) => {
+              const isActive = idx === currentIndex;
+              return (
               <NeoCard
                 key={city.id}
                 role="listitem"
-                className="w-80 flex-none group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 overflow-hidden"
+                aria-hidden={!isActive}
+            +                className={`w-80 flex-none group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 overflow-hidden ${!isActive ? 'pointer-events-none opacity-60' : ''}`}
               >
                 <div className="relative h-56 -m-6 mb-4">
                   {city.imageUrl ? (
@@ -168,7 +181,7 @@ export function CityCarousel() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
                   <div className="absolute top-4 left-4 flex space-x-2">
-                    {city.sustainabilityScore && (
+                    {city.sustainabilityScore != null && (
                       <NeoBadge
                         variant="success"
                         className="flex items-center space-x-1"
@@ -204,13 +217,14 @@ export function CityCarousel() {
                       size="sm"
                       aria-label={`Explore ${city.name}`}
                       onClick={() => handleExploreCity(city.slug)}
+                      tabIndex={isActive ? 0 : -1}
                     >
                       Explore City
                     </NeoButton>
                   </div>
                 </NeoCardContent>
               </NeoCard>
-            ))}
+            )})}
           </div>
         </div>
       </div>

@@ -1,4 +1,5 @@
 // jest.setup.ts
+import 'web-streams-polyfill'; // Add this line at the very top
 
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';

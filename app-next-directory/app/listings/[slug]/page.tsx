@@ -1,3 +1,4 @@
+export const revalidate = 300; // ISR: revalidate every 5 minutes
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
 import { mockListingDetail, mockReviews, mockRelatedListings } from '@/components/listings/listingDetailMockData';
 import type { ListingDetailDTO } from '@/types/dto';
@@ -11,8 +12,10 @@ async function getListingData(slug: string): Promise<ListingDetailDTO | null> {
     return null;
   }
 
-  // Simulate a network request
-  await new Promise(resolve => setTimeout(resolve, 800));
+  // Simulate a network request in non-production only to avoid SSR TTFB impact
+  if (process.env.NODE_ENV === 'development') {
+    await new Promise(resolve => setTimeout(resolve, 800));
+  }
 
   // Use mock data based on slug or default to Banyan Tree
   return { ...mockListingDetail, slug };

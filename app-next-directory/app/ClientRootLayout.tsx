@@ -12,6 +12,7 @@ function ThemeProvider({ children, theme }: Readonly<{ children: ReactNode, them
       defaultTheme={theme}
       enableSystem
       disableTransitionOnChange
+      enableColorScheme
     >
       {children}
     </NextThemeProvider>
@@ -20,7 +21,7 @@ function ThemeProvider({ children, theme }: Readonly<{ children: ReactNode, them
 
 interface ClientRootLayoutProps {
   children: ReactNode;
-  theme: string;
+  theme?: 'light' | 'dark' | 'system';
 }
 
 function ToolbarA11yPatch() {
@@ -82,16 +83,17 @@ function ToolbarA11yPatch() {
 
     // Run once on mount (after observer creation) and attach attribute observers
     patchAll();
-    observeAnchors();    return () => observer.disconnect();
+    observeAnchors();
+    return () => observer.disconnect();
   }, []);
   return null;
 }
 
-export default function ClientRootLayout({ children }: Readonly<ClientRootLayoutProps>) {
+export default function ClientRootLayout({ children, theme }: Readonly<ClientRootLayoutProps>) {
   return (
     <SessionProvider>
       <AnalyticsProvider>
-        <ThemeProvider>
+        <ThemeProvider theme={theme}>
           <ToolbarA11yPatch />
           {children}
         </ThemeProvider>

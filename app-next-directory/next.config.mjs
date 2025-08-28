@@ -26,7 +26,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
       { protocol: 'https', hostname: 'images.pexels.com', pathname: '/**' },
       { protocol: 'https', hostname: 'i.pravatar.cc', pathname: '/**' },
-      { protocol: 'https', hostname: '**.vercel.app', pathname: '/**' },
+      // Use the active Vercel deployment host to allow previews and production without over-broad wildcards
+      { protocol: 'https', hostname: process.env.VERCEL_URL || 'your-app.vercel.app', pathname: '/**' },
     ],
   },
   webpack: (config, { dev, isServer }) => {
@@ -65,4 +66,13 @@ const nextConfig = {
     return config
   },
 };
-export default nextConfig;
+const withRedirects = {
+  ...nextConfig,
+  async redirects() {
+    return [
+      { source: '/venues/ko-hub', destination: '/venues/koh-hub', permanent: true },
+    ];
+  },
+};
+
+export default withRedirects;

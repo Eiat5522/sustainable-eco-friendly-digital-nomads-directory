@@ -1,42 +1,37 @@
 import { CityDetailView } from '@/components/city/CityDetailView';
+import { notFound } from 'next/navigation';
+import { getCityBySlug, getListingsByCityId } from '@/lib/data/city';
 import type { CityDTO, ListingSummaryDTO } from '@/types/dto';
+import { CityDTOSchema, ListingSummaryDTOArraySchema } from '@/types/dto-schemas';
 
-interface Props {
-  params: { slug: string };
-}
+export const revalidate = 300;
 
-async function getCityData(slug: string): Promise<{ city: CityDTO | null; listings: ListingSummaryDTO[] }> {
-  try {
-    const cityRes = await fetch(`http://localhost:3000/api/city/${slug}`);
-    if (!cityRes.ok) {
-      return { city: null, listings: [] };
-    }
-    const city: CityDTO = await cityRes.json();
-
-    const listingsRes = await fetch(`http://localhost:3000/api/listings/city/${city.id}`);
-    if (!listingsRes.ok) {
-      return { city, listings: [] };
-    }
-    const listings: ListingSummaryDTO[] = await listingsRes.json();
-
-    return { city, listings };
-  } catch (error) {
-    console.error('Failed to fetch city data:', error);
-    return { city: null, listings: [] };
-  }
-}
+type Props = { params: { slug: string } };
 
 export default async function CityPage({ params }: Props) {
   const { slug } = params;
-  const { city, listings } = await getCityData(slug);
 
-  if (!city) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="body-lg text-red-500">City not found</p>
-      </div>
-    );
+  // Fetch city data via shared data layer; validate at runtime
+  const rawCity: CityDTO | null = await getCityBySlug(slug);
+  if (!rawCity) {
+    notFound();
   }
+
+  const cityResult = CityDTOSchema.safeParse(rawCity);
+  if (!cityResult.success) {
+    console.error('[city/page] Invalid CityDTO for slug %s:', slug, cityResult.error);
+    // Skip listings fetch and render safe defaults
+    return <CityDetailView city={{ id: '', name: '', slug, country: '' }} listings={[]} />;
+  }
+  const city: CityDTO = cityResult.data as CityDTO;
+
+  // Only fetch listings when city validation passes
+  const rawListings: ListingSummaryDTO[] = await getListingsByCityId(city.id);
+  const listingsResult = ListingSummaryDTOArraySchema.safeParse(rawListings);
+  if (!listingsResult.success) {
+    console.error('[city/page] Invalid ListingSummaryDTO[] for city %s:', city.id, listingsResult.error);
+  }
+  const listings: ListingSummaryDTO[] = (listingsResult.success ? listingsResult.data : []) as ListingSummaryDTO[];
 
   return <CityDetailView city={city} listings={listings} />;
 }

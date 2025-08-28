@@ -7,11 +7,18 @@ import { InteractiveMap } from '@/components/ui/InteractiveMap';
 import type { ListingDetailDTO } from '@/types/dto';
 import { formatPrice } from '../listings/listingDetailMockData';
 
+import dynamic from 'next/dynamic';
+// replace existing InteractiveMap import with:
+const InteractiveMap = dynamic(
+  () => import('@/components/ui/InteractiveMap').then(m => m.InteractiveMap),
+  { ssr: false }
+);
+
 interface ListingDetailsCardProps {
   listing: ListingDetailDTO;
 }
 
-export function ListingDetailsCard({ listing }: ListingDetailsCardProps) {
+export function ListingDetailsCard({ listing }: Readonly<ListingDetailsCardProps>) {
   const renderCategoryDetails = () => {
     switch (listing.type) {
       case 'accommodation':
@@ -189,11 +196,11 @@ export function ListingDetailsCard({ listing }: ListingDetailsCardProps) {
           <Separator />
 
           {/* Eco Focus Tags */}
-          {listing.ecoFocusTags && listing.ecoFocusTags.length > 0 && (
+          {listing.ecoFocusTag && listing.ecoFocusTag.length > 0 && (
             <div>
               <h3 className="heading-sm mb-4">Sustainability Features</h3>
               <div className="flex flex-wrap gap-2">
-                {listing.ecoFocusTags.map((tag, index) => (
+                {listing.ecoFocusTag.map((tag, index) => (
                   <span 
                     key={index}
                     className="px-3 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium border border-green-200"

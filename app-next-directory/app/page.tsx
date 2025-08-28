@@ -14,7 +14,18 @@ export default function HomePage() {
       <main>
         <HeroSection />
         <FeaturedListings />
-        <CityCarousel />
+        <React.Suspense
+          fallback={
+            <div
+              className="h-48 rounded-lg bg-muted animate-pulse"
+              role="status"
+              aria-label="Loading city carousel"
+              aria-busy="true"
+            />
+          }
+        >
+          <CityCarousel />
+        </React.Suspense>
       </main>
       <Footer />
     </div>

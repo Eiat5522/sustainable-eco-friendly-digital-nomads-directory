@@ -39,7 +39,7 @@ export const mockFeaturedVenues: FeaturedListingDTO[] = [
     name: "D-Well Hostel",
     slug: "d-well-hostel",
     imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHw1fHxyZXNvcnQlMjB0cm9waWNhbCUyMGx1eHVyeSUyMHRoYWlsYW5kJTIwcGFsbSUyMHRyZWVzfGVufDB8MHx8Z3JlZW58MTc1NjE5OTYxMnww&ixlib=rb-4.1.0&q=85",
-    city: "Bangkok",
+    city: "Chiang Mai",
     amenityNames: ["Energy-Efficient", "Water Conservation", "Rooftop Terrace", "Coworking Area", "High-Speed WiFi", "Secure Lockers"]
   },
   {
@@ -56,12 +56,12 @@ export const mockFeaturedVenues: FeaturedListingDTO[] = [
     slug: "hub53",
     imageUrl: "https://images.unsplash.com/photo-1582582494705-5322d3415b59?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxjb3dvcmtpbmclMjBvZmZpY2UlMjBtb2Rlcm4lMjB3b3Jrc3BhY2UlMjBjb21wdXRlcnN8ZW58MHwwfHx8MTc1NjE5OTYxMnww&ixlib=rb-4.1.0&q=85",
     city: "Chiang Mai",
-    amenityNames: ["24/7 Access", "Ergonomic Chairs", "Meeting Rooms", "Skype Rooms", "High-Speed WiFi", "Community Events"]
+    amenityNames: ["24/7 Access", "Ergonomic Chairs", "Meeting Rooms", "Call Rooms", "High-Speed WiFi", "Community Events"]
   },
   {
     id: "ko-hub",
-    name: "KoHub",
-    slug: "ko-hub",
+    name: "KohHub",
+    slug: "koh-hub",
     imageUrl: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwzfHxjb3dvcmtpbmclMjBvZmZpY2UlMjBtb2Rlcm4lMjB3b3Jrc3BhY2UlMjBjb21wdXRlcnN8ZW58MHwwfHx8MTc1NjE5OTYxMnww&ixlib=rb-4.1.0&q=85",
     city: "Koh Lanta",
     amenityNames: ["Beachfront", "Coworking Space", "Coliving", "Restaurant", "High-Speed WiFi", "Weekly Talks"]

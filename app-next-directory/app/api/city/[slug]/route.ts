@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { getCityBySlug } from '@/lib/data/city';
 
 // Define the shape of the context parameter for Next.js 15+
 type RouteContext = {
@@ -11,13 +12,15 @@ export async function GET(
   context: RouteContext
 ) {
   const { slug } = await context.params;
-
-  // You can now use the slug to fetch data for the specific city
-  // For example, fetch city data from Sanity or your database
-  // const cityData = await getCityData(slug);
-
-  // For now, let's just return the slug
-  return NextResponse.json({ message: `Data for city: ${slug}` });
+  try {
+    const city = await getCityBySlug(slug);
+    if (!city) {
+      return NextResponse.json({ error: 'City not found' }, { status: 404 });
+    }
+    return NextResponse.json({ city });
+  } catch (err) {
+    return NextResponse.json({ error: 'Failed to fetch city' }, { status: 500 });
+  }
 }
 
 // You can add other HTTP method handlers here as needed:

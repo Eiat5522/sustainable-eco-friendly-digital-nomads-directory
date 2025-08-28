@@ -6,21 +6,33 @@ import { Footer } from '@/components/layout/Footer';
 import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
 import { Search } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+
+type SearchResult = Record<string, unknown>; // TODO: narrow shape when API is wired
 
 export default function SearchPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
+  
 
-  const handleSearch = async (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!searchTerm) return;
 
+    setHasSearched(true);
     setLoading(true);
-    // In a real app, this would make an API call to /api/search?q=${searchTerm}
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setResults([]); // Replace with actual search results
-    setLoading(false);
+    try {
+      // In a real app, call /api/search?q=${encodeURIComponent(searchTerm)} with AbortController
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setResults([]); // Replace with actual search results
+    } catch (err) {
+      console.error('Search failed', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -28,8 +40,9 @@ export default function SearchPage() {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <h1 className="heading-xl mb-8 text-center">Search for Sustainable Venues</h1>
-        <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
+        <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
           <div className="relative">
+            <label htmlFor="search-page-input" className="sr-only">Search venues</label>  
             <Search
               aria-hidden="true"
               focusable="false"
@@ -41,6 +54,10 @@ export default function SearchPage() {
               aria-label="Search venues"
               placeholder="Search by name, city, or amenities"
               className="pl-12 pr-16 h-16 text-lg"
+              type="search"
+              name="q"
+              required
+              autoComplete="on"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -50,20 +67,20 @@ export default function SearchPage() {
               size="md"
               disabled={loading}
             >
-              {loading ? 'Searching...' : 'Search'}
+              Search
             </NeoButton>
           </div>
         </form>
 
-        <div>
-          {loading && <p className="text-center">Loading...</p>}
-          {!loading && results.length === 0 && (
-            <p className="text-center text-neo-text-secondary">
-              No results found. Try a different search term.
-            </p>
-          )}
-          {/* Render search results here */}
-        </div>
+        {loading && (
+          <p className="text-center" role="status" aria-live="polite">Loading...</p>
+        )}
+        {!loading && hasSearched && results.length === 0 && (
+          <p className="text-center text-neo-text-secondary">
+            No results found. Try a different search term.
+          </p>
+        )}
+        {/* Render search results here */}
       </main>
       <Footer />
     </div>
