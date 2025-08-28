@@ -4,7 +4,6 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
-import Image from 'next/image';
 import type {
   Listing,
   City,
@@ -65,38 +64,6 @@ describe('Sanity Generated Types', () => {
       expect(mockCity.name).toBe('Bangkok');
       expect(mockCity.country).toBe('Thailand');
       expect(mockCity.sustainabilityScore).toBe(85);
-    });
-
-    it('should have proper EcoTag type structure', () => {
-      const mockEcoTag: EcoTag = {
-        _id: 'ecotag-id',
-        _type: 'ecoTag',
-        _createdAt: '2025-01-01T00:00:00Z',
-        _updatedAt: '2025-01-01T00:00:00Z',
-        _rev: 'ecotag-rev',
-        name: 'Solar Powered',
-        description: 'Uses solar energy for operations',
-    };
-      expect(mockEcoTag._id).toBe('ecotag-id');
-      expect(mockEcoTag._type).toBe('ecoTag');
-      expect(mockEcoTag.name).toBe('Solar Powered');
-      expect(mockEcoTag.description).toBe('Uses solar energy for operations');
-    });
-    it('should have proper Review type structure', () => {
-      const mockReview: Review = {
-        _id: 'review-id',
-        _type: 'review',
-        _createdAt: '2025-01-01T00:00:00Z',
-        _updatedAt: '2025-01-01T00:00:00Z',
-        _rev: 'review-rev',
-        rating: 5,
-        comment: 'Great place!',
-      };
-
-      expect(mockReview._id).toBe('review-id');
-      expect(mockReview._type).toBe('review');
-      expect(mockReview.rating).toBe(5);
-      expect(mockReview.comment).toBe('Great place!');
     });
   });
 

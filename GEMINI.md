@@ -55,6 +55,7 @@ project/
 ├── .mcp.json
 ├── AGENT.md
 └── GEMINI.md
+```
 Task Master provides an MCP server that GEMINI CLI can connect to. Configure in `.mcp.json`:
 
 ```json
@@ -262,12 +263,10 @@ task-master models --set-main claude-3-5-sonnet-20241022```
 
 ### Context Management
 
-- Use `/clear` between different tasks to maintain focus
-- Use `/clear` between different tasks to maintain focus
-- GEMINI.md is automatically loaded for context. If you are reading GEMINI.md, consider duplicating it to GEMINI.md for auto-load.
-- Use `task-master show <id>` to pull specific task context when needed
-1. `task-master show <subtask-id>` - Understand requirements
-2. Explore codebase and plan implementation
+- Use `/clear` between different tasks to maintain focus.
+- GEMINI.md auto-loads each session; keep key integration notes here.
+- If you’re reading AGENT.md, copy any essential notes into GEMINI.md so they auto-load.
+- Use `task-master show <id>` to pull specific task context when needed2. Explore codebase and plan implementation
 3. `task-master update-subtask --id=<id> --prompt="detailed plan"` - Log plan
 4. `task-master set-status --id=<id> --status=in-progress` - Start work
 5. Implement code following logged plan

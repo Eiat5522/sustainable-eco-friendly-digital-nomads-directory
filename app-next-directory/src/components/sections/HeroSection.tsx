@@ -7,10 +7,10 @@ import { Search, Mic } from 'lucide-react';
 
 export function HeroSection() {
   return (
-
+    <section
       className="relative min-h-[600px] bg-gradient-to-br from-neo-primary via-blue-600 to-blue-800 overflow-hidden"
       aria-labelledby="hero-heading"
-
+    >
       {/* Geometric Shapes */}
       <div
         className="absolute top-20 left-20 w-32 h-32 bg-neo-secondary rounded-full opacity-80"
@@ -71,8 +71,6 @@ export function HeroSection() {
                   focusable="false"
                   className="text-neo-text-secondary"
                   size={20}
-                />
-              </button>
                 />
               </button>
             </div>

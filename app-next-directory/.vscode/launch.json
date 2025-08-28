@@ -30,7 +30,7 @@
             }
         },
         {
-            "type": "pwa-chrome",
+            "type": "chrome",
             "name": "Chrome: Launch (JS Debugger)",
             "request": "launch",
             "url": "${config:devServer.url}",

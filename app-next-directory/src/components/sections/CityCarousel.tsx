@@ -210,7 +210,6 @@ export function CityCarousel() {
               </NeoCardContent>
             </NeoCard>
           ))}
-          </div>
         </div>
       </div>
     </section>

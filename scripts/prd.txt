@@ -91,7 +91,6 @@ Meta Info: The page should also show meta details like “Last Verified: [date]�
 
 . This builds trust that info is current. Additionally, if the listing was user-submitted, it might show “Submitted by [username]” and a note if it’s awaiting verification (“information not verified” warning if applicable). We will also indicate if the listing is Verified (a flag meaning our team has checked its sustainability claims) – for example, a badge or text “✅ Verified Eco-Friendly” if the verificationStatus is set to verified
 
-.
 Similar Listings: At the bottom of the listing page, the site will suggest Similar Listings that the user might be interested in. This could be implemented by showing other listings in the same city and category, or using a curated list from the CMS (there’s a field for similar listings references in the schema
 
 ). The purpose is to keep the user engaged and exploring other venues. For example, on a café listing page, it might show 2-3 other cafes in that city or region.

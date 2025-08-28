@@ -11,14 +11,16 @@ interface HeroSectionProps {
   onToggleFavorite?: () => void;
 }
 
-export function HeroSection({ listing, isFavorited = false, onToggleFavorite }: Readonly<HeroSectionProps>) {
+export function HeroSection(props: Readonly<HeroSectionProps>) {
+  const { listing, isFavorited = false, onToggleFavorite } = props;
   return (
     <NeoCard variant="elevated" className="mb-8">
       <div className="relative h-64 md:h-80 mb-6 overflow-hidden rounded-lg">
         {listing.imageUrl && (
           <Image
             src={listing.imageUrl}
-            alt={`${listing.name} - ${listing.city?.name} sustainable venue`}
+            alt={`${listing.name}${listing.city?.name ? ` - ${listing.city?.name}` : ''} sustainable venue`}
+
             fill
             sizes="100vw"
             className="object-cover"

@@ -1,13 +1,5 @@
-/**       return imageObject
-    } catch (error: any) {
-      if (error instanceof SanityAPIError) throw error
-      throw new SanityAPIError(
-        `Asset upload failed: ${error.message}`,
-        error.statusCode,
-        error
-      )
-    }
-  } * Advanced Sanity HTTP API Client
+/**
+ * Advanced Sanity HTTP API Client
  * Day 1 Sprint: Complete HTTP API Client with Authentication & Error Handling
  * Date: May 24, 2025
  */
@@ -334,6 +326,15 @@ export class SanityHTTPClient {
         },
       }
       return imageObject
+    } catch (error: any) {
+      if (error instanceof SanityAPIError) throw error
+      throw new SanityAPIError(
+        `Asset upload failed: ${error.message}`,
+        error.statusCode,
+        error
+      )
+    }
+  }
 
   // Batch operations
   async createMany(documents: any[]): Promise<SanityDocument[]> {

@@ -1,5 +1,15 @@
 
-export default function CommentList({ comments }: Readonly<{ comments: any[] }>) {
+type Comment = {
+  _id: string;
+  content: string;
+  user?: { name?: string } | null;
+};
+
+type Props = Readonly<{
+  comments: ReadonlyArray<Comment>;
+}>;
+
+export default function CommentList({ comments }: Props) {
   return (
     <div className="space-y-8">
       {comments.map((comment) => (

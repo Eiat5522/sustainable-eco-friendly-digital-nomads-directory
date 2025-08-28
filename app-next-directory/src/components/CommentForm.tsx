@@ -5,16 +5,16 @@ import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [content, setContent] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (status === 'loading') return;
-
+    if (status === 'loading' || isSubmitting) return; // keep guard
     const trimmed = content.trim();
     if (!trimmed) {
       setContent('');
@@ -43,8 +43,10 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
         setContent('');
         router.refresh();
       } else {
-        console.error('Failed to submit comment', await res.text());
+        console.error(`Failed to submit comment: ${res.status} ${res.statusText}`, await res.text());
       }
+    } catch (err) {
+      console.error('Failed to submit comment', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -67,6 +69,8 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
       <button
         type="submit"
         className="mt-4 px-8 py-4 bg-yellow-400 text-black font-bold text-lg border-4 border-black rounded-lg shadow-lg hover:bg-yellow-500 focus:outline-none focus:ring-4 focus:ring-yellow-400 transition-all duration-300 ease-in-out"
+        disabled={isSubmitting}
+        aria-busy={isSubmitting}
       >
         Submit Comment
       </button>

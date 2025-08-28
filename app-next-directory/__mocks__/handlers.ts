@@ -1,4 +1,4 @@
-import { rest } from 'msw'
+import { rest } from 'msw/rest'
 
 export const handlers = [
   rest.get('*/api/featured-listings', (req, res, ctx) => {

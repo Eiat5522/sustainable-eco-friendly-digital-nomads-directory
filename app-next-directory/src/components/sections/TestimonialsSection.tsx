@@ -73,7 +73,6 @@ export function TestimonialsSection() {
 
                 {/* Rating */}
                 <div className="flex items-center space-x-1 mb-4">
-<div className="flex items-center space-x-1 mb-4">
   <span className="sr-only">{`${testimonial.rating} out of 5 stars`}</span>
   {Array.from({ length: 5 }).map((_, i) => (
     <Star

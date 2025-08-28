@@ -36,14 +36,25 @@ export interface BaseListingDTO {
   type: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities';
   city: CityDTO | null;
   imageUrl?: string;
-  ecoFocusTags: string[];
-  digitalNomadFeatures: string[];
+  ecoFocusTag?: string[];
+  digitalNomadFeatures?: string[];
   priceRange?: 'budget' | 'moderate' | 'premium';
   website?: string;
   address?: string;
   location?: GeoPoint;
+  // Canonical fields aligned with backend
+  status?: ListingStatusDTO;
+  verification?: VerificationStatusDTO;
+  lastVerifiedAt?: string; // ISO datetime string
+  featured?: boolean;
 }
 export type GeoPoint = Readonly<{ lat: number; lng: number }>;
+
+// Canonical backend-aligned enums
+export type ListingStatusDTO = 'draft' | 'pending' | 'published' | 'archived' | 'flagged';
+export type VerificationStatusDTO = 'unverified' | 'verified' | 'needs_verification';
+// Moderation is used mainly for reviews; included here for completeness in downstream DTOs if needed
+export type ModerationStatusDTO = 'pending' | 'approved' | 'rejected' | 'changes_needed' | 'flagged';
 
 /** 0–100 sustainability index; higher is better */
 export type Percentage0To100 = number & { __brand: 'Percentage0To100' };
@@ -62,6 +73,8 @@ export type OpeningHour = { day: string; opens: string; closes: string };
 export interface ListingSummaryDTO extends BaseListingDTO {
   shortDescription?: string;
   amenityNames?: string[]; // Just names for display
+  ecoFocusTag?: string[];
+  digitalNomadFeatures?: string[];
 }
 
 // Featured listings DTO (minimal fields for homepage)

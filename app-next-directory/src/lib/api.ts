@@ -1,8 +1,8 @@
-                    import type { City } from '@/types/sanity.types'
+                    import type { CityDTO } from '@/types/dto'
 import type { Listing } from '@/types';
 
 // City details
-export async function fetchCityDetails(slug: string): Promise<City> {
+export async function fetchCityDetails(slug: string): Promise<CityDTO> {
   try {
     const response = await fetch(`/api/cities/${slug}`);
 
@@ -11,7 +11,7 @@ export async function fetchCityDetails(slug: string): Promise<City> {
     }
 
     const data = await response.json();
-    return data.data;
+    return data.data as CityDTO;
   } catch (error) {
     console.error('Error fetching city details:', error);
     throw error;

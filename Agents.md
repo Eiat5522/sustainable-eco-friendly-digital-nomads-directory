@@ -45,8 +45,6 @@ task-master generate                                         # Update task markd
 - `.taskmaster/config.json` - AI model configuration (use `task-master models` to modify)
 │   │   ├── prd.md         # Product requirements- `.env` - API keys for CLI usage
 
-### LLMs Integration Files
-
 - `AGENT.md` - LLM-ready, project-specific instructions used by all LLMs in this repository. Agents should load context from this file at the project root.
 - `.vscode/mcp.json` - MCP server configuration for VS Code (project-specific)
 

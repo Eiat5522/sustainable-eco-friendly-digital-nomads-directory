@@ -517,6 +517,13 @@ export type User = {
     _key: string
     [internalGroqTypeReferenceTo]?: 'review'
   }>
+  comments?: Array<{
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    _key: string
+    [internalGroqTypeReferenceTo]?: 'comment'
+  }>
   lastActive?: string
   createdAt?: string
 }

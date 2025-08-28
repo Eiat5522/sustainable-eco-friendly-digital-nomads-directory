@@ -7,7 +7,8 @@ import { authOptions } from '@/lib/auth';
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
 
-  const userId = session?.user && 'id' in session.user ? (session.user.id as string | undefined) : undefined;
+  const user = session?.user as { id?: string } | undefined;
+  const userId: string | undefined = user?.id;
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -16,7 +17,19 @@ export async function POST(request: Request) {
     const { content, postId } = await request.json();
 
     if (!content || !postId) {
-      return new NextResponse('Missing required fields', { status: 400 });
+      if (typeof content !== 'string' || !content.trim() || typeof postId !== 'string') {
+        return NextResponse.json({ error: 'Invalid or missing fields' }, { status: 422 });
+      }
+    }
+
+    // Validate referenced documents to avoid dangling references
+    const [postDoc, userDoc] = await Promise.all([
+      client.getDocument(postId),
+      client.getDocument(userId),
+    ]);
+
+    if (!postDoc || !userDoc) {
+      return NextResponse.json({ error: 'Invalid reference(s)' }, { status: 400 });
     }
 
     const newComment = await client.create({
@@ -29,6 +42,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(newComment);
   } catch (error) {
-    return new NextResponse('Internal Server Error', { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
