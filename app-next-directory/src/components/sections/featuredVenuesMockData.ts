@@ -25,5 +25,45 @@ export const mockFeaturedVenues: FeaturedListingDTO[] = [
     imageUrl: "https://images.unsplash.com/photo-1718220216044-006f43e3a9b1?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHw0fHxjb3dvcmtpbmclMjBvZmZpY2UlMjBtb2Rlcm4lMjB3b3Jrc3BhY2UlMjBjb21wdXRlcnN8ZW58MHwwfHx8MTc1NjE5OTYxMnww&ixlib=rb-4.1.0&q=85",
     city: "Chiang Mai",
     amenityNames: ["Green Building", "Community Garden", "Bike Friendly", "24/7 Access", "High-Speed Internet", "Community Events"]
+  },
+  {
+    id: "the-yard-hostel",
+    name: "The Yard Hostel",
+    slug: "the-yard-hostel",
+    imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxyZXNvcnQlMjB0cm9waWNhbCUyMGx1eHVyeSUyMHRoYWlsYW5kJTIwcGFsbSUyMHRyZWVzfGVufDB8MHx8Z3JlZW58MTc1NjE5OTYxMnww&ixlib=rb-4.1.0&q=85",
+    city: "Bangkok",
+    amenityNames: ["Recycled Materials", "Urban Garden", "Composting", "Community Kitchen", "Free Bicycles", "High-Speed WiFi"]
+  },
+  {
+    id: "d-well-hostel",
+    name: "D-Well Hostel",
+    slug: "d-well-hostel",
+    imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHw1fHxyZXNvcnQlMjB0cm9waWNhbCUyMGx1eHVyeSUyMHRoYWlsYW5kJTIwcGFsbSUyMHRyZWVzfGVufDB8MHx8Z3JlZW58MTc1NjE5OTYxMnww&ixlib=rb-4.1.0&q=85",
+    city: "Bangkok",
+    amenityNames: ["Energy-Efficient", "Water Conservation", "Rooftop Terrace", "Coworking Area", "High-Speed WiFi", "Secure Lockers"]
+  },
+  {
+    id: "green-tiger-house",
+    name: "Green Tiger House",
+    slug: "green-tiger-house",
+    imageUrl: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHw0fHxyZXNvcnQlMjB0cm9waWNhbCUyMGx1eHVyeSUyMHRoYWlsYW5kJTIwcGFsbSUyMHRyZWVzfGVufDB8MHx8Z3JlZW58MTc1NjE5OTYxMnww&ixlib=rb-4.1.0&q=85",
+    city: "Chiang Mai",
+    amenityNames: ["Vegetarian Restaurant", "Solar Hot Water", "No Single-Use Plastic", "Yoga Classes", "Free WiFi", "Tour Desk"]
+  },
+  {
+    id: "hub53",
+    name: "Hub53 Coworking and Coliving Space",
+    slug: "hub53",
+    imageUrl: "https://images.unsplash.com/photo-1582582494705-5322d3415b59?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxjb3dvcmtpbmclMjBvZmZpY2UlMjBtb2Rlcm4lMjB3b3Jrc3BhY2UlMjBjb21wdXRlcnN8ZW58MHwwfHx8MTc1NjE5OTYxMnww&ixlib=rb-4.1.0&q=85",
+    city: "Chiang Mai",
+    amenityNames: ["24/7 Access", "Ergonomic Chairs", "Meeting Rooms", "Skype Rooms", "High-Speed WiFi", "Community Events"]
+  },
+  {
+    id: "ko-hub",
+    name: "KoHub",
+    slug: "ko-hub",
+    imageUrl: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwzfHxjb3dvcmtpbmclMjBvZmZpY2UlMjBtb2Rlcm4lMjB3b3Jrc3BhY2UlMjBjb21wdXRlcnN8ZW58MHwwfHx8MTc1NjE5OTYxMnww&ixlib=rb-4.1.0&q=85",
+    city: "Koh Lanta",
+    amenityNames: ["Beachfront", "Coworking Space", "Coliving", "Restaurant", "High-Speed WiFi", "Weekly Talks"]
   }
 ];

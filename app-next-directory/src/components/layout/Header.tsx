@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { NeoButton } from '@/components/ui/neo-button'
@@ -9,6 +9,12 @@ import { User, Menu } from 'lucide-react'
 
 export function Header() {
   const { data: session } = useSession()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   const authLink = session ? '/auth/login' : '/auth/signup'
 
   return (
@@ -42,11 +48,11 @@ export function Header() {
             <div className="w-8 h-8 bg-neo-primary rounded-full flex items-center justify-center">
               <div className="w-4 h-4 bg-white rounded-full"></div>
             </div>
-            <Link href="/tutorials" className="body-md hover:text-neo-primary font-semibold transition-colors">
-              Tutorials
+            <Link href="/blog" className="body-md hover:text-neo-primary font-semibold transition-colors">
+              Blog
             </Link>
-            <Link href="/work-with-us" className="body-md hover:text-neo-primary font-semibold transition-colors">
-              Work with us
+            <Link href="/search" className="body-md hover:text-neo-primary font-semibold transition-colors">
+              Search
             </Link>
           </nav>
 
@@ -55,12 +61,14 @@ export function Header() {
             <NeoButton asChild variant="outline" size="md">
               <Link href="/listings/new">Add Your Listing</Link>
             </NeoButton>
-            <Link
-              href={authLink}
-              className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center"
-            >
-              <User size={20} className="text-neo-text-primary" />
-            </Link>
+            {mounted && (
+              <Link
+                href={authLink}
+                className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center"
+              >
+                <User size={20} className="text-neo-text-primary" />
+              </Link>
+            )}
           </div>
         </div>
       </div>

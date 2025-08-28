@@ -3,21 +3,18 @@
 import React from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { ListingDetailView } from '@/components/listings/ListingDetailView';
-import { mockListingDetail, mockReviews, mockRelatedListings } from '@/components/listings/listingDetailMockData';
+import { HeroSection } from '@/components/sections/HeroSection';
+import { FeaturedListings } from '@/components/sections/FeaturedListings';
+import { CityCarousel } from '@/components/sections/CityCarousel';
 
-export default function ListingDetailPreview() {
+export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        <ListingDetailView 
-          listing={mockListingDetail}
-          reviews={mockReviews}
-          relatedListings={mockRelatedListings}
-          isSignedIn={true}
-          isFavorited={false}
-        />
+        <HeroSection />
+        <FeaturedListings />
+        <CityCarousel />
       </main>
       <Footer />
     </div>

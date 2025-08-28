@@ -5,11 +5,11 @@ import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider as NextThemeProvider } from 'next-themes';
 import { AnalyticsProvider } from '@/components/AnalyticsProvider';
 
-function ThemeProvider({ children }: Readonly<{ children: ReactNode }>) {
+function ThemeProvider({ children, theme }: Readonly<{ children: ReactNode, theme: string }>) {
   return (
     <NextThemeProvider
       attribute="class"
-      defaultTheme="system"
+      defaultTheme={theme}
       enableSystem
       disableTransitionOnChange
     >
@@ -20,6 +20,7 @@ function ThemeProvider({ children }: Readonly<{ children: ReactNode }>) {
 
 interface ClientRootLayoutProps {
   children: ReactNode;
+  theme: string;
 }
 
 function ToolbarA11yPatch() {

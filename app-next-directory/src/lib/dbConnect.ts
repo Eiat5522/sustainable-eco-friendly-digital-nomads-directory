@@ -29,7 +29,6 @@ async function dbConnect(): Promise<Mongoose> {
     const opts = {
       bufferCommands: false,
       tlsAllowInvalidCertificates: process.env.NODE_ENV === "development",
-      tls: true,
     };
 
     try {

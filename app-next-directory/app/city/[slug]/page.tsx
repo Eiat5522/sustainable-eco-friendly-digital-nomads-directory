@@ -1,52 +1,39 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import { CityDetailView } from '@/components/city/CityDetailView';
-import { mockCity, mockCityListings } from '@/components/city/cityDetailMockData';
 import type { CityDTO, ListingSummaryDTO } from '@/types/dto';
 
 interface Props {
   params: { slug: string };
 }
 
-export default function CityPage({ params }: Props) {
-  const { slug } = params;
-  const [city, setCity] = useState<CityDTO | null>(null);
-  const [listings, setListings] = useState<ListingSummaryDTO[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+async function getCityData(slug: string): Promise<{ city: CityDTO | null; listings: ListingSummaryDTO[] }> {
+  try {
+    const cityRes = await fetch(`http://localhost:3000/api/city/${slug}`);
+    if (!cityRes.ok) {
+      return { city: null, listings: [] };
+    }
+    const city: CityDTO = await cityRes.json();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await new Promise((res) => setTimeout(res, 500));
-        if (slug !== mockCity.slug) {
-          setError('City not found');
-          return;
-        }
-        setCity(mockCity);
-        setListings(mockCityListings);
-      } catch {
-        setError('Failed to fetch city');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [slug]);
+    const listingsRes = await fetch(`http://localhost:3000/api/listings/city/${city.id}`);
+    if (!listingsRes.ok) {
+      return { city, listings: [] };
+    }
+    const listings: ListingSummaryDTO[] = await listingsRes.json();
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="body-lg text-neo-text-secondary">Loading city details...</p>
-      </div>
-    );
+    return { city, listings };
+  } catch (error) {
+    console.error('Failed to fetch city data:', error);
+    return { city: null, listings: [] };
   }
+}
 
-  if (error || !city) {
+export default async function CityPage({ params }: Props) {
+  const { slug } = params;
+  const { city, listings } = await getCityData(slug);
+
+  if (!city) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="body-lg text-red-500">{error || 'City not found'}</p>
+        <p className="body-lg text-red-500">City not found</p>
       </div>
     );
   }
