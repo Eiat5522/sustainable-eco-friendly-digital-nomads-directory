@@ -27,7 +27,7 @@ type BlogApiResponse = {
 };
 
 async function getPosts(params: { page?: string; limit?: string; tag?: string; search?: string }): Promise<BlogApiResponse> {
-  const base = getBaseUrl();
+  const base = await getBaseUrl();
   const url = new URL('/api/blog', base);
   if (params.page) url.searchParams.set('page', params.page);
   if (params.limit) url.searchParams.set('limit', params.limit);
@@ -38,10 +38,13 @@ async function getPosts(params: { page?: string; limit?: string; tag?: string; s
   if (!res.ok) {
     throw new Error(`Failed to fetch posts: ${res.status} ${res.statusText}`);
   }
-  const json = await res.json();
+  const json: unknown = await res.json();
   // Prefer richer handler { success, data }
   if (json && typeof json === 'object' && 'success' in json) {
-    const data = (json as { data: BlogApiResponse }).data;
+    const { success, data } = json as { success?: boolean; data?: BlogApiResponse };
+    if (!success || !data || !Array.isArray(data.posts)) {
+      throw new Error('Blog API responded with success=false or missing/invalid data');
+    }
     return data;
   }
   // Fallback to legacy array-only response
@@ -67,8 +70,8 @@ export const metadata: Metadata = {
   description: 'Stories, tips, and sustainability insights for digital nomads.',
 };
 
-export default async function BlogPage({ searchParams }: { searchParams?: { page?: string; limit?: string; tag?: string; search?: string } }) {
-  const { page, limit, tag, search } = searchParams || {};
+export default async function BlogPage({ searchParams }: { searchParams?: Promise<{ page?: string; limit?: string; tag?: string; search?: string }> }) {
+  const { page, limit, tag, search } = (await searchParams) || {};
   const { posts, pagination } = await getPosts({ page, limit, tag, search });
 
   const uniqueTags = Array.from(

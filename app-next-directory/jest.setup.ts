@@ -1,24 +1,53 @@
-jest.mock('broadcast-channel', () => ({
-  BroadcastChannel: class BroadcastChannel {
+jest.mock('broadcast-channel', () => {
+  class BroadcastChannel {
+    name;
+    #listeners = new Set();
+    #onmessageHandler = null;
+    
     constructor(name) {
       this.name = name;
     }
-    postMessage(message) {}
-    close() {}
-  },
-}));
+    
+    postMessage(message) {
+      const event = { data: message, type: 'message' };
+      for (const l of this.#listeners) l(event);
+      if (this.#onmessageHandler) this.#onmessageHandler(event);
+    }
+    
+    addEventListener(type, listener) {
+      if (type === 'message') this.#listeners.add(listener);
+    }
+    
+    removeEventListener(type, listener) {
+      if (type === 'message') this.#listeners.delete(listener);
+    }
+    
+    set onmessage(fn) {
+      this.#onmessageHandler = fn;
+    }
+
+    get onmessage() {
+      return this.#onmessageHandler;
+    }
+    
+    close() {
+      this.#listeners.clear();
+    }
+  }
+  return { __esModule: true, BroadcastChannel, default: BroadcastChannel };
+});
 
 // jest.setup.ts
+import { jest } from '@jest/globals';
 import './jest.polyfills';
 import { TextEncoder, TextDecoder } from 'util';
 import '@testing-library/jest-dom';
-import { jest } from '@jest/globals';
 
 // Use `any` cast here to avoid TypeScript complaining about differences
 // between Node's util TextEncoder and the DOM/global TextEncoder types.
 // This is acceptable for test setup polyfills.
-;(global as any).TextEncoder = TextEncoder;
-;(global as any).TextDecoder = TextDecoder;
+if (!(global as any).TextEncoder) (global as any).TextEncoder = TextEncoder;
+if (!(global as any).TextDecoder) (global as any).TextDecoder = TextDecoder;
 
 // Polyfill NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET for tests
 process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'test-project';

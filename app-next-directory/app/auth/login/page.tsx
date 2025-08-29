@@ -1,33 +1,9 @@
-"use client";
-
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
 import Link from 'next/link';
-import { NeoInput } from '@/components/ui/neo-input';
-import { NeoButton } from '@/components/ui/neo-button';
 import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import SocialAuthRow from '@/components/auth/SocialAuthRow';
+import LoginForm from './LoginForm';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    const res = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    });
-    if (res?.error) {
-      setError(res.error);
-    } else {
-      window.location.href = '/';
-    }
-  };
-
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4">
       {/* Background accents */}
@@ -37,13 +13,12 @@ export default function LoginPage() {
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
         {/* Left panel */}
         <div className="hidden md:flex flex-col justify-center p-8 rounded-xl neo-card bg-gradient-to-br from-white to-neo-secondary/5">
-          <h2 className="heading-lg mb-3">Welcome back</h2>
+          <h2 className="heading-lg mb-3" id="welcome-heading">Welcome back</h2>
           <p className="body-md">Log in to manage your listings, save favorites, and discover eco-friendly spots for digital nomads.</p>
-          <div className="mt-8">
+          <div className="mt-8" aria-labelledby="social-signin-heading-left">
+            <h3 id="social-signin-heading-left" className="sr-only">Social sign-in options</h3>
             <SocialAuthRow />
-            <p className="sr-only">Social sign in options</p>
-          </div>
-        </div>
+          </div>        </div>
 
         {/* Auth card */}
         <NeoCard className="p-8 md:p-10">
@@ -51,32 +26,17 @@ export default function LoginPage() {
             <NeoCardTitle>Log in</NeoCardTitle>
           </NeoCardHeader>
           <NeoCardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <NeoInput
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <NeoInput
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              <NeoButton type="submit" className="w-full">Login</NeoButton>
-            </form>
+           <NeoCardContent>
+             <LoginForm />
+             <div className="mt-6 md:hidden" aria-labelledby="social-signin-heading-mobile">
+               <h3 id="social-signin-heading-mobile" className="sr-only">Social sign-in options</h3>
+               <SocialAuthRow />
+             </div>
 
-            <div className="mt-6">
-              <div className="relative flex items-center">
-                <div className="flex-1 h-px bg-neo-border" />
-                <span className="px-3 text-xs text-neo-text-secondary">or continue with</span>
-                <div className="flex-1 h-px bg-neo-border" />
-              </div>
-              <div className="mt-4">
-                <SocialAuthRow />
-              </div>
+             <p className="mt-6 text-sm text-center">
+            <div className="mt-6 md:hidden" aria-labelledby="social-signin-heading-mobile">
+              <h3 id="social-signin-heading-mobile" className="sr-only">Social sign-in options</h3>
+              <SocialAuthRow />
             </div>
 
             <p className="mt-6 text-sm text-center">
@@ -89,4 +49,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

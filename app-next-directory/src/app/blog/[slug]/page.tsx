@@ -12,7 +12,7 @@ import CommentList from '@/components/CommentList';
 import type { PortableTextBlock } from '@portabletext/types';
 
 async function getPost(slug: string): Promise<PostResponse> {
-  const url = new URL(`/api/blog/${encodeURIComponent(slug)}`, getBaseUrl());
+  const url = new URL(`/api/blog/${encodeURIComponent(slug)}`, await getBaseUrl());
   const res = await fetch(url.toString(), { next: { revalidate: 60, tags: [`post:${slug}`] } });
   if (res.status === 404) {
     notFound();
@@ -69,7 +69,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 export async function generateMetadata(
   { params }: { params: { slug: string } }
 ): Promise<Metadata> {
-  const base = getBaseUrl();
+  const base = await getBaseUrl();
   const url = new URL(`/api/blog/${encodeURIComponent(params.slug)}`, base);
   try {
     const res = await fetch(url.toString(), { next: { revalidate: 300 } });

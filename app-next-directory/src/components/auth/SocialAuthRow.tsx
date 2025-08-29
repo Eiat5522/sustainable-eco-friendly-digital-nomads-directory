@@ -19,17 +19,17 @@ const Icons = {
     </svg>
   ),
   facebook: (
-    <svg viewBox="0 0 24 24" aria-hidden className="w-5 h-5">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5">
       <path fill="currentColor" d="M13.5 8.5V7.1c0-.62.41-1.02 1.03-1.02h1.47V3.5h-2.5c-2.07 0-3.5 1.44-3.5 3.6v1.4H8v2.6h1.99V20h3.01v-8.9h2.2l.3-2.6h-2.5z"/>
     </svg>
   ),
   twitterx: (
-    <svg viewBox="0 0 24 24" aria-hidden className="w-5 h-5">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5">
       <path fill="currentColor" d="M18.9 2.5h3.1l-6.78 7.75 7.96 11.25H17.3l-4.96-6.59-5.68 6.59H2.5l7.24-8.4L2 2.5h6.02l4.49 6.01 6.39-6.01z"/>
     </svg>
   ),
   microsoft: (
-    <svg viewBox="0 0 24 24" aria-hidden className="w-5 h-5">
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="w-5 h-5">
       <path fill="#F25022" d="M3 3h8v8H3z"/>
       <path fill="#7FBA00" d="M13 3h8v8h-8z"/>
       <path fill="#00A4EF" d="M3 13h8v8H3z"/>
@@ -47,17 +47,29 @@ const PROVIDERS: Provider[] = [
 
 export function SocialAuthRow({
   providers = PROVIDERS,
-}: { providers?: Provider[] }) {
+}: Readonly<{ providers?: Provider[] }>) {
+  const [pending, setPending] = React.useState<string | null>(null);
   return (
     <div className="flex items-center justify-center gap-3">
       {providers.map((p) => (
         <button
+          type="button"
           key={p.id}
-          onClick={() => signIn(p.id)}
+          onClick={async () => {
+            try {
+              setPending(p.id);
+              await signIn(p.id);
+            } finally {
+              // Probably navigates away, but safe fallback:
+              setPending(null);
+            }
+          }}
+          disabled={pending === p.id}
+          aria-disabled={pending === p.id}
           title={`Continue with ${p.name}`}
           aria-label={`Continue with ${p.name}`}
-          className="neo-button neo-button-hover rounded-full w-12 h-12 flex items-center justify-center"
-          style={{ backgroundColor: p.color, color: p.fg || "inherit" }}
+          className="neo-button neo-button-hover rounded-full w-12 h-12 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-black/50"
+          style={{ backgroundColor: p.color, color: p.fg ?? '#111827' }}
         >
           {p.icon}
         </button>

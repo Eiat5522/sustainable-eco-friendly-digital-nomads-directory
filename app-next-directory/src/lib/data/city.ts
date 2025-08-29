@@ -11,6 +11,7 @@ function toCityDTO(raw: any): CityDTO | null {
     ? Math.max(0, Math.min(100, raw.sustainabilityScore))
     : undefined;
 
+  const dim = raw.primaryImage?.asset?.metadata?.dimensions;
   return {
     id: raw._id,
     name: raw.name,
@@ -19,7 +20,10 @@ function toCityDTO(raw: any): CityDTO | null {
     sustainabilityScore: sustainability as CityDTO['sustainabilityScore'],
     highlights: Array.isArray(raw.highlights) ? raw.highlights : [],
     imageUrl: raw.primaryImage?.asset?.url ?? undefined,
-    imageDimensions: raw.primaryImage?.asset?.metadata?.dimensions ?? undefined,
+    imageDimensions: dim && typeof dim === 'object'
+      ? { width: typeof dim.width === 'number' ? dim.width : undefined,
+          height: typeof dim.height === 'number' ? dim.height : undefined }
+      : undefined,
     description: raw.description ?? undefined,
   };
 }

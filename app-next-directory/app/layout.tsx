@@ -21,7 +21,7 @@ export default async function RootLayout({
 }>) {
   // Sanitize and whitelist the theme cookie
   type Theme = 'light' | 'dark' | 'system'
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const rawTheme = cookieStore.get('theme')?.value?.toLowerCase()?.trim()
 
 
