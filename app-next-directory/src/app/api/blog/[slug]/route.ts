@@ -18,7 +18,11 @@ export async function GET(
     }
 
     const comments = await client.fetch(
-      groq`*[_type == "comment" && post._ref == $postId] | order(createdAt asc)`,
+      groq`*[_type == "comment" && post._ref == $postId && approved == true] | order(createdAt asc) {
+        _id,
+        content,
+        user->{ name }
+      }`,
       { postId: post._id }
     );
 

@@ -8,9 +8,10 @@ import { cn } from '@/lib/utils';
 interface VenueCardProps {
   venue: FeaturedListingDTO;
   className?: string;
+  priority?: boolean;
 }
 
-export function VenueCard({ venue, className }: Readonly<VenueCardProps>) {
+export function VenueCard({ venue, className, priority = false }: Readonly<VenueCardProps>) {
   return (
     <Link href={`/listings/${venue.slug}`} className="block">
       <NeoCard 
@@ -30,6 +31,7 @@ export function VenueCard({ venue, className }: Readonly<VenueCardProps>) {
               fill
               sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
               className="object-cover group-hover:scale-105 transition-transform duration-300"
+              priority={priority}
             />
           )}
         </div>

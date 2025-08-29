@@ -3,6 +3,7 @@ import { client } from '@/lib/sanity/client';
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
 import { authOptions } from '@/lib/auth';
+import { revalidateTag } from 'next/cache';
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -39,6 +40,15 @@ export async function POST(request: Request) {
       content,
       approved: false,
     });
+    // Attempt to revalidate the post page cache using tag if slug present
+    const postSlug = (postDoc as any)?.slug?.current as string | undefined;
+    if (postSlug) {
+      try {
+        revalidateTag(`post:${postSlug}`);
+      } catch {
+        // ignore if not in a revalidatable context
+      }
+    }
 
     return NextResponse.json(newComment);
   } catch (error) {

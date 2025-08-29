@@ -1,16 +1,26 @@
-// jest.setup.ts
-// Removed web-streams-polyfill/ponyfill import as it caused issues
+jest.mock('broadcast-channel', () => ({
+  BroadcastChannel: class BroadcastChannel {
+    constructor(name) {
+      this.name = name;
+    }
+    postMessage(message) {}
+    close() {}
+  },
+}));
 
+// jest.setup.ts
+import './jest.polyfills';
+import { TextEncoder, TextDecoder } from 'util';
 import '@testing-library/jest-dom';
 import { jest } from '@jest/globals';
-// Polyfill for TextEncoder and TextDecoder for Jest environment
-// Using web-streams-polyfill/ponyfill directly as constructors
-if (typeof global.TextEncoder === 'undefined') {
-  global.TextEncoder = require('web-streams-polyfill/ponyfill').TextEncoder;
-}
-if (typeof global.TextDecoder === 'undefined') {
-  global.TextDecoder = require('web-streams-polyfill/ponyfill').TextDecoder;
-}
+
+// Use `any` cast here to avoid TypeScript complaining about differences
+// between Node's util TextEncoder and the DOM/global TextEncoder types.
+// This is acceptable for test setup polyfills.
+;(global as any).TextEncoder = TextEncoder;
+;(global as any).TextDecoder = TextDecoder;
+
+// Polyfill NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET for tests
 process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'test-project';
 process.env.NEXT_PUBLIC_SANITY_DATASET = process.env.NEXT_PUBLIC_SANITY_DATASET || 'test-dataset';
 
@@ -19,25 +29,6 @@ try {
   require('whatwg-fetch');
 } catch (e) {
   console.warn('whatwg-fetch polyfill not applied:', e);
-}
-
-// Polyfill ReadableStream and TransformStream for Next.js 15 API routes
-// Using global objects if available, otherwise relying on environment.
-
-if (typeof global.ReadableStream === 'undefined') {
-  try {
-    global.ReadableStream = require('web-streams-polyfill/ponyfill').ReadableStream;
-  } catch (e) {
-    console.warn('web-streams-polyfill for ReadableStream not applied:', e);
-  }
-}
-
-if (typeof global.TransformStream === 'undefined') {
-  try {
-    global.TransformStream = require('web-streams-polyfill/ponyfill').TransformStream;
-  } catch (e) {
-    console.warn('web-streams-polyfill for TransformStream not applied:', e);
-  }
 }
 
 // Polyfill for Request, Response, Headers for Next.js API route tests (node-fetch fallback)

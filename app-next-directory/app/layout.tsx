@@ -14,14 +14,20 @@ export const metadata: Metadata = {
 
 import ClientRootLayout from './ClientRootLayout'
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   // Sanitize and whitelist the theme cookie
   type Theme = 'light' | 'dark' | 'system'
-  const rawTheme = cookies().get('theme')?.value?.toLowerCase().trim()
+  const cookieStore = cookies()
+  const rawTheme = cookieStore.get('theme')?.value?.toLowerCase()?.trim()
+
+
+
+
+
   const theme: Theme =
     rawTheme === 'light' || rawTheme === 'dark' || rawTheme === 'system'
       ? (rawTheme as Theme)

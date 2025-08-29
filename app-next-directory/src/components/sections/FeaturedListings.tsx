@@ -56,10 +56,11 @@ export function FeaturedListings() {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {listings.map((listing) => (
+          {listings.map((listing, index) => (
             <VenueCard 
               key={listing.id} 
               venue={listing}
+              priority={index < 3}
             />
           ))}
         </div>

@@ -36,7 +36,7 @@ export function Header() {
             <Link href="/about" className="body-md hover:text-neo-primary font-semibold transition-colors">
               About us
             </Link>
-            <Link href="/contact" className="body-md hover:text-neo-primary font-semibold transition-colors">
+            <Link href="/contact-us" className="body-md hover:text-neo-primary font-semibold transition-colors">
               Contact us
             </Link>
             <div className="w-8 h-8 bg-neo-primary rounded-full flex items-center justify-center">

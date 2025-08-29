@@ -149,6 +149,7 @@
     "@types/node": "^20.19.11",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "broadcast-channel": "^7.1.0",
     "comment-json": "^4.2.5",
     "env-cmd": "^11.0.0",
     "jest": "^30.1.0",

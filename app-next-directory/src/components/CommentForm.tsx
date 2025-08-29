@@ -9,6 +9,7 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [content, setContent] = useState('');
+  const [submitted, setSubmitted] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,6 +42,7 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
 
       if (res.ok) {
         setContent('');
+        setSubmitted(true);
         router.refresh();
       } else {
         console.error(`Failed to submit comment: ${res.status} ${res.statusText}`, await res.text());
@@ -74,6 +76,9 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
       >
         Submit Comment
       </button>
+      {submitted && (
+        <p className="mt-3 text-sm text-gray-600">Thanks! Your comment was submitted and awaits approval.</p>
+      )}
     </form>
   );
 }

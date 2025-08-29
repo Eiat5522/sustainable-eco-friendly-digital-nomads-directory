@@ -33,7 +33,7 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
     sustainabilityScore,
     highlights,
     description,
-    primaryImage: primaryImage{
+    "primaryImage": primaryImage{
       asset->{
         url,
         metadata{ dimensions }
@@ -84,7 +84,7 @@ export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
     sustainabilityScore,
     highlights,
     description,
-    primaryImage: primaryImage{
+    "primaryImage": primaryImage{
       asset->{
         url,
         metadata{ dimensions }

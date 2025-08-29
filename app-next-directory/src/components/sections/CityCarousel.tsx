@@ -15,12 +15,20 @@ export function CityCarousel() {
   const [error, setError] = useState<string | null>(null);
   const [isHovered, setIsHovered] = useState(false);
 
-  useEffect(() => {
-    const announcer = document.getElementById('carousel-announcer');
-    if (announcer && cities.length > 0) {
-      announcer.textContent = `Now viewing ${cities[currentIndex].name}`;
-    }
-  }, [currentIndex, cities]);
+  // Carousel index state and stable IDs
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const id = useId();
+  const trackId = `city-carousel-${id}-track`;
+  const announcerRef = React.useRef<HTMLDivElement>(null);
+
+useEffect(() => {
+  if (currentIndex < 0 || currentIndex >= cities.length) return;
+  const el = announcerRef.current;
+  if (el) {
+    el.textContent = `Now viewing ${cities[currentIndex].name} (${currentIndex + 1} of ${cities.length})`;
+  }
+}, [currentIndex, cities]);
+
 
   // Slider metrics (keep in sync with w-80 and gap-8)
   const CARD_WIDTH = 320;
@@ -72,7 +80,6 @@ export function CityCarousel() {
       >
         <div
           className="container mx-auto px-4 text-center"
-          role="status"
           aria-live="polite"
         >
           <p className="body-lg">Loading cities…</p>
@@ -96,7 +103,9 @@ export function CityCarousel() {
   return (
     <section className="py-16 bg-gradient-to-r from-green-50 to-blue-50">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center mb-8">
+        {/* Live region for screen readers */}
+        <div id={announcerId} className="sr-only" aria-live="polite" aria-atomic="true" />
+        {/* Liv        <div className="flex justify-between items-center mb-8">
           <div>
             <h2 className="heading-lg">Featured Cities</h2>
             <p className="body-lg text-neo-text-secondary">
@@ -162,7 +171,10 @@ export function CityCarousel() {
                 key={city.id}
                 role="listitem"
                 aria-hidden={!isActive}
-            +                className={`w-80 flex-none group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 overflow-hidden ${!isActive ? 'pointer-events-none opacity-60' : ''}`}
+                aria-current={isActive ? 'true' : undefined}
+                aria-roledescription="slide"
+                aria-label={`${idx + 1} of ${cities.length}`}                
+                className={`w-80 flex-none group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 overflow-hidden ${!isActive ? 'pointer-events-none opacity-60' : ''}`}
               >
                 <div className="relative h-56 -m-6 mb-4">
                   {city.imageUrl ? (

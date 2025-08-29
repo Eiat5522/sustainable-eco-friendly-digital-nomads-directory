@@ -52,8 +52,8 @@ test.describe('Cross-Browser Compatibility Testing', () => {
         await page.click('a[href="/about"]');
         await expect(page).toHaveURL(/.*\/about/);
 
-        await page.click('a[href="/contact"]');
-        await expect(page).toHaveURL(/.*\/contact/);
+        await page.click('a[href="/contact-us"]');
+        await expect(page).toHaveURL(/.*\/contact-us/);
       });
     });
   });
@@ -392,7 +392,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       await page.click('a[href="/search"]');
       await page.waitForLoadState('networkidle');
 
-      await page.click('a[href="/contact"]');
+      await page.click('a[href="/contact-us"]');
       await page.waitForLoadState('networkidle');
 
       // Should not have JavaScript errors

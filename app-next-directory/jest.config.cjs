@@ -13,7 +13,7 @@ module.exports = {
     customExportConditions: ['node', 'node-addons'],
   },
   transform: {
-    '^.+\\.(t|j)sx?$': ['@swc/jest', {
+    "^.+\\.(t|j)sx?$": ['@swc/jest', {
       jsc: {
         transform: {
           react: {
@@ -27,22 +27,23 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
   moduleNameMapper: {
-    '^tree-sitter-.*$': '<rootDir>/__mocks__/tree-sitter.js',
-    '^@/app/api/listings/route$': '<rootDir>/__mocks__/app/api/listings/route.js',
-    '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
-    '^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.js',
-    '^next-auth/jwt$': '<rootDir>/__mocks__/next-auth/jwt.js',
-    '^next-auth/providers/credentials$': '<rootDir>/__mocks__/next-auth/providers/credentials.js',
-    '^@/__mocks__/(.*)$': '<rootDir>/__mocks__/$1',
-    'node-fetch': '<rootDir>/__mocks__/node-fetch.js',
-    'leaflet/dist/leaflet.css$': '<rootDir>/__mocks__/leaflet/dist/leaflet.css.js',
-    'leaflet.markercluster/dist/MarkerCluster.css$': '<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.css.js',
-    'leaflet.markercluster/dist/MarkerCluster.Default.css$': '<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.Default.css.js',
-    '\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',
+    "^server-only$": "<rootDir>/__mocks__/server-only.js",
+    "^tree-sitter-.*$": "<rootDir>/__mocks__/tree-sitter.js",
+    "^@/app/api/listings/route$": "<rootDir>/__mocks__/app/api/listings/route.js",
+    "^next-auth$": "<rootDir>/__mocks__/next-auth.js",
+    "^next-auth/react$": "<rootDir>/__mocks__/next-auth/react.js",
+    "^next-auth/jwt$": "<rootDir>/__mocks__/next-auth/jwt.js",
+    "^next-auth/providers/credentials$": "<rootDir>/__mocks__/next-auth/providers/credentials.js",
+    "^@/__mocks__/(.*)$": "<rootDir>/__mocks__/$1",
+    "node-fetch": "<rootDir>/__mocks__/node-fetch.js",
+    "leaflet/dist/leaflet.css$": "<rootDir>/__mocks__/leaflet/dist/leaflet.css.js",
+    "leaflet.markercluster/dist/MarkerCluster.css$": "<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.css.js",
+    "leaflet.markercluster/dist/MarkerCluster.Default.css$": "<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.Default.css.js",
+    "\\.(css|less|scss|sass)$": "<rootDir>/__mocks__/styleMock.js",
     ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(next-auth|@auth|jose)/)',
+    '/node_modules/(?!(next-auth|@auth|jose|broadcast-channel)/)',
   ],
   testPathIgnorePatterns: [
     '/playwright/',
