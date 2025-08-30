@@ -1,3 +1,5 @@
+// app-next-directory/src/lib/absolute-url.ts
+import 'server-only'
 import { headers } from 'next/headers'
 
 /**
@@ -18,9 +20,13 @@ export async function getBaseUrl(): Promise<string> {
     // headers() not available outside request context; fall through to env
   }
 
-  return (
+  const envUrl =
     process.env.NEXT_PUBLIC_FRONTEND_URL?.trim() ||
     process.env.NEXTAUTH_URL?.trim() ||
-    'http://localhost:3000'
-  )
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '')
+  try {
+    return new URL(envUrl).origin
+  } catch {
+    return 'http://localhost:3000'
+  }
 }

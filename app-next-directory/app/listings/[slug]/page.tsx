@@ -22,7 +22,8 @@ async function getListingData(slug: string): Promise<ListingDetailDTO | null> {
 }
 
 export default async function ListingPage({ params }: Props) {
-  const { slug } = params;
+  // Support Next 14 (sync) and Next 15 (async) params
+  const { slug } = await Promise.resolve(params as unknown as { slug: string });
   const listing = await getListingData(slug);
 
   if (!listing) {

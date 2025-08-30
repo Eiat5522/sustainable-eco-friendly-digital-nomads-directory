@@ -46,8 +46,10 @@ async function getPost(slug: string): Promise<PostResponse> {
    comments: Comment[];
  };
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const { post, comments } = await getPost(params.slug);
+export default async function BlogPostPage({ params }: Readonly<{ params: { slug: string } }>) {
+  // Support Next 14 (sync) and Next 15 (async) params
+  const { slug } = await Promise.resolve(params as unknown as { slug: string });
+  const { post, comments } = await getPost(slug);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -70,7 +72,8 @@ export async function generateMetadata(
   { params }: { params: { slug: string } }
 ): Promise<Metadata> {
   const base = await getBaseUrl();
-  const url = new URL(`/api/blog/${encodeURIComponent(params.slug)}`, base);
+  const { slug } = await Promise.resolve(params as unknown as { slug: string });
+  const url = new URL(`/api/blog/${encodeURIComponent(slug)}`, base);
   try {
     const res = await fetch(url.toString(), { next: { revalidate: 300 } });
     if (res.status === 404) return { title: 'Post not found' };
@@ -101,7 +104,7 @@ export async function generateMetadata(
         title: title || 'Blog',
         description: description || undefined,
         type: 'article',
-        url: new URL(`/blog/${params.slug}`, base).toString(),
+        url: new URL(`/blog/${slug}`, base).toString(),
         images: absoluteImage ? [{ url: absoluteImage }] : undefined,
       },
       twitter: {

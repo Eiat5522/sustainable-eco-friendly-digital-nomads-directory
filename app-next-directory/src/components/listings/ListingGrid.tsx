@@ -8,6 +8,14 @@ interface ListingGridProps {
 }
 
 export function ListingGrid({ listings }: ListingGridProps) {
+  if (!Array.isArray(listings) || listings.length === 0) {
+    return (
+      <div className="text-center text-neo-text-secondary py-12">
+        No listings found for this city yet.
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {listings.map((listing) => (

@@ -70,8 +70,10 @@ export const metadata: Metadata = {
   description: 'Stories, tips, and sustainability insights for digital nomads.',
 };
 
-export default async function BlogPage({ searchParams }: { searchParams?: Promise<{ page?: string; limit?: string; tag?: string; search?: string }> }) {
-  const { page, limit, tag, search } = (await searchParams) || {};
+export default async function BlogPage({ searchParams }: Readonly<{ searchParams?: { page?: string; limit?: string; tag?: string; search?: string } }>) {
+  // Support Next 14 (sync) and Next 15 (async) searchParams
+  const sp = await Promise.resolve((searchParams ?? {}) as any);
+  const { page, limit, tag, search } = sp as { page?: string; limit?: string; tag?: string; search?: string };
   const { posts, pagination } = await getPosts({ page, limit, tag, search });
 
   const uniqueTags = Array.from(

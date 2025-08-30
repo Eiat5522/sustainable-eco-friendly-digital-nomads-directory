@@ -56,24 +56,37 @@ export default function SignupPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <NeoInput
                 type="text"
+                id="name"
+                name="name"
                 placeholder="Name"
+                autoComplete="name"
+                autoFocus
+                required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
               <NeoInput
                 type="email"
+                id="email"
+                name="email"
                 placeholder="Email"
+                autoComplete="email"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <NeoInput
                 type="password"
+                id="password"
+                name="password"
                 placeholder="Password"
-                value={password}
+                autoComplete="new-password"
+                minLength={8}
+                required
                 onChange={(e) => setPassword(e.target.value)}
               />
               {error && (
-                <p className="text-red-500 text-sm" role="alert" aria-live="polite">
+                <p className="text-red-500 text-sm" role="alert" aria-live="assertive" aria-atomic="true">
                   {error}
                 </p>
               )}

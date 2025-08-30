@@ -1,11 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
 import { Search, Mic } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export function HeroSection() {
+  const [q, setQ] = useState('');
+  const router = useRouter();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = q.trim();
+    if (!query) return;
+    router.push(`/search?q=${encodeURIComponent(query)}`);
+  };
   return (
     <section
       className="relative min-h-[600px] bg-gradient-to-br from-neo-primary via-blue-600 to-blue-800 overflow-hidden"
@@ -45,7 +55,7 @@ export function HeroSection() {
           </p>
 
           {/* Search Bar */}
-          <div className="relative max-w-2xl mx-auto mb-8">
+          <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto mb-8">
             <div className="relative">
               <Search
                 aria-hidden="true"
@@ -58,7 +68,13 @@ export function HeroSection() {
                 aria-label="Search venues"
                 placeholder="Search 3,200+ sustainable venues"
                 className="pl-12 pr-16 h-16 text-lg bg-white"
+                name="q"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
               />
+              <NeoButton type="submit" className="absolute right-12 top-1/2 -translate-y-1/2" size="md">
+                Search
+              </NeoButton>
               <button
                 type="button"
                 aria-label="Start voice search"
@@ -74,7 +90,7 @@ export function HeroSection() {
                 />
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </section>

@@ -9,7 +9,8 @@ export const revalidate = 300;
 type Props = { params: { slug: string } };
 
 export default async function CityPage({ params }: Props) {
-  const { slug } = params;
+  // Support Next 14 (sync) and Next 15 (async) params
+  const { slug } = await Promise.resolve(params as unknown as { slug: string });
 
   // Fetch city data via shared data layer; validate at runtime
   const rawCity: CityDTO | null = await getCityBySlug(slug);

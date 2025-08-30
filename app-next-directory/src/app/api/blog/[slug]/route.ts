@@ -18,9 +18,15 @@ export async function GET(
     }
 
     const comments = await client.fetch(
-      groq`*[_type == "comment" && post._ref == $postId && approved == true] | order(createdAt asc) {
+      groq`*[
+        _type == "comment" &&
+        post._ref == $postId &&
+        approved == true &&
+        !(_id in path("drafts.**"))
+      ] | order(coalesce(createdAt, _createdAt) asc) {
         _id,
         content,
+        "createdAt": coalesce(createdAt, _createdAt),
         user->{ name }
       }`,
       { postId: post._id }
