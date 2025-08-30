@@ -5,8 +5,8 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
-import { Search } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Search, MapPin, Building2, Home, Wifi, Shield, Key } from 'lucide-react';
+import { FilterMultiSelect, Option } from '@/components/ui/filter-multi-select';
 
 
 type SearchResult = Record<string, unknown>; // TODO: narrow shape when API is wired
@@ -16,18 +16,43 @@ export default function SearchPage() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+  const [selectedCities, setSelectedCities] = useState<string[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+
+  const cityOptions: Option[] = [
+    { value: 'Bangkok', label: 'Bangkok', icon: MapPin },
+    { value: 'Phuket', label: 'Phuket', icon: MapPin },
+  ];
+
+  const typeOptions: Option[] = [
+    { value: 'coworking', label: 'Coworking Space', icon: Building2 },
+    { value: 'accommodation', label: 'Accommodation', icon: Home },
+  ];
+
+  const amenityOptions: Option[] = [
+    { value: 'wifi', label: 'Free Wifi', icon: Wifi },
+    { value: 'security', label: '24 hrs Security', icon: Shield },
+    { value: 'keycard', label: 'Key Card Access', icon: Key },
+  ];
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!searchTerm) return;
 
     setHasSearched(true);
     setLoading(true);
     try {
-      // In a real app, call /api/search?q=${encodeURIComponent(searchTerm)} with AbortController
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setResults([]); // Replace with actual search results
+      const params = new URLSearchParams();
+      if (searchTerm.trim()) {
+        params.set('q', searchTerm.trim());
+      }
+      selectedCities.forEach((c) => params.append('destination', c));
+      selectedTypes.forEach((t) => params.append('category', t));
+      selectedAmenities.forEach((a) => params.append('amenities', a));
+
+      const response = await fetch(`/api/search?${params.toString()}`);
+      const data = await response.json();
+      setResults(data?.data?.results || []);
     } catch (err) {
       console.error('Search failed', err);
     } finally {
@@ -42,7 +67,7 @@ export default function SearchPage() {
         <h1 className="heading-xl mb-8 text-center">Search for Sustainable Venues</h1>
         <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
           <div className="relative">
-            <label htmlFor="search-page-input" className="sr-only">Search venues</label>  
+            <label htmlFor="search-page-input" className="sr-only">Search venues</label>
             <Search
               aria-hidden="true"
               focusable="false"
@@ -56,7 +81,6 @@ export default function SearchPage() {
               className="pl-12 pr-16 h-16 text-lg"
               type="search"
               name="q"
-              required
               autoComplete="on"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -69,6 +93,29 @@ export default function SearchPage() {
             >
               Search
             </NeoButton>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-4">
+            <FilterMultiSelect
+              label="Select cities"
+              options={cityOptions}
+              selected={selectedCities}
+              onChange={setSelectedCities}
+              triggerIcon={MapPin}
+            />
+            <FilterMultiSelect
+              label="Select workspace types"
+              options={typeOptions}
+              selected={selectedTypes}
+              onChange={setSelectedTypes}
+              triggerIcon={Building2}
+            />
+            <FilterMultiSelect
+              label="Select amenities"
+              options={amenityOptions}
+              selected={selectedAmenities}
+              onChange={setSelectedAmenities}
+              triggerIcon={Wifi}
+            />
           </div>
         </form>
 

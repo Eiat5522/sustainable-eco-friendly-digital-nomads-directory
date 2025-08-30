@@ -20,6 +20,22 @@ export interface CityDTO {
   description?: string;
 }
 
+// Extended DTO for city detail pages with additional information
+export interface CityDetailDTO extends CityDTO {
+  // Additional detail fields
+  shortDescription?: string;
+  airQuality?: string;
+  internetSpeed?: number;
+  costOfLiving?: string;
+  climate?: string;
+  safety?: string;
+  walkability?: string;
+  sustainabilityInitiatives?: string[];
+  digitalNomadFeatures?: string[];
+  galleryImages?: string[];
+  coordinates?: GeoPoint;
+}
+
 export interface AmenityDTO {
   id: string;
   name: string;
@@ -36,7 +52,7 @@ export interface BaseListingDTO {
   type: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities';
   city: CityDTO | null;
   imageUrl?: string;
-  ecoFocusTag?: string[];
+  ecoFocusTags?: string[];
   digitalNomadFeatures?: string[];
   priceRange?: 'budget' | 'moderate' | 'premium';
   website?: string;
@@ -73,8 +89,6 @@ export type OpeningHour = { day: string; opens: string; closes: string };
 export interface ListingSummaryDTO extends BaseListingDTO {
   shortDescription?: string;
   amenityNames?: string[]; // Just names for display
-  ecoFocusTag?: string[];
-  digitalNomadFeatures?: string[];
 }
 
 // Featured listings DTO (minimal fields for homepage)

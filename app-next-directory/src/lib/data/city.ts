@@ -1,8 +1,41 @@
 import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import { transformToSummaryDTO } from '@/lib/dto-transformer';
-import type { CityDTO, ListingSummaryDTO } from '@/types/dto';
-import type { SanityListing } from '@/types/sanity.types';
+import type { CityDTO, CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
+
+// Input shape for dereferenced Sanity data from GROQ queries
+interface DereferencedSanityListing {
+  _id: string;
+  name: string;
+  slug: { current: string };
+  type: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities';
+  shortDescription?: string;
+  address?: string;
+  location?: { lat: number; lng: number };
+  priceRange?: 'budget' | 'moderate' | 'premium';
+  website?: string;
+  primaryImage?: any;
+  galleryImages?: any[];
+  ecoFocusTags?: Array<{ name: string }>;
+  digitalNomadFeatures?: Array<{ name: string }>;
+  amenities?: Array<{ name: string }>;
+  city?: {
+    _id: string;
+    name: string;
+    country: string;
+    sustainabilityScore?: number;
+    highlights?: string[];
+    slug: { current: string };
+  };
+}
+
+// Sanitize Sanity geopoint input to ensure consumers get { lat, lng } or undefined
+function toGeoPoint(geo?: { lat?: number; lng?: number } | null): { lat: number; lng: number } | undefined {
+  if (geo && typeof geo.lat === 'number' && typeof geo.lng === 'number' && !isNaN(geo.lat) && !isNaN(geo.lng)) {
+    return { lat: geo.lat, lng: geo.lng };
+  }
+  return undefined;
+}
 
 // Map raw Sanity city to CityDTO
 function toCityDTO(raw: any): CityDTO | null {
@@ -31,6 +64,31 @@ function toCityDTO(raw: any): CityDTO | null {
   };
 }
 
+// Map raw Sanity city to CityDetailDTO (extends CityDTO with additional fields)
+function toCityDetailDTO(raw: any): CityDetailDTO | null {
+  if (!raw || typeof raw !== 'object') return null;
+
+  // Get base CityDTO fields
+  const baseCity = toCityDTO(raw);
+  if (!baseCity) return null;
+
+  // Add additional detail fields
+  return {
+    ...baseCity,
+    shortDescription: raw.shortDescription ?? undefined,
+    airQuality: raw.airQuality ?? undefined,
+    internetSpeed: typeof raw.internetSpeed === 'number' ? raw.internetSpeed : undefined,
+    costOfLiving: raw.costOfLiving ?? undefined,
+    climate: raw.climate ?? undefined,
+    safety: raw.safety ?? undefined,
+    walkability: raw.walkability ?? undefined,
+    sustainabilityInitiatives: Array.isArray(raw.sustainabilityInitiatives) ? raw.sustainabilityInitiatives : [],
+    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures) ? raw.digitalNomadFeatures : [],
+    galleryImages: Array.isArray(raw.galleryImages) ? raw.galleryImages : [],
+    coordinates: toGeoPoint(raw.location),
+  };
+}
+
 export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
   const query = groq`*[_type == "city" && slug.current == $slug][0]{
     _id,
@@ -50,6 +108,38 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
 
   const raw = await client.fetch(query, { slug } as Record<string, unknown>);
   return toCityDTO(raw);
+}
+
+export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO | null> {
+  const query = groq`*[_type == "city" && slug.current == $slug][0]{
+    _id,
+    name,
+    "slug": slug.current,
+    country,
+    sustainabilityScore,
+    highlights,
+    description,
+    shortDescription,
+    airQuality,
+    internetSpeed,
+    costOfLiving,
+    climate,
+    safety,
+    walkability,
+    sustainabilityInitiatives,
+    digitalNomadFeatures,
+    galleryImages,
+    location,
+    "primaryImage": primaryImage{
+      asset->{
+        url,
+        metadata{ dimensions }
+      }
+    }
+  }`;
+
+  const raw = await client.fetch(query, { slug } as Record<string, unknown>);
+  return toCityDetailDTO(raw);
 }
 
 export async function getListingsByCityId(cityId: string): Promise<ListingSummaryDTO[]> {
@@ -78,7 +168,7 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
     }
   }`;
 
-  const raws = await client.fetch<SanityListing[]>(query, { cityId } as Record<string, unknown>);
+  const raws = await client.fetch<DereferencedSanityListing[]>(query, { cityId } as Record<string, unknown>);
   return (Array.isArray(raws) ? raws : []).map(transformToSummaryDTO);
 }
 

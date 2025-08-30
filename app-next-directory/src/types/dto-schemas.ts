@@ -28,6 +28,21 @@ export const CityDTOSchema = z
   })
   .strict();
 
+// CityDetailDTO schema (extends CityDTO with additional fields)
+export const CityDetailDTOSchema = CityDTOSchema.extend({
+  shortDescription: z.string().optional(),
+  airQuality: z.string().optional(),
+  internetSpeed: z.number().optional(),
+  costOfLiving: z.string().optional(),
+  climate: z.string().optional(),
+  safety: z.string().optional(),
+  walkability: z.string().optional(),
+  sustainabilityInitiatives: z.array(z.string()).optional(),
+  digitalNomadFeatures: z.array(z.string()).optional(),
+  galleryImages: z.array(z.string()).optional(),
+  coordinates: GeoPointSchema.optional(),
+}).strict();
+
 // Enums
 export const ListingStatusDTOSchema = z.enum([
   'draft',
@@ -52,9 +67,9 @@ export const BaseListingDTOSchema = z
     type: z.enum(['coworking', 'cafe', 'accommodation', 'restaurant', 'activities']),
     city: CityDTOSchema.nullable(),
     imageUrl: z.string().optional(),
-    ecoFocusTag: z.array(z.string()).optional(),
+    ecoFocusTags: z.array(z.string()).optional(),
     digitalNomadFeatures: z.array(z.string()).optional(),
-    priceRange: z.enum(['budget', 'moderate', 'premium']).optional(),
+    priceRange: z.enum(['budget', 'moderate', 'premium']).nullable().optional(),
     website: z.string().url().optional(),
     address: z.string().optional(),
     location: GeoPointSchema.optional(),
@@ -76,6 +91,12 @@ export const ListingSummaryDTOArraySchema = z.array(ListingSummaryDTOSchema);
 // Helper parse functions with safe defaults
 export function parseCityDTO(input: unknown): { ok: true; data: z.infer<typeof CityDTOSchema> } | { ok: false; error: string } {
   const result = CityDTOSchema.safeParse(input);
+  if (result.success) return { ok: true, data: result.data };
+  return { ok: false, error: result.error.toString() };
+}
+
+export function parseCityDetailDTO(input: unknown): { ok: true; data: z.infer<typeof CityDetailDTOSchema> } | { ok: false; error: string } {
+  const result = CityDetailDTOSchema.safeParse(input);
   if (result.success) return { ok: true, data: result.data };
   return { ok: false, error: result.error.toString() };
 }

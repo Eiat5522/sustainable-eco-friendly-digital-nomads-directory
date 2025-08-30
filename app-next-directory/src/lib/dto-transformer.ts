@@ -1,7 +1,29 @@
-import { urlFor } from '@/lib/sanity/image';
-import type { ListingSummaryDTO, FeaturedListingDTO, ListingDetailDTO, Percentage0To100, Money, OpeningHour } from '@/types/dto';
-import type { SanityImage, SanityGalleryImage } from '@/types/appView';
-import type { SanityListing } from '@/types/sanity.types';
+// Input shape for dereferenced Sanity data from GROQ queries
+interface DereferencedSanityListing {
+  _id: string;
+  name: string;
+  slug: { current: string };
+  type: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities';
+  shortDescription?: string;
+  longDescription?: string;
+  address?: string;
+  location?: { lat: number; lng: number };
+  priceRange?: 'budget' | 'moderate' | 'premium';
+  website?: string;
+  primaryImage?: any;
+  galleryImages?: any[];
+  ecoFocusTags?: Array<{ name: string }>;
+  digitalNomadFeatures?: Array<{ name: string }>;
+  amenities?: Array<{ name: string }>;
+  city?: {
+    _id: string;
+    name: string;
+    country: string;
+    sustainabilityScore?: number;
+    highlights?: string[];
+    slug: { current: string };
+  };
+}
 const imageOrFallback = (img: unknown, w: number, h: number) =>
   img
     ? urlFor(img).width(w).height(h).fit('crop').auto('format').url()
@@ -69,8 +91,8 @@ const toAmenities = (
       category: a.category,
     }));
 
-export function transformToSummaryDTO(sanityListing: SanityListing): ListingSummaryDTO {
-const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
+export function transformToSummaryDTO(sanityListing: DereferencedSanityListing): ListingSummaryDTO {
+  const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
 
   return {
     id: sanityListing._id,
@@ -82,24 +104,25 @@ const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
       name: sanityListing.city.name,
       slug: sanityListing.city.slug?.current ?? '',
       country: sanityListing.city.country ?? '',
-      sustainabilityScore: toPercentage0To100(sanityListing.city.sustainabilityScore) as Percentage0To100 | undefined,      highlights: sanityListing.city.highlights,
-      description: sanityListing.city.description
+      sustainabilityScore: toPercentage0To100(sanityListing.city.sustainabilityScore) as Percentage0To100 | undefined,
+      highlights: sanityListing.city.highlights,
+      description: undefined // Not fetched in this query
     } : null,
     imageUrl,
     ecoFocusTags: (sanityListing.ecoFocusTags ?? [])
-      .map((tag: { name?: string } | null | undefined) => tag?.name)
-      .filter((name: unknown): name is string => typeof name === 'string' && name.length > 0),
+      .map((tag) => tag?.name)
+      .filter((name): name is string => typeof name === 'string' && name.length > 0),
     digitalNomadFeatures: (sanityListing.digitalNomadFeatures ?? [])
-      .map((feature: { name?: string } | null | undefined) => feature?.name)
-      .filter((name: unknown): name is string => typeof name === 'string' && name.length > 0),
+      .map((feature) => feature?.name)
+      .filter((name): name is string => typeof name === 'string' && name.length > 0),
     priceRange: sanityListing.priceRange,
     website: sanityListing.website,
     address: sanityListing.address,
     location: toGeoPoint(sanityListing.location),
     shortDescription: sanityListing.shortDescription,
     amenityNames: (sanityListing.amenities ?? [])
-      .map((a: { name?: string } | null | undefined) => a?.name)
-      .filter((name: unknown): name is string => typeof name === 'string' && name.length > 0),
+      .map((amenity) => amenity?.name)
+      .filter((name): name is string => typeof name === 'string' && name.length > 0),
   };
 }
 

@@ -76,6 +76,7 @@ export default function LoginForm() {
         </NeoButton>
       </form>
 
+
       <div className="mt-6" aria-labelledby="social-signin-heading">
         <div className="relative flex items-center">
           <div className="flex-1 h-px bg-neo-border" />
