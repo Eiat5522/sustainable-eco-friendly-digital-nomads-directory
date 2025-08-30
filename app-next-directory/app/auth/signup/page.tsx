@@ -7,6 +7,8 @@ import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
 import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import SocialAuthRow from '@/components/auth/SocialAuthRow';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
@@ -31,6 +33,8 @@ export default function SignupPage() {
   };
 
   return (
+    <>
+    <Header />
     <div className="relative min-h-screen flex items-center justify-center px-4">
       {/* Background accents */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-neo-secondary/10 via-white to-neo-primary/10" />
@@ -112,6 +116,8 @@ export default function SignupPage() {
         </NeoCard>
       </div>
     </div>
+    <Footer />
+    </>
   );
 }
 
