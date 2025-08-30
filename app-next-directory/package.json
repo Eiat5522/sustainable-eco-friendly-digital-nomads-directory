@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "preview": "next start"
+    "preview": "next start",
+    "validate:env": "node scripts/validate-env.js"
   },
   "dependencies": {
     "@21st-extension/react": "^0.5.14",

@@ -40,58 +40,72 @@ The application features a comprehensive search functionality with geo-search an
 
 *   **Development Server**:
     ```bash
-    npm run dev
+    pnpm dev
     ```
     The application will be available at `http://localhost:3000`.
 
 *   **Production Build**:
     ```bash
-    npm run build
+    pnpm run build
     ```
 
 *   **Start Production Server**:
     ```bash
-    npm run start
+    pnpm run start
     ```
 
 *   **Linting**:
     ```bash
-    npm run lint
+    pnpm run lint
     ```
 
 *   **Type Checking**:
     ```bash
-    npm run typecheck
+    pnpm tsc --noEmit
     ```
 
 *   **Testing**:
     *   Run all tests:
         ```bash
-        npm test
+        pnpm test
         ```
     *   Run tests in watch mode:
         ```bash
-        npm run test:watch
+        pnpm test:watch
         ```
     *   Generate test coverage report:
         ```bash
-        npm run test:coverage
+        pnpm test:coverage
         ```
     *   Run tests for CI environment:
         ```bash
-        npm run test:ci
+        pnpm test:ci
         ```
     *   Run Playwright E2E tests:
         ```bash
         npx playwright install --with-deps
-        npm run test:e2e
+        pnpm test:e2e
+        ```
+    *   Run Jest Unit tests:
+        ```bash
+        pnpm exec jest
+        ```
+    *   Run Jest Unit test coverage report
+        ```bash
+        pnpm exec jest --coverage
         ```
 
 *   **Sanity Codegen**:
+
+*   Extract Sanity schemas to schema.json file
     ```bash
-    npm run codegen:sanity
+    npx sanity schema extract
     ```
-    This command generates TypeScript types from your Sanity schema, which is crucial for maintaining type safety between the backend and frontend.
+    Generate TypeScript Types
+    ```bash
+    npx sanity typegen generate
+    ```
+    These commands first extract the latest version of Sanity schemas to generate schema.json file to be use for the types generation. The second command generates TypeScript types from your Sanity schema, which is crucial for maintaining type safety between the backend and frontend.
 
 ## Development Conventions
 
