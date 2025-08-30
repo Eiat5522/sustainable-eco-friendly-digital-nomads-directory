@@ -2,6 +2,8 @@
 import Link from 'next/link';
 import { getBaseUrl } from '@/lib/absolute-url';
 import type { Metadata } from 'next'
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 type Post = {
   _id: string;
@@ -83,6 +85,8 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
   ).slice(0, 20);
 
   return (
+    <>
+    <Header />
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-5xl font-extrabold text-center mb-6 text-gray-900">The Nomad's Chronicle</h1>
 
@@ -163,5 +167,7 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
         )}
       </div>
     </div>
+    <Footer />
+    </>
   );
 }
