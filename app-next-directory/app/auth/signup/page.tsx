@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
@@ -103,11 +102,6 @@ export default function SignupPage() {
                 <SocialAuthRow />
               </div>
             </div>
-
-            <p className="mt-6 text-sm text-center">
-              Already have an account?{' '}
-              <Link href="/auth/login" className="text-neo-primary hover:underline">Log in</Link>
-            </p>
           </NeoCardContent>
         </NeoCard>
       </div>
