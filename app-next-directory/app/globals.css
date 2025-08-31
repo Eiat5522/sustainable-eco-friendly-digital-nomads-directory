@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Lora:wght@400;700&display=swap');
 @import "tailwindcss";
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -49,75 +49,75 @@
 }
 
 :root {
-  --radius: 8px;
-  --background: #F8FAFC;
-  --foreground: #1F2937;
+  --radius: 0;
+  --background: #FFFFFF;
+  --foreground: #000000;
   --card: #FFFFFF;
-  --card-foreground: #1F2937;
+  --card-foreground: #000000;
   --popover: #FFFFFF;
-  --popover-foreground: #1F2937;
-  --primary: #4F46E5;
+  --popover-foreground: #000000;
+  --primary: #000000;
   --primary-foreground: #FFFFFF;
-  --secondary: #F59E0B;
-  --secondary-foreground: #1F2937;
-  --muted: #F1F5F9;
-  --muted-foreground: #6B7280;
-  --accent: #EF4444;
+  --secondary: #E5E5E5;
+  --secondary-foreground: #000000;
+  --muted: #F5F5F5;
+  --muted-foreground: #737373;
+  --accent: #000000;
   --accent-foreground: #FFFFFF;
   --destructive: #EF4444;
   --border: #000000;
   --input: #FFFFFF;
-  --ring: #4F46E5;
-  --chart-1: #4F46E5;
-  --chart-2: #F59E0B;
-  --chart-3: #10B981;
-  --chart-4: #EF4444;
-  --chart-5: #8B5CF6;
+  --ring: #000000;
+  --chart-1: #000000;
+  --chart-2: #333333;
+  --chart-3: #666666;
+  --chart-4: #999999;
+  --chart-5: #CCCCCC;
   --sidebar: #FFFFFF;
-  --sidebar-foreground: #1F2937;
-  --sidebar-primary: #4F46E5;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #000000;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F1F5F9;
-  --sidebar-accent-foreground: #1F2937;
+  --sidebar-accent: #F5F5F5;
+  --sidebar-accent-foreground: #000000;
   --sidebar-border: #000000;
-  --sidebar-ring: #4F46E5;
-  --neo-primary: #4F46E5;
-  --neo-secondary: #F59E0B;
-  --neo-accent: #EF4444;
+  --sidebar-ring: #000000;
+  --neo-primary: #000000;
+  --neo-secondary: #E5E5E5;
+  --neo-accent: #000000;
   --neo-success: #10B981;
   --neo-surface: #FFFFFF;
-  --neo-text-primary: #1F2937;
-  --neo-text-secondary: #6B7280;
+  --neo-text-primary: #000000;
+  --neo-text-secondary: #333333;
   --neo-border: #000000;
   --neo-shadow: #000000;
 }
 
 .dark {
-  --background: #0F172A;
-  --foreground: #F8FAFC;
-  --card: #1E293B;
-  --card-foreground: #F8FAFC;
-  --popover: #1E293B;
-  --popover-foreground: #F8FAFC;
-  --primary: #6366F1;
-  --primary-foreground: #F8FAFC;
-  --secondary: #FBBF24;
-  --secondary-foreground: #0F172A;
-  --muted: #334155;
-  --muted-foreground: #94A3B8;
-  --accent: #F87171;
-  --accent-foreground: #F8FAFC;
+  --background: #000000;
+  --foreground: #FFFFFF;
+  --card: #000000;
+  --card-foreground: #FFFFFF;
+  --popover: #000000;
+  --popover-foreground: #FFFFFF;
+  --primary: #FFFFFF;
+  --primary-foreground: #000000;
+  --secondary: #1A1A1A;
+  --secondary-foreground: #FFFFFF;
+  --muted: #0A0A0A;
+  --muted-foreground: #A3A3A3;
+  --accent: #FFFFFF;
+  --accent-foreground: #000000;
   --destructive: #F87171;
   --border: #FFFFFF;
-  --input: #1E293B;
-  --ring: #6366F1;
-  --neo-primary: #6366F1;
-  --neo-secondary: #FBBF24;
-  --neo-accent: #F87171;
+  --input: #000000;
+  --ring: #FFFFFF;
+  --neo-primary: #FFFFFF;
+  --neo-secondary: #1A1A1A;
+  --neo-accent: #FFFFFF;
   --neo-success: #34D399;
-  --neo-surface: #1E293B;
-  --neo-text-primary: #F8FAFC;
-  --neo-text-secondary: #94A3B8;
+  --neo-surface: #000000;
+  --neo-text-primary: #FFFFFF;
+  --neo-text-secondary: #CCCCCC;
   --neo-border: #FFFFFF;
   --neo-shadow: #FFFFFF;
 }
@@ -139,29 +139,29 @@
   }
   
   body {
-    @apply bg-background text-foreground font-sans;
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground font-serif;
+    font-family: 'Lora', serif;
   }
 }
 
 @utility neo-card {
-  @apply bg-neo-surface border-4 border-neo-border shadow-[8px_8px_0px_0px] shadow-neo-shadow;
+  @apply bg-neo-surface border-2 border-neo-border;
 }
 
 @utility neo-button {
-  @apply border-4 border-neo-border shadow-[4px_4px_0px_0px] shadow-neo-shadow font-bold transition-all duration-150;
+  @apply border-2 border-neo-border font-bold;
 }
 
 @utility neo-button-hover {
-  @apply hover:shadow-[2px_2px_0px_0px] hover:translate-x-[2px] hover:translate-y-[2px];
+  @apply hover:bg-neo-border hover:text-neo-surface;
 }
 
 @utility neo-input {
-  @apply border-4 border-neo-border bg-neo-surface shadow-[inset_4px_4px_0px_0px] shadow-neo-shadow/20;
+  @apply border-2 border-neo-border bg-neo-surface;
 }
 
 @utility heading-display {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Merriweather', serif;
   @apply font-bold text-neo-text-primary;
 }
 

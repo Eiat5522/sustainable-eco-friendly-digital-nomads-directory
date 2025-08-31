@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { urlFor } from '@/lib/sanity/client';
@@ -106,119 +105,119 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
 
   return (
     <>
-    <Header />
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-5xl font-extrabold text-center mb-6 text-gray-900">The Nomad's Chronicle</h1>
+      <Header />
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="heading-xl text-center mb-6">The Nomad's Chronicle</h1>
 
-      {/* Filters */}
-      <form className="mb-10 flex flex-col md:flex-row items-stretch md:items-center gap-3" action="/blog" method="get">
-        <input
-          type="search"
-          name="search"
-          defaultValue={search || ''}
-          placeholder="Search posts..."
-          className="flex-1 p-3 bg-white border-4 border-black rounded-lg shadow-sm"
-        />
-        <input
-          type="text"
-          name="tag"
-          defaultValue={tag || ''}
-          placeholder="Tag (e.g. eco, remote-work)"
-          className="w-full md:w-64 p-3 bg-white border-4 border-black rounded-lg shadow-sm"
-        />
-        <button className="px-6 py-3 bg-yellow-400 border-4 border-black rounded-lg font-bold">Apply</button>
-      </form>
+        {/* Filters */}
+        <form className="mb-10 flex flex-col md:flex-row items-stretch md:items-center gap-3" action="/blog" method="get">
+          <input
+            type="search"
+            name="search"
+            defaultValue={search || ''}
+            placeholder="Search posts..."
+            className="flex-1 p-3 neo-input"
+          />
+          <input
+            type="text"
+            name="tag"
+            defaultValue={tag || ''}
+            placeholder="Tag (e.g. eco, remote-work)"
+            className="w-full md:w-64 p-3 neo-input"
+          />
+          <button className="px-6 py-3 bg-primary text-primary-foreground neo-button neo-button-hover">Apply</button>
+        </form>
 
-      {uniqueTags.length > 0 && (
-        <div className="mb-8 flex flex-wrap gap-2">
-          {uniqueTags.map((t) => {
-            const sp = new URLSearchParams();
-            if (t) sp.set('tag', t);
-            if (search) sp.set('search', search);
-            if (limit) sp.set('limit', limit);
+        {uniqueTags.length > 0 && (
+          <div className="mb-8 flex flex-wrap gap-2">
+            {uniqueTags.map((t) => {
+              const sp = new URLSearchParams();
+              if (t) sp.set('tag', t);
+              if (search) sp.set('search', search);
+              if (limit) sp.set('limit', limit);
+              return (
+                <Link key={t} href={`/blog?${sp.toString()}`} className={`px-3 py-1 border-2 border-black text-sm ${t === tag ? 'bg-black text-white' : 'bg-white'}`}>
+                  #{t}
+                </Link>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {posts.map((post: Post, idx: number) => {
+            const imageUrl = (() => {
+              if (!post?.primaryImage) return null;
+              try {
+                // Prefer builder for optimized CDN params
+                const optimizedUrl = urlFor(post.primaryImage).width(800).height(450).fit('crop').auto('format').url();
+                if (optimizedUrl) return optimizedUrl;
+              } catch {
+                // Builder failed, continue to fallback
+              }
+              // Fallback to raw asset URL
+              return post.primaryImage?.asset?.url ?? null;
+            })();
+            const usingPlaceholder = !imageUrl;
+            const src = imageUrl ?? placeholderDataUri(800, 450);
+            const alt = usingPlaceholder ? '' : ((post?.primaryImage as any)?.alt || post.title || '');
             return (
-              <Link key={t} href={`/blog?${sp.toString()}`} className={`px-3 py-1 border-2 border-black rounded-full text-sm ${t === tag ? 'bg-black text-white' : 'bg-white'}`}>
-                #{t}
+              <Link key={post._id} href={`/blog/${post.slug.current}`}>
+                <div className="block neo-card overflow-hidden">
+                  <div className="relative h-48">
+                    <Image
+                      src={src}
+                      alt={alt}
+                      aria-hidden={usingPlaceholder}
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                      priority={idx < 3}
+
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h2 className="heading-md mb-2">{post.title}</h2>
+                    <p className="body-md">{post.excerpt}</p>
+                  </div>
+                </div>
               </Link>
             );
           })}
         </div>
-      )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {posts.map((post: Post, idx: number) => {
-          const imageUrl = (() => {
-            if (!post?.primaryImage) return null;
-            try {
-              // Prefer builder for optimized CDN params
-              const optimizedUrl = urlFor(post.primaryImage).width(800).height(450).fit('crop').auto('format').url();
-              if (optimizedUrl) return optimizedUrl;
-            } catch {
-              // Builder failed, continue to fallback
-            }
-            // Fallback to raw asset URL
-            return post.primaryImage?.asset?.url ?? null;
-          })();
-          const usingPlaceholder = !imageUrl;
-          const src = imageUrl ?? placeholderDataUri(800, 450);
-          const alt = usingPlaceholder ? '' : ((post?.primaryImage as any)?.alt || post.title || '');
-          return (
-            <Link key={post._id} href={`/blog/${post.slug.current}`}>
-              <div className="block bg-white border-4 border-black rounded-lg shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 ease-in-out overflow-hidden">
-                <div className="relative h-48">
-                  <Image
-                    src={src}
-                    alt={alt}
-                    aria-hidden={usingPlaceholder}
-                    fill
-                    className="object-cover"
-                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                    priority={idx < 3}
-                    
-                  />
-                </div>
-                <div className="p-6">
-                  <h2 className="text-3xl font-bold mb-2 text-gray-800">{post.title}</h2>
-                  <p className="text-gray-600">{post.excerpt}</p>
-                </div>
-              </div>
+        {/* Pagination */}
+        <div className="mt-10 flex items-center justify-center gap-4">
+          {pagination.hasPrevPage && (
+            <Link
+              href={`/blog?${new URLSearchParams({
+                page: String(pagination.prevPage ?? 1),
+                ...(tag ? { tag } : {}),
+                ...(search ? { search } : {}),
+                ...(limit ? { limit } : {}),
+              }).toString()}`}
+              className="px-4 py-2 neo-button neo-button-hover"
+            >
+              ← Previous
             </Link>
-          );
-        })}
+          )}
+          <span className="body-sm">Page {pagination.page} of {pagination.totalPages}</span>
+          {pagination.hasNextPage && (
+            <Link
+              href={`/blog?${new URLSearchParams({
+                page: String(pagination.nextPage ?? (pagination.page + 1)),
+                ...(tag ? { tag } : {}),
+                ...(search ? { search } : {}),
+                ...(limit ? { limit } : {}),
+              }).toString()}`}
+              className="px-4 py-2 neo-button neo-button-hover"
+            >
+              Next →
+            </Link>
+          )}
+        </div>
       </div>
-
-      {/* Pagination */}
-      <div className="mt-10 flex items-center justify-center gap-4">
-        {pagination.hasPrevPage && (
-          <Link
-            href={`/blog?${new URLSearchParams({
-              page: String(pagination.prevPage ?? 1),
-              ...(tag ? { tag } : {}),
-              ...(search ? { search } : {}),
-              ...(limit ? { limit } : {}),
-            }).toString()}`}
-            className="px-4 py-2 border-4 border-black rounded-lg bg-white"
-          >
-            ← Previous
-          </Link>
-        )}
-        <span className="text-sm text-gray-700">Page {pagination.page} of {pagination.totalPages}</span>
-        {pagination.hasNextPage && (
-          <Link
-            href={`/blog?${new URLSearchParams({
-              page: String(pagination.nextPage ?? (pagination.page + 1)),
-              ...(tag ? { tag } : {}),
-              ...(search ? { search } : {}),
-              ...(limit ? { limit } : {}),
-            }).toString()}`}
-            className="px-4 py-2 border-4 border-black rounded-lg bg-white"
-          >
-            Next →
-          </Link>
-        )}
-      </div>
-    </div>
-    <Footer />
+      <Footer />
     </>
   );
 }
