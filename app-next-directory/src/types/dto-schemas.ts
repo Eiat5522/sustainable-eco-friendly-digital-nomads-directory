@@ -40,8 +40,6 @@ export const CityDetailDTOSchema = CityDTOSchema.extend({
   sustainabilityInitiatives: z.array(z.string()).optional(),
   digitalNomadFeatures: z.array(z.string()).optional(),
   galleryImages: z.array(z.string().url()).optional(),
-  // Use the same field name as listings
-  location: GeoPointSchema.optional(),
 }).strict();
 
 // Enums

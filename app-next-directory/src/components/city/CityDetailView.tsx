@@ -1,3 +1,4 @@
+"use client";
 import { useState } from 'react';
 import { Leaf, MapPin, Wifi, DollarSign, Thermometer, Shield, Footprints, Wind } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';

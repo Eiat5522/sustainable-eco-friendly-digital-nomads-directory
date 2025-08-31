@@ -4,7 +4,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IUser extends Document {
   name?: string;
   email: string;
-  password?: string; // Password will be handled by NextAuth.js and its adapter
+  // Hashed password for credentials-based auth (excluded by default)
+  password?: string;
   role: 'user' | 'editor' | 'venueOwner' | 'admin' | 'superAdmin'; // Added 'superAdmin'
   emailVerified?: Date | null;
   image?: string;
@@ -27,15 +28,12 @@ const UserSchema: Schema<IUser> = new Schema(
       lowercase: true,
       match: [/.+\@.+\..+/, 'Please fill a valid email address'],
     },
-    // Password field is often not directly in the schema if using NextAuth.js Credentials provider,
-    // as the adapter and NextAuth.js handle password hashing and verification.
-    // If you need to store it for other reasons or are handling it manually (not recommended with NextAuth),
-    // you would define it here and ensure it's properly secured.
-    // For now, we assume NextAuth.js adapter handles it.
-    // password: {
-    //   type: String,
-    //   required: [true, 'Password is required'], // Only if not handled by adapter
-    // },
+    // Store hashed password for credentials-based login.
+    // Excluded by default and only selected explicitly when needed.
+    password: {
+      type: String,
+      select: false,
+    },
     role: {
       type: String,
       enum: ['user', 'editor', 'venueOwner', 'admin', 'superAdmin'], // Added 'superAdmin'
@@ -54,6 +52,25 @@ const UserSchema: Schema<IUser> = new Schema(
     timestamps: true, // Adds createdAt and updatedAt timestamps
   }
 );
+
+// Hash password automatically when it is created/modified
+UserSchema.pre('save', async function (next) {
+  try {
+    const user = this as any;
+    if (!user.isModified('password')) return next();
+    if (!user.password) return next();
+    // If already a bcrypt hash (e.g., provided by API route), skip re-hashing
+    if (typeof user.password === 'string' && user.password.startsWith('$2')) {
+      return next();
+    }
+    const bcrypt = require('bcryptjs');
+    const saltRounds = 12;
+    user.password = await bcrypt.hash(user.password, saltRounds);
+    return next();
+  } catch (err) {
+    return next(err as any);
+  }
+});
 
 // Create a unique index on email if it doesn't exist
 UserSchema.index({ email: 1 }, { unique: true });

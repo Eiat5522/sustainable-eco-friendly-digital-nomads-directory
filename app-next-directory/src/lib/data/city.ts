@@ -87,6 +87,12 @@ function toCityDetailDTO(raw: any): CityDetailDTO | null {
   if (!baseCity) return null;
 
   // Add additional detail fields
+  const galleryUrls: string[] = Array.isArray(raw.galleryImages)
+    ? raw.galleryImages
+        .map((img: any) => (img && img.asset && typeof img.asset.url === 'string' ? img.asset.url : undefined))
+        .filter((u: unknown): u is string => typeof u === 'string' && u.length > 0)
+    : [];
+
   return {
     ...baseCity,
     shortDescription: raw.shortDescription ?? undefined,
@@ -102,9 +108,7 @@ function toCityDetailDTO(raw: any): CityDetailDTO | null {
     digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures)
       ? raw.digitalNomadFeatures.map((v: any) => (typeof v === 'string' ? v : v?.name)).filter(Boolean)
       : [],
-    // keep as refs unless query dereferences; see getCityDetailBySlug suggestion
-    galleryImages: Array.isArray(raw.galleryImages) ? raw.galleryImages : [],
-    coordinates: toGeoPoint(raw.location),
+    galleryImages: galleryUrls,
   };
 }
 
@@ -153,7 +157,6 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
         metadata{ dimensions }
       }
     },
-    location,
     "primaryImage": primaryImage{
       alt,
       asset->{

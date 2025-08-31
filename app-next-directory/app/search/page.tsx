@@ -7,8 +7,6 @@ import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
 import { Search, MapPin, Building2, Home, Wifi, Shield, Key } from 'lucide-react';
 import { FilterMultiSelect, Option } from '@/components/ui/filter-multi-select';
-
-
 type SearchResult = Record<string, unknown>; // TODO: narrow shape when API is wired
 
 export default function SearchPage() {

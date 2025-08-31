@@ -71,7 +71,6 @@ export function FilterMultiSelect({ label, options, selected, onChange, triggerI
           })}
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
-      </DropdownMenu.Content>
     </DropdownMenu.Root>
   );
 }

@@ -25,7 +25,7 @@ export interface CityDetailDTO extends CityDTO {
   // Additional detail fields
   shortDescription?: string;
   airQuality?: string;
-  internetSpeed?: InternetSpeedDTO;
+  internetSpeed?: number | InternetSpeedDTO;
   costOfLiving?: string;
   climate?: string;
   safety?: string;
@@ -33,7 +33,6 @@ export interface CityDetailDTO extends CityDTO {
   sustainabilityInitiatives?: string[];
   digitalNomadFeatures?: string[];
   galleryImages?: string[];
-  coordinates?: GeoPoint;
 }
 
 export interface AmenityDTO {
