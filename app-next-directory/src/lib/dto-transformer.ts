@@ -1,5 +1,7 @@
 import { urlFor } from '@/lib/sanity/client';
-import type { SanityImage } from '@/types/sanity.types';
+import type { SanityListing, SanityImage } from '@/types/sanity.types';
+// Ensure we have a consistent image union for dto mapping
+// type SanityGalleryImage = SanityImage // If separate type exists in future, import it accordingly
 import type { ListingDetailDTO, ListingSummaryDTO, FeaturedListingDTO, Money, OpeningHour, Percentage0To100 } from '@/types/dto';
 
 // Input shape for dereferenced Sanity data from GROQ queries
@@ -42,10 +44,7 @@ const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
     slug: sanityListing.slug?.current ?? '',
     imageUrl,
     city: sanityListing.city?.name || '',
-    amenityNames: (sanityListing.amenities ?? [])
-      .map((a: { name?: string } | null | undefined) => a?.name)
-      .filter((name: unknown): name is string => typeof name === 'string' && name.length > 0),
-  };
+    amenityNames: toNames(sanityListing.amenities),  };
 }
 
 const toMoney = (amount?: number, currency = 'THB', unit?: 'night' | 'meal' | 'hour'): Money | undefined =>
@@ -103,7 +102,7 @@ const toNames = (
 ): string[] => (arr ?? []).map(x => x?.name).filter(isNonEmptyString);
 
 export function transformToSummaryDTO(sanityListing: DereferencedSanityListing): ListingSummaryDTO {
-  const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
+  const imageUrl = imageOrFallback(sanityListing.primaryImage as any, 500, 300);
 
   return {
     id: sanityListing._id,
@@ -134,10 +133,11 @@ export function transformToSummaryDTO(sanityListing: DereferencedSanityListing):
 }
 
 export function transformToDetailDTO(sanityListing: SanityListing): ListingDetailDTO {
-  const baseDTO = transformToSummaryDTO(sanityListing);
+  const baseDTO = transformToSummaryDTO(sanityListing as any);
   
   const galleryImages = (sanityListing.galleryImages ?? [])
-    .map((img: SanityImage | SanityGalleryImage) => urlFor(img)?.width(800).height(600).fit('crop').auto('format').url())
+    .filter((img): img is SanityImage => Boolean(img))
+    .map(img => urlFor(img).width(800).height(600).fit('crop').auto('format').url())
     .filter((u: unknown): u is string => typeof u === 'string' && u.length > 0);
 
   // Build discriminated union by type
@@ -193,7 +193,7 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
 
   if (sanityListing.type === 'restaurant' && sanityListing.restaurantDetails) {
     const s = sanityListing.restaurantDetails;
-    const avg = s.averageMealPriceThb?.min ?? undefined;
+    const avg = typeof s.averageMealPriceThb === 'number' ? s.averageMealPriceThb : undefined;
     const detailDTO: ListingDetailDTO = {
       ...baseDTO,
       type: 'restaurant',
@@ -214,6 +214,10 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
 
   if (sanityListing.type === 'activities' && sanityListing.activitiesDetails) {
     const s = sanityListing.activitiesDetails;
+    const duration =
+      typeof s.duration?.value === 'number' && s.duration.value > 0
+        ? `${s.duration.value} ${s.duration.unit ?? ''}`.trim()
+        : undefined;
     const detailDTO: ListingDetailDTO = {
       ...baseDTO,
       type: 'activities',
@@ -224,8 +228,8 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
       contactEmail: sanityListing.contactEmail,
       activityDetails: {
         activityType: s.activityType,
-        duration: s.duration,
-        difficulty: s.difficulty,
+        duration,
+        skillLevel: s.skillLevel,
         // Add other activity-specific fields as needed
       }
     };
@@ -244,7 +248,7 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
       contactEmail: sanityListing.contactEmail,
       accommodationDetails: {
         accommodationType: s.accommodationType,
-        pricePerNight: toMoney((s.pricePerNightThb?.min ?? undefined), 'THB', 'night'),
+        pricePerNight: toMoney(s.pricePerNightThb?.min, 'THB', 'night'),
         roomTypes: s.roomTypesAvailable?.map(r => r.type),
         minimumStay: s.minimumStay
       }

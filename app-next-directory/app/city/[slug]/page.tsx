@@ -50,7 +50,7 @@ export default async function CityPage({ params }: Props) {
   if (!listingsResult.success) {
     console.error('[city/page] Invalid ListingSummaryDTO[] for city %s:', city.id, listingsResult.error);
   }
-  const listings: ListingSummaryDTO[] = listingsResult.success ? listingsResult.data : [];
+  const listings: ListingSummaryDTO[] = (listingsResult.success ? listingsResult.data : []) as ListingSummaryDTO[];
 
   return <CityDetailView city={city} listings={listings} />;
 }

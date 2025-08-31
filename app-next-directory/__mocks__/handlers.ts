@@ -1,18 +1,18 @@
-import { http } from 'msw'
+import { http, HttpResponse } from 'msw'
 
 export const handlers = [
   // Search endpoints to silence unhandled warnings where tests don't mock fetch
-  http.get('*/api/search', (req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      ctx.json({ data: { results: [], pagination: { total: 0, page: 1, totalPages: 0, hasMore: false } } })
+  http.get('/api/search', () => {
+    return HttpResponse.json(
+      { data: { results: [], pagination: { total: 0, page: 1, totalPages: 0, hasMore: false } } },
+      { status: 200 }
     )
   }),
-  http.post('*/api/search', async (req, res, ctx) => {
+  http.post('/api/search', async ({ request }) => {
     // Minimal functional stub that mirrors the request body shape
     let body: any = {};
     try {
-      body = await req.json();
+      body = await request.json();
     } catch {}
     const q = body?.query ?? '';
     let results: any[] = [];
@@ -23,63 +23,43 @@ export const handlers = [
     } else {
       results = [];
     }
-    return res(
-      ctx.status(200),
-      ctx.json({
+    // Debug to verify MSW interception in tests
+    // eslint-disable-next-line no-console
+    console.log('MSW POST /api/search hit with query:', q);
+    return HttpResponse.json(
+      {
         results,
         pagination: { total: results.length, page: 1, totalPages: 1, hasMore: false }
-      })
+      },
+      { status: 200 }
     )
   }),
-  http.get('*/api/search/suggestions', (req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      ctx.json({ suggestions: [] })
-    )
+  http.get('/api/search/suggestions', () => {
+    // Return array per hook expectations
+    return HttpResponse.json([], { status: 200 })
   }),
-  http.get('*/api/featured-listings', (req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      // ctx.delay(0), // uncomment if you want deterministic timing
-      ctx.json({
-        listings: [],
-      }),
-    )
+  http.get('/api/featured-listings', () => {
+    return HttpResponse.json({ listings: [] }, { status: 200 })
   }),
-
-  http.get('*/api/cities', (req, res, ctx) => {
-    return res(
-      ctx.json({
-        cities: [],
-      })
-    )
+  http.get('/api/categories', () => {
+    return HttpResponse.json({ categories: [] }, { status: 200 })
   }),
-  http.get('*/api/cities/:slug', (req, res, ctx) => {
-    const { slug } = req.params as any
-    return res(
-      ctx.status(200),
-      ctx.json({ success: true, data: { id: slug, name: slug, slug } })
-    )
+  http.get('/api/amenities', () => {
+    return HttpResponse.json({ amenities: [] }, { status: 200 })
   }),
-  http.get('*/api/listings', (req, res, ctx) => {
-    const url = new URL(req.url)
+  http.get('/api/cities', () => {
+    return HttpResponse.json({ cities: [] }, { status: 200 })
+  }),
+  http.get('/api/cities/:slug', ({ params }) => {
+    const { slug } = params as any
+    return HttpResponse.json({ success: true, data: { id: slug, name: slug, slug } }, { status: 200 })
+  }),
+  http.get('/api/hello', () => {
+    return HttpResponse.json({ message: 'Hello' }, { status: 200 })
+  }),
+  http.get('/api/listings', ({ request }) => {
+    const url = new URL(request.url)
     const slug = url.searchParams.get('citySlug') || 'unknown'
-    return res(
-      ctx.status(200),
-      ctx.json({ success: true, data: { listings: [], total: 0 }, city: slug })
-    )
-  }),
-]
-
-// Optional: factory for richer scenarios in specific tests
-export const makeHandlers = (overrides?: {
-  listings?: unknown[]
-  cities?: unknown[]
-}) => [
-  http.get('*/api/featured-listings', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json({ listings: overrides?.listings ?? [] }))
-  }),
-  http.get('*/api/cities', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json({ cities: overrides?.cities ?? [] }))
+    return HttpResponse.json({ success: true, data: { listings: [], total: 0 }, city: slug }, { status: 200 })
   }),
 ]

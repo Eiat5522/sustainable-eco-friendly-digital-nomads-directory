@@ -55,22 +55,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Fetch listings
-    const listings = await client.fetch<{ slug: string, _updatedAt: string }[]>(
+    const listingsRaw = await client.fetch(
       `*[_type == "listing"]{
         "slug": slug.current,
         _updatedAt
       }`
-    ) || [];
+    )
+    const listings = (Array.isArray(listingsRaw) ? listingsRaw : []) as { slug: string, _updatedAt: string }[]
 
     // Fetch categories
-    const categories = await client.fetch<{ category: string }[]>(
+    const categoriesRaw = await client.fetch(
       `*[_type == "listing"]{category} | unique`
-    ) || [];
+    )
+    const categories = (Array.isArray(categoriesRaw) ? categoriesRaw : []) as { category: string }[]
 
     // Fetch cities
-    const cities = await client.fetch<{ name: string }[]>(
+    const citiesRaw = await client.fetch(
       `*[_type == "city"]{name}`
-    ) || [];
+    )
+    const cities = (Array.isArray(citiesRaw) ? citiesRaw : []) as { name: string }[]
 
     // Listing pages
     const listingPages: SitemapEntry[] = listings.map((listing: { slug: string, _updatedAt: string }) => ({

@@ -11,6 +11,17 @@ import bcrypt from 'bcryptjs';
 import User from '../../models/User';
 import dbConnect from '../dbConnect';
 
+import type { Types } from 'mongoose';
+
+type UserDoc = {
+  _id: Types.ObjectId;
+  name: string;
+  email: string;
+  password?: string;
+  image?: string;
+  role: UserRole;
+};
+const UserModel = User as unknown as import('mongoose').Model<UserDoc>;
 export interface AuthenticatedUser {
   id: string;
   name: string;
@@ -33,7 +44,7 @@ export async function authenticateUser(
     await dbConnect();
 
     // Find user in MongoDB using Mongoose model
-    const user = await User.findOne({ email }).select('+password');
+    const user = await UserModel.findOne({ email: email.trim().toLowerCase() }).select('+password').lean();
 
     if (!user || !user.password) {
       return null;
@@ -74,7 +85,7 @@ export async function createUserAccount(userData: {
     await dbConnect();
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email: userData.email });
+    const existingUser = await UserModel.findOne({ email: userData.email.trim().toLowerCase() });
     if (existingUser) {
       throw new Error('User already exists');
     }
@@ -83,9 +94,9 @@ export async function createUserAccount(userData: {
     const hashedPassword = await bcrypt.hash(userData.password, 12);
 
     // Create user
-    const user = await User.create({
+    const user = await UserModel.create({
       name: userData.name,
-      email: userData.email,
+      email: userData.email.trim().toLowerCase(),
       password: hashedPassword,
       image: userData.image,
       role: 'user' as UserRole,
@@ -105,7 +116,7 @@ export async function createUserAccount(userData: {
 }
 
 /**
- * Get user by ID
+* Get user by ID
  * @param userId User ID
  * @returns User data or null
  */
@@ -113,7 +124,7 @@ export async function getUserById(userId: string): Promise<AuthenticatedUser | n
   try {
     await dbConnect();
 
-    const user = await User.findById(userId);
+    const user = await (User as any).findById(userId);
     if (!user) {
       return null;
     }
@@ -144,7 +155,7 @@ export async function updateUserRole(
   try {
     await dbConnect();
 
-    const result = await User.findByIdAndUpdate(
+    const result = await (User as any).findByIdAndUpdate(
       userId,
       { role: newRole },
       { new: true }

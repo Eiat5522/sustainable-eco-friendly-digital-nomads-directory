@@ -37,10 +37,8 @@ export default function LoginPage() {
               </div>
               <p className="mt-6 text-sm text-center">
                 New user?{' '}
-                <Link href="/auth/signup" className="text-neo-primary hover:underline">Create an account</Link>
                 <Link
                   href="/auth/signup"
-                  prefetch={false}
                   className="text-neo-primary hover:underline focus-visible:underline underline-offset-2"
                 >
                   Create an account

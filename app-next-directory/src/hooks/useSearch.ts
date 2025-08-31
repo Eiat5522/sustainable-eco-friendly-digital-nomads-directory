@@ -65,12 +65,21 @@ export function useSearch({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             query: debouncedQuery,
-            filters,
             page,
-            sort
+            limit: 12
           })
         });
-        if (!res.ok) throw new Error('Search request failed');
+        // eslint-disable-next-line no-console
+        console.log('FORTEST: res status/ok:', (res as any)?.status, (res as any)?.ok);
+        if (!res.ok) {
+          // Try to read error body for debugging
+          try {
+            const txt = await res.text();
+            // eslint-disable-next-line no-console
+            console.log('FORTEST: non-OK response body:', txt);
+          } catch {}
+          throw new Error('Search request failed');
+        }
         const data = await res.json();
         // FORTEST: Debug log for API response
         // eslint-disable-next-line no-console

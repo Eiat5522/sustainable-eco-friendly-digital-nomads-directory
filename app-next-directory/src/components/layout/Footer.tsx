@@ -70,11 +70,11 @@ export function Footer() {
                 required
                 className="flex-1 bg-white text-neo-text-primary"
               />
-              <Link href={`/contact-us?type=newsletter&email=${encodeURIComponent(email)}`} passHref>
-                <NeoButton variant="secondary" size="md" as="a">
+              <NeoButton asChild variant="secondary" size="md">
+                <Link href={`/contact-us?type=newsletter&email=${encodeURIComponent(email)}`}>
                   Subscribe
-                </NeoButton>
-              </Link>
+                </Link>
+              </NeoButton>
             </div>
             <p id="newsletter-help" className="sr-only">We send occasional updates. Unsubscribe anytime.</p>
           </div>

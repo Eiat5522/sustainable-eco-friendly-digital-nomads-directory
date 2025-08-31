@@ -1,7 +1,7 @@
 import React from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
-import { server } from '../../../__mocks__/server'
-import { rest } from 'msw'
+import { server } from '../../../test-helpers/msw-server-bridge'
+import { http, HttpResponse } from 'msw'
 import { CityCarousel } from '../CityCarousel'
 import { CityDTO } from '../../../types/city'
 
@@ -35,8 +35,7 @@ const mockCities: CityDTO[] = [
   }
 ]
 beforeAll(() => {
-  // Start MSW once per test file to avoid "already listening" warnings.
-  server.listen({ onUnhandledRequest: 'error' })
+  // Server lifecycle is handled in jest.setup.ts; no per-file listen/close to avoid duplicates.
 })
 
 afterEach(() => {
@@ -44,7 +43,7 @@ afterEach(() => {
 })
 
 afterAll(() => {
-  server.close()
+  // no-op, global teardown handles server.close()
 })
 describe('CityCarousel', () => {
   it('renders loading state initially', () => {
@@ -53,8 +52,8 @@ describe('CityCarousel', () => {
   })
   
   it('renders city cards after successful fetch', async () => {    server.use(
-      rest.get('/api/cities', (req, res, ctx) => {
-        return res(ctx.json({ cities: mockCities }))
+      http.get('/api/cities', () => {
+        return HttpResponse.json({ cities: mockCities }, { status: 200 })
       })
     )
 
@@ -76,8 +75,8 @@ expect(screen.getByAltText('Freiburg')).toHaveAttribute(
   })
   it('renders error state on fetch failure', async () => {
     server.use(
-      rest.get('/api/cities', (req, res, ctx) => {
-        return res(ctx.status(500))
+      http.get('/api/cities', () => {
+        return new HttpResponse(null, { status: 500 })
       })
     )
 

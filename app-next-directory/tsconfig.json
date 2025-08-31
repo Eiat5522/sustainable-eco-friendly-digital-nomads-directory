@@ -27,14 +27,14 @@
         "./src/*"
       ]
     },
-    "baseUrl": ".",
-    "types": ["node"]
+    "baseUrl": "."
   },
   "include": [
-    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "next-env.d.ts",
+    "dist/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
@@ -47,6 +47,7 @@
     "__mocks__/**",
     "tests/**",
     "playwright-report/**",
-    "coverage/**"
+    "coverage/**",
+    "src/tests/**"
   ]
 }

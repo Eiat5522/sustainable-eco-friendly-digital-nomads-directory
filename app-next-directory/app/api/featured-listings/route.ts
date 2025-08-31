@@ -135,7 +135,7 @@ export async function GET() {
     console.log('[DEBUG] Featured Listings API: Executing GROQ query');
     const queryStartTime = performance.now();
     
-    const listings = await client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY);
+    const listings = await client.fetch(FEATURED_LISTINGS_QUERY) as FeaturedListing[];
     
     const queryEndTime = performance.now();
     console.log('[DEBUG] Featured Listings API: GROQ query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');

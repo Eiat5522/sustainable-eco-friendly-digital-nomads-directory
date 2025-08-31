@@ -43,6 +43,11 @@ module.exports = {
     "^next-auth/providers/(.*)$": "<rootDir>/__mocks__/next-auth/providers/$1.js",
     "^@auth/core/providers/(.*)$": "<rootDir>/__mocks__/next-auth/providers/$1.js",
     "^@/__mocks__/(.*)$": "<rootDir>/__mocks__/$1",
+    "^@/mocks/server$": "<rootDir>/__mocks__/server.ts",
+    "^mocks/server$": "<rootDir>/__mocks__/server.ts",
+    "^@sanity/client$": "<rootDir>/__mocks__/@sanity/client.ts",
+    "^next-sanity$": "<rootDir>/__mocks__/next-sanity.js",
+    "^mongoose$": "<rootDir>/__mocks__/mongoose.ts",
     "node-fetch": "<rootDir>/__mocks__/node-fetch.js",
     "leaflet/dist/leaflet.css$": "<rootDir>/__mocks__/leaflet/dist/leaflet.css.js",
     "leaflet.markercluster/dist/MarkerCluster.css$": "<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.css.js",
@@ -60,7 +65,8 @@ module.exports = {
     '<rootDir>/tests/', // Exclude all Playwright and E2E tests
     '/__tests__/__mocks__/',
     '/.d/.ts',
-    '<rootDir>/src/lib/__tests__/listings.test.ts'
+    '<rootDir>/src/lib/__tests__/listings.test.ts',
+    '<rootDir>/src/__tests__/api/search/FORTEST-route.copy.skip.ts'
   ],
   resolver: 'jest-pnp-resolver'
 };

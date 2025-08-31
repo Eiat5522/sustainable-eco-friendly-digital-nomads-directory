@@ -129,7 +129,7 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
     }
   }`;
 
-  const raw = await client.fetch(query, { slug } as Record<string, unknown>);
+  const raw = await client.fetch(query, { slug } as Record<string, unknown>) as any;
   return toCityDTO(raw);
 }
 
@@ -164,7 +164,7 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     }
   }`;
 
-  const raw = await client.fetch(query, { slug } as Record<string, unknown>);
+  const raw = await client.fetch(query, { slug } as Record<string, unknown>) as any;
   return toCityDetailDTO(raw);
 }
 
@@ -194,7 +194,7 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
     }
   }`;
 
-  const raws = await client.fetch<DereferencedSanityListing[]>(query, { cityId } as Record<string, unknown>);
+  const raws = await client.fetch(query, { cityId } as Record<string, unknown>) as any;
   return (Array.isArray(raws) ? raws : []).map(transformToSummaryDTO);
 }
 
@@ -215,6 +215,6 @@ export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
     }
   }`;
 
-  const raw = await client.fetch<any[]>(query, { limit } as Record<string, unknown>);
+  const raw = await client.fetch(query, { limit } as Record<string, unknown>) as any;
   return (Array.isArray(raw) ? raw : []).map(toCityDTO).filter(Boolean) as CityDTO[];
 }

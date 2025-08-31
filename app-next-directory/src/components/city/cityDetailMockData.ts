@@ -5,7 +5,7 @@ export const mockCity: CityDTO = {
   name: 'Bangkok',
   slug: 'bangkok',
   country: 'Thailand',
-  sustainabilityScore: 72,
+  sustainabilityScore: 72 as unknown as import('@/types/dto').Percentage0To100,
   highlights: ['Green rooftops', 'Bike lanes', 'River taxis'],
   imageUrl:
     'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=800&q=80',

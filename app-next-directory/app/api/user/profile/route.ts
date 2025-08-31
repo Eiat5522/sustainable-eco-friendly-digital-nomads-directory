@@ -110,7 +110,7 @@ async function updateUserProfile(
 
     await dbConnect();
 
-    const result = await User.findByIdAndUpdate(
+    const result = await (User as any).findByIdAndUpdate(
       userId,
       {
         name: updateData.name,

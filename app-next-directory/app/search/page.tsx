@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { NeoInput } from '@/components/ui/neo-input';
@@ -18,30 +18,53 @@ export default function SearchPage() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
 
-  const cityOptions = React.useMemo<Option[]>(
-    () => [
-      { value: 'Bangkok', label: 'Bangkok', icon: MapPin },
-      { value: 'Phuket', label: 'Phuket', icon: MapPin },
-    ],
-    []
-  );
+  const [cityOptions, setCityOptions] = useState<Option[]>([]);
+  const [typeOptions, setTypeOptions] = useState<Option[]>([]);
+  const [amenityOptions, setAmenityOptions] = useState<Option[]>([]);
 
-  const typeOptions = React.useMemo<Option[]>(
-    () => [
-      { value: 'coworking', label: 'Coworking Space', icon: Building2 },
-      { value: 'accommodation', label: 'Accommodation', icon: Home },
-    ],
-    []
-  );
+  useEffect(() => {
+    let cancelled = false;
+    async function loadFilters() {
+      try {
+        const [citiesRes, catsRes, amenitiesRes] = await Promise.all([
+          fetch('/api/cities').then((r) => r.ok ? r.json() : Promise.reject(r.statusText)).catch(() => ({ cities: [] })),
+          fetch('/api/categories').then((r) => r.ok ? r.json() : Promise.reject(r.statusText)).catch(() => ({ categories: [] })),
+          fetch('/api/amenities').then((r) => r.ok ? r.json() : Promise.reject(r.statusText)).catch(() => ({ amenities: [] })),
+        ]);
+        if (cancelled) return;
 
-  const amenityOptions = React.useMemo<Option[]>(
-    () => [
-      { value: 'wifi', label: 'Free Wifi', icon: Wifi },
-      { value: 'security', label: '24 hrs Security', icon: Shield },
-      { value: 'keycard', label: 'Key Card Access', icon: Key },
-    ],
-    []
-  );
+        const cities: any[] = Array.isArray(citiesRes?.cities) ? citiesRes.cities : [];
+        const cityOpts: Option[] = cities.map((c: any) => ({
+          value: String(c?.name ?? ''),
+          label: String(c?.name ?? ''),
+          icon: MapPin,
+        })).filter((o) => o.value);
+        setCityOptions(cityOpts);
+
+        const categories: string[] = Array.isArray(catsRes?.categories) ? catsRes.categories : [];
+        const typeOpts: Option[] = categories.map((cat: string) => ({
+          value: cat,
+          label: cat.charAt(0).toUpperCase() + cat.slice(1),
+          icon: cat.toLowerCase().includes('work') ? Building2 : Home,
+        }));
+        setTypeOptions(typeOpts);
+
+        const amenities: any[] = Array.isArray(amenitiesRes?.amenities) ? amenitiesRes.amenities : [];
+        const amenityOpts: Option[] = amenities.map((a: any) => {
+          const name = String(a?.name ?? '');
+          const lower = name.toLowerCase();
+          const icon = lower.includes('wifi') ? Wifi : lower.includes('security') ? Shield : lower.includes('key') ? Key : Wifi;
+          return { value: name, label: name, icon } as Option;
+        }).filter((o) => o.value);
+        setAmenityOptions(amenityOpts);
+      } catch (e) {
+        // Non-fatal; leave options empty
+        console.warn('Failed to load filter metadata', e);
+      }
+    }
+    loadFilters();
+    return () => { cancelled = true; };
+  }, []);
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

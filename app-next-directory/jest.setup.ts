@@ -43,6 +43,16 @@ import './jest.polyfills';
 import { TextEncoder, TextDecoder } from 'util';
 import '@testing-library/jest-dom';
 
+// MSW setup for tests that rely on HTTP mocks
+try {
+  const { server } = require('./__mocks__/server');
+  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+  afterEach(() => server.resetHandlers());
+  afterAll(() => server.close());
+} catch (e) {
+  // MSW not used in some test suites
+}
+
 // Use `any` cast here to avoid TypeScript complaining about differences
 // between Node's util TextEncoder and the DOM/global TextEncoder types.
 // This is acceptable for test setup polyfills.

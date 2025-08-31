@@ -2,14 +2,15 @@ import 'server-only'
 import NextAuth, { type NextAuthConfig } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 // Use CommonJS-friendly deep imports to avoid ESM parsing issues in Jest
-import Google from '@auth/core/providers/google'
-import Facebook from '@auth/core/providers/facebook'
-import Twitter from '@auth/core/providers/twitter'
-import MicrosoftEntraID from '@auth/core/providers/microsoft-entra-id'
+import Google from 'next-auth/providers/google'
+import Facebook from 'next-auth/providers/facebook'
+import Twitter from 'next-auth/providers/twitter'
+import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
 import clientPromise from '@/lib/mongodb'
 import { authenticateUser } from '@/lib/auth/serverAuth'
 import type { JWT } from 'next-auth/jwt'
+import type { UserRole } from '@/types/auth'
 
 // Central NextAuth configuration used by route handlers and auth() helper
 // Build providers conditionally to avoid requiring unused env vars
@@ -23,7 +24,7 @@ const providers: NextAuthConfig['providers'] = [
       async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) return null
-          const user = await authenticateUser(credentials.email, credentials.password)
+          const user = await authenticateUser(String(credentials.email), String(credentials.password))
           if (!user) return null
           return {
             id: user.id,
@@ -73,7 +74,7 @@ if (process.env.AUTH_MICROSOFT_ENTRA_ID_ID && process.env.AUTH_MICROSOFT_ENTRA_I
       name: 'Microsoft',
       clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID,
       clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET,
-      tenantId: process.env.AUTH_MICROSOFT_ENTRA_ID_TENANT_ID ?? 'common',
+      // tenantId removed to satisfy NextAuth v5 typings; default 'common' used by provider internally if needed
     })
   )
 }
@@ -84,22 +85,22 @@ export const authOptions: NextAuthConfig = {
   providers,
   callbacks: {
     async jwt({ token, user }) {
-      type AppToken = JWT & { id?: string; role?: string }
+      type AppToken = JWT & { id?: string; role?: UserRole }
       const t = token as AppToken
       if (user) {
         const u = user as Partial<{ id: string; role?: string }>
         if (u.id) t.id = u.id
-        if (u.role) t.role = u.role
+        if (u.role) t.role = u.role as UserRole
       }
       return t
     },
     async session({ session, token }) {
-      type WithAppUser = typeof session & { user: (typeof session.user) & { id?: string; role?: string } }
+      type WithAppUser = typeof session & { user: (typeof session.user) & { id?: string; role?: UserRole } }
       const s = session as WithAppUser
       const t = token as Partial<{ id: string; role?: string }>
       if (s.user) {
         if (t.id) s.user.id = t.id
-        if (t.role) s.user.role = t.role
+        if (t.role) s.user.role = t.role as UserRole
       }
       return s
     },

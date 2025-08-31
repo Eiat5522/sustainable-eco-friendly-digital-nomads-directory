@@ -161,7 +161,7 @@ export async function withAuthApiFeature(
     );
   }
 
-  const userRole: UserRole = (token?.role as UserRole) || 'defaultUser';
+  const userRole: UserRole = (token?.role as UserRole) || 'unidentifiedUser';
   const hasPermission = hasFeaturePermission(userRole, feature);
 
   // Handle ownership-based permissions

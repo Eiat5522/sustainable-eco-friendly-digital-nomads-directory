@@ -11,7 +11,7 @@ export const mockListingDetail: ListingDetailDTO = {
     name: "Phuket",
     slug: "phuket",
     country: "Thailand",
-    sustainabilityScore: 85,
+    sustainabilityScore: 85 as any,
     highlights: ["Beach Access", "Eco Resort", "Renewable Energy"],
     description: "A tropical paradise committed to sustainability"
   },

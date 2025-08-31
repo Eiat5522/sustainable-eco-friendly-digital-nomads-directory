@@ -318,13 +318,13 @@ export class SanityHTTPClient {
         console.log(`✅ Uploaded asset (no _id): ${JSON.stringify(asset)}`)
       }
       // Convert asset document to a Sanity image field object
-      const imageObject: SanityImageObject = {
-        _type: 'image',
+      const imageObject = {
+        _type: 'image' as const,
         asset: {
-          _type: 'reference',
-          _ref: asset._id,
+          _type: 'reference' as const,
+          _ref: asset._id as string,
         },
-      }
+      } as unknown as SanityImageObject
       return imageObject
     } catch (error: any) {
       if (error instanceof SanityAPIError) throw error

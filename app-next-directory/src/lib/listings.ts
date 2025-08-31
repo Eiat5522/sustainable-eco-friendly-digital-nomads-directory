@@ -17,7 +17,7 @@ function mapRawToListing(rawListing: any): Listing {
     ? ecoTagsRaw.map((t: any) => {
         const name = typeof t === 'string' ? t : t?.name;
         return name
-          ? { name, slug: { current: toSlug(name) } }
+          ? { _id: toSlug(name), name, slug: { current: toSlug(name) } }
           : null;
       }).filter(Boolean)
     : [];
@@ -26,12 +26,16 @@ function mapRawToListing(rawListing: any): Listing {
     _id: rawListing.id || rawListing._id || '',
     name: rawListing.name || '',
     slug: typeof rawListing.slug === 'string'
-      ? { current: rawListing.slug }
-      : rawListing.slug || { current: '' },
+      ? { _type: 'slug', current: rawListing.slug }
+      : (rawListing.slug && typeof rawListing.slug === 'object'
+          ? { _type: 'slug', current: rawListing.slug.current ?? '' }
+          : { _type: 'slug', current: '' }),
     city: typeof rawListing.city === 'string'
-      ? { name: rawListing.city, slug: { current: toSlug(rawListing.city) } }
-      : rawListing.city || { name: '', slug: { current: '' } },
-    type: rawListing.category === 'activities' ? 'activity' : (rawListing.category || rawListing.type || 'coworking'),
+      ? { _id: '', name: rawListing.city, slug: { _type: 'slug', current: toSlug(rawListing.city) } }
+      : (rawListing.city && typeof rawListing.city === 'object'
+          ? { _id: rawListing.city._id ?? '', name: rawListing.city.name ?? '', slug: { _type: 'slug', current: rawListing.city.slug?.current ?? '' } }
+          : { _id: '', name: '', slug: { _type: 'slug', current: '' } }),
+    type: rawListing.category === 'activities' ? 'activities' : (rawListing.category || rawListing.type || 'coworking'),
     address: rawListing.address || '',
     shortDescription: rawListing.shortDescription || '',
     longDescription: rawListing.longDescription || '',
@@ -62,6 +66,7 @@ function mapRawToListing(rawListing: any): Listing {
           _type: 'image',
           asset: { url },
         })) || []),
+    ecoFocusTags,
     digitalNomadFeatures: (rawListing.digitalNomadFeatures || []).map((feature: any) => {
       const name = typeof feature === 'string' ? feature : feature?.name;
       return name ? name : null;
@@ -249,6 +254,8 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
           .filter((review: any) => review && typeof review === 'object')
           .map((review: any) => ({
             id: review?._id ?? '',
+            listingId: raw._id,
+            userId: review?.user?._id ?? '',
             rating: review?.rating ?? null,
             comment: review?.comment ?? '',
             user:
