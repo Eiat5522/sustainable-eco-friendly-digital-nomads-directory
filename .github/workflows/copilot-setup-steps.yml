@@ -10,6 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Upgrade to at least corepack@0.31.0 to avoid
+      # `Cannot find matching keyid` error
+      # https://github.com/karlhorky/upleveled.io/pull/850#issuecomment-2646349719
+      #
+      
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -18,18 +23,20 @@ jobs:
         with:
           node-version: '20'
 
+
+
       - name: Install pnpm
         run: npm install -g pnpm
 
       - name: Setup pnpm global bin directory
         run: pnpm setup
+        env:
+          SHELL: bash
 
       - name: Set PNPM_HOME and add to PATH
-        run: |
-          echo "PNPM_HOME=$(pnpm bin -g)" >> $GITHUB_ENV
-          echo "$(pnpm bin -g)" >> $GITHUB_PATH
+        run:
+          echo "export PNPM_HOME=$HOME/.pnpm-global" >> $GITHUB_ENV
           
-
       - name: Install project dependencies
         run: pnpm install --no-frozen-lockfile
 

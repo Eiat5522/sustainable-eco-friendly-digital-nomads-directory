@@ -3,83 +3,17 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import { useSearch } from './useSearch';
 import userEvent from '@testing-library/user-event';
 
-// Mock fetch directly using Jest standard approach to bypass global mocks
-const mockFetch: jest.MockedFunction<typeof fetch> = jest.fn();
-global.fetch = mockFetch;
-
+// Use real fetch intercepted by MSW handlers
 jest.useFakeTimers(); // Use fake timers for debounce to work with fetch
 
 beforeEach(() => {
-  mockFetch.mockReset();
-  mockFetch.mockImplementation(async (input: Request | string, init?: RequestInit) => {
-    // Determine URL for routing
-    const url = typeof input === 'string' ? input : input.url;
-
-    // Handle suggestions GET to avoid MSW warnings
-    if (url.includes('/api/search/suggestions')) {
-      return Response.json([]) as unknown as Response;
-    }
-
-    // Extract body for POST /api/search, supporting both (input, init) and Request
-    let text = '';
-    let body: any = {};
-
-    if (init && typeof init.body === 'string') {
-      text = init.body;
-    } else if (init && init.body && typeof Buffer !== 'undefined' && Buffer.isBuffer(init.body as any)) {
-      text = (init.body as any).toString('utf-8');
-    } else if (typeof input !== 'string') {
-      try {
-        text = await input.clone().text();
-      } catch {
-        text = '';
-      }
-    }
-
-    if (text) {
-      try {
-        body = JSON.parse(text);
-      } catch {
-        body = {};
-      }
-    }
-
-    const query = body.query as string | undefined;
-
-    let responseObj;
-    if (query === 'an') {
-      responseObj = {
-        results: [{ id: 2, name: 'Banana' }],
-        pagination: { total: 1, page: 1, totalPages: 1, hasMore: false }
-      };
-    } else if (query === 'xyz') {
-      responseObj = {
-        results: [],
-        pagination: { total: 0, page: 1, totalPages: 0, hasMore: false }
-      };
-    } else if (query?.trim() === 'apple') {  // Match trimmed inside logic, store complex query
-      responseObj = {
-        results: [{ id: 1, name: 'Apple' }],
-        pagination: { total: 1, page: 1, totalPages: 1, hasMore: false }
-      };
-    } else {
-      responseObj = {
-        results: [],
-        pagination: { total: 0, page: 1, totalPages: 0, hasMore: false }
-      };
-    }
-
-    return new Response(JSON.stringify(responseObj), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    }) as unknown as Response;
-  });
+  jest.clearAllTimers();
 });
 
 afterEach(() => {
-  mockFetch.mockReset();
   jest.clearAllTimers();
 });
+
 afterAll(() => {
   jest.useRealTimers();
 });

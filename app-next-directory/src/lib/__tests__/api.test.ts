@@ -1,9 +1,7 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach, afterEach, beforeAll } from '@jest/globals';
+import { http, HttpResponse } from 'msw';
+import { server } from '../../../__mocks__/server';
 import { fetchCityDetails, fetchCityListings } from '../api';
-
-// Mock fetch globally
-const mockFetch = jest.fn() as jest.MockedFunction<typeof fetch>;
-global.fetch = mockFetch;
 
 const jsonResponse = (body: unknown, init?: ResponseInit) =>
   new Response(JSON.stringify(body), {
@@ -12,6 +10,10 @@ const jsonResponse = (body: unknown, init?: ResponseInit) =>
   });
 
 describe('API Functions', () => {
+  // Ensure no MSW handler interferes with global.fetch mock in this test file
+  beforeAll(() => {
+    jest.resetModules();
+  });
   beforeEach(() => {
     jest.clearAllMocks();
     // Reset console.error mock
@@ -32,40 +34,41 @@ describe('API Functions', () => {
         coordinates: { lat: 13.7563, lng: 100.5018 },
       };
 
-      const mockResponse = new Response(JSON.stringify({ success: true, data: mockCityData }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-      mockFetch.mockResolvedValue(mockResponse);
+      server.use(
+        http.get('*/api/cities/:slug', ({ params }) => {
+          const { slug } = params as any;
+          if (slug !== 'bangkok') return new Response(null, { status: 404 });
+          return jsonResponse({ success: true, data: mockCityData }, { status: 200 });
+        })
+      );
 
       const result = await fetchCityDetails('bangkok');
-
-      expect(mockFetch).toHaveBeenCalledWith('/api/cities/bangkok');
       expect(result).toEqual(mockCityData);
     });
 
     it('should handle fetch error when response is not ok', async () => {
-      const mockResponse = jsonResponse({ success: true, data: { listings: mockListingsData, total: 2 } }, { status: 200 });
-      mockFetch.mockResolvedValue(mockResponse);
+      server.use(
+        http.get('*/api/cities/:slug', () => new Response(null, { status: 500 }))
+      );
+      await expect(fetchCityDetails('bangkok')).rejects.toThrow('Failed to fetch city details');
     });
 
     it('should handle network error', async () => {
-      const networkError = new Error('Network error');
-      mockFetch.mockRejectedValue(networkError);
-
-      await expect(fetchCityDetails('bangkok')).rejects.toThrow('Network error');
-      expect(console.error).toHaveBeenCalledWith('Error fetching city details:', networkError);
+      server.use(
+        http.get('*/api/cities/:slug', () => HttpResponse.error())
+      );
+      await expect(fetchCityDetails('bangkok')).rejects.toBeInstanceOf(Error);
+      expect(console.error).toHaveBeenCalledWith('Error fetching city details:', expect.any(TypeError));
     });
 
     it('should handle JSON parsing error', async () => {
-      const mockResponse = {
-        ok: true,
-        json: () => Promise.reject(new Error('Invalid JSON')),
-      } as unknown as Response;
-
-      mockFetch.mockResolvedValue(mockResponse);
-
-      await expect(fetchCityDetails('bangkok')).rejects.toThrow('Invalid JSON');
+      server.use(
+        http.get('*/api/cities/:slug', () =>
+          new Response('not-json', { status: 200, headers: { 'Content-Type': 'application/json' } })
+        )
+      );
+      await expect(fetchCityDetails('bangkok')).rejects.toBeInstanceOf(Error);
+      expect(console.error).toHaveBeenCalledWith('Error fetching city details:', expect.any(Error));
     });
   });
 
@@ -88,71 +91,66 @@ describe('API Functions', () => {
         },
       ];
 
-      const mockResponse = jsonResponse({ success: true, data: { listings: mockListingsData, total: 2 } }, { status: 200 });
-      mockFetch.mockResolvedValue(mockResponse);
+      server.use(
+        http.get('*/api/listings', ({ request }) => {
+          const url = new URL(request.url);
+          const slug = url.searchParams.get('citySlug');
+          if (slug !== 'bangkok') return new Response(null, { status: 404 });
+          return jsonResponse({ success: true, data: { listings: mockListingsData, total: 2 } }, { status: 200 });
+        })
+      );
 
       const result = await fetchCityListings('bangkok');
-
-      expect(mockFetch).toHaveBeenCalledWith('/api/listings?citySlug=bangkok');
       expect(result).toEqual(mockListingsData);
     });
 
     it('should handle missing listings data', async () => {
-      const mockResponse = new Response(
-        JSON.stringify({ success: true, data: {} }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      server.use(
+        http.get('*/api/listings', () => jsonResponse({ success: true, data: {} }, { status: 200 }))
       );
-      mockFetch.mockResolvedValue(mockResponse as unknown as Response);
-
       const result = await fetchCityListings('bangkok');
-
       expect(result).toEqual([]);
     });
 
     it('should return empty array when response is not ok', async () => {
-      const mockResponse = new Response(null, { status: 500 });
-      mockFetch.mockResolvedValue(mockResponse as unknown as Response);
-
+      server.use(
+        http.get('*/api/listings', () => new Response(null, { status: 500 }))
+      );
       const result = await fetchCityListings('bangkok');
-
       expect(result).toEqual([]);
       expect(console.error).toHaveBeenCalledWith('Error fetching city listings:', expect.any(Error));
     });
 
     it('should return empty array on network error', async () => {
-      const networkError = new Error('Network error');
-      mockFetch.mockRejectedValue(networkError);
-
+      server.use(
+        http.get('*/api/listings', () => HttpResponse.error())
+      );
       const result = await fetchCityListings('bangkok');
-
       expect(result).toEqual([]);
-      expect(console.error).toHaveBeenCalledWith('Error fetching city listings:', networkError);
+      expect(console.error).toHaveBeenCalledWith('Error fetching city listings:', expect.any(TypeError));
     });
 
     it('should handle JSON parsing error gracefully', async () => {
-      const mockResponse = {
-        ok: true,
-        json: () => Promise.reject(new Error('Invalid JSON')),
-      } as unknown as Response;
-
-      mockFetch.mockResolvedValue(mockResponse);
-
+      server.use(
+        http.get('*/api/listings', () =>
+          new Response('not-json', { status: 200, headers: { 'Content-Type': 'application/json' } })
+        )
+      );
       const result = await fetchCityListings('bangkok');
-
       expect(result).toEqual([]);
       expect(console.error).toHaveBeenCalledWith('Error fetching city listings:', expect.any(Error));
     });
 
     it('should call endpoint with slug as-is', async () => {
-      const mockResponse = new Response(JSON.stringify({ success: true, data: { listings: [] } }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-      mockFetch.mockResolvedValue(mockResponse);
-
+      let capturedUrl = '';
+      server.use(
+        http.get('*/api/listings', ({ request }) => {
+          capturedUrl = request.url;
+          return jsonResponse({ success: true, data: { listings: [] } }, { status: 200 });
+        })
+      );
       await fetchCityListings('chiang-mai');
-
-      expect(mockFetch).toHaveBeenCalledWith('/api/listings?citySlug=chiang-mai');
+      expect(capturedUrl).toContain('/api/listings?citySlug=chiang-mai');
     });
   });
 });

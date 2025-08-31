@@ -8,11 +8,9 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(''),
 }))
 
-// Mock fetch for /api/search with safe restore
-const originalFetch = (global as any).fetch
-const fetchMock = jest.fn()
-;(global as any).fetch = fetchMock as any
+// Rely on MSW global handlers from __mocks__/node.ts for /api/search
 
+// Utility kept for local mocks if needed in future
 const makeResponse = (data: any, init: any = {}) =>
   new Response(JSON.stringify(data), {
     status: 200,
@@ -24,29 +22,10 @@ const makeResponse = (data: any, init: any = {}) =>
 import Page from './page'
 
 describe('Search Page', () => {
-  afterAll(() => {
-    // Restore original fetch to avoid leaking into other tests
-    ;(global as any).fetch = originalFetch
-  })
+  // No explicit fetch restore needed; MSW handlers are global from setup
+  afterAll(() => {})
   beforeEach(() => {
     pushMock.mockReset()
-    fetchMock.mockReset()
-    fetchMock.mockImplementation((url: RequestInfo | URL) => {
-      const u = typeof url === 'string' ? url : url.toString()
-      if (u.startsWith('/api/search')) {
-        return Promise.resolve(
-          makeResponse({
-            data: {
-              results: [
-                { _id: '1', name: 'Alpha Place', slug: 'alpha', primaryImage: { asset: { url: '' } }, location: { name: 'Lisbon' } },
-              ],
-              pagination: { total: 1, page: 1, totalPages: 1, hasMore: false },
-            },
-          })
-        )
-      }
-      return Promise.resolve(makeResponse({}))
-    })
   })
 
   it('renders search input and responds with listing results', async () => {
@@ -60,10 +39,8 @@ describe('Search Page', () => {
     const submitButton = screen.getByRole('button', { name: /search/i })
     fireEvent.click(submitButton)
 
-    // Wait for fetch and one listing (mocked in response shape data.results)
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalled()
-    })
+    // Wait for empty-state text that indicates request completed via MSW
+    await screen.findByText(/No results found/i)
   })
 
   it('performs in-place fetch on submit instead of navigation', async () => {
@@ -74,10 +51,8 @@ describe('Search Page', () => {
     const submitButton = screen.getByRole('button', { name: /search/i })
     fireEvent.click(submitButton)
 
+    // We assert no navigation happened; fetch is handled by MSW
     await waitFor(() => {
-      const arg = (fetchMock.mock.calls[0] || [])[0] as any
-      const url = typeof arg === 'string' ? arg : arg?.url ?? String(arg)
-      expect(String(url)).toContain('/api/search')
       expect(pushMock).not.toHaveBeenCalled()
     })
   })

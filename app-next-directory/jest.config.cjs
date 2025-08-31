@@ -4,6 +4,12 @@ const { pathsToModuleNameMapper } = require('ts-jest');
 const { compilerOptions } = require('./tsconfig.json');
 
 module.exports = {
+  // Ensure Jest type globals only apply in tests
+  globals: {
+    'ts-jest': {
+      tsconfig: '<rootDir>/tsconfig.test.json',
+    },
+  },
   // Treat TS/JS files as ESM for SWC/Jest
   extensionsToTreatAsEsm: ['.ts', '.tsx', '.jsx'],
   setupFiles: ['<rootDir>/jest/setEnvVars.js'],
