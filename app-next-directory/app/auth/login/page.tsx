@@ -3,7 +3,6 @@ import SocialAuthRow from '@/components/auth/SocialAuthRow';
 import LoginForm from './LoginForm';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import Link from 'next/link';
 
 export default function LoginPage() {
   return (
@@ -47,3 +46,4 @@ export default function LoginPage() {
     </>
   );
 }
+

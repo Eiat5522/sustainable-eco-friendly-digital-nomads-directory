@@ -29,13 +29,13 @@ export function Header() {
               Home
             </Link>
             <Link href="/search" className="body-md hover:text-neo-primary font-semibold transition-colors">
-              Find
+              Search
             </Link>
             <Link href="/blog" className="body-md hover:text-neo-primary font-semibold transition-colors">
               Blog
             </Link>
             <Link href="/contact-us" className="body-md hover:text-neo-primary font-semibold transition-colors">
-              Contact
+              Contact Us
             </Link>
           </nav>
 
