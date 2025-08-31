@@ -2,11 +2,10 @@
 import { PortableText } from '@portabletext/react';
 import { notFound } from 'next/navigation';
 import { getBaseUrl } from '@/lib/absolute-url';
-import { client } from '@/lib/sanity/client';
+import { client, urlFor } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import type { Metadata } from 'next'
 import Image from 'next/image';
-import { urlFor } from '@/lib/sanity/client';
 
 // Subtle SVG gradient placeholder for hero image when missing
 function placeholderDataUri(width = 1200, height = 630) {
@@ -49,8 +48,9 @@ async function getPost(slug: string): Promise<PostResponse> {
 
  // minimal response type
  type Comment = { _id: string; content: string; user?: { name?: string } | null };
+ type PrimaryImage = { asset?: { url?: string } | null; alt?: string | null } | null | undefined;
  type PostResponse = {
-   post: { _id: string; title: string; body: PortableTextBlock[] };
+   post: { _id: string; title: string; body: PortableTextBlock[]; primaryImage?: PrimaryImage };
    comments: Comment[];
  };
 
@@ -60,7 +60,7 @@ export default async function BlogPostPage({ params }: Readonly<{ params: { slug
   const { post, comments } = await getPost(slug);
 
   let heroUrl: string | null = null;
-  const primaryImage: any = (post as any)?.primaryImage;
+  const primaryImage = post.primaryImage;
   try {
     if (primaryImage) {
       heroUrl = urlFor(primaryImage).width(1200).height(630).fit('crop').auto('format').url() || null;
@@ -85,7 +85,9 @@ export default async function BlogPostPage({ params }: Readonly<{ params: { slug
             fill
             className="object-cover"
             sizes="100vw"
-            priority
+            placeholder={usingPlaceholder ? 'empty' : 'blur'}
+            blurDataURL={usingPlaceholder ? undefined : placeholderDataUri(1200, 630)}
+            priority={!usingPlaceholder}
           />
         </div>
         <div className="bg-white border-4 border-black rounded-lg shadow-lg p-8">

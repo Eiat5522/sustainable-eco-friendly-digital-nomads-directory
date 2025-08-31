@@ -1,3 +1,7 @@
+import { urlFor } from '@/lib/sanity/client';
+import type { SanityImage } from '@/types/sanity.types';
+import type { ListingDetailDTO, ListingSummaryDTO, FeaturedListingDTO, Money, OpeningHour, Percentage0To100 } from '@/types/dto';
+
 // Input shape for dereferenced Sanity data from GROQ queries
 interface DereferencedSanityListing {
   _id: string;

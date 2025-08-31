@@ -22,7 +22,7 @@ export function Header() {
                 alt="Sustainable Nomads"
                 width={36}
                 height={36}
-                className="h-9 w-auto object-contain"
+                className="h-9 w-9 object-contain"
                 priority
               />
             </Link>
@@ -30,15 +30,16 @@ export function Header() {
             <button
               type="button"
               aria-label="Open menu"
+              aria-controls="mobile-nav"
+              aria-expanded="false"
               className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
             >
-              <Menu size={20} />
-              <span className="sr-only">Open menu</span>
+              <Menu size={20} aria-hidden="true" focusable="false" />
             </button>
           </div>
 
           {/* Center: Navigation (desktop) */}
-          <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
+          <nav aria-label="Primary" className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
             <Link href="/" className="body-md hover:text-neo-primary font-semibold transition-colors">
               Home
             </Link>
@@ -58,9 +59,11 @@ export function Header() {
             {status !== 'loading' && (
               <Link
                 href={authLink}
-                className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center"
+                aria-label={status === 'authenticated' ? 'Account' : 'Sign in'}
+                className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
               >
-                <User size={20} className="text-neo-text-primary" />
+                <span className="sr-only">{status === 'authenticated' ? 'Account' : 'Sign in'}</span>
+                <User size={20} className="text-neo-text-primary" aria-hidden="true" focusable="false" />
               </Link>
             )}
           </div>

@@ -53,8 +53,6 @@ export interface BaseListingDTO {
   city: CityDTO | null;
   imageUrl?: string;
   ecoFocusTags?: string[];
-  /** @deprecated Use `ecoFocusTags` (plural). Temporary alias for backward compatibility. */
-  ecoFocusTags?: string[];
   digitalNomadFeatures?: string[];
   priceRange?: 'budget' | 'moderate' | 'premium';
   website?: string;

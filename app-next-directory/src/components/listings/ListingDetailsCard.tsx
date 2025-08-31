@@ -3,7 +3,8 @@ import { Phone, Mail, Globe, MapPin } from 'lucide-react';
 import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
 import { NeoButton } from '@/components/ui/neo-button';
 import { Separator } from '@/components/ui/separator';
-import { InteractiveMap } from '@/components/ui/InteractiveMap';
+// Removed static import to avoid conflict with dynamic import
+// import { InteractiveMap } from '@/components/ui/InteractiveMap';
 import type { ListingDetailDTO } from '@/types/dto';
 import { formatPrice } from '../listings/listingDetailMockData';
 
@@ -196,11 +197,11 @@ export function ListingDetailsCard({ listing }: Readonly<ListingDetailsCardProps
           <Separator />
 
           {/* Eco Focus Tags */}
-          {listing.ecoFocusTag && listing.ecoFocusTag.length > 0 && (
+          {listing.ecoFocusTags && listing.ecoFocusTags.length > 0 && (
             <div>
               <h3 className="heading-sm mb-4">Sustainability Features</h3>
               <div className="flex flex-wrap gap-2">
-                {listing.ecoFocusTag.map((tag, index) => (
+                {listing.ecoFocusTags.map((tag, index) => (
                   <span 
                     key={index}
                     className="px-3 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium border border-green-200"

@@ -1,12 +1,11 @@
 
 import { client } from '@/lib/sanity/client';
-import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
-import { authOptions } from '@/lib/auth';
+import { auth } from '@/lib/auth';
 import { revalidateTag } from 'next/cache';
 
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   const user = session?.user as { id?: string } | undefined;
   const userId: string | undefined = user?.id;

@@ -3,7 +3,7 @@
 import React from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 
-export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void; }): JSX.Element {
+export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void; }) {
   return (
     <html>
       <body>

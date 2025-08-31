@@ -34,6 +34,8 @@ module.exports = {
     "^next-auth/react$": "<rootDir>/__mocks__/next-auth/react.js",
     "^next-auth/jwt$": "<rootDir>/__mocks__/next-auth/jwt.js",
     "^next-auth/providers/credentials$": "<rootDir>/__mocks__/next-auth/providers/credentials.js",
+    "^next-auth/providers/(.*)$": "<rootDir>/__mocks__/next-auth/providers/$1.js",
+    "^@auth/core/providers/(.*)$": "<rootDir>/__mocks__/next-auth/providers/$1.js",
     "^@/__mocks__/(.*)$": "<rootDir>/__mocks__/$1",
     "node-fetch": "<rootDir>/__mocks__/node-fetch.js",
     "leaflet/dist/leaflet.css$": "<rootDir>/__mocks__/leaflet/dist/leaflet.css.js",

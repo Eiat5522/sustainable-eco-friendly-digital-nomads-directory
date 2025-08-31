@@ -3,7 +3,7 @@
 import React from 'react';
 import { NeoButton } from '@/components/ui/neo-button';
 
-export default function CityError({ error, reset }: { error: Error & { digest?: string }; reset: () => void; }): JSX.Element {
+export default function CityError({ error, reset }: { error: Error & { digest?: string }; reset: () => void; }) {
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4 text-center max-w-2xl">

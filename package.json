@@ -45,7 +45,7 @@
     "resend": "^4.8.0",
     "vscode-variables": "^1.0.1"
   },
-  "jest": "./app-next-directory/jest.config.js",
+  "jest": "./app-next-directory/jest.config.cjs",
   "pnpm": {
     "peerDependencyRules": {
       "ignoreMissing": [

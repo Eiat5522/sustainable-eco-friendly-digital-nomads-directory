@@ -4,21 +4,36 @@ import { useSearch } from './useSearch';
 import userEvent from '@testing-library/user-event';
 
 // Mock fetch directly using Jest standard approach to bypass global mocks
-const mockFetch = jest.fn();
+const mockFetch: jest.MockedFunction<typeof fetch> = jest.fn();
 global.fetch = mockFetch;
 
 jest.useFakeTimers(); // Use fake timers for debounce to work with fetch
 
 beforeEach(() => {
   mockFetch.mockReset();
-  mockFetch.mockImplementation(async (input, init) => {
+  mockFetch.mockImplementation(async (input: Request | string, init?: RequestInit) => {
+    // Determine URL for routing
+    const url = typeof input === 'string' ? input : input.url;
+
+    // Handle suggestions GET to avoid MSW warnings
+    if (url.includes('/api/search/suggestions')) {
+      return Response.json([]) as unknown as Response;
+    }
+
+    // Extract body for POST /api/search, supporting both (input, init) and Request
     let text = '';
     let body: any = {};
 
     if (init && typeof init.body === 'string') {
       text = init.body;
-    } else if (init && typeof Buffer !== 'undefined' && Buffer.isBuffer(init.body)) {
-      text = init.body.toString('utf-8');
+    } else if (init && init.body && typeof Buffer !== 'undefined' && Buffer.isBuffer(init.body as any)) {
+      text = (init.body as any).toString('utf-8');
+    } else if (typeof input !== 'string') {
+      try {
+        text = await input.clone().text();
+      } catch {
+        text = '';
+      }
     }
 
     if (text) {
@@ -30,9 +45,6 @@ beforeEach(() => {
     }
 
     const query = body.query as string | undefined;
-    // FORTEST: Debug log for query received by fetch mock
-    // eslint-disable-next-line no-console
-    console.log('FORTEST: fetch mock received query:', JSON.stringify(query), 'Full body:', JSON.stringify(body), 'Raw body text:', JSON.stringify(text));
 
     let responseObj;
     if (query === 'an') {
@@ -45,9 +57,7 @@ beforeEach(() => {
         results: [],
         pagination: { total: 0, page: 1, totalPages: 0, hasMore: false }
       };
-    } else if (query?.trim() === 'apple'){  // Match trimmed inside logic, store complex query
-      // eslint-disable-next-line no-console
-      console.log('FORTEST: Matching apple query! Returning Apple result');
+    } else if (query?.trim() === 'apple') {  // Match trimmed inside logic, store complex query
       responseObj = {
         results: [{ id: 1, name: 'Apple' }],
         pagination: { total: 1, page: 1, totalPages: 1, hasMore: false }
@@ -58,17 +68,20 @@ beforeEach(() => {
         pagination: { total: 0, page: 1, totalPages: 0, hasMore: false }
       };
     }
-    const res = new Response(JSON.stringify(responseObj), {
+
+    return new Response(JSON.stringify(responseObj), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
-    });
-    return Promise.resolve(res as unknown as Response);
+    }) as unknown as Response;
   });
 });
 
 afterEach(() => {
   mockFetch.mockReset();
   jest.clearAllTimers();
+});
+afterAll(() => {
+  jest.useRealTimers();
 });
 
 interface TestComponentProps {
@@ -98,8 +111,8 @@ describe('useSearch', () => {
     render(<TestComponent initialQuery="" />);
     expect(screen.getByTestId('query').textContent).toBe('');
     expect(screen.getByTestId('results').textContent).toBe('');
-
-    userEvent.click(screen.getByText('Set Query to an'));
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    await user.click(screen.getByText('Set Query to an'));
     await act(async () => {
       jest.advanceTimersByTime(350);
       await Promise.resolve();
@@ -154,9 +167,6 @@ describe('useSearch', () => {
     await act(async () => { await Promise.resolve(); });
     await waitFor(() => {
       expect(screen.getByTestId('query').textContent).toBe('  apple  ');
-      // FORTEST: Debug log for actual results
-      // eslint-disable-next-line no-console
-      console.log('FORTEST: Actual results:', screen.getByTestId('results').textContent);
       expect(screen.getByTestId('results').textContent).toContain('Apple');
     });
   });

@@ -262,7 +262,10 @@ describe('SanityHTTPClient', () => {
       const file = Buffer.from('test');
       const options = { filename: 'test.jpg' };
       const result = await client.uploadAsset(file, options);
-      expect(result).toEqual({ _id: 'mockAssetId' });
+      expect(result).toEqual({
+        _type: 'image',
+        asset: { _type: 'reference', _ref: 'mockAssetId' },
+      });
       expect(mockWriteClient.assets.upload).toHaveBeenCalledWith('image', file, options);
     });
 

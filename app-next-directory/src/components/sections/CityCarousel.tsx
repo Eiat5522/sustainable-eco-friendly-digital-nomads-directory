@@ -56,7 +56,7 @@ export function CityCarousel() {
         {!loading && !error && cities.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" role="list">
             {cities.map((city) => (
-              <Link key={city.id} href={`/city/${city.slug}`} role="listitem" className="block group">
+              <Link key={city.id} href={`/city/${city.slug}`} className="block group" aria-label={`View ${city.name} city page`}>
                 <div className="relative h-48 w-full overflow-hidden rounded-xl border-4 border-black bg-white shadow-[8px_8px_0_0_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0_0_rgba(0,0,0,1)] transition-all">
                   {city.imageUrl ? (
                     <Image
