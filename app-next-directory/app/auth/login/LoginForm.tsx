@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { NeoInput } from "@/components/ui/neo-input";
@@ -13,16 +13,61 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Map NextAuth error codes from querystring to user-friendly messages
+  const queryError = useMemo(() => {
+    const e = searchParams.get("error");
+    if (!e) return "";
+    switch (e) {
+      case "CredentialsSignin":
+        return "Invalid email or password.";
+      case "OAuthAccountNotLinked":
+        return "This email is linked to a different sign-in method. Sign in with the original provider or reset your password.";
+      case "AccessDenied":
+        return "Access denied. Please try again or contact support.";
+      case "Configuration":
+        return "Auth configuration issue. Please try again later.";
+      default:
+        return "Unable to sign in. Please try again.";
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (queryError) setError(queryError);
+  }, [queryError]);
+
+  const validate = () => {
+    let valid = true;
+    setEmailError("");
+    setPasswordError("");
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password;
+    const emailRegex = /.+@.+\..+/;
+    if (!trimmedEmail || !emailRegex.test(trimmedEmail)) {
+      setEmailError("Enter a valid email address.");
+      valid = false;
+    }
+    if (!trimmedPassword || trimmedPassword.length < 8) {
+      setPasswordError("Enter your password (min 8 characters).");
+      valid = false;
+    }
+    return valid;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!validate()) {
+      return;
+    }
     setIsLoading(true);
     try {
       const callbackUrl = searchParams.get("callbackUrl") ?? "/";
       const res = await signIn("credentials", {
-        email,
+        email: email.trim().toLowerCase(),
         password,
         redirect: false,
         callbackUrl,
@@ -59,8 +104,13 @@ export default function LoginForm() {
           aria-label="Email"
           disabled={isLoading}
           aria-disabled={isLoading}
+          aria-invalid={!!emailError}
+          aria-describedby={emailError ? "email-error" : undefined}
           
         />
+        {emailError ? (
+          <p id="email-error" className="text-red-500 text-xs" aria-live="polite">{emailError}</p>
+        ) : null}
         <NeoInput
           type="password"
           placeholder="Password"
@@ -71,7 +121,12 @@ export default function LoginForm() {
           aria-label="Password"
           disabled={isLoading}
           aria-disabled={isLoading}
+          aria-invalid={!!passwordError}
+          aria-describedby={passwordError ? "password-error" : undefined}
         />
+        {passwordError ? (
+          <p id="password-error" className="text-red-500 text-xs" aria-live="polite">{passwordError}</p>
+        ) : null}
         {error ? (
           <p id="form-error" role="alert" aria-live="polite" className="text-red-500 text-sm">
             {error}
