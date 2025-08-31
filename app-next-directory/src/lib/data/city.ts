@@ -89,8 +89,8 @@ function toCityDetailDTO(raw: any): CityDetailDTO | null {
   // Add additional detail fields
   const galleryUrls: string[] = Array.isArray(raw.galleryImages)
     ? raw.galleryImages
-        .map((img: any) => (img && img.asset && typeof img.asset.url === 'string' ? img.asset.url : undefined))
-        .filter((u: unknown): u is string => typeof u === 'string' && u.length > 0)
+        .map((img: SanityImageRef) => (typeof img?.asset?.url === 'string' ? img.asset.url : undefined))
+        .filter((u: unknown): u is string => typeof u === 'string' && u.trim().length > 0)
     : [];
 
   return {
@@ -154,13 +154,11 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     galleryImages[]{
       asset->{
         url,
-        metadata{ dimensions }
-      }
+       }
     },
     "primaryImage": primaryImage{
-      alt,
       asset->{
-        url,
+        url
         metadata{ dimensions }
       }
     }

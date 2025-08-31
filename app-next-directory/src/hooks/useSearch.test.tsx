@@ -58,12 +58,11 @@ beforeEach(() => {
         pagination: { total: 0, page: 1, totalPages: 0, hasMore: false }
       };
     }
-    return Promise.resolve({
-      ok: true,
-      json: async () => responseObj,
+    const res = new Response(JSON.stringify(responseObj), {
       status: 200,
-      headers: new Headers({ 'Content-Type': 'application/json' })
-    } as Response);
+      headers: { 'Content-Type': 'application/json' }
+    });
+    return Promise.resolve(res as unknown as Response);
   });
 });
 

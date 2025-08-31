@@ -1,5 +1,13 @@
 
 import Link from 'next/link';
+import Image from 'next/image';
+import { urlFor } from '@/lib/sanity/client';
+
+// Lightweight, subtle SVG gradient placeholder as data URI
+function placeholderDataUri(width = 800, height = 450) {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${width}' height='${height}' viewBox='0 0 ${width} ${height}'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#f3f4f6'/><stop offset='1' stop-color='#e5e7eb'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/></svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
 import { getBaseUrl } from '@/lib/absolute-url';
 import type { Metadata } from 'next'
 import { Header } from '@/components/layout/Header';
@@ -11,6 +19,10 @@ type Post = {
   excerpt?: string | null;
   slug: { current: string };
   tags?: string[];
+  primaryImage?: {
+    asset?: { url?: string };
+    alt?: string | null;
+  } | null;
 };
 
 type BlogApiResponse = {
@@ -126,14 +138,42 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {posts.map((post: any) => (
-          <Link key={post._id} href={`/blog/${post.slug.current}`}>
-            <div className="block p-6 bg-white border-4 border-black rounded-lg shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 ease-in-out">
-              <h2 className="text-3xl font-bold mb-2 text-gray-800">{post.title}</h2>
-              <p className="text-gray-600">{post.excerpt}</p>
-            </div>
-          </Link>
-        ))}
+        {posts.map((post: Post, idx: number) => {
+          let imageUrl: string | null = null;
+          try {
+            if (post?.primaryImage) {
+              // Prefer builder for optimized CDN params; fallback to raw URL
+              imageUrl = urlFor(post.primaryImage).width(800).height(450).fit('crop').auto('format').url() || null;
+              if (!imageUrl) imageUrl = post.primaryImage?.asset?.url ?? null;
+            }
+          } catch {
+            imageUrl = post?.primaryImage?.asset?.url ?? null;
+          }
+          const usingPlaceholder = !imageUrl;
+          const src = imageUrl ?? placeholderDataUri(800, 450);
+          const alt = usingPlaceholder ? '' : ((post?.primaryImage as any)?.alt || post.title || '');
+          return (
+            <Link key={post._id} href={`/blog/${post.slug.current}`}>
+              <div className="block bg-white border-4 border-black rounded-lg shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 ease-in-out overflow-hidden">
+                <div className="relative h-48">
+                  <Image
+                    src={src}
+                    alt={alt}
+                    aria-hidden={usingPlaceholder}
+                    fill
+                    className="object-cover"
+                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                    priority={idx < 3}
+                  />
+                </div>
+                <div className="p-6">
+                  <h2 className="text-3xl font-bold mb-2 text-gray-800">{post.title}</h2>
+                  <p className="text-gray-600">{post.excerpt}</p>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       {/* Pagination */}

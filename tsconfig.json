@@ -21,12 +21,14 @@
     "lib": ["dom", "dom.iterable", "esnext"]
   },
   "include": [
-    "tests/**/*",
     "src/**/*",
     "app-next-directory/sanity.types.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "tests/**",
+    "playwright-report/**",
+    "coverage/**"
   ],
   "references": [
     { "path": "./sanity"}

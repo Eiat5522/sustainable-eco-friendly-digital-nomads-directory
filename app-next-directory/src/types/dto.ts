@@ -25,7 +25,8 @@ export interface CityDetailDTO extends CityDTO {
   // Additional detail fields
   shortDescription?: string;
   airQuality?: string;
-  internetSpeed?: number | InternetSpeedDTO;
+  /** If number, interpreted as average download Mbps. Prefer InternetSpeedDTO when available. */
+  internetSpeed?: InternetSpeedValue;
   costOfLiving?: string;
   climate?: string;
   safety?: string;
@@ -73,6 +74,9 @@ export type InternetSpeedDTO = Readonly<{
   upload: number;   // Mbps
   lastTested?: string; // ISO datetime
 }>;
+
+/** Shorthand union for places that accept a simple Mbps number or the full shape */
+export type InternetSpeedValue = number | InternetSpeedDTO;
 
 // Canonical backend-aligned enums
 export type ListingStatusDTO = 'draft' | 'pending' | 'published' | 'archived' | 'flagged';
@@ -155,7 +159,6 @@ export type ListingDetailDTO =
       type: 'coworking';
       coworkingDetails: CoworkingDetails;
       cafeDetails?: never; restaurantDetails?: never; activityDetails?: never; accommodationDetails?: never;
-      internetSpeed?: InternetSpeedDTO;
     })
   | (ListingDetailShared & {
       type: 'cafe';

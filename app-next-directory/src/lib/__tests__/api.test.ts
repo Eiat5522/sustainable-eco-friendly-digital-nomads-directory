@@ -26,15 +26,11 @@ describe('API Functions', () => {
         coordinates: { lat: 13.7563, lng: 100.5018 },
       };
 
-      const mockResponse = {
-        ok: true,
-        json: () => Promise.resolve({
-          success: true,
-          data: mockCityData,
-        }),
-      } as unknown as Response;
-
-      mockFetch.mockResolvedValue(mockResponse);
+      const mockResponse = new Response(JSON.stringify({ success: true, data: mockCityData }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      mockFetch.mockResolvedValue(mockResponse as unknown as Response);
 
       const result = await fetchCityDetails('bangkok');
 
@@ -43,12 +39,8 @@ describe('API Functions', () => {
     });
 
     it('should handle fetch error when response is not ok', async () => {
-      const mockResponse = {
-        ok: false,
-        status: 404,
-      } as unknown as Response;
-
-      mockFetch.mockResolvedValue(mockResponse);
+      const mockResponse = new Response(null, { status: 404 });
+      mockFetch.mockResolvedValue(mockResponse as unknown as Response);
 
       await expect(fetchCityDetails('nonexistent')).rejects.toThrow('Failed to fetch city details');
       expect(console.error).toHaveBeenCalledWith('Error fetching city details:', expect.any(Error));
@@ -93,18 +85,11 @@ describe('API Functions', () => {
         },
       ];
 
-      const mockResponse = {
-        ok: true,
-        json: () => Promise.resolve({
-          success: true,
-          data: {
-            listings: mockListingsData,
-            total: 2,
-          },
-        }),
-      } as unknown as Response;
-
-      mockFetch.mockResolvedValue(mockResponse);
+      const mockResponse = new Response(JSON.stringify({ success: true, data: { listings: mockListingsData, total: 2 } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      mockFetch.mockResolvedValue(mockResponse as unknown as Response);
 
       const result = await fetchCityListings('bangkok');
 
@@ -113,15 +98,11 @@ describe('API Functions', () => {
     });
 
     it('should handle missing listings data', async () => {
-      const mockResponse = {
-        ok: true,
-        json: () => Promise.resolve({
-          success: true,
-          data: {}, // No listings property
-        }),
-      } as unknown as Response;
-
-      mockFetch.mockResolvedValue(mockResponse);
+      const mockResponse = new Response(JSON.stringify({ success: true, data: {} }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      mockFetch.mockResolvedValue(mockResponse as unknown as Response);
 
       const result = await fetchCityListings('bangkok');
 
@@ -129,12 +110,8 @@ describe('API Functions', () => {
     });
 
     it('should return empty array when response is not ok', async () => {
-      const mockResponse = {
-        ok: false,
-        status: 500,
-      } as unknown as Response;
-
-      mockFetch.mockResolvedValue(mockResponse);
+      const mockResponse = new Response(null, { status: 500 });
+      mockFetch.mockResolvedValue(mockResponse as unknown as Response);
 
       const result = await fetchCityListings('bangkok');
 
@@ -167,15 +144,11 @@ describe('API Functions', () => {
     });
 
     it('should encode special characters in city slug', async () => {
-      const mockResponse = {
-        ok: true,
-        json: () => Promise.resolve({
-          success: true,
-          data: { listings: [] },
-        }),
-      } as unknown as Response;
-
-      mockFetch.mockResolvedValue(mockResponse);
+      const mockResponse = new Response(JSON.stringify({ success: true, data: { listings: [] } }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+      mockFetch.mockResolvedValue(mockResponse as unknown as Response);
 
       await fetchCityListings('chiang-mai');
 

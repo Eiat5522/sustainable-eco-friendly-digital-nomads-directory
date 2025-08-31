@@ -125,13 +125,15 @@ function ContactForm() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-gradient-to-b from-emerald-50 via-white to-sky-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
+      {/* Decorative gradient blob */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-64 bg-gradient-to-r from-emerald-200/60 via-cyan-200/40 to-sky-200/60 blur-2xl dark:from-emerald-600/20 dark:via-cyan-600/10 dark:to-sky-700/20" />
       <Header />
       <main className="container mx-auto px-4 py-16">
-        <NeoCard variant="flat" className="max-w-2xl mx-auto">
+        <NeoCard variant="flat" className="max-w-2xl mx-auto shadow-lg/50 shadow-emerald-100/40 dark:shadow-black/40 ring-1 ring-emerald-100/60 dark:ring-emerald-900/40 focus-within:ring-2 focus-within:ring-emerald-300 dark:focus-within:ring-emerald-700" role="region" aria-labelledby="contact-heading">
           <div className="p-8">
-            <h1 className="heading-lg mb-2">Contact Us</h1>
-            <p className="body-lg text-gray-600 mb-8">
+            <h1 id="contact-heading" className="heading-lg mb-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 bg-clip-text text-transparent dark:from-emerald-400 dark:via-teal-400 dark:to-sky-400">Contact Us</h1>
+            <p className="body-lg text-gray-700 dark:text-gray-300 mb-8">
               We&apos;re here to help. Select a topic below or send us a message.
             </p>
 
@@ -140,7 +142,7 @@ function ContactForm() {
                 <div>
                   <Label htmlFor="enquiry-type" className="text-sm font-medium text-gray-700">I have a question about...</Label>
                   <Select value={enquiryType} onValueChange={(value) => setEnquiryType(value as EnquiryType)}>
-                    <SelectTrigger id="enquiry-type" className="w-full mt-1">
+                    <SelectTrigger id="enquiry-type" aria-label="Select enquiry type" className="w-full mt-1">
                       <SelectValue placeholder="Select an enquiry type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -166,9 +168,11 @@ function ContactForm() {
                           onChange={(e) => setName(e.target.value)}
                           required
                           className="pl-10"
+                          aria-invalid={!!errors.name}
+                          aria-describedby={errors.name ? 'name-error' : undefined}
                         />
                       </div>
-                      {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
+                      {errors.name && <p id="name-error" role="alert" className="text-sm text-red-600 mt-1">{errors.name}</p>}
                     </div>
                      <div>
                       <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address</Label>
@@ -186,9 +190,19 @@ function ContactForm() {
                           autoComplete="email"
                         />
                       </div>
-                      {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
-                    </div>
-                    <div>
+                        <NeoInput
+                          id="email"
+                          name="email"
+                          type="email"
+                          placeholder="you@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          className="pl-10"
+                          autoComplete="email"
+                          aria-invalid={!!errors.email}
+                          aria-describedby={errors.email ? 'email-error' : undefined}
+                        />                    <div>
                       <Label htmlFor="subject" className="text-sm font-medium text-gray-700">Subject</Label>
                       <div className="relative mt-1">
                         <Type className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -218,9 +232,11 @@ function ContactForm() {
                           required
                           className="pl-10 pt-2"
                           rows={5}
+                          aria-invalid={!!errors.enquiry}
+                          aria-describedby={errors.enquiry ? 'enquiry-error' : undefined}
                         />
                       </div>
-                      {errors.enquiry && <p className="text-sm text-red-600 mt-1">{errors.enquiry}</p>}
+                      {errors.enquiry && <p id="enquiry-error" role="alert" className="text-sm text-red-600 mt-1">{errors.enquiry}</p>}
                     </div>
                   </>
                 ) : (
@@ -238,26 +254,32 @@ function ContactForm() {
                         required
                         className="pl-10"
                         autoComplete="email"
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? 'email-error' : undefined}
                       />
                     </div>
-                    {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
+                    {errors.email && <p id="email-error" role="alert" className="text-sm text-red-600 mt-1">{errors.email}</p>}
                   </div>
                 )}
               </div>
 
               {submitMessage && (
-                <div className={`mt-6 p-4 rounded-md text-center ${submitMessage.includes('Thank you') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className={`mt-6 p-4 rounded-md text-center border ${submitMessage.includes('Thank you') ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}
+                >
                   {submitMessage}
                 </div>
               )}
 
               <div className="flex items-center justify-end gap-4 mt-8">
                 <Link href="/" passHref>
-                  <NeoButton variant="secondary" type="button">
+                  <NeoButton variant="secondary" type="button" className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:border-emerald-900/40 dark:hover:bg-emerald-900/30">
                     Cancel
                   </NeoButton>
                 </Link>
-                <NeoButton type="submit" disabled={isSubmitting}>
+                <NeoButton type="submit" disabled={isSubmitting} aria-busy={isSubmitting} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30 dark:bg-emerald-500 dark:hover:bg-emerald-600">
                   {isSubmitting ? 'Submitting...' : 'Submit'}
                 </NeoButton>
               </div>
