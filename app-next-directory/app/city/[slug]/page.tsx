@@ -6,53 +6,51 @@ import { CityDTOSchema, CityDetailDTOSchema, ListingSummaryDTOArraySchema } from
 
 export const revalidate = 300;
 
-type Props = { params: { slug: string } };
+type Params = { slug: string };
+type Props = { params: Params | Promise<Params> };
 
 export default async function CityPage({ params }: Props) {
-  // Support Next 14 (sync) and Next 15 (async) params
-  const { slug } = await Promise.resolve(params as unknown as { slug: string });
+  // Support Next 14 (value) and Next 15 (promise) params
+  const { slug } = await Promise.resolve(params);
 
-  // Try to fetch detailed city data first, fall back to basic data
+  // Try to fetch detailed city data first, fall back to basic data; guard exceptions
   let city: CityDTO | CityDetailDTO;
-  let rawCity: CityDTO | CityDetailDTO | null = await getCityDetailBySlug(slug);
-
-  if (!rawCity) {
-    // Fallback to basic city data
-    rawCity = await getCityBySlug(slug);
+  let rawCity: unknown = null;
+  try {
+    rawCity = await getCityDetailBySlug(slug);
+    if (!rawCity) rawCity = await getCityBySlug(slug);
+  } catch (err) {
+    console.error('[city/page] City fetch failed for slug %s:', slug, err);
   }
 
   if (!rawCity) {
     notFound();
   }
 
-  // Validate based on the type of data we received
-  if ('shortDescription' in rawCity && rawCity.shortDescription !== undefined) {
-    // This is CityDetailDTO
-    const cityResult = CityDetailDTOSchema.safeParse(rawCity);
-    if (!cityResult.success) {
-      console.error('[city/page] Invalid CityDetailDTO for slug %s:', slug, cityResult.error);
-      // Skip listings fetch and render safe defaults
-      return <CityDetailView city={{ id: '', name: '', slug, country: '' }} listings={[]} />;
-    }
-    city = cityResult.data as CityDetailDTO;
+  // Validate using schema-first approach (detail → basic)
+  const detailResult = CityDetailDTOSchema.safeParse(rawCity);
+  if (detailResult.success) {
+    city = detailResult.data as CityDetailDTO;
   } else {
-    // This is basic CityDTO
-    const cityResult = CityDTOSchema.safeParse(rawCity);
-    if (!cityResult.success) {
-      console.error('[city/page] Invalid CityDTO for slug %s:', slug, cityResult.error);
-      // Skip listings fetch and render safe defaults
-      return <CityDetailView city={{ id: '', name: '', slug, country: '' }} listings={[]} />;
+    const basicResult = CityDTOSchema.safeParse(rawCity);
+    if (basicResult.success) {
+      city = basicResult.data as CityDTO;
+    } else {
+      console.error('[city/page] Invalid city DTO for slug %s:', slug, {
+        detail: detailResult.error,
+        basic: basicResult.error,
+      });
+      notFound();
     }
-    city = cityResult.data as CityDTO;
   }
 
   // Only fetch listings when city validation passes
-  const rawListings: ListingSummaryDTO[] = await getListingsByCityId(city.id);
+  const rawListings: unknown = await getListingsByCityId(city.id);
   const listingsResult = ListingSummaryDTOArraySchema.safeParse(rawListings);
   if (!listingsResult.success) {
     console.error('[city/page] Invalid ListingSummaryDTO[] for city %s:', city.id, listingsResult.error);
   }
-  const listings: ListingSummaryDTO[] = (listingsResult.success ? listingsResult.data : []) as ListingSummaryDTO[];
+  const listings: ListingSummaryDTO[] = listingsResult.success ? listingsResult.data : [];
 
   return <CityDetailView city={city} listings={listings} />;
 }

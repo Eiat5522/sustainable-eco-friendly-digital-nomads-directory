@@ -26,7 +26,7 @@ export default function SignupPage() {
     if (!res.ok) {
       const data = await res.json().catch(() => null);
       setError(data?.error?.message || 'Failed to sign up');
-      return; 
+      return;
     }
     await signIn('credentials', { email, password, callbackUrl: '/' });
   };

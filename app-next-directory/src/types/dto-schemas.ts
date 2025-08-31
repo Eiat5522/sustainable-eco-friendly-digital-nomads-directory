@@ -32,15 +32,16 @@ export const CityDTOSchema = z
 export const CityDetailDTOSchema = CityDTOSchema.extend({
   shortDescription: z.string().optional(),
   airQuality: z.string().optional(),
-  internetSpeed: z.number().optional(),
+  internetSpeed: z.number().nonnegative().optional(),
   costOfLiving: z.string().optional(),
   climate: z.string().optional(),
   safety: z.string().optional(),
   walkability: z.string().optional(),
   sustainabilityInitiatives: z.array(z.string()).optional(),
   digitalNomadFeatures: z.array(z.string()).optional(),
-  galleryImages: z.array(z.string()).optional(),
-  coordinates: GeoPointSchema.optional(),
+  galleryImages: z.array(z.string().url()).optional(),
+  // Use the same field name as listings
+  location: GeoPointSchema.optional(),
 }).strict();
 
 // Enums

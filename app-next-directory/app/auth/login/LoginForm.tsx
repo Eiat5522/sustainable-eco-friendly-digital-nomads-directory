@@ -38,7 +38,8 @@ export default function LoginForm() {
       // Prefer router navigation if a URL is present
       if (res?.url) router.replace(res.url);
       else router.replace(callbackUrl);
-    } catch {
+    } catch (err) {
+      console.error("Login failed:", err);
       setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
@@ -56,6 +57,9 @@ export default function LoginForm() {
           required
           autoComplete="email"
           aria-label="Email"
+          disabled={isLoading}
+          aria-disabled={isLoading}
+          
         />
         <NeoInput
           type="password"
@@ -65,6 +69,8 @@ export default function LoginForm() {
           required
           autoComplete="current-password"
           aria-label="Password"
+          disabled={isLoading}
+          aria-disabled={isLoading}
         />
         {error ? (
           <p id="form-error" role="alert" aria-live="polite" className="text-red-500 text-sm">

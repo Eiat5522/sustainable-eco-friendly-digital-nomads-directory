@@ -3,6 +3,10 @@ import { groq } from 'next-sanity';
 import { transformToSummaryDTO } from '@/lib/dto-transformer';
 import type { CityDTO, CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
 
+type SanityImageDimensions = { width?: number; height?: number };
+type SanityImageAsset = { url?: string; metadata?: { dimensions?: SanityImageDimensions } };
+type SanityImageRef = { asset?: SanityImageAsset } | null | undefined;
+
 // Input shape for dereferenced Sanity data from GROQ queries
 interface DereferencedSanityListing {
   _id: string;
@@ -14,8 +18,8 @@ interface DereferencedSanityListing {
   location?: { lat: number; lng: number };
   priceRange?: 'budget' | 'moderate' | 'premium';
   website?: string;
-  primaryImage?: any;
-  galleryImages?: any[];
+  primaryImage?: SanityImageRef;
+  galleryImages?: SanityImageRef[];
   ecoFocusTags?: Array<{ name: string }>;
   digitalNomadFeatures?: Array<{ name: string }>;
   amenities?: Array<{ name: string }>;
@@ -30,13 +34,23 @@ interface DereferencedSanityListing {
 }
 
 // Sanitize Sanity geopoint input to ensure consumers get { lat, lng } or undefined
-function toGeoPoint(geo?: { lat?: number; lng?: number } | null): { lat: number; lng: number } | undefined {
-  if (geo && typeof geo.lat === 'number' && typeof geo.lng === 'number' && !isNaN(geo.lat) && !isNaN(geo.lng)) {
-    return { lat: geo.lat, lng: geo.lng };
+function toGeoPoint(
+  geo?: { lat?: number; lng?: number } | null
+): { lat: number; lng: number } | undefined {
+  const lat = geo?.lat;
+  const lng = geo?.lng;
+  if (
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    lat! >= -90 &&
+    lat! <= 90 &&
+    lng! >= -180 &&
+    lng! <= 180
+  ) {
+    return { lat: lat!, lng: lng! };
   }
   return undefined;
 }
-
 // Map raw Sanity city to CityDTO
 function toCityDTO(raw: any): CityDTO | null {
   if (!raw || typeof raw !== 'object') return null;
@@ -82,8 +96,13 @@ function toCityDetailDTO(raw: any): CityDetailDTO | null {
     climate: raw.climate ?? undefined,
     safety: raw.safety ?? undefined,
     walkability: raw.walkability ?? undefined,
-    sustainabilityInitiatives: Array.isArray(raw.sustainabilityInitiatives) ? raw.sustainabilityInitiatives : [],
-    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures) ? raw.digitalNomadFeatures : [],
+    sustainabilityInitiatives: Array.isArray(raw.sustainabilityInitiatives)
+      ? raw.sustainabilityInitiatives.map((v: any) => (typeof v === 'string' ? v : v?.name)).filter(Boolean)
+      : [],
+    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures)
+      ? raw.digitalNomadFeatures.map((v: any) => (typeof v === 'string' ? v : v?.name)).filter(Boolean)
+      : [],
+    // keep as refs unless query dereferences; see getCityDetailBySlug suggestion
     galleryImages: Array.isArray(raw.galleryImages) ? raw.galleryImages : [],
     coordinates: toGeoPoint(raw.location),
   };
@@ -128,9 +147,15 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     walkability,
     sustainabilityInitiatives,
     digitalNomadFeatures,
-    galleryImages,
+    galleryImages[]{
+      asset->{
+        url,
+        metadata{ dimensions }
+      }
+    },
     location,
     "primaryImage": primaryImage{
+      alt,
       asset->{
         url,
         metadata{ dimensions }

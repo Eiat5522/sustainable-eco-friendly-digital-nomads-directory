@@ -20,21 +20,30 @@ export default function SearchPage() {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
 
-  const cityOptions: Option[] = [
-    { value: 'Bangkok', label: 'Bangkok', icon: MapPin },
-    { value: 'Phuket', label: 'Phuket', icon: MapPin },
-  ];
+  const cityOptions = React.useMemo<Option[]>(
+    () => [
+      { value: 'Bangkok', label: 'Bangkok', icon: MapPin },
+      { value: 'Phuket', label: 'Phuket', icon: MapPin },
+    ],
+    []
+  );
 
-  const typeOptions: Option[] = [
-    { value: 'coworking', label: 'Coworking Space', icon: Building2 },
-    { value: 'accommodation', label: 'Accommodation', icon: Home },
-  ];
+  const typeOptions = React.useMemo<Option[]>(
+    () => [
+      { value: 'coworking', label: 'Coworking Space', icon: Building2 },
+      { value: 'accommodation', label: 'Accommodation', icon: Home },
+    ],
+    []
+  );
 
-  const amenityOptions: Option[] = [
-    { value: 'wifi', label: 'Free Wifi', icon: Wifi },
-    { value: 'security', label: '24 hrs Security', icon: Shield },
-    { value: 'keycard', label: 'Key Card Access', icon: Key },
-  ];
+  const amenityOptions = React.useMemo<Option[]>(
+    () => [
+      { value: 'wifi', label: 'Free Wifi', icon: Wifi },
+      { value: 'security', label: '24 hrs Security', icon: Shield },
+      { value: 'keycard', label: 'Key Card Access', icon: Key },
+    ],
+    []
+  );
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,9 +59,13 @@ export default function SearchPage() {
       selectedTypes.forEach((t) => params.append('category', t));
       selectedAmenities.forEach((a) => params.append('amenities', a));
 
-      const response = await fetch(`/api/search?${params.toString()}`);
+      const qs = params.toString();
+      const url = qs ? `/api/search?${qs}` : '/api/search';
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Search failed: ${response.status}`);
       const data = await response.json();
-      setResults(data?.data?.results || []);
+      const results = Array.isArray(data?.data?.results) ? data.data.results : [];
+      setResults(results);
     } catch (err) {
       console.error('Search failed', err);
     } finally {
@@ -76,7 +89,6 @@ export default function SearchPage() {
             />
             <NeoInput
               id="search-page-input"
-              aria-label="Search venues"
               placeholder="Search by name, city, or amenities"
               className="pl-12 pr-16 h-16 text-lg"
               type="search"

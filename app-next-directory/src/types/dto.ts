@@ -25,7 +25,7 @@ export interface CityDetailDTO extends CityDTO {
   // Additional detail fields
   shortDescription?: string;
   airQuality?: string;
-  internetSpeed?: number;
+  internetSpeed?: InternetSpeedDTO;
   costOfLiving?: string;
   climate?: string;
   safety?: string;
@@ -53,6 +53,8 @@ export interface BaseListingDTO {
   city: CityDTO | null;
   imageUrl?: string;
   ecoFocusTags?: string[];
+  /** @deprecated Use `ecoFocusTags` (plural). Temporary alias for backward compatibility. */
+  ecoFocusTags?: string[];
   digitalNomadFeatures?: string[];
   priceRange?: 'budget' | 'moderate' | 'premium';
   website?: string;
@@ -65,6 +67,13 @@ export interface BaseListingDTO {
   featured?: boolean;
 }
 export type GeoPoint = Readonly<{ lat: number; lng: number }>;
+
+// Shared internet speed shape (readonly)
+export type InternetSpeedDTO = Readonly<{
+  download: number; // Mbps
+  upload: number;   // Mbps
+  lastTested?: string; // ISO datetime
+}>;
 
 // Canonical backend-aligned enums
 export type ListingStatusDTO = 'draft' | 'pending' | 'published' | 'archived' | 'flagged';
@@ -101,7 +110,7 @@ export type FeaturedListingDTO = Pick<BaseListingDTO, 'id' | 'name' | 'slug' | '
 export interface CoworkingDetails {
   pricingPlans?: Array<{ type: string; price: Money; period: string; features?: string[] }>;
   openingHours?: OpeningHour[];
-  internetSpeed?: { download: number; upload: number; lastTested: string };
+  internetSpeed?: InternetSpeedDTO;
 }
 
 export interface CafeDetails {
@@ -147,6 +156,7 @@ export type ListingDetailDTO =
       type: 'coworking';
       coworkingDetails: CoworkingDetails;
       cafeDetails?: never; restaurantDetails?: never; activityDetails?: never; accommodationDetails?: never;
+      internetSpeed?: InternetSpeedDTO;
     })
   | (ListingDetailShared & {
       type: 'cafe';

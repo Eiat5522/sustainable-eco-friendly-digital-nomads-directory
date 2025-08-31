@@ -10,11 +10,11 @@ interface DereferencedSanityListing {
   location?: { lat: number; lng: number };
   priceRange?: 'budget' | 'moderate' | 'premium';
   website?: string;
-  primaryImage?: any;
-  galleryImages?: any[];
-  ecoFocusTags?: Array<{ name: string }>;
-  digitalNomadFeatures?: Array<{ name: string }>;
-  amenities?: Array<{ name: string }>;
+  primaryImage?: unknown;
+  galleryImages?: unknown[];
+  ecoFocusTags?: ReadonlyArray<{ name?: string }>;
+  digitalNomadFeatures?: ReadonlyArray<{ name?: string }>;
+  amenities?: ReadonlyArray<{ name?: string }>;
   city?: {
     _id: string;
     name: string;
@@ -91,6 +91,13 @@ const toAmenities = (
       category: a.category,
     }));
 
+// Shared helpers for simple name extraction and string validation
+const isNonEmptyString = (x: unknown): x is string => typeof x === 'string' && x.length > 0;
+
+const toNames = (
+  arr?: ReadonlyArray<{ name?: string } | null | undefined>
+): string[] => (arr ?? []).map(x => x?.name).filter(isNonEmptyString);
+
 export function transformToSummaryDTO(sanityListing: DereferencedSanityListing): ListingSummaryDTO {
   const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
 
@@ -109,12 +116,8 @@ export function transformToSummaryDTO(sanityListing: DereferencedSanityListing):
       description: undefined // Not fetched in this query
     } : null,
     imageUrl,
-    ecoFocusTags: (sanityListing.ecoFocusTags ?? [])
-      .map((tag) => tag?.name)
-      .filter((name): name is string => typeof name === 'string' && name.length > 0),
-    digitalNomadFeatures: (sanityListing.digitalNomadFeatures ?? [])
-      .map((feature) => feature?.name)
-      .filter((name): name is string => typeof name === 'string' && name.length > 0),
+    ecoFocusTags: toNames(sanityListing.ecoFocusTags),
+    digitalNomadFeatures: toNames(sanityListing.digitalNomadFeatures),
     priceRange: sanityListing.priceRange,
     website: sanityListing.website,
     address: sanityListing.address,
