@@ -7,6 +7,13 @@ import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
 import { Search, MapPin, Building2, Home, Wifi, Shield, Key } from 'lucide-react';
 import { FilterMultiSelect, Option } from '@/components/ui/filter-multi-select';
+import type {
+  City,
+  CityResponse,
+  CategoryResponse,
+  Amenity,
+  AmenityResponse,
+} from '@/types/api-responses';
 type SearchResult = Record<string, unknown>; // TODO: narrow shape when API is wired
 
 export default function SearchPage() {
@@ -27,14 +34,20 @@ export default function SearchPage() {
     async function loadFilters() {
       try {
         const [citiesRes, catsRes, amenitiesRes] = await Promise.all([
-          fetch('/api/cities').then((r) => r.ok ? r.json() : Promise.reject(r.statusText)).catch(() => ({ cities: [] })),
-          fetch('/api/categories').then((r) => r.ok ? r.json() : Promise.reject(r.statusText)).catch(() => ({ categories: [] })),
-          fetch('/api/amenities').then((r) => r.ok ? r.json() : Promise.reject(r.statusText)).catch(() => ({ amenities: [] })),
+          fetch('/api/cities')
+            .then((r) => (r.ok ? (r.json() as Promise<CityResponse>) : Promise.reject(r.statusText)))
+            .catch((): CityResponse => ({ cities: [] })),
+          fetch('/api/categories')
+            .then((r) => (r.ok ? (r.json() as Promise<CategoryResponse>) : Promise.reject(r.statusText)))
+            .catch((): CategoryResponse => ({ categories: [] })),
+          fetch('/api/amenities')
+            .then((r) => (r.ok ? (r.json() as Promise<AmenityResponse>) : Promise.reject(r.statusText)))
+            .catch((): AmenityResponse => ({ amenities: [] })),
         ]);
         if (cancelled) return;
 
-        const cities: any[] = Array.isArray(citiesRes?.cities) ? citiesRes.cities : [];
-        const cityOpts: Option[] = cities.map((c: any) => ({
+        const cities = Array.isArray(citiesRes?.cities) ? (citiesRes.cities as City[]) : [];
+        const cityOpts: Option[] = cities.map((c) => ({
           value: String(c?.name ?? ''),
           label: String(c?.name ?? ''),
           icon: MapPin,
@@ -42,15 +55,15 @@ export default function SearchPage() {
         setCityOptions(cityOpts);
 
         const categories: string[] = Array.isArray(catsRes?.categories) ? catsRes.categories : [];
-        const typeOpts: Option[] = categories.map((cat: string) => ({
+        const typeOpts: Option[] = categories.map((cat) => ({
           value: cat,
           label: cat.charAt(0).toUpperCase() + cat.slice(1),
           icon: cat.toLowerCase().includes('work') ? Building2 : Home,
         }));
         setTypeOptions(typeOpts);
 
-        const amenities: any[] = Array.isArray(amenitiesRes?.amenities) ? amenitiesRes.amenities : [];
-        const amenityOpts: Option[] = amenities.map((a: any) => {
+        const amenities = Array.isArray(amenitiesRes?.amenities) ? (amenitiesRes.amenities as Amenity[]) : [];
+        const amenityOpts: Option[] = amenities.map((a) => {
           const name = String(a?.name ?? '');
           const lower = name.toLowerCase();
           const icon = lower.includes('wifi') ? Wifi : lower.includes('security') ? Shield : lower.includes('key') ? Key : Wifi;

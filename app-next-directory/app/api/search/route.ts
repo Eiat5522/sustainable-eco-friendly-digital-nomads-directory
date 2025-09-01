@@ -18,6 +18,23 @@ function buildWhereClause({
   amenities: string[];
   nomadFeatures: string[];
 }): string {
+  // Validate inputs to prevent overly complex queries (DoS)
+  const MAX_ARRAY_SIZE = 50;
+  const MAX_STRING_LENGTH = 200;
+
+  if (
+    categories.length > MAX_ARRAY_SIZE ||
+    destinations.length > MAX_ARRAY_SIZE ||
+    amenities.length > MAX_ARRAY_SIZE ||
+    nomadFeatures.length > MAX_ARRAY_SIZE
+  ) {
+    throw new Error('Too many filter values provided');
+  }
+
+  if (q.length > MAX_STRING_LENGTH) {
+    throw new Error('Search query too long');
+  }
+
   const filters: string[] = ['_type == "listing"', 'moderation.status == "published"'];
 
   if (q) {
@@ -28,12 +45,16 @@ function buildWhereClause({
   }
 
   if (categories.length) {
-    const group = categories.map((c) => `category == "${escapeGroqLiteral(c)}"`).join(' || ');
+    const group = categories
+      .map((c) => `category == "${escapeGroqLiteral(c)}"`)
+      .join(' || ');
     filters.push(`(${group})`);
   }
 
   if (destinations.length) {
-    const eq = destinations.map((d) => `city->name == "${escapeGroqLiteral(d)}"`).join(' || ');
+    const eq = destinations
+      .map((d) => `city->name == "${escapeGroqLiteral(d)}"`)
+      .join(' || ');
     const match = destinations
       .map((d) => `city->name match "*${escapeGroqMatch(d)}*"`)
       .join(' || ');
@@ -41,7 +62,9 @@ function buildWhereClause({
   }
 
   if (amenities.length) {
-    const eq = amenities.map((a) => `amenities[] == "${escapeGroqLiteral(a)}"`).join(' || ');
+    const eq = amenities
+      .map((a) => `amenities[] == "${escapeGroqLiteral(a)}"`)
+      .join(' || ');
     const nfs = amenities
       .map((a) => `array::contains(digitalNomadFeatures[]->name, "${escapeGroqLiteral(a)}")`)
       .join(' || ');
@@ -58,8 +81,6 @@ function buildWhereClause({
 
   return filters.join(' && ');
 }
-
-function buildQuery({
   q,
   categories,
   destinations,
@@ -112,9 +133,7 @@ export async function GET(request: NextRequest) {
     const nomadFeatures = sanitizeStringArray(searchParams.getAll('nomadFeatures'));
 
     const start = (page - 1) * limit;
-    const end = start + limit - 1; // GROQ [start...end] uses inclusive end with "..."
-
-    const { query, countQuery } = buildQuery({ q, categories, destinations, amenities, nomadFeatures, start, end });
+    const end = start + limit; // GROQ [start...end] uses exclusive end with "..."
 
     // Fetch results and total in two separate calls to align with tests
     const results = await client.fetch(query);
@@ -163,7 +182,7 @@ export async function POST(request: NextRequest) {
     const nomadFeatures = sanitizeStringArray(body.nomadFeatures);
 
     const start = (page - 1) * limit;
-    const end = start + limit - 1; // GROQ [start...end] uses inclusive end with "..."
+    const end = start + limit; // GROQ [start...end] is exclusive of end
     const { query, countQuery } = buildQuery({ q, categories, destinations, amenities, nomadFeatures, start, end });
     // Fetch results and total in two separate calls to align with tests
     const results = await client.fetch(query);

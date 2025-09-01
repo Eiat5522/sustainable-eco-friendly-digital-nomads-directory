@@ -25,9 +25,13 @@ describe('FeaturedListings', () => {
     })
   })
 
-  it('renders error state on fetch failure (not applicable with local mock)', async () => {
+  it('renders default UI under local MSW mock', async () => {
     render(<FeaturedListings />)
-    // With local mock data, error path isn't triggered; asserting loading disappears and content renders
-    expect(await screen.findByText(/Featured Sustainable Venues/i)).toBeInTheDocument()
-  })
-})
+    // Smoke assertion: heading renders
+    expect(
+      await screen.findByRole('heading', { name: /Featured Sustainable Venues/i })
+    ).toBeInTheDocument()
+   expect(
+     await screen.findByRole('heading', { name: /Featured Sustainable Venues/i })
+   ).toBeInTheDocument()
+})})})

@@ -190,6 +190,9 @@ function ContactForm() {
                           autoComplete="email"
                           autoCapitalize="none"
                           autoCorrect="off"
+                          spellCheck={false}
+                          inputMode="email"
+                          enterKeyHint="send"
                           aria-invalid={errors.email ? true : undefined}
                           aria-describedby={errors.email ? 'email-error' : undefined}
                         />
@@ -239,7 +242,7 @@ function ContactForm() {
                   <div>
                     <Label htmlFor={`email-${enquiryType}`} className="text-sm font-medium text-gray-700">Email Address</Label>
                     <div className="relative mt-1">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                       <Mail aria-hidden="true" focusable="false" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <NeoInput
                         id={`email-${enquiryType}`}
                         name="email"

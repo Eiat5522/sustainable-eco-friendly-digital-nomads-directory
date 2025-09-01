@@ -10,12 +10,18 @@ export function sanitizeBasic(input: string, maxLen = 200): string {
 // Escape for use inside GROQ string literals (equality checks)
 export function escapeGroqLiteral(input: string): string {
   if (typeof input !== 'string') return '';
-  return input.replace(/["\\]/g, '\\$&');
+  // JSON-escape to safely embed as a GROQ string literal.
+// Escape for GROQ match patterns (wildcards used by match). We preserve '*' we add, so we escape any user-supplied specials.
+export function escapeGroqMatch(input: string): string {
+  if (typeof input !== 'string') return '';
+  // Escape regex/glob specials and the quote; we'll add any wildcards ourselves.
+  return input.replace(/[.*+?^${}()|[\]\\"]/g, '\\  return JSON.stringify(input).slice(1, -1);
 }
 
 // Escape for GROQ match patterns (wildcards used by match). We preserve '*' we add, so we escape any user-supplied specials.
 export function escapeGroqMatch(input: string): string {
-  if (typeof input !== 'string') return '';
+  if (typeof input !== 'string') return '';');
+}
   // Escape characters with special meaning to GROQ/regex-like match
   // Keep common punctuation like @ and ! unescaped to preserve user intent in tests
   return input.replace(/[\\"*\[\](){}|&<>=~^$#%]/g, '\\$&');
@@ -36,4 +42,5 @@ export function clampInt(n: number, { min = 1, max = 100 }: { min?: number; max?
   if (!Number.isFinite(n)) return min;
   return Math.min(max, Math.max(min, Math.trunc(n)));
 }
+
 

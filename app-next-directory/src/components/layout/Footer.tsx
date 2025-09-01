@@ -69,13 +69,26 @@ export function Footer() {
                 aria-invalid={errors.email ? 'true' : 'false'}
                 required
                 className="flex-1 bg-white text-neo-text-primary"
-              />
+             />
               <NeoButton asChild variant="secondary" size="md">
-                <Link href={`/contact-us?type=newsletter&email=${encodeURIComponent(email)}`}>
+                <Link
+                  href="/contact-us?type=newsletter"
+                  onClick={(e) => {
+                    const trimmed = email.trim()
+                    if (!trimmed) {
+                      e.preventDefault()
+                      return
+                    }
+                    try {
+                      sessionStorage.setItem('newsletterEmail', trimmed)
+                    } catch {
+                      /* no-op: storage may be unavailable */
+                    }
+                  }}
+                >
                   Subscribe
                 </Link>
-              </NeoButton>
-            </div>
+              </NeoButton>            </div>
             <p id="newsletter-help" className="sr-only">We send occasional updates. Unsubscribe anytime.</p>
           </div>
         </NeoCard>

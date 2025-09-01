@@ -50,9 +50,20 @@ try {
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
 } catch (e) {
-  // MSW not used in some test suites
+  const code = (e as any)?.code;
+  const msg = (e as Error)?.message ?? '';
+  const isModuleNotFound =
+    code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND';
+  // Swallow only if the unresolved module is the MSW server shim itself
+  if (
+    isModuleNotFound &&
+    (msg.includes('__mocks__/server') || msg.includes('./__mocks__/server'))
+  ) {
+    // MSW not used in some test suites
+  } else {
+    throw e;
+  }
 }
-
 // Use `any` cast here to avoid TypeScript complaining about differences
 // between Node's util TextEncoder and the DOM/global TextEncoder types.
 // This is acceptable for test setup polyfills.

@@ -102,7 +102,7 @@ const toNames = (
 ): string[] => (arr ?? []).map(x => x?.name).filter(isNonEmptyString);
 
 export function transformToSummaryDTO(sanityListing: DereferencedSanityListing): ListingSummaryDTO {
-  const imageUrl = imageOrFallback(sanityListing.primaryImage as any, 500, 300);
+  const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
 
   return {
     id: sanityListing._id,
@@ -131,12 +131,19 @@ export function transformToSummaryDTO(sanityListing: DereferencedSanityListing):
       .filter((name): name is string => typeof name === 'string' && name.length > 0),
   };
 }
+function isSanityImage(img: unknown): img is SanityImage {
+  return !!img
+    && typeof img === 'object'
+    && 'asset' in (img as any)
+    && !!(img as any).asset
+    && (typeof (img as any).asset._ref === 'string' || typeof (img as any).asset._id === 'string');
 
 export function transformToDetailDTO(sanityListing: SanityListing): ListingDetailDTO {
-  const baseDTO = transformToSummaryDTO(sanityListing as any);
+  // Create a proper type guard or update transformToSummaryDTO to accept SanityListing
+  const baseDTO = transformToSummaryDTO(sanityListing);
   
   const galleryImages = (sanityListing.galleryImages ?? [])
-    .filter((img): img is SanityImage => Boolean(img))
+    .filter(isSanityImage)
     .map(img => urlFor(img).width(800).height(600).fit('crop').auto('format').url())
     .filter((u: unknown): u is string => typeof u === 'string' && u.length > 0);
 

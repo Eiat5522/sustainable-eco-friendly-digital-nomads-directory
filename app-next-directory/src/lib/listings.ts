@@ -77,7 +77,7 @@ function mapRawToListing(rawListing: any): Listing {
 }
 
 export function getListingsByCity(city: string): Listing[] {
-  const allowedTypes = new Set(['coworking', 'cafe', 'accommodation', 'activity', 'restaurant']);
+  const allowedTypes = new Set(['coworking', 'cafe', 'accommodation', 'activities', 'restaurant']);
   const cityLower = city.trim().toLowerCase();
   return listings
     .filter(raw => {
@@ -86,7 +86,7 @@ export function getListingsByCity(city: string): Listing[] {
         : (raw.city && typeof raw.city === 'object' && 'name' in raw.city
             ? (raw.city as { name: string }).name
             : undefined);
-      const type = raw.category === 'activities' ? 'activity' : (raw.category || 'coworking');
+      const type = raw.category === 'activities' ? 'activities' : (raw.category || 'coworking');
       return rawCity && rawCity.trim().toLowerCase() === cityLower && allowedTypes.has(type);
     })
     .map(mapRawToListing);
@@ -94,7 +94,7 @@ export function getListingsByCity(city: string): Listing[] {
 
 type FilterOptions = {
   city?: string;
-  category?: 'coworking' | 'cafe' | 'accommodation' | 'activity' | 'restaurant';
+  category?: 'coworking' | 'cafe' | 'accommodation' | 'activities' | 'restaurant';
   hasEcoTags?: boolean;
   hasDnFeatures?: boolean;
 };

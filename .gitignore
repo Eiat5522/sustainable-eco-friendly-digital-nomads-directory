@@ -178,3 +178,4 @@ app-next-directory/app/listings/ListingsPageWrapper.tsx.bak
 app-next-directory/app/listings/ListingsPage.tsx.bak
 .gemini/settings.json
 /docs/assets/tmp/Pasted Image*.png
+app-next-directory/src/__tests__/api/search/FORTEST-route.copy.skip.ts

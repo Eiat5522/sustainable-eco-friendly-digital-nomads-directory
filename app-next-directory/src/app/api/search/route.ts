@@ -24,10 +24,16 @@ function buildQuery({ q, categories, destinations, amenities, nomadFeatures, sta
   if (q) {
     // Escape special characters that have meaning in GROQ
     const safe = q.replace(/[\\"*[\](){}|&!<>=~^$@#%]/g, '\\$&');
-    filters.push(`name match "*${safe}*" || shortDescription match "*${safe}*"`);
+   filters.push(`name match "*${safe}*" || shortDescription match "*${safe}*"`)
   }
   if (categories.length) {
+    const safe = categories.map(c => c.replace(/[\\"*[\](){}|&!<>=~^$@#%]/g, '\\  if (categories.length) {
     filters.push(categories.map(c => `category == "${c.replace(/["\\]/g, '\\$&')}"`).join(' || '));
+  if (destinations.length) {
+    const parts: string[] = [];
+    for (const d of destinations) {
+      const matchEscaped = d.replace(/[\\"*[\](){}|&!<>=~^$@#%]/g, '\\  }'));
+    filters.push(safe.map(c => `category == "${c}"`).join(' || '));
   }
   if (destinations.length) {
     const parts: string[] = [];
@@ -35,7 +41,11 @@ function buildQuery({ q, categories, destinations, amenities, nomadFeatures, sta
       const escaped = d.replace(/["\\]/g, '\\$&');
       const matchEscaped = d.replace(/[\\"*[\](){}|&!<>=~^$@#%]/g, '\\$&');
       parts.push(`city->name == "${escaped}"`);
+      parts.push(`city->name match "*${matchEscaped}*"`);');
       parts.push(`city->name match "*${matchEscaped}*"`);
+    }
+    filters.push(parts.join(' || '));
+  }
     }
     filters.push(parts.join(' || '));
   }
@@ -56,7 +66,7 @@ function buildQuery({ q, categories, destinations, amenities, nomadFeatures, sta
         .join(' || ')
     );
   }
-
+  const query 
   const where = filters.length ? `${base}[${filters.join(' && ')}]` : base;
 
   const fields = `{
@@ -85,9 +95,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const q = (searchParams.get('q') || '').trim();
-    const page = Math.max(1, Number(searchParams.get('page') || 1));
-    const limit = Math.max(1, Number(searchParams.get('limit') || 12));
-
+    const page = Math.max(1, Math.min(1000, Number(searchParams.get('page') || 1)));
+    const limit = Math.max(1, Math.min(100, Number(searchParams.get('limit') || 12)));
     const categories = parseArrayParam(searchParams.getAll('category'));
     const destinations = parseArrayParam(searchParams.getAll('destination'));
     const amenities = parseArrayParam(searchParams.getAll('amenities'));
@@ -137,12 +146,8 @@ export async function POST(request: NextRequest) {
     }
 
     const q = (body.query || '').trim();
-    const page = Math.max(1, Number(body.page || 1));
-    const limit = Math.max(1, Number(body.limit || 12));
-
-    const categories = parseArrayParam(body.category);
-    const destinations = parseArrayParam(body.destination);
-    const amenities = parseArrayParam(body.amenities);
+    const page = Math.max(1, Math.min(1000, Number(body.page || 1)));
+    const limit = Math.max(1, Math.min(100, Number(body.limit || 12)));    const amenities = parseArrayParam(body.amenities);
     const nomadFeatures = parseArrayParam(body.nomadFeatures);
 
     const start = (page - 1) * limit;
@@ -150,9 +155,12 @@ export async function POST(request: NextRequest) {
 
     const { query, countQuery } = buildQuery({ q, categories, destinations, amenities, nomadFeatures, start, end });
 
-    const results = await client.fetch(query);
-    const total = await client.fetch(countQuery);
-
+    // combine results and count into a single GROQ query
+    const combinedQuery = groq`{
+      "results": ${query},
+      "total": ${countQuery}
+    }`;
+    const { results, total } = await client.fetch(combinedQuery);
     return ApiResponseHandler.success({
       results,
       pagination: {

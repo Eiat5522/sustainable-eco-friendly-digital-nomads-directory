@@ -317,6 +317,9 @@ export class SanityHTTPClient {
       } else {
         console.log(`✅ Uploaded asset (no _id): ${JSON.stringify(asset)}`)
       }
+      if (typeof asset._id !== 'string' || asset._id.length === 0) {
+      throw new SanityAPIError('Asset upload failed: Invalid asset id')
+      }
       // Convert asset document to a Sanity image field object
       const imageObject = {
         _type: 'image' as const,

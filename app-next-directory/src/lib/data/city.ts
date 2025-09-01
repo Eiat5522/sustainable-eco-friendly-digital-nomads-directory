@@ -194,8 +194,7 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
     }
   }`;
 
-  const raws = await client.fetch(query, { cityId } as Record<string, unknown>) as any;
-  return (Array.isArray(raws) ? raws : []).map(transformToSummaryDTO);
+  const raws = await client.fetch<DereferencedSanityListing[]>(query, { cityId });  return (Array.isArray(raws) ? raws : []).map(transformToSummaryDTO);
 }
 
 export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
