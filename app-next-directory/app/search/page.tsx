@@ -31,44 +31,71 @@ export default function SearchPage() {
 
   useEffect(() => {
     let cancelled = false;
+    const ctrl = new AbortController();
+    const signal = ctrl.signal;
+
     async function loadFilters() {
       try {
         const [citiesRes, catsRes, amenitiesRes] = await Promise.all([
-          fetch('/api/cities')
+          fetch('/api/cities', { signal })
             .then((r) => (r.ok ? (r.json() as Promise<CityResponse>) : Promise.reject(r.statusText)))
             .catch((): CityResponse => ({ cities: [] })),
-          fetch('/api/categories')
+          fetch('/api/categories', { signal })
             .then((r) => (r.ok ? (r.json() as Promise<CategoryResponse>) : Promise.reject(r.statusText)))
             .catch((): CategoryResponse => ({ categories: [] })),
-          fetch('/api/amenities')
+          fetch('/api/amenities', { signal })
             .then((r) => (r.ok ? (r.json() as Promise<AmenityResponse>) : Promise.reject(r.statusText)))
             .catch((): AmenityResponse => ({ amenities: [] })),
         ]);
         if (cancelled) return;
 
         const cities = Array.isArray(citiesRes?.cities) ? (citiesRes.cities as City[]) : [];
-        const cityOpts: Option[] = cities.map((c) => ({
-          value: String(c?.name ?? ''),
-          label: String(c?.name ?? ''),
-          icon: MapPin,
-        })).filter((o) => o.value);
+        const cityOpts: Option[] = Array.from(
+          new Map(
+            cities
+              .filter((c): c is City => typeof c?.name === 'string' && c.name.trim().length > 0)
+              .map((c) => {
+                const name = c.name.trim();
+                // Prefer a stable key if available: const value = String(c.id ?? c.slug ?? name);
+                const value = name;
+                return [value, { value, label: name, icon: MapPin } as Option] as const;
+              })
+          ).values()
+        ).sort((a, b) => a.label.localeCompare(b.label));
         setCityOptions(cityOpts);
 
         const categories: string[] = Array.isArray(catsRes?.categories) ? catsRes.categories : [];
-        const typeOpts: Option[] = categories.map((cat) => ({
-          value: cat,
-          label: cat.charAt(0).toUpperCase() + cat.slice(1),
-          icon: cat.toLowerCase().includes('work') ? Building2 : Home,
-        }));
+        const typeOpts: Option[] = Array.from(
+          new Set(
+            categories
+              .map((c) => (typeof c === 'string' ? c.trim() : ''))
+              .filter(Boolean) as string[]
+          )
+        )
+          .map((cat) => ({
+            value: cat,
+            label: cat[0].toUpperCase() + cat.slice(1),
+            icon: cat.toLowerCase().includes('work') ? Building2 : Home,
+          }))
+          .sort((a, b) => a.label.localeCompare(b.label));
         setTypeOptions(typeOpts);
 
         const amenities = Array.isArray(amenitiesRes?.amenities) ? (amenitiesRes.amenities as Amenity[]) : [];
-        const amenityOpts: Option[] = amenities.map((a) => {
-          const name = String(a?.name ?? '');
-          const lower = name.toLowerCase();
-          const icon = lower.includes('wifi') ? Wifi : lower.includes('security') ? Shield : lower.includes('key') ? Key : Wifi;
-          return { value: name, label: name, icon } as Option;
-        }).filter((o) => o.value);
+        const amenityOpts: Option[] = Array.from(
+          new Map(
+            amenities
+              .filter((a): a is Amenity => typeof a?.name === 'string' && a.name.trim().length > 0)
+              .map((a) => {
+                const name = a.name.trim();
+                const lower = name.toLowerCase();
+                const icon =
+                  lower.includes('wifi') ? Wifi :
+                  lower.includes('security') ? Shield :
+                  lower.includes('key') ? Key : Wifi;
+                return [name, { value: name, label: name, icon } as Option] as const;
+              })
+          ).values()
+        ).sort((a, b) => a.label.localeCompare(b.label));
         setAmenityOptions(amenityOpts);
       } catch (e) {
         // Non-fatal; leave options empty
@@ -76,7 +103,10 @@ export default function SearchPage() {
       }
     }
     loadFilters();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      ctrl.abort();
+    };
   }, []);
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {

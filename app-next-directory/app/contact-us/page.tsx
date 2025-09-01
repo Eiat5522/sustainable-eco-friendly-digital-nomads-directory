@@ -158,7 +158,7 @@ function ContactForm() {
                     <div>
                       <Label htmlFor="name" className="text-sm font-medium text-gray-700">Full Name</Label>
                       <div className="relative mt-1">
-                        <Type className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                       <Type aria-hidden="true" focusable="false" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <NeoInput
                           id="name"
                           name="name"
@@ -255,6 +255,10 @@ function ContactForm() {
                          autoComplete="email"
                          autoCapitalize="none"
                          autoCorrect="off"
+                         spellCheck={false}
+                         inputMode="email"
+                         enterKeyHint="send"
+
                          aria-invalid={errors.email ? true : undefined}
                          aria-describedby={errors.email ? `email-error-${enquiryType}` : undefined}
                       />

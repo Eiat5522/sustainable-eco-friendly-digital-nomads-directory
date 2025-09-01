@@ -30,13 +30,38 @@ interface DereferencedSanityListing {
     slug: { current: string };
   };
 }
-const imageOrFallback = (img: unknown, w: number, h: number) =>
-  img
-    ? urlFor(img).width(w).height(h).fit('crop').auto('format').url()
-    : '/images/fallback.png';
+const imageOrFallback = (img: unknown, w: number, h: number) => {
+  // Accept full CDN URL strings (append transformations), asset ref strings, or Sanity image objects
+  if (typeof img === 'string' && img.length > 0) {
+    // If it looks like a full URL, append standard query params
+    if (/^https?:\/\//i.test(img)) {
+      const hasQuery = img.includes('?');
+      const qp = `w=${w}&h=${h}&fit=crop&auto=format`;
+      return hasQuery ? `${img}&${qp}` : `${img}?${qp}`;
+    }
+    // Otherwise assume it's an asset ref/id supported by urlFor
+    return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
+  }
+
+  if (img && typeof img === 'object') {
+    const obj = img as Record<string, unknown>;
+    const asset = obj.asset as Record<string, unknown> | undefined;
+    const url = typeof asset?.url === 'string' ? asset.url : undefined;
+    if (url) {
+      const hasQuery = url.includes('?');
+      const qp = `w=${w}&h=${h}&fit=crop&auto=format`;
+      return hasQuery ? `${url}&${qp}` : `${url}?${qp}`;
+    }
+  }
+
+  if (isSanityImage(img)) {
+    return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
+  }
+  return '/images/fallback.png';
+};
 
 export function transformToFeaturedDTO(sanityListing: SanityListing): FeaturedListingDTO {
-const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
+  const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
 
   return {
     id: sanityListing._id,
@@ -101,29 +126,37 @@ const toNames = (
   arr?: ReadonlyArray<{ name?: string } | null | undefined>
 ): string[] => (arr ?? []).map(x => x?.name).filter(isNonEmptyString);
 
-export function transformToSummaryDTO(sanityListing: DereferencedSanityListing): ListingSummaryDTO {
+export function transformToSummaryDTO(sanityListing: DereferencedSanityListing): ListingSummaryDTO;
+export function transformToSummaryDTO(sanityListing: SanityListing): ListingSummaryDTO;
+export function transformToSummaryDTO(
+  sanityListing: DereferencedSanityListing | SanityListing
+): ListingSummaryDTO {
   const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
 
   return {
     id: sanityListing._id,
     name: sanityListing.name,
-    slug: sanityListing.slug?.current ?? '',
-    type: sanityListing.type,
-    city: sanityListing.city ? {
-      id: sanityListing.city._id,
-      name: sanityListing.city.name,
-      slug: sanityListing.city.slug?.current ?? '',
-      country: sanityListing.city.country ?? '',
-      sustainabilityScore: toPercentage0To100(sanityListing.city.sustainabilityScore) as Percentage0To100 | undefined,
-      highlights: sanityListing.city.highlights,
-      description: undefined // Not fetched in this query
-    } : null,
-    imageUrl,
-    ecoFocusTags: toNames(sanityListing.ecoFocusTags),
-    digitalNomadFeatures: toNames(sanityListing.digitalNomadFeatures),
-    priceRange: sanityListing.priceRange,
-    website: sanityListing.website,
-    address: sanityListing.address,
+    slug: typeof (sanityListing as any).slug === 'string'
+      ? (sanityListing as any).slug
+      : (sanityListing as any).slug?.current ?? '',
+function isSanityImage(img: unknown): img is SanityImage | string {
+  // Accept only valid Sanity image asset refs, not arbitrary strings
+  const isAssetRef = (s: unknown): s is string =>
+    typeof s === 'string' &&
+    /^image-[A-Za-z0-9]+-\d+x\d+-(?:jpg|jpeg|png|webp|gif|tif|tiff|svg)$/i.test(s);
+
+  // Plain string must match the asset‐ref pattern
+  if (isAssetRef(img)) return true;
+  if (!img || typeof img !== 'object') return false;
+
+  const asset = (img as Record<string, unknown>).asset as unknown;
+  if (!asset || typeof asset !== 'object') return false;
+
+  const { _ref, _id } = asset as Record<string, unknown>;
+  // Object shape must contain a valid _ref or an _id starting with "image-"
+  return (typeof _ref === 'string' && isAssetRef(_ref)) ||
+         (typeof _id === 'string' && _id.startsWith('image-'));
+}    address: sanityListing.address,
     location: toGeoPoint(sanityListing.location),
     shortDescription: sanityListing.shortDescription,
     amenityNames: (sanityListing.amenities ?? [])
@@ -131,21 +164,29 @@ export function transformToSummaryDTO(sanityListing: DereferencedSanityListing):
       .filter((name): name is string => typeof name === 'string' && name.length > 0),
   };
 }
-function isSanityImage(img: unknown): img is SanityImage {
-  return !!img
-    && typeof img === 'object'
-    && 'asset' in (img as any)
-    && !!(img as any).asset
-    && (typeof (img as any).asset._ref === 'string' || typeof (img as any).asset._id === 'string');
+function isSanityImage(img: unknown): img is SanityImage | string {
+  // Optionally accept a plain string asset ref
+  if (typeof img === 'string') return img.length > 0;
+
+  // Ensure non-null object
+  if (!img || typeof img !== 'object') return false;
+
+  const maybeObj = img as Record<string, unknown>;
+  const asset = maybeObj.asset as unknown;
+
+  if (!asset || typeof asset !== 'object') return false;
+
+  const assetObj = asset as Record<string, unknown>;
+  return typeof assetObj._ref === 'string' || typeof assetObj._id === 'string';
+}
 
 export function transformToDetailDTO(sanityListing: SanityListing): ListingDetailDTO {
   // Create a proper type guard or update transformToSummaryDTO to accept SanityListing
   const baseDTO = transformToSummaryDTO(sanityListing);
   
   const galleryImages = (sanityListing.galleryImages ?? [])
-    .filter(isSanityImage)
-    .map(img => urlFor(img).width(800).height(600).fit('crop').auto('format').url())
-    .filter((u: unknown): u is string => typeof u === 'string' && u.length > 0);
+    .map(img => imageOrFallback(img, 800, 600))
+    .filter((u: unknown): u is string => typeof u === 'string' && u.length > 0 && u !== '/images/fallback.png');
 
   // Build discriminated union by type
   if (sanityListing.type === 'coworking' && sanityListing.coworkingDetails) {

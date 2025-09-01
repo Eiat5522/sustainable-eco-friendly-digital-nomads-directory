@@ -29,7 +29,7 @@ describe('FeaturedListings', () => {
     render(<FeaturedListings />)
     // Smoke assertion: heading renders
     expect(
-      await screen.findByRole('heading', { name: /Featured Sustainable Venues/i })
+      await screen.findByRole('heading', { name: /Featured Sustainable Venues/i, level: 2 })
     ).toBeInTheDocument()
    expect(
      await screen.findByRole('heading', { name: /Featured Sustainable Venues/i })

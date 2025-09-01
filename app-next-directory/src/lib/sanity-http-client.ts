@@ -55,7 +55,7 @@ export class SanityHTTPClient {
     this.writeClient = createClient({
       ...this.config,
       token: process.env.SANITY_API_TOKEN,
-      useCdn: false, // Always use CDN for write operations
+      useCdn: false, // Never use CDN for write operations
     })
   }
 
@@ -285,6 +285,12 @@ export class SanityHTTPClient {
         throw new SanityAPIError('Asset upload failed: this.writeClient.assets.upload is not a function')
       }
       let asset: any
+      // Only image uploads are supported by this helper
+      if (options?.contentType && !options.contentType.startsWith('image/')) {
+        throw new SanityAPIError(
+          'Asset upload failed: Only image/* content types are supported by uploadAsset()'
+        )
+      }
       try {
         asset = await this.writeClient.assets.upload('image', file, {
           filename: options?.filename,
@@ -317,10 +323,12 @@ export class SanityHTTPClient {
       } else {
         console.log(`✅ Uploaded asset (no _id): ${JSON.stringify(asset)}`)
       }
-      if (typeof asset._id !== 'string' || asset._id.length === 0) {
-      throw new SanityAPIError('Asset upload failed: Invalid asset id')
+      if (typeof asset._id !== 'string' || asset._id.trim().length === 0) {
+        throw new SanityAPIError('Asset upload failed: Invalid asset id')
       }
-      // Convert asset document to a Sanity image field object
+      if (!asset._id.startsWith('image-')) {
+        throw new SanityAPIError(`Asset upload failed: Expected image asset id, got "${asset._id}"`)
+      }      // Convert asset document to a Sanity image field object
       const imageObject = {
         _type: 'image' as const,
         asset: {
@@ -372,11 +380,9 @@ export class SanityHTTPClient {
         throw new SanityAPIError('Batch create operation returned no result')
       }
       // If result is an array, check for error objects in any element
-      console.log('RESULT in createMany:', result);
       if (Array.isArray(result)) {
         if (result.some((item: any) => item && item.error)) {
           const errorItem = result.find((item: any) => item && item.error)
-          console.log('ERROR ITEM in createMany:', errorItem);
           throw new SanityAPIError(
             `Batch create failed: ${errorItem.error}`,
             errorItem.statusCode,
@@ -389,14 +395,13 @@ export class SanityHTTPClient {
       }
       // If result itself is an error object
       if (result && result.error) {
-        console.log('ERROR OBJECT in createMany:', result);
+        console.log('ERROR OBJECT in createMany:', result)
         throw new SanityAPIError(
           `Batch create failed: ${result.error}`,
           result.statusCode,
           result
         )
-      }
-      return result
+      }      return result
     } catch (error: any) {
       if (error instanceof SanityAPIError) throw error
       throw new SanityAPIError(

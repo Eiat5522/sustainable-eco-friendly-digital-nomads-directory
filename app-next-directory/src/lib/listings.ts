@@ -9,6 +9,19 @@ import slugify from 'slugify';
  */
 import { toSlug } from './utils/slug';
 
+// Normalize category strings to the canonical set used across the app
+// Accepts legacy singular 'activity' and coerces to 'activities'.
+type CanonicalCategory = 'coworking' | 'cafe' | 'accommodation' | 'activities' | 'restaurant';
+const normalizeCategory = (input: string): CanonicalCategory => {
+  const lc = String(input || '').trim().toLowerCase();
+  if (lc === 'activity' || lc === 'activities') return 'activities';
+  if (lc === 'coworking' || lc === 'cafe' || lc === 'accommodation' || lc === 'restaurant') {
+    return lc as CanonicalCategory;
+  }
+  // Default to a safe, common type if unknown
+  return 'coworking';
+};
+
 function mapRawToListing(rawListing: any): Listing {
 
 // drop empty _id – let the backend supply a stable id
@@ -35,7 +48,7 @@ function mapRawToListing(rawListing: any): Listing {
       : (rawListing.city && typeof rawListing.city === 'object'
           ? { _id: rawListing.city._id ?? '', name: rawListing.city.name ?? '', slug: { _type: 'slug', current: rawListing.city.slug?.current ?? '' } }
           : { _id: '', name: '', slug: { _type: 'slug', current: '' } }),
-    type: rawListing.category === 'activities' ? 'activities' : (rawListing.category || rawListing.type || 'coworking'),
+    type: normalizeCategory(rawListing.category || rawListing.type || 'coworking'),
     address: rawListing.address || '',
     shortDescription: rawListing.shortDescription || '',
     longDescription: rawListing.longDescription || '',
@@ -86,7 +99,7 @@ export function getListingsByCity(city: string): Listing[] {
         : (raw.city && typeof raw.city === 'object' && 'name' in raw.city
             ? (raw.city as { name: string }).name
             : undefined);
-      const type = raw.category === 'activities' ? 'activities' : (raw.category || 'coworking');
+      const type = normalizeCategory(raw.category || 'coworking');
       return rawCity && rawCity.trim().toLowerCase() === cityLower && allowedTypes.has(type);
     })
     .map(mapRawToListing);
@@ -94,7 +107,8 @@ export function getListingsByCity(city: string): Listing[] {
 
 type FilterOptions = {
   city?: string;
-  category?: 'coworking' | 'cafe' | 'accommodation' | 'activities' | 'restaurant';
+  // Accept both singular 'activity' and canonical 'activities' (BC)
+  category?: CanonicalCategory | 'activity';
   hasEcoTags?: boolean;
   hasDnFeatures?: boolean;
 };
@@ -111,7 +125,8 @@ export function filterListings(options: FilterOptions): Listing[] {
 
   // Apply category filter if provided
   if (options.category) {
-    result = result.filter((l) => l.type === options.category);
+    const cat = normalizeCategory(options.category);
+    result = result.filter((l) => l.type === cat);
   }
 
   // Apply eco-tags presence filter if requested

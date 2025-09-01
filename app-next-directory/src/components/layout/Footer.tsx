@@ -67,6 +67,7 @@ export function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 aria-invalid={errors.email ? 'true' : 'false'}
+                aria-describedby="newsletter-help"
                 required
                 className="flex-1 bg-white text-neo-text-primary"
              />

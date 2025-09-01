@@ -67,18 +67,23 @@ export function useSearch({
             query: debouncedQuery,
             page,
             limit: 12
+            ,filters
+            ,sort
           })
         });
         if (!res.ok) {
           // Try to read error body for debugging
           try {
             const txt = await res.text();
-            console.error('Search API error response:', txt);
+            if (process.env.NODE_ENV !== 'production') {
+              console.error('Search API error response:', txt);
+            }
           } catch (parseError) {
             console.error('Failed to parse error response:', parseError);
           }
           throw new Error('Search request failed');
-        }        const data = await res.json();
+        }
+        const data = await res.json();
         // FORTEST: Debug log for API response
         // eslint-disable-next-line no-console
         console.log('FORTEST: API response data:', JSON.stringify(data));

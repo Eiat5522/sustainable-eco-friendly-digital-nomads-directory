@@ -1,5 +1,4 @@
 // Utility helpers for sanitizing user input for GROQ queries and general usage
-
 // Remove control characters and trim, and optionally limit length
 export function sanitizeBasic(input: string, maxLen = 200): string {
   if (typeof input !== 'string') return '';
@@ -8,23 +7,20 @@ export function sanitizeBasic(input: string, maxLen = 200): string {
 }
 
 // Escape for use inside GROQ string literals (equality checks)
+// Escape for use inside GROQ string literals (equality checks)
 export function escapeGroqLiteral(input: string): string {
   if (typeof input !== 'string') return '';
-  // JSON-escape to safely embed as a GROQ string literal.
-// Escape for GROQ match patterns (wildcards used by match). We preserve '*' we add, so we escape any user-supplied specials.
+  // JSON-escape to safely embed as a GROQ string literal (drop surrounding quotes).
+  return JSON.stringify(input).slice(1, -1);
+}
+// Escape for GROQ match patterns (wildcards used by match). We will add any wildcards ourselves,
+// so escape user-supplied specials. Keep @ and ! unescaped per tests.
 export function escapeGroqMatch(input: string): string {
   if (typeof input !== 'string') return '';
-  // Escape regex/glob specials and the quote; we'll add any wildcards ourselves.
-  return input.replace(/[.*+?^${}()|[\]\\"]/g, '\\  return JSON.stringify(input).slice(1, -1);
-}
-
-// Escape for GROQ match patterns (wildcards used by match). We preserve '*' we add, so we escape any user-supplied specials.
-export function escapeGroqMatch(input: string): string {
-  if (typeof input !== 'string') return '';');
-}
-  // Escape characters with special meaning to GROQ/regex-like match
-  // Keep common punctuation like @ and ! unescaped to preserve user intent in tests
-  return input.replace(/[\\"*\[\](){}|&<>=~^$#%]/g, '\\$&');
+  // First JSON-escape to be safe inside a GROQ string literal.
+  const jsonEscaped = JSON.stringify(input).slice(1, -1);
+  // Then escape GROQ/regex special chars, including user-supplied * and ?.
+  return jsonEscaped.replace(/([.*+?^${}()|[\]\\])/g, '\\$1');
 }
 
 // Normalize array-like query params, sanitize, and drop empties/dupes
@@ -42,5 +38,3 @@ export function clampInt(n: number, { min = 1, max = 100 }: { min?: number; max?
   if (!Number.isFinite(n)) return min;
   return Math.min(max, Math.max(min, Math.trunc(n)));
 }
-
-

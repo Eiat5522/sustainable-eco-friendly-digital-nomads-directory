@@ -1,4 +1,4 @@
-/**    const user = await UserModel.findById(userId).lean(); * Server-side authentication utilities
+/** Server-side authentication utilities
  * These functions are NOT Edge Runtime compatible and should only be used in:
  * - API routes (without Edge Runtime)
  * - Server Components
@@ -122,7 +122,9 @@ export async function getUserById(userId: string): Promise<AuthenticatedUser | n
   try {
     await dbConnect();
 
-    const user = await UserModel.findById(userId).lean();
+    const user = await UserModel.findById(userId)
+      .select('name email image role')
+      .lean();
     if (!user) {
       return null;
     }

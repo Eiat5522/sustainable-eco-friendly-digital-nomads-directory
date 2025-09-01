@@ -129,7 +129,7 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
     }
   }`;
 
-  const raw = await client.fetch(query, { slug } as Record<string, unknown>) as any;
+  const raw = await client.fetch<unknown>(query, { slug });
   return toCityDTO(raw);
 }
 
@@ -164,7 +164,7 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     }
   }`;
 
-  const raw = await client.fetch(query, { slug } as Record<string, unknown>) as any;
+  const raw = await client.fetch<unknown>(query, { slug });
   return toCityDetailDTO(raw);
 }
 
@@ -172,15 +172,24 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
   const query = groq`*[_type == "listing" && moderation.status == "published" && city._ref == $cityId]{
     _id,
     name,
-    slug,
+    "slug": slug.current,
     type,
     shortDescription,
     address,
     location,
     priceRange,
     website,
-    primaryImage,
-    galleryImages,
+    primaryImage{
+      asset->{
+        url,
+        metadata{ dimensions }
+      }
+    },
+    "galleryImages": galleryImages[]{
+      asset->{
+        url
+      }
+    },
     ecoFocusTags[]->{ name },
     digitalNomadFeatures[]->{ name },
     amenities[]->{ name },
@@ -194,7 +203,8 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
     }
   }`;
 
-  const raws = await client.fetch<DereferencedSanityListing[]>(query, { cityId });  return (Array.isArray(raws) ? raws : []).map(transformToSummaryDTO);
+  const listingsRaw = await client.fetch<unknown[]>(query, { cityId });
+  return (Array.isArray(listingsRaw) ? listingsRaw : []).map(transformToSummaryDTO);
 }
 
 export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
