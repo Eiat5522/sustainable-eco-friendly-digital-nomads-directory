@@ -10,7 +10,7 @@ import bcrypt from 'bcryptjs';
 import User from '../../models/User';
 import dbConnect from '../dbConnect';
 
-import type { Types } from 'mongoose';
+import { Types } from 'mongoose';
 
 type UserDoc = {
   _id: Types.ObjectId;
@@ -27,7 +27,8 @@ export interface AuthenticatedUser {
   email: string;
   image?: string;
   role: UserRole;
-    const user = await UserModel.findById(userId).lean();
+}
+
 /**
  * Authenticate user with email and password
  * @param email User email
@@ -83,8 +84,8 @@ export async function createUserAccount(userData: {
     await dbConnect();
 
     // Check if user already exists
-    const existingUser = await UserModel.findOne({ email: userData.email.trim().toLowerCase() });
-    if (existingUser) {
+    const exists = await UserModel.exists({ email: userData.email.trim().toLowerCase() });
+    if (exists) {
       throw new Error('User already exists');
     }
 
@@ -122,8 +123,12 @@ export async function getUserById(userId: string): Promise<AuthenticatedUser | n
   try {
     await dbConnect();
 
+    if (!Types.ObjectId.isValid(userId)) {
+      return null;
+    }
+
     const user = await UserModel.findById(userId)
-      .select('name email image role')
+      .select('_id name email image role')
       .lean();
     if (!user) {
       return null;
@@ -155,13 +160,12 @@ export async function updateUserRole(
   try {
     await dbConnect();
 
-    const result = await (User as any).findByIdAndUpdate(
-      userId,
-      { role: newRole },
-      { new: true }
+    const res = await UserModel.updateOne(
+      { _id: userId },
+      { $set: { role: newRole } },
+      { runValidators: true }
     );
-
-    return !!result;
+    return res.matchedCount === 1;
   } catch (error) {
     console.error('Update user role error:', error);
     return false;

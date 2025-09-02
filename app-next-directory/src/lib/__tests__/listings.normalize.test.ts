@@ -5,6 +5,8 @@
 
 import type { Listing } from '../../types/listings';
 
++type CategoryParam = NonNullable<Parameters<typeof import('../listings').filterListings>[0]['category']>;
+
 // Minimal mock dataset containing an activities listing
 const mockListings: Listing[] = [
   {
@@ -37,7 +39,6 @@ const mockListings: Listing[] = [
     ecoFocusTags: [],
     priceRange: 'budget',
     website: 'http://example.com/nomad-cafe',
-    category: 'cafe',
     primaryImage: { _type: 'image', asset: { _ref: 'image-ref-2' } },
     galleryImages: [],
     digitalNomadFeatures: [],
@@ -55,13 +56,16 @@ describe('filterListings normalization', () => {
       __esModule: true,
       default: mockListings,
     }));
-    filterListings = require('../listings').filterListings;
+    jest.isolateModules(() => {
+      filterListings = require('../listings').filterListings;
+    });
   });
 
   it('coerces category "activity" → "activities"', () => {
-    const legacy = filterListings({ category: 'activity' as any });
-    const canonical = filterListings({ category: 'activities' as any });
-    expect(legacy.map((l) => l.name)).toEqual(canonical.map((l) => l.name));
+    const legacy = filterListings({ category: 'activity' as CategoryParam });
+    const canonical = filterListings({ category: 'activities' as CategoryParam });
+    const ids = (xs: typeof legacy) => xs.map((l) => l._id).sort();
+    expect(ids(legacy)).toEqual(ids(canonical));
     expect(legacy).toHaveLength(1);
     expect(legacy[0].type).toBe('activities');
   });

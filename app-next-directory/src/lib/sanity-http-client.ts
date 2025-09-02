@@ -4,19 +4,19 @@
  * Date: May 24, 2025
  */
 
-import { createClient } from './sanity/client'
-import type { SanityClient } from '@sanity/client'
-import type { SanityImageObject } from '../types/external/sanity-image'
-import type { SanityDocument } from '../types/sanity'
+import { createClient } from './sanity/client';
+import type { SanityClient } from '@sanity/client';
+import type { SanityImageObject } from '../types/external/sanity-image';
+import type { SanityDocument } from '../types/sanity';
 
 // Configuration interface
 interface SanityConfig {
-  projectId: string
-  dataset: string
-  apiVersion: string
-  token?: string
-  useCdn: boolean
-  perspective?: 'published' | 'previewDrafts'
+  projectId: string;
+  dataset: string;
+  apiVersion: string;
+  token?: string;
+  useCdn: boolean;
+  perspective?: 'published' | 'previewDrafts';
 }
 
 // Error types for better error handling
@@ -26,59 +26,59 @@ export class SanityAPIError extends Error {
     public statusCode?: number,
     public originalError?: any
   ) {
-    super(message)
-    this.name = 'SanityAPIError'
+    super(message);
+    this.name = 'SanityAPIError';
   }
 }
 
 // Main HTTP Client Class
 export class SanityHTTPClient {
-  private client: SanityClient
-  private writeClient: SanityClient
-  private config: SanityConfig
+  private client: SanityClient;
+  private writeClient: SanityClient;
+  private config: SanityConfig;
 
   constructor() {
     // Validate environment variables
-    this.validateEnvironment()
+    this.validateEnvironment();
 
     this.config = {
       projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
       dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
       apiVersion: '2025-05-24',
       useCdn: process.env.NODE_ENV === 'production',
-    }
+    };
 
     // Read-only client (public)
-    this.client = createClient(this.config)
+    this.client = createClient(this.config);
 
     // Write client with authentication
     this.writeClient = createClient({
       ...this.config,
       token: process.env.SANITY_API_TOKEN,
       useCdn: false, // Never use CDN for write operations
-    })
+    });
   }
 
   private validateEnvironment(): void {
     const requiredEnvVars = [
       'NEXT_PUBLIC_SANITY_PROJECT_ID',
       'NEXT_PUBLIC_SANITY_DATASET',
-    ]
+    ];
 
-    const optionalEnvVars = ['SANITY_API_TOKEN']
+    const optionalEnvVars = ['SANITY_API_TOKEN'];
 
     for (const envVar of requiredEnvVars) {
       if (!process.env[envVar]) {
         throw new SanityAPIError(
           `Missing required environment variable: ${envVar}`
-        )
+        );
       }
     }
 
     // Warn about missing optional vars
     for (const envVar of optionalEnvVars) {
       if (!process.env[envVar]) {
-        console.warn(`Warning: Missing optional environment variable: ${envVar}`)
+        console.warn(`Warning: Missing optional environment variable: ${envVar}`);
       }
     }
   }
@@ -86,7 +86,7 @@ export class SanityHTTPClient {
   // Authentication test method
   async testAuthentication(): Promise<boolean> {
     if (!process.env.SANITY_API_TOKEN) {
-      return false
+      return false;
     }
 
     // Test write permissions by attempting to create a test document
@@ -94,24 +94,23 @@ export class SanityHTTPClient {
       _type: 'authTest',
       title: 'Authentication Test',
       timestamp: new Date().toISOString(),
-    }
+    };
 
-    let result
+    let result;
     try {
-      result = await this.writeClient.create(testDoc)
-      if (result && (result as any).error) return false
+      result = await this.writeClient.create(testDoc);
+      if (!result || !result._id || (result as any).error) return false;
     } catch (error: any) {
-      return false
+      return false;
     }
-
     // Clean up test document
     try {
-      await this.writeClient.delete((result as any)._id)
+      await this.writeClient.delete((result as any)._id);
     } catch (cleanupError: any) {
       // Ignore cleanup errors for test contract
     }
 
-    return true
+    return true;
   }
 
   // Query methods
@@ -123,144 +122,144 @@ export class SanityHTTPClient {
     try {
       const client = options?.preview
         ? this.client
-        : this.client
-      const result = await client.fetch<T>(query, params as any)
+        : this.client;
+      const result = await client.fetch<T>(query, params as any);
       if (result && (result as any).error) {
         throw new SanityAPIError(
           `Query failed: ${(result as any).error}`,
           (result as any).statusCode,
           result
-        )
+        );
       }
       if (typeof result === 'undefined') {
-        throw new SanityAPIError('Query failed: Query error')
+        throw new SanityAPIError('Query failed: Query error');
       }
-      return result
+      return result;
     } catch (error: any) {
       throw new SanityAPIError(
         `Query failed: ${error.message}`,
         error.statusCode,
         error
-      )
+      );
     }
   }
 
   // Create document
   async create(document: any): Promise<SanityDocument> {
     if (!process.env.SANITY_API_TOKEN) {
-      throw new SanityAPIError('Cannot create document: No API token provided')
+      throw new SanityAPIError('Cannot create document: No API token provided');
     }
     try {
-      const result = await this.writeClient.create(document)
+      const result = await this.writeClient.create(document);
       if (result && (result as any).error) {
         throw new SanityAPIError(
           `Create failed: ${(result as any).error}`,
           (result as any).statusCode,
           result
-        )
+        );
       }
       if (typeof result === 'undefined') {
-        throw new SanityAPIError('Create failed: Create error')
+        throw new SanityAPIError('Create failed: Create error');
       }
       if (result) {
         if ((result as any)._id) {
-          console.log(`✅ Created document: ${(result as any)._id}`)
+          console.log(`✅ Created document: ${(result as any)._id}`);
         } else {
-          console.log(`✅ Created document (no _id): ${JSON.stringify(result)}`)
+          console.log(`✅ Created document (no _id): ${JSON.stringify(result)}`);
         }
-        return result
+        return result;
       }
-      throw new SanityAPIError('Create operation returned no result')
+      throw new SanityAPIError('Create operation returned no result');
     } catch (error: any) {
       throw new SanityAPIError(
         `Create failed: ${error.message}`,
         error.statusCode,
         error
-      )
+      );
     }
   }
 
   // Update document
   async update(id: string, patches: any): Promise<SanityDocument> {
     if (!process.env.SANITY_API_TOKEN) {
-      throw new SanityAPIError('Cannot update document: No API token provided')
+      throw new SanityAPIError('Cannot update document: No API token provided');
     }
     try {
-      const patchObj = this.writeClient.patch(id)
-      const setObj = patchObj.set(patches)
+      const patchObj = this.writeClient.patch(id);
+      const setObj = patchObj.set(patches);
       if (typeof setObj.commit !== 'function') {
-        throw new SanityAPIError('Update failed: commit is not a function')
+        throw new SanityAPIError('Update failed: commit is not a function');
       }
-      let result
+      let result;
       try {
-        result = await setObj.commit()
+        result = await setObj.commit();
       } catch (error: any) {
         throw new SanityAPIError(
           `Update failed: ${error.message}`,
           error.statusCode,
           error
-        )
+        );
       }
       if (result && (result as any).error) {
         throw new SanityAPIError(
           `Update failed: ${(result as any).error}`,
           (result as any).statusCode,
           result
-        )
+        );
       }
       if (typeof result === 'undefined') {
-        throw new SanityAPIError('Update failed: Update error')
+        throw new SanityAPIError('Update failed: Update error');
       }
       if (!result) {
-        throw new SanityAPIError('Update operation returned no result')
+        throw new SanityAPIError('Update operation returned no result');
       }
-      console.log(`✅ Updated document: ${id}`)
-      return result
+      console.log(`✅ Updated document: ${id}`);
+      return result;
     } catch (error: any) {
-      if (error instanceof SanityAPIError) throw error
+      if (error instanceof SanityAPIError) throw error;
       throw new SanityAPIError(
         `Update failed: ${error.message}`,
         error.statusCode,
         error
-      )
+      );
     }
   }
 
   // Delete document
   async delete(id: string): Promise<any> {
     if (!process.env.SANITY_API_TOKEN) {
-      throw new SanityAPIError('Cannot delete document: No API token provided')
+      throw new SanityAPIError('Cannot delete document: No API token provided');
     }
     try {
-      let result
+      let result;
       try {
-        result = await this.writeClient.delete(id)
+        result = await this.writeClient.delete(id);
       } catch (error: any) {
         throw new SanityAPIError(
           `Delete failed: ${error.message}`,
           error.statusCode,
           error
-        )
+        );
       }
       if (result && (result as any).error) {
         throw new SanityAPIError(
           `Delete failed: ${(result as any).error}`,
           (result as any).statusCode,
           result
-        )
+        );
       }
       if (typeof result === 'undefined') {
-        throw new SanityAPIError('Delete failed: Delete error')
+        throw new SanityAPIError('Delete failed: Delete error');
       }
-      console.log(`✅ Deleted document: ${id}`)
-      return result
+      console.log(`✅ Deleted document: ${id}`);
+      return result;
     } catch (error: any) {
-      if (error instanceof SanityAPIError) throw error
+      if (error instanceof SanityAPIError) throw error;
       throw new SanityAPIError(
         `Delete failed: ${error.message}`,
         error.statusCode,
         error
-      )
+      );
     }
   }
 
@@ -268,28 +267,28 @@ export class SanityHTTPClient {
   async uploadAsset(
     file: File | Buffer,
     options?: {
-      filename?: string
-      contentType?: string
-      title?: string
-      description?: string
+      filename?: string;
+      contentType?: string;
+      title?: string;
+      description?: string;
     }
   ): Promise<SanityImageObject> {
     if (!process.env.SANITY_API_TOKEN) {
-      throw new SanityAPIError('Cannot upload asset: No API token provided')
+      throw new SanityAPIError('Cannot upload asset: No API token provided');
     }
     try {
       if (
         !this.writeClient.assets ||
         typeof this.writeClient.assets.upload !== 'function'
       ) {
-        throw new SanityAPIError('Asset upload failed: this.writeClient.assets.upload is not a function')
+        throw new SanityAPIError('Asset upload failed: this.writeClient.assets.upload is not a function');
       }
-      let asset: any
+      let asset: any;
       // Only image uploads are supported by this helper
       if (options?.contentType && !options.contentType.startsWith('image/')) {
         throw new SanityAPIError(
           'Asset upload failed: Only image/* content types are supported by uploadAsset()'
-        )
+        );
       }
       try {
         asset = await this.writeClient.assets.upload('image', file, {
@@ -297,138 +296,143 @@ export class SanityHTTPClient {
           contentType: options?.contentType,
           title: options?.title,
           description: options?.description,
-        })
+        });
       } catch (error: any) {
         throw new SanityAPIError(
           `Asset upload failed: ${error.message}`,
           error.statusCode || undefined,
           error
-        )
+        );
       }
       if (asset && asset.error) {
         throw new SanityAPIError(
           `Asset upload failed: ${asset.error}`,
           asset.statusCode,
           asset
-        )
+        );
       }
       if (typeof asset === 'undefined') {
-        throw new SanityAPIError('Asset upload failed: Upload error')
+        throw new SanityAPIError('Asset upload failed: Upload error');
       }
       if (!asset) {
-        throw new SanityAPIError('Upload asset operation returned no result')
+        throw new SanityAPIError('Upload asset operation returned no result');
       }
       if (asset._id) {
-        console.log(`✅ Uploaded asset: ${asset._id}`)
+        console.log(`✅ Uploaded asset: ${asset._id}`);
       } else {
-        console.log(`✅ Uploaded asset (no _id): ${JSON.stringify(asset)}`)
+        console.log(`✅ Uploaded asset (no _id): ${JSON.stringify(asset)}`);
       }
       if (typeof asset._id !== 'string' || asset._id.trim().length === 0) {
-        throw new SanityAPIError('Asset upload failed: Invalid asset id')
+        throw new SanityAPIError('Asset upload failed: Invalid asset id');
       }
       if (!asset._id.startsWith('image-')) {
-        throw new SanityAPIError(`Asset upload failed: Expected image asset id, got "${asset._id}"`)
-      }      // Convert asset document to a Sanity image field object
+        throw new SanityAPIError(`Asset upload failed: Expected image asset id, got "${asset._id}"`);
+      }
+      if (asset._type !== 'sanity.imageAsset') {
+        throw new SanityAPIError(`Asset upload failed: Expected sanity.imageAsset, got "${asset._type}"`);
+      }
+      // Convert asset document to a Sanity image field object
       const imageObject = {
         _type: 'image' as const,
         asset: {
           _type: 'reference' as const,
           _ref: asset._id as string,
         },
-      } as unknown as SanityImageObject
-      return imageObject
+      } as unknown as SanityImageObject;
+      return imageObject;
     } catch (error: any) {
-      if (error instanceof SanityAPIError) throw error
+      if (error instanceof SanityAPIError) throw error;
       throw new SanityAPIError(
         `Asset upload failed: ${error.message}`,
         error.statusCode,
         error
-      )
+      );
     }
   }
 
   // Batch operations
   async createMany(documents: any[]): Promise<SanityDocument[]> {
     if (!process.env.SANITY_API_TOKEN) {
-      throw new SanityAPIError('Cannot create documents: No API token provided')
+      throw new SanityAPIError('Cannot create documents: No API token provided');
     }
     try {
-      const transaction = this.writeClient.transaction()
-      documents.forEach(doc => transaction.create(doc))
+      const transaction = this.writeClient.transaction();
+      documents.forEach(doc => transaction.create(doc));
 
-      let result: any
+      let result: any;
       try {
-        result = await transaction.commit()
+        result = await transaction.commit();
       } catch (error: any) {
         throw new SanityAPIError(
           `Batch create failed: ${error.message}`,
           error.statusCode || undefined,
           error
-        )
+        );
       }
       if (result && result.error) {
         throw new SanityAPIError(
           `Batch create failed: ${result.error}`,
           result.statusCode,
           result
-        )
+        );
       }
       if (typeof result === 'undefined') {
-        throw new SanityAPIError('Batch create failed: Batch create error')
+        throw new SanityAPIError('Batch create failed: Batch create error');
       }
       if (!result) {
-        throw new SanityAPIError('Batch create operation returned no result')
+        throw new SanityAPIError('Batch create operation returned no result');
       }
       // If result is an array, check for error objects in any element
       if (Array.isArray(result)) {
         if (result.some((item: any) => item && item.error)) {
-          const errorItem = result.find((item: any) => item && item.error)
+          const errorItem = result.find((item: any) => item && item.error);
           throw new SanityAPIError(
             `Batch create failed: ${errorItem.error}`,
             errorItem.statusCode,
             errorItem
-          )
+          );
         }
         if (typeof result[0] === 'string') {
-          return result.map((id: string) => ({ _id: id })) as SanityDocument[]
+          return result.map((id: string) => ({ _id: id })) as SanityDocument[];
         }
       }
       // If result itself is an error object
       if (result && result.error) {
-        console.log('ERROR OBJECT in createMany:', result)
+        console.log('ERROR OBJECT in createMany:', result);
         throw new SanityAPIError(
           `Batch create failed: ${result.error}`,
           result.statusCode,
           result
-        )
-      }      return result
+        );
+      }
+      return result;
     } catch (error: any) {
-      if (error instanceof SanityAPIError) throw error
+      if (error instanceof SanityAPIError) throw error;
       throw new SanityAPIError(
         `Batch create failed: ${error.message}`,
         error.statusCode || undefined,
         error
-      )
+      );
     }
   }
 
   // Health check
-  async healthCheck(): Promise<{ status: 'ok' | 'error', details: any }> {
+  async healthCheck(): Promise<{ status: 'ok' | 'error'; details: any }> {
     try {
       // Test read access
-      await this.query('*[_type == "sanity.fileAsset"][0]')
+      await this.query('*[_type == "sanity.fileAsset"][0]');
 
       // Test write access (if token available)
-      let writeTest = false
+      let writeTest = false;
       if (process.env.SANITY_API_TOKEN) {
-        writeTest = await this.testAuthentication()
+        writeTest = await this.testAuthentication();
       }
 
       if (process.env.SANITY_API_TOKEN && writeTest === false) {
         return {
           status: 'error',
-          details: { error: 'Unknown error' }
-        }
+          details: { error: 'Unknown error' },
+        };
       }
 
       return {
@@ -440,31 +444,31 @@ export class SanityHTTPClient {
           writeAccess: writeTest,
           hasToken: !!process.env.SANITY_API_TOKEN,
           environment: process.env.NODE_ENV,
-        }
-      }
+        },
+      };
     } catch (error: any) {
       return {
         status: 'error',
-        details: { error: error instanceof Error ? error.message : 'Unknown error' }
-      }
+        details: { error: error instanceof Error ? error.message : 'Unknown error' },
+      };
     }
   }
 
   // Get client for direct access if needed
   getReadClient(): SanityClient {
-    return this.client
+    return this.client;
   }
 
   getWriteClient(): SanityClient {
     if (!process.env.SANITY_API_TOKEN) {
-      throw new SanityAPIError('Cannot get write client: No API token provided')
+      throw new SanityAPIError('Cannot get write client: No API token provided');
     }
-    return this.writeClient
+    return this.writeClient;
   }
 }
 
 // Export singleton instance
-export const sanityHTTPClient = new SanityHTTPClient()
+export const sanityHTTPClient = new SanityHTTPClient();
 
 // Export client getter functions for backward compatibility
 export const getClient = (preview = false) => {
@@ -475,9 +479,9 @@ export const getClient = (preview = false) => {
       apiVersion: '2025-05-24',
       useCdn: false,
       perspective: 'previewDrafts',
-    })
+    });
   }
-  return sanityHTTPClient.getReadClient()
-}
+  return sanityHTTPClient.getReadClient();
+};
 
 // Do not use export default for ESM/CJS compatibility

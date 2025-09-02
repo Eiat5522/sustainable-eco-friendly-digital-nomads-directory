@@ -8,10 +8,11 @@ type SanityImageAsset = { url?: string; metadata?: { dimensions?: SanityImageDim
 type SanityImageRef = { asset?: SanityImageAsset } | null | undefined;
 
 // Input shape for dereferenced Sanity data from GROQ queries
-interface DereferencedSanityListing {
+interface ListingSummarySource {
   _id: string;
   name: string;
-  slug: { current: string };
+  // Projected as string in the GROQ query ("slug": slug.current)
+  slug: string;
   type: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities';
   shortDescription?: string;
   address?: string;
@@ -29,7 +30,8 @@ interface DereferencedSanityListing {
     country: string;
     sustainabilityScore?: number;
     highlights?: string[];
-    slug: { current: string };
+    // Projected as string in the GROQ query ("slug": slug.current)
+    slug: string;
   };
 }
 
@@ -129,7 +131,7 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
     }
   }`;
 
-  const raw = await client.fetch<unknown>(query, { slug });
+  const raw = await client.fetch(query, { slug });
   return toCityDTO(raw);
 }
 
@@ -164,7 +166,7 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     }
   }`;
 
-  const raw = await client.fetch<unknown>(query, { slug });
+  const raw = await client.fetch(query, { slug });
   return toCityDetailDTO(raw);
 }
 
@@ -199,12 +201,12 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
       country,
       sustainabilityScore,
       highlights,
-      slug
+      "slug": slug.current
     }
   }`;
 
-  const listingsRaw = await client.fetch<unknown[]>(query, { cityId });
-  return (Array.isArray(listingsRaw) ? listingsRaw : []).map(transformToSummaryDTO);
+  const listingsRaw = await client.fetch<ListingSummarySource[]>(query, { cityId });
+  return listingsRaw.map(transformToSummaryDTO);
 }
 
 export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
@@ -224,6 +226,6 @@ export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
     }
   }`;
 
-  const raw = await client.fetch(query, { limit } as Record<string, unknown>) as any;
+  const raw = await client.fetch(query, { limit });
   return (Array.isArray(raw) ? raw : []).map(toCityDTO).filter(Boolean) as CityDTO[];
 }

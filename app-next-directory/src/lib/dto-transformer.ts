@@ -30,6 +30,26 @@ interface DereferencedSanityListing {
     slug: { current: string };
   };
 }
+
+function isSanityImage(img: unknown): img is SanityImage | string {
+  // Accept only valid Sanity image asset refs, not arbitrary strings
+  const isAssetRef = (s: unknown): s is string =>
+    typeof s === 'string' &&
+    /^image-[A-Za-z0-9]+-\d+x\d+-(?:jpg|jpeg|png|webp|gif|tif|tiff|svg)$/i.test(s);
+
+  // Plain string must match the asset‐ref pattern
+  if (isAssetRef(img)) return true;
+  if (!img || typeof img !== 'object') return false;
+
+  const asset = (img as Record<string, unknown>).asset as unknown;
+  if (!asset || typeof asset !== 'object') return false;
+
+  const { _ref, _id } = asset as Record<string, unknown>;
+  // Object shape must contain a valid _ref or an _id starting with "image-"
+  return (typeof _ref === 'string' && isAssetRef(_ref)) ||
+         (typeof _id === 'string' && _id.startsWith('image-'));
+}
+
 const imageOrFallback = (img: unknown, w: number, h: number) => {
   // Accept full CDN URL strings (append transformations), asset ref strings, or Sanity image objects
   if (typeof img === 'string' && img.length > 0) {
@@ -69,7 +89,8 @@ export function transformToFeaturedDTO(sanityListing: SanityListing): FeaturedLi
     slug: sanityListing.slug?.current ?? '',
     imageUrl,
     city: sanityListing.city?.name || '',
-    amenityNames: toNames(sanityListing.amenities),  };
+    amenityNames: toNames(sanityListing.amenities),
+  };
 }
 
 const toMoney = (amount?: number, currency = 'THB', unit?: 'night' | 'meal' | 'hour'): Money | undefined =>
@@ -139,45 +160,14 @@ export function transformToSummaryDTO(
     slug: typeof (sanityListing as any).slug === 'string'
       ? (sanityListing as any).slug
       : (sanityListing as any).slug?.current ?? '',
-function isSanityImage(img: unknown): img is SanityImage | string {
-  // Accept only valid Sanity image asset refs, not arbitrary strings
-  const isAssetRef = (s: unknown): s is string =>
-    typeof s === 'string' &&
-    /^image-[A-Za-z0-9]+-\d+x\d+-(?:jpg|jpeg|png|webp|gif|tif|tiff|svg)$/i.test(s);
-
-  // Plain string must match the asset‐ref pattern
-  if (isAssetRef(img)) return true;
-  if (!img || typeof img !== 'object') return false;
-
-  const asset = (img as Record<string, unknown>).asset as unknown;
-  if (!asset || typeof asset !== 'object') return false;
-
-  const { _ref, _id } = asset as Record<string, unknown>;
-  // Object shape must contain a valid _ref or an _id starting with "image-"
-  return (typeof _ref === 'string' && isAssetRef(_ref)) ||
-         (typeof _id === 'string' && _id.startsWith('image-'));
-}    address: sanityListing.address,
+    imageUrl,
+    address: sanityListing.address,
     location: toGeoPoint(sanityListing.location),
     shortDescription: sanityListing.shortDescription,
     amenityNames: (sanityListing.amenities ?? [])
       .map((amenity) => amenity?.name)
       .filter((name): name is string => typeof name === 'string' && name.length > 0),
   };
-}
-function isSanityImage(img: unknown): img is SanityImage | string {
-  // Optionally accept a plain string asset ref
-  if (typeof img === 'string') return img.length > 0;
-
-  // Ensure non-null object
-  if (!img || typeof img !== 'object') return false;
-
-  const maybeObj = img as Record<string, unknown>;
-  const asset = maybeObj.asset as unknown;
-
-  if (!asset || typeof asset !== 'object') return false;
-
-  const assetObj = asset as Record<string, unknown>;
-  return typeof assetObj._ref === 'string' || typeof assetObj._id === 'string';
 }
 
 export function transformToDetailDTO(sanityListing: SanityListing): ListingDetailDTO {

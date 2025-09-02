@@ -68,6 +68,7 @@ export function Footer() {
                 onChange={(e) => setEmail(e.target.value)}
                 aria-invalid={errors.email ? 'true' : 'false'}
                 aria-describedby="newsletter-help"
+                aria-errormessage={errors.email ? 'newsletter-error' : undefined}
                 required
                 className="flex-1 bg-white text-neo-text-primary"
              />
@@ -89,7 +90,8 @@ export function Footer() {
                 >
                   Subscribe
                 </Link>
-              </NeoButton>            </div>
+              </NeoButton>
+            </div>
             <p id="newsletter-help" className="sr-only">We send occasional updates. Unsubscribe anytime.</p>
           </div>
         </NeoCard>

@@ -27,7 +27,11 @@
         "./src/*"
       ]
     },
-    "baseUrl": "."
+    "baseUrl": ".",
+    "declaration": true,
+    "stripInternal": true,
+    "declarationDir": "dist/types",
+    "noEmit": false
   },
   "include": [
     "**/*.ts",

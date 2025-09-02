@@ -9,17 +9,31 @@ import slugify from 'slugify';
  */
 import { toSlug } from './utils/slug';
 
-// Normalize category strings to the canonical set used across the app
-// Accepts legacy singular 'activity' and coerces to 'activities'.
 type CanonicalCategory = 'coworking' | 'cafe' | 'accommodation' | 'activities' | 'restaurant';
-const normalizeCategory = (input: string): CanonicalCategory => {
-  const lc = String(input || '').trim().toLowerCase();
-  if (lc === 'activity' || lc === 'activities') return 'activities';
-  if (lc === 'coworking' || lc === 'cafe' || lc === 'accommodation' || lc === 'restaurant') {
-    return lc as CanonicalCategory;
+const normalizeCategory = (input: unknown): CanonicalCategory => {
+  const lc = String(input ?? '').trim().toLowerCase();
+  // Common synonyms/plurals/hyphenation
+  switch (lc) {
+    case 'activity':
+    case 'activities':
+      return 'activities';
+    case 'restaurant':
+    case 'restaurants':
+      return 'restaurant';
+    case 'cafe':
+    case 'cafes':
+      return 'cafe';
+    case 'accommodation':
+    case 'accommodations':
+      return 'accommodation';
+    case 'coworking':
+    case 'co-working':
+    case 'co working':
+      return 'coworking';
+    default:
+      // Default to a safe, common type if unknown
+      return 'coworking';
   }
-  // Default to a safe, common type if unknown
-  return 'coworking';
 };
 
 function mapRawToListing(rawListing: any): Listing {
@@ -99,7 +113,7 @@ export function getListingsByCity(city: string): Listing[] {
         : (raw.city && typeof raw.city === 'object' && 'name' in raw.city
             ? (raw.city as { name: string }).name
             : undefined);
-      const type = normalizeCategory(raw.category || 'coworking');
+      const type = normalizeCategory(raw.category || (raw as any).type || 'coworking');
       return rawCity && rawCity.trim().toLowerCase() === cityLower && allowedTypes.has(type);
     })
     .map(mapRawToListing);

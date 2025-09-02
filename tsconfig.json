@@ -18,7 +18,11 @@
       "@app-next/types/*": ["app-next-directory/src/types/*"],
       "@app-next/types/listings": ["app-next-directory/src/types/listings.ts"]
     },
-    "lib": ["dom", "dom.iterable", "esnext"]
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "declaration": true,
+    "stripInternal": true,
+    "declarationDir": "dist/types",
+    "noEmit": false
   },
   "include": [
     "src/**/*",

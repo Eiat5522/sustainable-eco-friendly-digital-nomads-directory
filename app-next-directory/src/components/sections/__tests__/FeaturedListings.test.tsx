@@ -19,10 +19,9 @@ describe('FeaturedListings', () => {
   it('renders featured listings after successful fetch', async () => {
     render(<FeaturedListings />)
 
-    await waitFor(() => {
-      // Assert at least one known venue name from mockFeaturedVenues is rendered
-      expect(screen.getByText('Banyan Tree Phuket')).toBeInTheDocument()
-    })
+    // Assert at least one known venue name from mockFeaturedVenues is rendered
+    expect(await screen.findByText('Banyan Tree Phuket')).toBeInTheDocument()
+
   })
 
   it('renders default UI under local MSW mock', async () => {
@@ -31,7 +30,5 @@ describe('FeaturedListings', () => {
     expect(
       await screen.findByRole('heading', { name: /Featured Sustainable Venues/i, level: 2 })
     ).toBeInTheDocument()
-   expect(
-     await screen.findByRole('heading', { name: /Featured Sustainable Venues/i })
-   ).toBeInTheDocument()
-})})})
+  })
+})

@@ -81,6 +81,8 @@ function buildWhereClause({
 
   return filters.join(' && ');
 }
+
+function buildQuery({
   q,
   categories,
   destinations,
@@ -133,7 +135,9 @@ export async function GET(request: NextRequest) {
     const nomadFeatures = sanitizeStringArray(searchParams.getAll('nomadFeatures'));
 
     const start = (page - 1) * limit;
-    const end = start + limit; // GROQ [start...end] uses exclusive end with "..."    const { query, countQuery } = buildQuery({
+    const end = start + limit; // GROQ [start...end] uses exclusive end with "..."
+
+    const { query, countQuery } = buildQuery({
       q,
       categories,
       destinations,
@@ -218,4 +222,3 @@ export async function POST(request: NextRequest) {
     return ApiResponseHandler.error('Failed to perform search');
   }
 }
-

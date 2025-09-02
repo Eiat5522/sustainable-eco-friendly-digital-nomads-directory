@@ -57,8 +57,8 @@ export default function SearchPage() {
               .map((c) => {
                 const name = c.name.trim();
                 // Prefer a stable key if available: const value = String(c.id ?? c.slug ?? name);
-                const value = name;
-                return [value, { value, label: name, icon: MapPin } as Option] as const;
+                const value = String(c._id ?? c.slug?.current ?? name);
+                return [name, { value, label: name, icon: MapPin } as Option] as const;
               })
           ).values()
         ).sort((a, b) => a.label.localeCompare(b.label));
@@ -80,7 +80,7 @@ export default function SearchPage() {
           .sort((a, b) => a.label.localeCompare(b.label));
         setTypeOptions(typeOpts);
 
-        const amenities = Array.isArray(amenitiesRes?.amenities) ? (amenitiesRes.amenities as Amenity[]) : [];
+        const amenities = Array.isArray(amenitiesRes?.amenities) ? (amenitiesRes.amenities as unknown[]) : [];
         const amenityOpts: Option[] = Array.from(
           new Map(
             amenities
