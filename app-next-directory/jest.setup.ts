@@ -43,6 +43,31 @@ import './jest.polyfills';
 import { TextEncoder, TextDecoder } from 'util';
 import '@testing-library/jest-dom';
 
+// Ensure basic globals are available before any mocks that depend on them
+// Use `any` cast here to avoid TypeScript complaining about differences
+// between Node's util TextEncoder and the DOM/global TextEncoder types.
+// This is acceptable for test setup polyfills.
+if (!(global as any).TextEncoder) (global as any).TextEncoder = TextEncoder;
+if (!(global as any).TextDecoder) (global as any).TextDecoder = TextDecoder;
+
+// Polyfill WHATWG Request/Response/Headers for Next.js 15
+try {
+  require('whatwg-fetch');
+} catch (e) {
+  console.warn('whatwg-fetch polyfill not applied:', e);
+}
+
+// Polyfill for Request, Response, Headers for Next.js API route tests (node-fetch fallback)
+try {
+  const nodeFetch = require('node-fetch');
+  global.Request = global.Request || nodeFetch.Request;
+  global.Response = global.Response || nodeFetch.Response;
+  global.Headers = global.Headers || nodeFetch.Headers;
+} catch (e) {
+  // If node-fetch is not available, warn
+  console.warn('node-fetch polyfill for Request/Response/Headers not applied:', e);
+}
+
 // MSW setup for tests that rely on HTTP mocks
 try {
   const { server } = require('./__mocks__/server');
@@ -64,33 +89,10 @@ try {
     throw e;
   }
 }
-// Use `any` cast here to avoid TypeScript complaining about differences
-// between Node's util TextEncoder and the DOM/global TextEncoder types.
-// This is acceptable for test setup polyfills.
-if (!(global as any).TextEncoder) (global as any).TextEncoder = TextEncoder;
-if (!(global as any).TextDecoder) (global as any).TextDecoder = TextDecoder;
 
 // Polyfill NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET for tests
 process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'test-project';
 process.env.NEXT_PUBLIC_SANITY_DATASET = process.env.NEXT_PUBLIC_SANITY_DATASET || 'test-dataset';
-
-// Polyfill WHATWG Request/Response/Headers for Next.js 15
-try {
-  require('whatwg-fetch');
-} catch (e) {
-  console.warn('whatwg-fetch polyfill not applied:', e);
-}
-
-// Polyfill for Request, Response, Headers for Next.js API route tests (node-fetch fallback)
-try {
-  const nodeFetch = require('node-fetch');
-  global.Request = global.Request || nodeFetch.Request;
-  global.Response = global.Response || nodeFetch.Response;
-  global.Headers = global.Headers || nodeFetch.Headers;
-} catch (e) {
-  // If node-fetch is not available, warn
-  console.warn('node-fetch polyfill for Request/Response/Headers not applied:', e);
-}
 
 // Mock global.fetch for NextAuth.js session requests
 if (!global.fetch) {

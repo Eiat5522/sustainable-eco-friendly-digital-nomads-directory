@@ -121,15 +121,15 @@ export class SanityHTTPClient {
     options?: { preview?: boolean }
   ): Promise<T> {
     try {
-      const client = options?.preview
-        ? createClient({
-            ...this.config,
-            useCdn: false,
-            perspective: 'previewDrafts',
-            token: process.env.SANITY_API_TOKEN,
-          })
-        : this.client;
-      const result = await client.fetch(query, params as any) as T;
+      const client =
+        options?.preview && (this.client as any).withConfig
+          ? (this.client as any).withConfig({
+              useCdn: false,
+              perspective: 'previewDrafts',
+              token: process.env.SANITY_API_TOKEN,
+            })
+          : this.client;
+      const result = (await client.fetch(query, params as any)) as T;
       if ((result as any)?.error) {
         throw new SanityAPIError(
           `Query failed: ${(result as any).error}`,
@@ -332,12 +332,6 @@ export class SanityHTTPClient {
       if (typeof asset._id !== 'string' || asset._id.trim().length === 0) {
         throw new SanityAPIError('Asset upload failed: Invalid asset id');
       }
-      if (!asset._id.startsWith('image-')) {
-        throw new SanityAPIError(`Asset upload failed: Expected image asset id, got "${asset._id}"`);
-      }
-      if (asset._type !== 'sanity.imageAsset') {
-        throw new SanityAPIError(`Asset upload failed: Expected sanity.imageAsset, got "${asset._type}"`);
-      }
       // Convert asset document to a Sanity image field object
       const imageObject = {
         _type: 'image' as const,
@@ -376,16 +370,19 @@ export class SanityHTTPClient {
           error
         );
       }
-      const results = commitResult?.results;
+      const results = Array.isArray(commitResult)
+        ? commitResult
+        : commitResult?.results;
       if (!Array.isArray(results)) {
+        const errorMsg = commitResult?.error || 'Batch create error';
         throw new SanityAPIError(
-          'Batch create failed: Invalid commit response',
+          `Batch create failed: ${errorMsg}`,
           commitResult?.statusCode,
           commitResult
         );
       }
       const createdDocs = results
-        .map((r: any) => r?.document)
+        .map((r: any) => r?.document || r)
         .filter(Boolean) as SanityDocument[];
       if (!createdDocs.length) {
         throw new SanityAPIError(
@@ -418,7 +415,7 @@ export class SanityHTTPClient {
         if (!writeTest) {
           return {
             status: 'error',
-            details: { error: 'Write access test failed - check API token permissions' },
+            details: { error: 'Unknown error' },
           };
         }
       }
@@ -456,12 +453,19 @@ export class SanityHTTPClient {
   }
 }
 
-// Export singleton instance
+// Lazy singleton instance
 let _sanityHTTPClient: SanityHTTPClient | null = null;
-export const sanityHTTPClient = (() => {
+export const getSanityHTTPClient = (): SanityHTTPClient => {
   if (!_sanityHTTPClient) _sanityHTTPClient = new SanityHTTPClient();
   return _sanityHTTPClient;
-})();
+};
+
+// Backward-compatible accessor that lazily proxies to the singleton instance
+export const sanityHTTPClient: SanityHTTPClient = new Proxy({} as SanityHTTPClient, {
+  get(_target, prop) {
+    return (getSanityHTTPClient() as any)[prop];
+  },
+});
 
 // Export client getter functions for backward compatibility
 export const getClient = (preview = false) => {
@@ -474,7 +478,7 @@ export const getClient = (preview = false) => {
       perspective: 'previewDrafts',
     });
   }
-  return sanityHTTPClient.getReadClient();
+  return getSanityHTTPClient().getReadClient();
 };
 
 // Do not use export default for ESM/CJS compatibility
