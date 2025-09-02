@@ -64,7 +64,7 @@ describe('filterListings normalization', () => {
 
   it('coerces category "activity" → "activities"', () => {
     const legacy = filterListings({ category: 'activity' as CategoryParam });
-    const canonical = filterListings({ category: 'activities' });
+    const canonical = filterListings({ category: 'activities' as const });
     const ids = (xs: typeof legacy) => xs.map((l) => l._id).sort();
     expect(ids(legacy)).toEqual(ids(canonical));
     expect(legacy).toHaveLength(1);

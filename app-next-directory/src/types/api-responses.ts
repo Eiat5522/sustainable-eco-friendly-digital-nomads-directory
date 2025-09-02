@@ -2,9 +2,9 @@
 // These are intentionally minimal to keep UI consumption simple.
 
 /**
- * Deeply readonly slug type to prevent mutations of nested properties
+ * Readonly slug type to prevent mutation
  */
-export type ReadonlySlug = Readonly<{ current: string }>;
+export type ReadonlySlug = { readonly current: string };
 
 /**
  * City item returned by GET /api/cities

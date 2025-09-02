@@ -216,20 +216,15 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
 
   const listingsRaw = await client.fetch<ListingSummarySource[]>(query, { cityId });
 
-  // Convert ListingSummarySource to DereferencedSanityListing format expected by transformToSummaryDTO
-  const convertedListings = listingsRaw.map((listing): DereferencedSanityListing => ({
-    ...listing,
-    slug: { current: listing.slug }, // Convert string slug to object format
-    city: listing.city ? {
-      ...listing.city,
-      slug: { current: listing.city.slug } // Convert city slug as well
-    } : undefined
-  }));
-
-  return convertedListings.map(transformToSummaryDTO);
-}
-
-export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
+  return listingsRaw.map((listing) =>
+    transformToSummaryDTO({
+      ...listing,
+      slug: { current: listing.slug },
+      city: listing.city
+        ? { ...listing.city, slug: { current: listing.city.slug } }
+        : undefined
+    } as DereferencedSanityListing)
+  );export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
   const query = groq`*[_type == "city"] | order(_createdAt desc)[0...$limit]{
     _id,
     name,

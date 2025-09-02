@@ -1,14 +1,12 @@
 {
   "extends": "./tsconfig.json",
-{
-  "extends": "./tsconfig.json",
   "compilerOptions": {
     "allowJs": false,
     "declaration": true,
+    "declarationMap": false,
     "emitDeclarationOnly": true,
     "declarationDir": "dist/types",
     "stripInternal": true,
     "noEmit": false
   }
-}
 }

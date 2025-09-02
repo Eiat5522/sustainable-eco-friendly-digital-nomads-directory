@@ -43,8 +43,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     hasFeaturePermission: (feature: string) => {
       return hasFeaturePermission(userRole, feature as any);
     },
-    signIn: () => signIn(),
-    signOut: () => signOut(),
+    // Forward any arguments to next-auth's signIn/signOut helpers to preserve provider and options.
+    signIn: (...args: unknown[]) => signIn(...(args as any)),
+    signOut: (...args: unknown[]) => signOut(...(args as any)),
   };
 
   return (

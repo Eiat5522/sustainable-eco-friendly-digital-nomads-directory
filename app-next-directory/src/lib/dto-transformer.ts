@@ -9,7 +9,7 @@ import type { ListingDetailDTO, ListingSummaryDTO, FeaturedListingDTO, Money, Op
 interface DereferencedSanityListing {
   _id: string;
   name: string;
-  slug: { current: string };
+  slug: sanityListing.city.slug?.current ?? '',
   type: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities';
   shortDescription?: string;
   longDescription?: string;
@@ -59,8 +59,11 @@ const imageOrFallback = (img: unknown, w: number, h: number) => {
       const qp = `w=${w}&h=${h}&fit=crop&auto=format`;
       return hasQuery ? `${img}&${qp}` : `${img}?${qp}`;
     }
-    // Otherwise assume it's an asset ref/id supported by urlFor
-    return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
+    // Otherwise only treat as a Sanity asset ref/id if valid
+    if (isImageAssetId(img)) {
+      return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
+    }
+    return '/images/fallback.png';
   }
 
   if (img && typeof img === 'object') {

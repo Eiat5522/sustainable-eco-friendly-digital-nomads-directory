@@ -4,8 +4,23 @@ import { groq } from 'next-sanity';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { sanitizeBasic, sanitizeStringArray, escapeGroqLiteral, escapeGroqMatch, clampInt } from '@/utils/sanitize';
-  // Replace the inline selection block with the hoisted LISTING_FIELDS
-  const fields = `{${LISTING_FIELDS}}`;
+
+// Fields selected for listing documents in GROQ queries
+const LISTING_FIELDS = `
+  _id,
+  name,
+  "slug": slug,
+  category,
+  "primaryImage": primaryImage{..., asset->},
+  "galleryImages": galleryImages[]{..., asset->},
+  "location": city->{ _id, name, "slug": slug.current, country },
+  priceRange,
+  moderation,
+  shortDescription,
+  longDescription,
+  ecoFeatures,
+  amenities
+`;
 
 function buildWhereClause({
   q,
@@ -103,21 +118,7 @@ function buildQuery({
 }): { query: string; countQuery: string } {
   const where = buildWhereClause({ q, categories, destinations, amenities, nomadFeatures });
 
-  const fields = `{
-    _id,
-    name,
-    "slug": slug,
-    category,
-    "primaryImage": primaryImage{..., asset->},
-    "galleryImages": galleryImages[]{..., asset->},
-    "location": city->{ _id, name, "slug": slug.current, country },
-    priceRange,
-    moderation,
-    shortDescription,
-    longDescription,
-    ecoFeatures,
-    amenities
-  }`;
+  const fields = `{${LISTING_FIELDS}}`;
 
   const query = `*[${where}] | order(_createdAt desc, _id desc)[${start}...${end}] ${fields}`;
   const countQuery = `count(*[${where}])`;
@@ -137,7 +138,7 @@ export async function GET(request: NextRequest) {
     const nomadFeatures = sanitizeStringArray(searchParams.getAll('nomadFeatures'));
 
     const start = (page - 1) * limit;
-    const end = start + limit; // GROQ [start...end] uses exclusive end with "..."
+    const end = start + limit - 1; // GROQ uses inclusive end index
 
     const { query, countQuery } = buildQuery({
       q,

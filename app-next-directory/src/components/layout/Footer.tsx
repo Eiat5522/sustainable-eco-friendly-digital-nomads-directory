@@ -66,8 +66,8 @@ export function Footer() {
                 inputMode="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                aria-invalid={errors.email ? 'true' : 'false'}
-                aria-describedby={errors.email ? 'newsletter-help newsletter-error' : 'newsletter-help'}
+                aria-invalid={!!errors.email}
+                aria-describedby="newsletter-help"
                 aria-errormessage={errors.email ? 'newsletter-error' : undefined}
                 required
                 className="flex-1 bg-white text-neo-text-primary"
@@ -80,14 +80,15 @@ export function Footer() {
               <NeoButton asChild variant="secondary" size="md">
                 <Link
                   href="/contact-us?type=newsletter"
-                  onClick={(e: React.MouseEvent) => {
-                    const trimmed = email.trim()
-                    if (!trimmed) {
-                      e.preventDefault()
-                      setErrors({ email: 'Please enter a valid email address.' })
-                      return
-                    }
-                    setErrors({ email: '' })
+ onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+   const trimmed = email.trim()
+   const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)
+   if (!isValid) {
+     e.preventDefault()
+     setErrors({ email: 'Please enter a valid email address.' })
+     return
+   }
+   setErrors({ email: '' })
                     try {
                       sessionStorage.setItem('newsletterEmail', trimmed)
                     } catch {

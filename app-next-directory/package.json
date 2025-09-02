@@ -4,12 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "prebuild": "npm run build:types",
+    "build": "npm run build:types && next build",
     "build:types": "tsc -p tsconfig.types.json",
     "start": "next start",
     "preview": "next start",
     "validate:env": "node scripts/validate-env.js",
-    "msw:init": "msw init public --save"
+    "msw:init": "msw init public --save",
+    "postinstall": "msw init public --save || true"
   },
   "dependencies": {
     "@21st-extension/react": "^0.5.14",

@@ -19,8 +19,10 @@ describe('FeaturedListings', () => {
   it('renders featured listings after successful fetch', async () => {
     render(<FeaturedListings />)
 
-    // Assert using the fixture to avoid hard-coded text coupling
-    expect(await screen.findByText(mockListings[0].name)).toBeInTheDocument()
+    // Assert all listings render (order-agnostic, avoids coupling to first item)
+    for (const { name } of mockListings) {
+      expect(await screen.findByText(name)).toBeInTheDocument()
+    }
 
   })
 

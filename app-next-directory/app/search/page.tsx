@@ -57,7 +57,7 @@ export default function SearchPage() {
               .map((c) => {
                 const name = c.name.trim();
                 // Prefer a stable value if available
-                const value = String(c._id ?? c.slug?.current ?? name);
+                 const value = String(c._id || c.slug?.current || name);
                 // Deduplicate by value to avoid collapsing distinct IDs that share a name
                 return [value, { value, label: name, icon: MapPin } as Option] as const;
               })

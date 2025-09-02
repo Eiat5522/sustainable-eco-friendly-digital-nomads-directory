@@ -112,7 +112,7 @@ export function getListingsByCity(city: string): Listing[] {
         : (raw.city && typeof raw.city === 'object' && 'name' in raw.city
             ? (raw.city as { name: string }).name
             : undefined);
-      const type = normalizeCategory(raw.category || (raw as any).type);
+      const type = normalizeCategory(raw.category ?? (raw as any).type);
       return rawCity && rawCity.trim().toLowerCase() === cityLower && allowedTypes.has(type);
     })
     .map(mapRawToListing);

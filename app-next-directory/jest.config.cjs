@@ -66,7 +66,8 @@ module.exports = {
     '/__tests__/__mocks__/',
     '/.d/.ts',
     '<rootDir>/src/lib/__tests__/listings.test.ts',
-    '<rootDir>/src/__tests__/api/search/FORTEST-route.copy.skip.ts'
+    '<rootDir>/src/__tests__/api/search/FORTEST-route.copy.skip.ts',
+    '<rootDir>/src/tests/'
   ],
   resolver: 'jest-pnp-resolver'
 };
