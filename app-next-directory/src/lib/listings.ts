@@ -8,6 +8,7 @@ import { toSlug } from './utils/slug';
  */
 const ALLOWED_CATEGORIES = ['coworking', 'cafe', 'accommodation', 'activities', 'restaurant'] as const;
 type CanonicalCategory = typeof ALLOWED_CATEGORIES[number];
+const normalizeCategory = (input: string | undefined): CanonicalCategory => {
   const lc = String(input ?? '').trim().toLowerCase();
   // Common synonyms/plurals/hyphenation
   switch (lc) {
@@ -115,7 +116,7 @@ export function getListingsByCity(city: string): Listing[] {
       return rawCity && rawCity.trim().toLowerCase() === cityLower && allowedTypes.has(type);
     })
     .map(mapRawToListing);
-    }
+}
 
 type FilterOptions = {
   city?: string;
@@ -153,7 +154,8 @@ export function filterListings(options: FilterOptions): Listing[] {
 
   // Finally enforce valid listing types
   const validTypes = ALLOWED_CATEGORY_SET;
-  return result.filter((l) => l.type !== undefined && validTypes.has(l.type as CanonicalCategory));}
+  return result.filter((l) => l.type !== undefined && validTypes.has(l.type as CanonicalCategory));
+}
 
 // Maps a raw Sanity listing result to AppListingDetail DTO
 import { AppListingDetail, AppListingCard } from '@/types/appView';
@@ -201,7 +203,7 @@ export type SanityListingRaw = {
 };
 
 export function isSanityListing(raw: any): raw is SanityListingRaw {
-  const hasId = (typeof raw?._id === 'string' && raw._id.trim().length > 0) || (typeof raw?.id === 'string' && raw.id.trim().length > 0);
+  const hasId = (typeof raw?._id === 'string' && raw._id.trim().length > 0);
   const hasName =
     typeof raw?.name === 'string' && raw.name.trim().length > 0;
   const hasSlug =

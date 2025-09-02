@@ -15,11 +15,11 @@ type DereferencedSanityListing = {
   location?: { lat: number; lng: number };
   priceRange?: 'budget' | 'moderate' | 'premium';
   website?: string;
-  primaryImage?: unknown;
-  galleryImages?: unknown[];
-  ecoFocusTags?: ReadonlyArray<{ name?: string }>;
-  digitalNomadFeatures?: ReadonlyArray<{ name?: string }>;
-  amenities?: ReadonlyArray<{ name?: string }>;
+  primaryImage?: SanityImageRef;
+  galleryImages?: SanityImageRef[];
+  ecoFocusTags?: Array<{ name?: string }>;
+  digitalNomadFeatures?: Array<{ name?: string }>;
+  amenities?: Array<{ name?: string }>;
   city?: {
     _id: string;
     name: string;

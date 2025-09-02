@@ -160,9 +160,10 @@ export async function updateUserRole(
 
     if (!isValidObjectId(userId)) {
       return false;
-    if (!isValidObjectId(userId)) {
-      return false;
-    }      { $set: { role: newRole } },
+    }
+    const res = await UserModel.updateOne(
+      { _id: userId },
+      { $set: { role: newRole } },
       { runValidators: true }
     );
     return res.matchedCount === 1;
