@@ -56,9 +56,10 @@ export default function SearchPage() {
               .filter((c): c is City => typeof c?.name === 'string' && c.name.trim().length > 0)
               .map((c) => {
                 const name = c.name.trim();
-                // Prefer a stable key if available: const value = String(c.id ?? c.slug ?? name);
+                // Prefer a stable value if available
                 const value = String(c._id ?? c.slug?.current ?? name);
-                return [name, { value, label: name, icon: MapPin } as Option] as const;
+                // Deduplicate by value to avoid collapsing distinct IDs that share a name
+                return [value, { value, label: name, icon: MapPin } as Option] as const;
               })
           ).values()
         ).sort((a, b) => a.label.localeCompare(b.label));
@@ -84,7 +85,11 @@ export default function SearchPage() {
         const amenityOpts: Option[] = Array.from(
           new Map(
             amenities
-              .filter((a): a is Amenity => typeof a?.name === 'string' && a.name.trim().length > 0)
+              .filter((a): a is Amenity => {
+                if (typeof a !== 'object' || a === null) return false;
+                const amenity = a as Record<string, unknown>;
+                return typeof amenity.name === 'string' && amenity.name.trim().length > 0;
+              })
               .map((a) => {
                 const name = a.name.trim();
                 const lower = name.toLowerCase();

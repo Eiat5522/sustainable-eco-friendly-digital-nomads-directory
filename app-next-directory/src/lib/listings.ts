@@ -1,16 +1,13 @@
 // src/lib/listings.ts
 import listings from '../data/listings.json';
 import { Listing } from '../types/listings';
-import slugify from 'slugify';
-
+import { toSlug } from './utils/slug';
 // Function to map raw JSON to Listing objects
 /**
  * TEMP legacy JSON -> Listing mapper (to be deprecated once all data served via Sanity DTO layer)
  */
-import { toSlug } from './utils/slug';
-
-type CanonicalCategory = 'coworking' | 'cafe' | 'accommodation' | 'activities' | 'restaurant';
-const normalizeCategory = (input: unknown): CanonicalCategory => {
+const ALLOWED_CATEGORIES = ['coworking', 'cafe', 'accommodation', 'activities', 'restaurant'] as const;
+type CanonicalCategory = typeof ALLOWED_CATEGORIES[number];
   const lc = String(input ?? '').trim().toLowerCase();
   // Common synonyms/plurals/hyphenation
   switch (lc) {
@@ -102,10 +99,11 @@ function mapRawToListing(rawListing: any): Listing {
     location: rawListing.location || { lat: 0, lng: 0 },
   } as Listing;
 }
-
+const ALLOWED_CATEGORY_SET: ReadonlySet<CanonicalCategory> = new Set(ALLOWED_CATEGORIES);
 export function getListingsByCity(city: string): Listing[] {
-  const allowedTypes = new Set(['coworking', 'cafe', 'accommodation', 'activities', 'restaurant']);
+  const allowedTypes = new Set(ALLOWED_CATEGORIES);
   const cityLower = city.trim().toLowerCase();
+  const validTypes = ALLOWED_CATEGORIES;
   return listings
     .filter(raw => {
       const rawCity = typeof raw.city === 'string'
@@ -113,7 +111,7 @@ export function getListingsByCity(city: string): Listing[] {
         : (raw.city && typeof raw.city === 'object' && 'name' in raw.city
             ? (raw.city as { name: string }).name
             : undefined);
-      const type = normalizeCategory(raw.category || (raw as any).type || 'coworking');
+      const type = normalizeCategory(raw.category || (raw as any).type);
       return rawCity && rawCity.trim().toLowerCase() === cityLower && allowedTypes.has(type);
     })
     .map(mapRawToListing);
@@ -154,9 +152,8 @@ export function filterListings(options: FilterOptions): Listing[] {
   }
 
   // Finally enforce valid listing types
-  const validTypes = ['coworking', 'cafe', 'accommodation', 'activities', 'restaurant'] as const;
-  return result.filter((l) => l.type !== undefined && validTypes.includes(l.type));
-}
+  const validTypes = ALLOWED_CATEGORY_SET;
+  return result.filter((l) => l.type !== undefined && validTypes.has(l.type as CanonicalCategory));}
 
 // Maps a raw Sanity listing result to AppListingDetail DTO
 import { AppListingDetail, AppListingCard } from '@/types/appView';

@@ -2,13 +2,18 @@
 // These are intentionally minimal to keep UI consumption simple.
 
 /**
+ * Deeply readonly slug type to prevent mutations of nested properties
+ */
+export type ReadonlySlug = Readonly<{ current: string }>;
+
+/**
  * City item returned by GET /api/cities
  * Minimal city shape used by the filters UI.
  */
 export interface City {
   readonly _id: string;
   readonly name: string;
-  readonly slug: { current: string };
+  readonly slug: ReadonlySlug;
   // add other expected fields when needed (e.g., country)
 }
 
@@ -18,7 +23,6 @@ export interface City {
  */
 export interface CityResponse {
     readonly cities: readonly City[];
-
 }
 
 /**
@@ -27,15 +31,6 @@ export interface CityResponse {
  */
 export interface CategoryResponse {
   readonly categories: readonly string[];
-}
-
-/**
- * Internal shape for listing "types" collections (no direct endpoint)
- * Kept for future compatibility if /api/types is introduced.
- */
-/** @internal */
-interface TypeResponse {
-  readonly types: readonly string[];
 }
 
 /**
@@ -52,5 +47,5 @@ export interface Amenity {
  * Provides a list of amenities available for filtering.
  */
 export interface AmenityResponse {
-  readonly amenities: ReadonlyArray<Amenity>;
+  readonly amenities: readonly Amenity[];
 }

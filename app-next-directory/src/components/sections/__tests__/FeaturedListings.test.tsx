@@ -19,8 +19,8 @@ describe('FeaturedListings', () => {
   it('renders featured listings after successful fetch', async () => {
     render(<FeaturedListings />)
 
-    // Assert at least one known venue name from mockFeaturedVenues is rendered
-    expect(await screen.findByText('Banyan Tree Phuket')).toBeInTheDocument()
+    // Assert using the fixture to avoid hard-coded text coupling
+    expect(await screen.findByText(mockListings[0].name)).toBeInTheDocument()
 
   })
 

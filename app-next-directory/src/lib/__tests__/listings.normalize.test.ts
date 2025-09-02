@@ -5,7 +5,8 @@
 
 import type { Listing } from '../../types/listings';
 
-+type CategoryParam = NonNullable<Parameters<typeof import('../listings').filterListings>[0]['category']>;
+type FilterListingsOptions = Parameters<typeof import('../listings').filterListings>[0];
+type CategoryParam = NonNullable<FilterListingsOptions['category']>;
 
 // Minimal mock dataset containing an activities listing
 const mockListings: Listing[] = [
@@ -63,11 +64,11 @@ describe('filterListings normalization', () => {
 
   it('coerces category "activity" → "activities"', () => {
     const legacy = filterListings({ category: 'activity' as CategoryParam });
-    const canonical = filterListings({ category: 'activities' as CategoryParam });
+    const canonical = filterListings({ category: 'activities' });
     const ids = (xs: typeof legacy) => xs.map((l) => l._id).sort();
     expect(ids(legacy)).toEqual(ids(canonical));
     expect(legacy).toHaveLength(1);
-    expect(legacy[0].type).toBe('activities');
+    expect(legacy.every((l) => l.type === 'activities')).toBe(true);
   });
 });
 

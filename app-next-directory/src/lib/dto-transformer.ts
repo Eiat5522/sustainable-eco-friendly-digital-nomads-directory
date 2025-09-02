@@ -1,5 +1,6 @@
 import { urlFor } from '@/lib/sanity/client';
 import type { SanityListing, SanityImage } from '@/types/sanity.types';
+import { isImageAssetId } from '@sanity/asset-utils';
 // Ensure we have a consistent image union for dto mapping
 // type SanityGalleryImage = SanityImage // If separate type exists in future, import it accordingly
 import type { ListingDetailDTO, ListingSummaryDTO, FeaturedListingDTO, Money, OpeningHour, Percentage0To100 } from '@/types/dto';
@@ -30,14 +31,12 @@ interface DereferencedSanityListing {
     slug: { current: string };
   };
 }
-
 function isSanityImage(img: unknown): img is SanityImage | string {
-  // Accept only valid Sanity image asset refs, not arbitrary strings
+  // Accept only valid Sanity image asset ids/refs using Sanity helper
   const isAssetRef = (s: unknown): s is string =>
-    typeof s === 'string' &&
-    /^image-[A-Za-z0-9]+-\d+x\d+-(?:jpg|jpeg|png|webp|gif|tif|tiff|svg)$/i.test(s);
+    typeof s === 'string' && isImageAssetId(s);
 
-  // Plain string must match the asset‐ref pattern
+  // Plain string must match the asset‐ref/id pattern
   if (isAssetRef(img)) return true;
   if (!img || typeof img !== 'object') return false;
 
@@ -45,9 +44,10 @@ function isSanityImage(img: unknown): img is SanityImage | string {
   if (!asset || typeof asset !== 'object') return false;
 
   const { _ref, _id } = asset as Record<string, unknown>;
-  // Object shape must contain a valid _ref or an _id starting with "image-"
-  return (typeof _ref === 'string' && isAssetRef(_ref)) ||
-         (typeof _id === 'string' && _id.startsWith('image-'));
+  // Validate both _ref and _id via isImageAssetId (narrow to string first)
+  const refIsValid = typeof _ref === 'string' && isImageAssetId(_ref);
+  const idIsValid = typeof _id === 'string' && isImageAssetId(_id);
+  return refIsValid || idIsValid;
 }
 
 const imageOrFallback = (img: unknown, w: number, h: number) => {
@@ -164,6 +164,15 @@ export function transformToSummaryDTO(
     address: sanityListing.address,
     location: toGeoPoint(sanityListing.location),
     shortDescription: sanityListing.shortDescription,
+    type: sanityListing.type,
+    city: sanityListing.city ? {
+      id: sanityListing.city._id,
+      name: sanityListing.city.name,
+      slug: sanityListing.city.slug.current,
+      country: sanityListing.city.country,
+      sustainabilityScore: toPercentage0To100(sanityListing.city.sustainabilityScore) as Percentage0To100 | undefined,
+      highlights: sanityListing.city.highlights,
+    } : null,
     amenityNames: (sanityListing.amenities ?? [])
       .map((amenity) => amenity?.name)
       .filter((name): name is string => typeof name === 'string' && name.length > 0),

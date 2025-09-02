@@ -10,7 +10,7 @@ import bcrypt from 'bcryptjs';
 import User from '../../models/User';
 import dbConnect from '../dbConnect';
 
-import { Types } from 'mongoose';
+import { Types, isValidObjectId } from 'mongoose';
 
 type UserDoc = {
   _id: Types.ObjectId;
@@ -123,11 +123,9 @@ export async function getUserById(userId: string): Promise<AuthenticatedUser | n
   try {
     await dbConnect();
 
-    if (!Types.ObjectId.isValid(userId)) {
+    if (!isValidObjectId(userId)) {
       return null;
-    }
-
-    const user = await UserModel.findById(userId)
+    }    const user = await UserModel.findById(userId)
       .select('_id name email image role')
       .lean();
     if (!user) {
@@ -160,9 +158,11 @@ export async function updateUserRole(
   try {
     await dbConnect();
 
-    const res = await UserModel.updateOne(
-      { _id: userId },
-      { $set: { role: newRole } },
+    if (!isValidObjectId(userId)) {
+      return false;
+    if (!isValidObjectId(userId)) {
+      return false;
+    }      { $set: { role: newRole } },
       { runValidators: true }
     );
     return res.matchedCount === 1;

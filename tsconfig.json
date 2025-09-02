@@ -5,7 +5,6 @@
     "strict": true,
     "esModuleInterop": true,
     "allowJs": false,
-    "noEmit": true,
     "composite": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
@@ -13,6 +12,7 @@
     "baseUrl": ".",
     "noErrorTruncation": true,
     "jsx": "react-jsx",
+    "declarationMap": true,
     "paths": {
       "@/*": ["./src/*"],
       "@app-next/types/*": ["app-next-directory/src/types/*"],
@@ -22,6 +22,7 @@
     "declaration": true,
     "stripInternal": true,
     "declarationDir": "dist/types",
+    "emitDeclarationOnly": true,
     "noEmit": false
   },
   "include": [

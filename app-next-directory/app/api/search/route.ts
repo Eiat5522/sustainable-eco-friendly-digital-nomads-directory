@@ -4,6 +4,8 @@ import { groq } from 'next-sanity';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { sanitizeBasic, sanitizeStringArray, escapeGroqLiteral, escapeGroqMatch, clampInt } from '@/utils/sanitize';
+  // Replace the inline selection block with the hoisted LISTING_FIELDS
+  const fields = `{${LISTING_FIELDS}}`;
 
 function buildWhereClause({
   q,
@@ -98,7 +100,7 @@ function buildQuery({
   nomadFeatures: string[];
   start: number;
   end: number;
-}) {
+}): { query: string; countQuery: string } {
   const where = buildWhereClause({ q, categories, destinations, amenities, nomadFeatures });
 
   const fields = `{
@@ -117,7 +119,7 @@ function buildQuery({
     amenities
   }`;
 
-  const query = `* [${where}] | order(_createdAt desc)[${start}...${end}] ${fields}`.replace('* [', '*[');
+  const query = `*[${where}] | order(_createdAt desc, _id desc)[${start}...${end}] ${fields}`;
   const countQuery = `count(*[${where}])`;
   return { query, countQuery };
 }
@@ -147,9 +149,11 @@ export async function GET(request: NextRequest) {
       end,
     });
 
-    // Fetch results and total in two separate calls to align with tests
-    const results = await client.fetch(query);
-    const total = await client.fetch(countQuery);
+    // Fetch results and total concurrently to reduce latency
+    const [results, total] = await Promise.all([
+      client.fetch(query),
+      client.fetch(countQuery)
+    ]);
 
     return ApiResponseHandler.success({
       results,
@@ -196,9 +200,11 @@ export async function POST(request: NextRequest) {
     const start = (page - 1) * limit;
     const end = start + limit; // GROQ [start...end] is exclusive of end
     const { query, countQuery } = buildQuery({ q, categories, destinations, amenities, nomadFeatures, start, end });
-    // Fetch results and total in two separate calls to align with tests
-    const results = await client.fetch(query);
-    const total = await client.fetch(countQuery);
+    // Fetch results and total concurrently to reduce latency
+    const [results, total] = await Promise.all([
+      client.fetch(query),
+      client.fetch(countQuery)
+    ]);
 
     return ApiResponseHandler.success({
       results,

@@ -189,6 +189,9 @@ importers:
       '@remixicon/react':
         specifier: ^4.6.0
         version: 4.6.0(react@19.1.0)
+      '@sanity/asset-utils':
+        specifier: ^2.3.0
+        version: 2.3.0
       '@sanity/client':
         specifier: ^7.8.1
         version: 7.10.0

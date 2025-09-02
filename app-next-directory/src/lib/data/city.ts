@@ -3,6 +3,33 @@ import { groq } from 'next-sanity';
 import { transformToSummaryDTO } from '@/lib/dto-transformer';
 import type { CityDTO, CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
 
+// Import the DereferencedSanityListing type for type conversion
+type DereferencedSanityListing = {
+  _id: string;
+  name: string;
+  slug: { current: string };
+  type: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities';
+  shortDescription?: string;
+  longDescription?: string;
+  address?: string;
+  location?: { lat: number; lng: number };
+  priceRange?: 'budget' | 'moderate' | 'premium';
+  website?: string;
+  primaryImage?: unknown;
+  galleryImages?: unknown[];
+  ecoFocusTags?: ReadonlyArray<{ name?: string }>;
+  digitalNomadFeatures?: ReadonlyArray<{ name?: string }>;
+  amenities?: ReadonlyArray<{ name?: string }>;
+  city?: {
+    _id: string;
+    name: string;
+    country: string;
+    sustainabilityScore?: number;
+    highlights?: string[];
+    slug: { current: string };
+  };
+};
+
 type SanityImageDimensions = { width?: number; height?: number };
 type SanityImageAsset = { url?: string; metadata?: { dimensions?: SanityImageDimensions } };
 type SanityImageRef = { asset?: SanityImageAsset } | null | undefined;
@@ -35,24 +62,6 @@ interface ListingSummarySource {
   };
 }
 
-// Sanitize Sanity geopoint input to ensure consumers get { lat, lng } or undefined
-function toGeoPoint(
-  geo?: { lat?: number; lng?: number } | null
-): { lat: number; lng: number } | undefined {
-  const lat = geo?.lat;
-  const lng = geo?.lng;
-  if (
-    Number.isFinite(lat) &&
-    Number.isFinite(lng) &&
-    lat! >= -90 &&
-    lat! <= 90 &&
-    lng! >= -180 &&
-    lng! <= 180
-  ) {
-    return { lat: lat!, lng: lng! };
-  }
-  return undefined;
-}
 // Map raw Sanity city to CityDTO
 function toCityDTO(raw: any): CityDTO | null {
   if (!raw || typeof raw !== 'object') return null;
@@ -206,7 +215,18 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
   }`;
 
   const listingsRaw = await client.fetch<ListingSummarySource[]>(query, { cityId });
-  return listingsRaw.map(transformToSummaryDTO);
+
+  // Convert ListingSummarySource to DereferencedSanityListing format expected by transformToSummaryDTO
+  const convertedListings = listingsRaw.map((listing): DereferencedSanityListing => ({
+    ...listing,
+    slug: { current: listing.slug }, // Convert string slug to object format
+    city: listing.city ? {
+      ...listing.city,
+      slug: { current: listing.city.slug } // Convert city slug as well
+    } : undefined
+  }));
+
+  return convertedListings.map(transformToSummaryDTO);
 }
 
 export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
