@@ -9,7 +9,7 @@ import type { ListingDetailDTO, ListingSummaryDTO, FeaturedListingDTO, Money, Op
 interface DereferencedSanityListing {
   _id: string;
   name: string;
-  slug: sanityListing.city.slug?.current ?? '',
+  slug: { current: string };
   type: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities';
   shortDescription?: string;
   longDescription?: string;

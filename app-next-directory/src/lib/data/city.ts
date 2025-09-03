@@ -224,7 +224,10 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
         ? { ...listing.city, slug: { current: listing.city.slug } }
         : undefined
     } as DereferencedSanityListing)
-  );export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
+  );
+}
+
+export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
   const query = groq`*[_type == "city"] | order(_createdAt desc)[0...$limit]{
     _id,
     name,

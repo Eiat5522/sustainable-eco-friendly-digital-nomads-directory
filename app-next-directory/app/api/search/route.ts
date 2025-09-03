@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
     const nomadFeatures = sanitizeStringArray(searchParams.getAll('nomadFeatures'));
 
     const start = (page - 1) * limit;
-    const end = start + limit - 1; // GROQ uses inclusive end index
+    const end = start + limit; // GROQ [start...end] is exclusive of end
 
     const { query, countQuery } = buildQuery({
       q,
