@@ -4,10 +4,13 @@
   "version": "1.0.0",
   "main": "package.json",
   "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "dev": "sanity dev",
     "start": "sanity start",
-    "build": "sanity build --no-auto-updates",
+    "build": "sanity build",
     "deploy": "sanity deploy",
     "deploy-graphql": "sanity graphql deploy",
     "extract-schema": "sanity schema extract",
@@ -19,8 +22,8 @@
   ],
   "dependencies": {
     "@auth/mongodb-adapter": "^3.10.0",
-    "@sanity/code-input": "5.1.2",
-    "@sanity/vision": "3.99.0",
+    "@sanity/code-input": "^6.0.0",
+    "@sanity/vision": "^4.6.1",
     "leaflet.markercluster": "^1.5.3",
     "node-fetch": "^3.3.2",
     "react": "^19.1.0",
@@ -28,7 +31,6 @@
     "styled-components": "^6.1.19"
   },
   "devDependencies": {
-    "@sanity/cli": "^3.99.0",
     "@sanity/codegen": "^4.1.1",
     "@sanity/eslint-config-studio": "^5.0.2",
     "@testing-library/jest-dom": "^6.6.3",
@@ -38,7 +40,7 @@
     "dotenv": "^16.5.0",
     "eslint": "^9.29.0",
     "prettier": "^3.6.0",
-    "sanity": "^3.99.0",
+    "sanity": "^4.6.1",
     "typescript": "^5.8.3"
   },
   "prettier": {

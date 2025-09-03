@@ -57,8 +57,7 @@ function buildWhereClause({
   if (q) {
     const pattern = escapeGroqMatch(q.toLowerCase());
     filters.push(
-      `name match "*${pattern}*" || lower(name) match "*${pattern}*" || slug match "*${pattern}*" || category match "*${pattern}*" || lower(category) match "*${pattern}*" || city->name match "*${pattern}*" || lower(city->name) match "*${pattern}*" || city->country match "*${pattern}*" || lower(city->country) match "*${pattern}*" || shortDescription match "*${pattern}*" || lower(shortDescription) match "*${pattern}*"`
-    );
+      `lower(name) match "*${pattern}*" || lower(coalesce(slug.current, slug)) match "*${pattern}*" || lower(category) match "*${pattern}*" || lower(city->name) match "*${pattern}*" || lower(city->country) match "*${pattern}*" || lower(shortDescription) match "*${pattern}*"`    );
   }
 
   if (categories.length) {
@@ -138,8 +137,8 @@ export async function GET(request: NextRequest) {
     const nomadFeatures = sanitizeStringArray(searchParams.getAll('nomadFeatures'));
 
     const start = (page - 1) * limit;
-    const end = start + limit; // GROQ [start...end] is exclusive of end
-
+    // GROQ '..' is inclusive; fetch exactly `limit` items
+    const end = start + limit - 1;
     const { query, countQuery } = buildQuery({
       q,
       categories,
@@ -199,7 +198,8 @@ export async function POST(request: NextRequest) {
     const nomadFeatures = sanitizeStringArray(body.nomadFeatures);
 
     const start = (page - 1) * limit;
-    const end = start + limit; // GROQ [start...end] is exclusive of end
+    // GROQ '..' is inclusive; fetch exactly `limit` items
+    const end = start + limit - 1;
     const { query, countQuery } = buildQuery({ q, categories, destinations, amenities, nomadFeatures, start, end });
     // Fetch results and total concurrently to reduce latency
     const [results, total] = await Promise.all([

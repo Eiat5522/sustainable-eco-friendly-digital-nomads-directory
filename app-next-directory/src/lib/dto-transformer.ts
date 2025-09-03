@@ -137,7 +137,7 @@ const toAmenities = (
     .filter((a): a is NonNullable<typeof a> => a != null)
     .map(a => ({
       id: a._id ?? '',
-      name: a.name ?? '',
+      name: (a.name ?? '').trim(),
       slug: a.slug?.current ?? '',
       icon: a.icon,
       category: a.category,
@@ -148,7 +148,20 @@ const isNonEmptyString = (x: unknown): x is string => typeof x === 'string' && x
 
 const toNames = (
   arr?: ReadonlyArray<{ name?: string } | null | undefined>
-): string[] => (arr ?? []).map(x => x?.name).filter(isNonEmptyString);
+): string[] => {
+  const seen = new Set<string>();
+  const canon = (s: string) => s.normalize('NFKC').toLocaleLowerCase();
+  const out: string[] = [];
+  for (const x of arr ?? []) {
+    const raw = x?.name;
+    if (typeof raw !== 'string') continue;
+    const n = raw.trim();
+    if (!n || seen.has(n)) continue;
+    seen.add(n);
+    out.push(n);
+  }
+  return out;
+};
 
 export function transformToSummaryDTO(sanityListing: DereferencedSanityListing): ListingSummaryDTO;
 export function transformToSummaryDTO(sanityListing: SanityListing): ListingSummaryDTO;
@@ -176,9 +189,7 @@ export function transformToSummaryDTO(
       sustainabilityScore: toPercentage0To100(sanityListing.city.sustainabilityScore) as Percentage0To100 | undefined,
       highlights: sanityListing.city.highlights,
     } : null,
-    amenityNames: (sanityListing.amenities ?? [])
-      .map((amenity) => amenity?.name)
-      .filter((name): name is string => typeof name === 'string' && name.length > 0),
+      amenityNames: toNames(sanityListing.amenities)
   };
 }
 
