@@ -62,4 +62,4 @@ All updated packages are verified to work with React 19:
 
 ---
 
-_Migration completed: September 4, 2025_
+_Migration completed: September 3, 2025_

@@ -22,7 +22,7 @@ Sanity Studio serves as the **headless CMS backend** for managing:
 
 ```bash
 Node.js 20.19.0+ required
-pnpm 8.6.3+ required
+pnpm 10.0+ required
 ```
 
 > **Note**: This project requires Node.js 20.19.0 or higher for compatibility with Sanity v4.6+ and related packages.
@@ -109,8 +109,9 @@ npx sanity@latest status
 # Run migrations
 npx sanity@latest migration run
 
-# Other CLI commands
-npx sanity@latest --help
+# Deploy GraphQL API
+npx sanity@latest graphql deploy
+
 ```
 
 > **Migration Note**: This project no longer includes `@sanity/cli` as a dependency. Use `npx sanity@latest` for CLI operations to ensure you're always using the most recent version.

@@ -36,7 +36,6 @@
   ],
   "dependencies": {
     "@sanity/client": "^7.9.0",
-    "@sanity/code-input": "^6.0.0",
     "bcrypt": "^6.0.0",
     "clsx": "^2.1.1",
     "dotenv": "16.5.0",

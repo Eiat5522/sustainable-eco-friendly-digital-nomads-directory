@@ -32,7 +32,7 @@ Successfully updated the Sanity package configuration to address Node.js compati
 2. **React 19 Support**: All Sanity plugins are now React 19 compatible
 3. **Latest Features**: Updated to latest Sanity packages with recent bug fixes
 4. **CLI Modernization**: Removed legacy @sanity/cli in favor of npx approach
-5. **CI Compatibility**: Existing CI workflows already use Node 20, so no changes needed
+5. **CI Compatibility**: Node-based CI jobs explicitly use Node 20 (pull-request, security-audit, copilot-setup-steps). Some Gemini automation workflows do not run Node and therefore do not set a Node version.
 
 ## Next Steps
 
@@ -45,8 +45,33 @@ Successfully updated the Sanity package configuration to address Node.js compati
 
 - ✅ Package.json syntax is valid
 - ✅ No lint errors in configuration files
-- ✅ CI workflows are compatible (already using Node 20)
+- ✅ CI workflows are compatible (Node-based jobs use Node 20; non-Node Gemini workflows do not set a Node version)
 - ✅ Documentation is updated
 - ✅ Migration notes are documented
 
 All changes are complete and ready for testing!
+
+## References
+
+Verified Node.js version usage across GitHub Actions workflows in `.github/workflows`:
+
+- .github/workflows/security-audit.yml
+  - .github/workflows/security-audit.yml:18: uses: actions/setup-node@v4
+  - .github/workflows/security-audit.yml:20: node-version: 20
+
+- .github/workflows/pull-request.yml
+  - .github/workflows/pull-request.yml:17: uses: actions/setup-node@v3
+  - .github/workflows/pull-request.yml:19: node-version: "20"
+  - .github/workflows/pull-request.yml:51: uses: actions/setup-node@v3
+  - .github/workflows/pull-request.yml:53: node-version: "20"
+
+- .github/workflows/copilot-setup-steps.yml
+  - .github/workflows/copilot-setup-steps.yml:22: uses: actions/setup-node@v4
+  - .github/workflows/copilot-setup-steps.yml:24: node-version: '20'
+
+Workflows without Node setup (no Node version specified; they do not run Node steps):
+
+- .github/workflows/gemini-cli.yml
+- .github/workflows/gemini-issue-scheduled-triage.yml
+- .github/workflows/gemini-pr-review.yml
+- .github/workflows/gemini-issue-automated-triage.yml

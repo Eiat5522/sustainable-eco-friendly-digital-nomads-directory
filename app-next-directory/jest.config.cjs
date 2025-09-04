@@ -59,15 +59,14 @@ module.exports = {
     '/node_modules/(?!(next-auth|@auth|jose|broadcast-channel)/)',
   ],
   testPathIgnorePatterns: [
-    '/playwright/',
-    '/.playwright/.test/.[jt]',
-    '/.pw/.test/.[jt]',
-    '<rootDir>/tests/', // Exclude all Playwright and E2E tests
-    '/__tests__/__mocks__/',
-    '/.d/.ts',
-    '<rootDir>/src/lib/__tests__/listings.test.ts',
-    '<rootDir>/src/__tests__/api/search/FORTEST-route.copy.skip.ts',
-    '<rootDir>/src/tests/'
+    // Exclude all transitional Playwright suites and migration area (cross-platform)
+    '[\\\\/]tests[\\\\/]',
+    '[\\\\/]playwright[\\\\/]',
+    '[\\\\/]__tests__[\\\\/]__mocks__[\\\\/]',
+    '\\.(d|d\.test)\\.ts$',
+    '[\\\\/]src[\\\\/]lib[\\\\/]__tests__[\\\\/]listings\\.test\\.ts$',
+    '[\\\\/]src[\\\\/]__tests__[\\\\/]api[\\\\/]search[\\\\/]FORTEST-route\\.copy\\.skip\\.ts$',
+    '[\\\\/]src[\\\\/]tests[\\\\/]'
   ],
   resolver: 'jest-pnp-resolver'
 };

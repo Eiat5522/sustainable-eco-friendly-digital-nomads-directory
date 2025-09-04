@@ -2,6 +2,7 @@
   "name": "f35826b1ee31b8c3729949675d1485b47f7720ab7222fe1c596be9281b78bf68",
   "version": "0.1.0",
   "private": true,
+  "engines": { "node": ">=20 <23" },
   "scripts": {
     "dev": "next dev",
     "prebuild": "npm run build:types",
@@ -11,7 +12,10 @@
     "preview": "next start",
     "validate:env": "node scripts/validate-env.js",
     "msw:init": "msw init public --save",
-    "postinstall": "msw init public --save || true"
+    "postinstall": "node -e \"const fs=require('fs');process.exit(fs.existsSync('public/mockServiceWorker.js')?0:1)\" || ( [ -z \\\"$CI\\\" ] && [ \\\"$NODE_ENV\\\" != \\\"production\\\" ] && msw init public --save )",
+
+    "test:jest": "jest --config=jest.config.cjs",
+    "test:e2e:jest": "jest --config=jest.e2e.config.cjs --runInBand --detectOpenHandles"
   },
   "dependencies": {
     "@21st-extension/react": "^0.5.14",
@@ -74,7 +78,8 @@
     "@types/lodash": "^4.17.20",
     "@types/node": "^24.1.0",
     "@types/nodemailer": "^6.4.17",
-    "@types/react-countup": "^4.3.1",    "@types/supertest": "^6.0.3",
+    "@types/react-countup": "^4.3.1",
+    "@types/supertest": "^6.0.3",
     "@types/webpack": "^5.28.5",
     "@vercel/analytics": "^1.5.0",
     "autoprefixer": "^10.4.21",
@@ -148,7 +153,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
-    "@types/node": "^20.19.11",
+    "@types/node": "24.1.0",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "broadcast-channel": "^7.1.0",
@@ -156,8 +161,10 @@
     "env-cmd": "^11.0.0",
     "jest": "^30.1.0",
     "jest-environment-jsdom": "^30.1.0",
+    "jest-playwright-preset": "^4.0.0",
     "jest-pnp-resolver": "^1.2.3",
     "msw": "^2.11.1",
+    "playwright": "^1.55.0",
     "postcss": "^8.5.6",
     "postcss-import": "^16.1.1",
     "tailwindcss": "^4.1.12",
