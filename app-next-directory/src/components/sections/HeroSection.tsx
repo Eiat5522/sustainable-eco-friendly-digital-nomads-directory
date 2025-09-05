@@ -65,6 +65,7 @@ export function HeroSection() {
               />
               <NeoInput
                 id="hero-search"
+                type="search"
                 aria-label="Search venues"
                 placeholder="Search 3,200+ sustainable venues"
                 className="pl-12 pr-16 h-16 text-lg bg-white"

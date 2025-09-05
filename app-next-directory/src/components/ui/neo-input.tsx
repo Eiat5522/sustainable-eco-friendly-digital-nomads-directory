@@ -5,7 +5,7 @@ export interface NeoInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 const NeoInput = React.forwardRef<HTMLInputElement, NeoInputProps>(
-  ({ className, type, ...props }, ref) => {
+  ({ className, type = 'text', ...props }, ref) => {
     return (
       <input
         type={type}

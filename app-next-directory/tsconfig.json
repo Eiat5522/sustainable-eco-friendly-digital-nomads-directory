@@ -38,7 +38,6 @@
     "app/**/*.d.ts",
     "app/**/*.ts",
     "app/**/*.tsx",
-    "dist/types/**/*.d.ts",
     "global.d.ts",
     "jest.polyfills.ts",
     "jest.setup.ts",
@@ -53,6 +52,7 @@
     "dist/types/**/*.ts"
   ],
   "exclude": [
+    ".next",
     "node_modules",
     "dist"
   ]

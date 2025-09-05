@@ -4,38 +4,42 @@ import request from 'supertest';
 const baseURL = process.env.BASE_URL || 'http://localhost:3000';
 
 describe('Preview API (Jest + supertest)', () => {
+  // allow longer for server warmup
   jest.setTimeout(60000);
-  it('enters preview mode when secret is valid', async () => {
-    const res = await request(baseURL)
+
+  it('enters preview mode when secret is valid (agent)', async () => {
+    const agent = request.agent(baseURL);
+
+    const res = await agent
       .get('/api/preview')
       .query({ secret: process.env.PREVIEW_SECRET || 'dev-secret', slug: '/' })
-      .timeout({ deadline: 30000, response: 15000 })
-      .expect(307);
+      .timeout({ deadline: 30000, response: 15000 });
 
-    // Location header should redirect
+    expect(res.status).toBe(307);
     expect(res.headers.location).toBeDefined();
 
-    // Preview cookies should be set
     const setCookie = res.headers['set-cookie'];
     expect(setCookie).toBeDefined();
     expect(Array.isArray(setCookie)).toBe(true);
   });
 
-  it('exits preview mode', async () => {
-    // Enter preview first to receive cookies
-    const enter = await request(baseURL)
+  it('exits preview mode using persisted cookies (agent)', async () => {
+    const agent = request.agent(baseURL);
+
+    // Enter preview to obtain cookies
+    const enter = await agent
       .get('/api/preview')
       .query({ secret: process.env.PREVIEW_SECRET || 'dev-secret', slug: '/' })
-      .expect(307);
+      .timeout({ deadline: 30000, response: 15000 });
 
-    const cookies = enter.headers['set-cookie'];
+    expect(enter.status).toBe(307);
 
-    const exit = await request(baseURL)
+    // Now call exit-preview with the same agent (cookies persisted)
+    const exit = await agent
       .get('/api/exit-preview')
-      .set('Cookie', cookies)
-      .timeout({ deadline: 30000, response: 15000 })
-      .expect(307);
+      .timeout({ deadline: 30000, response: 15000 });
 
+    expect(exit.status).toBe(307);
     expect(exit.headers.location).toBeDefined();
   });
 });

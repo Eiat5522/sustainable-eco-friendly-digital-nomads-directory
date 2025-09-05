@@ -1,8 +1,7 @@
 // Playwright runtime settings for jest-playwright
 module.exports = {
   browsers: ['chromium'],
-  launch: { headless: true },
-  contextOptions: {},
+  launchOptions: { headless: true },  contextOptions: {},
   serverOptions: {
     // Use Next.js dev server to avoid build/type presteps during tests
     command: 'pnpm run dev',

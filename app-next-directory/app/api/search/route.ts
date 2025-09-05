@@ -56,15 +56,15 @@ function buildWhereClause({
 
   if (q) {
     const pattern = escapeGroqMatch(q.toLowerCase());
-    filters.push([
+    filters.push('(' + [
       `lower(name) match "*${pattern}*"`,
       `lower(coalesce(slug.current, slug)) match "*${pattern}*"`,
       `lower(category) match "*${pattern}*"`,
       `lower(city->name) match "*${pattern}*"`,
       `lower(city->country) match "*${pattern}*"`,
       `lower(shortDescription) match "*${pattern}*"`
-    ].join(' || '));  }
-
+    ].join(' || ') + ')');
+  }
   if (categories.length) {
     const group = categories
       .map((c) => `category == "${escapeGroqLiteral(c)}"`)

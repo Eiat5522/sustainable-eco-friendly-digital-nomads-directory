@@ -1,14 +1,29 @@
 /// <reference types="jest-playwright-preset" />
+import type { Page } from 'playwright';
 
-// Uses the global 'page' from jest-playwright; no Page param needed
-export async function loginAs(email: string, password: string) {
-  await page.goto('/login');
-  await page.fill('input[name="email"]', email);
-  await page.fill('input[name="password"]', password);
-  const submit = page.locator('button[type="submit"]');
+export async function loginAs(page: Page, email: string, password: string) {
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
+
+  // Fill credentials
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByLabel(/password/i).fill(password);
+  const submit = page.getByRole('button', { name: /log in|sign in/i });
   await submit.waitFor({ state: 'visible' });
-  await Promise.all([
-    page.waitForURL(/\/(dashboard|account|home)(\/)?$/, { timeout: 10000 }),
-    submit.click(),
-  ]);
+
+  try {
+    await Promise.all([
+      page.waitForURL(/\/(dashboard|account|home)(\/)?(?=$|[?#])/, { timeout: 10000 }),
+      submit.click(),
+    ]);
+  } catch (error) {
+    // Surface any visible error messages to aid debugging
+    const errorMessage = await page
+      .locator('[role="alert"], .error-message, .alert-error')
+      .first()
+      .textContent()
+      .catch(() => null);
+    throw new Error(
+      `Login failed${errorMessage ? `: ${errorMessage}` : '. No error message found.'}`
+    );
+  }
 }

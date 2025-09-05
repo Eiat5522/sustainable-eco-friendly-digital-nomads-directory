@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Jest config for TypeScript + ESM + alias support
 /** @type {import('jest').Config} */
 const { pathsToModuleNameMapper } = require('ts-jest');
@@ -19,54 +20,47 @@ module.exports = {
     customExportConditions: ['node', 'node-addons'],
   },
   transform: {
-    "^.+\\.(t|j)sx?$": ['@swc/jest', {
-      jsc: {
-        transform: {
-          react: {
-            runtime: 'automatic'
-          }
-        }
-      },
+    '^.+\\.(t|j)sx?$': ['@swc/jest', {
+      jsc: { transform: { react: { runtime: 'automatic' } } },
       module: { type: 'es6' }
     }]
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
   moduleNameMapper: {
-    "^server-only$": "<rootDir>/__mocks__/server-only.js",
-    "^tree-sitter-.*$": "<rootDir>/__mocks__/tree-sitter.js",
-    "^@/app/api/listings/route$": "<rootDir>/__mocks__/app/api/listings/route.js",
-    "^next-auth$": "<rootDir>/__mocks__/next-auth.js",
-    "^next-auth/react$": "<rootDir>/__mocks__/next-auth/react.js",
-    "^next-auth/jwt$": "<rootDir>/__mocks__/next-auth/jwt.js",
-    "^next-auth/providers/credentials$": "<rootDir>/__mocks__/next-auth/providers/credentials.js",
-    "^next-auth/providers/(.*)$": "<rootDir>/__mocks__/next-auth/providers/$1.js",
-    "^@auth/core/providers/(.*)$": "<rootDir>/__mocks__/next-auth/providers/$1.js",
-    "^@/__mocks__/(.*)$": "<rootDir>/__mocks__/$1",
-    "^@/mocks/server$": "<rootDir>/__mocks__/server.ts",
-    "^mocks/server$": "<rootDir>/__mocks__/server.ts",
-    "^@sanity/client$": "<rootDir>/__mocks__/@sanity/client.ts",
-    "^next-sanity$": "<rootDir>/__mocks__/next-sanity.js",
-    "^mongoose$": "<rootDir>/__mocks__/mongoose.ts",
-    "node-fetch": "<rootDir>/__mocks__/node-fetch.js",
-    "leaflet/dist/leaflet.css$": "<rootDir>/__mocks__/leaflet/dist/leaflet.css.js",
-    "leaflet.markercluster/dist/MarkerCluster.css$": "<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.css.js",
-    "leaflet.markercluster/dist/MarkerCluster.Default.css$": "<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.Default.css.js",
-    "\\.(css|less|scss|sass)$": "<rootDir>/__mocks__/styleMock.js",
+    '^server-only$': '<rootDir>/__mocks__/server-only.js',
+    '^tree-sitter-.*$': '<rootDir>/__mocks__/tree-sitter.js',
+    '^@/app/api/listings/route$': '<rootDir>/__mocks__/app/api/listings/route.js',
+    '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
+    '^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.js',
+    '^next-auth/jwt$': '<rootDir>/__mocks__/next-auth/jwt.js',
+    '^next-auth/providers/credentials$': '<rootDir>/__mocks__/next-auth/providers/credentials.js',
+    '^next-auth/providers/(.*)$': '<rootDir>/__mocks__/next-auth/providers/$1.js',
+    '^@auth/core/providers/(.*)$': '<rootDir>/__mocks__/next-auth/providers/$1.js',
+    '^@/__mocks__/(.*)$': '<rootDir>/__mocks__/$1',
+    '^@/mocks/server$': '<rootDir>/__mocks__/server.ts',
+    '^mocks/server$': '<rootDir>/__mocks__/server.ts',
+    '^@sanity/client$': '<rootDir>/__mocks__/@sanity/client.ts',
+    '^next-sanity$': '<rootDir>/__mocks__/next-sanity.js',
+    '^mongoose$': '<rootDir>/__mocks__/mongoose.ts',
+    'node-fetch': '<rootDir>/__mocks__/node-fetch.js',
+    'leaflet/dist/leaflet.css$': '<rootDir>/__mocks__/leaflet/dist/leaflet.css.js',
+    'leaflet.markercluster/dist/MarkerCluster.css$': '<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.css.js',
+    'leaflet.markercluster/dist/MarkerCluster.Default.css$': '<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.Default.css.js',
+    '\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',
     ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' })
   },
   transformIgnorePatterns: [
     '/node_modules/(?!(next-auth|@auth|jose|broadcast-channel)/)',
   ],
   testPathIgnorePatterns: [
-    // Exclude all transitional Playwright suites and migration area (cross-platform)
-    '[\\\\/]tests[\\\\/]',
-    '[\\\\/]playwright[\\\\/]',
-    '[\\\\/]__tests__[\\\\/]__mocks__[\\\\/]',
-    '\\.(d|d\.test)\\.ts$',
-    '[\\\\/]src[\\\\/]lib[\\\\/]__tests__[\\\\/]listings\\.test\\.ts$',
-    '[\\\\/]src[\\\\/]__tests__[\\\\/]api[\\\\/]search[\\\\/]FORTEST-route\\.copy\\.skip\\.ts$',
-    '[\\\\/]src[\\\\/]tests[\\\\/]'
+    // Exclude Playwright and other non-unit/integration suites
+    '[\\/]tests[\\/]',
+    '[\\/]playwright[\\/]',
+    '[\\/]__tests__[\\/]__mocks__[\\/]',
+    '\\.d(\\\.test)?\\.ts$',
+    '[\\/]src[\\/]__tests__[\\/]api[\\/]search[\\/]FORTEST-route\\.copy\\.skip\\.ts$',
+    '[\\/]src[\\/]tests[\\/]'
   ],
-  resolver: 'jest-pnp-resolver'
+  resolver: 'jest-pnp-resolver',
 };
