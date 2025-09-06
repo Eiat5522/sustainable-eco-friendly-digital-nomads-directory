@@ -27,7 +27,8 @@
     "test:ci": "pnpm --filter app-next-directory test:ci",
     "typecheck": "tsc --noEmit",
     "types:postprocess": "node sanity-types-postprocess.js",
-    "typegen": "pnpm --filter sanity update-types && pnpm run types:postprocess"
+    "typegen": "pnpm --filter sanity update-types && pnpm run types:postprocess",
+    "validate:specs": "node ./scripts/spec-validator.js"
   },
   "browserslist": [
     ">0.2%",
@@ -91,6 +92,8 @@
     "eslint-config-next": "^15.5.0",
     "jest-mock-extended": "^4.0.0",
     "ts-jest": "^29.4.1",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "js-yaml": "^4.1.0",
+    "ajv": "^8.12.0"
   }
 }

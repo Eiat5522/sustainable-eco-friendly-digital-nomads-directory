@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Spec file schema",
+  "type": "object",
+  "required": ["metadata", "sections"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["title", "date_created"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "version": { "type": "string" },
+        "date_created": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "last_updated": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+        "owner": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "content"],
+        "properties": {
+          "id": { "type": "string", "enum": [
+            "introduction",
+            "purpose-scope",
+            "definitions",
+            "requirements-constraints-guidelines",
+            "interfaces-and-data-contracts",
+            "acceptance-criteria",
+            "test-automation-strategy",
+            "rationale-context",
+            "dependencies-external-integrations",
+            "examples-edge-cases",
+            "validation-criteria",
+            "related-specifications"
+          ] },
+          "title": { "type": "string" },
+          "content": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

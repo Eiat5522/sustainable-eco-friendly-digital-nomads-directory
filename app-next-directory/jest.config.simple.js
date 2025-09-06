@@ -9,6 +9,11 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },
+  globals: {
+    'ts-jest': {
+      tsconfig: '<rootDir>/tsconfig.test.json'
+    }
+  },
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },

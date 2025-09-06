@@ -1,13 +1,16 @@
-// @ts-nocheck
 // Minimal Jest E2E config for running Playwright-powered suites under Jest (legacy).
 // Recommended: use Playwright Test runner (see `pnpm test:e2e`).
 
 /** @type {import('jest').Config} */
 const path = require('path');
-const base = require(path.resolve(__dirname, './jest.config.cjs'));
-
+const fs = require('fs');
+let base = {};
+const basePath = path.resolve(__dirname, './jest.config.cjs');
+if (fs.existsSync(basePath)) {
+  // Will throw if the base config itself has a runtime/parse error (desired).
+  base = require(basePath);
+}
 module.exports = {
-  rootDir: path.resolve(__dirname, '.'),
   preset: 'jest-playwright-preset',
   testEnvironment: 'jest-playwright-preset',
   testMatch: [
@@ -24,8 +27,8 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
-  moduleNameMapper: base.moduleNameMapper || {},
-  transformIgnorePatterns: base.transformIgnorePatterns || ['/node_modules/'],
+  moduleNameMapper: { ...(base?.moduleNameMapper ?? {}) },
+  transformIgnorePatterns: base?.transformIgnorePatterns ?? ['/node_modules/'],
   testPathIgnorePatterns: [
     '[\\\\/]src[\\\\/]',
     '[\\\\/]app[\\\\/]',

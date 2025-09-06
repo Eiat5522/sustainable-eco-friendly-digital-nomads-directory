@@ -62,5 +62,4 @@ module.exports = {
     '[\\/]src[\\/]__tests__[\\/]api[\\/]search[\\/]FORTEST-route\\.copy\\.skip\\.ts$',
     '[\\/]src[\\/]tests[\\/]'
   ],
-  resolver: 'jest-pnp-resolver',
 };

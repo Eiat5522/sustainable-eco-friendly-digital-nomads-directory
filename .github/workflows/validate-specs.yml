@@ -1,0 +1,25 @@
+name: Validate specs
+
+on:
+  pull_request:
+    paths:
+      - 'spec/**'
+
+jobs:
+  validate-specs:
+    name: Validate spec front-matter and sections
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: pnpm/action-setup@v2
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run spec validator
+        run: pnpm run validate:specs
