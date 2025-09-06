@@ -3,49 +3,73 @@
   "$id": "https://your-org.example/spec/schema/spec.schema.json",
 
   "title": "Spec file schema",
+  "description": "JSON Schema describing spec markdown front-matter (metadata) and canonical sections for AI-ready specifications.",
   "type": "object",
   "required": ["metadata", "sections"],
   "properties": {
     "metadata": {
       "type": "object",
+      "description": "Top-level front-matter metadata for the spec file.",
       "required": ["title", "date_created"],
       "properties": {
-        "title": { "type": "string", "minLength": 1 },
-        "version": { "type": "string" },
-        "date_created": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
-        "last_updated": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
-        "owner": { "type": "string" },
-        "tags": { "type": "array", "items": { "type": "string" } }
+        "title": { "type": "string", "minLength": 1, "description": "Human-readable title of the specification." },
+        "version": { "type": "string", "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-[0-9A-Za-z-.]+)?(?:\\+[0-9A-Za-z-.]+)?$", "description": "Optional semantic version string for the spec (semver)." },
+        "date_created": { "type": "string", "format": "date", "description": "Creation date (YYYY-MM-DD)." },
+        "last_updated": { "type": "string", "format": "date", "description": "Optional last updated date (YYYY-MM-DD)." },
+        "owner": { "type": "string", "minLength": 1, "description": "Optional owner identifier (team or person responsible)." },
+        "tags": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true, "description": "Optional list of short tags to categorize the spec." }
       },
       "additionalProperties": false
     },
     "sections": {
       "type": "array",
+      "description": "Ordered list of canonical spec sections. Each item maps to a heading and its content.",
       "minItems": 1,
       "items": {
         "type": "object",
         "required": ["id", "content"],
         "properties": {
-            "id": { "type": "string", "enum": [
-            "introduction",
-            "purpose-scope",
-            "definitions",
-            "requirements-constraints-guidelines",
-            "interfaces-and-data-contracts",
-            "acceptance-criteria",
-            "test-automation-strategy",
-            "rationale-context",
-            "dependencies-external-integrations",
-            "examples-edge-cases",
-            "validation-criteria",
-            "related-specifications"
-          ] },
-          "title": { "type": "string" },
-          "content": { "type": "string" }
+          "id": {
+            "description": "Canonical section identifier. Use one of the enumerated ids or an extension id starting with 'x-'.",
+            "oneOf": [
+              { "enum": [
+                "introduction",
+                "purpose-scope",
+                "definitions",
+                "requirements-constraints-guidelines",
+                "interfaces-and-data-contracts",
+                "acceptance-criteria",
+                "test-automation-strategy",
+                "rationale-context",
+                "dependencies-external-integrations",
+                "examples-edge-cases",
+                "validation-criteria",
+                "related-specifications"
+              ]},
+              { "type": "string", "pattern": "^x-[a-z0-9-]+$" }
+            ]
+          },
+          "title": { "type": "string", "description": "Optional section heading text as it appears in the markdown." },
+          "content": { "type": "string", "description": "Markdown content (string) for the section." }
         },
         "additionalProperties": false
       }
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "examples": [
+    {
+      "metadata": {
+        "title": "Minimal Spec Example",
+        "date_created": "2025-09-07"
+      },
+      "sections": [
+        {
+          "id": "introduction",
+          "title": "Introduction",
+          "content": "A minimal example spec with required fields."
+        }
+      ]
+    }
+  ]
 }

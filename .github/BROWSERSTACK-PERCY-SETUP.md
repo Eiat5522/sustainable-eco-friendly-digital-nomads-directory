@@ -34,9 +34,8 @@ On CI (GitHub Actions) add them as repository secrets and reference in your work
 ```powershell
 # Start app (from repo root)
 pnpm --filter app-next-directory dev
-# In another shell, run percy + playwright tests
-cd app-next-directory
-pnpm exec percy exec -- pnpm exec playwright test tests/visual --project=chromium
+# In another shell, run percy + playwright tests using the defined script
+pnpm --filter app-next-directory test:visualvisual --project=chromium
 ```
 
 4. To run tests on BrowserStack (example):

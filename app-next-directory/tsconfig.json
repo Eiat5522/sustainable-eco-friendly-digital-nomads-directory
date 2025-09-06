@@ -51,6 +51,11 @@
   "exclude": [
     ".next",
     "node_modules",
-    "dist"
+    "dist",
+    "tests",
+    "**/__tests__",
+    "**/*.test.js",
+    "**/*.test.ts",
+    "**/test-*.js"
   ]
 }

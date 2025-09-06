@@ -25,16 +25,16 @@ Scope:
 - AI-Ready: Formatted and structured to be unambiguous and easily parsed by Generative AIs.
 - Spec File: A Markdown file saved under `/spec/` named `spec-[a-z0-9-]+.md`.
 - Front matter: YAML-like metadata at the top of the file containing title, version, date_created, last_updated, owner, and tags.
-containing title, version, date_created, last_updated, owner and tags.
 - Requirement ID: A short uppercase code (e.g., REQ-001) that uniquely identifies a requirement.
 
 ## 3. Requirements, Constraints & Guidelines
 
 - **REQ-001**: All spec files must include front matter with `title`, `date_created` and `tags` at minimum.
-- **REQ-002**: The spec filename must match `spec-[a-z0-9-]+.md` and be placed in `/spec/`.
+- **REQ-002**: The spec filename must match the anchored regex `^spec-[a-z0-9-]+\.md$` and be placed in `/spec/`.
 - **REQ-003**: The spec must include all sections from the template in `.github/prompts/create-specification.prompt.md` (Introduction; Purpose & Scope; Definitions; Requirements, Constraints & Guidelines; Interfaces & Data Contracts; Acceptance Criteria; Test Automation Strategy; Rationale & Context; Dependencies & External Integrations; Examples & Edge Cases; Validation Criteria; Related Specifications).
 - **REQ-004**: Use clear, explicit language, avoid idioms, and define all acronyms (AI-Ready best practices).
-- **REQ-005**: Each requirement must have a unique ID of the form [A-Z]{3}-\d{3} (e.g., REQ-001). IDs must be unique across the document.
++**REQ-005**: Each requirement must have a unique ID matching `^[A-Z]{3}-\d{3}$` (e.g., REQ-001). IDs must be unique across the document.
+IDs must be unique across the document.
 - **CON-001**: Do not reference repo-specific secrets or runtime-only environment details in the spec.
 - **GUD-001**: Provide at least one example and one edge case for each major interface or data contract.
 - **PAT-001**: Use Given-When-Then format for Acceptance Criteria where applicable.
