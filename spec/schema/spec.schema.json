@@ -1,5 +1,7 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "$id": "https://your-org.example/spec/schema/spec.schema.json",
+
   "title": "Spec file schema",
   "type": "object",
   "required": ["metadata", "sections"],
@@ -24,7 +26,7 @@
         "type": "object",
         "required": ["id", "content"],
         "properties": {
-          "id": { "type": "string", "enum": [
+            "id": { "type": "string", "enum": [
             "introduction",
             "purpose-scope",
             "definitions",

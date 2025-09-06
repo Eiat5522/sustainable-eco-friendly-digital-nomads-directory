@@ -36,6 +36,7 @@
     "*.mjs",
     "./*.js",
     "app/**/*.js",
+    "app/**/*.jsx",
     "src/**/*.js",
     "app/**/*.d.ts",
     "app/**/*.ts",
