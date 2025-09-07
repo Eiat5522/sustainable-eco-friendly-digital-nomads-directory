@@ -2,7 +2,7 @@
 import { PortableText } from '@portabletext/react';
 import { notFound } from 'next/navigation';
 import { getBaseUrl } from '@/lib/absolute-url';
-import { client, urlFor } from '@/lib/sanity/client';
+import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import type { Metadata } from 'next'
 import Image from 'next/image';
@@ -32,13 +32,23 @@ async function getPost(slug: string): Promise<PostResponse> {
     throw new Error(`Unexpected content-type: ${ct}`);
   }
   const json = await res.json();
-  // If using src API shape
+  // Prefer DTO-wrapped API shape
+  if (json && typeof json === 'object' && 'success' in json) {
+    const data = (json as any).data;
+    const post = data?.post as PostResponse['post'];
+    const comments = await client.fetch(
+      groq`*[_type == "comment" && post->slug.current == $slug && approved == true] | order(createdAt asc){ _id, content, user->{ name } }`,
+      { slug }
+    );
+    return { post, comments } as PostResponse;
+  }
+  // Fallback to legacy src API shape
   if (json && typeof json === 'object' && 'post' in json && 'comments' in json) {
     return json as PostResponse;
   }
-  // If using app API shape, fetch approved comments separately
-  const data = json && typeof json === 'object' && 'success' in json ? (json as any).data : json;
-  const post = { _id: data?._id, title: data?.title, body: data?.body } as PostResponse['post'];
+  // Minimal fallback
+  const data = json;
+  const post = { id: data?._id, title: data?.title, body: data?.body, imageUrl: data?.primaryImage?.asset?.url ?? null } as PostResponse['post'];
   const comments = await client.fetch(
     groq`*[_type == "comment" && post->slug.current == $slug && approved == true] | order(createdAt asc){ _id, content, user->{ name } }`,
     { slug }
@@ -48,30 +58,18 @@ async function getPost(slug: string): Promise<PostResponse> {
 
  // minimal response type
  type Comment = { _id: string; content: string; user?: { name?: string } | null };
- type PrimaryImage = { asset?: { url?: string } | null; alt?: string | null } | null | undefined;
- type PostResponse = {
-   post: { _id: string; title: string; body: PortableTextBlock[]; primaryImage?: PrimaryImage };
-   comments: Comment[];
- };
+ type PostDTO = { id: string; title: string; body: PortableTextBlock[]; imageUrl?: string | null };
+ type PostResponse = { post: PostDTO; comments: Comment[] };
 
 export default async function BlogPostPage({ params }: Readonly<{ params: { slug: string } }>) {
   // Support Next 14 (sync) and Next 15 (async) params
   const { slug } = await Promise.resolve(params as unknown as { slug: string });
   const { post, comments } = await getPost(slug);
 
-  let heroUrl: string | null = null;
-  const primaryImage = post.primaryImage;
-  try {
-    if (primaryImage) {
-      heroUrl = urlFor(primaryImage).width(1200).height(630).fit('crop').auto('format').url() || null;
-      if (!heroUrl) heroUrl = primaryImage?.asset?.url ?? null;
-    }
-  } catch {
-    heroUrl = primaryImage?.asset?.url ?? null;
-  }
+  const heroUrl: string | null = post.imageUrl ?? null;
   const usingPlaceholder = !heroUrl;
   const src = heroUrl ?? placeholderDataUri(1200, 630);
-  const alt = usingPlaceholder ? '' : (primaryImage?.alt || post.title || '');
+  const alt = usingPlaceholder ? '' : (post.title || '');
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -97,7 +95,7 @@ export default async function BlogPostPage({ params }: Readonly<{ params: { slug
       <div className="mt-16">
         <h2 className="text-4xl font-bold mb-8 text-gray-800">Comments</h2>
         <CommentList comments={comments} />
-        <CommentForm postId={post._id} />
+        <CommentForm postId={post.id} />
       </div>
     </div>
   );
@@ -120,14 +118,15 @@ export async function generateMetadata(
 
     if (json && typeof json === 'object' && 'success' in json) {
       const data = (json as any).data;
-      title = data?.title;
-      description = data?.excerpt ?? undefined;
-      imageUrl = data?.primaryImage?.asset?.url ?? undefined;
-    } else if (json && typeof json === 'object' && 'post' in json) {
-      const post = (json as any).post;
+      const post = data?.post as { title?: string; excerpt?: string; imageUrl?: string } | undefined;
       title = post?.title;
       description = post?.excerpt ?? undefined;
-      imageUrl = post?.primaryImage?.asset?.url ?? undefined;
+      imageUrl = post?.imageUrl ?? undefined;
+    } else if (json && typeof json === 'object' && 'post' in json) {
+      const post = (json as any).post as { title?: string; excerpt?: string; imageUrl?: string };
+      title = post?.title;
+      description = post?.excerpt ?? undefined;
+      imageUrl = post?.imageUrl ?? undefined;
     }
 
     const absoluteImage = imageUrl && imageUrl.startsWith('http') ? imageUrl : (imageUrl ? new URL(imageUrl, base).toString() : undefined);

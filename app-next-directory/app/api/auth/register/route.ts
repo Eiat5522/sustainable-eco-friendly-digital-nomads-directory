@@ -57,6 +57,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // If MONGODB_URI is not configured during test runs, return a clear 503 to avoid generic 500 errors.
+    if (!process.env.MONGODB_URI) {
+      return NextResponse.json(
+        {
+          success: false,
+          data: null,
+          error: {
+            code: 'MISSING_DB_CONFIG',
+            message: 'MONGODB_URI not configured in environment; registration disabled in this test environment'
+          }
+        },
+        { status: 503 }
+      );
+    }
+
     await connect();
 
     const existingUser = await (User as any).findOne({ email });

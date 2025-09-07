@@ -11,7 +11,23 @@ export async function fetchCityDetails(slug: string): Promise<CityDTO> {
     }
 
     const data = await response.json();
-    return data.data as CityDTO;
+    // Support multiple API response shapes for compatibility:
+    // - { data: <city> }
+    // - { success: true, city: <city> }
+    // - { city: <city> }
+    // - { data: { city: <city> } }
+    const city: any =
+      data?.data ||
+      data?.city ||
+      (data?.data && data.data.city) ||
+      (data?.success && data.city) ||
+      data;
+
+    if (!city) {
+      throw new Error('City not found in API response');
+    }
+
+    return city as CityDTO;
   } catch (error) {
     console.error('Error fetching city details:', error);
     throw error;
@@ -28,7 +44,11 @@ export async function fetchCityListings(slug: string): Promise<Listing[]> {
     }
 
     const data = await response.json();
-    return data.data.listings || [];
+    // Handle shapes: { data: { listings } }, { success: true, listings }, { listings }
+    const listings: Listing[] =
+      (data?.data && data.data.listings) || data?.listings || (data?.success && data.listings) || [];
+
+    return listings;
   } catch (error) {
     console.error('Error fetching city listings:', error);
     return [];

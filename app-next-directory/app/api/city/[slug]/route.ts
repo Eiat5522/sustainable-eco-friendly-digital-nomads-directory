@@ -17,7 +17,8 @@ export async function GET(
     if (!city) {
       return NextResponse.json({ error: 'City not found' }, { status: 404 });
     }
-    return NextResponse.json({ city });
+    // Return a consistent response shape to match /api/cities/[slug]
+    return NextResponse.json({ success: true, city });
   } catch (err) {
     return NextResponse.json({ error: 'Failed to fetch city' }, { status: 500 });
   }

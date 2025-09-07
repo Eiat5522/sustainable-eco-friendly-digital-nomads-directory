@@ -178,3 +178,24 @@ export type ListingDetailDTO =
       accommodationDetails: AccommodationDetails;
       coworkingDetails?: never; cafeDetails?: never; restaurantDetails?: never; activityDetails?: never;
     });
+
+// ===== Blog DTOs =====
+import type { PortableTextBlock } from './external/portabletext';
+
+export interface BlogSummaryDTO {
+  id: string;
+  title: string;
+  slug: string; // normalized string slug
+  excerpt?: string | null;
+  imageUrl?: string | null;
+  tags?: string[];
+  authorName?: string | null;
+  publishedAt?: string | null; // ISO datetime
+  readingTime?: number | null; // minutes
+}
+
+export interface BlogDetailDTO extends BlogSummaryDTO {
+  body: PortableTextBlock[];
+  authorImageUrl?: string | null;
+  relatedPosts?: BlogSummaryDTO[];
+}

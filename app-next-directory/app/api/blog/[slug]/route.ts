@@ -2,6 +2,8 @@ import { client as sanityClient } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { groq } from 'next-sanity';
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
+import { NextResponse } from 'next/server';
+import { transformToBlogDetailDTO, transformToBlogSummaryDTO } from '@/lib/dto-transformer';
 
 // GROQ query for fetching a single blog post by slug
 const postQuery = groq`
@@ -9,7 +11,8 @@ const postQuery = groq`
     _id,
     title,
     "slug": slug.current,
-    "primaryImage": primaryImage,
+    // Include full image object with dereferenced asset for URL + metadata
+    "primaryImage": primaryImage{ ..., asset-> },
     publishedAt,
     excerpt,
     body,
@@ -22,7 +25,8 @@ const postQuery = groq`
       "slug": slug.current,
       _id,
       title,
-      "primaryImage": primaryImage,
+      // Ensure related posts also expose image URLs
+      "primaryImage": primaryImage{ ..., asset-> },
       publishedAt,
       excerpt,
       "authorName": author->name
@@ -51,21 +55,22 @@ export async function GET(
       return ApiResponseHandler.notFound('Blog post');
     }
 
-    // Add view count tracking (optional)
-    const viewCount = await trackViewCount(post._id);
-
+    const dto = transformToBlogDetailDTO(post);
+    // Ensure related posts in DTO format if present
     const response = {
-      ...post,
-      viewCount,
+      post: dto,
+      relatedPosts: Array.isArray(dto.relatedPosts) ? dto.relatedPosts : [],
       meta: {
-        readingTime: post.readingTime,
-        publishedDate: post.publishedAt,
+        readingTime: dto.readingTime ?? null,
+        publishedDate: dto.publishedAt ?? null,
         lastModified: post._updatedAt,
-        wordCount: post.body ? post.body.length : 0,
-      }
+        wordCount: Array.isArray(dto.body) ? dto.body.length : 0,
+      },
     };
 
-    return ApiResponseHandler.success(response, 'Blog post fetched successfully');
+    // Return both wrapper and top-level keys for compatibility
+    const payload = { success: true, data: response, ...response } as const;
+    return NextResponse.json(payload);
 
   } catch (error) {
     console.error('Error fetching blog post:', error);

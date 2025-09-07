@@ -1,5 +1,6 @@
 import { urlFor } from '@/lib/sanity/client';
 import type { SanityListing, SanityImage } from '@/types/sanity.types';
+import type { BlogSummaryDTO, BlogDetailDTO } from '@/types/dto';
 import { isImageAssetId } from '@sanity/asset-utils';
 // Ensure we have a consistent image union for dto mapping
 // type SanityGalleryImage = SanityImage // If separate type exists in future, import it accordingly
@@ -50,7 +51,7 @@ function isSanityImage(img: unknown): img is SanityImage | string {
   return refIsValid || idIsValid;
 }
 
-const imageOrFallback = (img: unknown, w: number, h: number) => {
+export const imageOrFallback = (img: unknown, w: number, h: number) => {
   // Accept full CDN URL strings (append transformations), asset ref strings, or Sanity image objects
   if (typeof img === 'string' && img.length > 0) {
     // If it looks like a full URL, append standard query params
@@ -319,4 +320,32 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
   // Log warning for unexpected types
   // For unexpected types, throw an error to prevent runtime issues
   throw new Error(`Unsupported listing type: ${sanityListing.type}. Expected one of: coworking, cafe, restaurant, activities, accommodation`);
+}
+
+// ===== Blog transformers =====
+export function transformToBlogSummaryDTO(doc: any, w = 800, h = 450): BlogSummaryDTO {
+  const slug = typeof doc?.slug === 'string' ? doc.slug : doc?.slug?.current;
+  return {
+    id: doc?._id ?? '',
+    title: typeof doc?.title === 'string' ? doc.title : '',
+    slug: slug ?? '',
+    excerpt: typeof doc?.excerpt === 'string' ? doc.excerpt : null,
+    imageUrl: imageOrFallback(doc?.primaryImage, w, h),
+    tags: Array.isArray(doc?.tags) ? (doc.tags as unknown[]).filter((t): t is string => typeof t === 'string') : undefined,
+    authorName: typeof doc?.authorName === 'string' ? doc.authorName : undefined,
+    publishedAt: typeof doc?.publishedAt === 'string' ? doc.publishedAt : undefined,
+    readingTime: Number.isFinite(doc?.readingTime) ? Number(doc.readingTime) : undefined,
+  };
+}
+
+export function transformToBlogDetailDTO(doc: any): BlogDetailDTO {
+  const summary = transformToBlogSummaryDTO(doc, 1200, 630);
+  const related = Array.isArray(doc?.relatedPosts) ? doc.relatedPosts.map((p: any) => transformToBlogSummaryDTO(p)) : undefined;
+  const authorImageUrl = imageOrFallback(doc?.authorImage, 96, 96);
+  return {
+    ...summary,
+    body: Array.isArray(doc?.body) ? doc.body : [],
+    authorImageUrl,
+    relatedPosts: related,
+  };
 }

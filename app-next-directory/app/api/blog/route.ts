@@ -1,5 +1,7 @@
 import { client as sanityClient } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
+import { NextResponse } from 'next/server';
+import { transformToBlogSummaryDTO } from '@/lib/dto-transformer';
 import { groq } from 'next-sanity';
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 
@@ -9,7 +11,8 @@ const postsQuery = groq`
     _id,
     title,
     slug,
-    "primaryImage": primaryImage,
+    // Include full image object with dereferenced asset for URL + metadata
+    "primaryImage": primaryImage{ ..., asset-> },
     publishedAt,
     excerpt,
     tags,
@@ -59,7 +62,8 @@ export async function GET(request: NextRequest) {
           _id,
           title,
           slug,
-          "primaryImage": primaryImage,
+          // Include full image object with dereferenced asset
+          "primaryImage": primaryImage{ ..., asset-> },
           publishedAt,
           excerpt,
           tags,
@@ -74,10 +78,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch posts and total count in parallel
-    const [posts, totalCount] = await Promise.all([
+    const [postsRaw, totalCount] = await Promise.all([
       sanityClient.fetch(finalQuery, { start, end }),
       sanityClient.fetch(finalCountQuery)
     ]);
+    const posts = Array.isArray(postsRaw) ? postsRaw.map((p: any) => transformToBlogSummaryDTO(p)) : [];
 
     // Calculate pagination metadata
     const totalPages = Math.ceil(totalCount / limit);
@@ -102,10 +107,9 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    return ApiResponseHandler.success(
-      response,
-      `Found ${totalCount} blog post${totalCount !== 1 ? 's' : ''}`
-    );
+    // Return both a success-wrapped shape and top-level fields for backward compatibility
+    const payload = { success: true, data: response, ...response } as const;
+    return NextResponse.json(payload);
 
   } catch (error) {
     console.error('Error fetching blog posts:', error);

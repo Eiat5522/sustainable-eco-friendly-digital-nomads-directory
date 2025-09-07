@@ -1,7 +1,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { urlFor } from '@/lib/sanity/client';
+// Images come preprocessed via DTOs (see API). No builder needed here.
 
 // Lightweight, subtle SVG gradient placeholder as data URI
 const placeholderCache = new Map<string, string>();
@@ -22,15 +22,12 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 
 type Post = {
-  _id: string;
+  id: string;
   title: string;
+  slug: string;
   excerpt?: string | null;
-  slug: { current: string };
   tags?: string[];
-  primaryImage?: {
-    asset?: { url?: string };
-    alt?: string | null;
-  } | null;
+  imageUrl?: string | null;
 };
 
 type BlogApiResponse = {
@@ -70,8 +67,9 @@ async function getPosts(params: { page?: string; limit?: string; tag?: string; s
     return data;
   }
   // Fallback to legacy array-only response
-  if (Array.isArray(json)) {
-    const posts = json as Post[];
+  if (Array.isArray((json as any)?.posts)) {
+    // Support backwards-compat top-level posts field
+    const posts = (json as any).posts as Post[];
     const pagination = {
       page: 1,
       limit: posts.length,
@@ -147,23 +145,12 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {posts.map((post: Post, idx: number) => {
-          const imageUrl = (() => {
-            if (!post?.primaryImage) return null;
-            try {
-              // Prefer builder for optimized CDN params
-              const optimizedUrl = urlFor(post.primaryImage).width(800).height(450).fit('crop').auto('format').url();
-              if (optimizedUrl) return optimizedUrl;
-            } catch {
-              // Builder failed, continue to fallback
-            }
-            // Fallback to raw asset URL
-            return post.primaryImage?.asset?.url ?? null;
-          })();
+          const imageUrl = post.imageUrl ?? null;
           const usingPlaceholder = !imageUrl;
           const src = imageUrl ?? placeholderDataUri(800, 450);
-          const alt = usingPlaceholder ? '' : ((post?.primaryImage as any)?.alt || post.title || '');
+          const alt = usingPlaceholder ? '' : (post.title || '');
           return (
-            <Link key={post._id} href={`/blog/${post.slug.current}`}>
+            <Link key={post.id} href={`/blog/${post.slug}`}>
               <div className="block bg-white border-4 border-black rounded-lg shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 ease-in-out overflow-hidden">
                 <div className="relative h-48">
                   <Image
