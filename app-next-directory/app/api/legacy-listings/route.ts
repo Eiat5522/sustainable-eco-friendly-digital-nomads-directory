@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 import { type Listing } from '@/types/listings';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 export async function GET() {
   try {
@@ -9,12 +9,9 @@ export async function GET() {
     const fileContent = await fs.readFile(filePath, 'utf8');
     const listings: Listing[] = JSON.parse(fileContent);
     
-    return NextResponse.json({ status: 'success', data: listings });
+    return ApiResponseHandler.success({ listings });
   } catch (error) {
     console.error('Error reading legacy listings:', error);
-    return NextResponse.json(
-      { status: 'error', message: 'Failed to load listings' },
-      { status: 500 }
-    );
+    return ApiResponseHandler.error('Failed to load listings', 500);
   }
 }

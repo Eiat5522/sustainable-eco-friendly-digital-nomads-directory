@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 export async function POST() {
   // Temporarily return success without MongoDB interaction
-  return NextResponse.json({ success: true });
+  return ApiResponseHandler.success({ ok: true });
 }

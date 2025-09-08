@@ -3,10 +3,20 @@ import request from 'supertest';
 // Assumes Next.js dev server is running at http://localhost:3000 for API tests
 const baseURL = process.env.BASE_URL || 'http://localhost:3000';
 
-describe('Preview API (Jest + supertest)', () => {
   // allow longer for server warmup
   jest.setTimeout(60000);
-
+  beforeAll(async () => {
+    const maxAttempts = 10;
+    for (let i = 1; i <= maxAttempts; i++) {
+      try {
+        await request(baseURL).get('/').timeout({ deadline: 5000, response: 3000 });
+        return;
+      } catch {
+        if (i === maxAttempts) throw new Error('Dev server not ready');
+        await new Promise((r) => setTimeout(r, 1000));
+      }
+    }
+  });
   it('enters preview mode when secret is valid (agent)', async () => {
     const agent = request.agent(baseURL);
 

@@ -1,9 +1,8 @@
 import { client as sanityClient } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
-import { NextResponse } from 'next/server';
 import { transformToBlogSummaryDTO } from '@/lib/dto-transformer';
 import { groq } from 'next-sanity';
-import { NextRequest } from 'next/dist/server/web/spec-extension/request';
+import { NextRequest } from 'next/server'
 
 // Define the GROQ query to fetch blog posts with pagination
 const postsQuery = groq`
@@ -78,13 +77,19 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch posts and total count in parallel
+    const params = {
+      start,
+      end,
+      tag: tag ?? undefined,
+      search: search ? `*${search}*` : undefined,
+    };
     const [postsRaw, totalCount] = await Promise.all([
-      sanityClient.fetch(finalQuery, { start, end }),
-      sanityClient.fetch(finalCountQuery)
+      sanityClient.fetch(finalQuery, params),
+      sanityClient.fetch(finalCountQuery, params),
     ]);
-    const posts = Array.isArray(postsRaw) ? postsRaw.map((p: any) => transformToBlogSummaryDTO(p)) : [];
-
-    // Calculate pagination metadata
+    const posts = Array.isArray(postsRaw)
+      ? postsRaw.map((p: any) => transformToBlogSummaryDTO(p))
+      : [];    // Calculate pagination metadata
     const totalPages = Math.ceil(totalCount / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
@@ -107,9 +112,8 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    // Return both a success-wrapped shape and top-level fields for backward compatibility
-    const payload = { success: true, data: response, ...response } as const;
-    return NextResponse.json(payload);
+    // Return a single canonical shape
+    return ApiResponseHandler.success(response);
 
   } catch (error) {
     console.error('Error fetching blog posts:', error);

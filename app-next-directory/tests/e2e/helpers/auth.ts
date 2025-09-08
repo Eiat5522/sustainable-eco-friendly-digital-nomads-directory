@@ -20,10 +20,14 @@ export async function loginAs(page: Page, email: string, password: string) {
     const errorMessage = await page
       .locator('[role="alert"], .error-message, .alert-error')
       .first()
-      .textContent()
+      .innerText({ timeout: 1000 })
+      .then(t => t.trim())
       .catch(() => null);
-    throw new Error(
-      `Login failed${errorMessage ? `: ${errorMessage}` : '. No error message found.'}`
+    throw Object.assign(
+      new Error(
+        `Login failed${errorMessage ? `: ${errorMessage}` : '. No error message found.'}`
+      ),
+      { cause: error }
     );
   }
 }

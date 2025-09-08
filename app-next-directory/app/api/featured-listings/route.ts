@@ -46,7 +46,7 @@ interface FeaturedListing {
 }
 
 import { groq } from 'next-sanity';
-import { NextResponse } from 'next/server';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 export async function GET() {
   const startTime = performance.now();
@@ -54,11 +54,7 @@ export async function GET() {
 
   if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || !process.env.NEXT_PUBLIC_SANITY_DATASET) {
     console.error('[ERROR] Featured Listings API: Sanity environment variables are not configured.');
-    return NextResponse.json({
-      error: 'Server configuration error: Sanity credentials missing.',
-      success: false,
-      listings: []
-    }, { status: 500 });
+    return ApiResponseHandler.error('Server configuration error: Sanity credentials missing.', 500);
   }
   
   try {
@@ -181,9 +177,8 @@ export async function GET() {
     const endTime = performance.now();
     console.log('[DEBUG] Featured Listings API: Total request time', (endTime - startTime).toFixed(2), 'ms');
 
-    return NextResponse.json({
+    return ApiResponseHandler.success({
       listings: dtoListings,
-      success: true,
       metadata: {
         total: dtoListings.length,
         queryTime: new Date().toISOString(),
@@ -198,13 +193,12 @@ export async function GET() {
     console.error('[ERROR] Featured Listings API: Request failed after', (endTime - startTime).toFixed(2), 'ms');
     console.error('[ERROR] Featured Listings API:', error);
     
-    return NextResponse.json({
-      error: 'Failed to fetch listings',
+    return ApiResponseHandler.error('Failed to fetch listings', 500, {
       details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString(),
       performance: {
         totalTimeMs: (endTime - startTime).toFixed(2)
       }
-    }, { status: 500 });
+    });
   }
 }

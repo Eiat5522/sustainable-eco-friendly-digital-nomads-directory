@@ -186,16 +186,21 @@ export interface BlogSummaryDTO {
   id: string;
   title: string;
   slug: string; // normalized string slug
-  excerpt?: string | null;
-  imageUrl?: string | null;
+  excerpt?: string;
+  imageUrl?: stringl;
+  imageDimensions?: ImageDimensionsDTO;
   tags?: string[];
-  authorName?: string | null;
-  publishedAt?: string | null; // ISO datetime
-  readingTime?: number | null; // minutes
+  authorName?: string;
+  publishedAt?: ISODateString; // ISO datetime
+  readingTime?: number; // minutes
 }
+export type ISODateString = string & { __brand: 'ISODateString' };
 
 export interface BlogDetailDTO extends BlogSummaryDTO {
-  body: PortableTextBlock[];
+  body: ReadonlyArray<PortableTextBlock>;
   authorImageUrl?: string | null;
-  relatedPosts?: BlogSummaryDTO[];
+  relatedPosts?: ReadonlyArray<BlogSummaryDTO>;
+    BlogSummaryDTO,
+    'id' | 'title' | 'slug' | 'imageUrl' | 'publishedAt' | 'readingTime'
+  >>;
 }

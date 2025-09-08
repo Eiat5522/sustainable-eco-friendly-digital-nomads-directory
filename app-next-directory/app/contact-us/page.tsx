@@ -15,6 +15,21 @@ import Link from 'next/link'
 
 type EnquiryType = 'general' | 'newsletter'
 
+import { z } from 'zod';
+
+const contactFormSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
+  email: z.string().email('Please enter a valid email address'),
+  subject: z.string().min(5, 'Subject must be at least 5 characters').max(200, 'Subject too long'),
+  message: z.string().min(10, 'Message must be at least 10 characters').max(2000, 'Message too long'),
+});
+
+const newsletterSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+});
+
+type EnquiryType = 'general' | 'newsletter'
+
 function ContactForm() {
   const searchParams = useSearchParams()
   const initialType = searchParams.get('type') === 'newsletter' ? 'newsletter' : 'general'
@@ -25,7 +40,7 @@ function ContactForm() {
   const [email, setEmail] = useState(initialEmail)
   const [subject, setSubject] = useState('')
   const [enquiry, setEnquiry] = useState('')
-  const [errors, setErrors] = useState({ name: '', email: '', subject: '', enquiry: '' })
+  const [errors, setErrors] = useState<z.ZodError['formErrors']['fieldErrors']>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState('')
 
@@ -35,41 +50,17 @@ function ContactForm() {
   }, [initialType, initialEmail])
 
   const validate = () => {
-    const newErrors = { name: '', email: '', subject: '', enquiry: '' }
-    let isValid = true
+    const schema = enquiryType === 'general' ? contactFormSchema : newsletterSchema;
+    const data = enquiryType === 'general' ? { name, email, subject, message: enquiry } : { email };
+    const result = schema.safeParse(data);
 
-    if (enquiryType === 'general') {
-      if (!name.trim()) {
-        newErrors.name = 'Name is required.'
-        isValid = false
-      }
-      if (!email.trim()) {
-        newErrors.email = 'Email is required.'
-        isValid = false
-      } else if (!/\S+@\S+\.\S+/.test(email)) {
-        newErrors.email = 'Email is invalid.'
-        isValid = false
-      }
-      if (!subject.trim()) {
-        newErrors.subject = 'Subject is required.'
-        isValid = false
-      }
-      if (!enquiry.trim()) {
-        newErrors.enquiry = 'Enquiry is required.'
-        isValid = false
-      }
-    } else { // newsletter
-      if (!email.trim()) {
-        newErrors.email = 'Email is required.'
-        isValid = false
-      } else if (!/\S+@\S+\.\S+/.test(email)) {
-        newErrors.email = 'Email is invalid.'
-        isValid = false
-      }
+    if (!result.success) {
+      setErrors(result.error.formErrors.fieldErrors);
+      return false;
     }
 
-    setErrors(newErrors)
-    return isValid
+    setErrors({});
+    return true;
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -172,7 +163,7 @@ function ContactForm() {
                           aria-describedby={errors.name ? 'name-error' : undefined}
                         />
                       </div>
-                      {errors.name && <p id="name-error" role="alert" className="text-sm text-red-600 mt-1">{errors.name}</p>}
+                      {errors.name && <p id="name-error" role="alert" className="text-sm text-red-600 mt-1">{errors.name[0]}</p>}
                     </div>
                     <div>
                       <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address</Label>
@@ -193,12 +184,12 @@ function ContactForm() {
                           spellCheck={false}
                           inputMode="email"
                           enterKeyHint="send"
-                          aria-invalid={errors.email ? true : undefined}
+                          aria-invalid={!!errors.email}
                           aria-describedby={errors.email ? 'email-error' : undefined}
                         />
                       </div>
                       {errors.email && (
-                        <p id="email-error" role="alert" className="text-sm text-red-600 mt-1">{errors.email}</p>
+                        <p id="email-error" role="alert" className="text-sm text-red-600 mt-1">{errors.email[0]}</p>
                       )}
                     </div>
                     <div>
@@ -214,9 +205,11 @@ function ContactForm() {
                           onChange={(e) => setSubject(e.target.value)}
                           required
                           className="pl-10"
+                          aria-invalid={!!errors.subject}
+                          aria-describedby={errors.subject ? 'subject-error' : undefined}
                         />
                       </div>
-                      {errors.subject && <p className="text-sm text-red-600 mt-1">{errors.subject}</p>}
+                      {errors.subject && <p id="subject-error" role="alert" className="text-sm text-red-600 mt-1">{errors.subject[0]}</p>}
                     </div>
                     <div>
                       <Label htmlFor="enquiry" className="text-sm font-medium text-gray-700">Enquiry</Label>
@@ -231,11 +224,11 @@ function ContactForm() {
                           required
                           className="pl-10 pt-2"
                           rows={5}
-                          aria-invalid={!!errors.enquiry}
-                          aria-describedby={errors.enquiry ? 'enquiry-error' : undefined}
+                          aria-invalid={!!errors.message}
+                          aria-describedby={errors.message ? 'enquiry-error' : undefined}
                         />
                       </div>
-                      {errors.enquiry && <p id="enquiry-error" role="alert" className="text-sm text-red-600 mt-1">{errors.enquiry}</p>}
+                      {errors.message && <p id="enquiry-error" role="alert" className="text-sm text-red-600 mt-1">{errors.message[0]}</p>}
                     </div>
                   </>
                 ) : (
@@ -259,11 +252,11 @@ function ContactForm() {
                          inputMode="email"
                          enterKeyHint="send"
 
-                         aria-invalid={errors.email ? true : undefined}
+                         aria-invalid={!!errors.email}
                          aria-describedby={errors.email ? `email-error-${enquiryType}` : undefined}
                       />
                     </div>
-                    {errors.email && <p id={`email-error-${enquiryType}`} role="alert" className="text-sm text-red-600 mt-1">{errors.email}</p>}
+                    {errors.email && <p id={`email-error-${enquiryType}`} role="alert" className="text-sm text-red-600 mt-1">{errors.email[0]}</p>}
                   </div>
                 )}
               </div>

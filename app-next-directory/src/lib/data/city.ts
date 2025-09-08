@@ -169,7 +169,7 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     },
     "primaryImage": primaryImage{
       asset->{
-        url
+        url,
         metadata{ dimensions }
       }
     }

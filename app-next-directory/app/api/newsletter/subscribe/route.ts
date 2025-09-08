@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { ApiResponseHandler } from '@/utils/api-response'
 
 const newsletterSubscriptionSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -11,13 +11,7 @@ export async function POST(request: Request) {
     const validationResult = newsletterSubscriptionSchema.safeParse(body)
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          message: 'Invalid email address.',
-          errors: validationResult.error.errors,
-        },
-        { status: 400 }
-      )
+      return ApiResponseHandler.error('Invalid email address.', 400, validationResult.error.errors)
     }
 
     const { email } = validationResult.data
@@ -27,15 +21,9 @@ export async function POST(request: Request) {
     // For this example, we'll just log it to the console.
     console.log('New newsletter subscription:', email)
 
-    return NextResponse.json(
-      { message: 'Thank you for subscribing to our newsletter!' },
-      { status: 200 }
-    )
+    return ApiResponseHandler.success({ message: 'Thank you for subscribing to our newsletter!' })
   } catch (error) {
     console.error('Newsletter subscription error:', error)
-    return NextResponse.json(
-      { message: 'An internal server error occurred.' },
-      { status: 500 }
-    )
+    return ApiResponseHandler.error('An internal server error occurred.', 500)
   }
 }

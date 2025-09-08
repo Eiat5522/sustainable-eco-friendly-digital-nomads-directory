@@ -16,20 +16,17 @@ export async function fetchCityDetails(slug: string): Promise<CityDTO> {
     // - { success: true, city: <city> }
     // - { city: <city> }
     // - { data: { city: <city> } }
-    const city: any =
-      data?.data ||
-      data?.city ||
-      (data?.data && data.data.city) ||
-      (data?.success && data.city) ||
-      data;
-
-    if (!city) {
+    const city: unknown =
+      data?.data?.city ??
+      data?.city ??
+      data?.data;    
+    if (!city || typeof city !== 'object' || Array.isArray(city)) {
       throw new Error('City not found in API response');
     }
 
     return city as CityDTO;
   } catch (error) {
-    console.error('Error fetching city details:', error);
+ city de   console.error('Error fetching tails:', error);
     throw error;
   }
 }
@@ -46,7 +43,10 @@ export async function fetchCityListings(slug: string): Promise<Listing[]> {
     const data = await response.json();
     // Handle shapes: { data: { listings } }, { success: true, listings }, { listings }
     const listings: Listing[] =
-      (data?.data && data.data.listings) || data?.listings || (data?.success && data.listings) || [];
+      Array.isArray(data?.data?.listings) ? data.data.listings :
+      Array.isArray(data?.listings) ? data.listings :
+      Array.isArray(data?.success ? data.listings : undefined) ? data.listings :
+      [];
 
     return listings;
   } catch (error) {

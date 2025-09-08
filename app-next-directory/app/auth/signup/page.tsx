@@ -57,6 +57,9 @@ export default function SignupPage() {
           </NeoCardHeader>
           <NeoCardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              <p className="text-sm text-neo-text-secondary">
+                Already have an account? <a href="/auth/login" data-testid="signup-signin-link" className="text-neo-primary underline">Sign in</a>
+              </p>
               <NeoInput
                 type="text"
                 id="name"

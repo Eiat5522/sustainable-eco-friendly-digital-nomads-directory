@@ -2,8 +2,7 @@ import { client as sanityClient } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { groq } from 'next-sanity';
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
-import { NextResponse } from 'next/server';
-import { transformToBlogDetailDTO, transformToBlogSummaryDTO } from '@/lib/dto-transformer';
+import { transformToBlogDetailDTO } from '@/lib/dto-transformer';
 
 // GROQ query for fetching a single blog post by slug
 const postQuery = groq`
@@ -68,9 +67,8 @@ export async function GET(
       },
     };
 
-    // Return both wrapper and top-level keys for compatibility
-    const payload = { success: true, data: response, ...response } as const;
-    return NextResponse.json(payload);
+    // Return a single canonical payload shape
+    return ApiResponseHandler.success(response);
 
   } catch (error) {
     console.error('Error fetching blog post:', error);

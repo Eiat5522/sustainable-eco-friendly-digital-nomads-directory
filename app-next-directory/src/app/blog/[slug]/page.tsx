@@ -35,7 +35,10 @@ async function getPost(slug: string): Promise<PostResponse> {
   // Prefer DTO-wrapped API shape
   if (json && typeof json === 'object' && 'success' in json) {
     const data = (json as any).data;
-    const post = data?.post as PostResponse['post'];
+    const post = data?.post as PostResponse['post'] | undefined;
+    if (!post?.id) {
+      notFound();
+    }
     const comments = await client.fetch(
       groq`*[_type == "comment" && post->slug.current == $slug && approved == true] | order(createdAt asc){ _id, content, user->{ name } }`,
       { slug }
@@ -47,10 +50,17 @@ async function getPost(slug: string): Promise<PostResponse> {
     return json as PostResponse;
   }
   // Minimal fallback
-  const data = json;
-  const post = { id: data?._id, title: data?.title, body: data?.body, imageUrl: data?.primaryImage?.asset?.url ?? null } as PostResponse['post'];
-  const comments = await client.fetch(
-    groq`*[_type == "comment" && post->slug.current == $slug && approved == true] | order(createdAt asc){ _id, content, user->{ name } }`,
+  const data = json as any;
+  const post = {
+    id: data?._id ?? '',
+    title: data?.title ?? '',
+    body: Array.isArray(data?.body) ? data.body : [],
+    imageUrl: data?.primaryImage?.asset?.url ?? null,
+  } as PostResponse['post'];
+  if (!post.id) {
+    notFound();
+  }
+  const comments = await client.fetch(    groq`*[_type == "comment" && post->slug.current == $slug && approved == true] | order(createdAt asc){ _id, content, user->{ name } }`,
     { slug }
   );
   return { post, comments } as PostResponse;

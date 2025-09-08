@@ -98,7 +98,7 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
 
   const uniqueTags = Array.from(
     new Set(
-      posts.flatMap((p: any) => Array.isArray(p.tags) ? (p.tags as string[]) : [])
+      posts.flatMap((p: Post) => (Array.isArray(p.tags) ? p.tags : []))
     )
   ).slice(0, 20);
 
@@ -126,6 +126,8 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
         />
         <button className="px-6 py-3 bg-yellow-400 border-4 border-black rounded-lg font-bold">Apply</button>
       </form>
+          {limit ? <input type="hidden" name="limit" value={limit} /> : null}
+
 
       {uniqueTags.length > 0 && (
         <div className="mb-8 flex flex-wrap gap-2">

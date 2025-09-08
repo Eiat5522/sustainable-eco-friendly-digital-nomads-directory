@@ -71,6 +71,7 @@ const withRedirects = {
   async redirects() {
     return [
       { source: '/venues/ko-hub', destination: '/venues/koh-hub', permanent: true },
+      { source: '/city/:slug', destination: '/cities/:slug', permanent: true },
     ];
   },
 };

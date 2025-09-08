@@ -1,6 +1,6 @@
 import { revalidatePath } from 'next/cache';
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,10 +8,7 @@ export async function POST(request: NextRequest) {
 
     // Validate the revalidation token
     if (!token || token !== process.env.revalidationToken) {
-      return NextResponse.json(
-        { message: 'Invalid token' },
-        { status: 401 }
-      );
+      return ApiResponseHandler.error('Invalid token', 401);
     }
 
     // Revalidate all dynamic routes
@@ -27,17 +24,14 @@ export async function POST(request: NextRequest) {
       revalidatePath(route);
     }
 
-    return NextResponse.json({
+    return ApiResponseHandler.success({
       revalidated: true,
       routes: routesToRevalidate,
       now: Date.now()
     });
   } catch (error) {
     console.error('Error revalidating all paths:', error);
-    return NextResponse.json(
-      { message: 'Error revalidating' },
-      { status: 500 }
-    );
+    return ApiResponseHandler.error('Error revalidating', 500);
   }
 }
 

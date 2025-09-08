@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { ApiResponseHandler } from '@/utils/api-response';
 import clientPromise from '@/lib/mongodb';
 
 export async function GET() {
@@ -7,15 +7,12 @@ export async function GET() {
     const client = await clientPromise;
     await client.db().command({ ping: 1 });
 
-    return NextResponse.json({
-      status: 'success',
-      message: 'Successfully connected to MongoDB!'
-    });
+    return ApiResponseHandler.success({ message: 'Successfully connected to MongoDB!' });
   } catch (error) {
     console.error('MongoDB Connection Error:', error);
-    return NextResponse.json({
-      status: 'error',
-      message: error instanceof Error ? error.message : 'Failed to connect to MongoDB'
-    }, { status: 500 });
+    return ApiResponseHandler.error(
+      error instanceof Error ? error.message : 'Failed to connect to MongoDB',
+      500
+    );
   }
 }

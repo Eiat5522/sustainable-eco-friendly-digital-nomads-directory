@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getCityBySlug } from '@/lib/data/city';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 // Define the shape of the context parameter for Next.js 15+
 type RouteContext = {
@@ -14,14 +15,11 @@ export async function GET(
     const { slug } = await context.params;
     const city = await getCityBySlug(slug);
     if (!city) {
-      return NextResponse.json({ error: 'City not found' }, { status: 404 });
+      return ApiResponseHandler.notFound('City');
     }
-    return NextResponse.json({ success: true, city });
+    return ApiResponseHandler.success({ city });
   } catch (error) {
     console.error('[ERROR] Cities/[slug] API:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch city details' },
-      { status: 500 }
-    );
+    return ApiResponseHandler.error('Failed to fetch city details', 500);
   }
 }

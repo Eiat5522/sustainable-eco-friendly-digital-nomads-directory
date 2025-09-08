@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { ApiResponseHandler } from '@/utils/api-response';
 import { getListingsByCityId } from '@/lib/data/city';
 
 type RouteContext = {
@@ -13,10 +13,10 @@ export async function GET(
   try {
     const { id } = await context.params;
     const listings = await getListingsByCityId(id);
-    return NextResponse.json({ success: true, listings });
+    return ApiResponseHandler.success({ listings });
   } catch (error) {
     console.error('[ERROR] listings/city/[id] API:', error);
-    return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 });
+    return ApiResponseHandler.error('Failed to fetch listings', 500);
   }
 }
 

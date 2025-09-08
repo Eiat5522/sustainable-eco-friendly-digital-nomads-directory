@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { ApiResponseHandler } from '@/utils/api-response';
 import { client } from '@/lib/sanity/client';
 
 export async function GET() {
@@ -18,8 +18,7 @@ export async function GET() {
 
     console.log('Test query result:', JSON.stringify(result, null, 2));
 
-    return NextResponse.json({
-      success: true,
+    return ApiResponseHandler.success({
       message: 'Sanity connection successful',
       config: {
         projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -29,13 +28,15 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Sanity test error:', error);
-    return NextResponse.json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      config: {
-        projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
-        dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+    return ApiResponseHandler.error(
+      error instanceof Error ? error.message : 'Unknown error',
+      500,
+      {
+        config: {
+          projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+          dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+        }
       }
-    }, { status: 500 });
+    );
   }
 }

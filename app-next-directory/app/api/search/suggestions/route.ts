@@ -1,5 +1,5 @@
 import { getSearchSuggestions } from '@/lib/search';
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 export async function GET(request: Request) {
   try {
@@ -7,16 +7,13 @@ export async function GET(request: Request) {
     const query = searchParams.get('q');
 
     if (!query) {
-      return NextResponse.json({ error: 'Query parameter is required' }, { status: 400 });
+      return ApiResponseHandler.error('Query parameter is required', 400);
     }
 
     const suggestions = await getSearchSuggestions(query);
-    return NextResponse.json(suggestions);
+    return ApiResponseHandler.success({ suggestions });
   } catch (error: any) {
     console.error('Error fetching suggestions:', error);
-    return NextResponse.json(
-      { error: 'Failed to get suggestions', details: error.message },
-      { status: 500 }
-    );
+    return ApiResponseHandler.error('Failed to get suggestions', 500, { details: error.message });
   }
 }

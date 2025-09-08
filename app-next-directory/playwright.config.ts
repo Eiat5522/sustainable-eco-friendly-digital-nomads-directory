@@ -32,10 +32,11 @@ export default defineConfig({
     }
   ],
   webServer: isLocal ? {
-    command: `pnpm run dev -- -p ${resolvedPort}`,
+    command: `pnpm run dev`,
     cwd: '.',
     url: resolvedBaseURL,
     timeout: 120_000,
-    reuseExistingServer: !process.env.CI
+    reuseExistingServer: !process.env.CI,
+    env: { PORT: String(resolvedPort), NODE_ENV: 'test', TEST_MODE: '1' }
   } : undefined
 });

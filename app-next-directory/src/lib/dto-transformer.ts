@@ -51,20 +51,28 @@ function isSanityImage(img: unknown): img is SanityImage | string {
   return refIsValid || idIsValid;
 }
 
-export const imageOrFallback = (img: unknown, w: number, h: number) => {
+  export const imageOrFallback = (img: unknown, w: number, h: number): string => {
   // Accept full CDN URL strings (append transformations), asset ref strings, or Sanity image objects
   if (typeof img === 'string' && img.length > 0) {
     // If it looks like a full URL, append standard query params
     if (/^https?:\/\//i.test(img)) {
-      const hasQuery = img.includes('?');
-      const qp = `w=${w}&h=${h}&fit=crop&auto=format`;
-      return hasQuery ? `${img}&${qp}` : `${img}?${qp}`;
+      try {
+        const u = new URL(img);
+        u.searchParams.set('w', String(w));
+        u.searchParams.set('h', String(h));
+        u.searchParams.set('fit', 'crop');
+        u.searchParams.set('auto', 'format');
+        return u.toString();
+      } catch {
+        // Fall back to original string if URL parsing fails
+        return img;
+      }
     }
     // Otherwise only treat as a Sanity asset ref/id if valid
     if (isImageAssetId(img)) {
       return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
     }
-    return '/images/fallback.png';
+    return '/leaf-laptop-logo.png';
   }
 
   if (img && typeof img === 'object') {
@@ -81,7 +89,7 @@ export const imageOrFallback = (img: unknown, w: number, h: number) => {
   if (isSanityImage(img)) {
     return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
   }
-  return '/images/fallback.png';
+  return '/leaf-laptop-logo.png';
 };
 
 export function transformToFeaturedDTO(sanityListing: SanityListing): FeaturedListingDTO {
@@ -152,12 +160,16 @@ const toNames = (
 ): string[] => {
   const seen = new Set<string>();
   const canon = (s: string) => s.normalize('NFKC').toLocaleLowerCase();
+  const canon = (s: string) => s.normalize('NFKC').toLocaleLowerCase();
   const out: string[] = [];
   for (const x of arr ?? []) {
     const raw = x?.name;
     if (typeof raw !== 'string') continue;
     const n = raw.trim();
-    if (!n || seen.has(n)) continue;
+    if (!n) continue;
+    const key = canon(n);
+    if (seen.has(key)) continue;
+    seen.add(key);
     seen.add(n);
     out.push(n);
   }
@@ -324,23 +336,30 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
 
 // ===== Blog transformers =====
 export function transformToBlogSummaryDTO(doc: any, w = 800, h = 450): BlogSummaryDTO {
-  const slug = typeof doc?.slug === 'string' ? doc.slug : doc?.slug?.current;
+  const rt = Number.isFinite(Number(doc?.readingTime)) ? Number(doc.readingTime) : undefined;
   return {
     id: doc?._id ?? '',
     title: typeof doc?.title === 'string' ? doc.title : '',
     slug: slug ?? '',
     excerpt: typeof doc?.excerpt === 'string' ? doc.excerpt : null,
     imageUrl: imageOrFallback(doc?.primaryImage, w, h),
-    tags: Array.isArray(doc?.tags) ? (doc.tags as unknown[]).filter((t): t is string => typeof t === 'string') : undefined,
+    tags: Array.isArray(doc?.tags)
+      ? (doc.tags as unknown[])
+          .filter((t): t is string => typeof t === 'string')
+          .map(t => t.trim())
+          .filter(Boolean)
+      : undefined,
     authorName: typeof doc?.authorName === 'string' ? doc.authorName : undefined,
     publishedAt: typeof doc?.publishedAt === 'string' ? doc.publishedAt : undefined,
-    readingTime: Number.isFinite(doc?.readingTime) ? Number(doc.readingTime) : undefined,
+    readingTime: rt,
   };
 }
 
 export function transformToBlogDetailDTO(doc: any): BlogDetailDTO {
   const summary = transformToBlogSummaryDTO(doc, 1200, 630);
-  const related = Array.isArray(doc?.relatedPosts) ? doc.relatedPosts.map((p: any) => transformToBlogSummaryDTO(p)) : undefined;
+  const related = Array.isArray(doc?.relatedPosts)
+    ? (doc.relatedPosts as any[]).filter(Boolean).map((p: any) => transformToBlogSummaryDTO(p))
+    : undefined;
   const authorImageUrl = imageOrFallback(doc?.authorImage, 96, 96);
   return {
     ...summary,

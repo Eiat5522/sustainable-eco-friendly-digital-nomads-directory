@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 type NodeEnv = 'development' | 'production' | 'test';
 
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     configurable: true
   });
 
-  return NextResponse.json({
+  return ApiResponseHandler.success({
     NODE_ENV: mockNodeEnv,
     previewSecret: mockPreviewSecret
   });

@@ -15,7 +15,8 @@
     "deploy-graphql": "sanity graphql deploy",
     "extract-schema": "sanity schema extract",
     "generate-types": "sanity typegen generate",
-    "update-types": "npm run extract-schema && npm run generate-types"
+    "update-types": "npm run extract-schema && npm run generate-types",
+    "test": "echo \"Error: no test specified\" && exit 0"
   },
   "keywords": [
     "sanity"

@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
 import { mockListings } from '@/tests/helpers/test-data';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 export async function GET() {
-  return NextResponse.json(mockListings);
+  return ApiResponseHandler.success({ listings: mockListings });
 }

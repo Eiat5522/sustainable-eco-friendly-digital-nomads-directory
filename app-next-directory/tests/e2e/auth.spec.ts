@@ -5,14 +5,14 @@ test.describe('Authentication (Playwright)', () => {
     const to = new URL('/register', baseURL ?? 'http://localhost:3000').toString();
     await page.goto(to);
 
-    const unique = Date.now();
-    await page.fill('input[name="name"]', 'Test User');
-    await page.fill('input[name="email"]', `test+${unique}@example.com`);
-    await page.fill('input[name="password"]', 'password123');
+    const unique = `${Date.now()}-${test.info().workerIndex}-${Math.random().toString(36).slice(2, 8)}`;
+    await page.getByLabel(/name/i).fill('Test User');
+    await page.getByLabel(/email/i).fill(`test+${unique}@example.com`);
+    await page.getByLabel(/password/i).fill('Password_123!Aa');
 
     await Promise.all([
       page.waitForURL('**/login', { waitUntil: 'domcontentloaded' }),
-      page.click('button[type="submit"]')
+      page.getByRole('button', { name: /register/i }).click()
     ]);
 
     await expect(page).toHaveURL(/\/login$/);

@@ -75,4 +75,14 @@ describe('API - Listing Management', () => {
       expect(res.status).toBe(403);
     });
   });
+  
+  afterAll(async () => {
+    if (createdListingId) {
+      try {
+        await ownerAgent.delete(`/api/listings/${createdListingId}`);
+      } catch {
+        // ignore cleanup failures
+      }
+    }
+  });  
 });

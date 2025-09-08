@@ -59,19 +59,17 @@ describe('CityCarousel', () => {
 
     render(<CityCarousel />)
 
-    await waitFor(() => {
-      expect(screen.getByText('Copenhagen')).toBeInTheDocument()
-      expect(screen.getByText('Freiburg')).toBeInTheDocument()
-    })
+    expect(await screen.findByText('Copenhagen')).toBeInTheDocument()
+    expect(screen.getByText('Freiburg')).toBeInTheDocument()
 
-expect(screen.getByAltText('Copenhagen')).toHaveAttribute(
-  'src',
-  expect.stringContaining('copenhagen.jpg')
-)
-expect(screen.getByAltText('Freiburg')).toHaveAttribute(
-  'src',
-  expect.stringContaining('freiburg.jpg')
-)
+    expect(screen.getByAltText('Copenhagen')).toHaveAttribute(
+      'src',
+      expect.stringContaining('copenhagen.jpg')
+    )
+    expect(screen.getByAltText('Freiburg')).toHaveAttribute(
+      'src',
+      expect.stringContaining('freiburg.jpg')
+    )
   })
   it('renders error state on fetch failure', async () => {
     server.use(
@@ -82,8 +80,6 @@ expect(screen.getByAltText('Freiburg')).toHaveAttribute(
 
     render(<CityCarousel />)
 
-    await waitFor(() => {
-      expect(screen.getByText(/error: failed to fetch cities/i)).toBeInTheDocument()
-    })
+    expect(await screen.findByText(/error: failed to fetch cities/i)).toBeInTheDocument()
   })
 })

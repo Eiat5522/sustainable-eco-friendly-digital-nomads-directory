@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
-import { NextResponse } from 'next/dist/server/web/spec-extension/response';
+import { ApiResponseHandler } from '@/utils/api-response';
 
 // Eco tags data
 const ECO_TAGS = [
@@ -14,12 +14,9 @@ const ECO_TAGS = [
 
 export async function GET(request: NextRequest) {
   try {
-    return NextResponse.json(ECO_TAGS);
+    return ApiResponseHandler.success({ tags: ECO_TAGS });
   } catch (error) {
     console.error('Error fetching eco tags:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch eco tags' },
-      { status: 500 }
-    );
+    return ApiResponseHandler.error('Failed to fetch eco tags', 500);
   }
 }
