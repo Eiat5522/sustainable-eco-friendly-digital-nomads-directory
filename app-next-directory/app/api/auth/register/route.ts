@@ -56,15 +56,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In test mode, short-circuit and return a fake user to keep E2E flows unblocked
-    if (process.env.NODE_ENV === 'test' || process.env.TEST_MODE === '1') {
+    // Only short-circuit when explicitly enabled to avoid interfering with unit tests.
+    // Use TEST_MODE=1 in development to enable; do NOT auto-enable in NODE_ENV=='test'.
+    if (process.env.TEST_MODE === '1') {
       const fakeUser = { _id: 'test-user-1', name, email, role: 'user' };
       return NextResponse.json(
         { success: true, data: { user: fakeUser }, error: null },
-        { status: 201 }
+        { status: 201, headers: { 'X-Test-Mode': '1' } }
       );
     }
-
     // If MONGODB_URI is not configured during non-test runs, return a clear 503 to avoid generic 500 errors.
     if (!process.env.MONGODB_URI) {
       console.warn('MONGODB_URI is not set; responding 503 from /api/auth/register');

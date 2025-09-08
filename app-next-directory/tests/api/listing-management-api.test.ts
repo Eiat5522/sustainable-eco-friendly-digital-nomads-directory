@@ -79,10 +79,11 @@ describe('API - Listing Management', () => {
   afterAll(async () => {
     if (createdListingId) {
       try {
-        await ownerAgent.delete(`/api/listings/${createdListingId}`);
+        await ownerAgent
+          .delete(`/api/listings/${createdListingId}`)
+          .set('Cookie', ownerUserCookie);
       } catch {
         // ignore cleanup failures
       }
     }
-  });  
-});
+  });  });

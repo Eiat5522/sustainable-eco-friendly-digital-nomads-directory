@@ -125,9 +125,8 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
           className="w-full md:w-64 p-3 bg-white border-4 border-black rounded-lg shadow-sm"
         />
         <button className="px-6 py-3 bg-yellow-400 border-4 border-black rounded-lg font-bold">Apply</button>
+        {limit ? <input type="hidden" name="limit" value={limit} /> : null}
       </form>
-          {limit ? <input type="hidden" name="limit" value={limit} /> : null}
-
 
       {uniqueTags.length > 0 && (
         <div className="mb-8 flex flex-wrap gap-2">

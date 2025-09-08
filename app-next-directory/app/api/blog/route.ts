@@ -77,13 +77,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch posts and total count in parallel
+// In app-next-directory/app/api/blog/route.ts, around lines 80–85
     const params = {
       start,
       end,
-      tag: tag ?? undefined,
-      search: search ? `*${search}*` : undefined,
-    };
-    const [postsRaw, totalCount] = await Promise.all([
+      tag: tag || undefined,
+      search: search || undefined,
+    };    const [postsRaw, totalCount] = await Promise.all([
       sanityClient.fetch(finalQuery, params),
       sanityClient.fetch(finalCountQuery, params),
     ]);

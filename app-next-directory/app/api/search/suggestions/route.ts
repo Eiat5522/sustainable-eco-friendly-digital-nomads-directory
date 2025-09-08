@@ -12,8 +12,10 @@ export async function GET(request: Request) {
 
     const suggestions = await getSearchSuggestions(query);
     return ApiResponseHandler.success({ suggestions });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching suggestions:', error);
-    return ApiResponseHandler.error('Failed to get suggestions', 500, { details: error.message });
+    const details = error instanceof Error ? error.message : String(error);
+    const meta = process.env.NODE_ENV !== 'production' ? { details } : undefined;
+    return ApiResponseHandler.error('Failed to get suggestions', 500, meta);
   }
 }

@@ -26,8 +26,7 @@ export async function fetchCityDetails(slug: string): Promise<CityDTO> {
 
     return city as CityDTO;
   } catch (error) {
- city de   console.error('Error fetching tails:', error);
-    throw error;
+    console.error('Error fetching city details:', error);    throw error;
   }
 }
 

@@ -187,8 +187,7 @@ export interface BlogSummaryDTO {
   title: string;
   slug: string; // normalized string slug
   excerpt?: string;
-  imageUrl?: stringl;
-  imageDimensions?: ImageDimensionsDTO;
+  imageUrl?: string;  imageDimensions?: ImageDimensionsDTO;
   tags?: string[];
   authorName?: string;
   publishedAt?: ISODateString; // ISO datetime
@@ -200,7 +199,6 @@ export interface BlogDetailDTO extends BlogSummaryDTO {
   body: ReadonlyArray<PortableTextBlock>;
   authorImageUrl?: string | null;
   relatedPosts?: ReadonlyArray<BlogSummaryDTO>;
-    BlogSummaryDTO,
-    'id' | 'title' | 'slug' | 'imageUrl' | 'publishedAt' | 'readingTime'
-  >>;
-}
+  relatedPosts?: ReadonlyArray<
+    Pick<BlogSummaryDTO, 'id' | 'title' | 'slug' | 'imageUrl' | 'publishedAt' | 'readingTime'>
+  >;

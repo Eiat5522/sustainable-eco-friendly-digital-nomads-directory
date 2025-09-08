@@ -11,7 +11,9 @@ export async function GET() {
   } catch (error) {
     console.error('MongoDB Connection Error:', error);
     return ApiResponseHandler.error(
-      error instanceof Error ? error.message : 'Failed to connect to MongoDB',
+      process.env.NODE_ENV === 'production'
+        ? 'Failed to connect to MongoDB'
+        : (error instanceof Error ? error.message : 'Failed to connect to MongoDB'),
       500
     );
   }

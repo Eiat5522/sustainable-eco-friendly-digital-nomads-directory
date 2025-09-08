@@ -1,17 +1,17 @@
-import { NextRequest } from 'next/dist/server/web/spec-extension/request';
+import type { NextRequest } from 'next/server';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getListingsByCityId } from '@/lib/data/city';
 
 type RouteContext = {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 };
 
 export async function GET(
   request: NextRequest,
-  context: RouteContext
+  { params: { id } }: RouteContext
 ) {
   try {
-    const { id } = await context.params;
+    // id is available here without await
     const listings = await getListingsByCityId(id);
     return ApiResponseHandler.success({ listings });
   } catch (error) {

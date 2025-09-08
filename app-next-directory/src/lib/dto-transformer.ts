@@ -159,8 +159,9 @@ const toNames = (
   arr?: ReadonlyArray<{ name?: string } | null | undefined>
 ): string[] => {
   const seen = new Set<string>();
+  const seen = new Set<string>();
   const canon = (s: string) => s.normalize('NFKC').toLocaleLowerCase();
-  const canon = (s: string) => s.normalize('NFKC').toLocaleLowerCase();
+  const out: string[] = [];  const canon = (s: string) => s.normalize('NFKC').toLocaleLowerCase();
   const out: string[] = [];
   for (const x of arr ?? []) {
     const raw = x?.name;
@@ -339,8 +340,15 @@ export function transformToBlogSummaryDTO(doc: any, w = 800, h = 450): BlogSumma
   const rt = Number.isFinite(Number(doc?.readingTime)) ? Number(doc.readingTime) : undefined;
   return {
     id: doc?._id ?? '',
-    title: typeof doc?.title === 'string' ? doc.title : '',
-    slug: slug ?? '',
+    return {
+      id: doc?._id ?? '',
+      title: typeof doc?.title === 'string' ? doc.title : '',
+      slug: typeof doc?.slug === 'string'
+        ? doc.slug
+        : (doc?.slug?.current ?? ''),
+      excerpt: typeof doc?.excerpt === 'string' ? doc.excerpt : null,
+      // …other properties
+    }    slug: slug ?? '',
     excerpt: typeof doc?.excerpt === 'string' ? doc.excerpt : null,
     imageUrl: imageOrFallback(doc?.primaryImage, w, h),
     tags: Array.isArray(doc?.tags)

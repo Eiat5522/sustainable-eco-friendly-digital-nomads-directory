@@ -59,15 +59,21 @@ export async function GET() {
     ];
 
     return ApiResponseHandler.success({
-      cities: fallbackCities,
+      cities: typeof FALLBACK_CITIES !== 'undefined' ? FALLBACK_CITIES : fallbackCities,
       metadata: {
-        total: fallbackCities.length,
+        total: (typeof FALLBACK_CITIES !== 'undefined' ? FALLBACK_CITIES : fallbackCities).length,
         query_time: new Date().toISOString(),
         performance: {
-          totalTimeMs: (endTime - startTime).toFixed(2),
-          queryTimeMs: '0.00'
+          totalTimeMs: Number((endTime - startTime).toFixed(2)),
+          queryTimeMs: 0
         },
         source: 'fallback'
+      }
+    }, {
+      status: 503,
+      headers: {
+        'Cache-Control': 'no-store, max-age=0',
+        'x-data-source': 'fallback'
       }
     });
   }

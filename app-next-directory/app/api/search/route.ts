@@ -179,27 +179,8 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Search GET error:', error);
-    // Provide a small static fallback to keep tests passing when CMS is unavailable
-    const fallback = [{
-      _id: 'listing-fallback-1',
-      name: 'Eco Co-Work Phuket',
-      slug: { current: 'eco-co-work-phuket' },
-      category: 'coworking',
-      primaryImage: null,
-      galleryImages: [],
-      location: { _id: 'city-phuket', name: 'Phuket', slug: 'phuket', country: 'Thailand' },
-      priceRange: '$$',
-      moderation: { status: 'published' },
-      shortDescription: 'Fallback listing for tests when CMS is offline',
-      longDescription: null,
-      ecoFeatures: [],
-      amenities: ['wifi']
-    }];
-    return ApiResponseHandler.success({
-      results: fallback,
-      pagination: { page: 1, limit: 12, total: 1, totalPages: 1, hasMore: false },
-      filters: { query: '', category: [], destination: [], amenities: [], nomadFeatures: [] }
-    });
+    // Return an error response to signal upstream callers/tests that the CMS fetch failed.
+    return ApiResponseHandler.error('Search failed', 400);
   }
 }
 

@@ -1,0 +1,1913 @@
+
+> f35826b1ee31b8c3729949675d1485b47f7720ab7222fe1c596be9281b78bf68@0.1.0 test
+> pnpm test:jest && pnpm test:e2e:jest
+
+
+> f35826b1ee31b8c3729949675d1485b47f7720ab7222fe1c596be9281b78bf68@0.1.0 test:jest D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory
+> jest --config=jest.config.cjs
+
+FAIL src/__tests__/api/search/route.test.ts (26.19 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.error
+      Search GET error: Error: Sanity API Error
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\__tests__\api\search\route.test.ts:252:25)
+          at Promise.finally.completed (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1556:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1496:10)
+          at _callCircusTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1006:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:946:3)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at run (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+          at runAndTransformResultsToJestFormat (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1917:21)
+          at jestAdapter (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:275:16)
+          at runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:343:7)
+          at Object.worker (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:497:12)
+
+      179 |     });
+      180 |   } catch (error) {
+    > 181 |     console.error('Search GET error:', error);
+          |             ^
+      182 |     // Provide a small static fallback to keep tests passing when CMS is unavailable
+      183 |     const fallback = [{
+      184 |       _id: 'listing-fallback-1',
+
+      at error (app/api/search/route.ts:181:13)
+      at Object.<anonymous> (src/__tests__/api/search/route.test.ts:257:24)
+
+    console.error
+      Search POST error: Error: Processing error
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\__tests__\api\search\route.test.ts:354:25)
+          at Promise.finally.completed (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1556:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1496:10)
+          at _callCircusTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1006:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:946:3)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at run (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+          at runAndTransformResultsToJestFormat (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1917:21)
+          at jestAdapter (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:275:16)
+          at runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:343:7)
+          at Object.worker (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:497:12)
+
+      251 |     });
+      252 |   } catch (error) {
+    > 253 |     console.error('Search POST error:', error);
+          |             ^
+      254 |     return ApiResponseHandler.error('Failed to perform search');
+      255 |   }
+      256 | }
+
+      at error (app/api/search/route.ts:253:13)
+      at Object.<anonymous> (src/__tests__/api/search/route.test.ts:362:24)
+
+  ΓùÅ Search API Route ΓÇ║ GET /api/search ΓÇ║ should handle API error from Sanity
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      257 |       const response = await GET(mockRequest as any);
+      258 |
+    > 259 |       expect(response.status).toBe(400);
+          |                               ^
+      260 |       const body = await response.json();
+      261 |       // The route uses ApiResponseHandler.error('Search failed') which should yield { error: 'Search failed' }
+      262 |       expect(body.error || body.data?.error).toBe('Search failed');
+
+      at Object.toBe (src/__tests__/api/search/route.test.ts:259:31)
+
+PASS src/lib/__tests__/api.test.ts (26.639 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS app/api/auth/register/route.test.ts (27.583 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.error
+      Registration error: Error: Hash error
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\app\api\auth\register\route.test.ts:189:38)
+          at Promise.finally.completed (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1556:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1496:10)
+          at _callCircusTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1006:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:946:3)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at run (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+          at runAndTransformResultsToJestFormat (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1917:21)
+          at jestAdapter (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:275:16)
+          at runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:343:7)
+          at Object.worker (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:497:12)
+
+      124 |     );
+      125 |   } catch (error) {
+    > 126 |     console.error('Registration error:', error);
+          |             ^
+      127 |     return NextResponse.json(
+      128 |       {
+      129 |         success: false,
+
+      at error (app/api/auth/register/route.ts:126:13)
+      at Object.<anonymous> (app/api/auth/register/route.test.ts:192:22)
+
+    console.error
+      Registration error: Error: DB error
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\app\api\auth\register\route.test.ts:217:38)
+          at Promise.finally.completed (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1556:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1496:10)
+          at _callCircusTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1006:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:946:3)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at run (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+          at runAndTransformResultsToJestFormat (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1917:21)
+          at jestAdapter (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:275:16)
+          at runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:343:7)
+          at Object.worker (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:497:12)
+
+      124 |     );
+      125 |   } catch (error) {
+    > 126 |     console.error('Registration error:', error);
+          |             ^
+      127 |     return NextResponse.json(
+      128 |       {
+      129 |         success: false,
+
+      at error (app/api/auth/register/route.ts:126:13)
+      at Object.<anonymous> (app/api/auth/register/route.test.ts:220:22)
+
+    console.error
+      Registration error: Error: Connection error
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\app\api\auth\register\route.test.ts:241:35)
+          at Promise.finally.completed (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1556:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1496:10)
+          at _callCircusTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1006:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:946:3)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at run (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+          at runAndTransformResultsToJestFormat (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1917:21)
+          at jestAdapter (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:275:16)
+          at runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:343:7)
+          at Object.worker (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:497:12)
+
+      124 |     );
+      125 |   } catch (error) {
+    > 126 |     console.error('Registration error:', error);
+          |             ^
+      127 |     return NextResponse.json(
+      128 |       {
+      129 |         success: false,
+
+      at error (app/api/auth/register/route.ts:126:13)
+      at Object.<anonymous> (app/api/auth/register/route.test.ts:244:22)
+
+PASS src/hooks/useAnalytics.test.ts (29.836 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/hooks/__tests__/useFilters.test.ts (32.342 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/components/sections/__tests__/FeaturedListings.test.tsx (37.737 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/hooks/useClickOutside.test.tsx (6.349 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/components/sections/__tests__/CityCarousel.test.tsx (11.887 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.error
+      An update to CityCarousel inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      23 |         const json: ApiResponse = await res.json();
+      24 |         const list = (json && 'cities' in json && Array.isArray(json.cities)) ? json.cities : [];
+    > 25 |         if (!cancelled) setCities(list.slice(0, 8));
+         |                         ^
+      26 |       } catch (e) {
+      27 |         if (!cancelled) setError('Error: failed to fetch cities');
+      28 |       } finally {
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setCities (src/components/sections/CityCarousel.tsx:25:25)
+
+    console.error
+      An update to CityCarousel inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      27 |         if (!cancelled) setError('Error: failed to fetch cities');
+      28 |       } finally {
+    > 29 |         if (!cancelled) setLoading(false);
+         |                         ^
+      30 |       }
+      31 |     })();
+      32 |     return () => {
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setLoading (src/components/sections/CityCarousel.tsx:29:25)
+
+PASS src/__tests__/mongodb.test.js (11.811 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/__tests__/api-integration.test.ts (10.39 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.warn
+      [MSW] Warning: intercepted a request without a matching request handler:
+      
+        ΓÇó GET http://127.0.0.1:54286/api/hello
+      
+      If you still wish to intercept this unhandled request, please create a request handler for it.
+      Read more: https://mswjs.io/docs/http/intercepting-requests
+
+      at Object.warn (../node_modules/.pnpm/msw@2.11.1_@types+node@22.18.1_typescript@5.9.2/node_modules/msw/src/core/utils/internal/devUtils.ts:18:11)
+      at applyStrategy (../node_modules/.pnpm/msw@2.11.1_@types+node@22.18.1_typescript@5.9.2/node_modules/msw/src/core/utils/request/onUnhandledRequest.ts:50:18)
+      at onUnhandledRequest (../node_modules/.pnpm/msw@2.11.1_@types+node@22.18.1_typescript@5.9.2/node_modules/msw/src/core/utils/request/onUnhandledRequest.ts:79:5)
+      at handleRequest (../node_modules/.pnpm/msw@2.11.1_@types+node@22.18.1_typescript@5.9.2/node_modules/msw/src/core/utils/handleRequest.ts:79:11)
+      at _Emitter.<anonymous> (../node_modules/.pnpm/msw@2.11.1_@types+node@22.18.1_typescript@5.9.2/node_modules/msw/src/node/SetupServerCommonApi.ts:60:26)
+      at emitAsync (../node_modules/.pnpm/@mswjs+interceptors@0.39.6/node_modules/@mswjs/interceptors/src/utils/emitAsync.ts:23:5)
+      at ../node_modules/.pnpm/@mswjs+interceptors@0.39.6/node_modules/@mswjs/interceptors/src/utils/handleRequest.ts:145:5
+      at until (../node_modules/.pnpm/@open-draft+until@2.1.0/node_modules/@open-draft/until/src/until.ts:23:18)
+      at handleRequest (../node_modules/.pnpm/@mswjs+interceptors@0.39.6/node_modules/@mswjs/interceptors/src/utils/handleRequest.ts:134:18)
+      at _ClientRequestInterceptor.onRequest (../node_modules/.pnpm/@mswjs+interceptors@0.39.6/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/index.ts:159:30)
+
+    console.warn
+      [MSW] Warning: intercepted a request without a matching request handler:
+      
+        ΓÇó GET http://127.0.0.1:54286/api/hello
+      
+      If you still wish to intercept this unhandled request, please create a request handler for it.
+      Read more: https://mswjs.io/docs/http/intercepting-requests
+
+      at Object.warn (../node_modules/.pnpm/msw@2.11.1_@types+node@22.18.1_typescript@5.9.2/node_modules/msw/src/core/utils/internal/devUtils.ts:18:11)
+      at applyStrategy (../node_modules/.pnpm/msw@2.11.1_@types+node@22.18.1_typescript@5.9.2/node_modules/msw/src/core/utils/request/onUnhandledRequest.ts:50:18)
+      at onUnhandledRequest (../node_modules/.pnpm/msw@2.11.1_@types+node@22.18.1_typescript@5.9.2/node_modules/msw/src/core/utils/request/onUnhandledRequest.ts:79:5)
+      at handleRequest (../node_modules/.pnpm/msw@2.11.1_@types+node@22.18.1_typescript@5.9.2/node_modules/msw/src/core/utils/handleRequest.ts:79:11)
+      at _Emitter.<anonymous> (../node_modules/.pnpm/msw@2.11.1_@types+node@22.18.1_typescript@5.9.2/node_modules/msw/src/node/SetupServerCommonApi.ts:60:26)
+      at emitAsync (../node_modules/.pnpm/@mswjs+interceptors@0.39.6/node_modules/@mswjs/interceptors/src/utils/emitAsync.ts:23:5)
+      at ../node_modules/.pnpm/@mswjs+interceptors@0.39.6/node_modules/@mswjs/interceptors/src/utils/handleRequest.ts:145:5
+      at until (../node_modules/.pnpm/@open-draft+until@2.1.0/node_modules/@open-draft/until/src/until.ts:23:18)
+      at handleRequest (../node_modules/.pnpm/@mswjs+interceptors@0.39.6/node_modules/@mswjs/interceptors/src/utils/handleRequest.ts:134:18)
+      at _ClientRequestInterceptor.onRequest (../node_modules/.pnpm/@mswjs+interceptors@0.39.6/node_modules/@mswjs/interceptors/src/interceptors/ClientRequest/index.ts:159:30)
+
+PASS src/lib/__tests__/geocode.test.ts
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/hooks/useSearch.test.tsx (15.144 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.log
+      FORTEST: Query sent to API:
+
+      at log (src/hooks/useSearch.ts:62:17)
+
+    console.log
+      MSW POST /api/search hit with query:
+
+      at log (__mocks__/handlers.ts:28:13)
+
+    console.log
+      FORTEST: Query sent to API: an
+
+      at log (src/hooks/useSearch.ts:62:17)
+
+    console.log
+      MSW POST /api/search hit with query:
+
+      at log (__mocks__/handlers.ts:28:13)
+
+    console.log
+      MSW POST /api/search hit with query: an
+
+      at log (__mocks__/handlers.ts:28:13)
+
+    console.log
+      FORTEST: API response data: {"results":[],"pagination":{"total":0,"page":1,"totalPages":1,"hasMore":false}}
+
+      at log (src/hooks/useSearch.ts:89:17)
+
+    console.log
+      MSW POST /api/search hit with query:
+
+      at log (__mocks__/handlers.ts:28:13)
+
+    console.log
+      FORTEST: API response data: {"results":[{"id":2,"name":"Banana"}],"pagination":{"total":1,"page":1,"totalPages":1,"hasMore":false}}
+
+      at log (src/hooks/useSearch.ts:89:17)
+
+    console.log
+      Actual results: Banana
+
+      at log (src/hooks/useSearch.test.tsx:59:15)
+
+    console.log
+      FORTEST: Query sent to API:
+
+      at log (src/hooks/useSearch.ts:62:17)
+
+    console.log
+      MSW POST /api/search hit with query:
+
+      at log (__mocks__/handlers.ts:28:13)
+
+    console.log
+      MSW POST /api/search hit with query:
+
+      at log (__mocks__/handlers.ts:28:13)
+
+    console.log
+      FORTEST: API response data: {"results":[],"pagination":{"total":0,"page":1,"totalPages":1,"hasMore":false}}
+
+      at log (src/hooks/useSearch.ts:89:17)
+
+    console.log
+      FORTEST: Query sent to API:
+
+      at log (src/hooks/useSearch.ts:62:17)
+
+    console.log
+      MSW POST /api/search hit with query:
+
+      at log (__mocks__/handlers.ts:28:13)
+
+    console.log
+      MSW POST /api/search hit with query:
+
+      at log (__mocks__/handlers.ts:28:13)
+
+    console.log
+      FORTEST: API response data: {"results":[],"pagination":{"total":0,"page":1,"totalPages":1,"hasMore":false}}
+
+      at log (src/hooks/useSearch.ts:89:17)
+
+    console.log
+      FORTEST: Query sent to API:
+
+      at log (src/hooks/useSearch.ts:62:17)
+
+    console.log
+      MSW POST /api/search hit with query:
+
+      at log (__mocks__/handlers.ts:28:13)
+
+    console.log
+      MSW POST /api/search hit with query:
+
+      at log (__mocks__/handlers.ts:28:13)
+
+    console.log
+      FORTEST: API response data: {"results":[],"pagination":{"total":0,"page":1,"totalPages":1,"hasMore":false}}
+
+      at log (src/hooks/useSearch.ts:89:17)
+
+    console.log
+      FORTEST: Query sent to API:   apple
+
+      at log (src/hooks/useSearch.ts:62:17)
+
+    console.log
+      MSW POST /api/search hit with query:   apple
+
+      at log (__mocks__/handlers.ts:28:13)
+
+    console.log
+      MSW POST /api/search hit with query:
+
+      at log (__mocks__/handlers.ts:28:13)
+
+    console.log
+      FORTEST: API response data: {"results":[{"id":1,"name":"Apple"}],"pagination":{"total":1,"page":1,"totalPages":1,"hasMore":false}}
+
+      at log (src/hooks/useSearch.ts:89:17)
+
+PASS src/__tests__/lib/sanity-http-client.test.ts
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.warn
+      Warning: Missing optional environment variable: SANITY_API_TOKEN
+
+      80 |     for (const envVar of optionalEnvVars) {
+      81 |       if (!process.env[envVar]) {
+    > 82 |         console.warn(`Warning: Missing optional environment variable: ${envVar}`);
+         |                 ^
+      83 |       }
+      84 |     }
+      85 |   }
+
+      at SanityHTTPClient.warn [as validateEnvironment] (src/lib/sanity-http-client.ts:82:17)
+      at new validateEnvironment (src/lib/sanity-http-client.ts:43:10)
+      at Object.<anonymous> (src/__tests__/lib/sanity-http-client.test.ts:106:22)
+
+    console.warn
+      Warning: Missing optional environment variable: SANITY_API_TOKEN
+
+      80 |     for (const envVar of optionalEnvVars) {
+      81 |       if (!process.env[envVar]) {
+    > 82 |         console.warn(`Warning: Missing optional environment variable: ${envVar}`);
+         |                 ^
+      83 |       }
+      84 |     }
+      85 |   }
+
+      at SanityHTTPClient.warn [as validateEnvironment] (src/lib/sanity-http-client.ts:82:17)
+      at new validateEnvironment (src/lib/sanity-http-client.ts:43:10)
+      at Object.<anonymous> (src/__tests__/lib/sanity-http-client.test.ts:168:22)
+
+    console.warn
+      Warning: Missing optional environment variable: SANITY_API_TOKEN
+
+      80 |     for (const envVar of optionalEnvVars) {
+      81 |       if (!process.env[envVar]) {
+    > 82 |         console.warn(`Warning: Missing optional environment variable: ${envVar}`);
+         |                 ^
+      83 |       }
+      84 |     }
+      85 |   }
+
+      at SanityHTTPClient.warn [as validateEnvironment] (src/lib/sanity-http-client.ts:82:17)
+      at new validateEnvironment (src/lib/sanity-http-client.ts:43:10)
+      at Object.<anonymous> (src/__tests__/lib/sanity-http-client.test.ts:207:22)
+
+    console.warn
+      Warning: Missing optional environment variable: SANITY_API_TOKEN
+
+      80 |     for (const envVar of optionalEnvVars) {
+      81 |       if (!process.env[envVar]) {
+    > 82 |         console.warn(`Warning: Missing optional environment variable: ${envVar}`);
+         |                 ^
+      83 |       }
+      84 |     }
+      85 |   }
+
+      at SanityHTTPClient.warn [as validateEnvironment] (src/lib/sanity-http-client.ts:82:17)
+      at new validateEnvironment (src/lib/sanity-http-client.ts:43:10)
+      at Object.<anonymous> (src/__tests__/lib/sanity-http-client.test.ts:241:22)
+
+    console.warn
+      Warning: Missing optional environment variable: SANITY_API_TOKEN
+
+      80 |     for (const envVar of optionalEnvVars) {
+      81 |       if (!process.env[envVar]) {
+    > 82 |         console.warn(`Warning: Missing optional environment variable: ${envVar}`);
+         |                 ^
+      83 |       }
+      84 |     }
+      85 |   }
+
+      at SanityHTTPClient.warn [as validateEnvironment] (src/lib/sanity-http-client.ts:82:17)
+      at new validateEnvironment (src/lib/sanity-http-client.ts:43:10)
+      at Object.<anonymous> (src/__tests__/lib/sanity-http-client.test.ts:276:22)
+
+    console.warn
+      Warning: Missing optional environment variable: SANITY_API_TOKEN
+
+      80 |     for (const envVar of optionalEnvVars) {
+      81 |       if (!process.env[envVar]) {
+    > 82 |         console.warn(`Warning: Missing optional environment variable: ${envVar}`);
+         |                 ^
+      83 |       }
+      84 |     }
+      85 |   }
+
+      at SanityHTTPClient.warn [as validateEnvironment] (src/lib/sanity-http-client.ts:82:17)
+      at new validateEnvironment (src/lib/sanity-http-client.ts:43:10)
+      at Object.<anonymous> (src/__tests__/lib/sanity-http-client.test.ts:318:22)
+
+    console.log
+      DEBUG createMany rejected: SanityAPIError: Batch create failed: Batch create error
+          at SanityHTTPClient.createMany (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\lib\sanity-http-client.ts:378:15)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\__tests__\lib\sanity-http-client.test.ts:357:9) {
+        statusCode: undefined,
+        originalError: undefined
+      }
+
+      at Object.log (src/__tests__/lib/sanity-http-client.test.ts:360:17)
+
+    console.warn
+      Warning: Missing optional environment variable: SANITY_API_TOKEN
+
+      80 |     for (const envVar of optionalEnvVars) {
+      81 |       if (!process.env[envVar]) {
+    > 82 |         console.warn(`Warning: Missing optional environment variable: ${envVar}`);
+         |                 ^
+      83 |       }
+      84 |     }
+      85 |   }
+
+      at SanityHTTPClient.warn [as validateEnvironment] (src/lib/sanity-http-client.ts:82:17)
+      at new validateEnvironment (src/lib/sanity-http-client.ts:43:10)
+      at Object.<anonymous> (src/__tests__/lib/sanity-http-client.test.ts:386:22)
+
+    console.warn
+      Warning: Missing optional environment variable: SANITY_API_TOKEN
+
+      80 |     for (const envVar of optionalEnvVars) {
+      81 |       if (!process.env[envVar]) {
+    > 82 |         console.warn(`Warning: Missing optional environment variable: ${envVar}`);
+         |                 ^
+      83 |       }
+      84 |     }
+      85 |   }
+
+      at SanityHTTPClient.warn [as validateEnvironment] (src/lib/sanity-http-client.ts:82:17)
+      at new validateEnvironment (src/lib/sanity-http-client.ts:43:10)
+      at Object.<anonymous> (src/__tests__/lib/sanity-http-client.test.ts:437:22)
+
+PASS src/utils/__tests__/api-response.test.ts
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/utils/__tests__/auth-helpers.test.ts (5.196 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/utils/__tests__/db-helpers.test.ts (6.08 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/lib/__tests__/dbConnect.test.ts (5.294 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.log
+      DEBUG: mongoose.connect returned: { readyState: 1 }
+
+      at log (src/lib/dbConnect.ts:39:17)
+
+FAIL app/search/page.test.tsx (49.877 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+    console.error
+      An update to ForwardRef(LinkComponent) inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      at ../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16023:19
+      at runWithFiberInDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:1522:13)
+      at warnIfUpdatesNotWrappedWithActDEV (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:16022:9)
+      at scheduleUpdateOnFiber (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:14396:11)
+      at dispatchSetStateInternal (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6969:13)
+      at dispatchSetState (../node_modules/.pnpm/react-dom@19.1.0_react@19.1.0/node_modules/react-dom/cjs/react-dom-client.development.js:6927:7)
+      at setVisible (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/use-intersection.tsx:125:56)
+      at cb (../node_modules/.pnpm/next@15.5.0_@babel+core@7.2_68dac6a0e46d064c7d59d781be02d2fb/node_modules/next/src/client/request-idle-callback.ts:8:7)
+      at Timeout.task [as _onTimeout] (../node_modules/.pnpm/jsdom@26.1.0/node_modules/jsdom/lib/jsdom/browser/Window.js:579:19)
+
+  ΓùÅ Search Page ΓÇ║ renders search input and responds with listing results
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      29 |   })
+      30 |
+    > 31 |   it('renders search input and responds with listing results', async () => {
+         |   ^
+      32 |     render(<Page />)
+      33 |
+      34 |     // Search input present
+
+      at it (app/search/page.test.tsx:31:3)
+      at Object.describe (app/search/page.test.tsx:24:1)
+
+PASS src/utils/__tests__/rate-limit.test.ts
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.log
+      Before test, store size: 0
+
+      at Object.log (src/utils/__tests__/rate-limit.test.ts:17:13)
+
+    console.log
+      Key: 1.2.3.4 Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 1.2.3.4 Count: 1
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Before test, store size: 1
+
+      at Object.log (src/utils/__tests__/rate-limit.test.ts:17:13)
+
+    console.log
+      Key: 5.6.7.8 Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 5.6.7.8 Count: 1
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Before test, store size: 2
+
+      at Object.log (src/utils/__tests__/rate-limit.test.ts:17:13)
+
+    console.log
+      Key: 9.9.9.9 Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 9.9.9.9 Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Before test, store size: 3
+
+      at Object.log (src/utils/__tests__/rate-limit.test.ts:17:13)
+
+    console.log
+      Key: custom-key Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: custom-key Count: 1
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Before test, store size: 4
+
+      at Object.log (src/utils/__tests__/rate-limit.test.ts:17:13)
+
+    console.log
+      Key: unknown Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 10.0.0.1 Count: 0
+
+      at Object.log [as contactForm] (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 10.0.0.1 Count: 1
+
+      at Object.log [as contactForm] (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 10.0.0.1 Count: 2
+
+      at Object.log [as contactForm] (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 10.0.0.1 Count: 3
+
+      at Object.log [as contactForm] (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 10.0.0.1 Count: 4
+
+      at Object.log [as contactForm] (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 10.0.0.1 Count: 5
+
+      at Object.log [as contactForm] (src/utils/rate-limit.ts:60:13)
+
+PASS src/lib/image-utils/getImageDimensions.test.ts
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/__tests__/api/listings/route.test.ts (6.85 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/__tests__/types/enums.test.ts
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/__tests__/dbConnect.test.ts (8.087 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.log
+      DEBUG: mongoose.connect returned: { readyState: 1, connection: { readyState: 1 } }
+
+      at log (src/lib/dbConnect.ts:39:17)
+
+    console.log
+      DEBUG: mongoose.connect returned: null
+
+      at log (src/lib/dbConnect.ts:39:17)
+
+    console.log
+      DEBUG: mongoose.connect returned: undefined
+
+      at log (src/lib/dbConnect.ts:39:17)
+
+    console.log
+      DEBUG: mongoose.connect returned: { connection: {} }
+
+      at log (src/lib/dbConnect.ts:39:17)
+
+    console.log
+      DEBUG: mongoose.connect returned: { readyState: 1, connection: { readyState: 1 } }
+
+      at log (src/lib/dbConnect.ts:39:17)
+
+    console.log
+      DEBUG: mongoose.connect returned: {}
+
+      at log (src/lib/dbConnect.ts:39:17)
+
+PASS src/middleware/__tests__/authCallbackHandler.test.ts (11.076 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.error
+      Error decoding callback URL URIError: URI malformed
+          at decodeURIComponent (<anonymous>)
+          at decodeURIComponent (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\middleware\authCallbackHandler.ts:22:17)
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\middleware\__tests__\authCallbackHandler.test.ts:50:41)
+          at Promise.finally.completed (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1556:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1496:10)
+          at _callCircusTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1006:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:946:3)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at run (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+          at runAndTransformResultsToJestFormat (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1917:21)
+          at jestAdapter (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:275:16)
+          at runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:343:7)
+          at Object.worker (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:497:12)
+
+      25 |     return decoded;
+      26 |   } catch (e) {
+    > 27 |     console.error("Error decoding callback URL", e);
+         |             ^
+      28 |     return null;
+      29 |   }
+      30 | }
+
+      at error (src/middleware/authCallbackHandler.ts:27:13)
+      at Object.<anonymous> (src/middleware/__tests__/authCallbackHandler.test.ts:50:41)
+
+PASS src/lib/__tests__/carbon-awareness.test.ts (10.926 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.error
+      Error fetching user region: Error: fail
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\lib\__tests__\carbon-awareness.test.ts:44:53)
+          at Promise.finally.completed (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1556:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1496:10)
+          at _callCircusTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1006:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:946:3)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at run (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+          at runAndTransformResultsToJestFormat (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1917:21)
+          at jestAdapter (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:275:16)
+          at runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:343:7)
+          at Object.worker (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:497:12)
+
+      38 |     return data.country_code;
+      39 |   } catch (error) {
+    > 40 |     console.error('Error fetching user region:', error);
+         |             ^
+      41 |     return 'UNKNOWN';
+      42 |   }
+      43 | }
+
+      at Object.error (src/lib/carbon-awareness.ts:40:13)
+      at Object.<anonymous> (src/lib/__tests__/carbon-awareness.test.ts:45:22)
+
+    console.error
+      Error fetching carbon intensity: Error: fail
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\lib\__tests__\carbon-awareness.test.ts:91:54)
+          at Promise.finally.completed (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1556:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1496:10)
+          at _callCircusTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1006:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:946:3)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at run (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+          at runAndTransformResultsToJestFormat (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1917:21)
+          at jestAdapter (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:275:16)
+          at runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:343:7)
+          at Object.worker (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:497:12)
+
+       98 |     }
+       99 |   } catch (error) {
+    > 100 |     console.error('Error fetching carbon intensity:', error);
+          |             ^
+      101 |     return 250;
+      102 |   }
+      103 | }
+
+      at Object.error (src/lib/carbon-awareness.ts:100:13)
+      at Object.<anonymous> (src/lib/__tests__/carbon-awareness.test.ts:93:25)
+
+PASS src/__tests__/middleware.test.ts (11.239 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/lib/sanity/client.test.ts (11.466 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/__tests__/middleware-auth.test.ts (11.769 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/__tests__/db-helpers.test.ts (12.272 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/hooks/useAuth.test.ts (7.608 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/lib/sanity/image.test.ts (7.251 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/types/auth-types.test.ts (7.522 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/__tests__/test-runner.ts (7.296 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/lib/__tests__/adapters.test.ts (7.155 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/__tests__/carbon-awareness.test.ts (6.833 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.error
+      Error fetching user region: Error: Malformed region data
+          at Object.getUserRegion (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\lib\carbon-awareness.ts:36:13)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\__tests__\carbon-awareness.test.ts:34:20)
+
+      38 |     return data.country_code;
+      39 |   } catch (error) {
+    > 40 |     console.error('Error fetching user region:', error);
+         |             ^
+      41 |     return 'UNKNOWN';
+      42 |   }
+      43 | }
+
+      at Object.error (src/lib/carbon-awareness.ts:40:13)
+      at Object.<anonymous> (src/__tests__/carbon-awareness.test.ts:34:20)
+
+    console.error
+      Error fetching user region: Error: Failed to fetch region
+          at Object.getUserRegion (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\lib\carbon-awareness.ts:32:13)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\__tests__\carbon-awareness.test.ts:43:20)
+
+      38 |     return data.country_code;
+      39 |   } catch (error) {
+    > 40 |     console.error('Error fetching user region:', error);
+         |             ^
+      41 |     return 'UNKNOWN';
+      42 |   }
+      43 | }
+
+      at Object.error (src/lib/carbon-awareness.ts:40:13)
+      at Object.<anonymous> (src/__tests__/carbon-awareness.test.ts:43:20)
+
+    console.error
+      Error fetching user region: Error: fail
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\__tests__\carbon-awareness.test.ts:48:48)
+          at Promise.finally.completed (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1556:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1496:10)
+          at _callCircusTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1006:40)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at _runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:946:3)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:839:13)
+          at _runTestsForDescribeBlock (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:829:11)
+          at run (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:757:3)
+          at runAndTransformResultsToJestFormat (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\jestAdapterInit.js:1917:21)
+          at jestAdapter (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-circus@30.1.1\node_modules\jest-circus\build\runner.js:101:19)
+          at runTestInternal (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:275:16)
+          at runTest (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:343:7)
+          at Object.worker (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\node_modules\.pnpm\jest-runner@30.1.1\node_modules\jest-runner\build\testWorker.js:497:12)
+
+      38 |     return data.country_code;
+      39 |   } catch (error) {
+    > 40 |     console.error('Error fetching user region:', error);
+         |             ^
+      41 |     return 'UNKNOWN';
+      42 |   }
+      43 | }
+
+      at Object.error (src/lib/carbon-awareness.ts:40:13)
+      at Object.<anonymous> (src/__tests__/carbon-awareness.test.ts:49:20)
+
+    console.error
+      Error fetching carbon intensity: Error: Invalid region for carbon intensity
+          at Object.getCarbonIntensity (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\lib\carbon-awareness.ts:53:13)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\__tests__\carbon-awareness.test.ts:77:20)
+
+       98 |     }
+       99 |   } catch (error) {
+    > 100 |     console.error('Error fetching carbon intensity:', error);
+          |             ^
+      101 |     return 250;
+      102 |   }
+      103 | }
+
+      at Object.error (src/lib/carbon-awareness.ts:100:13)
+      at Object.<anonymous> (src/__tests__/carbon-awareness.test.ts:77:20)
+
+    console.error
+      Error fetching carbon intensity: Error: Missing electricity map API token
+          at Object.getCarbonIntensity (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\lib\carbon-awareness.ts:67:13)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\__tests__\carbon-awareness.test.ts:85:20)
+
+       98 |     }
+       99 |   } catch (error) {
+    > 100 |     console.error('Error fetching carbon intensity:', error);
+          |             ^
+      101 |     return 250;
+      102 |   }
+      103 | }
+
+      at Object.error (src/lib/carbon-awareness.ts:100:13)
+      at Object.<anonymous> (src/__tests__/carbon-awareness.test.ts:85:20)
+
+    console.error
+      Error fetching carbon intensity: Error: Missing electricity map API token
+          at Object.getCarbonIntensity (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\lib\carbon-awareness.ts:67:13)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\__tests__\carbon-awareness.test.ts:95:20)
+
+       98 |     }
+       99 |   } catch (error) {
+    > 100 |     console.error('Error fetching carbon intensity:', error);
+          |             ^
+      101 |     return 250;
+      102 |   }
+      103 | }
+
+      at Object.error (src/lib/carbon-awareness.ts:100:13)
+      at Object.<anonymous> (src/__tests__/carbon-awareness.test.ts:95:20)
+
+    console.error
+      Error fetching carbon intensity: Error: Missing electricity map API token
+          at Object.getCarbonIntensity (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\lib\carbon-awareness.ts:67:13)
+          at processTicksAndRejections (node:internal/process/task_queues:105:5)
+          at Object.<anonymous> (D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory\src\__tests__\carbon-awareness.test.ts:102:20)
+
+       98 |     }
+       99 |   } catch (error) {
+    > 100 |     console.error('Error fetching carbon intensity:', error);
+          |             ^
+      101 |     return 250;
+      102 |   }
+      103 | }
+
+      at Object.error (src/lib/carbon-awareness.ts:100:13)
+      at Object.<anonymous> (src/__tests__/carbon-awareness.test.ts:102:20)
+
+PASS src/lib/__tests__/getListingImages.test.js (7.581 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/lib/highlight.test.tsx (7.343 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/utils/__tests__/helpers.test.ts
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/utils/__tests__/ecoRatingCalculator.test.ts
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/types/__tests__/auth.test.ts (5.813 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/__tests__/example.test.ts (7.033 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/lib/__tests__/auth.test.ts (5.703 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/lib/__tests__/listings.test.ts (6.791 s)
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/__tests__/ContactForm.test.ts
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/lib/__tests__/listings.normalize.test.ts
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/lib/__tests__/utils.test.ts
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+PASS src/__tests__/rate-limit.test.ts
+  ΓùÅ Console
+
+    console.log
+      Loaded .env.test: undefined test
+
+      at Object.<anonymous> (jest/setEnvVars.js:6:9)
+
+    console.log
+      Key: 1.2.3.4 Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 1.2.3.4 Count: 1
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 5.6.7.8 Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 5.6.7.8 Count: 1
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 9.10.11.12 Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 9.10.11.12 Count: 1
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: unknown Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: unknown Count: 1
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: custom-key Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: custom-key Count: 1
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 1.2.3.4 Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 1.2.3.4 Count: 1
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 1.2.3.4 Count: 2
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 1.2.3.4 Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 1.2.3.4 Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 1.2.3.4 Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+    console.log
+      Key: 1.2.3.4 Count: 0
+
+      at log (src/utils/rate-limit.ts:60:13)
+
+
+Summary of all failing tests
+FAIL src/__tests__/api/search/route.test.ts (26.19 s)
+  ΓùÅ Search API Route ΓÇ║ GET /api/search ΓÇ║ should handle API error from Sanity
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 400
+    Received: 200
+
+      257 |       const response = await GET(mockRequest as any);
+      258 |
+    > 259 |       expect(response.status).toBe(400);
+          |                               ^
+      260 |       const body = await response.json();
+      261 |       // The route uses ApiResponseHandler.error('Search failed') which should yield { error: 'Search failed' }
+      262 |       expect(body.error || body.data?.error).toBe('Search failed');
+
+      at Object.toBe (src/__tests__/api/search/route.test.ts:259:31)
+
+FAIL app/search/page.test.tsx (49.877 s)
+  ΓùÅ Search Page ΓÇ║ renders search input and responds with listing results
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      29 |   })
+      30 |
+    > 31 |   it('renders search input and responds with listing results', async () => {
+         |   ^
+      32 |     render(<Page />)
+      33 |
+      34 |     // Search input present
+
+      at it (app/search/page.test.tsx:31:3)
+      at Object.describe (app/search/page.test.tsx:24:1)
+
+
+Test Suites: 2 failed, 45 passed, 47 total
+Tests:       2 failed, 435 passed, 437 total
+Snapshots:   0 total
+Time:        96.227 s
+Ran all test suites.
+ΓÇëELIFECYCLEΓÇë Command failed with exit code 1.
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory
+npm error workspace f35826b1ee31b8c3729949675d1485b47f7720ab7222fe1c596be9281b78bf68@0.1.0
+npm error location D:\Eiat_Folder\MyProjects\MyOtherProjects\sustainable-eco-friendly-digital-nomads-directory\app-next-directory
+npm error command failed
+npm error command C:\Windows\system32\cmd.exe /d /s /c pnpm test:jest && pnpm test:e2e:jest
