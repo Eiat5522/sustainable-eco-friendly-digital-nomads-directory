@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { getCityBySlug } from '@/lib/data/city';
 import { ApiResponseHandler } from '@/utils/api-response';
 
@@ -17,7 +17,7 @@ export async function GET(
     if (!city) {
       return ApiResponseHandler.notFound('City');
     }
-    return ApiResponseHandler.success({ city });
+    return ApiResponseHandler.success(city);
   } catch (error) {
     console.error('[ERROR] Cities/[slug] API:', error);
     return ApiResponseHandler.error('Failed to fetch city details', 500);

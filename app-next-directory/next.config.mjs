@@ -71,6 +71,8 @@ const withRedirects = {
   async redirects() {
     return [
       { source: '/venues/ko-hub', destination: '/venues/koh-hub', permanent: true },
+      // Handle trailing slash directly to avoid an extra hop
+      { source: '/city/:slug/', destination: '/cities/:slug', permanent: true },
       { source: '/city/:slug', destination: '/cities/:slug', permanent: true },
     ];
   },

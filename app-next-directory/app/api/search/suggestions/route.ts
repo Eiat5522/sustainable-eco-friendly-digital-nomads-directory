@@ -4,12 +4,15 @@ import { ApiResponseHandler } from '@/utils/api-response';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q');
+    const raw = searchParams.get('q') ?? '';
+    const query = raw.trim();
 
     if (!query) {
-      return ApiResponseHandler.error('Query parameter is required', 400);
+      return ApiResponseHandler.error('Missing required query param "q"', 400, { code: 'MISSING_QUERY', param: 'q' });
     }
-
+    if (query.length > 256) {
+      return ApiResponseHandler.error('Query too long', 400, { code: 'QUERY_TOO_LONG', maxLength: 256 });
+    }
     const suggestions = await getSearchSuggestions(query);
     return ApiResponseHandler.success({ suggestions });
   } catch (error: unknown) {

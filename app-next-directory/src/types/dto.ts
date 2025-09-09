@@ -195,6 +195,8 @@ export interface BlogSummaryDTO {
 }
 export type ISODateString = string & { __brand: 'ISODateString' };
 
+export const asISODateString = (s: string): ISODateString => s as ISODateString;
+
 export interface BlogDetailDTO extends BlogSummaryDTO {
   body: ReadonlyArray<PortableTextBlock>;
   authorImageUrl?: string | null;

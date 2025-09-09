@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/dist/server/web/spec-extension/request';
+import { NextRequest } from 'next/server';
 import { ApiResponseHandler } from '@/utils/api-response';
 
 // Eco tags data
@@ -14,9 +14,14 @@ const ECO_TAGS = [
 
 export async function GET(request: NextRequest) {
   try {
-    return ApiResponseHandler.success({ tags: ECO_TAGS });
+    const res = ApiResponseHandler.success({ tags: ECO_TAGS });
+    res.headers.set('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=600');
+    return res;
   } catch (error) {
     console.error('Error fetching eco tags:', error);
-    return ApiResponseHandler.error('Failed to fetch eco tags', 500);
+    return ApiResponseHandler.error(
+      { code: 'ECO_TAGS_FETCH_FAILED', message: 'Failed to fetch eco tags' },
+      500
+    );
   }
 }

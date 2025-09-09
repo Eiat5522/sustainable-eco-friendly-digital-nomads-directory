@@ -37,6 +37,11 @@ export default defineConfig({
     url: resolvedBaseURL,
     timeout: 120_000,
     reuseExistingServer: !process.env.CI,
-    env: { PORT: String(resolvedPort), NODE_ENV: 'test', TEST_MODE: '1' }
-  } : undefined
+    env: {
+      PORT: String(resolvedPort),
+      // Keep Next in dev mode; use explicit toggles for test behavior.
+      // NODE_ENV: 'development', // optional: or omit entirely and let Next set it
+      E2E: '1',
+      NEXT_TELEMETRY_DISABLED: '1'
+    }
 });

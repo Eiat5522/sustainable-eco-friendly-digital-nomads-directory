@@ -13,6 +13,11 @@ export async function GET(
   try {
     // id is available here without await
     const listings = await getListingsByCityId(id);
+    if (!Array.isArray(listings) || listings.length === 0) {
+      // No listings found for this city
+      return ApiResponseHandler.notFound('Listings');
+    }
+
     return ApiResponseHandler.success({ listings });
   } catch (error) {
     console.error('[ERROR] listings/city/[id] API:', error);

@@ -9,6 +9,20 @@ export const revalidate = 300;
 type Params = { slug: string };
 type Props = { params: Params | Promise<Params> };
 
+const toTitleCaseFromSlug = (s: string) =>
+  s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+const makeFallbackCity = (slug: string): CityDTO => ({
+  id: `city-${slug}`,
+  name: toTitleCaseFromSlug(slug),
+  slug,
+  country: 'Unknown',
+  highlights: [],
+  imageUrl: null,
+  imageDimensions: null,
+  description: 'Preview data: city details unavailable.',
+});
+
 export default async function CityPage({ params }: Props) {
   // Support Next 14 (value) and Next 15 (promise) params
   const { slug } = await Promise.resolve(params);
@@ -20,7 +34,7 @@ export default async function CityPage({ params }: Props) {
     rawCity = await getCityDetailBySlug(slug);
     if (!rawCity) rawCity = await getCityBySlug(slug);
   } catch (err) {
-    console.error('[city/page] City fetch failed for slug %s:', slug, err);
+    console.error('[city/page] City fetch failed', { slug, err });
   }
 
   if (!rawCity) {
@@ -42,29 +56,18 @@ export default async function CityPage({ params }: Props) {
   // Validate using schema-first approach (detail → basic)
   const detailResult = CityDetailDTOSchema.safeParse(rawCity);
   if (detailResult.success) {
-    city = detailResult.data as CityDetailDTO;
+    city = detailResult.data;
   } else {
     const basicResult = CityDTOSchema.safeParse(rawCity);
     if (basicResult.success) {
-      city = basicResult.data as CityDTO;
+      city = basicResult.data;
     } else {
       console.error('[city/page] Invalid city DTO for slug %s:', slug, {
         detail: detailResult.error,
         basic: basicResult.error,
       });
       // Fallback when validation fails: render lightweight city page instead of 404
-      const titleCase = (s: string) => s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
-      const fallbackCity: CityDTO = {
-        id: `city-${slug}`,
-        name: titleCase(slug),
-        slug,
-        country: 'Unknown',
-        highlights: [],
-        imageUrl: null,
-        imageDimensions: null,
-        description: 'Preview data: city details unavailable.'
-      };
-      return <CityDetailView city={fallbackCity} listings={[]} />;
+      return <CityDetailView city={makeFallbackCity(slug)} listings={[]} />;
     }
   }
 
@@ -76,7 +79,7 @@ export default async function CityPage({ params }: Props) {
     if (!listingsResult.success) {
       console.error('[city/page] Invalid ListingSummaryDTO[] for city %s:', city.id, listingsResult.error);
     } else {
-      listings = listingsResult.data as ListingSummaryDTO[];
+      listings = listingsResult.data;
     }
   } catch (e) {
     console.error('[city/page] Listings fetch failed for city %s:', city.id, e);

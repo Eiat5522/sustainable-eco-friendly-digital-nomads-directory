@@ -4,7 +4,10 @@ import type { Listing } from '@/types';
 // City details
 export async function fetchCityDetails(slug: string): Promise<CityDTO> {
   try {
-    const response = await fetch(`/api/cities/${slug}`);
+    // Allow route-level ISR to cache this request (300s) instead of bypassing it
+    const response = await fetch(`/api/cities/${slug}`,
+      { next: { revalidate: 300 } }
+    );
 
     if (!response.ok) {
       throw new Error('Failed to fetch city details');
@@ -33,7 +36,11 @@ export async function fetchCityDetails(slug: string): Promise<CityDTO> {
 // City listings
 export async function fetchCityListings(slug: string): Promise<Listing[]> {
   try {
-    const response = await fetch(`/api/listings?citySlug=${slug}`);
+    // Allow route-level ISR to cache this request (300s) instead of bypassing it
+    const response = await fetch(
+      `/api/listings?citySlug=${slug}`,
+      { next: { revalidate: 300 } }
+    );
 
     if (!response.ok) {
       throw new Error('Failed to fetch city listings');
@@ -43,8 +50,8 @@ export async function fetchCityListings(slug: string): Promise<Listing[]> {
     // Handle shapes: { data: { listings } }, { success: true, listings }, { listings }
     const listings: Listing[] =
       Array.isArray(data?.data?.listings) ? data.data.listings :
-      Array.isArray(data?.listings) ? data.listings :
-      Array.isArray(data?.success ? data.listings : undefined) ? data.listings :
+      (data?.success === true && Array.isArray(data?.listings)) ? data.listings :
+      (data?.success === undefined && Array.isArray(data?.listings)) ? data.listings :
       [];
 
     return listings;

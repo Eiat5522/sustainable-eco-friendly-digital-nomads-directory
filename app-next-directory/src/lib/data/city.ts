@@ -164,7 +164,7 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     digitalNomadFeatures,
     galleryImages[]{
       asset->{
-        url,
+        url
        }
     },
     "primaryImage": primaryImage{

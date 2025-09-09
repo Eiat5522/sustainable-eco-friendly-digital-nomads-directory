@@ -50,17 +50,25 @@ async function getPost(slug: string): Promise<PostResponse> {
     return json as PostResponse;
   }
   // Minimal fallback
-  const data = json as any;
-  const post = {
-    id: data?._id ?? '',
-    title: data?.title ?? '',
-    body: Array.isArray(data?.body) ? data.body : [],
-    imageUrl: data?.primaryImage?.asset?.url ?? null,
-  } as PostResponse['post'];
+  type Json = Record<string, unknown>;
+  const data = (json ?? {}) as Json;
+  const id =
+    typeof (data as any).id === 'string' && (data as any).id.trim()
+      ? (data as any).id
+      : (typeof (data as any)._id === 'string' && (data as any)._id.trim() ? (data as any)._id : '');
+  const title = typeof (data as any).title === 'string' ? (data as any).title : '';
+  const body = Array.isArray((data as any).body) ? ((data as any).body as PortableTextBlock[]) : [];
+  const imageUrl =
+    typeof (data as any).imageUrl === 'string'
+      ? (data as any).imageUrl
+      : ((data as any)?.primaryImage?.asset?.url ?? null);
+  const post: PostDTO = { id, title, body, imageUrl };
   if (!post.id) {
     notFound();
   }
-  const comments = await client.fetch(    groq`*[_type == "comment" && post->slug.current == $slug && approved == true] | order(createdAt asc){ _id, content, user->{ name } }`,
+  const comments = await client.fetch(
+    groq`*[_type == "comment" && post->slug.current == $slug && approved == true]
+      | order(createdAt asc){ _id, content, user->{ name } }`,
     { slug }
   );
   return { post, comments } as PostResponse;

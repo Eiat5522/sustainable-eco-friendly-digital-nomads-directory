@@ -254,7 +254,35 @@ describe('Search API Route', () => {
 
       const mockRequest = new NextRequest('http://localhost:3000/api/search?q=test');
 
-      const response = await GET(mockRequest as any);
+        const response = await GET(mockRequest as any);
+
+      // DEBUG LOGGING: dump raw response and keys so we can inspect mocked NextResponse.json shape
+      try {
+        // Print top-level properties
+        // eslint-disable-next-line no-console
+        console.log('---DEBUG: raw response typeof/status/statusCode KEYS ---');
+        // eslint-disable-next-line no-console
+        console.log('typeof response ->', typeof response);
+        // eslint-disable-next-line no-console
+        console.log('response.status ->', (response as any).status);
+        // eslint-disable-next-line no-console
+        console.log('response.statusCode ->', (response as any).statusCode);
+        // eslint-disable-next-line no-console
+        console.log('Object.keys(response) ->', Object.keys(response));
+
+        // Try to read body if json function exists
+        if (typeof response.json === 'function') {
+          const rawBody = await response.json();
+          // eslint-disable-next-line no-console
+          console.log('rawBody ->', rawBody);
+        } else {
+          // eslint-disable-next-line no-console
+          console.log('response.json not a function');
+        }
+      } catch (dbgErr) {
+        // eslint-disable-next-line no-console
+        console.log('DEBUG: error while inspecting response ->', dbgErr);
+      }
 
       expect(response.status).toBe(400);
       const body = await response.json();

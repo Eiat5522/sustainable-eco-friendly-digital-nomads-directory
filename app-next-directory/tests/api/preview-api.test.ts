@@ -9,7 +9,10 @@ const baseURL = process.env.BASE_URL || 'http://localhost:3000';
     const maxAttempts = 10;
     for (let i = 1; i <= maxAttempts; i++) {
       try {
-        await request(baseURL).get('/').timeout({ deadline: 5000, response: 3000 });
+        await request(baseURL)
+          .get('/')
+          .ok(() => true) // treat any HTTP status as "server is listening"
+          .timeout({ deadline: 5000, response: 3000 });
         return;
       } catch {
         if (i === maxAttempts) throw new Error('Dev server not ready');

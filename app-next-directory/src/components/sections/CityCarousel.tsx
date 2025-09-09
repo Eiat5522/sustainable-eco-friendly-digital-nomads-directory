@@ -56,7 +56,7 @@ export function CityCarousel() {
         {!loading && !error && cities.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" role="list">
             {cities.map((city) => (
-              <Link key={city.id} href={`/cities/${city.slug}`} className="block group" aria-label={`View ${city.name} city page`}>
+              <Link key={city.id} href={`/cities/${city.slug}`} className="block group" role="listitem">
                 <div className="relative h-48 w-full overflow-hidden rounded-xl border-4 border-black bg-white shadow-[8px_8px_0_0_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0_0_rgba(0,0,0,1)] transition-all">
                   {city.imageUrl ? (
                     <Image
@@ -66,9 +66,8 @@ export function CityCarousel() {
                       sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                       className="object-cover group-hover:scale-105 transition-transform"
                       onError={(e) => {
-                        const el = (e.target as HTMLImageElement);
                         // Hide broken image; gradient fallback will show
-                        el.style.display = 'none';
+                        e.currentTarget.style.display = 'none';
                       }}
                     />
                   ) : null}

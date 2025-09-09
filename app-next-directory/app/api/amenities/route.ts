@@ -9,6 +9,7 @@ export async function GET() {
     return ApiResponseHandler.success({ amenities });
   } catch (error) {
     console.error('Failed to fetch amenities:', error);
-    return ApiResponseHandler.error('Failed to fetch amenities', 500);
+    const status = (error as any)?.status ?? (error as any)?.statusCode ?? 500;
+    return ApiResponseHandler.error('Failed to fetch amenities', status);
   }
 }

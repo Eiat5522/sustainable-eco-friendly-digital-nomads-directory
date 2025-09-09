@@ -87,9 +87,23 @@ export async function GET(request: NextRequest) {
       sanityClient.fetch(finalQuery, params),
       sanityClient.fetch(finalCountQuery, params),
     ]);
-    const posts = Array.isArray(postsRaw)
-      ? postsRaw.map((p: any) => transformToBlogSummaryDTO(p))
-      : [];    // Calculate pagination metadata
+interface RawBlogPost {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  primaryImage?: any;
+  publishedAt: string;
+  excerpt?: string;
+  tags?: string[];
+  authorName?: string;
+  authorImage?: any;
+  readingTime?: number;
+  _updatedAt: string;
+}
+
+const posts = Array.isArray(postsRaw)
+  ? postsRaw.map((p: RawBlogPost) => transformToBlogSummaryDTO(p))
+  : [];
     const totalPages = Math.ceil(totalCount / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
@@ -118,15 +132,29 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching blog posts:', error);
 
+    // Robust error classification without relying on message substrings
     if (error instanceof Error) {
-      if (error.message.includes('fetch failed')) {
+      const name = error.name;
+      const cause: any = (error as any).cause;
+      const code = cause?.code ?? (error as any).code;
+
+      // Network/connectivity errors (e.g., node-fetch, DNS, refused, timeouts)
+      if (
+        name === 'FetchError' ||
+        code === 'ECONNREFUSED' ||
+        code === 'ENOTFOUND' ||
+        code === 'ETIMEDOUT'
+      ) {
         return ApiResponseHandler.error('Failed to connect to CMS. Please try again later.', 503);
       }
-      if (error.message.includes('Invalid query')) {
+
+      // Query/validation errors
+      if (name === 'ValidationError' || name === 'ZodError') {
         return ApiResponseHandler.error('Invalid search parameters', 400);
       }
     }
 
+    // Safe fallback for unknown errors
     return ApiResponseHandler.error('Failed to fetch blog posts', 500);
   }
 }

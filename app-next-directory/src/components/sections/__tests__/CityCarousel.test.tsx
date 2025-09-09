@@ -60,13 +60,13 @@ describe('CityCarousel', () => {
     render(<CityCarousel />)
 
     expect(await screen.findByText('Copenhagen')).toBeInTheDocument()
-    expect(screen.getByText('Freiburg')).toBeInTheDocument()
+    expect(await screen.findByText('Freiburg')).toBeInTheDocument()
 
-    expect(screen.getByAltText('Copenhagen')).toHaveAttribute(
+    expect(await screen.findByAltText('Copenhagen')).toHaveAttribute(
       'src',
       expect.stringContaining('copenhagen.jpg')
     )
-    expect(screen.getByAltText('Freiburg')).toHaveAttribute(
+    expect(await screen.findByAltText('Freiburg')).toHaveAttribute(
       'src',
       expect.stringContaining('freiburg.jpg')
     )

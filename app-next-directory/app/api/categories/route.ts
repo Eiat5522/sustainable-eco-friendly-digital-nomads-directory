@@ -10,6 +10,10 @@ export async function GET() {
     return ApiResponseHandler.success({ categories });
   } catch (error) {
     console.error('Categories API error:', error);
-    return ApiResponseHandler.error('Failed to fetch categories', 500);
+    const anyErr = error as any;
+    const status = Number.isInteger(anyErr?.status) ? anyErr.status
+                 : Number.isInteger(anyErr?.statusCode) ? anyErr.statusCode
+                 : 500;
+    return ApiResponseHandler.error('Failed to fetch categories', status);
   }
 }

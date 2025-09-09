@@ -9,54 +9,56 @@ export async function GET() {
     const queryEndTime = performance.now();
     const endTime = performance.now();
 
+    const FALLBACK_CITIES = Object.freeze([
+  {
+    id: 'city-phuket',
+    name: 'Phuket',
+    slug: 'phuket',
+    country: 'Thailand',
+    highlights: [],
+    imageUrl: null,
+    imageDimensions: null,
+    description: 'Preview city: Phuket (offline)',
+  },
+  {
+    id: 'city-krabi',
+    name: 'Krabi',
+    slug: 'krabi-thailand',
+    country: 'Thailand',
+    highlights: [],
+    imageUrl: null,
+    imageDimensions: null,
+    description: 'Preview city: Krabi (offline)',
+  },
+  {
+    id: 'city-chiang-mai',
+    name: 'Chiang Mai',
+    slug: 'chiang-mai',
+    country: 'Thailand',
+    highlights: [],
+    imageUrl: null,
+    imageDimensions: null,
+    description: 'Preview city: Chiang Mai (offline)',
+  },
+    ] as const);
+
     return ApiResponseHandler.success({
       cities,
       metadata: {
         total: cities.length,
         query_time: new Date().toISOString(),
         performance: {
-          totalTimeMs: (endTime - startTime).toFixed(2),
-          queryTimeMs: (queryEndTime - queryStartTime).toFixed(2)
-        }
+          totalTimeMs: Number((endTime - startTime).toFixed(2)),
+          queryTimeMs: Number((queryEndTime - queryStartTime).toFixed(2))
+        },
+        source: 'primary'
       }
     });
   } catch (error) {
     const endTime = performance.now();
     console.error('[ERROR] Cities API:', error);
 
-    // Provide a small static fallback so the UI and tests remain navigable when CMS is unavailable
-    const fallbackCities = [
-      {
-        id: 'city-phuket',
-        name: 'Phuket',
-        slug: 'phuket',
-        country: 'Thailand',
-        highlights: [],
-        imageUrl: null,
-        imageDimensions: null,
-        description: 'Preview city: Phuket (offline)'
-      },
-      {
-        id: 'city-krabi',
-        name: 'Krabi',
-        slug: 'krabi-thailand',
-        country: 'Thailand',
-        highlights: [],
-        imageUrl: null,
-        imageDimensions: null,
-        description: 'Preview city: Krabi (offline)'
-      },
-      {
-        id: 'city-chiang-mai',
-        name: 'Chiang Mai',
-        slug: 'chiang-mai',
-        country: 'Thailand',
-        highlights: [],
-        imageUrl: null,
-        imageDimensions: null,
-        description: 'Preview city: Chiang Mai (offline)'
-      }
-    ];
+    // Uses module-scoped FALLBACK_CITIES (defined once) to avoid per-request allocation.
 
     return ApiResponseHandler.success({
       cities: typeof FALLBACK_CITIES !== 'undefined' ? FALLBACK_CITIES : fallbackCities,

@@ -17,7 +17,7 @@ export const test = base.extend<{ mockListingPage: MockListingPage }>({
     await page.route('**/api/test-listings', async (route) => {
       await route.fulfill({
         status: 200,
-        body: JSON.stringify(mockListings)
+        body: JSON.stringify({ listings: mockListings })
       });
     });
 

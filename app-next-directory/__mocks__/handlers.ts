@@ -1,4 +1,5 @@
 import { http, HttpResponse } from 'msw'
+import { mockListings as testListings } from '@/tests/helpers/test-data'
 
 export const handlers = [
   // Search endpoints to silence unhandled warnings where tests don't mock fetch
@@ -56,6 +57,14 @@ export const handlers = [
   }),
   http.get('/api/hello', () => {
     return HttpResponse.json({ message: 'Hello' }, { status: 200 })
+  }),
+  // Test listings endpoint for unit/integration tests
+  http.get('/api/test-listings', () => {
+    return HttpResponse.json({ listings: testListings }, { status: 200 })
+  }),
+  // Support common typo to reduce test flakiness
+  http.get('/api/test-lidtings', () => {
+    return HttpResponse.json({ listings: testListings }, { status: 200 })
   }),
   http.get('/api/listings', ({ request }) => {
     const url = new URL(request.url)

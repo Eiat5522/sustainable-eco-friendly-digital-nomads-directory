@@ -98,7 +98,10 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
 
   const uniqueTags = Array.from(
     new Set(
-      posts.flatMap((p: Post) => (Array.isArray(p.tags) ? p.tags : []))
+      posts
+        .flatMap((p: Post) => (Array.isArray(p.tags) ? p.tags : []))
+        .map((t) => (typeof t === 'string' ? t.trim() : ''))
+        .filter((t): t is string => t.length > 0)
     )
   ).slice(0, 20);
 
