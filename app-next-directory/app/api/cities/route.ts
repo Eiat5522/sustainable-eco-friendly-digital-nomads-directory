@@ -1,15 +1,8 @@
 import { getCitiesList } from '@/lib/data/city';
 import { ApiResponseHandler } from '@/utils/api-response';
 
-export async function GET() {
-  const startTime = performance.now();
-  try {
-    const queryStartTime = performance.now();
-    const cities = await getCitiesList(20);
-    const queryEndTime = performance.now();
-    const endTime = performance.now();
-
-    const FALLBACK_CITIES = Object.freeze([
+// Static fallback dataset (module-scoped; initialized once)
+const FALLBACK_CITIES = Object.freeze([
   {
     id: 'city-phuket',
     name: 'Phuket',
@@ -40,7 +33,15 @@ export async function GET() {
     imageDimensions: null,
     description: 'Preview city: Chiang Mai (offline)',
   },
-    ] as const);
+] as const);
+
+export async function GET() {
+  const startTime = performance.now();
+  try {
+    const queryStartTime = performance.now();
+    const cities = await getCitiesList(20);
+    const queryEndTime = performance.now();
+    const endTime = performance.now();
 
     return ApiResponseHandler.success({
       cities,

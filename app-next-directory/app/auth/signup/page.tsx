@@ -58,8 +58,12 @@ export default function SignupPage() {
           <NeoCardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <p className="text-sm text-neo-text-secondary">
-                Already have an account? <Link href="/auth/login" data-testid="signup-signin-link" className="text-neo-primary underline">Sign in</Link>
-              </p>
+// app-next-directory/app/auth/signup/page.tsx
+
+import { Footer } from '@/components/layout/Footer';
+import Link from 'next/link';
+
+// …rest of the file…              </p>
               <NeoInput
                 type="text"
                 id="name"

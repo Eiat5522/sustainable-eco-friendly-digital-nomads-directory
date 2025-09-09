@@ -1,6 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const root = 'app-next-directory';
+const root = path.resolve(process.argv[2] || 'app-next-directory');
+if (!fs.existsSync(root) || !fs.statSync(root).isDirectory()) {
+  console.error(`Root not found or not a directory: ${root}`);
+  process.exit(1);
+}
 const hits = [];
 function walk(d){
   for(const f of fs.readdirSync(d,{withFileTypes:true})){

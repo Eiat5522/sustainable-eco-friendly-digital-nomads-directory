@@ -5,7 +5,8 @@ import type { Listing } from '@/types';
 export async function fetchCityDetails(slug: string): Promise<CityDTO> {
   try {
     // Allow route-level ISR to cache this request (300s) instead of bypassing it
-    const response = await fetch(`/api/cities/${slug}`,
+    const response = await fetch(
+      `/api/listings?citySlug=${encodeURIComponent(slug)}`,
       { next: { revalidate: 300 } }
     );
 
@@ -38,7 +39,7 @@ export async function fetchCityListings(slug: string): Promise<Listing[]> {
   try {
     // Allow route-level ISR to cache this request (300s) instead of bypassing it
     const response = await fetch(
-      `/api/listings?citySlug=${slug}`,
+      `/api/listings?citySlug=${encodeURIComponent(slug)}`,
       { next: { revalidate: 300 } }
     );
 

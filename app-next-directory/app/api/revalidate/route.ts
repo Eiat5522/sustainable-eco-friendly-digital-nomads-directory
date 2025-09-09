@@ -7,10 +7,10 @@ export const revalidate = 0;
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
+  let pathParam: string | null = null;
   try {
     const token = request.nextUrl.searchParams.get('token');
-    const path = request.nextUrl.searchParams.get('path');
-
+    pathParam = request.nextUrl.searchParams.get('path');
     // Validate the revalidation token
     if (!token || token !== process.env.revalidationToken) {
       return ApiResponseHandler.error('Invalid token', 401);
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       now: Date.now()
     });
   } catch (error) {
-    console.error('Error revalidating path:', { path, error });
+    console.error('Error revalidating path:', { path: pathParam, error });
 
     return ApiResponseHandler.error('Error revalidating', 500);
   }

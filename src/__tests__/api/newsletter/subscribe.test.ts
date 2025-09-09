@@ -1,4 +1,3 @@
-import { POST } from 'app-next-directory/app/api/newsletter/subscribe/route'
 
 // Minimal mock for Request with headers/body
 function makeRequest(body: any, headers: Record<string,string> = {}) {

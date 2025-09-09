@@ -27,14 +27,15 @@ function memorySet(key: string, value: string, ttlSeconds: number) {
   memoryStore.set(key, { value, expiresAt })
 }
 function memoryIncr(key: string, ttlSeconds: number) {
-  const cur = memoryGet(key)
-  if (!cur) {
+  const entry = memoryStore.get(key)
+  const now = Date.now()
+  if (!entry || now > entry.expiresAt) {
     memorySet(key, '1', ttlSeconds)
     return 1
   }
-  const next = String(Number(cur) + 1)
-  memorySet(key, next, ttlSeconds)
-  return Number(next)
+  const next = Number(entry.value) + 1
+  memoryStore.set(key, { value: String(next), expiresAt: entry.expiresAt }) // preserve original expiry
+  return next
 }
 
 // Attempt to use Redis if configured; otherwise use memory store
@@ -50,11 +51,17 @@ async function initRedisIfAvailable() {
       useRedis = false
       return
     }
-    // dynamic import to avoid a hard dependency failure if package missing
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const IORedis = require('ioredis')
-    redisClient = new IORedis(redisUrl)
-    useRedis = true
+    try {
+      const { default: IORedis } = await import('ioredis')
+      redisClient = new IORedis(redisUrl)
+      redisClient.on('error', (err: unknown) => {
+        // Optional: add observability here
+        // console.error('Redis client error', err)
+      })
+      useRedis = true
+    } catch (e) {
+      // ...
+    }
   } catch (e) {
     // not available — fall back to memory
     redisClient = null
@@ -122,32 +129,6 @@ export async function POST(request: Request) {
 
     const { email } = validationResult.data
 
-    // --- Rate limit checks ---
-    // Determine IP (best-effort using headers)
-    const forwardedFor = request.headers.get('x-forwarded-for') || request.headers.get('X-Forwarded-For')
-    const cfConnecting = request.headers.get('cf-connecting-ip')
-    const ip = (forwardedFor ? forwardedFor.split(',')[0].trim() : (cfConnecting || 'unknown'))
-
-    const ipKey = `newsletter:ip:${ip}`
-    const ipCount = await storeIncr(ipKey, RATE_LIMIT_PER_IP_WINDOW)
-    if (ipCount > RATE_LIMIT_PER_IP) {
-      return ApiResponseHandler.error('Too many requests from this IP. Please try again later.', 429)
-    }
-
-    const emailKey = `newsletter:email:${email}`
-    const emailCount = await storeGet(emailKey)
-    if (emailCount) {
-      // Email has been subscribed recently — short-circuit without enqueueing again
-      // Support Idempotency-Key: if provided, persist mapping as well
-      const idempotencyKey = request.headers.get('Idempotency-Key') || request.headers.get('idempotency-key')
-      if (idempotencyKey) {
-        const idKey = `newsletter:idempotency:${idempotencyKey}`
-        await storeSet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Already subscribed recently.' } }), IDEMPOTENCY_TTL)
-      }
-      // ApiResponseHandler.success expects (data, message?) and returns { success: true, data, message }
-      return ApiResponseHandler.success(null, 'Already subscribed recently.')
-    }
-
     // Idempotency-key handling: if present, check if we've already processed this key
     const idempotencyKey = request.headers.get('Idempotency-Key') || request.headers.get('idempotency-key')
     if (idempotencyKey) {
@@ -169,6 +150,31 @@ export async function POST(request: Request) {
       }
     }
 
+    // --- Rate limit checks ---
+    // Determine IP (best-effort using headers)
+    const forwardedFor = request.headers.get('x-forwarded-for') || request.headers.get('X-Forwarded-For')
+    const cfConnecting = request.headers.get('cf-connecting-ip')
+    const ip = (forwardedFor ? forwardedFor.split(',')[0].trim() : (cfConnecting || 'unknown'))
+
+    const ipKey = `newsletter:ip:${ip}`
+    const ipCount = await storeIncr(ipKey, RATE_LIMIT_PER_IP_WINDOW)
+    if (ipCount > RATE_LIMIT_PER_IP) {
+      return ApiResponseHandler.error('Too many requests from this IP. Please try again later.', 429)
+    }
+
+    const emailKey = `newsletter:email:${email}`
+    const emailCount = await storeGet(emailKey)
+    if (emailCount) {
+      // Email has been subscribed recently — short-circuit without enqueueing again
+      // Support Idempotency-Key: if provided, persist mapping as well
+      if (idempotencyKey) {
+        const idKey = `newsletter:idempotency:${idempotencyKey}`
+        await storeSet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Already subscribed recently.' } }), IDEMPOTENCY_TTL)
+      }
+      // ApiResponseHandler.success expects (data, message?) and returns { success: true, data, message }
+      return ApiResponseHandler.success(null, 'Already subscribed recently.')
+    }
+
     // Passed validation and rate/idempotency checks — proceed to enqueue or process
     // Here you would typically add the email to your mailing list queue (Mailchimp, SendGrid, etc.)
     // For this example, we'll just log it to the console and persist a short-lived marker to prevent duplicates
@@ -180,10 +186,10 @@ export async function POST(request: Request) {
     // If idempotency key was provided, persist the outcome so retries can be short-circuited
     if (idempotencyKey) {
       const idKey = `newsletter:idempotency:${idempotencyKey}`
-      await storeSet(idKey, JSON.stringify({ status: 200, body: { success: true, message: 'Thank you for subscribing to our newsletter!' } }), IDEMPOTENCY_TTL)
+      await storeSet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Thank you for subscribing to our newsletter!' } }), IDEMPOTENCY_TTL)
     }
 
-    return ApiResponseHandler.success({ message: 'Thank you for subscribing to our newsletter!' })
+    return ApiResponseHandler.success(null, 'Thank you for subscribing to our newsletter!')
   } catch (error) {
     console.error('Newsletter subscription error:', error)
     return ApiResponseHandler.error('An internal server error occurred.', 500)

@@ -50,6 +50,7 @@ describe('POST /api/newsletter/subscribe (app-next-directory copy)', () => {
     const body1 = await res1.json()
     expect(res1.status).toBe(200)
     expect(body1.success).toBe(true)
+    expect(body1.message).toBe('Thank you for subscribing to our newsletter!')
 
     // Simulate retry with same idempotency key
     const req2 = makeRequest({ email: 'idemo@example.com' }, headers)
@@ -57,5 +58,31 @@ describe('POST /api/newsletter/subscribe (app-next-directory copy)', () => {
     const body2 = await res2.json()
     expect(res2.status).toBe(200)
     expect(body2.success).toBe(true)
+    expect(body2.message).toBe('Thank you for subscribing to our newsletter!')
+  })
+
+  test('idempotency key works for duplicate email short-circuit', async () => {
+    const { POST } = await import('../../../../app/api/newsletter/subscribe/route')
+    const email = 'dup-idemo@example.com'
+    const idempotencyKey = 'xyz-456'
+
+    // 1. First call to subscribe the email
+    const req1 = makeRequest({ email })
+    const res1 = await POST(req1)
+    expect(res1.status).toBe(200)
+
+    // 2. Second call, which should be a short-circuit, but with an idempotency key
+    const req2 = makeRequest({ email }, { 'Idempotency-Key': idempotencyKey })
+    const res2 = await POST(req2)
+    const body2 = await res2.json()
+    expect(res2.status).toBe(200)
+    expect(body2.message).toBe('Already subscribed recently.')
+
+    // 3. Third call, with the same idempotency key, should replay the short-circuit response
+    const req3 = makeRequest({ email }, { 'Idempotency-Key': idempotencyKey })
+    const res3 = await POST(req3)
+    const body3 = await res3.json()
+    expect(res3.status).toBe(200)
+    expect(body3.message).toBe('Already subscribed recently.')
   })
 })

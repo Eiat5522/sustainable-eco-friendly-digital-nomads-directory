@@ -33,9 +33,8 @@ export async function GET(request: NextRequest) {
 
   const res = ApiResponseHandler.success({
     NODE_ENV: mockNodeEnv,
-    // Keep shape but mask in production (adjust if tests depend on exact value)
-    previewSecret: process.env.NODE_ENV === 'production' ? '***' : mockPreviewSecret,
-  });
+    // Never expose secrets over the wire
+    previewSecret: '***',  });
   res.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
   return res;
 }
