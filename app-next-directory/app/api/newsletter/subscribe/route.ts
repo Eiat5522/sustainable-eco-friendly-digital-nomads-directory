@@ -166,12 +166,7 @@ export async function POST(request: Request) {
     const emailCount = await storeGet(emailKey)
     if (emailCount) {
       // Email has been subscribed recently — short-circuit without enqueueing again
-      // Support Idempotency-Key: if provided, persist mapping as well
-      if (idempotencyKey) {
-        const idKey = `newsletter:idempotency:${idempotencyKey}`
-        await storeSet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Already subscribed recently.' } }), IDEMPOTENCY_TTL)
-      }
-      // ApiResponseHandler.success expects (data, message?) and returns { success: true, data, message }
+      // Do not touch idempotency storage here; idempotency keys are handled earlier to avoid incrementing rate-limit counters on retries
       return ApiResponseHandler.success(null, 'Already subscribed recently.')
     }
 

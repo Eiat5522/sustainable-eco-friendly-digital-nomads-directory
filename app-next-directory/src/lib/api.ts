@@ -5,8 +5,8 @@ import type { Listing } from '@/types';
 export async function fetchCityDetails(slug: string): Promise<CityDTO> {
   try {
     // Allow route-level ISR to cache this request (300s) instead of bypassing it
-    const response = await fetch(
-      `/api/listings?citySlug=${encodeURIComponent(slug)}`,
+    // Fetch city details from the dedicated cities endpoint (tests and API expect this path)
+    const response = await fetch(`/api/cities/${encodeURIComponent(slug)}`,
       { next: { revalidate: 300 } }
     );
 

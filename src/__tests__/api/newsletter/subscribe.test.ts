@@ -20,7 +20,7 @@ describe('POST /api/newsletter/subscribe', () => {
 
   test('returns 422 for invalid email', async () => {
     const req = makeRequest({ email: 'not-an-email' })
-    const { POST } = await import('app-next-directory/app/api/newsletter/subscribe/route')
+
     const res = await POST(req)
     const body = await res.json()
     expect(res.status).toBe(422)
