@@ -9,6 +9,8 @@ import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id'
 import { MongoDBAdapter } from '@auth/mongodb-adapter'
 import clientPromise from '@/lib/mongodb'
 import { authenticateUser } from '@/lib/auth/serverAuth'
+import dbConnect from '@/lib/dbConnect'
+import User from '@/models/User'
 import type { JWT } from 'next-auth/jwt'
 import type { UserRole } from '@/types/auth'
 
@@ -79,11 +81,78 @@ if (process.env.AUTH_MICROSOFT_ENTRA_ID_ID && process.env.AUTH_MICROSOFT_ENTRA_I
   )
 }
 
+const maybeAdapter = (() => {
+  const uri = process.env.MONGODB_URI;
+  return uri && /^mongodb(\+srv)?:\/\/.+/.test(uri) ? MongoDBAdapter(clientPromise) : undefined;
+})();
+
 export const authOptions: NextAuthConfig = {
-  adapter: MongoDBAdapter(clientPromise),
+  // Use adapter only when a valid Mongo URI is configured to avoid dev crashes
+  ...(maybeAdapter ? { adapter: maybeAdapter } : {}),
   session: { strategy: 'jwt' },
   providers,
+  pages: {
+    signIn: '/auth/login',
+  },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      try {
+        // Only apply to OAuth providers; credentials flow already enforces verification.
+        if (account?.provider && account.provider !== 'credentials' && user?.email) {
+        // Rate limit check (implement based on your rate limiting strategy)
+        // if (await isRateLimited(user.email)) {
+        //   console.warn('[auth] Rate limit hit for email verification', user.email);
+        //   return true;
+        // }
+
+          // Heuristics across providers
+          const p: any = profile || {};
+          const provider = account.provider;
+          const emailVerifiedHeuristic = (
+            p.email_verified === true ||
+            p.verified_email === true ||
+            p.emailVerified === true ||
+            p.email_verified_at != null ||
+            p.verified === true
+          );
+          const hasEmail = Boolean(user.email);
+          const shouldVerify = (
+            // Google common flags
+            (provider === 'google' && (emailVerifiedHeuristic || hasEmail)) ||
+            // Facebook often provides email if permission granted; presence implies control
+            (provider === 'facebook' && hasEmail) ||
+            // X/Twitter only exposes email with elevated perms; if present assume control
+            (provider === 'twitter' && (p.email || hasEmail)) ||
+            // Microsoft Entra ID: if sign-in succeeded and email present, assume verified
+            (provider === 'microsoft-entra-id' && hasEmail) ||
+            // Fallback on explicit flags from any provider
+            emailVerifiedHeuristic
+          );
+          if (shouldVerify && process.env.MONGODB_URI) {
+            await dbConnect();
+-           await (User as any).updateOne(
+-             { email: String(user.email).toLowerCase() },
+-             { $set: { emailVerified: new Date() } }
+           const result = await (User as any).updateOne(
+             {
+               email: String(user.email).toLowerCase(),
+               // Only update if not already verified to avoid unnecessary writes
+               emailVerified: { $exists: false }
+             },
+             { $set: { emailVerified: new Date() } }
+           );
+
+           if (result.matchedCount === 0) {
+             console.debug('[auth] User not found or already verified', user.email);
+           }
+          }
+        }
+      } catch (e) {
+        // Swallow errors to not block sign-in; logging only
+        console.warn('[auth] signIn verification sync failed', e);
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       type AppToken = JWT & { id?: string; role?: UserRole }
       const t = token as AppToken

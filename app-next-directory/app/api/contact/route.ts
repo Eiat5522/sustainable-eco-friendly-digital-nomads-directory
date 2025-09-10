@@ -3,6 +3,7 @@ import { rateLimit } from '@/utils/rate-limit';
 import { NextRequest } from 'next/dist/server/web/spec-extension/request';
 import nodemailer from 'nodemailer';
 import { z } from 'zod';
+import { sendMail } from '@/lib/email';
 
 // Validation schema for contact form
 const contactFormSchema = z.object({
@@ -80,9 +81,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create email transporter
-    const transporter = createTransporter();
-
     // Email content
     const emailSubject = `[Sustainable Nomads] ${type.charAt(0).toUpperCase() + type.slice(1)} Inquiry: ${subject}`;
     const emailBody = `
@@ -132,30 +130,47 @@ export async function POST(request: NextRequest) {
       </p>
     `;
 
-    // Send emails
-    const [adminEmail, autoReply] = await Promise.all([
-      // Email to admin/support team
-      transporter.sendMail({
-        from: process.env.smtpFrom || process.env.gmailUser,
-        to: process.env.contactEmail || process.env.smtpUser || process.env.gmailUser,
-        subject: emailSubject,
-        html: emailBody,
-        replyTo: email,
-      }),
-
-      // Auto-reply to user
-      transporter.sendMail({
-        from: process.env.smtpFrom || process.env.gmailUser,
-        to: email,
-        subject: autoReplySubject,
-        html: autoReplyBody,
-      }),
-    ]);
+    let messageInfo: { adminId?: string; autoReplyId?: string } = {};
+    if (process.env.RESEND_API_KEY) {
+      // Prefer Resend when configured
+      await Promise.all([
+        sendMail({
+          to: String(process.env.contactEmail || process.env.SMTP_USER || process.env.gmailUser || ''),
+          subject: emailSubject,
+          html: emailBody,
+        }),
+        sendMail({
+          to: email,
+          subject: autoReplySubject,
+          html: autoReplyBody,
+        }),
+      ]);
+      messageInfo = { adminId: 'resend', autoReplyId: 'resend' };
+    } else {
+      // Fallback to nodemailer
+      const transporter = createTransporter();
+      const [adminEmail, autoReply] = await Promise.all([
+        transporter.sendMail({
+          from: process.env.smtpFrom || process.env.gmailUser,
+          to: process.env.contactEmail || process.env.smtpUser || process.env.gmailUser,
+          subject: emailSubject,
+          html: emailBody,
+          replyTo: email,
+        }),
+        transporter.sendMail({
+          from: process.env.smtpFrom || process.env.gmailUser,
+          to: email,
+          subject: autoReplySubject,
+          html: autoReplyBody,
+        }),
+      ]);
+      messageInfo = { adminId: adminEmail.messageId, autoReplyId: autoReply.messageId } as any;
+    }
 
     // Log successful submission
     console.log('Contact form submission processed:', {
-      messageId: adminEmail.messageId,
-      autoReplyId: autoReply.messageId,
+      messageId: messageInfo.adminId,
+      autoReplyId: messageInfo.autoReplyId,
       type,
       from: email,
       ip,

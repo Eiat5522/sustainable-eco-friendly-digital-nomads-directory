@@ -40,7 +40,11 @@ export const handlers = [
     return HttpResponse.json([], { status: 200 })
   }),
   http.get('/api/featured-listings', () => {
-    return HttpResponse.json({ listings: [] }, { status: 200 })
+    // Return a stable mock for tests; UI handles image fallback gracefully
+    return HttpResponse.json({ listings: [
+      { id: 'test-1', name: 'Test Coworking Space', slug: 'test-coworking-space', imageUrl: '/placeholder_image.png', city: 'Bangkok', amenityNames: ['High-Speed WiFi'] },
+      { id: 'test-2', name: 'Test Eco Cafe', slug: 'test-eco-cafe', imageUrl: '/placeholder_image.png', city: 'Chiang Mai', amenityNames: ['Organic'] },
+    ] }, { status: 200 })
   }),
   http.get('/api/categories', () => {
     return HttpResponse.json({ categories: [] }, { status: 200 })

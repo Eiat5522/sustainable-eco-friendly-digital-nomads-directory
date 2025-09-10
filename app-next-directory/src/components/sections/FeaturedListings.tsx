@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { VenueCard } from '@/components/ui/VenueCard'
-import { mockFeaturedVenues } from './featuredVenuesMockData'
 import type { FeaturedListingDTO } from '@/types/dto'
 
 export function FeaturedListings() {
@@ -14,9 +13,21 @@ export function FeaturedListings() {
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        // Simulate API call - in production this would fetch from /api/featured-listings
-        await new Promise(resolve => setTimeout(resolve, 500))
-        setListings(mockFeaturedVenues)
+        const res = await fetch('/api/featured-listings', { next: { revalidate: 300 } })
+        if (!res.ok) throw new Error('Failed to fetch featured listings')
+        const data = await res.json()
+        // Accept shapes: { success: true, listings }, { listings }, { data: { listings } }
+        const list: FeaturedListingDTO[] = Array.isArray(data?.listings)
+          ? data.listings
+          : Array.isArray(data?.data?.listings)
+            ? data.data.listings
+            : []
+        // Normalize any unexpected shapes from API (e.g., city as object)
+        const normalized = list.map((l: any) => ({
+          ...l,
+          city: typeof l?.city === 'object' ? (l?.city?.name ?? '') : (l?.city ?? ''),
+        })) as FeaturedListingDTO[]
+        setListings(normalized)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred')
       } finally {

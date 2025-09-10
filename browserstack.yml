@@ -1,0 +1,22 @@
+userName: ${BROWSERSTACK_USERNAME}
+accessKey: ${BROWSERSTACK_ACCESS_KEY}
+platforms:
+  - browserName: Chrome
+    os: Windows
+    osVersion: 11
+    browserVersion: latest
+  - browserName: safari
+    osVersion: 18
+    deviceName: iPhone 16 Pro Max
+  - browserName: chrome
+    osVersion: 13.0
+    deviceName: Samsung Galaxy S23 Ultra
+buildIdentifier: ${BUILD_NUMBER}
+consoleLogs: info
+parallelsPerPlatform: 1
+projectName: Login form
+buildName: Build 1.0.3
+browserstackLocal: true
+debug: true
+networkLogs: true
+networkProfile: no-network

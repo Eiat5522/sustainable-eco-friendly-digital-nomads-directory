@@ -19,10 +19,20 @@ export function CityCarousel() {
       try {
         setLoading(true);
         const res = await fetch('/api/cities', { signal: controller.signal });
-        if (!res.ok) throw new Error('Failed');
-        const json: ApiResponse = await res.json();
+        let json: ApiResponse | null = null;
+        try {
+          json = await res.json();
+        } catch {}
+        // Accept fallback responses even when status is 503
         const list = (json && 'cities' in json && Array.isArray(json.cities)) ? json.cities : [];
-        if (!cancelled) setCities(list.slice(0, 8));
+        if (!cancelled) {
+          if (list.length > 0) {
+            setCities(list.slice(0, 8));
+            setError(null);
+          } else if (!res.ok) {
+            setError('Error: failed to fetch cities');
+          }
+        }
       } catch (e) {
         if (!cancelled) setError('Error: failed to fetch cities');
       } finally {
@@ -58,6 +68,16 @@ export function CityCarousel() {
             {cities.map((city) => (
               <Link key={city.id} href={`/cities/${city.slug}`} className="block group" role="listitem">
                 <div className="relative h-48 w-full overflow-hidden rounded-xl border-4 border-black bg-white shadow-[8px_8px_0_0_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0_0_rgba(0,0,0,1)] transition-all">
+                  {/* Always render local placeholder to avoid 404s and layout shifts */}
+                  <Image
+                    src="/placeholder_image.png"
+                    alt="City placeholder"
+                    fill
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover"
+                    priority={false}
+                  />
+                  {/* If a city image exists, layer it above the placeholder; hide if it errors */}
                   {city.imageUrl ? (
                     <Image
                       src={city.imageUrl}
@@ -66,13 +86,11 @@ export function CityCarousel() {
                       sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                       className="object-cover group-hover:scale-105 transition-transform"
                       onError={(e) => {
-                        // Hide broken image; gradient fallback will show
+                        // Hide broken remote image so local placeholder remains visible
                         e.currentTarget.style.display = 'none';
                       }}
                     />
                   ) : null}
-                  {/* Gradient fallback to avoid layout shift on missing/broken images */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-200 to-sky-200 pointer-events-none" aria-hidden="true" />
                   <div className="absolute inset-x-0 bottom-0 p-3 bg-black/60 text-white">
                     <div className="flex items-center justify-between">
                       <span className="font-bold">{city.name}</span>

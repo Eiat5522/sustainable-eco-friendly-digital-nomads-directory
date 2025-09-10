@@ -51,7 +51,7 @@ function isSanityImage(img: unknown): img is SanityImage | string {
   return refIsValid || idIsValid;
 }
 
-  export const imageOrFallback = (img: unknown, w: number, h: number): string => {
+export const imageOrFallback = (img: unknown, w: number, h: number): string => {
   // Accept full CDN URL strings (append transformations), asset ref strings, or Sanity image objects
   if (typeof img === 'string' && img.length > 0) {
     // If it looks like a full URL, append standard query params
@@ -159,9 +159,7 @@ const toNames = (
   arr?: ReadonlyArray<{ name?: string } | null | undefined>
 ): string[] => {
   const seen = new Set<string>();
-  const seen = new Set<string>();
   const canon = (s: string) => s.normalize('NFKC').toLocaleLowerCase();
-  const out: string[] = [];  const canon = (s: string) => s.normalize('NFKC').toLocaleLowerCase();
   const out: string[] = [];
   for (const x of arr ?? []) {
     const raw = x?.name;
@@ -171,7 +169,6 @@ const toNames = (
     const key = canon(n);
     if (seen.has(key)) continue;
     seen.add(key);
-    seen.add(n);
     out.push(n);
   }
   return out;
@@ -251,7 +248,7 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
       ...baseDTO,
       type: 'cafe',
       longDescription: sanityListing.longDescription,
-      galleryImages,
+    galleryImages,
       amenities: toAmenities(sanityListing.amenities),
       contactPhone: sanityListing.contactPhone,
       contactEmail: sanityListing.contactEmail,
@@ -338,17 +335,11 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
 // ===== Blog transformers =====
 export function transformToBlogSummaryDTO(doc: any, w = 800, h = 450): BlogSummaryDTO {
   const rt = Number.isFinite(Number(doc?.readingTime)) ? Number(doc.readingTime) : undefined;
+  const slug = typeof doc?.slug === 'string' ? doc.slug : (doc?.slug?.current ?? '');
   return {
     id: doc?._id ?? '',
-    return {
-      id: doc?._id ?? '',
-      title: typeof doc?.title === 'string' ? doc.title : '',
-      slug: typeof doc?.slug === 'string'
-        ? doc.slug
-        : (doc?.slug?.current ?? ''),
-      excerpt: typeof doc?.excerpt === 'string' ? doc.excerpt : null,
-      // …other properties
-    }    slug: slug ?? '',
+    title: typeof doc?.title === 'string' ? doc.title : '',
+    slug,
     excerpt: typeof doc?.excerpt === 'string' ? doc.excerpt : null,
     imageUrl: imageOrFallback(doc?.primaryImage, w, h),
     tags: Array.isArray(doc?.tags)

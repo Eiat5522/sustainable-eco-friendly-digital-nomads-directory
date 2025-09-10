@@ -13,9 +13,9 @@ import { Label } from "@/components/ui/label";
 import { Mail, MessageSquare, Type } from 'lucide-react'
 import Link from 'next/link'
 
-type EnquiryType = 'general' | 'newsletter'
-
 import { z } from 'zod';
+
+type EnquiryType = 'general' | 'newsletter'
 
 const contactFormSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
@@ -27,8 +27,6 @@ const contactFormSchema = z.object({
 const newsletterSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
 });
-
-type EnquiryType = 'general' | 'newsletter'
 
 function ContactForm() {
   const searchParams = useSearchParams()
@@ -116,15 +114,13 @@ function ContactForm() {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-emerald-50 via-white to-sky-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
-      {/* Decorative gradient blob */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-64 bg-gradient-to-r from-emerald-200/60 via-cyan-200/40 to-sky-200/60 blur-2xl dark:from-emerald-600/20 dark:via-cyan-600/10 dark:to-sky-700/20" />
+    <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-16">
-        <NeoCard variant="flat" className="max-w-2xl mx-auto shadow-lg/50 shadow-emerald-100/40 dark:shadow-black/40 ring-1 ring-emerald-100/60 dark:ring-emerald-900/40 focus-within:ring-2 focus-within:ring-emerald-300 dark:focus-within:ring-emerald-700" role="region" aria-labelledby="contact-heading">
+        <NeoCard variant="elevated" className="max-w-2xl mx-auto" role="region" aria-labelledby="contact-heading">
           <div className="p-8">
-            <h1 id="contact-heading" className="heading-lg mb-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-sky-600 bg-clip-text text-transparent dark:from-emerald-400 dark:via-teal-400 dark:to-sky-400">Contact Us</h1>
-            <p className="body-lg text-gray-700 dark:text-gray-300 mb-8">
+            <h1 id="contact-heading" className="heading-lg mb-2 text-neo-text-primary">Contact Us</h1>
+            <p className="body-lg text-neo-text-secondary mb-8">
               We&apos;re here to help. Select a topic below or send us a message.
             </p>
 

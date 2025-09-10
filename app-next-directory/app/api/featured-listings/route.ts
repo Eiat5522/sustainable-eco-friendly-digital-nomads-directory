@@ -137,57 +137,22 @@ export async function GET() {
     console.log('[DEBUG] Featured Listings API: GROQ query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');
     console.log('[DEBUG] Featured Listings API: Found', listings.length, 'listings');
     
-    // Transform listings to DTO shape
+    // Transform to FeaturedListingDTO shape expected by the frontend
     const dtoListings = listings.map(listing => ({
       id: listing._id,
       name: listing.name,
       slug: listing.slug || '',
-      city: listing.city
-        ? {
-            id: listing.city._id || '',
-            name: listing.city.name || '',
-            slug: listing.city.slug || '',
-            country: listing.city.country || ''
-          }
-        : null,
-      cityName: listing.city?.name || '',
-      ecoFocusTags: Array.isArray(listing.ecoFocusTags) ? listing.ecoFocusTags : [],
-      digitalNomadFeatures: Array.isArray(listing.digitalNomadFeatures) ? listing.digitalNomadFeatures : [],
-      amenities: Array.isArray(listing.amenities) ? listing.amenities.map(amenity => ({
-        ...amenity,
-        badge: amenity.badge || undefined
-      })) : [],
-      priceRange: listing.priceRange || undefined,
-      website: listing.website || null,
-      imageUrl: listing.imageUrl || null,
-      primaryImage: listing.primaryImage || null,
-      galleryImages: listing.galleryImages || [],
-      contactPhone: listing.contactPhone || null,
-      contactEmail: listing.contactEmail || null,
-      coworkingDetails: listing.coworkingDetails || null,
-      accommodationDetails: listing.accommodationDetails || null,
-      cafeDetails: listing.cafeDetails || null,
-      type: listing.type || undefined,
-      shortDescription: listing.shortDescription || undefined,
-      address: listing.address || undefined,
-      category: listing.category || undefined,
-      location: listing.location || undefined
+      imageUrl: listing.imageUrl || undefined,
+      city: listing.city?.name || '',
+      amenityNames: Array.isArray(listing.amenities)
+        ? listing.amenities.map(a => a?.name).filter(Boolean)
+        : [],
     }));
 
     const endTime = performance.now();
     console.log('[DEBUG] Featured Listings API: Total request time', (endTime - startTime).toFixed(2), 'ms');
 
-    return ApiResponseHandler.success({
-      listings: dtoListings,
-      metadata: {
-        total: dtoListings.length,
-        queryTime: new Date().toISOString(),
-        performance: {
-          totalTimeMs: (endTime - startTime).toFixed(2),
-          queryTimeMs: (queryEndTime - queryStartTime).toFixed(2)
-        }
-      }
-    });
+    return ApiResponseHandler.success({ listings: dtoListings });
   } catch (error) {
     const endTime = performance.now();
     console.error('[ERROR] Featured Listings API: Request failed after', (endTime - startTime).toFixed(2), 'ms');

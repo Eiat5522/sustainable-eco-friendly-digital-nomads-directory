@@ -3,13 +3,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import type { CityDTO } from '@/types/dto';
 
 interface RelatedListing {
   id: string;
   name: string;
   slug: string;
   imageUrl: string;
-  city: string;
+  // Supports either a simple city name or a full CityDTO
+  city: string | CityDTO | null;
   priceRange: 'budget' | 'moderate' | 'premium';
   ecoFocusTags: string[];
 }
@@ -54,7 +56,7 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
               <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
                 <Image
                   src={listing.imageUrl}
-                  alt={`${listing.name} in ${listing.city}`}
+                  alt={`${listing.name} in ${typeof listing.city === 'string' ? listing.city : (listing.city?.name ?? '')}`}
                   fill
                   sizes="(min-width: 768px) 50vw, 100vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -72,9 +74,14 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
                 <NeoCardTitle className="group-hover:text-neo-primary transition-colors duration-200">
                   {listing.name}
                 </NeoCardTitle>
-                <p className="body-sm text-neo-text-secondary mt-1">
-                  {listing.city}
-                </p>
+                {(() => {
+                  const cityText = typeof listing.city === 'string' 
+                    ? listing.city 
+                    : (listing.city?.name ?? '');
+                  return cityText ? (
+                    <p className="body-sm text-neo-text-secondary mt-1">{cityText}</p>
+                  ) : null;
+                })()}
               </NeoCardHeader>
 
               <NeoCardContent>

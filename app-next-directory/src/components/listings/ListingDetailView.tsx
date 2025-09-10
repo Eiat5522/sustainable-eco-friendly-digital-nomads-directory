@@ -9,7 +9,7 @@ import { HeroSection } from './HeroSection';
 import { ListingDetailsCard } from './ListingDetailsCard';
 import { ReviewsSection } from './ReviewsSection';
 import { RelatedListings } from './RelatedListings';
-import type { ListingDetailDTO } from '@/types/dto';
+import type { ListingDetailDTO, CityDTO } from '@/types/dto';
 
 interface Review {
   id: string;
@@ -27,7 +27,7 @@ interface RelatedListing {
   name: string;
   slug: string;
   imageUrl: string;
-  city: string;
+  city: string | CityDTO | null;
   priceRange: 'budget' | 'moderate' | 'premium';
   ecoFocusTags: string[];
 }

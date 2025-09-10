@@ -182,3 +182,5 @@ app-next-directory/src/__tests__/api/search/FORTEST-route.copy.skip.ts
 **/*/search-route-test-run.txt
 tmp/
 *.debug.js
++desktop.ini
++**/desktop.ini

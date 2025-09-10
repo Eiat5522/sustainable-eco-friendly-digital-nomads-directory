@@ -195,7 +195,19 @@ export interface BlogSummaryDTO {
 }
 export type ISODateString = string & { __brand: 'ISODateString' };
 
+/** UNSAFE: Casts without validating. Prefer isISODateString/assertISODateString. */
 export const asISODateString = (s: string): ISODateString => s as ISODateString;
+
+// Accepts YYYY-MM-DD or full ISO 8601 date-time with optional timezone
+const ISO_DATE_TIME_RE =
+  /^\d{4}-\d{2}-\d{2}(?:[T\s]\d{2}:\d{2}(?::\d{2}(?:\.\d{1,3})?)?(?:Z|[+\-]\d{2}:?\d{2})?)?$/;
+
+export const isISODateString = (s: string): s is ISODateString =>
+  ISO_DATE_TIME_RE.test(s);
+
+export function assertISODateString(s: string): asserts s is ISODateString {
+  if (!isISODateString(s)) throw new TypeError('Invalid ISO 8601 date/time string');
+}
 
 export interface BlogDetailDTO extends BlogSummaryDTO {
   body: ReadonlyArray<PortableTextBlock>;

@@ -4,26 +4,32 @@ import type { Listing } from '@/types';
 // City details
 export async function fetchCityDetails(slug: string): Promise<CityDTO> {
   try {
-    // Allow route-level ISR to cache this request (300s) instead of bypassing it
+// Enable Next.js fetch cache with ISR (revalidate: 300s)
     // Fetch city details from the dedicated cities endpoint (tests and API expect this path)
     const response = await fetch(`/api/cities/${encodeURIComponent(slug)}`,
       { next: { revalidate: 300 } }
     );
 
+    // If the response is not OK, throw the explicit error the tests expect
     if (!response.ok) {
       throw new Error('Failed to fetch city details');
     }
 
+    // Parse JSON and be explicit about JSON/network errors
     const data = await response.json();
     // Support multiple API response shapes for compatibility:
     // - { data: <city> }
-    // - { success: true, city: <city> }
+    // - { success: true, data: <city> }
     // - { city: <city> }
     // - { data: { city: <city> } }
+    // The test uses { success: true, data: mockCityData }
     const city: unknown =
+      // if data.data is directly the city object
+      data?.data ??
+      // if wrapper with city field
       data?.data?.city ??
-      data?.city ??
-      data?.data;    
+      data?.city;
+
     if (!city || typeof city !== 'object' || Array.isArray(city)) {
       throw new Error('City not found in API response');
     }
