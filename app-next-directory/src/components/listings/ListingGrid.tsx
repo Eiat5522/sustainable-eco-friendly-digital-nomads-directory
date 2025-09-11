@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { NeoCard, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import type { ListingSummaryDTO } from '@/types/dto';
+import { NoListingsFound } from '@/components/listings/NoListingsFound';
 
 interface ListingGridProps {
   listings: ListingSummaryDTO[];
@@ -9,11 +10,7 @@ interface ListingGridProps {
 
 export function ListingGrid({ listings }: ListingGridProps) {
   if (!Array.isArray(listings) || listings.length === 0) {
-    return (
-      <div className="text-center text-neo-text-secondary py-12">
-        No listings found for this city yet.
-      </div>
-    );
+    return <NoListingsFound />;
   }
 
   return (
@@ -25,6 +22,15 @@ export function ListingGrid({ listings }: ListingGridProps) {
             className="group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 cursor-pointer"
           >
             <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
+              {/* Local placeholder */}
+              <Image
+                src="/placeholder_image.png"
+                alt="Listing placeholder"
+                fill
+                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                className="object-cover"
+              />
+              {/* Remote image layered above; hide on error */}
               {listing.imageUrl && (
                 <Image
                   src={listing.imageUrl}
@@ -32,6 +38,7 @@ export function ListingGrid({ listings }: ListingGridProps) {
                   fill
                   sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
                 />
               )}
             </div>

@@ -212,7 +212,7 @@ export function assertISODateString(s: string): asserts s is ISODateString {
 export interface BlogDetailDTO extends BlogSummaryDTO {
   body: ReadonlyArray<PortableTextBlock>;
   authorImageUrl?: string | null;
-  relatedPosts?: ReadonlyArray<BlogSummaryDTO>;
   relatedPosts?: ReadonlyArray<
     Pick<BlogSummaryDTO, 'id' | 'title' | 'slug' | 'imageUrl' | 'publishedAt' | 'readingTime'>
   >;
+}

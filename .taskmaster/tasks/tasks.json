@@ -252,7 +252,7 @@
         "details": "Create `app/search/page.tsx`. Implement the search page with a search bar, filter sidebar, and listing grid. Use `useRouter` and `useSearchParams` to handle query parameters and auto-redirect to the listing detail page if only one result is found. Wrap the existing `DigitalNomadSearch` and `DigitalNomadSearchFilter` components.",
         "id": 6,
         "priority": "high",
-        "status": "in-progress",
+        "status": "done",
         "testStrategy": "Verify that the search page renders without errors. Test the search functionality, filter application, and auto-redirect behavior. Ensure the listing grid displays search results correctly.",
         "title": "Implement Advanced Search Page with Auto-Redirect",
         "subtasks": [
@@ -262,7 +262,7 @@
             "description": "Create the `app/search/page.tsx` file and set up the basic structure for the search page.",
             "dependencies": [],
             "details": "Create the file and add basic HTML structure, including placeholders for the search bar, filter sidebar, and listing grid.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -273,7 +273,7 @@
               "6.1"
             ],
             "details": "Integrate the `DigitalNomadSearch` and `DigitalNomadSearchFilter` components. Handle user input and filter selections.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -284,7 +284,7 @@
               "6.2"
             ],
             "details": "Integrate the listing grid component and display search results based on the search query and filter selections.",
-            "status": "cancelled",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -295,7 +295,7 @@
               "6.3"
             ],
             "details": "Use `useRouter` and `useSearchParams` to check the number of search results and redirect to the detail page if only one result exists.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -376,7 +376,7 @@
         "details": "In `src/components/listings/ListingCard.tsx`, update the link to use the listing slug to build the path: `/listings/${listing.slug}`. Verify that the `getListingUrl` function is correctly implemented.",
         "id": 9,
         "priority": "medium",
-        "status": "pending",
+        "status": "done",
         "testStrategy": "Verify that clicking on a listing card navigates to the correct detail page. Test this functionality across all sections (Featured, City Detail, Search).",
         "title": "Update ListingCard to use Slug for Navigation",
         "subtasks": [
@@ -386,7 +386,7 @@
             "description": "Update the `ListingCard` component in `src/components/listings/ListingCard.tsx` to use the listing slug for building the detail page link: `/listings/${listing.slug}`. Ensure the `getListingUrl` function is correctly implemented.",
             "dependencies": [],
             "details": "In `src/components/listings/ListingCard.tsx`, modify the link to use the listing slug. Verify the implementation of `getListingUrl`.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -397,7 +397,34 @@
               "9.1"
             ],
             "details": "Test the navigation from the `ListingCard` component in the Featured Listings section, City Detail pages, and Search results to ensure the correct listing detail page is displayed for each card.",
-            "status": "pending",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 3,
+            "title": "Locate ListingCard.tsx",
+            "description": "Find the ListingCard.tsx file in the project.",
+            "dependencies": [],
+            "details": "Navigate to the src/components/listings/ListingCard.tsx file.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 4,
+            "title": "Update link to use listing slug",
+            "description": "Modify the link in ListingCard to use the listing slug for navigation.",
+            "dependencies": [],
+            "details": "Update the link's `href` attribute to use the listing slug: `/listings/${listing.slug}`.",
+            "status": "done",
+            "testStrategy": ""
+          },
+          {
+            "id": 5,
+            "title": "Verify the navigation",
+            "description": "Test that clicking the ListingCard navigates to the correct detail page.",
+            "dependencies": [],
+            "details": "Click on a ListingCard and verify that the browser navigates to the correct detail page using the slug in the URL.",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -410,7 +437,7 @@
         "details": "Create `src/components/search/SearchBox.tsx` as a wrapper around `DigitalNomadSearch.tsx` and `src/components/search/FiltersSidebar.tsx` as a wrapper around `DigitalNomadSearchFilter.tsx`. Ensure the wrappers handle props correctly.",
         "id": 10,
         "priority": "medium",
-        "status": "pending",
+        "status": "done",
         "testStrategy": "Verify that the search bar and filter sidebar render correctly on the search page. Test the functionality of the search bar and filters.",
         "title": "Create Search Wrapper Components",
         "subtasks": [
@@ -420,7 +447,7 @@
             "description": "Adopt direct usage of DigitalNomadSearch and DigitalNomadSearchFilter in app/search/page.tsx; remove wrapper components.",
             "details": "Use these components directly. Ensure correct prop wiring and state flow. Remove/ignore prior wrappers (SearchBox.tsx, FiltersSidebar.tsx).",
             "dependencies": [],
-           "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -429,7 +456,7 @@
             "description": "Create `src/components/search/FiltersSidebar.tsx` as a wrapper around `DigitalNomadSearchFilter.tsx`.",
             "dependencies": [],
             "details": "Implement the wrapper component, ensuring it correctly passes props to `DigitalNomadSearchFilter.tsx`.",
-            "status": "cancelled",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -438,7 +465,7 @@
             "description": "Verify prop wiring and rendering for direct usage of DigitalNomadSearch and DigitalNomadSearchFilter in app/search/page.tsx (no wrappers).",
             "dependencies": [],
             "details": "Ensure the search bar and filter sidebar render correctly when used directly. Validate end-to-end state flow (query params → filters → results).",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -446,7 +473,7 @@
     ],
     "metadata": {
       "created": "2025-08-22T06:52:17.901Z",
-      "updated": "2025-08-26T18:41:02.640Z",
+      "updated": "2025-09-11T11:18:30.657Z",
       "description": "Tasks for master context"
     }
   }

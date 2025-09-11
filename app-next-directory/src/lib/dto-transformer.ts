@@ -72,7 +72,7 @@ export const imageOrFallback = (img: unknown, w: number, h: number): string => {
     if (isImageAssetId(img)) {
       return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
     }
-    return '/leaf-laptop-logo.png';
+    return FALLBACK_IMAGE;
   }
 
   if (img && typeof img === 'object') {
@@ -89,8 +89,9 @@ export const imageOrFallback = (img: unknown, w: number, h: number): string => {
   if (isSanityImage(img)) {
     return urlFor(img).width(w).height(h).fit('crop').auto('format').url();
   }
-  return '/leaf-laptop-logo.png';
+  return FALLBACK_IMAGE;
 };
+export const FALLBACK_IMAGE = '/placeholder_image.png';
 
 export function transformToFeaturedDTO(sanityListing: SanityListing): FeaturedListingDTO {
   const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
@@ -181,26 +182,60 @@ export function transformToSummaryDTO(
 ): ListingSummaryDTO {
   const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
 
+  // Ensure slug is always a string
+  const slug = typeof (sanityListing as any).slug === 'string'
+    ? (sanityListing as any).slug
+    : (sanityListing as any).slug?.current ?? '';
+
+  // Coerce optional strings to undefined when null/invalid
+  const shortDescription = typeof (sanityListing as any).shortDescription === 'string'
+    ? (sanityListing as any).shortDescription
+    : undefined;
+  const address = typeof (sanityListing as any).address === 'string'
+    ? (sanityListing as any).address
+    : undefined;
+
+  // Validate listing type or fallback to a safe default to satisfy schema
+  const allowedTypes = new Set(['coworking', 'cafe', 'accommodation', 'restaurant', 'activities']);
+  const rawType = (sanityListing as any).type;
+  const type = allowedTypes.has(rawType) ? rawType : 'activities';
+
+  // Only include website when it looks like a valid URL
+  const websiteRaw = (sanityListing as any).website;
+  let website: string | undefined;
+  if (typeof websiteRaw === 'string') {
+    try {
+      // new URL will throw for invalid URLs
+      const u = new URL(websiteRaw, 'https://example.com');
+      // If provided string already absolute, keep it; if it was relative, drop it
+      if (/^https?:\/\//i.test(websiteRaw)) website = websiteRaw;
+    } catch { /* ignore invalid */ }
+  }
+
+  // Normalize nested city
+  const city = (sanityListing as any).city
+    ? {
+        id: (sanityListing as any).city._id,
+        name: (sanityListing as any).city.name,
+        slug: (sanityListing as any).city.slug?.current ?? '',
+        country: (sanityListing as any).city.country,
+        sustainabilityScore: toPercentage0To100((sanityListing as any).city.sustainabilityScore) as Percentage0To100 | undefined,
+        highlights: (sanityListing as any).city.highlights,
+      }
+    : null;
+
   return {
-    id: sanityListing._id,
-    name: sanityListing.name,
-    slug: typeof (sanityListing as any).slug === 'string'
-      ? (sanityListing as any).slug
-      : (sanityListing as any).slug?.current ?? '',
+    id: (sanityListing as any)._id,
+    name: (sanityListing as any).name,
+    slug,
+    type,
+    city,
     imageUrl,
-    address: sanityListing.address,
-    location: toGeoPoint(sanityListing.location),
-    shortDescription: sanityListing.shortDescription,
-    type: sanityListing.type,
-    city: sanityListing.city ? {
-      id: sanityListing.city._id,
-      name: sanityListing.city.name,
-      slug: sanityListing.city.slug.current,
-      country: sanityListing.city.country,
-      sustainabilityScore: toPercentage0To100(sanityListing.city.sustainabilityScore) as Percentage0To100 | undefined,
-      highlights: sanityListing.city.highlights,
-    } : null,
-      amenityNames: toNames(sanityListing.amenities)
+    address,
+    location: toGeoPoint((sanityListing as any).location),
+    shortDescription,
+    website,
+    amenityNames: toNames((sanityListing as any).amenities),
   };
 }
 
@@ -210,7 +245,7 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
   
   const galleryImages = (sanityListing.galleryImages ?? [])
     .map(img => imageOrFallback(img, 800, 600))
-    .filter((u: unknown): u is string => typeof u === 'string' && u.length > 0 && u !== '/images/fallback.png');
+    .filter((u: unknown): u is string => typeof u === 'string' && u.length > 0 && u !== FALLBACK_IMAGE);
 
   // Build discriminated union by type
   if (sanityListing.type === 'coworking' && sanityListing.coworkingDetails) {

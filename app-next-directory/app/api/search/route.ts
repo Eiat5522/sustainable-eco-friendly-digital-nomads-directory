@@ -9,17 +9,20 @@ import { sanitizeBasic, sanitizeStringArray, escapeGroqLiteral, escapeGroqMatch,
 const LISTING_FIELDS = `
   _id,
   name,
-  "slug": slug,
+  "slug": slug.current,
   category,
   "primaryImage": primaryImage{..., asset->},
   "galleryImages": galleryImages[]{..., asset->},
+  // Keep legacy location alias for compatibility, but also include city
   "location": city->{ _id, name, "slug": slug.current, country },
+  "city": city->{ _id, name, "slug": slug.current, country },
   priceRange,
   moderation,
   shortDescription,
   longDescription,
   ecoFeatures,
-  amenities
+  // Provide dereferenced amenity names for UI aggregation
+  "amenityNames": amenities[]->name
 `;
 
 function buildWhereClause({
@@ -52,7 +55,7 @@ function buildWhereClause({
     throw new Error('Search query too long');
   }
 
-  const filters: string[] = ['_type == "listing"', 'moderation.status == "published"'];
+  const filters: string[] = ['_type == "listing"', '(!defined(moderation.status) || moderation.status == "published")'];
 
   if (q) {
     const pattern = escapeGroqMatch(q.toLowerCase());
@@ -83,16 +86,15 @@ function buildWhereClause({
   }
 
   if (amenities.length) {
-    const eq = amenities
+    // Support both legacy string comparison and name membership for referenced amenities
+    const legacyEq = amenities
       .map((a) => `amenities[] == "${escapeGroqLiteral(a)}"`)
       .join(' || ');
-    const nfs = amenities
-      .map((a) => `array::contains(digitalNomadFeatures[]->name, "${escapeGroqLiteral(a)}")`)
+    const amenityNameIn = amenities
+      .map((a) => `("${escapeGroqLiteral(a)}" in amenities[]->name)`) // membership check in array of names
       .join(' || ');
-    filters.push(`(${eq})`);
-    filters.push(`(${nfs})`);
+    filters.push(`((${legacyEq}) || (${amenityNameIn}))`);
   }
-
   if (nomadFeatures.length) {
     const nfs = nomadFeatures
       .map((nf) => `array::contains(digitalNomadFeatures[]->name, "${escapeGroqLiteral(nf)}")`)
@@ -119,14 +121,20 @@ function buildQuery({
   nomadFeatures: string[];
   start: number;
   end: number;
-}): { query: string; countQuery: string } {
+}): { query: string; countQuery: string; facetQuery: string } {
   const where = buildWhereClause({ q, categories, destinations, amenities, nomadFeatures });
 
   const fields = `{${LISTING_FIELDS}}`;
 
   const query = `*[${where}] | order(_createdAt desc, _id desc)[${start}...${end}] ${fields}`;
   const countQuery = `count(*[${where}])`;
-  return { query, countQuery };
+  // Facet counts across the entire matching dataset (not paginated)
+  const facetQuery = `{
+    "category": array::unique(*[${where} && defined(category)].category)[]{ "value": @, "count": count(*[${where} && category == @]) },
+    "destination": array::unique(*[${where} && defined(city)].city->name)[]{ "value": @, "count": count(*[${where} && city->name == @]) },
+    "amenities": array::unique(*[${where} && defined(amenities)].amenities[]->name)[]{ "value": @, "count": count(*[${where} && @ in amenities[]->name]) }
+  }`;
+  return { query, countQuery, facetQuery };
 }
 
 export async function GET(request: NextRequest) {
@@ -135,6 +143,7 @@ export async function GET(request: NextRequest) {
     const q = sanitizeBasic(searchParams.get('q') || '');
     const page = clampInt(Number.parseInt(searchParams.get('page') ?? '1', 10) || 1, { min: 1, max: 100000 });
     const limit = clampInt(Number.parseInt(searchParams.get('limit') ?? '12', 10) || 12, { min: 1, max: 100 });
+    const includeFacets = ['1', 'true', 'yes'].includes(String(searchParams.get('facets') ?? '').toLowerCase());
 
     const categories = sanitizeStringArray(searchParams.getAll('category'));
     const destinations = sanitizeStringArray(searchParams.getAll('destination'));
@@ -144,7 +153,7 @@ export async function GET(request: NextRequest) {
     const start = (page - 1) * limit;
     // GROQ '..' is inclusive; fetch exactly `limit` items
     const end = start + limit - 1;
-    const { query, countQuery } = buildQuery({
+    const { query, countQuery, facetQuery } = buildQuery({
       q,
       categories,
       destinations,
@@ -154,11 +163,13 @@ export async function GET(request: NextRequest) {
       end,
     });
 
-    // Fetch results and total concurrently to reduce latency
-    const [results, total] = await Promise.all([
-      client.fetch(query),
-      client.fetch(countQuery)
-    ]);
+    // Fetch results and total concurrently; facets only if requested
+    const promises: Array<Promise<any>> = [client.fetch(query), client.fetch(countQuery)];
+    if (includeFacets) promises.push(client.fetch(facetQuery));
+    const settled = await Promise.all(promises);
+    const results = settled[0];
+    const total = settled[1];
+    const facets = includeFacets ? settled[2] : undefined;
 
     return ApiResponseHandler.success({
       results,
@@ -169,6 +180,7 @@ export async function GET(request: NextRequest) {
         totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
         hasMore: page * limit < total,
       },
+      ...(includeFacets ? { facets } : {}),
       filters: {
         query: q,
         category: categories,
@@ -197,6 +209,7 @@ export async function POST(request: NextRequest) {
     const q = sanitizeBasic(String(body.query ?? ''));
     const page = clampInt(Number(body.page ?? 1), { min: 1, max: 100000 });
     const limit = clampInt(Number(body.limit ?? 12), { min: 1, max: 100 });
+    const includeFacets = Boolean(body?.facets === true);
 
     const categories = sanitizeStringArray(body.category);
     const destinations = sanitizeStringArray(body.destination);
@@ -206,12 +219,14 @@ export async function POST(request: NextRequest) {
     const start = (page - 1) * limit;
     // GROQ '..' is inclusive; fetch exactly `limit` items
     const end = start + limit - 1;
-    const { query, countQuery } = buildQuery({ q, categories, destinations, amenities, nomadFeatures, start, end });
-    // Fetch results and total concurrently to reduce latency
-    const [results, total] = await Promise.all([
-      client.fetch(query),
-      client.fetch(countQuery)
-    ]);
+    const { query, countQuery, facetQuery } = buildQuery({ q, categories, destinations, amenities, nomadFeatures, start, end });
+    // Fetch results and total concurrently; facets only if requested
+    const promises: Array<Promise<any>> = [client.fetch(query), client.fetch(countQuery)];
+    if (includeFacets) promises.push(client.fetch(facetQuery));
+    const settled = await Promise.all(promises);
+    const results = settled[0];
+    const total = settled[1];
+    const facets = includeFacets ? settled[2] : undefined;
 
     return ApiResponseHandler.success({
       results,
@@ -222,6 +237,7 @@ export async function POST(request: NextRequest) {
         totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
         hasMore: page * limit < total,
       },
+      ...(includeFacets ? { facets } : {}),
       filters: {
         query: q,
         category: categories,

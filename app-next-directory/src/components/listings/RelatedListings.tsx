@@ -54,14 +54,28 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
               className="group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 cursor-pointer h-full"
             >
               <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
+                {/* Local placeholder for graceful fallback */}
                 <Image
-                  src={listing.imageUrl}
-                  alt={`${listing.name} in ${typeof listing.city === 'string' ? listing.city : (listing.city?.name ?? '')}`}
+                  src="/placeholder_image.png"
+                  alt=""
+                  aria-hidden
+                  role="presentation"
                   fill
                   sizes="(min-width: 768px) 50vw, 100vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="object-cover"
                 />
-                
+                {/* Remote image layered above; hide on error so placeholder shows */}
+                {listing.imageUrl && (
+                  <Image
+                    src={listing.imageUrl}
+                    alt={`${listing.name} in ${typeof listing.city === 'string' ? listing.city : (listing.city?.name ?? '')}`}
+                    fill
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                )}
+              
                 {/* Price Range Badge */}
                 <div className="absolute top-3 left-3">
                   <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getPriceRangeColor(listing.priceRange)}`}>

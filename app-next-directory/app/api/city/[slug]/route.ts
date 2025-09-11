@@ -14,14 +14,13 @@ export async function GET(
     const city = await getCityBySlug(slug);
     if (!city) {
       return ApiResponseHandler.notFound('City');
-
     }
     // Return a consistent response shape
     return ApiResponseHandler.success({ city });
-   console.error('GET /api/city/[slug] failed', { slug, err });atch (err) {
-} catch (err) {
-  console.error('GET /api/city/[slug] failed', { slug, err });
-  return ApiResponseHandler.error('Failed to fetch city', 500);
+  } catch (err) {
+    console.error('GET /api/city/[slug] failed', { slug, err });
+    return ApiResponseHandler.error('Failed to fetch city', 500);
+  }
 }
 // You can add other HTTP method handlers here as needed:
 // export async function POST(request: NextRequest, context: RouteContext) { ... }

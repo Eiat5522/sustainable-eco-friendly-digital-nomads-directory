@@ -76,15 +76,17 @@ if (process.env.AUTH_MICROSOFT_ENTRA_ID_ID && process.env.AUTH_MICROSOFT_ENTRA_I
       name: 'Microsoft',
       clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID,
       clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET,
-      // tenantId removed to satisfy NextAuth v5 typings; default 'common' used by provider internally if needed
+       // tenantId removed to satisfy NextAuth v5 typings; default 'common' used by provider internally if needed
     })
   )
 }
 
 const maybeAdapter = (() => {
   const uri = process.env.MONGODB_URI;
-  return uri && /^mongodb(\+srv)?:\/\/.+/.test(uri) ? MongoDBAdapter(clientPromise) : undefined;
-})();
+  if (!uri) return undefined;
+  // Construction is synchronous; connection errors will be surfaced by the driver later.
+  return MongoDBAdapter(clientPromise);
+ })();
 
 export const authOptions: NextAuthConfig = {
   // Use adapter only when a valid Mongo URI is configured to avoid dev crashes
@@ -130,10 +132,10 @@ export const authOptions: NextAuthConfig = {
           );
           if (shouldVerify && process.env.MONGODB_URI) {
             await dbConnect();
--           await (User as any).updateOne(
--             { email: String(user.email).toLowerCase() },
--             { $set: { emailVerified: new Date() } }
-           const result = await (User as any).updateOne(
+            // Use proper typing if available
+            await User.updateOne(
+             { email: String(user.email).toLowerCase() },
+             { $set: { emailVerified: new Date() } },
              {
                email: String(user.email).toLowerCase(),
                // Only update if not already verified to avoid unnecessary writes
@@ -141,7 +143,6 @@ export const authOptions: NextAuthConfig = {
              },
              { $set: { emailVerified: new Date() } }
            );
-
            if (result.matchedCount === 0) {
              console.debug('[auth] User not found or already verified', user.email);
            }

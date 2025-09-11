@@ -56,6 +56,29 @@ The authentication system will create these collections:
 - `sessions` - User sessions
 - `verificationtokens` - Email verification tokens
 
+### 🔁 Index Management (Important)
+
+Certain features rely on MongoDB indexes for correctness and performance:
+
+- Unique and TTL indexes for password reset tokens
+  - Unique per user: enforces one active token per user
+  - TTL on `expiresAt`: automatically removes expired tokens
+- Unique index on user email
+
+In development, this project auto-syncs indexes on first DB connect.
+
+- Dev default: enabled automatically
+- Other envs: set `SYNC_INDEXES_ON_CONNECT=true` to enable one-time index syncing on connect, or manage indexes via your deployment/migration process.
+
+Env flag:
+
+```
+# .env
+SYNC_INDEXES_ON_CONNECT=true
+```
+
+If you disable automatic syncing in production, ensure you create indexes through migrations or `Model.syncIndexes()` during a maintenance window.
+
 ## 🚀 Ready for Testing
 
 Once configured, the authentication system includes:

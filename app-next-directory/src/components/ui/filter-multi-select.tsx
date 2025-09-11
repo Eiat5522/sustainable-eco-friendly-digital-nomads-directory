@@ -9,6 +9,7 @@ export interface Option {
   value: string;
   label: string;
   icon?: React.ComponentType<{ className?: string }>;
+  count?: number; // optional display count
 }
 
 interface FilterMultiSelectProps {
@@ -62,7 +63,10 @@ export function FilterMultiSelect({ label, options, selected, onChange, triggerI
                 className="flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-neo-accent focus:text-white"
               >
                 {Icon && <Icon className="h-4 w-4" />}
-                <span>{opt.label}</span>
+                <span>
+                  {opt.label}
+                  {typeof opt.count === 'number' ? ` (${opt.count})` : ''}
+                </span>
                 <DropdownMenu.ItemIndicator className="ml-auto">
                   <Check className="h-4 w-4" />
                 </DropdownMenu.ItemIndicator>

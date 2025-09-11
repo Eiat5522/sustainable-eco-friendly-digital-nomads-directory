@@ -43,7 +43,9 @@ export async function authenticateUser(
     await dbConnect();
 
     // Find user in MongoDB using Mongoose model
-    const user = await UserModel.findOne({ email: email.trim().toLowerCase() }).select('+password emailVerified').lean();
+const user = await UserModel.findOne({ email: email.trim().toLowerCase() })
+  .select('_id name email image role +password +emailVerified')
+  .lean();
 
     if (!user || !user.password) {
       return null;

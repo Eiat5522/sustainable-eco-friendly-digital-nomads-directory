@@ -7,15 +7,28 @@ export default function ResetRequestPage() {
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+   
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setStatus('error'); // consider a field-level validation message/state
+      return;
+    }
+    if (status === 'submitting') return; // prevent double-submits
     setStatus('submitting');
     try {
-      await fetch('/api/auth/request-password-reset', {
+      const response = await fetch('/api/auth/request-password-reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: normalizedEmail }),
       });
+     
+     if (!response.ok) {
+       throw new Error(`HTTP error! status: ${response.status}`);
+     }
+           
       setStatus('sent');
-    } catch {
+   } catch (error) {
+     console.error('Password reset request failed:', error);
       setStatus('error');
     }
   };

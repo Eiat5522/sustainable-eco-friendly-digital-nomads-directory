@@ -32,7 +32,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
     }
 
-    const user = await User.create({ name, email: email.toLowerCase(), password, emailVerified: null });
+    let user;
+    try {
+      user = await User.create({ name, email, password, emailVerified: null });
+    } catch (e: any) {
+      if (e?.code === 11000) {
+        return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
+      }
+      throw e;
+    }
 
     // Issue verification token
     const { raw, hash } = generateToken();

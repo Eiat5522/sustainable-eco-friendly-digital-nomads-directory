@@ -24,6 +24,14 @@ export async function POST(req: Request) {
     const { email } = Schema.parse(body);
     const user = await User.findOne({ email: email.toLowerCase() }).lean();
     if (!user) {
+      // randomized delay to reduce timing side-channel (120–240ms)
+      const wait = 120 + Math.floor(Math.random() * 120);
+      await new Promise((r) => setTimeout(r, wait));
+      return NextResponse.json({ success: true });
+    }
+    // Additional per-account limit (e.g., 3/hr). No "limited" flag to avoid enumeration.
+    const userKey = `auth:reset-request:user:${String(user._id)}`;
+    if (isRateLimited(userKey, 3, 3600)) {
       return NextResponse.json({ success: true });
     }
     // Atomically upsert a single token per user to avoid races

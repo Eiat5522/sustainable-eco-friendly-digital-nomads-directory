@@ -1,1 +1,1 @@
-export * from '../../../../__mocks__/server';
+export { server } from '../../../../__mocks__/server';

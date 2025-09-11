@@ -4,30 +4,41 @@ import type { FeaturedListingDTO } from '@/types/dto';
 
 // GROQ: pick only needed fields; require moderation.featured == true and published
 const FEATURED_LISTINGS_QUERY = `
-*[_type == "listing" && moderation.status == "published" && moderation.featured == true][0...12]{
+[_type == "listing" && moderation.status == "published" && moderation.featured == true && defined(slug.current)]
+  | order(_updatedAt desc)[0...12]{
   _id,
   name,
   "slug": slug.current,
   "imageUrl": coalesce(primaryImage.asset->url, ""),
   "city": coalesce(city->name, ""),
   // Flatten amenity names for simple card display
-  "amenityNames": coalesce(amenities[]->name, [])
+  "amenityNames": coalesce(amenities[]->name[defined(@) && @ != ""], [])
 }`;
 
 export async function GET() {
   try {
     const client = getClient(false);
-    const results = await client.fetch(FEATURED_LISTINGS_QUERY);
+    const results = await client.fetch<SanityFeaturedListing[]>(FEATURED_LISTINGS_QUERY);
     const listings: FeaturedListingDTO[] = Array.isArray(results)
-      ? results.map((r: any) => ({
-          id: r._id,
-          name: r.name,
-          slug: r.slug,
-          imageUrl: r.imageUrl || undefined,
-          city: r.city || '',
-          amenityNames: Array.isArray(r.amenityNames) ? r.amenityNames.filter(Boolean) : [],
-        }))
+      ? results
+          .filter((r): r is SanityFeaturedListing => !!r && typeof r._id === 'string' && typeof r.slug === 'string')
+          .map((r) => ({
+            id: r._id,
+            name: r.name ?? '',
+            slug: r.slug,
+            imageUrl: r.imageUrl || undefined,
+            city: r.city || '',
+            amenityNames: Array.isArray(r.amenityNames) ? r.amenityNames.filter(Boolean) : [],
+          }))
       : [];
+    type SanityFeaturedListing = {
+    _id: string;
+    name?: string;
+    slug?: string;
+    imageUrl?: string;
+    city?: string;
+    amenityNames?: (string | null)[];
+  }; 
 
     return ApiResponseHandler.success({ listings });
   } catch (error: any) {

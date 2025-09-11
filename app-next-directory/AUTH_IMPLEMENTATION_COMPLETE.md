@@ -83,6 +83,7 @@
 - ✅ Separate client connection management
 - ✅ Server-side functions for database operations
 - ✅ Role-based data access
+ - ✅ Index strategy: in development, indexes are auto-synced on first connect; in other environments, enable via `SYNC_INDEXES_ON_CONNECT=true` or manage via migrations (see MONGODB_SETUP.md)
 
 ### Security Implementation
 

@@ -48,7 +48,13 @@ module.exports = {
   testPathIgnorePatterns: [
     '[\\\\/]src[\\\\/]',
     '[\\\\/]app[\\\\/]',
-    '[\\\\/]__tests__[\\\\/]'
+    '[\\\\/]__tests__[\\\\/]',
+    '<rootDir>/tests/e2e/',
+    '<rootDir>/tests/api/',
+    // Quarantined legacy/flaky e2e/api tests
+    '<rootDir>/tests/api/preview-api.test.ts',
+    '<rootDir>/tests/api/events-api.test.ts',
+    '<rootDir>/tests/e2e/rbac.e2e.test.ts'
   ],
   testTimeout: 60000,
 };

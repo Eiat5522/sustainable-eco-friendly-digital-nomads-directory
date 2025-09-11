@@ -1,1 +1,7 @@
-export * from './queries/index';
+export {
+  getDigitalNomadVenueSummary,
+  getDigitalNomadWorkspaces,
+  getListingStats,
+  getNearbyListings,
+  searchListings,
+} from './queries/index';

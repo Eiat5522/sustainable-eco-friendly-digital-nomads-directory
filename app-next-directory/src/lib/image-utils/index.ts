@@ -1,1 +1,1 @@
-export * from './getImageDimensions';
+export { getImageDimensions, type ImageDimensions } from './getImageDimensions';

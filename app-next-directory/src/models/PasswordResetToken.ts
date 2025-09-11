@@ -9,8 +9,18 @@ export interface IPasswordResetToken extends Document {
 
 const PasswordResetTokenSchema = new Schema<IPasswordResetToken>({
   userId: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
-  tokenHash: { type: String, required: true, index: true },
-  expiresAt: { type: Date, required: true },
+  tokenHash: {
+    type: String,
+    required: true,
+    index: true,
+    select: false,                 // don't return by default
+    minlength: 64,
+    maxlength: 64,
+    lowercase: true,
+    match: /^[a-f0-9]{64}$/,       // sha256 hex
+  },
+
+  expiresAt: { type: Date, required: true, index: true, expires: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 

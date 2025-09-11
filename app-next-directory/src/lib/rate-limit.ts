@@ -4,6 +4,23 @@
 type Key = string;
 type Bucket = { count: number; resetAt: number };
 
+const MAX_BUCKETS = 10_000;
+
+function sweepExpiredBuckets(now: number) {
+  for (const [k, b] of store) {
+    if (b.resetAt <= now) store.delete(k);
+  }
+}
+
+function enforceCapacity() {
+  if (store.size <= MAX_BUCKETS) return;
+  // Sort by resetAt and evict expired or oldest buckets first
+  const sorted = Array.from(store.entries()).sort((a, b) => a[1].resetAt - b[1].resetAt);
+  const toDelete = sorted.slice(0, store.size - MAX_BUCKETS);
+  for (const [k] of toDelete) {
+    store.delete(k);
+  }
+}
 const store: Map<Key, Bucket> = new Map();
 
 export function getClientIp(req: Request): string {
@@ -21,6 +38,9 @@ export function isRateLimited(key: string, limit = 10, windowSec = 60): boolean 
   if (limit <= 0) return true;
   const windowMs = Math.max(1, Math.floor(windowSec * 1000));
   const now = Date.now();
+  sweepExpiredBuckets(now);
+  enforceCapacity();
+
   const bucket = store.get(key);
   if (!bucket || bucket.resetAt <= now) {
     store.set(key, { count: 1, resetAt: now + windowMs });

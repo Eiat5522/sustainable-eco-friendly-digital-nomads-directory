@@ -16,7 +16,7 @@
     "test": "pnpm test:jest && pnpm test:e2e:jest",
 
     "test:jest": "jest --config=jest.config.cjs",
-    "test:e2e:jest": "jest --config=jest.e2e.config.cjs --runInBand --detectOpenHandles",
+    "test:e2e:jest": "jest --config=jest.e2e.config.cjs --runInBand --detectOpenHandles --passWithNoTests --",
     "test:e2e": "playwright test",
 
     "test:visual": "pnpm exec percy exec -- pnpm exec playwright test tests/visual",

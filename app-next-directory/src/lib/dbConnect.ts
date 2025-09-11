@@ -9,6 +9,7 @@ interface MongooseCache {
 }
 
 let cached = (global as typeof globalThis & { mongoose?: MongooseCache }).mongoose;
+let indexesSynced = false;
 
 if (!cached) {
   cached = ((global as typeof globalThis & { mongoose?: MongooseCache }).mongoose = { conn: null, promise: null });
@@ -66,6 +67,22 @@ async function dbConnect(): Promise<Mongoose> {
 
   if (!cached.conn) {
     throw new Error('MongoDB connection was not established');
+  }
+
+  // Optionally sync indexes once per process to ensure constraints
+  if (!indexesSynced && (process.env.NODE_ENV === 'development' || process.env.SYNC_INDEXES_ON_CONNECT === 'true')) {
+    try {
+      const { default: PasswordResetToken } = require('@/models/PasswordResetToken');
+      const { default: User } = require('@/models/User');
+      await Promise.all([
+        PasswordResetToken.syncIndexes(),
+        User.syncIndexes(),
+      ]);
+      indexesSynced = true;
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn('Index sync failed (continuing):', e);
+    }
   }
 
   return cached.conn;

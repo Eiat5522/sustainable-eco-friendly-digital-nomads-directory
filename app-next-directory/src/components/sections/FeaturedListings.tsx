@@ -13,7 +13,7 @@ export function FeaturedListings() {
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        const res = await fetch('/api/featured-listings', { next: { revalidate: 300 } })
+        const res = await fetch('/api/featured-listings')
         if (!res.ok) throw new Error('Failed to fetch featured listings')
         const data = await res.json()
         // Accept shapes: { success: true, listings }, { listings }, { data: { listings } }

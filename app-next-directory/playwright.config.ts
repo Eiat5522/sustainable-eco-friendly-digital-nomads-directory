@@ -8,7 +8,10 @@ const isLocal = ['localhost', '127.0.0.1', '0.0.0.0'].includes(resolvedURL.hostn
 const resolvedPort = Number(resolvedURL.port || 3000);
 
 export default defineConfig({
-  testDir: './tests/e2e',
+  // Run Playwright tests from the project tests directory, not only e2e,
+  // so both .spec.ts and .test.ts files are picked up.
+  testDir: './tests',
+  testMatch: ['**/*.spec.ts', '**/*.test.ts'],
   timeout: 60_000,
   expect: {
     timeout: 5000
@@ -31,17 +34,20 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } }
     }
   ],
-  webServer: isLocal ? {
-    command: `pnpm run dev`,
-    cwd: '.',
-    url: resolvedBaseURL,
-    timeout: 120_000,
-    reuseExistingServer: !process.env.CI,
-    env: {
-      PORT: String(resolvedPort),
-      // Keep Next in dev mode; use explicit toggles for test behavior.
-      // NODE_ENV: 'development', // optional: or omit entirely and let Next set it
-      E2E: '1',
-      NEXT_TELEMETRY_DISABLED: '1'
-    }
+  webServer: isLocal
+    ? {
+        command: `pnpm run dev`,
+        cwd: '.',
+        url: resolvedBaseURL,
+        timeout: 120_000,
+        reuseExistingServer: !process.env.CI,
+        env: {
+          PORT: String(resolvedPort),
+          // Keep Next in dev mode; use explicit toggles for test behavior.
+          // NODE_ENV: 'development', // optional: or omit entirely and let Next set it
+          E2E: '1',
+          NEXT_TELEMETRY_DISABLED: '1'
+        }
+      }
+    : undefined,
 });

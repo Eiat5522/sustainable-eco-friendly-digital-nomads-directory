@@ -184,3 +184,7 @@ tmp/
 *.debug.js
 +desktop.ini
 +**/desktop.ini
+
+# Ignore generated Playwright reports
+app-next-directory/playwright-report/**
+!app-next-directory/playwright-report/README.md

@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
 import { Search, MapPin, Building2, Home, Wifi, Shield, Key } from 'lucide-react';
 import { FilterMultiSelect, Option } from '@/components/ui/filter-multi-select';
+import type { ListingSummaryDTO } from '@/types/dto';
 import type {
   City,
   CityResponse,
@@ -18,7 +20,7 @@ type SearchResult = Record<string, unknown>; // TODO: narrow shape when API is w
 
 export default function SearchPage() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<ListingSummaryDTO[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
@@ -28,6 +30,7 @@ export default function SearchPage() {
   const [cityOptions, setCityOptions] = useState<Option[]>([]);
   const [typeOptions, setTypeOptions] = useState<Option[]>([]);
   const [amenityOptions, setAmenityOptions] = useState<Option[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     let cancelled = false;
@@ -56,9 +59,8 @@ export default function SearchPage() {
               .filter((c): c is City => typeof c?.name === 'string' && c.name.trim().length > 0)
               .map((c) => {
                 const name = c.name.trim();
-                // Prefer a stable value if available
-                 const value = String(c._id || c.slug?.current || name);
-                // Deduplicate by value to avoid collapsing distinct IDs that share a name
+                // Use city name as the value to align with /api/search destination filter
+                const value = name;
                 return [value, { value, label: name, icon: MapPin } as Option] as const;
               })
           ).values()
@@ -116,30 +118,17 @@ export default function SearchPage() {
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    // Navigate to dedicated results page with query and filters
+    const params = new URLSearchParams();
+    if (searchTerm.trim()) params.set('q', searchTerm.trim());
+    selectedCities.forEach((c) => params.append('destination', c));
+    selectedTypes.forEach((t) => params.append('category', t));
+    selectedAmenities.forEach((a) => params.append('amenities', a));
+    params.set('page', '1');
+    params.set('limit', '12');
+    params.set('facets', '1');
     setHasSearched(true);
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (searchTerm.trim()) {
-        params.set('q', searchTerm.trim());
-      }
-      selectedCities.forEach((c) => params.append('destination', c));
-      selectedTypes.forEach((t) => params.append('category', t));
-      selectedAmenities.forEach((a) => params.append('amenities', a));
-
-      const qs = params.toString();
-      const url = qs ? `/api/search?${qs}` : '/api/search';
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`Search failed: ${response.status}`);
-      const data = await response.json();
-      const results = Array.isArray(data?.data?.results) ? data.data.results : [];
-      setResults(results);
-    } catch (err) {
-      console.error('Search failed', err);
-    } finally {
-      setLoading(false);
-    }
+    router.push(`/search/results?${params.toString()}`);
   };
 
   return (
@@ -203,12 +192,7 @@ export default function SearchPage() {
         {loading && (
           <p className="text-center" role="status" aria-live="polite">Loading...</p>
         )}
-        {!loading && hasSearched && results.length === 0 && (
-          <p className="text-center text-neo-text-secondary">
-            No results found. Try a different search term.
-          </p>
-        )}
-        {/* Render search results here */}
+        {/* Results are displayed on /search/results */}
       </main>
       <Footer />
     </div>

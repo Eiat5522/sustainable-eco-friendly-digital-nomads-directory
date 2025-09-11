@@ -34,9 +34,17 @@ export function createListingsHandlers({
 
       const skip = (page - 1) * limit;
 
+      // Only include published listings (supports either moderation.status or top-level status)
+      const publishedQuery: any = {
+        $or: [
+          { 'moderation.status': 'published' },
+          { status: 'published' },
+        ],
+      };
+
       const [results, total] = await Promise.all([
-        listings.find({}).skip(skip).limit(limit).toArray(),
-        listings.countDocuments(),
+        listings.find(publishedQuery).skip(skip).limit(limit).toArray(),
+        listings.countDocuments(publishedQuery),
       ]);
 
       const resp = ApiResponseHandler.success({
