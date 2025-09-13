@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
 import { NeoButton } from '@/components/ui/neo-button';
 import { StarRating } from '@/components/ui/StarRating';
@@ -21,23 +23,62 @@ interface Review {
 
 interface ReviewsSectionProps {
   reviews: Review[];
+  listingId: string;
   isSignedIn?: boolean;
-  onSubmitReview?: (review: { rating: number; comment: string }) => void;
 }
 
-export function ReviewsSection({ reviews, isSignedIn = false, onSubmitReview }: ReviewsSectionProps) {
+export function ReviewsSection({ reviews, listingId, isSignedIn = false }: ReviewsSectionProps) {
   const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const router = useRouter();
 
   const handleSubmitReview = async () => {
     if (!newReview.rating || !newReview.comment.trim()) return;
 
     setIsSubmitting(true);
+    setError(null);
+    
     try {
-      await onSubmitReview?.(newReview);
-      setNewReview({ rating: 0, comment: '' });
-    } catch (error) {
-      console.error('Failed to submit review:', error);
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          rating: newReview.rating, 
+          comment: newReview.comment.trim(),
+          listingId 
+        }),
+      });
+
+      if (res.status === 401) {
+        // Redirect to login if not authenticated
+        router.push(`/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`);
+        return;
+      }
+
+      if (res.status === 403) {
+        setError('You do not have permission to submit reviews.');
+        return;
+      }
+
+      if (res.status === 409) {
+        setError('You have already reviewed this listing.');
+        return;
+      }
+
+      if (res.ok) {
+        setNewReview({ rating: 0, comment: '' });
+        setSubmitted(true);
+        // Refresh the page to show the new review (pending approval)
+        router.refresh();
+      } else {
+        const errorData = await res.json();
+        setError(errorData.error || 'Failed to submit review');
+      }
+    } catch (err) {
+      console.error('Failed to submit review:', err);
+      setError('Failed to submit review. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -77,6 +118,18 @@ export function ReviewsSection({ reviews, isSignedIn = false, onSubmitReview }: 
           <div className="mb-6 p-4 bg-neo-surface border-2 border-neo-border rounded-lg">
             <h3 className="heading-sm mb-4">Add Your Review</h3>
             
+            {error && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {error}
+              </div>
+            )}
+
+            {submitted && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+                Thank you! Your review has been submitted and is pending approval.
+              </div>
+            )}
+            
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2">Rating</label>
               <StarRating
@@ -95,6 +148,8 @@ export function ReviewsSection({ reviews, isSignedIn = false, onSubmitReview }: 
                 placeholder="Share your experience..."
                 className="neo-input"
                 rows={4}
+                maxLength={2000}
+                disabled={isSubmitting}
               />
             </div>
 
@@ -112,9 +167,11 @@ export function ReviewsSection({ reviews, isSignedIn = false, onSubmitReview }: 
         {!isSignedIn && (
           <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
             <p className="body-md text-gray-600 mb-3">Sign in to leave a review</p>
-            <NeoButton variant="outline" size="sm">
-              Sign In
-            </NeoButton>
+            <Link href={`/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`}>
+              <NeoButton variant="outline" size="sm">
+                Sign In
+              </NeoButton>
+            </Link>
           </div>
         )}
 

@@ -55,13 +55,6 @@ export function ListingDetailView({
     console.log('Toggle favorite for listing:', listing.id);
   };
 
-  const handleSubmitReview = async (review: { rating: number; comment: string }) => {
-    // In a real app, this would make an API call
-    console.log('Submit review:', review);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  };
-
   return (
     <div className="min-h-screen bg-background">
       {/* Back Navigation */}
@@ -104,8 +97,8 @@ export function ListingDetailView({
               {/* Reviews Section */}
               <ReviewsSection 
                 reviews={reviews}
+                listingId={listing.id}
                 isSignedIn={isSignedIn}
-                onSubmitReview={handleSubmitReview}
               />
             </div>
           </div>
