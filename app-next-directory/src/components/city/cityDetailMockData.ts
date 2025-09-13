@@ -8,7 +8,7 @@ export const mockCity: CityDTO = {
   sustainabilityScore: 72 as unknown as import('@/types/dto').Percentage0To100,
   highlights: ['Green rooftops', 'Bike lanes', 'River taxis'],
   imageUrl:
-    'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=800&q=80',
+    '/placeholder_image.png',
   description: 'A vibrant city embracing sustainability initiatives.',
 };
 
@@ -20,7 +20,7 @@ export const mockCityListings: ListingSummaryDTO[] = [
     type: 'coworking',
     city: mockCity,
     imageUrl:
-      'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80',
+      '/placeholder_image.png',
     ecoFocusTags: ['Solar Powered', 'Recycling'],
     digitalNomadFeatures: ['Fast WiFi', 'Ergonomic Chairs'],
     priceRange: 'moderate',
@@ -34,7 +34,7 @@ export const mockCityListings: ListingSummaryDTO[] = [
     type: 'cafe',
     city: mockCity,
     imageUrl:
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
+      '/placeholder_image.png',
     ecoFocusTags: ['Organic', 'Zero Waste'],
     digitalNomadFeatures: ['Power Outlets', 'Quiet Corners'],
     priceRange: 'budget',

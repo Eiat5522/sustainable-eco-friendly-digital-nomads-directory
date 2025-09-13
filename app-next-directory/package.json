@@ -2,8 +2,9 @@
   "name": "f35826b1ee31b8c3729949675d1485b47f7720ab7222fe1c596be9281b78bf68",
   "version": "0.1.0",
   "private": true,
-  "engines": { "node": ">=20 <23" },
-  
+  "engines": {
+    "node": ">=20 <23"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "pnpm run build:types && next build",
@@ -16,14 +17,13 @@
     "exec:jest": "jest",
     "test": "pnpm test:unit",
     "test:unit": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs",
-    "test:integration": "jest --config=jest.config.cjs --testPathPattern=src/.*\\.(int|integration)\\.test\\.(ts|tsx)$",
+    "test:integration": "jest --config=jest.config.cjs --testPathPatterns \"src/.*\\.(int|integration)\\.test\\.(ts|tsx)$\" --passWithNoTests",
     "test:e2e": "playwright test",
     "test:e2e:legacy": "jest --config=jest.e2e.config.cjs --runInBand --detectOpenHandles --passWithNoTests --",
     "test:watch": "jest --config=jest.config.cjs --watch",
     "test:coverage": "jest --config=jest.config.cjs --coverage",
     "test:ci": "jest --config=jest.config.cjs --runInBand",
     "lint": "next lint",
-
     "test:visual": "pnpm exec percy exec -- pnpm exec playwright test tests/visual",
     "test:bs": "pnpm exec playwright test --config=playwright.browserstack.config.ts"
   },
@@ -127,7 +127,6 @@
     "posthog-js": "^1.258.2",
     "preact-render-to-string": "^6.5.13",
     "react": "19.1.0",
-    "resend": "^4.0.0",
     "react-cookie-consent": "^9.0.0",
     "react-day-picker": "^9.9.0",
     "react-dom": "19.1.0",
@@ -136,6 +135,7 @@
     "react-leaflet": "^5.0.0",
     "react-resizable-panels": "^3.0.5",
     "recharts": "^2.15.4",
+    "resend": "^4.0.0",
     "sanity": "^3.99.0",
     "shadcn": "^2.10.0",
     "slugify": "^1.6.6",
@@ -154,6 +154,8 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@percy/cli": "^1.31.1",
+    "@percy/playwright": "^1.0.8",
     "@svgr/webpack": "^8.1.0",
     "@swc/jest": "^0.2.39",
     "@tailwindcss/postcss": "^4.1.12",
@@ -163,11 +165,12 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^22",
     "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
     "@types/react-countup": "^4.3.1",
-    "@types/supertest": "^6.0.3",    
+    "@types/react-dom": "^19.1.0",
+    "@types/supertest": "^6.0.3",
     "broadcast-channel": "^7.1.0",
     "comment-json": "^4.2.5",
+    "cross-env": "^10.0.0",
     "env-cmd": "^11.0.0",
     "jest": "^30.1.0",
     "jest-environment-jsdom": "^30.1.0",
@@ -183,9 +186,7 @@
     "typescript": "^5.9.2",
     "web-streams-polyfill": "^4.2.0",
     "webpack": "^5.101.3",
-    "whatwg-fetch": "^3.6.20",
-    "@percy/cli": "^1.31.1",
-    "@percy/playwright": "^1.0.8"
+    "whatwg-fetch": "^3.6.20"
   },
   "type": "module"
 }

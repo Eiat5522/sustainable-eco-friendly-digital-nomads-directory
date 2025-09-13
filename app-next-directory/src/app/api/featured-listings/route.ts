@@ -4,7 +4,12 @@ import type { FeaturedListingDTO } from '@/types/dto';
 
 // GROQ: pick only needed fields; require moderation.featured == true and published
 const FEATURED_LISTINGS_QUERY = `
-[_type == "listing" && moderation.status == "published" && moderation.featured == true && defined(slug.current)]
+[_type == "listing"
+  && moderation.status == "published"
+  && moderation.featured == true
+  && defined(slug.current)
+  && !(_id in path("drafts.**"))
+]
   | order(_updatedAt desc)[0...12]{
   _id,
   name,
@@ -12,7 +17,8 @@ const FEATURED_LISTINGS_QUERY = `
   "imageUrl": coalesce(primaryImage.asset->url, ""),
   "city": coalesce(city->name, ""),
   // Flatten amenity names for simple card display
-  "amenityNames": coalesce(amenities[]->name[defined(@) && @ != ""], [])
+  "amenityNames": coalesce(amenities[defined(@->name) && @->name != ""]->name, [])
+  
 }`;
 
 export async function GET() {

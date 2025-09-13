@@ -58,6 +58,10 @@ export const imageOrFallback = (img: unknown, w: number, h: number): string => {
     if (/^https?:\/\//i.test(img)) {
       try {
         const u = new URL(img);
+        // Block Unsplash host per product decision; use local placeholder instead
+        if (u.hostname.endsWith('images.unsplash.com')) {
+          return FALLBACK_IMAGE;
+        }
         u.searchParams.set('w', String(w));
         u.searchParams.set('h', String(h));
         u.searchParams.set('fit', 'crop');
@@ -80,6 +84,12 @@ export const imageOrFallback = (img: unknown, w: number, h: number): string => {
     const asset = obj.asset as Record<string, unknown> | undefined;
     const url = typeof asset?.url === 'string' ? asset.url : undefined;
     if (url) {
+      try {
+        const u = new URL(url);
+        if (u.hostname.endsWith('images.unsplash.com')) {
+          return FALLBACK_IMAGE;
+        }
+      } catch {}
       const hasQuery = url.includes('?');
       const qp = `w=${w}&h=${h}&fit=crop&auto=format`;
       return hasQuery ? `${url}&${qp}` : `${url}?${qp}`;

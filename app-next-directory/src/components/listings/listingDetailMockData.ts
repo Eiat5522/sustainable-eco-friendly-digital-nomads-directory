@@ -15,7 +15,7 @@ export const mockListingDetail: ListingDetailDTO = {
     highlights: ["Beach Access", "Eco Resort", "Renewable Energy"],
     description: "A tropical paradise committed to sustainability"
   },
-  imageUrl: "https://images.unsplash.com/photo-1587773389911-700ddd6b8190?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwzfHxyZXNvcnQlMjB0cm9waWNhbCUyMGx1eHVyeSUyMHRoYWlsYW5kJTIwcGFsbSUyMHRyZWVzfGVufDB8MHx8Z3JlZW58MTc1NjE5OTYxMnww&ixlib=rb-4.1.0&q=85",
+  imageUrl: "/placeholder_image.png",
   ecoFocusTags: ["Solar Powered", "Zero Waste", "Local Sourcing", "Water Conservation"],
   digitalNomadFeatures: ["High-Speed WiFi", "Coworking Space", "Meeting Rooms", "24/7 Access"],
   priceRange: "premium" as const,
@@ -25,9 +25,9 @@ export const mockListingDetail: ListingDetailDTO = {
   shortDescription: "Luxury eco-resort with stunning ocean views and sustainable practices",
   longDescription: "Nestled along the pristine shores of Phuket, Banyan Tree Phuket offers an unparalleled luxury experience while maintaining a strong commitment to environmental sustainability. Our resort features solar-powered facilities, zero-waste initiatives, and locally-sourced amenities that minimize our ecological footprint without compromising on comfort and elegance.",
   galleryImages: [
-    "https://images.unsplash.com/photo-1606944605622-c6df94a26e9b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHw3fHxiZWFjaCUyMHJlc29ydCUyMHBhbG0lMjB0cmVlcyUyMG9jZWFuJTIwdHJvcGljYWx8ZW58MHwwfHxibHVlfDE3NTYxOTk2MTJ8MA&ixlib=rb-4.1.0&q=85",
-    "https://images.unsplash.com/photo-1577897378784-40fab0464555?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxiZWFjaCUyMHJlc29ydCUyMHBhbG0lMjB0cmVlcyUyMG9jZWFuJTIwdHJvcGljYWx8ZW58MHwwfHxibHVlfDE3NTYxOTk2MTJ8MA&ixlib=rb-4.1.0&q=85",
-    "https://images.unsplash.com/photo-1650633395729-a584298031ea?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHw0fHxiZWFjaCUyMHJlc29ydCUyMHBhbG0lMjB0cmVlcyUyMG9jZWFuJTIwdHJvcGljYWx8ZW58MHwwfHxibHVlfDE3NTYxOTk2MTJ8MA&ixlib=rb-4.1.0&q=85"
+    "/placeholder_image.png",
+    "/placeholder_image.png",
+    "/placeholder_image.png"
   ],
   amenities: [
     { id: "wifi", name: "High-Speed WiFi", slug: "wifi", icon: "wifi", category: "connectivity" },
@@ -52,7 +52,7 @@ export const mockRelatedListings = [
     id: "katathani-phuket",
     name: "Katathani Phuket Beach Resort",
     slug: "katathani-phuket",
-    imageUrl: "https://images.unsplash.com/photo-1606944605622-c6df94a26e9b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHw3fHxiZWFjaCUyMHJlc29ydCUyMHBhbG0lMjB0cmVlcyUyMG9jZWFuJTIwdHJvcGljYWx8ZW58MHwwfHxibHVlfDE3NTYxOTk2MTJ8MA&ixlib=rb-4.1.0&q=85",
+    imageUrl: "/placeholder_image.png",
     city: "Phuket",
     priceRange: "premium" as const,
     ecoFocusTags: ["Ocean Conservation", "Renewable Energy"]
@@ -61,7 +61,7 @@ export const mockRelatedListings = [
     id: "eco-resort-koh-samui",
     name: "Eco Resort Koh Samui",
     slug: "eco-resort-koh-samui", 
-    imageUrl: "https://images.unsplash.com/photo-1577897378784-40fab0464555?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTAwNDR8MHwxfHNlYXJjaHwxfHxiZWFjaCUyMHJlc29ydCUyMHBhbG0lMjB0cmVlcyUyMG9jZWFuJTIwdHJvcGljYWx8ZW58MHwwfHxibHVlfDE3NTYxOTk2MTJ8MA&ixlib=rb-4.1.0&q=85",
+    imageUrl: "/placeholder_image.png",
     city: "Koh Samui",
     priceRange: "moderate" as const,
     ecoFocusTags: ["Organic Gardens", "Solar Energy"]

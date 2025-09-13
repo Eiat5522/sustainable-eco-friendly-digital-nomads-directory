@@ -23,7 +23,6 @@ const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'cdn.sanity.io', pathname: '/**' },
-      { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
       { protocol: 'https', hostname: 'images.pexels.com', pathname: '/**' },
       { protocol: 'https', hostname: 'i.pravatar.cc', pathname: '/**' },
       // Use the active Vercel deployment host to allow previews and production without over-broad wildcards

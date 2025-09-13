@@ -19,19 +19,17 @@ export async function GET() {
     const amenities: AmenityDTO[] = await client.fetch(query);
     if (!Array.isArray(amenities) || amenities.length === 0) {
       const fallback = await getSchemaAmenitiesFallback();
-      return ApiResponseHandler.success({ amenities: fallback });
+      console.warn('Amenities CMS returned empty; using schema fallback (degraded)');
+      return ApiResponseHandler.success({ amenities: fallback, degraded: true });
     }
     return ApiResponseHandler.success({ amenities });
   } catch (error) {
     console.error('Failed to fetch amenities:', error);
     const status = (error as any)?.status ?? (error as any)?.statusCode ?? 500;
     // Fall back to schema-derived amenity names if CMS fails
-    try {
-      const fallback = await getSchemaAmenitiesFallback();
-      return ApiResponseHandler.success({ amenities: fallback });
-    } catch (e) {
-      return ApiResponseHandler.error('Failed to fetch amenities', status);
-    }
+    const fallback = await getSchemaAmenitiesFallback();
+    console.warn('Using schema amenities fallback due to CMS error (degraded)');
+    return ApiResponseHandler.success({ amenities: fallback, degraded: true });
   }
 }
 
