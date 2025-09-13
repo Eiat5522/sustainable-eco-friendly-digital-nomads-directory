@@ -3,8 +3,36 @@ import { ListingGrid } from '@/components/listings/ListingGrid'
 import type { ListingSummaryDTO } from '@/types/dto'
 import Link from 'next/link'
 import { getBaseUrl } from '@/lib/absolute-url'
+import { z } from 'zod'
+
+const apiItemSchema = z.object({
+  _id: z.string().optional(),
+  name: z.string().optional(),
+  slug: z.union([z.string(), z.object({ current: z.string() })]).optional(),
+  category: z.string().optional(),
+  city: z.object({
+    _id: z.string().optional(),
+    name: z.string().optional(),
+    slug: z.string().optional(),
+    country: z.string().optional(),
+  }).nullable().optional(),
+  location: z.object({
+    _id: z.string().optional(),
+    name: z.string().optional(),
+    slug: z.string().optional(),
+    country: z.string().optional(),
+  }).nullable().optional(),
+  primaryImage: z.object({
+    asset: z.object({
+      url: z.string()
+    }).optional()
+  }).optional(),
+  shortDescription: z.string().optional(),
+  amenityNames: z.array(z.string()).optional()
+})
 
 function mapResultToDTO(item: any): ListingSummaryDTO {
+  const validated = apiItemSchema.parse(item)
   const city = item.city ?? item.location ?? null
   const imageUrl: string | undefined = item?.primaryImage?.asset?.url ?? undefined
   const slug: string = typeof item.slug === 'string' ? item.slug : (item.slug?.current ?? '')
@@ -26,6 +54,18 @@ function mapResultToDTO(item: any): ListingSummaryDTO {
     amenityNames: Array.isArray(item.amenityNames)
       ? item.amenityNames.filter((v: any) => typeof v === 'string')
       : undefined,
+    // Prefer moderation.featured when present
+    featured: Boolean((item as any)?.moderation?.featured === true),
+    // Attempt to normalize eco feature tags from various shapes
+    ecoFocusTags: Array.isArray((item as any)?.ecoFeatures)
+      ? ((item as any).ecoFeatures as any[])
+          .map((t: any) => (typeof t === 'string' ? t : (t?.name ?? null)))
+          .filter((t: any): t is string => typeof t === 'string')
+      : (Array.isArray((item as any)?.ecoFocusTags)
+          ? ((item as any).ecoFocusTags as any[])
+              .map((t: any) => (typeof t === 'string' ? t : (t?.name ?? null)))
+              .filter((t: any): t is string => typeof t === 'string')
+          : undefined),
   }
 }
 
@@ -56,14 +96,17 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
 
   const res = await fetch(url.toString(), { cache: 'no-store' })
   if (!res.ok) {
+    console.error(`Search API failed: ${res.status} ${res.statusText}`)
     return (
       <div className="container mx-auto px-4 py-8">
-        <p className="text-red-500">Failed to load search results.</p>
+        <p className="text-red-500">Failed to load search results. Please try again later.</p>
+        {process.env.NODE_ENV === 'development' && (
+          <p className="text-sm text-gray-500 mt-2">Error: {res.status} {res.statusText}</p>
+        )}
       </div>
     )
   }
-  const data = await res.json()
-  const raw = Array.isArray(data?.data?.results) ? data.data.results : []
+  const data = await res.json()  const raw = Array.isArray(data?.data?.results) ? data.data.results : []
   const mapped: ListingSummaryDTO[] = raw.map(mapResultToDTO)
   const pagination = data?.data?.pagination ?? { page: 1, totalPages: 1, hasMore: false, limit: Number(params.get('limit') || 12), total: 0 }
   const page = Math.max(1, Number(pagination.page ?? 1))

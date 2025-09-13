@@ -6,7 +6,12 @@ if (!secretString) {
 }
 
 function getKey() {
-  if (!secretString) throw new Error('Missing NEXTAUTH_SECRET for newsletter tokens');
+  if (!secretString) {
+    throw new Error('Missing newsletter token secret (set NEXTAUTH_SECRET or JWT_SECRET)');
+  }
+  if (secretString.length < 32) {
+    throw new Error('Newsletter token secret must be at least 32 characters for HS256 security');
+  }
   return new TextEncoder().encode(secretString);
 }
 

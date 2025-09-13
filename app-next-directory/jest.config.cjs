@@ -61,5 +61,7 @@ module.exports = {
     '\\.d(\\\.test)?\\.ts$',
     '[\\/]src[\\/]__tests__[\\/]api[\\/]search[\\/]FORTEST-route\\.copy\\.skip\\.ts$',
     '[\\/]src[\\/]tests[\\/]'
-  ],
+  ].concat(process.env.JEST_UNIT_ONLY === '1' ? [
+    '.*\\.(int|integration)\\.test\\.(ts|tsx)$'
+  ] : []),
 };

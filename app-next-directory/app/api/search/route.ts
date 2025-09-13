@@ -130,9 +130,9 @@ function buildQuery({
   const countQuery = `count(*[${where}])`;
   // Facet counts across the entire matching dataset (not paginated)
   const facetQuery = `{
-    "category": array::unique(*[${where} && defined(category)].category)[]{ "value": @, "count": count(*[${where} && category == @]) },
-    "destination": array::unique(*[${where} && defined(city)].city->name)[]{ "value": @, "count": count(*[${where} && city->name == @]) },
-    "amenities": array::unique(*[${where} && defined(amenities)].amenities[]->name)[]{ "value": @, "count": count(*[${where} && @ in amenities[]->name]) }
+    "category": *[${where} && defined(category)] | group(category) | { "value": _key, "count": count(@) },
+    "destination": *[${where} && defined(city)] | group(city->name) | { "value": _key, "count": count(@) },
+    "amenities": *[${where} && defined(amenities)].amenities[]->name | group(@) | { "value": _key, "count": count(@) }
   }`;
   return { query, countQuery, facetQuery };
 }
@@ -151,8 +151,8 @@ export async function GET(request: NextRequest) {
     const nomadFeatures = sanitizeStringArray(searchParams.getAll('nomadFeatures'));
 
     const start = (page - 1) * limit;
-    // GROQ '..' is inclusive; fetch exactly `limit` items
-    const end = start + limit - 1;
+    // GROQ '...' uses exclusive end; fetch exactly `limit` items
+    const end = start + limit;
     const { query, countQuery, facetQuery } = buildQuery({
       q,
       categories,
@@ -223,7 +223,9 @@ export async function POST(request: NextRequest) {
     // Fetch results and total concurrently; facets only if requested
     const promises: Array<Promise<any>> = [client.fetch(query), client.fetch(countQuery)];
     if (includeFacets) promises.push(client.fetch(facetQuery));
-    const settled = await Promise.all(promises);
+    // GROQ '...' uses exclusive end; fetch exactly `limit` items
+    const end = start + limit;
+    const settled = await Promise.all(promises); 
     const results = settled[0];
     const total = settled[1];
     const facets = includeFacets ? settled[2] : undefined;

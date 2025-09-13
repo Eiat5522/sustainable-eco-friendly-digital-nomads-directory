@@ -189,9 +189,6 @@ export default function SearchPage() {
           </div>
         </form>
 
-        {loading && (
-          <p className="text-center" role="status" aria-live="polite">Loading...</p>
-        )}
         {/* Results are displayed on /search/results */}
       </main>
       <Footer />

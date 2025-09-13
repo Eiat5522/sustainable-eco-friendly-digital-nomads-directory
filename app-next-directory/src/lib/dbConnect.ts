@@ -6,10 +6,10 @@ const MONGODB_URI = process.env.MONGODB_URI;
 interface MongooseCache {
   conn: Mongoose | null;
   promise: Promise<Mongoose> | null;
+  indexesSynced: boolean;
 }
 
 let cached = (global as typeof globalThis & { mongoose?: MongooseCache }).mongoose;
-let indexesSynced = false;
 
 if (!cached) {
   cached = ((global as typeof globalThis & { mongoose?: MongooseCache }).mongoose = { conn: null, promise: null });
@@ -18,9 +18,15 @@ if (!cached) {
 async function dbConnect(): Promise<Mongoose> {
   // Dynamically load mongoose for mocking flexibility
   const mongoose: any = require('mongoose');
-  if (!MONGODB_URI || typeof MONGODB_URI !== 'string' || !/^mongodb(\+srv)?:\/\/.+/.test(MONGODB_URI)) {
-    throw new Error('Invalid or missing MONGODB_URI');
-  }
+if (!MONGODB_URI) {
+  throw new Error('MONGODB_URI environment variable is required');
+}
+if (typeof MONGODB_URI !== 'string') {
+  throw new Error('MONGODB_URI must be a string');
+}
+if (!/^mongodb(\+srv)?:\/\/.+/.test(MONGODB_URI)) {
+  throw new Error('MONGODB_URI must be a valid MongoDB connection string starting with mongodb:// or mongodb+srv://');
+}
 
   if (cached.conn) {
     return cached.conn;
@@ -72,8 +78,10 @@ async function dbConnect(): Promise<Mongoose> {
   // Optionally sync indexes once per process to ensure constraints
   if (!indexesSynced && (process.env.NODE_ENV === 'development' || process.env.SYNC_INDEXES_ON_CONNECT === 'true')) {
     try {
-      const { default: PasswordResetToken } = require('@/models/PasswordResetToken');
-      const { default: User } = require('@/models/User');
+const [{ default: PasswordResetToken }, { default: User }] = await Promise.all([
+  import('@/models/PasswordResetToken'),
+  import('@/models/User')
+]);
       await Promise.all([
         PasswordResetToken.syncIndexes(),
         User.syncIndexes(),

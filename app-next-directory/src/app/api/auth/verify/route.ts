@@ -16,7 +16,7 @@ export async function GET(req: Request) {
       return NextResponse.redirect(new URL('/auth/login?verified=0', req.url));
     }
 
-    // Rate limit by client IP
+console.error(    // Rate limit by client IP
     const ip = getClientIp(req);
     const key = `auth:verify:${ip}`;
     if (isRateLimited(key, 10, 60)) {
@@ -54,9 +54,9 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.redirect(new URL('/auth/login?verified=1', req.url));
-  } catch (error) {
-    console.error('[Email Verification] Error processing verification:', error);
-    return NextResponse.redirect(new URL('/auth/login?verified=0', req.url));
-  }
+    }   catch (error) {
+        console.error('[Email Verification] Error processing verification:', error);
+        return NextResponse.redirect(new URL('/auth/login?verified=0', req.url));
+    }
 }
 

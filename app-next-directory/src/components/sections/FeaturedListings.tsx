@@ -1,9 +1,13 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { SectionHeader } from '@/components/ui/SectionHeader'
 import { VenueCard } from '@/components/ui/VenueCard'
 import type { FeaturedListingDTO } from '@/types/dto'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { NeoButton } from '@/components/ui/neo-button'
+import useEmblaCarousel from 'embla-carousel-react'
+import Autoplay from 'embla-carousel-autoplay'
 
 export function FeaturedListings() {
   const [listings, setListings] = useState<FeaturedListingDTO[]>([])
@@ -58,6 +62,38 @@ export function FeaturedListings() {
     )
   }
 
+  // Embla carousel
+  const autoplay = useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: false })
+  )
+  const [viewportRef, emblaApi] = useEmblaCarousel(
+    {
+      align: 'start',
+      containScroll: 'trimSnaps',
+      loop: true,
+      skipSnaps: false,
+    },
+    [autoplay.current]
+  )
+  const [canPrev, setCanPrev] = useState(false)
+  const [canNext, setCanNext] = useState(false)
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return
+    setCanPrev(emblaApi.canScrollPrev())
+    setCanNext(emblaApi.canScrollNext())
+  }, [emblaApi])
+
+  useEffect(() => {
+    if (!emblaApi) return
+    onSelect()
+    emblaApi.on('select', onSelect)
+    emblaApi.on('reInit', onSelect)
+  }, [emblaApi, onSelect])
+
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi])
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi])
+
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
@@ -66,14 +102,49 @@ export function FeaturedListings() {
           description="Handpicked eco-friendly spaces that prioritize sustainability without compromising on quality"
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {listings.map((listing, index) => (
-            <VenueCard 
-              key={listing.id} 
-              venue={listing}
-              priority={index < 3}
-            />
-          ))}
+        <div className="relative">
+          {/* Nav buttons */}
+          <NeoButton
+            variant="secondary"
+            size="sm"
+            className="hidden md:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
+            aria-label="Scroll featured left"
+            onClick={scrollPrev}
+            disabled={!canPrev}
+            onMouseEnter={() => autoplay.current?.stop()}
+            onMouseLeave={() => autoplay.current?.play()}
+          >
+            <ChevronLeft size={18} />
+          </NeoButton>
+          <NeoButton
+            variant="secondary"
+            size="sm"
+            className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
+            aria-label="Scroll featured right"
+            onClick={scrollNext}
+            disabled={!canNext}
+          >
+            <ChevronRight size={18} />
+          </NeoButton>
+
+          {/* Embla viewport & container */}
+          <div
+            ref={viewportRef}
+            className="overflow-hidden"
+            role="region"
+            aria-label="Featured venues carousel"
+          >
+            <div className="flex gap-6">
+              {listings.map((listing, index) => (
+                <div
+                  key={listing.id}
+                  className="shrink-0 basis-[85%] sm:basis-[60%] lg:basis-1/3"
+                >
+                  <VenueCard venue={listing} priority={index < 3} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>

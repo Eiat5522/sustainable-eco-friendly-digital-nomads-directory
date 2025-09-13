@@ -33,13 +33,22 @@ export function getClientIp(req: Request): string {
   return 'unknown';
 }
 
+let lastCleanup = 0;
+const CLEANUP_INTERVAL_MS = 60_000; // Run cleanup every minute
+
+function performCleanup(now: number) {
+  if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
+  sweepExpiredBuckets(now);
+  enforceCapacity();
+  lastCleanup = now;
+}
+
 export function isRateLimited(key: string, limit = 10, windowSec = 60): boolean {
   if (!Number.isFinite(limit) || !Number.isFinite(windowSec)) return true;
   if (limit <= 0) return true;
   const windowMs = Math.max(1, Math.floor(windowSec * 1000));
   const now = Date.now();
-  sweepExpiredBuckets(now);
-  enforceCapacity();
+  performCleanup(now);
 
   const bucket = store.get(key);
   if (!bucket || bucket.resetAt <= now) {

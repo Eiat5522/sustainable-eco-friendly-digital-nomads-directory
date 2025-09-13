@@ -13,11 +13,16 @@
     "validate:env": "node scripts/validate-env.js",
     "msw:init": "msw init public --save",
     "postinstall": "node scripts/postinstall-msw.cjs",
-    "test": "pnpm test:jest && pnpm test:e2e:jest",
-
-    "test:jest": "jest --config=jest.config.cjs",
-    "test:e2e:jest": "jest --config=jest.e2e.config.cjs --runInBand --detectOpenHandles --passWithNoTests --",
+    "exec:jest": "jest",
+    "test": "pnpm test:unit",
+    "test:unit": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs",
+    "test:integration": "jest --config=jest.config.cjs --testPathPattern=src/.*\\.(int|integration)\\.test\\.(ts|tsx)$",
     "test:e2e": "playwright test",
+    "test:e2e:legacy": "jest --config=jest.e2e.config.cjs --runInBand --detectOpenHandles --passWithNoTests --",
+    "test:watch": "jest --config=jest.config.cjs --watch",
+    "test:coverage": "jest --config=jest.config.cjs --coverage",
+    "test:ci": "jest --config=jest.config.cjs --runInBand",
+    "lint": "next lint",
 
     "test:visual": "pnpm exec percy exec -- pnpm exec playwright test tests/visual",
     "test:bs": "pnpm exec playwright test --config=playwright.browserstack.config.ts"

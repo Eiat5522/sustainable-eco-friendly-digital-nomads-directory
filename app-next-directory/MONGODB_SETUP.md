@@ -60,10 +60,21 @@ The authentication system will create these collections:
 
 Certain features rely on MongoDB indexes for correctness and performance:
 
-- Unique and TTL indexes for password reset tokens
-  - Unique per user: enforces one active token per user
-  - TTL on `expiresAt`: automatically removes expired tokens
-- Unique index on user email
+For correctness and cleanup, ensure these indexes exist:
+
+- users
+  - { email: 1 }, { unique: true }
+
+- accounts
+  - { provider: 1, providerAccountId: 1 }, { unique: true }
+
+- sessions
+  - { sessionToken: 1 }, { unique: true }
+  - { expiresAt: 1 }, { expireAfterSeconds: 0 }   # ensures automatic expiry cleanup
+
+- verificationtokens
+  - { identifier: 1, token: 1 }, { unique: true }
+  - { expiresAt: 1 }, { expireAfterSeconds: 0 }
 
 In development, this project auto-syncs indexes on first DB connect.
 

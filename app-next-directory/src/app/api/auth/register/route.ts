@@ -34,9 +34,10 @@ export async function POST(req: Request) {
 
     let user;
     try {
-      user = await User.create({ name, email, password, emailVerified: null });
-    } catch (e: any) {
-      if (e?.code === 11000) {
+        user = await User.create({ name, email: normalizedEmail, password, emailVerified: null });
+    } catch (e: unknown) {
+      const code = (e as any)?.code;
+      if (code === 11000) {
         return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
       }
       throw e;

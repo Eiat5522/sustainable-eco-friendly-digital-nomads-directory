@@ -41,7 +41,7 @@ async function fetchListingBySlug(slug: string): Promise<ListingDetailDTO | null
   const raw = await client.fetch<SanityListing | null>(query, { slug });
   if (!raw) return null;
   try {
-    return transformToDetailDTO(raw as any);
+    return transformToDetailDTO(raw);
   } catch (e) {
     console.error('[listings/[slug]] transform failed for', slug, e);
     return null;
@@ -49,9 +49,9 @@ async function fetchListingBySlug(slug: string): Promise<ListingDetailDTO | null
 }
 
 export default async function ListingPage({ params }: Props) {
-  const { slug } = await Promise.resolve(params);
+    const { slug } = params;
   const listing = await fetchListingBySlug(slug);
-  if (!listing) return notFound();
+  if (!listing) notFound();
 
   // Fetch related listings: same city, published, exclude current
   async function fetchRelatedListings(cityId?: string, excludeId?: string) {

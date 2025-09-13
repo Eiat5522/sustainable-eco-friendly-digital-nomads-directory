@@ -40,6 +40,11 @@ function memoryIncr(key: string, ttlSeconds: number) {
   memoryStore.set(key, { value: String(next), expiresAt: entry.expiresAt }) // preserve original expiry
   return next
 }
+// Add periodic cleanup for memory store
+let cleanupInterval: NodeJS.Timeout | null = null
+
+function startMemoryCleanup() {
+  if (cleanupInterval) return
 
 // Attempt to use Redis if configured; otherwise use memory store
 let redisClient: any = null

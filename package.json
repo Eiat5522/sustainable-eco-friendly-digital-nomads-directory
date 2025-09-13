@@ -9,8 +9,12 @@
   "private": true,
   "description": "Root package for the Sustainable Eco-Friendly Digital Nomads Directory project",
   "scripts": {
+    "exec:jest": "pnpm --filter app-next-directory exec:jest",
     "test": "pnpm --filter app-next-directory test",
+    "test:unit": "pnpm --filter app-next-directory test:unit",
+    "test:integration": "pnpm --filter app-next-directory test:integration",
     "test:e2e": "pnpm --filter app-next-directory test:e2e",
+    "test:e2e:legacy": "pnpm --filter app-next-directory test:e2e:legacy",
     "dev:next": "pnpm --filter app-next-directory dev",
     "dev:sanity": "pnpm --filter sanity dev",
     "dev": "pnpm dev:next",

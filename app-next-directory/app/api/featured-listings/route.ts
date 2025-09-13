@@ -147,6 +147,10 @@ export async function GET() {
       amenityNames: Array.isArray(listing.amenities)
         ? listing.amenities.map(a => a?.name).filter(Boolean)
         : [],
+      ecoFocusTags: Array.isArray(listing.ecoFocusTags)
+        ? listing.ecoFocusTags.filter((t): t is string => typeof t === 'string')
+        : [],
+      featured: true,
     }));
 
     const endTime = performance.now();

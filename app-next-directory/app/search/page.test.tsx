@@ -41,8 +41,8 @@ describe('Search Page', () => {
 
     await waitFor(() => {
       expect(pushMock).toHaveBeenCalled()
-      const arg = String(pushMock.mock.calls[0]?.[0] || '')
-      expect(arg.startsWith('/search/results')).toBe(true)
+      expect(pushMock.mock.calls[0][0]).toMatch(/^\/search\/results(?:$|\?)/)
+      expect(pushMock).toHaveBeenCalledTimes(1)
     })
   })
 

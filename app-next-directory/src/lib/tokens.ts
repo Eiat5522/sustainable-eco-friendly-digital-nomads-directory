@@ -3,10 +3,10 @@ import { createHash, randomBytes } from 'node:crypto';
 
 export function generateToken(): { raw: string; hash: string } {
   const raw = randomBytes(32).toString('hex');
-  const hash = createHash('sha256').update(raw).digest('hex');
+  const hash = hashToken(raw);
   return { raw, hash };
 }
-
+const hash = hashToken(raw);
 export function hashToken(raw: string): string {
   return createHash('sha256').update(raw).digest('hex');
 }

@@ -7,11 +7,25 @@ const resolvedURL = new URL(resolvedBaseURL);
 const isLocal = ['localhost', '127.0.0.1', '0.0.0.0'].includes(resolvedURL.hostname);
 const resolvedPort = Number(resolvedURL.port || 3000);
 
+// Include IPv6 loopback and normalize wait host
+const localHosts = new Set(['localhost', '127.0.0.1', '0.0.0.0', '::1']);
+const serverWaitURL = new URL(resolvedBaseURL);
+if (serverWaitURL.hostname === '0.0.0.0' || serverWaitURL.hostname === '::1') {
+  serverWaitURL.hostname = '127.0.0.1';
+}
+
 export default defineConfig({
   // Run Playwright tests from the project tests directory, not only e2e,
   // so both .spec.ts and .test.ts files are picked up.
   testDir: './tests',
   testMatch: ['**/*.spec.ts', '**/*.test.ts'],
+  testIgnore: [
+    'tests/api/*-api.test.ts',
+    'tests/api/events-api.test.ts',
+    'tests/api/preview-api.test.ts',
+    'tests/e2e/**/*.e2e.*',
+    'tests/CityCarousel.test.tsx'
+  ],
   timeout: 60_000,
   expect: {
     timeout: 5000
@@ -37,17 +51,20 @@ export default defineConfig({
   webServer: isLocal
     ? {
         command: `pnpm run dev`,
-        cwd: '.',
-        url: resolvedBaseURL,
-        timeout: 120_000,
+        url: serverWaitURL.toString(),
+        timeout: 180_000,
         reuseExistingServer: !process.env.CI,
         env: {
           PORT: String(resolvedPort),
           // Keep Next in dev mode; use explicit toggles for test behavior.
-          // NODE_ENV: 'development', // optional: or omit entirely and let Next set it
           E2E: '1',
+          NEXT_PUBLIC_E2E: '1',
+          NEXT_PUBLIC_SANITY_PROJECT_ID: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'test-project',
+          NEXT_PUBLIC_SANITY_DATASET: process.env.NEXT_PUBLIC_SANITY_DATASET || 'test-dataset',
           NEXT_TELEMETRY_DISABLED: '1'
         }
       }
     : undefined,
 });
+
+

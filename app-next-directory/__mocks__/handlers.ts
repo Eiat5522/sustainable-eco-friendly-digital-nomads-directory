@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import { mockListings as testListings } from '@/tests/helpers/test-data'
-import { mockFeaturedVenues } from '@/components/sections/featuredVenuesMockData'
+import { mockFeaturedVenues } from '@/tests/helpers/test-data'
 
 export const handlers = [
   // Search endpoints to silence unhandled warnings where tests don't mock fetch
