@@ -15,9 +15,10 @@ export function FeaturedListings() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    const controller = new AbortController()
     const fetchListings = async () => {
       try {
-        const res = await fetch('/api/featured-listings')
+        const res = await fetch('/api/featured-listings', { signal: controller.signal })
         if (!res.ok) throw new Error('Failed to fetch featured listings')
         const data = await res.json()
         // Accept shapes: { success: true, listings }, { listings }, { data: { listings } }
@@ -33,6 +34,7 @@ export function FeaturedListings() {
         })) as FeaturedListingDTO[]
         setListings(normalized)
       } catch (err) {
+        if ((err as any)?.name === 'AbortError') return
         setError(err instanceof Error ? err.message : 'An unknown error occurred')
       } finally {
         setLoading(false)
@@ -40,6 +42,7 @@ export function FeaturedListings() {
     }
 
     fetchListings()
+    return () => controller.abort()
   }, [])
 
   if (loading) {
