@@ -166,7 +166,7 @@ export function createMiddleware({
         }
 
         // Protected APIs (require authentication and permission):
-        const protectedApiPaths = ['/api/user', '/api/admin', '/api/reviews'];
+        const protectedApiPaths = ['/api/user', '/api/admin', '/api/reviews', '/api/comments'];
         const isProtectedApi = protectedApiPaths.some(path => pathname.startsWith(path));
 
         if (isProtectedApi && !isAuthenticated) {
@@ -246,6 +246,8 @@ export const config = {
     '/api/superadmin/:path*',
     '/api/protected/:path*', // Generic protected API
     '/api/session', // For session updates
+    '/api/comments/:path*', // Blog comments
+    '/api/reviews/:path*', // Listing reviews
   ],
 };
 

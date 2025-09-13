@@ -49,10 +49,35 @@ export function ListingDetailView({
 }: ListingDetailViewProps) {
   const [favorited, setFavorited] = useState(isFavorited);
 
-  const handleToggleFavorite = () => {
-    setFavorited(!favorited);
-    // In a real app, this would make an API call
-    console.log('Toggle favorite for listing:', listing.id);
+  const handleToggleFavorite = async () => {
+    // Check if user is signed in first
+    if (!isSignedIn) {
+      // Redirect to login
+      window.location.href = `/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`;
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/user/favorites/${listing.id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (res.status === 401) {
+        // Redirect to login if not authenticated
+        window.location.href = `/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`;
+        return;
+      }
+
+      if (res.ok) {
+        const data = await res.json();
+        setFavorited(data.favorited);
+      } else {
+        console.error('Failed to toggle favorite:', res.status, res.statusText);
+      }
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
   };
 
   return (

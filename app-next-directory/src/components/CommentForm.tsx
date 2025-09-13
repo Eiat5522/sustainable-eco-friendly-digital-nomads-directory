@@ -29,6 +29,8 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
 
     try {
       setIsSubmitting(true);
+      setError(null);
+      
       const res = await fetch('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -40,15 +42,23 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
         return;
       }
 
+      if (res.status === 403) {
+        setError('You do not have permission to submit comments.');
+        return;
+      }
+
       if (res.ok) {
         setContent('');
         setSubmitted(true);
         router.refresh();
       } else {
+        const errorData = await res.json();
+        setError(errorData.error || 'Failed to submit comment');
         console.error(`Failed to submit comment: ${res.status} ${res.statusText}`, await res.text());
       }
     } catch (err) {
       console.error('Failed to submit comment', err);
+      setError('Failed to submit comment. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -56,6 +66,13 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
   return (
     <form onSubmit={handleSubmit} className="mt-8">
       <label htmlFor="comment" className="sr-only">Comment</label>
+      
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
       <textarea
         id="comment"
         name="content"

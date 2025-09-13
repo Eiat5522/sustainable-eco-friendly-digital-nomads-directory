@@ -125,6 +125,22 @@ async function getReviews(listingId: string) {
   }));
 }
 
+async function checkIsFavorited(listingId: string, userId?: string): Promise<boolean> {
+  if (!userId) return false;
+  
+  try {
+    const favorite = await client.fetch(
+      `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
+      { userId, listingId }
+    );
+    return !!favorite;
+  } catch (error) {
+    console.error('Failed to check favorite status:', error);
+    return false;
+  }
+}
+}
+
 interface PageProps {
   params: { slug: string };
 }
@@ -146,11 +162,15 @@ export default async function ListingDetailPage({ params }: PageProps) {
   const user = session?.user as { id?: string; role?: UserRole } | undefined;
   const isSignedIn = !!session && !!user?.id;
   
+  // Check if listing is favorited by the user
+  const isFavorited = await checkIsFavorited(listing.id, user?.id);
+  
   return (
     <ListingDetailView
       listing={listing}
       reviews={reviews}
       isSignedIn={isSignedIn}
+      isFavorited={isFavorited}
     />
   );
 }
