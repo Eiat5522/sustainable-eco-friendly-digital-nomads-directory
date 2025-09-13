@@ -1,5 +1,5 @@
 {
-    "jest.enable": false,
+    "jest.enable": true,
     "jest.debugMode": false,
     "jest.jestCommandLine": "pnpm test",
     "jest.rootPath": "src",

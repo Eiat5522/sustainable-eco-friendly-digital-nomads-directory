@@ -1,7 +1,8 @@
-import { defineConfig } from 'sanity';
-import { deskTool } from 'sanity/desk';
+import { defineConfig } from 'sanity'
+import { deskTool } from 'sanity/desk'
 
-export default defineConfig({
+// Cast to `any` to avoid exposing private plugin option types in d.ts
+const config = defineConfig({
   name: 'econmads',
   title: 'EcoNomads',
   
@@ -15,4 +16,6 @@ export default defineConfig({
   },
 
   basePath: '/studio',
-})
+} as any)
+
+export default config

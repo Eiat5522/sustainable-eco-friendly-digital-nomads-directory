@@ -106,7 +106,8 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
       </div>
     )
   }
-  const data = await res.json()  const raw = Array.isArray(data?.data?.results) ? data.data.results : []
+  const data = await res.json();
+  const raw = Array.isArray(data?.data?.results) ? data.data.results : []
   const mapped: ListingSummaryDTO[] = raw.map(mapResultToDTO)
   const pagination = data?.data?.pagination ?? { page: 1, totalPages: 1, hasMore: false, limit: Number(params.get('limit') || 12), total: 0 }
   const page = Math.max(1, Number(pagination.page ?? 1))

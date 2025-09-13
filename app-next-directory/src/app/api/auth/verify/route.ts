@@ -15,8 +15,7 @@ export async function GET(req: Request) {
     if (!token) {
       return NextResponse.redirect(new URL('/auth/login?verified=0', req.url));
     }
-
-console.error(    // Rate limit by client IP
+    // Rate limit by client IP
     const ip = getClientIp(req);
     const key = `auth:verify:${ip}`;
     if (isRateLimited(key, 10, 60)) {
@@ -59,4 +58,3 @@ console.error(    // Rate limit by client IP
         return NextResponse.redirect(new URL('/auth/login?verified=0', req.url));
     }
 }
-

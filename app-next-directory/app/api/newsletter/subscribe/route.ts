@@ -45,6 +45,14 @@ let cleanupInterval: NodeJS.Timeout | null = null
 
 function startMemoryCleanup() {
   if (cleanupInterval) return
+  // Periodically purge expired entries from the in-memory store
+  cleanupInterval = setInterval(() => {
+    const now = Date.now()
+    for (const [key, entry] of memoryStore.entries()) {
+      if (now > entry.expiresAt) memoryStore.delete(key)
+    }
+  }, 60_000)
+}
 
 // Attempt to use Redis if configured; otherwise use memory store
 let redisClient: any = null
