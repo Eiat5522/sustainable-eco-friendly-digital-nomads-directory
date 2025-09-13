@@ -7,24 +7,117 @@ applyTo: "**"
 **Enforce that only @Eiat can modify this instructions file:**
 **.github/copilot-instructions.md @Eiat**
 
-## Sustainable Digital Nomads Directory – AI Agent Coding Guidelines
+## 🌱 Sustainable Digital Nomads Directory – Repository Onboarding & Coding Guidelines
 
-### 1. Tech Stack & Directory Structure
-- **Core Technologies:** Next.js (App Router), Tailwind CSS, Sanity CMS, MongoDB, Leaflet.js, Vercel, Stripe, NextAuth.js.
+**Purpose**: A curated monorepo platform for sustainable, eco-friendly venues and services for digital nomads worldwide. Features include venue listings, city guides, advanced search, interactive maps, user authentication, and admin dashboard.
+
+### 1. Tech Stack & Architecture
+- **Frontend**: Next.js 15+ (App Router), TypeScript, Tailwind CSS v4, Framer Motion, Radix UI
+- **Backend/CMS**: Sanity.io CMS, MongoDB Atlas, NextAuth.js v5 (beta)
+- **Testing**: Playwright (120+ E2E tests), Jest (unit tests), SWC transpilation
+- **Package Management**: pnpm (preferred), npm (fallback)
+- **Maps**: Leaflet.js with OpenStreetMap
+- **Deployment**: Vercel (frontend), Sanity Cloud (CMS), MongoDB Atlas (database)
+
+### Project Structure
+```
+sustainable-eco-friendly-digital-nomads-directory/
+├── app-next-directory/          # Main Next.js application
+│   ├── src/                     # Source code (components, pages, API routes)
+│   ├── tests/e2e/               # Playwright test suites (120+ tests)
+│   ├── __mocks__/               # Jest mocks for external dependencies
+│   ├── jest.config.cjs          # Jest configuration with complex mocking
+│   ├── playwright.config.ts     # E2E testing configuration
+│   ├── next.config.mjs          # Next.js config with image domains, redirects
+│   └── eslint.config.mjs        # ESLint flat config
+├── sanity/                      # Sanity CMS configuration
+│   ├── schemas/                 # Content type definitions
+│   ├── sanity.config.ts         # Studio configuration
+│   └── package.json             # Sanity dependencies
+├── listings/                    # Data processing & migration (Python scripts)
+├── docs/                        # Comprehensive project documentation
+├── scripts/                     # Utility scripts (validation, testing, CI)
+└── package.json                 # Root workspace configuration (pnpm workspaces)
+```
+
 - **API Routes:** Must follow `/src/app/api/*` structure.
 - **Sanity Schemas:** Located in `sanity/schemas/`.
 - **Main Document Types:** `listing`, `city`, `blogPost`, `author`, `siteConfig`.
+- **Key Listing Fields:** `title`, `slug`, `listingType`, `mainImage`, `address`, `city`, `country`, `website`, `amenities`, `sustainabilityFeatures`, `priceRange`, `rating`, `isFeatured`, `status`, `seo`.
 
-### 2. Working with the Codebase
-- **Package Manager:** Use `pnpm` for installing packages and managing dependencies. Always run `pnpm install` and other pnpm commands from the `app-next-directory` folder unless otherwise specified.
-- **Dependency Management:** Ensure all dependencies are listed in the relevant `package.json` and installed via pnpm.
+### 2. Development Commands & Package Management
+- **Package Manager:** Use `pnpm` as the primary package manager (npm fallback available).
+- **Monorepo Setup:** Uses pnpm workspaces with two main packages: `app-next-directory` and `sanity`.
 
-### 3. Unit Testing & Parsing
-- **Testing Platform:** Use Jest for unit testing. Babel is required as a dependency for parsing and transpiling files to be tested.
-- **Test Location:** Place unit tests in the appropriate `tests/` or `app-next-directory/tests/` folder.
-- **Test Execution:** Run tests using `pnpm test` or the configured Jest command in the app-next-directory.
+#### Essential Commands
+```bash
+# Root level - Install all dependencies
+pnpm install
 
-### 4. Sanity Schema Conventions
+# Development servers
+pnpm dev           # Start Next.js on :3000
+pnpm dev:sanity    # Start Sanity Studio on :3333
+
+# Building & Testing
+pnpm build         # Build both Next.js and Sanity
+pnpm test          # Run Playwright E2E tests (from app-next-directory)
+pnpm types:postprocess  # Generate and postprocess Sanity types
+
+# From app-next-directory/ workspace
+npm run dev        # Development server
+npm run build      # Production build + type generation
+npm run test:jest  # Jest unit tests
+npm run test:e2e   # Playwright E2E tests
+npm run validate:env  # Environment variable validation
+
+# From sanity/ workspace
+npm run dev        # Development studio
+npm run update-types  # Generate TypeScript types from schemas
+```
+
+#### Critical Setup Requirements
+- **Environment Variables**: Required `.env.local` in `app-next-directory/` with Sanity, MongoDB, and NextAuth config
+- **Pre-commit Hooks**: Husky runs format, type-check, lint automatically
+- **TypeScript**: Multiple tsconfig files - use `build:types` before building
+- **Testing**: 120+ Playwright E2E tests covering authentication, RBAC, API security
+
+### 3. Testing Strategy & Configuration
+- **Testing Framework:** Playwright (E2E) + Jest (unit tests) with comprehensive mocking
+- **Coverage:** 120+ E2E test cases covering authentication flows, RBAC, API security
+- **Authentication System:** ✅ COMPLETE - NextAuth.js v5 with 5-tier RBAC, MongoDB sessions
+
+#### Test Execution
+```bash
+# E2E Testing (from app-next-directory/)
+npm run test:e2e              # All E2E tests
+npm run test:e2e -- --ui      # Interactive test runner
+npm run test:e2e -- --headed  # Browser UI visible
+
+# Unit Testing
+npm run test:jest             # Jest unit tests with mocks
+```
+
+#### Key Test Configuration
+- **Playwright Config**: `app-next-directory/playwright.config.ts` - uses :3000, auto-starts dev server
+- **Jest Config**: `app-next-directory/jest.config.cjs` - extensive mocking for Next.js/Sanity/MongoDB
+- **Mock Files**: `app-next-directory/__mocks__/` - don't modify unless necessary
+- **Test Location**: E2E tests in `tests/e2e/`, unit tests follow `*.test.ts` pattern
+
+### 4. Configuration Files & Code Quality
+- **ESLint**: Uses flat config (`eslint.config.mjs`) with Next.js rules, warnings rather than errors
+- **TypeScript**: Strict mode, multiple tsconfig files for different contexts (server, test, types)
+- **Tailwind**: v4 configuration with Radix UI components
+- **Next.js**: Complex config in `next.config.mjs` with image domains, redirects, webpack customization
+
+#### Key Configuration Files
+- `next.config.mjs`: Image domains (Sanity CDN, Unsplash), redirects, source maps, webpack SVG handling
+- `eslint.config.mjs`: Flat config with relaxed rules for development efficiency
+- `jest.config.cjs`: Complex mocking setup for Next.js/Sanity integration
+- `playwright.config.ts`: E2E testing with auto-server startup
+- `tailwind.config.js`: Tailwind v4 with Radix components
+- `.husky/pre-commit`: Runs prettier, type-check, lint
+
+#### Sanity Schema Conventions
 - **Key Listing Fields:** `title`, `slug`, `listingType`, `mainImage`, `address`, `city`, `country`, `website`, `amenities`, `sustainabilityFeatures`, `priceRange`, `rating`, `isFeatured`, `status`, `seo`.
 - **Image Fields:** Always include `alt` text and use `hotspot: true` for cropping.
 - **Validation:** Use Sanity's validation API (e.g., `Rule.required()`) for data integrity.
@@ -56,21 +149,85 @@ applyTo: "**"
 - Handle spaces and special characters properly
 - Use `Push-Location`/`Pop-Location` for temporary navigation
 
-#### 7. Code Quality
+### 6. Environment Setup & Troubleshooting
+
+#### Required Environment Variables
+Create `.env.local` in `app-next-directory/`:
+```env
+# Sanity Configuration
+NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
+NEXT_PUBLIC_SANITY_DATASET=production
+SANITY_API_TOKEN=your_api_token
+
+# MongoDB Configuration
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
+
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_32_character_secret
+
+# Optional: OAuth Providers
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+```
+
+#### Common Issues & Solutions
+- **pnpm not found**: Install with `npm install -g pnpm` or use npm as fallback
+- **Build failures**: Run `npm run build:types` before building; expect some TypeScript errors (existing codebase)
+- **TypeScript errors**: Current codebase has known TS issues - focus on functionality over type perfection
+- **Test failures**: Ensure `.env.local` is configured; run `npx playwright install` for browsers
+- **ESLint errors**: Rules are mostly warnings - check `eslint.config.mjs` for specifics
+- **Sanity types**: Run `cd sanity && npm run update-types` after schema changes
+- **Port conflicts**: Next.js uses :3000, Sanity Studio uses :3333
+- **Environment validation**: Use `npm run validate:env` to check configuration
+
+#### Monorepo Best Practices
+```bash
+# Target specific workspaces
+pnpm --filter app-next-directory add package-name
+pnpm --filter sanity dev
+
+# Check available scripts
+pnpm run  # From root
+npm run   # From workspace directories
+```
 - Adhere to linting and best practices for TypeScript, Next.js, and Sanity.
 - For complex logic, offer to add comments or JSDoc documentation.
 - Mark temporary/debug code with `TODO:` or `FIXME:` comments. Reserve `FORTEST-` for temporary file names only.
 
-### 8. Editing & Tooling
+### 7. Code Quality
 - Use desktop-commander tools for file operations.
 - For small edits (≤30 lines), use exact content match.
 - For large changes, use focused edit blocks.
 - Validate files for errors after every change.
 
-### 9. Security
+### 8. Editing & Tooling
 - Use exact versions and commit pnpm-lock.yaml. Enable automated security updates (Dependabot/Renovate).
 - Store secrets in environment configuration (Vercel/Cloudflare).
 - Enforce HTTPS, secure headers, and rate limiting.
+
+## 🚀 Quick Onboarding Checklist
+
+### First-Time Setup
+1. **Install Dependencies**: `pnpm install` (or `npm install` if pnpm unavailable)
+2. **Environment Setup**: Create `.env.local` in `app-next-directory/` with required variables
+3. **Validate Environment**: `cd app-next-directory && npm run validate:env`
+4. **Build Types**: `cd sanity && npm run update-types` to generate Sanity TypeScript types
+5. **Test Setup**: `npx playwright install` for E2E test browsers
+
+### Development Workflow
+1. **Start Development**: `pnpm dev` (Next.js) and `pnpm dev:sanity` (Sanity Studio)
+2. **Code Quality**: Pre-commit hooks run automatically (format, type-check, lint)
+3. **Testing**: Run `npm run test:e2e` for comprehensive testing
+4. **Build**: `pnpm build` for production builds
+
+### Key Resources
+- **Documentation**: Comprehensive guides in `docs/` folder
+- **Examples**: 120+ test cases in `tests/e2e/` demonstrate usage patterns
+- **Scripts**: Utility scripts in `scripts/` for validation, testing, CI
+- **Configuration**: All config files include comments explaining purpose
+
+---
 
 ## 📑 Rules of Conduct
 
