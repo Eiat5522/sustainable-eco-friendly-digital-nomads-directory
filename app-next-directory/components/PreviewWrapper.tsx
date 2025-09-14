@@ -1,3 +1,5 @@
+// Minimal client-safe typing to allow build-time inlining of NODE_ENV without exposing Node APIs.
+declare const process: { env: { NODE_ENV: 'development' | 'production' | 'test' } };
 
 'use client'
 
@@ -46,7 +48,7 @@ export default function PreviewWrapper({
             return '__previewOptions_stringify_error__'
           }
         })(),
-      ].filter((v) => v !== undefined)
+      ].filter((v): v is string => v !== undefined)
 
   return (
     <ErrorBoundary

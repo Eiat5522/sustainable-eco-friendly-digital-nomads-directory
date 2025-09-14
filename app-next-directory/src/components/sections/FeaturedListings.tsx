@@ -14,6 +14,41 @@ export function FeaturedListings() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  // NOTE: All hooks must be declared unconditionally and before any early returns
+  // to preserve hook order across renders.
+  // Embla carousel setup
+  const autoplay = useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: false })
+  )
+  const [viewportRef, emblaApi] = useEmblaCarousel(
+    {
+      align: 'start',
+      containScroll: 'trimSnaps',
+      loop: true,
+      skipSnaps: false,
+    },
+    [autoplay.current]
+  )
+  const [canPrev, setCanPrev] = useState(false)
+  const [canNext, setCanNext] = useState(false)
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return
+    setCanPrev(emblaApi.canScrollPrev())
+    setCanNext(emblaApi.canScrollNext())
+  }, [emblaApi])
+
+  useEffect(() => {
+    if (!emblaApi) return
+    onSelect()
+    emblaApi.on('select', onSelect)
+    emblaApi.on('reInit', onSelect)
+    return () => {
+      emblaApi.off('select', onSelect)
+      emblaApi.off('reInit', onSelect)
+    }
+  }, [emblaApi, onSelect])
+
   useEffect(() => {
     const controller = new AbortController()
     const fetchListings = async () => {
@@ -45,55 +80,6 @@ export function FeaturedListings() {
     return () => controller.abort()
   }, [])
 
-  if (loading) {
-    return (
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4 text-center">
-          <p className="body-lg">Loading featured listings...</p>
-        </div>
-      </section>
-    )
-  }
-
-  if (error) {
-    return (
-      <section className="py-16 bg-background">
-        <div className="container mx-auto px-4 text-center">
-          <p className="body-lg text-red-500">Error: {error}</p>
-        </div>
-      </section>
-    )
-  }
-
-  // Embla carousel
-  const autoplay = useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: false })
-  )
-  const [viewportRef, emblaApi] = useEmblaCarousel(
-    {
-      align: 'start',
-      containScroll: 'trimSnaps',
-      loop: true,
-      skipSnaps: false,
-    },
-    [autoplay.current]
-  )
-  const [canPrev, setCanPrev] = useState(false)
-  const [canNext, setCanNext] = useState(false)
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return
-    setCanPrev(emblaApi.canScrollPrev())
-    setCanNext(emblaApi.canScrollNext())
-  }, [emblaApi])
-
-  useEffect(() => {
-    if (!emblaApi) return
-    onSelect()
-    emblaApi.on('select', onSelect)
-    emblaApi.on('reInit', onSelect)
-  }, [emblaApi, onSelect])
-
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi])
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi])
 
@@ -105,6 +91,15 @@ export function FeaturedListings() {
           description="Handpicked eco-friendly spaces that prioritize sustainability without compromising on quality"
         />
 
+        {loading ? (
+          <div className="text-center">
+            <p className="body-lg">Loading featured listings...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center">
+            <p className="body-lg text-red-500">Error: {error}</p>
+          </div>
+        ) : (
         <div className="relative">
           {/* Nav buttons */}
           <NeoButton
@@ -126,6 +121,8 @@ export function FeaturedListings() {
             aria-label="Scroll featured right"
             onClick={scrollNext}
             disabled={!canNext}
+            onMouseEnter={() => autoplay.current?.stop()}
+            onMouseLeave={() => autoplay.current?.play()}
           >
             <ChevronRight size={18} />
           </NeoButton>
@@ -147,9 +144,10 @@ export function FeaturedListings() {
                 </div>
               ))}
             </div>
-          </div>
         </div>
-      </div>
+        )
+        </div>
+)}     </div>
     </section>
   )
 }

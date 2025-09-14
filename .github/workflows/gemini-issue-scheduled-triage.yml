@@ -39,7 +39,8 @@ jobs:
         env:
           GITHUB_TOKEN: '${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}'
           GITHUB_REPOSITORY: '${{ github.repository }}'
-        run: |-          set -euo pipefail          echo '🔍 Finding issues without labels...'
+          GH_TOKEN: '${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}'
+        run:
           NO_LABEL_ISSUES="$(gh issue list --repo "${GITHUB_REPOSITORY}" \
             --search 'is:open is:issue no:label' --json number,title,body)"
 
@@ -73,16 +74,15 @@ jobs:
             return labelNames;
 
       - name: 'Run Gemini Issue Analysis'
-        if: |-
-      - name: 'Run Gemini Issue Analysis'
-        if: |-
       - name: 'Run Gemini Issue Analysis'
         if: ${{ steps.find_issues.outputs.issues_to_triage != '[]' &&
                 secrets.GEMINI_API_KEY &&
                 vars.GCP_WIF_PROVIDER && vars.GOOGLE_CLOUD_PROJECT &&
                 vars.GOOGLE_CLOUD_LOCATION && vars.SERVICE_ACCOUNT_EMAIL }}
         uses: 'google-github-actions/run-gemini-cli@c1a6db1f0a1f7ab3b093f41e6e7c35d4ec82a7c8' # ratchet:google-github-actions/run-gemini-cli@v0
-        id: 'gemini_issue_analysis'          gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
+        id: 'gemini_issue_analysis'          
+        gcp_location: '${{ vars.GOOGLE_CLOUD_LOCATION }}'
+        with:
           gcp_service_account: '${{ vars.SERVICE_ACCOUNT_EMAIL }}'
           gemini_api_key: '${{ secrets.GEMINI_API_KEY }}'
           use_vertex_ai: '${{ vars.GOOGLE_GENAI_USE_VERTEXAI }}'
@@ -95,8 +95,7 @@ jobs:
                 "run_shell_command(echo)"
               ],
               "telemetry": {
-                "enabled": false,
-                "target": "gcp"
+                "enabled": false
               }
             }
 prompt: |-
@@ -111,15 +110,6 @@ prompt: |-
             2. Review the issues (JSON): ${{ steps.find_issues.outputs.issues_to_triage || '[]' }}.
             3. For each issue, classify it by the appropriate labels from the available labels.
             4. Output a JSON array of objects, each containing the issue number,
-               the labels to set, and a brief explanation. For example:      - name: 'Apply Labels to Issues'
-        if: |-
-          ${{ steps.gemini_issue_analysis.outcome == 'success' &&
-              steps.gemini_issue_analysis.outputs.summary &&
-              steps.gemini_issue_analysis.outputs.summary != '' &&
-            1. Review the available labels (JSON): ${{ steps.get_labels.outputs.available_labels_json || '[]' }}.
-            2. Review the issues (JSON): ${{ steps.find_issues.outputs.issues_to_triage || '[]' }}.
-            3. For each issue, classify it by the appropriate labels from the available labels.
-            4. Output a JSON array of objects, each containing the issue number,
                the labels to set, and a brief explanation.
             
             Example output:
@@ -129,7 +119,19 @@ prompt: |-
                 "labels_to_set": ["status/needs-triage", "area/docs"],
                 "reason": "Mentions documentation updates and missing examples"
               }
-            ]        with:          github-token: '${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}'
+            ]
+
+        name: 'Apply Labels to Issues'
+        if: |-
+        steps.gemini_issue_analysis.outcome == 'success' &&
+        steps.gemini_issue_analysis.outputs.summary &&
+        steps.gemini_issue_analysis.outputs.summary != '' &&
+        steps.gemini_issue_analysis.outputs.summary != '[]' }}
+        uses: 'actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea'
+        env:
+        LABELS_OUTPUT: '${{ steps.gemini_issue_analysis.outputs.summary }}'
+        with:
+        github-token: '${{ steps.generate_token.outputs.token || secrets.GITHUB_TOKEN }}'
         // Strip code block markers if present
             const rawLabels = process.env.LABELS_OUTPUT;
             core.info(`Raw labels JSON: ${rawLabels}`);
