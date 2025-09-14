@@ -66,6 +66,14 @@ export interface FeaturePermissions {
   submitContactForms: boolean;
   viewContactSubmissions: boolean;
   respondToContact: boolean;
+
+  // Comments on blog posts
+  submitComments: boolean;
+  editOwnComments: boolean;
+  editAllComments: boolean;
+  deleteOwnComments: boolean;
+  deleteAllComments: boolean;
+  moderateComments: boolean;
 }
 
 // Complete access control matrix as per audit requirements
@@ -134,6 +142,12 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       submitContactForms: true,
       viewContactSubmissions: true,
       respondToContact: true,
+      submitComments: true,
+      editOwnComments: true,
+      editAllComments: true,
+      deleteOwnComments: true,
+      deleteAllComments: true,
+      moderateComments: true,
     },
   },
   superAdmin: {
@@ -182,6 +196,12 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       submitContactForms: true,
       viewContactSubmissions: true,
       respondToContact: true,
+      submitComments: true,
+      editOwnComments: true,
+      editAllComments: true,
+      deleteOwnComments: true,
+      deleteAllComments: true,
+      moderateComments: true,
     },
   },
   moderator: {
@@ -230,6 +250,12 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       submitContactForms: false,
       viewContactSubmissions: true,
       respondToContact: true,
+      submitComments: true,
+      editOwnComments: true,
+      editAllComments: true,
+      deleteOwnComments: true,
+      deleteAllComments: false,
+      moderateComments: true,
     },
   },
   venueOwner: {
@@ -278,6 +304,12 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       submitContactForms: true,
       viewContactSubmissions: false,
       respondToContact: false,
+      submitComments: true,
+      editOwnComments: true,
+      editAllComments: false,
+      deleteOwnComments: true,
+      deleteAllComments: false,
+      moderateComments: false,
     },
   },
   user: {
@@ -326,6 +358,12 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       submitContactForms: true,
       viewContactSubmissions: false,
       respondToContact: false,
+      submitComments: true,
+      editOwnComments: true,
+      editAllComments: false,
+      deleteOwnComments: true,
+      deleteAllComments: false,
+      moderateComments: false,
     },
   },
   editor: {
@@ -374,6 +412,12 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       submitContactForms: true,
       viewContactSubmissions: true,
       respondToContact: true,
+      submitComments: true,
+      editOwnComments: true,
+      editAllComments: true,
+      deleteOwnComments: true,
+      deleteAllComments: false,
+      moderateComments: true,
     },
   },
   contentEditor: {
@@ -422,6 +466,12 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       submitContactForms: true,
       viewContactSubmissions: true,
       respondToContact: true,
+      submitComments: true,
+      editOwnComments: true,
+      editAllComments: true,
+      deleteOwnComments: true,
+      deleteAllComments: false,
+      moderateComments: true,
     },
   },
   unidentifiedUser: {
@@ -470,6 +520,12 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
       submitContactForms: true,
       viewContactSubmissions: false,
       respondToContact: false,
+      submitComments: false,
+      editOwnComments: false,
+      editAllComments: false,
+      deleteOwnComments: false,
+      deleteAllComments: false,
+      moderateComments: false,
     },
   }
 };

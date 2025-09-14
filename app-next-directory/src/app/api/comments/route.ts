@@ -3,14 +3,22 @@ import { client } from '@/lib/sanity/client';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { revalidateTag } from 'next/cache';
+import { hasFeaturePermission, UserRole } from '@/types/auth';
 
 export async function POST(request: Request) {
   const session = await auth();
 
-  const user = session?.user as { id?: string } | undefined;
+  const user = session?.user as { id?: string; role?: UserRole } | undefined;
   const userId: string | undefined = user?.id;
+  const userRole: UserRole = user?.role || 'unidentifiedUser';
+  
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Check if user has permission to submit comments
+  if (!hasFeaturePermission(userRole, 'submitComments')) {
+    return NextResponse.json({ error: 'Forbidden: Insufficient permissions to create comments' }, { status: 403 });
   }
 
   try {
