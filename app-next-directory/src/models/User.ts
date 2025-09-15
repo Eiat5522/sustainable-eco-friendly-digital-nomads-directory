@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import validator from 'validator';
+import isEmail from 'validator/lib/isEmail';
 
 /**
  * User Model - Index Management Notes:
