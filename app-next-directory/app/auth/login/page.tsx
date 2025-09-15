@@ -4,6 +4,50 @@ import LoginForm from './LoginForm';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import Link from 'next/link';
+import { Suspense } from 'react';
+
+function SignupLink() {
+  return (
+    <Suspense fallback={
+      <Link
+        href="/auth/signup"
+        className="text-neo-primary hover:underline focus-visible:underline underline-offset-2"
+      >
+        Create an account
+      </Link>
+    }>
+      <SignupLinkContent />
+    </Suspense>
+  );
+}
+
+function SignupLinkContent() {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const callbackUrl = params.get('callbackUrl');
+    const href = callbackUrl && callbackUrl !== '/' 
+      ? `/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`
+      : '/auth/signup';
+    
+    return (
+      <Link
+        href={href}
+        className="text-neo-primary hover:underline focus-visible:underline underline-offset-2"
+      >
+        Create an account
+      </Link>
+    );
+  }
+  
+  return (
+    <Link
+      href="/auth/signup"
+      className="text-neo-primary hover:underline focus-visible:underline underline-offset-2"
+    >
+      Create an account
+    </Link>
+  );
+}
 
 export default function LoginPage() {
   return (
@@ -37,12 +81,7 @@ export default function LoginPage() {
               </div>
               <p className="mt-6 text-sm text-center">
                 New user?{' '}
-                <Link
-                  href="/auth/signup"
-                  className="text-neo-primary hover:underline focus-visible:underline underline-offset-2"
-                >
-                  Create an account
-                </Link>
+                <SignupLink />
               </p>
             </NeoCardContent>
           </NeoCard>
