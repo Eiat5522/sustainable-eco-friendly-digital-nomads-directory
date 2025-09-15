@@ -8,9 +8,13 @@ export async function initializeDatabase(client: MongoClient) {
     // Create collections with schemas
     await db.createCollection('sessions', sessionSchema);
     
-    // Create indexes
+    // Create indexes - Single source of truth for all index definitions
     await db.collection('users').createIndexes([
-      { key: { email: 1 }, unique: true },
+      { 
+        key: { email: 1 }, 
+        unique: true, 
+        name: 'users_email_unique' // Explicit index name for better management
+      },
       { key: { 'accounts.providerId': 1, 'accounts.providerAccountId': 1 }, unique: true },
     ]);
 

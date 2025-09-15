@@ -2,12 +2,12 @@
 import listings from '../data/listings.json';
 import { Listing } from '../types/listings';
 import { toSlug } from './utils/slug';
-// Function to map raw JSON to Listing objects
+import { DEFAULT_CATEGORIES, ALLOWED_CATEGORIES, type Category } from './constants/categories';
+
 /**
  * TEMP legacy JSON -> Listing mapper (to be deprecated once all data served via Sanity DTO layer)
  */
-const ALLOWED_CATEGORIES = ['coworking', 'cafe', 'accommodation', 'activities', 'restaurant'] as const;
-type CanonicalCategory = typeof ALLOWED_CATEGORIES[number];
+type CanonicalCategory = Category;
 const normalizeCategory = (input: string | undefined): CanonicalCategory => {
   const lc = String(input ?? '').trim().toLowerCase();
   // Common synonyms/plurals/hyphenation
@@ -100,11 +100,9 @@ function mapRawToListing(rawListing: any): Listing {
     location: rawListing.location || { lat: 0, lng: 0 },
   } as Listing;
 }
-const ALLOWED_CATEGORY_SET: ReadonlySet<CanonicalCategory> = new Set(ALLOWED_CATEGORIES);
 export function getListingsByCity(city: string): Listing[] {
-  const allowedTypes = new Set(ALLOWED_CATEGORIES);
+  const allowedTypes = ALLOWED_CATEGORIES;
   const cityLower = city.trim().toLowerCase();
-  const validTypes = ALLOWED_CATEGORIES;
   return listings
     .filter(raw => {
       const rawCity = typeof raw.city === 'string'
@@ -153,7 +151,7 @@ export function filterListings(options: FilterOptions): Listing[] {
   }
 
   // Finally enforce valid listing types
-  const validTypes = ALLOWED_CATEGORY_SET;
+  const validTypes = ALLOWED_CATEGORIES;
   return result.filter((l) => l.type !== undefined && validTypes.has(l.type as CanonicalCategory));
 }
 
@@ -290,8 +288,8 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
               review?.user && typeof review.user === 'object'
                 ? {
                     name: String(review.user?.name ?? '').trim() || 'Anonymous',
-                    image: (typeof review.user?.image === 'string' && review.user.image.trim())
-                      ? review.user.image
+                    image: typeof review.user?.image === 'string'
+                      ? (review.user.image.trim() || undefined)
                       : undefined
 
                   }

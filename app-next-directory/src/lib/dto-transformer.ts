@@ -2,6 +2,7 @@ import { urlFor } from '@/lib/sanity/client';
 import type { SanityListing, SanityImage } from '@/types/sanity.types';
 import type { BlogSummaryDTO, BlogDetailDTO } from '@/types/dto';
 import { isImageAssetId } from '@sanity/asset-utils';
+import { ALLOWED_CATEGORIES } from './constants/categories';
 // Ensure we have a consistent image union for dto mapping
 // type SanityGalleryImage = SanityImage // If separate type exists in future, import it accordingly
 import type { ListingDetailDTO, ListingSummaryDTO, FeaturedListingDTO, Money, OpeningHour, Percentage0To100 } from '@/types/dto';
@@ -196,9 +197,8 @@ export function transformToSummaryDTO(
     : undefined;
 
   // Validate listing type or fallback to a safe default to satisfy schema
-  const allowedTypes = new Set(['coworking', 'cafe', 'accommodation', 'restaurant', 'activities']);
   const rawType = (sanityListing as any).type;
-  const type = allowedTypes.has(rawType) ? rawType : 'activities';
+  const type = ALLOWED_CATEGORIES.has(rawType) ? rawType : 'activities';
 
   // Only include website when it looks like a valid URL
   const websiteRaw = (sanityListing as any).website;

@@ -37,13 +37,12 @@ const nextConfig = {
     }
 
     // Fix Framer Motion compatibility with Next.js 15 App Router
+    // Scope to its files in node_modules to avoid overmatching.
     config.module.rules.push({
-      test: /framer-motion/,
-      resolve: {
-        fullySpecified: false,
-      },
+      test: /\.m?js$/,
+      include: /[\\/]node_modules[\\/](framer-motion)[\\/]/,
+      resolve: { fullySpecified: false },
     });
-
     // Exclude SVGs from the existing asset loader
     const fileLoaderRule = config.module.rules.find(
       (rule) =>

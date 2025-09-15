@@ -1,7 +1,21 @@
 import type { Mongoose } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
-// Top-level MONGODB_URI check removed to allow dynamic import and test handling
+
+/**
+ * Database Connection & Index Management
+ *
+ * INDEX MANAGEMENT APPROACH:
+ * - Schema-level indexes: Defined in Mongoose models (auto-created unless autoIndex=false)
+ * - Database-level indexes: Defined in src/lib/mongodb/init.ts (explicit creation)
+ * - Single source of truth: Database indexes take precedence to avoid conflicts
+ *
+ * PRODUCTION CONSIDERATIONS:
+ * - Set mongoose autoIndex=false in production for performance
+ * - Use SYNC_INDEXES_ON_CONNECT=true to ensure indexes are created on startup
+ * - Monitor index creation logs to verify successful initialization
+ * - Run migrations if schema changes require index modifications
+ */
 
 interface MongooseCache {
   conn: Mongoose | null;
@@ -75,21 +89,36 @@ if (!/^mongodb(\+srv)?:\/\/.+/.test(MONGODB_URI)) {
     throw new Error('MongoDB connection was not established');
   }
 
-  // Optionally sync indexes once per process to ensure constraints
+  // Sync indexes and ensure database initialization
   if (!cached.indexesSynced && (process.env.NODE_ENV === 'development' || process.env.SYNC_INDEXES_ON_CONNECT === 'true')) {
     try {
-const [{ default: PasswordResetToken }, { default: User }] = await Promise.all([
-  import('@/models/PasswordResetToken'),
-  import('@/models/User')
-]);
+      // Import models for index synchronization
+      const [{ default: PasswordResetToken }, { default: User }] = await Promise.all([
+        import('@/models/PasswordResetToken'),
+        import('@/models/User')
+      ]);
+
+      // Sync Mongoose schema indexes
       await Promise.all([
         PasswordResetToken.syncIndexes(),
         User.syncIndexes(),
       ]);
-  cached.indexesSynced = true;
+
+      // Initialize database with explicit indexes (single source of truth)
+      // This ensures indexes are created even with mongoose autoIndex=false
+      const { initializeDatabase } = await import('./mongodb/init');
+      const MongoClient = require('mongodb').MongoClient;
+      const client = new MongoClient(MONGODB_URI);
+      await client.connect();
+      await initializeDatabase(client);
+      await client.close();
+
+      cached.indexesSynced = true;
+      // eslint-disable-next-line no-console
+      console.log('Database indexes synchronized and initialized');
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.warn('Index sync failed (continuing):', e);
+      console.warn('Index sync/initialization failed (continuing):', e);
     }
   }
 

@@ -1,15 +1,16 @@
 import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import { ApiResponseHandler } from '@/utils/api-response';
+import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
 
 export async function GET() {
   try {
     const categories: string[] = await client.fetch(
       groq`array::unique(*[_type == "listing" && defined(category)].category)`
     );
-    // If CMS returns nothing, fall back to schema-defined list
+    // If CMS returns nothing, fall back to default list
     if (!Array.isArray(categories) || categories.length === 0) {
-      const fallback = await getSchemaCategoriesFallback();
+      const fallback = await getDefaultCategories();
       return ApiResponseHandler.success({ categories: fallback });
     }
     return ApiResponseHandler.success({ categories });
@@ -19,9 +20,9 @@ export async function GET() {
     const status = Number.isInteger(anyErr?.status) ? anyErr.status
                  : Number.isInteger(anyErr?.statusCode) ? anyErr.statusCode
                  : 500;
-    // Fall back to schema-defined list on error
+    // Fall back to default list on error
     try {
-      const fallback = await getSchemaCategoriesFallback();
+      const fallback = await getDefaultCategories();
       return ApiResponseHandler.success({ categories: fallback });
     } catch (e) {
       return ApiResponseHandler.error('Failed to fetch categories', status);
@@ -29,10 +30,8 @@ export async function GET() {
   }
 }
 
-// Extract categories from Sanity listing schema options list as a fallback
-const DEFAULT_CATEGORIES = ['coworking', 'cafe', 'accommodation', 'restaurant', 'activities'] as const;
-
-async function getSchemaCategoriesFallback(): Promise<string[]> {
-  // Use hardcoded categories to avoid importing Sanity schema that pulls in client-side dependencies
+// Get default categories as a fallback when CMS is unavailable
+async function getDefaultCategories(): Promise<string[]> {
+  // Use shared default categories to ensure consistency with UI
   return [...DEFAULT_CATEGORIES];
 }

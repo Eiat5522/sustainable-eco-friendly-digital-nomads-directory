@@ -57,13 +57,13 @@ export const VerificationStatusDTOSchema = z.enum([
   'needs_verification',
 ]);
 
-// BaseListingDTO
+import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
 export const BaseListingDTOSchema = z
   .object({
     id: z.string(),
     name: z.string(),
     slug: z.string(),
-    type: z.enum(['coworking', 'cafe', 'accommodation', 'restaurant', 'activities']),
+    type: z.enum(DEFAULT_CATEGORIES),
     city: CityDTOSchema.nullable(),
     imageUrl: z.string().optional(),
     ecoFocusTags: z.array(z.string()).optional(),

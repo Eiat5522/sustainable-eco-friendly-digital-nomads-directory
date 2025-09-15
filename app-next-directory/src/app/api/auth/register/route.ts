@@ -26,8 +26,9 @@ export async function POST(req: Request) {
     await dbConnect();
     const body = await req.json();
     const { name, email, password } = RegisterSchema.parse(body);
+    const normalizedEmail = email.trim().toLowerCase();
 
-    const existing = await User.findOne({ email: email.toLowerCase() }).select('+password').lean();
+    const existing = await User.findOne({ email: normalizedEmail }).select('+password').lean();
     if (existing) {
       return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
     }

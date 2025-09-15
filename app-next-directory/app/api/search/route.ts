@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
     // Fetch results and total concurrently; facets only if requested
     const promises: Array<Promise<any>> = [client.fetch(query), client.fetch(countQuery)];
     if (includeFacets) promises.push(client.fetch(facetQuery));
-    
+
     const settled = await Promise.all(promises); 
     const results = settled[0];
     const total = settled[1];

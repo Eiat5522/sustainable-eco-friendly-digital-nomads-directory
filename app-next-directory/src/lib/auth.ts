@@ -136,7 +136,7 @@ export const authOptions: NextAuthConfig = {
             await User.updateOne(
               {
                 email: String(user.email).toLowerCase(),
-                $or: [{ emailVerified: { $exists: false } }, { emailVerified: null }],
+                emailVerified: null,
               },
               { $set: { emailVerified: new Date() } },
               { maxTimeMS: 5000 }

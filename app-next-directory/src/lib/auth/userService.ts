@@ -141,8 +141,11 @@ export async function createLocalUser(
   db: any,
   { name, email, password }: { name: string; email: string; password: string }
 ) {
-  // Check if user exists
-  const existingUser = await db.collection("users").findOne({ email });
+  // Normalize email for consistent lookups and writes
+  const normalizedEmail = String(email).trim().toLowerCase();
+
+  // Check if user exists (using normalized email)
+  const existingUser = await db.collection("users").findOne({ email: normalizedEmail });
   if (existingUser) {
     throw new Error("User already exists");
   }
@@ -153,14 +156,14 @@ export async function createLocalUser(
   // Create user in MongoDB
   const result = await db.collection("users").insertOne({
     name,
-    email,
+    email: normalizedEmail,
     password: hashedPassword,
     role: "user",
     createdAt: new Date(),
   });
 
   // Create user in Sanity
-  await createSanityUser({ name, email, role: "user" });
+  await createSanityUser({ name, email: normalizedEmail, role: "user" });
 
   return result;
 }

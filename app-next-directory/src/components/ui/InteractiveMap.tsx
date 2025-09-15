@@ -16,6 +16,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<Leaflet.Map | null>(null);
   const LRef = useRef<typeof Leaflet | null>(null);
+  const markerRef = useRef<Leaflet.Marker | null>(null);
 
 
   useEffect(() => {
@@ -30,29 +31,14 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           LRef.current = mod.default ?? mod;
         }
         const L = LRef.current!;
-        // Import Leaflet CSS
-        if (typeof window !== 'undefined') {
-          // Check if CSS is already loaded; only inject if missing
-          const existingLink = document.getElementById('leaflet-css') as HTMLLinkElement | null;
-          if (!existingLink) {
-            const link = document.createElement('link');
-            link.id = 'leaflet-css';
-            link.rel = 'stylesheet';
-            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-            // Optional hardening if you keep CDN: SRI + crossorigin
-            // link.integrity = '<sha384-hash>';
-            // link.crossOrigin = '';
-            document.head.appendChild(link);
-          }
-        }
 
         // Initialize map
         if (mapInstanceRef.current) {
           mapInstanceRef.current.remove();
         }
 
+  const container = mapRef.current as HTMLElement;
   const map = L.map(container).setView([location.lat, location.lng], 15);
-
 
         // Add tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -82,9 +68,9 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           addrEl.textContent = address;
           popupContent.appendChild(addrEl);
         }
-        L.marker([location.lat, location.lng], { icon: customIcon })
-          .addTo(map)
-          .bindPopup(popupContent);
+        const marker = L.marker([location.lat, location.lng], { icon: customIcon }).addTo(map);
+        marker.bindPopup(popupContent);
+        markerRef.current = marker;
         mapInstanceRef.current = map;
       } catch (error) {
         console.error('Failed to load map:', error);
@@ -98,8 +84,33 @@ export function InteractiveMap({ location, address, name, className }: Interacti
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
+      markerRef.current = null;
     };
   }, [location?.lat, location?.lng])
+
+  // Update popup content if name/address change without relocating
+  useEffect(() => {
+    const marker = markerRef.current;
+    if (!marker) return;
+
+    const popupContent = document.createElement('div');
+    const titleEl = document.createElement('strong');
+    titleEl.textContent = name;
+    popupContent.appendChild(titleEl);
+    if (address) {
+      popupContent.appendChild(document.createElement('br'));
+      const addrEl = document.createElement('span');
+      addrEl.textContent = address;
+      popupContent.appendChild(addrEl);
+    }
+
+    const popup = marker.getPopup?.();
+    if (popup) {
+      popup.setContent(popupContent);
+    } else {
+      marker.bindPopup(popupContent);
+    }
+  }, [name, address]);
 
   // Fallback when no location is provided
   if (!location) {

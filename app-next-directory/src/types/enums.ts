@@ -1,3 +1,5 @@
+import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
+
 /**
  * Shared enums and constants for the sustainable digital nomads directory
  * These should match the validation options in Sanity schemas
@@ -41,8 +43,8 @@ export type PriceRangeType = PriceRange;
 export type ModerationStatusType = ModerationStatus;
 export type VerificationStatusType = VerificationStatus;
 
-// Array of all listing categories for validation
-export const LISTING_CATEGORIES = Object.values(ListingCategory);
+// Array of all listing categories for validation - uses shared constants for consistency
+export const LISTING_CATEGORIES = [...DEFAULT_CATEGORIES];
 export const PRICE_RANGES = Object.values(PriceRange);
 export const MODERATION_STATUSES = Object.values(ModerationStatus);
 export const VERIFICATION_STATUSES = Object.values(VerificationStatus);

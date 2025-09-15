@@ -21,6 +21,11 @@ type UserDoc = {
   role: UserRole;
   emailVerified?: Date | null;
 };
+// Narrowed fields used when authenticating a user
+type SelectedAuthDoc = Pick<
+  UserDoc,
+  '_id' | 'name' | 'email' | 'image' | 'role' | 'password' | 'emailVerified'
+>;
 const UserModel = User as unknown as import('mongoose').Model<UserDoc>;
 export interface AuthenticatedUser {
   id: string;
@@ -46,15 +51,19 @@ export async function authenticateUser(
     // Find user in MongoDB using Mongoose model
 const user = await UserModel.findOne({
   email: email.trim().toLowerCase(),
-  emailVerified: { $ne: null }, // only verified accounts
+  // only verified accounts (exists, not null, and is a Date)
+  emailVerified: { $exists: true, $ne: null, $type: 'date' },
 })
-  .select('_id name email image role +password +emailVerified')
-  .lean<Pick<UserDoc, '_id' | 'name' | 'email' | 'image' | 'role' | 'password' | 'emailVerified'>>();
+.select('_id name email image role +password +emailVerified')
+  .lean<SelectedAuthDoc>();
 
     if (!user || !user.password) {
       return null;
     }
-    // Email verification enforced at query time
+    // Defense in depth: verify again post-fetch
+    if (!user.emailVerified) {
+      return null;
+    }
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);

@@ -66,13 +66,17 @@ export function CityCarousel() {
         {!loading && !error && cities.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" role="list">
             {cities.map((city) => (
-              <div key={city.id} className="block group" role="listitem">
-                <Link href={`/cities/${city.slug}`}>
-                <div className="relative h-48 w-full overflow-hidden rounded-xl border-4 border-black bg-white shadow-[8px_8px_0_0_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0_0_rgba(0,0,0,1)] transition-all">
+              <div key={city.id} role="listitem">
+                <Link
+                  href={`/cities/${city.slug}`}
+                  className="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                >
+                <div className="relative h-48 w-full overflow-hidden rounded-xl border-4 border-black bg-white shadow-[8px_8px_0_0_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0_0_rgba(0,0,0,1)] group-focus-within:shadow-[12px_12px_0_0_rgba(0,0,0,1)] transition-all">
                   {/* Always render local placeholder to avoid 404s and layout shifts */}
                   <Image
                     src="/placeholder_image.png"
-                    alt="City placeholder"
+                    alt=""
+                    aria-hidden="true"
                     fill
                     sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                     className="object-cover"
@@ -88,9 +92,9 @@ export function CityCarousel() {
                       className="object-cover group-hover:scale-105 transition-transform"
                       onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                         // Hide broken remote image so local placeholder remains visible
-                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.hidden = true;
                       }}
-                    />
+                  />
                   ) : null}
                   <div className="absolute inset-x-0 bottom-0 p-3 bg-black/60 text-white">
                     <div className="flex items-center justify-between">

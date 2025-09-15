@@ -40,8 +40,14 @@ export const handlers = [
     return HttpResponse.json([], { status: 200 })
   }),
   http.get('/api/featured-listings', () => {
-    // Return a subset of listings as featured for tests
-    return HttpResponse.json({ listings: testListings.slice(0, 2) }, { status: 200 })
+    // Return a small, bounded subset of listings as featured for tests
+    const FEATURED_COUNT = 2
+    const featured = testListings
+      .slice(0, Math.min(FEATURED_COUNT, testListings.length))
+      .map(item => ({ ...item }))
+
+    return HttpResponse.json({ listings: featured }, { status: 200 })
+
   }),
   http.get('/api/categories', () => {
     return HttpResponse.json({ categories: [] }, { status: 200 })

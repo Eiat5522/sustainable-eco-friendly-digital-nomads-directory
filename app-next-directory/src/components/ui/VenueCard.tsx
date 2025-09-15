@@ -13,6 +13,7 @@ interface VenueCardProps {
 }
 
 export function VenueCard({ venue, className, priority = false }: Readonly<VenueCardProps>) {
+  const [imgErr, setImgErr] = React.useState(false);
   // Guard against unexpected shapes from API by safely deriving a city label
   const cityLabel = (() => {
     const v: any = venue as any;
@@ -55,14 +56,15 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
           {/* Local placeholder to guarantee a visible image */}
           <Image
             src="/placeholder_image.png"
-            alt="Venue placeholder"
+            alt=""
+            aria-hidden="true"
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
             className="object-cover"
             priority={priority}
           />
           {/* Remote image layered above; hide on error so placeholder shows */}
-          {venue.imageUrl && (
+          {venue.imageUrl && !imgErr && (
             <Image
               src={venue.imageUrl}
               alt={venue.name}
@@ -70,9 +72,7 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
               sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
               className="object-cover group-hover:scale-105 transition-transform duration-300"
               priority={priority}
-              onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                e.currentTarget.style.display = 'none';
-              }}
+              onError={() => setImgErr(true)}
             />
           )}
 
