@@ -4,6 +4,7 @@ if (process.env.VERCEL && process.env.NODE_ENV !== 'development' && !process.env
 }
 
 const nextConfig = {
+  transpilePackages: ['framer-motion'],
   distDir: 'dist',
   // Avoid publicly exposing source maps in production. Use hidden client maps instead.
   productionBrowserSourceMaps: false,
@@ -34,6 +35,14 @@ const nextConfig = {
     if (!dev && !isServer) {
       config.devtool = 'hidden-source-map'
     }
+
+    // Fix Framer Motion compatibility with Next.js 15 App Router
+    config.module.rules.push({
+      test: /framer-motion/,
+      resolve: {
+        fullySpecified: false,
+      },
+    });
 
     // Exclude SVGs from the existing asset loader
     const fileLoaderRule = config.module.rules.find(

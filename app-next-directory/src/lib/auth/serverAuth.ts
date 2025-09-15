@@ -44,17 +44,17 @@ export async function authenticateUser(
     await dbConnect();
 
     // Find user in MongoDB using Mongoose model
-const user = await UserModel.findOne({ email: email.trim().toLowerCase() })
+const user = await UserModel.findOne({
+  email: email.trim().toLowerCase(),
+  emailVerified: { $ne: null }, // only verified accounts
+})
   .select('_id name email image role +password +emailVerified')
-  .lean<UserDoc>();
+  .lean<Pick<UserDoc, '_id' | 'name' | 'email' | 'image' | 'role' | 'password' | 'emailVerified'>>();
 
     if (!user || !user.password) {
       return null;
     }
-    // Enforce email verification for credentials login
-    if (!user.emailVerified) {
-      return null;
-    }
+    // Email verification enforced at query time
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);

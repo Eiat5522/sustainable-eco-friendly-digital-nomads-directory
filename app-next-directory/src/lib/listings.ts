@@ -289,8 +289,11 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
             user:
               review?.user && typeof review.user === 'object'
                 ? {
-                    name: String(review.user?.name ?? 'Anonymous'),
-                    image: review.user?.image ?? undefined
+                    name: String(review.user?.name ?? '').trim() || 'Anonymous',
+                    image: (typeof review.user?.image === 'string' && review.user.image.trim())
+                      ? review.user.image
+                      : undefined
+
                   }
                 : { name: 'Anonymous' },
             createdAt: review?.createdAt ?? null

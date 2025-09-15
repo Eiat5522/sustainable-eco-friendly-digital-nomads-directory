@@ -139,8 +139,7 @@ export const authOptions: NextAuthConfig = {
                 $or: [{ emailVerified: { $exists: false } }, { emailVerified: null }],
               },
               { $set: { emailVerified: new Date() } },
-              // If emails are not normalized to lowercase at write-time, use case-insensitive matching
-              { collation: { locale: 'en', strength: 2 } }
+              { maxTimeMS: 5000 }
             );
           }
         }

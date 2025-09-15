@@ -21,11 +21,14 @@ const UserSchema: Schema<IUser> = new Schema(
   {
     name: {
       type: String,
-    },    email: {
+    },
+    email: {
       type: String,
       required: [true, 'Email is required'],
       trim: true,
       lowercase: true,
+      unique: true,
+      index: true,
       match: [/.+\@.+\..+/, 'Please fill a valid email address'],
     },
     // Store hashed password for credentials-based login.
