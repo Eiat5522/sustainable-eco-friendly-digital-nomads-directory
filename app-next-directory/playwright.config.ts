@@ -50,7 +50,7 @@ export default defineConfig({
   ],
   webServer: isLocal
     ? {
-        command: `pnpm run dev`,
+        command: `npm run dev`,
         url: serverWaitURL.toString(),
         timeout: 180_000,
         reuseExistingServer: !process.env.CI,
