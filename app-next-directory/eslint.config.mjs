@@ -1,6 +1,15 @@
 import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
 import { Linter } from 'eslint';
+
+// Robust import with CJS fallback for @eslint/eslintrc
+let eslintrc;
+try {
+  eslintrc = await import('@eslint/eslintrc');
+} catch (err) {
+  eslintrc = await import('@eslint/eslintrc/dist/eslintrc.cjs');
+}
+
+const { FlatCompat } = eslintrc;
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
