@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -32,6 +32,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [callbackUrl, setCallbackUrl] = useState<string>('');
   const router = useRouter();
 
   const handleSubmitReview = async () => {
@@ -53,7 +54,9 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
 
       if (res.status === 401) {
         // Redirect to login if not authenticated
-        router.push(`/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`);
+        // Use previously captured callbackUrl (safe for client-side redirects)
+        const cb = callbackUrl || '/';
+        router.push(`/auth/login?callbackUrl=${encodeURIComponent(cb)}`);
         return;
       }
 
@@ -83,6 +86,13 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    // Only run in the browser
+    if (typeof window !== 'undefined') {
+      setCallbackUrl(window.location.href);
+    }
+  }, []);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -167,7 +177,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
         {!isSignedIn && (
           <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
             <p className="body-md text-gray-600 mb-3">Sign in to leave a review</p>
-            <Link href={`/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`}>
+            <Link href={callbackUrl ? `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : '/auth/login'}>
               <NeoButton variant="outline" size="sm">
                 Sign In
               </NeoButton>

@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import isEmail from 'validator/lib/isEmail';
+import validator from 'validator';
 
 /**
  * User Model - Index Management Notes:
@@ -50,7 +50,7 @@ const UserSchema: Schema<IUser> = new Schema(
       trim: true,
       lowercase: true,
       validate: {
-        validator: (v: string) => isEmail(v),
+        validator: (v: string) => validator.isEmail(v),
         message: 'Please fill a valid email address',
       },
     },
