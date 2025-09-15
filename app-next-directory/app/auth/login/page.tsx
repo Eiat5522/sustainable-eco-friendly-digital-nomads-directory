@@ -1,55 +1,21 @@
+"use client";
+
+import { useSearchParams } from 'next/navigation';
 import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import SocialAuthRow from '@/components/auth/SocialAuthRow';
 import LoginForm from './LoginForm';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import Link from 'next/link';
-import { Suspense } from 'react';
-
-function SignupLink() {
-  return (
-    <Suspense fallback={
-      <Link
-        href="/auth/signup"
-        className="text-neo-primary hover:underline focus-visible:underline underline-offset-2"
-      >
-        Create an account
-      </Link>
-    }>
-      <SignupLinkContent />
-    </Suspense>
-  );
-}
-
-function SignupLinkContent() {
-  if (typeof window !== 'undefined') {
-    const params = new URLSearchParams(window.location.search);
-    const callbackUrl = params.get('callbackUrl');
-    const href = callbackUrl && callbackUrl !== '/' 
-      ? `/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`
-      : '/auth/signup';
-    
-    return (
-      <Link
-        href={href}
-        className="text-neo-primary hover:underline focus-visible:underline underline-offset-2"
-      >
-        Create an account
-      </Link>
-    );
-  }
-  
-  return (
-    <Link
-      href="/auth/signup"
-      className="text-neo-primary hover:underline focus-visible:underline underline-offset-2"
-    >
-      Create an account
-    </Link>
-  );
-}
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl');
+  
+  const signupHref = callbackUrl && callbackUrl !== '/' 
+    ? `/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    : '/auth/signup';
+
   return (
     <>
       <Header />
@@ -81,7 +47,12 @@ export default function LoginPage() {
               </div>
               <p className="mt-6 text-sm text-center">
                 New user?{' '}
-                <SignupLink />
+                <Link
+                  href={signupHref}
+                  className="text-neo-primary hover:underline focus-visible:underline underline-offset-2"
+                >
+                  Create an account
+                </Link>
               </p>
             </NeoCardContent>
           </NeoCard>
