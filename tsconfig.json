@@ -1,40 +1,41 @@
 {
   "compilerOptions": {
-    "target": "ES6",
-    "module": "NodeNext",
+    "target": "ES2017",
+    "module": "esnext",
     "strict": true,
     "esModuleInterop": true,
-    "allowJs": false,
-    "composite": true,
+    "checkJs": false,
+    "allowJs": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "nodenext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "baseUrl": ".",
     "noErrorTruncation": true,
-    "jsx": "react-jsx",
-    "declarationMap": true,
+    "jsx": "preserve",
+    "isolatedModules": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@app-next/types/*": ["app-next-directory/src/types/*"],
+      "@/*": ["./app-next-directory/src/*"],
+      "@sanity/*": ["./sanity/*"]
     },
     "lib": ["dom", "dom.iterable", "esnext"],
-    "declaration": true,
-    "stripInternal": true,
-    "declarationDir": "dist/types",
-    "emitDeclarationOnly": true,
-    "noEmit": false
+    "noEmit": true
   },
   "include": [
-    "src/**/*",
-    "app-next-directory/sanity.types.ts"
+    "app-next-directory/src/**/*",
+    "app-next-directory/app/**/*",
+    "sanity/**/*.ts",
+    "*.ts"
   ],
   "exclude": [
     "node_modules",
-    "tests/**",
-    "playwright-report/**",
-    "coverage/**"
-  ],
-  "references": [
-    { "path": "./sanity"}
+    "*/node_modules",
+    "**/tests/**",
+    "**/test/**",
+    "**/*.test.*",
+    "**/playwright-report/**",
+    "**/coverage/**",
+    "**/.next/**",
+    "**/dist/**"
   ]
 }

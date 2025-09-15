@@ -134,18 +134,14 @@ export const authOptions: NextAuthConfig = {
             await dbConnect();
             // Use proper typing if available
             await User.updateOne(
-             { email: String(user.email).toLowerCase() },
-             { $set: { emailVerified: new Date() } },
-             {
-               email: String(user.email).toLowerCase(),
-               // Only update if not already verified to avoid unnecessary writes
-               emailVerified: { $exists: false }
-             },
-             { $set: { emailVerified: new Date() } }
-           );
-           if (result.matchedCount === 0) {
-             console.debug('[auth] User not found or already verified', user.email);
-           }
+              {
+                email: String(user.email).toLowerCase(),
+                $or: [{ emailVerified: { $exists: false } }, { emailVerified: null }],
+              },
+              { $set: { emailVerified: new Date() } },
+              // If emails are not normalized to lowercase at write-time, use case-insensitive matching
+              { collation: { locale: 'en', strength: 2 } }
+            );
           }
         }
       } catch (e) {

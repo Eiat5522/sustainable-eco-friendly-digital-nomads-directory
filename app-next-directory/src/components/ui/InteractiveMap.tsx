@@ -51,7 +51,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           mapInstanceRef.current.remove();
         }
 
-        const map = L.map(mapRef.current).setView([location.lat, location.lng], 15);
+  const map = L.map(mapRef.current as HTMLElement).setView([location.lat, location.lng], 15);
 
         // Add tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

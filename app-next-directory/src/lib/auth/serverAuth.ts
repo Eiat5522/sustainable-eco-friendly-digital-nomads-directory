@@ -19,6 +19,7 @@ type UserDoc = {
   password?: string;
   image?: string;
   role: UserRole;
+  emailVerified?: Date | null;
 };
 const UserModel = User as unknown as import('mongoose').Model<UserDoc>;
 export interface AuthenticatedUser {
@@ -45,7 +46,7 @@ export async function authenticateUser(
     // Find user in MongoDB using Mongoose model
 const user = await UserModel.findOne({ email: email.trim().toLowerCase() })
   .select('_id name email image role +password +emailVerified')
-  .lean();
+  .lean<UserDoc>();
 
     if (!user || !user.password) {
       return null;

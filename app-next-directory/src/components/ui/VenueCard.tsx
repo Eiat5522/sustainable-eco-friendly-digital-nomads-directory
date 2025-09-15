@@ -70,7 +70,7 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
               sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
               className="object-cover group-hover:scale-105 transition-transform duration-300"
               priority={priority}
-              onError={(e) => {
+              onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                 e.currentTarget.style.display = 'none';
               }}
             />

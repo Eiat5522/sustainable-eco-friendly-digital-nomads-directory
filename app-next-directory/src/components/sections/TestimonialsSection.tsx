@@ -103,7 +103,7 @@ export function TestimonialsSection() {
                       fill
                       sizes="48px"
                       className="object-cover"
-                      onError={(e) => {
+                      onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                         e.currentTarget.src = '/images/default-avatar.png'
                       }}
                     />

@@ -66,7 +66,8 @@ export function CityCarousel() {
         {!loading && !error && cities.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" role="list">
             {cities.map((city) => (
-              <Link key={city.id} href={`/cities/${city.slug}`} className="block group" role="listitem">
+              <Link key={city.id} href={`/cities/${city.slug}`}>
+                <a className="block group" role="listitem">
                 <div className="relative h-48 w-full overflow-hidden rounded-xl border-4 border-black bg-white shadow-[8px_8px_0_0_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0_0_rgba(0,0,0,1)] transition-all">
                   {/* Always render local placeholder to avoid 404s and layout shifts */}
                   <Image
@@ -85,7 +86,7 @@ export function CityCarousel() {
                       fill
                       sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
                       className="object-cover group-hover:scale-105 transition-transform"
-                      onError={(e) => {
+                      onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                         // Hide broken remote image so local placeholder remains visible
                         e.currentTarget.style.display = 'none';
                       }}
@@ -105,6 +106,7 @@ export function CityCarousel() {
                     )}
                   </div>
                 </div>
+                </a>
               </Link>
             ))}
           </div>

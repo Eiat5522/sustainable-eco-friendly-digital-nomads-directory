@@ -1,6 +1,5 @@
 import { http, HttpResponse } from 'msw'
 import { mockListings as testListings } from '@/tests/helpers/test-data'
-import { mockFeaturedVenues } from '@/tests/helpers/test-data'
 
 export const handlers = [
   // Search endpoints to silence unhandled warnings where tests don't mock fetch
@@ -41,8 +40,8 @@ export const handlers = [
     return HttpResponse.json([], { status: 200 })
   }),
   http.get('/api/featured-listings', () => {
-    // Return the full mockFeaturedVenues dataset used by tests
-    return HttpResponse.json({ listings: mockFeaturedVenues }, { status: 200 })
+    // Return a subset of listings as featured for tests
+    return HttpResponse.json({ listings: testListings.slice(0, 2) }, { status: 200 })
   }),
   http.get('/api/categories', () => {
     return HttpResponse.json({ categories: [] }, { status: 200 })

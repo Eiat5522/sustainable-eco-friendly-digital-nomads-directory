@@ -139,7 +139,6 @@ async function checkIsFavorited(listingId: string, userId?: string): Promise<boo
     return false;
   }
 }
-}
 
 interface PageProps {
   params: { slug: string };

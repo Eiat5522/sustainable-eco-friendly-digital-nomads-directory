@@ -2,8 +2,6 @@ export const dynamic = 'force-static';
 
 import type { Metadata } from 'next';
 
-export const dynamic = 'force-static';
-
 export const metadata: Metadata = {
   title: 'Admin Dashboard',
   robots: { index: false, follow: false },

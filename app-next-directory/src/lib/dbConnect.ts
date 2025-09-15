@@ -76,7 +76,7 @@ if (!/^mongodb(\+srv)?:\/\/.+/.test(MONGODB_URI)) {
   }
 
   // Optionally sync indexes once per process to ensure constraints
-  if (!indexesSynced && (process.env.NODE_ENV === 'development' || process.env.SYNC_INDEXES_ON_CONNECT === 'true')) {
+  if (!cached.indexesSynced && (process.env.NODE_ENV === 'development' || process.env.SYNC_INDEXES_ON_CONNECT === 'true')) {
     try {
 const [{ default: PasswordResetToken }, { default: User }] = await Promise.all([
   import('@/models/PasswordResetToken'),
@@ -86,7 +86,7 @@ const [{ default: PasswordResetToken }, { default: User }] = await Promise.all([
         PasswordResetToken.syncIndexes(),
         User.syncIndexes(),
       ]);
-      indexesSynced = true;
+  cached.indexesSynced = true;
     } catch (e) {
       // eslint-disable-next-line no-console
       console.warn('Index sync failed (continuing):', e);
