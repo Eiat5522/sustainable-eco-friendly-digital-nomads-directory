@@ -11,7 +11,10 @@ type Params = { slug: string };
 type Props = { params: Params | Promise<Params> };
 
 const toTitleCaseFromSlug = (s: string) =>
-  s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+   s.replace(/-/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+    // Optionally handle common acronyms
+    .replace(/\b(nyc|usa|uk|eu)\b/gi, (match) => match.toUpperCase());
 
 const makeFallbackCity = (slug: string): CityDTO => ({
   id: `city-${slug}`,

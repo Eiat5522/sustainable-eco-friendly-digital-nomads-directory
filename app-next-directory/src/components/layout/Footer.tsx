@@ -12,7 +12,7 @@ const footerLinks = {
     { name: 'Home', href: '/' },
     { name: 'Find Listings', href: '/search' },
     { name: 'Blog', href: '/blog' },
-    { name: 'Submit Your Business', href: '/contact-us?' },
+    { name: 'Submit Your Business', href: '/contact-us' },
     { name: 'Login / Register', href: '/auth/login' }
   ],
   categories: [
@@ -72,7 +72,7 @@ export function Footer() {
                   href="/contact-us?type=newsletter"
  onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
    const trimmed = email.trim()
-   const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmed)
+   const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed)
    if (!isValid) {
      e.preventDefault()
      setErrors({ email: 'Please enter a valid email address.' })
