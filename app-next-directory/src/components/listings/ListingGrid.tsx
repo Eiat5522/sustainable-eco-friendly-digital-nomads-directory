@@ -1,3 +1,5 @@
+"use client";
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
@@ -5,6 +7,7 @@ import type { ListingSummaryDTO } from '@/types/dto';
 import { NoListingsFound } from '@/components/listings/NoListingsFound';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { SyntheticEvent } from 'react';
 
 interface ListingGridProps {
   listings: ListingSummaryDTO[];
@@ -60,7 +63,7 @@ export function ListingGrid({ listings }: ListingGridProps) {
                   fill
                   sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.hidden = true; }}
+                  onError={(e: SyntheticEvent<HTMLImageElement>) => { e.currentTarget.hidden = true; }}
                 />
               )}
               {listing.featured && (

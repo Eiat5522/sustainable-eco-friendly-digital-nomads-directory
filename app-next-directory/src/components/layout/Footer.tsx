@@ -5,32 +5,22 @@ import Link from 'next/link'
 import { NeoButton } from '@/components/ui/neo-button'
 import { NeoInput } from '@/components/ui/neo-input'
 import { NeoCard } from '@/components/ui/neo-card'
-import { Leaf, Twitter, Instagram, Linkedin, Mail } from 'lucide-react'
+import { Leaf, Twitter, Instagram, Linkedin, Mail, MapPin, MessageSquare } from 'lucide-react'
 
 const footerLinks = {
-  platform: [
-    { name: 'About Us', href: '/about' },
-    { name: 'How It Works', href: '/how-it-works' },
-    { name: 'Sustainability', href: '/sustainability' },
-    { name: 'Community', href: '/community' }
-  ],
-  venues: [
-    { name: 'Add Your Venue', href: '/add-venue' },
-    { name: 'Coworking Spaces', href: '/coworking' },
-    { name: 'Cafes', href: '/cafes' },
-    { name: 'Accommodations', href: '/accommodations' }
-  ],
-  resources: [
+  quickLinks: [
+    { name: 'Home', href: '/' },
+    { name: 'Find Listings', href: '/search' },
     { name: 'Blog', href: '/blog' },
-    { name: 'Guides', href: '/guides' },
-    { name: 'API Documentation', href: '/api' },
-    { name: 'Help Center', href: '/help' }
+    { name: 'Submit Your Business', href: '/contact-us?' },
+    { name: 'Login / Register', href: '/auth/login' }
   ],
-  legal: [
-    { name: 'Privacy Policy', href: '/privacy' },
-    { name: 'Terms of Service', href: '/terms' },
-    { name: 'Cookie Policy', href: '/cookies' },
-    { name: 'Contact', href: '/contact-us' }
+  categories: [
+    { name: 'Co-working Spaces', href: '/search/results?category=coworking' },
+    { name: 'Cafes', href: '/search/results?category=cafe' },
+    { name: 'Restaurants', href: '/search/results?category=restaurant' },
+    { name: 'Accommodation', href: '/search/results?category=accommodation' },
+    { name: 'Activities', href: '/search/results?category=activities' }
   ]
 }
 
@@ -105,7 +95,7 @@ export function Footer() {
         </NeoCard>
 
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center space-x-2 mb-4">
@@ -135,9 +125,9 @@ export function Footer() {
 
           {/* Links */}
           <div>
-            <h4 className="heading-sm text-white mb-4">Platform</h4>
+            <h4 className="heading-sm text-white mb-4">Quick Links</h4>
             <ul className="space-y-2">
-              {footerLinks.platform.map((link) => (
+              {footerLinks.quickLinks.map((link) => (
                 <li key={link.name}>
                   <Link href={link.href} className="body-md text-gray-300 hover:text-neo-secondary transition-colors">
                     {link.name}
@@ -148,9 +138,9 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="heading-sm text-white mb-4">Venues</h4>
+            <h4 className="heading-sm text-white mb-4">Categories</h4>
             <ul className="space-y-2">
-              {footerLinks.venues.map((link) => (
+              {footerLinks.categories.map((link) => (
                 <li key={link.name}>
                   <Link href={link.href} className="body-md text-gray-300 hover:text-neo-secondary transition-colors">
                     {link.name}
@@ -161,30 +151,24 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="heading-sm text-white mb-4">Resources</h4>
-            <ul className="space-y-2">
-              {footerLinks.resources.map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href} className="body-md text-gray-300 hover:text-neo-secondary transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
+            <h4 className="heading-sm text-white mb-4">Contact Us</h4>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3">
+                <MapPin size={18} className="mt-1 shrink-0 text-neo-secondary" aria-hidden="true" />
+                <span className="body-md text-gray-300">123 Green Street, Watthana, Bangkok 10110, Thailand</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Mail size={18} className="mt-1 shrink-0 text-neo-secondary" aria-hidden="true" />
+                <a href="mailto:hello@sustainablenomads.com" className="body-md text-gray-300 hover:text-neo-secondary transition-colors">hello@sustainablenomads.com</a>
+              </li>
+              <li className="flex items-start gap-3">
+                <MessageSquare size={18} className="mt-1 shrink-0 text-neo-secondary" aria-hidden="true" />
+                <Link href="/contact-us" className="body-md text-gray-300 hover:text-neo-secondary transition-colors">Send us a message</Link>
+              </li>
             </ul>
           </div>
 
-          <div>
-            <h4 className="heading-sm text-white mb-4">Legal</h4>
-            <ul className="space-y-2">
-              {footerLinks.legal.map((link) => (
-                <li key={link.name}>
-                  <Link href={link.href} className="body-md text-gray-300 hover:text-neo-secondary transition-colors">
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Legal column removed as requested */}
         </div>
 
         {/* Bottom Bar */}

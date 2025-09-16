@@ -55,7 +55,11 @@ function buildWhereClause({
     throw new Error('Search query too long');
   }
 
-  const filters: string[] = ['_type == "listing"', '(!defined(moderation.status) || moderation.status == "published")'];
+  // Only include published listings. Support legacy root-level `status` by coalescing.
+  const filters: string[] = [
+    '_type == "listing"',
+    'coalesce(moderation.status, status) == "published"'
+  ];
 
   if (q) {
     const pattern = escapeGroqMatch(q.toLowerCase());

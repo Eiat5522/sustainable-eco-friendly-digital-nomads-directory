@@ -1,9 +1,11 @@
 import { NeoButton } from '@/components/ui/neo-button'
 import { ListingGrid } from '@/components/listings/ListingGrid'
+import { SearchFiltersForm } from '@/components/search/SearchFiltersForm'
 import type { ListingSummaryDTO } from '@/types/dto'
 import Link from 'next/link'
 import { getBaseUrl } from '@/lib/absolute-url'
 import { z } from 'zod'
+import type { SearchParamRecord } from '@/types/search'
 
 const apiItemSchema = z.object({
   _id: z.string().optional(),
@@ -26,21 +28,22 @@ const apiItemSchema = z.object({
     asset: z.object({
       url: z.string()
     }).optional()
-  }).optional(),
-  shortDescription: z.string().optional(),
-  amenityNames: z.array(z.string()).optional()
+  }).nullable().optional(),
+  shortDescription: z.string().nullable().optional(),
+  amenityNames: z.array(z.string()).nullable().optional()
 })
 
 function mapResultToDTO(item: any): ListingSummaryDTO {
   const validated = apiItemSchema.parse(item)
-  const city = item.city ?? item.location ?? null
-  const imageUrl: string | undefined = item?.primaryImage?.asset?.url ?? undefined
-  const slug: string = typeof item.slug === 'string' ? item.slug : (item.slug?.current ?? '')
+  const city = validated.city ?? validated.location ?? null
+  const imageUrl: string | undefined = validated?.primaryImage?.asset?.url ?? undefined
+  const slugValue = validated.slug
+  const slug: string = typeof slugValue === 'string' ? slugValue : (slugValue?.current ?? '')
   return {
-    id: String(item._id ?? slug ?? 'unknown'),
-    name: String(item.name ?? ''),
+    id: String(validated._id ?? slug ?? `temp-${Date.now()}-${Math.random()}`),
+    name: String(validated.name ?? ''),
     slug,
-    type: (item.category ?? 'coworking') as ListingSummaryDTO['type'],
+    type: (validated.category ?? 'coworking') as ListingSummaryDTO['type'],
     city: city
       ? {
           id: String(city._id ?? ''),
@@ -50,9 +53,9 @@ function mapResultToDTO(item: any): ListingSummaryDTO {
         }
       : null,
     imageUrl,
-    shortDescription: item.shortDescription ?? undefined,
-    amenityNames: Array.isArray(item.amenityNames)
-      ? item.amenityNames.filter((v: any) => typeof v === 'string')
+    shortDescription: validated.shortDescription ?? undefined,
+    amenityNames: Array.isArray(validated.amenityNames)
+      ? validated.amenityNames.filter((v: any) => typeof v === 'string')
       : undefined,
     // Prefer moderation.featured when present
     featured: Boolean((item as any)?.moderation?.featured === true),
@@ -69,7 +72,7 @@ function mapResultToDTO(item: any): ListingSummaryDTO {
   }
 }
 
-function buildLink(searchParams: Record<string, string | string[] | undefined>, overrides: Record<string, string>) {
+function buildLink(searchParams: SearchParamRecord, overrides: Record<string, string>) {
   const params = new URLSearchParams()
   for (const [k, v] of Object.entries(searchParams)) {
     if (v === undefined) continue
@@ -80,11 +83,12 @@ function buildLink(searchParams: Record<string, string | string[] | undefined>, 
   return `/search/results?${params.toString()}`
 }
 
-export default async function ResultsPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function ResultsPage({ searchParams }: { searchParams: Promise<SearchParamRecord> }) {
+  const resolvedSearchParams = await searchParams
   const base = await getBaseUrl()
   const url = new URL('/api/search', base)
   const params = new URLSearchParams()
-  for (const [k, v] of Object.entries(searchParams)) {
+  for (const [k, v] of Object.entries(resolvedSearchParams)) {
     if (v === undefined) continue
     if (Array.isArray(v)) v.forEach((x) => params.append(k, x))
     else params.set(k, v)
@@ -94,7 +98,14 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
   params.set('facets', '1')
   url.search = params.toString()
 
-  const res = await fetch(url.toString(), { cache: 'no-store' })
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+  try {
+    const res = await fetch(url.toString(), { 
+      cache: 'no-store',
+      signal: controller.signal 
+    })
+    clearTimeout(timeoutId)
   if (!res.ok) {
     console.error(`Search API failed: ${res.status} ${res.statusText}`)
     return (
@@ -106,7 +117,7 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
       </div>
     )
   }
-  const data = await res.json();
+  const data = await res.json()
   const raw = Array.isArray(data?.data?.results) ? data.data.results : []
   const mapped: ListingSummaryDTO[] = raw.map(mapResultToDTO)
   const pagination = data?.data?.pagination ?? { page: 1, totalPages: 1, hasMore: false, limit: Number(params.get('limit') || 12), total: 0 }
@@ -114,8 +125,8 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
   const totalPages = Math.max(1, Number(pagination.totalPages ?? 1))
   const limit = Math.max(1, Number(pagination.limit ?? Number(params.get('limit') || 12)))
 
-  const prevLink = page > 1 ? buildLink(searchParams, { page: String(page - 1) }) : null
-  const nextLink = page < totalPages ? buildLink(searchParams, { page: String(page + 1) }) : null
+  const prevLink = page > 1 ? buildLink(resolvedSearchParams, { page: String(page - 1) }) : null
+  const nextLink = page < totalPages ? buildLink(resolvedSearchParams, { page: String(page + 1) }) : null
 
   // Build a compact page number list with ellipses
   function getPages(current: number, total: number): (number | '…')[] {
@@ -135,6 +146,10 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <div className="mb-10">
+        <h1 className="heading-xl mb-8 text-center">Search for Sustainable Venues</h1>
+        <SearchFiltersForm initialParams={resolvedSearchParams} />
+      </div>
       <h2 className="heading-lg mb-4">Search Results</h2>
       {/* Page-size selector */}
       <div className="flex items-center justify-between gap-4 mb-4">
@@ -143,7 +158,7 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
         </div>
         <form action="/search/results" method="get" className="flex items-center gap-2">
           {/* preserve existing filters */}
-          {Object.entries(searchParams).map(([k, v]) => {
+          {Object.entries(resolvedSearchParams).map(([k, v]) => {
             // Sanitize parameter names to prevent injection
             if (!/^[a-zA-Z0-9_-]+$/.test(k)) return null
             return Array.isArray(v)
@@ -182,12 +197,15 @@ export default async function ResultsPage({ searchParams }: { searchParams: Reco
               variant={p === page ? 'primary' : 'outline'}
               size="sm"
             >
-              <Link href={buildLink(searchParams, { page: String(p) })} aria-current={p === page ? 'page' : undefined}>
+              <Link href={buildLink(resolvedSearchParams, { page: String(p) })} aria-current={p === page ? 'page' : undefined}>
                 {p}
               </Link>
             </NeoButton>
           )
         ))}
+        <NeoButton asChild variant="outline" size="sm" disabled={!nextLink}>
+          <Link href={nextLink || '#'} aria-disabled={!nextLink}>Next</Link>
+        </NeoButton>
       </div>
     </div>
   )

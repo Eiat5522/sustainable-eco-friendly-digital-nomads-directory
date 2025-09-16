@@ -26,7 +26,8 @@ export function CityCarousel() {
     }
     const maxScrollLeft = el.scrollWidth - el.clientWidth;
     setCanPrev(el.scrollLeft > 0);
-    setCanNext(el.scrollLeft < maxScrollLeft - 4); // tolerance for rounding
+    const tolerance = Math.max(1, el.clientWidth * 0.001); // 0.1% of container width
+    setCanNext(el.scrollLeft < maxScrollLeft - tolerance);
   }, []);
 
   const scrollBy = useCallback((direction: -1 | 1) => {
@@ -60,8 +61,11 @@ export function CityCarousel() {
       } catch (e) {
         if (!cancelled) setError('Error: failed to fetch cities');
       } finally {
-        if (!cancelled) setLoading(false);
-        updateControls();
+        if (!cancelled) {
+          setLoading(false);
+          // Defer to next frame to ensure DOM is updated
+          requestAnimationFrame(() => updateControls());
+        }
       }
     })();
     return () => {
@@ -79,7 +83,8 @@ export function CityCarousel() {
     el.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('resize', handleResize);
     return () => {
-      el.removeEventListener('scroll', handleScroll);
+      // Use the captured el reference for cleanup
+      if (el) el.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
     };
   }, [updateControls, cities.length]);

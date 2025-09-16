@@ -70,3 +70,5 @@ export interface SearchResults {
     hasMore: boolean;
   };
 }
+
+export type SearchParamRecord = Record<string, string | string[] | undefined>
