@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { getBaseUrl } from '@/lib/absolute-url';
+import { structuredLogger } from '@/lib/logger';
 
 const resendApiKey = process.env.RESEND_API_KEY;
 const fromAddress = process.env.RESEND_FROM || process.env.SMTP_FROM || 'noreply@example.com';
@@ -30,7 +31,11 @@ export async function sendMail(opts: { to: string; subject: string; html: string
     });
     return { sent: true } as const;
   } catch (error) {
-    console.error('[email] Failed to send email:', error);
+    structuredLogger.emailError('send email', error, {
+      to: opts.to, // Will be redacted by logger
+      subject: opts.subject,
+      component: 'email-service'
+    });
     return { error: error instanceof Error ? error.message : 'Unknown error' } as const;
   }
 }

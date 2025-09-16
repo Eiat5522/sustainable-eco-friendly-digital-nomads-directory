@@ -3,6 +3,8 @@
 // NOTE: Do not import NextRequest/NextResponse from 'next/server' in utility files for Next.js 14+ middleware compatibility.
 // Use a compatible type or 'any' for req if needed, or define a minimal interface.
 
+import { structuredLogger } from '@/lib/logger';
+
 /**
  * Decodes callback URLs and prevents double-encoding.
  * Use as middleware or utility in auth flows.
@@ -24,7 +26,10 @@ export function handleAuthCallbackUrl(req: { nextUrl: { searchParams: URLSearchP
 
     return decoded;
   } catch (e) {
-    console.error("Error decoding callback URL", e);
+    structuredLogger.middlewareError('auth callback URL decoder', e, {
+      component: 'auth-callback',
+      callbackUrl: urlParam ? '[REDACTED]' : undefined
+    });
     return null;
   }
 }

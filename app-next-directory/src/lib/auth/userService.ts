@@ -1,6 +1,7 @@
 // Sanity User Service - Manages user operations between NextAuth and Sanity
 import { createClient } from "next-sanity";
 import bcrypt from "bcryptjs";
+import { structuredLogger } from '@/lib/logger';
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -20,7 +21,11 @@ export async function findSanityUserByEmail(email: string) {
     const query = `*[_type == "user" && email == $email][0]`;
     return await client.fetch(query, { email });
   } catch (err) {
-    console.error("Error finding Sanity user by email:", err);
+    structuredLogger.error("Error finding Sanity user by email", err, {
+      email: email, // Will be redacted by logger
+      component: 'user-service',
+      operation: 'find_by_email'
+    });
     return null;
   }
 }
@@ -34,7 +39,11 @@ export async function findSanityUserById(id: string) {
   try {
     return await client.fetch(`*[_type == "user" && _id == $id][0]`, { id });
   } catch (err) {
-    console.error("Error finding Sanity user by ID:", err);
+    structuredLogger.error("Error finding Sanity user by ID", err, {
+      userId: id,
+      component: 'user-service',
+      operation: 'find_by_id'
+    });
     return null;
   }
 }
@@ -86,7 +95,11 @@ export async function createSanityUser({
     
     return newUser;
   } catch (err) {
-    console.error("Error creating Sanity user:", err);
+    structuredLogger.error("Error creating Sanity user", err, {
+      email: email, // Will be redacted by logger
+      component: 'user-service',
+      operation: 'create_user'
+    });
     throw err;
   }
 }
@@ -129,7 +142,11 @@ export async function updateSanityUserWithAuthDetails(
     
     return await patch.commit();
   } catch (err) {
-    console.error("Error updating Sanity user:", err);
+    structuredLogger.error("Error updating Sanity user", err, {
+      userId: id,
+      component: 'user-service',
+      operation: 'update_user'
+    });
     return null;
   }
 }
@@ -183,7 +200,12 @@ export async function updateUserRole(userId: string, newRole: string) {
     
     return true;
   } catch (err) {
-    console.error("Error updating user role:", err);
+    structuredLogger.error("Error updating user role", err, {
+      userId: userId,
+      newRole: newRole,
+      component: 'user-service',
+      operation: 'update_role'
+    });
     return null;
   }
 }

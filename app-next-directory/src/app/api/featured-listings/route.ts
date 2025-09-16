@@ -1,6 +1,7 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getClient } from '@/lib/sanity.utils';
 import type { FeaturedListingDTO } from '@/types/dto';
+import { structuredLogger, getRequestContext } from '@/lib/logger';
 
 // GROQ: pick only needed fields; require moderation.featured == true and published
 const FEATURED_LISTINGS_QUERY = `
@@ -21,7 +22,7 @@ const FEATURED_LISTINGS_QUERY = `
   
 }`;
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const client = getClient(false);
     const results = await client.fetch<SanityFeaturedListing[]>(FEATURED_LISTINGS_QUERY);
@@ -48,7 +49,10 @@ export async function GET() {
 
     return ApiResponseHandler.success({ listings });
   } catch (error: any) {
-    console.error('GET /api/featured-listings error:', error);
+    structuredLogger.apiError('/api/featured-listings', error, {
+      ...getRequestContext(request),
+      operation: 'get_featured_listings'
+    });
     return ApiResponseHandler.error('Failed to fetch featured listings', 500, error?.message || String(error));
   }
 }

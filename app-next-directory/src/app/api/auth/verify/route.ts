@@ -5,6 +5,7 @@ import User from '@/models/User';
 import EmailVerificationToken from '@/models/EmailVerificationToken';
 import { hashToken } from '@/lib/tokens';
 import { getClientIp, isRateLimited, getRetryAfterMs } from '@/lib/rate-limit';
+import { structuredLogger, getRequestContext } from '@/lib/logger';
 
 // GET /api/auth/verify?token=...
 export async function GET(req: Request) {
@@ -54,7 +55,10 @@ export async function GET(req: Request) {
 
     return NextResponse.redirect(new URL('/auth/login?verified=1', req.url));
     }   catch (error) {
-        console.error('[Email Verification] Error processing verification:', error);
+        structuredLogger.authError('email verification', error, {
+          ...getRequestContext(req),
+          token: token ? '[REDACTED]' : undefined
+        });
         return NextResponse.redirect(new URL('/auth/login?verified=0', req.url));
     }
 }
