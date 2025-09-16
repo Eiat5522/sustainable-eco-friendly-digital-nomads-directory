@@ -1,5 +1,6 @@
 import { ACCESS_CONTROL_MATRIX, PagePermissions, UserRole } from '@/types/auth';
 import { auth } from '@/lib/auth';
+import { structuredLogger, getRequestContext } from '@/lib/logger';
 
 const secret = process.env.NEXTAUTH_SECRET;
 
@@ -205,8 +206,7 @@ export function createMiddleware({
       return withSecurityHeaders(NextResponse.next());
     } catch (error) {
       // Graceful error handling
-      // eslint-disable-next-line no-console
-      console.error('Middleware error:', error);
+      structuredLogger.middlewareError('main-middleware', error, getRequestContext(request));
       return withSecurityHeaders(NextResponse.next());
     }
   };
