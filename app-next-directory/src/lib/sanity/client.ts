@@ -13,13 +13,21 @@ import SanityImageUrl from '@sanity/image-url';
 // and falls back to the `default` property if it's wrapped by a CJS environment like Jest.
 export const createClient = SanityClient.createClient || (SanityClient as any).default?.createClient;
 
-export const client = createClient({
-  // Fallback to dummy values if env vars are not set, which is common in test environments
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'projectId',
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'dataset',
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'projectId';
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'dataset';
+const token = process.env.SANITY_API_READ_TOKEN || process.env.SANITY_API_TOKEN || process.env.SANITY_TOKEN;
+
+const clientConfig = {
+  projectId,
+  dataset,
   apiVersion: '2024-01-01',
-  useCdn: false, // Typically false for tests and server-side logic
-});
+  useCdn: false, // Ensure fresh data for server-side logic
+  ...(token
+    ? { token, ignoreBrowserTokenWarning: true }
+    : {}),
+};
+
+export const client = createClient(clientConfig);
 
 // This robustly handles CJS/ESM module interop issues, which is the cause of the Jest error.
 // It attempts to use the 'default' export, falling back to the root module object.

@@ -52,7 +52,20 @@ export default function SearchPage() {
         ]);
         if (cancelled) return;
 
-        const cities = Array.isArray(citiesRes?.cities) ? (citiesRes.cities as City[]) : [];
+        const unwrap = <T extends Record<string, unknown>>(payload: unknown) => {
+          if (!payload || typeof payload !== 'object') return payload as T | undefined;
+          const dataField = (payload as { data?: unknown }).data;
+          if (dataField && typeof dataField === 'object') {
+            return dataField as T;
+          }
+          return payload as T | undefined;
+        };
+
+        const citiesPayload = unwrap<CityResponse>(citiesRes);
+        const categoriesPayload = unwrap<CategoryResponse>(catsRes);
+        const amenitiesPayload = unwrap<AmenityResponse>(amenitiesRes);
+
+        const cities = Array.isArray(citiesPayload?.cities) ? (citiesPayload.cities as City[]) : [];
         const cityOpts: Option[] = Array.from(
           new Map(
             cities
@@ -67,7 +80,9 @@ export default function SearchPage() {
         ).sort((a, b) => a.label.localeCompare(b.label));
         setCityOptions(cityOpts);
 
-        const categories: string[] = Array.isArray(catsRes?.categories) ? catsRes.categories : [];
+        const categories: string[] = Array.isArray(categoriesPayload?.categories)
+          ? (categoriesPayload.categories as string[])
+          : [];
         const typeOpts: Option[] = Array.from(
           new Set(
             categories
@@ -83,7 +98,9 @@ export default function SearchPage() {
           .sort((a, b) => a.label.localeCompare(b.label));
         setTypeOptions(typeOpts);
 
-        const amenities = Array.isArray(amenitiesRes?.amenities) ? (amenitiesRes.amenities as unknown[]) : [];
+        const amenities = Array.isArray(amenitiesPayload?.amenities)
+          ? (amenitiesPayload.amenities as unknown[])
+          : [];
         const amenityOpts: Option[] = Array.from(
           new Map(
             amenities

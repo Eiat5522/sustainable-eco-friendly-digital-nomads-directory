@@ -7,8 +7,10 @@ import type { SanityListing } from '@/types/sanity.types';
 import type { CityDTO } from '@/types/dto';
 import type { ListingDetailDTO } from '@/types/dto';
 import { notFound } from 'next/navigation';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
-type Props = { params: { slug: string } };
+type Props = { params: Promise<{ slug: string }> };
 
 async function fetchListingBySlug(slug: string): Promise<ListingDetailDTO | null> {
   const query = groq`*[_type == "listing" && moderation.status == "published" && slug.current == $slug][0]{
@@ -49,7 +51,7 @@ async function fetchListingBySlug(slug: string): Promise<ListingDetailDTO | null
 }
 
 export default async function ListingPage({ params }: Props) {
-    const { slug } = params;
+  const { slug } = await params;
   const listing = await fetchListingBySlug(slug);
   if (!listing) notFound();
 
@@ -82,12 +84,18 @@ export default async function ListingPage({ params }: Props) {
   const relatedListings = await fetchRelatedListings(listing.city?.id, listing.id);
 
   return (
-    <ListingDetailView
-      listing={listing}
-      reviews={[]}
-      relatedListings={relatedListings}
-      isSignedIn={false}
-      isFavorited={false}
-    />
+    <>
+      <Header />
+      <main>
+        <ListingDetailView
+          listing={listing}
+          reviews={[]}
+          relatedListings={relatedListings}
+          isSignedIn={false}
+          isFavorited={false}
+        />
+      </main>
+      <Footer />
+    </>
   );
 }

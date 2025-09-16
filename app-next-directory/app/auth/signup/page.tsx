@@ -33,8 +33,8 @@ export default function SignupPage() {
 
   return (
     <>
-    <Header />
-    <div className="relative min-h-screen flex items-center justify-center px-4">
+      <Header />
+      <div className="relative min-h-screen flex items-center justify-center px-4">
       {/* Background accents */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-neo-secondary/10 via-white to-neo-primary/10" />
       <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-neo-primary/10 blur-3xl" />
@@ -58,12 +58,8 @@ export default function SignupPage() {
           <NeoCardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <p className="text-sm text-neo-text-secondary">
-// app-next-directory/app/auth/signup/page.tsx
-
-import { Footer } from '@/components/layout/Footer';
-import Link from 'next/link';
-
-// …rest of the file…              </p>
+                Create an account to start reviewing and saving listings.
+              </p>
               <NeoInput
                 type="text"
                 id="name"

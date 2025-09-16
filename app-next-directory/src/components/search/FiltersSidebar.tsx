@@ -4,6 +4,7 @@ import { useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { DigitalNomadSearchFilter } from './DigitalNomadSearchFilter'
 import type { FilterDefinition } from '@/hooks/useFilters'
+import { ListingCategory } from '@/types/enums'
 
 const defaultDefinitions: FilterDefinition[] = [
   {
@@ -11,9 +12,11 @@ const defaultDefinitions: FilterDefinition[] = [
     label: 'Category',
     multiSelect: true,
     options: [
-      { id: 'coworking', label: 'Coworking' },
-      { id: 'cafe', label: 'Cafe' },
-      { id: 'accommodation', label: 'Accommodation' },
+      { id: ListingCategory.COWORKING, label: 'Coworking' },
+      { id: ListingCategory.CAFE, label: 'Cafe' },
+      { id: ListingCategory.ACCOMMODATION, label: 'Accommodation' },
+      { id: ListingCategory.RESTAURANT, label: 'Restaurant' },
+      { id: ListingCategory.ACTIVITIES, label: 'Activities' },
     ],
   },
   {
@@ -96,4 +99,3 @@ export function FiltersSidebar({ definitions = defaultDefinitions }: FiltersSide
 }
 
 export default FiltersSidebar
-

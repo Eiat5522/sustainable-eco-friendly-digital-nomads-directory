@@ -6,6 +6,8 @@ import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import type { Metadata } from 'next'
 import Image from 'next/image';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 // Subtle SVG gradient placeholder for hero image when missing
 function placeholderDataUri(width = 1200, height = 630) {
@@ -90,32 +92,36 @@ export default async function BlogPostPage({ params }: Readonly<{ params: { slug
   const alt = usingPlaceholder ? '' : (post.title || '');
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <article className="prose lg:prose-xl max-w-none">
-        <h1 className="text-5xl font-extrabold text-center mb-6 text-gray-900">{post.title}</h1>
-        <div className="relative w-full h-64 md:h-96 mb-8 border-4 border-black rounded-lg overflow-hidden">
-          <Image
-            src={src}
-            alt={alt}
-            aria-hidden={usingPlaceholder}
-            fill
-            className="object-cover"
-            sizes="100vw"
-            placeholder={usingPlaceholder ? 'empty' : 'blur'}
-            blurDataURL={usingPlaceholder ? undefined : placeholderDataUri(1200, 630)}
-            priority={!usingPlaceholder}
-          />
+    <>
+      <Header />
+      <main className="container mx-auto px-4 py-8">
+        <article className="prose lg:prose-xl max-w-none">
+          <h1 className="text-5xl font-extrabold text-center mb-6 text-gray-900">{post.title}</h1>
+          <div className="relative w-full h-64 md:h-96 mb-8 border-4 border-black rounded-lg overflow-hidden">
+            <Image
+              src={src}
+              alt={alt}
+              aria-hidden={usingPlaceholder}
+              fill
+              className="object-cover"
+              sizes="100vw"
+              placeholder={usingPlaceholder ? 'empty' : 'blur'}
+              blurDataURL={usingPlaceholder ? undefined : placeholderDataUri(1200, 630)}
+              priority={!usingPlaceholder}
+            />
+          </div>
+          <div className="bg-white border-4 border-black rounded-lg shadow-lg p-8">
+            <PortableText value={post.body} />
+          </div>
+        </article>
+        <div className="mt-16">
+          <h2 className="text-4xl font-bold mb-8 text-gray-800">Comments</h2>
+          <CommentList comments={comments} />
+          <CommentForm postId={post.id} />
         </div>
-        <div className="bg-white border-4 border-black rounded-lg shadow-lg p-8">
-          <PortableText value={post.body} />
-        </div>
-      </article>
-      <div className="mt-16">
-        <h2 className="text-4xl font-bold mb-8 text-gray-800">Comments</h2>
-        <CommentList comments={comments} />
-        <CommentForm postId={post.id} />
-      </div>
-    </div>
+      </main>
+      <Footer />
+    </>
   );
 }
 

@@ -67,6 +67,7 @@ describe('Sanity client module', () => {
         ...originalEnv,
         NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project',
         NEXT_PUBLIC_SANITY_DATASET: 'test-dataset',
+        SANITY_API_TOKEN: 'test-token',
       };
 
       const { createClient } = require('@sanity/client');
@@ -77,6 +78,8 @@ describe('Sanity client module', () => {
         dataset: 'test-dataset',
         apiVersion: '2024-01-01',
         useCdn: false,
+        token: 'test-token',
+        ignoreBrowserTokenWarning: true,
       });
 
       expect(clientModule.client).toBe(mockClient);
@@ -91,6 +94,7 @@ describe('Sanity client module', () => {
         ...originalEnv,
         NEXT_PUBLIC_SANITY_PROJECT_ID: '',
         NEXT_PUBLIC_SANITY_DATASET: '',
+        SANITY_API_TOKEN: '',
       };
 
       const { createClient } = require('@sanity/client');

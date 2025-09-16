@@ -100,54 +100,54 @@ export function FeaturedListings() {
             <p className="body-lg text-red-500">Error: {error}</p>
           </div>
         ) : (
-        <div className="relative">
-          {/* Nav buttons */}
-          <NeoButton
-            variant="secondary"
-            size="sm"
-            className="hidden md:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
-            aria-label="Scroll featured left"
-            onClick={scrollPrev}
-            disabled={!canPrev}
-            onMouseEnter={() => autoplay.current?.stop()}
-            onMouseLeave={() => autoplay.current?.play()}
-          >
-            <ChevronLeft size={18} />
-          </NeoButton>
-          <NeoButton
-            variant="secondary"
-            size="sm"
-            className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
-            aria-label="Scroll featured right"
-            onClick={scrollNext}
-            disabled={!canNext}
-            onMouseEnter={() => autoplay.current?.stop()}
-            onMouseLeave={() => autoplay.current?.play()}
-          >
-            <ChevronRight size={18} />
-          </NeoButton>
+          <div className="relative">
+            {/* Nav buttons */}
+            <NeoButton
+              variant="secondary"
+              size="sm"
+              className="hidden md:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
+              aria-label="Scroll featured left"
+              onClick={scrollPrev}
+              disabled={!canPrev}
+              onMouseEnter={() => autoplay.current?.stop()}
+              onMouseLeave={() => autoplay.current?.play()}
+            >
+              <ChevronLeft size={18} />
+            </NeoButton>
+            <NeoButton
+              variant="secondary"
+              size="sm"
+              className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
+              aria-label="Scroll featured right"
+              onClick={scrollNext}
+              disabled={!canNext}
+              onMouseEnter={() => autoplay.current?.stop()}
+              onMouseLeave={() => autoplay.current?.play()}
+            >
+              <ChevronRight size={18} />
+            </NeoButton>
 
-          {/* Embla viewport & container */}
-          <div
-            ref={viewportRef}
-            className="overflow-hidden"
-            role="region"
-            aria-label="Featured venues carousel"
-          >
-            <div className="flex gap-6">
-              {listings.map((listing, index) => (
-                <div
-                  key={listing.id}
-                  className="shrink-0 basis-[85%] sm:basis-[60%] lg:basis-1/3"
-                >
-                  <VenueCard venue={listing} priority={index < 3} />
-                </div>
-              ))}
+            {/* Embla viewport & container */}
+            <div
+              ref={viewportRef}
+              className="overflow-hidden"
+              role="region"
+              aria-label="Featured venues carousel"
+            >
+              <div className="flex gap-6">
+                {listings.map((listing, index) => (
+                  <div
+                    key={listing.id}
+                    className="shrink-0 basis-[85%] sm:basis-[60%] lg:basis-1/3"
+                  >
+                    <VenueCard venue={listing} priority={index < 3} />
+                  </div>
+                ))}
+              </div>
             </div>
-        </div>
-        )
-        </div>
-)}     </div>
+          </div>
+        )}
+      </div>
     </section>
   )
 }

@@ -17,23 +17,23 @@ export default defineType({
       title: 'Slug',
       type: 'slug',
       options: { source: 'name', maxLength: 96 },
-      validation: Rule => Rule.required(),
+      validation: Rule => Rule.required()
     }),
     defineField({
       name: 'shortDescription',
       title: 'Short Description',
-      type: 'string',
+      type: 'string'
     }),
     defineField({
       name: 'longDescription',
       title: 'Long Description',
-      type: 'text',
+      type: 'text'
     }),
     defineField({
       name: 'city',
       title: 'City',
       type: 'reference',
-      to: [{ type: 'city' }],
+      to: [{ type: 'city' }]
     }),
     defineField({
       name: 'type',
@@ -54,37 +54,37 @@ export default defineType({
     defineField({
       name: 'address',
       title: 'Address',
-      type: 'string',
+      type: 'string'
     }),
     defineField({
       name: 'location',
       title: 'Location',
       type: 'geopoint',
-      description: 'Geographical location (latitude & longitude) for map display',
+      description: 'Geographical location (latitude & longitude) for map display'
     }),
     defineField({
       name: 'primaryImage',
       title: 'Primary Image',
       type: 'image',
-      options: { hotspot: true },
+      options: { hotspot: true }
     }),
     defineField({
       name: 'galleryImages',
       title: 'Gallery Images',
       type: 'array',
-      of: [{ type: 'image', options: { hotspot: true } }],
+      of: [{ type: 'image', options: { hotspot: true } }]
     }),
     defineField({
       name: 'ecoFocusTags',
       title: 'Eco Focus Tags',
       type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'ecoTag' }] }],
+      of: [{ type: 'reference', to: [{ type: 'ecoTag' }] }]
     }),
     defineField({
       name: 'digitalNomadFeatures',
       title: 'Digital Nomad Features',
       type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'nomadFeature' }] }],
+      of: [{ type: 'reference', to: [{ type: 'nomadFeature' }] }]
     }),
     defineField({
       name: 'amenities',
@@ -101,24 +101,24 @@ export default defineType({
         list: [
           { title: 'Budget', value: 'budget' },
           { title: 'Moderate', value: 'moderate' },
-          { title: 'Premium', value: 'premium' },
+          { title: 'Premium', value: 'premium' }
         ]
       }
     }),
     defineField({
       name: 'contactPhone',
       title: 'Contact Phone',
-      type: 'string',
+      type: 'string'
     }),
     defineField({
       name: 'contactEmail',
       title: 'Contact Email',
-      type: 'string',
+      type: 'string'
     }),
     defineField({
       name: 'website',
       title: 'Website',
-      type: 'url',
+      type: 'url'
     }),
     defineField({
       name: 'accommodationDetails',
@@ -200,7 +200,7 @@ export default defineType({
       name: 'reviews',
       title: 'Reviews',
       type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'review' }] }],
+      of: [{ type: 'reference', to: [{ type: 'review' }] }]
     }),
     defineField({
       name: 'moderation',

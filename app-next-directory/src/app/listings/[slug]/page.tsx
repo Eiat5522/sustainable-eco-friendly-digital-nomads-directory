@@ -6,6 +6,8 @@ import { ListingDetailView } from '@/components/listings/ListingDetailView';
 import type { Metadata } from 'next';
 import type { ListingDetailDTO } from '@/types/dto';
 import type { UserRole } from '@/types/auth';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 // Define the listing query
 const LISTING_QUERY = groq`
@@ -165,12 +167,18 @@ export default async function ListingDetailPage({ params }: PageProps) {
   const isFavorited = await checkIsFavorited(listing.id, user?.id);
   
   return (
-    <ListingDetailView
-      listing={listing}
-      reviews={reviews}
-      isSignedIn={isSignedIn}
-      isFavorited={isFavorited}
-    />
+    <>
+      <Header />
+      <main>
+        <ListingDetailView
+          listing={listing}
+          reviews={reviews}
+          isSignedIn={isSignedIn}
+          isFavorited={isFavorited}
+        />
+      </main>
+      <Footer />
+    </>
   );
 }
 

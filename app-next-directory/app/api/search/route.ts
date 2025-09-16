@@ -105,6 +105,50 @@ function buildWhereClause({
   return filters.join(' && ');
 }
 
+type FacetSourceRecord = {
+  category?: string | null;
+  destination?: string | null;
+  amenities?: Array<string | null> | null;
+};
+
+type FacetBuckets = {
+  category: Array<{ value: string; count: number }>;
+  destination: Array<{ value: string; count: number }>;
+  amenities: Array<{ value: string; count: number }>;
+};
+
+function buildFacetBuckets(source: FacetSourceRecord[]): FacetBuckets {
+  const categoryCounts = new Map<string, number>();
+  const destinationCounts = new Map<string, number>();
+  const amenityCounts = new Map<string, number>();
+
+  const increment = (map: Map<string, number>, rawValue?: string | null) => {
+    if (typeof rawValue !== 'string') return;
+    const trimmed = rawValue.trim();
+    if (!trimmed) return;
+    map.set(trimmed, (map.get(trimmed) ?? 0) + 1);
+  };
+
+  for (const record of source) {
+    increment(categoryCounts, record?.category);
+    increment(destinationCounts, record?.destination);
+
+    if (Array.isArray(record?.amenities)) {
+      for (const amenity of record.amenities) {
+        increment(amenityCounts, amenity);
+      }
+    }
+  }
+
+  const mapToArray = (map: Map<string, number>) => Array.from(map.entries(), ([value, count]) => ({ value, count }));
+
+  return {
+    category: mapToArray(categoryCounts),
+    destination: mapToArray(destinationCounts),
+    amenities: mapToArray(amenityCounts),
+  };
+}
+
 function buildQuery({
   q,
   categories,
@@ -128,11 +172,13 @@ function buildQuery({
 
   const query = `*[${where}] | order(_createdAt desc, _id desc)[${start}...${end}] ${fields}`;
   const countQuery = `count(*[${where}])`;
-  // Facet counts across the entire matching dataset (not paginated)
-  const facetQuery = `{
-    "category": *[${where} && defined(category)] | group(category) | { "value": _key, "count": count(@) },
-    "destination": *[${where} && defined(city)] | group(city->name) | { "value": _key, "count": count(@) },
-    "amenities": *[${where} && defined(amenities)].amenities[]->name | group(@) | { "value": _key, "count": count(@) }
+  // Fetch facet source data - counts are aggregated in server runtime due to GROQ limitations
+  const facetQuery = `*[
+    ${where}
+  ]{
+    "category": select(defined(category) => category),
+    "destination": select(defined(city->name) => city->name),
+    "amenities": amenities[]->name
   }`;
   return { query, countQuery, facetQuery };
 }
@@ -169,7 +215,8 @@ export async function GET(request: NextRequest) {
     const settled = await Promise.all(promises);
     const results = settled[0];
     const total = settled[1];
-    const facets = includeFacets ? settled[2] : undefined;
+    const facetSource: FacetSourceRecord[] = includeFacets && Array.isArray(settled[2]) ? settled[2] : [];
+    const facets = includeFacets ? buildFacetBuckets(facetSource) : undefined;
 
     return ApiResponseHandler.success({
       results,
@@ -227,7 +274,8 @@ export async function POST(request: NextRequest) {
     const settled = await Promise.all(promises); 
     const results = settled[0];
     const total = settled[1];
-    const facets = includeFacets ? settled[2] : undefined;
+    const facetSource: FacetSourceRecord[] = includeFacets && Array.isArray(settled[2]) ? settled[2] : [];
+    const facets = includeFacets ? buildFacetBuckets(facetSource) : undefined;
 
     return ApiResponseHandler.success({
       results,
