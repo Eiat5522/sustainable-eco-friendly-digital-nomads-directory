@@ -96,11 +96,7 @@ export default function LoginPage() {
         </p>
         <div className="mt-6 flex items-center justify-between text-sm">
           <a className="text-neo-primary underline" href="/auth/register">Create account</a>
-          <div className="flex gap-2">
-            <a className="text-neo-primary underline" href="/auth/reset-request">Forgot password?</a>
-            <span className="text-gray-400">|</span>
-            <a className="text-orange-600 underline" href="/auth/register?admin=true">Admin access</a>
-          </div>
+          <a className="text-neo-primary underline" href="/auth/reset-request">Forgot password?</a>
         </div>
       </div>
     </div>
