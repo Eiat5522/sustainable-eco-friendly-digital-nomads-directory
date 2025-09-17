@@ -6,6 +6,7 @@ import EmailVerificationToken from '@/models/EmailVerificationToken';
 import { generateToken, minutesFromNow } from '@/lib/tokens';
 import { buildVerifyEmail, sendMail } from '@/lib/email';
 import { getClientIp, isRateLimited, getRetryAfterMs } from '@/lib/rate-limit';
+import { structuredLogger, getRequestContext } from '@/lib/logger';
 
 const RegisterSchema = z.object({
   name: z.string().trim().min(1).max(100).optional(),
@@ -50,7 +51,13 @@ export async function POST(req: Request) {
 
     // Send verification email (best-effort)
     const emailPayload = await buildVerifyEmail(user.email, raw);
-    await sendMail(emailPayload).catch((e) => console.error('[email] send verify failed', e));
+    await sendMail(emailPayload).catch((e) => 
+      structuredLogger.emailError('send verification email', e, {
+        ...getRequestContext(req),
+        userId: user._id.toString(),
+        email: user.email // Will be redacted by logger
+      })
+    );
 
     return NextResponse.json({ success: true });
   } catch (err: any) {

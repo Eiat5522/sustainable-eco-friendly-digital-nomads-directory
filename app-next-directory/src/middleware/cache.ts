@@ -1,6 +1,8 @@
 // NOTE: Do not import NextRequest/NextResponse from 'next/server' in utility files for Next.js 14+ middleware compatibility.
 // Use a compatible type or 'any' for request/response if needed, or define a minimal interface.
 
+import { structuredLogger } from '@/lib/logger';
+
 // Define cache duration options
 const CACHE_DURATIONS = {
   DEFAULT: 60 * 60, // 1 hour
@@ -133,7 +135,11 @@ export async function invalidateCache(path: string): Promise<void> {
     // Revalidate the path using Next.js revalidation
     await fetch(`/api/revalidate?path=${encodeURIComponent(path)}`);
   } catch (error) {
-    console.error(`Failed to invalidate cache for path: ${path}`, error);
+    structuredLogger.middlewareError('cache invalidation', error, {
+      component: 'cache',
+      operation: 'invalidate',
+      path: path
+    });
   }
 }
 
@@ -144,6 +150,9 @@ export async function purgeCache(): Promise<void> {
   try {
     await fetch('/api/revalidate-all');
   } catch (error) {
-    console.error('Failed to purge cache', error);
+    structuredLogger.middlewareError('cache purge', error, {
+      component: 'cache',
+      operation: 'purge_all'
+    });
   }
 }

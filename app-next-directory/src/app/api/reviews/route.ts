@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { revalidateTag } from 'next/cache';
 import { hasFeaturePermission, UserRole } from '@/types/auth';
+import { structuredLogger, getRequestContext } from '@/lib/logger';
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -81,7 +82,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json(newReview);
   } catch (error) {
-    console.error('Review creation error:', error);
+    structuredLogger.apiError('/api/reviews', error, {
+      ...getRequestContext(request),
+      userId,
+      userRole,
+      operation: 'create_review'
+    });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

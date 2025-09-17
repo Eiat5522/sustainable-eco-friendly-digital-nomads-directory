@@ -6,6 +6,7 @@ import PasswordResetToken from '@/models/PasswordResetToken';
 import { generateToken, minutesFromNow } from '@/lib/tokens';
 import { buildResetEmail, sendMail } from '@/lib/email';
 import { getClientIp, isRateLimited, getRetryAfterMs } from '@/lib/rate-limit';
+import { structuredLogger, getRequestContext } from '@/lib/logger';
 
 const Schema = z.object({ email: z.string().email() });
 
@@ -45,7 +46,13 @@ export async function POST(req: Request) {
     );
 
     const emailPayload = await buildResetEmail(user.email, raw);
-    await sendMail(emailPayload).catch((e) => console.error('[email] send reset failed', e));
+    await sendMail(emailPayload).catch((e) => 
+      structuredLogger.emailError('send password reset email', e, {
+        ...getRequestContext(req),
+        userId: user._id.toString(),
+        email: user.email // Will be redacted by logger
+      })
+    );
 
     return NextResponse.json({ success: true });
   } catch (err) {

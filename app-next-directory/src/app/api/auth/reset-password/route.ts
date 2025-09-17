@@ -6,6 +6,7 @@ import PasswordResetToken from '@/models/PasswordResetToken';
 import { hashToken } from '@/lib/tokens';
 import { getClientIp, isRateLimited, getRetryAfterMs } from '@/lib/rate-limit';
 import mongoose from 'mongoose';
+import { structuredLogger, getRequestContext } from '@/lib/logger';
 
 const Schema = z.object({
   token: z.string().min(10),
@@ -122,7 +123,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
   } catch (err: any) {
     // Log the actual error for debugging
-    console.error('Password reset error:', err);
+    structuredLogger.authError('password reset', err, {
+      ...getRequestContext(req),
+      operation: 'reset_password'
+    });
     
     // Return generic error to client
     if (err instanceof z.ZodError) {
