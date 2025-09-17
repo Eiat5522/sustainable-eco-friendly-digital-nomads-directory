@@ -7,8 +7,10 @@ import Image from 'next/image'
 
 export function Header() {
   const { data: session, status } = useSession()
-
-  const authLink = session ? '/auth/login' : '/auth/signup'
+  const isAuthenticated = status === 'authenticated'
+  const displayName = session?.user?.name ?? session?.user?.email ?? 'your account'
+  const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? ''
+  const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in'
 
   return (
     <header className="w-full bg-background border-b-4 border-neo-border">
@@ -56,15 +58,37 @@ export function Header() {
 
           {/* Right: CTA/User */}
           <div className="flex items-center space-x-4">
+            {isAuthenticated && (
+              <span className="hidden md:inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
+                <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" aria-hidden="true" />
+                {shortName ? `Welcome, ${shortName}!` : 'Signed in'}
+              </span>
+            )}
             {status !== 'loading' && (
-              <Link
-                href={authLink}
-                aria-label={status === 'authenticated' ? 'Account' : 'Sign in'}
-                className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
-              >
-                <span className="sr-only">{status === 'authenticated' ? 'Account' : 'Sign in'}</span>
-                <User size={20} className="text-neo-text-primary" aria-hidden="true" focusable="false" />
-              </Link>
+              isAuthenticated ? (
+                <div
+                  className="relative w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center opacity-60 cursor-not-allowed"
+                  aria-disabled="true"
+                  role="status"
+                  aria-label={accountLabel}
+                  title={accountLabel}
+                >
+                  <span className="sr-only">{accountLabel}</span>
+                  <User size={20} className="text-neo-text-secondary" aria-hidden="true" focusable="false" />
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-bold text-white" aria-hidden="true">
+                    ✓
+                  </span>
+                </div>
+              ) : (
+                <Link
+                  href="/auth/login"
+                  aria-label="Sign in"
+                  className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
+                >
+                  <span className="sr-only">Sign in</span>
+                  <User size={20} className="text-neo-text-primary" aria-hidden="true" focusable="false" />
+                </Link>
+              )
             )}
           </div>
         </div>

@@ -4,6 +4,8 @@ import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import dynamic from 'next/dynamic'
 
+import Providers from '@/components/Providers'
+
 const inter = Inter({ subsets: ['latin'] })
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
 
@@ -22,8 +24,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         {/* Start MSW worker only during E2E runs (no-op otherwise) */}
-        <MswInit />
-        {children}
+        <Providers>
+          <MswInit />
+          {children}
+        </Providers>
       </body>
     </html>
   )
