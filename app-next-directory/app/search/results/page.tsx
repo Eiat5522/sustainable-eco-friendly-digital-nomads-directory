@@ -164,6 +164,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     return pages
   }
   const pages = getPages(page, totalPages)
+  const MAX_PARAM_VALUE_LENGTH = 1000 // Prevent excessive URL length
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -179,13 +180,26 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         </div>
         <form action="/search/results" method="get" className="flex items-center gap-2">
           {/* preserve existing filters */}
-          const MAX_PARAM_VALUE_LENGTH = 1000 // Prevent excessive URL length        
           {Object.entries(resolvedSearchParams).map(([k, v]) => {
             // Sanitize parameter names to prevent injection
             if (!/^[a-zA-Z0-9_-]+$/.test(k)) return null
             return Array.isArray(v)
-        ? v.map((x, idx) => <input key={`${k}-${idx}`} type="hidden" name={k} value={String(x).slice(0, MAX_PARAM_VALUE_LENGTH)} />)
-        : <input key={k} type="hidden" name={k} value={String(v).slice(0, MAX_PARAM_VALUE_LENGTH)} />
+              ? v.map((x, idx) => (
+                  <input
+                    key={`${k}-${idx}`}
+                    type="hidden"
+                    name={k}
+                    value={String(x).slice(0, MAX_PARAM_VALUE_LENGTH)}
+                  />
+                ))
+              : (
+                  <input
+                    key={k}
+                    type="hidden"
+                    name={k}
+                    value={String(v).slice(0, MAX_PARAM_VALUE_LENGTH)}
+                  />
+                )
           })}
           <label htmlFor="page-size" className="body-sm">Per page</label>
           <select id="page-size" name="limit" defaultValue={String(limit)} className="neo-input border-2 border-neo-border rounded px-2 py-1">

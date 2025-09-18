@@ -1,12 +1,14 @@
 # Auth.js Implementation Summary 🎉
 
+> **Update (Redis integration):** Upstash Redis now powers credential rate limiting while sessions remain JWT-based (required for the Credentials provider). See `docs/upstash-redis-auth.md` for configuration details.
+
 ## ✅ Successfully Implemented 7-Step Auth.js Strategy
 
 ### Step 1: ✅ Auth Configuration (Edge Compatible)
 
 - **File**: `src/app/api/auth/[...nextauth]/route.ts`
 - **Features**:
-  - JWT sessions for Edge Runtime compatibility
+  - JWT sessions (required for credentials provider compatibility, with helper caches supported by Redis)
   - MongoDBAdapter for user data persistence
   - Separation of auth config from MongoDB operations
   - Google, GitHub, and Credentials providers
@@ -70,12 +72,15 @@
 
 ## 🚀 Key Benefits Achieved
 
-### Edge Runtime Compatibility
-
-- ✅ JWT sessions instead of database sessions
-- ✅ Token verification without database calls
+- ✅ Token verification without database calls (JWT helpers remain available for middleware)
 - ✅ Middleware runs on Edge Runtime
 - ✅ Client-side auth hooks are Edge compatible
+
+### Session Flow Snapshot
+
+- **Node.js runtime (API routes, server components):** NextAuth uses JWT sessions; user/account persistence still flows through MongoDB via the adapter.
+- **Edge runtime (middleware, `auth()` helper):** Edge utilities rely on `getToken` to parse JWTs—no database lookups required.
+- **JWT tokens:** Tokens remain the single source of truth for session data; Redis augments the flow with rate-limiting only.
 
 ### MongoDB Integration
 
@@ -126,7 +131,6 @@
 ├─────────────────────────────────────────┤
 │ • MongoDB Atlas                        │
 │ • User authentication data             │
-│ • Session management (via adapter)     │
 │ • Role-based permissions               │
 └─────────────────────────────────────────┘
 ```

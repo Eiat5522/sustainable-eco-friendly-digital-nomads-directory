@@ -32,10 +32,11 @@ export const sessionSchema = {
         }
       }
     }
-  },
-  indexes: [
-    { key: { sessionToken: 1 }, unique: true },
-    { key: { userId: 1 } },
-    { key: { expires: 1 }, expireAfterSeconds: 0 }
-  ]
+  }
 };
+
+export const sessionIndexes = [
+  { key: { sessionToken: 1 }, unique: true },
+  { key: { userId: 1 } },
+  { key: { expires: 1 }, expireAfterSeconds: 0 }
+];

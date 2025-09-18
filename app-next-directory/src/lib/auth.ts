@@ -6,9 +6,9 @@ import Google from 'next-auth/providers/google'
 import Facebook from 'next-auth/providers/facebook'
 import Twitter from 'next-auth/providers/twitter'
 import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id'
-import { MongoDBAdapter } from '@auth/mongodb-adapter'
-import clientPromise from '@/lib/mongodb'
+import { createAuthAdapter } from '@/lib/auth/adapter'
 import { authenticateUser } from '@/lib/auth/serverAuth'
+import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit'
 import dbConnect from '@/lib/dbConnect'
 import User from '@/models/User'
 import type { JWT } from 'next-auth/jwt'
@@ -23,10 +23,30 @@ const providers: NextAuthConfig['providers'] = [
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         try {
           if (!credentials?.email || !credentials?.password) return null
-          const user = await authenticateUser(String(credentials.email), String(credentials.password))
+
+          const email = String(credentials.email).trim().toLowerCase()
+          const password = String(credentials.password)
+          const forwardedFor = request?.headers?.get('x-forwarded-for') ?? request?.headers?.get('x-real-ip') ?? ''
+          const ip = forwardedFor.split(',')[0]?.trim() || null
+          const identifier = ip ? `${email}:${ip}` : email
+
+          const rateLimit = await enforceLoginRateLimit(identifier)
+          if (!rateLimit.success) {
+            await recordLoginAttempt({ email, ip, success: false, reason: 'rate_limited' })
+            throw new Error('Too many login attempts. Please try again later.')
+          }
+
+          const user = await authenticateUser(email, password)
+          await recordLoginAttempt({
+            email,
+            ip,
+            success: Boolean(user),
+            reason: user ? 'success' : 'invalid_credentials',
+          })
+
           if (!user) return null
           return {
             id: user.id,
@@ -36,7 +56,10 @@ const providers: NextAuthConfig['providers'] = [
             image: user.image,
           } as any
         } catch (_err) {
-          // Avoid leaking internal error details during auth
+
+          // Avoid leaking internal error details during auth          if (_err instanceof Error && _err.message.startsWith('Too many login attempts')) {
+            throw _err
+          }
           return null
         }
       },
@@ -81,16 +104,11 @@ if (process.env.AUTH_MICROSOFT_ENTRA_ID_ID && process.env.AUTH_MICROSOFT_ENTRA_I
   )
 }
 
-const maybeAdapter = (() => {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) return undefined;
-  // Construction is synchronous; connection errors will be surfaced by the driver later.
-  return MongoDBAdapter(clientPromise);
- })();
+const adapter = createAuthAdapter();
 
 export const authOptions: NextAuthConfig = {
   // Use adapter only when a valid Mongo URI is configured to avoid dev crashes
-  ...(maybeAdapter ? { adapter: maybeAdapter } : {}),
+  ...(adapter ? { adapter } : {}),
   session: { strategy: 'jwt' },
   providers,
   pages: {
@@ -159,13 +177,14 @@ export const authOptions: NextAuthConfig = {
       }
       return t
     },
-    async session({ session, token }) {
+    async session({ session, token, user }) {
       type WithAppUser = typeof session & { user: (typeof session.user) & { id?: string; role?: UserRole } }
       const s = session as WithAppUser
-      const t = token as Partial<{ id: string; role?: string }>
       if (s.user) {
-        if (t.id) s.user.id = t.id
-        if (t.role) s.user.role = t.role as UserRole
+        if (user?.id) s.user.id = user.id
+        if (user?.role) s.user.role = user.role as UserRole
+        if (!user && token?.id) s.user.id = String(token.id)
+        if (!user && token?.role) s.user.role = token.role as UserRole
       }
       return s
     },
