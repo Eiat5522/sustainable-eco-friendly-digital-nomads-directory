@@ -100,24 +100,45 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
 
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+  let data: any = null
   try {
-    const res = await fetch(url.toString(), { 
+    const res = await fetch(url.toString(), {
       cache: 'no-store',
-      signal: controller.signal 
+      signal: controller.signal,
     })
-    clearTimeout(timeoutId)
-  if (!res.ok) {
-    console.error(`Search API failed: ${res.status} ${res.statusText}`)
+
+    if (!res.ok) {
+      console.error(`Search API failed: ${res.status} ${res.statusText}`)
+      return (
+        <div className="container mx-auto px-4 py-8">
+          <p className="text-red-500">Failed to load search results. Please try again later.</p>
+          {process.env.NODE_ENV === 'development' && (
+            <p className="text-sm text-gray-500 mt-2">Error: {res.status} {res.statusText}</p>
+          )}
+        </div>
+      )
+    }
+
+    data = await res.json()
+  } catch (error) {
+    const isAbortError =
+      (typeof DOMException !== 'undefined' && error instanceof DOMException && error.name === 'AbortError') ||
+      (error instanceof Error && error.name === 'AbortError')
+    console.error('Search API request failed', error)
     return (
       <div className="container mx-auto px-4 py-8">
-        <p className="text-red-500">Failed to load search results. Please try again later.</p>
-        {process.env.NODE_ENV === 'development' && (
-          <p className="text-sm text-gray-500 mt-2">Error: {res.status} {res.statusText}</p>
+        <p className="text-red-500">
+          {isAbortError ? 'Search request timed out. Please try again.' : 'Failed to load search results. Please try again later.'}
+        </p>
+        {process.env.NODE_ENV === 'development' && !isAbortError && (
+          <p className="text-sm text-gray-500 mt-2">Unexpected error occurred. Check server logs for details.</p>
         )}
       </div>
     )
+  } finally {
+    clearTimeout(timeoutId)
   }
-  const data = await res.json()
+
   const raw = Array.isArray(data?.data?.results) ? data.data.results : []
   const mapped: ListingSummaryDTO[] = raw.map(mapResultToDTO)
   const pagination = data?.data?.pagination ?? { page: 1, totalPages: 1, hasMore: false, limit: Number(params.get('limit') || 12), total: 0 }

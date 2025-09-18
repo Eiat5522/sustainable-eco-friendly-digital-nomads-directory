@@ -50,7 +50,7 @@ const UserSchema: Schema<IUser> = new Schema(
       trim: true,
       lowercase: true,
       validate: {
-        validator: (v: string) => validator.isEmail(v),
+        validator: (v: string) => isEmail(v),
         message: 'Please fill a valid email address',
       },
     },

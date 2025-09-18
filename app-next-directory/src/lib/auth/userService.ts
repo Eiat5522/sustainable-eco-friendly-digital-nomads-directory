@@ -143,7 +143,7 @@ export async function updateSanityUserWithAuthDetails(
     return await patch.commit();
   } catch (err) {
     structuredLogger.error("Error updating Sanity user", err, {
-      userId: id,
+      userId,
       component: 'user-service',
       operation: 'update_user'
     });

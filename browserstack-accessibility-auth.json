@@ -1,0 +1,58 @@
+{
+  "authConfig": {
+    "type": "form",
+    "loginUrl": "http://localhost:3000/auth/login",
+    "credentials": {
+      "username": "eiat52@gmail.com",
+      "password": "Eiat@5522"
+    },
+    "selectors": {
+      "usernameField": "input[name=\"email\"]",
+      "passwordField": "input[name=\"password\"]", 
+      "submitButton": "button[type=\"submit\"]"
+    },
+    "waitConditions": {
+      "afterLogin": {
+        "waitForUrl": "**/dashboard",
+        "timeout": 10000,
+        "fallbackUrl": "/"
+      }
+    },
+    "additionalSteps": [
+      {
+        "action": "waitForSelector",
+        "selector": "input[name=\"email\"]",
+        "timeout": 5000
+      },
+      {
+        "action": "fill",
+        "selector": "input[name=\"email\"]",
+        "value": "eiat52@gmail.com"
+      },
+      {
+        "action": "fill", 
+        "selector": "input[name=\"password\"]",
+        "value": "Eiat@5522"
+      },
+      {
+        "action": "click",
+        "selector": "button[type=\"submit\"]"
+      },
+      {
+        "action": "waitForNavigation",
+        "timeout": 10000
+      }
+    ]
+  },
+  "notes": {
+    "description": "BrowserStack accessibility authentication configuration for Sustainable Digital Nomads Directory",
+    "loginPage": "http://localhost:3000/auth/login",
+    "formElements": {
+      "emailInput": "Uses neo-input component with name='email' attribute",
+      "passwordInput": "Uses neo-input component with name='password' attribute", 
+      "submitButton": "Uses neo-button component with type='submit'"
+    },
+    "postLoginBehavior": "Redirects to dashboard or home page after successful authentication",
+    "usage": "This configuration can be used with BrowserStack's accessibility testing tools to authenticate before running tests"
+  }
+}
