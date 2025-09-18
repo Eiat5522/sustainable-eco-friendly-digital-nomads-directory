@@ -27,12 +27,12 @@
       {
         "action": "fill",
         "selector": "input[name=\"email\"]",
-        "value": "eiat52@gmail.com"
+        "value": "${BROWSERSTACK_USERNAME}"
       },
       {
         "action": "fill", 
         "selector": "input[name=\"password\"]",
-        "value": "Eiat@5522"
+        "value": "${BROWSERSTACK_PASSWORD}"
       },
       {
         "action": "click",
@@ -43,16 +43,5 @@
         "timeout": 10000
       }
     ]
-  },
-  "notes": {
-    "description": "BrowserStack accessibility authentication configuration for Sustainable Digital Nomads Directory",
-    "loginPage": "http://localhost:3000/auth/login",
-    "formElements": {
-      "emailInput": "Uses neo-input component with name='email' attribute",
-      "passwordInput": "Uses neo-input component with name='password' attribute", 
-      "submitButton": "Uses neo-button component with type='submit'"
-    },
-    "postLoginBehavior": "Redirects to dashboard or home page after successful authentication",
-    "usage": "This configuration can be used with BrowserStack's accessibility testing tools to authenticate before running tests"
   }
 }

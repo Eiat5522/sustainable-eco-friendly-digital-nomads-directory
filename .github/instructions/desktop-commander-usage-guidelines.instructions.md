@@ -1,5 +1,5 @@
 ---
-applyTo: '**'
+applyTo: 'N/A'
 ---
 💻 Desktop Commander MCP Server Tools Usage 💾
 

@@ -3,9 +3,10 @@ import { ListingGrid } from '@/components/listings/ListingGrid'
 import { SearchFiltersForm } from '@/components/search/SearchFiltersForm'
 import type { ListingSummaryDTO } from '@/types/dto'
 import Link from 'next/link'
-import { getBaseUrl } from '@/lib/absolute-url'
 import { z } from 'zod'
 import type { SearchParamRecord } from '@/types/search'
+import { NextRequest } from 'next/server'
+import { GET as searchGetHandler } from '../../api/search/route'
 
 const apiItemSchema = z.object({
   _id: z.string().optional(),
@@ -34,7 +35,13 @@ const apiItemSchema = z.object({
 })
 
 function mapResultToDTO(item: any): ListingSummaryDTO {
-  const validated = apiItemSchema.parse(item)
+  const parseResult = apiItemSchema.safeParse(item)
+  if (!parseResult.success) {
+    console.error('Invalid API response shape:', parseResult.error)
+    // Return a minimal valid DTO or throw with a user-friendly message
+    throw new Error('Invalid search result data')
+  }
+  const validated = parseResult.data
   const city = validated.city ?? validated.location ?? null
   const imageUrl: string | undefined = validated?.primaryImage?.asset?.url ?? undefined
   const slugValue = validated.slug
@@ -83,10 +90,13 @@ function buildLink(searchParams: SearchParamRecord, overrides: Record<string, st
   return `/search/results?${params.toString()}`
 }
 
-export default async function ResultsPage({ searchParams }: { searchParams: Promise<SearchParamRecord> }) {
-  const resolvedSearchParams = await searchParams
-  const base = await getBaseUrl()
-  const url = new URL('/api/search', base)
+type ResultsPageProps = { searchParams: SearchParamRecord | Promise<SearchParamRecord> }
+
+export const dynamic = 'force-dynamic'
+
+export default async function ResultsPage({ searchParams }: ResultsPageProps) {
+  const resolvedSearchParams = (await searchParams) ?? {}
+  const url = new URL('/api/search', 'http://localhost')
   const params = new URLSearchParams()
   for (const [k, v] of Object.entries(resolvedSearchParams)) {
     if (v === undefined) continue
@@ -97,15 +107,10 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
   if (!params.has('limit')) params.set('limit', '12')
   params.set('facets', '1')
   url.search = params.toString()
-
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
   let data: any = null
   try {
-    const res = await fetch(url.toString(), {
-      cache: 'no-store',
-      signal: controller.signal,
-    })
+    const request = new NextRequest(url.toString())
+    const res = await searchGetHandler(request)
 
     if (!res.ok) {
       console.error(`Search API failed: ${res.status} ${res.statusText}`)
@@ -121,22 +126,17 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
 
     data = await res.json()
   } catch (error) {
-    const isAbortError =
-      (typeof DOMException !== 'undefined' && error instanceof DOMException && error.name === 'AbortError') ||
-      (error instanceof Error && error.name === 'AbortError')
     console.error('Search API request failed', error)
     return (
       <div className="container mx-auto px-4 py-8">
         <p className="text-red-500">
-          {isAbortError ? 'Search request timed out. Please try again.' : 'Failed to load search results. Please try again later.'}
+          {'Failed to load search results. Please try again later.'}
         </p>
-        {process.env.NODE_ENV === 'development' && !isAbortError && (
+        {process.env.NODE_ENV === 'development' && (
           <p className="text-sm text-gray-500 mt-2">Unexpected error occurred. Check server logs for details.</p>
         )}
       </div>
     )
-  } finally {
-    clearTimeout(timeoutId)
   }
 
   const raw = Array.isArray(data?.data?.results) ? data.data.results : []
@@ -179,12 +179,13 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
         </div>
         <form action="/search/results" method="get" className="flex items-center gap-2">
           {/* preserve existing filters */}
+          const MAX_PARAM_VALUE_LENGTH = 1000 // Prevent excessive URL length        
           {Object.entries(resolvedSearchParams).map(([k, v]) => {
             // Sanitize parameter names to prevent injection
             if (!/^[a-zA-Z0-9_-]+$/.test(k)) return null
             return Array.isArray(v)
-              ? v.map((x, idx) => <input key={`${k}-${idx}`} type="hidden" name={k} value={String(x).slice(0, 1000)} />)
-              : <input key={k} type="hidden" name={k} value={String(v).slice(0, 1000)} />
+        ? v.map((x, idx) => <input key={`${k}-${idx}`} type="hidden" name={k} value={String(x).slice(0, MAX_PARAM_VALUE_LENGTH)} />)
+        : <input key={k} type="hidden" name={k} value={String(v).slice(0, MAX_PARAM_VALUE_LENGTH)} />
           })}
           <label htmlFor="page-size" className="body-sm">Per page</label>
           <select id="page-size" name="limit" defaultValue={String(limit)} className="neo-input border-2 border-neo-border rounded px-2 py-1">

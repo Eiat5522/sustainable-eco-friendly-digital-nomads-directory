@@ -1,19 +1,29 @@
-Hello, Polymorph Co., Ltd
-Let's set up your first documentation deployment
-1. Sign in with GitHub
+# Documentation Deployment Guide
 
-To get started, log in with your GitHub account
-2. Create documentation repo
+Hello, Polymorph Co., Ltd! Let's set up your first documentation deployment.
+## Setup Steps
 
-Your documentation content will be managed through this repo
-3. Make an update
+### 1. Sign in with GitHub
 
-Clone the repo by running the following in your terminal
-Clone repo
+To get started, log in with your GitHub account.
 
-git clone https://github.com/eiat5522/docs
+### 2. Create documentation repo
 
-Make an update and push your changes
+Your documentation content will be managed through this repo.
 
-git add . && git commit -m "Hello World" && git push
+### 3. Make an update
+
+Clone the repo by running the following in your terminal:
+
+```bash
+git clone https://github.com/YOUR_USERNAME/docs
+```
+
+Make an update and push your changes:
+
+```bash
+git add .
+git commit -m "Hello World"
+git push
+```
 

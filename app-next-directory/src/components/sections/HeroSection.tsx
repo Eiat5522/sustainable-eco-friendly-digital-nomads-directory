@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
 import { Search, Mic } from 'lucide-react';
@@ -8,6 +8,10 @@ import { useRouter } from 'next/navigation';
 
 export function HeroSection() {
   const [q, setQ] = useState('');
+  const [voiceSupported, setVoiceSupported] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -16,6 +20,96 @@ export function HeroSection() {
     if (!query) return;
     router.push(`/search?q=${encodeURIComponent(query)}`);
   };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    type SpeechRecognitionConstructor = new () => SpeechRecognition;
+
+    const SpeechRecognitionCtor: SpeechRecognitionConstructor | undefined =
+      (window as Window & { SpeechRecognition?: SpeechRecognitionConstructor }).SpeechRecognition ??
+      (window as Window & { webkitSpeechRecognition?: SpeechRecognitionConstructor }).webkitSpeechRecognition;
+
+    if (!SpeechRecognitionCtor) return;
+
+    const recognition = new SpeechRecognitionCtor();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    const handleStart = () => {
+      setIsListening(true);
+      setVoiceError(null);
+    };
+
+    const handleResult = (event: SpeechRecognitionEvent) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0]?.transcript ?? '')
+        .join(' ')
+        .trim();
+
+      if (transcript) {
+        setQ(transcript);
+      }
+    };
+
+    const handleError = (event: SpeechRecognitionErrorEvent) => {
+      const message = (() => {
+        switch (event.error) {
+          case 'not-allowed':
+            return 'Microphone access was blocked. Enable it to use voice search.';
+          case 'no-speech':
+            return 'No speech was detected. Please try again.';
+          case 'service-not-allowed':
+            return 'Voice search is unavailable in this browser.';
+          default:
+            return 'Voice search stopped unexpectedly. Please try again.';
+        }
+      })();
+      setVoiceError(message);
+    };
+
+    const handleEnd = () => {
+      setIsListening(false);
+    };
+
+    recognition.addEventListener('start', handleStart);
+    recognition.addEventListener('result', handleResult);
+    recognition.addEventListener('error', handleError);
+    recognition.addEventListener('end', handleEnd);
+
+    recognitionRef.current = recognition;
+    setVoiceSupported(true);
+
+    return () => {
+      recognition.removeEventListener('start', handleStart);
+      recognition.removeEventListener('result', handleResult);
+      recognition.removeEventListener('error', handleError);
+      recognition.removeEventListener('end', handleEnd);
+      recognition.stop();
+      recognitionRef.current = null;
+    };
+  }, []);
+
+  const toggleVoiceSearch = () => {
+    const recognition = recognitionRef.current;
+    if (!recognition) return;
+
+    if (isListening) {
+      recognition.stop();
+      return;
+    }
+
+    try {
+      setVoiceError(null);
+      recognition.start();
+    } catch (error) {
+      setVoiceError('Voice search could not be started. Please try again.');
+      recognition.stop();
+    }
+  };
+
   return (
     <section
       className="relative min-h-[600px] bg-gradient-to-br from-neo-primary via-blue-600 to-blue-800 overflow-hidden"
@@ -78,19 +172,29 @@ export function HeroSection() {
               </NeoButton>
               <button
                 type="button"
-                aria-label="Start voice search"
+                aria-label={voiceSupported ? (isListening ? 'Stop voice search' : 'Start voice search') : 'Voice search not supported'}
                 className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled
-                title="Voice search coming soon"
+                disabled={!voiceSupported}
+                onClick={toggleVoiceSearch}
+                aria-pressed={isListening}
+                title={voiceSupported ? (isListening ? 'Stop voice search' : 'Start voice search') : 'Voice search is not supported in this browser'}
               >
                 <Mic
                   aria-hidden="true"
                   focusable="false"
-                  className="text-neo-text-secondary"
+                  className={isListening ? 'text-white' : 'text-neo-text-secondary'}
                   size={20}
                 />
               </button>
             </div>
+            <div className="sr-only" aria-live="polite">
+              {isListening ? 'Listening for your search query.' : voiceError ? voiceError : voiceSupported ? 'Voice search ready.' : 'Voice search not supported.'}
+            </div>
+            {voiceError && (
+              <p className="mt-2 text-sm text-red-200" role="alert">
+                {voiceError}
+              </p>
+            )}
           </form>
         </div>
       </div>

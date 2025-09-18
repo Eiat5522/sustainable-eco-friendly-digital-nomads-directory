@@ -44,10 +44,7 @@ interface DerivedInitialValues {
 function arraysEqual<T>(a: readonly T[], b: readonly T[]): boolean {
   if (a === b) return true
   if (a.length !== b.length) return false
-  for (let index = 0; index < a.length; index += 1) {
-    if (a[index] !== b[index]) return false
-  }
-  return true
+return a.every((value, index) => value === b[index])
 }
 
 function deriveInitialValues(params: SearchParamRecord): DerivedInitialValues {
@@ -56,7 +53,7 @@ function deriveInitialValues(params: SearchParamRecord): DerivedInitialValues {
     cities: toStringArray(params.destination),
     categories: toStringArray(params.category),
     amenities: toStringArray(params.amenities),
-    limit: firstString(params.limit) || '12',
+    limit: firstString(params.limit) || DEFAULT_RESULTS_LIMIT,
   }
 }
 
@@ -90,8 +87,8 @@ interface SearchFiltersFormProps {
   resultsPath?: string
   className?: string
 }
-
 const DEFAULT_RESULTS_PATH = '/search/results'
+const DEFAULT_RESULTS_LIMIT = '12'
 
 export function SearchFiltersForm({ initialParams = {}, resultsPath = DEFAULT_RESULTS_PATH, className }: SearchFiltersFormProps) {
   const router = useRouter()
@@ -149,7 +146,7 @@ export function SearchFiltersForm({ initialParams = {}, resultsPath = DEFAULT_RE
         ])
         if (cancelled) return
 
-        const unwrap = <T extends Record<string, unknown>>(payload: unknown): T | undefined => {
+        function unwrap<T>(payload: unknown): T | undefined {
           if (!payload || typeof payload !== 'object') return undefined
           const dataField = (payload as { data?: unknown }).data
           if (dataField && typeof dataField === 'object') {
@@ -162,7 +159,9 @@ export function SearchFiltersForm({ initialParams = {}, resultsPath = DEFAULT_RE
         const categoriesPayload = unwrap<CategoryResponse>(categoriesRes)
         const amenitiesPayload = unwrap<AmenityResponse>(amenitiesRes)
 
-        const cities = Array.isArray(citiesPayload?.cities) ? (citiesPayload.cities as City[]) : []
+        const cities = Array.isArray(citiesPayload?.cities)
+          ? [...citiesPayload.cities]
+          : []
         const cityOpts: Option[] = Array.from(
           new Map(
             cities
@@ -177,7 +176,7 @@ export function SearchFiltersForm({ initialParams = {}, resultsPath = DEFAULT_RE
         setCityOptions(cityOpts)
 
         const categories = Array.isArray(categoriesPayload?.categories)
-          ? (categoriesPayload.categories as string[])
+          ? [...categoriesPayload.categories]
           : []
         const categoryOpts: Option[] = Array.from(
           new Set(
@@ -188,22 +187,23 @@ export function SearchFiltersForm({ initialParams = {}, resultsPath = DEFAULT_RE
         )
           .map((category) => ({
             value: category,
-            label: category[0].toUpperCase() + category.slice(1),
+            label: category.charAt(0).toUpperCase() + category.slice(1),
             icon: category.toLowerCase().includes('work') ? Building2 : Home,
           }))
           .sort((a, b) => a.label.localeCompare(b.label))
         setCategoryOptions(categoryOpts)
 
         const amenities = Array.isArray(amenitiesPayload?.amenities)
-          ? (amenitiesPayload.amenities as unknown[])
+          ? [...amenitiesPayload.amenities]
           : []
         const amenityOpts: Option[] = Array.from(
           new Map(
             amenities
               .filter((amenity): amenity is Amenity => {
                 if (typeof amenity !== 'object' || amenity === null) return false
-                const entry = amenity as Record<string, unknown>
-                return typeof entry.name === 'string' && entry.name.trim().length > 0
+                if (!('name' in amenity)) return false
+                const name = (amenity as { name: unknown }).name
+                return typeof name === 'string' && name.trim().length > 0
               })
               .map((amenity) => {
                 const name = amenity.name.trim()
