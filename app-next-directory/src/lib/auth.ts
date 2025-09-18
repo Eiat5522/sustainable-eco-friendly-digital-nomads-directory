@@ -2,10 +2,10 @@ import 'server-only'
 import NextAuth, { type NextAuthConfig } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 // Use CommonJS-friendly deep imports to avoid ESM parsing issues in Jest
-import Google from 'next-auth/providers/google'
-import Facebook from 'next-auth/providers/facebook'
-import Twitter from 'next-auth/providers/twitter'
-import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id'
+// import Google from 'next-auth/providers/google'
+// import Facebook from 'next-auth/providers/facebook'
+// import Twitter from 'next-auth/providers/twitter'
+// import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id'
 import { createAuthAdapter } from '@/lib/auth/adapter'
 import { authenticateUser } from '@/lib/auth/serverAuth'
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit'
@@ -66,43 +66,44 @@ const providers: NextAuthConfig['providers'] = [
     }) as any,
 ]
 
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-  providers.push(
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    })
-  )
-}
+// Temporarily disable OAuth providers until their credentials are configured.
+// if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+//   providers.push(
+//     Google({
+//       clientId: process.env.GOOGLE_CLIENT_ID,
+//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//     })
+//   )
+// }
 
-if (process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET) {
-  providers.push(
-    Facebook({
-      clientId: process.env.FACEBOOK_CLIENT_ID,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-    })
-  )
-}
+// if (process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET) {
+//   providers.push(
+//     Facebook({
+//       clientId: process.env.FACEBOOK_CLIENT_ID,
+//       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+//     })
+//   )
+// }
 
-if (process.env.X_CLIENT_ID && process.env.X_CLIENT_SECRET) {
-  providers.push(
-    Twitter({
-      clientId: process.env.X_CLIENT_ID,
-      clientSecret: process.env.X_CLIENT_SECRET,
-    })
-  )
-}
+// if (process.env.X_CLIENT_ID && process.env.X_CLIENT_SECRET) {
+//   providers.push(
+//     Twitter({
+//       clientId: process.env.X_CLIENT_ID,
+//       clientSecret: process.env.X_CLIENT_SECRET,
+//     })
+//   )
+// }
 
-if (process.env.AUTH_MICROSOFT_ENTRA_ID_ID && process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET) {
-  providers.push(
-    MicrosoftEntraID({
-      name: 'Microsoft',
-      clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID,
-      clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET,
-       // tenantId removed to satisfy NextAuth v5 typings; default 'common' used by provider internally if needed
-    })
-  )
-}
+// if (process.env.AUTH_MICROSOFT_ENTRA_ID_ID && process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET) {
+//   providers.push(
+//     MicrosoftEntraID({
+//       name: 'Microsoft',
+//       clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID,
+//       clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET,
+//        // tenantId removed to satisfy NextAuth v5 typings; default 'common' used by provider internally if needed
+//     })
+//   )
+// }
 
 const adapter = createAuthAdapter();
 

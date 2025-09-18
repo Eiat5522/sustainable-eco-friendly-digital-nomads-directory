@@ -10,7 +10,8 @@ import bcrypt from 'bcryptjs';
 import User from '../../models/User';
 import dbConnect from '../dbConnect';
 
-import { Types, isValidObjectId } from 'mongoose';
+import { Types, isValidObjectId, type FilterQuery } from 'mongoose';
+import { isEmailVerificationRequired } from './config';
 
 type UserDoc = {
   _id: Types.ObjectId;
@@ -48,20 +49,26 @@ export async function authenticateUser(
   try {
     await dbConnect();
 
+    const requireVerification = isEmailVerificationRequired();
+
+    const query: FilterQuery<UserDoc> = {
+      email: email.trim().toLowerCase(),
+    };
+
+    if (requireVerification) {
+      query.emailVerified = { $exists: true, $ne: null, $type: 'date' } as any;
+    }
+
     // Find user in MongoDB using Mongoose model
-const user = await UserModel.findOne({
-  email: email.trim().toLowerCase(),
-  // only verified accounts (exists, not null, and is a Date)
-  emailVerified: { $exists: true, $ne: null, $type: 'date' },
-})
-.select('_id name email image role +password +emailVerified')
-  .lean<SelectedAuthDoc>();
+    const user = await UserModel.findOne(query)
+      .select('_id name email image role +password +emailVerified')
+      .lean<SelectedAuthDoc>();
 
     if (!user || !user.password) {
       return null;
     }
-    // Defense in depth: verify again post-fetch
-    if (!user.emailVerified) {
+    // Defense in depth: verify again post-fetch when required
+    if (requireVerification && !user.emailVerified) {
       return null;
     }
 

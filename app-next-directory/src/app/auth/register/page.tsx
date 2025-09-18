@@ -5,10 +5,13 @@ export default function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'done' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
+  const [requiresVerification, setRequiresVerification] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setServerError(null);
     setStatus('submitting');
     try {
       const res = await fetch('/api/auth/register', {
@@ -16,10 +19,16 @@ export default function RegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
       });
-      if (!res.ok) throw new Error('bad');
-      setStatus('done');
-    } catch {
-      setStatus('error');
+      if (!res.ok) {
+        const message = await res.json().catch(() => ({}));
+        throw new Error(message?.error || 'Registration failed');
+      }
+      const data = (await res.json().catch(() => ({}))) as { emailVerificationRequired?: boolean };
+      setRequiresVerification(Boolean(data?.emailVerificationRequired));
+      setStatus('success');
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : 'Could not create account. Try again.');
+      setStatus('idle');
     }
   };
 
@@ -27,8 +36,18 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-6">
       <div className="w-full max-w-md border-4 border-black rounded-xl bg-white p-6 shadow-[12px_12px_0_0_rgba(0,0,0,1)]">
         <h1 className="heading-lg mb-2">Create your account</h1>
-        {status === 'done' ? (
-          <p className="body-md">Check your inbox to verify your email before signing in.</p>
+        {status === 'success' ? (
+          <div className="space-y-3">
+            {requiresVerification ? (
+              <p className="body-md">Check your inbox to verify your email before signing in.</p>
+            ) : (
+              <div className="space-y-2">
+                <p className="body-md">Your account is ready.</p>
+                <p className="text-sm text-neo-text-secondary">You can sign in right away with the credentials you just created.</p>
+              </div>
+            )}
+            <a className="text-neo-primary underline" href="/auth/login">Return to sign in</a>
+          </div>
         ) : (
           <form onSubmit={onSubmit} className="space-y-4">
             <input
@@ -58,8 +77,8 @@ export default function RegisterPage() {
             <button className="w-full btn btn-primary" disabled={status === 'submitting'}>
               {status === 'submitting' ? 'Creating…' : 'Create account'}
             </button>
-            {status === 'error' && (
-              <p className="text-sm text-red-600">Could not create account. Try again.</p>
+            {serverError && (
+              <p className="text-sm text-red-600" role="alert">{serverError}</p>
             )}
           </form>
         )}
@@ -67,4 +86,3 @@ export default function RegisterPage() {
     </div>
   );
 }
-

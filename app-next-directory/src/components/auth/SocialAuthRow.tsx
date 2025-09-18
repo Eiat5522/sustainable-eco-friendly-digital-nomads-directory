@@ -49,9 +49,65 @@ export function SocialAuthRow({
   providers = PROVIDERS,
 }: Readonly<{ providers?: Provider[] }>) {
   const [pending, setPending] = React.useState<string | null>(null);
+  const [availableProviderIds, setAvailableProviderIds] = React.useState<string[] | null>(null);
+  const [loadError, setLoadError] = React.useState(false);
+
+  React.useEffect(() => {
+    let cancelled = false;
+
+    async function loadProviders() {
+      try {
+        const res = await fetch('/api/auth/providers');
+        if (!res.ok) {
+          throw new Error(`Providers endpoint returned ${res.status}`);
+        }
+        const data = (await res.json()) as Record<string, unknown> | null;
+        if (cancelled) return;
+        if (!data) {
+          setAvailableProviderIds([]);
+          return;
+        }
+        const ids = Object.keys(data).filter((id) => id !== 'credentials');
+        setAvailableProviderIds(ids);
+      } catch (err) {
+        console.warn('[auth] Failed to load providers', err);
+        if (!cancelled) {
+          setLoadError(true);
+          setAvailableProviderIds([]);
+        }
+      }
+    }
+
+    void loadProviders();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (availableProviderIds === null && !loadError) {
+    return (
+      <div className="flex justify-center">
+        <span className="text-sm text-neo-text-secondary">Loading sign-in options…</span>
+      </div>
+    );
+  }
+
+  const enabledProviders = providers.filter((provider) =>
+    availableProviderIds?.includes(provider.id)
+  );
+
+  if (enabledProviders.length === 0) {
+    return (
+      <div className="text-sm text-neo-text-secondary text-center">
+        {loadError ? 'Unable to load social sign-in providers right now.' : 'No social sign-in providers are configured.'}
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-center gap-3">
-      {providers.map((p) => (
+      {enabledProviders.map((p) => (
         <button
           type="button"
           key={p.id}
@@ -79,4 +135,3 @@ export function SocialAuthRow({
 }
 
 export default SocialAuthRow;
-
