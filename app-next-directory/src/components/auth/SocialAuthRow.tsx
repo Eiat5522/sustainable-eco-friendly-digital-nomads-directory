@@ -48,6 +48,18 @@ const PROVIDERS: Provider[] = [
 export function SocialAuthRow({
   providers = PROVIDERS,
 }: Readonly<{ providers?: Provider[] }>) {
+  // Allow temporarily disabling all social sign-in buttons via env flag
+  // Usage: set NEXT_PUBLIC_AUTH_DISABLE_OAUTH=true in app-next-directory/.env.local
+  const OAUTH_DISABLED = process.env.NEXT_PUBLIC_AUTH_DISABLE_OAUTH === 'true';
+
+  if (OAUTH_DISABLED) {
+    return (
+      <div className="text-sm text-neo-text-secondary text-center">
+        Social sign-in is temporarily disabled.
+      </div>
+    );
+  }
+
   const [pending, setPending] = React.useState<string | null>(null);
   const [availableProviderIds, setAvailableProviderIds] = React.useState<string[] | null>(null);
   const [loadError, setLoadError] = React.useState(false);

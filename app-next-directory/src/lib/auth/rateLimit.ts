@@ -19,8 +19,14 @@ export async function enforceLoginRateLimit(identifier: string) {
   if (!loginLimiter) {
     return { success: true };
   }
-
-  return loginLimiter.limit(identifier);
+  try {
+    return await loginLimiter.limit(identifier);
+  } catch (err) {
+    // Fail-open: if Redis/ratelimiter is unavailable or misconfigured,
+    // do NOT block user logins. Log for observability and allow the attempt.
+    console.warn('[auth] Login ratelimiter error; allowing attempt', err);
+    return { success: true } as const;
+  }
 }
 
 export async function recordLoginAttempt(params: {

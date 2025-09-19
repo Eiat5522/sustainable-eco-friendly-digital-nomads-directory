@@ -13,9 +13,12 @@ import dbConnect from '@/lib/dbConnect'
 import User from '@/models/User'
 import type { JWT } from 'next-auth/jwt'
 import type { UserRole } from '@/types/auth'
+import { isAdminEmail } from '@/lib/auth/config'
 
 // Central NextAuth configuration used by route handlers and auth() helper
 // Build providers conditionally to avoid requiring unused env vars
+type AppUser = { id: string; name?: string | null; email?: string | null; image?: string | null; role?: UserRole }
+
 const providers: NextAuthConfig['providers'] = [
   Credentials({
       name: 'credentials',
@@ -48,22 +51,23 @@ const providers: NextAuthConfig['providers'] = [
           })
 
           if (!user) return null
-          return {
+          const result: AppUser = {
             id: user.id,
             name: user.name,
             email: user.email,
-            role: user.role,
             image: user.image,
-          } as any
+            role: user.role,
+          }
+          return result
         } catch (_err) {
-
-          // Avoid leaking internal error details during auth          if (_err instanceof Error && _err.message.startsWith('Too many login attempts')) {
+          // Avoid leaking internal error details during auth
+          if (_err instanceof Error && _err.message.startsWith('Too many login attempts')) {
             throw _err
           }
           return null
         }
       },
-    }) as any,
+  }),
 ]
 
 // Temporarily disable OAuth providers until their credentials are configured.
@@ -127,14 +131,16 @@ export const authOptions: NextAuthConfig = {
         // }
 
           // Heuristics across providers
-          const p: any = profile || {};
+          const p = (profile ?? {}) as Record<string, unknown>;
+          const isTrue = (v: unknown) => v === true;
+          const isNotNullish = (v: unknown) => v != null;
           const provider = account.provider;
           const emailVerifiedHeuristic = (
-            p.email_verified === true ||
-            p.verified_email === true ||
-            p.emailVerified === true ||
-            p.email_verified_at != null ||
-            p.verified === true
+            isTrue(p['email_verified']) ||
+            isTrue(p['verified_email']) ||
+            isTrue(p['emailVerified']) ||
+            isNotNullish(p['email_verified_at']) ||
+            isTrue(p['verified'])
           );
           const hasEmail = Boolean(user.email);
           const shouldVerify = (
@@ -143,7 +149,7 @@ export const authOptions: NextAuthConfig = {
             // Facebook often provides email if permission granted; presence implies control
             (provider === 'facebook' && hasEmail) ||
             // X/Twitter only exposes email with elevated perms; if present assume control
-            (provider === 'twitter' && (p.email || hasEmail)) ||
+            (provider === 'twitter' && ((p['email'] as string | undefined) || hasEmail)) ||
             // Microsoft Entra ID: if sign-in succeeded and email present, assume verified
             (provider === 'microsoft-entra-id' && hasEmail) ||
             // Fallback on explicit flags from any provider
@@ -174,7 +180,13 @@ export const authOptions: NextAuthConfig = {
       if (user) {
         const u = user as Partial<{ id: string; role?: string }>
         if (u.id) t.id = u.id
-        if (u.role) t.role = u.role as UserRole
+        // Elevate role for admin-allowlisted emails; prefer explicit user.role otherwise
+        const email = (user as { email?: string | null })?.email ?? token.email
+        if (isAdminEmail(email)) {
+          t.role = 'admin'
+        } else if (u.role) {
+          t.role = u.role as UserRole
+        }
       }
       return t
     },
@@ -185,7 +197,13 @@ export const authOptions: NextAuthConfig = {
         if (user?.id) s.user.id = user.id
         if (user?.role) s.user.role = user.role as UserRole
         if (!user && token?.id) s.user.id = String(token.id)
-        if (!user && token?.role) s.user.role = token.role as UserRole
+        // Re-evaluate admin allowlist at session time
+        const email = s.user.email ?? (user as { email?: string | null })?.email ?? token.email
+        if (isAdminEmail(email)) {
+          s.user.role = 'admin'
+        } else if (!user && token?.role) {
+          s.user.role = token.role as UserRole
+        }
       }
       return s
     },

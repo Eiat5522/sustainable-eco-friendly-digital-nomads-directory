@@ -24,7 +24,15 @@ export async function initializeDatabase(client: MongoClient) {
         unique: true, 
         name: 'users_email_unique' // Explicit index name for better management
       },
-      { key: { 'accounts.providerId': 1, 'accounts.providerAccountId': 1 }, unique: true },
+      {
+        key: { 'accounts.providerId': 1, 'accounts.providerAccountId': 1 },
+        unique: true,
+        name: 'users_accounts_provider_unique',
+        partialFilterExpression: {
+          'accounts.providerId': { $type: 'string' },
+          'accounts.providerAccountId': { $type: 'string' },
+        },
+      },
     ]);
 
     await db.collection('loginAttempts').createIndexes([

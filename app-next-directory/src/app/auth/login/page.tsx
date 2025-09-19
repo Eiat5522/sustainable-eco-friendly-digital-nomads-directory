@@ -1,9 +1,10 @@
 "use client";
 
 import React from 'react';
-import { signIn, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
+import SocialAuthRow from '@/components/auth/SocialAuthRow';
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
@@ -31,10 +32,8 @@ export default function LoginPage() {
   const isAuthenticated = status === 'authenticated';
   const displayName = session?.user?.name ?? session?.user?.email ?? 'your account';
 
-  const handleProviderSignIn = (provider: string) => {
-    const options = callbackUrl ? { callbackUrl } : undefined;
-    void signIn(provider, options);
-  };
+  // Honor global kill switch for OAuth providers (matches SocialAuthRow behavior)
+  const OAUTH_DISABLED = process.env.NEXT_PUBLIC_AUTH_DISABLE_OAUTH === 'true';
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-6">
@@ -57,43 +56,20 @@ export default function LoginPage() {
         )}
 
         <div className="space-y-3">
-          <button
-            type="button"
-            className="w-full btn btn-primary"
-            onClick={() => handleProviderSignIn('google')}
-            disabled={isAuthenticated}
-          >
-            Continue with Google
-          </button>
-          <button
-            type="button"
-            className="w-full btn btn-primary"
-            onClick={() => handleProviderSignIn('facebook')}
-            disabled={isAuthenticated}
-          >
-            Continue with Facebook
-          </button>
-          <button
-            type="button"
-            className="w-full btn btn-primary"
-            onClick={() => handleProviderSignIn('twitter')}
-            disabled={isAuthenticated}
-          >
-            Continue with X
-          </button>
-          <button
-            type="button"
-            className="w-full btn btn-primary"
-            onClick={() => handleProviderSignIn('microsoft-entra-id')}
-            disabled={isAuthenticated}
-          >
-            Continue with Microsoft
-          </button>
+          {OAUTH_DISABLED ? (
+            <div className="text-sm text-neo-text-secondary text-center">
+              Social sign-in is temporarily disabled.
+            </div>
+          ) : (
+            <SocialAuthRow />
+          )}
         </div>
 
-        <p className="text-xs text-neo-text-secondary mt-6">
-          Note: Only configured providers will work in this environment.
-        </p>
+        {!OAUTH_DISABLED && (
+          <p className="text-xs text-neo-text-secondary mt-6">
+            Note: Only configured providers will work in this environment.
+          </p>
+        )}
         <div className="mt-6 flex items-center justify-between text-sm">
           <a className="text-neo-primary underline" href="/auth/register">Create account</a>
           <a className="text-neo-primary underline" href="/auth/reset-request">Forgot password?</a>

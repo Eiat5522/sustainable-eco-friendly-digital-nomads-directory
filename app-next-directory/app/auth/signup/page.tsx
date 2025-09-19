@@ -15,6 +15,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const OAUTH_DISABLED = process.env.NEXT_PUBLIC_AUTH_DISABLE_OAUTH === 'true';
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -46,7 +47,13 @@ export default function SignupPage() {
           <h2 className="heading-lg mb-3">Create your account</h2>
           <p className="body-md">Join our eco-forward community and explore sustainable places to live, work, and connect as a digital nomad.</p>
           <div className="mt-8">
-            <SocialAuthRow />
+            {OAUTH_DISABLED ? (
+              <div className="text-sm text-neo-text-secondary text-center">
+                Social sign-in is temporarily disabled.
+              </div>
+            ) : (
+              <SocialAuthRow />
+            )}
           </div>
         </div>
 
@@ -106,7 +113,13 @@ export default function SignupPage() {
                 <div className="flex-1 h-px bg-neo-border" />
               </div>
               <div className="mt-4">
-                <SocialAuthRow />
+                {OAUTH_DISABLED ? (
+                  <div className="text-sm text-neo-text-secondary text-center">
+                    Social sign-in is temporarily disabled.
+                  </div>
+                ) : (
+                  <SocialAuthRow />
+                )}
               </div>
             </div>
           </NeoCardContent>

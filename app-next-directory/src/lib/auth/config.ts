@@ -23,3 +23,22 @@ export function isEmailVerificationRequired(): boolean {
   return false;
 }
 
+/**
+ * Admin email allowlist helpers
+ * Configure comma/space separated emails via AUTH_ADMIN_EMAILS, e.g.:
+ * AUTH_ADMIN_EMAILS="admin@example.com,owner@example.org"
+ */
+export function getAdminEmails(): string[] {
+  const raw = process.env.AUTH_ADMIN_EMAILS ?? ''
+  return raw
+    .split(/[\s,]+/)
+    .map((s) => s.trim().toLowerCase())
+    .filter((s) => s.length > 0 && s.includes('@'))
+}
+
+export function isAdminEmail(email?: string | null): boolean {
+  if (!email) return false
+  const e = email.trim().toLowerCase()
+  return getAdminEmails().includes(e)
+}
+
