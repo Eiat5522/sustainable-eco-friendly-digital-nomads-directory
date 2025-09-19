@@ -15,7 +15,8 @@ const loginLimiter = redis
     })
   : undefined;
 
-export async function enforceLoginRateLimit(identifier: string) {
+export async function enforceLoginRateLimit(identifier: string): Promise<{ success: boolean; limit?: number; remaining?: number; reset?: number }> {
+
   if (!loginLimiter) {
     return { success: true };
   }
@@ -39,11 +40,20 @@ export async function recordLoginAttempt(params: {
     return;
   }
 
+  const rawEmail = params?.email;
+  const isValidEmail = typeof rawEmail === 'string' && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(rawEmail.trim());
+  if (!isValidEmail) {
+    console.warn('[auth] Skipping login attempt record due to invalid email', { email: rawEmail });
+    return;
+  }
+
+  const normalizedEmail = rawEmail.trim().toLowerCase();
+
   try {
     await dbConnect();
     const collection = mongoose.connection.collection('loginAttempts');
     await collection.insertOne({
-      email: params.email.toLowerCase(),
+      email: normalizedEmail,
       ip: params.ip ?? null,
       success: params.success,
       reason: params.reason,
