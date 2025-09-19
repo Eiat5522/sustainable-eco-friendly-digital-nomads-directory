@@ -54,8 +54,8 @@ export function SocialAuthRow({
 
   if (OAUTH_DISABLED) {
     return (
-      <div className="text-sm text-neo-text-secondary text-center">
-        Social sign-in is temporarily disabled.
+      <div className="text-sm text-neo-text-secondary text-center py-2">
+        Social sign-in is temporarily unavailable. Please use email sign-in.
       </div>
     );
   }

@@ -178,15 +178,21 @@ export const authOptions: NextAuthConfig = {
       type AppToken = JWT & { id?: string; role?: UserRole }
       const t = token as AppToken
       if (user) {
-        const u = user as Partial<{ id: string; role?: string }>
+        const u = user as Partial<{ id: string; role?: UserRole | null }>
         if (u.id) t.id = u.id
-        // Elevate role for admin-allowlisted emails; prefer explicit user.role otherwise
-        const email = (user as { email?: string | null })?.email ?? token.email
-        if (isAdminEmail(email)) {
-          t.role = 'admin'
-        } else if (u.role) {
-          t.role = u.role as UserRole
+
+        if (u.role) {
+          t.role = u.role
         }
+
+        const email = (user as { email?: string | null })?.email ?? token.email
+        ensureAllowlistedAdminPromotionFlow({
+          email,
+          userId: u.id,
+          currentRole: u.role ?? t.role ?? null,
+        }).catch((err) => {
+          console.error('[auth] failed to queue admin allowlist promotion flow', err)
+        })
       }
       return t
     },
@@ -195,15 +201,16 @@ export const authOptions: NextAuthConfig = {
       const s = session as WithAppUser
       if (s.user) {
         if (user?.id) s.user.id = user.id
-        if (user?.role) s.user.role = user.role as UserRole
-        if (!user && token?.id) s.user.id = String(token.id)
-        // Re-evaluate admin allowlist at session time
-        const email = s.user.email ?? (user as { email?: string | null })?.email ?? token.email
-        if (isAdminEmail(email)) {
-          s.user.role = 'admin'
+        if (user?.role) {
+          s.user.role = user.role as UserRole
         } else if (!user && token?.role) {
           s.user.role = token.role as UserRole
+        } else {
+          delete s.user.role
         }
+        if (!user && token?.id) s.user.id = String(token.id)
+        // Session roles are UI hints only. Protected server routes must re-verify
+        // permissions against the database before authorising privileged actions.
       }
       return s
     },
@@ -214,3 +221,33 @@ export const { handlers: { GET, POST }, auth } = NextAuth(authOptions)
 
 // Export getToken for middleware and tests
 export { getToken } from 'next-auth/jwt'
+
+type AllowlistedAdminPromotionContext = {
+  email?: string | null
+  userId?: string
+  currentRole?: UserRole | null
+}
+
+async function ensureAllowlistedAdminPromotionFlow({
+  email,
+  userId,
+  currentRole,
+}: AllowlistedAdminPromotionContext): Promise<void> {
+  if (typeof window !== 'undefined') {
+    throw new Error('Admin allowlist checks must never run on the client runtime')
+  }
+
+  if (!email || !userId) return
+  const normalisedEmail = email.trim().toLowerCase()
+  if (!isAdminEmail(normalisedEmail)) return
+  if (currentRole === 'admin') return
+
+  // TODO: integrate with a step-up authentication gate and audit log capture before
+  // issuing any elevated privileges. The promotion flow must update User.role within
+  // the database and emit a security audit trail before short-lived admin sessions
+  // are minted.
+  console.info('[auth] allowlisted admin email detected; promotion flow required', {
+    userId,
+    email: normalisedEmail,
+  })
+}

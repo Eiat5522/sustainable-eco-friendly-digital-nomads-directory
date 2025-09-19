@@ -28,12 +28,17 @@ export function isEmailVerificationRequired(): boolean {
  * Configure comma/space separated emails via AUTH_ADMIN_EMAILS, e.g.:
  * AUTH_ADMIN_EMAILS="admin@example.com,owner@example.org"
  */
+let cachedAdminEmails: string[] | null = null;
+
 export function getAdminEmails(): string[] {
-  const raw = process.env.AUTH_ADMIN_EMAILS ?? ''
-  return raw
-    .split(/[\s,]+/)
-    .map((s) => s.trim().toLowerCase())
-    .filter((s) => s.length > 0 && s.includes('@'))
+  if (cachedAdminEmails === null) {
+    const raw = process.env.AUTH_ADMIN_EMAILS ?? ''
+    cachedAdminEmails = raw
+      .split(/[\s,]+/)
+      .map((s) => s.trim().toLowerCase())
+      .filter((s) => s.length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s))
+  }
+  return cachedAdminEmails
 }
 
 export function isAdminEmail(email?: string | null): boolean {

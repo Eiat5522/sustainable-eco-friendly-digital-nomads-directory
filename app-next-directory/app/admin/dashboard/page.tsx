@@ -223,7 +223,9 @@ export default function AdminDashboardPage() {
                   <div className="h-2 w-full rounded-full bg-slate-100">
                     <div
                       className="h-2 rounded-full bg-neo-primary"
-                      style={{ width: `${metric.value}%` }}
+                      style={{ '--progress-width': `${metric.value}%` } as React.CSSProperties}
+                      className="h-2 rounded-full bg-neo-primary"
+                      // Add to CSS: width: var(--progress-width);
                     >
                       <span className="sr-only">{metric.label} completion is {metric.value}%</span>
                     </div>
