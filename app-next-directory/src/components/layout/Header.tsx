@@ -80,7 +80,7 @@ export function Header() {
                 </button>
               ) : (
                 <Link
-                  href="/auth/login"
+                  href="/auth"
                   aria-label="Sign in"
                   className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center text-neo-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
                   title="Sign in"

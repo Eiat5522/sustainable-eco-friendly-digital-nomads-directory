@@ -13,7 +13,7 @@ const footerLinks = {
     { name: 'Find Listings', href: '/search' },
     { name: 'Blog', href: '/blog' },
     { name: 'Submit Your Business', href: '/contact-us' },
-    { name: 'Login / Register', href: '/auth/login' }
+    { name: 'Login / Register', href: '/auth' }
   ],
   categories: [
     { name: 'Co-working Spaces', href: '/search/results?category=coworking' },
