@@ -1,9 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import { NeoButton } from '@/components/ui/neo-button';
 import { ImageCarousel } from '@/components/ui/ImageCarousel';
 import { HeroSection } from './HeroSection';
 import { ListingDetailsCard } from './ListingDetailsCard';
@@ -82,17 +79,7 @@ export function ListingDetailView({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Back Navigation */}
-      <div className="container mx-auto px-4 py-4">
-        <Link href="/">
-          <NeoButton variant="outline" size="sm" className="mb-4">
-            <ArrowLeft size={16} className="mr-2" />
-            Back to Listings
-          </NeoButton>
-        </Link>
-      </div>
-
-      <div className="container mx-auto px-4 pb-8">
+      <div className="container mx-auto px-4 pt-6 pb-8">
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
           <HeroSection 

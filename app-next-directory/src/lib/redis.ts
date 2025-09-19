@@ -6,13 +6,13 @@ const url = process.env.UPSTASH_REDIS_REST_URL;
 const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
 if (url && token) {
-    try {
-    // Optionally test the connection
-    await redisClient.ping();
+  try {
+    // Initialize Upstash Redis client when configuration is present
+    const client = new Redis({ url, token });
+    redisClient = client;
   } catch (error) {
     // Log initialization errors but do not rethrow to avoid crashing the app
     // during module load when Redis is optional.
-     
     console.error('Failed to initialize Upstash Redis client:', error);
   }
 }
