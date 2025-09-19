@@ -4,6 +4,7 @@ import { MapPin, Heart } from 'lucide-react';
 import { NeoCard, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { NeoButton } from '@/components/ui/neo-button';
 import type { ListingDetailDTO } from '@/types/dto';
+import { FALLBACK_IMAGE } from '@/lib/dto-transformer';
 
 interface HeroSectionProps {
   listing: ListingDetailDTO;
@@ -13,10 +14,14 @@ interface HeroSectionProps {
 
 export function HeroSection(props: Readonly<HeroSectionProps>) {
   const { listing, isFavorited = false, onToggleFavorite } = props;
+  const hasRealHeroImage =
+    typeof listing.imageUrl === 'string' &&
+    listing.imageUrl.length > 0 &&
+    listing.imageUrl !== FALLBACK_IMAGE;
   return (
     <NeoCard variant="elevated" className="mb-8">
       <div className="relative h-64 md:h-80 mb-6 overflow-hidden rounded-lg">
-        {listing.imageUrl && (
+        {hasRealHeroImage && (
           <Image
             src={listing.imageUrl}
             alt={`${listing.name}${listing.city?.name ? ` - ${listing.city?.name}` : ''} sustainable venue`}

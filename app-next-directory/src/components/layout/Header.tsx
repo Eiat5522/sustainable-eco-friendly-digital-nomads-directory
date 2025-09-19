@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { signOut, useSession } from 'next-auth/react'
 import { DoorOpen, Menu, User } from 'lucide-react'
 import Image from 'next/image'
+import { useCallback, useState } from 'react'
 
 export function Header() {
   const { data: session, status } = useSession()
@@ -11,6 +12,22 @@ export function Header() {
   const displayName = session?.user?.name ?? session?.user?.email ?? 'your account'
   const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? ''
   const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in'
+  const [signingOut, setSigningOut] = useState(false)
+
+  const handleSignOut = useCallback(async () => {
+    if (signingOut) return
+    setSigningOut(true)
+    try {
+      await signOut({ redirectTo: '/' })
+    } catch (error) {
+      console.error('[auth] sign out failed', error)
+      if (typeof window !== 'undefined') {
+        window.location.href = '/api/auth/signout?callbackUrl=/'
+      }
+    } finally {
+      setSigningOut(false)
+    }
+  }, [])
 
   return (
     <header className="w-full bg-background border-b-4 border-neo-border">
@@ -18,15 +35,17 @@ export function Header() {
         <div className="relative flex items-center justify-between">
           {/* Left: Logo + Mobile Menu */}
           <div className="flex items-center gap-3">
-            <Link href="/" className="inline-flex items-center" aria-label="Go to homepage">
-              <Image
-                src="/leaf-laptop-logo.png"
-                alt="Sustainable Nomads"
-                width={36}
-                height={36}
-                className="h-9 w-9 object-contain"
-                priority
-              />
+            <Link href="/" aria-label="Go to homepage">
+              <span className="inline-flex items-center" title="Go to homepage">
+                <Image
+                  src="/leaf-laptop-logo.png"
+                  alt="Sustainable Nomads"
+                  width={36}
+                  height={36}
+                  className="h-9 w-9 object-contain"
+                  priority
+                />
+              </span>
             </Link>
             {/* Mobile menu trigger (scaffold) */}
             <button
@@ -42,17 +61,17 @@ export function Header() {
 
           {/* Center: Navigation (desktop) */}
           <nav aria-label="Primary" className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
-            <Link href="/" className="body-md hover:text-neo-primary font-semibold transition-colors">
-              Home
+            <Link href="/">
+              <span className="body-md hover:text-neo-primary font-semibold transition-colors">Home</span>
             </Link>
-            <Link href="/search" className="body-md hover:text-neo-primary font-semibold transition-colors">
-              Search
+            <Link href="/search">
+              <span className="body-md hover:text-neo-primary font-semibold transition-colors">Search</span>
             </Link>
-            <Link href="/blog" className="body-md hover:text-neo-primary font-semibold transition-colors">
-              Blog
+            <Link href="/blog">
+              <span className="body-md hover:text-neo-primary font-semibold transition-colors">Blog</span>
             </Link>
-            <Link href="/contact-us" className="body-md hover:text-neo-primary font-semibold transition-colors">
-              Contact Us
+            <Link href="/contact-us">
+              <span className="body-md hover:text-neo-primary font-semibold transition-colors">Contact Us</span>
             </Link>
           </nav>
 
@@ -69,24 +88,23 @@ export function Header() {
                 <button
                   type="button"
                   onClick={() => {
-                    void signOut({ callbackUrl: '/' })
+                    void handleSignOut()
                   }}
                   className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center text-neo-text-secondary transition hover:text-neo-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
                   aria-label="Sign out"
                   title={accountLabel}
+                  disabled={signingOut}
+                  aria-disabled={signingOut}
                 >
                   <span className="sr-only">Sign out</span>
                   <DoorOpen size={20} aria-hidden="true" focusable="false" />
                 </button>
               ) : (
-                <Link
-                  href="/auth/login"
-                  aria-label="Sign in"
-                  className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center text-neo-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
-                  title="Sign in"
-                >
-                  <span className="sr-only">Sign in</span>
-                  <User size={20} aria-hidden="true" focusable="false" />
+                <Link href="/auth/login" aria-label="Sign in">
+                  <span className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center text-neo-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary" title="Sign in">
+                    <span className="sr-only">Sign in</span>
+                    <User size={20} aria-hidden="true" focusable="false" />
+                  </span>
                 </Link>
               )
             )}

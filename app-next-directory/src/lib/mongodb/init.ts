@@ -15,7 +15,7 @@ export async function initializeDatabase(client: MongoClient) {
     }
 
     // Ensure session indexes exist independently of collection creation
-    await db.collection('sessions').createIndexes(sessionIndexes);
+  await db.collection('sessions').createIndexes(sessionIndexes as any);
     
     // Create indexes - Single source of truth for all index definitions
     await db.collection('users').createIndexes([

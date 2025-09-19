@@ -25,7 +25,6 @@
     "start:sanity": "pnpm --filter sanity start",
     "start": "pnpm start:next",
     "lint:next": "pnpm --filter app-next-directory lint",
-    "lint:sanity": "pnpm --filter sanity lint",
     "lint": "pnpm lint:next",
     "test:watch": "pnpm --filter app-next-directory test:watch",
     "test:coverage": "pnpm --filter app-next-directory test:coverage",

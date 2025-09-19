@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { NeoInput } from "@/components/ui/neo-input";
 import { NeoButton } from "@/components/ui/neo-button";
 import SocialAuthRow from "@/components/auth/SocialAuthRow";
+import { sanitizeCallbackUrl } from "@/lib/auth/callbackUrl";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -16,6 +17,14 @@ export default function LoginForm() {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const sanitizedCallbackUrl = useMemo(() => {
+    const raw = searchParams.get("callbackUrl");
+    const origin = typeof window !== "undefined" ? window.location.origin : undefined;
+    return sanitizeCallbackUrl(raw, origin);
+  }, [searchParams]);
+
+  const callbackUrl = sanitizedCallbackUrl ?? "/";
 
   // Map NextAuth error codes from querystring to user-friendly messages
   const queryError = useMemo(() => {
@@ -65,7 +74,6 @@ export default function LoginForm() {
     }
     setIsLoading(true);
     try {
-      const callbackUrl = searchParams.get("callbackUrl") ?? "/";
       const res = await signIn("credentials", {
         email: email.trim().toLowerCase(),
         password,
@@ -81,8 +89,15 @@ export default function LoginForm() {
         return;
       }
       // Prefer router navigation if a URL is present
-      if (res?.url) router.replace(res.url);
-      else router.replace(callbackUrl);
+      if (res?.url) {
+        const origin = typeof window !== "undefined" ? window.location.origin : undefined;
+        const safeUrl = sanitizeCallbackUrl(res.url, origin);
+        if (safeUrl) router.replace(safeUrl);
+        else if (res.url) window.location.href = res.url;
+        else router.replace(callbackUrl);
+      } else {
+        router.replace(callbackUrl);
+      }
     } catch (err) {
       console.error("Login failed:", err);
       setError("Something went wrong. Please try again.");
@@ -106,7 +121,6 @@ export default function LoginForm() {
           aria-disabled={isLoading}
           aria-invalid={!!emailError}
           aria-describedby={emailError ? "email-error" : undefined}
-          
         />
         {emailError ? (
           <p id="email-error" className="text-red-500 text-xs" aria-live="polite">{emailError}</p>
@@ -136,7 +150,6 @@ export default function LoginForm() {
           {isLoading ? "Signing in…" : "Login"}
         </NeoButton>
       </form>
-
 
       <div className="mt-6" aria-labelledby="social-signin-heading">
         <div className="relative flex items-center">

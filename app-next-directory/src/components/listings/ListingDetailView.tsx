@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ImageCarousel } from '@/components/ui/ImageCarousel';
+import GalleryGrid from "./GalleryGrid";
 import { HeroSection } from './HeroSection';
 import { ListingDetailsCard } from './ListingDetailsCard';
 import { ReviewsSection } from './ReviewsSection';
@@ -89,14 +89,12 @@ export function ListingDetailView({
           />
 
           {/* Gallery Carousel */}
-          {listing.galleryImages && listing.galleryImages.length > 0 && (
-            <div className="mb-8">
-              <ImageCarousel 
-                images={listing.galleryImages}
-                alt={listing.name}
-              />
-            </div>
-          )}
+            {/* Render modern gallery grid only when there are meaningful gallery images */}
+            {listing.galleryImages && listing.galleryImages.length > 0 && (
+              <div className="mt-8">
+                <GalleryGrid images={listing.galleryImages} fallback="/placeholder_image.png" />
+              </div>
+            )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}

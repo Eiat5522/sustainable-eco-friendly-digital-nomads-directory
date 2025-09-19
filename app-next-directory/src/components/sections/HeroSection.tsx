@@ -43,8 +43,9 @@ export function HeroSection() {
       setVoiceError(null);
     };
 
-    const handleResult = (event: SpeechRecognitionEvent) => {
-      const transcript = Array.from(event.results)
+    const handleResult = (event: Event) => {
+      const ev = event as unknown as SpeechRecognitionEvent;
+      const transcript = Array.from(ev.results)
         .map((result) => result[0]?.transcript ?? '')
         .join(' ')
         .trim();
@@ -54,9 +55,10 @@ export function HeroSection() {
       }
     };
 
-    const handleError = (event: SpeechRecognitionErrorEvent) => {
+    const handleError = (event: Event) => {
+      const ev = event as unknown as SpeechRecognitionErrorEvent;
       const message = (() => {
-        switch (event.error) {
+        switch (ev.error) {
           case 'not-allowed':
             return 'Microphone access was blocked. Enable it to use voice search.';
           case 'no-speech':
@@ -74,19 +76,19 @@ export function HeroSection() {
       setIsListening(false);
     };
 
-    recognition.addEventListener('start', handleStart);
-    recognition.addEventListener('result', handleResult);
-    recognition.addEventListener('error', handleError);
-    recognition.addEventListener('end', handleEnd);
+    recognition.addEventListener('start', handleStart as EventListener);
+    recognition.addEventListener('result', handleResult as EventListener);
+    recognition.addEventListener('error', handleError as EventListener);
+    recognition.addEventListener('end', handleEnd as EventListener);
 
     recognitionRef.current = recognition;
     setVoiceSupported(true);
 
     return () => {
-      recognition.removeEventListener('start', handleStart);
-      recognition.removeEventListener('result', handleResult);
-      recognition.removeEventListener('error', handleError);
-      recognition.removeEventListener('end', handleEnd);
+      recognition.removeEventListener('start', handleStart as EventListener);
+      recognition.removeEventListener('result', handleResult as EventListener);
+      recognition.removeEventListener('error', handleError as EventListener);
+      recognition.removeEventListener('end', handleEnd as EventListener);
       recognition.stop();
       recognitionRef.current = null;
     };
@@ -97,7 +99,11 @@ export function HeroSection() {
     if (!recognition) return;
 
     if (isListening) {
-      recognition.stop();
+      try {
+        recognition.stop();
+      } catch (e) {
+        // ignore
+      }
       return;
     }
 
@@ -106,7 +112,11 @@ export function HeroSection() {
       recognition.start();
     } catch (error) {
       setVoiceError('Voice search could not be started. Please try again.');
-      recognition.stop();
+      try {
+        recognition.stop();
+      } catch (e) {
+        // ignore
+      }
     }
   };
 
@@ -116,11 +126,7 @@ export function HeroSection() {
       aria-labelledby="hero-heading"
     >
       {/* Geometric Shapes */}
-      <div
-        className="absolute top-20 left-20 w-32 h-32 bg-neo-secondary rounded-full opacity-80"
-        aria-hidden="true"
-        role="presentation"
-      >
+      <div className="absolute top-20 left-20 w-32 h-32 bg-neo-secondary rounded-full opacity-80" aria-hidden="true" role="presentation">
         <div className="absolute inset-4 bg-neo-border rounded-full"></div>
         <div className="absolute top-8 left-8 w-4 h-16 bg-neo-border rounded-full"></div>
         <div className="absolute top-8 right-8 w-4 h-16 bg-neo-border rounded-full"></div>
@@ -129,6 +135,7 @@ export function HeroSection() {
         <div className="absolute bottom-4 left-12 w-4 h-16 bg-neo-border rounded-full transform -rotate-45"></div>
         <div className="absolute bottom-4 right-12 w-4 h-16 bg-neo-border rounded-full transform rotate-45"></div>
       </div>
+
       <div className="absolute top-32 right-20 w-24 h-24 bg-pink-400 transform rotate-45">
         <div className="absolute inset-2 bg-neo-border"></div>
       </div>

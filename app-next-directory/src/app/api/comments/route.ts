@@ -4,11 +4,12 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { revalidateTag } from 'next/cache';
 import { hasFeaturePermission, UserRole } from '@/types/auth';
+import { ensureSanityUser } from '@/lib/sanity/user';
 
 export async function POST(request: Request) {
   const session = await auth();
 
-  const user = session?.user as { id?: string; role?: UserRole } | undefined;
+  const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
   const userId: string | undefined = user?.id;
   const userRole: UserRole = user?.role || 'unidentifiedUser';
   
@@ -30,21 +31,30 @@ export async function POST(request: Request) {
       }
     }
 
-    // Validate referenced documents to avoid dangling references
-    const [postDoc, userDoc] = await Promise.all([
+    const safeContent = typeof content === 'string' ? content.trim() : '';
+    if (!safeContent) {
+      return NextResponse.json({ error: 'Comment is required' }, { status: 422 });
+    }
+
+    const [postDoc, sanityUser] = await Promise.all([
       client.getDocument(postId),
-      client.getDocument(userId),
+      ensureSanityUser({
+        id: userId,
+        name: user?.name ?? null,
+        email: user?.email ?? null,
+        role: userRole,
+      }),
     ]);
 
-    if (!postDoc || !userDoc) {
+    if (!postDoc || !sanityUser) {
       return NextResponse.json({ error: 'Invalid reference(s)' }, { status: 400 });
     }
 
     const newComment = await client.create({
       _type: 'comment',
       post: { _type: 'reference', _ref: postId },
-      user: { _type: 'reference', _ref: userId },
-      content,
+      user: { _type: 'reference', _ref: sanityUser._id },
+      content: safeContent,
       approved: false,
     });
     // Attempt to revalidate the post page cache using tag if slug present

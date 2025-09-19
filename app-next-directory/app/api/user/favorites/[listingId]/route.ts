@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
-import { hasFeaturePermission, UserRole } from '@/types/auth';
+import type { UserRole } from '@/types/auth';
+import { ensureSanityUser } from '@/lib/sanity/user';
 
 interface RouteParams {
   params: { listingId: string };
@@ -11,7 +12,7 @@ interface RouteParams {
 export async function POST(request: Request, { params }: RouteParams) {
   const session = await auth();
 
-  const user = session?.user as { id?: string; role?: UserRole } | undefined;
+  const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
   const userId: string | undefined = user?.id;
   const userRole: UserRole = user?.role || 'unidentifiedUser';
   
@@ -27,6 +28,17 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     if (!listingId) {
       return NextResponse.json({ error: 'Listing ID is required' }, { status: 400 });
+    }
+
+    const sanityUser = await ensureSanityUser({
+      id: userId,
+      name: user?.name ?? null,
+      email: user?.email ?? null,
+      role: userRole,
+    });
+
+    if (!sanityUser) {
+      return NextResponse.json({ error: 'Unable to access user profile' }, { status: 500 });
     }
 
     // Check if listing exists
@@ -49,7 +61,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       // Add to favorites
       const favorite = await client.create({
         _type: 'userFavorite',
-        user: { _type: 'reference', _ref: userId },
+        user: { _type: 'reference', _ref: sanityUser._id },
         listing: { _type: 'reference', _ref: listingId },
         createdAt: new Date().toISOString(),
       });
@@ -65,9 +77,9 @@ export async function POST(request: Request, { params }: RouteParams) {
 export async function GET(request: Request, { params }: RouteParams) {
   const session = await auth();
 
-  const user = session?.user as { id?: string } | undefined;
+  const user = session?.user as { id?: string; email?: string | null; name?: string | null; role?: UserRole | null } | undefined;
   const userId: string | undefined = user?.id;
-  
+
   if (!userId) {
     return NextResponse.json({ favorited: false });
   }
