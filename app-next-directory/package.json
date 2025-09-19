@@ -12,6 +12,7 @@
     "start": "next start",
     "preview": "next start",
     "validate:env": "node scripts/validate-env.js",
+    "validate:placeholder": "node scripts/validate-placeholder-image.js",
     "msw:init": "msw init public --save",
     "postinstall": "node scripts/postinstall-msw.cjs",
     "exec:jest": "jest",

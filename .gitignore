@@ -170,6 +170,10 @@ repomix-output*.xml
 !**/*/app-next-directory/**/listings
 !.repomix/config/schemaAndFrontendShape-repomix.config.json
 
+# IMPORTANT: Never exclude placeholder_image.png from git
+# The file /app-next-directory/public/placeholder_image.png is critical for the fallback image system
+# See docs/FALLBACK_IMAGE_SYSTEM.md for details
+
 
 
 #Ignore vscode AI rules

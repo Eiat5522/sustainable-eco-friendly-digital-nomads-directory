@@ -92,6 +92,12 @@ export const imageOrFallback = (img: unknown, w: number, h: number): string => {
   }
   return FALLBACK_IMAGE;
 };
+/**
+ * IMPORTANT: This fallback image is critical for application stability.
+ * It ensures that users always see an image when primary images fail to load.
+ * The file '/placeholder_image.png' must be present in the public directory.
+ * DO NOT REMOVE this file as it's used throughout the application as a fallback.
+ */
 export const FALLBACK_IMAGE = '/placeholder_image.png';
 
 export function transformToFeaturedDTO(sanityListing: SanityListing): FeaturedListingDTO {
