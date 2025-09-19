@@ -6,9 +6,9 @@ const url = process.env.UPSTASH_REDIS_REST_URL;
 const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
 if (url && token) {
-  try {
-    // Initialize Upstash Redis client when configuration is present
-    redisClient = new Redis({ url, token });
+    try {
+    // Optionally test the connection
+    await redisClient.ping();
   } catch (error) {
     // Log initialization errors but do not rethrow to avoid crashing the app
     // during module load when Redis is optional.

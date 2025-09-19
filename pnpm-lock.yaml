@@ -20,9 +20,6 @@ importers:
       dotenv:
         specifier: 16.5.0
         version: 16.5.0
-      react-countup:
-        specifier: ^6.5.3
-        version: 6.5.3(react@19.1.0)
       react-hook-form:
         specifier: ^7.62.0
         version: 7.62.0(react@19.1.0)
@@ -467,11 +464,8 @@ importers:
         specifier: ^22
         version: 22.18.3
       '@types/react':
-        specifier: ^19.1.0
+        specifier: ^19.1.13
         version: 19.1.13
-      '@types/react-countup':
-        specifier: ^4.3.1
-        version: 4.3.1(react@19.1.0)
       '@types/supertest':
         specifier: ^6.0.3
         version: 6.0.3
@@ -573,7 +567,7 @@ importers:
         specifier: ^1.9.18
         version: 1.9.20
       '@types/react':
-        specifier: ^19.1.8
+        specifier: ^19.1.13
         version: 19.1.13
       '@types/supertest':
         specifier: ^6.0.3
@@ -4914,10 +4908,6 @@ packages:
   '@types/prop-types@15.7.15':
     resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
 
-  '@types/react-countup@4.3.1':
-    resolution: {integrity: sha512-8KwOdVVKhMOdtXJoOg3YXZwWxnFnZtPojNs/DZRlhHTpOYIb1If+9+rVPnwnXDhNhphj5diUCds9E26VtVK8IA==}
-    deprecated: This is a stub types definition. react-countup provides its own type definitions, so you do not need this installed.
-
   '@types/react-is@19.0.0':
     resolution: {integrity: sha512-71dSZeeJ0t3aoPyY9x6i+JNSvg5m9EF2i2OlSZI5QoJuI8Ocgor610i+4A10TQmURR+0vLwcVCEYFpXdzM1Biw==}
 
@@ -6079,9 +6069,6 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
-
-  countup.js@2.9.0:
-    resolution: {integrity: sha512-llqrvyXztRFPp6+i8jx25phHWcVWhrHO4Nlt0uAOSKHB8778zzQswa4MU3qKBvkXfJKftRYFJuVHez67lyKdHg==}
 
   crc-32@1.2.2:
     resolution: {integrity: sha512-ROmzCKrTnOwybPcJApAA6WBWij23HVfGVNKqqrZpuyZOHqK2CwHSvpGuyt/UNNvaIjEd8X5IFGp4Mh+Ie1IHJQ==}
@@ -9531,11 +9518,6 @@ packages:
     resolution: {integrity: sha512-k61RsNgAayIJNoy9yDsYzDe/yAZAzEbEgcz3DZMhF686LEyukcE1hzurxe85JandPUG+yTfGVFzuEw3xt8WP/A==}
     peerDependencies:
       react: ^15.3.0 || 16 || 17 || 18
-
-  react-countup@6.5.3:
-    resolution: {integrity: sha512-udnqVQitxC7QWADSPDOxVWULkLvKUWrDapn5i53HE4DPRVgs+Y5rr4bo25qEl8jSh+0l2cToJgGMx+clxPM3+w==}
-    peerDependencies:
-      react: '>= 16.3.0'
 
   react-day-picker@9.9.0:
     resolution: {integrity: sha512-NtkJbuX6cl/VaGNb3sVVhmMA6LSMnL5G3xNL+61IyoZj0mUZFWTg4hmj7PHjIQ8MXN9dHWhUHFoJWG6y60DKSg==}
@@ -17412,12 +17394,6 @@ snapshots:
 
   '@types/prop-types@15.7.15': {}
 
-  '@types/react-countup@4.3.1(react@19.1.0)':
-    dependencies:
-      react-countup: 6.5.3(react@19.1.0)
-    transitivePeerDependencies:
-      - react
-
   '@types/react-is@19.0.0':
     dependencies:
       '@types/react': 19.1.13
@@ -18667,8 +18643,6 @@ snapshots:
       path-type: 4.0.0
     optionalDependencies:
       typescript: 5.9.2
-
-  countup.js@2.9.0: {}
 
   crc-32@1.2.2: {}
 
@@ -22663,11 +22637,6 @@ snapshots:
     dependencies:
       copy-to-clipboard: 3.3.3
       prop-types: 15.8.1
-      react: 19.1.0
-
-  react-countup@6.5.3(react@19.1.0):
-    dependencies:
-      countup.js: 2.9.0
       react: 19.1.0
 
   react-day-picker@9.9.0(react@19.1.0):

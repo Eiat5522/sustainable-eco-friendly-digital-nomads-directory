@@ -40,6 +40,9 @@ export async function recordLoginAttempt(params: {
     return;
   }
 
+  // NOTE: Basic pattern check is enough for logging-only retention. For hardened
+  // production flows prefer validator.js isEmail + length caps, consider MX lookups,
+  // and block disposable domains before writing audit artifacts.
   const rawEmail = params?.email;
   const isValidEmail = typeof rawEmail === 'string' && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(rawEmail.trim());
   if (!isValidEmail) {

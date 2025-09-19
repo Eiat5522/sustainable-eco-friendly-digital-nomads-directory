@@ -32,7 +32,12 @@ export function useCounter({
   const startedRef = useRef<boolean>(false);
 
   useEffect(() => {
-    if (once && startedRef.current) return;
+  // Reset started flag when non-end dependencies change (unless it's the initial mount)
+  if (!once) {
+    startedRef.current = false;
+  }
+  
+  if (once && startedRef.current) return;
 
     const startTime = performance.now();
     const from = start;

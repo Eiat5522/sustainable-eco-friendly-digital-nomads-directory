@@ -25,5 +25,3 @@ export function AnimatedNumber({
   const { formatted } = useCounter({ start, end: value, duration, decimals });
   return <span className={className}>{prefix}{formatted}{suffix}</span>;
 }
-
-export default AnimatedNumber;
