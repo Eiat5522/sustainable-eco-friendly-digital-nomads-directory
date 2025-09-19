@@ -3,8 +3,9 @@ import { createHash } from 'crypto';
 import NextAuth, { Account, NextAuthOptions, User as NextAuthUser, Profile, Session } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import GithubProvider from 'next-auth/providers/github';
-import GoogleProvider from 'next-auth/providers/google';
+// Temporarily disabled social sign-in providers - Issue #58
+// import GithubProvider from 'next-auth/providers/github';
+// import GoogleProvider from 'next-auth/providers/google';
 
 // Import types and utilities
 import clientPromise from "@/lib/mongodb";
@@ -17,32 +18,33 @@ import { createSanityUser, findSanityUserByEmail, updateSanityUserWithAuthDetail
 const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise), // MongoDBAdapter uses the raw client promise
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      profile(profile) {
-        return {
-          id: profile.sub,
-          name: profile.name,
-          email: profile.email,
-          image: profile.picture,
-          role: 'user' as UserRole, // Cast to UserRole
-        };
-      },
-    }),
-    GithubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      profile(profile) {
-        return {
-          id: profile.id.toString(),
-          name: profile.name || profile.login,
-          email: profile.email,
-          image: profile.avatar_url,
-          role: 'user' as UserRole, // Cast to UserRole
-        };
-      },
-    }),
+    // Temporarily disabled social sign-in providers - Issue #58
+    // GoogleProvider({
+    //   clientId: process.env.GOOGLE_CLIENT_ID,
+    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    //   profile(profile) {
+    //     return {
+    //       id: profile.sub,
+    //       name: profile.name,
+    //       email: profile.email,
+    //       image: profile.picture,
+    //       role: 'user' as UserRole, // Cast to UserRole
+    //     };
+    //   },
+    // }),
+    // GithubProvider({
+    //   clientId: process.env.GITHUB_CLIENT_ID,
+    //   clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    //   profile(profile) {
+    //     return {
+    //       id: profile.id.toString(),
+    //       name: profile.name || profile.login,
+    //       email: profile.email,
+    //       image: profile.avatar_url,
+    //       role: 'user' as UserRole, // Cast to UserRole
+    //     };
+    //   },
+    // }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
