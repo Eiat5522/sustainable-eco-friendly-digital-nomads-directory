@@ -1,4 +1,4 @@
-import { MongoClient, MongoServerError } from 'mongodb';
+import { MongoClient, MongoServerError, type IndexDescription, type IndexDirection } from 'mongodb';
 import { sessionSchema, sessionIndexes } from './schemas/session';
 
 export async function initializeDatabase(client: MongoClient) {
@@ -15,7 +15,25 @@ export async function initializeDatabase(client: MongoClient) {
     }
 
     // Ensure session indexes exist independently of collection creation
-  await db.collection('sessions').createIndexes(sessionIndexes as any);
+    const sessionIndexSpecs = sessionIndexes.map<IndexDescription>((index) => {
+      const { key, ...rest } = index;
+      const normalizedKey = Object.entries(key).reduce<Record<string, IndexDirection>>(
+        (acc, [field, direction]) => {
+          if (direction !== undefined) {
+            acc[field] = direction as IndexDirection;
+          }
+          return acc;
+        },
+        {},
+      );
+
+      return {
+        ...rest,
+        key: normalizedKey,
+      };
+    });
+
+    await db.collection('sessions').createIndexes(sessionIndexSpecs);
     
     // Create indexes - Single source of truth for all index definitions
     await db.collection('users').createIndexes([
