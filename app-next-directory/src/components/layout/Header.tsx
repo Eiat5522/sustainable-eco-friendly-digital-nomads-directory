@@ -36,7 +36,7 @@ export function Header() {
           {/* Left: Logo + Mobile Menu */}
           <div className="flex items-center gap-3">
             <Link href="/" aria-label="Go to homepage">
-              <span className="inline-flex items-center" title="Go to homepage">
+              <span className="inline-flex items-center" aria-hidden="true">
                 <Image
                   src="/leaf-laptop-logo.png"
                   alt="Sustainable Nomads"
@@ -100,8 +100,13 @@ export function Header() {
                   <DoorOpen size={20} aria-hidden="true" focusable="false" />
                 </button>
               ) : (
-                <Link href="/auth/login" aria-label="Sign in">
-                  <span className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center text-neo-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary" title="Sign in">
+
+                <Link href="/auth" aria-label="Sign in">
+                  <span
+                    className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center text-neo-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
+                    title="Sign in"
+                    aria-hidden="true"
+                  >
                     <span className="sr-only">Sign in</span>
                     <User size={20} aria-hidden="true" focusable="false" />
                   </span>

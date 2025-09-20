@@ -38,27 +38,24 @@ export function HeroSection() {
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
-    const handleStart = () => {
+    const handleStart: EventListener = () => {
       setIsListening(true);
       setVoiceError(null);
     };
 
-    const handleResult = (event: Event) => {
-      const ev = event as unknown as SpeechRecognitionEvent;
-      const transcript = Array.from(ev.results)
-        .map((result) => result[0]?.transcript ?? '')
+    const handleResult: EventListener = (ev) => {
+      const event = ev as unknown as { results: ArrayLike<{ 0?: { transcript?: string } }> };
+      const transcript = Array.from(event.results)
+        .map((res) => res[0]?.transcript ?? '')
         .join(' ')
         .trim();
-
-      if (transcript) {
-        setQ(transcript);
-      }
+      if (transcript) setQ(transcript);
     };
 
-    const handleError = (event: Event) => {
+    const handleError: EventListener = (ev) => {
       const ev = event as unknown as SpeechRecognitionErrorEvent;
       const message = (() => {
-        switch (ev.error) {
+        switch (ev.err) {
           case 'not-allowed':
             return 'Microphone access was blocked. Enable it to use voice search.';
           case 'no-speech':
@@ -72,7 +69,7 @@ export function HeroSection() {
       setVoiceError(message);
     };
 
-    const handleEnd = () => {
+    const handleEnd: EventListener = () => {
       setIsListening(false);
     };
 
@@ -85,10 +82,10 @@ export function HeroSection() {
     setVoiceSupported(true);
 
     return () => {
-      recognition.removeEventListener('start', handleStart as EventListener);
-      recognition.removeEventListener('result', handleResult as EventListener);
-      recognition.removeEventListener('error', handleError as EventListener);
-      recognition.removeEventListener('end', handleEnd as EventListener);
+  recognition.removeEventListener('start', handleStart);
+  recognition.removeEventListener('result', handleResult);
+  recognition.removeEventListener('error', handleError);
+  recognition.removeEventListener('end', handleEnd);
       recognition.stop();
       recognitionRef.current = null;
     };
@@ -110,7 +107,7 @@ export function HeroSection() {
     try {
       setVoiceError(null);
       recognition.start();
-    } catch (error) {
+    } catch {
       setVoiceError('Voice search could not be started. Please try again.');
       try {
         recognition.stop();
