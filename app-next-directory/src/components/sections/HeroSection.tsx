@@ -39,7 +39,6 @@ export function HeroSection() {
     recognition.maxAlternatives = 1;
 
     const handleStart: EventListener = () => {
-    const handleStart: EventListener = () => {
       setIsListening(true);
       setVoiceError(null);
     };
@@ -70,7 +69,6 @@ export function HeroSection() {
       setVoiceError(message);
     };
 
-    const handleEnd: EventListener = () => {
     const handleEnd: EventListener = () => {
       setIsListening(false);
     };
