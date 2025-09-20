@@ -39,20 +39,21 @@ export function HeroSection() {
     recognition.maxAlternatives = 1;
 
     const handleStart: EventListener = () => {
+    const handleStart: EventListener = () => {
       setIsListening(true);
       setVoiceError(null);
     };
 
-    const handleResult: EventListener = (ev) => {
-      const event = ev as unknown as { results: ArrayLike<{ 0?: { transcript?: string } }> };
-      const transcript = Array.from(event.results)
-        .map((res) => res[0]?.transcript ?? '')
+    const handleResult: EventListener = (event) => {
+      const ev = event as unknown as SpeechRecognitionEvent;
+      const transcript = Array.from(ev.results)
+        .map((result) => result[0]?.transcript ?? '')
         .join(' ')
         .trim();
       if (transcript) setQ(transcript);
     };
 
-    const handleError: EventListener = (ev) => {
+    const handleError: EventListener = (event) => {
       const ev = event as unknown as SpeechRecognitionErrorEvent;
       const message = (() => {
         switch (ev.err) {
@@ -70,22 +71,23 @@ export function HeroSection() {
     };
 
     const handleEnd: EventListener = () => {
+    const handleEnd: EventListener = () => {
       setIsListening(false);
     };
 
-    recognition.addEventListener('start', handleStart as EventListener);
-    recognition.addEventListener('result', handleResult as EventListener);
-    recognition.addEventListener('error', handleError as EventListener);
-    recognition.addEventListener('end', handleEnd as EventListener);
+    recognition.addEventListener('start', handleStart);
+    recognition.addEventListener('result', handleResult);
+    recognition.addEventListener('error', handleError);
+    recognition.addEventListener('end', handleEnd);
 
     recognitionRef.current = recognition;
     setVoiceSupported(true);
 
     return () => {
-  recognition.removeEventListener('start', handleStart);
-  recognition.removeEventListener('result', handleResult);
-  recognition.removeEventListener('error', handleError);
-  recognition.removeEventListener('end', handleEnd);
+      recognition.removeEventListener('start', handleStart);
+      recognition.removeEventListener('result', handleResult);
+      recognition.removeEventListener('error', handleError);
+      recognition.removeEventListener('end', handleEnd);
       recognition.stop();
       recognitionRef.current = null;
     };

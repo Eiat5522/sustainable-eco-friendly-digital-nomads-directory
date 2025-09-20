@@ -42,7 +42,7 @@ function memoryIncr(key: string, ttlSeconds: number) {
   return next
 }
 // Add periodic cleanup for memory store
-let cleanupInterval: NodeJS.Timeout | null = null
+let cleanupInterval: ReturnType<typeof setInterval> | null = null
 
 function startMemoryCleanup() {
   if (cleanupInterval) return
@@ -55,16 +55,15 @@ function startMemoryCleanup() {
   }, 60_000)
 }
 
-// Use shared Upstash Redis client when available; otherwise use memory store
-const upstashRedis = getRedisClient()
+// Upstash Redis (shared client) helpers with memory fallback
+const upstash = getRedisClient()
 
 async function storeGet(key: string) {
-  if (upstashRedis) {
+  if (upstash) {
     try {
-      // Upstash returns string | null
-      const v = await upstashRedis.get<string>(key)
+      const v = await upstash.get<string>(key)
       return v ?? null
-    } catch (e) {
+    } catch {
       return memoryGet(key)
     }
   }
@@ -72,12 +71,11 @@ async function storeGet(key: string) {
 }
 
 async function storeSet(key: string, value: string, ttlSeconds: number) {
-  if (upstashRedis) {
+  if (upstash) {
     try {
-      // Upstash supports TTL via set options
-      await upstashRedis.set(key, value, { ex: ttlSeconds })
+      await upstash.set(key, value, { ex: ttlSeconds })
       return
-    } catch (e) {
+    } catch {
       memorySet(key, value, ttlSeconds)
       return
     }
@@ -86,14 +84,15 @@ async function storeSet(key: string, value: string, ttlSeconds: number) {
 }
 
 async function storeIncr(key: string, ttlSeconds: number) {
-  if (upstashRedis) {
+  if (upstash) {
     try {
-      const val = await upstashRedis.incr(key)
+      const val = await upstash.incr(key)
       if (val === 1) {
-        await upstashRedis.expire(key, ttlSeconds)
+        // set expiry only on first creation
+        await upstash.expire(key, ttlSeconds)
       }
       return Number(val)
-    } catch (e) {
+    } catch {
       return memoryIncr(key, ttlSeconds)
     }
   }
@@ -109,12 +108,19 @@ const IDEMPOTENCY_TTL = 24 * 60 * 60 // seconds — keep idempotency keys for 24
 
 export async function POST(request: Request) {
   try {
+    // Determine store type for observability header
+    const upstashClient = getRedisClient()
+    const storeType = process.env.JEST_WORKER_ID ? 'memory' : (upstashClient ? 'upstash' : 'memory')
+    const json = (payload: unknown, status = 200) => new Response(
+      JSON.stringify(payload),
+      { status, headers: { 'content-type': 'application/json', 'x-redis': storeType } }
+    )
     // Lightweight in-memory implementation for Jest unit tests
     if (process.env.JEST_WORKER_ID) {
       const body = await request.json()
       const validationResult = newsletterSubscriptionSchema.safeParse(body)
       if (!validationResult.success) {
-        return new Response(JSON.stringify({ success: false, error: 'Invalid email address.', details: validationResult.error.flatten() }), { status: 422, headers: { 'content-type': 'application/json' } })
+        return json({ success: false, error: 'Invalid email address.', details: validationResult.error.flatten() }, 422)
       }
       const { email } = validationResult.data
       const idempotencyKey = request.headers.get('Idempotency-Key') || request.headers.get('idempotency-key')
@@ -125,7 +131,7 @@ export async function POST(request: Request) {
           try {
             const parsed = JSON.parse(existing)
             const body = parsed.body
-            return new Response(JSON.stringify({ success: true, ...(body ?? { data: null, message: 'Thank you for subscribing to our newsletter!' }) }), { status: 200, headers: { 'content-type': 'application/json' } })
+            return json({ success: true, ...(body ?? { data: null, message: 'Thank you for subscribing to our newsletter!' }) })
           } catch {}
         }
       }
@@ -135,14 +141,14 @@ export async function POST(request: Request) {
           const idKey = `newsletter:idempotency:${idempotencyKey}`
           memorySet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Already subscribed recently.' } }), IDEMPOTENCY_TTL)
         }
-        return new Response(JSON.stringify({ success: true, data: null, message: 'Already subscribed recently.' }), { status: 200, headers: { 'content-type': 'application/json' } })
+        return json({ success: true, data: null, message: 'Already subscribed recently.' })
       }
       memorySet(emailKey, '1', RATE_LIMIT_PER_EMAIL_WINDOW)
       if (idempotencyKey) {
         const idKey = `newsletter:idempotency:${idempotencyKey}`
         memorySet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Thank you for subscribing to our newsletter!' } }), IDEMPOTENCY_TTL)
       }
-      return new Response(JSON.stringify({ success: true, data: null, message: 'Thank you for subscribing to our newsletter!' }), { status: 200, headers: { 'content-type': 'application/json' } })
+      return json({ success: true, data: null, message: 'Thank you for subscribing to our newsletter!' })
     }
 
    
@@ -150,7 +156,7 @@ export async function POST(request: Request) {
     const validationResult = newsletterSubscriptionSchema.safeParse(body)
 
     if (!validationResult.success) {
-      return new Response(JSON.stringify({ success: false, error: 'Invalid email address.', details: validationResult.error.flatten() }), { status: 422, headers: { 'content-type': 'application/json' } })
+      return json({ success: false, error: 'Invalid email address.', details: validationResult.error.flatten() }, 422)
     }
 
     const { email } = validationResult.data
@@ -164,11 +170,8 @@ export async function POST(request: Request) {
         try {
           const parsed = JSON.parse(existing)
           if (parsed && parsed.status && parsed.body) {
-            const replayBody = parsed.body
-            return new Response(
-              JSON.stringify({ success: true, ...(replayBody ?? {}) }),
-              { status: parsed.status ?? 200, headers: { 'content-type': 'application/json' } }
-            )
+            const storedBody = parsed.body
+            return json({ success: true, ...(storedBody ?? { data: null, message: 'Thank you for subscribing to our newsletter!' }) })
           }
         } catch (e) {
           // ignore parse errors and continue
@@ -185,7 +188,7 @@ export async function POST(request: Request) {
     const ipKey = `newsletter:ip:${ip}`
     const ipCount = await storeIncr(ipKey, RATE_LIMIT_PER_IP_WINDOW)
     if (ipCount > RATE_LIMIT_PER_IP) {
-      return new Response(JSON.stringify({ success: false, error: 'Too many requests from this IP. Please try again later.' }), { status: 429, headers: { 'content-type': 'application/json' } })
+      return json({ success: false, error: 'Too many requests from this IP. Please try again later.' }, 429)
     }
 
     const emailKey = `newsletter:email:${email}`
@@ -196,7 +199,7 @@ export async function POST(request: Request) {
         const idKey = `newsletter:idempotency:${idempotencyKey}`
         await storeSet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Already subscribed recently.' } }), IDEMPOTENCY_TTL)
       }
-      return new Response(JSON.stringify({ success: true, data: null, message: 'Already subscribed recently.' }), { status: 200, headers: { 'content-type': 'application/json' } })
+      return json({ success: true, data: null, message: 'Already subscribed recently.' })
     }
 
     // If we can use Mongo, check if already confirmed and send confirmation link
@@ -210,7 +213,7 @@ export async function POST(request: Request) {
             const idKey = `newsletter:idempotency:${idempotencyKey}`
             await storeSet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'You are already subscribed.' } }), IDEMPOTENCY_TTL)
           }
-          return new Response(JSON.stringify({ success: true, data: null, message: 'You are already subscribed.' }), { status: 200, headers: { 'content-type': 'application/json' } })
+          return json({ success: true, data: null, message: 'You are already subscribed.' })
         }
       } catch (error) {
         console.warn('MongoDB check failed, proceeding with email flow:', error instanceof Error ? error.message : 'Unknown error')
@@ -237,9 +240,10 @@ export async function POST(request: Request) {
       await storeSet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Thank you for subscribing to our newsletter!' } }), IDEMPOTENCY_TTL)
     }
 
-    return new Response(JSON.stringify({ success: true, data: null, message: 'Thank you for subscribing to our newsletter!' }), { status: 200, headers: { 'content-type': 'application/json' } })
+    return json({ success: true, data: null, message: 'Thank you for subscribing to our newsletter!' })
   } catch (error) {
     console.error('Newsletter subscription error:', error)
-    return new Response(JSON.stringify({ success: false, error: 'An internal server error occurred.' }), { status: 500, headers: { 'content-type': 'application/json' } })
+    const storeType = process.env.JEST_WORKER_ID ? 'memory' : (getRedisClient() ? 'upstash' : 'memory')
+    return new Response(JSON.stringify({ success: false, error: 'An internal server error occurred.' }), { status: 500, headers: { 'content-type': 'application/json', 'x-redis': storeType } })
   }
 }
