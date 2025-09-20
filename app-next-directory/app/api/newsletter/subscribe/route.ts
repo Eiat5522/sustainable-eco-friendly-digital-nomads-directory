@@ -4,6 +4,7 @@ import dbConnect from '@/lib/dbConnect'
 import NewsletterSubscriber from '@/models/NewsletterSubscriber'
 import { signNewsletterConfirmToken } from '@/lib/newsletterTokens'
 import { buildNewsletterConfirmEmail, sendMail } from '@/lib/email'
+import { getRedisClient } from '@/lib/redis'
 
 const newsletterSubscriptionSchema = z
   .object({
@@ -54,42 +55,15 @@ function startMemoryCleanup() {
   }, 60_000)
 }
 
-// Attempt to use Redis if configured; otherwise use memory store
-let redisClient: any = null
-let useRedis = false
-
-async function initRedisIfAvailable() {
-  if (redisClient !== null) return
-  try {
-    const redisUrl = process.env.REDIS_URL || process.env.REDIS
-    if (!redisUrl) {
-      redisClient = null
-      useRedis = false
-      return
-    }
-    try {
-      const { default: IORedis } = await import('ioredis')
-      redisClient = new IORedis(redisUrl)
-      redisClient.on('error', (err: unknown) => {
-        // Optional: add observability here
-        // console.error('Redis client error', err)
-      })
-      useRedis = true
-    } catch (e) {
-      // ...
-    }
-  } catch (e) {
-    // not available — fall back to memory
-    redisClient = null
-    useRedis = false
-  }
-}
+// Use shared Upstash Redis client when available; otherwise use memory store
+const upstashRedis = getRedisClient()
 
 async function storeGet(key: string) {
-  if (useRedis && redisClient) {
+  if (upstashRedis) {
     try {
-      const v = await redisClient.get(key)
-      return v
+      // Upstash returns string | null
+      const v = await upstashRedis.get<string>(key)
+      return v ?? null
     } catch (e) {
       return memoryGet(key)
     }
@@ -98,9 +72,10 @@ async function storeGet(key: string) {
 }
 
 async function storeSet(key: string, value: string, ttlSeconds: number) {
-  if (useRedis && redisClient) {
+  if (upstashRedis) {
     try {
-      await redisClient.set(key, value, 'EX', ttlSeconds)
+      // Upstash supports TTL via set options
+      await upstashRedis.set(key, value, { ex: ttlSeconds })
       return
     } catch (e) {
       memorySet(key, value, ttlSeconds)
@@ -111,11 +86,11 @@ async function storeSet(key: string, value: string, ttlSeconds: number) {
 }
 
 async function storeIncr(key: string, ttlSeconds: number) {
-  if (useRedis && redisClient) {
+  if (upstashRedis) {
     try {
-      const val = await redisClient.incr(key)
+      const val = await upstashRedis.incr(key)
       if (val === 1) {
-        await redisClient.expire(key, ttlSeconds)
+        await upstashRedis.expire(key, ttlSeconds)
       }
       return Number(val)
     } catch (e) {
@@ -170,8 +145,7 @@ export async function POST(request: Request) {
       return new Response(JSON.stringify({ success: true, data: null, message: 'Thank you for subscribing to our newsletter!' }), { status: 200, headers: { 'content-type': 'application/json' } })
     }
 
-    try { await initRedisIfAvailable() } catch {}
-    // eslint-disable-next-line no-console
+   
     const body = await request.json()
     const validationResult = newsletterSubscriptionSchema.safeParse(body)
 
@@ -189,12 +163,12 @@ export async function POST(request: Request) {
       if (existing) {
         try {
           const parsed = JSON.parse(existing)
-          // Return the stored successful response
           if (parsed && parsed.status && parsed.body) {
-            // If stored body matches ApiResponseHandler.success signature, replay appropriately
-            const body = parsed.body
-            // If stored body contains message and/or data fields, use them
-            return ApiResponseHandler.success(body.data ?? null, body.message ?? undefined)
+            const replayBody = parsed.body
+            return new Response(
+              JSON.stringify({ success: true, ...(replayBody ?? {}) }),
+              { status: parsed.status ?? 200, headers: { 'content-type': 'application/json' } }
+            )
           }
         } catch (e) {
           // ignore parse errors and continue
@@ -250,7 +224,7 @@ export async function POST(request: Request) {
       }
     } catch (e) {
       // Swallow email errors to avoid leaking infra details
-      // eslint-disable-next-line no-console
+       
       console.warn('Newsletter confirmation email send failed', e)
     }
 
