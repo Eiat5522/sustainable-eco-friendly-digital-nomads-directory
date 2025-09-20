@@ -1,7 +1,6 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
-import { rateLimit } from '@/utils/rate-limit';
-import { z } from 'zod';
+// import { rateLimit } from '@/utils/rate-limit';
 
 // ...existing code...
 
@@ -15,16 +14,16 @@ export async function GET(request: Request) {
     const filterRating = searchParams.get('rating');
     const verified = searchParams.get('verified') === 'true';
 
-    const reviews = await getCollection('reviews');
+  const reviews = await getCollection('reviews');
 
     // Build filter
-    const filter: any = { status: 'approved' };
+  const filter: Record<string, unknown> = { status: 'approved' };
     if (listingSlug) filter.listingSlug = listingSlug;
     if (filterRating) filter.rating = parseInt(filterRating);
     if (verified) filter.verified = true;
 
     // Build sort
-    const sort: any = {};
+  const sort: Record<string, 1 | -1> = {};
     switch (sortBy) {
       
       case 'helpful':
@@ -45,12 +44,19 @@ export async function GET(request: Request) {
       reviews.countDocuments(filter)
     ]);
 
+    type ReviewDoc = {
+      verified?: boolean;
+      helpfulCount?: number;
+      reviewerEmail?: string;
+      [key: string]: unknown;
+    };
+
     const response = {
-      reviews: results.map((review: any) => ({
+      reviews: (results as ReviewDoc[]).map((review) => ({
         ...review,
         reviewerEmail: undefined,
-        isVerified: review.verified || false,
-        isHelpful: review.helpfulCount > 0,
+        isVerified: Boolean(review.verified),
+        isHelpful: (review.helpfulCount ?? 0) > 0,
       })),
       pagination: {
         page,
@@ -69,7 +75,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST() {
   // ...existing code...
 }
 
