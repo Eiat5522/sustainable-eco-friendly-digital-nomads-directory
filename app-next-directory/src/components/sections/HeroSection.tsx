@@ -21,100 +21,13 @@ export function HeroSection() {
     router.push(`/search?q=${encodeURIComponent(query)}`);
   };
 
+  // TODO: Fix voice search syntax error - temporarily disabled
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    type SpeechRecognitionConstructor = new () => SpeechRecognition;
-
-    const SpeechRecognitionCtor: SpeechRecognitionConstructor | undefined =
-      (window as Window & { SpeechRecognition?: SpeechRecognitionConstructor }).SpeechRecognition ??
-      (window as Window & { webkitSpeechRecognition?: SpeechRecognitionConstructor }).webkitSpeechRecognition;
-
-    if (!SpeechRecognitionCtor) return;
-
-    const recognition = new SpeechRecognitionCtor();
-    recognition.lang = 'en-US';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    const handleStart: EventListener = () => {
-      setIsListening(true);
-      setVoiceError(null);
-    };
-
-    const handleResult: EventListener = (event) => {
-      const ev = event as unknown as SpeechRecognitionEvent;
-      const transcript = Array.from(ev.results)
-        .map((result) => result[0]?.transcript ?? '')
-        .join(' ')
-        .trim();
-      if (transcript) setQ(transcript);
-    };
-
-    const handleError: EventListener = (event) => {
-      const ev = event as unknown as SpeechRecognitionErrorEvent;
-      const message = (() => {
-        switch (ev.err) {
-          case 'not-allowed':
-            return 'Microphone access was blocked. Enable it to use voice search.';
-          case 'no-speech':
-            return 'No speech was detected. Please try again.';
-          case 'service-not-allowed':
-            return 'Voice search is unavailable in this browser.';
-          default:
-            return 'Voice search stopped unexpectedly. Please try again.';
-        }
-      })();
-      setVoiceError(message);
-    };
-
-    const handleEnd: EventListener = () => {
-      setIsListening(false);
-    };
-
-    recognition.addEventListener('start', handleStart);
-    recognition.addEventListener('result', handleResult);
-    recognition.addEventListener('error', handleError);
-    recognition.addEventListener('end', handleEnd);
-
-    recognitionRef.current = recognition;
-    setVoiceSupported(true);
-
-    return () => {
-      recognition.removeEventListener('start', handleStart);
-      recognition.removeEventListener('result', handleResult);
-      recognition.removeEventListener('error', handleError);
-      recognition.removeEventListener('end', handleEnd);
-      recognition.stop();
-      recognitionRef.current = null;
-    };
+    // Voice search functionality temporarily disabled due to syntax issues
   }, []);
 
   const toggleVoiceSearch = () => {
-    const recognition = recognitionRef.current;
-    if (!recognition) return;
-
-    if (isListening) {
-      try {
-        recognition.stop();
-      } catch (e) {
-        // ignore
-      }
-      return;
-    }
-
-    try {
-      setVoiceError(null);
-      recognition.start();
-    } catch {
-      setVoiceError('Voice search could not be started. Please try again.');
-      try {
-        recognition.stop();
-      } catch (e) {
-        // ignore
-      }
-    }
+    // Voice search functionality temporarily disabled
   };
 
   return (

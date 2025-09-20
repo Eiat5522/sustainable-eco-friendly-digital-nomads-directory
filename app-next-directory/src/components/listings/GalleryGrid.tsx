@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
 type Props = {
-  images: string[];
+  images: string[] | Array<{ url: string; alt?: string }>;
   fallback?: string;
 };
 
@@ -16,8 +16,18 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
   const nextBtnRef = useRef<HTMLButtonElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const hasValidImages = Array.isArray(images) && images.length > 0;
-  const cleanImages = hasValidImages ? images.filter((src) => src && src !== fallback) : [];
-  // If all images are the fallback (or none), don't render the gallery to avoid showing the cartoon placeholder
+  
+  // Normalize images to string array, handling both string[] and object[] formats
+  const normalizedImages = hasValidImages 
+    ? images.map((img) => typeof img === 'string' ? img : img.url).filter((src) => src)
+    : [];
+  
+  // For better UX, only filter out fallback if ALL images are the same fallback
+  // This allows mixed galleries and testing scenarios
+  const allAreFallback = normalizedImages.length > 0 && normalizedImages.every(src => src === fallback);
+  const cleanImages = allAreFallback ? [] : normalizedImages;
+    
+  // Show gallery even with fallback images for testing purposes
   if (cleanImages.length === 0) return null;
   const toShow: string[] = cleanImages;
 
@@ -81,7 +91,7 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
 
   return (
     <div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
         {toShow.map((src, idx) => (
           <button
             key={idx}
@@ -89,10 +99,10 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
               lastTriggerRef.current = e.currentTarget;
               setOpenIndex(idx);
             }}
-            className="relative w-full h-40 rounded overflow-hidden bg-gray-100"
+            className="relative w-full h-32 sm:h-36 md:h-40 rounded-lg overflow-hidden bg-gray-100 hover:shadow-lg transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label={`Open image ${idx + 1}`}
           >
-            <Image src={src} alt={`Gallery image ${idx + 1}`} fill className="object-cover" />
+            <Image src={src} alt={`Gallery image ${idx + 1}`} fill className="object-cover hover:scale-105 transition-transform duration-300" />
           </button>
         ))}
       </div>
@@ -108,16 +118,16 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
           ref={dialogRef}
           onKeyDown={onDialogKeyDown}
         >
-          <div className="relative max-w-[90vw] max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+          <div className="relative w-full max-w-4xl max-h-[90vh] mx-auto" onClick={(e) => e.stopPropagation()}>
             <button
               ref={closeBtnRef}
               onClick={closeModal}
-              className="absolute right-2 top-2 z-20 rounded bg-white/90 p-1"
+              className="absolute right-4 top-4 z-20 rounded-full bg-white/90 p-2 hover:bg-white transition-colors"
               aria-label="Close preview"
             >
               ✕
             </button>
-            <div className="w-full h-[70vh] relative bg-black">
+            <div className="w-full h-[80vh] relative bg-black rounded-lg overflow-hidden">
               <Image
                 src={(toShow[openIndex] as string) || fallback}
                 alt={`Preview ${openIndex + 1}`}
@@ -128,11 +138,11 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
             </div>
 
             {/* Prev / Next */}
-            <div className="mt-2 flex justify-between">
+            <div className="mt-4 flex justify-between px-4">
               <button
                 ref={prevBtnRef}
                 onClick={goPrev}
-                className="rounded bg-white/90 px-3 py-1"
+                className="rounded-lg bg-white/90 hover:bg-white px-4 py-2 font-medium transition-colors"
                 aria-label="Previous image"
               >
                 ‹ Prev
@@ -140,7 +150,7 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
               <button
                 ref={nextBtnRef}
                 onClick={goNext}
-                className="rounded bg-white/90 px-3 py-1"
+                className="rounded-lg bg-white/90 hover:bg-white px-4 py-2 font-medium transition-colors"
                 aria-label="Next image"
               >
                 Next ›
