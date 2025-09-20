@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { signOut, useSession } from 'next-auth/react'
 import { DoorOpen, Menu, User } from 'lucide-react'
 import Image from 'next/image'
+import { useCallback, useState } from 'react'
 
 export function Header() {
   const { data: session, status } = useSession()
@@ -11,6 +12,22 @@ export function Header() {
   const displayName = session?.user?.name ?? session?.user?.email ?? 'your account'
   const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? ''
   const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in'
+  const [signingOut, setSigningOut] = useState(false)
+
+  const handleSignOut = useCallback(async () => {
+    if (signingOut) return
+    setSigningOut(true)
+    try {
+      await signOut({ redirectTo: '/' })
+    } catch (error) {
+      console.error('[auth] sign out failed', error)
+      if (typeof window !== 'undefined') {
+        window.location.href = '/api/auth/signout?callbackUrl=/'
+      }
+    } finally {
+      setSigningOut(false)
+    }
+  }, [])
 
   return (
     <header className="w-full bg-background border-b-4 border-neo-border">
@@ -71,16 +88,19 @@ export function Header() {
                 <button
                   type="button"
                   onClick={() => {
-                    void signOut({ callbackUrl: '/' })
+                    void handleSignOut()
                   }}
                   className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center text-neo-text-secondary transition hover:text-neo-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
                   aria-label="Sign out"
                   title={accountLabel}
+                  disabled={signingOut}
+                  aria-disabled={signingOut}
                 >
                   <span className="sr-only">Sign out</span>
                   <DoorOpen size={20} aria-hidden="true" focusable="false" />
                 </button>
               ) : (
+
                 <Link href="/auth" aria-label="Sign in">
                   <span
                     className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center text-neo-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"

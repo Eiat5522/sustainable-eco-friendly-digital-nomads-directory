@@ -4,8 +4,33 @@ import LoginForm from './LoginForm';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import Link from 'next/link';
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { getBaseUrl } from '@/lib/absolute-url';
+import { sanitizeCallbackUrl } from '@/lib/auth/callbackUrl';
 
-export default function LoginPage() {
+type LoginPageSearchParams = Readonly<{ callbackUrl?: string | string[] }>;
+
+type LoginPageProps = Readonly<{
+  searchParams?: LoginPageSearchParams | Promise<LoginPageSearchParams>;
+}>;
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const session = await auth();
+  const sp = await Promise.resolve(searchParams ?? {});
+  const rawCallback = Array.isArray(sp.callbackUrl) ? sp.callbackUrl[0] : sp.callbackUrl;
+
+  if (session) {
+    let baseOrigin: string | undefined;
+    try {
+      baseOrigin = await getBaseUrl();
+    } catch {
+      baseOrigin = undefined;
+    }
+    const safeCallback = sanitizeCallbackUrl(rawCallback, baseOrigin);
+    redirect(safeCallback ?? '/');
+  }
+
   return (
     <>
       <Header />

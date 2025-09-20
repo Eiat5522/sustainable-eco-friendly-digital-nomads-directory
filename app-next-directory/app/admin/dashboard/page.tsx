@@ -7,6 +7,52 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
+const analyticsHighlights = [
+  { id: 'active-members', title: 'Active members', value: '12,450', change: '+5.2%' },
+  { id: 'listings-in-review', title: 'Listings awaiting review', value: '132', change: '-12%' },
+  { id: 'new-signups', title: 'Weekly signups', value: '486', change: '+8.4%' },
+  { id: 'support-queue', title: 'Open support requests', value: '27', change: '-3' },
+];
+
+export default function AdminDashboardPage() {
+  return (
+    <main className="container mx-auto space-y-12 px-4 py-16" data-testid="admin-dashboard">
+      <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="space-y-3">
+          <h1 className="heading-lg">Admin Dashboard</h1>
+          <p className="max-w-3xl text-base text-neo-text-secondary">
+            Monitor community health and moderate member activity.
+          </p>
+        </div>
+        <div className="neo-card flex w-full flex-col gap-3 rounded-2xl bg-white/90 p-6 backdrop-blur lg:w-auto">
+          <p className="text-sm font-semibold uppercase tracking-wide text-neo-text-secondary">Last refresh</p>
+          <p className="text-2xl font-semibold">12 minutes ago</p>
+        </div>
+      </header>
+
+      <section className="space-y-8">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          {analyticsHighlights.map((h) => (
+            <article key={h.id} className="neo-card rounded-2xl bg-white/90 p-6">
+              <h3 className="text-sm font-semibold text-neo-text-secondary">{h.title}</h3>
+              <p className="mt-2 text-3xl font-semibold text-neo-text-primary">{h.value}</p>
+              <p className="text-sm text-neo-text-secondary mt-2">{h.change}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
+}
+export const dynamic = 'force-static';
+
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Admin Dashboard',
+  robots: { index: false, follow: false },
+};
+
 type ChangeTone = 'positive' | 'negative' | 'neutral';
 
 const changeToneStyles: Record<ChangeTone, string> = {
@@ -324,13 +370,14 @@ export default function AdminDashboardPage() {
                       </button>
                       <button
                         type="button"
-                        className="neo-button neo-button-hover rounded-lg bg-emerald-400/80 px-3 py-1 text-xs text-white"
+                        className="neo-button neo-button-hover rounded-lg
+                        onClick={() => handleRestrict(entry.id)}
+                        aria-label={`Restrict ${entry.member}`} bg-emerald-400/80 px-3 py-1 text-xs text-white"
                       >
                         Approve
                       </button>
-                      <button
-                        type="button"
-                        className="neo-button neo-button-hover rounded-lg bg-rose-500 px-3 py-1 text-xs text-white"
+                        onClick={() => handleApprove(entry.id)}
+                        aria-label={`Approve ${entry.member}`}bg-rose-500 px-3 py-1 text-xs text-white"
                       >
                         Restrict
                       </button>
@@ -362,13 +409,31 @@ export default function AdminDashboardPage() {
                 Select workflow automations to run on the next maintenance window.
               </p>
             </header>
-            <form className="space-y-4">
+  const handleAutomationSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: Implement automation submission logic
+    console.log('Submitting automation form');
+  };
+
+            <form className="space-y-4" onSubmit={handleAutomationSubmit}>
               {automationOptions.map((option) => (
                 <label key={option.id} className="flex items-start gap-3 rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-4 text-sm">
                   <input
                     type="checkbox"
                     name="automation-options"
                     value={option.id}
+  const handleAutomationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // TODO: Implement automation option change logic
+    console.log('Automation option changed:', e.target.value, e.target.checked);
+  };
+
+  <input
+    type="checkbox"
+    name="automation-options"
+    value={option.id}
+    onChange={handleAutomationChange}
+    className="mt-1 h-5 w-5 rounded border-2 border-neo-border"
+  />
                     className="mt-1 h-5 w-5 rounded border-2 border-neo-border"
                   />
                   <span>
@@ -378,7 +443,7 @@ export default function AdminDashboardPage() {
                 </label>
               ))}
               <button
-                type="button"
+                type="submit"
                 className="neo-button neo-button-hover w-full rounded-xl bg-neo-primary px-4 py-2 text-sm text-white"
               >
                 Queue selected automations

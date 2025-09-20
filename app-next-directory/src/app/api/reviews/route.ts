@@ -4,11 +4,12 @@ import { auth } from '@/lib/auth';
 import { revalidateTag } from 'next/cache';
 import { hasFeaturePermission, UserRole } from '@/types/auth';
 import { structuredLogger, getRequestContext } from '@/lib/logger';
+import { ensureSanityUser } from '@/lib/sanity/user';
 
 export async function POST(request: Request) {
   const session = await auth();
 
-  const user = session?.user as { id?: string; role?: UserRole } | undefined;
+  const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
   const userId: string | undefined = user?.id;
   const userRole: UserRole = user?.role || 'unidentifiedUser';
   
@@ -41,12 +42,17 @@ export async function POST(request: Request) {
     }
 
     // Validate referenced documents to avoid dangling references
-    const [listingDoc, userDoc] = await Promise.all([
+    const [listingDoc, sanityUser] = await Promise.all([
       client.getDocument(listingId),
-      client.getDocument(userId),
+      ensureSanityUser({
+        id: userId,
+        name: user?.name ?? null,
+        email: user?.email ?? null,
+        role: userRole,
+      }),
     ]);
 
-    if (!listingDoc || !userDoc) {
+    if (!listingDoc || !sanityUser) {
       return NextResponse.json({ error: 'Invalid reference(s)' }, { status: 400 });
     }
 
@@ -63,7 +69,7 @@ export async function POST(request: Request) {
     const newReview = await client.create({
       _type: 'review',
       listing: { _type: 'reference', _ref: listingId },
-      user: { _type: 'reference', _ref: userId },
+      user: { _type: 'reference', _ref: sanityUser._id },
       rating,
       comment: comment.trim(),
       approved: false, // Reviews need approval by default

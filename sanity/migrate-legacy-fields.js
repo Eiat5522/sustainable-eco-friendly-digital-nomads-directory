@@ -1,4 +1,4 @@
-/*eslint no-undef: "error"*/
+/* eslint-env node */
 /**
  * Migration Sc;: Legacy Field Migration for Listings
  * 
@@ -12,6 +12,9 @@
  * 
  * Usage: node migrate-legacy-fields.js
  */
+
+import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import { client } from '../app-next-directory/src/lib/sanity/client'
 
@@ -119,7 +122,7 @@ async function migrateLegacyFields() {
       
       if (mutations.length > 0) {
         try {
-          const result = await client.mutate(mutations)
+          await client.mutate(mutations)
           console.log(`✅ Migrated ${mutations.length} listings in batch`)
         } catch (error) {
           console.error(`❌ Error in batch migration:`, error)
@@ -189,8 +192,18 @@ async function verifyMigration() {
   console.log(`Need status migration: ${stats.needsStatusMigration}`)
 }
 
-// Run migration
-if (require.main === module) {
+// Run migration when executed directly from the command line
+const isDirectExecution = (() => {
+  const entryFile = process.argv[1]
+
+  if (!entryFile) {
+    return false
+  }
+
+  return resolve(entryFile) === fileURLToPath(import.meta.url)
+})()
+
+if (isDirectExecution) {
   migrateLegacyFields()
     .then(() => verifyMigration())
     .then(() => {

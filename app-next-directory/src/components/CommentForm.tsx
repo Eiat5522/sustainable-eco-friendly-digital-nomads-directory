@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -11,6 +11,18 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
   const [content, setContent] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const router = useRouter();
+  const [callbackUrl, setCallbackUrl] = useState('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCallbackUrl(window.location.href);
+    }
+  }, []);
+
+  const handleSignIn = () => {
+    const target = callbackUrl || (typeof window !== 'undefined' ? window.location.href : '/auth/login');
+    void signIn(undefined, { callbackUrl: target });
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,7 +35,7 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
     }
 
     if (!session) {
-      await signIn(undefined, { callbackUrl: window.location.href });
+      handleSignIn();
       return;
     }
 
@@ -38,7 +50,7 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
       });
 
       if (res.status === 401) {
-        await signIn(undefined, { callbackUrl: window.location.href });
+        handleSignIn();
         return;
       }
 
@@ -47,15 +59,24 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
         return;
       }
 
-      if (res.ok) {
-        setContent('');
-        setSubmitted(true);
-        router.refresh();
-      } else {
-        const errorData = await res.json();
-        setError(errorData.error || 'Failed to submit comment');
-        console.error(`Failed to submit comment: ${res.status} ${res.statusText}`, await res.text());
-      }
+        if (res.ok) {
+          setContent('');
+          setSubmitted(true);
+          router.refresh();
+        } else {
+          const errorText = await res.text();
+          try {
+            const errorData = errorText ? JSON.parse(errorText) : null;
+            if (errorData && typeof errorData === 'object' && 'error' in errorData) {
+              setError((errorData as { error?: string }).error || 'Failed to submit comment');
+            } else {
+              setError('Failed to submit comment');
+            }
+          } catch {
+            setError('Failed to submit comment');
+          }
+          console.error(`Failed to submit comment: ${res.status} ${res.statusText}`, errorText);
+        }
     } catch (err) {
       console.error('Failed to submit comment', err);
       setError('Failed to submit comment. Please try again.');
@@ -63,6 +84,30 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
       setIsSubmitting(false);
     }
   };
+  if (status === 'loading') {
+    return (
+      <div className="mt-8" aria-busy="true">
+        <div className="h-32 w-full rounded-lg border-4 border-dashed border-gray-200 animate-pulse" />
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="mt-8 p-6 text-center bg-gray-50 border-4 border-dashed border-gray-300 rounded-lg">
+        <p className="text-lg font-semibold text-gray-700">Sign in to join the conversation.</p>
+        <p className="mt-2 text-sm text-gray-600">Log in to share your thoughts on this post.</p>
+        <button
+          type="button"
+          onClick={handleSignIn}
+          className="mt-4 px-6 py-3 bg-yellow-400 text-black font-semibold border-4 border-black rounded-lg shadow-lg hover:bg-yellow-500 focus:outline-none focus:ring-4 focus:ring-yellow-400 transition-all duration-300 ease-in-out"
+        >
+          Sign In to Comment
+        </button>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="mt-8">
       <label htmlFor="comment" className="sr-only">Comment</label>

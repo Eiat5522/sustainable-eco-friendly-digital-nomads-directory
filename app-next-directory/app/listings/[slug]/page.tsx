@@ -9,38 +9,63 @@ import type { ListingDetailDTO } from '@/types/dto';
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { auth } from '@/lib/auth';
+import type { UserRole } from '@/types/auth';
 
 type Props = { params: Promise<{ slug: string }> };
 
-async function fetchListingBySlug(slug: string): Promise<ListingDetailDTO | null> {
-  const query = groq`*[_type == "listing" && moderation.status == "published" && slug.current == $slug][0]{
-    _id,
-    name,
-    "slug": slug.current,
-    type,
-    shortDescription,
-    longDescription,
-    address,
-    location,
-    website,
-    priceRange,
-    contactPhone,
-    contactEmail,
-    primaryImage,
-    galleryImages,
-    ecoFocusTags[]->{ _id, name, slug },
-    digitalNomadFeatures[]->{ _id, name, slug },
-    amenities[]->{ _id, name, slug, icon, category },
-    city->{ _id, name, country, sustainabilityScore, highlights, "slug": slug.current },
-    coworkingDetails,
-    cafeDetails,
-    restaurantDetails,
-    activitiesDetails,
-    accommodationDetails,
-    moderation
-  }`;
+const LISTING_QUERY = groq`*[_type == "listing" && moderation.status == "published" && slug.current == $slug][0]{
+  _id,
+  name,
+  "slug": slug.current,
+  type,
+  shortDescription,
+  longDescription,
+  address,
+  location,
+  website,
+  priceRange,
+  contactPhone,
+  contactEmail,
+  primaryImage,
+  galleryImages,
+  ecoFocusTags[]->{ _id, name, slug },
+  digitalNomadFeatures[]->{ _id, name, slug },
+  amenities[]->{ _id, name, slug, icon, category },
+  city->{ _id, name, country, sustainabilityScore, highlights, "slug": slug.current },
+  coworkingDetails,
+  cafeDetails,
+  restaurantDetails,
+  activitiesDetails,
+  accommodationDetails,
+  moderation
+}`;
 
-  const raw = await client.fetch<SanityListing | null>(query, { slug });
+const RELATED_QUERY = groq`*[_type == "listing" && moderation.status == "published" && city._ref == $cityId && _id != $excludeId][0...6]{
+  _id,
+  name,
+  "slug": slug.current,
+  priceRange,
+  "imageUrl": coalesce(primaryImage.asset->url, ""),
+  ecoFocusTags[]->{ name },
+  city->{ _id, name, country, "slug": slug.current }
+}`;
+
+const REVIEWS_QUERY = groq`*[_type == "review" && listing._ref == $listingId && approved == true] | order(createdAt desc) {
+  _id,
+  rating,
+  comment,
+  createdAt,
+  user->{
+    name,
+    image
+  }
+}`;
+
+const FAVORITE_QUERY = groq`*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]{ _id }`;
+
+async function fetchListingBySlug(slug: string): Promise<ListingDetailDTO | null> {
+  const raw = await client.fetch<SanityListing | null>(LISTING_QUERY, { slug });
   if (!raw) return null;
   try {
     return transformToDetailDTO(raw);
@@ -50,25 +75,11 @@ async function fetchListingBySlug(slug: string): Promise<ListingDetailDTO | null
   }
 }
 
-export default async function ListingPage({ params }: Props) {
-  const { slug } = await params;
-  const listing = await fetchListingBySlug(slug);
-  if (!listing) notFound();
-
-  // Fetch related listings: same city, published, exclude current
-  async function fetchRelatedListings(cityId?: string, excludeId?: string) {
-    if (!cityId) return [] as Array<{
-      id: string; name: string; slug: string; imageUrl: string; city: string | CityDTO | null; priceRange: 'budget'|'moderate'|'premium'; ecoFocusTags: string[];
-    }>;
-    const RELATED_QUERY = groq`*[_type == "listing" && moderation.status == "published" && city._ref == $cityId && _id != $excludeId][0...6]{
-      _id,
-      name,
-      "slug": slug.current,
-      priceRange,
-      "imageUrl": coalesce(primaryImage.asset->url, ""),
-      ecoFocusTags[]->{ name },
-      city->{ _id, name, country, "slug": slug.current }
-    }`;
+async function fetchRelatedListings(cityId?: string, excludeId?: string) {
+  if (!cityId) return [] as Array<{
+    id: string; name: string; slug: string; imageUrl: string; city: string | CityDTO | null; priceRange: 'budget'|'moderate'|'premium'; ecoFocusTags: string[];
+  }>;
+  try {
     const raw = await client.fetch<any[]>(RELATED_QUERY, { cityId, excludeId });
     return (raw ?? []).map((r) => ({
       id: r._id,
@@ -79,9 +90,75 @@ export default async function ListingPage({ params }: Props) {
       priceRange: (['budget','moderate','premium'] as const).includes(r.priceRange) ? r.priceRange : 'moderate',
       ecoFocusTags: Array.isArray(r.ecoFocusTags) ? r.ecoFocusTags.map((x: any) => x?.name).filter(Boolean) : [],
     }));
+  } catch (error) {
+    console.error('[listings/[slug]] failed to fetch related listings', error);
+    return [];
   }
+}
 
-  const relatedListings = await fetchRelatedListings(listing.city?.id, listing.id);
+async function fetchReviews(listingId: string) {
+  try {
+    const raw = await client.fetch<any[]>(REVIEWS_QUERY, { listingId });
+    return (Array.isArray(raw) ? raw : [])
+      .map((review) => {
+        const id = typeof review._id === 'string' ? review._id : undefined;
+        const rating = Number(review.rating);
+        if (!id || !Number.isFinite(rating) || rating <= 0) {
+          return null;
+        }
+        const comment = typeof review.comment === 'string' ? review.comment : '';
+        const createdAt = typeof review.createdAt === 'string' ? review.createdAt : new Date().toISOString();
+        const nameSource = typeof review.user?.name === 'string' ? review.user.name : '';
+        const userName = nameSource.trim().length > 0 ? nameSource : 'Anonymous';
+        const userImage = typeof review.user?.image === 'string' && review.user.image.length > 0 ? review.user.image : undefined;
+        return {
+          id,
+          rating,
+          comment,
+          createdAt,
+          user: { name: userName, image: userImage },
+        };
+      })
+      .filter((review): review is {
+        id: string;
+        rating: number;
+        comment: string;
+        createdAt: string;
+        user: { name: string; image?: string };
+      } => Boolean(review));
+  } catch (error) {
+    console.error('[listings/[slug]] failed to fetch reviews', error);
+    return [];
+  }
+}
+
+async function checkIsFavorited(listingId: string, userId?: string): Promise<boolean> {
+  if (!userId) return false;
+  try {
+    const favorite = await client.fetch<{ _id?: string | null } | null>(FAVORITE_QUERY, { userId, listingId });
+    return Boolean(favorite?._id);
+  } catch (error) {
+    console.error('[listings/[slug]] failed to check favorite status', error);
+    return false;
+  }
+}
+
+export default async function ListingPage({ params }: Props) {
+  const { slug } = await params;
+  const sessionPromise = auth();
+  const listing = await fetchListingBySlug(slug);
+  if (!listing) notFound();
+
+  const session = await sessionPromise;
+  const user = session?.user as { id?: string; role?: UserRole } | undefined;
+  const userId = user?.id;
+  const isSignedIn = Boolean(session && userId);
+
+  const [relatedListings, reviews, isFavorited] = await Promise.all([
+    fetchRelatedListings(listing.city?.id, listing.id),
+    fetchReviews(listing.id),
+    checkIsFavorited(listing.id, userId),
+  ]);
 
   return (
     <>
@@ -89,10 +166,10 @@ export default async function ListingPage({ params }: Props) {
       <main>
         <ListingDetailView
           listing={listing}
-          reviews={[]}
+          reviews={reviews}
           relatedListings={relatedListings}
-          isSignedIn={false}
-          isFavorited={false}
+          isSignedIn={isSignedIn}
+          isFavorited={isFavorited}
         />
       </main>
       <Footer />

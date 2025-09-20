@@ -1,12 +1,11 @@
 import './globals.css'
 import 'leaflet/dist/leaflet.css'
 import type { Metadata } from 'next'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { cookies } from 'next/headers'
 import React from 'react'
 
 const inter = Inter({ subsets: ['latin'] })
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'SustainableNomads - Eco-Friendly Digital Nomad Directory',

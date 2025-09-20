@@ -1,20 +1,28 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
-import { hasFeaturePermission, UserRole } from '@/types/auth';
+import type { UserRole } from '@/types/auth';
+import { ensureSanityUser } from '@/lib/sanity/user';
 
 // Get user's favorites
 export async function GET() {
   const session = await auth();
 
-  const user = session?.user as { id?: string; role?: UserRole } | undefined;
+  const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
   const userId: string | undefined = user?.id;
-  
+
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
+    await ensureSanityUser({
+      id: userId,
+      name: user?.name ?? null,
+      email: user?.email ?? null,
+      role: user?.role ?? null,
+    });
+
     // Fetch user's favorites from Sanity
     const favorites = await client.fetch(
       `*[_type == "userFavorite" && user._ref == $userId] {
