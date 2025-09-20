@@ -4,7 +4,18 @@ import { getCollection } from '@/utils/db-helpers';
 
 // ...existing code...
 
-export async function GET(request: Request) {
+type ReviewsCollection = {
+  find: (filter: Record<string, unknown>) => {
+    sort: (s: Record<string, 1 | -1>) => {
+      skip: (n: number) => {
+        limit: (n: number) => { toArray: () => Promise<ReviewDoc[]> };
+      };
+    };
+  };
+  countDocuments: (filter: Record<string, unknown>) => Promise<number>;
+};
+
+export async function GET(request: Request, ctx?: { collection?: ReviewsCollection }) {
   try {
     const { searchParams } = new URL(request.url);
     const listingSlug = searchParams.get('listing');
@@ -14,7 +25,7 @@ export async function GET(request: Request) {
     const filterRating = searchParams.get('rating');
     const verified = searchParams.get('verified') === 'true';
 
-  const reviews = await getCollection('reviews');
+  const reviews: ReviewsCollection = _ctx?.collection ?? (await getCollection('reviews'));
 
     // Build filter
   const filter: Record<string, unknown> = { status: 'approved' };

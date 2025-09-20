@@ -1,17 +1,13 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
-import { Search, Mic } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function HeroSection() {
   const [q, setQ] = useState('');
-  const [voiceSupported, setVoiceSupported] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [voiceError, setVoiceError] = useState<string | null>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const router = useRouter();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -19,15 +15,6 @@ export function HeroSection() {
     const query = q.trim();
     if (!query) return;
     router.push(`/search?q=${encodeURIComponent(query)}`);
-  };
-
-  // TODO: Fix voice search syntax error - temporarily disabled
-  useEffect(() => {
-    // Voice search functionality temporarily disabled due to syntax issues
-  }, []);
-
-  const toggleVoiceSearch = () => {
-    // Voice search functionality temporarily disabled
   };
 
   return (
@@ -79,39 +66,15 @@ export function HeroSection() {
                 type="search"
                 aria-label="Search venues"
                 placeholder="Search 3,200+ sustainable venues"
-                className="pl-12 pr-16 h-16 text-lg bg-white"
+                className="pl-12 pr-28 h-16 text-lg bg-white"
                 name="q"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
               />
-              <NeoButton type="submit" className="absolute right-12 top-1/2 -translate-y-1/2" size="md">
+              <NeoButton type="submit" className="absolute right-4 top-1/2 -translate-y-1/2" size="md">
                 Search
               </NeoButton>
-              <button
-                type="button"
-                aria-label={voiceSupported ? (isListening ? 'Stop voice search' : 'Start voice search') : 'Voice search not supported'}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!voiceSupported}
-                onClick={toggleVoiceSearch}
-                aria-pressed={isListening}
-                title={voiceSupported ? (isListening ? 'Stop voice search' : 'Start voice search') : 'Voice search is not supported in this browser'}
-              >
-                <Mic
-                  aria-hidden="true"
-                  focusable="false"
-                  className={isListening ? 'text-white' : 'text-neo-text-secondary'}
-                  size={20}
-                />
-              </button>
             </div>
-            <div className="sr-only" aria-live="polite">
-              {isListening ? 'Listening for your search query.' : voiceError ? voiceError : voiceSupported ? 'Voice search ready.' : 'Voice search not supported.'}
-            </div>
-            {voiceError && (
-              <p className="mt-2 text-sm text-red-200" role="alert">
-                {voiceError}
-              </p>
-            )}
           </form>
         </div>
       </div>

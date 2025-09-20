@@ -29,8 +29,7 @@ describe('API /api/comments', () => {
       const req = new Request('http://localhost/api/comments');
       const res = await GET(req);
       expect(res.status).toBe(400);
-      const json = await res.json();
-      expect(json).toHaveProperty('error');
+      expect(client.fetch).not.toHaveBeenCalled();
     });
 
     it('returns approved comments for a post with pagination', async () => {

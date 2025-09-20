@@ -128,6 +128,12 @@ jest.mock('next/dist/server/web/spec-extension/response', () => ({
   },
 }));
 
+// Provide a default mock for ensureSanityUser to be ESM-safe; tests can override as needed
+jest.mock('@/lib/sanity/user', () => ({
+  __esModule: true,
+  ensureSanityUser: jest.fn(),
+}));
+
 // Ensure ApiResponseHandler is mockable across ESM boundaries for all tests
 // Note: individual tests can override via jest.unmock('@/utils/api-response') before import
 jest.mock('@/utils/api-response', () => {

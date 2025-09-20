@@ -1,3 +1,4 @@
+// Sanity client with ESM/CJS interop helpers. Tests typically mock this module.
 /**
  * Sanity Client Configuration
  * 

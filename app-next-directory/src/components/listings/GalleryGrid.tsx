@@ -102,7 +102,32 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
             className="relative w-full h-32 sm:h-36 md:h-40 rounded-lg overflow-hidden bg-gray-100 hover:shadow-lg transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label={`Open image ${idx + 1}`}
           >
-            <Image src={src} alt={`Gallery image ${idx + 1}`} fill className="object-cover hover:scale-105 transition-transform duration-300" />
+{toShow.map((src, idx) => {
+  // Find the original image data that matches this src
+  const originalIdx = hasValidImages ? images.findIndex(img =>
+    (typeof img === 'string' ? img : img.url) === src
+  ) : -1;
+  const originalImg = originalIdx >= 0 ? images[originalIdx] : null;
+          
+  return (
+    <button
+      key={idx}
+      onClick={(e) => {
+        lastTriggerRef.current = e.currentTarget;
+        setOpenIndex(idx);
+      }}
+      className="relative w-full h-32 sm:h-36 md:h-40 rounded-lg overflow-hidden bg-gray-100 hover:shadow-lg transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      aria-label={`Open image ${idx + 1}`}
+    >
+      <Image 
+        src={src}
+        alt={originalImg && typeof originalImg === 'object' ? (originalImg.alt || `Gallery image ${idx + 1}`) : `Gallery image ${idx + 1}`}
+        fill 
+        className="object-cover hover:scale-105 transition-transform duration-300" 
+      />
+    </button>
+  );
+})}
           </button>
         ))}
       </div>
