@@ -13,7 +13,7 @@ jest.mock('@/lib/sanity/user', () => ({ ensureSanityUser: jest.fn() }));
 
 // Create a proper jest mock for revalidateTag
 const mockRevalidateTag = jest.fn();
-jest.mock('next/cache', () => ({ revalidateTag: mockRevalidateTag }));
+jest.mock('next/cache', () => ({ __esModule: true, revalidateTag: mockRevalidateTag }));
 
 // Import after mocks to receive mocked versions
 import { GET, POST } from './route';
@@ -63,6 +63,19 @@ describe('API /api/comments', () => {
       expect(json).toHaveProperty('error');
     });
 
+    it('rejects users without comment permissions', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'unidentifiedUser', name: 'User' } });
+      const req = new Request('http://localhost/api/comments', {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Permission check', postId: 'p1' }),
+      });
+
+      const res = await POST(req);
+      expect(res.status).toBe(403);
+      await expect(res.json()).resolves.toEqual({ error: 'Forbidden: Insufficient permissions to create comments' });
+      expect(client.create).not.toHaveBeenCalled();
+    });
+
     it('creates a comment and revalidates tag', async () => {
       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' } });
       (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
@@ -75,13 +88,80 @@ describe('API /api/comments', () => {
       });
 
       const res = await POST(req);
-      console.log('DEBUG: Response status:', res.status);
       const json = await res.json();
-      console.log('DEBUG: Response body:', json);
       expect(res.status).toBe(201);
       expect(json.success).toBe(true);
       expect(json.data).toMatchObject({ _id: 'comment1' });
-      expect(mockRevalidateTag).toHaveBeenCalledWith('post:post-slug');
+      expect(client.create).toHaveBeenCalledWith({
+        _type: 'comment',
+        post: { _type: 'reference', _ref: 'p1' },
+        user: { _type: 'reference', _ref: 'user1' },
+        content: 'Great article!',
+        approved: false,
+      });
+    });
+
+    it('returns validation error when fields are missing or invalid', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+
+      const res = await POST(
+        new Request('http://localhost/api/comments', {
+          method: 'POST',
+          body: JSON.stringify({ content: 'Test', postId: null }),
+        })
+      );
+
+      expect(res.status).toBe(422);
+      await expect(res.json()).resolves.toEqual({ error: 'Invalid or missing fields' });
+      expect(client.create).not.toHaveBeenCalled();
+    });
+
+    it('trims content and rejects empty comments', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+
+      const res = await POST(
+        new Request('http://localhost/api/comments', {
+          method: 'POST',
+          body: JSON.stringify({ content: '   ', postId: 'p1' }),
+        })
+      );
+
+      expect(res.status).toBe(422);
+      await expect(res.json()).resolves.toEqual({ error: 'Comment is required' });
+      expect(client.create).not.toHaveBeenCalled();
+    });
+
+    it('returns 400 when the referenced post cannot be found', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
+
+      const res = await POST(
+        new Request('http://localhost/api/comments', {
+          method: 'POST',
+          body: JSON.stringify({ content: 'Missing post', postId: 'missing-post' }),
+        })
+      );
+
+      expect(res.status).toBe(400);
+      await expect(res.json()).resolves.toEqual({ error: 'Invalid reference(s)' });
+      expect(client.create).not.toHaveBeenCalled();
+    });
+
+    it('returns 500 when comment creation throws an unexpected error', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
+      (client.create as jest.Mock).mockRejectedValueOnce(new Error('Sanity failure'));
+
+      const res = await POST(
+        new Request('http://localhost/api/comments', {
+          method: 'POST',
+          body: JSON.stringify({ content: 'Unexpected failure', postId: 'p1' }),
+        })
+      );
+
+      expect(res.status).toBe(500);
+      await expect(res.json()).resolves.toEqual({ error: 'Internal Server Error' });
+      expect(mockRevalidateTag).not.toHaveBeenCalled();
     });
   });
 });
