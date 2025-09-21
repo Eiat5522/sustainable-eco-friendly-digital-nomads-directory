@@ -10,14 +10,16 @@ jest.mock('@/lib/sanity/client', () => ({
   },
 }));
 jest.mock('@/lib/sanity/user', () => ({ ensureSanityUser: jest.fn() }));
-jest.mock('next/cache', () => ({ revalidateTag: jest.fn() }));
+
+// Create a proper jest mock for revalidateTag
+const mockRevalidateTag = jest.fn();
+jest.mock('next/cache', () => ({ revalidateTag: mockRevalidateTag }));
 
 // Import after mocks to receive mocked versions
 import { GET, POST } from './route';
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import { ensureSanityUser } from '@/lib/sanity/user';
-import { revalidateTag } from 'next/cache';
 
 describe('API /api/comments', () => {
   beforeEach(() => {
@@ -73,11 +75,13 @@ describe('API /api/comments', () => {
       });
 
       const res = await POST(req);
-      expect(res.status).toBe(201);
+      console.log('DEBUG: Response status:', res.status);
       const json = await res.json();
+      console.log('DEBUG: Response body:', json);
+      expect(res.status).toBe(201);
       expect(json.success).toBe(true);
       expect(json.data).toMatchObject({ _id: 'comment1' });
-      expect(revalidateTag).toHaveBeenCalledWith('post:post-slug');
+      expect(mockRevalidateTag).toHaveBeenCalledWith('post:post-slug');
     });
   });
 });

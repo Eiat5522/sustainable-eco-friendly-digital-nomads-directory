@@ -37,7 +37,7 @@ describe('dbConnect', () => {
     process.env.MONGODB_URI = '';
     jest.resetModules();
     const dbConnect = require('../dbConnect').default;
-    await expect(dbConnect()).rejects.toThrow(/Invalid or missing MONGODB_URI/);
+    await expect(dbConnect()).rejects.toThrow(/MONGODB_URI environment variable is required/);
   });
 
   it('returns cached connection if present', async () => {
