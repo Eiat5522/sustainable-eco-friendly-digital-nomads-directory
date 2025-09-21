@@ -4,6 +4,13 @@ import { getCollection } from '@/utils/db-helpers';
 
 // ...existing code...
 
+type ReviewDoc = {
+  verified?: boolean;
+  helpfulCount?: number;
+  reviewerEmail?: string;
+  [key: string]: unknown;
+};
+
 type ReviewsCollection = {
   find: (filter: Record<string, unknown>) => {
     sort: (s: Record<string, 1 | -1>) => {
@@ -19,24 +26,24 @@ export async function GET(request: Request, ctx?: { collection?: ReviewsCollecti
   try {
     const { searchParams } = new URL(request.url);
     const listingSlug = searchParams.get('listing');
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = Math.min(50, parseInt(searchParams.get('limit') || '10'));
+    const page = Math.max(1, Number.parseInt(searchParams.get('page') || '1') || 1);
+    const limit = Math.min(50, Math.max(1, Number.parseInt(searchParams.get('limit') || '10') || 10));
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const filterRating = searchParams.get('rating');
     const verified = searchParams.get('verified') === 'true';
 
-  const reviews: ReviewsCollection = _ctx?.collection ?? (await getCollection('reviews'));
+    const reviews: ReviewsCollection =
+      ctx?.collection ?? (await getCollection('reviews') as unknown as ReviewsCollection);
 
     // Build filter
-  const filter: Record<string, unknown> = { status: 'approved' };
+    const filter: Record<string, unknown> = { status: 'approved' };
     if (listingSlug) filter.listingSlug = listingSlug;
-    if (filterRating) filter.rating = parseInt(filterRating);
+    if (filterRating) filter.rating = Number.parseInt(filterRating);
     if (verified) filter.verified = true;
 
     // Build sort
-  const sort: Record<string, 1 | -1> = {};
+    const sort: Record<string, 1 | -1> = {};
     switch (sortBy) {
-      
       case 'helpful':
         sort.helpfulCount = -1;
         break;
@@ -54,13 +61,6 @@ export async function GET(request: Request, ctx?: { collection?: ReviewsCollecti
         .toArray(),
       reviews.countDocuments(filter)
     ]);
-
-    type ReviewDoc = {
-      verified?: boolean;
-      helpfulCount?: number;
-      reviewerEmail?: string;
-      [key: string]: unknown;
-    };
 
     const response = {
       reviews: (results as ReviewDoc[]).map((review) => ({
