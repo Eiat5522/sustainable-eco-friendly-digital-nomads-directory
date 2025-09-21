@@ -30,7 +30,7 @@ const createMockStarRating = {
   }
 };
 
-jest.mock('@/components/ui/StarRating', createMockStarRating);
+jest.mock('@/components/ui/StarRating', () => createMockStarRating);
 
 // Mock UI components
 jest.mock('@/components/ui/neo-card', () => ({
