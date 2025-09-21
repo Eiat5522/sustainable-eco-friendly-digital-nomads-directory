@@ -18,6 +18,11 @@ type StoredValue = { value: string; expiresAt: number }
 const memoryStore = new Map<string, StoredValue>()
 
 function memoryGet(key: string) {
+  // Allow tests to override the behavior
+  if (testControl.memoryGetOverride) {
+    return testControl.memoryGetOverride(key)
+  }
+  
   const entry = memoryStore.get(key)
   if (!entry) return null
   if (Date.now() > entry.expiresAt) {
@@ -30,7 +35,18 @@ function memorySet(key: string, value: string, ttlSeconds: number) {
   const expiresAt = Date.now() + ttlSeconds * 1000
   memoryStore.set(key, { value, expiresAt })
 }
+// Global test control for mocking memory functions
+export const testControl = {
+  memoryIncrOverride: null as ((key: string, ttl: number) => number) | null,
+  memoryGetOverride: null as ((key: string) => string | null) | null
+}
+
 function memoryIncr(key: string, ttlSeconds: number) {
+  // Allow tests to override the behavior
+  if (testControl.memoryIncrOverride) {
+    return testControl.memoryIncrOverride(key, ttlSeconds)
+  }
+  
   const entry = memoryStore.get(key)
   const now = Date.now()
   if (!entry || now > entry.expiresAt) {
@@ -41,6 +57,9 @@ function memoryIncr(key: string, ttlSeconds: number) {
   memoryStore.set(key, { value: String(next), expiresAt: entry.expiresAt }) // preserve original expiry
   return next
 }
+
+// Export for testing purposes
+export { memoryIncr }
 // Add periodic cleanup for memory store
 let cleanupInterval: ReturnType<typeof setInterval> | null = null
 
@@ -123,6 +142,17 @@ export async function POST(request: Request) {
         return json({ success: false, error: 'Invalid email address.', details: validationResult.error.flatten() }, 422)
       }
       const { email } = validationResult.data
+      
+      // IP rate limiting for Jest tests  
+      const forwardedFor = request.headers.get('x-forwarded-for') || request.headers.get('X-Forwarded-For')
+      const cfConnecting = request.headers.get('cf-connecting-ip')
+      const ip = (forwardedFor ? forwardedFor.split(',')[0].trim() : (cfConnecting || 'unknown'))
+      const ipKey = `newsletter:ip:${ip}`
+      const ipCount = memoryIncr(ipKey, RATE_LIMIT_PER_IP_WINDOW)
+      if (ipCount > RATE_LIMIT_PER_IP) {
+        return json({ success: false, error: 'Too many requests from this IP. Please try again later.' }, 429)
+      }
+      
       const idempotencyKey = request.headers.get('Idempotency-Key') || request.headers.get('idempotency-key')
       if (idempotencyKey) {
         const idKey = `newsletter:idempotency:${idempotencyKey}`

@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import { mockListings as testListings } from '@/tests/helpers/test-data'
+import { mockFeaturedVenues } from '@/components/sections/featuredVenuesMockData'
 
 export const handlers = [
   // Search endpoints to silence unhandled warnings where tests don't mock fetch
@@ -40,13 +41,8 @@ export const handlers = [
     return HttpResponse.json([], { status: 200 })
   }),
   http.get('/api/featured-listings', () => {
-    // Return a small, bounded subset of listings as featured for tests
-    const FEATURED_COUNT = 2
-    const featured = testListings
-      .slice(0, Math.min(FEATURED_COUNT, testListings.length))
-      .map(item => ({ ...item }))
-
-    return HttpResponse.json({ listings: featured }, { status: 200 })
+    // Return the same mock data that the FeaturedListings test expects
+    return HttpResponse.json({ listings: mockFeaturedVenues }, { status: 200 })
 
   }),
   http.get('/api/categories', () => {

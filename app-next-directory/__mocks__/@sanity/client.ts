@@ -5,6 +5,7 @@ export const createClient = jest.fn(() => ({
   create: jest.fn(() => Promise.resolve({ _id: 'mock-id' })),
   update: jest.fn(() => Promise.resolve({})),
   delete: jest.fn(() => Promise.resolve('')),
+  getDocument: jest.fn(() => Promise.resolve({ _id: 'mock-id' })),
 }));
 
 // Mock imageUrlBuilder if used
@@ -19,6 +20,7 @@ const mockClient = {
   create: jest.fn(() => Promise.resolve({ _id: 'mock-id' })),
   update: jest.fn(() => Promise.resolve({})),
   delete: jest.fn(() => Promise.resolve('')),
+  getDocument: jest.fn(() => Promise.resolve({ _id: 'mock-id' })),
 };
 
 export default mockClient;

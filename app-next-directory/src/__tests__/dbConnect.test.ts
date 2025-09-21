@@ -48,7 +48,7 @@ describe('dbConnect', () => {
     jest.doMock('mongoose', () => ({ connect: jest.fn().mockResolvedValue({ db: jest.fn() }) }), { virtual: true });
     const dbConnectModule = await import('../lib/dbConnect');
     const dbConnect = dbConnectModule.default;
-    const result = expect(dbConnect()).rejects.toThrow(/Invalid or missing MONGODB_URI/);
+    const result = expect(dbConnect()).rejects.toThrow(/MONGODB_URI environment variable is required/);
     process.env.MONGODB_URI = originalMongoUri; // Restore MONGODB_URI
     jest.dontMock('mongoose');
     return result;
@@ -162,7 +162,7 @@ describe('dbConnect', () => {
     jest.doMock('mongoose', () => ({ connect: jest.fn().mockResolvedValue({ db: jest.fn() }) }), { virtual: true });
     const dbConnectModule = await import('../lib/dbConnect');
     const dbConnect = dbConnectModule.default;
-    await expect(dbConnect()).rejects.toThrow(/Invalid or missing MONGODB_URI/);
+    await expect(dbConnect()).rejects.toThrow(/MONGODB_URI must be a valid MongoDB connection string/);
     jest.dontMock('mongoose');
   });
 
