@@ -10,8 +10,8 @@ jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
 }));
 
-// Mock StarRating component
-const createMockStarRating = {
+// Mock StarRating component (inline factory to avoid hoisting/TDZ issues)
+jest.mock('@/components/ui/StarRating', () => ({
   StarRating: function MockStarRating({ rating, interactive, onRatingChange }: any) {
     if (interactive && onRatingChange) {
       return (
@@ -28,9 +28,7 @@ const createMockStarRating = {
     }
     return <div data-testid="star-rating-display" data-rating={rating}>★★★★★</div>;
   }
-};
-
-jest.mock('@/components/ui/StarRating', () => createMockStarRating);
+}));
 
 // Mock UI components
 jest.mock('@/components/ui/neo-card', () => ({
@@ -103,12 +101,41 @@ jest.mock('next/link', () => {
 const mockFetch = jest.fn();
 global.fetch = mockFetch;
 
-// Mock window.location
-Object.defineProperty(window, 'location', {
-  value: {
-    href: 'http://localhost:3000/listings/test-listing',
-  },
-  writable: true,
+// Mock window.location in a resilient way (some test environments make this non-configurable)
+const originalLocation = window.location;
+try {
+  Object.defineProperty(window, 'location', {
+    value: { href: 'http://localhost:3000/listings/test-listing' },
+    writable: true,
+  });
+} catch (e) {
+  // Fallback: attempt to set href directly
+  try {
+    (window as any).location = { href: 'http://localhost:3000/listings/test-listing' };
+  } catch (err) {
+    // As a last resort, try assigning href (may be read-only in some environments)
+    try {
+      (window as any).location.href = 'http://localhost:3000/listings/test-listing';
+    } catch (noop) {
+      // Give up — tests should still run but location won't be mocked
+    }
+  }
+}
+
+afterAll(() => {
+  // Restore original location if possible
+  try {
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+    });
+  } catch (e) {
+    try {
+      (window as any).location = originalLocation;
+    } catch (err) {
+      // ignore
+    }
+  }
 });
 
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
