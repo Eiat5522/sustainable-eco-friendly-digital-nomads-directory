@@ -4,28 +4,25 @@ import mongoose from 'mongoose';
 import dbConnect from '@/lib/dbConnect';
 import { getRedisClient } from '@/lib/redis';
 
-const redis = getRedisClient();
-
-const loginLimiter = redis
-  ? new Ratelimit({
-      redis,
-      limiter: Ratelimit.slidingWindow(5, '1 m'),
-      analytics: true,
-      prefix: 'auth:login',
-    })
-  : undefined;
-
 export async function enforceLoginRateLimit(identifier: string): Promise<{ success: boolean; limit?: number; remaining?: number; reset?: number }> {
-
-  if (!loginLimiter) {
-    return { success: true };
-  }
   try {
-    return await loginLimiter.limit(identifier);
-  } catch (err) {
-    // Fail-open: if Redis/ratelimiter is unavailable or misconfigured,
-    // do NOT block user logins. Log for observability and allow the attempt.
-    console.warn('[auth] Login ratelimiter error; allowing attempt', err);
+    const redis = getRedisClient();
+    if (!redis) {
+      // Fail-open if Redis is unavailable
+      return { success: true };
+    }
+
+    const ratelimit = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, '10 m'), // Example: 5 requests per 10 minutes; adjust as needed
+      analytics: true,
+    });
+
+    const result = await ratelimit.limit(identifier);
+    return result;
+  } catch (error) {
+    console.warn('[auth] Login ratelimiter error; allowing attempt', error);
+    // Fail-open on any error
     return { success: true } as const;
   }
 }
@@ -63,6 +60,9 @@ export async function recordLoginAttempt(params: {
       createdAt: new Date(),
     });
   } catch (error) {
+    console.warn('[auth] Failed to record login attempt', error);
+  }
+}
     console.warn('[auth] Failed to record login attempt', error);
   }
 }
