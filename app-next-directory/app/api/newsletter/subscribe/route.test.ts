@@ -118,19 +118,19 @@ describe('newsletter subscribe API', () => {
 
   test('per-IP rate limit exceeded returns 429', async () => {
     process.env.JEST_WORKER_ID = process.env.JEST_WORKER_ID || '1'
-    await jest.isolateModules(async () => {
-      const mockMemoryIncr = jest.fn(async (key: string, _ttl: number) => {
-        if (key.includes('ip:')) return 11 // > RATE_LIMIT_PER_IP (10)
-        return 1
-      })
-      jest.doMock('./route', () => {
-        const actual = jest.requireActual('./route')
-        return {
-          ...actual,
-          memoryIncr: mockMemoryIncr,
-        }
-      })
-      const { POST } = await import('./route')
+    
+    // Import the route module
+    const routeModule = await import('./route')
+    
+    // Set up the override to return rate limit exceeded for IP keys
+    const originalOverride = routeModule.testControl.memoryIncrOverride
+    routeModule.testControl.memoryIncrOverride = (key: string, _ttl: number) => {
+      if (key.includes('ip:')) return 11 // > RATE_LIMIT_PER_IP (10)
+      return 1
+    }
+    
+    try {
+      const { POST } = routeModule
 
       const req = makeRequest({ email: 'rate-limited@example.com' })
       const res = await POST(req)
@@ -138,24 +138,27 @@ describe('newsletter subscribe API', () => {
       expect(res.headers.get('x-redis')).toBe('memory')
       const json = await res.json()
       expect(json).toMatchObject({ success: false, error: 'Too many requests from this IP. Please try again later.' })
-    })
+    } finally {
+      // Restore original
+      routeModule.testControl.memoryIncrOverride = originalOverride
+    }
   })
 
   test('per-email guard returns already subscribed message', async () => {
     process.env.JEST_WORKER_ID = process.env.JEST_WORKER_ID || '1'
-    await jest.isolateModules(async () => {
-      const mockMemoryGet = jest.fn(async (key: string) => {
-        if (key === 'newsletter:email:already@example.com') return '1'
-        return null
-      })
-      jest.doMock('./route', () => {
-        const actual = jest.requireActual('./route')
-        return {
-          ...actual,
-          memoryGet: mockMemoryGet,
-        }
-      })
-      const { POST } = await import('./route')
+    
+    // Import the route module
+    const routeModule = await import('./route')
+    
+    // Set up the override to return '1' for the specific email key
+    const originalOverride = routeModule.testControl.memoryGetOverride
+    routeModule.testControl.memoryGetOverride = (key: string) => {
+      if (key === 'newsletter:email:already@example.com') return '1'
+      return null
+    }
+    
+    try {
+      const { POST } = routeModule
 
       const req = makeRequest({ email: 'already@example.com' })
       const res = await POST(req)
@@ -163,6 +166,9 @@ describe('newsletter subscribe API', () => {
       expect(res.headers.get('x-redis')).toBe('memory')
       const json = await res.json()
       expect(json).toMatchObject({ success: true, message: 'Already subscribed recently.' })
-    })
+    } finally {
+      // Restore original
+      routeModule.testControl.memoryGetOverride = originalOverride
+    }
   })
 })

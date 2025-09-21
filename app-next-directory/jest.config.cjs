@@ -44,6 +44,8 @@ module.exports = {
     '^next-sanity$': '<rootDir>/__mocks__/next-sanity.js',
     '^mongoose$': '<rootDir>/__mocks__/mongoose.ts',
     'node-fetch': '<rootDir>/__mocks__/node-fetch.js',
+    '^embla-carousel-react$': '<rootDir>/__mocks__/embla-carousel-react.js',
+    '^embla-carousel-autoplay$': '<rootDir>/__mocks__/embla-carousel-autoplay.js',
     'leaflet/dist/leaflet.css$': '<rootDir>/__mocks__/leaflet/dist/leaflet.css.js',
     'leaflet.markercluster/dist/MarkerCluster.css$': '<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.css.js',
     'leaflet.markercluster/dist/MarkerCluster.Default.css$': '<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.Default.css.js',
