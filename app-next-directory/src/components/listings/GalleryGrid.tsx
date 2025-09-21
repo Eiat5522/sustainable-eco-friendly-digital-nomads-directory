@@ -28,8 +28,17 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
   const cleanImages = allAreFallback ? [] : normalizedImages;
     
   // Show gallery even with fallback images for testing purposes
-  if (cleanImages.length === 0) return null;
   const toShow: string[] = cleanImages;
+
+  // Precompute alt texts for thumbnails to avoid O(n^2) behavior from repeated findIndex calls
+  // Map each src in toShow to the corresponding original image's alt (or null)
+  const altTexts: Array<string | null> = toShow.map((src) => {
+    if (!hasValidImages) return null;
+    const originalIdx = images.findIndex((img) => (typeof img === 'string' ? img : img.url) === src);
+    const originalImg = originalIdx >= 0 ? images[originalIdx] : null;
+    if (originalImg && typeof originalImg === 'object') return originalImg.alt ?? null;
+    return null;
+  });
 
   const closeModal = () => {
     setOpenIndex(null);
@@ -39,8 +48,13 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
     });
   };
 
-  const goPrev = () => setOpenIndex((i) => (i === null ? null : (i - 1 + toShow.length) % toShow.length));
-  const goNext = () => setOpenIndex((i) => (i === null ? null : (i + 1) % toShow.length));
+  const goPrev = React.useCallback(() => {
+    setOpenIndex((i) => (i === null ? null : (i - 1 + toShow.length) % toShow.length));
+  }, [toShow.length]);
+
+  const goNext = React.useCallback(() => {
+    setOpenIndex((i) => (i === null ? null : (i + 1) % toShow.length));
+  }, [toShow.length]);
 
   // Keyboard handling: ESC to close, arrows to navigate while modal is open
   useEffect(() => {
@@ -63,7 +77,7 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
     return () => {
       window.removeEventListener("keydown", onKeyDown as EventListener);
     };
-  }, [openIndex]);
+  }, [openIndex, goPrev, goNext]);
 
   // Simple focus trap inside the dialog for Tab/Shift+Tab
   const onDialogKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -89,6 +103,10 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
     }
   };
 
+  // If there are no images to show, render nothing. This guard is placed after all hooks
+  // to comply with the Rules of Hooks (hooks must be called in the same order).
+  if (toShow.length === 0) return null;
+
   return (
     <div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
@@ -102,32 +120,12 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
             className="relative w-full h-32 sm:h-36 md:h-40 rounded-lg overflow-hidden bg-gray-100 hover:shadow-lg transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label={`Open image ${idx + 1}`}
           >
-{toShow.map((src, idx) => {
-  // Find the original image data that matches this src
-  const originalIdx = hasValidImages ? images.findIndex(img =>
-    (typeof img === 'string' ? img : img.url) === src
-  ) : -1;
-  const originalImg = originalIdx >= 0 ? images[originalIdx] : null;
-          
-  return (
-    <button
-      key={idx}
-      onClick={(e) => {
-        lastTriggerRef.current = e.currentTarget;
-        setOpenIndex(idx);
-      }}
-      className="relative w-full h-32 sm:h-36 md:h-40 rounded-lg overflow-hidden bg-gray-100 hover:shadow-lg transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      aria-label={`Open image ${idx + 1}`}
-    >
-      <Image 
-        src={src}
-        alt={originalImg && typeof originalImg === 'object' ? (originalImg.alt || `Gallery image ${idx + 1}`) : `Gallery image ${idx + 1}`}
-        fill 
-        className="object-cover hover:scale-105 transition-transform duration-300" 
-      />
-    </button>
-  );
-})}
+            <Image 
+              src={src}
+              alt={altTexts[idx] ?? `Gallery image ${idx + 1}`}
+              fill 
+              className="object-cover hover:scale-105 transition-transform duration-300" 
+            />
           </button>
         ))}
       </div>

@@ -2,7 +2,6 @@ import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
 // import { rateLimit } from '@/utils/rate-limit';
 
-// ...existing code...
 
 type ReviewDoc = {
   verified?: boolean;

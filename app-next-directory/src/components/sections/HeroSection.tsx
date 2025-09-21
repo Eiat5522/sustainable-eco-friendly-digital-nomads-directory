@@ -66,7 +66,7 @@ export function HeroSection() {
                 type="search"
                 aria-label="Search venues"
                 placeholder="Search 3,200+ sustainable venues"
-                className="pl-12 pr-28 h-16 text-lg bg-white"
+                className="pl-12 pr-20 h-16 text-lg bg-white"
                 name="q"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}

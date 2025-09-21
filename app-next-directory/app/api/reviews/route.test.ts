@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import type { MockedFunction } from 'jest';
 import { GET } from './route';
 
 describe('API /api/reviews GET', () => {
@@ -7,17 +8,32 @@ describe('API /api/reviews GET', () => {
     jest.restoreAllMocks();
   });
 
-  function setupRouteWithMock(docs: any[], totalCount?: number) {
-    const cursor: any = {};
-    cursor.sort = jest.fn().mockReturnValue(cursor);
-    cursor.skip = jest.fn().mockReturnValue(cursor);
-    cursor.limit = jest.fn().mockReturnValue(cursor);
-    cursor.toArray = async () => docs as any[];
+  // Strongly-typed mock interfaces for DB cursor and collection
+  type ReviewDoc = Record<string, unknown> & { _id?: string };
 
-    const collection: any = {
-      find: jest.fn().mockReturnValue(cursor),
-      countDocuments: async () => (totalCount ?? docs.length),
-    };
+  interface MockCursor {
+    sort: MockedFunction<() => MockCursor>;
+    skip: MockedFunction<() => MockCursor>;
+    limit: MockedFunction<() => MockCursor>;
+    toArray: MockedFunction<() => Promise<ReviewDoc[]>>;
+  }
+
+  interface MockCollection {
+    find: MockedFunction<(query?: Record<string, unknown>) => MockCursor>;
+    countDocuments: MockedFunction<() => Promise<number>>;
+  }
+
+  function setupRouteWithMock(docs: ReviewDoc[], totalCount?: number): { cursor: MockCursor; collection: MockCollection } {
+    const cursor = {} as unknown as MockCursor;
+    cursor.sort = jest.fn().mockReturnValue(cursor) as MockedFunction<() => MockCursor>;
+    cursor.skip = jest.fn().mockReturnValue(cursor) as MockedFunction<() => MockCursor>;
+    cursor.limit = jest.fn().mockReturnValue(cursor) as MockedFunction<() => MockCursor>;
+    cursor.toArray = jest.fn().mockResolvedValue(docs as ReviewDoc[]) as MockedFunction<() => Promise<ReviewDoc[]>>;
+
+    const collection = {
+      find: jest.fn().mockReturnValue(cursor) as MockedFunction<(q?: Record<string, unknown>) => MockCursor>,
+      countDocuments: jest.fn().mockResolvedValue((totalCount ?? docs.length) as number) as MockedFunction<() => Promise<number>>,
+    } as unknown as MockCollection;
 
     return { cursor, collection };
   }
