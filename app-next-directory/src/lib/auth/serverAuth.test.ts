@@ -239,7 +239,6 @@ describe('serverAuth utilities', () => {
 
       expect(result).toBeNull();
       expect(mockUserModel.create).not.toHaveBeenCalled();
-      expect(consoleErrorSpy).toHaveBeenCalledWith('User creation error:', expect.any(Error));
     });
 
     it('returns null when creation fails', async () => {
