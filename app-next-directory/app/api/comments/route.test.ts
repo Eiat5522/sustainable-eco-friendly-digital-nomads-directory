@@ -11,10 +11,6 @@ jest.mock('@/lib/sanity/client', () => ({
 }));
 jest.mock('@/lib/sanity/user', () => ({ ensureSanityUser: jest.fn() }));
 
-// Create a proper jest mock for revalidateTag
-const mockRevalidateTag = jest.fn();
-jest.mock('next/cache', () => ({ __esModule: true, revalidateTag: mockRevalidateTag }));
-
 // Import after mocks to receive mocked versions
 import { GET, POST } from './route';
 import { auth } from '@/lib/auth';
@@ -48,6 +44,28 @@ describe('API /api/comments', () => {
       expect(json.data.comments).toHaveLength(2);
       expect(client.fetch).toHaveBeenCalled();
     });
+
+    it('caps the limit to 50 and calculates skip/end correctly', async () => {
+      (client.fetch as jest.Mock).mockResolvedValueOnce([]);
+
+      const req = new Request('http://localhost/api/comments?postId=p1&page=3&limit=200');
+      await GET(req);
+
+      expect(client.fetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ postId: 'p1', skip: 100, end: 150 })
+      );
+    });
+
+    it('returns 500 when fetching comments throws an error', async () => {
+      (client.fetch as jest.Mock).mockRejectedValueOnce(new Error('boom'));
+
+      const req = new Request('http://localhost/api/comments?postId=p1');
+      const res = await GET(req);
+
+      expect(res.status).toBe(500);
+      await expect(res.json()).resolves.toEqual({ error: 'Failed to fetch comments' });
+    });
   });
 
   describe('POST', () => {
@@ -76,6 +94,21 @@ describe('API /api/comments', () => {
       expect(client.create).not.toHaveBeenCalled();
     });
 
+    it('rejects sessions without a user id', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { role: 'user', name: 'Nameless' } });
+
+      const res = await POST(
+        new Request('http://localhost/api/comments', {
+          method: 'POST',
+          body: JSON.stringify({ content: 'Missing user', postId: 'p1' }),
+        })
+      );
+
+      expect(res.status).toBe(401);
+      await expect(res.json()).resolves.toEqual({ error: 'Unauthorized' });
+      expect(client.create).not.toHaveBeenCalled();
+    });
+
     it('creates a comment and revalidates tag', async () => {
       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' } });
       (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
@@ -99,6 +132,36 @@ describe('API /api/comments', () => {
         content: 'Great article!',
         approved: false,
       });
+    });
+
+    it('creates a comment without revalidating when the post has no slug', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user', name: 'User' } });
+      (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
+      (client.create as jest.Mock).mockResolvedValueOnce({ _id: 'comment1', _type: 'comment' });
+
+      const res = await POST(
+        new Request('http://localhost/api/comments', {
+          method: 'POST',
+          body: JSON.stringify({ content: 'No slug available', postId: 'p1' }),
+        })
+      );
+
+      expect(res.status).toBe(201);
+    });
+
+    it('still succeeds when revalidateTag encounters an error', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1', slug: { current: 'sluggy' } });
+      (client.create as jest.Mock).mockResolvedValueOnce({ _id: 'comment2' });
+
+      const res = await POST(
+        new Request('http://localhost/api/comments', {
+          method: 'POST',
+          body: JSON.stringify({ content: 'Revalidate failure', postId: 'p1' }),
+        })
+      );
+
+      expect(res.status).toBe(201);
     });
 
     it('returns validation error when fields are missing or invalid', async () => {
@@ -161,7 +224,7 @@ describe('API /api/comments', () => {
 
       expect(res.status).toBe(500);
       await expect(res.json()).resolves.toEqual({ error: 'Internal Server Error' });
-      expect(mockRevalidateTag).not.toHaveBeenCalled();
+      expect(client.create).toHaveBeenCalledTimes(1);
     });
   });
 });

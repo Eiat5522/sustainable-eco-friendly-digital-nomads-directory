@@ -9,6 +9,7 @@ import { NeoButton } from '@/components/ui/neo-button';
 import { StarRating } from '@/components/ui/StarRating';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
+import { getCurrentHref } from '@/utils/navigation';
 
 interface Review {
   id: string;
@@ -27,6 +28,67 @@ interface ReviewsSectionProps {
   isSignedIn?: boolean;
 }
 
+export const canSubmitReview = (rating: number, comment: string) => {
+  return rating > 0 && comment.trim().length > 0;
+};
+
+interface SubmitReviewOptions {
+  review: { rating: number; comment: string };
+  listingId: string;
+  fetcher: typeof fetch;
+}
+
+type SubmitReviewResult =
+  | { type: 'success' }
+  | { type: 'unauthorized' }
+  | { type: 'forbidden' }
+  | { type: 'conflict' }
+  | { type: 'error'; message: string };
+
+export const submitReview = async ({ review, listingId, fetcher }: SubmitReviewOptions): Promise<SubmitReviewResult> => {
+  const trimmedComment = review.comment.trim();
+
+  if (!canSubmitReview(review.rating, trimmedComment)) {
+    return { type: 'error', message: 'Please provide a rating and comment.' };
+  }
+
+  const response = await fetcher('/api/reviews', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ rating: review.rating, comment: trimmedComment, listingId }),
+  });
+
+  if (response.status === 401) {
+    return { type: 'unauthorized' };
+  }
+
+  if (response.status === 403) {
+    return { type: 'forbidden' };
+  }
+
+  if (response.status === 409) {
+    return { type: 'conflict' };
+  }
+
+  if (response.ok) {
+    await response.json().catch(() => null);
+    return { type: 'success' };
+  }
+
+  let message = 'Failed to submit review';
+
+  try {
+    const errorData = await response.json();
+    if (errorData && typeof errorData.error === 'string' && errorData.error.trim().length > 0) {
+      message = errorData.error;
+    }
+  } catch (error) {
+    // Ignore JSON parsing issues and fall back to the generic message
+  }
+
+  return { type: 'error', message };
+};
+
 export function ReviewsSection({ reviews, listingId, isSignedIn = false }: ReviewsSectionProps) {
   const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,48 +98,36 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
   const router = useRouter();
 
   const handleSubmitReview = async () => {
-    if (!newReview.rating || !newReview.comment.trim()) return;
-
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
-      const res = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          rating: newReview.rating, 
-          comment: newReview.comment.trim(),
-          listingId 
-        }),
+      const result = await submitReview({
+        review: { rating: newReview.rating, comment: newReview.comment },
+        listingId,
+        fetcher: fetch,
       });
 
-      if (res.status === 401) {
-        // Redirect to login if not authenticated
-        // Use previously captured callbackUrl (safe for client-side redirects)
-        const cb = callbackUrl || '/';
-        router.push(`/auth/login?callbackUrl=${encodeURIComponent(cb)}`);
-        return;
-      }
-
-      if (res.status === 403) {
-        setError('You do not have permission to submit reviews.');
-        return;
-      }
-
-      if (res.status === 409) {
-        setError('You have already reviewed this listing.');
-        return;
-      }
-
-      if (res.ok) {
-        setNewReview({ rating: 0, comment: '' });
-        setSubmitted(true);
-        // Refresh the page to show the new review (pending approval)
-        router.refresh();
-      } else {
-        const errorData = await res.json();
-        setError(errorData.error || 'Failed to submit review');
+      switch (result.type) {
+        case 'unauthorized': {
+          const cb = callbackUrl || '/';
+          router.push(`/auth/login?callbackUrl=${encodeURIComponent(cb)}`);
+          return;
+        }
+        case 'forbidden':
+          setError('You do not have permission to submit reviews.');
+          return;
+        case 'conflict':
+          setError('You have already reviewed this listing.');
+          return;
+        case 'success':
+          setNewReview({ rating: 0, comment: '' });
+          setSubmitted(true);
+          router.refresh();
+          return;
+        case 'error':
+          setError(result.message);
+          return;
       }
     } catch (err) {
       console.error('Failed to submit review:', err);
@@ -88,10 +138,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
   };
 
   useEffect(() => {
-    // Only run in the browser
-    if (typeof window !== 'undefined') {
-      setCallbackUrl(window.location.href);
-    }
+    setCallbackUrl(getCurrentHref());
   }, []);
 
   const formatDate = (dateString: string) => {
@@ -165,7 +212,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
 
             <NeoButton
               onClick={handleSubmitReview}
-              disabled={!newReview.rating || !newReview.comment.trim() || isSubmitting}
+              disabled={!canSubmitReview(newReview.rating, newReview.comment) || isSubmitting}
               className="w-full md:w-auto"
             >
               {isSubmitting ? 'Submitting...' : 'Submit Review'}

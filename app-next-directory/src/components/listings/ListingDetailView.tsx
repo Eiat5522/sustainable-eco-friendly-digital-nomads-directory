@@ -7,6 +7,7 @@ import { ListingDetailsCard } from './ListingDetailsCard';
 import { ReviewsSection } from './ReviewsSection';
 import { RelatedListings } from './RelatedListings';
 import type { ListingDetailDTO, CityDTO } from '@/types/dto';
+import { getCurrentHref, redirectTo } from '@/utils/navigation';
 
 interface Review {
   id: string;
@@ -50,7 +51,8 @@ export function ListingDetailView({
     // Check if user is signed in first
     if (!isSignedIn) {
       // Redirect to login
-      window.location.href = `/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`;
+      const loginUrl = `/auth/login?callbackUrl=${encodeURIComponent(getCurrentHref())}`;
+      redirectTo(loginUrl);
       return;
     }
 
@@ -62,7 +64,8 @@ export function ListingDetailView({
 
       if (res.status === 401) {
         // Redirect to login if not authenticated
-        window.location.href = `/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`;
+        const loginUrl = `/auth/login?callbackUrl=${encodeURIComponent(getCurrentHref())}`;
+        redirectTo(loginUrl);
         return;
       }
 
@@ -89,12 +92,12 @@ export function ListingDetailView({
           />
 
           {/* Gallery Carousel */}
-            {/* Render modern gallery grid only when there are meaningful gallery images */}
-            {listing.galleryImages && listing.galleryImages.length > 0 && (
-              <div className="mt-8">
-                <GalleryGrid images={listing.galleryImages} fallback="/placeholder_image.png" />
-              </div>
-            )}
+          {/* Render modern gallery grid only when there are meaningful gallery images */}
+          {listing.galleryImages && listing.galleryImages.length > 0 && (
+            <div className="mt-8">
+              <GalleryGrid images={listing.galleryImages} fallback="/placeholder_image.png" />
+            </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
