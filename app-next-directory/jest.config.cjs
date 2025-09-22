@@ -46,7 +46,7 @@ module.exports = {
     'node-fetch': '<rootDir>/__mocks__/node-fetch.js',
     '^@/lib/dbConnect$': '<rootDir>/__mocks__/lib/dbConnect.ts',
     '^@/lib/redis$': '<rootDir>/__mocks__/lib/redis.ts',
-    '^@/lib/auth/adapter$': '<rootDir>/__mocks__/lib/auth/adapter.ts',
+    // '^@/lib/auth/adapter$': '<rootDir>/__mocks__/lib/auth/adapter.ts',
     '^@/lib/auth/config$': '<rootDir>/__mocks__/lib/auth/config.ts',
     '^@/lib/rate-limit$': '<rootDir>/__mocks__/lib/rate-limit.ts',
     '^@/lib/tokens$': '<rootDir>/__mocks__/lib/tokens.ts',

@@ -18,7 +18,7 @@ jest.mock('next-auth', () => ({
 }));
 
 jest.mock('next-auth/providers/credentials', () => ({
-  default: jest.fn(),
+  default: jest.fn((config) => config),  // Updated: Return the config object so authOptions.providers[0] is the provider with authorize
 }));
 
 jest.mock('@/lib/auth/adapter', () => ({
@@ -34,7 +34,6 @@ jest.mock('@/lib/auth/rateLimit', () => ({
   recordLoginAttempt: jest.fn(),
 }));
 
-jest.mock('@/lib/dbConnect', () => jest.fn());
 jest.mock('@/models/User', () => ({
   updateOne: jest.fn(),
 }));
