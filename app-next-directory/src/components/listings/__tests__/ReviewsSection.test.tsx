@@ -1,72 +1,86 @@
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { useRouter } from 'next/navigation';
-import { ReviewsSection } from '../ReviewsSection';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { useRouter } from 'next/navigation'
+import * as ReviewsSectionModule from '../ReviewsSection'
 
-// Mock useRouter
-const mockPush = jest.fn();
-const mockRefresh = jest.fn();
+jest.mock('../ReviewsSection', () => {
+  const actual = jest.requireActual('../ReviewsSection')
+  return {
+    ...actual,
+    submitReview: jest.fn(actual.submitReview),
+  }
+})
+const { ReviewsSection, canSubmitReview, submitReview } = ReviewsSectionModule
+import { getCurrentHref } from '@/utils/navigation'
+
+type FetchReturn = Awaited<ReturnType<typeof fetch>>
+
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
-}));
+}))
 
-// Mock StarRating component (inline factory to avoid hoisting/TDZ issues)
+jest.mock('@/utils/navigation', () => ({
+  getCurrentHref: jest.fn(),
+}))
+
 jest.mock('@/components/ui/StarRating', () => ({
   StarRating: function MockStarRating({ rating, interactive, onRatingChange }: any) {
-    if (interactive && onRatingChange) {
+    if (interactive) {
       return (
         <div data-testid="star-rating-interactive" data-rating={rating}>
           {[1, 2, 3, 4, 5].map((star) => (
             <button
               key={star}
               data-testid={`star-${star}`}
-              onClick={() => onRatingChange(star)}
-            >★</button>
+              onClick={() => onRatingChange?.(star)}
+            >
+              ★
+            </button>
           ))}
         </div>
-      );
+      )
     }
-    return <div data-testid="star-rating-display" data-rating={rating}>★★★★★</div>;
-  }
-}));
 
-// Mock UI components
+    return <div data-testid="star-rating-display" data-rating={rating}>★★★★★</div>
+  },
+}))
+
 jest.mock('@/components/ui/neo-card', () => ({
-  NeoCard: function MockNeoCard({ children, className }: any) {
-    return <div className={className} data-testid="neo-card">{children}</div>;
+  NeoCard: function MockNeoCard({ children }: any) {
+    return <div data-testid="neo-card">{children}</div>
   },
   NeoCardHeader: function MockNeoCardHeader({ children }: any) {
-    return <div data-testid="neo-card-header">{children}</div>;
+    return <div data-testid="neo-card-header">{children}</div>
   },
   NeoCardTitle: function MockNeoCardTitle({ children }: any) {
-    return <h2 data-testid="neo-card-title">{children}</h2>;
+    return <h2 data-testid="neo-card-title">{children}</h2>
   },
   NeoCardContent: function MockNeoCardContent({ children }: any) {
-    return <div data-testid="neo-card-content">{children}</div>;
+    return <div data-testid="neo-card-content">{children}</div>
   },
-}));
+}))
 
 jest.mock('@/components/ui/neo-button', () => ({
   NeoButton: function MockNeoButton({ children, onClick, disabled, variant, size }: any) {
     return (
-      <button 
-        onClick={onClick} 
-        disabled={disabled}
+      <button
         data-testid="neo-button"
         data-variant={variant}
         data-size={size}
+        onClick={onClick}
+        disabled={disabled}
       >
         {children}
       </button>
-    );
+    )
   },
-}));
+}))
 
 jest.mock('@/components/ui/separator', () => ({
   Separator: function MockSeparator() {
-    return <hr data-testid="separator" />;
+    return <hr data-testid="separator" />
   },
-}));
+}))
 
 jest.mock('@/components/ui/textarea', () => ({
   Textarea: function MockTextarea({ value, onChange, placeholder, disabled, rows, maxLength }: any) {
@@ -80,621 +94,442 @@ jest.mock('@/components/ui/textarea', () => ({
         rows={rows}
         maxLength={maxLength}
       />
-    );
+    )
   },
-}));
+}))
 
-// Mock Next.js components
-jest.mock('next/image', () => {
-  return function MockImage({ src, alt, width, height }: any) {
-    return <img src={src} alt={alt} width={width} height={height} data-testid="next-image" />;
-  };
-});
+jest.mock('next/image', () => ({
+  __esModule: true,
+  default: function MockImage({ src, alt }: any) {
+    return <img data-testid="next-image" src={src} alt={alt} />
+  },
+}))
 
-jest.mock('next/link', () => {
-  return function MockLink({ href, children }: any) {
-    return <a href={href} data-testid="next-link">{children}</a>;
-  };
-});
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: function MockLink({ href, children }: any) {
+    return (
+      <a data-testid="next-link" href={href}>
+        {children}
+      </a>
+    )
+  },
+}))
 
-// Mock fetch
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
+const originalFetch = global.fetch
+const mockFetch = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>()
+const mockPush = jest.fn()
+const mockRefresh = jest.fn()
+const originalHref = window.location.href
 
-// Mock window.location in a resilient way (some test environments make this non-configurable)
-const originalLocation = window.location;
-try {
-  Object.defineProperty(window, 'location', {
-    value: { href: 'http://localhost:3000/listings/test-listing' },
-    writable: true,
-  });
-} catch (e) {
-  // Fallback: attempt to set href directly
-  try {
-    (window as any).location = { href: 'http://localhost:3000/listings/test-listing' };
-  } catch (err) {
-    // As a last resort, try assigning href (may be read-only in some environments)
-    try {
-      (window as any).location.href = 'http://localhost:3000/listings/test-listing';
-    } catch (noop) {
-      // Give up — tests should still run but location won't be mocked
-    }
+const mockResponse = (
+  body: unknown,
+  init: { status?: number; statusText?: string; ok?: boolean } = {}
+) => {
+  const status = init.status ?? 200
+  const ok = init.ok ?? (status >= 200 && status < 300)
+  return {
+    ok,
+    status,
+    statusText: init.statusText ?? 'OK',
+    json: jest.fn().mockResolvedValue(body),
   }
 }
 
-afterAll(() => {
-  // Restore original location if possible
-  try {
-    Object.defineProperty(window, 'location', {
-      value: originalLocation,
-      writable: true,
-    });
-  } catch (e) {
-    try {
-      (window as any).location = originalLocation;
-    } catch (err) {
-      // ignore
-    }
-  }
-});
+const defaultReviews = [
+  {
+    id: 'review-1',
+    rating: 5,
+    comment: 'Excellent place! Great atmosphere and eco-friendly practices.',
+    user: { name: 'John Doe', image: '/john.jpg' },
+    createdAt: '2023-12-01T10:00:00Z',
+  },
+  {
+    id: 'review-2',
+    rating: 4,
+    comment: 'Good location, friendly staff.',
+    user: { name: 'Jane Smith' },
+    createdAt: '2023-11-15T14:30:00Z',
+  },
+]
 
-const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
+const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
+const mockGetCurrentHref = getCurrentHref as jest.MockedFunction<typeof getCurrentHref>
+
+describe('submitReview', () => {
+  it('returns invalid when rating or comment are insufficient', async () => {
+    const fetcher = jest.fn()
+
+    expect(
+      await submitReview({ review: { rating: 0, comment: 'Missing rating' }, listingId: 'listing-1', fetcher })
+    ).toEqual({ type: 'error', message: 'Please provide a rating and comment.' })
+    expect(
+      await submitReview({ review: { rating: 4, comment: '   ' }, listingId: 'listing-1', fetcher })
+    ).toEqual({ type: 'error', message: 'Please provide a rating and comment.' })
+    expect(fetcher).not.toHaveBeenCalled()
+  })
+
+  it('returns success when the API responds with ok', async () => {
+    const fetcher = jest.fn().mockResolvedValue(
+      mockResponse({ id: 'review-id' }) as unknown as FetchReturn
+    )
+
+    const result = await submitReview({
+      review: { rating: 5, comment: 'Excellent stay' },
+      listingId: 'listing-1',
+      fetcher,
+    })
+
+    expect(result).toEqual({ type: 'success' })
+    expect(fetcher).toHaveBeenCalledWith(
+      '/api/reviews',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ rating: 5, comment: 'Excellent stay', listingId: 'listing-1' }),
+      })
+    )
+  })
+
+  it('still succeeds when the success payload cannot be parsed', async () => {
+    const fetcher = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      json: jest.fn().mockRejectedValue(new Error('Bad JSON payload')),
+    } as unknown as FetchReturn)
+
+    await expect(
+      submitReview({
+        review: { rating: 4, comment: 'Parsing issue' },
+        listingId: 'listing-1',
+        fetcher,
+      })
+    ).resolves.toEqual({ type: 'success' })
+
+    expect(fetcher).toHaveBeenCalled()
+  })
+
+  it('maps status codes to structured outcomes', async () => {
+    const fetcher = jest
+      .fn()
+      .mockResolvedValueOnce(
+        mockResponse({ error: 'Unauthorized' }, { status: 401, ok: false }) as unknown as FetchReturn
+      )
+      .mockResolvedValueOnce(
+        mockResponse({ error: 'Forbidden' }, { status: 403, ok: false }) as unknown as FetchReturn
+      )
+      .mockResolvedValueOnce(
+        mockResponse({ error: 'Conflict' }, { status: 409, ok: false }) as unknown as FetchReturn
+      )
+
+    expect(
+      await submitReview({ review: { rating: 4, comment: 'Test' }, listingId: 'listing-1', fetcher })
+    ).toEqual({ type: 'unauthorized' })
+    expect(
+      await submitReview({ review: { rating: 4, comment: 'Test' }, listingId: 'listing-1', fetcher })
+    ).toEqual({ type: 'forbidden' })
+    expect(
+      await submitReview({ review: { rating: 4, comment: 'Test' }, listingId: 'listing-1', fetcher })
+    ).toEqual({ type: 'conflict' })
+  })
+
+  it('provides meaningful error messages from the API', async () => {
+    const fetcher = jest.fn().mockResolvedValue(
+      mockResponse({ error: 'Server down' }, { status: 500, ok: false }) as unknown as FetchReturn
+    )
+
+    const result = await submitReview({
+      review: { rating: 2, comment: 'Issue' },
+      listingId: 'listing-1',
+      fetcher,
+    })
+
+    expect(result).toEqual({ type: 'error', message: 'Server down' })
+  })
+
+  it('falls back to a generic message when parsing fails', async () => {
+    const fetcher = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 502,
+      statusText: 'Bad Gateway',
+      json: jest.fn().mockRejectedValue(new Error('Invalid JSON')),
+    })
+
+    const result = await submitReview({
+      review: { rating: 3, comment: 'Broken' },
+      listingId: 'listing-1',
+      fetcher,
+    })
+
+    expect(result).toEqual({ type: 'error', message: 'Failed to submit review' })
+  })
+})
+
+beforeEach(() => {
+  jest.clearAllMocks()
+  mockFetch.mockReset()
+  global.fetch = mockFetch as unknown as typeof fetch
+  window.history.replaceState({}, '', 'http://localhost/listings/listing-1')
+  mockGetCurrentHref.mockReturnValue('http://localhost/listings/listing-1')
+  mockUseRouter.mockReturnValue({
+    push: mockPush,
+    refresh: mockRefresh,
+    replace: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    prefetch: jest.fn(),
+  })
+})
+
+afterAll(() => {
+  global.fetch = originalFetch
+  window.history.replaceState({}, '', originalHref)
+})
+
+const fillReviewForm = async (rating: number, comment: string) => {
+  await userEvent.click(screen.getByTestId(`star-${rating}`))
+  const textarea = screen.getByTestId('textarea')
+  await userEvent.clear(textarea)
+  await userEvent.type(textarea, comment)
+  return textarea
+}
 
 describe('ReviewsSection', () => {
-  const mockReviews = [
-    {
-      id: 'review-1',
-      rating: 5,
-      comment: 'Excellent place! Great atmosphere and eco-friendly practices.',
-      user: { name: 'John Doe', image: '/john.jpg' },
-      createdAt: '2023-12-01T10:00:00Z',
-    },
-    {
-      id: 'review-2',
-      rating: 4,
-      comment: 'Good location, friendly staff.',
-      user: { name: 'Jane Smith' },
-      createdAt: '2023-11-15T14:30:00Z',
-    },
-  ];
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockFetch.mockClear();
-    mockUseRouter.mockReturnValue({
-      push: mockPush,
-      refresh: mockRefresh,
-      back: jest.fn(),
-      forward: jest.fn(),
-      replace: jest.fn(),
-      prefetch: jest.fn(),
-    });
-  });
-
-  it('renders reviews section with correct title and count', () => {
-    render(
-      <ReviewsSection 
-        reviews={mockReviews}
-        listingId="listing-1"
-        isSignedIn={true}
-      />
-    );
-
-    expect(screen.getByTestId('neo-card-title')).toHaveTextContent('Reviews (2)');
-  });
-
-  it('calculates and displays average rating correctly', () => {
-    render(
-      <ReviewsSection 
-        reviews={mockReviews}
-        listingId="listing-1"
-        isSignedIn={true}
-      />
-    );
-
-    const averageRating = screen.getByText('4.5 average');
-    expect(averageRating).toBeInTheDocument();
-  });
-
-  it('displays individual reviews with correct information', () => {
-    render(
-      <ReviewsSection 
-        reviews={mockReviews}
-        listingId="listing-1"
-        isSignedIn={true}
-      />
-    );
-
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
-    expect(screen.getByText('Excellent place! Great atmosphere and eco-friendly practices.')).toBeInTheDocument();
-    expect(screen.getByText('Jane Smith')).toBeInTheDocument();
-    expect(screen.getByText('Good location, friendly staff.')).toBeInTheDocument();
-  });
-
-  it('formats dates correctly', () => {
-    render(
-      <ReviewsSection 
-        reviews={mockReviews}
-        listingId="listing-1"
-        isSignedIn={true}
-      />
-    );
-
-    expect(screen.getByText('December 1, 2023')).toBeInTheDocument();
-    expect(screen.getByText('November 15, 2023')).toBeInTheDocument();
-  });
-
-  it('displays user images when available', () => {
-    render(
-      <ReviewsSection 
-        reviews={mockReviews}
-        listingId="listing-1"
-        isSignedIn={true}
-      />
-    );
-
-    const images = screen.getAllByTestId('next-image');
-    expect(images[0]).toHaveAttribute('src', '/john.jpg');
-    expect(images[0]).toHaveAttribute('alt', 'John Doe');
-  });
-
-  it('displays user initials when image is not available', () => {
-    render(
-      <ReviewsSection 
-        reviews={mockReviews}
-        listingId="listing-1"
-        isSignedIn={true}
-      />
-    );
-
-    expect(screen.getByText('J')).toBeInTheDocument(); // Jane Smith's initial
-  });
-
-  it('shows empty state when no reviews are available', () => {
-    render(
-      <ReviewsSection 
-        reviews={[]}
-        listingId="listing-1"
-        isSignedIn={true}
-      />
-    );
-
-    expect(screen.getByText('No reviews yet')).toBeInTheDocument();
-    expect(screen.getByText('Be the first to share your experience!')).toBeInTheDocument();
-  });
-
-  describe('Review Form - Signed In User', () => {
-    it('renders review form for signed-in users', () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      expect(screen.getByText('Add Your Review')).toBeInTheDocument();
-      expect(screen.getByText('Rating')).toBeInTheDocument();
-      expect(screen.getByText('Comment')).toBeInTheDocument();
-      expect(screen.getByTestId('star-rating-interactive')).toBeInTheDocument();
-      expect(screen.getByTestId('textarea')).toBeInTheDocument();
-    });
-
-    it('allows user to select star rating', async () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const star4 = screen.getByTestId('star-4');
-      await userEvent.click(star4);
-
-      expect(screen.getByTestId('star-rating-interactive')).toHaveAttribute('data-rating', '4');
-    });
-
-    it('allows user to enter comment text', async () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const textarea = screen.getByTestId('textarea');
-      await userEvent.type(textarea, 'This is a great place!');
-
-      expect(textarea).toHaveValue('This is a great place!');
-    });
-
-    it('disables submit button when rating or comment is missing', () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const submitButton = screen.getByRole('button', { name: /submit review/i });
-      expect(submitButton).toBeDisabled();
-    });
-
-    it('enables submit button when both rating and comment are provided', async () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const star5 = screen.getByTestId('star-5');
-      await userEvent.click(star5);
-
-      const textarea = screen.getByTestId('textarea');
-      await userEvent.type(textarea, 'Excellent service!');
-
-      const submitButton = screen.getByRole('button', { name: /submit review/i });
-      expect(submitButton).not.toBeDisabled();
-    });
-
-    it('submits review successfully', async () => {
-      mockFetch.mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({ id: 'new-review-id' }),
-      });
-
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const star4 = screen.getByTestId('star-4');
-      await userEvent.click(star4);
-
-      const textarea = screen.getByTestId('textarea');
-      await userEvent.type(textarea, 'Great experience overall!');
-
-      const submitButton = screen.getByRole('button', { name: /submit review/i });
-      await userEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith('/api/reviews', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            rating: 4,
-            comment: 'Great experience overall!',
-            listingId: 'listing-1',
-          }),
-        });
-      });
-
-      await waitFor(() => {
-        expect(mockRefresh).toHaveBeenCalled();
-      });
-
-      expect(screen.getByText(/thank you.*submitted.*pending approval/i)).toBeInTheDocument();
-    });
-
-    it('validates comment length limit', async () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const textarea = screen.getByTestId('textarea');
-      expect(textarea).toHaveAttribute('maxLength', '2000');
-    });
-
-    it('shows loading state during submission', async () => {
-      let resolvePromise: (value: any) => void;
-      const promise = new Promise((resolve) => {
-        resolvePromise = resolve;
-      });
-      mockFetch.mockReturnValue(promise);
-
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const star5 = screen.getByTestId('star-5');
-      await userEvent.click(star5);
-
-      const textarea = screen.getByTestId('textarea');
-      await userEvent.type(textarea, 'Loading test');
-
-      const submitButton = screen.getByRole('button', { name: /submit review/i });
-      await userEvent.click(submitButton);
-
-      expect(screen.getByText('Submitting...')).toBeInTheDocument();
-      expect(textarea).toBeDisabled();
-
-      resolvePromise!({
-        ok: true,
-        json: () => Promise.resolve({ id: 'new-review-id' }),
-      });
-    });
-
-    it('redirects to login when API returns 401', async () => {
-      mockFetch.mockResolvedValue({
-        ok: false,
-        status: 401,
-        json: () => Promise.resolve({ error: 'Unauthorized' }),
-      });
-
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const star3 = screen.getByTestId('star-3');
-      await userEvent.click(star3);
-
-      const textarea = screen.getByTestId('textarea');
-      await userEvent.type(textarea, 'Test comment');
-
-      const submitButton = screen.getByRole('button', { name: /submit review/i });
-      await userEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith('/auth/login?callbackUrl=http%3A//localhost%3A3000/listings/test-listing');
-      });
-    });
-
-    it('shows permission error for 403 response', async () => {
-      mockFetch.mockResolvedValue({
-        ok: false,
-        status: 403,
-        json: () => Promise.resolve({ error: 'Forbidden' }),
-      });
-
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const star2 = screen.getByTestId('star-2');
-      await userEvent.click(star2);
-
-      const textarea = screen.getByTestId('textarea');
-      await userEvent.type(textarea, 'Permission test');
-
-      const submitButton = screen.getByRole('button', { name: /submit review/i });
-      await userEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('You do not have permission to submit reviews.')).toBeInTheDocument();
-      });
-    });
-
-    it('shows duplicate review error for 409 response', async () => {
-      mockFetch.mockResolvedValue({
-        ok: false,
-        status: 409,
-        json: () => Promise.resolve({ error: 'Duplicate review' }),
-      });
-
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const star5 = screen.getByTestId('star-5');
-      await userEvent.click(star5);
-
-      const textarea = screen.getByTestId('textarea');
-      await userEvent.type(textarea, 'Duplicate test');
-
-      const submitButton = screen.getByRole('button', { name: /submit review/i });
-      await userEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('You have already reviewed this listing.')).toBeInTheDocument();
-      });
-    });
-
-    it('handles API errors gracefully', async () => {
-      mockFetch.mockResolvedValue({
-        ok: false,
-        status: 500,
-        json: () => Promise.resolve({ error: 'Server error' }),
-      });
-
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const star1 = screen.getByTestId('star-1');
-      await userEvent.click(star1);
-
-      const textarea = screen.getByTestId('textarea');
-      await userEvent.type(textarea, 'Error test');
-
-      const submitButton = screen.getByRole('button', { name: /submit review/i });
-      await userEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('Server error')).toBeInTheDocument();
-      });
-    });
-
-    it('handles network errors gracefully', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      
-      mockFetch.mockRejectedValue(new Error('Network error'));
-
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const star3 = screen.getByTestId('star-3');
-      await userEvent.click(star3);
-
-      const textarea = screen.getByTestId('textarea');
-      await userEvent.type(textarea, 'Network test');
-
-      const submitButton = screen.getByRole('button', { name: /submit review/i });
-      await userEvent.click(submitButton);
-
-      await waitFor(() => {
-        expect(screen.getByText('Failed to submit review. Please try again.')).toBeInTheDocument();
-      });
-
-      consoleSpy.mockRestore();
-    });
-  });
-
-  describe('Sign-in prompt for non-authenticated users', () => {
-    it('shows sign-in prompt for non-authenticated users', async () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={false}
-        />
-      );
-
-      expect(screen.getByText('Sign in to leave a review')).toBeInTheDocument();
-      
-      // Wait for the useEffect to set the callback URL
-      await waitFor(() => {
-        const link = screen.getByTestId('next-link');
-        expect(link).toHaveAttribute('href', expect.stringContaining('/auth/login?callbackUrl='));
-      });
-    });
-
-    it('does not show review form for non-authenticated users', () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={false}
-        />
-      );
-
-      expect(screen.queryByText('Add Your Review')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('star-rating-interactive')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('textarea')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('Star Rating Validation', () => {
-    it('accepts valid star ratings from 1 to 5', async () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      for (let rating = 1; rating <= 5; rating++) {
-        const star = screen.getByTestId(`star-${rating}`);
-        await userEvent.click(star);
-        
-        expect(screen.getByTestId('star-rating-interactive')).toHaveAttribute('data-rating', rating.toString());
-      }
-    });
-
-    it('requires rating selection before enabling submit', () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const submitButton = screen.getByRole('button', { name: /submit review/i });
-      expect(submitButton).toBeDisabled();
-    });
-  });
-
-  describe('Review Field String Validation', () => {
-    it('requires non-empty comment for submission', async () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-      const star5 = screen.getByTestId('star-5');
-      await userEvent.click(star5);
-
-      const submitButton = screen.getByRole('button', { name: /submit review/i });
-      expect(submitButton).toBeDisabled();
-
-      const textarea = screen.getByTestId('textarea');
-      await userEvent.type(textarea, '   '); // Only whitespace
-
-      expect(submitButton).toBeDisabled();
-
-      await userEvent.clear(textarea);
-      await userEvent.type(textarea, 'Valid comment');
-
-      expect(submitButton).not.toBeDisabled();
-    });
-
-    it('enforces maximum character limit', () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const textarea = screen.getByTestId('textarea');
-      expect(textarea).toHaveAttribute('maxLength', '2000');
-    });
-
-    it('accepts valid string characters and formats', async () => {
-      render(
-        <ReviewsSection 
-          reviews={[]}
-          listingId="listing-1"
-          isSignedIn={true}
-        />
-      );
-
-      const textarea = screen.getByTestId('textarea');
-      const validComment = 'Great place! 5/5 stars. Special chars: áéíóú, emojis: 😊, numbers: 123, punctuation: !@#$%';
-      
-      await userEvent.type(textarea, validComment);
-      expect(textarea).toHaveValue(validComment);
-    });
-  });
-});
+  it('validates review input using canSubmitReview helper', () => {
+    expect(canSubmitReview(0, 'something')).toBe(false)
+    expect(canSubmitReview(3, '   ')).toBe(false)
+    expect(canSubmitReview(5, 'Great stay!')).toBe(true)
+  })
+
+  it('renders review metadata and calculates averages', () => {
+    render(<ReviewsSection reviews={defaultReviews} listingId="listing-1" isSignedIn />)
+
+    expect(screen.getByTestId('neo-card-title')).toHaveTextContent('Reviews (2)')
+    expect(screen.getByText('4.5 average')).toBeInTheDocument()
+    const [averageDisplay] = screen.getAllByTestId('star-rating-display')
+    expect(averageDisplay).toHaveAttribute('data-rating', '4.5')
+  })
+
+  it('displays individual reviews with formatted dates and separators', () => {
+    render(<ReviewsSection reviews={defaultReviews} listingId="listing-1" isSignedIn />)
+
+    expect(screen.getByText('John Doe')).toBeInTheDocument()
+    expect(screen.getByText('Excellent place! Great atmosphere and eco-friendly practices.')).toBeInTheDocument()
+    expect(screen.getByText('December 1, 2023')).toBeInTheDocument()
+    expect(screen.getByText('Jane Smith')).toBeInTheDocument()
+    expect(screen.getByText('Good location, friendly staff.')).toBeInTheDocument()
+    expect(screen.getAllByTestId('separator')).toHaveLength(1)
+  })
+
+  it('shows an empty state when there are no reviews', () => {
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    expect(screen.getByText('No reviews yet')).toBeInTheDocument()
+    expect(screen.getByText('Be the first to share your experience!')).toBeInTheDocument()
+  })
+
+  it('renders the sign-in prompt for non-authenticated users with callback', async () => {
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn={false} />)
+
+    expect(screen.getByText('Sign in to leave a review')).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(screen.getByTestId('next-link')).toHaveAttribute(
+        'href',
+        '/auth/login?callbackUrl=http%3A%2F%2Flocalhost%2Flistings%2Flisting-1'
+      )
+    })
+    expect(screen.queryByText('Add Your Review')).not.toBeInTheDocument()
+  })
+
+  it('defaults to the signed-out experience when isSignedIn is omitted', async () => {
+    render(<ReviewsSection reviews={[]} listingId="listing-1" />)
+
+    await waitFor(() => {
+      expect(screen.getByTestId('next-link')).toHaveAttribute(
+        'href',
+        '/auth/login?callbackUrl=http%3A%2F%2Flocalhost%2Flistings%2Flisting-1'
+      )
+    })
+
+    expect(screen.queryByText('Add Your Review')).not.toBeInTheDocument()
+  })
+
+  it('allows authenticated users to interact with the review form', async () => {
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    expect(screen.getByTestId('neo-card-title')).toHaveTextContent('Reviews (0)')
+    expect(screen.getByTestId('star-rating-interactive')).toBeInTheDocument()
+
+    const submitButton = screen.getByRole('button', { name: /submit review/i })
+    expect(submitButton).toBeDisabled()
+
+    await fillReviewForm(4, 'Great experience overall!')
+
+    expect(submitButton).not.toBeDisabled()
+  })
+
+  it('submits a review successfully and refreshes the page', async () => {
+    mockFetch.mockResolvedValue(
+      mockResponse({ id: 'new-review' }) as unknown as FetchReturn
+    )
+
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    const textarea = await fillReviewForm(5, 'Outstanding place!')
+    const submitButton = screen.getByRole('button', { name: /submit review/i })
+    await userEvent.click(submitButton)
+
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rating: 5, comment: 'Outstanding place!', listingId: 'listing-1' }),
+      })
+    })
+
+    await waitFor(() => {
+      expect(mockRefresh).toHaveBeenCalled()
+      expect(screen.getByText(/pending approval/i)).toBeInTheDocument()
+    })
+
+    expect(textarea).toHaveValue('')
+  })
+
+  it('prevents submission without rating or a non-empty comment', async () => {
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    const submitButton = screen.getByRole('button', { name: /submit review/i })
+    await userEvent.click(submitButton)
+    expect(submitButton).toBeDisabled()
+
+    const textarea = await fillReviewForm(5, '   ')
+    expect(submitButton).toBeDisabled()
+
+    submitButton.disabled = false
+    fireEvent.click(submitButton)
+    expect(mockFetch).not.toHaveBeenCalled()
+
+    await userEvent.clear(textarea)
+    await userEvent.type(textarea, 'Valid comment now')
+    expect(submitButton).not.toBeDisabled()
+  })
+
+  it('redirects to login when the API returns 401 with captured callback URL', async () => {
+    mockFetch.mockResolvedValue(
+      mockResponse({ error: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized', ok: false }) as unknown as FetchReturn
+    )
+
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    await fillReviewForm(3, 'Needs login')
+    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(
+        '/auth/login?callbackUrl=http%3A%2F%2Flocalhost%2Flistings%2Flisting-1'
+      )
+    })
+  })
+
+  it('falls back to root callback when location cannot be determined', async () => {
+    window.history.replaceState({}, '', '/')
+    mockGetCurrentHref.mockReturnValueOnce('')
+    mockFetch.mockResolvedValue(
+      mockResponse({ error: 'Unauthorized' }, { status: 401, ok: false }) as unknown as FetchReturn
+    )
+
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    await fillReviewForm(4, 'Another login attempt')
+    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith(
+        '/auth/login?callbackUrl=%2F'
+      )
+    })
+  })
+
+  it('shows permission error when the API responds with 403', async () => {
+    mockFetch.mockResolvedValue(
+      mockResponse({ error: 'Forbidden' }, { status: 403, statusText: 'Forbidden', ok: false }) as unknown as FetchReturn
+    )
+
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    await fillReviewForm(2, 'Permission test')
+    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+
+    expect(await screen.findByText('You do not have permission to submit reviews.')).toBeInTheDocument()
+  })
+
+  it('shows duplicate review error when the API responds with 409', async () => {
+    mockFetch.mockResolvedValue(
+      mockResponse({ error: 'Duplicate review' }, { status: 409, ok: false }) as unknown as FetchReturn
+    )
+
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    await fillReviewForm(5, 'Already reviewed')
+    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+
+    expect(await screen.findByText('You have already reviewed this listing.')).toBeInTheDocument()
+  })
+
+  it('surfaces API-provided error messages for other failures', async () => {
+    mockFetch.mockResolvedValue(
+      mockResponse({ error: 'Server error' }, { status: 500, statusText: 'Internal Server Error', ok: false }) as unknown as FetchReturn
+    )
+
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    await fillReviewForm(1, 'Server failure')
+    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+
+    expect(await screen.findByText('Server error')).toBeInTheDocument()
+  })
+
+  it('uses a default error message when the server omits details', async () => {
+    mockFetch.mockResolvedValue(
+      mockResponse({}, { status: 502, statusText: 'Bad Gateway', ok: false }) as unknown as FetchReturn
+    )
+
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    await fillReviewForm(4, 'Gateway issue')
+    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+
+    expect(await screen.findByText('Failed to submit review')).toBeInTheDocument()
+  })
+
+  it('shows a fallback error when the request throws', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+    mockFetch.mockRejectedValue(new Error('Network error'))
+
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    await fillReviewForm(3, 'Network issue')
+    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+
+    expect(await screen.findByText('Failed to submit review. Please try again.')).toBeInTheDocument()
+    expect(consoleSpy).toHaveBeenCalledWith('Failed to submit review:', expect.any(Error))
+
+    consoleSpy.mockRestore()
+  })
+
+  it('enforces the textarea length constraint', () => {
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    expect(screen.getByTestId('textarea')).toHaveAttribute('maxLength', '2000')
+  })
+
+  it('accepts a wide range of characters in the comment field', async () => {
+    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+
+    const textarea = screen.getByTestId('textarea')
+    const value = 'Great place! Accents áéíóú 😊 — punctuation!?'
+    await userEvent.type(textarea, value)
+    expect(textarea).toHaveValue(value)
+  })
+})

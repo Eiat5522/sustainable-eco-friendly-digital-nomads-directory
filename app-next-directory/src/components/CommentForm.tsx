@@ -1,8 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+
+export const resolveCallbackUrl = (loc?: { href?: string | null }) => {
+  try {
+    const href = (loc ?? globalThis?.location)?.href
+    if (typeof href === 'string' && href.length > 0) {
+      return href
+    }
+  } catch (error) {
+    // Ignore environment navigation issues and fall back to login route
+  }
+
+  return '/auth/login'
+}
 
 export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
   const { data: session, status } = useSession();
@@ -11,30 +24,20 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
   const [content, setContent] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const router = useRouter();
-  const [callbackUrl, setCallbackUrl] = useState('');
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setCallbackUrl(window.location.href);
-    }
-  }, []);
-
   const handleSignIn = () => {
-    const target = callbackUrl || (typeof window !== 'undefined' ? window.location.href : '/auth/login');
-    void signIn(undefined, { callbackUrl: target });
+    void signIn(undefined, { callbackUrl: resolveCallbackUrl() });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (status === 'loading' || isSubmitting) return; // keep guard
     const trimmed = content.trim();
     if (!trimmed) {
       setContent('');
       return;
     }
 
-    if (!session) {
+    if (!session?.user?.id) {
       handleSignIn();
       return;
     }
@@ -59,24 +62,31 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
         return;
       }
 
-        if (res.ok) {
-          setContent('');
-          setSubmitted(true);
-          router.refresh();
-        } else {
-          const errorText = await res.text();
+      if (res.ok) {
+        setContent('');
+        setSubmitted(true);
+        router.refresh();
+      } else {
+        const errorText = await res.text();
+        let resolvedMessage: string | null = null;
+
+        if (errorText) {
           try {
-            const errorData = errorText ? JSON.parse(errorText) : null;
+            const errorData = JSON.parse(errorText);
             if (errorData && typeof errorData === 'object' && 'error' in errorData) {
-              setError((errorData as { error?: string }).error || 'Failed to submit comment');
-            } else {
-              setError('Failed to submit comment');
+              const candidate = (errorData as { error?: string }).error;
+              if (typeof candidate === 'string' && candidate.trim().length > 0) {
+                resolvedMessage = candidate;
+              }
             }
           } catch {
-            setError('Failed to submit comment');
+            // Ignore JSON parsing issues
           }
-          console.error(`Failed to submit comment: ${res.status} ${res.statusText}`, errorText);
         }
+
+        setError(resolvedMessage ?? 'Failed to submit comment');
+        console.error(`Failed to submit comment: ${res.status} ${res.statusText}`, errorText);
+      }
     } catch (err) {
       console.error('Failed to submit comment', err);
       setError('Failed to submit comment. Please try again.');
