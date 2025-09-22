@@ -149,10 +149,10 @@ describe('serverAuth utilities', () => {
         emailVerified: null,
       };
       mockFindOneResult(userDoc);
-      mockBcrypt.compare.mockResolvedValue(true);
 
       const user = await authenticateUser('pending@example.com', 'password');
       expect(user).toBeNull();
+      expect(mockBcrypt.compare).not.toHaveBeenCalled();
     });
 
     it('returns null when user is missing or password absent', async () => {
