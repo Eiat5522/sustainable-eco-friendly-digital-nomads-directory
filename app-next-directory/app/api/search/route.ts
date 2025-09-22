@@ -97,7 +97,11 @@ function buildWhereClause({
     const amenityNameIn = amenities
       .map((a) => `("${escapeGroqLiteral(a)}" in amenities[]->name)`) // membership check in array of names
       .join(' || ');
-    filters.push(`((${legacyEq}) || (${amenityNameIn}))`);
+    // Also allow matching via digital nomad features as tests expect wifi/etc to map here too
+    const nomadFeatureContains = amenities
+      .map((a) => `array::contains(digitalNomadFeatures[]->name, "${escapeGroqLiteral(a)}")`)
+      .join(' || ');
+    filters.push(`((${legacyEq}) || (${amenityNameIn}) || (${nomadFeatureContains}))`);
   }
   if (nomadFeatures.length) {
     const nfs = nomadFeatures
@@ -201,8 +205,8 @@ export async function GET(request: NextRequest) {
     const nomadFeatures = sanitizeStringArray(searchParams.getAll('nomadFeatures'));
 
     const start = (page - 1) * limit;
-    // GROQ '...' uses exclusive end; fetch exactly `limit` items
-    const end = start + limit;
+    // GROQ '...' uses inclusive end; fetch exactly `limit` items
+    const end = start + limit - 1;
     const { query, countQuery, facetQuery } = buildQuery({
       q,
       categories,
