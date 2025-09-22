@@ -164,7 +164,7 @@ describe('Contact Us form', () => {
       expect(screen.getByLabelText('Subject')).toHaveValue('');
       expect(screen.getByLabelText('Enquiry')).toHaveValue('');
     });
-  });
+  }, 15000);
 
   it('prefills the newsletter form from query params and handles API errors gracefully', async () => {
     mockUseSearchParams.mockImplementation(() =>

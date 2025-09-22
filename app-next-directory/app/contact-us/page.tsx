@@ -229,11 +229,11 @@ function ContactForm() {
                   </>
                 ) : (
                   <div>
-                    <Label htmlFor={`email-${enquiryType}`} className="text-sm font-medium text-gray-700">Email Address</Label>
+                    <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address</Label>
                     <div className="relative mt-1">
                        <Mail aria-hidden="true" focusable="false" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                       <NeoInput
-                        id={`email-${enquiryType}`}
+                        id="email"
                         name="email"
                         type="email"
                         placeholder="you@example.com"
@@ -241,18 +241,17 @@ function ContactForm() {
                         onChange={(e) => setEmail(e.target.value)}
                         required
                         className="pl-10"
-                         autoComplete="email"
-                         autoCapitalize="none"
-                         autoCorrect="off"
-                         spellCheck={false}
-                         inputMode="email"
-                         enterKeyHint="send"
-
-                         aria-invalid={!!errors.email}
-                         aria-describedby={errors.email ? `email-error-${enquiryType}` : undefined}
+                        autoComplete="email"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
+                        inputMode="email"
+                        enterKeyHint="send"
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? 'email-error' : undefined}
                       />
                     </div>
-                    {errors.email && <p id={`email-error-${enquiryType}`} role="alert" className="text-sm text-red-600 mt-1">{errors.email[0]}</p>}
+                    {errors.email && <p id={'email-error'} role="alert" className="text-sm text-red-600 mt-1">{errors.email[0]}</p>}
                   </div>
                 )}
               </div>
