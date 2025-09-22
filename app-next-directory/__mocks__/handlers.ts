@@ -74,4 +74,102 @@ export const handlers = [
     const slug = url.searchParams.get('citySlug') || 'unknown'
     return HttpResponse.json({ success: true, data: { listings: [], total: 0 }, city: slug }, { status: 200 })
   }),
+  
+  // Reviews API handlers
+  http.post('/api/reviews', async ({ request }) => {
+    let body: any = {};
+    try {
+      body = await request.json();
+    } catch {}
+    
+    // Mock successful review submission by default
+    return HttpResponse.json(
+      { 
+        success: true, 
+        data: { 
+          id: 'review-123',
+          rating: body.rating || 5,
+          comment: body.comment || 'Test review',
+          createdAt: new Date().toISOString()
+        }
+      },
+      { status: 201 }
+    );
+  }),
+  
+  http.get('/api/reviews', ({ request }) => {
+    const url = new URL(request.url);
+    const listingId = url.searchParams.get('listingId');
+    return HttpResponse.json(
+      {
+        success: true,
+        data: {
+          reviews: [],
+          totalReviews: 0,
+          averageRating: 0
+        }
+      },
+      { status: 200 }
+    );
+  }),
+  
+  // Contact form API handler
+  http.post('/api/contact', async ({ request }) => {
+    let body: any = {};
+    try {
+      body = await request.json();
+    } catch {}
+    
+    // Mock successful contact form submission
+    return HttpResponse.json(
+      { 
+        success: true, 
+        message: 'Contact form submitted successfully',
+        data: {
+          id: 'contact-123',
+          name: body.name || 'Test User',
+          email: body.email || 'test@example.com',
+          subject: body.subject || 'Test Subject',
+          message: body.message || 'Test message'
+        }
+      },
+      { status: 200 }
+    );
+  }),
 ]
+
+// Export utilities to override handler responses in tests
+export const setReviewsResponse = (mode: 'success' | 'unauthorized' | 'forbidden' | 'conflict' | 'error') => {
+  const reviewsHandler = http.post('/api/reviews', async ({ request }) => {
+    let body: any = {};
+    try {
+      body = await request.json();
+    } catch {}
+    
+    switch (mode) {
+      case 'unauthorized':
+        return HttpResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      case 'forbidden':
+        return HttpResponse.json({ error: 'Forbidden' }, { status: 403 });
+      case 'conflict':
+        return HttpResponse.json({ error: 'Review already exists' }, { status: 409 });
+      case 'error':
+        return HttpResponse.json({ error: 'Server error' }, { status: 500 });
+      default:
+        return HttpResponse.json(
+          { 
+            success: true, 
+            data: { 
+              id: 'review-123',
+              rating: body.rating || 5,
+              comment: body.comment || 'Test review',
+              createdAt: new Date().toISOString()
+            }
+          },
+          { status: 201 }
+        );
+    }
+  });
+  
+  return reviewsHandler;
+};

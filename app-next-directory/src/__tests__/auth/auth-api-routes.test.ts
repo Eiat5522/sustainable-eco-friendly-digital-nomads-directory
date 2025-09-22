@@ -12,15 +12,15 @@
 import { jest } from '@jest/globals';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Mock dependencies
-jest.mock('@/lib/dbConnect');
-jest.mock('@/models/User');
-jest.mock('@/models/EmailVerificationToken');
-jest.mock('@/lib/tokens');
-jest.mock('@/lib/email');
-jest.mock('@/lib/rate-limit');
-jest.mock('@/lib/logger');
-jest.mock('@/lib/auth/config');
+// Mock dependencies - these are now properly mocked in jest.setup.ts
+// jest.mock('@/lib/dbConnect');
+// jest.mock('@/models/User');
+// jest.mock('@/models/EmailVerificationToken');
+// jest.mock('@/lib/tokens');
+// jest.mock('@/lib/email');
+// jest.mock('@/lib/rate-limit');
+// jest.mock('@/lib/logger');
+// jest.mock('@/lib/auth/config');
 
 // Import the API route handler after mocking dependencies
 import { POST as registerPost } from '@/app/api/auth/register/route';
@@ -33,7 +33,7 @@ import { getClientIp, isRateLimited, getRetryAfterMs } from '@/lib/rate-limit';
 import { structuredLogger, getRequestContext } from '@/lib/logger';
 import { isEmailVerificationRequired } from '@/lib/auth/config';
 
-// Type the mocks
+// Type the mocks - ensure they're jest.fn
 const mockDbConnect = dbConnect as jest.MockedFunction<typeof dbConnect>;
 const mockUserFindOne = User.findOne as jest.MockedFunction<typeof User.findOne>;
 const mockUserCreate = User.create as jest.MockedFunction<typeof User.create>;
@@ -48,13 +48,60 @@ const mockGetRetryAfterMs = getRetryAfterMs as jest.MockedFunction<typeof getRet
 const mockIsEmailVerificationRequired = isEmailVerificationRequired as jest.MockedFunction<typeof isEmailVerificationRequired>;
 
 describe('Authentication API Routes', () => {
+  // Create fresh mock functions before each test
+  let mockDbConnect: jest.MockedFunction<any>;
+  let mockGetClientIp: jest.MockedFunction<any>;
+  let mockIsRateLimited: jest.MockedFunction<any>;
+  let mockIsEmailVerificationRequired: jest.MockedFunction<any>;
+  let mockUserFindOne: jest.MockedFunction<any>;
+  let mockUserCreate: jest.MockedFunction<any>;
+  let mockEmailVerificationTokenCreate: jest.MockedFunction<any>;
+  let mockGenerateToken: jest.MockedFunction<any>;
+  let mockMinutesFromNow: jest.MockedFunction<any>;
+  let mockBuildVerifyEmail: jest.MockedFunction<any>;
+  let mockSendMail: jest.MockedFunction<any>;
+  let mockGetRetryAfterMs: jest.MockedFunction<any>;
+
   beforeEach(() => {
+    // Reset all mocks and create fresh ones
     jest.clearAllMocks();
-    // Setup default mocks
-    mockDbConnect.mockResolvedValue(undefined);
-    mockGetClientIp.mockReturnValue('127.0.0.1');
-    mockIsRateLimited.mockReturnValue(false);
-    mockIsEmailVerificationRequired.mockReturnValue(false);
+    
+    // Create new mock functions
+    mockDbConnect = jest.fn().mockResolvedValue(undefined);
+    mockGetClientIp = jest.fn().mockReturnValue('127.0.0.1');
+    mockIsRateLimited = jest.fn().mockReturnValue(false);
+    mockIsEmailVerificationRequired = jest.fn().mockReturnValue(false);
+    mockUserFindOne = jest.fn();
+    mockUserCreate = jest.fn();
+    mockEmailVerificationTokenCreate = jest.fn();
+    mockGenerateToken = jest.fn().mockReturnValue({ raw: 'test-token-raw', hash: 'test-token-hash' });
+    mockMinutesFromNow = jest.fn().mockReturnValue(new Date(Date.now() + 60 * 60 * 1000));
+    mockBuildVerifyEmail = jest.fn().mockResolvedValue({
+      to: 'test@example.com',
+      subject: 'Verify your email',
+      html: '<p>Test email</p>',
+      text: 'Test email'
+    });
+    mockSendMail = jest.fn().mockResolvedValue({ messageId: 'test-message-id' });
+    mockGetRetryAfterMs = jest.fn().mockReturnValue(60000);
+    
+    // Override the imported functions with our mocks
+    Object.defineProperty(dbConnect, 'mockResolvedValue', {
+      value: mockDbConnect.mockResolvedValue.bind(mockDbConnect),
+      writable: true
+    });
+    Object.defineProperty(getClientIp, 'mockReturnValue', {
+      value: mockGetClientIp.mockReturnValue.bind(mockGetClientIp),
+      writable: true
+    });
+    Object.defineProperty(isRateLimited, 'mockReturnValue', {
+      value: mockIsRateLimited.mockReturnValue.bind(mockIsRateLimited),
+      writable: true
+    });
+    Object.defineProperty(isEmailVerificationRequired, 'mockReturnValue', {
+      value: mockIsEmailVerificationRequired.mockReturnValue.bind(mockIsEmailVerificationRequired),
+      writable: true
+    });
     
     // Mock environment
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';

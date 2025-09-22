@@ -50,12 +50,8 @@ import '@testing-library/jest-dom';
 if (!(global as any).TextEncoder) (global as any).TextEncoder = TextEncoder;
 if (!(global as any).TextDecoder) (global as any).TextDecoder = TextDecoder;
 
-// Polyfill WHATWG Request/Response/Headers for Next.js 15
-try {
-  require('whatwg-fetch');
-} catch (e) {
-  console.warn('whatwg-fetch polyfill not applied:', e);
-}
+// Polyfill WHATWG Request/Response/Headers for Next.js 15 - MUST be imported early for MSW Response.clone support
+import 'whatwg-fetch';
 
 // Polyfill for Request, Response, Headers for Next.js API route tests (node-fetch fallback)
 try {
@@ -108,6 +104,28 @@ if (!global.fetch) {
   };
 }
 
+// Mock next/navigation globally for all tests using jest.fn
+jest.mock('next/navigation', () => ({
+  __esModule: true,
+  useRouter: jest.fn(() => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    refresh: jest.fn(),
+  })),
+  useSearchParams: jest.fn(() => new URLSearchParams()),
+  usePathname: jest.fn(() => '/'),
+  useParams: jest.fn(() => ({})),
+  notFound: jest.fn(() => {
+    throw new Error('NEXT_NOT_FOUND');
+  }),
+  redirect: jest.fn(() => {
+    throw new Error('NEXT_REDIRECT');
+  }),
+}));
+
 // Mock next/server globally for all tests  
 jest.mock('next/server', () => ({
   NextResponse: {
@@ -118,14 +136,39 @@ jest.mock('next/server', () => ({
   },
 }));
 
-// Mock the internal NextResponse module that we're now importing from
-jest.mock('next/dist/server/web/spec-extension/response', () => ({
-  NextResponse: {
-    json: jest.fn((data: any, init?: { status?: number }) => ({
-      status: init?.status || 200,
-      json: () => Promise.resolve(data),
-    })),
-  },
+// Mock core database and auth modules as jest.fn for test stability
+// Using __mocks__ directory instead of jest.mock() for better reliability
+
+jest.mock('@/lib/auth/adapter', () => ({
+  __esModule: true,
+  createAuthAdapter: jest.fn().mockReturnValue({
+    createUser: jest.fn(),
+    getUser: jest.fn(),
+    getUserByEmail: jest.fn(),
+    getUserByAccount: jest.fn(),
+    updateUser: jest.fn(),
+    deleteUser: jest.fn(),
+    linkAccount: jest.fn(),
+    unlinkAccount: jest.fn(),
+    createSession: jest.fn(),
+    getSessionAndUser: jest.fn(),
+    updateSession: jest.fn(),
+    deleteSession: jest.fn(),
+    createVerificationToken: jest.fn(),
+    useVerificationToken: jest.fn(),
+  }),
+}));
+
+jest.mock('@/lib/redis', () => ({
+  __esModule: true,
+  getRedisClient: jest.fn().mockReturnValue({
+    incr: jest.fn().mockResolvedValue(1),
+    expire: jest.fn().mockResolvedValue(1),
+    evalSha: jest.fn().mockResolvedValue(['1', '1']),
+    script: jest.fn().mockReturnValue({
+      load: jest.fn().mockResolvedValue('script-hash'),
+    }),
+  }),
 }));
 
 // Provide a default mock for ensureSanityUser to be ESM-safe; tests can override as needed
