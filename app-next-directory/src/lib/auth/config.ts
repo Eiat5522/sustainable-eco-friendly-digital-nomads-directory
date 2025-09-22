@@ -36,7 +36,12 @@ export function getAdminEmails(): string[] {
     cachedAdminEmails = raw
       .split(/[\s,]+/)
       .map((s) => s.trim().toLowerCase())
-      .filter((s) => s.length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s))
+      .filter((s) => {
+        if (s.length === 0) {
+          return false
+        }
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)
+      })
   }
   return cachedAdminEmails
 }

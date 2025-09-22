@@ -63,6 +63,3 @@ export async function recordLoginAttempt(params: {
     console.warn('[auth] Failed to record login attempt', error);
   }
 }
-    console.warn('[auth] Failed to record login attempt', error);
-  }
-}
