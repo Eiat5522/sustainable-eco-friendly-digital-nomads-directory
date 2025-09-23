@@ -129,10 +129,16 @@ jest.mock('next/navigation', () => ({
 // Mock next/server globally for all tests  
 jest.mock('next/server', () => ({
   NextResponse: {
-    json: jest.fn((data: any, init?: { status?: number }) => ({
-      status: init?.status || 200,
-      json: () => Promise.resolve(data),
-    })),
+    json: jest.fn((data: any, init?: { status?: number }) => {
+      const response = {
+        status: init?.status || 200,
+        headers: new Map(),
+        json: () => Promise.resolve(data),
+        text: () => Promise.resolve(JSON.stringify(data)),
+        ok: (init?.status || 200) >= 200 && (init?.status || 200) < 300,
+      };
+      return response;
+    }),
   },
 }));
 

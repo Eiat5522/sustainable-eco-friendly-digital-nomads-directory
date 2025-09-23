@@ -20,7 +20,11 @@ jest.mock('@/lib/redis', () => ({
   getRedisClient: jest.fn(),
 }));
 
-jest.mock('@/lib/dbConnect', () => jest.fn());
+jest.mock('@/lib/dbConnect', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
+
 jest.mock('mongoose', () => ({
   connection: {
     collection: jest.fn(),
@@ -37,6 +41,7 @@ import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit'
 const mockRatelimit = Ratelimit as jest.MockedClass<typeof Ratelimit>;
 const mockGetRedisClient = getRedisClient as jest.MockedFunction<typeof getRedisClient>;
 const mockDbConnect = dbConnect as jest.MockedFunction<typeof dbConnect>;
+const mockMongoose = mongoose as jest.Mocked<typeof mongoose>;
 
 // Mock Redis client
 const mockRedisClient = {
@@ -71,7 +76,7 @@ describe('Rate Limiting and Redis Integration', () => {
     mockDbConnect.mockResolvedValue(undefined);
     
     // Mock mongoose connection
-    (mongoose.connection as any).collection = jest.fn().mockReturnValue(mockCollection);
+    mockMongoose.connection.collection.mockReturnValue(mockCollection);
     
     // Mock environment
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';

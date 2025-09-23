@@ -69,11 +69,11 @@ import bcrypt from 'bcryptjs';
 import { auth } from '@/lib/auth';
 
 // Type the mocks properly
-const mockConnect = connect as jest.Mock;
-const mockUserFindOne = User.findOne as jest.Mock;
-const mockUserCreate = User.create as jest.Mock;
-const mockBcryptHash = bcrypt.hash as jest.Mock;
-const mockAuth = auth as jest.Mock;
+const mockConnect = connect as jest.MockedFunction<typeof connect>;
+const mockUserFindOne = User.findOne as jest.MockedFunction<typeof User.findOne>;
+const mockUserCreate = User.create as jest.MockedFunction<typeof User.create>;
+const mockBcryptHash = bcrypt.hash as jest.MockedFunction<typeof bcrypt.hash>;
+const mockAuth = auth as jest.MockedFunction<typeof auth>;
 
 /**
  * Helper to extract response body from API route handler result
