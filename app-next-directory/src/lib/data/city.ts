@@ -2,6 +2,13 @@ import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import { transformToSummaryDTO } from '@/lib/dto-transformer';
 import type { CityDTO, CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
+import {
+  getE2ECityDetail,
+  getE2ECityList,
+  getE2ECitySummary,
+  getE2EListingsForCity,
+  isE2ERun,
+} from '@/data/e2e/discovery-fixtures';
 
 // Import the DereferencedSanityListing type for type conversion
 type DereferencedSanityListing = {
@@ -124,6 +131,9 @@ function toCityDetailDTO(raw: any): CityDetailDTO | null {
 }
 
 export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
+  if (isE2ERun()) {
+    return getE2ECitySummary(slug);
+  }
   const query = groq`*[_type == "city" && slug.current == $slug][0]{
     _id,
     name,
@@ -145,6 +155,9 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
 }
 
 export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO | null> {
+  if (isE2ERun()) {
+    return getE2ECityDetail(slug);
+  }
   const query = groq`*[_type == "city" && slug.current == $slug][0]{
     _id,
     name,
@@ -180,6 +193,9 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
 }
 
 export async function getListingsByCityId(cityId: string): Promise<ListingSummaryDTO[]> {
+  if (isE2ERun()) {
+    return getE2EListingsForCity(cityId);
+  }
   const query = groq`*[_type == "listing" && moderation.status == "published" && city._ref == $cityId]{
     _id,
     name,
@@ -228,6 +244,9 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
 }
 
 export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
+  if (isE2ERun()) {
+    return getE2ECityList(limit);
+  }
   const query = groq`*[_type == "city"] | order(_createdAt desc)[0...$limit]{
     _id,
     name,

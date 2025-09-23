@@ -30,7 +30,8 @@ test.describe('[E2E] Listing detail page', () => {
   });
 
   test('shows the 404 page when the slug is missing', async ({ page }) => {
-    await page.goto('/listings/unknown-slug', { waitUntil: 'networkidle' });
+    await page.goto('/listings/unknown-slug');
+    await waitForPageStable(page);
 
     await expect(page.getByText('This page could not be found')).toBeVisible();
   });

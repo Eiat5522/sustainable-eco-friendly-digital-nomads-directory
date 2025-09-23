@@ -28,6 +28,78 @@ const makeFallbackCity = (slug: string): CityDTO => ({
   description: 'Preview data: city details unavailable.',
 });
 
+const isE2ETest = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
+
+const e2eCityFixtures: Record<string, { city: CityDTO | CityDetailDTO; listings: ListingSummaryDTO[] }> = isE2ETest
+  ? {
+      testopolis: {
+        city: {
+          id: 'city-testopolis',
+          name: 'Testopolis',
+          slug: 'testopolis',
+          country: 'Testland',
+          sustainabilityScore: 78 as CityDetailDTO['sustainabilityScore'],
+          highlights: ['Green rooftops', 'Bike sharing', 'River taxis'],
+          imageUrl: '/placeholder_image.png',
+          imageDimensions: null,
+          description: 'Testopolis balances sustainability with vibrant urban life.',
+          shortDescription: 'Concise overview of Testopolis metrics.',
+          internetSpeed: { download: 120, upload: 40 },
+          costOfLiving: 'Affordable (index 68)',
+          climate: 'Tropical with mild winters',
+          safety: 'Very safe for visitors',
+          walkability: 'Excellent pedestrian network',
+          airQuality: 'Good (AQI 45)',
+          sustainabilityInitiatives: ['Solar rooftops', 'Zero waste markets'],
+          digitalNomadFeatures: ['Community events', 'Coworking passes'],
+          galleryImages: [],
+        },
+        listings: [
+          {
+            id: 'listing-eco-hub',
+            name: 'Eco Hub Workspace',
+            slug: 'eco-hub-workspace',
+            type: 'coworking',
+            city: {
+              id: 'city-testopolis',
+              name: 'Testopolis',
+              slug: 'testopolis',
+              country: 'Testland',
+            },
+            imageUrl: '/placeholder_image.png',
+            ecoFocusTags: ['Solar Powered', 'Zero Waste'],
+            digitalNomadFeatures: ['Fast WiFi'],
+            priceRange: 'moderate',
+            amenityNames: ['Fast WiFi', 'Private Rooms'],
+            shortDescription: 'A bright workspace for digital nomads.',
+          },
+          {
+            id: 'listing-green-stay',
+            name: 'Green Stay Apartments',
+            slug: 'green-stay-apartments',
+            type: 'accommodation',
+            city: {
+              id: 'city-testopolis',
+              name: 'Testopolis',
+              slug: 'testopolis',
+              country: 'Testland',
+            },
+            imageUrl: '/placeholder_image.png',
+            ecoFocusTags: ['Rainwater Harvesting'],
+            digitalNomadFeatures: ['In-room desks'],
+            priceRange: 'premium',
+            amenityNames: ['Gym Access'],
+            shortDescription: 'Eco-forward apartments for extended stays.',
+          },
+        ],
+      },
+      'empty-city': {
+        city: makeFallbackCity('empty-city'),
+        listings: [],
+      },
+    }
+  : {};
+
 /**
  * Helper to sanitize Error objects for logging, removing sensitive properties
  */
@@ -52,6 +124,21 @@ const sanitizeErrorForLogging = (error: unknown): any => {
 export default async function CityPage({ params }: Props) {
   // Support Next 14 (value) and Next 15 (promise) params
   const { slug } = await Promise.resolve(params);
+
+  if (isE2ETest) {
+    const fixture = e2eCityFixtures[slug];
+    if (fixture) {
+      return (
+        <>
+          <Header />
+          <main>
+            <CityDetailView city={fixture.city} listings={fixture.listings} />
+          </main>
+          <Footer />
+        </>
+      );
+    }
+  }
 
   // Prefer detailed city data; fall back to basic data and guard exceptions
   let rawCity: unknown = null;

@@ -378,5 +378,106 @@ describe('Sanity client module', () => {
       expect(result.gallery).toHaveLength(1);
       expect(result.gallery[0].asset.url).toBe('https://cdn.sanity.io/gallery1.jpg');
     });
+
+
   });
-});
+
+  describe('Error Handling and Edge Cases', () => {
+    it('should handle client creation failure gracefully', () => {
+      const originalEnv = process.env;
+      process.env = {
+        ...originalEnv,
+        NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project',
+        NEXT_PUBLIC_SANITY_DATASET: 'test-dataset',
+      };
+
+      const { createClient } = require('@sanity/client');
+      (createClient as jest.Mock).mockImplementation(() => {
+        throw new Error('Client creation failed');
+      });
+
+      expect(() => require('./client')).toThrow('Client creation failed');
+
+      process.env = originalEnv;
+    });
+
+    it('should handle urlFor with null or undefined image source', () => {
+      const clientModule = require('./client');
+
+      expect(() => clientModule.urlFor(null)).not.toThrow();
+      expect(() => clientModule.urlFor(undefined)).not.toThrow();
+      // Note: urlFor may return a builder chain even for invalid inputs; adjust based on actual behavior
+    });
+
+    it('should handle fetch errors', async () => {
+      mockClient.fetch.mockRejectedValue(new Error('Fetch failed'));
+
+      const clientModule = require('./client');
+
+      await expect(clientModule.client.fetch('*[_type == "listing"]')).rejects.toThrow('Fetch failed');
+    });
+
+    it('should handle create method success and failure', async () => {
+      const clientModule = require('./client');
+
+      mockClient.create.mockResolvedValue({ _id: 'new-id' });
+      const result = await clientModule.client.create({ _type: 'listing', name: 'Test' });
+      expect(result._id).toBe('new-id');
+
+      mockClient.create.mockRejectedValue(new Error('Create failed'));
+      await expect(clientModule.client.create({})).rejects.toThrow('Create failed');
+    });
+
+    it('should handle update method success and failure', async () => {
+      const clientModule = require('./client');
+
+      mockClient.update.mockResolvedValue({ _id: 'updated-id' });
+      const result = await clientModule.client.update('doc-id', { name: 'Updated' });
+      expect(result._id).toBe('updated-id');
+
+      mockClient.update.mockRejectedValue(new Error('Update failed'));
+      await expect(clientModule.client.update('doc-id', {})).rejects.toThrow('Update failed');
+    });
+
+    it('should handle delete method success and failure', async () => {
+      const clientModule = require('./client');
+
+      mockClient.delete.mockResolvedValue('deleted');
+      const result = await clientModule.client.delete('doc-id');
+      expect(result).toBe('deleted');
+
+      mockClient.delete.mockRejectedValue(new Error('Delete failed'));
+      await expect(clientModule.client.delete('doc-id')).rejects.toThrow('Delete failed');
+    });
+
+    it('should handle getDocument method', async () => {
+      const clientModule = require('./client');
+
+      mockClient.getDocument.mockResolvedValue({ _id: 'doc-id', name: 'Test Doc' });
+      const result = await clientModule.client.getDocument('doc-id');
+      expect(result.name).toBe('Test Doc');
+
+      mockClient.getDocument.mockRejectedValue(new Error('Get document failed'));
+      await expect(clientModule.client.getDocument('invalid-id')).rejects.toThrow('Get document failed');
+    });
+
+    it('should handle partial environment variable configurations', () => {
+      const originalEnv = process.env;
+      process.env = {
+        ...originalEnv,
+        NEXT_PUBLIC_SANITY_PROJECT_ID: 'partial-project',
+        NEXT_PUBLIC_SANITY_DATASET: '', // Missing dataset
+        SANITY_API_TOKEN: 'partial-token',
+      };
+
+      const { createClient } = require('@sanity/client');
+      require('./client');
+
+      expect(createClient).toHaveBeenCalledWith({
+        projectId: 'partial-project',
+        dataset: 'dataset', // Falls back to dummy
+        apiVersion: '2024-01-01',
+        useCdn: false,
+        token: 'partial-token',
+        ignoreBrowserTokenWarning: true,
+      });

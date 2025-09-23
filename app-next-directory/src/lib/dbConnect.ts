@@ -1,6 +1,7 @@
 import type { Mongoose } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
+const isE2E = process.env.E2E === '1';
 
 /**
  * Database Connection & Index Management
@@ -31,16 +32,31 @@ if (!cached) {
 
 async function dbConnect(): Promise<Mongoose> {
   // Dynamically load mongoose for mocking flexibility
-  const mongoose: any = require('mongoose');
-if (!MONGODB_URI) {
-  throw new Error('MONGODB_URI environment variable is required');
-}
-if (typeof MONGODB_URI !== 'string') {
-  throw new Error('MONGODB_URI must be a string');
-}
-if (!/^mongodb(\+srv)?:\/\/.+/.test(MONGODB_URI)) {
-  throw new Error('MONGODB_URI must be a valid MongoDB connection string starting with mongodb:// or mongodb+srv://');
-}
+  const mongoose: Mongoose = require('mongoose');
+
+  if (isE2E) {
+    if (!cached.conn) {
+      cached.conn = mongoose;
+      cached.promise = Promise.resolve(mongoose);
+      cached.indexesSynced = true;
+
+      if (typeof (mongoose as any).connection?.readyState === 'number') {
+        (mongoose as any).connection.readyState = 1;
+      }
+    }
+
+    return cached.conn!;
+  }
+
+  if (!MONGODB_URI) {
+    throw new Error('MONGODB_URI environment variable is required');
+  }
+  if (typeof MONGODB_URI !== 'string') {
+    throw new Error('MONGODB_URI must be a string');
+  }
+  if (!/^mongodb(\+srv)?:\/\/.+/.test(MONGODB_URI)) {
+    throw new Error('MONGODB_URI must be a valid MongoDB connection string starting with mongodb:// or mongodb+srv://');
+  }
 
   if (cached.conn) {
     return cached.conn;
@@ -49,7 +65,7 @@ if (!/^mongodb(\+srv)?:\/\/.+/.test(MONGODB_URI)) {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      tlsAllowInvalidCertificates: process.env.NODE_ENV === "development",
+      tlsAllowInvalidCertificates: process.env.NODE_ENV === 'development',
     };
 
     try {

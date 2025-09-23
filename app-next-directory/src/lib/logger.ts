@@ -4,6 +4,7 @@ import pino from 'pino';
 const isProduction = process.env.NODE_ENV === 'production';
 const isDevelopment = process.env.NODE_ENV === 'development';
 const isTest = process.env.NODE_ENV === 'test';
+const isE2E = process.env.E2E === '1';
 
 // Redact sensitive fields to prevent information leakage
 const redactPaths = [
@@ -25,7 +26,7 @@ const redactPaths = [
 
 // Create base logger configuration
 const loggerConfig: pino.LoggerOptions = {
-  level: isProduction ? 'info' : isDevelopment ? 'debug' : 'silent',
+  level: isE2E ? 'silent' : isProduction ? 'info' : isDevelopment ? 'debug' : 'silent',
   
   // Redaction configuration for security
   redact: {
@@ -74,7 +75,7 @@ const loggerConfig: pino.LoggerOptions = {
 };
 
 // Configure transport for development
-if (isDevelopment) {
+if (isDevelopment && !isE2E) {
   loggerConfig.transport = {
     target: 'pino-pretty',
     options: {

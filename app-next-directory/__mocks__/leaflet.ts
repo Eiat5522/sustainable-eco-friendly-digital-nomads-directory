@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals'
+stsimport { jest } from '@jest/globals'
 
 const createBounds = () => ({
   getNorth: jest.fn(() => 0),

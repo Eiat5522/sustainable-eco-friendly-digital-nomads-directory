@@ -96,6 +96,11 @@ export const dynamic = 'force-dynamic'
 
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const resolvedSearchParams = (await searchParams) ?? {}
+  const retryRaw = resolvedSearchParams.retry
+  const retryValue = Array.isArray(retryRaw) ? retryRaw[retryRaw.length - 1] : retryRaw
+  const parsedRetry = Number.parseInt(String(retryValue ?? '0'), 10)
+  const nextRetryCount = Number.isFinite(parsedRetry) ? parsedRetry + 1 : 1
+  const retryLink = buildLink(resolvedSearchParams, { retry: String(nextRetryCount) })
   const url = new URL('/api/search', 'http://localhost')
   const params = new URLSearchParams()
   for (const [k, v] of Object.entries(resolvedSearchParams)) {
@@ -116,7 +121,12 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       console.error(`Search API failed: ${res.status} ${res.statusText}`)
       return (
         <div className="container mx-auto px-4 py-8">
-          <p className="text-red-500">Failed to load search results. Please try again later.</p>
+          <div className="flex flex-col gap-4" data-testid="search-error-state">
+            <p className="text-red-500">Failed to load search results. Please try again later.</p>
+            <NeoButton asChild variant="outline" size="sm" data-testid="search-retry-button">
+              <Link href={retryLink}>Retry search</Link>
+            </NeoButton>
+          </div>
           {process.env.NODE_ENV === 'development' && (
             <p className="text-sm text-gray-500 mt-2">Error: {res.status} {res.statusText}</p>
           )}
@@ -129,9 +139,14 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     console.error('Search API request failed', error)
     return (
       <div className="container mx-auto px-4 py-8">
-        <p className="text-red-500">
-          {'Failed to load search results. Please try again later.'}
-        </p>
+        <div className="flex flex-col gap-4" data-testid="search-error-state">
+          <p className="text-red-500">
+            {'Failed to load search results. Please try again later.'}
+          </p>
+          <NeoButton asChild variant="outline" size="sm" data-testid="search-retry-button">
+            <Link href={retryLink}>Retry search</Link>
+          </NeoButton>
+        </div>
         {process.env.NODE_ENV === 'development' && (
           <p className="text-sm text-gray-500 mt-2">Unexpected error occurred. Check server logs for details.</p>
         )}
@@ -145,6 +160,10 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const page = Math.max(1, Number(pagination.page ?? 1))
   const totalPages = Math.max(1, Number(pagination.totalPages ?? 1))
   const limit = Math.max(1, Number(pagination.limit ?? Number(params.get('limit') || 12)))
+  const DEFAULT_PAGE_SIZES = [12, 24, 48, 96]
+  const pageSizeOptions = DEFAULT_PAGE_SIZES.includes(limit)
+    ? DEFAULT_PAGE_SIZES
+    : [limit, ...DEFAULT_PAGE_SIZES].sort((a, b) => a - b)
 
   const prevLink = page > 1 ? buildLink(resolvedSearchParams, { page: String(page - 1) }) : null
   const nextLink = page < totalPages ? buildLink(resolvedSearchParams, { page: String(page + 1) }) : null
@@ -203,7 +222,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           })}
           <label htmlFor="page-size" className="body-sm">Per page</label>
           <select id="page-size" name="limit" defaultValue={String(limit)} className="neo-input border-2 border-neo-border rounded px-2 py-1">
-            {[12, 24, 48, 96].map((n) => (
+            {pageSizeOptions.map((n) => (
               <option key={n} value={n}>{n}</option>
             ))}
           </select>

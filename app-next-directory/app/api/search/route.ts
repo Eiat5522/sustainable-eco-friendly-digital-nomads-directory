@@ -3,7 +3,14 @@ import { NextRequest } from 'next/server';
 import { groq } from 'next-sanity';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
-import { sanitizeBasic, sanitizeStringArray, escapeGroqLiteral, escapeGroqMatch, clampInt } from '@/utils/sanitize';
+import {
+  sanitizeBasic,
+  sanitizeStringArray,
+  escapeGroqLiteral,
+  escapeGroqMatch,
+  clampInt,
+} from '@/utils/sanitize';
+import { buildE2ESearchResponse, isE2ERun } from '@/data/e2e/discovery-fixtures';
 
 // Fields selected for listing documents in GROQ queries
 const LISTING_FIELDS = `
@@ -204,6 +211,32 @@ export async function GET(request: NextRequest) {
     const amenities = sanitizeStringArray(searchParams.getAll('amenities'));
     const nomadFeatures = sanitizeStringArray(searchParams.getAll('nomadFeatures'));
 
+    if (isE2ERun()) {
+      const scenario = searchParams.get('e2eScenario');
+      const hasRetry = searchParams.has('retry');
+
+      if (scenario === 'fail-once' && !hasRetry) {
+        return ApiResponseHandler.error('Simulated search failure', 503);
+      }
+
+      if (scenario === 'timeout') {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+
+      const response = buildE2ESearchResponse({
+        q,
+        categories,
+        destinations,
+        amenities,
+        nomadFeatures,
+        page,
+        limit,
+        includeFacets,
+      });
+
+      return ApiResponseHandler.success(response);
+    }
+
   const start = (page - 1) * limit;
   // GROQ '..' is inclusive; fetch exactly `limit` items
   const end = start + limit - 1;
@@ -270,6 +303,32 @@ export async function POST(request: NextRequest) {
     const destinations = sanitizeStringArray(body.destination);
     const amenities = sanitizeStringArray(body.amenities);
     const nomadFeatures = sanitizeStringArray(body.nomadFeatures);
+
+    if (isE2ERun()) {
+      const scenario = typeof body?.e2eScenario === 'string' ? body.e2eScenario : undefined;
+      const retryToken = typeof body?.retry === 'string' ? body.retry : undefined;
+
+      if (scenario === 'fail-once' && !retryToken) {
+        return ApiResponseHandler.error('Simulated search failure', 503);
+      }
+
+      if (scenario === 'timeout') {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+
+      const response = buildE2ESearchResponse({
+        q,
+        categories,
+        destinations,
+        amenities,
+        nomadFeatures,
+        page,
+        limit,
+        includeFacets,
+      });
+
+      return ApiResponseHandler.success(response);
+    }
 
     const start = (page - 1) * limit;
     // GROQ '..' is inclusive; fetch exactly `limit` items

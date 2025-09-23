@@ -4,8 +4,10 @@ import { initializeDatabase } from './mongodb/init';
 
 let clientPromise: Promise<any>;
 
-// Skip MongoDB initialization in test environment
-if (process.env.NODE_ENV === 'test') {
+const shouldMockMongo = process.env.NODE_ENV === 'test' || process.env.E2E === '1';
+
+// Skip MongoDB initialization in test/e2e environments
+if (shouldMockMongo) {
   const mockClient = {
     db: () => ({
       createCollection: () => Promise.resolve(),

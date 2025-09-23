@@ -158,6 +158,10 @@ describe('CityDetailView', () => {
       expect(screen.getByText(highlight)).toBeInTheDocument()
     })
 
+    const listingsTab = screen.getByRole('tab', { name: 'Listings' })
+    fireEvent.click(listingsTab)
+    expect(listingsTab).toHaveAttribute('aria-selected', 'true')
+
     expect(screen.getByTestId('listing-grid')).toHaveAttribute(
       'data-count',
       sampleListings.length.toString()

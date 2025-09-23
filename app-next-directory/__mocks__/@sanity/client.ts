@@ -111,14 +111,12 @@ const fetch = jest.fn(async (query: string, params: Record<string, any> = {}) =>
   return []
 })
 
-const client = {
+export const createClient = jest.fn(() => ({
   fetch,
   create: jest.fn().mockResolvedValue({ _id: 'mock-id' }),
   update: jest.fn().mockResolvedValue({}),
   delete: jest.fn().mockResolvedValue(''),
   getDocument: jest.fn().mockResolvedValue({ _id: 'mock-id' })
-}
+}))
 
-export const createClient = jest.fn(() => client)
-
-export default client
+export default createClient()

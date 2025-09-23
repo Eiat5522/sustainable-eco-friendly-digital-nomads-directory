@@ -131,20 +131,54 @@ jest.mock('next/navigation', () => ({
 }));
 
 // Mock next/server globally for all tests  
-jest.mock('next/server', () => ({
-  NextResponse: {
-    json: jest.fn((data: any, init?: { status?: number }) => {
-      const response = {
-        status: init?.status || 200,
-        headers: new Map(),
-        json: () => Promise.resolve(data),
-        text: () => Promise.resolve(JSON.stringify(data)),
-        ok: (init?.status || 200) >= 200 && (init?.status || 200) < 300,
-      };
-      return response;
-    }),
-  },
-}));
+jest.mock('next/server', () => {
+  const createHeaders = (init?: any) => {
+    const HeadersCtor = (globalThis as any).Headers;
+    if (typeof HeadersCtor === 'function') {
+      return new HeadersCtor(init ?? {});
+    }
+
+    const map = new Map<string, string>();
+    if (init) {
+      if (Array.isArray(init)) {
+        for (const [key, value] of init) map.set(key, String(value));
+      } else if (init instanceof Map) {
+        for (const [key, value] of init.entries()) map.set(key, String(value));
+      } else if (typeof init === 'object') {
+        for (const key of Object.keys(init)) map.set(key, String(init[key]));
+      }
+    }
+
+    return {
+      get: (key: string) => map.get(key) ?? null,
+      set: (key: string, value: string) => {
+        map.set(key, value);
+        return undefined;
+      },
+      has: (key: string) => map.has(key),
+      delete: (key: string) => map.delete(key),
+      entries: () => map.entries(),
+      [Symbol.iterator]: map[Symbol.iterator].bind(map),
+    } as any;
+  };
+
+  return {
+    NextResponse: {
+      json: jest.fn((data: any, init?: { status?: number; headers?: any }) => {
+        const status = init?.status ?? 200;
+        const headers = createHeaders(init?.headers);
+
+        return {
+          status,
+          headers,
+          ok: status >= 200 && status < 300,
+          json: () => Promise.resolve(data),
+          text: () => Promise.resolve(JSON.stringify(data)),
+        };
+      }),
+    },
+  };
+});
 
 // Mock core database and auth modules as jest.fn for test stability
 // Using __mocks__ directory instead of jest.mock() for better reliability

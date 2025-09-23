@@ -1,3 +1,4 @@
+import 'leaflet/dist/leaflet.css';
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
 import { mockListingDetail, mockReviews, mockRelatedListings } from '@/components/listings/listingDetailMockData';
 

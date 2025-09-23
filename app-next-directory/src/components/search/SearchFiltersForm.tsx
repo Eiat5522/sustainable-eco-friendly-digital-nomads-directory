@@ -235,7 +235,7 @@ export function SearchFiltersForm({ initialParams = {}, resultsPath = DEFAULT_RE
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault()
       const params = recordToParams(initialParams)
-      const keysToReset = ['q', 'destination', 'category', 'amenities', 'page'] as const
+      const keysToReset = ['q', 'destination', 'category', 'amenities', 'page', 'retry'] as const
       keysToReset.forEach((key) => params.delete(key))
 
       const trimmedQuery = searchTerm.trim()
@@ -249,6 +249,7 @@ export function SearchFiltersForm({ initialParams = {}, resultsPath = DEFAULT_RE
       params.set('facets', '1')
 
       const query = params.toString()
+
       router.push(query ? `${resultsPath}?${query}` : resultsPath)
     },
     [initialParams, initialLimit, resultsPath, router, searchTerm, selectedAmenities, selectedCategories, selectedCities]
@@ -257,7 +258,7 @@ export function SearchFiltersForm({ initialParams = {}, resultsPath = DEFAULT_RE
   const formClassName = className ? `max-w-2xl mx-auto ${className}` : 'max-w-2xl mx-auto'
 
   return (
-    <form onSubmit={handleSearch} className={formClassName}>
+    <form onSubmit={handleSearch} className={formClassName} data-testid="search-form">
       <div className="relative">
         <label htmlFor="search-page-input" className="sr-only">Search venues</label>
         <Search
