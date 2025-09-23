@@ -43,15 +43,18 @@ const mockGetRedisClient = getRedisClient as jest.MockedFunction<typeof getRedis
 const mockDbConnect = dbConnect as jest.MockedFunction<typeof dbConnect>;
 const mockMongoose = mongoose as jest.Mocked<typeof mongoose>;
 
+import type { Redis } from '@upstash/redis';
+
 // Mock Redis client
-const mockRedisClient = {
+const mockRedisClient: jest.Mocked<Redis> = {
   set: jest.fn(),
   get: jest.fn(),
   del: jest.fn(),
   exists: jest.fn(),
   incr: jest.fn(),
   expire: jest.fn(),
-};
+  // Add any other methods from Redis if needed for type completeness
+} as any;
 
 // Mock rate limiter instance
 const mockRateLimiterInstance = {
@@ -71,7 +74,7 @@ describe('Rate Limiting and Redis Integration', () => {
     jest.clearAllMocks();
     
     // Setup default mocks
-    mockGetRedisClient.mockReturnValue(mockRedisClient as any);
+    mockGetRedisClient.mockReturnValue(mockRedisClient);
     mockRatelimit.mockReturnValue(mockRateLimiterInstance as any);
     mockDbConnect.mockResolvedValue(undefined);
     

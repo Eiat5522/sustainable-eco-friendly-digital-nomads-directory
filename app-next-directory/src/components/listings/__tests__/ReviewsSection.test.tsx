@@ -180,7 +180,7 @@ describe('submitReview', () => {
       fetcher,
     })
 
-    expect(result).toEqual({ type: 'success' })
+    expect(result).toEqual({ type: 'success', review: { id: 'review-id' } })
     expect(fetcher).toHaveBeenCalledWith(
       '/api/reviews',
       expect.objectContaining({
@@ -204,7 +204,7 @@ describe('submitReview', () => {
         listingId: 'listing-1',
         fetcher,
       })
-    ).resolves.toEqual({ type: 'success' })
+    ).resolves.toEqual({ type: 'success', review: null })
 
     expect(fetcher).toHaveBeenCalled()
   })
@@ -390,7 +390,9 @@ describe('ReviewsSection', () => {
 
     await waitFor(() => {
       expect(mockRefresh).toHaveBeenCalled()
-      expect(screen.getByText(/pending approval/i)).toBeInTheDocument()
+      expect(screen.getByTestId('review-success-message')).toBeInTheDocument()
+      expect(screen.getByTestId('submitted-review-status')).toHaveTextContent(/pending approval/i)
+      expect(screen.getByTestId('submitted-review-comment')).toHaveTextContent('Outstanding place!')
     })
 
     expect(textarea).toHaveValue('')

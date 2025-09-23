@@ -50,9 +50,15 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {listings.map((listing) => (
-          <Link key={listing.id} href={`/listings/${listing.slug}`} className="block">
-            <NeoCard 
-              variant="elevated" 
+          <Link
+            key={listing.id}
+            href={`/listings/${listing.slug}`}
+            className="block"
+            data-testid="related-listing-card"
+            data-has-image={Boolean(listing.imageUrl)}
+          >
+            <NeoCard
+              variant="elevated"
               className="group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 cursor-pointer h-full"
             >
               <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
@@ -65,6 +71,7 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
                   fill
                   sizes="(min-width: 768px) 50vw, 100vw"
                   className="object-cover"
+                  data-testid="related-listing-fallback"
                 />
                 {/* Remote image layered above; hide on error so placeholder shows */}
                 {listing.imageUrl && (

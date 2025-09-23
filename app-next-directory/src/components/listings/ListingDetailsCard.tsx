@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+
+import React, { useId, useMemo, useState } from 'react';
 import { Phone, Mail, Globe, MapPin } from 'lucide-react';
 import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
 import { NeoButton } from '@/components/ui/neo-button';
@@ -20,6 +22,19 @@ interface ListingDetailsCardProps {
 }
 
 export function ListingDetailsCard({ listing }: Readonly<ListingDetailsCardProps>) {
+  const descriptionId = useId();
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+
+  const shouldTruncateDescription = useMemo(() => {
+    if (!listing.longDescription) return false;
+    // Use a conservative threshold to avoid showing the toggle for short blurbs.
+    return listing.longDescription.trim().length > 260;
+  }, [listing.longDescription]);
+
+  const handleToggleDescription = () => {
+    setIsDescriptionExpanded((prev) => !prev);
+  };
+
   const renderCategoryDetails = () => {
     switch (listing.type) {
       case 'accommodation':
@@ -169,9 +184,36 @@ export function ListingDetailsCard({ listing }: Readonly<ListingDetailsCardProps
           {/* Description */}
           {listing.longDescription && (
             <div>
-              <p className="body-md text-neo-text-secondary leading-relaxed">
-                {listing.longDescription}
-              </p>
+              <div
+                id={descriptionId}
+                data-testid="long-description"
+                data-expanded={isDescriptionExpanded}
+                className={`relative body-md text-neo-text-secondary leading-relaxed transition-[max-height] duration-300 ${
+                  shouldTruncateDescription && !isDescriptionExpanded
+                    ? 'max-h-32 overflow-hidden pr-1'
+                    : 'max-h-none'
+                }`}
+              >
+                <p className="whitespace-pre-line">{listing.longDescription}</p>
+                {shouldTruncateDescription && !isDescriptionExpanded && (
+                  <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-neo-surface via-neo-surface/80 to-transparent"
+                    aria-hidden="true"
+                  />
+                )}
+              </div>
+              {shouldTruncateDescription && (
+                <button
+                  type="button"
+                  data-testid="read-more-button"
+                  aria-expanded={isDescriptionExpanded}
+                  aria-controls={descriptionId}
+                  onClick={handleToggleDescription}
+                  className="mt-3 text-sm font-semibold text-neo-primary hover:text-neo-primary/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary focus-visible:ring-offset-2"
+                >
+                  {isDescriptionExpanded ? 'Read less' : 'Read more'}
+                </button>
+              )}
             </div>
           )}
 

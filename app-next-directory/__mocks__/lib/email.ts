@@ -1,13 +1,12 @@
-import { jest } from '@jest/globals';
+import { jest } from '@jest/globals'
 
-export const sendMail = jest.fn();
-export const buildVerifyEmail = jest.fn();
+export const sendMail = jest.fn()
+export const buildVerifyEmail = jest.fn()
 
-// Setup default returns
-sendMail.mockResolvedValue({ messageId: 'test-message-id' });
+sendMail.mockResolvedValue({ messageId: 'test-message-id' })
 buildVerifyEmail.mockResolvedValue({
   to: 'test@example.com',
   subject: 'Verify your email',
   html: '<p>Test email</p>',
   text: 'Test email'
-});
+})

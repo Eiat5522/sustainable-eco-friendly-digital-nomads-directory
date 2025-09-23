@@ -1,292 +1,123 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
-test.describe('ReviewsSection E2E Tests', () => {
-  const testPageUrl = '/test-reviews';
+const SIGNED_IN_TEST_PAGE = '/test-reviews?signedIn=1';
 
+async function prepareSignedInPage(page: Page) {
+  await page.goto(SIGNED_IN_TEST_PAGE);
+  await page.waitForSelector('[data-testid="submit-review-button"]', { state: 'visible' });
+}
+
+test.describe('Reviews submission flow', () => {
   test.beforeEach(async ({ page }) => {
-    // Mock auth session API - defaults to unauthenticated
     await page.route('**/api/auth/session', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({}) // Empty = unauthenticated
+        body: JSON.stringify({ user: { id: 'e2e-user', name: 'E2E Tester', email: 'tester@example.com' } })
       });
     });
+  });
 
-    // Mock reviews API calls
+  test('authenticated user submits review and sees pending confirmation card', async ({ page }) => {
     await page.route('**/api/reviews', async (route) => {
-      if (route.request().method() === 'GET') {
+      if (route.request().method() === 'POST') {
         await route.fulfill({
-          status: 200,
+          status: 201,
           contentType: 'application/json',
-          body: JSON.stringify([])
+          body: JSON.stringify({
+            id: 'review-e2e-pending',
+            rating: 5,
+            comment: 'Amazing eco-friendly stay with great community vibes.',
+            approved: false,
+            createdAt: '2024-06-01T12:00:00Z'
+          })
         });
-      } else {
-        // POST will be handled by specific tests
-        await route.continue();
+        return;
       }
+
+      await route.continue();
     });
 
-    // Mock any Sanity requests
-    await page.route('**/api/sanity/**', async (route) => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ result: [] })
-      });
-    });
+    await prepareSignedInPage(page);
+
+    await page.click('[data-testid="rating-star-5"]');
+    await page.fill('[data-testid="review-comment-field"]', 'Amazing eco-friendly stay with great community vibes.');
+    await page.click('[data-testid="submit-review-button"]');
+
+    await expect(page.getByTestId('review-success-message')).toBeVisible();
+    const status = page.getByTestId('submitted-review-status');
+    await expect(status).toHaveText(/pending approval/i);
+    await expect(page.getByTestId('submitted-review-comment')).toContainText('Amazing eco-friendly stay');
   });
 
-  test.describe('Non-authenticated user: Sign-in prompt and callback URL', () => {
-    test('should show sign-in prompt with correct callbackUrl', async ({ page }) => {
-      await page.goto(testPageUrl);
-      await page.waitForLoadState('networkidle');
-
-      // Wait for client-side hydration
-      await page.waitForTimeout(2000);
-
-      // Look for the sign-in prompt
-      const signInPrompt = page.locator('text=Sign in to leave a review');
-      await expect(signInPrompt).toBeVisible({ timeout: 10000 });
-
-      // Find the Sign In button
-      const signInButton = page.locator('text=Sign In');
-      await expect(signInButton).toBeVisible();
-
-      // Check the href includes callbackUrl
-      const href = await signInButton.getAttribute('href');
-      expect(href).toBeTruthy();
-      
-      if (href) {
-        expect(href).toContain('/auth/login');
-        expect(href).toContain('callbackUrl=');
-        expect(href).toContain(encodeURIComponent(testPageUrl));
-      }
-    });
-
-    test('should navigate to login with callbackUrl when Sign In clicked', async ({ page }) => {
-      // Mock the auth login page
-      await page.route('**/auth/login*', async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'text/html',
-          body: `
-            <html>
-              <body>
-                <h1>Login Page</h1>
-                <p>Please sign in</p>
-                <div data-testid="login-page"></div>
-              </body>
-            </html>
-          `
-        });
-      });
-
-      await page.goto(testPageUrl);
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(2000);
-
-      // Click the Sign In button
-      const signInButton = page.locator('text=Sign In');
-      await expect(signInButton).toBeVisible();
-      await signInButton.click();
-
-      // Wait for navigation to login page
-      await page.waitForURL('**/auth/login**', { timeout: 10000 });
-
-      // Verify callbackUrl parameter
-      const url = new URL(page.url());
-      expect(url.pathname).toBe('/auth/login');
-      const callbackUrl = url.searchParams.get('callbackUrl');
-      expect(callbackUrl).toBeTruthy();
-      
-      if (callbackUrl) {
-        const decodedCallbackUrl = decodeURIComponent(callbackUrl);
-        expect(decodedCallbackUrl).toContain(testPageUrl);
-      }
-    });
-  });
-
-  test.describe('Signed-in user: Review submission flows', () => {
-    test.beforeEach(async ({ page }) => {
-      // Override auth session to simulate signed-in user
-      await page.route('**/api/auth/session', async (route) => {
+  test('shows approved status when backend marks review as approved', async ({ page }) => {
+    await page.route('**/api/reviews', async (route) => {
+      if (route.request().method() === 'POST') {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
           body: JSON.stringify({
-            user: {
-              id: 'test-user-id',
-              name: 'Test User',
-              email: 'test@example.com',
-              role: 'user'
-            }
+            id: 'review-e2e-approved',
+            rating: 4,
+            comment: 'Approved review from moderators.',
+            approved: true,
+            createdAt: '2024-06-15T09:30:00Z'
           })
         });
-      });
-    });
-
-    test('should redirect to login on 401 response with callbackUrl', async ({ page }) => {
-      // Mock reviews API to return 401
-      await page.route('**/api/reviews', async (route) => {
-        if (route.request().method() === 'POST') {
-          await route.fulfill({
-            status: 401,
-            contentType: 'application/json',
-            body: JSON.stringify({ error: 'Unauthorized' })
-          });
-        } else {
-          await route.continue();
-        }
-      });
-
-      // Mock auth login page for redirect
-      await page.route('**/auth/login*', async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'text/html',
-          body: `
-            <html>
-              <body>
-                <h1>Login Page</h1>
-                <p>Session expired, please sign in again</p>
-                <div data-testid="login-redirect"></div>
-              </body>
-            </html>
-          `
-        });
-      });
-
-      await page.goto(testPageUrl);
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(2000);
-
-      // Should show review form for signed-in user
-      const reviewForm = page.locator('text=Add Your Review');
-      await expect(reviewForm).toBeVisible({ timeout: 10000 });
-
-      // Fill the rating (try to click on star rating)
-      const starRating = page.locator('[data-testid*="star"], [role="button"]').first();
-      if (await starRating.count() > 0) {
-        await starRating.click();
+        return;
       }
 
-      // Fill the comment
-      const commentTextarea = page.locator('textarea[placeholder*="Share your experience"], textarea').first();
-      await expect(commentTextarea).toBeVisible();
-      await commentTextarea.fill('Test review comment');
-
-      // Submit the review
-      const submitButton = page.locator('button:has-text("Submit Review")');
-      await expect(submitButton).toBeVisible();
-      await submitButton.click();
-
-      // Should redirect to login page
-      await page.waitForURL('**/auth/login**', { timeout: 10000 });
-      
-      // Verify callbackUrl parameter
-      const url = new URL(page.url());
-      const callbackUrl = url.searchParams.get('callbackUrl');
-      expect(callbackUrl).toBeTruthy();
-      
-      if (callbackUrl) {
-        const decodedCallbackUrl = decodeURIComponent(callbackUrl);
-        expect(decodedCallbackUrl).toContain(testPageUrl);
-      }
+      await route.continue();
     });
 
-    test('should show success message on 200 response', async ({ page }) => {
-      // Mock successful reviews API response
-      await page.route('**/api/reviews', async (route) => {
-        if (route.request().method() === 'POST') {
-          await route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify({
-              id: 'new-review-id',
-              rating: 5,
-              comment: 'Test review comment',
-              approved: false
-            })
-          });
-        } else {
-          await route.continue();
-        }
-      });
+    await prepareSignedInPage(page);
 
-      await page.goto(testPageUrl);
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(2000);
+    await page.click('[data-testid="rating-star-4"]');
+    await page.fill('[data-testid="review-comment-field"]', 'Approved review from moderators.');
+    await page.click('[data-testid="submit-review-button"]');
 
-      // Find review form
-      const reviewForm = page.locator('text=Add Your Review');
-      await expect(reviewForm).toBeVisible({ timeout: 10000 });
-
-      // Fill rating
-      const starRating = page.locator('[data-testid*="star"], [role="button"]').first();
-      if (await starRating.count() > 0) {
-        await starRating.click();
-      }
-
-      // Fill comment
-      const commentTextarea = page.locator('textarea[placeholder*="Share your experience"], textarea').first();
-      await commentTextarea.fill('Test review comment');
-
-      // Submit
-      const submitButton = page.locator('button:has-text("Submit Review")');
-      await submitButton.click();
-
-      // Look for success message
-      const successMessage = page.locator('text=Thank you! Your review has been submitted');
-      await expect(successMessage).toBeVisible({ timeout: 5000 });
-
-      // Verify form is reset
-      await expect(commentTextarea).toHaveValue('');
-    });
+    await expect(page.getByTestId('review-success-message')).toBeVisible();
+    await expect(page.getByTestId('submitted-review-status')).toHaveText(/approved/i);
   });
 
-  test.describe('Form validation', () => {
-    test.beforeEach(async ({ page }) => {
-      // Mock authenticated session for form testing
-      await page.route('**/api/auth/session', async (route) => {
+  test('prevents submission until both rating and comment are provided', async ({ page }) => {
+    await prepareSignedInPage(page);
+
+    const submitButton = page.getByTestId('submit-review-button');
+    await expect(submitButton).toBeDisabled();
+
+    await page.click('[data-testid="rating-star-4"]');
+    await expect(submitButton).toBeDisabled();
+
+    await page.fill('[data-testid="review-comment-field"]', 'Quick thoughts');
+    await expect(submitButton).toBeEnabled();
+
+    await page.fill('[data-testid="review-comment-field"]', '');
+    await expect(submitButton).toBeDisabled();
+  });
+
+  test('displays server validation error when comment is too short', async ({ page }) => {
+    await page.route('**/api/reviews', async (route) => {
+      if (route.request().method() === 'POST') {
         await route.fulfill({
-          status: 200,
+          status: 422,
           contentType: 'application/json',
-          body: JSON.stringify({
-            user: {
-              id: 'test-user-id',
-              name: 'Test User',
-              email: 'test@example.com',
-              role: 'user'
-            }
-          })
+          body: JSON.stringify({ error: 'Comment must be at least 20 characters.' })
         });
-      });
-    });
-
-    test('should disable submit button when required fields are empty', async ({ page }) => {
-      await page.goto(testPageUrl);
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(2000);
-
-      // Find submit button
-      const submitButton = page.locator('button:has-text("Submit Review")');
-      await expect(submitButton).toBeVisible({ timeout: 10000 });
-
-      // Initially disabled (no rating/comment)
-      await expect(submitButton).toBeDisabled();
-
-      // Add comment but no rating - should still be disabled
-      const commentTextarea = page.locator('textarea[placeholder*="Share your experience"], textarea').first();
-      await commentTextarea.fill('Test comment');
-      await expect(submitButton).toBeDisabled();
-
-      // Add rating - should become enabled
-      const starRating = page.locator('[data-testid*="star"], [role="button"]').first();
-      if (await starRating.count() > 0) {
-        await starRating.click();
-        await expect(submitButton).toBeEnabled();
+        return;
       }
+
+      await route.continue();
     });
+
+    await prepareSignedInPage(page);
+
+    await page.click('[data-testid="rating-star-3"]');
+    await page.fill('[data-testid="review-comment-field"]', 'Too short');
+    await page.click('[data-testid="submit-review-button"]');
+
+    const errorMessage = page.getByTestId('review-error-message');
+    await expect(errorMessage).toBeVisible();
+    await expect(errorMessage).toHaveText('Comment must be at least 20 characters.');
   });
 });

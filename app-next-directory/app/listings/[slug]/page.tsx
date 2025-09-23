@@ -1,5 +1,6 @@
 export const revalidate = 300; // ISR: revalidate every 5 minutes
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
+import { mockListingDetail, mockRelatedListings, mockReviews } from '@/components/listings/listingDetailMockData';
 import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import { transformToDetailDTO } from '@/lib/dto-transformer';
@@ -9,10 +10,52 @@ import type { ListingDetailDTO } from '@/types/dto';
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 
 type Props = { params: Promise<{ slug: string }> };
+
+type ListingFixture = {
+  listing: ListingDetailDTO;
+  reviews?: typeof mockReviews;
+  relatedListings?: typeof mockRelatedListings;
+  isSignedIn?: boolean;
+  isFavorited?: boolean;
+};
+
+const isE2ETest = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
+const E2E_ERROR_SLUG = 'listing-error-simulated';
+
+const e2eFixtures: Record<string, ListingFixture> = {
+  'banyan-tree-phuket': {
+    listing: mockListingDetail,
+    reviews: mockReviews,
+    relatedListings: mockRelatedListings,
+    isSignedIn: true,
+    isFavorited: false,
+  },
+};
+
+function cloneFixture(fixture: ListingFixture) {
+  const listing = structuredClone(fixture.listing);
+  if (!Array.isArray(listing.galleryImages) || listing.galleryImages.length === 0) {
+    listing.galleryImages = ['/test-gallery-1.jpg', '/test-gallery-2.jpg'];
+  } else {
+    listing.galleryImages = listing.galleryImages.map((src, index) => {
+      if (typeof src === 'string' && src.trim().length > 0) {
+        return src === '/placeholder_image.png' ? `/test-gallery-${index + 1}.jpg` : src;
+      }
+      return `/test-gallery-${index + 1}.jpg`;
+    });
+  }
+
+  return {
+    listing,
+    reviews: fixture.reviews ? structuredClone(fixture.reviews) : [],
+    relatedListings: fixture.relatedListings ? structuredClone(fixture.relatedListings) : [],
+    isSignedIn: Boolean(fixture.isSignedIn),
+    isFavorited: Boolean(fixture.isFavorited),
+  };
+}
 
 const LISTING_QUERY = groq`*[_type == "listing" && moderation.status == "published" && slug.current == $slug][0]{
   _id,
@@ -145,6 +188,35 @@ async function checkIsFavorited(listingId: string, userId?: string): Promise<boo
 
 export default async function ListingPage({ params }: Props) {
   const { slug } = await params;
+
+  if (isE2ETest) {
+    if (slug === E2E_ERROR_SLUG) {
+      throw new Error('E2E forced listing error');
+    }
+
+    const fixture = e2eFixtures[slug];
+    if (!fixture) notFound();
+
+    const { listing, reviews, relatedListings, isSignedIn, isFavorited } = cloneFixture(fixture);
+
+    return (
+      <>
+        <Header />
+        <main>
+          <ListingDetailView
+            listing={listing}
+            reviews={reviews}
+            relatedListings={relatedListings}
+            isSignedIn={isSignedIn}
+            isFavorited={isFavorited}
+          />
+        </main>
+        <Footer />
+      </>
+    );
+  }
+
+  const { auth } = await import('@/lib/auth');
   const sessionPromise = auth();
   const listing = await fetchListingBySlug(slug);
   if (!listing) notFound();

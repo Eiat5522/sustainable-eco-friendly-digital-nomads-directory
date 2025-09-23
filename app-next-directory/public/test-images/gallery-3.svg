@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="title desc">
+  <title>Gallery placeholder three</title>
+  <desc>Cool gradient illustration representing night coworking hub</desc>
+  <defs>
+    <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#22d3ee;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#grad3)" rx="48" ry="48" />
+  <g font-family="'Space Grotesk', sans-serif" fill="white" text-anchor="middle">
+    <text x="400" y="310" font-size="68" font-weight="700">Nomad Nights</text>
+  </g>
+</svg>

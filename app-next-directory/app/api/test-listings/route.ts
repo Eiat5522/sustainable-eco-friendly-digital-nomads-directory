@@ -1,11 +1,12 @@
-import { mockListings } from '@/tests/helpers/test-data';
-import { ApiResponseHandler } from '@/utils/api-response';
+import { createTestData } from '@/tests/helpers/test-data'
+import { ApiResponseHandler } from '@/utils/api-response'
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-static'
 
 export async function GET(): Promise<Response> {
   if (process.env.NODE_ENV === 'production') {
-    return new Response(null, { status: 404 });
+    return new Response(null, { status: 404 })
   }
-  return ApiResponseHandler.success({ listings: mockListings });
+  const { listings } = createTestData()
+  return ApiResponseHandler.success({ listings })
 }

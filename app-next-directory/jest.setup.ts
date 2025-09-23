@@ -42,6 +42,10 @@ import { jest } from '@jest/globals';
 import './jest.polyfills';
 import { TextEncoder, TextDecoder } from 'util';
 import '@testing-library/jest-dom';
+import { createTestData } from '@/tests/helpers/test-data';
+
+// Provide deterministic dataset for unit tests
+;(global as any).__TEST_DATA__ = createTestData();
 
 // Ensure basic globals are available before any mocks that depend on them
 // Use `any` cast here to avoid TypeScript complaining about differences

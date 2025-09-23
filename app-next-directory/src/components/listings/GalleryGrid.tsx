@@ -108,8 +108,11 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
   if (toShow.length === 0) return null;
 
   return (
-    <div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+    <div data-testid="gallery-grid">
+      <div
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3"
+        data-testid="gallery-thumbnails"
+      >
         {toShow.map((src, idx) => (
           <button
             key={idx}
@@ -119,11 +122,13 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
             }}
             className="relative w-full h-32 sm:h-36 md:h-40 rounded-lg overflow-hidden bg-gray-100 hover:shadow-lg transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label={`Open image ${idx + 1}`}
+            data-testid="gallery-thumbnail"
+            data-index={idx}
           >
-            <Image 
+            <Image
               src={src}
               alt={altTexts[idx] ?? `Gallery image ${idx + 1}`}
-              fill 
+              fill
               className="object-cover hover:scale-105 transition-transform duration-300" 
             />
           </button>
@@ -140,6 +145,7 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
           onClick={closeModal}
           ref={dialogRef}
           onKeyDown={onDialogKeyDown}
+          data-testid="gallery-lightbox"
         >
           <div className="relative w-full max-w-4xl max-h-[90vh] mx-auto" onClick={(e) => e.stopPropagation()}>
             <button

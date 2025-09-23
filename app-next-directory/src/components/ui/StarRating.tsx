@@ -47,21 +47,43 @@ export function StarRating({
       {Array.from({ length: maxRating }, (_, index) => {
         const starRating = index + 1;
         const isFilled = starRating <= (hoverRating || rating);
-        
-        return (
+
+        const star = (
           <Star
-            key={index}
             size={size}
             className={cn(
               "transition-colors duration-200",
               interactive && "cursor-pointer hover:scale-110 transition-transform",
-              isFilled 
-                ? "fill-yellow-400 text-yellow-400" 
+              isFilled
+                ? "fill-yellow-400 text-yellow-400"
                 : "text-gray-300"
+            )}
+          />
+        );
+
+        if (!interactive) {
+          return (
+            <span key={index} className="inline-flex items-center" aria-hidden>
+              {star}
+            </span>
+          );
+        }
+
+        return (
+          <button
+            key={index}
+            type="button"
+            data-testid={`rating-star-${starRating}`}
+            aria-label={`Set rating to ${starRating} star${starRating === 1 ? '' : 's'}`}
+            className={cn(
+              "m-0 border-none bg-transparent p-0 text-inherit",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neo-primary/40"
             )}
             onClick={() => handleStarClick(starRating)}
             onMouseEnter={() => handleStarHover(starRating)}
-          />
+          >
+            {star}
+          </button>
         );
       })}
     </div>

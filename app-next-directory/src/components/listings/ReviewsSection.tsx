@@ -20,6 +20,7 @@ interface Review {
     image?: string;
   };
   createdAt: string;
+  status?: 'pending' | 'approved';
 }
 
 interface ReviewsSectionProps {
@@ -32,14 +33,30 @@ export const canSubmitReview = (rating: number, comment: string) => {
   return rating > 0 && comment.trim().length > 0;
 };
 
+interface SubmittedReviewSummary {
+  id: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  status: 'pending' | 'approved';
+}
+
 interface SubmitReviewOptions {
   review: { rating: number; comment: string };
   listingId: string;
   fetcher: typeof fetch;
 }
 
+interface SubmitReviewPayload {
+  id?: string;
+  rating?: number;
+  comment?: string;
+  approved?: boolean;
+  createdAt?: string;
+}
+
 type SubmitReviewResult =
-  | { type: 'success' }
+  | { type: 'success'; review?: SubmitReviewPayload | null }
   | { type: 'unauthorized' }
   | { type: 'forbidden' }
   | { type: 'conflict' }
@@ -71,8 +88,23 @@ export const submitReview = async ({ review, listingId, fetcher }: SubmitReviewO
   }
 
   if (response.ok) {
-    await response.json().catch(() => null);
-    return { type: 'success' };
+    let parsed: SubmitReviewPayload | null = null;
+
+    try {
+      const data = await response.json();
+      if (data && typeof data === 'object') {
+        const maybePayload = (data as any).data && typeof (data as any).data === 'object'
+          ? (data as any).data
+          : data;
+        if (maybePayload && typeof maybePayload === 'object') {
+          parsed = maybePayload as SubmitReviewPayload;
+        }
+      }
+    } catch (error) {
+      // Ignore JSON parsing issues and treat as success without payload
+    }
+
+    return { type: 'success', review: parsed };
   }
 
   let message = 'Failed to submit review';
@@ -94,16 +126,23 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [submittedReview, setSubmittedReview] = useState<SubmittedReviewSummary | null>(null);
   const [callbackUrl, setCallbackUrl] = useState<string>('');
   const router = useRouter();
 
   const handleSubmitReview = async () => {
     setIsSubmitting(true);
     setError(null);
+    setSubmitted(false);
 
     try {
+      const preparedReview = {
+        rating: newReview.rating,
+        comment: newReview.comment.trim(),
+      };
+
       const result = await submitReview({
-        review: { rating: newReview.rating, comment: newReview.comment },
+        review: preparedReview,
         listingId,
         fetcher: fetch,
       });
@@ -123,6 +162,29 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
         case 'success':
           setNewReview({ rating: 0, comment: '' });
           setSubmitted(true);
+          setSubmittedReview(() => {
+            const payload = result.review;
+            const now = new Date().toISOString();
+            const id = typeof payload?.id === 'string' && payload.id.trim().length > 0
+              ? payload.id
+              : `pending-${Date.now()}`;
+            const rating = typeof payload?.rating === 'number' ? payload.rating : preparedReview.rating;
+            const comment = typeof payload?.comment === 'string' && payload.comment.trim().length > 0
+              ? payload.comment
+              : preparedReview.comment;
+            const createdAt = typeof payload?.createdAt === 'string' && payload.createdAt.length > 0
+              ? payload.createdAt
+              : now;
+            const status: 'pending' | 'approved' = payload?.approved ? 'approved' : 'pending';
+
+            return {
+              id,
+              rating,
+              comment,
+              createdAt,
+              status,
+            };
+          });
           router.refresh();
           return;
         case 'error':
@@ -176,17 +238,52 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
             <h3 className="heading-sm mb-4">Add Your Review</h3>
             
             {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              <div
+                className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
+                data-testid="review-error-message"
+                role="alert"
+              >
                 {error}
               </div>
             )}
 
             {submitted && (
-              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+              <div
+                className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm"
+                data-testid="review-success-message"
+                role="status"
+              >
                 Thank you! Your review has been submitted and is pending approval.
               </div>
             )}
-            
+
+            {submitted && submittedReview && (
+              <div
+                className="mb-4 rounded-lg border border-neo-border bg-white p-4 shadow-sm"
+                data-testid="submitted-review-card"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-neo-text-primary">Latest submission</p>
+                  <span
+                    className="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-amber-800"
+                    data-testid="submitted-review-status"
+                  >
+                    {submittedReview.status === 'approved' ? 'Approved' : 'Pending Approval'}
+                  </span>
+                </div>
+                <div className="mt-2 flex items-center gap-2 text-xs text-neo-text-secondary">
+                  <StarRating rating={submittedReview.rating} size={16} />
+                  <span>{formatDate(submittedReview.createdAt)}</span>
+                </div>
+                <p
+                  className="mt-3 text-sm text-neo-text-secondary"
+                  data-testid="submitted-review-comment"
+                >
+                  {submittedReview.comment}
+                </p>
+              </div>
+            )}
+
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2">Rating</label>
               <StarRating
@@ -207,6 +304,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
                 rows={4}
                 maxLength={2000}
                 disabled={isSubmitting}
+                data-testid="review-comment-field"
               />
             </div>
 
@@ -214,6 +312,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
               onClick={handleSubmitReview}
               disabled={!canSubmitReview(newReview.rating, newReview.comment) || isSubmitting}
               className="w-full md:w-auto"
+              data-testid="submit-review-button"
             >
               {isSubmitting ? 'Submitting...' : 'Submit Review'}
             </NeoButton>
