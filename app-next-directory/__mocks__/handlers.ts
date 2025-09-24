@@ -205,7 +205,47 @@ export const handlers = [
       }
     })
     return ok({ favorites })
-  })
+  }),
+
+  // Auth endpoints
+  http.get('/api/auth/providers', () => {
+    return ok({
+      google: {
+        id: 'google',
+        name: 'Google',
+        type: 'oauth',
+        signinUrl: '/api/auth/signin/google',
+        callbackUrl: '/api/auth/callback/google'
+      },
+      facebook: {
+        id: 'facebook', 
+        name: 'Facebook',
+        type: 'oauth',
+        signinUrl: '/api/auth/signin/facebook',
+        callbackUrl: '/api/auth/callback/facebook'
+      }
+    })
+  }),
+
+  http.post('/api/auth/register', async ({ request }) => {
+    let body: any = {}
+    try {
+      body = await request.json()
+    } catch {
+      body = {}
+    }
+    
+    // Simulate successful registration
+    return ok({
+      success: true,
+      emailVerificationRequired: false,
+      data: {
+        id: 'user-123',
+        name: body.name ?? 'Test User',
+        email: body.email ?? 'test@example.com'
+      }
+    }, 201)
+  }),
 ]
 
 export const setReviewsResponse = (mode: 'success' | 'unauthorized' | 'forbidden' | 'conflict' | 'error') => {
@@ -240,4 +280,32 @@ export const setReviewsResponse = (mode: 'success' | 'unauthorized' | 'forbidden
   })
 
   return reviewsHandler
+}
+
+export const setRegisterResponse = (mode: 'success' | 'error') => {
+  const registerHandler = http.post('/api/auth/register', async ({ request }) => {
+    let body: any = {}
+    try {
+      body = await request.json()
+    } catch {
+      body = {}
+    }
+
+    switch (mode) {
+      case 'error':
+        return ok({ error: 'Registration failed' }, 400)
+      default:
+        return ok({
+          success: true,
+          emailVerificationRequired: false,
+          data: {
+            id: 'user-123',
+            name: body.name ?? 'Test User',
+            email: body.email ?? 'test@example.com'
+          }
+        }, 201)
+    }
+  })
+
+  return registerHandler
 }
