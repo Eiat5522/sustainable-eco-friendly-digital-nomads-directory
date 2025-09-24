@@ -1,6 +1,6 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { rateLimit } from '@/utils/rate-limit';
-import { NextRequest } from 'next/dist/server/web/spec-extension/request';
+import { NextRequest } from 'next/server';
 import nodemailer from 'nodemailer';
 import { z } from 'zod';
 import { sendMail } from '@/lib/email';

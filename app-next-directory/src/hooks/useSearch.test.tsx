@@ -34,7 +34,7 @@ const TestComponent: React.FC<TestComponentProps> = ({ initialQuery = '' }) => {
       <span data-testid="results">{search.results.map((r) => r.name).join(', ')}</span>
       <button onClick={() => search.handleQueryChange('an')}>Set Query to an</button>
       <button onClick={() => search.handleQueryChange('xyz')}>Set Query to xyz</button>
-      <button onClick={() => search.handleQueryChange('  apple  ')}>Set Query to spaced apple</button>
+      <button onClick={() => search.handleQueryChange('  bangkok  ')}>Set Query to spaced bangkok</button>
       <button onClick={() => search.handleQueryChange('test')}>Set Query to test</button>
     </>
   );
@@ -57,7 +57,7 @@ describe('useSearch', () => {
       // Debug log for actual results
       // eslint-disable-next-line no-console
       console.log('Actual results:', screen.getByTestId('results').textContent);
-      expect(screen.getByTestId('results').textContent).toContain('Banana');
+      expect(screen.getByTestId('results').textContent).toContain('Bangkok Eco Hub');
     });
   });
 
@@ -90,18 +90,18 @@ describe('useSearch', () => {
     });
   });
 
-  it('should not trim the search term before filtering', async () => {
+  it('should handle search terms with surrounding whitespace', async () => {
     render(<TestComponent initialQuery="" />);
 
-    userEvent.click(screen.getByText('Set Query to spaced apple'));
+    userEvent.click(screen.getByText('Set Query to spaced bangkok'));
     await act(async () => {
       jest.advanceTimersByTime(350);
       await Promise.resolve();
     });
     await act(async () => { await Promise.resolve(); });
     await waitFor(() => {
-      expect(screen.getByTestId('query').textContent).toBe('  apple  ');
-      expect(screen.getByTestId('results').textContent).toContain('Apple');
+      expect(screen.getByTestId('query').textContent).toBe('  bangkok  ');
+      expect(screen.getByTestId('results').textContent).toContain('Bangkok Eco Hub');
     });
   });
 });
