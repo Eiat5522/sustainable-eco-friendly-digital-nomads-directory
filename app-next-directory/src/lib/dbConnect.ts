@@ -34,7 +34,7 @@ async function dbConnect(): Promise<Mongoose> {
   // Dynamically load mongoose for mocking flexibility
   const mongoose: Mongoose = require('mongoose');
 
-  if (isE2E) {
+  if (isE2E || process.env.NODE_ENV === 'test') {
     if (!cached.conn) {
       cached.conn = mongoose;
       cached.promise = Promise.resolve(mongoose);
