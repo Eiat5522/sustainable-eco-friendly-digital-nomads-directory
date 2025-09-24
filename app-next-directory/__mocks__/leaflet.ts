@@ -42,8 +42,8 @@ const leaflet = {
   map: jest.fn(() => mockMapInstance),
   tileLayer: jest.fn(() => mockTileLayer),
   marker: jest.fn(() => mockMarker),
-  divIcon: jest.fn((options) => ({ ...options })),
-  icon: jest.fn((options) => ({ ...options })),
+  divIcon: jest.fn((options) => ({ ...(options as object) })),
+  icon: jest.fn((options) => ({ ...(options as object) })),
   layerGroup: jest.fn(() => ({ addLayer: jest.fn(), clearLayers: jest.fn() })),
   control: { zoom: { position: 'topright' } }
 }
