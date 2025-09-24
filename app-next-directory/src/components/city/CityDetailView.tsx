@@ -18,16 +18,6 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
   const [imageError, setImageError] = useState(false);
   const [activeTab, setActiveTab] = useState<'about' | 'listings' | 'map'>('about');
 
-
-  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-    if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
-      event.preventDefault();
-      const offset = event.key === 'ArrowRight' ? 1 : -1;
-      const nextIndex = (index + offset + tabs.length) % tabs.length;
-      setActiveTab(tabs[nextIndex].value as typeof activeTab);
-    }
-  };
-
   function isCityDetailDTO(city: CityDTO | CityDetailDTO): city is CityDetailDTO {
     return 'shortDescription' in city;
   }
@@ -235,6 +225,7 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
             </div>
           )}
         </div>
+
         <div className="flex flex-col gap-8">
           <div
             role="tablist"
@@ -257,7 +248,6 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
                     : 'border-neo-border bg-white text-neo-text-secondary hover:border-neo-primary hover:text-neo-primary'
                 }`}
                 onClick={() => setActiveTab(tab.value)}
-                onKeyDown={(e) => handleTabKeyDown(e, tabs.findIndex(t => t.value === tab.value))}
               >
                 {tab.label}
               </button>

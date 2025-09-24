@@ -1,24 +1,14 @@
 import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import type { AxeResults, AxeViolation } from '@axe-core/playwright'
 import { mockDiscoveryMetadata } from '../utils/discovery-helpers'
 
 async function assertNoCriticalViolations(context: string, page: Page) {
-  const results: AxeResults = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
-  const criticalIssues = results.violations.filter((violation: AxeViolation) => violation.impact === 'critical')
+  const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze()
+  const criticalIssues = results.violations.filter((violation) => violation.impact === 'critical')
   expect(criticalIssues, `${context} should not have critical accessibility violations`).toHaveLength(0)
 }
-await page.getByRole('searchbox', { name: 'Search venues' }).click();
-await page.getByRole('searchbox', { name: 'Search venues' }).click();
-await page.getByRole('searchbox', { name: 'Search venues' }).fill('k');
-await page.getByRole('combobox', { name: 'Select enquiry type' }).click();
-await page.getByRole('combobox', { name: 'Select enquiry type' }).click();
-await page.getByRole('textbox', { name: 'Email Address', exact: true }).click();
-await page.getByRole('textbox', { name: 'Email Address', exact: true }).fill('eia');
-await page.getByRole('textbox', { name: 'Email Address', exact: true }).fill('eiat');
-await page.getByRole('textbox', { name: 'Email Address', exact: true }).fill('eiat52@gm');
-await page.getByRole('textbox', { name: 'Email Address', exact: true }).fill('eiat52@gmail.com');
+
 test.describe('Accessibility smoke checks', () => {
   test('home page has no critical axe violations', async ({ page }) => {
     await page.goto('/')
