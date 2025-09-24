@@ -1,5 +1,5 @@
 import { revalidatePath } from 'next/cache';
-import { NextRequest } from 'next/dist/server/web/spec-extension/request';
+import { NextRequest } from 'next/server';
 import { ApiResponseHandler } from '@/utils/api-response';
 
 export const dynamic = 'force-dynamic';
