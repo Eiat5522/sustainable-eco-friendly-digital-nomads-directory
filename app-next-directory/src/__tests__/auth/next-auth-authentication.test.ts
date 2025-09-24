@@ -28,9 +28,14 @@ jest.mock('next-auth/jwt', () => ({
 }));
 
 // Mock modules to return jest functions
+const mockDbConnect = jest.fn().mockResolvedValue({
+  readyState: 1,
+  connection: { readyState: 1 }
+});
+
 jest.mock('@/lib/dbConnect', () => ({
   __esModule: true,
-  default: jest.fn().mockResolvedValue(undefined),
+  default: mockDbConnect,
 }));
 
 jest.mock('@/models/User', () => ({
@@ -46,10 +51,7 @@ jest.mock('@/lib/auth/rateLimit', () => ({
   recordLoginAttempt: jest.fn(),
 }));
 
-jest.mock('bcryptjs', () => ({
-  compare: jest.fn(),
-  hash: jest.fn(),
-}));
+jest.mock('bcryptjs');
 
 import { authenticateUser, createUserAccount, getUserById, updateUserRole } from '@/lib/auth/serverAuth';
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
@@ -66,7 +68,7 @@ const mockEnforceLoginRateLimit = enforceLoginRateLimit as jest.MockedFunction<t
 const mockRecordLoginAttempt = recordLoginAttempt as jest.MockedFunction<typeof recordLoginAttempt>;
 const mockUserFindOne = User.findOne as jest.MockedFunction<typeof User.findOne>;
 const mockUserCreate = User.create as jest.MockedFunction<typeof User.create>;
-const mockDbConnect = dbConnect as jest.MockedFunction<typeof dbConnect>;
+// Use the mockDbConnect defined above
 
 describe('Next Auth Authentication Module', () => {
   beforeEach(() => {
