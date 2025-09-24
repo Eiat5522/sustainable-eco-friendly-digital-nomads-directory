@@ -16,7 +16,7 @@ function createJsonResponse(body: JsonBody, init?: ResponseInit) {
   const headers = new Headers(init?.headers ?? {});
   if (!headers.has('content-type')) headers.set('content-type', 'application/json');
 
-  if (typeof NextResponse?.json === 'function' && hasStaticResponseJson) {
+  if (typeof NextResponse?.json === 'function') {
     return NextResponse.json(body, { ...init, headers });
   }
 
