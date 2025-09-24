@@ -35,11 +35,22 @@ jest.mock('@/lib/auth/rateLimit', () => ({
 }));
 
 jest.mock('@/models/User', () => ({
-  updateOne: jest.fn(),
+  __esModule: true,
+  default: {
+    updateOne: jest.fn(),
+  },
 }));
 
 jest.mock('@/lib/auth/config', () => ({
   isAdminEmail: jest.fn(),
+}));
+
+jest.mock('@/lib/dbConnect', () => ({
+  __esModule: true,
+  default: jest.fn().mockResolvedValue({
+    readyState: 1,
+    connection: { readyState: 1 }
+  }),
 }));
 
 import { createAuthAdapter } from '@/lib/auth/adapter';
@@ -66,7 +77,7 @@ describe('Next Auth Configuration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockCreateAuthAdapter.mockReturnValue({} as any);
-    mockDbConnect.mockResolvedValue(undefined);
+    // mockDbConnect is already configured in jest.mock above
   });
 
   describe('Auth Configuration Structure', () => {

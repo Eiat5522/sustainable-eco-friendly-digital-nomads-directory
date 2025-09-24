@@ -32,6 +32,8 @@ import { useSearchParams } from 'next/navigation';
 import RegisterPage from '@/app/auth/register/page';
 import LoginPage from '@/app/auth/login/page';
 import SocialAuthRow from '@/components/auth/SocialAuthRow';
+import { server } from '@/__mocks__/server';
+import { setRegisterResponse } from '@/__mocks__/handlers';
 
 // Type the mocks
 const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
@@ -42,6 +44,9 @@ const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
 describe('Authentication Forms and Components', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    
+    // Reset fetch mock and make sure it takes precedence over MSW
+    jest.resetAllMocks();
     
     // Default mock implementations
     mockUseSession.mockReturnValue({
@@ -527,10 +532,8 @@ describe('Authentication Forms and Components', () => {
     it('should have proper ARIA roles for error messages', async () => {
       const user = userEvent.setup();
       
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        json: async () => ({ error: 'Registration failed' }),
-      } as Response);
+      // Set up error response
+      server.use(setRegisterResponse('error'));
 
       render(<RegisterPage />);
 
@@ -554,10 +557,25 @@ describe('Authentication Forms and Components', () => {
   });
 
   describe('User Experience Flows', () => {
-    it('should provide clear navigation between auth pages', () => {
-      render(<RegisterPage />);
-      expect(screen.getByText('Return to sign in')).toHaveAttribute('href', '/auth/login');
+    it('should provide clear navigation between auth pages', async () => {
+      const user = userEvent.setup();
+      
+      // Test Register page -> Login navigation after successful registration
+      const { unmount } = render(<RegisterPage />);
+      
+      // Fill out form and submit to get to success state
+      await user.type(screen.getByPlaceholderText('you@example.com'), 'john@example.com');
+      await user.type(screen.getByPlaceholderText('Password (min 8 chars)'), 'password123');
+      await user.click(screen.getByRole('button', { name: 'Create account' }));
+      
+      // Wait for success state and check link
+      await waitFor(() => {
+        expect(screen.getByText('Return to sign in')).toHaveAttribute('href', '/auth/login');
+      });
+      
+      unmount();
 
+      // Test Login page navigation links
       render(<LoginPage />);
       expect(screen.getByText('Create account')).toHaveAttribute('href', '/auth/register');
       expect(screen.getByText('Forgot password?')).toHaveAttribute('href', '/auth/reset-request');
@@ -565,11 +583,6 @@ describe('Authentication Forms and Components', () => {
 
     it('should handle success states appropriately', async () => {
       const user = userEvent.setup();
-      
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true, emailVerificationRequired: false }),
-      } as Response);
 
       render(<RegisterPage />);
 

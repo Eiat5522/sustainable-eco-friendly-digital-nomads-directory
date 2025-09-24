@@ -70,7 +70,7 @@ beforeAll(async () => {
 describe('Authentication API Routes', () => {
   beforeEach(() => {
     // Initialize mocks here (Jest best practice: reset per test)
-    mockDbConnect = jest.spyOn(dbConnectModule, 'dbConnect').mockImplementation();
+    mockDbConnect = jest.spyOn(dbConnectModule, 'default').mockImplementation();
     mockUserFindOne = jest.spyOn(User, 'findOne').mockImplementation();
     mockUserCreate = jest.spyOn(User, 'create').mockImplementation();
     mockEmailVerificationTokenCreate = jest.spyOn(EmailVerificationToken, 'create').mockImplementation();
