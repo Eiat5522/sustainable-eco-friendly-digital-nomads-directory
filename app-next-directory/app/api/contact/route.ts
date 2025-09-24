@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
     } else {
       // Fallback to nodemailer
       const transporter = createTransporter();
-      const [adminEmail, autoReply] = await Promise.all([
+      const [adminResult, autoReplyResult] = await Promise.all([
         transporter.sendMail({
           from: process.env.smtpFrom || process.env.gmailUser,
           to: process.env.contactEmail || process.env.smtpUser || process.env.gmailUser,
@@ -164,7 +164,10 @@ export async function POST(request: NextRequest) {
           html: autoReplyBody,
         }),
       ]);
-      messageInfo = { adminId: adminEmail.messageId, autoReplyId: autoReply.messageId } as any;
+      messageInfo = {
+        adminId: typeof adminResult?.messageId === 'string' ? adminResult.messageId : undefined,
+        autoReplyId: typeof autoReplyResult?.messageId === 'string' ? autoReplyResult.messageId : undefined,
+      };
     }
 
     // Log successful submission
@@ -178,7 +181,7 @@ export async function POST(request: NextRequest) {
 
     return ApiResponseHandler.success(
       {
-        messageId: adminEmail.messageId,
+        messageId: messageInfo.adminId ?? null,
         type,
         timestamp: new Date().toISOString()
       },

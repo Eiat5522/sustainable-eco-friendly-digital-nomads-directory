@@ -128,7 +128,10 @@ function ContactForm() {
               <div className="grid grid-cols-1 gap-6">
                 <div>
                   <Label htmlFor="enquiry-type" className="text-sm font-medium text-gray-700">I have a question about...</Label>
-                  <Select value={enquiryType} onValueChange={(value) => setEnquiryType(value as EnquiryType)}>
+                  <Select
+                    value={enquiryType}
+                    onValueChange={(value: EnquiryType) => setEnquiryType(value)}
+                  >
                     <SelectTrigger id="enquiry-type" aria-label="Select enquiry type" className="w-full mt-1">
                       <SelectValue placeholder="Select an enquiry type" />
                     </SelectTrigger>

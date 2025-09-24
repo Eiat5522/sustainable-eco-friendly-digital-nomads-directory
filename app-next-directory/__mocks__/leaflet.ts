@@ -1,4 +1,4 @@
-stsimport { jest } from '@jest/globals'
+import { jest } from '@jest/globals'
 
 const createBounds = () => ({
   getNorth: jest.fn(() => 0),
@@ -11,11 +11,16 @@ const mockMapInstance = {
   setView: jest.fn().mockReturnThis(),
   remove: jest.fn(),
   addLayer: jest.fn().mockReturnThis(),
+  removeLayer: jest.fn().mockReturnThis(),
   on: jest.fn().mockReturnThis(),
   off: jest.fn().mockReturnThis(),
   fitBounds: jest.fn().mockReturnThis(),
   getBounds: jest.fn(createBounds),
-  panTo: jest.fn().mockReturnThis()
+  panTo: jest.fn().mockReturnThis(),
+  getZoom: jest.fn(() => 13),
+  setZoom: jest.fn().mockReturnThis(),
+  getCenter: jest.fn(() => ({ lat: 0, lng: 0 })),
+  invalidateSize: jest.fn().mockReturnThis()
 }
 
 const mockTileLayer = {

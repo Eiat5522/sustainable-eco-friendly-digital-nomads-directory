@@ -7,6 +7,7 @@ import { transformToDetailDTO } from '@/lib/dto-transformer';
 import type { SanityListing } from '@/types/sanity.types';
 import type { CityDTO } from '@/types/dto';
 import type { ListingDetailDTO } from '@/types/dto';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -20,6 +21,17 @@ type ListingFixture = {
   relatedListings?: typeof mockRelatedListings;
   isSignedIn?: boolean;
   isFavorited?: boolean;
+};
+
+type Review = {
+  id: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  user: {
+    name: string;
+    image?: string;
+  };
 };
 
 const isE2ETest = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
@@ -139,36 +151,35 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
   }
 }
 
-async function fetchReviews(listingId: string) {
+async function fetchReviews(listingId: string): Promise<Review[]> {
   try {
     const raw = await client.fetch<any[]>(REVIEWS_QUERY, { listingId });
-    return (Array.isArray(raw) ? raw : [])
-      .map((review) => {
-        const id = typeof review._id === 'string' ? review._id : undefined;
-        const rating = Number(review.rating);
-        if (!id || !Number.isFinite(rating) || rating <= 0) {
-          return null;
-        }
-        const comment = typeof review.comment === 'string' ? review.comment : '';
-        const createdAt = typeof review.createdAt === 'string' ? review.createdAt : new Date().toISOString();
-        const nameSource = typeof review.user?.name === 'string' ? review.user.name : '';
-        const userName = nameSource.trim().length > 0 ? nameSource : 'Anonymous';
-        const userImage = typeof review.user?.image === 'string' && review.user.image.length > 0 ? review.user.image : undefined;
-        return {
-          id,
-          rating,
-          comment,
-          createdAt,
-          user: { name: userName, image: userImage },
-        };
-      })
-      .filter((review): review is {
-        id: string;
-        rating: number;
-        comment: string;
-        createdAt: string;
-        user: { name: string; image?: string };
-      } => Boolean(review));
+    const source = Array.isArray(raw) ? raw : [];
+    const reviews: Review[] = [];
+    for (const review of source) {
+      const id = typeof review?._id === 'string' ? review._id : null;
+      const rating = Number(review?.rating);
+      if (!id || !Number.isFinite(rating) || rating <= 0) {
+        continue;
+      }
+      const comment = typeof review?.comment === 'string' ? review.comment : '';
+      const createdAt =
+        typeof review?.createdAt === 'string' ? review.createdAt : new Date().toISOString();
+      const rawName = typeof review?.user?.name === 'string' ? review.user.name : '';
+      const userName = rawName.trim().length > 0 ? rawName : 'Anonymous';
+      const userImage =
+        typeof review?.user?.image === 'string' && review.user.image.length > 0
+          ? review.user.image
+          : undefined;
+      reviews.push({
+        id,
+        rating,
+        comment,
+        createdAt,
+        user: { name: userName, image: userImage },
+      });
+    }
+    return reviews;
   } catch (error) {
     console.error('[listings/[slug]] failed to fetch reviews', error);
     return [];
@@ -247,4 +258,27 @@ export default async function ListingPage({ params }: Props) {
       <Footer />
     </>
   );
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const listing = await fetchListingBySlug(slug);
+
+  if (!listing) {
+    return { title: 'Listing not found' };
+  }
+
+  const summary = listing.shortDescription ?? listing.longDescription ?? '';
+  const description = summary ? summary.slice(0, 160) : undefined;
+  const primaryImage = listing.galleryImages?.[0] ?? listing.imageUrl ?? undefined;
+
+  return {
+    title: listing.name,
+    description,
+    openGraph: {
+      title: listing.name,
+      description,
+      images: primaryImage ? [primaryImage] : undefined,
+    },
+  };
 }

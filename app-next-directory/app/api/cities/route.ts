@@ -61,7 +61,7 @@ export async function GET() {
     console.error('[ERROR] Cities API:', error);
 
     // Use module-scoped FALLBACK_CITIES; keep 200 status for compatibility
-    const list = typeof FALLBACK_CITIES !== 'undefined' ? FALLBACK_CITIES : fallbackCities;
+    const list = FALLBACK_CITIES;
     return NextResponse.json(
       {
         cities: list,

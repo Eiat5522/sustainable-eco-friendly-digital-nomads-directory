@@ -124,17 +124,13 @@ const listings: Listing[] = [
     longDescription:
       'Bangkok Eco Hub is a light-filled coworking space that runs on 100% renewable energy. It offers ergonomic workstations, phone booths, a makers corner and a plant filled rooftop terrace for breaks between deep work sessions.',
     ecoFocusTags: pickTags('solar-powered', 'zero-waste', 'community-builder'),
-    primaryImage: {
-      _type: 'image',
-      asset: {
+    primaryImage: {      asset: {
         _type: 'reference',
         _ref: 'image-bangkok-eco-hub-800x600-jpg'
       }
     },
     galleryImages: [
-      {
-        _type: 'image',
-        asset: {
+      {        asset: {
           _type: 'reference',
           _ref: 'image-bangkok-eco-hub-rooftop-1600x900-jpg'
         }
@@ -179,9 +175,7 @@ const listings: Listing[] = [
     longDescription:
       'Chiang Mai Green Cafe roasts organic beans sourced directly from northern Thai cooperatives. They compost coffee grounds, operate a bring-your-own-container discount scheme and host weekly zero-waste workshops for locals and travellers.',
     ecoFocusTags: pickTags('community-builder', 'zero-waste', 'plant-forward'),
-    primaryImage: {
-      _type: 'image',
-      asset: {
+    primaryImage: {      asset: {
         _type: 'reference',
         _ref: 'image-chiang-mai-green-cafe-800x600-jpg'
       }
@@ -224,9 +218,7 @@ const listings: Listing[] = [
     longDescription:
       'Lisbon Earth Stay is a B-Corp certified coliving house for location independent professionals. Suites feature reclaimed timber, natural cooling and refill bars. Residents can join weekly climate tech meetups on the edible rooftop garden overlooking Alfama.',
     ecoFocusTags: pickTags('water-wise', 'solar-powered', 'community-builder'),
-    primaryImage: {
-      _type: 'image',
-      asset: {
+    primaryImage: {      asset: {
         _type: 'reference',
         _ref: 'image-lisbon-earth-stay-800x600-jpg'
       }

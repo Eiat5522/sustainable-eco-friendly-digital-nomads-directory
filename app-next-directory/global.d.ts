@@ -5,4 +5,5 @@ declare namespace NodeJS {
   }
 }
 
-declare const __TEST_DATA__: import('@/tests/helpers/test-data').TestData;
+declare const __TEST_DATA__: import('@/tests/helpers/test-data').TestData | undefined;
+

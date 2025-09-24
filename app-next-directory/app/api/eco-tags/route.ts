@@ -19,9 +19,8 @@ export async function GET(request: NextRequest) {
     return res;
   } catch (error) {
     console.error('Error fetching eco tags:', error);
-    return ApiResponseHandler.error(
-      { code: 'ECO_TAGS_FETCH_FAILED', message: 'Failed to fetch eco tags' },
-      500
-    );
+    return ApiResponseHandler.error('Failed to fetch eco tags', 500, {
+      code: 'ECO_TAGS_FETCH_FAILED',
+    });
   }
 }

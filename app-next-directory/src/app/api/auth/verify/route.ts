@@ -9,10 +9,11 @@ import { structuredLogger, getRequestContext } from '@/lib/logger';
 
 // GET /api/auth/verify?token=...
 export async function GET(req: Request) {
+  let token: string = '';
   try {
     // Require token param
     const { searchParams } = new URL(req.url);
-    const token = (searchParams.get('token') || '').trim();
+    token = (searchParams.get('token') || '').trim();
     if (!token) {
       return NextResponse.redirect(new URL('/auth/login?verified=0', req.url));
     }
@@ -54,11 +55,11 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.redirect(new URL('/auth/login?verified=1', req.url));
-    }   catch (error) {
-        structuredLogger.authError('email verification', error, {
-          ...getRequestContext(req),
-          token: token ? '[REDACTED]' : undefined
-        });
-        return NextResponse.redirect(new URL('/auth/login?verified=0', req.url));
-    }
+  } catch (error) {
+    structuredLogger.authError('email verification', error, {
+      ...getRequestContext(req),
+      token: token ? '[REDACTED]' : undefined,
+    });
+    return NextResponse.redirect(new URL('/auth/login?verified=0', req.url));
+  }
 }

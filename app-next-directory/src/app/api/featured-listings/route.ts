@@ -3,7 +3,6 @@ import { getClient } from '@/lib/sanity.utils';
 import type { FeaturedListingDTO } from '@/types/dto';
 import { structuredLogger, getRequestContext } from '@/lib/logger';
 
-// GROQ: pick only needed fields; require moderation.featured == true and published
 const FEATURED_LISTINGS_QUERY = `
 [_type == "listing"
   && moderation.status == "published"
@@ -17,42 +16,53 @@ const FEATURED_LISTINGS_QUERY = `
   "slug": slug.current,
   "imageUrl": coalesce(primaryImage.asset->url, ""),
   "city": coalesce(city->name, ""),
-  // Flatten amenity names for simple card display
   "amenityNames": coalesce(amenities[defined(@->name) && @->name != ""]->name, [])
-  
 }`;
+
+type SanityFeaturedListing = {
+  _id: string;
+  name?: string | null;
+  slug?: string | null;
+  imageUrl?: string | null;
+  city?: string | null;
+  amenityNames?: (string | null)[];
+};
 
 export async function GET(request: Request) {
   try {
     const client = getClient(false);
     const results = await client.fetch<SanityFeaturedListing[]>(FEATURED_LISTINGS_QUERY);
-    const listings: FeaturedListingDTO[] = Array.isArray(results)
-      ? results
-          .filter((r): r is SanityFeaturedListing => !!r && typeof r._id === 'string' && typeof r.slug === 'string')
-          .map((r) => ({
-            id: r._id,
-            name: r.name ?? '',
-            slug: r.slug,
-            imageUrl: r.imageUrl || undefined,
-            city: r.city || '',
-            amenityNames: Array.isArray(r.amenityNames) ? r.amenityNames.filter(Boolean) : [],
-          }))
-      : [];
-    type SanityFeaturedListing = {
-    _id: string;
-    name?: string;
-    slug?: string;
-    imageUrl?: string;
-    city?: string;
-    amenityNames?: (string | null)[];
-  }; 
+
+    const listings: FeaturedListingDTO[] = [];
+    for (const item of results ?? []) {
+      if (!item || typeof item._id !== 'string' || typeof item.slug !== 'string') {
+        continue;
+      }
+
+      const amenityNames = Array.isArray(item.amenityNames)
+        ? item.amenityNames.filter((name): name is string => typeof name === 'string' && name.trim().length > 0)
+        : [];
+
+      listings.push({
+        id: item._id,
+        name: item.name ?? '',
+        slug: item.slug,
+        imageUrl: item.imageUrl || undefined,
+        city: item.city ?? '',
+        amenityNames,
+      });
+    }
 
     return ApiResponseHandler.success({ listings });
-  } catch (error: any) {
+  } catch (error: unknown) {
     structuredLogger.apiError('/api/featured-listings', error, {
       ...getRequestContext(request),
-      operation: 'get_featured_listings'
+      operation: 'get_featured_listings',
     });
-    return ApiResponseHandler.error('Failed to fetch featured listings', 500, error?.message || String(error));
+    const message =
+      error instanceof Error && typeof error.message === 'string'
+        ? error.message
+        : String(error);
+    return ApiResponseHandler.error('Failed to fetch featured listings', 500, message);
   }
 }

@@ -9,7 +9,7 @@ import { mockFeaturedVenues } from '@/components/sections/featuredVenuesMockData
 
 const data = createTestData()
 
-const ok = (body: unknown, status = 200) => HttpResponse.json(body, { status })
+const ok = <Body>(body: Body, status = 200) => HttpResponse.json(body as any, { status })
 
 export const handlers = [
   http.get('/api/search', ({ request }) => {

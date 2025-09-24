@@ -171,11 +171,11 @@ export default async function CityPage({ params }: Props) {
   const detailResult = CityDetailDTOSchema.safeParse(rawCity);
   let city: CityDTO | CityDetailDTO;
   if (detailResult.success) {
-    city = detailResult.data;
+    city = detailResult.data as CityDetailDTO;
   } else {
     const basicResult = CityDTOSchema.safeParse(rawCity);
     if (basicResult.success) {
-      city = basicResult.data;
+      city = basicResult.data as CityDTO;
     } else {
       structuredLogger.error('Invalid city DTO validation failed', null, {
         component: 'city-page',
@@ -212,7 +212,7 @@ export default async function CityPage({ params }: Props) {
         validationError: listingsResult.error.message,
       });
     } else {
-      listings = listingsResult.data;
+      listings = listingsResult.data as ListingSummaryDTO[];
     }
   } catch (err) {
     structuredLogger.error('Listings fetch failed', sanitizeErrorForLogging(err), {

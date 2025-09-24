@@ -2,6 +2,8 @@
 // File: src/types/dto-schemas.ts
 
 import { z } from 'zod';
+import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
+import type { InternetSpeedValue } from './dto';
 
 // Shared primitives
 export const GeoPointSchema = z
@@ -13,8 +15,7 @@ export const ImageDimensionsDTOSchema = z
   .partial()
   .strict();
 
-// CityDTO schema
-export const CityDTOSchema = z
+const CityDTOSchemaBase = z
   .object({
     id: z.string(),
     name: z.string(),
@@ -28,11 +29,25 @@ export const CityDTOSchema = z
   })
   .strict();
 
-// CityDetailDTO schema (extends CityDTO with additional fields)
-export const CityDetailDTOSchema = CityDTOSchema.extend({
+export const CityDTOSchema = CityDTOSchemaBase;
+
+const InternetSpeedDTOSchema = z
+  .object({
+    download: z.number().nonnegative(),
+    upload: z.number().nonnegative(),
+    lastTested: z.string().optional(),
+  })
+  .strict();
+
+const InternetSpeedValueSchema: z.ZodType<InternetSpeedValue> = z.union([
+  z.number().nonnegative(),
+  InternetSpeedDTOSchema,
+]);
+
+const CityDetailDTOSchemaBase = CityDTOSchemaBase.extend({
   shortDescription: z.string().optional(),
   airQuality: z.string().optional(),
-  internetSpeed: z.number().nonnegative().optional(),
+  internetSpeed: InternetSpeedValueSchema.optional(),
   costOfLiving: z.string().optional(),
   climate: z.string().optional(),
   safety: z.string().optional(),
@@ -42,7 +57,8 @@ export const CityDetailDTOSchema = CityDTOSchema.extend({
   galleryImages: z.array(z.string().url()).optional(),
 }).strict();
 
-// Enums
+export const CityDetailDTOSchema = CityDetailDTOSchemaBase;
+
 export const ListingStatusDTOSchema = z.enum([
   'draft',
   'pending',
@@ -57,14 +73,13 @@ export const VerificationStatusDTOSchema = z.enum([
   'needs_verification',
 ]);
 
-import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
 export const BaseListingDTOSchema = z
   .object({
     id: z.string(),
     name: z.string(),
     slug: z.string(),
     type: z.enum(DEFAULT_CATEGORIES),
-    city: CityDTOSchema.nullable(),
+    city: CityDTOSchemaBase.nullable(),
     imageUrl: z.string().optional(),
     ecoFocusTags: z.array(z.string()).optional(),
     digitalNomadFeatures: z.array(z.string()).optional(),
@@ -79,31 +94,36 @@ export const BaseListingDTOSchema = z
   })
   .strict();
 
-// ListingSummaryDTO schema
-export const ListingSummaryDTOSchema = BaseListingDTOSchema.extend({
+const ListingSummaryDTOSchemaBase = BaseListingDTOSchema.extend({
   shortDescription: z.string().optional(),
   amenityNames: z.array(z.string()).optional(),
 });
 
+export const ListingSummaryDTOSchema = ListingSummaryDTOSchemaBase;
+
 export const ListingSummaryDTOArraySchema = z.array(ListingSummaryDTOSchema);
 
-// Helper parse functions with safe defaults
-export function parseCityDTO(input: unknown): { ok: true; data: z.infer<typeof CityDTOSchema> } | { ok: false; error: string } {
+export function parseCityDTO(
+  input: unknown
+): { ok: true; data: z.infer<typeof CityDTOSchema> } | { ok: false; error: string } {
   const result = CityDTOSchema.safeParse(input);
   if (result.success) return { ok: true, data: result.data };
   return { ok: false, error: result.error.toString() };
 }
 
-export function parseCityDetailDTO(input: unknown): { ok: true; data: z.infer<typeof CityDetailDTOSchema> } | { ok: false; error: string } {
+export function parseCityDetailDTO(
+  input: unknown
+): { ok: true; data: z.infer<typeof CityDetailDTOSchema> } | { ok: false; error: string } {
   const result = CityDetailDTOSchema.safeParse(input);
   if (result.success) return { ok: true, data: result.data };
   return { ok: false, error: result.error.toString() };
 }
 
-export function parseListingSummaryArray(input: unknown): {
-  ok: true;
-  data: z.infer<typeof ListingSummaryDTOArraySchema>;
-} | { ok: false; error: string } {
+export function parseListingSummaryArray(
+  input: unknown
+):
+  | { ok: true; data: z.infer<typeof ListingSummaryDTOArraySchema> }
+  | { ok: false; error: string } {
   const result = ListingSummaryDTOArraySchema.safeParse(input);
   if (result.success) return { ok: true, data: result.data };
   return { ok: false, error: result.error.toString() };

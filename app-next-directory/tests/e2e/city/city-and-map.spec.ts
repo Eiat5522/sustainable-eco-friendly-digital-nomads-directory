@@ -13,12 +13,21 @@ test.describe('City page tabs and map markers', () => {
     await expect(page.getByTestId('city-about-section')).toBeHidden()
 
     await page.getByTestId('city-tab-map').click()
+    await page.waitForTimeout(1000) // Wait for map to load
     const markers = page.getByTestId('city-map-marker')
 
     const bangkokListings = discoveryListings.filter((listing) => listing.city._id === 'city-bangkok' && listing.location)
     expect(bangkokListings.length).toBeGreaterThan(0)
     await expect(markers).toHaveCount(bangkokListings.length)
 
+    // Wait for markers to be fully rendered
+    await expect(markers.first()).toBeVisible()
+    await expect(markers.first()).toHaveAttribute('href', `/listings/${bangkokListings[0].slug}`)
+    // Wait for markers to be fully rendered
+    await expect(markers.first()).toBeVisible()
+    await expect(markers.first()).toHaveAttribute('href', `/listings/${bangkokListings[0].slug}`)
+    // Wait for markers to be fully rendered
+    await expect(markers.first()).toBeVisible()
     await expect(markers.first()).toHaveAttribute('href', `/listings/${bangkokListings[0].slug}`)
   })
 })

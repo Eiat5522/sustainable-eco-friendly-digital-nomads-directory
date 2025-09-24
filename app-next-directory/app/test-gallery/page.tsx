@@ -2,21 +2,21 @@ import React from 'react';
 import GalleryGrid from '@/components/listings/GalleryGrid';
 
 // Test page to isolate gallery functionality issues
-export default function TestGalleryPage(): JSX.Element {
+export default function TestGalleryPage() {
   // Create mock gallery images with varied amounts to test overlap issues
   // Using different placeholder images to avoid filtering issues
-// Use Picsum seed URLs to make images deterministic and unique across test runs.
-// This prevents flaky visual/layout tests caused by `?random` returning duplicates.
-const fewImages = [
-  "https://picsum.photos/seed/1/400/300",
-  "https://picsum.photos/seed/2/400/300",
-  "https://picsum.photos/seed/3/400/300",
-];
+  // Use Picsum seed URLs to make images deterministic and unique across test runs.
+  // This prevents flaky visual/layout tests caused by `?random` returning duplicates.
+  const fewImages = [
+    'https://picsum.photos/seed/1/400/300',
+    'https://picsum.photos/seed/2/400/300',
+    'https://picsum.photos/seed/3/400/300',
+  ];
 
-// For the larger set, offset seeds by +4 so they don't collide with the seeds used in `fewImages`.
-const manyImages = Array.from({ length: 12 }, (_, i) => 
-  `https://picsum.photos/seed/${i + 4}/400/300`
-);
+  // For the larger set, offset seeds by +4 so they don't collide with the seeds used in `fewImages`.
+  const manyImages = Array.from({ length: 12 }, (_, i) =>
+    `https://picsum.photos/seed/${i + 4}/400/300`
+  );
 
   return (
     <div className="min-h-screen bg-background p-8">

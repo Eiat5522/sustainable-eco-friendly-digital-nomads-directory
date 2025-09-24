@@ -3,26 +3,27 @@ import { client } from '@/lib/sanity/client';
 
 export async function GET(): Promise<Response> {
   try {
-    // Test Sanity connection
-    if (process.env.NODE_ENV !== 'production') {
+    const nodeEnv = process.env.NODE_ENV?.toLowerCase();
+
+    if (nodeEnv === 'production') {
+      return ApiResponseHandler.error('Not found', 404);
+    }
+
+    // Test Sanity connection in non-production environments
+    if (nodeEnv !== 'production') {
       console.log('Testing Sanity connection...');
       console.log('Sanity Config:', {
         projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
         dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
       });
     }
-    if (process.env.NODE_ENV === 'production') {
-        return ApiResponseHandler.error('Not found', 404);
-    }
-    
-
     // Simple query to test connection
     const result = await client.fetch(`*[_type == "listing"][0...1] {
       _id,
       title
     }`);
 
-    if (process.env.NODE_ENV !== 'production') {
+    if (nodeEnv !== 'production') {
       console.log('Test query result:', JSON.stringify(result, null, 2));
     }
 

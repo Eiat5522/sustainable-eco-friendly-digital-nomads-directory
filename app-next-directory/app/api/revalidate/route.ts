@@ -17,13 +17,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Validate path parameter
-    if (!path) {
+    if (!pathParam) {
       return ApiResponseHandler.error('Missing path parameter', 400);
     }
-    if (path.includes('://') || path.includes('..')) {
+    if (pathParam.includes('://') || pathParam.includes('..')) {
       return ApiResponseHandler.error('Invalid path parameter', 400);
     }
-    const targetPath = path.startsWith('/') ? path : `/${path}`;
+    const targetPath = pathParam.startsWith('/') ? pathParam : `/${pathParam}`;
 
     // Revalidate the specific path
     revalidatePath(targetPath);

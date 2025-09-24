@@ -1,5 +1,5 @@
 "use client";
-import { type KeyboardEvent, useId, useState } from 'react';
+import { type KeyboardEvent, useState } from 'react';
 import { Leaf, MapPin, Wifi, DollarSign, Thermometer, Shield, Footprints, Wind } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import Image from 'next/image';
@@ -18,20 +18,13 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
   const [imageError, setImageError] = useState(false);
   const [activeTab, setActiveTab] = useState<'about' | 'listings' | 'map'>('about');
 
-  const tabs = [
-    { value: 'overview' as const, label: 'Overview' },
-    { value: 'listings' as const, label: 'Listings' },
-  ];
-
-  const getTriggerId = (value: (typeof tabs)[number]['value']) => `${baseId}-${value}-tab`;
-  const getPanelId = (value: (typeof tabs)[number]['value']) => `${baseId}-${value}-panel`;
 
   const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
       event.preventDefault();
       const offset = event.key === 'ArrowRight' ? 1 : -1;
       const nextIndex = (index + offset + tabs.length) % tabs.length;
-      setActiveTab(tabs[nextIndex].value);
+      setActiveTab(tabs[nextIndex].value as typeof activeTab);
     }
   };
 
@@ -264,6 +257,7 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
                     : 'border-neo-border bg-white text-neo-text-secondary hover:border-neo-primary hover:text-neo-primary'
                 }`}
                 onClick={() => setActiveTab(tab.value)}
+                onKeyDown={(e) => handleTabKeyDown(e, tabs.findIndex(t => t.value === tab.value))}
               >
                 {tab.label}
               </button>
