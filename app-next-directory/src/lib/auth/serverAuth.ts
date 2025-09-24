@@ -7,8 +7,8 @@
 
 import { UserRole } from '@/types/auth';
 import bcrypt from 'bcryptjs';
-import User from '../../models/User';
-import dbConnect from '../dbConnect';
+import User from '@/models/User';
+import dbConnect from '@/lib/dbConnect';
 
 import { Types, isValidObjectId, type FilterQuery } from 'mongoose';
 import { isEmailVerificationRequired } from './config';

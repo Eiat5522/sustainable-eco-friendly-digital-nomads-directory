@@ -16,12 +16,12 @@ const mockBcrypt = {
   hash: jest.fn(),
 };
 
-jest.mock('../../models/User', () => ({
+jest.mock('@/models/User', () => ({
   __esModule: true,
   default: mockUserModel,
 }));
 
-jest.mock('../dbConnect', () => ({
+jest.mock('@/lib/dbConnect', () => ({
   __esModule: true,
   default: mockDbConnect,
 }));
