@@ -53,7 +53,7 @@ export interface ApiResponse<T = any> {
 
 export const ApiResponseHandler = {
   success: (data: any, message?: string) => {
-    const payload = message === undefined ? { success: true, data } : { success: true, data, message };
+    const payload = { success: true, data, ...(message !== undefined && { message }) };
     return createJsonResponse(payload);
   },
 
