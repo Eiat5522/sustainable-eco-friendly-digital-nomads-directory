@@ -108,6 +108,34 @@ const fetch = jest.fn(async (query: string, params: Record<string, any> = {}) =>
     }))
   }
 
+  // Mock events data for testing
+  if (/_type\s*==\s*"event"/.test(query)) {
+    return [
+      {
+        _id: 'event1',
+        title: 'Sustainable Tech Meetup',
+        slug: 'sustainable-tech-meetup',
+        startDate: '2024-06-01T10:00:00Z',
+        endDate: '2024-06-01T12:00:00Z',
+        location: 'Lisbon, Portugal',
+        ecoInitiatives: ['carbon-neutral', 'zero-waste'],
+        imageUrl: 'https://example.com/event1.jpg',
+        description: 'A meetup for sustainable technology'
+      },
+      {
+        _id: 'event2',
+        title: 'Eco-Nomad Conference',
+        slug: 'eco-nomad-conference',
+        startDate: '2024-07-15T09:00:00Z',
+        endDate: '2024-07-15T17:00:00Z',
+        location: 'Barcelona, Spain',
+        ecoInitiatives: ['renewable-energy', 'sustainable-travel'],
+        imageUrl: 'https://example.com/event2.jpg',
+        description: 'Annual conference for eco-conscious digital nomads'
+      }
+    ]
+  }
+
   return []
 })
 
