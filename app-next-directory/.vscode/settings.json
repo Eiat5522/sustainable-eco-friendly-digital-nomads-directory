@@ -1,8 +1,13 @@
 {
     "jest.enable": true,
     "jest.debugMode": false,
-    "jest.jestCommandLine": "pnpm test",
-    "jest.rootPath": "src",
+    "jest.jestCommandLine": "/home/eiat/.nvm/versions/node/v22.19.0/bin/npm run test:unit",
+    "jest.rootPath": ".",
     "jest.coverageFormatter": "GutterFormatter",
-    "jest.runMode": "on-save"
+    "jest.runMode": "on-save",
+    "jest.nodeEnv": {
+        "PATH": "/home/eiat/.local/bin:/home/eiat/.nvm/versions/node/v22.19.0/bin:/usr/local/bin:/usr/bin:/bin",
+        "NODE_PATH": "/home/eiat/.nvm/versions/node/v22.19.0/lib/node_modules"
+    },
+    "jest.shell": "/bin/bash"
 }

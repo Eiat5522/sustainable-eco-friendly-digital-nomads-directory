@@ -2,12 +2,6 @@
     "folders": [
         {
             "path": "."
-        },
-        {
-            "path": "app-next-directory"
-        },
-        {
-            "path": "sanity"
         }
     ],
     "settings": {

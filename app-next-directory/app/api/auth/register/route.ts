@@ -1,63 +1,63 @@
+import { NextRequest, NextResponse } from 'next/server';
 import connect from '@/lib/dbConnect';
 import User from '@/models/User';
-import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
-    let body: any;
-    try {
-      body = await request.json();
-    } catch {
-      return NextResponse.json(
-        {
-          success: false,
-          data: null,
-          error: {
-            code: 'INVALID_INPUT',
-            message: 'Invalid request body: Must be valid JSON'
-          }
-        },
-        { status: 400 }
-      );
-    }
-
-    if (
-      !body ||
-      typeof body !== 'object' ||
-      Array.isArray(body)
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          data: null,
-          error: {
-            code: 'INVALID_INPUT',
-            message: 'Invalid request body: Must be an object'
-          }
-        },
-        { status: 400 }
-      );
-    }
-
+    await connect();
+    
+    const body = await request.json();
     const { name, email, password } = body;
-
+    
+    // Validate required fields
     if (!name || !email || !password) {
       return NextResponse.json(
-        {
-          success: false,
-          data: null,
-          error: {
-            code: 'INVALID_INPUT',
-            message: 'Invalid request body: All fields are required'
-          }
-        },
+        { success: false, error: { message: 'Invalid request body', code: 'INVALID_INPUT' } },
         { status: 400 }
       );
     }
-
-    // Only short-circuit when explicitly enabled to avoid interfering with unit tests.
-    // Use TEST_MODE=1 in development to enable; do NOT auto-enable in NODE_ENV=='test'.
+    
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return NextResponse.json(
+        { success: false, error: { message: 'User already exists', code: 'CONFLICT' } },
+        { status: 409 }
+      );
+    }
+    
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create new user
+    const newUser = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: 'user',
+    });
+    
+    // Prepare response (exclude password)
+    const userResponse = {
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+      role: newUser.role,
+    };
+    
+    return NextResponse.json(
+      { success: true, data: { user: userResponse } },
+      { status: 201 }
+    );
+  } catch (error: any) {
+    // Handle errors (e.g., DB connection, hashing, creation)
+    return NextResponse.json(
+      { success: false, error: { message: error.message, code: 'SERVER_ERROR' } },
+      { status: 500 }
+    );
+  }
+}
     if (process.env.TEST_MODE === '1') {
       const fakeUser = { _id: 'test-user-1', name, email, role: 'user' };
       return NextResponse.json(
