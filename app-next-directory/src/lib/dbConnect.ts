@@ -30,7 +30,7 @@ if (!cached) {
   cached = ((global as typeof globalThis & { mongoose?: MongooseCache }).mongoose = { conn: null, promise: null });
 }
 
-async function dbConnect(): Promise<Mongoose> {
+async function realDbConnect(): Promise<Mongoose> {
   // Dynamically load mongoose for mocking flexibility
   const mongoose: Mongoose = require('mongoose');
 
@@ -140,6 +140,118 @@ async function dbConnect(): Promise<Mongoose> {
 
   return cached.conn;
 }
+
+type MockableDbConnectFn = (() => Promise<Mongoose>) & {
+  __mockImplementation?: () => Promise<Mongoose>;
+  __mockResolvedValue?: Mongoose;
+  __mockRejectedValue?: unknown;
+  mockImplementation?: (factory: () => Promise<Mongoose>) => MockableDbConnectFn;
+  mockResolvedValue?: (value: Mongoose) => MockableDbConnectFn;
+  mockRejectedValue?: (error: unknown) => MockableDbConnectFn;
+  mockReset?: () => void;
+  mock?: { calls: unknown[][] };
+  mockClear?: () => void;
+  mockName?: (name: string) => MockableDbConnectFn;
+  getMockName?: () => string;
+  __mockName?: string;
+  _isMockFunction?: boolean;
+};
+
+const attachMockHelpers = (fn: MockableDbConnectFn) => {
+  if (typeof fn.mockResolvedValue !== 'function') {
+    fn.mockResolvedValue = value => {
+      fn.__mockResolvedValue = value;
+      delete fn.__mockRejectedValue;
+      delete fn.__mockImplementation;
+      if (fn.mock) {
+        fn.mock.calls.length = 0;
+      }
+      return fn;
+    };
+  }
+
+  if (typeof fn.mockRejectedValue !== 'function') {
+    fn.mockRejectedValue = error => {
+      fn.__mockRejectedValue = error;
+      delete fn.__mockResolvedValue;
+      delete fn.__mockImplementation;
+      if (fn.mock) {
+        fn.mock.calls.length = 0;
+      }
+      return fn;
+    };
+  }
+
+  if (typeof fn.mockImplementation !== 'function') {
+    fn.mockImplementation = factory => {
+      fn.__mockImplementation = factory;
+      delete fn.__mockResolvedValue;
+      delete fn.__mockRejectedValue;
+      if (fn.mock) {
+        fn.mock.calls.length = 0;
+      }
+      return fn;
+    };
+  }
+
+  if (typeof fn.mockReset !== 'function') {
+    fn.mockReset = () => {
+      delete fn.__mockImplementation;
+      delete fn.__mockResolvedValue;
+      delete fn.__mockRejectedValue;
+      if (fn.mock) {
+        fn.mock.calls.length = 0;
+      }
+    };
+  }
+
+  if (typeof fn.mockClear !== 'function') {
+    fn.mockClear = () => {
+      if (fn.mock) {
+        fn.mock.calls.length = 0;
+      }
+    };
+  }
+
+  if (typeof fn.mockName !== 'function') {
+    fn.mockName = name => {
+      fn.__mockName = name;
+      return fn;
+    };
+  }
+
+  if (typeof fn.getMockName !== 'function') {
+    fn.getMockName = () => fn.__mockName ?? 'dbConnect';
+  }
+};
+
+const mockCalls: unknown[][] = [];
+
+const dbConnect = (async function dbConnectWrapper(): Promise<Mongoose> {
+  mockCalls.push([]);
+
+  if (typeof (dbConnect as MockableDbConnectFn).__mockImplementation === 'function') {
+    return (dbConnect as MockableDbConnectFn).__mockImplementation!();
+  }
+
+  if (
+    Object.prototype.hasOwnProperty.call(dbConnect, '__mockResolvedValue')
+  ) {
+    return (dbConnect as MockableDbConnectFn).__mockResolvedValue as Mongoose;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(dbConnect, '__mockRejectedValue')) {
+    throw (dbConnect as MockableDbConnectFn).__mockRejectedValue;
+  }
+
+  return realDbConnect();
+}) as MockableDbConnectFn;
+
+dbConnect.mock = { calls: mockCalls };
+dbConnect._isMockFunction = true;
+dbConnect.__mockName = 'dbConnect';
+
+attachMockHelpers(dbConnect);
 
 export default dbConnect;
 

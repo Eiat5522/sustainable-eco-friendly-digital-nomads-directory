@@ -12,35 +12,28 @@ type JsonBody =
 const hasStaticResponseJson =
   typeof Response !== 'undefined' && typeof (Response as any).json === 'function';
 
-function createJsonResponse(body: JsonBody, init?: ResponseInit) {
-  const headers = new Headers(init?.headers ?? {});
-  if (!headers.has('content-type')) headers.set('content-type', 'application/json');
+const canUseNextResponseJson =
+  typeof NextResponse !== 'undefined' && typeof (NextResponse as any).json === 'function' && hasStaticResponseJson;
 
-  if (typeof NextResponse?.json === 'function' && hasStaticResponseJson) {
+function createJsonResponse(body: JsonBody, init: ResponseInit = {}): Response {
+  const headers = new Headers(init.headers ?? {});
+  if (!headers.has('content-type')) {
+    headers.set('content-type', 'application/json');
+  }
+
+  if (canUseNextResponseJson) {
+    // NextResponse.json internally calls Response.json which is missing in the test
+    // environment. We guard the call so that unit tests fall back to the standard
+    // Response constructor while production still benefits from Next.js helpers.
     return NextResponse.json(body, { ...init, headers });
   }
 
-  const status = init?.status ?? 200;
-  const ok = status >= 200 && status < 300;
-  const textValue = typeof body === 'string' ? body : JSON.stringify(body ?? {});
-  const jsonValue =
-    typeof body === 'string'
-      ? (() => {
-          try {
-            return JSON.parse(body);
-          } catch {
-            return body;
-          }
-        })()
-      : body ?? {};
+  const payload = typeof body === 'string' ? body : JSON.stringify(body ?? {});
 
-  return {
-    status,
+  return new Response(payload, {
+    ...init,
     headers,
-    ok,
-    text: () => Promise.resolve(textValue),
-    json: () => Promise.resolve(jsonValue),
-  } as Response;
+  });
 }
 
 export interface ApiResponse<T = any> {
@@ -49,18 +42,6 @@ export interface ApiResponse<T = any> {
   error?: string;
   message?: string;
   details?: any;
-}
-
-function createJsonResponse(body: unknown, init: ResponseInit = {}): Response {
-  const headers = new Headers(init.headers ?? {});
-  if (!headers.has('content-type')) {
-    headers.set('content-type', 'application/json');
-  }
-
-  return new Response(JSON.stringify(body), {
-    ...init,
-    headers,
-  });
 }
 
 export const ApiResponseHandler = {
@@ -76,28 +57,19 @@ export const ApiResponseHandler = {
   ) => {
     const payload: any = { success: false, error };
     if (details !== undefined) payload.details = details;
-    return NextResponse.json(payload, { status });
+    return createJsonResponse(payload, { status });
   },
 
   notFound: (resource?: string) => {
     const msg = resource ? `${resource} not found` : 'Resource not found';
-    return NextResponse.json(
-      { success: false, error: msg },
-      { status: 404 }
-    );
+    return createJsonResponse({ success: false, error: msg }, { status: 404 });
   },
 
   unauthorized: () => {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized access' },
-      { status: 401 }
-    );
+    return createJsonResponse({ success: false, error: 'Unauthorized access' }, { status: 401 });
   },
 
   forbidden: () => {
-    return NextResponse.json(
-      { success: false, error: 'Forbidden' },
-      { status: 403 }
-    );
+    return createJsonResponse({ success: false, error: 'Forbidden' }, { status: 403 });
   },
 };

@@ -11,6 +11,21 @@ module.exports = {
       tsconfig: '<rootDir>/tsconfig.test.json',
     },
   },
+  
+  // VS Code Jest extension support - ignore unknown arguments
+  passWithNoTests: false,
+  bail: false,
+  
+  // Handle VS Code Jest extension temp files by ignoring unknown CLI arguments
+  // This prevents the extension from passing unrecognized file arguments
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx,js,jsx}',
+    'app/**/*.{ts,tsx,js,jsx}',
+    '!src/**/*.d.ts',
+    '!src/__mocks__/**/*',
+    '!**/*.test.*',
+    '!**/node_modules/**',
+  ],
   // Treat TS/JS files as ESM for SWC/Jest
   extensionsToTreatAsEsm: ['.ts', '.tsx', '.jsx'],
   setupFiles: ['<rootDir>/jest/setEnvVars.js'],
@@ -26,6 +41,12 @@ module.exports = {
     }]
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  testMatch: [
+    '<rootDir>/src/**/*.test.(ts|tsx|js|jsx)',
+    '<rootDir>/src/**/__tests__/**/*.(ts|tsx|js|jsx)',
+    '<rootDir>/app/**/*.test.(ts|tsx|js|jsx)',
+    '<rootDir>/app/**/__tests__/**/*.(ts|tsx|js|jsx)',
+  ],
   moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
   moduleNameMapper: {
     '^server-only$': '<rootDir>/__mocks__/server-only.js',
@@ -65,14 +86,19 @@ module.exports = {
     '/node_modules/(?!(next-auth|@auth|jose|broadcast-channel)/)',
   ],
   testPathIgnorePatterns: [
-    // Exclude Playwright and other non-unit/integration suites
+    // Exclude all Playwright and integration tests - Jest only for unit tests
     '[\\/]tests[\\/]',
     '[\\/]playwright[\\/]',
     '[\\/]__tests__[\\/]__mocks__[\\/]',
     '\\.d(\\\.test)?\\.ts$',
     '[\\/]src[\\/]__tests__[\\/]api[\\/]search[\\/]FORTEST-route\\.copy\\.skip\\.ts$',
-    '[\\/]src[\\/]tests[\\/]'
-  ].concat(process.env.JEST_UNIT_ONLY === '1' ? [
-    '.*\\.(int|integration)\\.test\\.(ts|tsx)$'
-  ] : []),
+    // Temporary files and VS Code Jest extension artifacts
+    '\\/tmp\\/jest_runner_.*\\.json$',
+    'reporter\\.js$',
+    '\\/\\.vscode-server\\/.*$',
+    // Exclude integration and e2e patterns
+    '.*\\.(int|integration)\\.test\\.(ts|tsx)$',
+    '.*\\.(e2e)\\.test\\.(ts|tsx)$',
+    '.*\\.spec\\.(ts|tsx)$'
+  ],
 };

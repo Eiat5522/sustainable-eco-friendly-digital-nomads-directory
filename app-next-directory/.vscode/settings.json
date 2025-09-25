@@ -1,13 +1,17 @@
 {
     "jest.enable": true,
     "jest.debugMode": false,
-    "jest.jestCommandLine": "/home/eiat/.nvm/versions/node/v22.19.0/bin/npm run test:unit",
+    "jest.jestCommandLine": "./scripts/jest-vscode.sh",
     "jest.rootPath": ".",
     "jest.coverageFormatter": "GutterFormatter",
-    "jest.runMode": "on-save",
+    "jest.runMode": {
+        "type": "on-demand"
+    },
     "jest.nodeEnv": {
         "PATH": "/home/eiat/.local/bin:/home/eiat/.nvm/versions/node/v22.19.0/bin:/usr/local/bin:/usr/bin:/bin",
         "NODE_PATH": "/home/eiat/.nvm/versions/node/v22.19.0/lib/node_modules"
     },
-    "jest.shell": "/bin/bash"
+    "jest.shell": "/bin/bash",
+    "jest.useDashedArgs": true,
+    "jest.restartJestOnSnapshotUpdate": true
 }

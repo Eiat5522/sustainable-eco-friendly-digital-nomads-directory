@@ -8,10 +8,21 @@
 import { UserRole } from '@/types/auth';
 import bcrypt from 'bcryptjs';
 import User from '@/models/User';
-import dbConnect from '@/lib/dbConnect';
 
 import { Types, isValidObjectId, type FilterQuery } from 'mongoose';
 import { isEmailVerificationRequired } from './config';
+
+type DbConnect = typeof import('@/lib/dbConnect')['default'];
+
+let cachedDbConnect: DbConnect | null = null;
+
+function getDbConnect(): DbConnect {
+  if (!cachedDbConnect) {
+    const module = require('@/lib/dbConnect') as { default?: DbConnect } | DbConnect;
+    cachedDbConnect = (module as { default?: DbConnect }).default ?? (module as DbConnect);
+  }
+  return cachedDbConnect;
+}
 
 type UserDoc = {
   _id: Types.ObjectId;
@@ -47,7 +58,8 @@ export async function authenticateUser(
   password: string
 ): Promise<AuthenticatedUser | null> {
   try {
-    await dbConnect();
+    const connect = getDbConnect();
+    await connect();
 
     const requireVerification = isEmailVerificationRequired();
 
@@ -104,7 +116,8 @@ export async function createUserAccount(userData: {
   image?: string;
 }): Promise<AuthenticatedUser | null> {
   try {
-    await dbConnect();
+    const connect = getDbConnect();
+    await connect();
 
     // Check if user already exists
     const exists = await UserModel.exists({ email: userData.email.trim().toLowerCase() });
@@ -144,11 +157,14 @@ export async function createUserAccount(userData: {
  */
 export async function getUserById(userId: string): Promise<AuthenticatedUser | null> {
   try {
-    await dbConnect();
+    const connect = getDbConnect();
+    await connect();
 
     if (!isValidObjectId(userId)) {
       return null;
-    }    const user = await UserModel.findById(userId)
+    }
+
+    const user = await UserModel.findById(userId)
       .select('_id name email image role')
       .lean();
     if (!user) {
@@ -179,7 +195,8 @@ export async function updateUserRole(
   newRole: UserRole
 ): Promise<boolean> {
   try {
-    await dbConnect();
+    const connect = getDbConnect();
+    await connect();
 
     if (!isValidObjectId(userId)) {
       return false;

@@ -481,3 +481,4 @@ describe('Sanity client module', () => {
         token: 'partial-token',
         ignoreBrowserTokenWarning: true,
       });
+    }

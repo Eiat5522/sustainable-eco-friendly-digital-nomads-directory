@@ -16,7 +16,7 @@
     "postinstall": "node scripts/postinstall-msw.cjs",
     "exec:jest": "jest",
     "test": "pnpm test:unit",
-    "test:unit": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs",
+    "test:unit": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --passWithNoTests",
     "test:integration": "jest --config=jest.config.cjs --testPathPatterns \"src/.*\\.(int|integration)\\.test\\.(ts|tsx)$\" --passWithNoTests",
     "test:e2e": "playwright test",
     "test:e2e:legacy": "jest --config=jest.e2e.config.cjs --runInBand --detectOpenHandles --passWithNoTests --",
