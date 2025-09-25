@@ -18,176 +18,17 @@ const LOGIN_RATE_LIMIT_PREFIX = 'auth:login';
 
 let loginRateLimiter: InstanceType<typeof Ratelimit> | undefined;
 
-type MockableRatelimit = typeof Ratelimit & {
-  __mockReturn?: InstanceType<typeof Ratelimit>;
-  __mockFactory?: (config: Record<string, unknown>) => InstanceType<typeof Ratelimit>;
-  mockReturnValue?: (value: InstanceType<typeof Ratelimit>) => typeof Ratelimit;
-  mockImplementation?: (
-    factory: (config: Record<string, unknown>) => InstanceType<typeof Ratelimit>
-  ) => typeof Ratelimit;
-  mockReset?: () => void;
-  mock?: { calls: unknown[][] };
-  mockClear?: () => void;
-  mockName?: (name: string) => typeof Ratelimit;
-  getMockName?: () => string;
-  __mockName?: string;
-  _isMockFunction?: boolean;
-};
-
-const getMockableRatelimit = () => Ratelimit as MockableRatelimit;
-
-type MockableCollectionFn = ((name: string) => unknown) & {
-  __mockReturn?: unknown;
-  mockReturnValue?: (value: unknown) => MockableCollectionFn;
-  mockReset?: () => void;
-  __isMockWrapper?: true;
-};
-
-const attachRatelimitMockHelpers = () => {
-  const ctor = getMockableRatelimit();
-
-  if (!ctor.mock) {
-    ctor.mock = { calls: [] };
-  }
-
-  ctor._isMockFunction = true;
-
-  if (typeof ctor.mockReturnValue !== 'function') {
-    ctor.mockReturnValue = value => {
-      ctor.__mockReturn = value;
-      ctor.__mockFactory = undefined;
-      ctor.mock!.calls.length = 0;
-      buildRateLimiter(getRedisClient());
-      return Ratelimit;
-    };
-  }
-
-  if (typeof ctor.mockImplementation !== 'function') {
-    ctor.mockImplementation = factory => {
-      ctor.__mockFactory = factory;
-      ctor.__mockReturn = undefined;
-      ctor.mock!.calls.length = 0;
-      buildRateLimiter(getRedisClient());
-      return Ratelimit;
-    };
-  }
-
-  if (typeof ctor.mockReset !== 'function') {
-    ctor.mockReset = () => {
-      ctor.__mockReturn = undefined;
-      ctor.__mockFactory = undefined;
-      if (ctor.mock) {
-        ctor.mock.calls.length = 0;
-      }
-    };
-  }
-
-  if (typeof ctor.mockClear !== 'function') {
-    ctor.mockClear = () => {
-      if (ctor.mock) {
-        ctor.mock.calls.length = 0;
-      }
-    };
-  }
-
-  if (typeof ctor.mockName !== 'function') {
-    ctor.mockName = name => {
-      ctor.__mockName = name;
-      return Ratelimit;
-    };
-  }
-
-  if (typeof ctor.getMockName !== 'function') {
-    ctor.getMockName = () => ctor.__mockName ?? 'Ratelimit';
-  }
-};
-
-const instantiateRatelimit = (
-  config: Record<string, unknown>
-): InstanceType<typeof Ratelimit> => {
-  const ctor = getMockableRatelimit();
-
-  const recordCall = (cfg: Record<string, unknown>) => {
-    const limiterSnapshot =
-      typeof cfg.limiter === 'object' && cfg.limiter !== null
-        ? cfg.limiter
-        : { window: LOGIN_WINDOW_DURATION, points: LOGIN_WINDOW_LIMIT };
-
-    const recorded = { ...cfg, limiter: limiterSnapshot };
-    ctor.mock!.calls.push([recorded]);
-  };
-
-  if (typeof ctor.__mockFactory === 'function') {
-    const result = ctor.__mockFactory(config);
-    recordCall(config);
-    return result;
-  }
-
-  if (Object.prototype.hasOwnProperty.call(ctor, '__mockReturn') && ctor.__mockReturn !== undefined) {
-    recordCall(config);
-    return ctor.__mockReturn;
-  }
-
-  const instance = new (Ratelimit as unknown as {
-    new (config: typeof config): InstanceType<typeof Ratelimit>;
-  })(config);
-  recordCall(config);
-  return instance;
-};
-
-attachRatelimitMockHelpers();
-
-const attachMongooseCollectionMockHelpers = () => {
-  const connection = mongoose.connection as typeof mongoose.connection & {
-    collection: MockableCollectionFn;
-  };
-
-  if (!connection || typeof connection.collection !== 'function') {
-    return;
-  }
-
-  const existing = connection.collection;
-
-  if (existing.__isMockWrapper) {
-    return;
-  }
-
-  const original = existing.bind(connection);
-
-  const wrapper: MockableCollectionFn = ((name: string) => {
-    if (
-      Object.prototype.hasOwnProperty.call(wrapper, '__mockReturn') &&
-      wrapper.__mockReturn !== undefined
-    ) {
-      return wrapper.__mockReturn;
-    }
-
-    return original(name);
-  }) as MockableCollectionFn;
-
-  wrapper.__isMockWrapper = true;
-  wrapper.mockReturnValue = value => {
-    wrapper.__mockReturn = value;
-    return wrapper;
-  };
-  wrapper.mockReset = () => {
-    wrapper.__mockReturn = undefined;
-  };
-
-  connection.collection = wrapper;
-};
-
-attachMongooseCollectionMockHelpers();
+// NOTE: The original implementation embedded extensive Jest-style mock helper
+// augmentation directly onto the Ratelimit class and mongoose connection. That
+// approach mutated third‑party constructs in production bundles, increased
+// bundle size, and violated separation of concerns. Test suites should instead
+// rely on standard `jest.mock('@upstash/ratelimit')` patterns (already used in
+// rate-limiting tests) or import a dedicated test utility if deeper behavior
+// control is required. This production module now focuses solely on runtime
+// functionality; no test-only mutation occurs here.
 
 const createSlidingWindowLimiter = () => {
-  if (typeof Ratelimit.slidingWindow === 'function') {
-    return Ratelimit.slidingWindow(LOGIN_WINDOW_LIMIT, LOGIN_WINDOW_DURATION);
-  }
-
-  // When Jest replaces the Ratelimit class with a mock function the static
-  // slidingWindow helper is not present. Provide a minimal placeholder object
-  // so configuration assertions in tests can still succeed.
-  return { window: LOGIN_WINDOW_DURATION, points: LOGIN_WINDOW_LIMIT } as unknown;
+return Ratelimit.slidingWindow(LOGIN_WINDOW_LIMIT, LOGIN_WINDOW_DURATION);
 };
 
 const buildRateLimiter = (redis: Redis | undefined) => {
@@ -197,12 +38,18 @@ const buildRateLimiter = (redis: Redis | undefined) => {
   }
 
   try {
-    loginRateLimiter = instantiateRatelimit({
+    const config: {
+      redis: Redis;
+      limiter: unknown;
+      analytics: boolean;
+      prefix: string;
+    } = {
       redis,
       limiter: createSlidingWindowLimiter(),
       analytics: true,
       prefix: LOGIN_RATE_LIMIT_PREFIX,
-    });
+    };
+    loginRateLimiter = new Ratelimit(config as any); // Upstash types may be narrower; safe cast at boundary.
   } catch (error) {
     console.warn('[auth] Failed to initialize login rate limiter', error);
     loginRateLimiter = undefined;

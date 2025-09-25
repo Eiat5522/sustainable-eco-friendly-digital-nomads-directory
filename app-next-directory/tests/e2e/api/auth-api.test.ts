@@ -2,8 +2,8 @@
 import request from 'supertest';
 
 const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-const email = process.env.TEST_USER_EMAIL as string;
-const password = process.env.TEST_USER_PASSWORD as string;
+const email = process.env.TEST_USER_EMAIL;
+const password = process.env.TEST_USER_PASSWORD;
 const itIf = baseUrl && email && password ? it : it.skip;
 
 describe('POST /api/auth/signin', () => {

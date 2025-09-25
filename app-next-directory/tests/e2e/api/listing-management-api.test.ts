@@ -7,6 +7,8 @@ describe('API - Listing Management', () => {
   const regularAgent = request.agent(BASE_URL);
   const ownerAgent = request.agent(BASE_URL);
   let createdListingId;
+  let regularUserCookie;
+  let ownerUserCookie;
 
   const regularUser = {
     name: 'Regular User',
@@ -46,7 +48,7 @@ describe('API - Listing Management', () => {
       city: 'Testville',
       address: '123 Test St',
     };
-    const createListingRes = await agent
+    const createListingRes = await ownerAgent
       .post('/api/listings')
       .set('Cookie', ownerUserCookie)
       .send(listingData);
@@ -57,7 +59,7 @@ describe('API - Listing Management', () => {
 
   describe('Role-Based Access Control (RBAC)', () => {
     it('should prevent a regular user from accessing an admin-only API route', async () => {
-      const res = await agent
+      const res = await regularAgent
         .post('/api/admin/reviews/moderate')
         .set('Cookie', regularUserCookie)
         .send({ reviewId: 'some-review-id', action: 'approve' });
@@ -68,7 +70,7 @@ describe('API - Listing Management', () => {
 
   describe('Unauthorized Modification', () => {
     it('should prevent a regular user from deleting a listing they do not own', async () => {
-      const res = await agent
+      const res = await regularAgent
         .delete(`/api/listings/${createdListingId}`)
         .set('Cookie', regularUserCookie);
 
@@ -86,4 +88,4 @@ describe('API - Listing Management', () => {
         // ignore cleanup failures
       }
     }
-  });  });
+  });

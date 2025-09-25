@@ -1,55 +1,170 @@
 import { expect, test } from '@playwright/test';
 
+const parseNumber = (value: string | undefined, fallback: number) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const parseJsonStringArray = (value: string | undefined, fallback: string[]) => {
+  if (!value) {
+    return fallback;
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed) && parsed.every(item => typeof item === 'string')) {
+      return parsed;
+    }
+  } catch (error) {
+    // Fallback to defaults if JSON parsing fails
+  }
+
+  return fallback;
+};
+
+const escapeForRegex = (value: string) => value.replace(/[-\/\^$*+?.()|[\]{}]/g, '\$&');
+
+const createUrlPattern = (url: string) => new RegExp(`.*${escapeForRegex(url)}`);
+
+const TEST_CONFIG = {
+  urls: {
+    home: process.env.TEST_HOME_URL ?? '/',
+    adminDashboard: process.env.TEST_ADMIN_DASHBOARD_URL ?? '/admin/dashboard',
+    signin: process.env.TEST_SIGNIN_URL ?? '/auth/signin',
+    signup: process.env.TEST_SIGNUP_URL ?? '/auth/signup',
+    dashboard: process.env.TEST_DASHBOARD_URL ?? '/dashboard',
+    createListing: process.env.TEST_CREATE_LISTING_URL ?? '/dashboard/create-listing',
+    contact: process.env.TEST_CONTACT_URL ?? '/contact',
+    search: process.env.TEST_SEARCH_URL ?? '/search',
+    api: {
+      adminUsers: process.env.TEST_API_ADMIN_USERS_URL ?? '/api/admin/users',
+      listings: process.env.TEST_API_LISTINGS_URL ?? '/api/listings',
+      userProfile: process.env.TEST_API_USER_PROFILE_URL ?? '/api/users/profile',
+      contact: process.env.TEST_API_CONTACT_URL ?? '/api/contact',
+      search: process.env.TEST_API_SEARCH_URL ?? '/api/search',
+    },
+  },
+  credentials: {
+    userEmail: process.env.TEST_USER_EMAIL ?? 'user@example.com',
+    userPassword: process.env.TEST_USER_PASSWORD ?? 'password123',
+    genericEmail: process.env.TEST_GENERIC_EMAIL ?? 'test@example.com',
+  },
+  search: {
+    defaultQuery: process.env.TEST_SEARCH_QUERY ?? 'test',
+  },
+  contactForm: {
+    namePrefix: process.env.TEST_CONTACT_NAME_PREFIX ?? 'User',
+    messagePrefix: process.env.TEST_CONTACT_MESSAGE_PREFIX ?? 'Message',
+    standardName: process.env.TEST_CONTACT_STANDARD_NAME ?? 'Test User',
+    standardMessage: process.env.TEST_CONTACT_STANDARD_MESSAGE ?? 'Test message',
+    emailPrefix: process.env.TEST_CONTACT_EMAIL_PREFIX ?? 'test',
+    emailDomain: process.env.TEST_CONTACT_EMAIL_DOMAIN ?? 'example.com',
+    rapidSubmissions: parseNumber(process.env.TEST_CONTACT_RAPID_SUBMISSIONS, 10),
+  },
+  rateLimiting: {
+    apiRequestIterations: parseNumber(process.env.TEST_API_RATE_LIMIT_ITERATIONS, 50),
+  },
+  timeouts: {
+    dialog: parseNumber(process.env.TEST_DIALOG_TIMEOUT, 1000),
+    rateLimitPause: parseNumber(process.env.TEST_RATE_LIMIT_PAUSE, 100),
+    cspViolation: parseNumber(process.env.TEST_CSP_VIOLATION_TIMEOUT, 1000),
+  },
+  payloads: {
+    weakPasswords: parseJsonStringArray(process.env.TEST_WEAK_PASSWORDS, [
+      '123',
+      'password',
+      'abc123',
+      '111111',
+    ]),
+    sqlInjection: parseJsonStringArray(process.env.TEST_SQL_INJECTION_PAYLOADS, [
+      "'; DROP TABLE listings; --",
+      "1' OR '1'='1",
+      "'; SELECT * FROM users; --",
+      "1' UNION SELECT * FROM admin_users--",
+    ]),
+    xss: parseJsonStringArray(process.env.TEST_XSS_PAYLOADS, [
+      '<script>alert("xss")</script>',
+      '<img src="x" onerror="alert(\'xss\')">',
+      'javascript:alert("xss")',
+      '<svg onload="alert(\'xss\')">',
+      '"><script>alert("xss")</script>',
+    ]),
+    emailInjection: parseJsonStringArray(process.env.TEST_EMAIL_INJECTION_PAYLOADS, [
+      'test@example.com\nBcc: hacker@evil.com',
+      'test@example.com\r\nSubject: Injected Subject',
+      'test@example.com%0aBcc:hacker@evil.com',
+      'test@example.com\nTo: victim@example.com',
+    ]),
+    maliciousFiles: parseJsonStringArray(process.env.TEST_MALICIOUS_FILE_NAMES, [
+      'test.exe',
+      'malware.bat',
+      'script.js',
+      'virus.php',
+    ]),
+  },
+  content: {
+    listingName: process.env.TEST_LISTING_NAME ?? 'Test Listing',
+    listingDescription: process.env.TEST_LISTING_DESCRIPTION ?? 'Test Description',
+    sessionTokenKey: process.env.TEST_SESSION_TOKEN_KEY ?? 'next-auth.session-token',
+    inlineScriptMessage:
+      process.env.TEST_INLINE_SCRIPT_MESSAGE ?? 'console.log("This should be blocked")',
+    fileContent: process.env.TEST_FILE_CONTENT ?? 'This is a test file',
+  },
+  files: {
+    maliciousMimeType: process.env.TEST_MALICIOUS_FILE_MIME ?? 'application/octet-stream',
+  },
+};
+
 test.describe('Security Testing', () => {
   test.describe('Authentication & Authorization', () => {
     test('prevents unauthorized access to admin routes', async ({ page }) => {
       // Try to access admin page without authentication
-      await page.goto('/admin/dashboard');
+      await page.goto(TEST_CONFIG.urls.adminDashboard);
 
       // Should redirect to login
-      await expect(page).toHaveURL(/.*\/auth\/signin/);
+      await expect(page).toHaveURL(createUrlPattern(TEST_CONFIG.urls.signin));
     });
 
     test('prevents privilege escalation', async ({ page }) => {
       // Login as regular user
-      await page.goto('/auth/signin');
-      await page.fill('input[name="email"]', 'user@example.com');
-      await page.fill('input[name="password"]', 'password123');
+      await page.goto(TEST_CONFIG.urls.signin);
+      await page.fill('input[name="email"]', TEST_CONFIG.credentials.userEmail);
+      await page.fill('input[name="password"]', TEST_CONFIG.credentials.userPassword);
       await page.click('button[type="submit"]');
 
       // Try to access admin API endpoints
-      const response = await page.request.get('/api/admin/users');
+      const response = await page.request.get(TEST_CONFIG.urls.api.adminUsers);
       expect(response.status()).toBe(403); // Forbidden
     });
 
     test('session timeout security', async ({ page }) => {
       // Login
-      await page.goto('/auth/signin');
-      await page.fill('input[name="email"]', 'user@example.com');
-      await page.fill('input[name="password"]', 'password123');
+      await page.goto(TEST_CONFIG.urls.signin);
+      await page.fill('input[name="email"]', TEST_CONFIG.credentials.userEmail);
+      await page.fill('input[name="password"]', TEST_CONFIG.credentials.userPassword);
       await page.click('button[type="submit"]');
 
       // Simulate session expiry by manipulating session storage
-      await page.evaluate(() => {
-        localStorage.removeItem('next-auth.session-token');
+      await page.evaluate(sessionTokenKey => {
+        localStorage.removeItem(sessionTokenKey);
         sessionStorage.clear();
-      });
+      }, TEST_CONFIG.content.sessionTokenKey);
 
       // Try to access protected resource
-      await page.goto('/dashboard');
+      await page.goto(TEST_CONFIG.urls.dashboard);
 
       // Should be redirected to login
-      await expect(page).toHaveURL(/.*\/auth\/signin/);
+      await expect(page).toHaveURL(createUrlPattern(TEST_CONFIG.urls.signin));
     });
 
     test('password security requirements', async ({ page }) => {
-      await page.goto('/auth/signup');
+      await page.goto(TEST_CONFIG.urls.signup);
 
       // Test weak passwords
-      const weakPasswords = ['123', 'password', 'abc123', '111111'];
+      const weakPasswords = TEST_CONFIG.payloads.weakPasswords;
 
       for (const weakPassword of weakPasswords) {
-        await page.fill('input[name="email"]', 'test@example.com');
+        await page.fill('input[name="email"]', TEST_CONFIG.credentials.genericEmail);
         await page.fill('input[name="password"]', weakPassword);
         await page.fill('input[name="confirmPassword"]', weakPassword);
         await page.click('button[type="submit"]');
@@ -65,15 +180,10 @@ test.describe('Security Testing', () => {
 
   test.describe('Input Validation & Injection Prevention', () => {
     test('prevents SQL injection in search', async ({ page }) => {
-      const sqlInjectionPayloads = [
-        "'; DROP TABLE listings; --",
-        "1' OR '1'='1",
-        "'; SELECT * FROM users; --",
-        "1' UNION SELECT * FROM admin_users--",
-      ];
+      const sqlInjectionPayloads = TEST_CONFIG.payloads.sqlInjection;
 
       for (const payload of sqlInjectionPayloads) {
-        await page.goto(`/search?q=${encodeURIComponent(payload)}`);
+        await page.goto(`${TEST_CONFIG.urls.search}?q=${encodeURIComponent(payload)}`);
 
         // Should not cause database errors
         await expect(page.locator('[data-testid="error-message"]')).not.toContainText(
@@ -89,25 +199,21 @@ test.describe('Security Testing', () => {
     });
 
     test('prevents XSS in user-generated content', async ({ page }) => {
-      const xssPayloads = [
-        '<script>alert("xss")</script>',
-        '<img src="x" onerror="alert(\'xss\')">',
-        'javascript:alert("xss")',
-        '<svg onload="alert(\'xss\')">',
-        '"><script>alert("xss")</script>',
-      ];
+      const xssPayloads = TEST_CONFIG.payloads.xss;
 
       // Test in contact form
-      await page.goto('/contact');
+      await page.goto(TEST_CONFIG.urls.contact);
 
       for (const payload of xssPayloads) {
         await page.fill('input[name="name"]', payload);
-        await page.fill('input[name="email"]', 'test@example.com');
+        await page.fill('input[name="email"]', TEST_CONFIG.credentials.genericEmail);
         await page.fill('textarea[name="message"]', payload);
         await page.click('button[type="submit"]');
 
         // Check that script tags are not executed
-        const alertDialogPromise = page.waitForEvent('dialog', { timeout: 1000 }).catch(() => null);
+        const alertDialogPromise = page
+          .waitForEvent('dialog', { timeout: TEST_CONFIG.timeouts.dialog })
+          .catch(() => null);
         const dialog = await alertDialogPromise;
 
         expect(dialog).toBeNull(); // No alert should be triggered
@@ -119,9 +225,9 @@ test.describe('Security Testing', () => {
 
     test('prevents CSRF attacks', async ({ page, context }) => {
       // Login and get session
-      await page.goto('/auth/signin');
-      await page.fill('input[name="email"]', 'user@example.com');
-      await page.fill('input[name="password"]', 'password123');
+      await page.goto(TEST_CONFIG.urls.signin);
+      await page.fill('input[name="email"]', TEST_CONFIG.credentials.userEmail);
+      await page.fill('input[name="password"]', TEST_CONFIG.credentials.userPassword);
       await page.click('button[type="submit"]');
 
       // Get CSRF token
@@ -131,10 +237,10 @@ test.describe('Security Testing', () => {
       });
 
       // Try to make request without CSRF token
-      const response = await page.request.post('/api/listings', {
+      const response = await page.request.post(TEST_CONFIG.urls.api.listings, {
         data: {
-          name: 'Test Listing',
-          description: 'Test Description',
+          name: TEST_CONFIG.content.listingName,
+          description: TEST_CONFIG.content.listingDescription,
         },
       });
 
@@ -143,20 +249,19 @@ test.describe('Security Testing', () => {
     });
 
     test('file upload security', async ({ page }) => {
-      await page.goto('/dashboard/create-listing');
+      await page.goto(TEST_CONFIG.urls.createListing);
 
       // Test malicious file types
-      const maliciousFiles = ['test.exe', 'malware.bat', 'script.js', 'virus.php'];
+      const maliciousFiles = TEST_CONFIG.payloads.maliciousFiles;
 
       for (const filename of maliciousFiles) {
         // Create a fake file
-        const fileContent = 'This is a test file';
-        const file = new File([fileContent], filename, { type: 'application/octet-stream' });
+        const fileContent = TEST_CONFIG.content.fileContent;
 
         const fileInput = page.locator('input[type="file"]');
         await fileInput.setInputFiles({
           name: filename,
-          mimeType: 'application/octet-stream',
+          mimeType: TEST_CONFIG.files.maliciousMimeType,
           buffer: Buffer.from(fileContent),
         });
 
@@ -173,7 +278,7 @@ test.describe('Security Testing', () => {
 
   test.describe('Data Privacy & Protection', () => {
     test('sensitive data is not exposed in client-side code', async ({ page }) => {
-      await page.goto('/');
+      await page.goto(TEST_CONFIG.urls.home);
 
       // Check that sensitive environment variables are not exposed
       const sensitiveData = await page.evaluate(() => {
@@ -198,7 +303,7 @@ test.describe('Security Testing', () => {
     });
 
     test('user data is properly sanitized in API responses', async ({ page }) => {
-      const response = await page.request.get('/api/users/profile');
+      const response = await page.request.get(TEST_CONFIG.urls.api.userProfile);
 
       if (response.status() === 200) {
         const userData = await response.json();
@@ -212,20 +317,15 @@ test.describe('Security Testing', () => {
     });
 
     test('email validation prevents header injection', async ({ page }) => {
-      await page.goto('/contact');
+      await page.goto(TEST_CONFIG.urls.contact);
 
       // Email header injection payloads
-      const injectionEmails = [
-        'test@example.com\nBcc: hacker@evil.com',
-        'test@example.com\r\nSubject: Injected Subject',
-        'test@example.com%0aBcc:hacker@evil.com',
-        'test@example.com\nTo: victim@example.com',
-      ];
+      const injectionEmails = TEST_CONFIG.payloads.emailInjection;
 
       for (const email of injectionEmails) {
         await page.fill('input[name="email"]', email);
-        await page.fill('input[name="name"]', 'Test User');
-        await page.fill('textarea[name="message"]', 'Test message');
+        await page.fill('input[name="name"]', TEST_CONFIG.contactForm.standardName);
+        await page.fill('textarea[name="message"]', TEST_CONFIG.contactForm.standardMessage);
         await page.click('button[type="submit"]');
 
         // Should reject malformed emails
@@ -238,22 +338,31 @@ test.describe('Security Testing', () => {
 
   test.describe('Rate Limiting & DDoS Protection', () => {
     test('contact form rate limiting', async ({ page }) => {
-      await page.goto('/contact');
+      await page.goto(TEST_CONFIG.urls.contact);
 
       // Submit multiple forms rapidly
-      const rapidSubmissions = 10;
+      const rapidSubmissions = TEST_CONFIG.contactForm.rapidSubmissions;
       let rateLimitHit = false;
 
       for (let i = 0; i < rapidSubmissions; i++) {
-        await page.fill('input[name="name"]', `User ${i}`);
-        await page.fill('input[name="email"]', `test${i}@example.com`);
-        await page.fill('textarea[name="message"]', `Message ${i}`);
+        await page.fill(
+          'input[name="name"]',
+          `${TEST_CONFIG.contactForm.namePrefix} ${i}`
+        );
+        await page.fill(
+          'input[name="email"]',
+          `${TEST_CONFIG.contactForm.emailPrefix}${i}@${TEST_CONFIG.contactForm.emailDomain}`
+        );
+        await page.fill(
+          'textarea[name="message"]',
+          `${TEST_CONFIG.contactForm.messagePrefix} ${i}`
+        );
 
-        const response = await page.request.post('/api/contact', {
+        const response = await page.request.post(TEST_CONFIG.urls.api.contact, {
           data: {
-            name: `User ${i}`,
-            email: `test${i}@example.com`,
-            message: `Message ${i}`,
+            name: `${TEST_CONFIG.contactForm.namePrefix} ${i}`,
+            email: `${TEST_CONFIG.contactForm.emailPrefix}${i}@${TEST_CONFIG.contactForm.emailDomain}`,
+            message: `${TEST_CONFIG.contactForm.messagePrefix} ${i}`,
           },
         });
 
@@ -262,7 +371,7 @@ test.describe('Security Testing', () => {
           break;
         }
 
-        await page.waitForTimeout(100); // Brief pause
+        await page.waitForTimeout(TEST_CONFIG.timeouts.rateLimitPause); // Brief pause
       }
 
       // Rate limiting should kick in
@@ -273,8 +382,10 @@ test.describe('Security Testing', () => {
       // Test search API rate limiting
       let rateLimitHit = false;
 
-      for (let i = 0; i < 50; i++) {
-        const response = await request.get('/api/search?q=test');
+      for (let i = 0; i < TEST_CONFIG.rateLimiting.apiRequestIterations; i++) {
+        const response = await request.get(
+          `${TEST_CONFIG.urls.api.search}?q=${encodeURIComponent(TEST_CONFIG.search.defaultQuery)}`
+        );
 
         if (response.status() === 429) {
           rateLimitHit = true;
@@ -295,7 +406,7 @@ test.describe('Security Testing', () => {
 
   test.describe('Content Security Policy', () => {
     test('CSP headers are properly configured', async ({ page }) => {
-      const response = await page.goto('/');
+      const response = await page.goto(TEST_CONFIG.urls.home);
       const headers = response?.headers() || {};
 
       // Check for CSP header
@@ -312,22 +423,25 @@ test.describe('Security Testing', () => {
 
     test('inline scripts are blocked by CSP', async ({ page }) => {
       // This test would need to be customized based on your actual CSP policy
-      await page.goto('/');
+      await page.goto(TEST_CONFIG.urls.home);
 
-      const cspViolation = await page.evaluate(() => {
-        return new Promise(resolve => {
-          document.addEventListener('securitypolicyviolation', e => {
-            resolve(e.violatedDirective);
+      const cspViolation = await page.evaluate(({ timeout, inlineScriptMessage }) => {
+        return new Promise<string | null>(resolve => {
+          document.addEventListener('securitypolicyviolation', event => {
+            resolve(event.violatedDirective);
           });
 
           // Try to execute inline script (should be blocked)
           const script = document.createElement('script');
-          script.textContent = 'console.log("This should be blocked")';
+          script.textContent = inlineScriptMessage;
           document.head.appendChild(script);
 
           // If no violation event fires, resolve with null after timeout
-          setTimeout(() => resolve(null), 1000);
+          setTimeout(() => resolve(null), timeout);
         });
+      }, {
+        timeout: TEST_CONFIG.timeouts.cspViolation,
+        inlineScriptMessage: TEST_CONFIG.content.inlineScriptMessage,
       });
 
       // If CSP is properly configured, inline scripts should be blocked

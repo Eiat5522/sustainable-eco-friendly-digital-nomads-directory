@@ -18,11 +18,8 @@ const res = await req().get('/api/events');
   });
 
   it('GET /api/events handles empty result set', async () => {
-    const res = await request(baseURL)
-      .get('/api/events?q=__no_such_event__')
-      .set('Accept', 'application/json')
-      .timeout({ deadline: 30000, response: 15000 });
-    const res = await req().get('/api/events');  
+    const res = await req()
+      .get('/api/events?q=__no_such_event__');
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body.data)).toBe(true);

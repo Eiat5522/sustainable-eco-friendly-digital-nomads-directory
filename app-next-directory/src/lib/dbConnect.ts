@@ -225,6 +225,9 @@ const attachMockHelpers = (fn: MockableDbConnectFn) => {
   }
 };
 
+// NOTE: `mockCalls` persists across module loads, so tests should clear/reset the
+// mock (e.g. call `dbConnect.mockClear()` in beforeEach/afterEach) to avoid
+// leaking state between test cases.
 const mockCalls: unknown[][] = [];
 
 const dbConnect = (async function dbConnectWrapper(): Promise<Mongoose> {

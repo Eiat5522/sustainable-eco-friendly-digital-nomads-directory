@@ -3,6 +3,26 @@ import { TestHelpers } from '../utils/test-utils';
 
 test.describe('Listings API', () => {
   let createdListingId: string;
+  const createdListingIds: string[] = [];
+
+  // Ensure created listings are removed between tests.
+  test.afterEach(async ({ page }) => {
+    if (createdListingIds.length === 0) {
+      return;
+    }
+
+    for (const id of createdListingIds) {
+      try {
+        await TestHelpers.makeAuthenticatedRequest(page, `/api/listings/${id}`, {
+          method: 'DELETE',
+        });
+      } catch {
+        // ignore cleanup failures
+      }
+    }
+
+    createdListingIds.length = 0;
+  });
 
   // Status Code Tests
   test.describe('status codes and error paths', () => {
@@ -125,6 +145,10 @@ test.describe('Listings API', () => {
         data: listingData,
       });
       expect(firstResponse.status()).toBe(200);
+      const firstCreated = await firstResponse.json();
+      if (firstCreated?.id) {
+        createdListingIds.push(firstCreated.id);
+      }
 
       // Second creation with same slug should fail
       const secondResponse = await TestHelpers.makeAuthenticatedRequest(page, '/api/listings', {
@@ -162,6 +186,9 @@ test.describe('Listings API', () => {
       expect(created.name).toBe(listingData.name);
       expect(created.eco_features).toEqual(listingData.eco_features);
       expect(created.amenities).toEqual(listingData.amenities);
+      if (created?.id) {
+        createdListingIds.push(created.id);
+      }
     });
   });
 
@@ -187,6 +214,9 @@ test.describe('Listings API', () => {
       expect(createResponse.ok()).toBeTruthy();
       const { id: createdId } = await createResponse.json();
       createdListingId = createdId;
+      if (createdId) {
+        createdListingIds.push(createdId);
+      }
 
       // Update
       const updateResponse = await TestHelpers.makeAuthenticatedRequest(

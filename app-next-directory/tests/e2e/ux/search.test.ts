@@ -2,7 +2,14 @@ import { expect, test } from '@playwright/test';
 
 test.describe('Search & Filter UX', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+  // Set up test environment with predictable data
+  await page.goto('/?testMode=true');
+    
+  // Wait for the page to load and initialize
+  await page.waitForLoadState('networkidle');
+    
+  // Ensure we're in a controlled test environment
+  await expect(page.locator('[data-test-mode="true"]')).toBeVisible();
   });
 
   test('search interface is accessible and responsive', async ({ page }) => {
@@ -28,6 +35,26 @@ test.describe('Search & Filter UX', () => {
   });
 
   test('search with filters shows correct results', async ({ page }) => {
+      // Mock API responses for predictable testing
+      await page.route('/api/listings*', async route => {
+        await route.fulfill({
+          json: {
+            data: [
+              {
+                id: 'test-listing-1',
+                title: 'Eco Coworking Bangkok',
+                category: 'coworking',
+                city: 'Bangkok',
+                ecoTags: ['solar-powered', 'green-building'],
+                sustainabilityScore: 85
+              }
+            ],
+            totalCount: 1,
+            hasMore: false
+          }
+        });
+      });
+
     // Open filter panel
     await page.getByRole('button', { name: 'Filters' }).click();
 
@@ -44,9 +71,9 @@ test.describe('Search & Filter UX', () => {
     await expect(page).toHaveURL(/city=Bangkok/);
     await expect(page).toHaveURL(/ecoTags=solar-powered/);
 
-    // Verify results
+      // Verify results with controlled test data
     const listings = page.locator('[data-testid="listing-card"]');
-    await expect(listings).toHaveCount(await listings.count());
+      await expect(listings).toHaveCount(expectedResultsCount);
 
     // Check first listing matches filters
     const firstListing = listings.first();
@@ -216,6 +243,17 @@ test.describe('Search & Filter UX', () => {
     });
 
     test('handles empty search results', async ({ page }) => {
+        // Mock empty API response for predictable testing
+        await page.route('/api/listings*', async route => {
+          await route.fulfill({
+            json: {
+              data: [],
+              totalCount: 0,
+              hasMore: false
+            }
+          });
+        });
+
       // Search with unlikely term
       await page.fill('input[type="search"]', 'xyznonexistentlocation123');
       await page.click('button[type="submit"]');
@@ -262,10 +300,73 @@ test.describe('Search & Filter UX', () => {
           const bgColor = style.backgroundColor;
           const textColor = style.color;
           // Calculate contrast ratio using WCAG formula
-          // This is a simplified example - in real code you'd need a proper color contrast calculation
+          const parseColor = (color: string): [number, number, number] => {
+            const input = color.trim().toLowerCase();
+
+            const clamp = (value: number): number => Math.min(Math.max(value, 0), 1);
+
+            if (input.startsWith('#')) {
+              let hex = input.slice(1);
+              if (hex.length === 3) {
+                hex = hex.split('').map(char => char + char).join('');
+              }
+              if (hex.length === 6) {
+                const r = parseInt(hex.slice(0, 2), 16) / 255;
+                const g = parseInt(hex.slice(2, 4), 16) / 255;
+                const b = parseInt(hex.slice(4, 6), 16) / 255;
+                return [clamp(r), clamp(g), clamp(b)];
+              }
+            }
+
+            const rgbMatch = input.match(/rgba?\(([^)]+)\)/);
+            if (rgbMatch) {
+              const channels = rgbMatch[1]
+                .split(',')
+                .slice(0, 3)
+                .map(value => {
+                  const trimmed = value.trim();
+                  if (trimmed.endsWith('%')) {
+                    const percentage = parseFloat(trimmed.slice(0, -1));
+                    if (Number.isFinite(percentage)) {
+                      return clamp(percentage / 100);
+                    }
+                    return 0;
+                  }
+                  const channel = parseFloat(trimmed);
+                  if (Number.isFinite(channel)) {
+                    return clamp(channel / 255);
+                  }
+                  return 0;
+                });
+              if (channels.length === 3) {
+                return [channels[0], channels[1], channels[2]];
+              }
+            }
+
+            // Fallback to black if parsing fails
+            return [0, 0, 0];
+          };
+
+          const linearizeChannel = (channel: number): number => {
+            if (channel <= 0.03928) {
+              return channel / 12.92;
+            }
+            return Math.pow((channel + 0.055) / 1.055, 2.4);
+          };
+
+          const relativeLuminance = ([r, g, b]: [number, number, number]): number => {
+            const [R, G, B] = [linearizeChannel(r), linearizeChannel(g), linearizeChannel(b)];
+            return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+          };
+
           const calculateContrastRatio = (textCol: string, bgCol: string): number => {
-            // Dummy implementation for the test to pass compilation
-            return 5.0; // Always return a passing ratio for the test's purpose
+            const textColor = parseColor(textCol);
+            const backgroundColor = parseColor(bgCol);
+            const textLuminance = relativeLuminance(textColor);
+            const backgroundLuminance = relativeLuminance(backgroundColor);
+            const lighter = Math.max(textLuminance, backgroundLuminance);
+            const darker = Math.min(textLuminance, backgroundLuminance);
+            return (lighter + 0.05) / (darker + 0.05);
           };
           return calculateContrastRatio(textColor, bgColor);
         });

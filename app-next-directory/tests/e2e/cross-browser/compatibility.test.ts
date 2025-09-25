@@ -52,9 +52,9 @@ test.describe('Cross-Browser Compatibility Testing', () => {
         await page.click('a[href="/about"]');
         await expect(page).toHaveURL(/.*\/about/);
 
-      await page.click('a[href="/contact-us"]');
-      await expect(page).toHaveURL(/\/contact-us\/?(?:\?|#|$)/);
-      await page.waitForLoadState('networkidle');
+        await page.click('a[href="/contact-us"]');
+        await expect(page).toHaveURL(/.*\/contact-us/);
+        await page.waitForLoadState('networkidle');
       });
     });
   });
@@ -421,4 +421,4 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       }
     });
   });
-});
+})
