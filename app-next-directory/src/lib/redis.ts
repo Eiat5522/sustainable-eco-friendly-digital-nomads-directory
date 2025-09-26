@@ -10,14 +10,14 @@ const listeners = new Set<RedisClientListener>();
 const notifyListeners = (client: RedisInstance) => {
   redisClient = client;
 
-  for (const listener of listeners) {
+  listeners.forEach(listener => {
     try {
       listener(client);
     } catch (error) {
       // Listeners are best-effort; never let a failing listener break others.
       console.warn('[redis] Listener error during client update', error);
     }
-  }
+  });
 };
 
 const url = process.env.UPSTASH_REDIS_REST_URL;
@@ -53,24 +53,40 @@ export function onRedisClientChange(listener: RedisClientListener): () => void {
 // Provide lightweight mocking helpers so that unit tests can replace the Redis
 // client without relying on Jest-specific helpers being attached to this
 // function at runtime (which is not guaranteed when using ESM).
+//
+// These helpers are only attached in test environments to avoid production overhead
+// and potential race conditions in concurrent test execution.
 const attachMockHelpers = () => {
-  const getter = getRedisClient as typeof getRedisClient & {
+  // Use type assertion that's compatible with both production and test environments
+  const mockGetRedisClient = getRedisClient as typeof getRedisClient & {
     mockReturnValue?: (client: RedisInstance) => typeof getRedisClient;
     mockClear?: () => void;
+    mockReset?: () => void;
   };
 
-  if (typeof getter.mockReturnValue !== 'function') {
-    getter.mockReturnValue = (client: RedisInstance) => {
+  if (typeof mockGetRedisClient.mockReturnValue !== 'function') {
+    mockGetRedisClient.mockReturnValue = (client: RedisInstance) => {
       notifyListeners(client);
       return getRedisClient;
     };
   }
 
-  if (typeof getter.mockClear !== 'function') {
-    getter.mockClear = () => {
+  if (typeof mockGetRedisClient.mockClear !== 'function') {
+    mockGetRedisClient.mockClear = () => {
       notifyListeners(undefined);
+    };
+  }
+
+  if (typeof mockGetRedisClient.mockReset !== 'function') {
+    mockGetRedisClient.mockReset = () => {
+      notifyListeners(undefined);
+      listeners.clear();
     };
   }
 };
 
-attachMockHelpers();
+// Only attach mock helpers in test environments to avoid production overhead
+// and potential race conditions in concurrent test execution
+if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
+  attachMockHelpers();
+}

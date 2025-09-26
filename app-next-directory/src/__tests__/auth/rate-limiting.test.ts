@@ -13,11 +13,10 @@ import { jest } from '@jest/globals';
 
 // Mock Upstash dependencies
 jest.mock('@upstash/ratelimit', () => ({
-  Ratelimit: jest.fn(),
-}));
-
-jest.mock('@/lib/redis', () => ({
-  getRedisClient: jest.fn(),
+  Ratelimit: jest.fn().mockImplementation(() => ({
+    limit: jest.fn(),
+    reset: jest.fn(),
+  })),
 }));
 
 jest.mock('@/lib/dbConnect', () => ({
@@ -39,9 +38,15 @@ import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit'
 
 // Type the mocks
 const mockRatelimit = Ratelimit as jest.MockedClass<typeof Ratelimit>;
-const mockGetRedisClient = getRedisClient as jest.MockedFunction<typeof getRedisClient>;
 const mockDbConnect = dbConnect as jest.MockedFunction<typeof dbConnect>;
 const mockMongoose = mongoose as jest.Mocked<typeof mongoose>;
+
+// Cast getRedisClient to proper mock type with additional test helpers
+const mockGetRedisClient = getRedisClient as jest.MockedFunction<typeof getRedisClient> & {
+  mockReturnValue: (client: any) => typeof getRedisClient;
+  mockClear: () => void;
+  mockReset: () => void;
+};
 
 import type { Redis } from '@upstash/redis';
 
@@ -73,9 +78,13 @@ describe('Rate Limiting and Redis Integration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
+    // Ensure we're in test environment for mock attachment
+    process.env.NODE_ENV = 'test';
+    process.env.JEST_WORKER_ID = '1';
+    
     // Setup default mocks
     mockGetRedisClient.mockReturnValue(mockRedisClient);
-    mockRatelimit.mockReturnValue(mockRateLimiterInstance as any);
+    // Ratelimit is now automatically mocked to return mockRateLimiterInstance
     mockDbConnect.mockResolvedValue(undefined);
     
     // Mock mongoose connection
@@ -87,6 +96,8 @@ describe('Rate Limiting and Redis Integration', () => {
 
   afterEach(() => {
     delete process.env.MONGODB_URI;
+    delete process.env.NODE_ENV;
+    delete process.env.JEST_WORKER_ID;
   });
 
   describe('Rate Limiter Configuration', () => {
@@ -101,7 +112,7 @@ describe('Rate Limiting and Redis Integration', () => {
     });
 
     it('should handle missing Redis client gracefully', () => {
-      mockGetRedisClient.mockReturnValue(null);
+      mockGetRedisClient.mockReturnValue(undefined);
       
       // Import would create undefined rate limiter
       // The enforceLoginRateLimit function should handle this case
@@ -171,7 +182,7 @@ describe('Rate Limiting and Redis Integration', () => {
     describe('Error Handling and Fail-Open Behavior', () => {
       it('should fail-open when rate limiter is unavailable', async () => {
         // Mock no Redis client
-        mockGetRedisClient.mockReturnValue(null);
+        mockGetRedisClient.mockReturnValue(undefined);
 
         const result = await enforceLoginRateLimit('user@example.com:192.168.1.1');
 
@@ -508,7 +519,7 @@ describe('Rate Limiting and Redis Integration', () => {
 
   describe('Redis Integration Edge Cases', () => {
     it('should handle Redis client initialization failure', () => {
-      mockGetRedisClient.mockReturnValue(null);
+      mockGetRedisClient.mockReturnValue(undefined);
 
       // The rate limiter should be undefined when Redis is not available
       // enforceLoginRateLimit should handle this gracefully
