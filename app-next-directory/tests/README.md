@@ -127,6 +127,14 @@ Tests run against a local development server started automatically by Playwright
 - Simulated network conditions
 - Viewport sizes for desktop and mobile testing
 
+### Required Environment Variables
+
+Security-oriented Playwright suites expect credentials to be provided via environment variables. Configure them in `.env.test`, `.env.local`, or your shell before running tests:
+
+- `TEST_USER_EMAIL` – email for the standard end-to-end test user
+- `TEST_USER_PASSWORD` – password for the standard end-to-end test user
+- `TEST_GENERIC_EMAIL` *(optional)* – fallback address used when a throwaway email is sufficient
+
 ## Writing Tests
 
 ### Best Practices

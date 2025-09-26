@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
 
+import {
+  getOptionalTestEnvVar,
+  getRequiredTestEnvVar,
+} from '../../helpers/env';
+
 const parseNumber = (value: string | undefined, fallback: number) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
@@ -45,9 +50,13 @@ const TEST_CONFIG = {
     },
   },
   credentials: {
-    userEmail: process.env.TEST_USER_EMAIL ?? 'user@example.com',
-    userPassword: process.env.TEST_USER_PASSWORD ?? 'password123',
-    genericEmail: process.env.TEST_GENERIC_EMAIL ?? 'test@example.com',
+    userEmail: getRequiredTestEnvVar('TEST_USER_EMAIL', {
+      description: 'set in .env.test or your shell before running security e2e tests',
+    }),
+    userPassword: getRequiredTestEnvVar('TEST_USER_PASSWORD', {
+      description: 'set in .env.test or your shell before running security e2e tests',
+    }),
+    genericEmail: getOptionalTestEnvVar('TEST_GENERIC_EMAIL', 'test@example.com'),
   },
   search: {
     defaultQuery: process.env.TEST_SEARCH_QUERY ?? 'test',
@@ -164,6 +173,7 @@ test.describe('Security Testing', () => {
       const weakPasswords = TEST_CONFIG.payloads.weakPasswords;
 
       for (const weakPassword of weakPasswords) {
+        await page.goto('/auth/signup');
         await page.fill('input[name="email"]', TEST_CONFIG.credentials.genericEmail);
         await page.fill('input[name="password"]', weakPassword);
         await page.fill('input[name="confirmPassword"]', weakPassword);
@@ -171,9 +181,6 @@ test.describe('Security Testing', () => {
 
         // Should show password strength error
         await expect(page.locator('[data-testid="password-error"]')).toBeVisible();
-
-        // Clear form
-        await page.reload();
       }
     });
   });
@@ -417,8 +424,12 @@ test.describe('Security Testing', () => {
       // Should include essential CSP directives
       expect(csp).toContain('default-src');
       expect(csp).toContain('script-src');
+      // Ensure script-src doesn't allow unsafe-inline
+      expect(csp).not.toMatch(/script-src[^;]*'unsafe-inline'/);
       expect(csp).toContain('style-src');
       expect(csp).toContain('img-src');
+      expect(csp).toContain('object-src');
+      expect(csp).toContain('frame-src');
     });
 
     test('inline scripts are blocked by CSP', async ({ page }) => {

@@ -55,6 +55,15 @@ tests/CityCarousel.test.tsx → src/components/sections/__tests__/CityCarousel.t
 ✅ **Playwright Integration Tests**: 12 tests moved to `tests/e2e/` structure
 ✅ **No More Conflicts**: Jest and Playwright now operate on separate test sets
 
+### 2025-02 Hardening Update
+- Migrated the remaining `jest-playwright` suites (`tests/e2e/auth.e2e.test.ts` and
+  `tests/e2e/rbac.e2e.test.ts`) to first-class Playwright tests so they now run with
+  `@playwright/test` like the rest of the E2E suite.
+- Removed the `jest-playwright` triple-slash directives from shared helpers and switched
+  to typing against Playwright fixtures.
+- Updated `playwright.config.ts` to execute `.e2e.test.ts` files and restricted the legacy
+  Jest E2E config to the `tests/legacy/` namespace, eliminating cross-runner conflicts.
+
 ## Commands for Testing
 
 ```bash

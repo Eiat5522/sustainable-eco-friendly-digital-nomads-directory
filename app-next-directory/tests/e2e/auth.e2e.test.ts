@@ -1,16 +1,10 @@
-// @ts-nocheck
-// Cleaned E2E auth test for jest-playwright globals
-/// <reference types="jest-playwright-preset" />
+import { expect, test } from '@playwright/test';
 
-describe('Authentication System (Jest + jest-playwright)', () => {
-  const BASE = process.env.BASE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
 
-  beforeEach(async () => {
-    await page.goto(BASE);
-  });
-
-  it('registers a new user and redirects to login', async () => {
-    await page.goto('/register');
+test.describe('Authentication System (Playwright)', () => {
+  test('registers a new user and redirects to login', async ({ page }) => {
+    await page.goto(`${BASE_URL}/register`);
 
     await page.fill('input[name="name"]', 'Test User');
     await page.fill('input[name="email"]', `test+${Date.now()}@example.com`);
@@ -18,10 +12,10 @@ describe('Authentication System (Jest + jest-playwright)', () => {
 
     await Promise.all([
       page.waitForURL('**/login', { waitUntil: 'domcontentloaded' }),
-      page.click('button[type="submit"]')
+      page.click('button[type="submit"]'),
     ]);
 
-    expect(page.url()).toMatch(/\/login$/);
+    await expect(page).toHaveURL(/\/login$/);
   });
 });
 

@@ -1,9 +1,9 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import type { Redis } from '@upstash/redis';
-import mongoose from 'mongoose';
 
 import dbConnect from '@/lib/dbConnect';
 import { getRedisClient, onRedisClientChange } from '@/lib/redis';
+import LoginAttempt, { LoginAttemptReason } from '@/models/LoginAttempt';
 
 type LoginRateLimitResult = {
   success: boolean;
@@ -71,7 +71,12 @@ export async function enforceLoginRateLimit(identifier: string): Promise<LoginRa
 
   try {
     const result = await limiter.limit(identifier);
-    return result as LoginRateLimitResult;
+    return {
+    success: result.success,
+    limit: result.limit,
+    remaining: result.remaining,
+    reset: result.reset,
+};
   } catch (error) {
     console.warn('[auth] Login ratelimiter error; allowing attempt', error);
     return { success: true } as const;
@@ -82,7 +87,7 @@ export async function recordLoginAttempt(params: {
   email: string;
   ip?: string | null;
   success: boolean;
-  reason: 'success' | 'invalid_credentials' | 'rate_limited';
+  reason: LoginAttemptReason;
 }) {
   if (!process.env.MONGODB_URI) {
     return;
@@ -91,8 +96,10 @@ export async function recordLoginAttempt(params: {
   // NOTE: Basic pattern check is enough for logging-only retention. For hardened
   // production flows prefer validator.js isEmail + length caps, consider MX lookups,
   // and block disposable domains before writing audit artifacts.
+  import validator from 'validator';
+
   const rawEmail = params?.email;
-  const isValidEmail = typeof rawEmail === 'string' && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(rawEmail.trim());
+  const isValidEmail = typeof rawEmail === 'string' && validator.isEmail(rawEmail.trim());
   if (!isValidEmail) {
     console.warn('[auth] Skipping login attempt record due to invalid email', { email: rawEmail });
     return;
@@ -102,13 +109,11 @@ export async function recordLoginAttempt(params: {
 
   try {
     await dbConnect();
-    const collection = mongoose.connection.collection('loginAttempts');
-    await collection.insertOne({
+    await LoginAttempt.create({
       email: normalizedEmail,
       ip: params.ip ?? null,
       success: params.success,
       reason: params.reason,
-      createdAt: new Date(),
     });
   } catch (error) {
     console.warn('[auth] Failed to record login attempt', error);

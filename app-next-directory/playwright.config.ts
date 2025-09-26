@@ -24,7 +24,6 @@ export default defineConfig({
     'tests/api/*-api.test.ts',
     'tests/api/events-api.test.ts',
     'tests/api/preview-api.test.ts',
-    'tests/e2e/**/*.e2e.*',
     'tests/CityCarousel.test.tsx',
   ],
   timeout: 60_000,

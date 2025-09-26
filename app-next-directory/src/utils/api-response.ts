@@ -13,7 +13,7 @@ const hasStaticResponseJson =
   typeof Response !== 'undefined' && typeof (Response as any).json === 'function';
 
 const canUseNextResponseJson =
-  typeof NextResponse !== 'undefined' && typeof (NextResponse as any).json === 'function' && hasStaticResponseJson;
+  typeof NextResponse !== 'undefined' && 'json' in NextResponse && typeof NextResponse.json === 'function' && hasStaticResponseJson;
 
 function createJsonResponse(body: JsonBody, init: ResponseInit = {}): Response {
   const headers = new Headers(init.headers ?? {});
@@ -28,7 +28,7 @@ function createJsonResponse(body: JsonBody, init: ResponseInit = {}): Response {
     return NextResponse.json(body, { ...init, headers });
   }
 
-  const payload = JSON.stringify(body ?? null);
+  const payload = typeof body === 'string' ? body : JSON.stringify(body ?? null);
 
   return new Response(payload, {
     ...init,

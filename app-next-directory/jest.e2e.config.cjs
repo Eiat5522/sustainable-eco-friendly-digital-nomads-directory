@@ -29,9 +29,11 @@ try {
 module.exports = {
   preset: 'jest-playwright-preset',
   testEnvironment: 'jest-playwright-preset',
+  // Restrict legacy Jest-driven suites to the legacy folder so Playwright e2e
+  // suites are always executed by the Playwright test runner.
   testMatch: [
-    '<rootDir>/tests/e2e/**/*.e2e.test.ts',
-    '<rootDir>/tests/api/**/*-api.test.ts'
+    '<rootDir>/tests/legacy/**/*.test.ts',
+    '<rootDir>/tests/api/**/*-api.test.ts',
   ],
   setupFiles: ['<rootDir>/jest/setEnvVars.js'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
@@ -50,11 +52,9 @@ module.exports = {
     '[\\\\/]app[\\\\/]',
     '[\\\\/]__tests__[\\\\/]',
     '<rootDir>/tests/e2e/',
-    '<rootDir>/tests/api/',
     // Quarantined legacy/flaky e2e/api tests
     '<rootDir>/tests/api/preview-api.test.ts',
-    '<rootDir>/tests/api/events-api.test.ts',
-    '<rootDir>/tests/e2e/rbac.e2e.test.ts'
+    '<rootDir>/tests/api/events-api.test.ts'
   ],
   testTimeout: 60000,
 };

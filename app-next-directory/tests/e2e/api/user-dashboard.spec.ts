@@ -1,67 +1,25 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type APIRequestContext } from '@playwright/test';
+
+const testUnauthenticatedGet = async (request: APIRequestContext, endpoint: string) => {
+  const response = await request.get(endpoint);
+  expect(response.status()).toBe(401);
+
+  const data = await response.json();
+  expect(data.error).toBe('Authentication required');
+};
 
 test.describe('User Dashboard API', () => {
-  let authCookie: string;
-
-  test.beforeAll(async ({ request }) => {
-    // First, test if auth is working by trying to register/login
-    const loginResponse = await request.post('/api/auth/signin', {
-      data: {
-        email: 'test@example.com',
-        password: 'testpassword123'
-      }
-    });
-    
-    // For this test, we'll assume auth is working
-    // In real tests, you'd need to properly authenticate
-  });
 
   test('should get user preferences with default values', async ({ request }) => {
-    const response = await request.get('/api/user/preferences');
-    
-    // Should handle unauthenticated requests
-    expect(response.status()).toBe(401);
-    
-    const data = await response.json();
-    expect(data.error).toBe('Authentication required');
+    await testUnauthenticatedGet(request, '/api/user/preferences');
   });
 
   test('should get user analytics with default values', async ({ request }) => {
-    const response = await request.get('/api/user/analytics');
-    
-    // Should handle unauthenticated requests
-    expect(response.status()).toBe(401);
-    
-    const data = await response.json();
-    expect(data.error).toBe('Authentication required');
+    await testUnauthenticatedGet(request, '/api/user/analytics');
   });
 
   test('should get user dashboard with comprehensive data', async ({ request }) => {
-    const response = await request.get('/api/user/dashboard');
-    
-    // Should handle unauthenticated requests
-    expect(response.status()).toBe(401);
-    
-    const data = await response.json();
-    expect(data.error).toBe('Authentication required');
-  });
-
-  test('should validate API endpoint structure', async ({ request }) => {
-    // Test that endpoints exist and return proper error messages
-    const endpoints = [
-      '/api/user/preferences',
-      '/api/user/analytics', 
-      '/api/user/dashboard'
-    ];
-
-    for (const endpoint of endpoints) {
-      const response = await request.get(endpoint);
-      expect(response.status()).toBe(401);
-      
-      const data = await response.json();
-      expect(data).toHaveProperty('error');
-      expect(data.error).toBe('Authentication required');
-    }
+    await testUnauthenticatedGet(request, '/api/user/dashboard');
   });
 
   test('should handle POST requests for analytics tracking', async ({ request }) => {
@@ -138,7 +96,7 @@ test.describe('User Dashboard API', () => {
     for (const req of invalidRequests) {
       let response;
       const method = req.method.toLowerCase();
-      
+
       switch (method) {
         case 'get':
           response = await request.get(req.endpoint);
@@ -155,7 +113,7 @@ test.describe('User Dashboard API', () => {
         default:
           throw new Error(`Unsupported method: ${req.method}`);
       }
-      
+
       // Should still require authentication first
       expect(response.status()).toBe(401);
     }
@@ -169,7 +127,7 @@ test.describe('API Route Integration Tests', () => {
     
     // Check for proper CORS handling (if implemented)
     // This might return 404 or 405 depending on implementation
-    expect([404, 405, 200, 401].includes(response.status())).toBe(true);
+    expect([405, 401].includes(response.status())).toBe(true);
   });
 
   test('should handle query parameters', async ({ request }) => {
@@ -193,5 +151,8 @@ test.describe('API Route Integration Tests', () => {
     });
     
     expect(response.status()).toBe(401);
+   
+   const data = await response.json();
+   expect(data.error).toBe('Authentication required');    
   });
 });

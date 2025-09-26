@@ -151,6 +151,10 @@ export const TestHelpers = {
     await loginByRole(page, 'venueOwner', '/dashboard/venues', email, password)
   },
 
+  async loginAsPremium(page: Page, email?: string, password?: string) {
+    await TestHelpers.loginAsVenueOwner(page, email, password)
+  },
+
   async loginAsAdmin(page: Page, email?: string, password?: string) {
     await loginByRole(page, 'admin', '/admin/dashboard', email, password)
   },

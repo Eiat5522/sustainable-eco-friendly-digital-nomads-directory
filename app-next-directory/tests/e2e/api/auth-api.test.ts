@@ -8,7 +8,7 @@ const itIf = baseUrl && email && password ? it : it.skip;
 
 describe('POST /api/auth/signin', () => {
   itIf(
-    'returns 200 with token',
+    'should authenticate user and return JWT token',
     async () => {
       const res = await request(baseUrl)
         .post('/api/auth/signin')
@@ -18,8 +18,11 @@ describe('POST /api/auth/signin', () => {
         .expect('Content-Type', /json/);
 
       expect(res.body).toBeDefined();
+      expect(res.body.token).toBeDefined();
       expect(typeof res.body.token).toBe('string');
-      expect(res.body.token.length).toBeGreaterThan(10);
+      expect(res.body.token.length).toBeGreaterThan(0);
+      // Optional: Validate JWT format
+      expect(res.body.token).toMatch(/^[\w-]+\.[\w-]+\.[\w-]+$/);
     },
     15000
   );

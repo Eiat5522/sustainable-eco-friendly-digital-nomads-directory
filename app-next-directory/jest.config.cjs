@@ -25,6 +25,8 @@ module.exports = {
     '!src/__mocks__/**/*',
     '!**/*.test.*',
     '!**/node_modules/**',
+    '!**/*.config.*',
+    '!**/middleware.*',
   ],
   // Treat TS/JS files as ESM for SWC/Jest
   extensionsToTreatAsEsm: ['.ts', '.tsx', '.jsx'],

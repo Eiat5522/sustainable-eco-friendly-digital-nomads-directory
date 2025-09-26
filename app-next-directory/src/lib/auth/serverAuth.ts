@@ -16,10 +16,9 @@ type DbConnect = typeof import('@/lib/dbConnect')['default'];
 
 let cachedDbConnect: DbConnect | null = null;
 
-function getDbConnect(): DbConnect {
+async function getDbConnect(): Promise<DbConnect> {
   if (!cachedDbConnect) {
-    const module = require('@/lib/dbConnect') as { default?: DbConnect } | DbConnect;
-    cachedDbConnect = (module as { default?: DbConnect }).default ?? (module as DbConnect);
+    cachedDbConnect = (await import('@/lib/dbConnect')).default;
   }
   return cachedDbConnect;
 }
@@ -58,7 +57,7 @@ export async function authenticateUser(
   password: string
 ): Promise<AuthenticatedUser | null> {
   try {
-    const connect = getDbConnect();
+    const connect = await getDbConnect();
     await connect();
 
     const requireVerification = isEmailVerificationRequired();
@@ -116,7 +115,7 @@ export async function createUserAccount(userData: {
   image?: string;
 }): Promise<AuthenticatedUser | null> {
   try {
-    const connect = getDbConnect();
+    const connect = await getDbConnect();
     await connect();
 
     // Check if user already exists
@@ -157,7 +156,7 @@ export async function createUserAccount(userData: {
  */
 export async function getUserById(userId: string): Promise<AuthenticatedUser | null> {
   try {
-    const connect = getDbConnect();
+    const connect = await getDbConnect();
     await connect();
 
     if (!isValidObjectId(userId)) {
@@ -195,7 +194,7 @@ export async function updateUserRole(
   newRole: UserRole
 ): Promise<boolean> {
   try {
-    const connect = getDbConnect();
+    const connect = await getDbConnect();
     await connect();
 
     if (!isValidObjectId(userId)) {

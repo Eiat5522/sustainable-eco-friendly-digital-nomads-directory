@@ -4,26 +4,39 @@
 import { test, expect } from '@playwright/test';
 
 // Test configuration
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
 
 // Test helper function for API requests - moved to global scope
 async function makeApiRequest(endpoint: string, options: RequestInit & { headers?: Record<string, string> } = {}) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers
+  try {
+    const headers: Record<string, string> = { ...(options.headers ?? {}) };
+    if (options.method && ['POST', 'PUT', 'PATCH'].includes(options.method.toUpperCase())) {
+      headers['Content-Type'] = 'application/json';
     }
-  });
 
-  return {
-    response,
-    data: response.headers.get('content-type')?.includes('application/json')
-      ? await response.json()
-      : await response.text(),
-    status: response.status,
-    headers: response.headers
-  };
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      ...options,
+      headers
+    });
+
+    let data;
+    try {
+      data = response.headers.get('content-type')?.includes('application/json')
+        ? await response.json()
+        : await response.text();
+    } catch (parseError) {
+      data = null;
+    }
+
+    return {
+      response,
+      data,
+      status: response.status,
+      headers: response.headers
+    };
+  } catch (error) {
+    throw new Error(`API request failed: ${error.message}`);
+  }
 }
 
 /**
@@ -89,8 +102,13 @@ test.describe('API Integration Tests - Core Endpoints', () => {
   test('GET /api/session - Session endpoint', async () => {
     const { response, data, status } = await makeApiRequest('/session');
 
-    // Should return session data or null if not authenticated
-    expect([200, 401]).toContain(status);
+  if (status === 200) {
+    expect(data).toHaveProperty('user');
+  } else if (status === 401) {
+    expect(data).toHaveProperty('error');
+  } else {
+    throw new Error(`Unexpected status code: ${status}`);
+  }
   });
 
   test('GET /api/performance/web-vitals - Web vitals endpoint', async () => {
@@ -136,8 +154,11 @@ test.describe('API Integration Tests - Error Handling', () => {
       })
     });
 
-    // Should require authentication
-    expect([401, 403]).toContain(status);
+  expect([401, 403]).toContain(status);
+  if (typeof data === 'object' && data !== null) {
+    expect(data).toHaveProperty('error');
+    expect(typeof data.error).toBe('string');
+  }
   });
 
 });

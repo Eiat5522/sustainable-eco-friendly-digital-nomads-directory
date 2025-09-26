@@ -30,10 +30,14 @@ const baseURL = process.env.BASE_URL || 'http://localhost:3000';
 
     expect(res.status).toBe(307);
     expect(res.headers.location).toBeDefined();
+    expect(res.headers.location).toBe('/'); // Verify redirect to expected slug
 
     const setCookie = res.headers['set-cookie'];
     expect(setCookie).toBeDefined();
     expect(Array.isArray(setCookie)).toBe(true);
+    expect(setCookie.length).toBeGreaterThan(0);
+    // Verify preview cookies are set
+    expect(setCookie.some(cookie => cookie.includes('__prerender_bypass'))).toBe(true);
   });
 
   it('exits preview mode using persisted cookies (agent)', async () => {

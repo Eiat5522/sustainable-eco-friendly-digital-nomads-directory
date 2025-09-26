@@ -2,14 +2,14 @@
     "jest.enable": true,
     "jest.debugMode": false,
     "jest.jestCommandLine": "./scripts/jest-vscode.sh",
-    "jest.rootPath": ".",
+    "jest.rootPath": "./app-next-directory/src",
     "jest.coverageFormatter": "GutterFormatter",
     "jest.runMode": {
         "type": "on-demand"
     },
     "jest.nodeEnv": {
-        "PATH": "/home/eiat/.local/bin:/home/eiat/.nvm/versions/node/v22.19.0/bin:/usr/local/bin:/usr/bin:/bin",
-        "NODE_PATH": "/home/eiat/.nvm/versions/node/v22.19.0/lib/node_modules"
+        "PATH": "~/.local/bin:/home/eiat/.nvm/versions/node/v22.19.0/bin:/usr/local/bin:/usr/bin:/bin",
+        "NODE_PATH": "~/.nvm/versions/node/v22.19.0/lib/node_modules"
     },
     "jest.shell": "/bin/bash",
     "jest.useDashedArgs": true,

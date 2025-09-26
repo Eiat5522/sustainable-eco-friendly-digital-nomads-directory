@@ -1,5 +1,4 @@
-/// <reference types="jest-playwright-preset" />
-import type { Page } from 'playwright';
+import type { Page } from '@playwright/test';
 
 export async function loginAs(page: Page, email: string, password: string) {
   await page.goto('/login', { waitUntil: 'domcontentloaded' });
