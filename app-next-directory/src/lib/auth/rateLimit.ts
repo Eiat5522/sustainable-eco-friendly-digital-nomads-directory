@@ -5,7 +5,7 @@ import dbConnect from '@/lib/dbConnect';
 import { getRedisClient, onRedisClientChange } from '@/lib/redis';
 import LoginAttempt, { LoginAttemptReason } from '@/models/LoginAttempt';
 
-type Validator = typeof import('validator');
+type ValidatorModule = typeof import('validator');
 
 type LoginRateLimitResult = {
   success: boolean;
@@ -19,14 +19,16 @@ const LOGIN_WINDOW_DURATION = '1 m';
 const LOGIN_RATE_LIMIT_PREFIX = 'auth:login';
 
 let loginRateLimiter: InstanceType<typeof Ratelimit> | undefined;
-let validatorModulePromise: Promise<Validator & { default?: Validator }> | null = null;
+let validatorModulePromise: Promise<ValidatorModule> | null = null;
 
-const loadValidator = async (): Promise<Validator> => {
+const loadValidator = async (): Promise<ValidatorModule> => {
   if (!validatorModulePromise) {
-    validatorModulePromise = import('validator') as Promise<Validator & { default?: Validator }>;
+    validatorModulePromise = import('validator') as Promise<ValidatorModule>;
   }
 
-  const validatorModule = await validatorModulePromise;
+  const validatorModule = (await validatorModulePromise) as ValidatorModule & {
+    default?: ValidatorModule;
+  };
   return validatorModule.default ?? validatorModule;
 };
 
@@ -40,7 +42,7 @@ const loadValidator = async (): Promise<Validator> => {
 // functionality; no test-only mutation occurs here.
 
 const createSlidingWindowLimiter = () => {
-return Ratelimit.slidingWindow(LOGIN_WINDOW_LIMIT, LOGIN_WINDOW_DURATION);
+  return Ratelimit.slidingWindow(LOGIN_WINDOW_LIMIT, LOGIN_WINDOW_DURATION);
 };
 
 const buildRateLimiter = (redis: Redis | undefined) => {
@@ -84,11 +86,11 @@ export async function enforceLoginRateLimit(identifier: string): Promise<LoginRa
   try {
     const result = await limiter.limit(identifier);
     return {
-    success: result.success,
-    limit: result.limit,
-    remaining: result.remaining,
-    reset: result.reset,
-};
+      success: result.success,
+      limit: result.limit,
+      remaining: result.remaining,
+      reset: result.reset,
+    };
   } catch (error) {
     console.warn('[auth] Login ratelimiter error; allowing attempt', error);
     return { success: true } as const;
