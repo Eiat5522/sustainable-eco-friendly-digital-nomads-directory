@@ -1,6 +1,4 @@
-import jestGlobals from '@jest/globals';
-
-const { jest } = jestGlobals;
+import { jest } from '@jest/globals';
 
 export const buildVerifyEmail = jest.fn();
 export const sendMail = jest.fn();
@@ -17,7 +15,9 @@ sendMail.mockImplementation(() =>
   Promise.resolve({ messageId: 'test-message-id' }),
 );
 
-export default {
+const emailMock = {
   buildVerifyEmail,
   sendMail,
 };
+
+export default emailMock;

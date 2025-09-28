@@ -18,7 +18,9 @@ export const getRequestContext = jest.fn(() => ({
   userAgent: 'jest',
 }));
 
-export default {
+const loggerMock = {
   structuredLogger,
   getRequestContext,
 };
+
+export default loggerMock;

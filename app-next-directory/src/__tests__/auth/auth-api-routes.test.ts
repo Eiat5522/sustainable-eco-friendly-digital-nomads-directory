@@ -278,6 +278,10 @@ describe('Authentication API Routes', () => {
 
         const request = createMockRequest(dataWithMixedCaseEmail);
         const response = await registerPost(request);
+        const responseData = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(responseData.success).toBe(true);
 
         expect(mockUserFindOne).toHaveBeenCalledWith({ email: 'john@example.com' });
         expect(mockUserCreate).toHaveBeenCalledWith(
@@ -634,5 +638,4 @@ describe('Authentication API Routes', () => {
       expect(mockSendMail).not.toHaveBeenCalled();
     });
   });
-});
-} 
+})

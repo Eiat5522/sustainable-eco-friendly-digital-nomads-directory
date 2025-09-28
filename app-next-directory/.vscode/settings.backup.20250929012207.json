@@ -1,0 +1,27 @@
+{
+    "jest.enable": true,
+    "jest.debugMode": false,
+    "jest.jestCommandLine": "pnpm test:unit --",
+    "jest.rootPath": ".",
+    "jest.coverageFormatter": "GutterFormatter",
+    "jest.runMode": {
+        "type": "on-demand"
+    },
+    "jest.useDashedArgs": true,
+    "jest.shell": "/usr/bin/bash",
+    "jest.nodeEnv": {
+        "PATH": "/home/eiat/.nvm/versions/node/v22.19.0/bin:/home/eiat/.local/share/pnpm:/home/eiat/.local/bin:/home/eiat/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/snap/bin:/home/eiat/.fzf/bin:/usr/local/go/bin:/home/eiat/go/bin",
+        "NODE_ENV": "test"
+    },
+    "jest.pathToJest": "/home/eiat/.nvm/versions/node/v22.19.0/bin/pnpm",
+    "jest.pathToConfig": "jest.config.cjs",
+    "jest.disabledWorkspaceFolders": [],
+    "jest.showCoverageOnLoad": false,
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.profiles.linux": {
+        "bash": {
+            "path": "/usr/bin/bash",
+            "args": ["-l"]
+        }
+    }
+}

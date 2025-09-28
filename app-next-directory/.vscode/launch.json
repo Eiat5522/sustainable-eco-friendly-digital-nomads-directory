@@ -53,10 +53,10 @@
                 "--runTestsByPath",
                 "${jest.testFile}"
             ],
-            "cwd": "d:\\Eiat_Folder\\MyProjects\\MyOtherProjects\\sustainable-eco-friendly-digital-nomads-directory\\app-next-directory",
+            "cwd": "${workspaceFolder}/app-next-directory",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
-            "runtimeExecutable": "npm"
+            "runtimeExecutable": "pnpm"
         }
     ]
 }

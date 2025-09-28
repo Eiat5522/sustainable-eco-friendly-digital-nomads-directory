@@ -1,7 +1,7 @@
 // API Integration Tests - No Browser Dependencies
 // Tests core API endpoints using HTTP requests directly
 
-import { test, expect } from '@playwright/test';
+import { expect, test as playwrightTest } from '@playwright/test';
 
 // Test configuration
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
@@ -29,7 +29,7 @@ async function makeApiRequest(endpoint: string, options: RequestInit & { headers
       data = response.headers.get('content-type')?.includes('application/json')
         ? await response.json()
         : await response.text();
-    } catch (parseError) {
+    } catch {
       data = null;
     }
 
@@ -53,10 +53,10 @@ async function makeApiRequest(endpoint: string, options: RequestInit & { headers
  * E.1.1 Core API Endpoints Testing
  * Testing all major API endpoints for basic functionality
  */
-test.describe('API Integration Tests - Core Endpoints', () => {
+playwrightTest.describe('API Integration Tests - Core Endpoints', () => {
 
-  test('GET /api/listings - List all listings', async () => {
-    const { response, data, status } = await makeApiRequest('/listings');
+  playwrightTest('GET /api/listings - List all listings', async () => {
+    const { data, status } = await makeApiRequest('/listings');
 
     expect(status).toBe(200);
     expect(data).toHaveProperty('listings');
@@ -71,58 +71,58 @@ test.describe('API Integration Tests - Core Endpoints', () => {
     }
   });
 
-  test('GET /api/search - Search functionality', async () => {
-    const { response, data, status } = await makeApiRequest('/search?q=co-working');
+  playwrightTest('GET /api/search - Search functionality', async () => {
+    const { data, status } = await makeApiRequest('/search?q=co-working');
 
     expect(status).toBe(200);
     expect(data).toHaveProperty('results');
     expect(Array.isArray(data.results)).toBe(true);
   });
 
-  test('GET /api/search/suggestions - Search suggestions', async () => {
-    const { response, data, status } = await makeApiRequest('/search/suggestions?q=bali');
+  playwrightTest('GET /api/search/suggestions - Search suggestions', async () => {
+    const { data, status } = await makeApiRequest('/search/suggestions?q=bali');
 
     expect(status).toBe(200);
     expect(Array.isArray(data)).toBe(true);
   });
 
-  test('GET /api/cities - List cities', async () => {
-    const { response, data, status } = await makeApiRequest('/cities');
+  playwrightTest('GET /api/cities - List cities', async () => {
+    const { data, status } = await makeApiRequest('/cities');
 
     expect(status).toBe(200);
     expect(Array.isArray(data)).toBe(true);
   });
 
-  test('GET /api/reviews - List reviews', async () => {
-    const { response, data, status } = await makeApiRequest('/reviews');
+  playwrightTest('GET /api/reviews - List reviews', async () => {
+    const { data, status } = await makeApiRequest('/reviews');
 
     expect(status).toBe(200);
     expect(data).toHaveProperty('reviews');
     expect(Array.isArray(data.reviews)).toBe(true);
   });
 
-  test('GET /api/reviews/analytics - Review analytics', async () => {
-    const { response, data, status } = await makeApiRequest('/reviews/analytics');
+  playwrightTest('GET /api/reviews/analytics - Review analytics', async () => {
+    const { data, status } = await makeApiRequest('/reviews/analytics');
 
     expect(status).toBe(200);
     expect(data).toHaveProperty('totalReviews');
     
   });
 
-  test('GET /api/session - Session endpoint', async () => {
-    const { response, data, status } = await makeApiRequest('/session');
+  playwrightTest('GET /api/session - Session endpoint', async () => {
+    const { data, status } = await makeApiRequest('/session');
 
-  if (status === 200) {
-    expect(data).toHaveProperty('user');
-  } else if (status === 401) {
-    expect(data).toHaveProperty('error');
-  } else {
-    throw new Error(`Unexpected status code: ${status}`);
-  }
+    if (status === 200) {
+      expect(data).toHaveProperty('user');
+    } else if (status === 401) {
+      expect(data).toHaveProperty('error');
+    } else {
+      throw new Error(`Unexpected status code: ${status}`);
+    }
   });
 
-  test('GET /api/performance/web-vitals - Web vitals endpoint', async () => {
-    const { response, data, status } = await makeApiRequest('/performance/web-vitals');
+  playwrightTest('GET /api/performance/web-vitals - Web vitals endpoint', async () => {
+    const { status } = await makeApiRequest('/performance/web-vitals');
 
     expect([200, 405]).toContain(status); // 405 if only POST is allowed
   });
@@ -133,29 +133,29 @@ test.describe('API Integration Tests - Core Endpoints', () => {
  * E.1.2 API Error Handling Testing
  * Testing error responses and edge cases
  */
-test.describe('API Integration Tests - Error Handling', () => {
+playwrightTest.describe('API Integration Tests - Error Handling', () => {
 
-  test('GET /api/listings with invalid pagination', async () => {
-    const { response, data, status } = await makeApiRequest('/listings?page=-1&limit=invalid');
+  playwrightTest('GET /api/listings with invalid pagination', async () => {
+    const { status } = await makeApiRequest('/listings?page=-1&limit=invalid');
 
     // Should handle invalid pagination gracefully
     expect([200, 400]).toContain(status);
   });
 
-  test('GET /api/search with empty query', async () => {
-    const { response, data, status } = await makeApiRequest('/search?q=');
+  playwrightTest('GET /api/search with empty query', async () => {
+    const { status } = await makeApiRequest('/search?q=');
 
     expect([200, 400]).toContain(status);
   });
 
-  test('GET /api/nonexistent-endpoint', async () => {
-    const { response, data, status } = await makeApiRequest('/nonexistent-endpoint');
+  playwrightTest('GET /api/nonexistent-endpoint', async () => {
+    const { status } = await makeApiRequest('/nonexistent-endpoint');
 
     expect(status).toBe(404);
   });
 
-  test('POST /api/reviews without authentication', async () => {
-    const { response, data, status } = await makeApiRequest('/reviews', {
+  playwrightTest('POST /api/reviews without authentication', async () => {
+    const { data, status } = await makeApiRequest('/reviews', {
       method: 'POST',
       body: JSON.stringify({
         listingId: 'test-listing',
@@ -164,11 +164,11 @@ test.describe('API Integration Tests - Error Handling', () => {
       })
     });
 
-  expect([401, 403]).toContain(status);
-  if (typeof data === 'object' && data !== null) {
-    expect(data).toHaveProperty('error');
-    expect(typeof data.error).toBe('string');
-  }
+    expect([401, 403]).toContain(status);
+    if (typeof data === 'object' && data !== null) {
+      expect(data).toHaveProperty('error');
+      expect(typeof data.error).toBe('string');
+    }
   });
 
 });
@@ -177,10 +177,10 @@ test.describe('API Integration Tests - Error Handling', () => {
  * E.1.3 API Response Format Testing
  * Testing response structure and data types
  */
-test.describe('API Integration Tests - Response Formats', () => {
+playwrightTest.describe('API Integration Tests - Response Formats', () => {
 
-  test('API responses have consistent error format', async () => {
-    const { response, data, status } = await makeApiRequest('/nonexistent-endpoint');
+  playwrightTest('API responses have consistent error format', async () => {
+    const { data, status } = await makeApiRequest('/nonexistent-endpoint');
 
     expect(status).toBe(404);
     if (typeof data === 'object' && data !== null) {
@@ -189,8 +189,8 @@ test.describe('API Integration Tests - Response Formats', () => {
     }
   });
 
-  test('API responses include proper CORS headers', async () => {
-    const { response, headers } = await makeApiRequest('/listings');
+  playwrightTest('API responses include proper CORS headers', async () => {
+    const { headers } = await makeApiRequest('/listings');
 
     // Check for CORS headers (if configured)
     const corsHeader = headers.get('access-control-allow-origin');
@@ -199,8 +199,8 @@ test.describe('API Integration Tests - Response Formats', () => {
     }
   });
 
-  test('API responses include proper content-type headers', async () => {
-    const { response, headers } = await makeApiRequest('/listings');
+  playwrightTest('API responses include proper content-type headers', async () => {
+    const { headers } = await makeApiRequest('/listings');
 
     const contentType = headers.get('content-type');
     expect(contentType).toContain('application/json');

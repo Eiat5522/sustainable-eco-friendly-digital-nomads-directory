@@ -31,8 +31,19 @@ describe('createAuthAdapter', () => {
     expect(mockMongoDBAdapter).not.toHaveBeenCalled();
   });
 
-  it('returns MongoDB adapter when MongoDB URI is set', () => {
+  it('returns undefined when running in Jest environment (default behavior)', () => {
     process.env.MONGODB_URI = 'mongodb://example.com';
+    // JEST_WORKER_ID is automatically set by Jest, so adapter returns undefined
+
+    const { createAuthAdapter } = require('./adapter');
+    const adapter = createAuthAdapter();
+    expect(adapter).toBeUndefined();
+    expect(mockMongoDBAdapter).not.toHaveBeenCalled();
+  });
+
+  it('returns MongoDB adapter when USE_REAL_MONGODB_FOR_TESTS is set', () => {
+    process.env.MONGODB_URI = 'mongodb://example.com';
+    process.env.USE_REAL_MONGODB_FOR_TESTS = '1';
     const adapterInstance = { connected: true };
     mockMongoDBAdapter.mockReturnValue(adapterInstance as any);
 

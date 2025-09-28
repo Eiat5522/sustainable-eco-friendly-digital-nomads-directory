@@ -1,8 +1,9 @@
+import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { CityCarousel } from '../CityCarousel';
 
 describe('CityCarousel', () => {
-  const originalFetch = global.fetch;
+  let fetchMock: jest.SpyInstance<ReturnType<typeof fetch>, Parameters<typeof fetch>>;
 
   const mockCities = [
     {
@@ -27,18 +28,16 @@ describe('CityCarousel', () => {
 
   beforeEach(() => {
     // Mock the fetch API to return mock cities by default
-    const fetchMock: jest.MockedFunction<typeof fetch> = jest.fn(async () =>
+    fetchMock = jest.spyOn(global, 'fetch').mockImplementation(async () =>
       ({
         ok: true,
         json: async () => ({ cities: mockCities }),
       } as unknown as Response)
     );
-    global.fetch = fetchMock;
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
-    global.fetch = originalFetch;
+    fetchMock.mockRestore();
   });
 
   it('renders the carousel with cities', async () => {
@@ -91,8 +90,8 @@ describe('CityCarousel', () => {
   });
 
   it('does not render the carousel controls when the API returns no cities', async () => {
-    (global.fetch as jest.Mock).mockImplementationOnce(() =>
-      Promise.resolve({ ok: true, json: () => Promise.resolve({ cities: [] }) })
+    fetchMock.mockImplementationOnce(async () =>
+      ({ ok: true, json: async () => ({ cities: [] }) } as unknown as Response)
     );
 
     render(<CityCarousel />);
@@ -107,7 +106,7 @@ describe('CityCarousel', () => {
   });
 
   it('surfaces an accessible error message when the fetch call fails', async () => {
-    (global.fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error('Network error')));
+    fetchMock.mockRejectedValueOnce(new Error('Network error'));
 
     render(<CityCarousel />);
 

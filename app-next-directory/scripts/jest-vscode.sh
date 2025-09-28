@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # VS Code Jest Extension Wrapper Script
 # This script filters out temporary files and reporter arguments that the VS Code extension passes
 

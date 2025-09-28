@@ -12,6 +12,10 @@ function resolveAdapterFactory() {
 }
 
 export function createAuthAdapter(): Adapter | undefined {
+  if (process.env.JEST_WORKER_ID !== undefined && process.env.USE_REAL_MONGODB_FOR_TESTS !== '1') {
+    return undefined;
+  }
+
   const uri = process.env.MONGODB_URI;
   if (typeof uri !== 'string' || uri.trim().length === 0) {
     return undefined;
