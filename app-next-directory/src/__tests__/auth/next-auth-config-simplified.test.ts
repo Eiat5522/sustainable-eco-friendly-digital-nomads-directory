@@ -51,10 +51,16 @@ jest.mock('@/models/User', () => ({
 }));
 
 // Import auth config after mocking dependencies
-import { authOptions } from '@/lib/auth';
+import type { NextAuthConfig } from 'next-auth';
 import type { UserRole } from '@/types/auth';
 
+let authOptions: NextAuthConfig;
+
 describe('Next Auth Configuration', () => {
+  beforeAll(async () => {
+    ({ authOptions } = await import('@/lib/auth'));
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     
@@ -145,7 +151,7 @@ describe('Next Auth Configuration', () => {
   });
 
   describe('JWT Callback', () => {
-    it('should add user data to JWT token', async () => {
+    it('should add user data to JWT token and session', async () => {
       mockIsAdminEmail.mockReturnValue(false);
 
       const token = { email: 'user@example.com' };
@@ -156,25 +162,35 @@ describe('Next Auth Configuration', () => {
         role: 'user' as UserRole,
       };
 
-      const result = await authOptions.callbacks?.jwt?.({ token, user } as any);
+      const originalWindow = (globalThis as Record<string, unknown>).window;
+      try {
+        delete (globalThis as Record<string, unknown>).window;
 
-      expect(result).toBeDefined();
-      expect(result?.email).toBe('user@example.com');
-      expect(result?.id).toBe('user123');
-      expect(result?.role).toBe('user');
-      const result = await authOptions.callbacks?.jwt?.({ token, user } as any);
+        const jwtResult = await authOptions.callbacks?.jwt?.({ token, user } as any);
 
-      expect(result).toBeDefined();
-      expect(result?.email).toBe('user@example.com');
-      expect(result?.id).toBe('user123');
-      expect(result?.role).toBe('user');
-      const result = await authOptions.callbacks?.session?.({ session, token } as any);
+        expect(jwtResult).toBeDefined();
+        expect(jwtResult?.email).toBe('user@example.com');
+        expect(jwtResult?.id).toBe('user123');
+        expect(jwtResult?.role).toBe('user');
 
-      // Verify the essential fields are included in the session
-      expect(result?.user).toBeDefined();
-      expect(result?.user?.email).toBe('user@example.com');
-      expect(result?.user?.id).toBe('user123');
-      expect(result?.user?.role).toBe('user');
+        const session = { user: { name: null, email: 'user@example.com', id: null, role: null } };
+        const sessionResult = await authOptions.callbacks?.session?.({
+          session,
+          token: jwtResult,
+        } as any);
+
+        // Verify the essential fields are included in the session
+        expect(sessionResult?.user).toBeDefined();
+        expect(sessionResult?.user?.email).toBe('user@example.com');
+        expect(sessionResult?.user?.id).toBe('user123');
+        expect(sessionResult?.user?.role).toBe('user');
+      } finally {
+        if (originalWindow === undefined) {
+          delete (globalThis as Record<string, unknown>).window;
+        } else {
+          (globalThis as Record<string, unknown>).window = originalWindow;
+        }
+      }
       // Note: name field may not be included depending on implementation
     });
   });
