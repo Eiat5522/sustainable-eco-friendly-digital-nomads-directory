@@ -34,6 +34,7 @@ describe('Sanity client module', () => {
     create: jest.fn(),
     update: jest.fn(),
     delete: jest.fn(),
+    getDocument: jest.fn(),
   };
 
   beforeEach(() => {
@@ -481,4 +482,9 @@ describe('Sanity client module', () => {
         token: 'partial-token',
         ignoreBrowserTokenWarning: true,
       });
-    }
+
+      process.env = originalEnv;
+    });
+
+  });
+});
