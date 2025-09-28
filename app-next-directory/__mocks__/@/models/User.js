@@ -9,7 +9,7 @@ const mockUpdateOne = jest.fn();
 // Set up the query chain
 mockLean.mockResolvedValue(null);
 mockSelect.mockReturnValue({ lean: mockLean });
-mockFindOne.mockReturnValue({ select: mockSelect });
+mockFindOne.mockReturnValue({ select: mockSelect, lean: mockLean });
 
 const UserModel = {
   findOne: mockFindOne,

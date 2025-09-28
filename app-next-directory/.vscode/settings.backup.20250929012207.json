@@ -13,7 +13,7 @@
         "PATH": "/home/eiat/.nvm/versions/node/v22.19.0/bin:/home/eiat/.local/share/pnpm:/home/eiat/.local/bin:/home/eiat/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/snap/bin:/home/eiat/.fzf/bin:/usr/local/go/bin:/home/eiat/go/bin",
         "NODE_ENV": "test"
     },
-    "jest.pathToJest": "/home/eiat/.nvm/versions/node/v22.19.0/bin/pnpm",
+    "jest.pathToJest": "~/.nvm/versions/node/v22.19.0/bin/pnpm",
     "jest.pathToConfig": "jest.config.cjs",
     "jest.disabledWorkspaceFolders": [],
     "jest.showCoverageOnLoad": false,

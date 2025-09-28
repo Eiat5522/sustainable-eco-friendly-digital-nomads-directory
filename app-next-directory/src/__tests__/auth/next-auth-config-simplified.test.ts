@@ -84,8 +84,9 @@ describe('Next Auth Configuration', () => {
     });
 
     it('should include credentials provider', () => {
-      expect(authOptions.providers).toHaveLength(1);
-      expect(authOptions.providers[0]).toBeDefined();
+      expect(
+        authOptions.providers?.some((provider: any) => provider?.id === 'credentials'),
+      ).toBe(true);
     });
   });
 
@@ -108,24 +109,12 @@ describe('Next Auth Configuration', () => {
       const mockRequest = { headers: { get: jest.fn().mockReturnValue('127.0.0.1') } };
       
       // The test may fail due to ESM mocking issues, but we can verify the config structure
-      try {
-        const result = await credentialsProvider.authorize({
-          email: 'john@example.com',
-          password: 'validpassword',
-        }, mockRequest);
+      const result = await credentialsProvider.authorize(
+        { email: 'john@example.com', password: 'validpassword' },
+        mockRequest,
+      );
 
-        // If mocking works, we should get the mocked user
-        if (result) {
-          expect(result).toEqual(mockUser);
-        } else {
-          // If mocking doesn't work, at least verify the provider exists and is callable
-          expect(credentialsProvider.authorize).toBeDefined();
-        }
-      } catch (error) {
-        // Due to Mongoose+Jest issues, we expect this might fail
-        // But the test still verifies the auth config structure exists
-        expect(credentialsProvider.authorize).toBeDefined();
-      }
+      expect(result).toEqual(mockUser);
     });
 
     it('should handle failed authentication', async () => {
@@ -167,32 +156,18 @@ describe('Next Auth Configuration', () => {
         role: 'user' as UserRole,
       };
 
-      try {
-        const result = await authOptions.callbacks?.jwt?.({ token, user } as any);
+      const result = await authOptions.callbacks?.jwt?.({ token, user } as any);
 
-        // The JWT callback should merge user data into token
-        expect(result).toBeDefined();
-        expect(result?.email).toBe('user@example.com');
-        expect(result?.id).toBe('user123');
-        expect(result?.role).toBe('user');
-        // Note: name field might not be included depending on callback implementation
-      } catch (error) {
-        // Due to admin allowlist client runtime check, verify callback exists
-        expect(authOptions.callbacks?.jwt).toBeDefined();
-      }
-    });
-  });
+      expect(result).toBeDefined();
+      expect(result?.email).toBe('user@example.com');
+      expect(result?.id).toBe('user123');
+      expect(result?.role).toBe('user');
+      const result = await authOptions.callbacks?.jwt?.({ token, user } as any);
 
-  describe('Session Callback', () => {
-    it('should add user data to session from token', async () => {
-      const session = { user: { email: 'user@example.com' } };
-      const token = {
-        id: 'user123',
-        name: 'John Doe',
-        email: 'user@example.com',
-        role: 'user' as UserRole,
-      };
-
+      expect(result).toBeDefined();
+      expect(result?.email).toBe('user@example.com');
+      expect(result?.id).toBe('user123');
+      expect(result?.role).toBe('user');
       const result = await authOptions.callbacks?.session?.({ session, token } as any);
 
       // Verify the essential fields are included in the session

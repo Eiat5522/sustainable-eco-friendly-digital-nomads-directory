@@ -12,8 +12,16 @@ const MongoDBAdapter = jest.fn().mockImplementation(() => ({
   getSessionAndUser: jest.fn().mockResolvedValue(null),
   updateSession: jest.fn().mockResolvedValue({ sessionToken: 'mock-session-token' }),
   deleteSession: jest.fn().mockResolvedValue(undefined),
-  createVerificationToken: jest.fn().mockResolvedValue(undefined),
-  useVerificationToken: jest.fn().mockResolvedValue(null),
+  createVerificationToken: jest.fn().mockImplementation(async () => ({
+    identifier: 'mock-email@example.com',
+    token: 'mock-verification-token',
+    expires: new Date(Date.now() + 15 * 60 * 1000),
+  })),
+  useVerificationToken: jest.fn().mockImplementation(async () => ({
+    identifier: 'mock-email@example.com',
+    token: 'mock-verification-token',
+    expires: new Date(Date.now() + 15 * 60 * 1000),
+  })),
 }));
 
 globalThis.__mongoAdapterMock = MongoDBAdapter;

@@ -24,7 +24,13 @@ modelMock.updateOne = jest.fn();
 modelMock.exists = jest.fn();
 
 function isValidObjectId(id: any): boolean {
-  return typeof id === 'string' && /^[a-fA-F0-9]{24}$/.test(id);
+  if (id == null) { return false; }
+  const value = typeof id === 'string'
+    ? id
+    : typeof id.toString === 'function'
+      ? id.toString()
+      : '';
+  return /^[a-fA-F0-9]{24}$/.test(value);
 }
 
 const mongoose = {
