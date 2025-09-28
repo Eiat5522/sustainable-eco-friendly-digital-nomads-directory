@@ -239,6 +239,21 @@ const ensureUpdateInvariant = async function ensureUpdateInvariant(
         ),
       );
     }
+  }
+
+  if (reasonValue !== undefined && successValue === undefined) {
+    const conflictFilter: FilterQuery<ILoginAttempt> = {
+      $and: [
+        filter as FilterQuery<ILoginAttempt>,
+        reasonValue === SUCCESS_REASON ? { success: { $ne: true } } : { success: true },
+      ],
+    };
+
+    const lookupOptions = { ...this.getOptions(), upsert: false };
+    const conflict = await this.model.exists(conflictFilter).setOptions(lookupOptions);
+
+    if (conflict) {
+      return next(
         invariantError(
           'success',
           reasonValue === SUCCESS_REASON
