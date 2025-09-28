@@ -5,15 +5,39 @@ import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, email, password } = body;
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: { message: 'Invalid request body', code: 'INVALID_INPUT' } },
+        { status: 400 },
+      );
+    }
+
+    if (body === null || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json(
+        { success: false, error: { message: 'Invalid request body', code: 'INVALID_INPUT' } },
+        { status: 400 },
+      );
+    }
+
+    const { name, email, password } = body as Partial<{ name: string; email: string; password: string }>;
+
+    // Validate required fields
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { success: false, error: { message: 'Invalid request body', code: 'INVALID_INPUT' } },
+        { status: 400 }
+      );
+    }
 
     // Test mode: return fake user for tests
     if (process.env.TEST_MODE === '1') {
       const fakeUser = { _id: 'test-user-1', name, email, role: 'user' };
       return NextResponse.json(
         { success: true, data: { user: fakeUser }, error: null },
-        { status: 201, headers: { 'X-Test-Mode': '1' } }
+        { status: 201, headers: { 'X-Test-Mode': '1' } },
       );
     }
 
@@ -26,22 +50,14 @@ export async function POST(request: NextRequest) {
           data: null,
           error: {
             code: 'MISSING_DB_CONFIG',
-            message: 'MONGODB_URI not configured in environment; registration disabled in this environment'
-          }
+            message: 'MONGODB_URI not configured in environment; registration disabled in this environment',
+          },
         },
-        { status: 503, headers: { 'Retry-After': '60' } }
+        { status: 503, headers: { 'Retry-After': '60' } },
       );
     }
 
     await connect();
-
-    // Validate required fields
-    if (!name || !email || !password) {
-      return NextResponse.json(
-        { success: false, error: { message: 'Invalid request body', code: 'INVALID_INPUT' } },
-        { status: 400 }
-      );
-    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
