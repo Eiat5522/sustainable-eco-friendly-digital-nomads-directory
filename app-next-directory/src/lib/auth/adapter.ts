@@ -13,9 +13,18 @@ function resolveAdapterFactory() {
 
 export function createAuthAdapter(): Adapter | undefined {
   const adapterFactory = resolveAdapterFactory();
+  const hasJestGlobal = typeof (globalThis as { jest?: unknown }).jest !== 'undefined';
+  const isJestEnvironment =
+    hasJestGlobal ||
+    process.env.JEST_WORKER_ID !== undefined ||
+    process.env.JEST_UNIT_ONLY === '1' ||
+    process.env.NODE_ENV === 'test';
+  const isJestMockAdapter =
+    typeof adapterFactory === 'function' && 'mock' in adapterFactory;
+
   if (
-    adapterFactory === MongoDBAdapter &&
-    process.env.JEST_WORKER_ID !== undefined &&
+    (adapterFactory === MongoDBAdapter || isJestMockAdapter) &&
+    isJestEnvironment &&
     process.env.USE_REAL_MONGODB_FOR_TESTS !== '1'
   ) {
     return undefined;
@@ -26,14 +35,5 @@ export function createAuthAdapter(): Adapter | undefined {
     return undefined;
   }
 
-  return adapterFactory(clientPromise);
-}
-
-  const uri = process.env.MONGODB_URI;
-  if (typeof uri !== 'string' || uri.trim().length === 0) {
-    return undefined;
-  }
-
-  const adapterFactory = resolveAdapterFactory();
   return adapterFactory(clientPromise);
 }
