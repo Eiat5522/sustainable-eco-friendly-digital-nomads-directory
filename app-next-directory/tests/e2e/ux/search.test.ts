@@ -203,8 +203,11 @@ test.describe('Search & Filter UX', () => {
       const modal = page.locator('[role="dialog"]');
 
       // Test focus trapping by attempting to tab outside
-      const firstFocusable = modal.locator('button, input, select, textarea').first();
-      const lastFocusable = modal.locator('button, input, select, textarea').last();
+      const focusable = modal.locator(
+        'button:visible, input:visible, select:visible, textarea:visible, [tabindex]:not([tabindex="-1"]):visible'
+      );
+      const firstFocusable = focusable.first();
+      const lastFocusable = focusable.last();
       
       await firstFocusable.focus();
       await page.keyboard.press('Shift+Tab');

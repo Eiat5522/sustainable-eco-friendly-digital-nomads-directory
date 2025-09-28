@@ -149,7 +149,7 @@ type MockableDbConnectFn = (() => Promise<Mongoose>) & {
   mockResolvedValue?: (value: Mongoose) => MockableDbConnectFn;
   mockRejectedValue?: (error: unknown) => MockableDbConnectFn;
   mockReset?: () => void;
-  mock?: { calls: Array<[]> };  // or void[][] since dbConnect takes no args
+  mock?: { calls: unknown[][] };  // Changed from Array<[]> to unknown[][] to match mockCalls type
   mockClear?: () => void;
   mockName?: (name: string) => MockableDbConnectFn;
   getMockName?: () => string;
@@ -229,9 +229,8 @@ const mockCalls: unknown[][] = [];
 
 const dbConnect = (async function dbConnectWrapper(): Promise<Mongoose> {
   mockCalls.push([]);
-
   if (typeof (dbConnect as MockableDbConnectFn).__mockImplementation === 'function') {
-    return (dbConnect as MockableDbConnectFn).__mockImplementation();.test
+    return (dbConnect as MockableDbConnectFn).__mockImplementation();
   }
 
   if (

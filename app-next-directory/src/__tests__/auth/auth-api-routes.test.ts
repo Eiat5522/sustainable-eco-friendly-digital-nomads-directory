@@ -12,31 +12,65 @@
 
 import { jest } from '@jest/globals';
 import type { NextRequest } from 'next/server';
-import * as dbConnectModule from '@/lib/dbConnect';
 import User from '@/models/User';
 import EmailVerificationToken from '@/models/EmailVerificationToken';
-import * as tokenModule from '@/lib/tokens';
-import * as emailModule from '@/lib/email';
-import * as rateLimitModule from '@/lib/rate-limit';
-import * as loggerModule from '@/lib/logger';
-import * as authConfigModule from '@/lib/auth/config';
+
+const mockDbConnect = jest.fn();
+const mockGenerateToken = jest.fn();
+const mockHashToken = jest.fn();
+const mockMinutesFromNow = jest.fn();
+const mockBuildVerifyEmail = jest.fn();
+const mockSendMail = jest.fn();
+const mockGetClientIp = jest.fn();
+const mockIsRateLimited = jest.fn();
+const mockGetRetryAfterMs = jest.fn();
+const mockIsEmailVerificationRequired = jest.fn();
+const mockGetRequestContext = jest.fn();
+
+const mockStructuredLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+  emailError: jest.fn(),
+  child: jest.fn(),
+};
+
+jest.unstable_mockModule('@/lib/dbConnect', () => ({
+  default: mockDbConnect,
+}));
+
+jest.unstable_mockModule('@/lib/tokens', () => ({
+  generateToken: mockGenerateToken,
+  hashToken: mockHashToken,
+  minutesFromNow: mockMinutesFromNow,
+}));
+
+jest.unstable_mockModule('@/lib/email', () => ({
+  buildVerifyEmail: mockBuildVerifyEmail,
+  sendMail: mockSendMail,
+}));
+
+jest.unstable_mockModule('@/lib/rate-limit', () => ({
+  getClientIp: mockGetClientIp,
+  isRateLimited: mockIsRateLimited,
+  getRetryAfterMs: mockGetRetryAfterMs,
+}));
+
+jest.unstable_mockModule('@/lib/logger', () => ({
+  structuredLogger: mockStructuredLogger,
+  getRequestContext: mockGetRequestContext,
+}));
+
+jest.unstable_mockModule('@/lib/auth/config', () => ({
+  isEmailVerificationRequired: mockIsEmailVerificationRequired,
+}));
 
 let registerPost: typeof import('@/app/api/auth/register/route').POST;
 
-// Declare all mock variables here (before any assignments)
-let mockDbConnect: jest.SpyInstance<Promise<void>, []>;
 let mockUserFindOne: jest.SpyInstance<any, any>;
 let mockUserCreate: jest.SpyInstance<any, any>;
 let mockEmailVerificationTokenCreate: jest.SpyInstance<any, any>;
-let mockGenerateToken: jest.SpyInstance<any, any>;
-let mockMinutesFromNow: jest.SpyInstance<any, any>;
-let mockBuildVerifyEmail: jest.SpyInstance<any, any>;
-let mockSendMail: jest.SpyInstance<any, any>;
-let mockGetClientIp: jest.SpyInstance<any, any>;
-let mockIsRateLimited: jest.SpyInstance<any, any>;
-let mockGetRetryAfterMs: jest.SpyInstance<any, any>;
-let mockIsEmailVerificationRequired: jest.SpyInstance<any, any>;
-let mockGetRequestContext: jest.SpyInstance<any, any>;
 // NOTE: Avoid spying on non-getter value exports like `logger`; use structuredLogger mocks instead.
 
 const validRegistrationData = {
@@ -64,37 +98,35 @@ function createMockRequest(data: any, options?: { jsonImpl?: jest.Mock }) {
 };
 
 beforeAll(async () => {
+  await import('@/lib/dbConnect');
+  const tokensModule = await import('@/lib/tokens');
+  const emailModule = await import('@/lib/email');
+  const rateLimitModule = await import('@/lib/rate-limit');
+  const loggerModule = await import('@/lib/logger');
+  const authConfigModule = await import('@/lib/auth/config');
+  console.log('mock matches',
+    tokensModule.generateToken === mockGenerateToken,
+    emailModule.buildVerifyEmail === mockBuildVerifyEmail,
+    rateLimitModule.isRateLimited === mockIsRateLimited,
+    loggerModule.getRequestContext === mockGetRequestContext,
+    authConfigModule.isEmailVerificationRequired === mockIsEmailVerificationRequired,
+  );
   ({ POST: registerPost } = await import('@/app/api/auth/register/route'));
 });
 
 describe('Authentication API Routes', () => {
   beforeEach(() => {
-    // Initialize mocks here (Jest best practice: reset per test)
-    mockDbConnect = jest.spyOn(dbConnectModule, 'default').mockImplementation();
-    mockUserFindOne = jest.spyOn(User, 'findOne').mockImplementation();
-    mockUserCreate = jest.spyOn(User, 'create').mockImplementation();
-    mockEmailVerificationTokenCreate = jest.spyOn(EmailVerificationToken, 'create').mockImplementation();
-    mockGenerateToken = jest.spyOn(tokenModule, 'generateToken').mockImplementation();
-    mockMinutesFromNow = jest.spyOn(tokenModule, 'minutesFromNow').mockImplementation();
-    mockBuildVerifyEmail = jest.spyOn(emailModule, 'buildVerifyEmail').mockImplementation();
-    mockSendMail = jest.spyOn(emailModule, 'sendMail').mockImplementation();
-    mockGetClientIp = jest.spyOn(rateLimitModule, 'getClientIp').mockImplementation();
-    mockIsRateLimited = jest.spyOn(rateLimitModule, 'isRateLimited').mockImplementation();
-    mockGetRetryAfterMs = jest.spyOn(rateLimitModule, 'getRetryAfterMs').mockImplementation();
-    mockIsEmailVerificationRequired = jest.spyOn(authConfigModule, 'isEmailVerificationRequired').mockImplementation();
-  mockGetRequestContext = jest.spyOn(loggerModule, 'getRequestContext').mockImplementation();
-
-    let mockStructuredLogger: any;
-
-    // In initialization section:
-    mockStructuredLogger = {
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-      debug: jest.fn(),
-      emailError: jest.fn(),
-      child: jest.fn(),
-    };
+    mockDbConnect.mockReset();
+    mockGenerateToken.mockReset();
+    mockHashToken.mockReset();
+    mockMinutesFromNow.mockReset();
+    mockBuildVerifyEmail.mockReset();
+    mockSendMail.mockReset();
+    mockGetClientIp.mockReset();
+    mockIsRateLimited.mockReset();
+    mockGetRetryAfterMs.mockReset();
+    mockIsEmailVerificationRequired.mockReset();
+    mockGetRequestContext.mockReset();
 
     mockStructuredLogger.info.mockReset();
     mockStructuredLogger.warn.mockReset();
@@ -102,6 +134,7 @@ describe('Authentication API Routes', () => {
     mockStructuredLogger.debug.mockReset();
     mockStructuredLogger.emailError.mockReset();
     mockStructuredLogger.child.mockReset();
+    mockStructuredLogger.child.mockReturnValue(mockStructuredLogger as any);
 
     mockDbConnect.mockResolvedValue(undefined);
     mockGetClientIp.mockReturnValue('127.0.0.1');
@@ -123,12 +156,16 @@ describe('Authentication API Routes', () => {
       url: '/api/auth/register',
       userAgent: 'jest',
     });
-    mockStructuredLogger.child.mockReturnValue(mockStructuredLogger as any);
+
+    mockUserFindOne = jest.spyOn(User, 'findOne').mockImplementation();
+    mockUserCreate = jest.spyOn(User, 'create').mockImplementation();
+    mockEmailVerificationTokenCreate = jest.spyOn(EmailVerificationToken, 'create').mockImplementation();
 
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
   });
 
   afterEach(() => {
+    jest.restoreAllMocks();
     delete process.env.MONGODB_URI;
   });
 

@@ -297,10 +297,7 @@ test.describe('Listings API', () => {
 
       const responses = await Promise.all(requests);
       const rateLimited = responses.some(r => r.status() === 429);
-      // More lenient assertion for environment differences
-      if (!rateLimited) {
-        console.warn('Rate limiting not triggered - check environment configuration');
-      }
+      expect(rateLimited).toBeTruthy();
     });
 
     test('includes rate limit headers', async ({ request }) => {

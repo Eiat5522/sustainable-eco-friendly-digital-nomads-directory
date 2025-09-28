@@ -1,4 +1,4 @@
-import { test, expect, type APIRequestContext } from '@playwright/test';
+import { test as pwTest, expect, type APIRequestContext } from '@playwright/test';
 
 const testUnauthenticatedGet = async (request: APIRequestContext, endpoint: string) => {
   const response = await request.get(endpoint);
@@ -8,21 +8,21 @@ const testUnauthenticatedGet = async (request: APIRequestContext, endpoint: stri
   expect(data.error).toBe('Authentication required');
 };
 
-test.describe('User Dashboard API', () => {
+pwTest.describe('User Dashboard API', () => {
 
-  test('should get user preferences with default values', async ({ request }) => {
+  pwTest('should get user preferences with default values', async ({ request }) => {
     await testUnauthenticatedGet(request, '/api/user/preferences');
   });
 
-  test('should get user analytics with default values', async ({ request }) => {
+  pwTest('should get user analytics with default values', async ({ request }) => {
     await testUnauthenticatedGet(request, '/api/user/analytics');
   });
 
-  test('should get user dashboard with comprehensive data', async ({ request }) => {
+  pwTest('should get user dashboard with comprehensive data', async ({ request }) => {
     await testUnauthenticatedGet(request, '/api/user/dashboard');
   });
 
-  test('should handle POST requests for analytics tracking', async ({ request }) => {
+  pwTest('should handle POST requests for analytics tracking', async ({ request }) => {
     const response = await request.post('/api/user/analytics', {
       data: {
         eventType: 'pageView',
@@ -40,7 +40,7 @@ test.describe('User Dashboard API', () => {
     expect(data.error).toBe('Authentication required');
   });
 
-  test('should handle PUT requests for preferences updates', async ({ request }) => {
+  pwTest('should handle PUT requests for preferences updates', async ({ request }) => {
     const response = await request.put('/api/user/preferences', {
       data: {
         location: {
@@ -61,7 +61,7 @@ test.describe('User Dashboard API', () => {
     expect(data.error).toBe('Authentication required');
   });
 
-  test('should handle PATCH requests for partial preference updates', async ({ request }) => {
+  pwTest('should handle PATCH requests for partial preference updates', async ({ request }) => {
     const response = await request.patch('/api/user/preferences', {
       data: {
         section: 'notifications',
@@ -78,7 +78,7 @@ test.describe('User Dashboard API', () => {
     expect(data.error).toBe('Authentication required');
   });
 
-  test('should validate request body formats', async ({ request }) => {
+  pwTest('should validate request body formats', async ({ request }) => {
     // Test invalid request formats return proper errors
     const invalidRequests = [
       {
@@ -120,8 +120,8 @@ test.describe('User Dashboard API', () => {
   });
 });
 
-test.describe('API Route Integration Tests', () => {
-  test('should have proper CORS headers', async ({ request }) => {
+pwTest.describe('API Route Integration Tests', () => {
+  pwTest('should have proper CORS headers', async ({ request }) => {
     // Since options() method doesn't exist, test with HEAD or GET instead
     const response = await request.head('/api/user/dashboard');
     
@@ -130,7 +130,7 @@ test.describe('API Route Integration Tests', () => {
     expect([405, 401].includes(response.status())).toBe(true);
   });
 
-  test('should handle query parameters', async ({ request }) => {
+  pwTest('should handle query parameters', async ({ request }) => {
     const response = await request.get('/api/user/analytics?timeRange=30d&includeHistory=false');
     
     expect(response.status()).toBe(401);
@@ -139,7 +139,7 @@ test.describe('API Route Integration Tests', () => {
     expect(data.error).toBe('Authentication required');
   });
 
-  test('should validate content types', async ({ request }) => {
+  pwTest('should validate content types', async ({ request }) => {
     const response = await request.post('/api/user/analytics', {
       headers: {
         'Content-Type': 'application/json'

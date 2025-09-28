@@ -29,6 +29,12 @@ const LoginAttemptSchema = new Schema<ILoginAttempt>({
     type: String,
     enum: ['success', 'invalid_credentials', 'rate_limited'],
     required: true,
+    validate: {
+      validator(this: ILoginAttempt, value: LoginAttemptReason) {
+        return (this.success && value === 'success') || (!this.success && value !== 'success');
+      },
+      message: 'Reason must match success flag.',
+    },
   },
   createdAt: {
     type: Date,

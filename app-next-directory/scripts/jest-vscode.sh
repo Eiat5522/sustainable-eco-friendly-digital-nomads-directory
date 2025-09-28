@@ -23,10 +23,11 @@ if ! command -v pnpm >/dev/null 2>&1; then
 fi
 
 # Check if package.json exists and has test:unit script
-if [[ ! -f "package.json" ]] || ! pnpm run | grep -q "test:unit"; then
+# Check if package.json exists and exposes a test:unit script
+if [[ ! -f "package.json" ]] || ! node -e 'try { const { scripts } = require("./package.json"); process.exit(scripts && Object.prototype.hasOwnProperty.call(scripts, "test:unit") ? 0 : 1); } catch (err) { process.exit(1); }'; then
     echo "Error: test:unit script not found in package.json" >&2
     exit 1
 fi
 
-# Use npm to run the test command with filtered arguments
+# Use pnpm to run the test command with filtered arguments
 exec pnpm test:unit -- "${FILTERED_ARGS[@]}"

@@ -53,7 +53,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
         await expect(page).toHaveURL(/.*\/about/);
 
         await page.click('a[href="/contact-us"]');
-        await expect(page).toHaveURL(/\/contact-us\/?(?:\?|#|$)/);
+        await expect(page).toHaveURL(/\/contact-us\/?(?:\?.*)?(?:#.*)?$/);
         await page.waitForLoadState('networkidle');
       });
     });
@@ -176,8 +176,26 @@ test.describe('Cross-Browser Compatibility Testing', () => {
       await expect(page.locator('[data-testid="image-modal"]')).toBeVisible();
 
       // Test swipe gestures (if implemented)
-      await page.touchscreen.tap(200, 300);
-      await page.touchscreen.tap(100, 300); // Swipe left gesture
+      const box = await galleryImage.boundingBox();
+
+      if (!box) {
+        test.info().annotations.push({
+          type: 'warning',
+          description: 'Gallery image bounding box unavailable; using fallback swipe coordinates.',
+        });
+        await page.touchscreen.tap(200, 300);
+        await page.touchscreen.tap(100, 300);
+        return;
+      }
+
+      const startX = box.x + box.width * 0.8;
+      const startY = box.y + box.height / 2;
+      const endX = box.x + box.width * 0.2;
+      const endY = startY;
+
+      await page.touchscreen.down(startX, startY);
+      await page.touchscreen.move(endX, endY);
+      await page.touchscreen.up();
     });
   });
 

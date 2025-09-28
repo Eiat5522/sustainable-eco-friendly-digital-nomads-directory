@@ -28,7 +28,7 @@ function createJsonResponse(body: JsonBody, init: ResponseInit = {}): Response {
     return NextResponse.json(body, { ...init, headers });
   }
 
-  const payload = typeof body === 'string' ? body : JSON.stringify(body ?? null);
+  const payload = JSON.stringify(body ?? null);
 
   return new Response(payload, {
     ...init,

@@ -5,6 +5,8 @@ const { pathsToModuleNameMapper } = require('ts-jest');
 const { compilerOptions } = require('./tsconfig.json');
 
 module.exports = {
+  // Limit unit-test discovery to application source directories
+  roots: ['<rootDir>/src', '<rootDir>/app'],
   // Ensure Jest type globals only apply in tests
   globals: {
     'ts-jest': {
@@ -50,6 +52,10 @@ module.exports = {
     '<rootDir>/app/**/__tests__/**/*.(ts|tsx|js|jsx)',
   ],
   moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
+  watchPathIgnorePatterns: [
+    '[\\/]tests[\\/]',
+    '[\\/]playwright[\\/]'
+  ],
   moduleNameMapper: {
     '^server-only$': '<rootDir>/__mocks__/server-only.js',
     '^tree-sitter-.*$': '<rootDir>/__mocks__/tree-sitter.js',
@@ -67,14 +73,14 @@ module.exports = {
     '^next-sanity$': '<rootDir>/__mocks__/next-sanity.js',
     '^mongoose$': '<rootDir>/__mocks__/mongoose.ts',
     'node-fetch': '<rootDir>/__mocks__/node-fetch.js',
-    '^@/lib/dbConnect$': '<rootDir>/__mocks__/lib/dbConnect.ts',
-    '^@/lib/redis$': '<rootDir>/__mocks__/lib/redis.ts',
+    '^@/lib/dbConnect(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/dbConnect.js',
+    '^@/lib/redis(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/redis.ts',
     // '^@/lib/auth/adapter$': '<rootDir>/__mocks__/lib/auth/adapter.ts',
-    '^@/lib/auth/config$': '<rootDir>/__mocks__/lib/auth/config.ts',
-    '^@/lib/rate-limit$': '<rootDir>/__mocks__/lib/rate-limit.ts',
-    '^@/lib/tokens$': '<rootDir>/__mocks__/lib/tokens.ts',
-    '^@/lib/email$': '<rootDir>/__mocks__/lib/email.ts',
-    '^@/lib/logger$': '<rootDir>/__mocks__/lib/logger.ts',
+    '^@/lib/auth/config(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/auth/config.js',
+    '^@/lib/rate-limit(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/rate-limit.js',
+    '^@/lib/tokens(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/tokens.js',
+    '^@/lib/email(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/email.js',
+    '^@/lib/logger(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/logger.js',
     '^embla-carousel-react$': '<rootDir>/__mocks__/embla-carousel-react.js',
     '^embla-carousel-autoplay$': '<rootDir>/__mocks__/embla-carousel-autoplay.js',
     '^leaflet$': '<rootDir>/__mocks__/leaflet.ts',

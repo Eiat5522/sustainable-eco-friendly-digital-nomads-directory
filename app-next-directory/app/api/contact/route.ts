@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       console.warn('Potential spam detected:', { email, subject, ip });
       return ApiResponseHandler.success(
         { messageId: 'spam-filtered' },
-        'Thank you for your message. We will get back to you soon.'
+        'Your message has been sent successfully!'
       );
     }
 
@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
         type,
         timestamp: new Date().toISOString()
       },
-      'Thank you for your message. We will get back to you soon!'
+      'Your message has been sent successfully!'
     );
 
   } catch (error) {

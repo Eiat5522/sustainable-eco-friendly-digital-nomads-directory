@@ -11,7 +11,12 @@ async function makeApiRequest(endpoint: string, options: RequestInit & { headers
   try {
     const headers: Record<string, string> = { ...(options.headers ?? {}) };
     if (options.method && ['POST', 'PUT', 'PATCH'].includes(options.method.toUpperCase())) {
-      headers['Content-Type'] = 'application/json';
+      const hasContentType = Object.keys(headers).some(
+        (key) => key.toLowerCase() === 'content-type'
+      );
+      if (!hasContentType) {
+        headers['Content-Type'] = 'application/json';
+      }
     }
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -35,7 +40,8 @@ async function makeApiRequest(endpoint: string, options: RequestInit & { headers
       headers: response.headers
     };
   } catch (error) {
-    throw new Error(`API request failed: ${error.message}`);
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`API request failed: ${message}`);
   }
 }
 

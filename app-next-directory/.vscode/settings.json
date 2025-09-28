@@ -1,17 +1,15 @@
 {
     "jest.enable": true,
     "jest.debugMode": false,
-    "jest.jestCommandLine": "./scripts/jest-vscode.sh",
-    "jest.rootPath": "./app-next-directory/src",
+    "jest.jestCommandLine": "pnpm test:unit --",
+    "jest.rootPath": "./app-next-directory",
     "jest.coverageFormatter": "GutterFormatter",
     "jest.runMode": {
         "type": "on-demand"
     },
     "jest.nodeEnv": {
-        "PATH": "~/.local/bin:/home/eiat/.nvm/versions/node/v22.19.0/bin:/usr/local/bin:/usr/bin:/bin",
-        "NODE_PATH": "~/.nvm/versions/node/v22.19.0/lib/node_modules"
+        "PATH": "/home/eiat/.local/bin:/home/eiat/.nvm/versions/node/v22.19.0/bin:/usr/local/bin:/usr/bin:/bin",
+        "NODE_PATH": "/home/eiat/.nvm/versions/node/v22.19.0/lib/node_modules"
     },
-    "jest.shell": "/bin/bash",
-    "jest.useDashedArgs": true,
-    "jest.restartJestOnSnapshotUpdate": true
+    "jest.useDashedArgs": true
 }

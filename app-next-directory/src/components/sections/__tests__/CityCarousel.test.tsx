@@ -2,6 +2,8 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import { CityCarousel } from '../CityCarousel';
 
 describe('CityCarousel', () => {
+  const originalFetch = global.fetch;
+
   const mockCities = [
     {
       id: '1',
@@ -24,17 +26,18 @@ describe('CityCarousel', () => {
   ];
 
   beforeEach(() => {
-    // Mock the fetch API to return mock cities
+    // Mock the fetch API to return mock cities by default
     global.fetch = jest.fn(() =>
       Promise.resolve({
         ok: true,
         json: () => Promise.resolve({ cities: mockCities }),
       })
-    ) as jest.MockedFunction<typeof fetch>;
+    ) as unknown as jest.Mock;
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
+    global.fetch = originalFetch;
   });
 
   it('renders the carousel with cities', async () => {
@@ -62,7 +65,7 @@ describe('CityCarousel', () => {
     const nextButton = screen.getByRole('button', { name: 'Scroll cities right' });
     fireEvent.click(nextButton);
 
-    // Since both cities are visible in this horizontal scroll layout, 
+    // Since both cities are visible in this horizontal scroll layout,
     // we just verify the button interaction works without errors
     expect(nextButton).toBeInTheDocument();
   });
@@ -77,7 +80,7 @@ describe('CityCarousel', () => {
 
     // Find the previous button by its accessible name
     const prevButton = screen.getByRole('button', { name: 'Scroll cities left' });
-    
+
     // The previous button should be disabled initially (no content to scroll left to)
     expect(prevButton).toBeDisabled();
 
@@ -87,11 +90,8 @@ describe('CityCarousel', () => {
   });
 
   it('does not render the carousel controls when the API returns no cities', async () => {
-    (global.fetch as jest.MockedFunction<typeof fetch>).mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ cities: [] }),
-      } as unknown as Response)
+    (global.fetch as jest.Mock).mockImplementationOnce(() =>
+      Promise.resolve({ ok: true, json: () => Promise.resolve({ cities: [] }) })
     );
 
     render(<CityCarousel />);
@@ -106,9 +106,7 @@ describe('CityCarousel', () => {
   });
 
   it('surfaces an accessible error message when the fetch call fails', async () => {
-    (global.fetch as jest.MockedFunction<typeof fetch>).mockImplementationOnce(() =>
-      Promise.reject(new Error('Network error'))
-    );
+    (global.fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error('Network error')));
 
     render(<CityCarousel />);
 

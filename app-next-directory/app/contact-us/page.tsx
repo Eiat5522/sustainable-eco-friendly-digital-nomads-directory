@@ -41,6 +41,7 @@ function ContactForm() {
   const [errors, setErrors] = useState<z.ZodError['formErrors']['fieldErrors']>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitMessage, setSubmitMessage] = useState('')
+  const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null)
 
   useEffect(() => {
     setEnquiryType(initialType)
@@ -69,6 +70,7 @@ function ContactForm() {
 
     setIsSubmitting(true)
     setSubmitMessage('')
+    setSubmitStatus(null)
 
     let endpoint = ''
     let payload = {}
@@ -98,6 +100,7 @@ function ContactForm() {
 
       if (response.ok) {
         setSubmitMessage(result.message || 'Success!')
+        setSubmitStatus('success')
         // Reset form
         setName('')
         setEmail(initialEmail)
@@ -105,9 +108,11 @@ function ContactForm() {
         setEnquiry('')
       } else {
         setSubmitMessage(result.message || 'An error occurred. Please try again.')
+        setSubmitStatus('error')
       }
     } catch (error) {
       setSubmitMessage('An error occurred. Please try again.')
+      setSubmitStatus('error')
     } finally {
       setIsSubmitting(false)
     }
@@ -150,6 +155,7 @@ function ContactForm() {
                       <div className="relative mt-1">
                        <Type aria-hidden="true" focusable="false" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <NeoInput
+                          data-testid="contact-name"
                           id="name"
                           name="name"
                           type="text"
@@ -162,13 +168,23 @@ function ContactForm() {
                           aria-describedby={errors.name ? 'name-error' : undefined}
                         />
                       </div>
-                      {errors.name && <p id="name-error" role="alert" className="text-sm text-red-600 mt-1">{errors.name[0]}</p>}
+                      {errors.name && (
+                        <p
+                          id="name-error"
+                          data-testid="name-error"
+                          role="alert"
+                          className="text-sm text-red-600 mt-1"
+                        >
+                          {errors.name[0]}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address</Label>
                       <div className="relative mt-1">
                         <Mail aria-hidden="true" focusable="false" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <NeoInput
+                          data-testid="contact-email"
                           id="email"
                           name="email"
                           type="email"
@@ -188,7 +204,14 @@ function ContactForm() {
                         />
                       </div>
                       {errors.email && (
-                        <p id="email-error" role="alert" className="text-sm text-red-600 mt-1">{errors.email[0]}</p>
+                        <p
+                          id="email-error"
+                          data-testid="email-error"
+                          role="alert"
+                          className="text-sm text-red-600 mt-1"
+                        >
+                          {errors.email[0]}
+                        </p>
                       )}
                     </div>
                     <div>
@@ -196,6 +219,7 @@ function ContactForm() {
                       <div className="relative mt-1">
                         <Type className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <NeoInput
+                          data-testid="contact-subject"
                           id="subject"
                           name="subject"
                           type="text"
@@ -208,13 +232,23 @@ function ContactForm() {
                           aria-describedby={errors.subject ? 'subject-error' : undefined}
                         />
                       </div>
-                      {errors.subject && <p id="subject-error" role="alert" className="text-sm text-red-600 mt-1">{errors.subject[0]}</p>}
+                      {errors.subject && (
+                        <p
+                          id="subject-error"
+                          data-testid="subject-error"
+                          role="alert"
+                          className="text-sm text-red-600 mt-1"
+                        >
+                          {errors.subject[0]}
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="enquiry" className="text-sm font-medium text-gray-700">Enquiry</Label>
                       <div className="relative mt-1">
                         <MessageSquare className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
                         <Textarea
+                          data-testid="contact-message"
                           id="enquiry"
                           name="enquiry"
                           placeholder="Please describe your enquiry in detail..."
@@ -227,7 +261,16 @@ function ContactForm() {
                           aria-describedby={errors.message ? 'enquiry-error' : undefined}
                         />
                       </div>
-                      {errors.message && <p id="enquiry-error" role="alert" className="text-sm text-red-600 mt-1">{errors.message[0]}</p>}
+                      {errors.message && (
+                        <p
+                          id="enquiry-error"
+                          data-testid="message-error"
+                          role="alert"
+                          className="text-sm text-red-600 mt-1"
+                        >
+                          {errors.message[0]}
+                        </p>
+                      )}
                     </div>
                   </>
                 ) : (
@@ -235,8 +278,9 @@ function ContactForm() {
                     <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email Address</Label>
                     <div className="relative mt-1">
                        <Mail aria-hidden="true" focusable="false" className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                      <NeoInput
-                        id="email"
+                    <NeoInput
+                      data-testid="contact-email"
+                      id="email"
                         name="email"
                         type="email"
                         placeholder="you@example.com"
@@ -254,7 +298,16 @@ function ContactForm() {
                         aria-describedby={errors.email ? 'email-error' : undefined}
                       />
                     </div>
-                    {errors.email && <p id={'email-error'} role="alert" className="text-sm text-red-600 mt-1">{errors.email[0]}</p>}
+                    {errors.email && (
+                      <p
+                        id={'email-error'}
+                        data-testid="email-error"
+                        role="alert"
+                        className="text-sm text-red-600 mt-1"
+                      >
+                        {errors.email[0]}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -262,8 +315,9 @@ function ContactForm() {
               {submitMessage && (
                 <div
                   role="status"
+                  data-testid={submitStatus === 'success' ? 'contact-success' : 'contact-error'}
                   aria-live="polite"
-                  className={`mt-6 p-4 rounded-md text-center border ${submitMessage.includes('Thank you') ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}
+                  className={`mt-6 p-4 rounded-md text-center border ${submitStatus === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200'}`}
                 >
                   {submitMessage}
                 </div>
@@ -275,7 +329,13 @@ function ContactForm() {
                     Cancel
                   </NeoButton>
                 </Link>
-                <NeoButton type="submit" disabled={isSubmitting} aria-busy={isSubmitting} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30 dark:bg-emerald-500 dark:hover:bg-emerald-600">
+                <NeoButton
+                  type="submit"
+                  data-testid="contact-submit"
+                  disabled={isSubmitting}
+                  aria-busy={isSubmitting}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+                >
                   {isSubmitting ? 'Submitting...' : 'Submit'}
                 </NeoButton>
               </div>

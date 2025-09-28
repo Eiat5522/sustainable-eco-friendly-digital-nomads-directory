@@ -173,7 +173,7 @@ test.describe('Security Testing', () => {
       const weakPasswords = TEST_CONFIG.payloads.weakPasswords;
 
       for (const weakPassword of weakPasswords) {
-        await page.goto('/auth/signup');
+        await page.goto(TEST_CONFIG.urls.signup);
         await page.fill('input[name="email"]', TEST_CONFIG.credentials.genericEmail);
         await page.fill('input[name="password"]', weakPassword);
         await page.fill('input[name="confirmPassword"]', weakPassword);
