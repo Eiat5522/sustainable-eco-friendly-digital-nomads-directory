@@ -40,9 +40,18 @@ module.exports = {
   },
   transform: {
     '^.+\\.(t|j)sx?$': ['@swc/jest', {
-      jsc: { transform: { react: { runtime: 'automatic' } } },
-      module: { type: 'es6' }
-    }]
+      jsc: {
+        parser: {
+          syntax: 'typescript',
+          tsx: true,
+          decorators: true,
+        },
+        transform: {
+          react: { runtime: 'automatic' },
+        },
+      },
+      module: { type: 'es6' },
+    }],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   testMatch: [
