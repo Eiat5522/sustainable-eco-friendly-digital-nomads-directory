@@ -22,18 +22,21 @@ export function createAuthAdapter(): Adapter | undefined {
   const isJestMockAdapter =
     typeof adapterFactory === 'function' && 'mock' in adapterFactory;
 
-  if (
+  const shouldSkipAdapter =
     (adapterFactory === MongoDBAdapter || isJestMockAdapter) &&
     isJestEnvironment &&
-    process.env.USE_REAL_MONGODB_FOR_TESTS !== '1'
-  ) {
-    return undefined;
+    process.env.USE_REAL_MONGODB_FOR_TESTS !== '1';
+
+  let resolvedAdapter: Adapter | undefined;
+
+  if (!shouldSkipAdapter) {
+    const uri = process.env.MONGODB_URI;
+    const hasValidUri = typeof uri === 'string' && uri.trim().length > 0;
+
+    if (hasValidUri) {
+      resolvedAdapter = adapterFactory(clientPromise);
+    }
   }
 
-  const uri = process.env.MONGODB_URI;
-  if (typeof uri !== 'string' || uri.trim().length === 0) {
-    return undefined;
-  }
-
-  return adapterFactory(clientPromise);
+  return resolvedAdapter;
 }
