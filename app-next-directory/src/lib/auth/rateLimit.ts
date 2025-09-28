@@ -5,6 +5,8 @@ import dbConnect from '@/lib/dbConnect';
 import { getRedisClient, onRedisClientChange } from '@/lib/redis';
 import LoginAttempt, { LoginAttemptReason } from '@/models/LoginAttempt';
 
+type Validator = typeof import('validator');
+
 type LoginRateLimitResult = {
   success: boolean;
   limit?: number;
@@ -17,6 +19,16 @@ const LOGIN_WINDOW_DURATION = '1 m';
 const LOGIN_RATE_LIMIT_PREFIX = 'auth:login';
 
 let loginRateLimiter: InstanceType<typeof Ratelimit> | undefined;
+let validatorModulePromise: Promise<Validator & { default?: Validator }> | null = null;
+
+const loadValidator = async (): Promise<Validator> => {
+  if (!validatorModulePromise) {
+    validatorModulePromise = import('validator') as Promise<Validator & { default?: Validator }>;
+  }
+
+  const validatorModule = await validatorModulePromise;
+  return validatorModule.default ?? validatorModule;
+};
 
 // NOTE: The original implementation embedded extensive Jest-style mock helper
 // augmentation directly onto the Ratelimit class and mongoose connection. That
@@ -49,7 +61,7 @@ const buildRateLimiter = (redis: Redis | undefined) => {
       analytics: true,
       prefix: LOGIN_RATE_LIMIT_PREFIX,
     };
-    loginRateLimiter = new Ratelimit(config as any); // Upstash types may be narrower; safe cast at boundary.
+    loginRateLimiter = new Ratelimit(config as unknown); // Upstash types may be narrower; safe cast at boundary.
   } catch (error) {
     console.warn('[auth] Failed to initialize login rate limiter', error);
     loginRateLimiter = undefined;
@@ -96,16 +108,21 @@ export async function recordLoginAttempt(params: {
   // NOTE: Basic pattern check is enough for logging-only retention. For hardened
   // production flows prefer validator.js isEmail + length caps, consider MX lookups,
   // and block disposable domains before writing audit artifacts.
-  import validator from 'validator';
-
   const rawEmail = params?.email;
-  const isValidEmail = typeof rawEmail === 'string' && validator.isEmail(rawEmail.trim());
-  if (!isValidEmail) {
+  if (typeof rawEmail !== 'string') {
     console.warn('[auth] Skipping login attempt record due to invalid email', { email: rawEmail });
     return;
   }
 
-  const normalizedEmail = rawEmail.trim().toLowerCase();
+  const validator = await loadValidator();
+  const trimmedEmail = rawEmail.trim();
+
+  if (!validator.isEmail(trimmedEmail)) {
+    console.warn('[auth] Skipping login attempt record due to invalid email', { email: rawEmail });
+    return;
+  }
+
+  const normalizedEmail = trimmedEmail.toLowerCase();
 
   try {
     await dbConnect();

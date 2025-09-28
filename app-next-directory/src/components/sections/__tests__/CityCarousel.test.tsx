@@ -27,12 +27,13 @@ describe('CityCarousel', () => {
 
   beforeEach(() => {
     // Mock the fetch API to return mock cities by default
-    global.fetch = jest.fn(() =>
-      Promise.resolve({
+    const fetchMock: jest.MockedFunction<typeof fetch> = jest.fn(async () =>
+      ({
         ok: true,
-        json: () => Promise.resolve({ cities: mockCities }),
-      })
-    ) as unknown as jest.Mock;
+        json: async () => ({ cities: mockCities }),
+      } as unknown as Response)
+    );
+    global.fetch = fetchMock;
   });
 
   afterEach(() => {

@@ -41,6 +41,10 @@ async function makeApiRequest(endpoint: string, options: RequestInit & { headers
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
+    if (error instanceof Error) {
+      error.message = `API request failed: ${error.message}`;
+      throw error;
+    }
     throw new Error(`API request failed: ${message}`);
   }
 }

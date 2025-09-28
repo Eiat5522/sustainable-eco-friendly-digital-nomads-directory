@@ -7,9 +7,5 @@
     "jest.runMode": {
         "type": "on-demand"
     },
-    "jest.nodeEnv": {
-        "PATH": "/home/eiat/.local/bin:/home/eiat/.nvm/versions/node/v22.19.0/bin:/usr/local/bin:/usr/bin:/bin",
-        "NODE_PATH": "/home/eiat/.nvm/versions/node/v22.19.0/lib/node_modules"
-    },
-    "jest.useDashedArgs": true
+      "jest.useDashedArgs": true
 }

@@ -160,13 +160,21 @@ describe('Authentication API Routes', () => {
     mockUserFindOne = jest.spyOn(User, 'findOne').mockImplementation();
     mockUserCreate = jest.spyOn(User, 'create').mockImplementation();
     mockEmailVerificationTokenCreate = jest.spyOn(EmailVerificationToken, 'create').mockImplementation();
+  });
 
+  const originalMongoUri = process.env.MONGODB_URI;
+
+  beforeEach(() => {
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
-    delete process.env.MONGODB_URI;
+    if (originalMongoUri === undefined) {
+      delete process.env.MONGODB_URI;
+    } else {
+      process.env.MONGODB_URI = originalMongoUri;
+    }
   });
 
   describe('Registration API Route (/api/auth/register)', () => {
@@ -627,4 +635,4 @@ describe('Authentication API Routes', () => {
     });
   });
 });
- 
+} 

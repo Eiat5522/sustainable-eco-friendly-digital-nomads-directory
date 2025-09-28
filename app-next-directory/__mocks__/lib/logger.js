@@ -1,6 +1,4 @@
-import jestGlobals from '@jest/globals';
-
-const { jest } = jestGlobals;
+import { jest } from '@jest/globals';
 
 export const structuredLogger = {
   info: jest.fn(),
