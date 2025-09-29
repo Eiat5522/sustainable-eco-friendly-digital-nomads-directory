@@ -1,7 +1,6 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
-// import { rateLimit } from '@/utils/rate-limit';
-
+import type { NextRequest } from 'next/server';
 
 type ReviewDoc = {
   verified?: boolean;
@@ -21,7 +20,12 @@ type ReviewsCollection = {
   countDocuments: (filter: Record<string, unknown>) => Promise<number>;
 };
 
-export async function GET(request: Request, ctx?: { collection?: ReviewsCollection }) {
+type RouteContext = {
+  params: Promise<Record<string, never>>;
+  collection?: ReviewsCollection;
+};
+
+export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { searchParams } = new URL(request.url);
     const listingSlug = searchParams.get('listing');
@@ -32,7 +36,7 @@ export async function GET(request: Request, ctx?: { collection?: ReviewsCollecti
     const verified = searchParams.get('verified') === 'true';
 
     const reviews: ReviewsCollection =
-      ctx?.collection ?? (await getCollection('reviews') as unknown as ReviewsCollection);
+      context.collection ?? (await getCollection('reviews') as unknown as ReviewsCollection);
 
     // Build filter
     const filter: Record<string, unknown> = { status: 'approved' };

@@ -38,5 +38,10 @@ export function createAuthAdapter(): Adapter | undefined {
     }
   }
 
-  return resolvedAdapter;
+  const uri = process.env.MONGODB_URI;
+  if (typeof uri !== 'string' || uri.trim().length === 0) {
+    return undefined;
+  }
+
+  return adapterFactory(clientPromise);
 }

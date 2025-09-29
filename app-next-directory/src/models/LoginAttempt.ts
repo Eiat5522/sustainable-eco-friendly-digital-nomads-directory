@@ -5,6 +5,7 @@ import mongoose, {
   Schema,
   UpdateQuery,
 } from 'mongoose';
+import type { CallbackError } from 'mongoose';
 
 export type LoginAttemptReason = 'success' | 'invalid_credentials' | 'rate_limited';
 
@@ -159,7 +160,7 @@ const extractField = <T>(update: UpdateQuery<ILoginAttempt>, field: UpdateField)
 
 const ensureUpdateInvariant = async function ensureUpdateInvariant(
   this: Query<unknown, ILoginAttempt>,
-  next: (err?: mongoose.NativeError) => void,
+  next: (err?: CallbackError | null) => void,
 ) {
   const update = this.getUpdate();
   if (!update) {
@@ -179,7 +180,7 @@ const ensureUpdateInvariant = async function ensureUpdateInvariant(
     successField = extractField<boolean>(update, 'success');
     reasonField = extractField<LoginAttemptReason>(update, 'reason');
   } catch (error) {
-    return next(error as mongoose.NativeError);
+    return next(error as CallbackError);
   }
 
   if (successField.unset || reasonField.unset) {
@@ -240,12 +241,13 @@ const ensureUpdateInvariant = async function ensureUpdateInvariant(
       );
     }
   }
-
-  if (reasonValue !== undefined && successValue === undefined) {
+  if (successValue === undefined && reasonValue !== undefined) {
     const conflictFilter: FilterQuery<ILoginAttempt> = {
       $and: [
         filter as FilterQuery<ILoginAttempt>,
-        reasonValue === SUCCESS_REASON ? { success: { $ne: true } } : { success: true },
+        reasonValue === SUCCESS_REASON
+          ? { success: { $ne: true } }
+          : { success: true },
       ],
     };
 

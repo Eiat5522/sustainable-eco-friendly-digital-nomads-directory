@@ -3,7 +3,7 @@ import { Footer } from '@/components/layout/Footer'
 import { SearchFiltersForm } from '@/components/search/SearchFiltersForm'
 import type { SearchParamRecord } from '@/types/search'
 
-type SearchPageProps = { searchParams: SearchParamRecord | Promise<SearchParamRecord> }
+type SearchPageProps = { searchParams?: Promise<SearchParamRecord> }
 
 export const dynamic = 'force-dynamic'
 

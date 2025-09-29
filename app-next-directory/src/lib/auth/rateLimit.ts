@@ -1,4 +1,5 @@
 import { Ratelimit } from '@upstash/ratelimit';
+import type { RatelimitConfig } from '@upstash/ratelimit';
 import type { Redis } from '@upstash/redis';
 
 import dbConnect from '@/lib/dbConnect';
@@ -39,9 +40,8 @@ const loadValidator = async (): Promise<Validator> => {
 // control is required. This production module now focuses solely on runtime
 // functionality; no test-only mutation occurs here.
 
-const createSlidingWindowLimiter = () => {
-return Ratelimit.slidingWindow(LOGIN_WINDOW_LIMIT, LOGIN_WINDOW_DURATION);
-};
+const createSlidingWindowLimiter = () =>
+  Ratelimit.slidingWindow(LOGIN_WINDOW_LIMIT, LOGIN_WINDOW_DURATION);
 
 const buildRateLimiter = (redis: Redis | undefined) => {
   if (!redis) {
@@ -50,18 +50,13 @@ const buildRateLimiter = (redis: Redis | undefined) => {
   }
 
   try {
-    const config: {
-      redis: Redis;
-      limiter: unknown;
-      analytics: boolean;
-      prefix: string;
-    } = {
+    const config: RatelimitConfig = {
       redis,
       limiter: createSlidingWindowLimiter(),
       analytics: true,
       prefix: LOGIN_RATE_LIMIT_PREFIX,
     };
-    loginRateLimiter = new Ratelimit(config as unknown); // Upstash types may be narrower; safe cast at boundary.
+    loginRateLimiter = new Ratelimit(config);
   } catch (error) {
     console.warn('[auth] Failed to initialize login rate limiter', error);
     loginRateLimiter = undefined;
@@ -84,11 +79,11 @@ export async function enforceLoginRateLimit(identifier: string): Promise<LoginRa
   try {
     const result = await limiter.limit(identifier);
     return {
-    success: result.success,
-    limit: result.limit,
-    remaining: result.remaining,
-    reset: result.reset,
-};
+      success: result.success,
+      limit: result.limit,
+      remaining: result.remaining,
+      reset: result.reset,
+    };
   } catch (error) {
     console.warn('[auth] Login ratelimiter error; allowing attempt', error);
     return { success: true } as const;

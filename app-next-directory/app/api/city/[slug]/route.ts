@@ -2,14 +2,15 @@
 
 import { getCityBySlug } from '@/lib/data/city';
 import { ApiResponseHandler } from '@/utils/api-response';
+import type { NextRequest } from 'next/server';
 
-type RouteContext = { params: { slug: string } };
+type RouteContext = { params: Promise<{ slug: string }> };
 
 export async function GET(
-  request: Request,
-  { params }: RouteContext
+  request: NextRequest,
+  context: RouteContext
 ) {
-  const { slug } = params;
+  const { slug } = await context.params;
   try {
     const city = await getCityBySlug(slug);
     if (!city) {

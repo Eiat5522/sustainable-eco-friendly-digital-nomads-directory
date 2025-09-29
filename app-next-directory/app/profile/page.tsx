@@ -41,31 +41,33 @@ interface OwnerListingReviews {
   reviews: OwnerReviewItem[];
 }
 
-interface FavoritesResponse {
-  favorites?: Array<{
+type FavoriteEntry = {
+  _id?: string;
+  listing?: {
     _id?: string;
-    listing?: {
-      _id?: string;
-      name?: string;
-      slug?: string;
-      mainImage?: {
-        asset?: {
-          url?: string;
-        } | null;
-      } | null;
-      city?: {
-        name?: string;
+    name?: string;
+    slug?: string;
+    mainImage?: {
+      asset?: {
+        url?: string;
       } | null;
     } | null;
-    createdAt?: string;
-  }>;
+    city?: {
+      name?: string;
+    } | null;
+  } | null;
+  createdAt?: string;
+};
+
+interface FavoritesResponse {
+  favorites?: FavoriteEntry[];
 }
 
 interface OwnerReviewsResponse {
   listings?: OwnerListingReviews[];
 }
 
-export function normaliseFavorite(entry: FavoritesResponse['favorites'][number]): FavoriteListing | null {
+export function normaliseFavorite(entry: FavoriteEntry | undefined): FavoriteListing | null {
   if (!entry) return null;
   const listing = entry.listing ?? undefined;
   const slug = typeof listing?.slug === 'string' ? listing.slug : '';

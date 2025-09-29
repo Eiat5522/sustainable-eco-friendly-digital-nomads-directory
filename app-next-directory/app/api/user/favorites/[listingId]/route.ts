@@ -1,15 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
 import { ensureSanityUser } from '@/lib/sanity/user';
 
-interface RouteParams {
-  params: { listingId: string };
+interface RouteContext {
+  params: Promise<{ listingId: string }>;
 }
 
 // Add/Remove a specific listing from favorites
-export async function POST(request: Request, { params }: RouteParams) {
+export async function POST(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
 
   const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
@@ -24,7 +24,7 @@ export async function POST(request: Request, { params }: RouteParams) {
   // This is a basic user feature that doesn't need special permissions beyond being authenticated
 
   try {
-    const { listingId } = params;
+    const { listingId } = await params;
 
     if (!listingId) {
       return NextResponse.json({ error: 'Listing ID is required' }, { status: 400 });
@@ -74,7 +74,7 @@ export async function POST(request: Request, { params }: RouteParams) {
 }
 
 // Check if a listing is favorited by the user
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
 
   const user = session?.user as { id?: string; email?: string | null; name?: string | null; role?: UserRole | null } | undefined;
@@ -85,7 +85,7 @@ export async function GET(request: Request, { params }: RouteParams) {
   }
 
   try {
-    const { listingId } = params;
+    const { listingId } = await params;
 
     const favorite = await client.fetch(
       `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,

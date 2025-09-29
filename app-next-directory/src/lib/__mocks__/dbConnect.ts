@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
 
-const dbConnect = jest.fn(async () => undefined);
+const dbConnect: jest.MockedFunction<() => Promise<void>> = jest.fn(async () => undefined);
 
 export default dbConnect;

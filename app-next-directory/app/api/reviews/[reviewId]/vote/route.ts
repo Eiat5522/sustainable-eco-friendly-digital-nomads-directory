@@ -2,6 +2,7 @@ import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
 import { ObjectId } from 'mongodb';
 import { z } from 'zod';
+import type { NextRequest } from 'next/server';
 
 const voteSchema = z.object({
   helpful: z.boolean(),
@@ -9,12 +10,14 @@ const voteSchema = z.object({
 });
 
 // POST endpoint for voting on review helpfulness
+type RouteContext = { params: Promise<{ reviewId: string }> };
+
 export async function POST(
-  request: globalThis.Request,
-  { params }: { params: { reviewId: string } }
+  request: NextRequest,
+  context: RouteContext
 ) {
   try {
-    const { reviewId } = params;
+    const { reviewId } = await context.params;
 
     if (!ObjectId.isValid(reviewId)) {
       return ApiResponseHandler.error('Invalid review ID', 400);
@@ -126,11 +129,11 @@ export async function POST(
 
 // GET endpoint for getting vote statistics
 export async function GET(
-  request: globalThis.Request,
-  { params }: { params: { reviewId: string } }
+  request: NextRequest,
+  context: RouteContext
 ) {
   try {
-    const { reviewId } = params;
+    const { reviewId } = await context.params;
 
     if (!ObjectId.isValid(reviewId)) {
       return ApiResponseHandler.error('Invalid review ID', 400);

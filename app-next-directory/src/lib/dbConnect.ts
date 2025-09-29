@@ -229,8 +229,9 @@ const mockCalls: unknown[][] = [];
 
 const dbConnect = (async function dbConnectWrapper(): Promise<Mongoose> {
   mockCalls.push([]);
-  if (typeof (dbConnect as MockableDbConnectFn).__mockImplementation === 'function') {
-    return (dbConnect as MockableDbConnectFn).__mockImplementation();
+  const mockImplementation = (dbConnect as MockableDbConnectFn).__mockImplementation;
+  if (typeof mockImplementation === 'function') {
+    return mockImplementation();
   }
 
   if (

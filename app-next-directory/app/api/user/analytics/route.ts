@@ -1,2 +1,14 @@
-// Removed unused/invalid import for authOptions
-// ...existing code...
+import { NextResponse, type NextRequest } from 'next/server';
+
+type RouteContext = { params: Promise<Record<string, never>> };
+
+const notImplemented = () =>
+  NextResponse.json({ error: 'User analytics API not implemented.' }, { status: 501 });
+
+export async function GET(_request: NextRequest, _context: RouteContext) {
+  return notImplemented();
+}
+
+export async function POST(_request: NextRequest, _context: RouteContext) {
+  return notImplemented();
+}

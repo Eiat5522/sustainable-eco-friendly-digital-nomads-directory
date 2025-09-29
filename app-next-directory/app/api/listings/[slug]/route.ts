@@ -2,15 +2,18 @@ import { ApiResponseHandler } from '@/utils/api-response';
 import { handleAuthError, requireAuth } from '@/utils/auth-helpers';
 import { getCollection } from '@/utils/db-helpers';
 import { getListingBySlug } from '@/lib/sanity/queries';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+type RouteContext = { params: Promise<{ slug: string }> };
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: RouteContext
 ) {
   try {
+    const { slug } = await context.params;
     // Fetch listing from Sanity
-    let listing = await getListingBySlug(params.slug);
+    const listing = await getListingBySlug(slug);
 
     if (!listing) {
       return ApiResponseHandler.notFound('Listing');
@@ -25,14 +28,15 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: RouteContext
 ) {
   try {
+    const { slug } = await context.params;
     const session = await requireAuth();
     const body = await request.json();
     const listings = await getCollection('listings');
 
-    const listing = await listings.findOne({ slug: params.slug });
+    const listing = await listings.findOne({ slug });
 
     if (!listing) {
       return ApiResponseHandler.notFound('Listing');
@@ -49,7 +53,7 @@ export async function PUT(
     };
 
     await listings.updateOne(
-      { slug: params.slug },
+      { slug },
       { $set: updateData }
     );
 
@@ -61,13 +65,14 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: RouteContext
 ) {
   try {
+    const { slug } = await context.params;
     const session = await requireAuth();
     const listings = await getCollection('listings');
 
-    const listing = await listings.findOne({ slug: params.slug });
+    const listing = await listings.findOne({ slug });
 
     if (!listing) {
       return ApiResponseHandler.notFound('Listing');
@@ -79,7 +84,7 @@ export async function DELETE(
     }
 
     await listings.updateOne(
-      { slug: params.slug },
+      { slug },
       { $set: { status: 'deleted', deletedAt: new Date() } }
     );
 

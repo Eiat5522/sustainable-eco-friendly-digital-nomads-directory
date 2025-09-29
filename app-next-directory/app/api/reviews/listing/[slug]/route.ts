@@ -1,12 +1,15 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+type RouteContext = { params: Promise<{ slug: string }> };
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  context: RouteContext
 ) {
   try {
+    const { slug } = await context.params;
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
@@ -14,7 +17,7 @@ export async function GET(
     const reviews = await getCollection('reviews');
 
     const filter = {
-      listingSlug: params.slug,
+      listingSlug: slug,
       status: 'approved'
     };
 

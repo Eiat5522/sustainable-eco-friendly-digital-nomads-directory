@@ -3,15 +3,15 @@ import { ApiResponseHandler } from '@/utils/api-response';
 import { getListingsByCityId } from '@/lib/data/city';
 
 type RouteContext = {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 };
 
 export async function GET(
   request: NextRequest,
-  { params: { id } }: RouteContext
+  context: RouteContext
 ) {
   try {
-    // id is available here without await
+    const { id } = await context.params;
     const listings = await getListingsByCityId(id);
     if (!Array.isArray(listings) || listings.length === 0) {
       // No listings found for this city
@@ -24,4 +24,3 @@ export async function GET(
     return ApiResponseHandler.error('Failed to fetch listings', 500);
   }
 }
-
