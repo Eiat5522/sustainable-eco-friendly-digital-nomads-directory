@@ -385,8 +385,10 @@ describe('Authentication Forms and Components', () => {
         expect(global.fetch).toHaveBeenCalledWith('/api/auth/providers');
       });
 
-      // Should show loading initially then buttons
-      expect(screen.getByText('Loading sign-in options…')).toBeInTheDocument();
+      // After providers load, buttons should be rendered
+      await waitFor(() => {
+        expect(screen.queryByText('Loading sign-in options…')).not.toBeInTheDocument();
+      });
     });
 
     it('should handle OAuth disabled environment variable', () => {
@@ -563,7 +565,10 @@ describe('Authentication Forms and Components', () => {
       const user = userEvent.setup();
       
       // Set up error response
-      server.use(setRegisterResponse('error'));
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ error: 'Registration failed' }),
+      } as Response);
 
       render(<RegisterPage />);
 
@@ -590,6 +595,12 @@ describe('Authentication Forms and Components', () => {
     it('should provide clear navigation between auth pages', async () => {
       const user = userEvent.setup();
       
+      // Set up successful registration response
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, emailVerificationRequired: false }),
+      } as Response);
+      
       // Test Register page -> Login navigation after successful registration
       const { unmount } = render(<RegisterPage />);
       
@@ -613,6 +624,12 @@ describe('Authentication Forms and Components', () => {
 
     it('should handle success states appropriately', async () => {
       const user = userEvent.setup();
+
+      // Set up successful registration response
+      (global.fetch as jest.MockedFunction<typeof fetch>).mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, emailVerificationRequired: false }),
+      } as Response);
 
       render(<RegisterPage />);
 
