@@ -28,7 +28,10 @@ export function FavoriteButton({
   // Check if listing is already favorited
   useEffect(() => {
     const checkFavoriteStatus = async () => {
-      if (!session?.user?.id || !listingId) return;
+      if (!session?.user?.id || !listingId) {
+        setIsCheckingStatus(false);
+        return;
+      }
       
       try {
         const response = await fetch('/api/user/favorites');

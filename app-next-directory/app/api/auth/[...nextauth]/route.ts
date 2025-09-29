@@ -4,14 +4,20 @@ console.log('[auth route] module loaded');
 
 export async function GET(request: Request) {
   try {
-    console.log('[auth route] incoming GET', request.url);
-  } catch (e) {}
+    const { pathname } = new URL(request.url);
+    console.log('[auth route] incoming GET', pathname);
+  } catch (e) {
+    console.log('[auth route] incoming GET');
+  }
   return authGET(request as any);
 }
 
 export async function POST(request: Request) {
   try {
-    console.log('[auth route] incoming POST', request.url);
-  } catch (e) {}
+    const { pathname } = new URL(request.url);
+    console.log('[auth route] incoming POST', pathname);
+  } catch (e) {
+    console.log('[auth route] incoming POST');
+  }
   return authPOST(request as any);
 }
