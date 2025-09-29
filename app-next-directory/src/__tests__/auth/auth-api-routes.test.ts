@@ -10,68 +10,51 @@
  * 5. Email verification flow
  */
 
+// @ts-nocheck
+/**
+ * Jest Test Suite for Next Auth API Routes
+ * 
+ * Tests covering:
+ * 1. Registration API route (/api/auth/register)
+ * 2. Next Auth route handler (/api/auth/[...nextauth])
+ * 3. Rate limiting on API routes
+ * 4. Input validation and error handling
+ * 5. Email verification flow
+ */
+
 import { jest } from '@jest/globals';
 import type { NextRequest } from 'next/server';
 import User from '@/models/User';
 import EmailVerificationToken from '@/models/EmailVerificationToken';
 
-const mockDbConnect = jest.fn();
-const mockGenerateToken = jest.fn();
-const mockHashToken = jest.fn();
-const mockMinutesFromNow = jest.fn();
-const mockBuildVerifyEmail = jest.fn();
-const mockSendMail = jest.fn();
-const mockGetClientIp = jest.fn();
-const mockIsRateLimited = jest.fn();
-const mockGetRetryAfterMs = jest.fn();
-const mockIsEmailVerificationRequired = jest.fn();
-const mockGetRequestContext = jest.fn();
+// Import mocked modules - Jest will automatically use the __mocks__ versions
+import dbConnect from '@/lib/dbConnect';
+import * as tokensModule from '@/lib/tokens';
+import * as emailModule from '@/lib/email';
+import * as rateLimitModule from '@/lib/rate-limit';
+import * as loggerModule from '@/lib/logger';
+import * as authConfigModule from '@/lib/auth/config';
 
-const mockStructuredLogger = {
-  info: jest.fn(),
-  warn: jest.fn(),
-  error: jest.fn(),
-  debug: jest.fn(),
-  emailError: jest.fn(),
-  child: jest.fn(),
-};
+// Import the route handler after mocks are set up
+import { POST as registerPost } from '@/app/api/auth/register/route';
 
-jest.unstable_mockModule('@/lib/dbConnect', () => ({
-  default: mockDbConnect,
-}));
-
-jest.unstable_mockModule('@/lib/tokens', () => ({
-  generateToken: mockGenerateToken,
-  hashToken: mockHashToken,
-  minutesFromNow: mockMinutesFromNow,
-}));
-
-jest.unstable_mockModule('@/lib/email', () => ({
-  buildVerifyEmail: mockBuildVerifyEmail,
-  sendMail: mockSendMail,
-}));
-
-jest.unstable_mockModule('@/lib/rate-limit', () => ({
-  getClientIp: mockGetClientIp,
-  isRateLimited: mockIsRateLimited,
-  getRetryAfterMs: mockGetRetryAfterMs,
-}));
-
-jest.unstable_mockModule('@/lib/logger', () => ({
-  structuredLogger: mockStructuredLogger,
-  getRequestContext: mockGetRequestContext,
-}));
-
-jest.unstable_mockModule('@/lib/auth/config', () => ({
-  isEmailVerificationRequired: mockIsEmailVerificationRequired,
-}));
-
-let registerPost: typeof import('@/app/api/auth/register/route').POST;
+// Get the mocked functions with proper typing
+const mockDbConnect = dbConnect as jest.MockedFunction<typeof dbConnect>;
+const mockGenerateToken = tokensModule.generateToken as jest.MockedFunction<typeof tokensModule.generateToken>;
+const mockHashToken = tokensModule.hashToken as jest.MockedFunction<typeof tokensModule.hashToken>;
+const mockMinutesFromNow = tokensModule.minutesFromNow as jest.MockedFunction<typeof tokensModule.minutesFromNow>;
+const mockBuildVerifyEmail = emailModule.buildVerifyEmail as jest.MockedFunction<typeof emailModule.buildVerifyEmail>;
+const mockSendMail = emailModule.sendMail as jest.MockedFunction<typeof emailModule.sendMail>;
+const mockGetClientIp = rateLimitModule.getClientIp as jest.MockedFunction<typeof rateLimitModule.getClientIp>;
+const mockIsRateLimited = rateLimitModule.isRateLimited as jest.MockedFunction<typeof rateLimitModule.isRateLimited>;
+const mockGetRetryAfterMs = rateLimitModule.getRetryAfterMs as jest.MockedFunction<typeof rateLimitModule.getRetryAfterMs>;
+const mockIsEmailVerificationRequired = authConfigModule.isEmailVerificationRequired as jest.MockedFunction<typeof authConfigModule.isEmailVerificationRequired>;
+const mockGetRequestContext = loggerModule.getRequestContext as jest.MockedFunction<typeof loggerModule.getRequestContext>;
+const mockStructuredLogger = loggerModule.structuredLogger as jest.Mocked<typeof loggerModule.structuredLogger>;
 
 let mockUserFindOne: jest.SpyInstance<any, any>;
 let mockUserCreate: jest.SpyInstance<any, any>;
 let mockEmailVerificationTokenCreate: jest.SpyInstance<any, any>;
-// NOTE: Avoid spying on non-getter value exports like `logger`; use structuredLogger mocks instead.
 
 const validRegistrationData = {
   name: 'John Doe',
@@ -97,45 +80,29 @@ function createMockRequest(data: any, options?: { jsonImpl?: jest.Mock }) {
   } as unknown as NextRequest;
 };
 
-beforeAll(async () => {
-  await import('@/lib/dbConnect');
-  const tokensModule = await import('@/lib/tokens');
-  const emailModule = await import('@/lib/email');
-  const rateLimitModule = await import('@/lib/rate-limit');
-  const loggerModule = await import('@/lib/logger');
-  const authConfigModule = await import('@/lib/auth/config');
-  console.log('mock matches',
-    tokensModule.generateToken === mockGenerateToken,
-    emailModule.buildVerifyEmail === mockBuildVerifyEmail,
-    rateLimitModule.isRateLimited === mockIsRateLimited,
-    loggerModule.getRequestContext === mockGetRequestContext,
-    authConfigModule.isEmailVerificationRequired === mockIsEmailVerificationRequired,
-  );
-  ({ POST: registerPost } = await import('@/app/api/auth/register/route'));
-});
+// Remove the beforeAll block as it's no longer needed
 
 describe('Authentication API Routes', () => {
+  const originalMongoUri = process.env.MONGODB_URI;
+
   beforeEach(() => {
-    mockDbConnect.mockReset();
-    mockGenerateToken.mockReset();
-    mockHashToken.mockReset();
-    mockMinutesFromNow.mockReset();
-    mockBuildVerifyEmail.mockReset();
-    mockSendMail.mockReset();
-    mockGetClientIp.mockReset();
-    mockIsRateLimited.mockReset();
-    mockGetRetryAfterMs.mockReset();
-    mockIsEmailVerificationRequired.mockReset();
-    mockGetRequestContext.mockReset();
-
-    mockStructuredLogger.info.mockReset();
-    mockStructuredLogger.warn.mockReset();
-    mockStructuredLogger.error.mockReset();
-    mockStructuredLogger.debug.mockReset();
-    mockStructuredLogger.emailError.mockReset();
-    mockStructuredLogger.child.mockReset();
-    mockStructuredLogger.child.mockReturnValue(mockStructuredLogger as any);
-
+    // Setup environment
+    process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
+    
+    // Reset all mocks completely
+    jest.clearAllMocks();
+    
+    // Reset User model spies first
+    if (mockUserFindOne) mockUserFindOne.mockRestore();
+    if (mockUserCreate) mockUserCreate.mockRestore();
+    if (mockEmailVerificationTokenCreate) mockEmailVerificationTokenCreate.mockRestore();
+    
+    // Setup fresh User model spies
+    mockUserFindOne = jest.spyOn(User, 'findOne').mockImplementation();
+    mockUserCreate = jest.spyOn(User, 'create').mockImplementation();
+    mockEmailVerificationTokenCreate = jest.spyOn(EmailVerificationToken, 'create').mockImplementation();
+    
+    // Setup default mock implementations using the imported mocks
     mockDbConnect.mockResolvedValue(undefined);
     mockGetClientIp.mockReturnValue('127.0.0.1');
     mockIsRateLimited.mockReturnValue(false);
@@ -156,16 +123,6 @@ describe('Authentication API Routes', () => {
       url: '/api/auth/register',
       userAgent: 'jest',
     });
-
-    mockUserFindOne = jest.spyOn(User, 'findOne').mockImplementation();
-    mockUserCreate = jest.spyOn(User, 'create').mockImplementation();
-    mockEmailVerificationTokenCreate = jest.spyOn(EmailVerificationToken, 'create').mockImplementation();
-  });
-
-  const originalMongoUri = process.env.MONGODB_URI;
-
-  beforeEach(() => {
-    process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
   });
 
   afterEach(() => {
@@ -217,7 +174,7 @@ describe('Authentication API Routes', () => {
           email: 'john@example.com',
         };
 
-        // Mock email verification required
+        // Mock email verification required 
         mockIsEmailVerificationRequired.mockReturnValue(true);
         
         const mockQuery = {
@@ -243,6 +200,9 @@ describe('Authentication API Routes', () => {
         const request = createMockRequest(validRegistrationData);
         const response = await registerPost(request);
         const responseData = await response.json();
+
+        console.log('Debug - isEmailVerificationRequired was called:', mockIsEmailVerificationRequired.mock.calls);
+        console.log('Debug - Response data:', responseData);
 
         expect(response.status).toBe(200);
         expect(responseData.success).toBe(true);
@@ -364,7 +324,7 @@ describe('Authentication API Routes', () => {
     describe('Rate Limiting', () => {
       it('should enforce rate limiting on registration attempts', async () => {
         mockIsRateLimited.mockReturnValue(true);
-        mockGetRetryAfterMs.mockReturnValue(30000); // 30 seconds
+        mockGetRetryAfterMs.mockReturnValue(60000); // 60 seconds
 
         const request = createMockRequest(validRegistrationData);
         const response = await registerPost(request);
@@ -372,7 +332,7 @@ describe('Authentication API Routes', () => {
 
         expect(response.status).toBe(429);
         expect(responseData.error).toBe('Too many requests');
-        expect(response.headers.get('Retry-After')).toBe('30');
+        expect(response.headers.get('Retry-After')).toBe('60');
       });
 
       it('should allow registration when under rate limit', async () => {
