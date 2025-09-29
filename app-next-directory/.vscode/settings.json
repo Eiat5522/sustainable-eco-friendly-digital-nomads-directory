@@ -1,7 +1,10 @@
 {
+  "jest.enable": true, 
   "jest.rootPath": ".",
-  "jest.jestCommandLine": "node_modules/.bin/jest",
+  "jest.runMode": "on-demand",
+  "jest.jestCommandLine": "node_modules/jest/bin/jest.js",
   "jest.nodeEnv": {
     "PATH": "${workspaceFolder}/app-next-directory/node_modules/.bin:/home/eiat/.nvm/versions/node/v22.19.0/bin:/usr/local/bin:/usr/bin:/bin"
-  }
+  },
+  "jest.monitorLongRun": 6000
 }

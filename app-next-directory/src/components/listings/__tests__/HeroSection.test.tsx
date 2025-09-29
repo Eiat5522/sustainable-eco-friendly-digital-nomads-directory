@@ -129,8 +129,6 @@ describe('HeroSection', () => {
     render(
       <HeroSection 
         listing={mockListing}
-        isFavorited={false}
-        onToggleFavorite={mockOnToggleFavorite}
       />
     );
 
@@ -257,79 +255,16 @@ describe('HeroSection', () => {
   });
 
   describe('Favorite functionality', () => {
-    it('shows unfavorited state correctly', () => {
+    it('renders FavoriteButton with correct props', () => {
       render(
         <HeroSection 
           listing={mockListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
         />
       );
 
-      const favoriteButton = screen.getByTestId('neo-button');
-      expect(favoriteButton).toHaveAttribute('data-variant', 'secondary');
-      expect(favoriteButton).toHaveAttribute('aria-label', 'Add to favorites');
-      
-      const heartIcon = screen.getByTestId('heart-icon');
-      expect(heartIcon).toHaveClass('text-gray-600');
-      expect(heartIcon).not.toHaveClass('fill-current', 'text-red-500');
-    });
-
-    it('shows favorited state correctly', () => {
-      render(
-        <HeroSection 
-          listing={mockListing}
-          isFavorited={true}
-          onToggleFavorite={mockOnToggleFavorite}
-        />
-      );
-
-      const favoriteButton = screen.getByTestId('neo-button');
-      expect(favoriteButton).toHaveAttribute('data-variant', 'accent');
-      expect(favoriteButton).toHaveAttribute('aria-label', 'Remove from favorites');
-      
-      const heartIcon = screen.getByTestId('heart-icon');
-      expect(heartIcon).toHaveClass('fill-current', 'text-red-500');
-    });
-
-    it('calls onToggleFavorite when favorite button is clicked', async () => {
-      render(
-        <HeroSection 
-          listing={mockListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
-        />
-      );
-
-      const favoriteButton = screen.getByTestId('neo-button');
-      await userEvent.click(favoriteButton);
-
-      expect(mockOnToggleFavorite).toHaveBeenCalledTimes(1);
-    });
-
-    it('works when onToggleFavorite is not provided', async () => {
-      render(
-        <HeroSection 
-          listing={mockListing}
-          isFavorited={false}
-        />
-      );
-
-      const favoriteButton = screen.getByTestId('neo-button');
-      expect(favoriteButton).toBeInTheDocument();
-      await expect(userEvent.click(favoriteButton)).resolves.toBeUndefined();
-    });
-
-    it('renders correct button size and styling', () => {
-      render(
-        <HeroSection 
-          listing={mockListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
-        />
-      );
-
-      const favoriteButton = screen.getByTestId('neo-button');
+      const favoriteButton = screen.getByTestId('favorite-button');
+      expect(favoriteButton).toHaveAttribute('data-listing-id', 'listing-1');
+      expect(favoriteButton).toHaveAttribute('data-listing-title', 'Sustainable Coffee Shop');
       expect(favoriteButton).toHaveAttribute('data-size', 'sm');
       expect(favoriteButton).toHaveClass('bg-white/90', 'hover:bg-white');
     });
@@ -338,27 +273,23 @@ describe('HeroSection', () => {
       render(
         <HeroSection 
           listing={mockListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
         />
       );
 
-      const favoriteButton = screen.getByTestId('neo-button');
+      const favoriteButton = screen.getByTestId('favorite-button');
       const buttonContainer = favoriteButton.parentElement;
       expect(buttonContainer).toHaveClass('absolute', 'top-4', 'right-4');
     });
 
-    it('renders heart icon with correct size', () => {
+    it('renders heart icon', () => {
       render(
         <HeroSection 
           listing={mockListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
         />
       );
 
       const heartIcon = screen.getByTestId('heart-icon');
-      expect(heartIcon).toHaveAttribute('data-size', '20');
+      expect(heartIcon).toBeInTheDocument();
     });
   });
 
@@ -372,8 +303,6 @@ describe('HeroSection', () => {
       render(
         <HeroSection 
           listing={budgetListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
         />
       );
 
@@ -389,8 +318,6 @@ describe('HeroSection', () => {
       render(
         <HeroSection 
           listing={premiumListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
         />
       );
 
@@ -401,8 +328,6 @@ describe('HeroSection', () => {
       render(
         <HeroSection 
           listing={mockListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
         />
       );
 
@@ -475,8 +400,6 @@ describe('HeroSection', () => {
       render(
         <HeroSection 
           listing={mockListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
         />
       );
 
@@ -489,8 +412,6 @@ describe('HeroSection', () => {
       render(
         <HeroSection 
           listing={mockListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
         />
       );
 
@@ -502,8 +423,6 @@ describe('HeroSection', () => {
       render(
         <HeroSection 
           listing={mockListing}
-          isFavorited={false}
-          onToggleFavorite={mockOnToggleFavorite}
         />
       );
 

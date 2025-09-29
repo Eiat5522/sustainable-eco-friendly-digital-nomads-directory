@@ -46,6 +46,11 @@ export interface AuthenticatedUser {
   role: UserRole;
 }
 
+export interface UpdateUserProfileInput {
+  name?: string | null;
+  image?: string | null;
+}
+
 /**
  * Authenticate user with email and password
  * @param email User email
@@ -67,7 +72,11 @@ export async function authenticateUser(
     };
 
     if (requireVerification) {
-      query.emailVerified = { $exists: true, $ne: null, $type: 'date' } as any;
+      query.emailVerified = {
+        $exists: true,
+        $ne: null,
+        $type: 'date',
+      } as FilterQuery<UserDoc>['emailVerified'];
     }
 
     // Find user in MongoDB using Mongoose model
@@ -183,6 +192,56 @@ export async function getUserById(userId: string): Promise<AuthenticatedUser | n
   }
 }
 
+export async function updateUserProfile(
+  userId: string,
+  updateData: UpdateUserProfileInput
+): Promise<AuthenticatedUser | null> {
+  try {
+    const connect = await getDbConnect();
+    await connect();
+
+    if (!isValidObjectId(userId)) {
+      return null;
+    }
+
+    const updates: Record<string, unknown> = {};
+
+    if (typeof updateData.name === 'string') {
+      const trimmed = updateData.name.trim();
+      if (trimmed.length > 0) {
+        updates.name = trimmed;
+      }
+    }
+
+    if (updateData.image !== undefined) {
+      if (updateData.image === null) {
+        updates.image = null;
+      } else if (typeof updateData.image === 'string') {
+        updates.image = updateData.image.trim();
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return await getUserById(userId);
+    }
+
+    const result = await UserModel.updateOne(
+      { _id: userId },
+      { $set: updates },
+      { runValidators: true }
+    );
+
+    if (!result || (result as { matchedCount?: number }).matchedCount !== 1) {
+      return null;
+    }
+
+    return await getUserById(userId);
+  } catch (error) {
+    console.error('Update user profile error:', error);
+    return null;
+  }
+}
+
 /**
  * Update user role (admin only)
  * @param userId User ID to update
@@ -209,5 +268,64 @@ export async function updateUserRole(
   } catch (error) {
     console.error('Update user role error:', error);
     return false;
+  }
+}
+
+// Input type for profile updates
+export interface UpdateUserProfileInput {
+  name?: string;
+  image?: string | null;
+}
+
+/**
+ * Update basic user profile fields (name, image)
+ * Returns the updated user (sanitised) or null
+ */
+export async function updateUserProfile(
+  userId: string,
+  update: UpdateUserProfileInput
+): Promise<AuthenticatedUser | null> {
+  try {
+    const connect = await getDbConnect();
+    await connect();
+
+    if (!isValidObjectId(userId)) {
+      return null;
+    }
+
+  const $set: Record<string, unknown> = {};
+    if (typeof update.name === 'string') {
+      $set.name = update.name;
+    }
+    if (update.image === null) {
+      $set.image = null;
+    } else if (typeof update.image === 'string') {
+      $set.image = update.image;
+    }
+
+    if (Object.keys($set).length === 0) {
+      return null; // Nothing to update
+    }
+
+    const doc = await UserModel.findByIdAndUpdate(
+      userId,
+      { $set },
+      { new: true }
+    )
+      .select('_id name email image role')
+      .lean<UserDoc | null>();
+
+    if (!doc) return null;
+
+    return {
+      id: doc._id.toString(),
+      name: doc.name,
+      email: doc.email,
+      image: doc.image,
+      role: doc.role as UserRole,
+    };
+  } catch (error) {
+    console.error('Update user profile error:', error);
+    return null;
   }
 }

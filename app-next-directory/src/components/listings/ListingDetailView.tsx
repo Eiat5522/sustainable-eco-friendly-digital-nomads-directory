@@ -35,61 +35,21 @@ interface ListingDetailViewProps {
   reviews?: Review[];
   relatedListings?: RelatedListing[];
   isSignedIn?: boolean;
-  isFavorited?: boolean;
 }
 
 export function ListingDetailView({ 
   listing, 
   reviews = [], 
   relatedListings = [],
-  isSignedIn = false,
-  isFavorited = false 
+  isSignedIn = false
 }: ListingDetailViewProps) {
-  const [favorited, setFavorited] = useState(isFavorited);
-
-  const handleToggleFavorite = async () => {
-    // Check if user is signed in first
-    if (!isSignedIn) {
-      // Redirect to login
-      const loginUrl = `/auth/login?callbackUrl=${encodeURIComponent(getCurrentHref())}`;
-      redirectTo(loginUrl);
-      return;
-    }
-
-    try {
-      const res = await fetch(`/api/user/favorites/${listing.id}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      if (res.status === 401) {
-        // Redirect to login if not authenticated
-        const loginUrl = `/auth/login?callbackUrl=${encodeURIComponent(getCurrentHref())}`;
-        redirectTo(loginUrl);
-        return;
-      }
-
-      if (res.ok) {
-        const data = await res.json();
-        setFavorited(data.favorited);
-      } else {
-        console.error('Failed to toggle favorite:', res.status, res.statusText);
-      }
-    } catch (error) {
-      console.error('Failed to toggle favorite:', error);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 pt-6 pb-8">
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
-          <HeroSection 
-            listing={listing}
-            isFavorited={favorited}
-            onToggleFavorite={handleToggleFavorite}
-          />
+          <HeroSection listing={listing} />
 
           {/* Gallery Carousel */}
           {/* Render modern gallery grid only when there are meaningful gallery images */}

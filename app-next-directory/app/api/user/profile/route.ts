@@ -1,4 +1,4 @@
-import { getUserById } from '@/lib/auth/serverAuth';
+import { getUserById, updateUserProfile } from '@/lib/auth/serverAuth';
 import { auth } from '@/lib/auth';
 
 /**
@@ -76,9 +76,9 @@ export async function PUT(request: Request) {
     }
 
     // Update user profile using server-side function
-    const success = await updateUserProfile(session.user.id, { name, image });
+    const updatedUser = await updateUserProfile(session.user.id, { name, image });
 
-    if (!success) {
+    if (!updatedUser) {
       return Response.json(
         { error: 'Failed to update profile' },
         { status: 500 }
@@ -88,6 +88,15 @@ export async function PUT(request: Request) {
     return Response.json({
       success: true,
       message: 'Profile updated successfully',
+      data: {
+        user: {
+          id: updatedUser.id,
+          name: updatedUser.name,
+          email: updatedUser.email,
+          image: updatedUser.image,
+          role: updatedUser.role,
+        },
+      },
     });
   } catch (error) {
     console.error('Update user profile error:', error);
@@ -95,33 +104,5 @@ export async function PUT(request: Request) {
       { error: 'Internal server error' },
       { status: 500 }
     );
-  }
-}
-
-// Server-side function for updating user profile
-async function updateUserProfile(
-  userId: string,
-  updateData: { name: string; image?: string }
-): Promise<boolean> {
-  try {
-    // Import here to avoid Edge Runtime issues
-    const dbConnect = (await import('@/lib/dbConnect')).default;
-    const User = (await import('@/models/User')).default;
-
-    await dbConnect();
-
-    const result = await (User as any).findByIdAndUpdate(
-      userId,
-      {
-        name: updateData.name,
-        ...(updateData.image && { image: updateData.image }),
-      },
-      { new: true }
-    );
-
-    return !!result;
-  } catch (error) {
-    console.error('Update user profile error:', error);
-    return false;
   }
 }

@@ -217,7 +217,18 @@ export const authOptions: NextAuthConfig = {
   },
 }
 
-export const { handlers: { GET, POST }, auth } = NextAuth(authOptions)
+const nextAuthInstance = (() => {
+  try {
+    const inst = NextAuth(authOptions);
+    console.log('[auth] NextAuth initialized');
+    return inst;
+  } catch (err) {
+    console.error('[auth] NextAuth initialization error', err);
+    throw err;
+  }
+})();
+
+export const { handlers: { GET, POST }, auth } = nextAuthInstance;
 
 // Export getToken for middleware and tests
 export { getToken } from 'next-auth/jwt'

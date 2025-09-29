@@ -1,19 +1,17 @@
 'use client';
 import Image from 'next/image';
-import { MapPin, Heart } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { NeoCard, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
-import { NeoButton } from '@/components/ui/neo-button';
+import { FavoriteButton } from '@/components/favorites/FavoriteButton';
 import type { ListingDetailDTO } from '@/types/dto';
 import { FALLBACK_IMAGE } from '@/lib/dto-transformer';
 
 interface HeroSectionProps {
   listing: ListingDetailDTO;
-  isFavorited?: boolean;
-  onToggleFavorite?: () => void;
 }
 
 export function HeroSection(props: Readonly<HeroSectionProps>) {
-  const { listing, isFavorited = false, onToggleFavorite } = props;
+  const { listing } = props;
   const hasRealHeroImage =
     typeof listing.imageUrl === 'string' &&
     listing.imageUrl.length > 0 &&
@@ -35,18 +33,12 @@ export function HeroSection(props: Readonly<HeroSectionProps>) {
         
         {/* Favorite Button Overlay */}
         <div className="absolute top-4 right-4">
-          <NeoButton
-            variant={isFavorited ? "accent" : "secondary"}
-            size="sm"
-            className="bg-white/90 hover:bg-white"
-            onClick={onToggleFavorite}
-            aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
-          >
-            <Heart 
-              size={20} 
-              className={isFavorited ? "fill-current text-red-500" : "text-gray-600"} 
+            <FavoriteButton 
+              listingId={listing.id}
+              listingTitle={listing.name}
+              size="sm"
+              className="bg-white/90 hover:bg-white"
             />
-          </NeoButton>
         </div>
       </div>
 

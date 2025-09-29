@@ -30,14 +30,16 @@ jest.mock('mongoose', () => ({
   },
 }));
 
-import { Ratelimit } from '@upstash/ratelimit';
 import { getRedisClient } from '@/lib/redis';
 import dbConnect from '@/lib/dbConnect';
 import mongoose from 'mongoose';
-import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit';
+import {
+  enforceLoginRateLimit,
+  recordLoginAttempt,
+  __resetLoginRateLimiterForTests,
+  __getLastRateLimiterConfigForTests,
+} from '@/lib/auth/rateLimit';
 
-// Type the mocks
-const mockRatelimit = Ratelimit as jest.MockedClass<typeof Ratelimit>;
 const mockDbConnect = dbConnect as jest.MockedFunction<typeof dbConnect>;
 const mockMongoose = mongoose as jest.Mocked<typeof mongoose>;
 
@@ -77,38 +79,44 @@ const mockCollection = {
 describe('Rate Limiting and Redis Integration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Ensure we're in test environment for mock attachment
     process.env.NODE_ENV = 'test';
     process.env.JEST_WORKER_ID = '1';
-    
+
     // Setup default mocks
-    mockGetRedisClient.mockReturnValue(mockRedisClient);
-    // Ratelimit is now automatically mocked to return mockRateLimiterInstance
+    mockGetRedisClient.mockClear?.();
     mockDbConnect.mockResolvedValue(undefined);
-    
+
     // Mock mongoose connection
     mockMongoose.connection.collection.mockReturnValue(mockCollection);
-    
+
     // Mock environment
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
+    (globalThis as any).__TEST_LOGIN_RATE_LIMITER__ = mockRateLimiterInstance;
+    __resetLoginRateLimiterForTests();
+    mockGetRedisClient.mockReturnValue(mockRedisClient);
   });
 
   afterEach(() => {
     delete process.env.MONGODB_URI;
     delete process.env.NODE_ENV;
     delete process.env.JEST_WORKER_ID;
+    delete (globalThis as any).__TEST_LOGIN_RATE_LIMITER__;
   });
 
   describe('Rate Limiter Configuration', () => {
     it('should create rate limiter with correct configuration when Redis is available', () => {
-      // The rate limiter should be created during module import
-      expect(mockRatelimit).toHaveBeenCalledWith({
-        redis: mockRedisClient,
-        limiter: expect.any(Object), // Ratelimit.slidingWindow(5, '1 m')
-        analytics: true,
-        prefix: 'auth:login',
-      });
+      const config = __getLastRateLimiterConfigForTests();
+
+      expect(config).toEqual(
+        expect.objectContaining({
+          redis: mockRedisClient,
+          analytics: true,
+          prefix: 'auth:login',
+        }),
+      );
+      expect(config?.limiter).toBeDefined();
     });
 
     it('should handle missing Redis client gracefully', () => {
@@ -183,6 +191,8 @@ describe('Rate Limiting and Redis Integration', () => {
       it('should fail-open when rate limiter is unavailable', async () => {
         // Mock no Redis client
         mockGetRedisClient.mockReturnValue(undefined);
+        delete (globalThis as any).__TEST_LOGIN_RATE_LIMITER__;
+        __resetLoginRateLimiterForTests();
 
         const result = await enforceLoginRateLimit('user@example.com:192.168.1.1');
 
@@ -463,6 +473,8 @@ describe('Rate Limiting and Redis Integration', () => {
     describe('Error Handling', () => {
       it('should handle missing MongoDB URI gracefully', async () => {
         delete process.env.MONGODB_URI;
+        mockDbConnect.mockClear();
+        mockCollection.insertOne.mockClear();
 
         await recordLoginAttempt({
           email: 'user@example.com',
@@ -588,19 +600,13 @@ describe('Rate Limiting and Redis Integration', () => {
 
   describe('Monitoring and Analytics', () => {
     it('should enable analytics on rate limiter', () => {
-      expect(mockRatelimit).toHaveBeenCalledWith(
-        expect.objectContaining({
-          analytics: true,
-        })
-      );
+      const config = __getLastRateLimiterConfigForTests();
+      expect(config?.analytics).toBe(true);
     });
 
     it('should use appropriate prefix for rate limiting keys', () => {
-      expect(mockRatelimit).toHaveBeenCalledWith(
-        expect.objectContaining({
-          prefix: 'auth:login',
-        })
-      );
+      const config = __getLastRateLimiterConfigForTests();
+      expect(config?.prefix).toBe('auth:login');
     });
   });
 });

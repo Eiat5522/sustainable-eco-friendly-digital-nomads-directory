@@ -18,17 +18,7 @@
 
 // Cover imports without the .js extension as well.
 declare module '../../../../sanity/schemas/amenities' {
-  const schema: {
-    name: string;
-    title: string;
-    type: string;
-    fields?: Array<{
-      name?: string;
-      title?: string;
-      type?: string;
-      options?: unknown;
-    }>;
-  };
+  const schema: import('sanity').SchemaTypeDefinition;
   export default schema;
 }
 
