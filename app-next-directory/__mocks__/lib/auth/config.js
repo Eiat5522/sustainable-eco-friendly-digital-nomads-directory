@@ -1,9 +1,9 @@
-const { jest } = require('@jest/globals');
+import { jest } from '@jest/globals';
 
-const isEmailVerificationRequired = jest.fn(() => false);
+export const isEmailVerificationRequired = jest.fn();
 
-const exported = {
+isEmailVerificationRequired.mockReturnValue(false);
+
+export default {
   isEmailVerificationRequired,
 };
-
-module.exports = { __esModule: true, default: exported, isEmailVerificationRequired };
