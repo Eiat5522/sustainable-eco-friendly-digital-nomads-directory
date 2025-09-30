@@ -76,9 +76,9 @@ describe('getUserDashboardData - venue owner metrics', () => {
 
       const data = result!.data as VenueOwnerDashboardDTO;
       expect(data.totals.viewCount).toBe(120);
-      expect(data.monthlyTotals[0].viewCount).toBe(25);
+      expect(data.monthlyTotals[0].monthlyViewCount).toBe(25);
       expect(data.listings[0].summary.viewCount).toBe(120);
-      expect(data.listings[0].monthly[0].viewCount).toBe(25);
+      expect(data.listings[0].monthly[0].monthlyViewCount).toBe(25);
       expect(data.notices).toHaveLength(0);
     } finally {
       jest.useRealTimers();

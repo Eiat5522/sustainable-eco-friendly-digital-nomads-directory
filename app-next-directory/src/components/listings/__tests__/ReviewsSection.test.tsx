@@ -168,10 +168,10 @@ describe('submitReview', () => {
     const fetcher = jest.fn()
 
     expect(
-      await submitReview({ review: { rating: 0, comment: 'Missing rating' }, listingId: 'listing-1', fetcher })
+      await submitReview({ review: { rating: 0, comment: 'Missing rating' }, listingId: 'test-listing', fetcher })
     ).toEqual({ type: 'error', message: 'Please provide a rating and comment.' })
     expect(
-      await submitReview({ review: { rating: 4, comment: '   ' }, listingId: 'listing-1', fetcher })
+      await submitReview({ review: { rating: 4, comment: '   ' }, listingId: 'test-listing', fetcher })
     ).toEqual({ type: 'error', message: 'Please provide a rating and comment.' })
     expect(fetcher).not.toHaveBeenCalled()
   })
@@ -183,7 +183,7 @@ describe('submitReview', () => {
 
     const result = await submitReview({
       review: { rating: 5, comment: 'Excellent stay' },
-      listingId: 'listing-1',
+      listingId: 'test-listing',
       fetcher,
     })
 
@@ -192,7 +192,7 @@ describe('submitReview', () => {
       '/api/reviews',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ rating: 5, comment: 'Excellent stay', listingId: 'listing-1' }),
+        body: JSON.stringify({ rating: 5, comment: 'Excellent stay', listingId: 'test-listing' }),
       })
     )
   })
@@ -208,7 +208,7 @@ describe('submitReview', () => {
     await expect(
       submitReview({
         review: { rating: 4, comment: 'Parsing issue' },
-        listingId: 'listing-1',
+        listingId: 'test-listing',
         fetcher,
       })
     ).resolves.toEqual({ type: 'success', review: null })
@@ -230,13 +230,13 @@ describe('submitReview', () => {
       )
 
     expect(
-      await submitReview({ review: { rating: 4, comment: 'Test' }, listingId: 'listing-1', fetcher })
+      await submitReview({ review: { rating: 4, comment: 'Test' }, listingId: 'test-listing', fetcher })
     ).toEqual({ type: 'unauthorized' })
     expect(
-      await submitReview({ review: { rating: 4, comment: 'Test' }, listingId: 'listing-1', fetcher })
+      await submitReview({ review: { rating: 4, comment: 'Test' }, listingId: 'test-listing', fetcher })
     ).toEqual({ type: 'forbidden' })
     expect(
-      await submitReview({ review: { rating: 4, comment: 'Test' }, listingId: 'listing-1', fetcher })
+      await submitReview({ review: { rating: 4, comment: 'Test' }, listingId: 'test-listing', fetcher })
     ).toEqual({ type: 'conflict' })
   })
 
@@ -247,7 +247,7 @@ describe('submitReview', () => {
 
     const result = await submitReview({
       review: { rating: 2, comment: 'Issue' },
-      listingId: 'listing-1',
+      listingId: 'test-listing',
       fetcher,
     })
 
@@ -264,7 +264,7 @@ describe('submitReview', () => {
 
     const result = await submitReview({
       review: { rating: 3, comment: 'Broken' },
-      listingId: 'listing-1',
+      listingId: 'test-listing',
       fetcher,
     })
 
@@ -272,12 +272,12 @@ describe('submitReview', () => {
   })
 })
 
-beforeEach(() => {
+  beforeEach(() => {
   jest.clearAllMocks()
   mockFetch.mockReset()
   global.fetch = mockFetch as unknown as typeof fetch
-  window.history.replaceState({}, '', 'http://localhost/listings/listing-1')
-  mockGetCurrentHref.mockReturnValue('http://localhost/listings/listing-1')
+  window.history.replaceState({}, '', 'http://localhost/listings/test-listing')
+  mockGetCurrentHref.mockReturnValue('http://localhost/listings/test-listing')
   mockUseRouter.mockReturnValue({
     push: mockPush,
     refresh: mockRefresh,
@@ -309,7 +309,7 @@ describe('ReviewsSection', () => {
   })
 
   it('renders review metadata and calculates averages', () => {
-    render(<ReviewsSection reviews={defaultReviews} listingId="listing-1" isSignedIn />)
+  render(<ReviewsSection reviews={defaultReviews} listingId="test-listing" isSignedIn />)
 
     expect(screen.getByTestId('neo-card-title')).toHaveTextContent('Reviews (2)')
     expect(screen.getByText('4.5 average')).toBeInTheDocument()
@@ -318,7 +318,7 @@ describe('ReviewsSection', () => {
   })
 
   it('displays individual reviews with formatted dates and separators', () => {
-    render(<ReviewsSection reviews={defaultReviews} listingId="listing-1" isSignedIn />)
+  render(<ReviewsSection reviews={defaultReviews} listingId="test-listing" isSignedIn />)
 
     expect(screen.getByText('John Doe')).toBeInTheDocument()
     expect(screen.getByText('Excellent place! Great atmosphere and eco-friendly practices.')).toBeInTheDocument()
@@ -329,14 +329,14 @@ describe('ReviewsSection', () => {
   })
 
   it('shows an empty state when there are no reviews', () => {
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+  render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     expect(screen.getByText('No reviews yet')).toBeInTheDocument()
     expect(screen.getByText('Be the first to share your experience!')).toBeInTheDocument()
   })
 
   it('renders the sign-in prompt for non-authenticated users with callback', async () => {
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn={false} />)
+  render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn={false} />)
 
     expect(screen.getByText('Sign in to leave a review')).toBeInTheDocument()
 
@@ -350,7 +350,7 @@ describe('ReviewsSection', () => {
   })
 
   it('defaults to the signed-out experience when isSignedIn is omitted', async () => {
-    render(<ReviewsSection reviews={[]} listingId="listing-1" />)
+  render(<ReviewsSection reviews={[]} listingId="test-listing" />)
 
     await waitFor(() => {
       expect(screen.getByTestId('next-link')).toHaveAttribute(
@@ -363,7 +363,7 @@ describe('ReviewsSection', () => {
   })
 
   it('allows authenticated users to interact with the review form', async () => {
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+  render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     expect(screen.getByTestId('neo-card-title')).toHaveTextContent('Reviews (0)')
     expect(screen.getByTestId('star-rating-interactive')).toBeInTheDocument()
@@ -381,7 +381,7 @@ describe('ReviewsSection', () => {
       mockResponse({ id: 'new-review' }) as unknown as FetchReturn
     )
 
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+  render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     const textarea = fillReviewForm(5, 'Outstanding place!')
     const submitButton = screen.getByRole('button', { name: /submit review/i })

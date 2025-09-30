@@ -12,10 +12,10 @@
 import { createClient } from '@sanity/client';
 
 const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'your_project_id',
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
   token: process.env.SANITY_API_TOKEN,
-  apiVersion: '2023-05-03',
+  apiVersion: '2025-02-19',
   useCdn: false,
 });
 
@@ -55,7 +55,9 @@ async function findOrphanFavorites() {
 
   console.log(`Found ${favoritesWithBrokenRefs.length} favorites with broken references`);
 
-  return [...orphanFavorites, ...favoritesWithBrokenRefs];
+  const allOrphans = [...orphanFavorites, ...favoritesWithBrokenRefs];
+  const uniqueOrphans = Array.from(new Map(allOrphans.map(item => [item._id, item])).values());
+  return uniqueOrphans;
 }
 
 async function cleanupOrphanFavorites(dryRun = true) {
@@ -78,20 +80,38 @@ async function cleanupOrphanFavorites(dryRun = true) {
   if (dryRun) {
     console.log('🔒 DRY RUN MODE: No changes will be made.');
     console.log('To actually delete these orphan favorites, run with --delete flag');
-    return orphans;
+    return { dryRun: true, orphans, deletedCount: 0 };
   }
-
   console.log('🗑️ Deleting orphan favorites...');
   
-  const transaction = client.transaction();
-  orphans.forEach(favorite => {
-    transaction.delete(favorite._id);
-  });
+  const BATCH_SIZE = 100;
+  const results = [];
+  
+  for (let i = 0; i < orphans.length; i += BATCH_SIZE) {
+    const batch = orphans.slice(i, i + BATCH_SIZE);
+    const transaction = client.transaction();
+    batch.forEach(favorite => {
+      transaction.delete(favorite._id);
+    });
+  
+    try {
+      const result = await transaction.commit();
+      results.push(result);
+      console.log(`✅ Deleted batch ${Math.floor(i / BATCH_SIZE) + 1} (${batch.length} items)`);
+    } catch (error) {
+      console.error(`❌ Error deleting batch ${Math.floor(i / BATCH_SIZE) + 1}:`, error);
+      throw error;
+    }
+  }
+  
+  console.log(`✅ Successfully deleted ${orphans.length} orphan favorites`);
+  return results;
+}
 
   try {
     const result = await transaction.commit();
     console.log(`✅ Successfully deleted ${orphans.length} orphan favorites`);
-    return result;
+    return { dryRun: false, orphans, deletedCount: orphans.length, result };
   } catch (error) {
     console.error('❌ Error deleting orphan favorites:', error);
     throw error;
@@ -136,6 +156,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     try {
       if (!process.env.SANITY_API_TOKEN) {
         console.error('❌ SANITY_API_TOKEN environment variable is required');
+        process.exit(1);
+      }
+      if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
+        console.error('❌ NEXT_PUBLIC_SANITY_PROJECT_ID environment variable is required');
+        process.exit(1);
+      }
+      if (!process.env.NEXT_PUBLIC_SANITY_DATASET) {
+        console.error('❌ NEXT_PUBLIC_SANITY_DATASET environment variable is required');
         process.exit(1);
       }
 

@@ -7,4 +7,3 @@ const exported = {
 };
 
 module.exports = { __esModule: true, default: exported, isEmailVerificationRequired };
-exports.isEmailVerificationRequired = isEmailVerificationRequired;

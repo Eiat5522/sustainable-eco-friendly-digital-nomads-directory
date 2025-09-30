@@ -10,6 +10,7 @@ interface HeroSectionProps {
   listing: ListingDetailDTO;
   // Optional controlled favorite props for integration tests / parent control
   isFavorited?: boolean;
+  onToggleFavorite?: () => Promise<void> | void;
 }
 
 export function HeroSection(props: Readonly<HeroSectionProps>) {
@@ -42,6 +43,7 @@ export function HeroSection(props: Readonly<HeroSectionProps>) {
               size="sm"
               className="bg-white/90 hover:bg-white"
               isFavorited={props.isFavorited}
+              onToggle={props.onToggleFavorite}
             />
           </div>
         </div>

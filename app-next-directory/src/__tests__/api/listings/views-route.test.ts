@@ -5,7 +5,7 @@ jest.mock('@/lib/metrics/listing-views', () => ({
 import { POST } from '../../../../app/api/listings/[slug]/views/route';
 import { recordListingView } from '@/lib/metrics/listing-views';
 
-describe('POST /api/listings/[listingId]/views', () => {
+describe('POST /api/listings/[slug]/views', () => {
   const mockRecord = recordListingView as jest.MockedFunction<typeof recordListingView>;
 
   beforeEach(() => {
@@ -15,7 +15,7 @@ describe('POST /api/listings/[listingId]/views', () => {
   it('rejects requests without a listing id', async () => {
     const request = new Request('http://localhost/api/listings//views', { method: 'POST' });
 
-    const response = await POST(request as any, { params: { listingId: '' } });
+  const response = await POST(request as any, { params: { slug: '' } });
 
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toEqual({ error: 'Listing ID is required' });
@@ -26,7 +26,7 @@ describe('POST /api/listings/[listingId]/views', () => {
     mockRecord.mockResolvedValueOnce();
     const request = new Request('http://localhost/api/listings/listing-123/views', { method: 'POST' });
 
-    const response = await POST(request as any, { params: { listingId: 'listing-123' } });
+  const response = await POST(request as any, { params: { slug: 'listing-123' } });
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ success: true });
@@ -42,7 +42,7 @@ describe('POST /api/listings/[listingId]/views', () => {
       body: JSON.stringify({ viewedAt: iso }),
     });
 
-    const response = await POST(request as any, { params: { listingId: 'listing-999' } });
+  const response = await POST(request as any, { params: { slug: 'listing-999' } });
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ success: true });

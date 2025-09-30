@@ -424,7 +424,7 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 
 ### Reviews Endpoints
 
-#### `GET /api/reviews/[listingId]`
+#### `GET /api/reviews/listing/[slug]`
 
 **Purpose**: Get reviews for a listing
 **Access**: Public

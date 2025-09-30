@@ -198,8 +198,8 @@ export interface DashboardTimeSeriesPointDTO {
   reviewCount: number;
   avgRating: number | null;
   favoritesCount: number;
-  /** Totals only; monthly breakdown currently unavailable */
-  viewCount: number | null;
+  /** Monthly views recorded for this period; null when analytics are unavailable */
+  monthlyViewCount: number | null;
 }
 
 export interface DashboardListingSummaryDTO {

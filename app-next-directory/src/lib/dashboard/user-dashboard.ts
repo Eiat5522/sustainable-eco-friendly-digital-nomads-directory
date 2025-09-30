@@ -199,7 +199,7 @@ export async function getUserDashboardData(
         reviewCount: monthReviews.length,
         avgRating: normaliseAvg(monthReviewSum, monthReviews.length),
         favoritesCount: monthFavorites.length,
-        viewCount: null,
+        monthlyViewCount: null,
       };
     });
 
@@ -277,7 +277,7 @@ export async function getUserDashboardData(
           reviewCount: 0,
           avgRating: null,
           favoritesCount: 0,
-          viewCount: null,
+          monthlyViewCount: null,
         })),
         notices: ['No linked listings were found for this account.'],
       },
@@ -332,7 +332,7 @@ export async function getUserDashboardData(
     label: bucket.label,
     reviewCount: 0,
     favoritesCount: 0,
-    viewCount: 0,
+    monthlyViewCount: 0,
   }));
   const monthlyRatingAccumulators = buckets.map(() => ({ sum: 0, count: 0 }));
 
@@ -395,7 +395,7 @@ export async function getUserDashboardData(
 
       const byListingViews = monthlyViewMetrics.get(listing.id);
       const monthViewCount = byListingViews?.get(bucket.key) ?? 0;
-      monthlyTotalsBase[index].viewCount += monthViewCount;
+      monthlyTotalsBase[index].monthlyViewCount += monthViewCount;
 
       return {
         month: bucket.key,
@@ -403,7 +403,7 @@ export async function getUserDashboardData(
         reviewCount: monthReviews.length,
         avgRating: normaliseAvg(monthReviewSum, monthReviews.length),
         favoritesCount: monthFavorites.length,
-        viewCount: monthViewCount,
+        monthlyViewCount: hasMonthlyViewData ? monthViewCount : null,
       };
     });
 
@@ -422,6 +422,7 @@ export async function getUserDashboardData(
 
   const monthlyTotals = monthlyTotalsBase.map((entry, index) => ({
     ...entry,
+    monthlyViewCount: hasMonthlyViewData ? entry.monthlyViewCount : null,
     avgRating: normaliseAvg(
       monthlyRatingAccumulators[index].sum,
       monthlyRatingAccumulators[index].count,

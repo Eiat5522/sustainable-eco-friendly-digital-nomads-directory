@@ -111,11 +111,11 @@ favoritesResults.forEach(result => {
 
 // Check individual favorite endpoint
 const favoriteSingleResults = checkApiImplementation(
-  'src/app/api/user/favorites/[listingId]/route.ts',
+  'src/app/api/user/favorites/[slug]/route.ts',
   ['DELETE']
 );
-console.log('  ❤️ Individual Favorite API (/api/user/favorites/[listingId]):');
-  favoriteSingleResults.forEach(result => {
+console.log('  ❤️ Individual Favorite API (/api/user/favorites/[slug]):');
+favoriteSingleResults.forEach(result => {
   console.log(`    ${result.implemented ? '✅' : '❌'} ${result.method} method`);
 });
 

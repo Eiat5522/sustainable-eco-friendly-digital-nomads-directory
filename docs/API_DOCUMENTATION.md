@@ -143,7 +143,7 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 
 ```
 
-#### `DELETE /api/user/favorites/[listingId]`
+#### `DELETE /api/user/favorites/[slug]`
 
 **Purpose**: Remove listing from favorites
 **Access**: Authenticated users
@@ -620,7 +620,7 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 
 ### Reviews Endpoints
 
-#### `GET /api/reviews/[listingId]`
+#### `GET /api/reviews/[slug]`
 
 **Purpose**: Get reviews for a listing
 **Access**: Public

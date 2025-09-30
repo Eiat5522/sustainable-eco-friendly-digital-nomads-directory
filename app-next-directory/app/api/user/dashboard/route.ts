@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { auth } from '@/lib/auth';
 import { getUserDashboardData } from '@/lib/dashboard/user-dashboard';
+import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 
 const DEFAULT_MONTH_WINDOW = 3;
@@ -49,7 +50,15 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ dashboard });
   } catch (error) {
-    console.error('[user-dashboard] GET failed', error);
+    const logMessage = '[user-dashboard] GET failed';
+    if (structuredLogger?.error) {
+      structuredLogger.error(logMessage, error, {
+        handler: 'GET /api/user/dashboard',
+        route: '/api/user/dashboard',
+      });
+    } else {
+      console.error(logMessage, error);
+    }
     return NextResponse.json({ error: 'Unable to load dashboard data' }, { status: 500 });
   }
 }

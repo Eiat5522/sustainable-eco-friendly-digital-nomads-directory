@@ -13,6 +13,8 @@ interface FavoriteButtonProps {
   size?: 'sm' | 'md' | 'lg';
   // Optional controlled initial favorited state (useful for parent components/tests)
   isFavorited?: boolean;
+  // Optional external toggle handler (parent can handle the network request)
+  onToggle?: () => Promise<void> | void;
 }
 
 export function FavoriteButton({ 
@@ -20,11 +22,13 @@ export function FavoriteButton({
   listingTitle,
   className = '',
   showText = false,
-  size = 'md'
-  , isFavorited: initialIsFavorited
+  size = 'md',
+  isFavorited: initialIsFavorited
+  onToggle,
 }: FavoriteButtonProps) {
   const { data: session } = useSession();
-  const [isFavoritedState, setIsFavoritedState] = useState<boolean>(Boolean(initialIsFavorited ?? false));
+  const [isFavoritedState, setIsFavoritedState] = useState<boolean>(initialIsFavorited ?? false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
 
@@ -47,8 +51,8 @@ export function FavoriteButton({
         const response = await fetch('/api/user/favorites');
         if (response.ok) {
           const data = await response.json();
-          const isFav = data.data?.some((fav: { listingId: string }) => fav.listingId === listingId);
-          setIsFavoritedState(isFav || false);
+          const isFav = data.data?.some((fav: { listingId: string }) => fav.listingId === listingId) ?? false;
+          setIsFavoritedState(isFav);
         }
       } catch (error) {
         console.error('Error checking favorite status:', error);
@@ -72,10 +76,26 @@ export function FavoriteButton({
 
     if (!listingId) return;
 
+    // If a parent provided an onToggle handler, delegate the network action to it
+    if (typeof onToggle === 'function') {
+      setIsLoading(true);
+      try {
+        await onToggle();
+        // Parent is expected to update the prop 'isFavorited' which will
+        // be picked up by the effect that watches `initialIsFavorited`.
+      } catch (error) {
+        console.error('Error in parent onToggle handler:', error);
+        alert('An error occurred. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-  if (isFavoritedState) {
+      if (isFavoritedState) {
         // Remove from favorites
         const response = await fetch(`/api/user/favorites/${listingId}`, {
           method: 'DELETE',
@@ -120,7 +140,7 @@ export function FavoriteButton({
         className={`${className} animate-pulse`}
         disabled
         data-testid="favorite-button"
-        aria-label={isFavoritedState ? 'Remove from favorites' : 'Add to favorites'}
+        aria-label="Checking favorite status"
       >
         <Heart className={`${size === 'sm' ? 'h-4 w-4' : 'h-5 w-5'}`} />
         {showText && <span className="ml-1">...</span>}

@@ -7,7 +7,7 @@ import { getCurrentHref, redirectTo } from '@/utils/navigation'
 const originalFetch = global.fetch
 const mockFetch = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>()
 const originalHref = window.location.href
-const defaultListingHref = 'http://localhost/listings/listing-1'
+const defaultListingHref = 'http://localhost/listings/test-listing'
 
 jest.mock('@/utils/navigation', () => ({
   getCurrentHref: jest.fn(),
@@ -188,7 +188,7 @@ describe('ListingDetailView', () => {
 
     expect(screen.getByTestId('hero-section')).toBeInTheDocument()
     expect(screen.getByTestId('listing-details-card')).toBeInTheDocument()
-    expect(screen.getByTestId('reviews-section')).toHaveAttribute('data-listing-id', 'listing-1')
+    expect(screen.getByTestId('reviews-section')).toHaveAttribute('data-listing-id', 'test-listing')
     expect(screen.getByTestId('gallery-grid')).toHaveAttribute('data-image-count', '2')
     expect(screen.getByTestId('related-listings')).toHaveAttribute('data-count', '1')
   })
@@ -196,7 +196,7 @@ describe('ListingDetailView', () => {
   it('applies default props when optional values are omitted', () => {
     render(<ListingDetailView listing={baseListing} />)
 
-    expect(screen.getByTestId('reviews-section')).toHaveAttribute('data-listing-id', 'listing-1')
+    expect(screen.getByTestId('reviews-section')).toHaveAttribute('data-listing-id', 'test-listing')
     expect(screen.getByTestId('reviews-count')).toHaveTextContent('0')
     expect(screen.getByTestId('signin-status')).toHaveTextContent('not-signed-in')
   })
@@ -258,7 +258,7 @@ describe('ListingDetailView', () => {
 
     expect(mockGetCurrentHref).toHaveBeenCalled()
     expect(mockRedirectTo).toHaveBeenCalledWith(
-      '/auth/login?callbackUrl=http%3A%2F%2Flocalhost%2Flistings%2Flisting-1'
+      '/auth/login?callbackUrl=http%3A%2F%2Flocalhost%2Flistings%2Ftest-listing'
     )
     expect(mockFetch).not.toHaveBeenCalled()
   })
@@ -282,7 +282,7 @@ describe('ListingDetailView', () => {
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith(
-        `/api/user/favorites/${baseListing.id}`,
+        `/api/user/favorites/${baseListing.slug}`,
         expect.objectContaining({
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -342,7 +342,7 @@ describe('ListingDetailView', () => {
     await waitFor(() => {
       expect(mockGetCurrentHref).toHaveBeenCalled()
       expect(mockRedirectTo).toHaveBeenCalledWith(
-        '/auth/login?callbackUrl=http%3A%2F%2Flocalhost%2Flistings%2Flisting-1'
+        '/auth/login?callbackUrl=http%3A%2F%2Flocalhost%2Flistings%2Ftest-listing'
       )
     })
   })

@@ -79,6 +79,8 @@ export function ListingDetailView({
     };
   }, [listing?.slug]);
 
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+  
   const onToggleFavorite = async () => {
     // If the user isn't signed in, redirect to login with callback
     if (!isSignedIn) {
@@ -106,6 +108,9 @@ export function ListingDetailView({
         return
       }
 
+      // Prevent double-clicks
+      if (isTogglingFavorite) return;
+      setIsTogglingFavorite(true);
       const data = await res.json()
       setFavorited(Boolean(data?.favorited))
     } catch (err) {

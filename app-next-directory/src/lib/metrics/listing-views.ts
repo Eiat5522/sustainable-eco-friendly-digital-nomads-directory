@@ -16,14 +16,17 @@ function ensureMonthKey(date: Date): string {
   return `${year}-${month}`;
 }
 
+let indexPromise: Promise<void> | null = null;
+
 async function getMetricsCollection() {
   const collection = await getCollection(COLLECTION_NAME);
-  // Ensure index only once per process
-  await collection.createIndex({ listingId: 1, month: 1 }, { unique: true }).catch((error: unknown) => {
-    if (!(error instanceof Error) || !error.message.includes('already exists')) {
-      throw error;
-    }
-  });
+  if (!indexPromise) {
+    indexPromise = collection.createIndex({ listingId: 1, month: 1 }, { unique: true }).catch((error: unknown) => {
+      if (!(error instanceof Error) || !error.message.includes('already exists')) {
+        throw error;
+      }
+    });
+  }
   return collection as {
     updateOne: typeof import('mongodb').Collection.prototype.updateOne;
     find: typeof import('mongodb').Collection.prototype.find;

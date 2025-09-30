@@ -72,9 +72,8 @@ export let getRetryAfterMs = (key: string): number => {
 // .mockReturnValue/.mockResolvedValue and use Jest matchers like
 // toHaveBeenCalledWith. This preserves the original implementation for
 // non-test runtimes.
-if (process.env.NODE_ENV === 'local' || process.env.JEST_WORKER_ID) {
-  try {
-    const { jest } = require('@jest/globals') as typeof import('@jest/globals');
+if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
+  if (typeof jest !== 'undefined') {
     const originalGetClientIp = getClientIp;
     const originalIsRateLimited = isRateLimited;
     const originalGetRetryAfterMs = getRetryAfterMs;
@@ -82,8 +81,8 @@ if (process.env.NODE_ENV === 'local' || process.env.JEST_WORKER_ID) {
     getClientIp = jest.fn(originalGetClientIp) as typeof getClientIp;
     isRateLimited = jest.fn(originalIsRateLimited) as typeof isRateLimited;
     getRetryAfterMs = jest.fn(originalGetRetryAfterMs) as typeof getRetryAfterMs;
-  } catch (err) {
-    console.warn('Failed to initialize Jest mocks for rate-limit module:', err);
+  } else {
+    console.warn('Jest not available for mocking in rate-limit module');
   }
 }
 

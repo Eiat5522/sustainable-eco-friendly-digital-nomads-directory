@@ -178,7 +178,7 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     galleryImages[]{
       asset->{
         url
-       }
+      }
     },
     "primaryImage": primaryImage{
       asset->{

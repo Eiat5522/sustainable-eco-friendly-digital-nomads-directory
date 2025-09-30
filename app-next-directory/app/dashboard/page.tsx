@@ -143,7 +143,7 @@ function VenueOwnerView({ data, range }: { data: VenueOwnerDashboardDTO; range: 
                 <th scope="col" className="px-4 py-3">Reviews</th>
                 <th scope="col" className="px-4 py-3">Avg rating</th>
                 <th scope="col" className="px-4 py-3">Favourites</th>
-                <th scope="col" className="px-4 py-3">Views*</th>
+                <th scope="col" className="px-4 py-3">Monthly views*</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neo-border/40 bg-white/90">
@@ -153,13 +153,15 @@ function VenueOwnerView({ data, range }: { data: VenueOwnerDashboardDTO; range: 
                   <td className="px-4 py-3">{formatCount(month.reviewCount)}</td>
                   <td className="px-4 py-3">{formatAvgRating(month.avgRating)}</td>
                   <td className="px-4 py-3">{formatCount(month.favoritesCount)}</td>
-                  <td className="px-4 py-3">{formatCount(month.viewCount)}</td>
+                  <td className="px-4 py-3">{formatCount(month.monthlyViewCount)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="text-xs text-neo-text-tertiary">* View analytics currently display lifetime totals where available.</p>
+        <p className="text-xs text-neo-text-tertiary">
+          * View analytics populate once monthly tracking is enabled; otherwise the dashboard shows — for that period.
+        </p>
       </div>
 
       {data.notices.length > 0 && (

@@ -102,8 +102,15 @@ const reviewInputSchema = z.object({
     .min(1, 'Rating must be a number between 1 and 5.')
     .max(5, 'Rating must be a number between 1 and 5.'),
   comment: z.string().trim().min(20, 'Comment must be at least 20 characters.'),
-  ecoRating: z.coerce.number().min(1).max(5).optional(),
-  nomadRating: z.coerce.number().min(1).max(5).optional(),
+  ecoRating: z.coerce.number({ invalid_type_error: 'Eco rating must be a number between 1 and 5.' })
+    .min(1, 'Eco rating must be between 1 and 5.')
+    .max(5, 'Eco rating must be between 1 and 5.')
+    .optional(),
+  nomadRating: z.coerce.number({ invalid_type_error: 'Nomad rating must be a number between 1 and 5.' })
+    .min(1, 'Nomad rating must be between 1 and 5.')
+    .max(5, 'Nomad rating must be between 1 and 5.')
+    .optional(),
+
 }).passthrough();
 
 export async function POST(request: NextRequest) {
@@ -132,7 +139,7 @@ export async function POST(request: NextRequest) {
       const firstError = result.error.errors[0]?.message ?? 'Invalid review data';
       return ApiResponseHandler.error(firstError, 422, result.error.format());
     }
-    parsed = { ...result.data, comment: result.data.comment.trim() };
+    parsed = result.data;
   } catch (error) {
     return ApiResponseHandler.error('Invalid review data', 422);
   }
