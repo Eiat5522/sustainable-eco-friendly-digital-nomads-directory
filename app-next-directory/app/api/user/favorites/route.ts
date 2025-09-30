@@ -90,20 +90,6 @@ export async function POST(request: NextRequest) {
     }
     const listingId = listing._id;
 
-    // Check if already favorited
-    const existingFavorite = await client.fetch(
-      `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
-      { userId, listingId }
-    );
-
-    if (existingFavorite) {
-      return NextResponse.json({ 
-        favorited: true, 
-        message: 'Already in favorites',
-        favoriteId: existingFavorite._id 
-      });
-    }
-
     const favoriteId = `userFavorite-${sanityUser._id}-${listingId}`;
     const favorite = await client.createOrReplace({
       _id: favoriteId,

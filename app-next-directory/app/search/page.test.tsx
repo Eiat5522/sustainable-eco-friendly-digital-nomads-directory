@@ -9,12 +9,33 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(''),
 }))
 
+jest.doMock('@/components/layout/Header', () => ({
+  __esModule: true,
+  default: function MockHeader() {
+    return <div data-testid="header" />;
+  },
+}));
+
+jest.doMock('@/components/layout/Footer', () => ({
+  __esModule: true,
+  default: function MockFooter() {
+    return <div data-testid="footer" />;
+  },
+}));
+
+jest.doMock('@/components/search/SearchFiltersForm', () => ({
+  __esModule: true,
+  default: function MockSearchFiltersForm() {
+    return <div data-testid="search-filters-form" />;
+  },
+}));
+
 // Create a test version of the page that doesn't use async searchParams
 function TestSearchPage() {
-  const { Header } = require('@/components/layout/Header')
-  const { Footer } = require('@/components/layout/Footer') 
-  const { SearchFiltersForm } = require('@/components/search/SearchFiltersForm')
-  
+  const Header = require('@/components/layout/Header').default;
+  const Footer = require('@/components/layout/Footer').default;
+  const SearchFiltersForm = require('@/components/search/SearchFiltersForm').default;
+
   return (
     <div className="min-h-screen bg-background">
       <Header />

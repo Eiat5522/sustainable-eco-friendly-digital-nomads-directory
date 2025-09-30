@@ -8,10 +8,10 @@ jest.mock('mongodb', () => {
   class MockMongoClient {
     connect() {
       if (mockClientBehavior === 'invalid-client') {
-        return Promise.resolve(null);
+        return Promise.reject(new Error('Invalid client'));
       }
       if (mockClientBehavior === 'no-db-function') {
-        return Promise.resolve({});
+        return Promise.reject(new Error('No db function'));
       }
       if (mockClientBehavior === 'invalid-db') {
         return Promise.resolve({
@@ -159,7 +159,7 @@ describe('db-helpers', () => {
     const { getDatabase } = require('../utils/db-helpers');
     await expect(getDatabase()).rejects.toThrow('MongoDB client is invalid or not connected');
   });
-
+ 
   it('handles client without db function', async () => {
     mockClientBehavior = 'no-db-function';
     jest.resetModules();

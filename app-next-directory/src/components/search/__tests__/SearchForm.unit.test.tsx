@@ -128,8 +128,7 @@ describe('SearchForm Unit Tests', () => {
   test('handles filter panel toggle', async () => {
     const user = userEvent.setup();
     render(<SearchForm />);
-
-    const filterButton = screen.getByRole('button', { name: 'Filters' });
+    const filterButton = screen.getByRole('button', { name: 'Show filters' });
     
     // Initially closed
     expect(filterButton).toHaveAttribute('aria-expanded', 'false');
@@ -206,7 +205,7 @@ describe('SearchForm Unit Tests', () => {
     // Tab through form elements
     const searchInput = screen.getByLabelText('Search for eco-friendly venues');
     const categorySelect = screen.getByLabelText('Filter by venue category');
-    const filterButton = screen.getByRole('button', { name: 'Filters' });
+    const filterButton = screen.getByRole('button', { name: 'Show filters' });
 
     // Test tab order
     searchInput.focus();

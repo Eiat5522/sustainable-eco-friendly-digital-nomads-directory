@@ -14,6 +14,7 @@ export function Header() {
   const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? ''
   const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in'
   const [signingOut, setSigningOut] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const userImage = typeof session?.user?.image === 'string' ? session.user.image : null
   const accountInitials = (() => {
     const source = session?.user?.name ?? session?.user?.email ?? ''
@@ -59,35 +60,13 @@ export function Header() {
               </span>
             </Link>
             {/* Mobile menu trigger (scaffold) */}
-export function Header() {
-  const { data: session, status } = useSession()
-  const isAuthenticated = status === 'authenticated'
-  const displayName = session?.user?.name ?? session?.user?.email ?? 'your account'
-  const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? ''
-  const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in'
-  const [signingOut, setSigningOut] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const userImage = typeof session?.user?.image === 'string' ? session.user.image : null
-
-  return (
-    <header>
-      {/* ...other header markup... */}
-
-      <button
-        type="button"
-        aria-label="Open navigation menu"
-        aria-controls="mobile-nav"
-        aria-expanded={mobileMenuOpen}
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md border border-neo-border hover:bg-neo-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
-      >
-        <Menu size={20} aria-hidden="true" focusable="false" />
-      </button>
-
-      {/* ...mobile menu panel (e.g. <nav id="mobile-nav">) would go here... */}
-    </header>
-  )
-}
+            <button
+              type="button"
+              aria-label="Open navigation menu"
+              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md border border-neo-border hover:bg-neo-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
+            >
+              <Menu size={20} aria-hidden="true" focusable="false" />
+            </button>
           </div>
 
           {/* Center: Navigation (desktop) */}

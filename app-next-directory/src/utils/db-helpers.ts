@@ -55,6 +55,24 @@ const shouldUseMockDb =
 
 let clientPromise: Promise<MongoClient> | undefined;
 
+function initializeClientPromise(): Promise<MongoClient> | undefined {
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env.local';
+    throw new Error(`MongoDB URI is missing. Please set the MONGODB_URI environment variable in ${envFile}.`);
+  }
+
+  if (typeof window === 'undefined') {
+    if (!globalWithMongo._mongoClientPromise) {
+      const client = new MongoClient(uri, {});
+      globalWithMongo._mongoClientPromise = client.connect();
+    }
+    clientPromise = globalWithMongo._mongoClientPromise;
+  }
+
+  return clientPromise;
+}
+
 function createMockCursor(items: any[] = []): MockCursor {
   let projectedFields: Record<string, number> | null = null;
   let sortFields: Record<string, unknown> | null = null;
@@ -328,6 +346,7 @@ function createMockCollection(name: string): MockCollection {
       }
       documents.push(payload);
       return { acknowledged: true, insertedId: payload._id };
+    },
     insertMany: async (docs: any[]) => {
       const insertedIds: Record<number, string> = {};
       const existingIds = new Set(documents.map(d => d._id));
@@ -346,8 +365,7 @@ function createMockCollection(name: string): MockCollection {
 
       return { acknowledged: true, insertedCount: docs.length, insertedIds };
     },
-    },
-    updateOne: async (filter, update, options) => {
+    updateOne: async (filter: Record<string, unknown>, update: Record<string, any>, options?: { upsert?: boolean }) => {
       const target = documents.find((doc) => matchesQuery(doc, filter));
       if (target) {
         if (update.$set && typeof update.$set === 'object') {
@@ -428,19 +446,7 @@ if (shouldUseMockDb) {
     globalWithMongo.__TEST_MONGO_DB__ = createMockDb();
   }
 } else {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) {
-    const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env.local';
-    throw new Error(`MongoDB URI is missing. Please set the MONGODB_URI environment variable in ${envFile}.`);
-  }
-
-  if (typeof window === 'undefined') {
-    if (!globalWithMongo._mongoClientPromise) {
-      const client = new MongoClient(uri, {});
-      globalWithMongo._mongoClientPromise = client.connect();
-    }
-    clientPromise = globalWithMongo._mongoClientPromise;
-  }
+  initializeClientPromise();
   // MongoDB client must only be initialized server-side
 }
 
@@ -457,19 +463,7 @@ export async function getDatabase(): Promise<Db | MockDb> {
   // that call jest.resetModules()). This preserves the original error
   // behavior when MONGODB_URI is missing.
   if (!clientPromise) {
-    const uri = process.env.MONGODB_URI;
-    if (!uri) {
-      const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env.local';
-      throw new Error(`MongoDB URI is missing. Please set the MONGODB_URI environment variable in ${envFile}.`);
-    }
-
-    if (typeof window === 'undefined') {
-      if (!globalWithMongo._mongoClientPromise) {
-        const client = new MongoClient(uri, {});
-        globalWithMongo._mongoClientPromise = client.connect();
-      }
-      clientPromise = globalWithMongo._mongoClientPromise;
-    }
+    initializeClientPromise();
   }
 
   const client = await clientPromise;
@@ -482,15 +476,27 @@ export async function getDatabase(): Promise<Db | MockDb> {
       const uri = process.env.MONGODB_URI;
       if (uri) {
         try {
+          // Close old client if it exists
+          if (globalWithMongo._mongoClientPromise) {
+            try {
+              const oldClient = await globalWithMongo._mongoClientPromise;
+              await oldClient.close();
+            } catch {
+              // Old client already closed or invalid
+            }
+          }
           const newClient = new MongoClient(uri, {});
           globalWithMongo._mongoClientPromise = newClient.connect();
           clientPromise = globalWithMongo._mongoClientPromise;
-          const reclient = await clientPromise;
-          if (reclient && typeof reclient.db === 'function') {
-            return reclient.db('sustainable-nomads');
+          const retriedClient = await clientPromise;
+          if (retriedClient && typeof retriedClient.db === 'function') {
+            return retriedClient.db('sustainable-nomads');
           }
         } catch (err) {
-          // ignore and fall back to mock DB below
+          console.warn(
+            'Failed to reinitialize MongoDB client in test, falling back to mock:',
+            err
+          );
         }
       }
       return createMockDb();
@@ -502,7 +508,7 @@ export async function getDatabase(): Promise<Db | MockDb> {
   return client.db('sustainable-nomads');
 }
 
-export async function getCollection(name?: string): Promise<Collection | MockCollection> {
+export async function getCollection(name: string): Promise<Collection | MockCollection> {
   if (!name || typeof name !== 'string' || !/^[\w-]+$/.test(name)) {
     throw new Error('Invalid collection name');
   }

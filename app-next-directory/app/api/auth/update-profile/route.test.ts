@@ -1,11 +1,11 @@
 import { jest } from '@jest/globals';
 
-jest.mock('../../../src/lib/auth', () => ({ __esModule: true, auth: jest.fn() }));
-jest.mock('../../../src/lib/auth/serverAuth', () => ({ __esModule: true, updateUserProfile: jest.fn() }));
+jest.mock('@/lib/auth', () => ({ __esModule: true, auth: jest.fn() }));
+jest.mock('@/lib/auth/serverAuth', () => ({ __esModule: true, updateUserProfile: jest.fn(() => Promise.resolve({})) }));
 
 import { PATCH, POST, GET } from './route';
-import { auth } from '../../../src/lib/auth';
-import { updateUserProfile } from '../../../src/lib/auth/serverAuth';
+import { auth } from '@/lib/auth';
+import { updateUserProfile } from '@/lib/auth/serverAuth';
 
 // Narrow mocks for type-safety convenience
 const mockAuth = auth as unknown as jest.MockedFunction<typeof auth>;

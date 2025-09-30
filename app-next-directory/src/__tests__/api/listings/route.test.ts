@@ -1,3 +1,52 @@
+jest.mock('../../../../src/utils/db-helpers', () => ({
+  ...jest.requireActual('../../../../src/utils/db-helpers'),
+  getCollection: async (name: string) => {
+    return {
+      findOne: async (query: any) => {
+        return null;
+      },
+      insertOne: async (doc: any) => {
+        return {
+          insertedId: 'mock-id'
+        }
+      },
+      find: (query: any) => ({
+        skip: (n: number) => ({
+          limit: (n: number) => ({
+            toArray: async () => []
+          })
+        })
+      }),
+      countDocuments: async (query: any) => 0,
+    }
+  }
+}));
+
+jest.mock('../../../../src/utils/db-helpers', () => ({
+  ...jest.requireActual('../../../../src/utils/db-helpers'),
+  getCollection: async (name: string) => {
+    return {
+      findOne: async (query: any) => {
+        return null;
+      },
+      insertOne: async (doc: any) => {
+        return {
+          insertedId: 'mock-id',
+          ...doc
+        }
+      },
+      find: (query: any) => ({
+        skip: (n: number) => ({
+          limit: (n: number) => ({
+            toArray: async () => []
+          })
+        })
+      }),
+      countDocuments: async (query: any) => 0,
+    }
+  }
+}));
+
 jest.unmock('../../../../__mocks__/next/server');
 // Use custom mocks for NextRequest and NextResponse
 import { POST, GET } from '../../../../app/api/listings/route';

@@ -160,21 +160,21 @@ export { GET, POST, UNSUPPORTED };
 
 // --- Validation helper ---
 function validateListingData(data: any) {
-  const errors: string[] = [];
+  const errors: { message: string }[] = [];
   if (!data.title || typeof data.title !== 'string' || data.title.length < 3) {
-    errors.push('Title must be at least 3 characters.');
+    errors.push({ message: 'Title must be at least 3 characters.' });
   }
   if (!data.description || typeof data.description !== 'string' || data.description.length < 10) {
-    errors.push('Description must be at least 10 characters.');
+    errors.push({ message: 'Description must be at least 10 characters.' });
   }
   if (!data.slug || typeof data.slug !== 'string' || !/^[a-z0-9-]+$/.test(data.slug)) {
-    errors.push('Slug is required and must be URL-friendly.');
+    errors.push({ message: 'Slug is required and must be URL-friendly.' });
   }
   if (!data.category || typeof data.category !== 'string') {
-    errors.push('Category is required.');
+    errors.push({ message: 'Category is required.' });
   }
   if (!data.location || typeof data.location !== 'string') {
-    errors.push('Location is required.');
+    errors.push({ message: 'Location is required.' });
   }
   return errors;
 }
