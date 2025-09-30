@@ -98,6 +98,7 @@
     "embla-carousel-react": "^8.6.0",
     "eslint": "^9.32.0",
     "fast-levenshtein": "^3.0.0",
+    "gsap": "^3.13.0",
     "input-otp": "^1.4.2",
     "jose": "^6.0.12",
     "leaflet": "^1.9.4",
