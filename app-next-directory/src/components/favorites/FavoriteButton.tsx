@@ -6,28 +6,41 @@ import { NeoButton } from '@/components/ui/neo-button';
 import { Heart } from 'lucide-react';
 
 interface FavoriteButtonProps {
-  listingId: string;
+  // Accepts either listingId (legacy) or slug (preferred) - one is required
+  listingId?: string;
+  slug?: string;
   listingTitle?: string;
   className?: string;
   showText?: boolean;
   size?: 'sm' | 'md' | 'lg';
   // Optional controlled initial favorited state (useful for parent components/tests)
-  isFavorited?: boolean;
+  initialIsFavorited?: boolean;
   // Optional external toggle handler (parent can handle the network request)
   onToggle?: () => Promise<void> | void;
+  // Enable optimistic updates (defaults to true)
+  optimistic?: boolean;
 }
 
 export function FavoriteButton({ 
   listingId, 
+  slug,
   listingTitle,
   className = '',
   showText = false,
   size = 'md',
-  isFavorited: initialIsFavorited
+  initialIsFavorited,
   onToggle,
+  optimistic = true,
 }: FavoriteButtonProps) {
   const { data: session } = useSession();
   const [isFavoritedState, setIsFavoritedState] = useState<boolean>(initialIsFavorited ?? false);
+
+  // Determine the actual slug to use (prefer slug prop, fallback to listingId for backward compatibility)
+  const actualSlug = slug || listingId;
+  
+  if (!actualSlug) {
+    throw new Error('FavoriteButton requires either slug or listingId prop');
+  }
 
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
@@ -42,17 +55,16 @@ export function FavoriteButton({
         return;
       }
 
-      if (!session?.user?.id || !listingId) {
+      if (!session?.user?.id || !actualSlug) {
         setIsCheckingStatus(false);
         return;
       }
       
       try {
-        const response = await fetch('/api/user/favorites');
+        const response = await fetch(`/api/user/favorites/${actualSlug}`);
         if (response.ok) {
           const data = await response.json();
-          const isFav = data.data?.some((fav: { listingId: string }) => fav.listingId === listingId) ?? false;
-          setIsFavoritedState(isFav);
+          setIsFavoritedState(data.favorited ?? false);
         }
       } catch (error) {
         console.error('Error checking favorite status:', error);
@@ -62,7 +74,7 @@ export function FavoriteButton({
     };
 
     checkFavoriteStatus();
-  }, [session, listingId, initialIsFavorited]);
+  }, [session, actualSlug, initialIsFavorited]);
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation if button is inside a link
@@ -74,16 +86,27 @@ export function FavoriteButton({
       return;
     }
 
-    if (!listingId) return;
+    if (!actualSlug) return;
 
     // If a parent provided an onToggle handler, delegate the network action to it
     if (typeof onToggle === 'function') {
+      const previousState = isFavoritedState;
+      
+      // Optimistic update: toggle immediately if optimistic is enabled
+      if (optimistic) {
+        setIsFavoritedState(!isFavoritedState);
+      }
+      
       setIsLoading(true);
       try {
         await onToggle();
         // Parent is expected to update the prop 'isFavorited' which will
         // be picked up by the effect that watches `initialIsFavorited`.
       } catch (error) {
+        // Revert optimistic update on error
+        if (optimistic) {
+          setIsFavoritedState(previousState);
+        }
         console.error('Error in parent onToggle handler:', error);
         alert('An error occurred. Please try again.');
       } finally {
@@ -92,19 +115,33 @@ export function FavoriteButton({
       return;
     }
 
+    const previousState = isFavoritedState;
+    
+    // Optimistic update: toggle immediately if optimistic is enabled
+    if (optimistic) {
+      setIsFavoritedState(!isFavoritedState);
+    }
+    
     setIsLoading(true);
 
     try {
-      if (isFavoritedState) {
+      if (previousState) {
         // Remove from favorites
-        const response = await fetch(`/api/user/favorites/${listingId}`, {
+        const response = await fetch('/api/user/favorites', {
           method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ slug: actualSlug }),
         });
 
-        if (response.ok) {
-          setIsFavoritedState(false);
-        } else {
+        if (!response.ok) {
           throw new Error('Failed to remove favorite');
+        }
+        
+        // Only update state if not using optimistic updates
+        if (!optimistic) {
+          setIsFavoritedState(false);
         }
       } else {
         // Add to favorites
@@ -113,17 +150,24 @@ export function FavoriteButton({
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ listingId }),
+          body: JSON.stringify({ slug: actualSlug }),
         });
 
-        if (response.ok) {
-          setIsFavoritedState(true);
-        } else {
+        if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || 'Failed to add favorite');
         }
+        
+        // Only update state if not using optimistic updates
+        if (!optimistic) {
+          setIsFavoritedState(true);
+        }
       }
     } catch (error) {
+      // Revert optimistic update on error
+      if (optimistic) {
+        setIsFavoritedState(previousState);
+      }
       console.error('Error toggling favorite:', error);
       // TODO: Could show a toast notification
       alert('An error occurred. Please try again.');

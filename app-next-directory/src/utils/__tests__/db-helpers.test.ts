@@ -18,7 +18,12 @@ describe('db-helpers', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    process.env = { ...OLD_ENV, MONGODB_URI: 'mongodb://test', NODE_ENV: 'test' };
+    process.env = {
+      ...OLD_ENV,
+      MONGODB_URI: 'mongodb://test',
+      NODE_ENV: 'test',
+      ALLOW_REAL_MONGO_IN_TESTS: 'true',
+    };
   });
 
   afterAll(() => {
@@ -35,7 +40,7 @@ describe('db-helpers', () => {
     // Unmock db-helpers for this test
     jest.unmock('../db-helpers');
     process.env.MONGODB_URI = '';
-    expect(() => require('../db-helpers')).toThrow('MongoDB URI is missing. Please set the MONGODB_URI environment variable.');
+    expect(() => require('../db-helpers')).toThrow('MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.local.');
     // Restore env for other tests
     process.env.MONGODB_URI = 'mongodb://test';
   });

@@ -36,7 +36,7 @@ export function Footer() {
   const [email, setEmail] = React.useState('');
   const [errors, setErrors] = React.useState({ email: '' });
   return (
-    <footer className="bg-neo-text-primary text-white border-t-4 border-neo-border">
+    <footer id="footer-content" role="contentinfo" className="bg-neo-text-primary text-white border-t-4 border-neo-border">
       <div className="container mx-auto px-4 py-16">
         {/* Newsletter Signup */}
         <NeoCard variant="flat" className="mb-16 bg-neo-primary border-white">

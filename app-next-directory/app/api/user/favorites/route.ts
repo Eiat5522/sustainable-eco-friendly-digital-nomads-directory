@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
@@ -48,6 +48,127 @@ export async function GET() {
     return NextResponse.json({ favorites });
   } catch (error) {
     console.error('Failed to fetch favorites:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+// Add listing to favorites
+export async function POST(request: NextRequest) {
+  const session = await auth();
+
+  const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
+  const userId: string | undefined = user?.id;
+  const userRole: UserRole = user?.role || 'unidentifiedUser';
+
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const { slug } = body;
+
+    if (!slug || typeof slug !== 'string') {
+      return NextResponse.json({ error: 'Listing slug is required' }, { status: 400 });
+    }
+
+    const sanityUser = await ensureSanityUser({
+      id: userId,
+      name: user?.name ?? null,
+      email: user?.email ?? null,
+      role: userRole,
+    });
+
+    if (!sanityUser) {
+      return NextResponse.json({ error: 'Unable to access user profile' }, { status: 500 });
+    }
+
+    // Resolve listing by slug to get its Sanity ID
+    const listing = await client.fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug });
+    if (!listing?._id) {
+      return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
+    }
+    const listingId = listing._id;
+
+    // Check if already favorited
+    const existingFavorite = await client.fetch(
+      `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
+      { userId, listingId }
+    );
+
+    if (existingFavorite) {
+      return NextResponse.json({ 
+        favorited: true, 
+        message: 'Already in favorites',
+        favoriteId: existingFavorite._id 
+      });
+    }
+
+    // Add to favorites
+    const favorite = await client.create({
+      _type: 'userFavorite',
+      user: { _type: 'reference', _ref: sanityUser._id },
+      listing: { _type: 'reference', _ref: listingId },
+      createdAt: new Date().toISOString(),
+    });
+
+    return NextResponse.json({ 
+      favorited: true, 
+      message: 'Added to favorites', 
+      favoriteId: favorite._id 
+    });
+  } catch (error) {
+    console.error('Failed to add favorite:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+// Remove listing from favorites
+export async function DELETE(request: NextRequest) {
+  const session = await auth();
+
+  const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
+  const userId: string | undefined = user?.id;
+
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const { slug } = body;
+
+    if (!slug || typeof slug !== 'string') {
+      return NextResponse.json({ error: 'Listing slug is required' }, { status: 400 });
+    }
+
+    // Resolve listing by slug to get its Sanity ID
+    const listing = await client.fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug });
+    if (!listing?._id) {
+      return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
+    }
+    const listingId = listing._id;
+
+    // Find and remove the favorite
+    const existingFavorite = await client.fetch(
+      `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
+      { userId, listingId }
+    );
+
+    if (existingFavorite) {
+      await client.delete(existingFavorite._id);
+      return NextResponse.json({ 
+        favorited: false, 
+        message: 'Removed from favorites' 
+      });
+    } else {
+      return NextResponse.json({ 
+        favorited: false, 
+        message: 'Not in favorites' 
+      });
+    }
+  } catch (error) {
+    console.error('Failed to remove favorite:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

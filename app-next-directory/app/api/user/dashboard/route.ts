@@ -53,7 +53,6 @@ export async function GET(request: NextRequest) {
     const logMessage = '[user-dashboard] GET failed';
     if (structuredLogger?.error) {
       structuredLogger.error(logMessage, error, {
-        handler: 'GET /api/user/dashboard',
         route: '/api/user/dashboard',
       });
     } else {

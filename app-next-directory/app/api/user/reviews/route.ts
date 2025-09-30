@@ -1,3 +1,5 @@
+import { Collection } from 'mongodb';
+import { Collection } from 'mongodb';
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { auth } from '@/lib/auth';
@@ -137,14 +139,14 @@ export async function GET() {
   }
 
   try {
-    const listingsCollection = await getCollection('listings');
+    const listingsCollection = (await getCollection('listings')) as Collection<ListingDoc>;
     const rawListings = await listingsCollection
       .find({ ownerId: userId })
       .project({ slug: 1, name: 1, status: 1 })
       .toArray();
 
     const listings: NormalisedListing[] = [];
-    for (const doc of rawListings as ListingDoc[]) {
+    for (const doc of rawListings) {
       if (isDeletedStatus(doc.status)) {
         continue;
       }
@@ -158,7 +160,7 @@ export async function GET() {
       return NextResponse.json({ listings: [] });
     }
 
-    const reviewsCollection = await getCollection('reviews');
+    const reviewsCollection = (await getCollection('reviews')) as Collection<ReviewDoc>;
     const results: Array<{ slug: string; name: string; reviews: NormalisedReview[] }> = [];
 
     for (const listing of listings) {
@@ -169,7 +171,7 @@ export async function GET() {
 
       const rawReviews = await cursor.toArray();
       const reviews: NormalisedReview[] = [];
-      for (const review of rawReviews as ReviewDoc[]) {
+      for (const review of rawReviews) {
         const normalised = normaliseReview(review);
         if (normalised) {
           reviews.push(normalised);

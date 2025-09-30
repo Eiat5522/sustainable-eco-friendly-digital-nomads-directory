@@ -396,7 +396,7 @@ describe('ReviewsSection', () => {
       expect(mockFetch).toHaveBeenCalledWith('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rating: 5, comment: 'Outstanding place!', listingId: 'listing-1' }),
+        body: JSON.stringify({ rating: 5, comment: 'Outstanding place!', listingId: 'test-listing' }),
       })
     })
 
@@ -415,7 +415,7 @@ describe('ReviewsSection', () => {
   })
 
   it('prevents submission without rating or a non-empty comment', async () => {
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     const submitButton = screen.getByRole('button', { name: /submit review/i })
     fireEvent.click(submitButton)
@@ -434,7 +434,7 @@ describe('ReviewsSection', () => {
       mockResponse({ error: 'Unauthorized' }, { status: 401, statusText: 'Unauthorized', ok: false }) as unknown as FetchReturn
     )
 
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     fillReviewForm(3, 'Needs login')
     fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
@@ -453,7 +453,7 @@ describe('ReviewsSection', () => {
       mockResponse({ error: 'Unauthorized' }, { status: 401, ok: false }) as unknown as FetchReturn
     )
 
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     fillReviewForm(4, 'Another login attempt')
     fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
@@ -470,7 +470,7 @@ describe('ReviewsSection', () => {
       mockResponse({ error: 'Forbidden' }, { status: 403, statusText: 'Forbidden', ok: false }) as unknown as FetchReturn
     )
 
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     fillReviewForm(2, 'Permission test')
     fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
@@ -483,7 +483,7 @@ describe('ReviewsSection', () => {
       mockResponse({ error: 'Duplicate review' }, { status: 409, ok: false }) as unknown as FetchReturn
     )
 
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     fillReviewForm(5, 'Already reviewed')
     fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
@@ -496,7 +496,7 @@ describe('ReviewsSection', () => {
       mockResponse({ error: 'Server error' }, { status: 500, statusText: 'Internal Server Error', ok: false }) as unknown as FetchReturn
     )
 
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     fillReviewForm(1, 'Server failure')
     fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
@@ -509,7 +509,7 @@ describe('ReviewsSection', () => {
       mockResponse({}, { status: 502, statusText: 'Bad Gateway', ok: false }) as unknown as FetchReturn
     )
 
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     fillReviewForm(4, 'Gateway issue')
     fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
@@ -521,7 +521,7 @@ describe('ReviewsSection', () => {
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
     mockFetch.mockRejectedValue(new Error('Network error'))
 
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     fillReviewForm(3, 'Network issue')
     fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
@@ -533,13 +533,13 @@ describe('ReviewsSection', () => {
   })
 
   it('enforces the textarea length constraint', () => {
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     expect(screen.getByTestId('textarea')).toHaveAttribute('maxLength', '2000')
   })
 
   it('accepts a wide range of characters in the comment field', () => {
-    render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     const textarea = screen.getByTestId('textarea')
     const value = 'Great place! Accents áéíóú 😊 — punctuation!?'

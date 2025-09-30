@@ -8,6 +8,7 @@ import { hasFeaturePermission, type UserRole } from '@/types/auth';
 import { revalidateTag } from 'next/cache';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
+import { Collection } from 'mongodb';
 
 type ReviewDoc = {
   verified?: boolean;
@@ -16,20 +17,9 @@ type ReviewDoc = {
   [key: string]: unknown;
 };
 
-type ReviewsCollection = {
-  find: (filter: Record<string, unknown>) => {
-    sort: (s: Record<string, 1 | -1>) => {
-      skip: (n: number) => {
-        limit: (n: number) => { toArray: () => Promise<ReviewDoc[]> };
-      };
-    };
-  };
-  countDocuments: (filter: Record<string, unknown>) => Promise<number>;
-};
-
 type RouteContext = {
   params: Promise<Record<string, never>>;
-  collection?: ReviewsCollection;
+  collection?: Collection<ReviewDoc>;
 };
 
 export async function GET(request: NextRequest, context: RouteContext) {
@@ -42,8 +32,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const filterRating = searchParams.get('rating');
     const verified = searchParams.get('verified') === 'true';
 
-    const reviews: ReviewsCollection =
-      context.collection ?? (await getCollection('reviews') as unknown as ReviewsCollection);
+    const reviews: Collection<ReviewDoc> =
+      context.collection ?? ((await getCollection('reviews')) as Collection<ReviewDoc>);
 
     // Build filter
     const filter: Record<string, unknown> = { status: 'approved' };

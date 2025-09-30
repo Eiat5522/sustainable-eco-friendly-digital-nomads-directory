@@ -44,7 +44,12 @@ describe('db-helpers', () => {
     jest.resetModules();
     jest.clearAllMocks();
     mockClientBehavior = 'normal';
-    process.env = { ...OLD_ENV, MONGODB_URI: 'mongodb://test', NODE_ENV: 'test' };
+    process.env = {
+      ...OLD_ENV,
+      MONGODB_URI: 'mongodb://test',
+      NODE_ENV: 'test',
+      ALLOW_REAL_MONGO_IN_TESTS: 'true',
+    };
     // Clear the global variable
     delete (global as any)._mongoClientPromise;
   });
@@ -62,7 +67,7 @@ describe('db-helpers', () => {
       delete require.cache[modulePath];
     }
     process.env.MONGODB_URI = '';
-    expect(() => require('../utils/db-helpers')).toThrow('MongoDB URI is missing. Please set the MONGODB_URI environment variable.');
+    expect(() => require('../utils/db-helpers')).toThrow('MongoDB URI is missing. Please set the MONGODB_URI environment variable in .env.local.');
   });
 
   it('returns a database instance', async () => {

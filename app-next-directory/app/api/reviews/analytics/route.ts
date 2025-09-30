@@ -1,3 +1,4 @@
+import { Collection, Document } from 'mongodb';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
 
@@ -8,7 +9,7 @@ export async function GET(request: Request) {
     const timeRange = searchParams.get('timeRange') || '30d'; // 7d, 30d, 90d, 1y
     const listingSlug = searchParams.get('listing');
 
-    const reviews = await getCollection('reviews');
+    const reviews = (await getCollection('reviews')) as Collection<Document>;
 
     // Calculate date range
     const now = new Date();

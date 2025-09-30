@@ -7,10 +7,11 @@ import { useSearchListings, type SearchListing, type SearchRequest } from '@/hoo
 interface SearchCategoryOption {
   label: string
   value: string
+  ariaLabel?: string
 }
 
 const CATEGORY_OPTIONS: SearchCategoryOption[] = [
-  { label: 'All categories', value: '' },
+  { label: 'All categories', value: '', ariaLabel: 'All venue categories' },
   { label: 'Coworking', value: 'coworking' },
   { label: 'Coliving', value: 'coliving' },
   { label: 'Café', value: 'cafe' },
@@ -177,14 +178,19 @@ export function SearchForm() {
             <input
               id="search-input"
               name="search"
-              type="text"
+              type="search"
+              role="searchbox"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               onKeyDown={handleSearchKeyDown}
               ref={searchInputRef}
               placeholder="Find sustainable coworking, cafés, retreats..."
-              className="rounded border border-border px-3 py-2"
+              aria-describedby="search-help"
+              className="rounded border border-border px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
             />
+            <p id="search-help" className="sr-only">
+              Search by venue name, location, or type of space
+            </p>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -198,14 +204,22 @@ export function SearchForm() {
               onChange={(event) => setCategory(event.target.value)}
               onKeyDown={handleCategoryKeyDown}
               ref={categorySelectRef}
-              className="rounded border border-border px-3 py-2"
+              aria-describedby="category-help"
+              className="rounded border border-border px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
             >
               {CATEGORY_OPTIONS.map((option) => (
-                <option key={option.value || 'all'} value={option.value}>
+                <option
+                  key={option.value}
+                  value={option.value}
+                  {...(option.ariaLabel ? { 'aria-label': option.ariaLabel } : {})}
+                >
                   {option.label}
                 </option>
               ))}
             </select>
+            <p id="category-help" className="sr-only">
+              Choose a specific venue type to narrow your search results
+            </p>
           </div>
 
           <div className="flex items-center justify-between">
@@ -213,13 +227,17 @@ export function SearchForm() {
               type="button"
               onClick={() => setShowFilters((value) => !value)}
               aria-expanded={showFilters}
-              className="text-sm font-medium underline"
+              aria-controls="filter-panel"
+              className="text-sm font-medium underline hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1"
               onKeyDown={handleFilterKeyDown}
               ref={filterButtonRef}
             >
-              Filters
+              {showFilters ? 'Hide filters' : 'Show filters'}
             </button>
-            <button type="submit" className="rounded bg-primary px-4 py-2 text-primary-foreground">
+            <button 
+              type="submit" 
+              className="rounded bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-colors"
+            >
               Search
             </button>
           </div>
@@ -227,6 +245,7 @@ export function SearchForm() {
       </form>
 
       <div
+        id="filter-panel"
         data-testid="filter-panel"
         aria-hidden={!showFilters}
         style={{ display: showFilters ? 'block' : 'none' }}

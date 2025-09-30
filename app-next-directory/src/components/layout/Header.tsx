@@ -38,7 +38,7 @@ export function Header() {
     } finally {
       setSigningOut(false)
     }
-  }, [])
+  }, [signingOut])
 
   return (
     <header className="w-full bg-background border-b-4 border-neo-border">
@@ -59,30 +59,62 @@ export function Header() {
               </span>
             </Link>
             {/* Mobile menu trigger (scaffold) */}
-            <button
-              type="button"
-              aria-label="Open menu"
-              aria-controls="mobile-nav"
-              aria-expanded="false"
-              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
-            >
-              <Menu size={20} aria-hidden="true" focusable="false" />
-            </button>
+export function Header() {
+  const { data: session, status } = useSession()
+  const isAuthenticated = status === 'authenticated'
+  const displayName = session?.user?.name ?? session?.user?.email ?? 'your account'
+  const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? ''
+  const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in'
+  const [signingOut, setSigningOut] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const userImage = typeof session?.user?.image === 'string' ? session.user.image : null
+
+  return (
+    <header>
+      {/* ...other header markup... */}
+
+      <button
+        type="button"
+        aria-label="Open navigation menu"
+        aria-controls="mobile-nav"
+        aria-expanded={mobileMenuOpen}
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md border border-neo-border hover:bg-neo-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
+      >
+        <Menu size={20} aria-hidden="true" focusable="false" />
+      </button>
+
+      {/* ...mobile menu panel (e.g. <nav id="mobile-nav">) would go here... */}
+    </header>
+  )
+}
           </div>
 
           {/* Center: Navigation (desktop) */}
-          <nav aria-label="Primary" className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
-            <Link href="/">
-              <span className="body-md hover:text-neo-primary font-semibold transition-colors">Home</span>
+          <nav aria-label="Primary navigation" className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">
+            <Link 
+              href="/" 
+              className="body-md hover:text-neo-primary font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1"
+            >
+              Home
             </Link>
-            <Link href="/search">
-              <span className="body-md hover:text-neo-primary font-semibold transition-colors">Search</span>
+            <Link 
+              href="/search" 
+              className="body-md hover:text-neo-primary font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1"
+            >
+              Search
             </Link>
-            <Link href="/blog">
-              <span className="body-md hover:text-neo-primary font-semibold transition-colors">Blog</span>
+            <Link 
+              href="/blog" 
+              className="body-md hover:text-neo-primary font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1"
+            >
+              Blog
             </Link>
-            <Link href="/contact-us">
-              <span className="body-md hover:text-neo-primary font-semibold transition-colors">Contact Us</span>
+            <Link 
+              href="/contact-us" 
+              className="body-md hover:text-neo-primary font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary rounded-sm px-1 py-1"
+            >
+              Contact Us
             </Link>
           </nav>
 
@@ -167,16 +199,12 @@ export function Header() {
                   </DropdownMenu.Content>
                 </DropdownMenu.Root>
               ) : (
-
-                <Link href="/auth" aria-label="Sign in">
-                  <span
-                    className="w-10 h-10 bg-neo-surface neo-card rounded-full flex items-center justify-center text-neo-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
-                    title="Sign in"
-                    aria-hidden="true"
-                  >
-                    <span className="sr-only">Sign in</span>
-                    <User size={20} aria-hidden="true" focusable="false" />
-                  </span>
+                <Link 
+                  href="/auth" 
+                  aria-label="Sign in to your account"
+                  className="inline-flex w-10 h-10 bg-neo-surface neo-card rounded-full items-center justify-center text-neo-text-primary hover:bg-neo-primary hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary transition-colors"
+                >
+                  <User size={20} aria-hidden="true" />
                 </Link>
               )
             )}

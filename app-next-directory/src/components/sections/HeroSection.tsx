@@ -53,7 +53,11 @@ export function HeroSection() {
           </p>
 
           {/* Search Bar */}
-          <form onSubmit={handleSubmit} className="relative max-w-2xl mx-auto mb-8">
+          <form
+            role="search"
+            onSubmit={handleSubmit}
+            className="relative max-w-2xl mx-auto mb-8"
+          >
             <div className="relative">
               <Search
                 aria-hidden="true"

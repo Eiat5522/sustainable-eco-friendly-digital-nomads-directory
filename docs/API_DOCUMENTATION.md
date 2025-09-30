@@ -138,21 +138,51 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
 
 ```json
 {
-  "listingId": "listing_id"
+  "slug": "listing-slug"
 }
+```
 
+**Response**:
+
+```json
+{
+  "favorited": true,
+  "message": "Added to favorites",
+  "favoriteId": "favorite_document_id"
+}
+```
+
+#### `DELETE /api/user/favorites`
+
+**Purpose**: Remove listing from favorites (body-based)
+**Access**: Authenticated users
+**Body**:
+
+```json
+{
+  "slug": "listing-slug"
+}
+```
+
+**Response**:
+
+```json
+{
+  "favorited": false,
+  "message": "Removed from favorites"
+}
 ```
 
 #### `DELETE /api/user/favorites/[slug]`
 
-**Purpose**: Remove listing from favorites
+**Purpose**: Remove listing from favorites (URL-based)  
 **Access**: Authenticated users
 **Response**:
 
 ```json
 {
-  "success": true,
-  "message": "Favorite removed successfully"
+  "favorited": false,
+  "message": "Removed from favorites"
 }
 
 ```

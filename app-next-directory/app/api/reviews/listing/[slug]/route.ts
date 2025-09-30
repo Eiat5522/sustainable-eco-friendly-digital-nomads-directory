@@ -1,3 +1,4 @@
+import { Collection, Document } from 'mongodb';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
 import type { NextRequest } from 'next/server';
@@ -14,7 +15,7 @@ export async function GET(
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    const reviews = await getCollection('reviews');
+    const reviews = (await getCollection('reviews')) as Collection<Document>;
 
     const filter = {
       listingSlug: slug,

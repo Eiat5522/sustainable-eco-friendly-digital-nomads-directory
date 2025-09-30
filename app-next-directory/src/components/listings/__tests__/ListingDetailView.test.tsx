@@ -142,7 +142,7 @@ const mockCity: CityDTO = {
 }
 
 const baseListing: ListingDetailDTO = {
-  id: 'listing-1',
+  id: 'test-listing',
   name: 'Test Listing',
   slug: 'test-listing',
   imageUrl: '/listing.jpg',

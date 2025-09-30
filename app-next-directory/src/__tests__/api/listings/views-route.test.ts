@@ -12,13 +12,13 @@ describe('POST /api/listings/[slug]/views', () => {
     jest.clearAllMocks();
   });
 
-  it('rejects requests without a listing id', async () => {
+  it('rejects requests without a slug', async () => {
     const request = new Request('http://localhost/api/listings//views', { method: 'POST' });
 
   const response = await POST(request as any, { params: { slug: '' } });
 
     expect(response.status).toBe(400);
-    await expect(response.json()).resolves.toEqual({ error: 'Listing ID is required' });
+    await expect(response.json()).resolves.toEqual({ error: 'Listing slug is required' });
     expect(mockRecord).not.toHaveBeenCalled();
   });
 

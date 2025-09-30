@@ -175,8 +175,8 @@ test.describe('API Integration Testing - Workstream E.1', () => {
     });
 
   test('DELETE /api/user/favorites/[slug] - Remove from Favorites', async ({ request }) => {
-      const listingId = 'test-listing-id';
-      const response = await request.delete(`${BASE_URL}/api/user/favorites/${listingId}`, {
+      const listingSlug = 'test-listing-slug';
+      const response = await request.delete(`${BASE_URL}/api/user/favorites/${listingSlug}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           Cookie: 'next-auth.session-token=' + authToken,
