@@ -27,21 +27,16 @@ export function createAuthAdapter(): Adapter | undefined {
     isJestEnvironment &&
     process.env.USE_REAL_MONGODB_FOR_TESTS !== '1';
 
-  let resolvedAdapter: Adapter | undefined;
-
-  if (!shouldSkipAdapter) {
-    const uri = process.env.MONGODB_URI;
-    const hasValidUri = typeof uri === 'string' && uri.trim().length > 0;
-
-    if (hasValidUri) {
-      resolvedAdapter = adapterFactory(clientPromise);
-    }
-  }
-
-  const uri = process.env.MONGODB_URI;
-  if (typeof uri !== 'string' || uri.trim().length === 0) {
+  // If we should skip creating a real adapter in test environments, return undefined
+  if (shouldSkipAdapter) {
     return undefined;
   }
 
+  const uri = process.env.MONGODB_URI;
+  const hasValidUri = typeof uri === 'string' && uri.trim().length > 0;
+
+  if (!hasValidUri) return undefined;
+
+  // Create and return the adapter using the shared client promise
   return adapterFactory(clientPromise);
 }

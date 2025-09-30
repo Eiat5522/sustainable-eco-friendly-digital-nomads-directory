@@ -192,6 +192,56 @@ jest.mock('@/lib/redis', () => ({
   }),
 }));
 
+// Ensure the rate-limit utilities are mocked for all tests.
+// Ensure the rate-limit utilities are mocked for all tests. Some test files
+// import the module early; mock it explicitly here with a factory so the
+// exported functions are guaranteed to be `jest.fn()` and support
+// `.mockReturnValue` / `.mockResolvedValue` regardless of CJS/ESM interop.
+jest.mock('@/lib/rate-limit', () => {
+  // Using a factory keeps the mock creation in Jest's module system
+  // and avoids runtime require()/interop surprises.
+  const { jest } = require('@jest/globals');
+  return {
+    __esModule: true,
+    getClientIp: jest.fn(() => '127.0.0.1'),
+    isRateLimited: jest.fn(() => false),
+    getRetryAfterMs: jest.fn(() => 60_000),
+  };
+});
+
+// Defensive runtime patch: some module resolution paths (Bun/ts-jest/ESM interop)
+// still end up with non-jest.fn exports. Ensure the exported helpers are jest.fn
+// compatible so tests can call mockReturnValue / mockResolvedValue reliably.
+try {
+  // Use require to avoid static ESM resolution issues in the test environment
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const rl = require('@/lib/rate-limit');
+  if (!rl || typeof rl.getClientIp !== 'function' || typeof rl.getClientIp?.mockReturnValue !== 'function') {
+    // Replace with jest.fn implementations
+    rl.getClientIp = jest.fn(() => '127.0.0.1');
+  }
+  if (typeof rl.isRateLimited !== 'function' || typeof rl.isRateLimited?.mockReturnValue !== 'function') {
+    rl.isRateLimited = jest.fn(() => false);
+  }
+  if (typeof rl.getRetryAfterMs !== 'function' || typeof rl.getRetryAfterMs?.mockReturnValue !== 'function') {
+    rl.getRetryAfterMs = jest.fn(() => 60_000);
+  }
+} catch (e) {
+  // If require fails (module not found), swallow — some suites don't import rate-limit at all
+}
+
+// Ensure auth config is mocked early so tests can call .mockReturnValue
+jest.mock('@/lib/auth/config', () => {
+  const { jest } = require('@jest/globals');
+  return {
+    __esModule: true,
+    default: {
+      isEmailVerificationRequired: jest.fn(() => false),
+    },
+    isEmailVerificationRequired: jest.fn(() => false),
+  };
+});
+
 // Provide a default mock for ensureSanityUser to be ESM-safe; tests can override as needed
 jest.mock('@/lib/sanity/user', () => ({
   __esModule: true,

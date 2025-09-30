@@ -27,42 +27,6 @@ export type CoworkingPricingPlan = {
   period?: string
 }
 
-export type UserPreference = {
-  _id: string
-  _type: 'userPreference'
-  _createdAt: string
-  _updatedAt: string
-  _rev: string
-  user?: {
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    [internalGroqTypeReferenceTo]?: 'user'
-  }
-  preferredCategories?: Array<string>
-  preferredCities?: Array<{
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    _key: string
-    [internalGroqTypeReferenceTo]?: 'city'
-  }>
-  preferredEcoTags?: Array<{
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    _key: string
-    [internalGroqTypeReferenceTo]?: 'ecoTag'
-  }>
-  priceRangePreference?: 'budget' | 'midRange' | 'premium'
-  notificationPreferences?: {
-    email?: boolean
-    push?: boolean
-    frequency?: 'daily' | 'weekly' | 'monthly'
-  }
-  lastUpdated?: string
-}
-
 export type SearchConfig = {
   _id: string
   _type: 'searchConfig'
@@ -406,6 +370,27 @@ export type Address = {
   city?: string
   province?: string
   postalCode?: string
+}
+
+export type UserFavorite = {
+  _id: string
+  _type: 'userFavorite'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  user: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'user'
+  }
+  listing: {
+    _ref: string
+    _type: 'reference'
+    _weak?: boolean
+    [internalGroqTypeReferenceTo]?: 'listing'
+  }
+  createdAt?: string
 }
 
 export type BlogPost = {
@@ -958,7 +943,6 @@ export type SanityAssetSourceData = {
 export type AllSanitySchemaTypes =
   | OpeningHoursEntry
   | CoworkingPricingPlan
-  | UserPreference
   | SearchConfig
   | SearchBoost
   | RichText
@@ -971,6 +955,7 @@ export type AllSanitySchemaTypes =
   | Comment
   | Amenity
   | Address
+  | UserFavorite
   | BlogPost
   | Review
   | User
@@ -995,6 +980,118 @@ export type AllSanitySchemaTypes =
   | Slug
   | SanityAssetSourceData
 export declare const internalGroqTypeReferenceTo: unique symbol
+// Source: ../app-next-directory/src/lib/data/city.ts
+// Variable: getCitySummaryBySlugQuery
+// Query: *[_type == "city" && slug.current == $slug][0]{    _id,    name,    "slug": slug.current,    country,    sustainabilityScore,    highlights,    description,    "primaryImage": primaryImage{      asset->{        url,        metadata{ dimensions }      }    }  }
+export type GetCitySummaryBySlugQueryResult = {
+  _id: string
+  name: string | null
+  slug: string | null
+  country: string | null
+  sustainabilityScore: number | null
+  highlights: Array<string> | null
+  description: string | null
+  primaryImage: {
+    asset: {
+      url: string | null
+      metadata: {
+        dimensions: SanityImageDimensions | null
+      } | null
+    } | null
+  } | null
+} | null
+// Variable: getCityFullDetailsBySlugQuery
+// Query: *[_type == "city" && slug.current == $slug][0]{    _id,    name,    "slug": slug.current,    country,    sustainabilityScore,    highlights,    description,    shortDescription,    airQuality,    internetSpeed,    costOfLiving,    climate,    safety,    walkability,    sustainabilityInitiatives,    digitalNomadFeatures,    galleryImages[]{      asset->{        url       }    },    "primaryImage": primaryImage{      asset->{        url,        metadata{ dimensions }      }    }  }
+export type GetCityFullDetailsBySlugQueryResult = {
+  _id: string
+  name: string | null
+  slug: string | null
+  country: string | null
+  sustainabilityScore: number | null
+  highlights: Array<string> | null
+  description: string | null
+  shortDescription: null
+  airQuality: null
+  internetSpeed: null
+  costOfLiving: null
+  climate: null
+  safety: null
+  walkability: null
+  sustainabilityInitiatives: null
+  digitalNomadFeatures: null
+  galleryImages: null
+  primaryImage: {
+    asset: {
+      url: string | null
+      metadata: {
+        dimensions: SanityImageDimensions | null
+      } | null
+    } | null
+  } | null
+} | null
+// Variable: getPublishedListingsInCityQuery
+// Query: *[_type == "listing" && moderation.status == "published" && city._ref == $cityId]{    _id,    name,    "slug": slug.current,    type,    shortDescription,    address,    location,    priceRange,    website,    primaryImage{      asset->{        url,        metadata{ dimensions }      }    },    "galleryImages": galleryImages[]{      asset->{        url      }    },    ecoFocusTags[]->{ name },    digitalNomadFeatures[]->{ name },    amenities[]->{ name },    city->{      _id,      name,      country,      sustainabilityScore,      highlights,      "slug": slug.current    }  }
+export type GetPublishedListingsInCityQueryResult = Array<{
+  _id: string
+  name: string | null
+  slug: string | null
+  type: 'accommodation' | 'activities' | 'cafe' | 'coworking' | 'restaurant' | null
+  shortDescription: string | null
+  address: string | null
+  location: Geopoint | null
+  priceRange: 'budget' | 'moderate' | 'premium' | null
+  website: string | null
+  primaryImage: {
+    asset: {
+      url: string | null
+      metadata: {
+        dimensions: SanityImageDimensions | null
+      } | null
+    } | null
+  } | null
+  galleryImages: Array<{
+    asset: {
+      url: string | null
+    } | null
+  }> | null
+  ecoFocusTags: Array<{
+    name: string | null
+  }> | null
+  digitalNomadFeatures: Array<{
+    name: string | null
+  }> | null
+  amenities: Array<{
+    name: string | null
+  }> | null
+  city: {
+    _id: string
+    name: string | null
+    country: string | null
+    sustainabilityScore: number | null
+    highlights: Array<string> | null
+    slug: string | null
+  } | null
+}>
+// Variable: getAllCitiesPaginatedQuery
+// Query: *[_type == "city"] | order(_createdAt desc)[0...$limit]{    _id,    name,    "slug": slug.current,    country,    sustainabilityScore,    highlights,    description,    "primaryImage": primaryImage{      asset->{        url,        metadata{ dimensions }      }    }  }
+export type GetAllCitiesPaginatedQueryResult = Array<{
+  _id: string
+  name: string | null
+  slug: string | null
+  country: string | null
+  sustainabilityScore: number | null
+  highlights: Array<string> | null
+  description: string | null
+  primaryImage: {
+    asset: {
+      url: string | null
+      metadata: {
+        dimensions: SanityImageDimensions | null
+      } | null
+    } | null
+  } | null
+}>
+
 // Source: ../app-next-directory/src/lib/sanity/data.ts
 // Variable: LISTING_BY_SLUG_QUERY
 // Query: *[_type == "listing" && slug.current == $slug][0]{    _id,    name,    "slug": slug.current,    city->{      _id,      name,      "slug": slug.current,      country    },    type,    category,    address,    location{lat, lng, alt},    primaryImage,    galleryImages,    ecoFocusTags[]->{      _id,      name    },    priceRange,    contactPhone,    contactEmail,    website,    shortDescription,    longDescription,    reviews[]->{      _id,      rating,      comment,      "userId": user._ref,      "user": user->{        name,        image      },      "createdAt": _createdAt    },    amenities[]->{      _id,      name,      description,      badge    },    coworkingDetails,    accommodationDetails,    cafeDetails,    restaurantDetails,    activitiesDetails,    digitalNomadFeatures[]->{      _id,      name,      slug,      description,      icon    },    moderation{status, featured, verificationStatus}  }
@@ -1115,6 +1212,10 @@ export type LISTING_BY_SLUG_QUERYResult = {
 import '@sanity/client'
 declare module '@sanity/client' {
   interface SanityQueries {
+    '*[_type == "city" && slug.current == $slug][0]{\n    _id,\n    name,\n    "slug": slug.current,\n    country,\n    sustainabilityScore,\n    highlights,\n    description,\n    "primaryImage": primaryImage{\n      asset->{\n        url,\n        metadata{ dimensions }\n      }\n    }\n  }': GetCitySummaryBySlugQueryResult
+    '*[_type == "city" && slug.current == $slug][0]{\n    _id,\n    name,\n    "slug": slug.current,\n    country,\n    sustainabilityScore,\n    highlights,\n    description,\n    shortDescription,\n    airQuality,\n    internetSpeed,\n    costOfLiving,\n    climate,\n    safety,\n    walkability,\n    sustainabilityInitiatives,\n    digitalNomadFeatures,\n    galleryImages[]{\n      asset->{\n        url\n       }\n    },\n    "primaryImage": primaryImage{\n      asset->{\n        url,\n        metadata{ dimensions }\n      }\n    }\n  }': GetCityFullDetailsBySlugQueryResult
+    '*[_type == "listing" && moderation.status == "published" && city._ref == $cityId]{\n    _id,\n    name,\n    "slug": slug.current,\n    type,\n    shortDescription,\n    address,\n    location,\n    priceRange,\n    website,\n    primaryImage{\n      asset->{\n        url,\n        metadata{ dimensions }\n      }\n    },\n    "galleryImages": galleryImages[]{\n      asset->{\n        url\n      }\n    },\n    ecoFocusTags[]->{ name },\n    digitalNomadFeatures[]->{ name },\n    amenities[]->{ name },\n    city->{\n      _id,\n      name,\n      country,\n      sustainabilityScore,\n      highlights,\n      "slug": slug.current\n    }\n  }': GetPublishedListingsInCityQueryResult
+    '*[_type == "city"] | order(_createdAt desc)[0...$limit]{\n    _id,\n    name,\n    "slug": slug.current,\n    country,\n    sustainabilityScore,\n    highlights,\n    description,\n    "primaryImage": primaryImage{\n      asset->{\n        url,\n        metadata{ dimensions }\n      }\n    }\n  }': GetAllCitiesPaginatedQueryResult
     '\n  *[_type == "listing" && slug.current == $slug][0]{\n    _id,\n    name,\n    "slug": slug.current,\n    city->{\n      _id,\n      name,\n      "slug": slug.current,\n      country\n    },\n    type,\n    category,\n    address,\n    location{lat, lng, alt},\n    primaryImage,\n    galleryImages,\n    ecoFocusTags[]->{\n      _id,\n      name\n    },\n    priceRange,\n    contactPhone,\n    contactEmail,\n    website,\n    shortDescription,\n    longDescription,\n    reviews[]->{\n      _id,\n      rating,\n      comment,\n      "userId": user._ref,\n      "user": user->{\n        name,\n        image\n      },\n      "createdAt": _createdAt\n    },\n    amenities[]->{\n      _id,\n      name,\n      description,\n      badge\n    },\n    coworkingDetails,\n    accommodationDetails,\n    cafeDetails,\n    restaurantDetails,\n    activitiesDetails,\n    digitalNomadFeatures[]->{\n      _id,\n      name,\n      slug,\n      description,\n      icon\n    },\n    moderation{status, featured, verificationStatus}\n  }\n': LISTING_BY_SLUG_QUERYResult
   }
 }

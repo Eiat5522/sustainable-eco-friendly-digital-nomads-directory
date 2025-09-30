@@ -1,11 +1,10 @@
-import { jest } from '@jest/globals';
+const { jest } = require('@jest/globals');
 
-// Named export used in tests. Keep implementation minimal and valid JS.
-export const isEmailVerificationRequired = jest.fn(() => false);
+const isEmailVerificationRequired = jest.fn(() => false);
 
-// Optionally export a default object for compatibility with different import styles
-const _default = {
+const exported = {
   isEmailVerificationRequired,
 };
 
-export default _default;
+module.exports = { __esModule: true, default: exported, isEmailVerificationRequired };
+exports.isEmailVerificationRequired = isEmailVerificationRequired;

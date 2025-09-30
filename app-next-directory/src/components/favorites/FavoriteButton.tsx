@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Button } from '@/components/ui/button';
+import { NeoButton } from '@/components/ui/neo-button';
 import { Heart } from 'lucide-react';
 
 interface FavoriteButtonProps {
@@ -11,6 +11,8 @@ interface FavoriteButtonProps {
   className?: string;
   showText?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  // Optional controlled initial favorited state (useful for parent components/tests)
+  isFavorited?: boolean;
 }
 
 export function FavoriteButton({ 
@@ -19,15 +21,23 @@ export function FavoriteButton({
   className = '',
   showText = false,
   size = 'md'
+  , isFavorited: initialIsFavorited
 }: FavoriteButtonProps) {
   const { data: session } = useSession();
-  const [isFavorited, setIsFavorited] = useState(false);
+  const [isFavoritedState, setIsFavoritedState] = useState<boolean>(Boolean(initialIsFavorited ?? false));
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckingStatus, setIsCheckingStatus] = useState(true);
 
   // Check if listing is already favorited
   useEffect(() => {
     const checkFavoriteStatus = async () => {
+      // If parent provided an initial favorited state, use it and skip the remote check
+      if (typeof initialIsFavorited !== 'undefined') {
+        setIsFavoritedState(Boolean(initialIsFavorited));
+        setIsCheckingStatus(false);
+        return;
+      }
+
       if (!session?.user?.id || !listingId) {
         setIsCheckingStatus(false);
         return;
@@ -37,8 +47,8 @@ export function FavoriteButton({
         const response = await fetch('/api/user/favorites');
         if (response.ok) {
           const data = await response.json();
-          const isFav = data.data?.some((fav: unknown) => fav.listingId === listingId);
-          setIsFavorited(isFav || false);
+          const isFav = data.data?.some((fav: { listingId: string }) => fav.listingId === listingId);
+          setIsFavoritedState(isFav || false);
         }
       } catch (error) {
         console.error('Error checking favorite status:', error);
@@ -48,7 +58,7 @@ export function FavoriteButton({
     };
 
     checkFavoriteStatus();
-  }, [session, listingId]);
+  }, [session, listingId, initialIsFavorited]);
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation if button is inside a link
@@ -65,14 +75,14 @@ export function FavoriteButton({
     setIsLoading(true);
 
     try {
-      if (isFavorited) {
+  if (isFavoritedState) {
         // Remove from favorites
         const response = await fetch(`/api/user/favorites/${listingId}`, {
           method: 'DELETE',
         });
 
         if (response.ok) {
-          setIsFavorited(false);
+          setIsFavoritedState(false);
         } else {
           throw new Error('Failed to remove favorite');
         }
@@ -87,7 +97,7 @@ export function FavoriteButton({
         });
 
         if (response.ok) {
-          setIsFavorited(true);
+          setIsFavoritedState(true);
         } else {
           const errorData = await response.json();
           throw new Error(errorData.message || 'Failed to add favorite');
@@ -104,32 +114,34 @@ export function FavoriteButton({
 
   if (isCheckingStatus) {
     return (
-      <Button
-        variant="ghost"
-        size={size === 'sm' ? 'sm' : 'default'}
+      <NeoButton
+        variant="secondary"
+        size={size}
         className={`${className} animate-pulse`}
         disabled
         data-testid="favorite-button"
+        aria-label={isFavoritedState ? 'Remove from favorites' : 'Add to favorites'}
       >
         <Heart className={`${size === 'sm' ? 'h-4 w-4' : 'h-5 w-5'}`} />
         {showText && <span className="ml-1">...</span>}
-      </Button>
+      </NeoButton>
     );
   }
 
   return (
-    <Button
-      variant="ghost"
-      size={size === 'sm' ? 'sm' : 'default'}
+    <NeoButton
+      variant="secondary"
+      size={size}
       onClick={handleToggleFavorite}
       disabled={isLoading}
-      className={`transition-all duration-200 hover:scale-105 ${isFavorited ? 'favorited' : ''} ${className}`}
-      title={isFavorited ? `Remove "${listingTitle || 'listing'}" from favorites` : `Add "${listingTitle || 'listing'}" to favorites`}
+  className={`transition-all duration-200 hover:scale-105 ${isFavoritedState ? 'favorited' : ''} ${className}`}
+      title={isFavoritedState ? `Remove "${listingTitle || 'listing'}" from favorites` : `Add "${listingTitle || 'listing'}" to favorites`}
+      aria-label={isFavoritedState ? 'Remove from favorites' : 'Add to favorites'}
       data-testid="favorite-button"
     >
       <Heart
         className={`${size === 'sm' ? 'h-4 w-4' : 'h-5 w-5'} transition-colors ${
-          isFavorited 
+          isFavoritedState 
             ? 'fill-red-500 text-red-500' 
             : 'text-gray-400 hover:text-red-500'
         } ${isLoading ? 'animate-pulse' : ''}`}
@@ -138,12 +150,12 @@ export function FavoriteButton({
         <span className="ml-1 text-sm">
           {isLoading 
             ? '...' 
-            : isFavorited 
+            : isFavoritedState 
               ? 'Saved' 
               : 'Save'
           }
         </span>
       )}
-    </Button>
+    </NeoButton>
   );
 }

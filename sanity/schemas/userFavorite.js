@@ -13,6 +13,9 @@ export default defineType({
       to: [{ type: 'user' }],
       validation: (Rule) => Rule.required(),
       description: 'The user who favorited this listing',
+      options: {
+        disableNew: true,
+      },
     }),
     defineField({
       name: 'listing',
@@ -21,6 +24,9 @@ export default defineType({
       to: [{ type: 'listing' }],
       validation: (Rule) => Rule.required(),
       description: 'The listing that was favorited',
+      options: {
+        disableNew: true,
+      },
     }),
     defineField({
       name: 'createdAt',

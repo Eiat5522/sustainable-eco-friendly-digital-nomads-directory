@@ -2,6 +2,8 @@
 // File: src/types/dto.ts
 // Clean, frontend-optimized data shapes
 
+import type { UserRole } from './auth';
+
 export interface ImageDimensionsDTO {
   width?: number;
   height?: number;
@@ -180,6 +182,122 @@ export type ListingDetailDTO =
       accommodationDetails: AccommodationDetails;
       coworkingDetails?: never; cafeDetails?: never; restaurantDetails?: never; activityDetails?: never;
     });
+
+// ===== Dashboard DTOs =====
+
+export interface DashboardListingInfoDTO {
+  id: string;
+  name: string;
+  slug?: string | null;
+  city?: string | null;
+}
+
+export interface DashboardTimeSeriesPointDTO {
+  month: string; // YYYY-MM
+  label: string; // e.g., "Jan 2024"
+  reviewCount: number;
+  avgRating: number | null;
+  favoritesCount: number;
+  /** Totals only; monthly breakdown currently unavailable */
+  viewCount: number | null;
+}
+
+export interface DashboardListingSummaryDTO {
+  listing: DashboardListingInfoDTO;
+  summary: {
+    avgRating: number | null;
+    reviewCount: number;
+    favoritesCount: number;
+    viewCount: number | null;
+  };
+  monthly: DashboardTimeSeriesPointDTO[];
+  lastUpdated?: string | null;
+}
+
+export interface VenueOwnerDashboardDTO {
+  kind: 'venueOwner';
+  listings: DashboardListingSummaryDTO[];
+  totals: {
+    avgRating: number | null;
+    reviewCount: number;
+    favoritesCount: number;
+    viewCount: number | null;
+  };
+  monthlyTotals: DashboardTimeSeriesPointDTO[];
+  notices: string[];
+}
+
+export interface UserDashboardFavoriteDTO {
+  id: string;
+  createdAt: string;
+  listing: DashboardListingInfoDTO;
+}
+
+export interface RegularUserDashboardDTO {
+  kind: 'user';
+  favorites: UserDashboardFavoriteDTO[];
+  metrics: {
+    favoritesCount: number;
+    reviewsWritten: number;
+    avgRatingGiven: number | null;
+  };
+  monthly: DashboardTimeSeriesPointDTO[];
+}
+
+export interface UserDashboardPayloadDTO {
+  user: {
+    id: string;
+    role: UserRole;
+    name?: string | null;
+    email?: string | null;
+  };
+  generatedAt: string;
+  range: {
+    months: number;
+    from: string;
+    to: string;
+  };
+  data: VenueOwnerDashboardDTO | RegularUserDashboardDTO;
+}
+
+// ===== Analytics DTOs =====
+
+export interface UserAnalyticsSummaryDTO {
+  avgRating: number | null;
+  reviewCount: number;
+  favoritesCount: number;
+  viewCount: number | null;
+}
+
+export interface VenueOwnerAnalyticsDTO {
+  kind: 'venueOwner';
+  summary: UserAnalyticsSummaryDTO;
+  monthly: DashboardTimeSeriesPointDTO[];
+}
+
+export interface RegularUserAnalyticsDTO {
+  kind: 'user';
+  summary: {
+    avgRating: number | null;
+    reviewCount: number;
+    favoritesCount: number;
+  };
+  monthly: DashboardTimeSeriesPointDTO[];
+}
+
+export interface UserAnalyticsPayloadDTO {
+  user: {
+    id: string;
+    role: UserRole;
+  };
+  generatedAt: string;
+  range: {
+    months: number;
+    from: string;
+    to: string;
+  };
+  data: VenueOwnerAnalyticsDTO | RegularUserAnalyticsDTO;
+}
 
 // ===== Blog DTOs =====
 import type { PortableTextBlock } from './external/portabletext';

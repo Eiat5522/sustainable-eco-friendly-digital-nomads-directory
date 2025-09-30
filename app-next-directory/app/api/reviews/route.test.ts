@@ -1,9 +1,50 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { GET } from './route';
+
+jest.mock('@/lib/auth', () => ({ __esModule: true, auth: jest.fn() }));
+jest.mock('@/lib/sanity/client', () => ({
+  __esModule: true,
+  client: {
+    getDocument: jest.fn(),
+    create: jest.fn(),
+    fetch: jest.fn(),
+  },
+}));
+jest.mock('@/lib/sanity/user', () => ({ __esModule: true, ensureSanityUser: jest.fn() }));
+jest.mock('@/utils/db-helpers', () => ({ __esModule: true, getCollection: jest.fn() }));
+jest.mock('next/cache', () => ({ __esModule: true, revalidateTag: jest.fn() }));
+jest.mock('@/lib/logger', () => ({
+  __esModule: true,
+  structuredLogger: { apiError: jest.fn() },
+  getRequestContext: jest.fn().mockReturnValue({}),
+}));
+jest.mock('mongodb', () => ({
+  __esModule: true,
+  MongoClient: class {
+    connect() {
+      return Promise.resolve(this);
+    }
+    db() {
+      return {
+        collection: () => ({
+          find: jest.fn(),
+          project: jest.fn(),
+        }),
+      };
+    }
+  },
+}));
+
+import { GET, POST } from './route';
+import { auth } from '@/lib/auth';
+import { client } from '@/lib/sanity/client';
+import { ensureSanityUser } from '@/lib/sanity/user';
+import { revalidateTag } from 'next/cache';
+import { structuredLogger } from '@/lib/logger';
 
 describe('API /api/reviews GET', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (client.fetch as jest.Mock).mockResolvedValue(null);
   });
 
   // Simplified mock setup
@@ -103,5 +144,133 @@ describe('API /api/reviews GET', () => {
     
     // Verify the mock was called (error was triggered)
     expect(badCollection.find).toHaveBeenCalled();
+  });
+});
+
+describe('API /api/reviews POST', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (client.fetch as jest.Mock).mockResolvedValue(null);
+  });
+
+  it('rejects unauthenticated requests', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce(null);
+
+    const res = await POST(new Request('http://localhost/api/reviews', {
+      method: 'POST',
+      body: JSON.stringify({ listingId: 'listing-1', rating: 4, comment: 'This is a sufficiently long review text.' })
+    }));
+
+    expect(res.status).toBe(401);
+    const json = await res.json();
+    expect(json.error).toBe('Unauthorized');
+  });
+
+  it('rejects users without review permissions', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'unidentifiedUser' } });
+
+    const res = await POST(new Request('http://localhost/api/reviews', {
+      method: 'POST',
+      body: JSON.stringify({ listingId: 'listing-1', rating: 4, comment: 'This is a sufficiently long review text.' })
+    }));
+
+    expect(res.status).toBe(403);
+    const json = await res.json();
+    expect(json.error).toBe('Forbidden: Insufficient permissions to create reviews');
+    expect(client.create).not.toHaveBeenCalled();
+  });
+
+  it('validates incoming payload and enforces minimum comment length', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+
+    const res = await POST(new Request('http://localhost/api/reviews', {
+      method: 'POST',
+      body: JSON.stringify({ listingId: 'listing-1', rating: 4, comment: 'Too short' })
+    }));
+
+    expect(res.status).toBe(422);
+    const json = await res.json();
+    expect(json.error).toBe('Comment must be at least 20 characters.');
+    expect(client.create).not.toHaveBeenCalled();
+  });
+
+  it('returns conflict when a user already reviewed the listing', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+    (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'listing-1', slug: { current: 'listing-slug' } });
+    (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanity-user-1' });
+    (client.fetch as jest.Mock).mockResolvedValueOnce({ _id: 'existing-review' });
+
+    const res = await POST(new Request('http://localhost/api/reviews', {
+      method: 'POST',
+      body: JSON.stringify({ listingId: 'listing-1', rating: 5, comment: 'This comment is definitely long enough.' })
+    }));
+
+    expect(res.status).toBe(409);
+    const json = await res.json();
+    expect(json.error).toBe('You have already reviewed this listing');
+    expect(client.create).not.toHaveBeenCalled();
+  });
+
+  it('requires valid listing and user references', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user', email: 'user@example.com' } });
+    (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
+    (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanity-user-1' });
+
+    const res = await POST(new Request('http://localhost/api/reviews', {
+      method: 'POST',
+      body: JSON.stringify({ listingId: 'missing', rating: 3, comment: 'This is a sufficiently long review text.' })
+    }));
+
+    expect(res.status).toBe(400);
+    const json = await res.json();
+    expect(json.error).toBe('Invalid reference(s)');
+    expect(client.create).not.toHaveBeenCalled();
+  });
+
+  it('creates a pending review, trims comment, and revalidates the listing page', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user', name: 'Reviewer', email: 'user@example.com' } });
+    (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'listing-1', slug: { current: 'listing-slug' } });
+    (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanity-user-1' });
+    (client.create as jest.Mock).mockResolvedValueOnce({ _id: 'review-1', approved: false, createdAt: '2024-01-01T00:00:00.000Z' });
+
+    const res = await POST(new Request('http://localhost/api/reviews', {
+      method: 'POST',
+      body: JSON.stringify({ listingId: 'listing-1', rating: 5, comment: '   Fantastic eco stay with brilliant amenities.   ' })
+    }));
+
+    expect(res.status).toBe(201);
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(json.data).toMatchObject({ id: 'review-1', rating: 5, comment: 'Fantastic eco stay with brilliant amenities.', approved: false });
+    expect(client.create).toHaveBeenCalledWith(expect.objectContaining({
+      _type: 'review',
+      rating: 5,
+      comment: 'Fantastic eco stay with brilliant amenities.',
+      approved: false,
+      listing: { _type: 'reference', _ref: 'listing-1' },
+      user: { _type: 'reference', _ref: 'sanity-user-1' },
+    }));
+    if (jest.isMockFunction(revalidateTag)) {
+      expect(revalidateTag).toHaveBeenCalledWith('listing:listing-slug');
+    }
+  });
+
+  it('logs and returns 500 when creation fails unexpectedly', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+    (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'listing-1' });
+    (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanity-user-1' });
+    (client.create as jest.Mock).mockRejectedValueOnce(new Error('Sanity failure'));
+
+    const res = await POST(new Request('http://localhost/api/reviews', {
+      method: 'POST',
+      body: JSON.stringify({ listingId: 'listing-1', rating: 4, comment: 'This is a sufficiently long review text.' })
+    }));
+
+    expect(res.status).toBe(500);
+    const json = await res.json();
+    expect(json.error).toBe('Failed to submit review');
+    if (jest.isMockFunction(structuredLogger.apiError)) {
+      expect(structuredLogger.apiError).toHaveBeenCalled();
+    }
   });
 });

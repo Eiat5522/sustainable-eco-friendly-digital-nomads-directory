@@ -28,8 +28,7 @@ function isSafePath(base, target) {
 const requiredEndpoints = [
   'src/app/api/user/dashboard/route.ts',
   'src/app/api/user/favorites/route.ts',
-  'src/app/api/user/favorites/[listingId]/route.ts',
-  'src/app/api/user/preferences/route.ts',
+  'src/app/api/user/favorites/[slug]/route.ts',
   'src/app/api/user/analytics/route.ts',
   'src/app/api/user/profile/route.ts',
 ];
@@ -49,7 +48,6 @@ requiredEndpoints.forEach(endpoint => {
 // Test 2: Check if required models exist
 const requiredModels = [
   'src/models/UserFavorite.ts',
-  'src/models/UserPreferences.ts',
   'src/models/UserAnalytics.ts',
   'src/models/User.ts',
 ];
@@ -117,17 +115,7 @@ const favoriteSingleResults = checkApiImplementation(
   ['DELETE']
 );
 console.log('  ❤️ Individual Favorite API (/api/user/favorites/[listingId]):');
-favoriteSingleResults.forEach(result => {
-  console.log(`    ${result.implemented ? '✅' : '❌'} ${result.method} method`);
-});
-
-// Check preferences endpoint
-const preferencesResults = checkApiImplementation('src/app/api/user/preferences/route.ts', [
-  'GET',
-  'PUT',
-]);
-console.log('  ⚙️ Preferences API (/api/user/preferences):');
-preferencesResults.forEach(result => {
+  favoriteSingleResults.forEach(result => {
   console.log(`    ${result.implemented ? '✅' : '❌'} ${result.method} method`);
 });
 
@@ -152,15 +140,14 @@ try {
     const dashboardContent = fs.readFileSync(dashboardPath, 'utf8');
 
   const requiredDashboardFeatures = [
-    'profile',
-    'activity',
-    'preferences',
+    'analytics',
+    'favorites',
     'insights',
     'achievements',
     'recommendations',
     'monthlyTrends',
   ];
-
+  
   requiredDashboardFeatures.forEach(feature => {
     if (dashboardContent.includes(feature)) {
       console.log(`  ✅ ${feature} - IMPLEMENTED`);

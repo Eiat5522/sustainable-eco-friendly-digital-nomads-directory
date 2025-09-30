@@ -22,7 +22,6 @@ import searchBoost from './searchBoost.js';
 import searchConfig from './searchConfig.js';
 import user from './user.js';
 import userFavorite from './userFavorite.js';
-import userPreference from './userPreference.js';
 import coworkingPricingPlan from './objects/coworkingPricingPlan.js';
 import openingHoursEntry from './objects/openingHoursEntry.js';
 
@@ -51,7 +50,6 @@ export const schemaTypes = [
   richText,
   searchBoost,
   searchConfig,
-  userPreference,
   coworkingPricingPlan,
   openingHoursEntry
 ];

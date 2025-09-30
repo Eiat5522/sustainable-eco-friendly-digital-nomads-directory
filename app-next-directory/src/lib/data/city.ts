@@ -134,7 +134,7 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
   if (isE2ERun()) {
     return getE2ECitySummary(slug);
   }
-  const query = groq`*[_type == "city" && slug.current == $slug][0]{
+  const getCitySummaryBySlugQuery = groq`*[_type == "city" && slug.current == $slug][0]{
     _id,
     name,
     "slug": slug.current,
@@ -150,7 +150,7 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
     }
   }`;
 
-  const raw = await client.fetch(query, { slug });
+  const raw = await client.fetch(getCitySummaryBySlugQuery, { slug });
   return toCityDTO(raw);
 }
 
@@ -158,7 +158,7 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
   if (isE2ERun()) {
     return getE2ECityDetail(slug);
   }
-  const query = groq`*[_type == "city" && slug.current == $slug][0]{
+  const getCityFullDetailsBySlugQuery = groq`*[_type == "city" && slug.current == $slug][0]{
     _id,
     name,
     "slug": slug.current,
@@ -188,7 +188,7 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     }
   }`;
 
-  const raw = await client.fetch(query, { slug });
+  const raw = await client.fetch(getCityFullDetailsBySlugQuery, { slug });
   return toCityDetailDTO(raw);
 }
 
@@ -196,7 +196,7 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
   if (isE2ERun()) {
     return getE2EListingsForCity(cityId);
   }
-  const query = groq`*[_type == "listing" && moderation.status == "published" && city._ref == $cityId]{
+  const getPublishedListingsInCityQuery = groq`*[_type == "listing" && moderation.status == "published" && city._ref == $cityId]{
     _id,
     name,
     "slug": slug.current,
@@ -230,7 +230,7 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
     }
   }`;
 
-  const listingsRaw = await client.fetch<ListingSummarySource[]>(query, { cityId });
+  const listingsRaw = await client.fetch<ListingSummarySource[]>(getPublishedListingsInCityQuery, { cityId });
 
   return listingsRaw.map((listing) =>
     transformToSummaryDTO({
@@ -247,7 +247,7 @@ export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
   if (isE2ERun()) {
     return getE2ECityList(limit);
   }
-  const query = groq`*[_type == "city"] | order(_createdAt desc)[0...$limit]{
+  const getAllCitiesPaginatedQuery = groq`*[_type == "city"] | order(_createdAt desc)[0...$limit]{
     _id,
     name,
     "slug": slug.current,
@@ -263,6 +263,6 @@ export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
     }
   }`;
 
-  const raw = await client.fetch(query, { limit });
+  const raw = await client.fetch(getAllCitiesPaginatedQuery, { limit });
   return (Array.isArray(raw) ? raw : []).map(toCityDTO).filter(Boolean) as CityDTO[];
 }

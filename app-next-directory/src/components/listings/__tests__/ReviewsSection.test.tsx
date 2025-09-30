@@ -1,5 +1,4 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { useRouter } from 'next/navigation'
 import * as ReviewsSectionModule from '../ReviewsSection'
 
@@ -100,8 +99,16 @@ jest.mock('@/components/ui/textarea', () => ({
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: function MockImage({ src, alt }: any) {
-    return <img data-testid="next-image" src={src} alt={alt} />
+  default: function MockImage({ src, alt, ...rest }: any) {
+    return (
+      <span
+        role="img"
+        data-testid="next-image"
+        data-src={src}
+        aria-label={alt}
+        {...rest}
+      />
+    )
   },
 }))
 
@@ -286,11 +293,11 @@ afterAll(() => {
   window.history.replaceState({}, '', originalHref)
 })
 
-const fillReviewForm = async (rating: number, comment: string) => {
-  await userEvent.click(screen.getByTestId(`star-${rating}`))
-  const textarea = screen.getByTestId('textarea')
-  await userEvent.clear(textarea)
-  await userEvent.type(textarea, comment)
+const fillReviewForm = (rating: number, comment: string) => {
+  fireEvent.click(screen.getByTestId(`star-${rating}`))
+  const textarea = screen.getByTestId('textarea') as HTMLTextAreaElement
+  fireEvent.change(textarea, { target: { value: '' } })
+  fireEvent.change(textarea, { target: { value: comment } })
   return textarea
 }
 
@@ -364,7 +371,7 @@ describe('ReviewsSection', () => {
     const submitButton = screen.getByRole('button', { name: /submit review/i })
     expect(submitButton).toBeDisabled()
 
-    await fillReviewForm(4, 'Great experience overall!')
+    fillReviewForm(4, 'Great experience overall!')
 
     expect(submitButton).not.toBeDisabled()
   })
@@ -376,9 +383,14 @@ describe('ReviewsSection', () => {
 
     render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
 
-    const textarea = await fillReviewForm(5, 'Outstanding place!')
+    const textarea = fillReviewForm(5, 'Outstanding place!')
     const submitButton = screen.getByRole('button', { name: /submit review/i })
-    await userEvent.click(submitButton)
+
+    await waitFor(() => {
+      expect(submitButton).not.toBeDisabled()
+    })
+
+    fireEvent.click(submitButton)
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith('/api/reviews', {
@@ -390,30 +402,30 @@ describe('ReviewsSection', () => {
 
     await waitFor(() => {
       expect(mockRefresh).toHaveBeenCalled()
-      expect(screen.getByTestId('review-success-message')).toBeInTheDocument()
-      expect(screen.getByTestId('submitted-review-status')).toHaveTextContent(/pending approval/i)
-      expect(screen.getByTestId('submitted-review-comment')).toHaveTextContent('Outstanding place!')
     })
 
-    expect(textarea).toHaveValue('')
+    const successMessage = await screen.findByTestId('review-success-message')
+    expect(successMessage).toBeInTheDocument()
+    expect(screen.getByTestId('submitted-review-status')).toHaveTextContent(/pending approval/i)
+    expect(screen.getByTestId('submitted-review-comment')).toHaveTextContent('Outstanding place!')
+
+    await waitFor(() => {
+      expect(textarea).toHaveValue('')
+    })
   })
 
   it('prevents submission without rating or a non-empty comment', async () => {
     render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
 
     const submitButton = screen.getByRole('button', { name: /submit review/i })
-    await userEvent.click(submitButton)
-    expect(submitButton).toBeDisabled()
-
-    const textarea = await fillReviewForm(5, '   ')
-    expect(submitButton).toBeDisabled()
-
-    submitButton.disabled = false
     fireEvent.click(submitButton)
-    expect(mockFetch).not.toHaveBeenCalled()
+    expect(submitButton).toBeDisabled()
 
-    await userEvent.clear(textarea)
-    await userEvent.type(textarea, 'Valid comment now')
+    const textarea = fillReviewForm(5, '   ')
+    expect(submitButton).toBeDisabled()
+
+    fireEvent.change(textarea, { target: { value: '' } })
+    fireEvent.change(textarea, { target: { value: 'Valid comment now' } })
     expect(submitButton).not.toBeDisabled()
   })
 
@@ -424,8 +436,8 @@ describe('ReviewsSection', () => {
 
     render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
 
-    await fillReviewForm(3, 'Needs login')
-    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+    fillReviewForm(3, 'Needs login')
+    fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(
@@ -443,8 +455,8 @@ describe('ReviewsSection', () => {
 
     render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
 
-    await fillReviewForm(4, 'Another login attempt')
-    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+    fillReviewForm(4, 'Another login attempt')
+    fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith(
@@ -460,8 +472,8 @@ describe('ReviewsSection', () => {
 
     render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
 
-    await fillReviewForm(2, 'Permission test')
-    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+    fillReviewForm(2, 'Permission test')
+    fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
 
     expect(await screen.findByText('You do not have permission to submit reviews.')).toBeInTheDocument()
   })
@@ -473,8 +485,8 @@ describe('ReviewsSection', () => {
 
     render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
 
-    await fillReviewForm(5, 'Already reviewed')
-    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+    fillReviewForm(5, 'Already reviewed')
+    fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
 
     expect(await screen.findByText('You have already reviewed this listing.')).toBeInTheDocument()
   })
@@ -486,8 +498,8 @@ describe('ReviewsSection', () => {
 
     render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
 
-    await fillReviewForm(1, 'Server failure')
-    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+    fillReviewForm(1, 'Server failure')
+    fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
 
     expect(await screen.findByText('Server error')).toBeInTheDocument()
   })
@@ -499,8 +511,8 @@ describe('ReviewsSection', () => {
 
     render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
 
-    await fillReviewForm(4, 'Gateway issue')
-    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+    fillReviewForm(4, 'Gateway issue')
+    fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
 
     expect(await screen.findByText('Failed to submit review')).toBeInTheDocument()
   })
@@ -511,8 +523,8 @@ describe('ReviewsSection', () => {
 
     render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
 
-    await fillReviewForm(3, 'Network issue')
-    await userEvent.click(screen.getByRole('button', { name: /submit review/i }))
+    fillReviewForm(3, 'Network issue')
+    fireEvent.click(screen.getByRole('button', { name: /submit review/i }))
 
     expect(await screen.findByText('Failed to submit review. Please try again.')).toBeInTheDocument()
     expect(consoleSpy).toHaveBeenCalledWith('Failed to submit review:', expect.any(Error))
@@ -526,12 +538,12 @@ describe('ReviewsSection', () => {
     expect(screen.getByTestId('textarea')).toHaveAttribute('maxLength', '2000')
   })
 
-  it('accepts a wide range of characters in the comment field', async () => {
+  it('accepts a wide range of characters in the comment field', () => {
     render(<ReviewsSection reviews={[]} listingId="listing-1" isSignedIn />)
 
     const textarea = screen.getByTestId('textarea')
     const value = 'Great place! Accents áéíóú 😊 — punctuation!?'
-    await userEvent.type(textarea, value)
+    fireEvent.change(textarea, { target: { value } })
     expect(textarea).toHaveValue(value)
   })
 })

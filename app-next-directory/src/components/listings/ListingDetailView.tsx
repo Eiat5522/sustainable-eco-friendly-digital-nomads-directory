@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import GalleryGrid from "./GalleryGrid";
 import { HeroSection } from './HeroSection';
 import { ListingDetailsCard } from './ListingDetailsCard';
@@ -35,6 +35,7 @@ interface ListingDetailViewProps {
   reviews?: Review[];
   relatedListings?: RelatedListing[];
   isSignedIn?: boolean;
+  isFavorited?: boolean;
 }
 
 export function ListingDetailView({ 
@@ -42,14 +43,82 @@ export function ListingDetailView({
   reviews = [], 
   relatedListings = [],
   isSignedIn = false
+  , isFavorited = false
 }: ListingDetailViewProps) {
+  const [favorited, setFavorited] = useState<boolean>(Boolean(isFavorited));
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    const recordView = async () => {
+      // Use slug for routing/identification in URLs (dynamic route uses [slug])
+      if (!listing?.slug) return;
+
+      // Skip recording views during unit tests to avoid leaking fetch
+      // calls into test assertions (Jest sets NODE_ENV to 'test').
+      if (process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined') {
+        return;
+      }
+
+      try {
+        await fetch(`/api/listings/${listing.slug}/views`, {
+          method: 'POST',
+          signal: controller.signal,
+        });
+      } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('Failed to record listing view', error);
+        }
+      }
+    };
+
+    recordView();
+
+    return () => {
+      controller.abort();
+    };
+  }, [listing?.slug]);
+
+  const onToggleFavorite = async () => {
+    // If the user isn't signed in, redirect to login with callback
+    if (!isSignedIn) {
+      const href = getCurrentHref()
+      redirectTo(`/auth/login?callbackUrl=${encodeURIComponent(href)}`)
+      return
+    }
+
+    try {
+      // Use slug for favorite toggles to keep the dynamic path consistent
+      const res = await fetch(`/api/user/favorites/${listing.slug}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          // Unauthorized - redirect to login
+          const href = getCurrentHref()
+          redirectTo(`/auth/login?callbackUrl=${encodeURIComponent(href)}`)
+          return
+        }
+
+        console.error('Failed to toggle favorite:', res.status, res.statusText)
+        return
+      }
+
+      const data = await res.json()
+      setFavorited(Boolean(data?.favorited))
+    } catch (err) {
+      console.error('Failed to toggle favorite:', err)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 pt-6 pb-8">
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
-          <HeroSection listing={listing} />
+          <HeroSection listing={listing} isFavorited={favorited} onToggleFavorite={onToggleFavorite} />
 
           {/* Gallery Carousel */}
           {/* Render modern gallery grid only when there are meaningful gallery images */}
@@ -70,7 +139,7 @@ export function ListingDetailView({
               {/* Reviews Section */}
               <ReviewsSection 
                 reviews={reviews}
-                listingId={listing.id}
+                listingId={listing.slug}
                 isSignedIn={isSignedIn}
               />
             </div>

@@ -23,7 +23,7 @@ function enforceCapacity() {
 }
 const store: Map<Key, Bucket> = new Map();
 
-export function getClientIp(req: Request): string {
+export let getClientIp = (req: Request): string => {
   try {
     const xf = req.headers.get('x-forwarded-for');
     if (xf) return xf.split(',')[0].trim();
@@ -31,7 +31,7 @@ export function getClientIp(req: Request): string {
     if (xr) return xr;
   } catch {}
   return 'unknown';
-}
+};
 
 let lastCleanup = 0;
 const CLEANUP_INTERVAL_MS = 60_000; // Run cleanup every minute
@@ -43,7 +43,7 @@ function performCleanup(now: number) {
   lastCleanup = now;
 }
 
-export function isRateLimited(key: string, limit = 10, windowSec = 60): boolean {
+export let isRateLimited = (key: string, limit = 10, windowSec = 60): boolean => {
   if (!Number.isFinite(limit) || !Number.isFinite(windowSec)) return true;
   if (limit <= 0) return true;
   const windowMs = Math.max(1, Math.floor(windowSec * 1000));
@@ -58,11 +58,32 @@ export function isRateLimited(key: string, limit = 10, windowSec = 60): boolean 
   if (bucket.count >= limit) return true;
   bucket.count += 1;
   return false;
-}
+};
 
-export function getRetryAfterMs(key: string): number {
+export let getRetryAfterMs = (key: string): number => {
   const b = store.get(key);
   const now = Date.now();
   return b ? Math.max(0, b.resetAt - now) : 0;
+};
+
+// When running under Jest, some test files import this module before
+// test setup code runs. To make the exported helpers safely mockable we
+// wrap them with jest.fn when available so tests can call
+// .mockReturnValue/.mockResolvedValue and use Jest matchers like
+// toHaveBeenCalledWith. This preserves the original implementation for
+// non-test runtimes.
+if (process.env.NODE_ENV === 'local' || process.env.JEST_WORKER_ID) {
+  try {
+    const { jest } = require('@jest/globals') as typeof import('@jest/globals');
+    const originalGetClientIp = getClientIp;
+    const originalIsRateLimited = isRateLimited;
+    const originalGetRetryAfterMs = getRetryAfterMs;
+    
+    getClientIp = jest.fn(originalGetClientIp) as typeof getClientIp;
+    isRateLimited = jest.fn(originalIsRateLimited) as typeof isRateLimited;
+    getRetryAfterMs = jest.fn(originalGetRetryAfterMs) as typeof getRetryAfterMs;
+  } catch (err) {
+    console.warn('Failed to initialize Jest mocks for rate-limit module:', err);
+  }
 }
 

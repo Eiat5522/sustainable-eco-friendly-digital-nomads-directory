@@ -1,6 +1,13 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
-import type { NextRequest } from 'next/server';
+import { auth } from '@/lib/auth';
+import { client } from '@/lib/sanity/client';
+import { ensureSanityUser } from '@/lib/sanity/user';
+import { structuredLogger, getRequestContext } from '@/lib/logger';
+import { hasFeaturePermission, type UserRole } from '@/types/auth';
+import { revalidateTag } from 'next/cache';
+import { NextResponse, type NextRequest } from 'next/server';
+import { z } from 'zod';
 
 type ReviewDoc = {
   verified?: boolean;
@@ -89,8 +96,123 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 }
 
-export async function POST() {
-  // ...existing code...
-}
+const reviewInputSchema = z.object({
+  listingId: z.string().min(1, 'Listing ID is required.'),
+  rating: z.coerce.number({ invalid_type_error: 'Rating must be a number between 1 and 5.' })
+    .min(1, 'Rating must be a number between 1 and 5.')
+    .max(5, 'Rating must be a number between 1 and 5.'),
+  comment: z.string().trim().min(20, 'Comment must be at least 20 characters.'),
+  ecoRating: z.coerce.number().min(1).max(5).optional(),
+  nomadRating: z.coerce.number().min(1).max(5).optional(),
+}).passthrough();
 
-// ...existing code...
+export async function POST(request: NextRequest) {
+  const session = await auth();
+
+  const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
+  const userId: string | undefined = user?.id;
+  const userRole: UserRole = user?.role || 'unidentifiedUser';
+
+  if (!userId) {
+    return ApiResponseHandler.error('Unauthorized', 401);
+  }
+
+  if (!hasFeaturePermission(userRole, 'submitReviews')) {
+    return ApiResponseHandler.error('Forbidden: Insufficient permissions to create reviews', 403);
+  }
+
+  let parsed:
+    | (z.infer<typeof reviewInputSchema> & { comment: string })
+    | undefined;
+
+  try {
+    const body = await request.json();
+    const result = reviewInputSchema.safeParse(body);
+    if (!result.success) {
+      const firstError = result.error.errors[0]?.message ?? 'Invalid review data';
+      return ApiResponseHandler.error(firstError, 422, result.error.format());
+    }
+    parsed = { ...result.data, comment: result.data.comment.trim() };
+  } catch (error) {
+    return ApiResponseHandler.error('Invalid review data', 422);
+  }
+
+  const { listingId, rating, comment, ecoRating, nomadRating } = parsed;
+
+  try {
+    const [listingDoc, sanityUser] = await Promise.all([
+      client.getDocument(listingId),
+      ensureSanityUser({
+        id: userId,
+        name: user?.name ?? null,
+        email: user?.email ?? null,
+        role: userRole,
+      }),
+    ]);
+
+    if (!listingDoc || !sanityUser) {
+      return ApiResponseHandler.error('Invalid reference(s)', 400);
+    }
+
+    const existingReview = await client.fetch(
+      `*[_type == "review" && listing._ref == $listingId && user._ref == $userId][0]`,
+      { listingId, userId }
+    );
+
+    if (existingReview) {
+      return ApiResponseHandler.error('You have already reviewed this listing', 409);
+    }
+
+    const now = new Date().toISOString();
+    const reviewDoc: Record<string, unknown> = {
+      _type: 'review',
+      listing: { _type: 'reference', _ref: listingId },
+      user: { _type: 'reference', _ref: sanityUser._id },
+      rating,
+      comment,
+      approved: false,
+      createdAt: now,
+    };
+
+    if (typeof ecoRating === 'number') {
+      reviewDoc.ecoRating = ecoRating;
+    }
+    if (typeof nomadRating === 'number') {
+      reviewDoc.nomadRating = nomadRating;
+    }
+
+    const newReview = await client.create(reviewDoc);
+
+    const listingSlug = (listingDoc as { slug?: { current?: string } } | null | undefined)?.slug?.current;
+    if (listingSlug) {
+      try {
+        revalidateTag(`listing:${listingSlug}`);
+      } catch {
+        // Ignore revalidation errors in non-ISR contexts
+      }
+    }
+
+    const responsePayload = {
+      id: typeof (newReview as any)?._id === 'string' ? (newReview as any)._id : undefined,
+      rating,
+      comment,
+      approved: Boolean((newReview as any)?.approved),
+      createdAt: typeof (newReview as any)?.createdAt === 'string' ? (newReview as any).createdAt : now,
+      ...(typeof ecoRating === 'number' ? { ecoRating } : {}),
+      ...(typeof nomadRating === 'number' ? { nomadRating } : {}),
+    };
+
+    return NextResponse.json(
+      { success: true, data: responsePayload, message: 'Review submitted successfully' },
+      { status: 201 }
+    );
+  } catch (error) {
+    structuredLogger.apiError('/api/reviews', error, {
+      ...getRequestContext(request),
+      userId,
+      userRole,
+      operation: 'create_review',
+    });
+    return ApiResponseHandler.error('Failed to submit review', 500);
+  }
+}
