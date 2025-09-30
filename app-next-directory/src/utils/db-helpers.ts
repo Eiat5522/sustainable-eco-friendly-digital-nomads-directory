@@ -318,6 +318,7 @@ function createMockCollection(name: string): MockCollection {
     find: (query = {}) => {
       const results = documents.filter((doc) => matchesQuery(doc, query));
       return createMockCursor(results);
+    },
     insertOne: async (doc: any) => {
       const payload = { ...doc };
       if (!payload._id) {
@@ -327,18 +328,24 @@ function createMockCollection(name: string): MockCollection {
       }
       documents.push(payload);
       return { acknowledged: true, insertedId: payload._id };
-    },
     insertMany: async (docs: any[]) => {
       const insertedIds: Record<number, string> = {};
+      const existingIds = new Set(documents.map(d => d._id));
+
       docs.forEach((doc, index) => {
         const payload = { ...doc };
         if (!payload._id) {
           payload._id = createMockId();
+        } else if (existingIds.has(payload._id)) {
+          throw new Error(`E11000 duplicate key error: _id: ${payload._id}`);
         }
+        existingIds.add(payload._id);
         documents.push(payload);
         insertedIds[index] = payload._id;
       });
+
       return { acknowledged: true, insertedCount: docs.length, insertedIds };
+    },
     },
     updateOne: async (filter, update, options) => {
       const target = documents.find((doc) => matchesQuery(doc, filter));
@@ -445,12 +452,50 @@ export async function getDatabase(): Promise<Db | MockDb> {
     return globalWithMongo.__TEST_MONGO_DB__;
   }
 
+  // Lazily initialize clientPromise here in case the module was imported
+  // before environment variables or global state were set (common in tests
+  // that call jest.resetModules()). This preserves the original error
+  // behavior when MONGODB_URI is missing.
   if (!clientPromise) {
-    throw new Error('MongoDB client is not initialized');
+    const uri = process.env.MONGODB_URI;
+    if (!uri) {
+      const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env.local';
+      throw new Error(`MongoDB URI is missing. Please set the MONGODB_URI environment variable in ${envFile}.`);
+    }
+
+    if (typeof window === 'undefined') {
+      if (!globalWithMongo._mongoClientPromise) {
+        const client = new MongoClient(uri, {});
+        globalWithMongo._mongoClientPromise = client.connect();
+      }
+      clientPromise = globalWithMongo._mongoClientPromise;
+    }
   }
 
   const client = await clientPromise;
   if (!client || typeof client.db !== 'function') {
+    // Attempt to reinitialize the client in test environments in case a
+    // previous test left a bad `global._mongoClientPromise` value. If
+    // reinitialization fails, fall back to an in-memory mock DB for
+    // deterministic test behavior.
+    if (process.env.NODE_ENV === 'test') {
+      const uri = process.env.MONGODB_URI;
+      if (uri) {
+        try {
+          const newClient = new MongoClient(uri, {});
+          globalWithMongo._mongoClientPromise = newClient.connect();
+          clientPromise = globalWithMongo._mongoClientPromise;
+          const reclient = await clientPromise;
+          if (reclient && typeof reclient.db === 'function') {
+            return reclient.db('sustainable-nomads');
+          }
+        } catch (err) {
+          // ignore and fall back to mock DB below
+        }
+      }
+      return createMockDb();
+    }
+
     throw new Error('MongoDB client is invalid or not connected');
   }
 

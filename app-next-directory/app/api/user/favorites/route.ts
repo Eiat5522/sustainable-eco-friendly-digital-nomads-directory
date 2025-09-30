@@ -104,8 +104,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Add to favorites
-    const favorite = await client.create({
+    const favoriteId = `userFavorite-${sanityUser._id}-${listingId}`;
+    const favorite = await client.createOrReplace({
+      _id: favoriteId,
       _type: 'userFavorite',
       user: { _type: 'reference', _ref: sanityUser._id },
       listing: { _type: 'reference', _ref: listingId },

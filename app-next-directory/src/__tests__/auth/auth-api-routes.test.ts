@@ -38,7 +38,7 @@ const mockSendMail = emailModule.sendMail as jest.MockedFunction<typeof emailMod
 const mockGetClientIp = rateLimitModule.getClientIp as jest.MockedFunction<typeof rateLimitModule.getClientIp>;
 const mockIsRateLimited = rateLimitModule.isRateLimited as jest.MockedFunction<typeof rateLimitModule.isRateLimited>;
 const mockGetRetryAfterMs = rateLimitModule.getRetryAfterMs as jest.MockedFunction<typeof rateLimitModule.getRetryAfterMs>;
-const mockIsEmailVerificationRequired = isEmailVerificationRequired as jest.MockedFunction<typeof isEmailVerificationRequired>;
+let mockIsEmailVerificationRequired: jest.MockedFunction<typeof authConfigModule.isEmailVerificationRequired>;
 const mockGetRequestContext = loggerModule.getRequestContext as jest.MockedFunction<typeof loggerModule.getRequestContext>;
 const mockStructuredLogger = loggerModule.structuredLogger as jest.Mocked<typeof loggerModule.structuredLogger>;
 
@@ -98,6 +98,18 @@ describe('Authentication API Routes', () => {
     mockGetClientIp.mockReturnValue('127.0.0.1');
     mockIsRateLimited.mockReturnValue(false);
     mockGetRetryAfterMs.mockReturnValue(60_000);
+    // Ensure we reference the mocked module instance produced by Jest's module system
+    // This uses jest.requireMock to get the factory/mock created in jest.setup.ts so
+    // the function is guaranteed to be a jest.fn with .mockReturnValue available.
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const acMock = jest.requireMock('@/lib/auth/config') as any;
+      mockIsEmailVerificationRequired = acMock.isEmailVerificationRequired as jest.MockedFunction<any>;
+    } catch (e) {
+      // Fallback to the imported reference if requireMock isn't available in this env
+      mockIsEmailVerificationRequired = authConfigModule.isEmailVerificationRequired as jest.MockedFunction<any>;
+    }
+    mockIsEmailVerificationRequired.mockReturnValue(false);
     mockGenerateToken.mockReturnValue({ raw: 'test-token-raw', hash: 'test-token-hash' });
     mockMinutesFromNow.mockReturnValue(new Date(Date.now() + 60 * 60 * 1000));
     mockBuildVerifyEmail.mockResolvedValue({

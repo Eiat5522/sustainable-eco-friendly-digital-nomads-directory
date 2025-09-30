@@ -6,6 +6,8 @@
     ],
     "settings": {
         "typescript.enablePromptUseWorkspaceTsdk": true
-    }
+    },
+    "wallaby.AI.codeWithCoverageTool": true,
+    "wallaby.AI.valueExplorerTool": true
 }
         

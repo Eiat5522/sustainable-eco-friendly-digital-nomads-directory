@@ -242,6 +242,27 @@ jest.mock('@/lib/auth/config', () => {
   };
 });
 
+// Defensive runtime patch: ensure the auth config exports are jest.fn compatible
+// Some module resolution/interop paths may produce non-mock functions; this
+// guarantees tests can call `.mockReturnValue` / `.mockResolvedValue` safely.
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const ac = require('@/lib/auth/config');
+  if (!ac) throw new Error('auth config not found');
+
+  if (typeof ac.isEmailVerificationRequired !== 'function' || typeof ac.isEmailVerificationRequired?.mockReturnValue !== 'function') {
+    ac.isEmailVerificationRequired = jest.fn(() => false);
+  }
+
+  if (ac.default) {
+    if (typeof ac.default.isEmailVerificationRequired !== 'function' || typeof ac.default.isEmailVerificationRequired?.mockReturnValue !== 'function') {
+      ac.default.isEmailVerificationRequired = jest.fn(() => false);
+    }
+  }
+} catch (e) {
+  // Ignore - some test suites may not resolve this module during setup
+}
+
 // Provide a default mock for ensureSanityUser to be ESM-safe; tests can override as needed
 jest.mock('@/lib/sanity/user', () => ({
   __esModule: true,
