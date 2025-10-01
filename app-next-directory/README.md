@@ -7,11 +7,7 @@ First, run the development server:
 ```bash
 npm run dev
 # or
-yarn dev
-# or
 pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
@@ -19,6 +15,39 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## 🔧 Troubleshooting
+
+### Dev Server Issues (Worker Module Errors)
+
+If you encounter worker module errors or WSL disconnection issues:
+
+```bash
+# Clean build artifacts
+npm run clean
+
+# Or start with a clean slate
+npm run dev:clean
+```
+
+For detailed troubleshooting, see the **[WSL Disconnection Fix Guide](../WSL_DISCONNECTION_FIX_GUIDE.md)**.
+
+### Common Issues
+
+- **"Cannot find module .../worker.js"**: Run `npm run clean` to remove corrupted build artifacts
+- **WSL disconnects during dev**: Use an external terminal or see the troubleshooting guide
+- **TypeScript errors**: Some errors are expected in the current codebase
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run dev:clean` - Clean artifacts and start dev server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run test` - Run unit tests
+- `npm run test:e2e` - Run E2E tests with Playwright
+- `npm run lint` - Run ESLint
+- `npm run clean` - Remove build artifacts
 
 ## Learn More
 
