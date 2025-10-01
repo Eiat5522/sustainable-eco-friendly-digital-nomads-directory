@@ -7,10 +7,12 @@
   },
   "scripts": {
     "dev": "next dev",
+    "dev:clean": "bash ../scripts/clean-build-artifacts.sh && next dev",
     "build": "pnpm run build:types && next build",
     "build:types": "tsc -p tsconfig.types.json",
     "start": "next start",
     "preview": "next start",
+    "clean": "bash ../scripts/clean-build-artifacts.sh",
     "validate:env": "node scripts/validate-env.js",
     "msw:init": "msw init public --save",
     "postinstall": "node scripts/postinstall-msw.cjs",

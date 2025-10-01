@@ -9,6 +9,7 @@
   "private": true,
   "description": "Root package for the Sustainable Eco-Friendly Digital Nomads Directory project",
   "scripts": {
+    "clean": "bash ./scripts/clean-build-artifacts.sh",
     "exec:jest": "pnpm --filter app-next-directory exec:jest",
     "test": "pnpm --filter app-next-directory test",
     "test:unit": "pnpm --filter app-next-directory test:unit",
@@ -16,6 +17,7 @@
     "test:e2e": "pnpm --filter app-next-directory test:e2e",
     "test:e2e:legacy": "pnpm --filter app-next-directory test:e2e:legacy",
     "dev:next": "pnpm --filter app-next-directory dev",
+    "dev:clean": "bash ./scripts/clean-build-artifacts.sh && pnpm dev:next",
     "dev:sanity": "pnpm --filter sanity dev",
     "dev": "pnpm dev:next",
     "build:next": "pnpm --filter app-next-directory build",
