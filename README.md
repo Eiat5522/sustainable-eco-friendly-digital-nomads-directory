@@ -46,6 +46,11 @@ sustainable-eco-friendly-digital-nomads-directory/
 - Six key context files are retained in [`memory-bank/`](memory-bank/).
 - See [`docs/README.md`](docs/README.md) for navigation and structure.
 
+### 🔧 Troubleshooting
+
+- **[WSL Disconnection Fix Guide](WSL_DISCONNECTION_FIX_GUIDE.md)** - Comprehensive guide for resolving Next.js worker module errors and WSL disconnection issues
+- **[Scripts Documentation](scripts/README.md)** - Utility scripts for maintenance and troubleshooting
+
 ---
 
 ## 🚦 Project Status (July 2025)
