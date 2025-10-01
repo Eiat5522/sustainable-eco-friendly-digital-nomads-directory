@@ -1,8 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { CityDTO } from '@/types/dto';
 import CityCarouselWave from '@/components/ui/city-carousel-wave';
+import { NeoButton } from '@/components/ui/neo-button';
 
 type ApiResponse = { success?: boolean; cities?: CityDTO[] } | { cities?: CityDTO[] };
 

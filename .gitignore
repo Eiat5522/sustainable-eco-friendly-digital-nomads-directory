@@ -189,3 +189,5 @@ tmp/
 app-next-directory/playwright-report/**
 !app-next-directory/playwright-report/README.md
 app-next-directory/.vscode/settings.backup.20250929012207.json
+.turbo
+app-next-directory/.turbo
