@@ -87,6 +87,7 @@ module.exports = {
     '^@/models/User$': '<rootDir>/__mocks__/@/models/User.js',
     '^@/lib/redis(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/redis.ts',
     // '^@/lib/auth/adapter$': '<rootDir>/__mocks__/lib/auth/adapter.ts',
+    '^@/lib/auth/serverAuth(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/auth/serverAuth.js',
     '^@/lib/auth/config(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/auth/config.js',
     '^@/lib/rate-limit(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/rate-limit.js',
     '^@/lib/tokens(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/tokens.js',

@@ -1,15 +1,30 @@
 import { jest } from '@jest/globals';
 
-jest.mock('@/lib/auth', () => ({ __esModule: true, auth: jest.fn() }));
-jest.mock('@/lib/auth/serverAuth', () => ({ __esModule: true, updateUserProfile: jest.fn(() => Promise.resolve({})) }));
+// Create mocks with the correct signature before importing
+const mockAuth = jest.fn();
+const mockUpdateUserProfile = jest.fn();
+
+// Explicitly mock these modules before importing
+jest.mock('@/lib/auth', () => ({
+  __esModule: true,
+  auth: mockAuth,
+  authOptions: {},
+  getToken: jest.fn(),
+}));
+
+jest.mock('@/lib/auth/serverAuth', () => ({
+  __esModule: true,
+  authenticateUser: jest.fn(),
+  createUserAccount: jest.fn(),
+  getUserById: jest.fn(),
+  updateUserRole: jest.fn(),
+  updateUserProfile: mockUpdateUserProfile,
+}));
 
 import { PATCH, POST, GET } from './route';
-import { auth } from '@/lib/auth';
-import { updateUserProfile } from '@/lib/auth/serverAuth';
 
-// Narrow mocks for type-safety convenience
-const mockAuth = auth as unknown as jest.MockedFunction<typeof auth>;
-const mockUpdate = updateUserProfile as unknown as jest.MockedFunction<typeof updateUserProfile>;
+// Use the same mock references
+const mockUpdate = mockUpdateUserProfile;
 
 const originalEnv = { ...process.env };
 
@@ -86,7 +101,7 @@ describe('auth/update-profile route', () => {
     const response = await PATCH(createRequest({ name: 'Tester' }));
     const body = await response.json();
 
-    expect(updateUserProfile).toHaveBeenCalledWith('user-1', { name: 'Tester' });
+    expect(mockUpdate).toHaveBeenCalledWith('user-1', { name: 'Tester' });
     expect(response.status).toBe(404);
     expect(body.error?.code).toBe('NOT_FOUND');
   });
@@ -126,7 +141,7 @@ describe('auth/update-profile route', () => {
     const response = await POST(createRequest({ image: null }, 'POST'));
     const body = await response.json();
 
-    expect(updateUserProfile).toHaveBeenCalledWith('user-1', { image: null });
+    expect(mockUpdate).toHaveBeenCalledWith('user-1', { image: null });
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
   });

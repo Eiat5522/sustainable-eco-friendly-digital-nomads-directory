@@ -15,7 +15,8 @@ import {
 } from '@/components/ui/neo-card';
 import { NeoBadge } from '@/components/ui/neo-badge';
 import { NeoButton } from '@/components/ui/neo-button';
-import { Heart, Loader2, MapPin, MessageSquare, Star } from 'lucide-react';
+import { Heart, Loader2, MapPin, MessageSquare, Star, Edit } from 'lucide-react';
+import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
 
 interface FavoriteListing {
   id: string;
@@ -125,12 +126,13 @@ export function formatDate(value?: string) {
 }
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const isAuthenticated = status === 'authenticated';
   const displayName = session?.user?.name ?? session?.user?.email ?? 'Your account';
   const email = session?.user?.email ?? undefined;
   const role = session?.user?.role ?? 'user';
 
+  const [isEditing, setIsEditing] = useState(false);
   const [favorites, setFavorites] = useState<FavoriteListing[]>([]);
   const [favoritesLoading, setFavoritesLoading] = useState(false);
   const [favoritesError, setFavoritesError] = useState<string | null>(null);
@@ -138,6 +140,12 @@ export default function ProfilePage() {
   const [ownerListings, setOwnerListings] = useState<OwnerListingReviews[]>([]);
   const [ownerLoading, setOwnerLoading] = useState(false);
   const [ownerError, setOwnerError] = useState<string | null>(null);
+
+  const handleEditSuccess = async () => {
+    // Refresh session to get updated name
+    await update();
+    setIsEditing(false);
+  };
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -281,10 +289,31 @@ export default function ProfilePage() {
                     <p className="text-sm text-neo-text-secondary">
                       Keep exploring sustainable venues and manage the places you love.
                     </p>
+                    <div className="pt-2">
+                      <NeoButton
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => setIsEditing(!isEditing)}
+                        data-testid="edit-profile-button"
+                      >
+                        <Edit className="h-4 w-4 mr-2" aria-hidden="true" />
+                        {isEditing ? 'Cancel Edit' : 'Edit Profile'}
+                      </NeoButton>
+                    </div>
                   </div>
                 </NeoCardContent>
               </NeoCard>
             </section>
+
+            {isEditing && (
+              <section aria-labelledby="edit-profile">
+                <ProfileEditForm
+                  currentName={session?.user?.name || ''}
+                  onSuccess={handleEditSuccess}
+                  onCancel={() => setIsEditing(false)}
+                />
+              </section>
+            )}
 
             <section id="favorites" aria-labelledby="favorites-heading" data-testid="profile-favorites" className="space-y-4">
               <div className="flex items-center justify-between gap-4 flex-wrap">
