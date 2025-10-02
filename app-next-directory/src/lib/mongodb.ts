@@ -30,31 +30,52 @@ if (shouldMockMongo) {
   const uri = process.env.MONGODB_URI;
   let client: MongoClient;
 
+  // Connection options with proper timeouts
+  const options = {
+    serverSelectionTimeoutMS: 10000, // Reduce from 30s to 10s
+    connectTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+    maxPoolSize: 10,
+    minPoolSize: 2,
+    retryWrites: true,
+    retryReads: true,
+  };
+
   if (process.env.NODE_ENV === 'development') {
     // In development mode, use a global variable so that the value
     // is preserved across module reloads caused by HMR (Hot Module Replacement).
-    let globalWithMongo = global as typeof globalThis & {
+    const globalWithMongo = global as typeof globalThis & {
       _mongoClientPromise?: Promise<MongoClient>
     }
 
     if (!globalWithMongo._mongoClientPromise) {
-      client = new MongoClient(uri);
+      client = new MongoClient(uri, options);
       globalWithMongo._mongoClientPromise = client.connect()
         .then(async (client) => {
           // Initialize database on first connection
           await initializeDatabase(client);
           return client;
+        })
+        .catch((error) => {
+          // Clear the promise on error so next attempt can retry
+          globalWithMongo._mongoClientPromise = undefined;
+          console.error('MongoDB connection failed:', error.message);
+          throw error;
         });
     }
     clientPromise = globalWithMongo._mongoClientPromise;
   } else {
     // In production mode, it's best to not use a global variable.
-    client = new MongoClient(uri);
+    client = new MongoClient(uri, options);
     clientPromise = client.connect()
       .then(async (client) => {
         // Initialize database on first connection
         await initializeDatabase(client);
         return client;
+      })
+      .catch((error) => {
+        console.error('MongoDB connection failed:', error.message);
+        throw error;
       });
   }
 }

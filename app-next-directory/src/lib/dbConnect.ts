@@ -66,13 +66,17 @@ async function realDbConnect(): Promise<Mongoose> {
     const opts = {
       bufferCommands: false,
       tlsAllowInvalidCertificates: process.env.NODE_ENV === 'development',
+      serverSelectionTimeoutMS: 10000, // Reduce from 30s to 10s
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+      minPoolSize: 2,
     };
 
     try {
       cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance: typeof mongoose) => {
         // DEBUG: Log the returned mongooseInstance for troubleshooting
         // FORTEST: Remove this log after debugging
-        // eslint-disable-next-line no-console
         console.log('DEBUG: mongoose.connect returned:', mongooseInstance);
         // Stricter validation: must be object and have readyState or connection.readyState
         if (
@@ -85,10 +89,32 @@ async function realDbConnect(): Promise<Mongoose> {
         ) {
           throw new Error('Mongoose did not return a valid connection');
         }
+
+        // Add error listeners to prevent unhandled rejections
+        const connection = (mongooseInstance as any).connection;
+        if (connection) {
+          connection.on('error', (err: Error) => {
+            console.error('MongoDB connection error:', err.message);
+          });
+          connection.on('disconnected', () => {
+            console.warn('MongoDB disconnected');
+            // Clear cache to allow reconnection on next request
+            cached.conn = null;
+            cached.promise = null;
+          });
+        }
+
         return mongooseInstance;
+      }).catch((err) => {
+        // Clear the promise on error so next attempt can retry
+        cached.promise = null;
+        cached.conn = null;
+        console.error('Failed to connect to MongoDB:', err.message);
+        throw new Error('Failed to connect to MongoDB: ' + (err instanceof Error ? err.message : err));
       });
     } catch (err) {
       cached.promise = null;
+      cached.conn = null;
       throw new Error('Failed to connect to MongoDB: ' + (err instanceof Error ? err.message : err));
     }
   }
@@ -121,19 +147,31 @@ async function realDbConnect(): Promise<Mongoose> {
       ]);
 
       // Initialize database with explicit indexes (single source of truth)
-      // This ensures indexes are created even with mongoose autoIndex=false
+      // Reuse the Mongoose connection's underlying MongoDB client instead of creating a new one
       const { initializeDatabase } = await import('./mongodb/init');
-      const MongoClient = require('mongodb').MongoClient;
-      const client = new MongoClient(MONGODB_URI);
-      await client.connect();
-      await initializeDatabase(client);
-      await client.close();
+      const mongooseConnection = cached.conn?.connection;
+      
+      if (mongooseConnection?.getClient) {
+        const mongoClient = mongooseConnection.getClient?.();
+        await initializeDatabase(mongoClient);
+      } else {
+        // Fallback: create a temporary client only if we can't reuse mongoose connection
+        const MongoClient = require('mongodb').MongoClient;
+        const client = new MongoClient(MONGODB_URI, {
+          serverSelectionTimeoutMS: 10000,
+          connectTimeoutMS: 10000,
+        });
+        try {
+          await client.connect();
+          await initializeDatabase(client);
+        } finally {
+          await client.close();
+        }
+      }
 
       cached.indexesSynced = true;
-      // eslint-disable-next-line no-console
       console.log('Database indexes synchronized and initialized');
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.warn('Index sync/initialization failed (continuing):', e);
     }
   }
