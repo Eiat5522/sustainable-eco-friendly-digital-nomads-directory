@@ -4,17 +4,12 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { recordListingView } from '@/lib/metrics/listing-views';
 
-interface RouteParams {
-  slug: string;
-}
-
-type RouteContext = {
-  params: RouteParams;
-};
-
-export async function POST(request: NextRequest, { params }: RouteContext) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { slug: string } },
+) {
   try {
-    const slug = params?.slug;
+    const slug = params.slug;
     if (!slug || typeof slug !== 'string') {
       return NextResponse.json({ error: 'Listing slug is required' }, { status: 400 });
     }

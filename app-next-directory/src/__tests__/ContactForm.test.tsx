@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 type SearchParams = URLSearchParams;
 
-const mockUseSearchParams = jest.fn<SearchParams, []>();
+const mockUseSearchParams = jest.fn<SearchParams>();
 
 jest.mock('next/navigation', () => ({
   __esModule: true,
@@ -101,7 +101,7 @@ describe('Contact Us form', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseSearchParams.mockImplementation(() => createSearchParamsMock({}));
+    mockUseSearchParams.mockReturnValue(createSearchParamsMock({}));
     global.fetch = jest.fn() as unknown as typeof fetch;
   });
 
@@ -142,10 +142,13 @@ describe('Contact Us form', () => {
 
     await user.click(screen.getByRole('button', { name: 'Submit' }));
 
+    // Wait for the form submission to complete and success message to appear
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(screen.getByText('Thank you for contacting us!')).toBeInTheDocument();
     });
 
+    // Verify the fetch call was made correctly
+    expect(fetchMock).toHaveBeenCalledTimes(1);
     const [endpoint, options] = fetchMock.mock.calls[0];
     expect(endpoint).toBe('/api/contact');
     expect(options?.method).toBe('POST');
@@ -157,17 +160,17 @@ describe('Contact Us form', () => {
       type: 'general',
     });
 
+    // Verify form is reset
     await waitFor(() => {
-      expect(screen.getByText('Thank you for contacting us!')).toBeInTheDocument();
       expect(screen.getByLabelText('Full Name')).toHaveValue('');
       expect(screen.getByLabelText('Email Address')).toHaveValue('');
       expect(screen.getByLabelText('Subject')).toHaveValue('');
       expect(screen.getByLabelText('Enquiry')).toHaveValue('');
-    });
-  }, 15000);
+    }, { timeout: 3000 });
+  }, 10000);
 
   it('prefills the newsletter form from query params and handles API errors gracefully', async () => {
-    mockUseSearchParams.mockImplementation(() =>
+    mockUseSearchParams.mockReturnValue(
       createSearchParamsMock({ type: 'newsletter', email: 'subscriber@example.com' })
     );
 

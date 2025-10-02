@@ -78,7 +78,8 @@ export function CityCarousel() {
             setError('Error: failed to fetch cities');
           }
         }
-      } catch {
+      } catch (err) {
+        console.error('Failed to fetch cities:', err);
         if (!cancelled) setError('Error: failed to fetch cities');
       } finally {
         if (!cancelled) {

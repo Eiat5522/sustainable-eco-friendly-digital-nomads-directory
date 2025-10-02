@@ -285,6 +285,9 @@ importers:
       fast-levenshtein:
         specifier: ^3.0.0
         version: 3.0.0
+      gsap:
+        specifier: ^3.13.0
+        version: 3.13.0
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -7537,6 +7540,9 @@ packages:
   groq@4.9.0:
     resolution: {integrity: sha512-DJE6vQ1UQASBvPTxzgPiUdrmIe/UD4GNxmLm0tbk2WFcsbg/N5dWCld/6JZpS+LTegd1UTAmsZoeboMrkgIXxA==}
     engines: {node: '>=20.19 <22 || >=22.12'}
+
+  gsap@3.13.0:
+    resolution: {integrity: sha512-QL7MJ2WMjm1PHWsoFrAQH/J8wUeqZvMtHO58qdekHpCfhvhSL4gSiz6vJf5EeMP0LOn3ZCprL2ki/gjED8ghVw==}
 
   gunzip-maybe@1.4.2:
     resolution: {integrity: sha512-4haO1M4mLO91PW57BMsDFf75UmwoRX0GkdD+Faw+Lr+r/OZrOCS0pIBwOL1xCKQqnQzbNFGgK2V2CpBUPeFNTw==}
@@ -20840,6 +20846,8 @@ snapshots:
   groq@4.8.1: {}
 
   groq@4.9.0: {}
+
+  gsap@3.13.0: {}
 
   gunzip-maybe@1.4.2:
     dependencies:

@@ -15,23 +15,20 @@ import type { NextRequest } from 'next/server';
 
 // Explicitly mock modules before importing them
 jest.mock('@/lib/dbConnect');
-jest.mock('@/lib/tokens');
 jest.mock('@/lib/email');
 jest.mock('@/lib/rate-limit');
 jest.mock('@/lib/logger');
 jest.mock('@/lib/auth/config');
 
 // Import mocked modules - Jest will use the __mocks__ versions
-import dbConnect from '@/lib/dbConnect';
 import * as tokensModule from '@/lib/tokens';
 import * as emailModule from '@/lib/email';
 import * as rateLimitModule from '@/lib/rate-limit';
 import * as loggerModule from '@/lib/logger';
 import * as authConfigModule from '@/lib/auth/config';
-
-// Import User and EmailVerificationToken models
-import User from '@/models/User';
+import dbConnect from '@/lib/dbConnect';
 import EmailVerificationToken from '@/models/EmailVerificationToken';
+import User from '@/models/User';
 
 // Import the route handler after mocks are set up
 import { POST as registerPost } from '@/app/api/auth/register/route';
@@ -41,12 +38,13 @@ const mockDbConnect = dbConnect as jest.MockedFunction<typeof dbConnect>;
 const mockGenerateToken = tokensModule.generateToken as jest.MockedFunction<typeof tokensModule.generateToken>;
 const mockHashToken = tokensModule.hashToken as jest.MockedFunction<typeof tokensModule.hashToken>;
 const mockMinutesFromNow = tokensModule.minutesFromNow as jest.MockedFunction<typeof tokensModule.minutesFromNow>;
-const mockBuildVerifyEmail = emailModule.buildVerifyEmail as jest.MockedFunction<typeof emailModule.buildVerifyEmail>;
 const mockSendMail = emailModule.sendMail as jest.MockedFunction<typeof emailModule.sendMail>;
 const mockGetClientIp = rateLimitModule.getClientIp as jest.MockedFunction<typeof rateLimitModule.getClientIp>;
+
+let registerPost: typeof import('@/app/api/auth/register/route').POST;
 const mockIsRateLimited = rateLimitModule.isRateLimited as jest.MockedFunction<typeof rateLimitModule.isRateLimited>;
 const mockGetRetryAfterMs = rateLimitModule.getRetryAfterMs as jest.MockedFunction<typeof rateLimitModule.getRetryAfterMs>;
-let mockIsEmailVerificationRequired: jest.MockedFunction<typeof authConfigModule.isEmailVerificationRequired>;
+let mockIsEmailVerificationRequired: jest.MockedFunction<any> = jest.fn();
 const mockGetRequestContext = loggerModule.getRequestContext as jest.MockedFunction<typeof loggerModule.getRequestContext>;
 const mockStructuredLogger = loggerModule.structuredLogger as jest.Mocked<typeof loggerModule.structuredLogger>;
 
@@ -78,6 +76,21 @@ function createMockRequest(data: any, options?: { jsonImpl?: jest.Mock }) {
   } as unknown as NextRequest;
 };
 
+beforeAll(async () => {
+  await jest.unstable_mockModule('@/lib/auth/config', () => ({
+    __esModule: true,
+    isEmailVerificationRequired: jest.fn(),
+    getAdminEmails: jest.fn(() => []),
+    isAdminEmail: jest.fn(() => false),
+  }));
+
+  const authConfigModule = await import('@/lib/auth/config');
+  mockIsEmailVerificationRequired = authConfigModule.isEmailVerificationRequired;
+
+  const registerModule = await import('@/app/api/auth/register/route');
+  registerPost = registerModule.POST;
+});
+
 describe('Authentication API Routes', () => {
   const originalMongoUri = process.env.MONGODB_URI;
 
@@ -100,17 +113,7 @@ describe('Authentication API Routes', () => {
     mockGetClientIp.mockReturnValue('127.0.0.1');
     mockIsRateLimited.mockReturnValue(false);
     mockGetRetryAfterMs.mockReturnValue(60_000);
-    // Ensure we reference the mocked module instance produced by Jest's module system
-    // This uses jest.requireMock to get the factory/mock created in jest.setup.ts so
-    // the function is guaranteed to be a jest.fn with .mockReturnValue available.
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const acMock = jest.requireMock('@/lib/auth/config') as any;
-      mockIsEmailVerificationRequired = acMock.isEmailVerificationRequired as jest.MockedFunction<any>;
-    } catch (e) {
-      // Fallback to the imported reference if requireMock isn't available in this env
-      mockIsEmailVerificationRequired = authConfigModule.isEmailVerificationRequired as jest.MockedFunction<any>;
-    }
+    mockIsEmailVerificationRequired.mockReset();
     mockIsEmailVerificationRequired.mockReturnValue(false);
     
     // Default mock implementations are set in __mocks__/ files:
@@ -179,7 +182,7 @@ describe('Authentication API Routes', () => {
         mockUserFindOne.mockReturnValue(mockQuery as any);
         mockUserCreate.mockResolvedValue(mockUser as any);
         
-        // Override mocks for email verification flow (values persist from __mocks__ defaults)
+        // Setup token creation mock (token generation and email mocks use __mocks__ defaults)
         mockEmailVerificationTokenCreate.mockResolvedValue({} as any);
 
         const request = createMockRequest(validRegistrationData);
