@@ -13,6 +13,8 @@ interface FavoriteButtonProps {
   className?: string;
   showText?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  // Optional controlled favorited state (useful for parent components/tests)
+  isFavorited?: boolean;
   // Optional controlled initial favorited state (useful for parent components/tests)
   initialIsFavorited?: boolean;
   // Optional external toggle handler (parent can handle the network request)
@@ -21,19 +23,24 @@ interface FavoriteButtonProps {
   optimistic?: boolean;
 }
 
-export function FavoriteButton({ 
-  listingId, 
+export function FavoriteButton({
+  listingId,
   slug,
   listingTitle,
   className = '',
   showText = false,
   size = 'md',
+  isFavorited,
   initialIsFavorited,
   onToggle,
   optimistic = true,
-}: FavoriteButtonProps) {
+  ...rest
+}: FavoriteButtonProps & { [key: string]: any }) {
   const { data: session } = useSession();
   const [isFavoritedState, setIsFavoritedState] = useState<boolean>(initialIsFavorited ?? false);
+
+  // Use controlled isFavorited prop when provided, otherwise use internal state
+  const isFavoritedValue = isFavorited !== undefined ? isFavorited : isFavoritedState;
 
   // Determine the actual slug to use (prefer slug prop, fallback to listingId for backward compatibility)
   const actualSlug = slug || listingId;
@@ -183,8 +190,8 @@ export function FavoriteButton({
         size={size}
         className={`${className} animate-pulse`}
         disabled
-        data-testid="favorite-button"
         aria-label="Checking favorite status"
+        {...rest}
       >
         <Heart className={`${size === 'sm' ? 'h-4 w-4' : 'h-5 w-5'}`} />
         {showText && <span className="ml-1">...</span>}
@@ -198,24 +205,24 @@ export function FavoriteButton({
       size={size}
       onClick={handleToggleFavorite}
       disabled={isLoading}
-  className={`transition-all duration-200 hover:scale-105 ${isFavoritedState ? 'favorited' : ''} ${className}`}
-      title={isFavoritedState ? `Remove "${listingTitle || 'listing'}" from favorites` : `Add "${listingTitle || 'listing'}" to favorites`}
-      aria-label={isFavoritedState ? 'Remove from favorites' : 'Add to favorites'}
-      data-testid="favorite-button"
+  className={`transition-all duration-200 hover:scale-105 ${isFavoritedValue ? 'favorited' : ''} ${className}`}
+      title={isFavoritedValue ? `Remove "${listingTitle || 'listing'}" from favorites` : `Add "${listingTitle || 'listing'}" to favorites`}
+      aria-label={isFavoritedValue ? 'Remove from favorites' : 'Add to favorites'}
+      {...rest}
     >
       <Heart
         className={`${size === 'sm' ? 'h-4 w-4' : 'h-5 w-5'} transition-colors ${
-          isFavoritedState 
-            ? 'fill-red-500 text-red-500' 
+          isFavoritedValue
+            ? 'fill-red-500 text-red-500'
             : 'text-gray-400 hover:text-red-500'
         } ${isLoading ? 'animate-pulse' : ''}`}
       />
       {showText && (
         <span className="ml-1 text-sm">
-          {isLoading 
-            ? '...' 
-            : isFavoritedState 
-              ? 'Saved' 
+          {isLoading
+            ? '...'
+            : isFavoritedValue
+              ? 'Saved'
               : 'Save'
           }
         </span>

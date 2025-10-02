@@ -24,6 +24,7 @@ const createUserAccount = jest.fn().mockResolvedValue({
     firstName: 'New',
     lastName: 'User',
     role: 'user',
+    image: null,
   },
 });
 
@@ -36,8 +37,8 @@ const getUserById = jest.fn().mockResolvedValue({
   role: 'user',
   image: null,
   emailVerified: null,
-  createdAt: new Date('2025-01-01'),
-  updatedAt: new Date('2025-01-01'),
+  createdAt: '2025-01-01T00:00:00.000Z',
+  updatedAt: '2025-01-01T00:00:00.000Z',
 });
 
 const updateUserRole = jest.fn().mockResolvedValue({
@@ -47,7 +48,10 @@ const updateUserRole = jest.fn().mockResolvedValue({
     id: 'test-user-id-123',
     email: 'test@example.com',
     name: 'Test User',
+    firstName: 'Test',
+    lastName: 'User',
     role: 'admin', // Updated role
+    image: null,
   },
 });
 

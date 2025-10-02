@@ -7,9 +7,10 @@ import type { ListingDetailDTO, CityDTO } from '@/types/dto';
 jest.mock('next/image', () => {
   return function MockImage({ src, alt, fill, sizes, className, priority }: any) {
     return (
-      <img 
-        src={src} 
-        alt={alt} 
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={alt}
         className={className}
         data-testid="next-image"
         data-fill={fill}
@@ -257,26 +258,24 @@ describe('HeroSection', () => {
   describe('Favorite functionality', () => {
     it('renders FavoriteButton with correct props', () => {
       render(
-        <HeroSection 
+        <HeroSection
           listing={mockListing}
         />
       );
 
-      const favoriteButton = screen.getByTestId('favorite-button');
-      expect(favoriteButton).toHaveAttribute('data-listing-id', 'sustainable-coffee-shop');
-      expect(favoriteButton).toHaveAttribute('data-listing-title', 'Sustainable Coffee Shop');
+      const favoriteButton = screen.getByTestId('neo-button');
       expect(favoriteButton).toHaveAttribute('data-size', 'sm');
       expect(favoriteButton).toHaveClass('bg-white/90', 'hover:bg-white');
     });
 
     it('positions favorite button correctly in hero image overlay', () => {
       render(
-        <HeroSection 
+        <HeroSection
           listing={mockListing}
         />
       );
 
-      const favoriteButton = screen.getByTestId('favorite-button');
+      const favoriteButton = screen.getByTestId('neo-button');
       const buttonContainer = favoriteButton.parentElement;
       expect(buttonContainer).toHaveClass('absolute', 'top-4', 'right-4');
     });

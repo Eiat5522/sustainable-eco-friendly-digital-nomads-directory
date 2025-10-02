@@ -85,9 +85,6 @@ describe('Authentication API Routes', () => {
     // Setup environment
     process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
     
-    // Reset all mocks completely
-    jest.clearAllMocks();
-    
     // Reset User model spies first
     if (mockUserFindOne) mockUserFindOne.mockRestore();
     if (mockUserCreate) mockUserCreate.mockRestore();
@@ -97,9 +94,6 @@ describe('Authentication API Routes', () => {
     mockUserFindOne = jest.spyOn(User, 'findOne').mockImplementation();
     mockUserCreate = jest.spyOn(User, 'create').mockImplementation();
     mockEmailVerificationTokenCreate = jest.spyOn(EmailVerificationToken, 'create').mockImplementation();
-    
-    // DON'T reset the auth config mock - it's not working and we'll rely on the default value
-    // mockIsEmailVerificationRequired.mockReturnValue(false);
     
     // Setup default mock implementations using the imported mocks
     mockDbConnect.mockResolvedValue(undefined);
@@ -118,11 +112,12 @@ describe('Authentication API Routes', () => {
       mockIsEmailVerificationRequired = authConfigModule.isEmailVerificationRequired as jest.MockedFunction<any>;
     }
     mockIsEmailVerificationRequired.mockReturnValue(false);
-    // mockGenerateToken already has default return value set in __mocks__/lib/tokens.js
-    // mockMinutesFromNow already has default implementation set in __mocks__/lib/tokens.js
-    // mockBuildVerifyEmail already has default return value set in __mocks__/lib/email.js
-    // mockSendMail already has default return value set in __mocks__/lib/email.js
-    // mockGetRequestContext already has default return value set in __mocks__/lib/logger.js
+    
+    // Default mock implementations are set in __mocks__/ files:
+    // - __mocks__/lib/tokens.js: generateToken, hashToken, minutesFromNow
+    // - __mocks__/lib/email.js: buildVerifyEmail, sendMail  
+    // - __mocks__/lib/logger.js: getRequestContext, structuredLogger
+    // Individual tests can override these defaults using mockClear() + mockReturnValue()/mockImplementation()
   });
 
   afterEach(() => {
@@ -184,18 +179,8 @@ describe('Authentication API Routes', () => {
         mockUserFindOne.mockReturnValue(mockQuery as any);
         mockUserCreate.mockResolvedValue(mockUser as any);
         
-        // Mock token generation
-        mockGenerateToken.mockReturnValue({ raw: 'rawtoken', hash: 'hashedtoken' });
-        mockMinutesFromNow.mockReturnValue(new Date(Date.now() + 24 * 60 * 60 * 1000));
+        // Override mocks for email verification flow (values persist from __mocks__ defaults)
         mockEmailVerificationTokenCreate.mockResolvedValue({} as any);
-        
-        // Mock email sending
-        mockBuildVerifyEmail.mockResolvedValue({
-          to: 'john@example.com',
-          subject: 'Verify your email',
-          html: '<p>Verify</p>',
-        });
-        mockSendMail.mockResolvedValue(undefined);
 
         const request = createMockRequest(validRegistrationData);
         const response = await registerPost(request);
@@ -397,17 +382,10 @@ describe('Authentication API Routes', () => {
         mockUserFindOne.mockReturnValue(mockQuery as any);
         mockUserCreate.mockResolvedValue(mockUser as any);
         
-        mockGenerateToken.mockReturnValue({ raw: 'rawtoken', hash: 'hashedtoken' });
-        mockMinutesFromNow.mockReturnValue(new Date(Date.now() + 24 * 60 * 60 * 1000));
+        // Override mocks for email verification flow - simulate email sending failure
         mockEmailVerificationTokenCreate.mockResolvedValue({} as any);
-        
-        // Mock email sending failure
-        mockBuildVerifyEmail.mockResolvedValue({
-          to: 'john@example.com',
-          subject: 'Verify your email',
-          html: '<p>Verify</p>',
-        });
-        mockSendMail.mockRejectedValue(new Error('Email service unavailable'));
+        // Make sendMail fail but registration should still succeed
+        (mockSendMail as any).mockRejectedValueOnce(new Error('Email service unavailable'));
 
         const request = createMockRequest(validRegistrationData);
         const response = await registerPost(request);
@@ -543,19 +521,8 @@ describe('Authentication API Routes', () => {
       mockUserFindOne.mockReturnValue(mockQuery as any);
       mockUserCreate.mockResolvedValue(mockUser as any);
       
-      const mockToken = { raw: 'verification-token', hash: 'hashed-token' };
-      const mockExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
-      
-      mockGenerateToken.mockReturnValue(mockToken);
-      mockMinutesFromNow.mockReturnValue(mockExpiry);
+      // Use default mocks from __mocks__ files for token generation and email
       mockEmailVerificationTokenCreate.mockResolvedValue({} as any);
-      
-      mockBuildVerifyEmail.mockResolvedValue({
-        to: 'john@example.com',
-        subject: 'Verify your email',
-        html: '<p>Click to verify</p>',
-      });
-      mockSendMail.mockResolvedValue(undefined);
 
       const request = createMockRequest(validRegistrationData);
       const response = await registerPost(request);
@@ -565,10 +532,10 @@ describe('Authentication API Routes', () => {
       expect(mockGenerateToken).toHaveBeenCalled();
       expect(mockEmailVerificationTokenCreate).toHaveBeenCalledWith({
         userId: 'user123',
-        tokenHash: 'hashed-token',
-        expiresAt: mockExpiry,
+        tokenHash: 'test-token-hash', // From __mocks__/lib/tokens.js default
+        expiresAt: expect.any(Date), // From __mocks__/lib/tokens.js default (1 hour from now)
       });
-      expect(mockBuildVerifyEmail).toHaveBeenCalledWith('john@example.com', 'verification-token');
+      expect(mockBuildVerifyEmail).toHaveBeenCalledWith('john@example.com', 'test-token-raw'); // From __mocks__/lib/tokens.js default
       expect(mockSendMail).toHaveBeenCalled();
     });
 

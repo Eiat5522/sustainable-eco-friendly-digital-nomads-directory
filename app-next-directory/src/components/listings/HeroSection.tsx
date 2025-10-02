@@ -36,16 +36,17 @@ export function HeroSection(props: Readonly<HeroSectionProps>) {
         
         {/* Favorite Button Overlay */}
         <div className="absolute top-4 right-4">
-          <div data-testid="favorite-button" data-listing-id={listing.slug} data-listing-title={listing.name} data-size="sm" className="bg-white/90 hover:bg-white">
-            <FavoriteButton 
-              listingId={listing.slug}
-              listingTitle={listing.name}
-              size="sm"
-              className="bg-white/90 hover:bg-white"
-              initialIsFavorited={props.isFavorited}
-              onToggle={props.onToggleFavorite}
-            />
-          </div>
+          <FavoriteButton
+            data-testid="favorite-button"
+            data-listing-id={listing.slug}
+            data-listing-title={listing.name}
+            listingId={listing.slug}
+            listingTitle={listing.name}
+            size="sm"
+            className="bg-white/90 hover:bg-white"
+            isFavorited={props.isFavorited}
+            onToggle={props.onToggleFavorite}
+          />
         </div>
       </div>
 

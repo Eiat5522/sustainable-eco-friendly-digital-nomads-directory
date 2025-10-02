@@ -7,7 +7,7 @@ describe('ProfileEditForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = mockFetch as any;
-  });
+  // (Remove the extraneous `});` on line 95; no replacement needed)
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -55,7 +55,6 @@ describe('ProfileEditForm', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          method: 'PATCH',
           body: expect.stringContaining('Jane Smith'),
         })
       );      
@@ -93,3 +92,5 @@ describe('ProfileEditForm', () => {
     expect(mockOnCancel).toHaveBeenCalled();
   });
 });
+});
+

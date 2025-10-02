@@ -24,6 +24,33 @@ describe('CityCarousel', () => {
       highlights: ['Recycling Programs', 'Bike Lanes'],
       imageUrl: 'https://via.placeholder.com/150',
     },
+    {
+      id: '3',
+      name: 'Eco City 3',
+      slug: 'eco-city-3',
+      country: 'Sustainable Country',
+      sustainabilityScore: 88,
+      highlights: ['Solar Power', 'Green Transport'],
+      imageUrl: 'https://via.placeholder.com/150',
+    },
+    {
+      id: '4',
+      name: 'Eco City 4',
+      slug: 'eco-city-4',
+      country: 'Clean Country',
+      sustainabilityScore: 92,
+      highlights: ['Waste Management', 'Clean Energy'],
+      imageUrl: 'https://via.placeholder.com/150',
+    },
+    {
+      id: '5',
+      name: 'Eco City 5',
+      slug: 'eco-city-5',
+      country: 'Greenland',
+      sustainabilityScore: 87,
+      highlights: ['Eco Tourism', 'Conservation'],
+      imageUrl: 'https://via.placeholder.com/150',
+    },
   ];
 
   beforeEach(() => {
@@ -60,12 +87,20 @@ describe('CityCarousel', () => {
       expect(screen.getByText('Eco City 1')).toBeInTheDocument();
     });
 
-    // Find the next button by its accessible name
-    const nextButton = screen.getByRole('button', { name: 'Next city' });
+    // Find the next button by its correct accessible name
+    const nextButton = screen.getByRole('button', { name: 'Scroll cities right' });
     fireEvent.click(nextButton);
 
-    // Verify the button interaction works without errors
-    expect(nextButton).toBeInTheDocument();
+    // Verify navigation: after clicking next, the second city should be visible
+    // (assuming the carousel scrolls to show the next item)
+    await waitFor(() => {
+      expect(screen.getByText('Eco City 2')).toBeInTheDocument();
+    });
+
+    // Optionally, verify the first city is no longer the primary visible item
+    // (this depends on carousel implementation; adjust if needed)
+    const carouselContainer = screen.getByRole('list', { name: 'Featured city destinations' });
+    expect(within(carouselContainer).getByText('Eco City 2')).toBeInTheDocument();
   });
 
   it('navigates to the previous slide', async () => {

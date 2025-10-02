@@ -100,7 +100,7 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
           </div>
 
           {error && (
-            <div role="alert" aria-live="polite" className="rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-700">
+            <div role="alert" className="rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-700">
               {error}
             </div>
           )}
@@ -125,5 +125,5 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
         </form>
       </NeoCardContent>
     </NeoCard>
-  );
-}
+  )
+};

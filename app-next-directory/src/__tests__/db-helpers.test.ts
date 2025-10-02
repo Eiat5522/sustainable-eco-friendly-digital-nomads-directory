@@ -1,7 +1,6 @@
 // Jest test for db-helpers.ts
 
 // Create different mock scenarios based on test context
-let mockClientPromise: any = undefined;
 let mockClientBehavior = 'normal';
 
 jest.mock('mongodb', () => {
@@ -11,7 +10,7 @@ jest.mock('mongodb', () => {
         return Promise.reject(new Error('Invalid client'));
       }
       if (mockClientBehavior === 'no-db-function') {
-        return Promise.reject(new Error('No db function'));
+        return Promise.resolve({});  // Resolve to a client without a db method
       }
       if (mockClientBehavior === 'invalid-db') {
         return Promise.resolve({
@@ -25,7 +24,7 @@ jest.mock('mongodb', () => {
       }
       return Promise.resolve(this);
     }
-    db(name?: string) {
+    db(_name?: string) {
       return {
         collection: jest.fn().mockReturnValue('mockCollection'),
       };
@@ -156,8 +155,19 @@ describe('db-helpers', () => {
   it('handles invalid client from clientPromise', async () => {
     mockClientBehavior = 'invalid-client';
     jest.resetModules();
+
+    // Clear any existing global state that might interfere
+    delete (global as any)._mongoClientPromise;
+
+    // Mock console.warn to suppress the fallback warning in this test
+    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
     const { getDatabase } = require('../utils/db-helpers');
+
+    // The function should throw the expected error, not fall back to mock
     await expect(getDatabase()).rejects.toThrow('MongoDB client is invalid or not connected');
+
+    consoleSpy.mockRestore();
   });
  
   it('handles client without db function', async () => {

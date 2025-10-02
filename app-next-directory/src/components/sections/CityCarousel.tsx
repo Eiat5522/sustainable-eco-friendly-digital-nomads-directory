@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { NeoButton } from '@/components/ui/neo-button';
-import type { CityDTO } from '@/types';
+import type { CityDTO } from '@/types/dto';
 
 type ApiResponse = { success?: boolean; cities?: CityDTO[] } | { cities?: CityDTO[] };
 
@@ -78,7 +78,7 @@ export function CityCarousel() {
             setError('Error: failed to fetch cities');
           }
         }
-      } catch (e) {
+      } catch {
         if (!cancelled) setError('Error: failed to fetch cities');
       } finally {
         if (!cancelled) {
