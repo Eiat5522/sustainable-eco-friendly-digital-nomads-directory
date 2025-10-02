@@ -152,7 +152,7 @@ async function realDbConnect(): Promise<Mongoose> {
       const mongooseConnection = cached.conn?.connection;
       
       if (mongooseConnection?.getClient) {
-        const mongoClient = mongooseConnection.getClient();
+        const mongoClient = mongooseConnection.getClient?.();
         await initializeDatabase(mongoClient);
       } else {
         // Fallback: create a temporary client only if we can't reuse mongoose connection
