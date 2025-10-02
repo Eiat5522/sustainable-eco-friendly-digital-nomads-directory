@@ -37,6 +37,36 @@ npm run clean
 
 **Safe to run**: Yes, this script only removes cache and build artifacts. Your source code and configuration files are never touched.
 
+### turbo-wsl-safe-run.sh
+
+**Purpose**: Run Turborepo commands with conservative defaults tailored for WSL so that VS Code does not lose its Remote-WSL connection during heavy workloads (builds, tests, lint, etc.).
+
+**Usage**:
+```bash
+# Run build tasks with safe defaults
+scripts/turbo-wsl-safe-run.sh build
+
+# Run lint + test sequentially in the app workspace
+scripts/turbo-wsl-safe-run.sh lint test --filter=app-next-directory
+
+# Increase concurrency manually when the machine has headroom
+TURBO_CONCURRENCY=4 scripts/turbo-wsl-safe-run.sh build
+```
+
+**What it does**:
+- Exports `TURBO_NO_DAEMON=1` to stop the background Turborepo daemon from consuming WSL resources
+- Sets `TURBO_TELEMETRY_DISABLED=1` so telemetry processes do not keep shells busy
+- Caps concurrency to 1–2 tasks unless `TURBO_CONCURRENCY` is already defined
+- Prefers `pnpm turbo run …` (sharing the workspace lockfile) and falls back to `npx turbo run …`
+- Prints a short banner to remind developers of the safeguards (suppress via `TURBO_WSL_HELPER_SILENT=1`)
+
+**When to use**:
+- Running multiple Turborepo tasks at once (e.g. `dev` + `build`, `lint` + `test`)
+- Any time WSL disconnects shortly after starting Turborepo tasks
+- On machines with limited CPU/RAM allocations for WSL
+
+**Safe to run**: Yes. The script only adjusts environment variables for the spawned Turborepo process and does not modify project files.
+
 ## Related Documentation
 
 - **WSL Disconnection Fix Guide**: `../WSL_DISCONNECTION_FIX_GUIDE.md` - Complete troubleshooting guide

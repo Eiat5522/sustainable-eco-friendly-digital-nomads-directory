@@ -83,6 +83,7 @@ dev-debug.log
 **/*mcp.json
 examples*/**
 script*/**
+!scripts/*.sh
 
 # Copilot
 
