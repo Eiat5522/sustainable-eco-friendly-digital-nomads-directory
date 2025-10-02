@@ -77,7 +77,6 @@ async function realDbConnect(): Promise<Mongoose> {
       cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance: typeof mongoose) => {
         // DEBUG: Log the returned mongooseInstance for troubleshooting
         // FORTEST: Remove this log after debugging
-        // eslint-disable-next-line no-console
         console.log('DEBUG: mongoose.connect returned:', mongooseInstance);
         // Stricter validation: must be object and have readyState or connection.readyState
         if (
@@ -171,10 +170,8 @@ async function realDbConnect(): Promise<Mongoose> {
       }
 
       cached.indexesSynced = true;
-      // eslint-disable-next-line no-console
       console.log('Database indexes synchronized and initialized');
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.warn('Index sync/initialization failed (continuing):', e);
     }
   }
