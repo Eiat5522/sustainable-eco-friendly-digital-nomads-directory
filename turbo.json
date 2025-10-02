@@ -1,9 +1,9 @@
 {
-  "$schema": "https://turborepo.com/schema.json",
+  "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", ".next/cache/**"]
+      "outputs": [".next/**"]
     },
     "check-types": {
       "dependsOn": ["^check-types"]

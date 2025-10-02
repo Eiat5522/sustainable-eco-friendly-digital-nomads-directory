@@ -77,13 +77,13 @@ describe('CityCarousel', () => {
     });
 
     // Find the previous button by its accessible name
-    const prevButton = screen.getByRole('button', { name: 'Previous city' });
+    const prevButton = screen.getByRole('button', { name: 'Scroll cities left' });
 
     // Verify button exists and works
     expect(prevButton).toBeInTheDocument();
 
     // Find the next button and verify it exists
-    const nextButton = screen.getByRole('button', { name: 'Next city' });
+    const nextButton = screen.getByRole('button', { name: 'Scroll cities right' });
     expect(nextButton).toBeInTheDocument();
   });
 
@@ -98,8 +98,8 @@ describe('CityCarousel', () => {
       expect(screen.queryByText('Loading cities…')).not.toBeInTheDocument();
     });
 
-    expect(screen.queryByRole('button', { name: 'Previous city' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Next city' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Scroll cities left' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Scroll cities right' })).not.toBeInTheDocument();
   });
 
   it('surfaces an accessible error message when the fetch call fails', async () => {
@@ -122,8 +122,8 @@ describe('CityCarousel', () => {
       expect(screen.getByText('Eco City 1')).toBeInTheDocument();
     });
 
-    const nextButton = screen.getByRole('button', { name: 'Next city' });
-    expect(nextButton).toHaveAccessibleName('Next city');
+    const nextButton = screen.getByRole('button', { name: 'Scroll cities right' });
+    expect(nextButton).toHaveAccessibleName('Scroll cities right');
 
     const cityLink = screen.getByRole('link', { name: /Eco City 1/ });
     expect(cityLink).toHaveAccessibleName(expect.stringContaining('Eco City 1'));

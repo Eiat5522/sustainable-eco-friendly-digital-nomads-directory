@@ -13,13 +13,21 @@
 import { jest } from '@jest/globals';
 import type { NextRequest } from 'next/server';
 
-// Import mocked modules - Jest will automatically use the __mocks__ versions via jest.config moduleNameMapper
+// Explicitly mock modules before importing them
+jest.mock('@/lib/dbConnect');
+jest.mock('@/lib/tokens');
+jest.mock('@/lib/email');
+jest.mock('@/lib/rate-limit');
+jest.mock('@/lib/logger');
+jest.mock('@/lib/auth/config');
+
+// Import mocked modules - Jest will use the __mocks__ versions
 import dbConnect from '@/lib/dbConnect';
 import * as tokensModule from '@/lib/tokens';
 import * as emailModule from '@/lib/email';
 import * as rateLimitModule from '@/lib/rate-limit';
 import * as loggerModule from '@/lib/logger';
-import { isEmailVerificationRequired } from '@/lib/auth/config';
+import * as authConfigModule from '@/lib/auth/config';
 
 // Import User and EmailVerificationToken models
 import User from '@/models/User';
@@ -110,21 +118,11 @@ describe('Authentication API Routes', () => {
       mockIsEmailVerificationRequired = authConfigModule.isEmailVerificationRequired as jest.MockedFunction<any>;
     }
     mockIsEmailVerificationRequired.mockReturnValue(false);
-    mockGenerateToken.mockReturnValue({ raw: 'test-token-raw', hash: 'test-token-hash' });
-    mockMinutesFromNow.mockReturnValue(new Date(Date.now() + 60 * 60 * 1000));
-    mockBuildVerifyEmail.mockResolvedValue({
-      to: 'test@example.com',
-      subject: 'Verify your email',
-      html: '<p>Test email</p>',
-      text: 'Test email',
-    });
-    mockSendMail.mockResolvedValue({ messageId: 'test-message-id' });
-    mockGetRequestContext.mockReturnValue({
-      ip: '127.0.0.1',
-      method: 'POST',
-      url: '/api/auth/register',
-      userAgent: 'jest',
-    });
+    // mockGenerateToken already has default return value set in __mocks__/lib/tokens.js
+    // mockMinutesFromNow already has default implementation set in __mocks__/lib/tokens.js
+    // mockBuildVerifyEmail already has default return value set in __mocks__/lib/email.js
+    // mockSendMail already has default return value set in __mocks__/lib/email.js
+    // mockGetRequestContext already has default return value set in __mocks__/lib/logger.js
   });
 
   afterEach(() => {

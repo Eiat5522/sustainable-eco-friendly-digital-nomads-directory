@@ -23,9 +23,6 @@ jest.mock('@/lib/auth/serverAuth', () => ({
 
 import { PATCH, POST, GET } from './route';
 
-// Use the same mock references
-const mockUpdate = mockUpdateUserProfile;
-
 const originalEnv = { ...process.env };
 
 const createRequest = (payload?: unknown, method: 'PATCH' | 'POST' | 'GET' = 'PATCH') => {

@@ -50,14 +50,6 @@ function TestSearchPage() {
 
 // Rely on MSW global handlers from __mocks__/node.ts for /api/search
 
-// Utility kept for local mocks if needed in future
-const makeResponse = (data: any, init: any = {}) =>
-  new Response(JSON.stringify(data), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-    ...init,
-  }) as any
-
 describe('Search Page', () => {
   // No explicit fetch restore needed; MSW handlers are global from setup
   afterAll(() => {})

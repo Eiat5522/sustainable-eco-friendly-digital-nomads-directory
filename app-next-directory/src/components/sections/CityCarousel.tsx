@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import type { CityDTO } from '@/types/dto';
-import CityCarouselWave from '@/components/ui/city-carousel-wave';
 import { NeoButton } from '@/components/ui/neo-button';
+import type { CityDTO } from '@/types';
 
 type ApiResponse = { success?: boolean; cities?: CityDTO[] } | { cities?: CityDTO[] };
 
@@ -14,6 +13,49 @@ export function CityCarousel() {
   const [cities, setCities] = useState<CityDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Scroll button state and ref
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll-button updater
+  const updateScrollButtons = useCallback(() => {
+    if (!containerRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+    setCanPrev(scrollLeft > 0);
+    setCanNext(scrollLeft < scrollWidth - clientWidth - 1);
+  }, []);
+
+  // Scroll handler
+  const scrollBy = useCallback((direction: number) => {
+    if (!containerRef.current) return;
+    const scrollAmount = containerRef.current.clientWidth * 0.8 * direction;
+    containerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  // Update after smooth scroll completes (with fallback for older browsers)
+  let timeoutId: NodeJS.Timeout | null = setTimeout(() => {
+    updateScrollButtons();
+    timeoutId = null;
+  }, 500);
+    const handleScrollEnd = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }      
+      updateScrollButtons();
+      containerRef.current?.removeEventListener('scrollend', handleScrollEnd);
+    };
+    containerRef.current.addEventListener('scrollend', handleScrollEnd);
+  }, [updateScrollButtons]);
+
+  // Wire up scroll events and initial state
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    updateScrollButtons();
+    container.addEventListener('scroll', updateScrollButtons);
+    return () => container.removeEventListener('scroll', updateScrollButtons);
+  }, [updateScrollButtons]);
 
   useEffect(() => {
     let cancelled = false;

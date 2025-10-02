@@ -9,6 +9,10 @@ describe('ProfileEditForm', () => {
     global.fetch = mockFetch as any;
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('renders with current name pre-filled', () => {
     render(<ProfileEditForm currentName="John Doe" />);
     const input = screen.getByLabelText(/Full Name/i);
@@ -26,6 +30,8 @@ describe('ProfileEditForm', () => {
     render(<ProfileEditForm currentName="" />);
     const input = screen.getByLabelText(/Full Name/i);
     const submitButton = screen.getByText(/Save Changes/i);
+    
+    expect(submitButton).toBeDisabled();
     
     fireEvent.change(input, { target: { value: '   ' } });
     expect(submitButton).toBeDisabled();
@@ -46,17 +52,25 @@ describe('ProfileEditForm', () => {
     fireEvent.click(submitButton);
 
     await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          method: 'PATCH',
+          body: expect.stringContaining('Jane Smith'),
+        })
+      );      
       expect(mockOnSuccess).toHaveBeenCalled();
     });
   });
 
   it('displays error message on failed submission', async () => {
+    const mockOnSuccess = jest.fn();
     mockFetch.mockResolvedValue({
       ok: false,
       json: async () => ({ error: { message: 'Update failed' } }),
     });
 
-    render(<ProfileEditForm currentName="John Doe" />);
+    render(<ProfileEditForm currentName="John Doe" onSuccess={mockOnSuccess} />);
     const input = screen.getByLabelText(/Full Name/i);
     const submitButton = screen.getByText(/Save Changes/i);
 
@@ -65,6 +79,7 @@ describe('ProfileEditForm', () => {
 
     await waitFor(() => {
       expect(screen.getByText(/Update failed/i)).toBeInTheDocument();
+      expect(mockOnSuccess).not.toHaveBeenCalled();
     });
   });
 

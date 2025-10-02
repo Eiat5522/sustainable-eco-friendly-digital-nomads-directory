@@ -32,7 +32,6 @@
     "test:coverage": "pnpm --filter app-next-directory test:coverage",
     "test:ci": "pnpm --filter app-next-directory test:ci",
     "check-types": "tsc --noEmit",
-    "typecheck": "tsc --noEmit",
     "types:postprocess": "node sanity-types-postprocess.js",
     "typegen": "pnpm --filter sanity update-types && pnpm run types:postprocess",
     "validate:specs": "node ./scripts/spec-validator.js"

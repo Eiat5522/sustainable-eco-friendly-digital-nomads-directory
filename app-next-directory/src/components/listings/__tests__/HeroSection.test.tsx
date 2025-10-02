@@ -263,7 +263,7 @@ describe('HeroSection', () => {
       );
 
       const favoriteButton = screen.getByTestId('favorite-button');
-      expect(favoriteButton).toHaveAttribute('data-listing-id', 'listing-1');
+      expect(favoriteButton).toHaveAttribute('data-listing-id', 'sustainable-coffee-shop');
       expect(favoriteButton).toHaveAttribute('data-listing-title', 'Sustainable Coffee Shop');
       expect(favoriteButton).toHaveAttribute('data-size', 'sm');
       expect(favoriteButton).toHaveClass('bg-white/90', 'hover:bg-white');

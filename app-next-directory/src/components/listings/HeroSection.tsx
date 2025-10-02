@@ -42,7 +42,7 @@ export function HeroSection(props: Readonly<HeroSectionProps>) {
               listingTitle={listing.name}
               size="sm"
               className="bg-white/90 hover:bg-white"
-              isFavorited={props.isFavorited}
+              initialIsFavorited={props.isFavorited}
               onToggle={props.onToggleFavorite}
             />
           </div>

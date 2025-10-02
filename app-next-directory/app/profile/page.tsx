@@ -142,9 +142,16 @@ export default function ProfilePage() {
   const [ownerError, setOwnerError] = useState<string | null>(null);
 
   const handleEditSuccess = async () => {
-    // Refresh session to get updated name
-    await update();
-    setIsEditing(false);
+    try {
+      // Refresh session to get updated name
+      await update();
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Failed to refresh session:', error);
+      // TODO: Show toast notification
+      alert('Profile updated successfully. Please refresh the page to see changes.');
+      setIsEditing(false);
+    }
   };
 
   useEffect(() => {
@@ -306,7 +313,7 @@ export default function ProfilePage() {
             </section>
 
             {isEditing && (
-              <section aria-labelledby="edit-profile">
+              <section>
                 <ProfileEditForm
                   currentName={session?.user?.name || ''}
                   onSuccess={handleEditSuccess}

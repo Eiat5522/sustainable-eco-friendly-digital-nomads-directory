@@ -31,6 +31,12 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
     setSuccess(false);
     setIsLoading(true);
 
+    // Create AbortController and set timeout for 10 seconds
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, 10000);
+
     try {
       const response = await fetch('/api/auth/update-profile', {
         method: 'PATCH',
@@ -38,11 +44,12 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ name: name.trim() }),
+        credentials: 'include',
+        signal: controller.signal,
       });
 
-      const data = await response.json();
-
       if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
         throw new Error(data.error?.message || 'Failed to update profile');
       }
 
@@ -51,8 +58,15 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
         onSuccess();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      if (err instanceof Error && err.name === 'AbortError') {
+        setError('Request timed out. Please try again.');
+      } else if (err instanceof Error) {
+        setError(err.message || 'An error occurred');
+      } else {
+        setError('An error occurred');
+      }
     } finally {
+      clearTimeout(timeoutId);
       setIsLoading(false);
     }
   };
@@ -78,20 +92,21 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
               required
               maxLength={120}
               disabled={isLoading}
+              aria-describedby="name-description"
             />
-            <p className="text-xs text-neo-text-secondary">
+            <p id="name-description" className="text-xs text-neo-text-secondary">
               This is the name that will be displayed on your profile
             </p>
           </div>
 
           {error && (
-            <div className="rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-700">
+            <div role="alert" aria-live="polite" className="rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-700">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-700">
+            <div role="alert" aria-live="polite" className="rounded-lg bg-emerald-50 border border-emerald-200 p-3 text-sm text-emerald-700">
               Profile updated successfully!
             </div>
           )}
