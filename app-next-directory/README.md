@@ -20,7 +20,9 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ### Dev Server Issues (Worker Module Errors)
 
-If you encounter worker module errors or WSL disconnection issues:
+**Note:** The pino-pretty worker.js MODULE_NOT_FOUND error has been fixed (as of latest commit). The logger now uses synchronous mode to avoid worker thread path resolution issues with Next.js custom distDir.
+
+If you encounter other worker module errors or WSL disconnection issues:
 
 ```bash
 # Clean build artifacts
@@ -34,7 +36,7 @@ For detailed troubleshooting, see the **[WSL Disconnection Fix Guide](../WSL_DIS
 
 ### Common Issues
 
-- **"Cannot find module .../worker.js"**: Run `npm run clean` to remove corrupted build artifacts
+- **"Cannot find module .../worker.js"**: This has been fixed for pino-pretty. For other cases, run `npm run clean` to remove corrupted build artifacts
 - **WSL disconnects during dev**: Use an external terminal or see the troubleshooting guide
 - **TypeScript errors**: Some errors are expected in the current codebase
 

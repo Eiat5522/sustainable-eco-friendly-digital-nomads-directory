@@ -6,6 +6,10 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const isTest = process.env.NODE_ENV === 'test';
 const isE2E = process.env.E2E === '1';
 
+// Check if we're running in a Node.js environment (server-side)
+// pino-pretty with worker threads doesn't work well in Next.js server contexts
+const isServer = typeof window === 'undefined';
+
 // Redact sensitive fields to prevent information leakage
 const redactPaths = [
   'password',
@@ -74,20 +78,33 @@ const loggerConfig: pino.LoggerOptions = {
   }
 };
 
-// Configure transport for development
-if (isDevelopment && !isE2E) {
-  loggerConfig.transport = {
-    target: 'pino-pretty',
-    options: {
+// Configure pretty printing for development
+// IMPORTANT: We avoid using pino's transport mechanism with pino-pretty because it spawns
+// worker threads that fail to resolve paths correctly in Next.js with custom distDir.
+// Instead, we use pino-pretty as a direct stream destination without worker threads.
+let logger: pino.Logger;
+
+if (isDevelopment && !isE2E && isServer) {
+  // In development server-side, use pino-pretty but without worker threads
+  // This avoids MODULE_NOT_FOUND errors with Next.js custom distDir
+  try {
+    const pinoPretty = require('pino-pretty');
+    const prettyStream = pinoPretty({
       colorize: true,
       translateTime: 'yyyy-mm-dd HH:MM:ss',
-      ignore: 'pid,hostname,service,version'
-    }
-  };
+      ignore: 'pid,hostname,service,version',
+      sync: true, // Force synchronous mode to avoid worker threads
+    });
+    logger = pino(loggerConfig, prettyStream);
+  } catch (error) {
+    // Fallback to basic logger if pino-pretty fails to load
+    console.warn('Failed to initialize pino-pretty, using basic logger:', error);
+    logger = pino(loggerConfig);
+  }
+} else {
+  // In production, test, or client-side: use basic logger without pretty printing
+  logger = pino(loggerConfig);
 }
-
-// Create the logger instance
-const logger = pino(loggerConfig);
 
 // Enhanced logging interface with context support
 interface LogContext {
