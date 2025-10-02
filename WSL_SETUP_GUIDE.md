@@ -7,8 +7,13 @@ This guide helps you configure Windows Subsystem for Linux (WSL) to work optimal
 ### 1. Check Your Current Configuration
 
 ```bash
-# In WSL terminal
+# In WSL terminal (from project root)
+bash scripts/check-wsl-resources.sh
+
+# Or using npm/pnpm (will run in workspaces but that's OK)
 pnpm run check:wsl
+# or
+npm run check:wsl
 ```
 
 This script will analyze your WSL setup and provide specific recommendations.
@@ -55,7 +60,7 @@ Then restart your WSL distribution from Start Menu or terminal.
 
 ```bash
 # In WSL terminal
-pnpm run check:wsl
+bash scripts/check-wsl-resources.sh
 ```
 
 Should show all green checks ✓ or minimal warnings.
@@ -302,7 +307,7 @@ wsl --version    # Verify it's 2.0.0 or higher
 ### Built-in Check Script
 
 ```bash
-pnpm run check:wsl
+bash scripts/check-wsl-resources.sh
 ```
 
 Shows:
@@ -355,7 +360,7 @@ watch -n 1 df -h
 
 ```bash
 # 1. Check WSL resources
-pnpm run check:wsl
+bash scripts/check-wsl-resources.sh
 
 # 2. Clean if needed
 pnpm run clean
@@ -371,7 +376,7 @@ pnpm run dev:sanity
 
 ```bash
 # 1. Check resources first
-pnpm run check:wsl
+bash scripts/check-wsl-resources.sh
 
 # 2. Close unnecessary terminals/apps
 
@@ -446,7 +451,7 @@ networkingMode=mirrored    # Windows 11 22H2+ only
 - `turbo.json` - Turborepo configuration
 
 ### Scripts
-- `pnpm run check:wsl` - Check WSL resource configuration
+- `bash scripts/check-wsl-resources.sh` - Check WSL resource configuration
 - `pnpm run clean` - Clean build artifacts
 - `pnpm run build:sequential` - Safe sequential builds
 
@@ -458,7 +463,7 @@ If you're still experiencing issues after following this guide:
 
 1. **Run diagnostics:**
    ```bash
-   pnpm run check:wsl > wsl-diagnostics.txt
+   bash scripts/check-wsl-resources.sh > wsl-diagnostics.txt
    ```
 
 2. **Check project issues:** Search for similar issues in GitHub Issues
