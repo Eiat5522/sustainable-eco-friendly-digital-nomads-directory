@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { ListingDetailView } from '../ListingDetailView'
 import type { ListingDetailDTO, CityDTO } from '@/types/dto'
 import { getCurrentHref, redirectTo } from '@/utils/navigation'
+import { usePathname } from 'next/navigation'
 
 const originalFetch = global.fetch
 const mockFetch = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>()
@@ -14,8 +15,13 @@ jest.mock('@/utils/navigation', () => ({
   redirectTo: jest.fn(),
 }))
 
+jest.mock('next/navigation', () => ({
+  usePathname: jest.fn(),
+}))
+
 const mockGetCurrentHref = getCurrentHref as jest.MockedFunction<typeof getCurrentHref>
 const mockRedirectTo = redirectTo as jest.MockedFunction<typeof redirectTo>
+const mockUsePathname = usePathname as jest.MockedFunction<typeof usePathname>
 
 const mockResponse = (
   body: unknown,
@@ -111,6 +117,7 @@ beforeEach(() => {
   global.fetch = mockFetch as unknown as typeof fetch
   window.history.replaceState({}, '', defaultListingHref)
   mockGetCurrentHref.mockReturnValue(defaultListingHref)
+  mockUsePathname.mockReturnValue('/listings/test-listing')
 })
 
 afterAll(() => {
@@ -394,5 +401,71 @@ describe('ListingDetailView', () => {
     })
 
     consoleSpy.mockRestore()
+  })
+
+  it('does not record views when pathname is not a listing detail page', async () => {
+    // Mock pathname to be home page instead of listing detail
+    mockUsePathname.mockReturnValue('/')
+
+    // Temporarily enable production mode to verify view recording doesn't happen
+    const originalNodeEnv = process.env.NODE_ENV
+    const originalJestWorkerId = process.env.JEST_WORKER_ID
+    delete process.env.JEST_WORKER_ID
+    process.env.NODE_ENV = 'production'
+
+    render(
+      <ListingDetailView
+        listing={baseListing}
+        reviews={baseReviews}
+        isSignedIn
+        isFavorited={false}
+      />
+    )
+
+    // Wait a bit to ensure no fetch is triggered
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    // View recording API should NOT be called since we're not on a listing page
+    expect(mockFetch).not.toHaveBeenCalledWith(
+      expect.stringContaining('/api/listings/'),
+      expect.any(Object)
+    )
+
+    // Restore environment
+    process.env.NODE_ENV = originalNodeEnv
+    if (originalJestWorkerId) process.env.JEST_WORKER_ID = originalJestWorkerId
+  })
+
+  it('does not record views when pathname is on other pages like search', async () => {
+    // Mock pathname to be search page
+    mockUsePathname.mockReturnValue('/search')
+
+    // Temporarily enable production mode to verify view recording doesn't happen
+    const originalNodeEnv = process.env.NODE_ENV
+    const originalJestWorkerId = process.env.JEST_WORKER_ID
+    delete process.env.JEST_WORKER_ID
+    process.env.NODE_ENV = 'production'
+
+    render(
+      <ListingDetailView
+        listing={baseListing}
+        reviews={baseReviews}
+        isSignedIn
+        isFavorited={false}
+      />
+    )
+
+    // Wait a bit to ensure no fetch is triggered
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    // View recording API should NOT be called
+    expect(mockFetch).not.toHaveBeenCalledWith(
+      expect.stringContaining('/api/listings/'),
+      expect.any(Object)
+    )
+
+    // Restore environment
+    process.env.NODE_ENV = originalNodeEnv
+    if (originalJestWorkerId) process.env.JEST_WORKER_ID = originalJestWorkerId
   })
 })

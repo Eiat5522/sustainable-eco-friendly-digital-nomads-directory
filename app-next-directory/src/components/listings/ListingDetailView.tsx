@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import GalleryGrid from "./GalleryGrid";
 import { HeroSection } from './HeroSection';
 import { ListingDetailsCard } from './ListingDetailsCard';
@@ -46,6 +47,7 @@ export function ListingDetailView({
   , isFavorited = false
 }: ListingDetailViewProps) {
   const [favorited, setFavorited] = useState<boolean>(Boolean(isFavorited));
+  const pathname = usePathname();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -53,6 +55,12 @@ export function ListingDetailView({
     const recordView = async () => {
       // Use slug for routing/identification in URLs (dynamic route uses [slug])
       if (!listing?.slug) return;
+
+      // CRITICAL: Only record views on listing detail pages (/listings/[slug])
+      // This prevents the view recording from being triggered on other pages like the home page
+      if (!pathname || !pathname.startsWith('/listings/')) {
+        return;
+      }
 
       // Skip recording views during unit tests to avoid leaking fetch
       // calls into test assertions (Jest sets NODE_ENV to 'test').
@@ -77,7 +85,7 @@ export function ListingDetailView({
     return () => {
       controller.abort();
     };
-  }, [listing?.slug]);
+  }, [listing?.slug, pathname]);
 
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   
