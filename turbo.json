@@ -1,9 +1,23 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "NODE_ENV",
+    "VERCEL_ENV"
+  ],
+  "globalDependencies": [
+    ".env",
+    ".env.local"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**"]
+      "outputs": [".next/**", "dist/**"],
+      "env": [
+        "NEXT_PUBLIC_*",
+        "SANITY_*",
+        "MONGODB_URI",
+        "NEXTAUTH_*"
+      ]
     },
     "check-types": {
       "dependsOn": ["^check-types"]
@@ -11,6 +25,22 @@
     "dev": {
       "persistent": true,
       "cache": false    
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "cache": true,
+      "outputs": ["coverage/**"]
+    },
+    "test:e2e": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "lint": {
+      "dependsOn": ["^lint"],
+      "cache": true
     }
-  }
+  },
+  "ui": "stream",
+  "daemon": false,
+  "experimentalSpaceId": null
 }

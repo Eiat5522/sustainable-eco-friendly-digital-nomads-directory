@@ -2,7 +2,13 @@
 
 ## Problem Overview
 
-**Issue**: Next.js 15.5.0 development server crashes with worker thread errors, causing WSL to disconnect from VS Code.
+**Issue**: VS Code disconnects from WSL when running process-intensive tasks (builds, tests, or multiple dev servers simultaneously). This issue became more pronounced after introducing Turborepo to the project.
+
+**Common Scenarios**:
+1. Running `pnpm build` causes WSL disconnection
+2. Running dev server then running tests causes disconnection
+3. Running multiple workspaces simultaneously (Next.js + Sanity)
+4. Long-running E2E tests with Playwright
 
 **Error Messages**:
 ```
@@ -10,7 +16,55 @@
 ⨯ uncaughtException: [Error: the worker thread exited]
 ```
 
-**Root Cause**: Corrupted or conflicting build artifacts in `.next/`, `dist/server/`, and `dist/client/` directories. These artifacts cause worker threads to look for modules in non-existent locations, leading to crashes.
+**Root Causes**: 
+1. Corrupted or conflicting build artifacts in `.next/`, `dist/server/`, and `dist/client/` directories
+2. Turborepo running multiple tasks in parallel without resource limits, overwhelming WSL
+3. Insufficient WSL memory/CPU allocation for intensive build processes
+4. VS Code file watcher monitoring too many files, consuming excessive resources
+
+---
+
+## Quick Fix (Recommended)
+
+### Step 0: Configure WSL Resources (NEW - Required for Turborepo)
+
+**This is the most important step to prevent disconnections!**
+
+Turborepo can overwhelm WSL resources when running multiple tasks in parallel. Configure WSL resource limits:
+
+1. **Create/Edit `.wslconfig` on Windows host** (not in WSL):
+   ```powershell
+   # Open PowerShell/CMD
+   notepad C:\Users\<YourUsername>\.wslconfig
+   ```
+
+2. **Copy recommended settings** from `.wslconfig.recommended` in this repository, or use these minimal settings:
+   ```ini
+   [wsl2]
+   memory=8GB
+   processors=4
+   swap=2GB
+   localhostForwarding=true
+   
+   [experimental]
+   autoMemoryReclaim=gradual
+   sparseVhd=true
+   ```
+
+3. **Restart WSL** (in PowerShell as Administrator):
+   ```powershell
+   wsl --shutdown
+   ```
+   Then restart your WSL instance.
+
+4. **Verify settings**:
+   ```bash
+   # In WSL
+   free -h  # Check memory
+   nproc    # Check CPU count
+   ```
+
+**Why this matters**: Without resource limits, Turborepo + Next.js + Playwright can easily consume 10-12GB RAM and all CPU cores, causing WSL to crash and VS Code to disconnect.
 
 ---
 
@@ -173,6 +227,87 @@ Ensure VS Code Remote-WSL connection remains stable for at least 5-10 minutes of
 
 ---
 
+## Turborepo-Specific Optimizations (NEW)
+
+Since introducing Turborepo, additional resource management is needed to prevent WSL disconnections.
+
+### Configuration Changes Made
+
+The project now includes optimizations in `turbo.json`:
+
+1. **Daemon Disabled**: `"daemon": false` prevents background process resource consumption
+2. **Stream UI Mode**: `"ui": "stream"` reduces memory overhead
+3. **Proper Cache Configuration**: Prevents cache bloat in `.turbo/` directory
+4. **Task Dependencies**: Ensures builds complete before tests run
+
+### Using Turborepo Safely in WSL
+
+**Option 1: Run tasks sequentially** (safest, slower):
+```bash
+# Instead of: pnpm run build (runs all in parallel)
+pnpm run build:next
+pnpm run build:sanity
+
+# Instead of running dev + test simultaneously
+pnpm run dev:next
+# Wait for server to start, then in another terminal:
+pnpm run test:e2e
+```
+
+**Option 2: Limit Turborepo concurrency** (requires Turbo CLI):
+```bash
+# Run only 1 task at a time
+turbo run build --concurrency=1
+
+# Run max 2 tasks in parallel
+turbo run build --concurrency=2
+```
+
+**Option 3: Use environment variable**:
+```bash
+# Add to your .bashrc or .zshrc in WSL
+export TURBO_FORCE=true
+export TURBO_TEAM=local
+
+# For individual commands
+TURBO_TELEMETRY_DISABLED=1 pnpm run build
+```
+
+### VS Code Settings for Turborepo
+
+The project now includes `.vscode/settings.json` with:
+- File watcher exclusions for `.turbo/`, `.next/`, `dist/`
+- Disabled auto-refresh for git and extensions
+- Reduced search scope to essential files
+- TypeScript workspace optimization
+
+**These settings are automatically applied when you open the workspace.**
+
+### Monitoring Turborepo Resource Usage
+
+```bash
+# Monitor memory while building
+watch -n 1 free -h
+
+# Monitor all resources
+htop  # or 'top' if htop not installed
+
+# Check Turbo cache size
+du -sh .turbo
+
+# Clear Turbo cache if it gets too large (>500MB)
+rm -rf .turbo
+```
+
+### Turborepo Performance Tips
+
+1. **Keep .turbo cache clean**: Large cache (>1GB) slows down WSL
+2. **Use `--force` flag**: Skip cache when debugging: `pnpm run build --force`
+3. **Run cleanup before intensive tasks**: `bash scripts/clean-build-artifacts.sh`
+4. **Restart WSL weekly**: Prevents memory fragmentation: `wsl --shutdown` (on Windows)
+
+---
+
 ## Alternative Solutions (If Primary Fix Fails)
 
 ### Option A: Disable Worker Threads
@@ -305,10 +440,14 @@ Ensure you have at least 2-3 GB of free space.
 ### Issue: WSL keeps disconnecting
 
 **Solutions**:
-1. Use external terminal or tmux (see "Starting the Dev Server Safely")
-2. Check WSL configuration: `wsl --status`
-3. Update WSL: `wsl --update`
-4. Check Windows system resources
+1. **Configure WSL resources** (see Step 0 above) - **Most common fix**
+2. Check `.wslconfig` is properly configured: `wsl --status` (on Windows)
+3. Update WSL: `wsl --update` (on Windows, requires Admin)
+4. Check Windows system resources (Task Manager > Performance > WSL)
+5. Use external terminal or tmux (see "Starting the Dev Server Safely")
+6. Monitor Turborepo resource usage: `htop` or `top` in WSL
+7. Reduce Turborepo concurrency: run tasks sequentially
+8. Clear Turbo cache: `rm -rf .turbo` in project root
 
 ### Issue: TypeScript errors after cleanup
 
@@ -330,6 +469,10 @@ npm run build:types
 ✅ WSL remains connected throughout development session  
 ✅ API routes respond correctly  
 ✅ Hot reload works properly  
+✅ Can run builds without WSL disconnection (NEW)  
+✅ Can run tests while dev server is running (NEW)  
+✅ Turborepo tasks complete successfully (NEW)  
+✅ VS Code remains responsive during intensive operations (NEW)  
 
 ---
 

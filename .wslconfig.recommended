@@ -1,0 +1,89 @@
+# WSL Configuration Recommendations
+# This file provides recommended settings to prevent VS Code disconnection issues
+# when running intensive processes like builds and tests with Turborepo.
+#
+# IMPORTANT: This file should be placed in your Windows user directory:
+# C:\Users\<YourUsername>\.wslconfig
+#
+# After creating/modifying .wslconfig, restart WSL:
+# - Open PowerShell/CMD as Administrator
+# - Run: wsl --shutdown
+# - Restart your WSL instance
+#
+# For more information: https://learn.microsoft.com/en-us/windows/wsl/wsl-config
+
+[wsl2]
+# Memory allocation - adjust based on your system
+# Limit WSL to use max 50% of total system memory (adjust as needed)
+# Example: For 16GB system RAM, set to 8GB
+# For 32GB system RAM, you can set to 12-16GB
+memory=8GB
+
+# CPU allocation - limit number of processors
+# Recommended: Use 50-75% of available cores
+# Example: For 8-core CPU, set to 4-6 processors
+processors=4
+
+# Swap space - helps handle memory spikes
+# Set to 25-50% of memory allocation
+swap=2GB
+
+# Swap file location (optional, improves performance on SSD)
+# swapFile=D:\\wsl-swap.vhdx
+
+# Localhostforwarding - required for development servers
+localhostForwarding=true
+
+# Kernel options for better performance
+kernelCommandLine = "vsyscall=emulate"
+
+# Page reporting - helps with memory management
+pageReporting=true
+
+# Idle threshold - time before releasing memory back to Windows
+# Set to 30 seconds for responsive development
+idleThreshold=30000
+
+# VM idle timeout - prevent WSL from shutting down during long builds
+vmIdleTimeout=-1
+
+[experimental]
+# Auto memory reclaim - helps prevent memory leaks
+# Options: disabled, gradual, dropcache
+# Recommended: gradual for development environments
+autoMemoryReclaim=gradual
+
+# Sparse VHD - reduces disk space usage
+sparseVhd=true
+
+# Network mode - use mirrored for better compatibility
+# Options: NAT, mirrored
+# mirrored is better for development but requires Windows 11 22H2+
+# networkingMode=mirrored
+
+# DNS tunneling - improves network reliability
+# dnsTunneling=true
+
+# Firewall integration - recommended for mirrored networking
+# firewall=true
+
+# IMPORTANT NOTES:
+# ================
+# 1. Adjust memory and processors based on your system specifications
+# 2. Leave enough resources for Windows host (at least 4-6GB RAM and 2 cores)
+# 3. Monitor resource usage with: wsl --status (in PowerShell)
+# 4. Check WSL version: wsl --version (requires WSL 2.0.0+)
+# 5. For older WSL versions, some experimental features may not be available
+#
+# Troubleshooting:
+# ================
+# - If builds still fail: increase memory and swap
+# - If system becomes slow: decrease memory/processors allocation
+# - If network issues: disable mirrored networking (use NAT)
+# - Monitor WSL resources: Task Manager > Performance > WSL
+#
+# Recommended System Requirements:
+# ================================
+# Minimum: 16GB RAM, 4-core CPU
+# Recommended: 32GB RAM, 8-core CPU
+# Optimal: 64GB RAM, 12+ core CPU

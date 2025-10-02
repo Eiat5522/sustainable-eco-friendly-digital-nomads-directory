@@ -10,6 +10,7 @@
   "description": "Root package for the Sustainable Eco-Friendly Digital Nomads Directory project",
   "scripts": {
     "clean": "bash ./scripts/clean-build-artifacts.sh",
+    "check:wsl": "bash ./scripts/check-wsl-resources.sh",
     "exec:jest": "pnpm --filter app-next-directory exec:jest",
     "test": "pnpm --filter app-next-directory test",
     "test:unit": "pnpm --filter app-next-directory test:unit",
@@ -23,6 +24,7 @@
     "build:next": "pnpm --filter app-next-directory build",
     "build:sanity": "pnpm --filter sanity build",
     "build": "pnpm build:next && pnpm build:sanity",
+    "build:sequential": "pnpm build:next && pnpm build:sanity",
     "start:next": "pnpm --filter app-next-directory start",
     "start:sanity": "pnpm --filter sanity start",
     "start": "pnpm start:next",

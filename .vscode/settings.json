@@ -1,0 +1,103 @@
+{
+  // WSL Performance and Stability Settings
+  // These settings help prevent VS Code disconnection issues when running intensive processes
+  
+  // File watching optimizations for WSL
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/.next/**": true,
+    "**/.turbo/**": true,
+    "**/dist/**": true,
+    "**/coverage/**": true,
+    "**/.npm-cache/**": true,
+    "**/pnpm-lock.yaml": true,
+    "**/package-lock.json": true
+  },
+  
+  // Reduce file watching load
+  "files.watcherInclude": [
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.json",
+    "**/*.css",
+    "**/*.scss",
+    "**/*.md"
+  ],
+  
+  // Search exclusions to reduce memory usage
+  "search.exclude": {
+    "**/.next": true,
+    "**/.turbo": true,
+    "**/dist": true,
+    "**/coverage": true,
+    "**/node_modules": true,
+    "**/.npm-cache": true,
+    "**/pnpm-lock.yaml": true,
+    "**/package-lock.json": true
+  },
+  
+  // TypeScript and JavaScript settings
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  
+  // Disable unnecessary features that consume resources
+  "git.autorefresh": false,
+  "git.autofetch": false,
+  "extensions.autoUpdate": false,
+  "extensions.autoCheckUpdates": false,
+  
+  // Terminal settings for WSL
+  "terminal.integrated.scrollback": 5000,
+  "terminal.integrated.enablePersistentSessions": false,
+  
+  // Editor performance settings
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": false
+  },
+  
+  // Exclude test output and build artifacts from editor
+  "files.exclude": {
+    "**/.turbo": true,
+    "**/playwright-report": true,
+    "**/test-results": true
+  },
+  
+  // Workspace trust for monorepo
+  "security.workspace.trust.untrustedFiles": "open",
+  
+  // Jest settings (disabled at root, enabled in app-next-directory)
+  "jest.enable": false,
+  
+  // NPM and pnpm settings
+  "npm.packageManager": "pnpm",
+  "npm.autoDetect": "on",
+  
+  // Turbo-specific settings
+  "turbo.useLocalTurbo": true,
+  
+  // Prevent excessive CPU usage from extensions
+  "explorer.excludeGitIgnore": true,
+  "diffEditor.ignoreTrimWhitespace": true,
+  
+  // Recommendations for WSL users
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "comments": "off",
+      "strings": "off",
+      "other": "off"
+    }
+  }
+}

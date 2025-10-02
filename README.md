@@ -48,8 +48,10 @@ sustainable-eco-friendly-digital-nomads-directory/
 
 ### 🔧 Troubleshooting
 
+- **[WSL Setup Guide](WSL_SETUP_GUIDE.md)** - Configure WSL for optimal performance with Turborepo and Next.js (recommended for all WSL users)
 - **[WSL Disconnection Fix Guide](WSL_DISCONNECTION_FIX_GUIDE.md)** - Comprehensive guide for resolving Next.js worker module errors and WSL disconnection issues
 - **[Scripts Documentation](scripts/README.md)** - Utility scripts for maintenance and troubleshooting
+- **Quick Check**: Run `pnpm run check:wsl` to verify your WSL configuration
 
 ---
 
