@@ -93,19 +93,19 @@ describe('auth/update-profile route', () => {
 
   it('returns 404 when the user cannot be updated', async () => {
   mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
-  mockUpdate.mockResolvedValue(null as any);
+  mockUpdateUserProfile.mockResolvedValue(null as any);
 
     const response = await PATCH(createRequest({ name: 'Tester' }));
     const body = await response.json();
 
-    expect(mockUpdate).toHaveBeenCalledWith('user-1', { name: 'Tester' });
+    expect(mockUpdateUserProfile).toHaveBeenCalledWith('user-1', { name: 'Tester' });
     expect(response.status).toBe(404);
     expect(body.error?.code).toBe('NOT_FOUND');
   });
 
   it('updates the user profile via PATCH', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
-    mockUpdate.mockResolvedValue({
+    mockUpdateUserProfile.mockResolvedValue({
       id: 'user-1',
       name: 'Updated User',
       email: 'test@example.com',
@@ -127,7 +127,7 @@ describe('auth/update-profile route', () => {
 
   it('treats POST the same as PATCH for updates', async () => {
     mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
-    mockUpdate.mockResolvedValue({
+    mockUpdateUserProfile.mockResolvedValue({
       id: 'user-1',
       name: 'Updated User',
       email: 'test@example.com',
@@ -138,7 +138,7 @@ describe('auth/update-profile route', () => {
     const response = await POST(createRequest({ image: null }, 'POST'));
     const body = await response.json();
 
-    expect(mockUpdate).toHaveBeenCalledWith('user-1', { image: null });
+    expect(mockUpdateUserProfile).toHaveBeenCalledWith('user-1', { image: null });
     expect(response.status).toBe(200);
     expect(body.success).toBe(true);
   });

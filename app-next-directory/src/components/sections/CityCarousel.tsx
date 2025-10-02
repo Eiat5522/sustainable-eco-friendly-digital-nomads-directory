@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { NeoButton } from '@/components/ui/neo-button';
 import type { CityDTO } from '@/types/dto';
 
-type ApiResponse = { success?: boolean; cities?: CityDTO[] } | { cities?: CityDTO[] };
+type ApiResponse = { success?: boolean; cities?: CityDTO[] };
 
 export function CityCarousel() {
   const [cities, setCities] = useState<CityDTO[]>([]);
@@ -18,6 +18,7 @@ export function CityCarousel() {
   const [canPrev, setCanPrev] = useState(false);
   const [canNext, setCanNext] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Scroll-button updater
   const updateScrollButtons = useCallback(() => {
@@ -32,20 +33,17 @@ export function CityCarousel() {
     if (!containerRef.current) return;
     const scrollAmount = containerRef.current.clientWidth * 0.8 * direction;
     containerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-  // Update after smooth scroll completes (with fallback for older browsers)
-  let timeoutId: NodeJS.Timeout | null = setTimeout(() => {
-    updateScrollButtons();
-    timeoutId = null;
-  }, 500);
-    const handleScrollEnd = () => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      timeoutId = null;
-    }      
-      updateScrollButtons();
-      containerRef.current?.removeEventListener('scrollend', handleScrollEnd);
-    };
-    containerRef.current.addEventListener('scrollend', handleScrollEnd);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    if ('onscrollend' in window) {
+      containerRef.current.addEventListener('scrollend', updateScrollButtons, { once: true });
+    } else {
+      timeoutRef.current = setTimeout(updateScrollButtons, 500);
+    }
   }, [updateScrollButtons]);
 
   // Wire up scroll events and initial state

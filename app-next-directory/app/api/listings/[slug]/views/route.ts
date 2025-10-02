@@ -6,10 +6,10 @@ import { recordListingView } from '@/lib/metrics/listing-views';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
-    const slug = params.slug;
+    const { slug } = await params;
     if (!slug || typeof slug !== 'string') {
       return NextResponse.json({ error: 'Listing slug is required' }, { status: 400 });
     }

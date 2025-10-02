@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-type RouteContext = { params: Record<string, never> };
+type RouteContext = { params: Promise<Record<string, never>> };
 
 const notImplemented = () =>
   NextResponse.json({ error: 'Review moderation API not implemented.' }, { status: 501 });

@@ -79,18 +79,20 @@ const createSlidingWindowLimiter = () => {
   } as unknown as RatelimitConfig['limiter'];
 };
 
-const normaliseRedisClient = (redis: Redis | undefined) => {
+function normaliseRedisClient(redis: Redis): Redis & { evalsha?: any; evalSha?: any };
+function normaliseRedisClient(redis: Redis | undefined): (Redis & { evalsha?: any; evalSha?: any }) | undefined;
+function normaliseRedisClient(redis: Redis | undefined) {
   if (!redis) {
     return redis;
   }
 
-  const candidate = redis as Redis & { evalsha?: (...args: unknown[]) => unknown; evalSha?: (...args: unknown[]) => unknown };
+  const candidate = redis as Redis & { evalsha?: any; evalSha?: any };
   if (typeof candidate.evalsha !== 'function' && typeof candidate.evalSha === 'function') {
     candidate.evalsha = candidate.evalSha.bind(candidate);
   }
 
   return candidate;
-};
+}
 
 const buildRateLimiter = (redis: Redis | undefined) => {
   const testOverride = getTestRateLimiterOverride();

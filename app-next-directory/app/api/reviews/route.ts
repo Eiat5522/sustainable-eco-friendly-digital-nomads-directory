@@ -161,7 +161,17 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date().toISOString();
-    const reviewDoc: Record<string, unknown> = {
+    const reviewDoc: {
+      _type: string;
+      listing: { _type: string; _ref: string };
+      user: { _type: string; _ref: string };
+      rating: number;
+      comment: string;
+      approved: boolean;
+      createdAt: string;
+      ecoRating?: number;
+      nomadRating?: number;
+    } = {
       _type: 'review',
       listing: { _type: 'reference', _ref: listingId },
       user: { _type: 'reference', _ref: sanityUser._id },

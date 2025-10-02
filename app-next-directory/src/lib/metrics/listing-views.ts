@@ -16,7 +16,7 @@ function ensureMonthKey(date: Date): string {
   return `${year}-${month}`;
 }
 
-let indexPromise: Promise<void> | null = null;
+let indexPromise: Promise<string | void> | null = null;
 
 async function getMetricsCollection() {
   const collection = await getCollection(COLLECTION_NAME);

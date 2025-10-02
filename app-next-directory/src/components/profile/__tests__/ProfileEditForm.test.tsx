@@ -1,3 +1,5 @@
+/// <reference types="@testing-library/jest-dom" />
+import * as React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ProfileEditForm } from '../ProfileEditForm';
 
@@ -7,32 +9,28 @@ describe('ProfileEditForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = mockFetch as any;
-  // (Remove the extraneous `});` on line 95; no replacement needed)
-
-  afterEach(() => {
-    jest.restoreAllMocks();
   });
 
   it('renders with current name pre-filled', () => {
-    render(<ProfileEditForm currentName="John Doe" />);
-    const input = screen.getByLabelText(/Full Name/i);
+  render(React.createElement(ProfileEditForm, { currentName: 'John Doe' }));
+    const input = screen.getByLabelText(/Full Name/i) as HTMLInputElement;
     expect(input).toHaveValue('John Doe');
   });
 
   it('allows name to be changed', () => {
-    render(<ProfileEditForm currentName="John Doe" />);
-    const input = screen.getByLabelText(/Full Name/i);
+  render(React.createElement(ProfileEditForm, { currentName: 'John Doe' }));
+    const input = screen.getByLabelText(/Full Name/i) as HTMLInputElement;
     fireEvent.change(input, { target: { value: 'Jane Smith' } });
     expect(input).toHaveValue('Jane Smith');
   });
 
   it('disables submit button when name is empty', () => {
-    render(<ProfileEditForm currentName="" />);
-    const input = screen.getByLabelText(/Full Name/i);
+  render(React.createElement(ProfileEditForm, { currentName: '' }));
+    const input = screen.getByLabelText(/Full Name/i) as HTMLInputElement;
     const submitButton = screen.getByText(/Save Changes/i);
-    
+
     expect(submitButton).toBeDisabled();
-    
+
     fireEvent.change(input, { target: { value: '   ' } });
     expect(submitButton).toBeDisabled();
   });
@@ -44,8 +42,8 @@ describe('ProfileEditForm', () => {
       json: async () => ({ success: true, data: { user: { name: 'Jane Smith' } } }),
     });
 
-    render(<ProfileEditForm currentName="John Doe" onSuccess={mockOnSuccess} />);
-    const input = screen.getByLabelText(/Full Name/i);
+  render(React.createElement(ProfileEditForm, { currentName: 'John Doe', onSuccess: mockOnSuccess }));
+    const input = screen.getByLabelText(/Full Name/i) as HTMLInputElement;
     const submitButton = screen.getByText(/Save Changes/i);
 
     fireEvent.change(input, { target: { value: 'Jane Smith' } });
@@ -69,8 +67,8 @@ describe('ProfileEditForm', () => {
       json: async () => ({ error: { message: 'Update failed' } }),
     });
 
-    render(<ProfileEditForm currentName="John Doe" onSuccess={mockOnSuccess} />);
-    const input = screen.getByLabelText(/Full Name/i);
+  render(React.createElement(ProfileEditForm, { currentName: 'John Doe', onSuccess: mockOnSuccess }));
+    const input = screen.getByLabelText(/Full Name/i) as HTMLInputElement;
     const submitButton = screen.getByText(/Save Changes/i);
 
     fireEvent.change(input, { target: { value: 'Jane Smith' } });
@@ -84,13 +82,12 @@ describe('ProfileEditForm', () => {
 
   it('calls onCancel when cancel button is clicked', () => {
     const mockOnCancel = jest.fn();
-    render(<ProfileEditForm currentName="John Doe" onCancel={mockOnCancel} />);
-    
+  render(React.createElement(ProfileEditForm, { currentName: 'John Doe', onCancel: mockOnCancel }));
+
     const cancelButton = screen.getByText(/Cancel/i);
     fireEvent.click(cancelButton);
 
     expect(mockOnCancel).toHaveBeenCalled();
   });
-});
 });
 

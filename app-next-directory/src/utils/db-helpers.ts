@@ -101,8 +101,9 @@ function createMockCursor(items: any[] = []): MockCursor {
 
       // Apply sort
       if (sortFields) {
+        const sortEntries = Object.entries(sortFields);
         results.sort((a, b) => {
-          for (const [key, direction] of Object.entries(sortFields)) {
+          for (const [key, direction] of sortEntries) {
             const aVal = getValueByPath(a, key);
             const bVal = getValueByPath(b, key);
             let comparison = 0;
@@ -148,8 +149,9 @@ function createMockCursor(items: any[] = []): MockCursor {
 
       // Apply sort
       if (sortFields) {
+        const sortEntries = Object.entries(sortFields);
         results.sort((a, b) => {
-          for (const [key, direction] of Object.entries(sortFields)) {
+          for (const [key, direction] of sortEntries) {
             const aVal = getValueByPath(a, key);
             const bVal = getValueByPath(b, key);
             let comparison = 0;
@@ -258,7 +260,7 @@ function matchesQuery(doc: any, query: Record<string, unknown> = {}): boolean {
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       if ('$in' in value) {
         const allowed = Array.isArray((value as any).$in) ? (value as any).$in : [];
-        if (!allowed.some((candidate) => candidate === actual)) {
+        if (!allowed.some((candidate: any) => candidate === actual)) {
           return false;
         }
         continue;
@@ -336,6 +338,10 @@ function createMockCollection(name: string): MockCollection {
     find: (query = {}) => {
       const results = documents.filter((doc) => matchesQuery(doc, query));
       return createMockCursor(results);
+    },
+    findOne: async (query = {}) => {
+      const result = documents.find((doc) => matchesQuery(doc, query));
+      return result ? { ...result } : null;
     },
     insertOne: async (doc: any) => {
       const payload = { ...doc };

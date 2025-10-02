@@ -146,23 +146,23 @@ function validatePayload(raw: Record<string, unknown>) {
   return { update } as const;
 }
 
-async function handleProfileMutation(request: NextRequest) {
+async function handleProfileMutation(request: NextRequest): Promise<NextResponse> {
   if (!process.env.MONGODB_URI) {
     return serviceUnavailable();
   }
 
   const authResult = await ensureAuthenticated();
-  if ('error' in authResult) {
+  if ('error' in authResult && authResult.error) {
     return authResult.error;
   }
 
   const payloadResult = await parsePayload(request);
-  if ('error' in payloadResult) {
+  if ('error' in payloadResult && payloadResult.error) {
     return payloadResult.error;
   }
 
   const validationResult = validatePayload(payloadResult.body as Record<string, unknown>);
-  if ('error' in validationResult) {
+  if ('error' in validationResult && validationResult.error) {
     return validationResult.error;
   }
 
@@ -206,11 +206,11 @@ async function handleProfileMutation(request: NextRequest) {
   }
 }
 
-export async function PATCH(request: NextRequest) {
+export async function PATCH(request: NextRequest): Promise<NextResponse> {
   return handleProfileMutation(request);
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<NextResponse> {
   return handleProfileMutation(request);
 }
 

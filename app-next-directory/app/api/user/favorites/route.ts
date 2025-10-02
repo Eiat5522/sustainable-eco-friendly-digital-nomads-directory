@@ -30,7 +30,7 @@ export async function GET() {
         listing -> {
           _id,
           name,
-          slug,
+          "slug": slug.current,
           mainImage {
             asset -> {
               url

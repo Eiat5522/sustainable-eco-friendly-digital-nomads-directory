@@ -9,7 +9,7 @@ import { structuredLogger } from '@/lib/logger';
 export const revalidate = 300;
 
 type Params = { slug: string };
-type Props = { params: Params | Promise<Params> };
+type Props = { params: Promise<Params> };
 
 const toTitleCaseFromSlug = (s: string) =>
    s.replace(/-/g, ' ')
@@ -122,8 +122,8 @@ const sanitizeErrorForLogging = (error: unknown): any => {
 };
 
 export default async function CityPage({ params }: Props) {
-  // Support Next 14 (value) and Next 15 (promise) params
-  const { slug } = await Promise.resolve(params);
+  // Next.js 15 requires params to be awaited
+  const { slug } = await params;
 
   if (isE2ETest) {
     const fixture = e2eCityFixtures[slug];
