@@ -174,7 +174,7 @@ export default function ProfilePage() {
               </NeoCardHeader>
               <NeoCardContent className="pt-0">
                 <NeoButton asChild variant="secondary">
-                  <Link href="/auth?mode=signin">Go to sign in</Link>
+                  <Link href="/auth/login">Go to sign in</Link>
                 </NeoButton>
               </NeoCardContent>
             </NeoCard>

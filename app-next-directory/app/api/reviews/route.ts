@@ -31,15 +31,26 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const sortBy = searchParams.get('sortBy') || 'createdAt';
     const filterRating = searchParams.get('rating');
     const verified = searchParams.get('verified') === 'true';
+    const userId = searchParams.get('userId'); // New: Optional userId parameter
 
     const reviews: Collection<ReviewDoc> =
       context.collection ?? ((await getCollection('reviews')) as Collection<ReviewDoc>);
 
     // Build filter
-    const filter: Record<string, unknown> = { status: 'approved' };
-    if (listingSlug) filter.listingSlug = listingSlug;
+    const filter: Record<string, unknown> = {};
+    if (listingSlug) filter.listingId = listingSlug; // Assuming listingId is used in DB
     if (filterRating) filter.rating = Number.parseInt(filterRating);
     if (verified) filter.verified = true;
+
+    // If userId is provided, include pending reviews by that user
+    if (userId) {
+      filter.$or = [
+        { status: 'approved' },
+        { status: 'pending', user: userId }, // Assuming user field stores userId
+      ];
+    } else {
+      filter.status = 'approved';
+    }
 
     // Build sort
     const sort: Record<string, 1 | -1> = {};
@@ -191,9 +202,9 @@ export async function POST(request: NextRequest) {
     const newReview = await client.create(reviewDoc);
 
     const listingSlug = (listingDoc as { slug?: { current?: string } } | null | undefined)?.slug?.current;
-    if (listingSlug) {
+    if (listingId) {
       try {
-        revalidateTag(`listing:${listingSlug}`);
+        revalidateTag(`listing:${listingId}`);
       } catch {
         // Ignore revalidation errors in non-ISR contexts
       }

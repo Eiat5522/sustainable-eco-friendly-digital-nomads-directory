@@ -37,6 +37,7 @@ interface ListingDetailViewProps {
   relatedListings?: RelatedListing[];
   isSignedIn?: boolean;
   isFavorited?: boolean;
+  userId?: string;
 }
 
 export function ListingDetailView({ 
@@ -45,6 +46,7 @@ export function ListingDetailView({
   relatedListings = [],
   isSignedIn = false
   , isFavorited = false
+  , userId
 }: ListingDetailViewProps) {
   const [favorited, setFavorited] = useState<boolean>(Boolean(isFavorited));
   const pathname = usePathname();
@@ -152,8 +154,9 @@ export function ListingDetailView({
               {/* Reviews Section */}
               <ReviewsSection 
                 reviews={reviews}
-                listingId={listing.slug}
+                listingId={listing.id}
                 isSignedIn={isSignedIn}
+                userId={userId}
               />
             </div>
           </div>

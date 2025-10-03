@@ -115,7 +115,7 @@ export function createMiddleware({
       }
 
       // Auth pages handling (support both /auth/signin and /auth/login for compatibility)
-      const authPages = ['/auth/signin', '/auth/signup', '/auth/error', '/auth/login', '/login', '/register'];
+      const authPages = ['/auth/error'];
       const isAuthPage = authPages.some(p => pathname.startsWith(p));
 
       if (isAuthPage && isAuthenticated) {
@@ -131,7 +131,7 @@ export function createMiddleware({
       if (isProtectedRoute) {
         // Always redirect unauthenticated or malformed/undefined role tokens to /auth/signin with callbackUrl
         if (!isAuthenticated || !userRole) {
-          const signinUrl = new URL('/auth/signin', request.nextUrl.origin || request.url);
+          const signinUrl = new URL('/auth/login', request.nextUrl.origin || request.url);
           signinUrl.searchParams.set('callbackUrl', pathname);
           return withSecurityHeaders(NextResponse.redirect(signinUrl));
         }
@@ -197,7 +197,7 @@ export function createMiddleware({
 
       // Special handling for /auth/profile and /auth/profile/settings (test expects /auth/signin with callbackUrl)
       if ((pathname === '/auth/profile' || pathname === '/auth/profile/settings') && !isAuthenticated) {
-        const signinUrl = new URL('/auth/signin', request.nextUrl.origin || request.url);
+        const signinUrl = new URL('/auth/login', request.nextUrl.origin || request.url);
         signinUrl.searchParams.set('callbackUrl', pathname);
         return withSecurityHeaders(NextResponse.redirect(signinUrl));
       }

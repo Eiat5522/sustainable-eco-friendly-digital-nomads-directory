@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { signOut, useSession } from 'next-auth/react'
-import { DoorOpen, Heart, Menu, User, ChevronDown } from 'lucide-react'
+import { DoorOpen, Heart, Menu, User, ChevronDown, LayoutDashboard } from 'lucide-react'
 import Image from 'next/image'
 import { useCallback, useState } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
@@ -10,6 +10,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 export function Header() {
   const { data: session, status } = useSession()
   const isAuthenticated = status === 'authenticated'
+  const isAdmin = session?.user?.role === 'admin'
   const displayName = session?.user?.name ?? session?.user?.email ?? 'your account'
   const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? ''
   const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in'
@@ -152,15 +153,17 @@ export function Header() {
                         My profile
                       </Link>
                     </DropdownMenu.Item>
-                    <DropdownMenu.Item asChild>
-                      <Link
-                        href="/profile#favorites"
-                        className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-neo-text-primary outline-none transition data-[highlighted]:bg-neo-primary/10"
-                      >
-                        <Heart size={16} aria-hidden="true" />
-                        Favorite listings
-                      </Link>
-                    </DropdownMenu.Item>
+                    {isAdmin && (
+                      <DropdownMenu.Item asChild>
+                        <Link
+                          href="/admin/dashboard"
+                          className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-neo-text-primary outline-none transition data-[highlighted]:bg-neo-primary/10"
+                        >
+                          <LayoutDashboard size={16} aria-hidden="true" />
+                          Admin dashboards
+                        </Link>
+                      </DropdownMenu.Item>
+                    )}
                     <DropdownMenu.Separator className="my-2 h-px bg-neo-border/60" />
                     <DropdownMenu.Item
                       disabled={signingOut}
@@ -179,7 +182,7 @@ export function Header() {
                 </DropdownMenu.Root>
               ) : (
                 <Link 
-                  href="/auth" 
+                  href="/auth/login" 
                   aria-label="Sign in to your account"
                   className="inline-flex w-10 h-10 bg-neo-surface neo-card rounded-full items-center justify-center text-neo-text-primary hover:bg-neo-primary hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary transition-colors"
                 >

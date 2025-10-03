@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -27,101 +27,196 @@ interface ReviewsSectionProps {
   reviews: Review[];
   listingId: string;
   isSignedIn?: boolean;
+  userId?: string;
 }
 
 export const canSubmitReview = (rating: number, comment: string) => {
+
   return rating > 0 && comment.trim().length > 0;
+
 };
 
+
+
 interface SubmittedReviewSummary {
+
   id: string;
+
   rating: number;
+
   comment: string;
+
   createdAt: string;
+
   status: 'pending' | 'approved';
+
 }
+
+
 
 interface SubmitReviewOptions {
+
   review: { rating: number; comment: string };
+
   listingId: string;
+
   fetcher: typeof fetch;
+
 }
+
+
 
 interface SubmitReviewPayload {
+
   id?: string;
+
   rating?: number;
+
   comment?: string;
+
   approved?: boolean;
+
   createdAt?: string;
+
 }
 
+
+
 type SubmitReviewResult =
+
   | { type: 'success'; review?: SubmitReviewPayload | null }
+
   | { type: 'unauthorized' }
+
   | { type: 'forbidden' }
+
   | { type: 'conflict' }
+
   | { type: 'error'; message: string };
 
+
+
 export const submitReview = async ({ review, listingId, fetcher }: SubmitReviewOptions): Promise<SubmitReviewResult> => {
+
   const trimmedComment = review.comment.trim();
 
+
+
   if (!canSubmitReview(review.rating, trimmedComment)) {
+
     return { type: 'error', message: 'Please provide a rating and comment.' };
+
   }
+
+
 
   const response = await fetcher('/api/reviews', {
+
     method: 'POST',
+
     headers: { 'Content-Type': 'application/json' },
+
     body: JSON.stringify({ rating: review.rating, comment: trimmedComment, listingId }),
+
   });
 
+
+
   if (response.status === 401) {
+
     return { type: 'unauthorized' };
+
   }
+
+
 
   if (response.status === 403) {
+
     return { type: 'forbidden' };
+
   }
+
+
 
   if (response.status === 409) {
+
     return { type: 'conflict' };
+
   }
+
+
 
   if (response.ok) {
+
     let parsed: SubmitReviewPayload | null = null;
 
+
+
     try {
+
       const data = await response.json();
+
       if (data && typeof data === 'object') {
+
         const maybePayload = (data as any).data && typeof (data as any).data === 'object'
+
           ? (data as any).data
+
           : data;
+
         if (maybePayload && typeof maybePayload === 'object') {
+
           parsed = maybePayload as SubmitReviewPayload;
+
         }
+
       }
+
     } catch (error) {
+
       // Ignore JSON parsing issues and treat as success without payload
+
     }
 
+
+
     return { type: 'success', review: parsed };
+
   }
+
+
 
   let message = 'Failed to submit review';
 
+
+
   try {
+
     const errorData = await response.json();
+
     if (errorData && typeof errorData.error === 'string' && errorData.error.trim().length > 0) {
+
       message = errorData.error;
+
     }
+
   } catch (error) {
+
     // Ignore JSON parsing issues and fall back to the generic message
+
   }
 
+
+
   return { type: 'error', message };
+
 };
 
-export function ReviewsSection({ reviews, listingId, isSignedIn = false }: ReviewsSectionProps) {
+
+
+export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId }: ReviewsSectionProps) {
+
+
   const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -211,16 +306,25 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
     });
   };
 
-  const averageRating = reviews.length > 0 
-    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
+  const combinedReviews = useMemo(() => {
+    if (!submittedReview) return reviews;
+    // Check if the submitted review is already in the main reviews list (e.g., after revalidation)
+    const isSubmittedReviewAlreadyApproved = reviews.some(r => r.id === submittedReview.id);
+    if (isSubmittedReviewAlreadyApproved) return reviews;
+    // Add the submitted review to the top of the list
+    return [submittedReview, ...reviews];
+  }, [reviews, submittedReview]);
+
+  const averageRating = combinedReviews.length > 0 
+    ? combinedReviews.reduce((sum, review) => sum + review.rating, 0) / combinedReviews.length 
     : 0;
 
   return (
     <NeoCard variant="elevated" className="mb-8">
       <NeoCardHeader>
         <div className="flex items-center justify-between">
-          <NeoCardTitle>Reviews ({reviews.length})</NeoCardTitle>
-          {reviews.length > 0 && (
+          <NeoCardTitle>Reviews ({combinedReviews.length})</NeoCardTitle>
+          {combinedReviews.length > 0 && (
             <div className="flex items-center gap-2">
               <StarRating rating={averageRating} size={20} />
               <span className="body-md text-neo-text-secondary">
@@ -257,39 +361,12 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
               </div>
             )}
 
-            {submitted && submittedReview && (
-              <div
-                className="mb-4 rounded-lg border border-neo-border bg-white p-4 shadow-sm"
-                data-testid="submitted-review-card"
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-medium text-neo-text-primary">Latest submission</p>
-                  <span
-                    className="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold uppercase tracking-wide text-amber-800"
-                    data-testid="submitted-review-status"
-                  >
-                    {submittedReview.status === 'approved' ? 'Approved' : 'Pending Approval'}
-                  </span>
-                </div>
-                <div className="mt-2 flex items-center gap-2 text-xs text-neo-text-secondary">
-                  <StarRating rating={submittedReview.rating} size={16} />
-                  <span>{formatDate(submittedReview.createdAt)}</span>
-                </div>
-                <p
-                  className="mt-3 text-sm text-neo-text-secondary"
-                  data-testid="submitted-review-comment"
-                >
-                  {submittedReview.comment}
-                </p>
-              </div>
-            )}
-
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2">Rating</label>
               <StarRating
                 rating={newReview.rating}
                 interactive
-                onRatingChange={(rating) => setNewReview(prev => ({ ...prev, rating }))}
+                onRatingChange={rating => setNewReview(prev => ({ ...prev, rating }))}
                 size={24}
               />
             </div>
@@ -298,7 +375,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
               <label className="block text-sm font-medium mb-2">Comment</label>
               <Textarea
                 value={newReview.comment}
-                onChange={(e) => setNewReview(prev => ({ ...prev, comment: e.target.value }))}
+                onChange={e => setNewReview(prev => ({ ...prev, comment: e.target.value }))}
                 placeholder="Share your experience..."
                 className="neo-input"
                 rows={4}
@@ -332,7 +409,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
         )}
 
         {/* Reviews List */}
-        {reviews.length === 0 ? (
+        {combinedReviews.length === 0 ? (
           <div className="text-center py-8">
             <p className="body-lg text-neo-text-secondary">No reviews yet</p>
             <p className="body-sm text-neo-text-secondary mt-1">
@@ -341,7 +418,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
           </div>
         ) : (
           <div className="space-y-6">
-            {reviews.map((review, index) => (
+            {combinedReviews.map((review, index) => (
               <div key={review.id}>
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0">
@@ -377,7 +454,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false }: Revie
                   </div>
                 </div>
 
-                {index < reviews.length - 1 && <Separator className="mt-6" />}
+                {index < combinedReviews.length - 1 && <Separator className="mt-6" />}
               </div>
             ))}
           </div>

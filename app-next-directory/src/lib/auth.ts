@@ -7,7 +7,7 @@ import Credentials from 'next-auth/providers/credentials'
 // import Twitter from 'next-auth/providers/twitter'
 // import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id'
 import { createAuthAdapter } from '@/lib/auth/adapter'
-import { authenticateUser } from '@/lib/auth/serverAuth'
+import { authenticateUser, getUserById } from '@/lib/auth/serverAuth'
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit'
 import dbConnect from '@/lib/dbConnect'
 import User from '@/models/User'
@@ -175,25 +175,32 @@ export const authOptions: NextAuthConfig = {
       return true;
     },
     async jwt({ token, user }) {
-      type AppToken = JWT & { id?: string; role?: UserRole }
+      type AppToken = JWT & { id?: string; role?: UserRole; name?: string | null }
       const t = token as AppToken
       if (user) {
-        const u = user as Partial<{ id: string; role?: UserRole | null }>
+        const u = user as Partial<{ id: string; role?: UserRole | null; name?: string | null }>
         if (u.id) t.id = u.id
-
+        if (u.name) t.name = u.name
         if (u.role) {
           t.role = u.role
         }
-
-        const email = (user as { email?: string | null })?.email ?? token.email
-        ensureAllowlistedAdminPromotionFlow({
-          email,
-          userId: u.id,
-          currentRole: u.role ?? t.role ?? null,
-        }).catch((err) => {
-          console.error('[auth] failed to queue admin allowlist promotion flow', err)
-        })
+      } else if (t.id) {
+        // If user is not present (e.g., on session update without explicit user object),
+        // fetch the latest user data from the database to ensure name is up-to-date.
+        const dbUser = await getUserById(String(t.id));
+        if (dbUser) {
+          t.name = dbUser.name;
+          t.role = dbUser.role;
+        }
       }
+      const email = (user as { email?: string | null })?.email ?? token.email
+      ensureAllowlistedAdminPromotionFlow({
+        email,
+        userId: t.id,
+        currentRole: t.role ?? null,
+      }).catch((err) => {
+        console.error('[auth] failed to queue admin allowlist promotion flow', err)
+      })
       return t
     },
     async session({ session, token, user }) {

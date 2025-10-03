@@ -151,10 +151,19 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
   }
 }
 
-async function fetchReviews(listingId: string): Promise<Review[]> {
+async function fetchReviews(listingId: string, userId?: string): Promise<Review[]> {
   try {
-    const raw = await client.fetch<any[]>(REVIEWS_QUERY, { listingId });
-    const source = Array.isArray(raw) ? raw : [];
+    const url = new URL('/api/reviews', process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000');
+    url.searchParams.set('listingId', listingId);
+    if (userId) {
+      url.searchParams.set('userId', userId);
+    }
+    const res = await fetch(url.toString(), { next: { tags: [`listing:${listingId}-reviews`] } });
+    if (!res.ok) {
+      throw new Error('Failed to fetch reviews');
+    }
+    const data = await res.json();
+    const source = Array.isArray(data?.reviews) ? data.reviews : [];
     const reviews: Review[] = [];
     for (const review of source) {
       const id = typeof review?._id === 'string' ? review._id : null;
@@ -239,7 +248,7 @@ export default async function ListingPage({ params }: Props) {
 
   const [relatedListings, reviews, isFavorited] = await Promise.all([
     fetchRelatedListings(listing.city?.id, listing.id),
-    fetchReviews(listing.id),
+    fetchReviews(listing.id, userId),
     checkIsFavorited(listing.id, userId),
   ]);
 
@@ -253,6 +262,7 @@ export default async function ListingPage({ params }: Props) {
           relatedListings={relatedListings}
           isSignedIn={isSignedIn}
           isFavorited={isFavorited}
+          userId={userId}
         />
       </main>
       <Footer />
