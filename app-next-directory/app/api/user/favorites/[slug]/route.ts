@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
-import { ensureSanityUser } from '@/lib/sanity/user';
+import { ensureSanityUser, unfavoriteListing } from '@/lib/sanity/user';
 
 interface RouteContext {
   params: Promise<{ slug: string }>;
