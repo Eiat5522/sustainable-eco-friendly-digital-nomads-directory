@@ -41,9 +41,12 @@ export function InteractiveMap({ location, address, name, className }: Interacti
   const container = mapRef.current as HTMLElement;
   const map = L.map(container).setView([location.lat, location.lng], 15);
 
-        // Add tile layer
+        // Add tile layer with proper options
         L.tileLayer(process.env.NEXT_PUBLIC_TILE_URL ?? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors'
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
+          minZoom: 1,
+          subdomains: ['a', 'b', 'c']
         }).addTo(map);
 
     const createCustomMarkerIcon = (L: typeof Leaflet) =>
