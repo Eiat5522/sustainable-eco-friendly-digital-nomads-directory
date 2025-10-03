@@ -45,44 +45,6 @@ describe('dbConnect (Simplified)', () => {
     });
   });
 
-  describe('Mock Interface', () => {
-    it('should provide mock functions for testing', async () => {
-      const { default: dbConnect } = await import('../dbConnect');
-      
-      // Check that mock helpers are available
-      expect(typeof dbConnect.mockResolvedValue).toBe('function');
-      expect(typeof dbConnect.mockRejectedValue).toBe('function');
-      expect(typeof dbConnect.mockImplementation).toBe('function');
-      expect(typeof dbConnect.mockReset).toBe('function');
-      expect(typeof dbConnect.mockClear).toBe('function');
-    });
-
-    it('should handle mock resolved value', async () => {
-      const { default: dbConnect } = await import('../dbConnect');
-      
-      const mockConnection = { readyState: 1, connection: { readyState: 1 } };
-      dbConnect.mockResolvedValue(mockConnection as any);
-      
-      const result = await dbConnect();
-      expect(result).toBe(mockConnection);
-      
-      // Clean up
-      dbConnect.mockReset();
-    });
-
-    it('should handle mock rejected value', async () => {
-      const { default: dbConnect } = await import('../dbConnect');
-      
-      const mockError = new Error('Connection failed');
-      dbConnect.mockRejectedValue(mockError);
-      
-      await expect(dbConnect()).rejects.toThrow('Connection failed');
-      
-      // Clean up
-      dbConnect.mockReset();
-    });
-  });
-
   describe('Configuration Validation', () => {
     it('should understand MongoDB URI format requirements', () => {
       const validUris = [

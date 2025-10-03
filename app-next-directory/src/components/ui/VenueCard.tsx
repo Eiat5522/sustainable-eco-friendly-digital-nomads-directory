@@ -47,13 +47,10 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
     return 'bg-blue-100 text-blue-700';
   };
   return (
-    <Link href={`/listings/${venue.slug}`} className="block">
+    <Link href={`/listings/${venue.slug}`} className={cn("block", className)}>
       <NeoCard
         variant="elevated"
-        className={cn(
-          "group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 cursor-pointer h-full flex flex-col",
-          className
-        )}
+        className="group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 cursor-pointer h-full flex flex-col"
       >
         <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
           {/* Local placeholder to guarantee a visible image */}

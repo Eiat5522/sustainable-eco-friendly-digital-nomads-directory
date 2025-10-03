@@ -1,5 +1,6 @@
 'use client';
 
+import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useRef } from 'react';
 import { MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';

@@ -16,16 +16,20 @@ export async function GET() {
   }
 
   try {
-    await ensureSanityUser({
+    const sanityUser = await ensureSanityUser({
       id: userId,
       name: user?.name ?? null,
       email: user?.email ?? null,
       role: user?.role ?? null,
     });
 
-    // Fetch user's favorites from Sanity
+    if (!sanityUser) {
+      return NextResponse.json({ error: 'Unable to access user profile' }, { status: 500 });
+    }
+
+    // Fetch user's favorites from Sanity using the Sanity user ID
     const favorites = await client.fetch(
-      `*[_type == "userFavorite" && user._ref == $userId] {
+      `*[_type == "userFavorite" && user._ref == $sanityUserId] {
         _id,
         listing -> {
           _id,
@@ -71,7 +75,7 @@ export async function GET() {
         },
         createdAt
       }`,
-      { userId }
+      { sanityUserId: sanityUser._id }
     );
 
     return NextResponse.json({ favorites });

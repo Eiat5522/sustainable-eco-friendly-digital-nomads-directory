@@ -172,7 +172,7 @@ export function FeaturedListings() {
                     key={listing.id}
                     className="shrink-0 basis-[85%] sm:basis-[60%] lg:basis-1/3"
                   >
-                    <VenueCard venue={listing} priority={index < 3} />
+                                        <VenueCard venue={listing} priority={index < 3} className="h-full w-full" />
                   </div>
                 ))}
               </div>

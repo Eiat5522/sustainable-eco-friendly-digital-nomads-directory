@@ -41,10 +41,10 @@ export function ListingGrid({ listings }: ListingGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {listings.map((listing) => (
-        <Link key={listing.id} href={`/listings/${listing.slug}`} className="block">
+        <Link key={listing.id} href={`/listings/${listing.slug}`} className="block h-full">
           <NeoCard
             variant="elevated"
-            className="group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 cursor-pointer"
+            className="group flex h-full flex-col transition-all duration-300 hover:shadow-[16px_16px_0px_0px] cursor-pointer"
           >
             <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
               {/* Local placeholder */}
@@ -85,7 +85,7 @@ export function ListingGrid({ listings }: ListingGridProps) {
             </NeoCardHeader>
             {(Array.isArray(listing.ecoFocusTags) && listing.ecoFocusTags.length > 0) ||
              (Array.isArray(listing.amenityNames) && listing.amenityNames.length > 0) ? (
-              <NeoCardContent>
+              <NeoCardContent className="mt-auto">
                 {Array.isArray(listing.ecoFocusTags) && listing.ecoFocusTags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-2">
                     {listing.ecoFocusTags.slice(0, 3).map((tag, index) => (

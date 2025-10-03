@@ -63,10 +63,10 @@ jest.mock('lucide-react', () => ({
   ),
 }))
 
-jest.mock('@/components/listings/ListingGrid', () => ({
+jest.mock('@/components/listings/RelatedListings', () => ({
   __esModule: true,
-  ListingGrid: ({ listings }: { listings: ListingSummaryDTO[] }) => (
-    <div data-testid="listing-grid" data-count={listings.length}>
+  RelatedListings: ({ listings }: { listings: ListingSummaryDTO[] }) => (
+    <div data-testid="related-listings" data-count={listings.length}>
       {listings.map((listing) => (
         <span key={listing.id}>{listing.name}</span>
       ))}
@@ -158,11 +158,7 @@ describe('CityDetailView', () => {
       expect(screen.getByText(highlight)).toBeInTheDocument()
     })
 
-    const listingsTab = screen.getByRole('tab', { name: 'Listings' })
-    fireEvent.click(listingsTab)
-    expect(listingsTab).toHaveAttribute('aria-selected', 'true')
-
-    expect(screen.getByTestId('listing-grid')).toHaveAttribute(
+    expect(screen.getByTestId('related-listings')).toHaveAttribute(
       'data-count',
       sampleListings.length.toString()
     )

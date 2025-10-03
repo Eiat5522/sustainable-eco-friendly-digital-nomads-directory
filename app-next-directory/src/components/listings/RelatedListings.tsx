@@ -1,18 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import type { CityDTO } from '@/types/dto';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { NeoButton } from '@/components/ui/neo-button';
 
 interface RelatedListing {
   id: string;
   name: string;
   slug: string;
   imageUrl: string;
-  // Supports either a simple city name or a full CityDTO
   city: string | CityDTO | null;
   priceRange: 'budget' | 'moderate' | 'premium';
   ecoFocusTags: string[];
@@ -23,6 +26,22 @@ interface RelatedListingsProps {
 }
 
 export function RelatedListings({ listings }: RelatedListingsProps) {
+  const autoplay = useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: false })
+  );
+  const [viewportRef, emblaApi] = useEmblaCarousel(
+    {
+      align: 'start',
+      containScroll: 'trimSnaps',
+      loop: true,
+      skipSnaps: false,
+    },
+    [autoplay.current]
+  );
+
+  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+
   if (!listings || listings.length === 0) {
     return null;
   }
@@ -48,88 +67,114 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
         className="mb-8"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {listings.map((listing) => (
-          <Link
-            key={listing.id}
-            href={`/listings/${listing.slug}`}
-            className="block"
-            data-testid="related-listing-card"
-            data-has-image={Boolean(listing.imageUrl)}
-          >
-            <NeoCard
-              variant="elevated"
-              className="group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 cursor-pointer h-full"
-            >
-              <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
-                {/* Local placeholder for graceful fallback */}
-                <Image
-                  src="/placeholder_image.png"
-                  alt=""
-                  aria-hidden
-                  role="presentation"
-                  fill
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                  className="object-cover"
-                  data-testid="related-listing-fallback"
-                />
-                {/* Remote image layered above; hide on error so placeholder shows */}
-                {listing.imageUrl && (
-                  <Image
-                    src={listing.imageUrl}
-                    alt={`${listing.name} in ${typeof listing.city === 'string' ? listing.city : (listing.city?.name ?? '')}`}
-                    fill
-                    sizes="(min-width: 768px) 50vw, 100vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.hidden = true; }}
-                  />
-                )}
-              
-                {/* Price Range Badge */}
-                <div className="absolute top-3 left-3">
-                  <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getPriceRangeColor(listing.priceRange)}`}>
-                    {listing.priceRange.charAt(0).toUpperCase() + listing.priceRange.slice(1)}
-                  </span>
-                </div>
+      <div className="relative">
+        <NeoButton
+          variant="secondary"
+          size="sm"
+          className="hidden md:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
+          aria-label="Scroll related listings left"
+          onClick={scrollPrev}
+          onMouseEnter={() => autoplay.current?.stop()}
+          onMouseLeave={() => autoplay.current?.play()}
+        >
+          <ChevronLeft size={18} />
+        </NeoButton>
+
+        <div ref={viewportRef} className="overflow-hidden">
+          <div className="flex gap-6">
+            {listings.map((listing) => (
+              <div key={listing.id} className="shrink-0 basis-[85%] sm:basis-[60%] lg:basis-1/2">
+                <Link
+                  href={`/listings/${listing.slug}`}
+                  className="block h-full"
+                  data-testid="related-listing-card"
+                  data-has-image={Boolean(listing.imageUrl)}
+                >
+                  <NeoCard
+                    variant="elevated"
+                    className="group flex h-full flex-col cursor-pointer transition-all duration-300 hover:shadow-[16px_16px_0px_0px]"
+                  >
+                    <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
+                      <Image
+                        src="/placeholder_image.png"
+                        alt=""
+                        aria-hidden
+                        role="presentation"
+                        fill
+                        sizes="(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"
+                        className="object-cover"
+                        data-testid="related-listing-fallback"
+                      />
+                      {listing.imageUrl && (
+                        <Image
+                          src={listing.imageUrl}
+                          alt={`${listing.name} in ${typeof listing.city === 'string' ? listing.city : (listing.city?.name ?? '')}`}
+                          fill
+                          sizes="(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.hidden = true; }}
+                        />
+                      )}
+                      {listing.priceRange && (
+                        <div className="absolute top-3 left-3">
+                          <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getPriceRangeColor(listing.priceRange)}`}>
+                            {listing.priceRange.charAt(0).toUpperCase() + listing.priceRange.slice(1)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <NeoCardHeader>
+                      <NeoCardTitle className="group-hover:text-neo-primary transition-colors duration-200">
+                        {listing.name}
+                      </NeoCardTitle>
+                      {(() => {
+                        const cityText = typeof listing.city === 'string' 
+                          ? listing.city 
+                          : (listing.city?.name ?? '');
+                        return cityText ? (
+                          <p className="body-sm text-neo-text-secondary mt-1">{cityText}</p>
+                        ) : null;
+                      })()}
+                    </NeoCardHeader>
+
+                    <NeoCardContent className="mt-auto">
+                      {listing.ecoFocusTags && listing.ecoFocusTags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {listing.ecoFocusTags.slice(0, 3).map((tag, index) => (
+                            <span 
+                              key={index}
+                              className="px-2 py-1 bg-neo-success/20 text-neo-success text-xs rounded-lg font-medium"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                          {listing.ecoFocusTags.length > 3 && (
+                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg font-medium">
+                              +{listing.ecoFocusTags.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </NeoCardContent>
+                  </NeoCard>
+                </Link>
               </div>
+            ))}
+          </div>
+        </div>
 
-              <NeoCardHeader>
-                <NeoCardTitle className="group-hover:text-neo-primary transition-colors duration-200">
-                  {listing.name}
-                </NeoCardTitle>
-                {(() => {
-                  const cityText = typeof listing.city === 'string' 
-                    ? listing.city 
-                    : (listing.city?.name ?? '');
-                  return cityText ? (
-                    <p className="body-sm text-neo-text-secondary mt-1">{cityText}</p>
-                  ) : null;
-                })()}
-              </NeoCardHeader>
-
-              <NeoCardContent>
-                {/* Eco Focus Tags */}
-                {listing.ecoFocusTags && listing.ecoFocusTags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {listing.ecoFocusTags.slice(0, 3).map((tag, index) => (
-                      <span 
-                        key={index}
-                        className="px-2 py-1 bg-neo-success/20 text-neo-success text-xs rounded-lg font-medium"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {listing.ecoFocusTags.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg font-medium">
-                        +{listing.ecoFocusTags.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                )}
-              </NeoCardContent>
-            </NeoCard>
-          </Link>
-        ))}
+        <NeoButton
+          variant="secondary"
+          size="sm"
+          className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
+          aria-label="Scroll related listings right"
+          onClick={scrollNext}
+          onMouseEnter={() => autoplay.current?.stop()}
+          onMouseLeave={() => autoplay.current?.play()}
+        >
+          <ChevronRight size={18} />
+        </NeoButton>
       </div>
     </section>
   );
