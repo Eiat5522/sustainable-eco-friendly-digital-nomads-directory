@@ -20,7 +20,7 @@ export type MockCollection = {
     options?: { upsert?: boolean }
   ) => Promise<{ acknowledged: boolean; matchedCount: number; modifiedCount: number; upsertedId?: { _id: string } }>;
   countDocuments: (query?: Record<string, unknown>) => Promise<number>;
-  aggregate: <T = unknown>(pipeline?: Record<string, unknown>[]) => { toArray: () => Promise<T[]> };aggregate: (pipeline?: Record<string, unknown>[]) => { toArray: () => Promise<never[]> };
+  aggregate: <T = unknown>(pipeline?: Record<string, unknown>[]) => { toArray: () => Promise<T[]> };
   deleteOne: (query?: Record<string, unknown>) => Promise<{ acknowledged: boolean; deletedCount: number }>;
   createIndex: (fields: Record<string, unknown>, options?: Record<string, unknown>) => Promise<string>;
   createIndexes: (indexes?: Record<string, unknown>[]) => Promise<string[]>;
