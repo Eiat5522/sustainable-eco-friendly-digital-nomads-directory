@@ -28,6 +28,13 @@ const emblaApiMock = {
   reInit: jest.fn(),
 };
 
+// Mock fetch globally
+const mockFetch = jest.fn();
+Object.defineProperty(global, 'fetch', {
+  value: mockFetch,
+  writable: true,
+});
+
 describe('CityCarousel', () => {
   const mockCities = [
     { id: '1', name: 'City 1', slug: 'city-1', country: 'C1', imageUrl: null },
@@ -42,9 +49,9 @@ describe('CityCarousel', () => {
     emblaApiMock.canScrollNext.mockReturnValue(true);
 
     // Provide the mock implementation for the hook
-    (useEmblaCarousel as jest.Mock).mockReturnValue([jest.fn(), emblaApiMock]);
+    jest.mocked(useEmblaCarousel).mockReturnValue([jest.fn(), emblaApiMock]);
 
-    global.fetch = jest.fn(() =>
+    mockFetch.mockImplementation(() =>
       Promise.resolve({
         ok: true,
         json: () => Promise.resolve({ cities: mockCities }),
@@ -94,7 +101,7 @@ describe('CityCarousel', () => {
   });
 
   it('shows an error message if fetching cities fails', async () => {
-    (global.fetch as jest.Mock).mockImplementationOnce(() => Promise.reject(new Error('API Error')));
+    mockFetch.mockImplementationOnce(() => Promise.reject(new Error('API Error')));
 
     render(<CityCarousel />);
 
@@ -104,7 +111,7 @@ describe('CityCarousel', () => {
   });
 
   it('does not render carousel if no cities are returned', async () => {
-    (global.fetch as jest.Mock).mockImplementationOnce(() =>
+    mockFetch.mockImplementationOnce(() =>
       Promise.resolve({
         ok: true,
         json: () => Promise.resolve({ cities: [] }),

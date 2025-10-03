@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
-import { ensureSanityUser } from '@/lib/sanity/user';
+import { ensureSanityUser, unfavoriteListing } from '@/lib/sanity/user';
 
 interface RouteContext {
   params: Promise<{ slug: string }>;
@@ -68,6 +68,26 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
   } catch (error) {
     console.error('Failed to toggle favorite:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: RouteContext) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { slug } = await params;
+  if (!slug) {
+    return NextResponse.json({ error: 'Missing listing slug' }, { status: 400 });
+  }
+
+  try {
+    await unfavoriteListing(session.user.id, slug);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Failed to unfavorite listing:', error);
+    return NextResponse.json({ error: 'Failed to unfavorite listing' }, { status: 500 });
   }
 }
 

@@ -131,6 +131,28 @@ export default function ProfilePage() {
       .join('')
       .slice(0, 2);
   }, [session?.user?.name, session?.user?.email]);
+    const handleRemoveFavorite = async (id: string) => {
+    const originalFavorites = favorites;
+    // Optimistically remove the favorite from the UI
+    setFavorites((current) => current.filter((f) => f.id !== id));
+
+    try {
+      const response = await fetch(`/api/user/favorites/${id}`,
+        {
+          method: 'DELETE',
+        });
+
+      if (!response.ok) {
+        // Revert the change if the API call fails
+        setFavorites(originalFavorites);
+        setFavoritesError('Failed to remove favorite. Please try again.');
+      }
+    } catch (error) {
+      // Revert the change and show an error
+      setFavorites(originalFavorites);
+      setFavoritesError('An error occurred while removing the favorite.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -213,7 +235,7 @@ export default function ProfilePage() {
             {isEditing && (
               <section>
                 <ProfileEditForm
-                  currentName={session?.user?.name || ''}
+                  currentName={session?.user?.name ?? ''}
                   onSuccess={handleEditSuccess}
                   onCancel={() => setIsEditing(false)}
                 />
@@ -267,7 +289,7 @@ export default function ProfilePage() {
                   </NeoCardContent>
                 </NeoCard>
               ) : (
-                <FavoriteListingsShowcase listings={favorites} />
+                <FavoriteListingsShowcase listings={favorites} onRemove={handleRemoveFavorite} />
               )}
             </section>
 

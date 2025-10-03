@@ -11,17 +11,12 @@ import User from '@/models/User';
 
 import { Types, isValidObjectId, type FilterQuery } from 'mongoose';
 import { isEmailVerificationRequired } from './config';
+import dbConnect from '@/lib/dbConnect';
 
-type DbConnect = typeof import('@/lib/dbConnect')['default'];
-
-let cachedDbConnect: DbConnect | null = null;
-
-async function getDbConnect(): Promise<DbConnect> {
-  if (!cachedDbConnect) {
-    cachedDbConnect = (await import('@/lib/dbConnect')).default;
-  }
-  return cachedDbConnect;
-}
+// Memoized database connection function
+const connectToDatabase = async () => {
+  await dbConnect();
+};
 
 type UserDoc = {
   _id: Types.ObjectId;
@@ -59,8 +54,7 @@ export async function authenticateUser(
   password: string
 ): Promise<AuthenticatedUser | null> {
   try {
-    const connect = await getDbConnect();
-    await connect();
+    await connectToDatabase();
 
     const requireVerification = isEmailVerificationRequired();
 
@@ -121,8 +115,7 @@ export async function createUserAccount(userData: {
   image?: string;
 }): Promise<AuthenticatedUser | null> {
   try {
-    const connect = await getDbConnect();
-    await connect();
+    await connectToDatabase();
 
     // Check if user already exists
     const exists = await UserModel.exists({ email: userData.email.trim().toLowerCase() });
@@ -162,8 +155,7 @@ export async function createUserAccount(userData: {
  */
 export async function getUserById(userId: string): Promise<AuthenticatedUser | null> {
   try {
-    const connect = await getDbConnect();
-    await connect();
+    await connectToDatabase();
 
     if (!isValidObjectId(userId)) {
       return null;
@@ -202,8 +194,7 @@ export async function updateUserRole(
   newRole: UserRole
 ): Promise<boolean> {
   try {
-    const connect = await getDbConnect();
-    await connect();
+    await connectToDatabase();
 
     if (!isValidObjectId(userId)) {
       return false;
@@ -227,16 +218,31 @@ export interface UpdateUserProfileInput {
 }
 
 /**
- * Update basic user profile fields (name, image)
- * Returns the updated user (sanitised) or null
+ * Remove a listing from a user's favorites
+ * @param userId User ID
+ * @param listingId Listing ID
  */
+export async function unfavoriteListing(userId: string, listingId: string): Promise<void> {
+  try {
+    await connectToDatabase();
+
+    if (!isValidObjectId(userId) || !isValidObjectId(listingId)) {
+      return;
+    }
+
+    await User.updateOne({ _id: userId }, { $pull: { favorites: listingId } });
+  } catch (error) {
+    console.error('Unfavorite listing error:', error);
+    // Don't throw error, just log it
+  }
+}
+
 export async function updateUserProfile(
   userId: string,
   update: UpdateUserProfileInput
 ): Promise<AuthenticatedUser | null> {
   try {
-    const connect = await getDbConnect();
-    await connect();
+    await connectToDatabase();
 
     if (!isValidObjectId(userId)) {
       return null;

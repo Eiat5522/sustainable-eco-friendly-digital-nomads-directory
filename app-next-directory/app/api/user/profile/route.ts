@@ -5,7 +5,7 @@ import { auth } from '@/lib/auth';
  * API route to get current user profile
  * This runs in Node.js runtime (not Edge) to allow MongoDB operations
  */
-export async function getUserProfile(request: Request) {
+export async function GET(request: Request) {
   try {
     // Get session (works in API routes with Node.js runtime)
     const session = await auth();

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowUpRight, ChevronDown, Heart, Leaf, MapPin, Sparkles } from 'lucide-react';
+import { ArrowUpRight, ChevronDown, Heart, Leaf, MapPin, Sparkles, Trash2 } from 'lucide-react';
 
 import { NeoBadge } from '@/components/ui/neo-badge';
 import { NeoButton } from '@/components/ui/neo-button';
@@ -13,6 +13,7 @@ import { formatDate } from './utils';
 
 interface FavoriteListingsShowcaseProps {
   listings: FavoriteListing[];
+  onRemove: (id: string) => void;
 }
 
 const ACCENT_GRADIENTS = [
@@ -47,7 +48,7 @@ function toLabel(value: string | undefined, dictionary: Record<string, string>):
     .join(' ');
 }
 
-export function FavoriteListingsShowcase({ listings }: FavoriteListingsShowcaseProps) {
+export function FavoriteListingsShowcase({ listings, onRemove }: FavoriteListingsShowcaseProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   if (listings.length === 0) {
@@ -80,7 +81,7 @@ export function FavoriteListingsShowcase({ listings }: FavoriteListingsShowcaseP
               aria-hidden="true"
             />
             <div className="relative z-10 flex flex-col gap-6 lg:flex-row">
-              <div className="relative w-full max-w-[18rem] overflow-hidden rounded-2xl border-4 border-neo-border bg-neo-secondary/40 shadow-[6px_6px_0px_0px_var(--color-neo-shadow)] lg:w-64">
+              <div className="relative w-full max-w-[18rem] self-start overflow-hidden rounded-2xl border-4 border-neo-border bg-neo-secondary/40 shadow-[6px_6px_0px_0px_var(--color-neo-shadow)] lg:w-64">
                 {listing.image ? (
                   <Image
                     src={listing.image.url}
@@ -137,21 +138,32 @@ export function FavoriteListingsShowcase({ listings }: FavoriteListingsShowcaseP
                     )}
                   </div>
 
-                  <NeoButton
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setExpandedId((current) => (current === listing.id ? null : listing.id))}
-                    aria-expanded={isExpanded}
-                    aria-controls={panelId}
-                    className="gap-2 self-start"
-                  >
-                    <span>{isExpanded ? 'Hide details' : 'View details'}</span>
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
-                      aria-hidden="true"
-                    />
-                  </NeoButton>
+                  <div className="flex items-center gap-2 self-start">
+                    <NeoButton
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setExpandedId((current) => (current === listing.id ? null : listing.id))}
+                      aria-expanded={isExpanded}
+                      aria-controls={panelId}
+                      className="gap-2"
+                    >
+                      <span>{isExpanded ? 'Hide details' : 'View details'}</span>
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                        aria-hidden="true"
+                      />
+                    </NeoButton>
+                    <NeoButton
+                      type="button"
+                      variant="danger"
+                      size="icon"
+                      onClick={() => onRemove(listing.id)}
+                      aria-label={`Remove ${listing.name} from favorites`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </NeoButton>
+                  </div>
                 </div>
 
                 {highlightTags.length > 0 && (

@@ -83,3 +83,27 @@ export async function ensureSanityUser({ id, name, email, role }: EnsureUserOpti
     return null;
   }
 }
+
+/**
+ * Remove a listing from a user's favorites
+ * @param userId User ID
+ * @param listingId Listing ID
+ */
+export async function unfavoriteListing(userId: string, listingId: string): Promise<void> {
+  try {
+    const favorite = await client.fetch(
+      `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
+      { userId, listingId }
+    );
+
+    if (favorite) {
+      await client.delete(favorite._id);
+    }
+  } catch (error) {
+    structuredLogger.error('Failed to unfavorite listing', error, {
+      component: 'sanity-user-actions',
+      userId,
+      listingId,
+    });
+  }
+}
