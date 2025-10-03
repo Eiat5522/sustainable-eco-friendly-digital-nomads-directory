@@ -27,7 +27,7 @@ interface RelatedListingsProps {
 
 export function RelatedListings({ listings }: RelatedListingsProps) {
   const autoplay = useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: false })
+    Autoplay({ delay: 4000, stopOnInteraction: true })
   );
   const [viewportRef, emblaApi] = useEmblaCarousel(
     {
@@ -101,7 +101,7 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
                         aria-hidden
                         role="presentation"
                         fill
-                        sizes="(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"
+                        sizes="(min-width: 1024px) 50vw, (min-width: 640px) 60vw, 85vw"
                         className="object-cover"
                         data-testid="related-listing-fallback"
                       />
@@ -110,7 +110,7 @@ export function RelatedListings({ listings }: RelatedListingsProps) {
                           src={listing.imageUrl}
                           alt={`${listing.name} in ${typeof listing.city === 'string' ? listing.city : (listing.city?.name ?? '')}`}
                           fill
-                          sizes="(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 100vw"
+                          sizes="(min-width: 1024px) 50vw, (min-width: 640px) 60vw, 85vw"
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
                           onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.hidden = true; }}
                         />

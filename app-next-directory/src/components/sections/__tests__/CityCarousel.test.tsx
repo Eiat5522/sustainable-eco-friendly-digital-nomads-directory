@@ -37,6 +37,10 @@ describe('CityCarousel', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
+    // Reset mock return values
+    emblaApiMock.canScrollPrev.mockReturnValue(true);
+    emblaApiMock.canScrollNext.mockReturnValue(true);
+
     // Provide the mock implementation for the hook
     (useEmblaCarousel as jest.Mock).mockReturnValue([jest.fn(), emblaApiMock]);
 

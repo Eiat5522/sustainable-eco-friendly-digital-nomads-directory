@@ -128,12 +128,12 @@ export function CityCarousel() {
               role="region"
               aria-label="Featured city destinations"
             >
-              <div className="flex gap-6">
+              <div className="flex gap-6" role="list">
                 {cities.map((city) => (
                   <div
                     key={city.id}
                     role="listitem"
-                    className="flex-none w-[85%] sm:w-[55%] lg:w-1/3 xl:w-1/4 snap-center sm:snap-start"
+                    className="flex-none w-[85%] sm:w-[55%] lg:w-1/3 xl:w-1/4"
                   >
                     <Link
                       href={`/cities/${city.slug}`}
