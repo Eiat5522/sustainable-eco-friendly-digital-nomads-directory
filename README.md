@@ -49,6 +49,7 @@ sustainable-eco-friendly-digital-nomads-directory/
 ### 🔧 Troubleshooting
 
 - **[WSL Disconnection Fix Guide](WSL_DISCONNECTION_FIX_GUIDE.md)** - Comprehensive guide for resolving Next.js worker module errors and WSL disconnection issues
+- **WSL Turborepo helper**: `scripts/turbo-wsl-safe-run.sh` keeps Turborepo tasks lightweight to avoid Remote-WSL disconnects when running multiple commands.
 - **[Scripts Documentation](scripts/README.md)** - Utility scripts for maintenance and troubleshooting
 
 ---

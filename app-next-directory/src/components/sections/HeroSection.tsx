@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { NeoInput } from '@/components/ui/neo-input';
 import { NeoButton } from '@/components/ui/neo-button';
+import { ScrollDownArrow } from '@/components/ui/scroll-down-arrow';
 import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -82,6 +83,9 @@ export function HeroSection() {
           </form>
         </div>
       </div>
+
+      {/* Scroll Down Indicator */}
+      <ScrollDownArrow />
     </section>
   );
 }

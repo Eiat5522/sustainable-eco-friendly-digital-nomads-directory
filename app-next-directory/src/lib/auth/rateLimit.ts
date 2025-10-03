@@ -21,11 +21,14 @@ const LOGIN_RATE_LIMIT_PREFIX = 'auth:login';
 
 let RatelimitCtor: typeof UpstashRatelimit | undefined;
 let lastRateLimiterConfigForTests: RatelimitConfig | undefined;
+let ratelimitModulePromise: Promise<{ Ratelimit: typeof UpstashRatelimit }> | null = null;
 
-const getRatelimitCtor = (): typeof UpstashRatelimit => {
+const getRatelimitCtor = async (): Promise<typeof UpstashRatelimit> => {
   if (!RatelimitCtor) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const mod = require('@upstash/ratelimit') as { Ratelimit: typeof UpstashRatelimit };
+    if (!ratelimitModulePromise) {
+      ratelimitModulePromise = import('@upstash/ratelimit') as Promise<{ Ratelimit: typeof UpstashRatelimit }>;
+    }
+    const mod = await ratelimitModulePromise;
     RatelimitCtor = mod.Ratelimit;
   }
   return RatelimitCtor;
@@ -79,14 +82,14 @@ const createSlidingWindowLimiter = () => {
   } as unknown as RatelimitConfig['limiter'];
 };
 
-function normaliseRedisClient(redis: Redis): Redis & { evalsha?: any; evalSha?: any };
-function normaliseRedisClient(redis: Redis | undefined): (Redis & { evalsha?: any; evalSha?: any }) | undefined;
+function normaliseRedisClient(redis: Redis): Redis & { evalsha?: (...args: unknown[]) => unknown; evalSha?: (...args: unknown[]) => unknown };
+function normaliseRedisClient(redis: Redis | undefined): (Redis & { evalsha?: (...args: unknown[]) => unknown; evalSha?: (...args: unknown[]) => unknown }) | undefined;
 function normaliseRedisClient(redis: Redis | undefined) {
   if (!redis) {
     return redis;
   }
 
-  const candidate = redis as Redis & { evalsha?: any; evalSha?: any };
+  const candidate = redis as Redis & { evalsha?: never; evalSha?: never };
   if (typeof candidate.evalsha !== 'function' && typeof candidate.evalSha === 'function') {
     candidate.evalsha = candidate.evalSha.bind(candidate);
   }

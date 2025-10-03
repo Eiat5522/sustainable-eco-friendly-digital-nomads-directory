@@ -103,7 +103,7 @@ const e2eCityFixtures: Record<string, { city: CityDTO | CityDetailDTO; listings:
 /**
  * Helper to sanitize Error objects for logging, removing sensitive properties
  */
-const sanitizeErrorForLogging = (error: unknown): any => {
+const sanitizeErrorForLogging = (error: unknown): unknown => {
   if (!error) return null;
   
   if (error instanceof Error) {

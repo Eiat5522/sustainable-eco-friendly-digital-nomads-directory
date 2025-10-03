@@ -124,6 +124,54 @@ npm run dev
 
 ---
 
+## Turborepo Resource Guard Rails (New)
+
+Turborepo parallelises tasks aggressively. On constrained WSL instances this can exhaust CPU/RAM,
+causing VS Code to drop the WSL connection when you run `dev` alongside `build`, `lint`, or test
+suites. Use the new helper script to enforce lightweight defaults whenever you need to run Turborepo
+commands locally.
+
+### 1. Run Turborepo with WSL-friendly defaults
+
+```bash
+# Example: run all build tasks with conservative settings
+scripts/turbo-wsl-safe-run.sh build
+
+# Example: run lint + unit tests sequentially in the app workspace
+scripts/turbo-wsl-safe-run.sh lint test --filter=app-next-directory
+```
+
+The wrapper does the following automatically:
+
+- Disables the Turborepo daemon (`TURBO_NO_DAEMON=1`) so no orphan workers keep consuming WSL resources.
+- Caps concurrency to 1–2 tasks (override with `export TURBO_CONCURRENCY=<n>` if you have more headroom).
+- Disables telemetry/background reporting to reduce extra subprocesses.
+- Prefers local execution (`pnpm turbo run …`) and falls back to `npx turbo` when pnpm is unavailable.
+
+Set `TURBO_WSL_HELPER_SILENT=1` if you want to hide the informational banner after you become familiar
+with the helper.
+
+### 2. Combine with external terminals or tmux
+
+You can pipe the helper through `tmux` or an external Windows Terminal session to isolate crashes even
+further:
+
+```bash
+tmux new -s turbo-build 'scripts/turbo-wsl-safe-run.sh build'
+```
+
+### 3. Override defaults when resources allow
+
+If you upgrade your WSL allocation (see "Monitor Disk Space" and Windows `.wslconfig` tuning below), you
+can opt into higher parallelism:
+
+```bash
+export TURBO_CONCURRENCY=4
+scripts/turbo-wsl-safe-run.sh build lint
+```
+
+---
+
 ## Validation Tests
 
 After the dev server starts successfully, perform these validation tests:

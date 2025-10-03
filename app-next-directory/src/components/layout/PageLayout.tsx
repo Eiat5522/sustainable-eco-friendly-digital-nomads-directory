@@ -21,7 +21,6 @@ export function PageLayout({ children, className = '' }: PageLayoutProps) {
     <div className={`min-h-screen bg-background ${className}`}>
       {/* Skip Links - Must be first focusable elements */}
       <SkipLink href="#main-content">Skip to main content</SkipLink>
-      <SkipLink href="#footer-content">Skip to footer</SkipLink>
       
       <Header />
       

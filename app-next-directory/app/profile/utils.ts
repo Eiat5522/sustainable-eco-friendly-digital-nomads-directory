@@ -51,7 +51,7 @@ export interface OwnerReviewsResponse {
 
 export function normaliseFavorite(entry: FavoriteEntry | undefined): FavoriteListing | null {
   if (!entry) return null;
-  const listing = entry.listing ?? undefined;
+    const listing = entry.listing;
   const slug = typeof listing?.slug === 'string' ? listing.slug : '';
   if (!slug) return null;
   const name = typeof listing?.name === 'string' && listing.name.trim().length > 0
@@ -70,7 +70,7 @@ export function normaliseFavorite(entry: FavoriteEntry | undefined): FavoriteLis
     slug,
     city,
     imageUrl,
-    createdAt: entry.createdAt,
+    createdAt: typeof entry.createdAt === 'string' ? entry.createdAt : undefined,
   };
 }
 
@@ -89,10 +89,10 @@ export function normaliseOwnerReviews(response: OwnerReviewsResponse | null | un
             .filter((review): review is OwnerReviewItem => Boolean(review && typeof review.id === 'string'))
             .map((review) => ({
               id: review.id,
-              rating: review.rating,
-              comment: review.comment,
-              createdAt: review.createdAt,
-              reviewerName: review.reviewerName,
+              rating: typeof review.rating === 'number' ? review.rating : 0,
+              comment: typeof review.comment === 'string' ? review.comment : '',
+              createdAt: typeof review.createdAt === 'string' ? review.createdAt : '',
+              reviewerName: typeof review.reviewerName === 'string' ? review.reviewerName : 'Anonymous',
               reviewerImage: review.reviewerImage,
             }))
         : [],

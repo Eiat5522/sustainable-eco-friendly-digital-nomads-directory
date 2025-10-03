@@ -14,46 +14,94 @@ export function CityCarousel() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Scroll button state and ref
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
+  // Scroll button state and ref (derived from currentIndex)
   const containerRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   // Scroll-button updater
   const updateScrollButtons = useCallback(() => {
     if (!containerRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = containerRef.current;
+    const container = containerRef.current;
+    const { scrollLeft, scrollWidth, clientWidth } = container;
+
+    // Basic scroll bounds
     setCanPrev(scrollLeft > 0);
     setCanNext(scrollLeft < scrollWidth - clientWidth - 1);
+
+    // Determine nearest child to center and update currentIndex
+    const children = Array.from(container.children) as HTMLElement[];
+    if (children.length === 0) return;
+    const center = scrollLeft + clientWidth / 2;
+    let nearest = 0;
+    let nearestDist = Infinity;
+    children.forEach((ch, i) => {
+      const chCenter = ch.offsetLeft + ch.clientWidth / 2;
+      const dist = Math.abs(chCenter - center);
+      if (dist < nearestDist) {
+        nearest = i;
+        nearestDist = dist;
+      }
+    });
+    setCurrentIndex(nearest);
+    setCanPrev(nearest > 0);
+    setCanNext(nearest < children.length - 1);
   }, []);
 
-  // Scroll handler
-  const scrollBy = useCallback((direction: number) => {
-    if (!containerRef.current) return;
-    const scrollAmount = containerRef.current.clientWidth * 0.8 * direction;
-    containerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  // Scroll to a specific child index using scrollIntoView for reliability
+  const scrollToIndex = useCallback((index: number) => {
+    const container = containerRef.current;
+    if (!container) return;
+    const children = container.children;
+    if (!children || children.length === 0) return;
+    const clamped = Math.max(0, Math.min(index, children.length - 1));
+    const el = children[clamped] as HTMLElement | undefined;
+    if (!el) return;
+
+    // Use inline center so the snapped item is centered in the viewport
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    setCurrentIndex(clamped);
+
+  // Update button states based on index
+  const childrenCount = container.children.length;
+  setCanPrev(clamped > 0);
+  setCanNext(clamped < childrenCount - 1);
 
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
 
-    if ('onscrollend' in window) {
-      containerRef.current.addEventListener('scrollend', updateScrollButtons, { once: true });
-    } else {
-      timeoutRef.current = setTimeout(updateScrollButtons, 500);
-    }
+    // Defer updating buttons until scroll settles
+    timeoutRef.current = setTimeout(updateScrollButtons, 500);
   }, [updateScrollButtons]);
+
+  // Scroll handler (navigates by index)
+  const scrollBy = useCallback((direction: number) => {
+    if (!containerRef.current) return;
+    const childrenCount = containerRef.current.children.length;
+    if (childrenCount === 0) return;
+    const nextIndex = Math.max(0, Math.min(currentIndex + (direction > 0 ? 1 : -1), childrenCount - 1));
+    scrollToIndex(nextIndex);
+  }, [currentIndex, scrollToIndex]);
 
   // Wire up scroll events and initial state
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    updateScrollButtons();
+    
+    // Initial update after a small delay to ensure content is rendered
+    const timeoutId = setTimeout(() => {
+      updateScrollButtons();
+    }, 100);
+    
     container.addEventListener('scroll', updateScrollButtons);
-    return () => container.removeEventListener('scroll', updateScrollButtons);
-  }, [updateScrollButtons]);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      container.removeEventListener('scroll', updateScrollButtons);
+    };
+  }, [updateScrollButtons, cities.length]);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,7 +118,10 @@ export function CityCarousel() {
         const list = (json && 'cities' in json && Array.isArray(json.cities)) ? json.cities : [];
         if (!cancelled) {
           if (list.length > 0) {
-            setCities(list.slice(0, 8));
+            const sliced = list.slice(0, 8);
+            setCities(sliced);
+            // Reset index on load
+            setCurrentIndex(0);
             setError(null);
           } else if (!res.ok) {
             setError('Error: failed to fetch cities');
@@ -117,14 +168,14 @@ export function CityCarousel() {
               className="hidden md:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
               aria-label="Scroll cities left"
               onClick={() => scrollBy(-1)}
-              disabled={!canPrev}
+              disabled={currentIndex <= 0}
             >
               <ChevronLeft size={18} />
             </NeoButton>
 
             <div
               ref={containerRef}
-              className="flex gap-6 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="flex gap-6 overflow-x-scroll pb-4 scroll-smooth snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               role="list"
               aria-label="Featured city destinations"
             >
@@ -188,7 +239,7 @@ export function CityCarousel() {
               className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
               aria-label="Scroll cities right"
               onClick={() => scrollBy(1)}
-              disabled={!canNext}
+              disabled={currentIndex >= Math.max(0, cities.length - 1)}
             >
               <ChevronRight size={18} />
             </NeoButton>

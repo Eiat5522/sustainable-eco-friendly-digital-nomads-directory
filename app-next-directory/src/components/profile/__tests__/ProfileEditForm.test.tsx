@@ -12,9 +12,10 @@ describe('ProfileEditForm', () => {
   });
 
   it('renders with current name pre-filled', () => {
-  render(React.createElement(ProfileEditForm, { currentName: 'John Doe' }));
-    const input = screen.getByLabelText(/Full Name/i) as HTMLInputElement;
-    expect(input).toHaveValue('John Doe');
+  render(<ProfileEditForm currentName="John Doe" />);
+
+  const input = screen.getByLabelText(/Full Name/i) as HTMLInputElement;
+  expect(input).toHaveValue('John Doe');
   });
 
   it('allows name to be changed', () => {

@@ -1,3 +1,73 @@
+import React from 'react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+
+// Mock next/image to a simple img for the test environment
+jest.mock('next/image', () => ({ __esModule: true, default: (props: any) => {
+  // eslint-disable-next-line jsx-a11y/alt-text
+  return <img {...props} />;
+}}));
+
+// Mock next/link to render a plain anchor
+jest.mock('next/link', () => ({ __esModule: true, default: ({ children, href }: any) => {
+  return <a href={href}>{children}</a>;
+}}));
+
+import { CityCarousel } from '../CityCarousel';
+
+describe('CityCarousel', () => {
+  const fakeCities = [
+    { id: '1', slug: 'city-1', name: 'City 1', country: 'C1', imageUrl: null },
+    { id: '2', slug: 'city-2', name: 'City 2', country: 'C2', imageUrl: null },
+    { id: '3', slug: 'city-3', name: 'City 3', country: 'C3', imageUrl: null },
+  ];
+
+  beforeEach(() => {
+    // Mock global fetch to return our cities
+    global.fetch = jest.fn(() =>
+      Promise.resolve({ ok: true, json: () => Promise.resolve({ cities: fakeCities }) }) as unknown as Promise<Response>
+    );
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    // @ts-ignore
+    delete global.fetch;
+  });
+
+  it('renders and navigates when arrows are clicked', async () => {
+    // Spy on scrollIntoView to ensure it's invoked
+    const scrollSpy = jest.spyOn(HTMLElement.prototype, 'scrollIntoView').mockImplementation(() => {});
+
+    render(<CityCarousel />);
+
+    // Wait for cities to be rendered
+    await waitFor(() => expect(screen.getByText('City 1')).toBeInTheDocument());
+
+    // Left and right buttons should be rendered (hidden on small screens via classes, but present)
+    const left = screen.getByRole('button', { name: /Scroll cities left/i });
+    const right = screen.getByRole('button', { name: /Scroll cities right/i });
+
+    // Initially, left should be disabled and right enabled (we have >1 city)
+    expect(left).toBeDisabled();
+    expect(right).toBeEnabled();
+
+    // Click right once - should call scrollIntoView and enable left
+    fireEvent.click(right);
+    await waitFor(() => expect(scrollSpy).toHaveBeenCalled());
+    expect(left).toBeEnabled();
+    expect(right).toBeEnabled();
+
+    // Click right again to move to last item
+    fireEvent.click(right);
+    await waitFor(() => expect(scrollSpy).toHaveBeenCalledTimes(2));
+
+    // Now right should be disabled (at last index)
+    await waitFor(() => expect(right).toBeDisabled());
+
+    scrollSpy.mockRestore();
+  });
+});
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { CityCarousel } from '../CityCarousel';

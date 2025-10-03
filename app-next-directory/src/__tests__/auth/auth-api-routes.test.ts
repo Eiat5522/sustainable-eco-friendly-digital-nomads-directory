@@ -40,6 +40,7 @@ const mockHashToken = tokensModule.hashToken as jest.MockedFunction<typeof token
 const mockMinutesFromNow = tokensModule.minutesFromNow as jest.MockedFunction<typeof tokensModule.minutesFromNow>;
 const mockSendMail = emailModule.sendMail as jest.MockedFunction<typeof emailModule.sendMail>;
 const mockGetClientIp = rateLimitModule.getClientIp as jest.MockedFunction<typeof rateLimitModule.getClientIp>;
+const mockIsEmailVerificationRequired = authConfigModule.isEmailVerificationRequired as jest.MockedFunction<typeof authConfigModule.isEmailVerificationRequired>;
 
 let registerPost: typeof import('@/app/api/auth/register/route').POST;
 const mockIsRateLimited = rateLimitModule.isRateLimited as jest.MockedFunction<typeof rateLimitModule.isRateLimited>;
@@ -75,21 +76,6 @@ function createMockRequest(data: any, options?: { jsonImpl?: jest.Mock }) {
     headers,
   } as unknown as NextRequest;
 };
-
-beforeAll(async () => {
-  await jest.unstable_mockModule('@/lib/auth/config', () => ({
-    __esModule: true,
-    isEmailVerificationRequired: jest.fn(),
-    getAdminEmails: jest.fn(() => []),
-    isAdminEmail: jest.fn(() => false),
-  }));
-
-  const authConfigModule = await import('@/lib/auth/config');
-  mockIsEmailVerificationRequired = authConfigModule.isEmailVerificationRequired;
-
-  const registerModule = await import('@/app/api/auth/register/route');
-  registerPost = registerModule.POST;
-});
 
 describe('Authentication API Routes', () => {
   const originalMongoUri = process.env.MONGODB_URI;

@@ -23,6 +23,9 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
     return '';
   })();
 
+  // Truncate long titles to prevent card height variation
+  const truncatedTitle = venue.name.length > 60 ? `${venue.name.substring(0, 60)}...` : venue.name;
+
   const tagColor = (text: string, category: 'eco' | 'amenity') => {
     const t = text.toLowerCase();
     if (category === 'eco') {
@@ -45,10 +48,10 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
   };
   return (
     <Link href={`/listings/${venue.slug}`} className="block">
-      <NeoCard 
-        variant="elevated" 
+      <NeoCard
+        variant="elevated"
         className={cn(
-          "group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 cursor-pointer",
+          "group hover:shadow-[16px_16px_0px_0px] transition-all duration-300 cursor-pointer h-full flex flex-col",
           className
         )}
       >
@@ -85,9 +88,9 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
           )}
         </div>
 
-        <NeoCardHeader>
-          <NeoCardTitle className="group-hover:text-neo-primary transition-colors duration-200">
-            {venue.name}
+        <NeoCardHeader className="flex-grow">
+          <NeoCardTitle className="group-hover:text-neo-primary transition-colors duration-200 line-clamp-2">
+            {truncatedTitle}
           </NeoCardTitle>
           {cityLabel && (
             <p className="body-sm text-neo-text-secondary mt-1">
@@ -98,7 +101,7 @@ export function VenueCard({ venue, className, priority = false }: Readonly<Venue
 
         {(Array.isArray(venue.ecoFocusTags) && venue.ecoFocusTags.length > 0) ||
          (Array.isArray(venue.amenityNames) && venue.amenityNames.length > 0) ? (
-          <NeoCardContent>
+          <NeoCardContent className="mt-auto">
             {/* Eco feature badges */}
             {Array.isArray(venue.ecoFocusTags) && venue.ecoFocusTags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-2">

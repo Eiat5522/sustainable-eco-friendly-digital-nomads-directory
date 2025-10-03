@@ -1,6 +1,6 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 
-type MockCursor<T = any> = {
+type MockCursor<T = unknown> = {
   sort: (fields?: Record<string, 1 | -1>) => MockCursor;
   skip: (amount: number) => MockCursor;
   limit: (amount: number) => MockCursor;
@@ -11,8 +11,8 @@ type MockCursor<T = any> = {
 
 export type MockCollection = {
   find: (query?: Record<string, unknown>) => MockCursor;
-  findOne: (query?: Record<string, unknown>) => Promise<any | null>;
-  insertOne: (doc: any) => Promise<{ acknowledged: boolean; insertedId: string }>;
+  findOne: <T = unknown>(query?: Record<string, unknown>) => Promise<T | null>;
+  insertOne: (doc: never) => Promise<{ acknowledged: boolean; insertedId: string }>;
   insertMany: (docs: any[]) => Promise<{ acknowledged: boolean; insertedCount: number; insertedIds: Record<number, string> }>;
   updateOne: (
     filter: Record<string, unknown>,
@@ -20,7 +20,7 @@ export type MockCollection = {
     options?: { upsert?: boolean }
   ) => Promise<{ acknowledged: boolean; matchedCount: number; modifiedCount: number; upsertedId?: { _id: string } }>;
   countDocuments: (query?: Record<string, unknown>) => Promise<number>;
-  aggregate: (pipeline?: Record<string, unknown>[]) => { toArray: () => Promise<any[]> };
+  aggregate: <T = unknown>(pipeline?: Record<string, unknown>[]) => { toArray: () => Promise<T[]> };aggregate: (pipeline?: Record<string, unknown>[]) => { toArray: () => Promise<never[]> };
   deleteOne: (query?: Record<string, unknown>) => Promise<{ acknowledged: boolean; deletedCount: number }>;
   createIndex: (fields: Record<string, unknown>, options?: Record<string, unknown>) => Promise<string>;
   createIndexes: (indexes?: Record<string, unknown>[]) => Promise<string[]>;
