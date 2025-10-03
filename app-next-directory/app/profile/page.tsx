@@ -26,6 +26,7 @@ import {
   type FavoritesResponse,
   type OwnerReviewsResponse,
 } from './utils';
+import { FavoriteListingsShowcase } from './FavoriteListingsShowcase';
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession();
@@ -130,11 +131,6 @@ export default function ProfilePage() {
       .join('')
       .slice(0, 2);
   }, [session?.user?.name, session?.user?.email]);
-
-  const favoriteDateFormatter = useMemo(
-    () => new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }),
-    []
-  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -271,46 +267,7 @@ export default function ProfilePage() {
                   </NeoCardContent>
                 </NeoCard>
               ) : (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                  {favorites.map((favorite) => (
-                    <NeoCard key={favorite.id} variant="flat" className="bg-white/95" data-testid="favorite-item">
-                      <NeoCardContent className="space-y-4">
-                        <div className="relative h-40 w-full overflow-hidden rounded-xl border-2 border-neo-border bg-neo-surface">
-                          {favorite.imageUrl ? (
-                            <Image
-                              src={favorite.imageUrl}
-                              alt={`${favorite.name} preview`}
-                              fill
-                              sizes="(max-width: 768px) 100vw, 33vw"
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center bg-neo-secondary/60 text-neo-text-primary">
-                              <MapPin className="h-8 w-8" aria-hidden="true" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="space-y-2">
-                          <h3 className="text-lg font-semibold text-neo-text-primary">{favorite.name}</h3>
-                          {favorite.city && (
-                            <p className="text-sm text-neo-text-secondary flex items-center gap-1">
-                              <MapPin className="h-4 w-4" aria-hidden="true" />
-                              {favorite.city}
-                            </p>
-                          )}
-                          {favorite.createdAt && (
-                            <p className="text-xs text-neo-text-secondary">
-                              Saved on {favoriteDateFormatter.format(new Date(favorite.createdAt))}
-                            </p>
-                          )}
-                        </div>
-                        <NeoButton asChild variant="secondary" size="sm">
-                          <Link href={`/listings/${favorite.slug}`}>View listing</Link>
-                        </NeoButton>
-                      </NeoCardContent>
-                    </NeoCard>
-                  ))}
-                </div>
+                <FavoriteListingsShowcase listings={favorites} />
               )}
             </section>
 

@@ -31,13 +31,42 @@ export async function GET() {
           _id,
           name,
           "slug": slug.current,
-          mainImage {
+          type,
+          category,
+          priceRange,
+          shortDescription,
+          primaryImage {
+            alt,
             asset -> {
-              url
+              url,
+              metadata {
+                dimensions {
+                  width,
+                  height
+                }
+              }
             }
           },
-          city -> {
+          mainImage {
+            asset -> {
+              url,
+              metadata {
+                dimensions {
+                  width,
+                  height
+                }
+              }
+            }
+          },
+          ecoFocusTags[] -> {
             name
+          },
+          digitalNomadFeatures[] -> {
+            name
+          },
+          city -> {
+            name,
+            country
           }
         },
         createdAt
