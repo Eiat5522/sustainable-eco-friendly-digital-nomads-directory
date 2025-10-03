@@ -154,9 +154,9 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
           const src = imageUrl ?? placeholderDataUri(800, 450);
           const alt = usingPlaceholder ? '' : (post.title || '');
           return (
-            <Link key={post.id} href={`/blog/${post.slug}`}>
-              <div className="block bg-white border-4 border-black rounded-lg shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 ease-in-out overflow-hidden">
-                <div className="relative h-48">
+            <Link key={post.id} href={`/blog/${post.slug}`} className="flex">
+              <div className="flex flex-col w-full bg-white border-4 border-black rounded-lg shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 ease-in-out overflow-hidden">
+                <div className="relative h-48 flex-shrink-0">
                   <Image
                     src={src}
                     alt={alt}
@@ -168,7 +168,7 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
                     
                   />
                 </div>
-                <div className="p-6">
+                <div className="p-6 flex-grow">
                   <h2 className="text-3xl font-bold mb-2 text-gray-800">{post.title}</h2>
                   <p className="text-gray-600">{post.excerpt}</p>
                 </div>
