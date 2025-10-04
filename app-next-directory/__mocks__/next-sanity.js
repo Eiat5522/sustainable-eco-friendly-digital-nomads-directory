@@ -1,3 +1,5 @@
+const { createClient: createSanityClient } = require('./@sanity/client');
+
 module.exports = {
   groq: (strings, ...values) => {
     let result = '';
@@ -6,4 +8,5 @@ module.exports = {
     });
     return result;
   },
+  createClient: createSanityClient,
 };
