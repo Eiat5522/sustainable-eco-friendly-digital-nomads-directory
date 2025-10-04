@@ -114,8 +114,16 @@ export function createMiddleware({
         return NextResponse.next();
       }
 
-      // Auth pages handling (support both /auth/signin and /auth/login for compatibility)
-      const authPages = ['/auth/error'];
+      // Auth pages handling - redirect authenticated users to dashboard
+      // Current working auth pages: /auth/login and /auth/signup (also handle legacy /login /register)
+      const authPages = [
+        '/auth/error',
+        '/auth/login',
+        '/auth/signup',
+        '/auth/signin',
+        '/login',
+        '/register'
+      ];
       const isAuthPage = authPages.some(p => pathname.startsWith(p));
 
       if (isAuthPage && isAuthenticated) {

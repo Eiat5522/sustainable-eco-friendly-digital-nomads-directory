@@ -272,7 +272,7 @@ describe('submitReview', () => {
   })
 })
 
-  beforeEach(() => {
+beforeEach(() => {
   jest.clearAllMocks()
   mockFetch.mockReset()
   global.fetch = mockFetch as unknown as typeof fetch
@@ -309,7 +309,7 @@ describe('ReviewsSection', () => {
   })
 
   it('renders review metadata and calculates averages', () => {
-  render(<ReviewsSection reviews={defaultReviews} listingId="test-listing" isSignedIn />)
+    render(<ReviewsSection reviews={defaultReviews} listingId="test-listing" isSignedIn />)
 
     expect(screen.getByTestId('neo-card-title')).toHaveTextContent('Reviews (2)')
     expect(screen.getByText('4.5 average')).toBeInTheDocument()
@@ -318,7 +318,7 @@ describe('ReviewsSection', () => {
   })
 
   it('displays individual reviews with formatted dates and separators', () => {
-  render(<ReviewsSection reviews={defaultReviews} listingId="test-listing" isSignedIn />)
+    render(<ReviewsSection reviews={defaultReviews} listingId="test-listing" isSignedIn />)
 
     expect(screen.getByText('John Doe')).toBeInTheDocument()
     expect(screen.getByText('Excellent place! Great atmosphere and eco-friendly practices.')).toBeInTheDocument()
@@ -329,16 +329,16 @@ describe('ReviewsSection', () => {
   })
 
   it('shows an empty state when there are no reviews', () => {
-  render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     expect(screen.getByText('No reviews yet')).toBeInTheDocument()
     expect(screen.getByText('Be the first to share your experience!')).toBeInTheDocument()
   })
 
   it('renders the sign-in prompt for non-authenticated users with callback', async () => {
-  render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn={false} />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn={false} />)
 
-await waitFor(() => {
+    await waitFor(() => {
       expect(screen.getByTestId('next-link')).toHaveAttribute(
         'href',
         `/auth/login?callbackUrl=http%3A%2F%2Flocalhost%2Flistings%2Ftest-listing`
@@ -348,7 +348,7 @@ await waitFor(() => {
   })
 
   it('defaults to the signed-out experience when isSignedIn is omitted', async () => {
-  render(<ReviewsSection reviews={[]} listingId="test-listing" />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" />)
 
     await waitFor(() => {
       expect(screen.getByTestId('next-link')).toHaveAttribute(
@@ -361,7 +361,7 @@ await waitFor(() => {
   })
 
   it('allows authenticated users to interact with the review form', async () => {
-  render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     expect(screen.getByTestId('neo-card-title')).toHaveTextContent('Reviews (0)')
     expect(screen.getByTestId('star-rating-interactive')).toBeInTheDocument()
@@ -379,7 +379,7 @@ await waitFor(() => {
       mockResponse({ id: 'new-review' }) as unknown as FetchReturn
     )
 
-  render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
+    render(<ReviewsSection reviews={[]} listingId="test-listing" isSignedIn />)
 
     const textarea = fillReviewForm(5, 'Outstanding place!')
     const submitButton = screen.getByRole('button', { name: /submit review/i })

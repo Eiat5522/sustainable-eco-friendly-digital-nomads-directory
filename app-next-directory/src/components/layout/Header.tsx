@@ -153,6 +153,16 @@ export function Header() {
                         My profile
                       </Link>
                     </DropdownMenu.Item>
+                    {/* Dashboard link visible to any authenticated user (venue owners use /dashboard) */}
+                    <DropdownMenu.Item asChild>
+                      <Link
+                        href="/dashboard"
+                        className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-neo-text-primary outline-none transition data-[highlighted]:bg-neo-primary/10"
+                      >
+                        <LayoutDashboard size={16} aria-hidden="true" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenu.Item>
                     {isAdmin && (
                       <DropdownMenu.Item asChild>
                         <Link
