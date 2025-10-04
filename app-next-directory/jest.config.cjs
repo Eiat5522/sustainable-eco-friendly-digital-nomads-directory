@@ -69,6 +69,7 @@ module.exports = {
     '^server-only$': '<rootDir>/__mocks__/server-only.js',
     '^tree-sitter-.*$': '<rootDir>/__mocks__/tree-sitter.js',
     '^@/app/api/listings/route$': '<rootDir>/__mocks__/app/api/listings/route.js',
+    '^next/server$': '<rootDir>/__mocks__/next/server.js',
     '^next-auth$': '<rootDir>/__mocks__/next-auth.js',
     '^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.js',
     '^next-auth/jwt$': '<rootDir>/__mocks__/next-auth/jwt.js',
