@@ -6,22 +6,22 @@
  */
 
 import { jest } from '@jest/globals';
-import { NextResponse } from 'next/server';
 
-// Mock Sanity client
-const mockFetch = jest.fn();
-jest.mock('@/lib/sanity/client', () => ({
-  client: {
-    fetch: mockFetch,
-  },
-}));
+// Mock Sanity client - uses existing __mocks__/@sanity/client.ts
+jest.mock('@/lib/sanity/client');
 
-// Import the route handler after mocks are set up
+// Import after mocks - next/server is automatically mocked via jest.config.cjs
 import { GET } from '@/app/api/blog/route';
+import { client } from '@/lib/sanity/client';
+
+// Get the mocked fetch
+const mockFetch = client.fetch as jest.MockedFunction<typeof client.fetch>;
 
 describe('Blog API - GET /api/blog', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset mock implementation for each test
+    mockFetch.mockReset();
   });
 
   describe('Successful Requests', () => {
@@ -108,33 +108,40 @@ describe('Blog API - GET /api/blog', () => {
       mockFetch.mockRejectedValueOnce(new Error('Sanity fetch failed'));
 
       const response = await GET();
+      const text = await response.text();
 
       expect(response.status).toBe(500);
-      expect(response instanceof NextResponse).toBe(true);
+      expect(text).toBe('Internal Server Error');
     });
 
     it('should return 500 when client.fetch throws network error', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
       const response = await GET();
+      const text = await response.text();
 
       expect(response.status).toBe(500);
+      expect(text).toBe('Internal Server Error');
     });
 
     it('should return 500 when client.fetch returns null', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Unexpected null'));
 
       const response = await GET();
+      const text = await response.text();
 
       expect(response.status).toBe(500);
+      expect(text).toBe('Internal Server Error');
     });
 
     it('should handle timeout errors gracefully', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Request timeout'));
 
       const response = await GET();
+      const text = await response.text();
 
       expect(response.status).toBe(500);
+      expect(text).toBe('Internal Server Error');
     });
   });
 
@@ -156,8 +163,10 @@ describe('Blog API - GET /api/blog', () => {
       mockFetch.mockRejectedValueOnce(new Error('GROQ syntax error'));
 
       const response = await GET();
+      const text = await response.text();
 
       expect(response.status).toBe(500);
+      expect(text).toBe('Internal Server Error');
     });
   });
 });

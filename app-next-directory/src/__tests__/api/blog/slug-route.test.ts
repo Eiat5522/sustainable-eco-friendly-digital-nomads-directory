@@ -7,18 +7,15 @@
  */
 
 import { jest } from '@jest/globals';
-import { NextResponse } from 'next/server';
 
-// Mock Sanity client
-const mockFetch = jest.fn();
-jest.mock('@/lib/sanity/client', () => ({
-  client: {
-    fetch: mockFetch,
-  },
-}));
+// Import mocked modules
+import { client } from '@/lib/sanity/client';
 
 // Import the route handler after mocks are set up
 import { GET } from '@/app/api/blog/[slug]/route';
+
+// Get mocked fetch function
+const mockFetch = client.fetch as jest.MockedFunction<typeof client.fetch>;
 
 describe('Blog Slug API - GET /api/blog/[slug]', () => {
   beforeEach(() => {
@@ -166,9 +163,10 @@ describe('Blog Slug API - GET /api/blog/[slug]', () => {
       const mockParams = { params: { slug: 'non-existent' } };
 
       const response = await GET(mockRequest, mockParams);
+      const text = await response.text();
 
       expect(response.status).toBe(404);
-      expect(response instanceof NextResponse).toBe(true);
+      expect(text).toBe('Not Found');
     });
 
     it('should return 404 when post is undefined', async () => {
@@ -178,8 +176,10 @@ describe('Blog Slug API - GET /api/blog/[slug]', () => {
       const mockParams = { params: { slug: 'non-existent' } };
 
       const response = await GET(mockRequest, mockParams);
+      const text = await response.text();
 
       expect(response.status).toBe(404);
+      expect(text).toBe('Not Found');
     });
 
     it('should not fetch comments when post is not found', async () => {
@@ -202,8 +202,10 @@ describe('Blog Slug API - GET /api/blog/[slug]', () => {
       const mockParams = { params: { slug: 'test-post' } };
 
       const response = await GET(mockRequest, mockParams);
+      const text = await response.text();
 
       expect(response.status).toBe(500);
+      expect(text).toBe('Internal Server Error');
     });
 
     it('should return 500 when comments fetch fails', async () => {
@@ -216,8 +218,10 @@ describe('Blog Slug API - GET /api/blog/[slug]', () => {
       const mockParams = { params: { slug: 'test-post' } };
 
       const response = await GET(mockRequest, mockParams);
+      const text = await response.text();
 
       expect(response.status).toBe(500);
+      expect(text).toBe('Internal Server Error');
     });
 
     it('should handle network errors', async () => {
@@ -227,8 +231,10 @@ describe('Blog Slug API - GET /api/blog/[slug]', () => {
       const mockParams = { params: { slug: 'test-post' } };
 
       const response = await GET(mockRequest, mockParams);
+      const text = await response.text();
 
       expect(response.status).toBe(500);
+      expect(text).toBe('Internal Server Error');
     });
 
     it('should handle timeout errors', async () => {
@@ -238,8 +244,10 @@ describe('Blog Slug API - GET /api/blog/[slug]', () => {
       const mockParams = { params: { slug: 'test-post' } };
 
       const response = await GET(mockRequest, mockParams);
+      const text = await response.text();
 
       expect(response.status).toBe(500);
+      expect(text).toBe('Internal Server Error');
     });
   });
 
