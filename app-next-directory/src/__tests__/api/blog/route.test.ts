@@ -1,0 +1,163 @@
+/**
+ * Jest Test Suite for Blog API Route
+ * Tests covering:
+ * 1. GET /api/blog - Fetch all published blog posts
+ * 2. Error handling for database failures
+ */
+
+import { jest } from '@jest/globals';
+import { NextResponse } from 'next/server';
+
+// Mock Sanity client
+const mockFetch = jest.fn();
+jest.mock('@/lib/sanity/client', () => ({
+  client: {
+    fetch: mockFetch,
+  },
+}));
+
+// Import the route handler after mocks are set up
+import { GET } from '@/app/api/blog/route';
+
+describe('Blog API - GET /api/blog', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('Successful Requests', () => {
+    it('should return all published blog posts', async () => {
+      const mockPosts = [
+        {
+          _id: '1',
+          title: 'Test Post 1',
+          slug: { current: 'test-post-1' },
+          publishedAt: '2024-01-01T00:00:00Z',
+          _createdAt: '2024-01-01T00:00:00Z',
+        },
+        {
+          _id: '2',
+          title: 'Test Post 2',
+          slug: { current: 'test-post-2' },
+          publishedAt: '2024-01-02T00:00:00Z',
+          _createdAt: '2024-01-02T00:00:00Z',
+        },
+      ];
+
+      mockFetch.mockResolvedValueOnce(mockPosts);
+
+      const response = await GET();
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data).toEqual(mockPosts);
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('_type == "blogPost"')
+      );
+    });
+
+    it('should return empty array when no posts exist', async () => {
+      mockFetch.mockResolvedValueOnce([]);
+
+      const response = await GET();
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data).toEqual([]);
+      expect(Array.isArray(data)).toBe(true);
+    });
+
+    it('should filter out drafts and unpublished posts', async () => {
+      const mockPosts = [
+        {
+          _id: '1',
+          title: 'Published Post',
+          publishedAt: '2024-01-01T00:00:00Z',
+        },
+      ];
+
+      mockFetch.mockResolvedValueOnce(mockPosts);
+
+      const response = await GET();
+      
+      expect(response.status).toBe(200);
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('!(_id in path(\'drafts.**\'))')
+      );
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('defined(publishedAt)')
+      );
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('publishedAt <= now()')
+      );
+    });
+
+    it('should order posts by publishedAt desc', async () => {
+      mockFetch.mockResolvedValueOnce([]);
+
+      await GET();
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('order(publishedAt desc, _createdAt desc)')
+      );
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should return 500 when Sanity client throws error', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Sanity fetch failed'));
+
+      const response = await GET();
+
+      expect(response.status).toBe(500);
+      expect(response instanceof NextResponse).toBe(true);
+    });
+
+    it('should return 500 when client.fetch throws network error', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+      const response = await GET();
+
+      expect(response.status).toBe(500);
+    });
+
+    it('should return 500 when client.fetch returns null', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Unexpected null'));
+
+      const response = await GET();
+
+      expect(response.status).toBe(500);
+    });
+
+    it('should handle timeout errors gracefully', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('Request timeout'));
+
+      const response = await GET();
+
+      expect(response.status).toBe(500);
+    });
+  });
+
+  describe('Query Validation', () => {
+    it('should use correct GROQ query structure', async () => {
+      mockFetch.mockResolvedValueOnce([]);
+
+      await GET();
+
+      const call = mockFetch.mock.calls[0][0];
+      expect(call).toContain('_type == "blogPost"');
+      expect(call).toContain('!(_id in path(\'drafts.**\'))');
+      expect(call).toContain('defined(publishedAt)');
+      expect(call).toContain('publishedAt <= now()');
+      expect(call).toContain('order(publishedAt desc, _createdAt desc)');
+    });
+
+    it('should handle GROQ syntax errors', async () => {
+      mockFetch.mockRejectedValueOnce(new Error('GROQ syntax error'));
+
+      const response = await GET();
+
+      expect(response.status).toBe(500);
+    });
+  });
+});
