@@ -4,8 +4,8 @@ const baseURL = (process.env.BASE_URL || 'http://localhost:3000').replace(/\/+$/
 
 describe('/api/events (Jest + supertest)', () => {
   jest.setTimeout(60000);
-const req = () =>
-  request(baseURL).timeout({ deadline: 30000, response: 15000 });
+  const req = () =>
+    request(baseURL).timeout({ deadline: 30000, response: 15000 });
 
   it('GET /api/events returns 200 and a data array', async () => {
 const res = await req().get('/api/events');

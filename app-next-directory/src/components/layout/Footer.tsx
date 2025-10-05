@@ -2,6 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { NeoButton } from '@/components/ui/neo-button'
 import { NeoInput } from '@/components/ui/neo-input'
 import { NeoCard } from '@/components/ui/neo-card'
@@ -32,6 +33,7 @@ const socialLinks = [
 ]
 
 export function Footer() {
+  const router = useRouter()
   const year = new Date().getFullYear();
   const [email, setEmail] = React.useState('');
   const [errors, setErrors] = React.useState({ email: '' });
@@ -70,20 +72,24 @@ export function Footer() {
               <NeoButton asChild variant="secondary" size="md">
                 <Link
                   href="/contact-us?type=newsletter"
- onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-   const trimmed = email.trim()
-   const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed)
-   if (!isValid) {
-     e.preventDefault()
-     setErrors({ email: 'Please enter a valid email address.' })
-     return
-   }
-   setErrors({ email: '' })
+                  onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                    const trimmed = email.trim()
+                    const isValid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(trimmed)
+                    if (!isValid) {
+                      e.preventDefault()
+                      setErrors({ email: 'Please enter a valid email address.' })
+                      return
+                    }
+                    setErrors({ email: '' })
                     try {
                       sessionStorage.setItem('newsletterEmail', trimmed)
                     } catch {
                       /* no-op: storage may be unavailable */
                     }
+                    // Prevent default Link navigation and push with email query param so the contact page
+                    // can prepopulate the email field from the URL.
+                    e.preventDefault()
+                    router.push(`/contact-us?type=newsletter&email=${encodeURIComponent(trimmed)}`)
                   }}
                 >
                   Subscribe

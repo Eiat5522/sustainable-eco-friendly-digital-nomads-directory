@@ -302,9 +302,10 @@ test.describe('Listings API', () => {
 
     test('includes rate limit headers', async ({ request }) => {
       const response = await request.get('/api/listings');
-      expect(response.headers()['x-ratelimit-limit']).toBeDefined();
-      expect(response.headers()['x-ratelimit-remaining']).toBeDefined();
-      expect(response.headers()['x-ratelimit-reset']).toBeDefined();
+      const headers = response.headers();
+      expect(headers['x-ratelimit-limit']).toBeDefined();
+      expect(headers['x-ratelimit-remaining']).toBeDefined();
+      expect(headers['x-ratelimit-reset']).toBeDefined();
     });
   });
 });

@@ -45,7 +45,7 @@ const mockIsEmailVerificationRequired = authConfigModule.isEmailVerificationRequ
 let registerPost: typeof import('@/app/api/auth/register/route').POST;
 const mockIsRateLimited = rateLimitModule.isRateLimited as jest.MockedFunction<typeof rateLimitModule.isRateLimited>;
 const mockGetRetryAfterMs = rateLimitModule.getRetryAfterMs as jest.MockedFunction<typeof rateLimitModule.getRetryAfterMs>;
-let mockIsEmailVerificationRequired: jest.MockedFunction<any> = jest.fn();
+
 const mockGetRequestContext = loggerModule.getRequestContext as jest.MockedFunction<typeof loggerModule.getRequestContext>;
 const mockStructuredLogger = loggerModule.structuredLogger as jest.Mocked<typeof loggerModule.structuredLogger>;
 

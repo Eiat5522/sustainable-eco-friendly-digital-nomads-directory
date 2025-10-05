@@ -31,7 +31,7 @@ const newsletterSchema = z.object({
 function ContactForm() {
   const searchParams = useSearchParams()
   const initialType = searchParams.get('type') === 'newsletter' ? 'newsletter' : 'general'
-  const initialEmail = searchParams.get('email') || ''
+  const initialEmail = searchParams.get('email') || (typeof window !== 'undefined' && sessionStorage.getItem('newsletterEmail')) || ''
 
   const [enquiryType, setEnquiryType] = useState<EnquiryType>(initialType)
   const [name, setName] = useState('')

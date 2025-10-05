@@ -1,8 +1,13 @@
 import { jest } from '@jest/globals';
 
 // Create mocks with the correct signature before importing
+import type { updateUserProfile as UpdateUserProfileFn } from '@/lib/auth/serverAuth';
+
+const mockUpdateUserProfile = jest.fn<
+  ReturnType<UpdateUserProfileFn>,
+  Parameters<UpdateUserProfileFn>
+>();
 const mockAuth = jest.fn();
-const mockUpdateUserProfile = jest.fn();
 
 // Explicitly mock these modules before importing
 jest.mock('@/lib/auth', () => ({

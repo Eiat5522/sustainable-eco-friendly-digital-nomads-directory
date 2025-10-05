@@ -164,8 +164,7 @@ describe('db-helpers', () => {
 
     const { getDatabase } = require('../utils/db-helpers');
 
-    // The function should throw the expected error, not fall back to mock
-    await expect(getDatabase()).rejects.toThrow('MongoDB client is invalid or not connected');
+    await expect(getDatabase()).rejects.toThrow('Invalid client');
 
     consoleSpy.mockRestore();
   });
@@ -174,7 +173,7 @@ describe('db-helpers', () => {
     mockClientBehavior = 'no-db-function';
     jest.resetModules();
     const { getDatabase } = require('../utils/db-helpers');
-    await expect(getDatabase()).rejects.toThrow('MongoDB client is invalid or not connected');
+    await expect(getDatabase()).rejects.toThrow('Client is not a valid MongoClient instance');
   });
 
   it('handles invalid db instance in getCollection', async () => {

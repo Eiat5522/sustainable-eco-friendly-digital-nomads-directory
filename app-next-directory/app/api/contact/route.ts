@@ -4,6 +4,8 @@ import { NextRequest } from 'next/server';
 import nodemailer from 'nodemailer';
 import { z } from 'zod';
 import { sendMail } from '@/lib/email';
+import ContactSubmission from '@/models/ContactSubmission';
+import dbConnect from '@/lib/mongodb';
 
 // Validation schema for contact form
 const contactFormSchema = z.object({
@@ -46,6 +48,7 @@ const createTransporter = () => {
 
 export async function POST(request: NextRequest) {
   try {
+    await dbConnect();
     // Rate limiting
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'anonymous';
     const rateLimitResult = await limiter(request);
@@ -72,11 +75,22 @@ export async function POST(request: NextRequest) {
     const messageText = `${subject} ${message}`.toLowerCase();
     const hasSpam = spamKeywords.some(keyword => messageText.includes(keyword));
 
+    const submission = new ContactSubmission({
+      name,
+      email,
+      subject,
+      message,
+      type,
+      ipAddress: ip,
+      status: hasSpam ? 'spam' : 'unread',
+    });
+    await submission.save();
+
     if (hasSpam) {
       // Log potential spam but don't notify the user
-      console.warn('Potential spam detected:', { email, subject, ip });
+      console.warn('Potential spam detected and saved to database:', { email, subject, ip });
       return ApiResponseHandler.success(
-        { messageId: 'spam-filtered' },
+        { messageId: 'spam-filtered', submissionId: submission._id },
         'Your message has been sent successfully!'
       );
     }
@@ -171,7 +185,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Log successful submission
-    console.log('Contact form submission processed:', {
+    console.log('Contact form submission processed and saved:', {
+      submissionId: submission._id,
       messageId: messageInfo.adminId,
       autoReplyId: messageInfo.autoReplyId,
       type,
@@ -182,6 +197,7 @@ export async function POST(request: NextRequest) {
     return ApiResponseHandler.success(
       {
         messageId: messageInfo.adminId ?? null,
+        submissionId: submission._id,
         type,
         timestamp: new Date().toISOString()
       },
@@ -204,6 +220,8 @@ export async function POST(request: NextRequest) {
     return ApiResponseHandler.error('Failed to send message. Please try again later.', 500);
   }
 }
+
+
 
 // GET endpoint for retrieving contact form configuration
 export async function GET() {

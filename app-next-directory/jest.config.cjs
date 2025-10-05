@@ -2,7 +2,7 @@
 // Jest config for TypeScript + ESM + alias support
 /** @type {import('jest').Config} */
 const { pathsToModuleNameMapper } = require('ts-jest');
-const { compilerOptions } = require('./tsconfig.json');
+const { compilerOptions } = require('./tsconfig.test.json');
 
 module.exports = {
   // Limit unit-test discovery to application source directories
@@ -49,6 +49,8 @@ module.exports = {
         transform: {
           react: { runtime: 'automatic' },
         },
+        paths: compilerOptions.paths,
+        baseUrl: compilerOptions.baseUrl,
       },
       module: { type: 'es6' },
     }],
