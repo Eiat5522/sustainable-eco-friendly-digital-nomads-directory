@@ -262,29 +262,3 @@ try {
 } catch (e) {
   // Ignore - some test suites may not resolve this module during setup
 }
-
-// Provide a default mock for ensureSanityUser to be ESM-safe; tests can override as needed
-jest.mock('@/lib/sanity/user', () => ({
-  __esModule: true,
-  ensureSanityUser: jest.fn(),
-}));
-
-// Ensure ApiResponseHandler is mockable across ESM boundaries for all tests
-// Note: individual tests can override via jest.unmock('@/utils/api-response') before import
-jest.mock('@/utils/api-response', () => {
-  const actual = jest.requireActual('@/utils/api-response') as Record<string, any>;
-  const res = (body: unknown, status: number = 200) => ({
-    status,
-    json: () => Promise.resolve(body),
-  });
-  return {
-    ...actual,
-    ApiResponseHandler: {
-      success: jest.fn((data: unknown) => res({ success: true, data }, 200)),
-      error:   jest.fn((message: string, status: number = 400) => res({ error: message }, status)),
-      notFound:      jest.fn((message = 'Not Found')    => res({ error: message }, 404)),
-      unauthorized:  jest.fn((message = 'Unauthorized')  => res({ error: message }, 401)),
-      forbidden:     jest.fn((message = 'Forbidden')     => res({ error: message }, 403)),
-    },
-  } as Record<string, any>;
-});
