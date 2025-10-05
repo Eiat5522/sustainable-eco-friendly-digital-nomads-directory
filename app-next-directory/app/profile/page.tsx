@@ -17,15 +17,7 @@ import { NeoBadge } from '@/components/ui/neo-badge';
 import { NeoButton } from '@/components/ui/neo-button';
 import { Heart, Loader2, MapPin, MessageSquare, Star, Edit } from 'lucide-react';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
-import {
-  normaliseFavorite,
-  normaliseOwnerReviews,
-  formatDate,
-  type FavoriteListing,
-  type OwnerListingReviews,
-  type FavoritesResponse,
-  type OwnerReviewsResponse,
-} from './utils';
+import { normaliseFavorite, normaliseOwnerReviews } from './utils';
 import { FavoriteListingsShowcase } from './FavoriteListingsShowcase';
 
 export default function ProfilePage() {

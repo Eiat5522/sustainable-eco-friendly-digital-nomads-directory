@@ -214,7 +214,8 @@ test.describe('Security Testing', () => {
       for (const payload of xssPayloads) {
         await page.fill('input[name="name"]', payload);
         await page.fill('input[name="email"]', TEST_CONFIG.credentials.genericEmail);
-        await page.fill('textarea[name="message"]', payload);
+        await page.fill('input[name="subject"]', 'Security test subject');
+        await page.fill('textarea[name="enquiry"]', payload);
         await page.click('button[type="submit"]');
 
         // Check that script tags are not executed
@@ -332,7 +333,8 @@ test.describe('Security Testing', () => {
       for (const email of injectionEmails) {
         await page.fill('input[name="email"]', email);
         await page.fill('input[name="name"]', TEST_CONFIG.contactForm.standardName);
-        await page.fill('textarea[name="message"]', TEST_CONFIG.contactForm.standardMessage);
+        await page.fill('input[name="subject"]', 'Validate headers input');
+        await page.fill('textarea[name="enquiry"]', TEST_CONFIG.contactForm.standardMessage);
         await page.click('button[type="submit"]');
 
         // Should reject malformed emails
@@ -361,7 +363,11 @@ test.describe('Security Testing', () => {
           `${TEST_CONFIG.contactForm.emailPrefix}${i}@${TEST_CONFIG.contactForm.emailDomain}`
         );
         await page.fill(
-          'textarea[name="message"]',
+          'input[name="subject"]',
+          `${TEST_CONFIG.contactForm.messagePrefix} subject ${i}`
+        );
+        await page.fill(
+          'textarea[name="enquiry"]',
           `${TEST_CONFIG.contactForm.messagePrefix} ${i}`
         );
 
@@ -369,7 +375,9 @@ test.describe('Security Testing', () => {
           data: {
             name: `${TEST_CONFIG.contactForm.namePrefix} ${i}`,
             email: `${TEST_CONFIG.contactForm.emailPrefix}${i}@${TEST_CONFIG.contactForm.emailDomain}`,
+            subject: `${TEST_CONFIG.contactForm.messagePrefix} subject ${i}`,
             message: `${TEST_CONFIG.contactForm.messagePrefix} ${i}`,
+            type: 'general',
           },
         });
 

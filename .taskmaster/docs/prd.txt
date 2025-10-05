@@ -1,411 +1,128 @@
-Perfect—let’s lock in a clean, UI-only rebuild plan that keeps your DTO/API layer intact and avoids the current styling/import chaos.
+# Admin Dashboards — Product Requirements Document (PRD)
 
-# Proposed UI-Only Structure (Next.js App Router + Tailwind v4)
+Overview
 
-```
-app-next-directory/
-├─ app/
-│  ├─ layout.tsx                // root layout, imports globals.css, renders <Header/><Footer/>
-│  ├─ globals.css               // Tailwind v4 base + light resets
-│  ├─ page.tsx                  // Home: uses <FeaturedListingsSection/> + <CityCarouselSection/>
-│  ├─ listings/
-│  │  └─ [slug]/page.tsx        // ListingDetail page (UI composition)
-│  ├─ city/
-│  │  └─ [slug]/page.tsx        // CityDetail page (UI composition with ListingGrid)
-│  └─ search/
-│     └─ page.tsx               // Advanced search (query + multi-filters + results + auto-redirect)
-│
-├─ src/components/
-│  ├─ layout/
-│  │  ├─ Header.tsx
-│  │  └─ Footer.tsx
-│  ├─ cards/
-│  │  ├─ ListingCard.tsx        // REUSE (ensure href=/listings/[slug])
-│  │  └─ CityCard.tsx           // NEW (links to /city/[slug])
-│  ├─ sections/
-│  │  ├─ FeaturedListingsSection.tsx   // NEW (uses ListingGrid)
-│  │  └─ CityCarouselSection.tsx       // NEW (horizontal scroll or Embla later)
-│  ├─ listings/
-│  │  └─ ListingGrid.tsx        // REUSE for all grids (home, city page, search)
-│  └─ search/
-│     ├─ SearchBox.tsx          // Wrapper (can re-export your DigitalNomadSearch)
-│     ├─ FiltersSidebar.tsx     // Wrapper (can re-export your DigitalNomadSearchFilter)
-│     └─ ActiveFiltersBar.tsx   // (optional) pills to show active filters
-```
+The Admin Dashboards provide site administrators and authorized moderators with a single place to monitor community health, manage content and users, run bulk operations, and perform moderation workflows for the Sustainable Eco-Friendly Digital Nomads Directory. The admin experience enables safe, auditable interventions, fast triage of flagged content, insight into usage and growth, and tools to maintain quality and sustainability standards.
 
-### Why this shape?
+Core features
 
-* Keeps **cards/grids** reusable across Featured, City Detail, and Search (your `ListingCard`/`ListingGrid` already exist and are close to ready) .
-* Pushes **page composition** and **routing** into `app/…/page.tsx` files so navigation is consistent (slug/city slugs come from your existing types/queries). Your types already include `AppListingCard` and city shapes that fit this nicely. &#x20;
+1) Admin Landing / Dashboard
+- What it does: Presents KPIs and an at-a-glance view of system health: total users, total listings, total reviews, weekly signups, pending moderation tasks, and role distribution.
+- Why it's important: Gives admins quick situational awareness and points of action for moderation and content curation.
+- How it works: Server-rendered dashboard (Next.js app route) fetches analytics from `/api/admin/analytics`. Dashboard includes overview cards, last refresh time, and links to moderation, content analysis, and bulk operations.
 
----
+2) Moderation Queue & Tools
+- What it does: Lists flagged items (listings, reviews, comments, events, etc.) that require review with context, reporter reasons, and actions (Notes, Approve, Restrict, Escalate).
+- Why it's important: Ensures community standards are enforced, reduces false positives, and centralizes moderation.
+- How it works: `GET /api/admin/analytics` (or a dedicated `GET /api/admin/moderation`) returns moderation items. Moderation actions call App Routes (`POST /api/admin/moderation`) which update Sanity documents or moderation status records. Actions are logged with the admin ID and timestamp for audit.
 
-# Minimal foundations
+3) Content Analysis & Auto-scan
+- What it does: Allows admins to run content analysis (e.g., profanity, sustainability-tag checks, spam detection) or view automated scan results and flagged items.
+- Why it's important: Automates initial triage, surfaces policy violations, and supports bulk review.
+- How it works: `POST /api/admin/analyze-content` triggers server-side jobs (sync or background) which return a scan result summary and suggested actions. For heavier jobs consider async queueing (webhooks, job queue, or serverless background runs).
 
-## 1) Tailwind v4 globals
+4) Bulk Operations & CSV Import/Export
+- What it does: Perform bulk updates (e.g., change listing status, add/remove sustainability tags), import CSVs for mass updates, and export moderation/analytics data.
+- Why it's important: Speeds administrative workflows and allows dataset corrections without per-item edits.
+- How it works: UI endpoints use `POST /api/admin/bulk-operations` for server-validated operations. Imports should be validated first on server side. Provide preview/dry-run mode and detailed operation logs.
 
-Create/replace `app/globals.css`:
+5) Role & Access Management (RBAC)
+- What it does: Define admin, moderator, contentEditor, venueOwner, and other roles; manage user access to admin functionality.
+- Why it's important: Security and auditability; prevents privilege escalation.
+- How it works: Roles are canonicalized in Sanity. Server routes call `auth()` to verify sessions and check `session.user.role === 'admin'` or other allowed roles. Implement server-side checks for every admin route. Provide UI to invite/assign roles (Sanity Studio or admin UI) with two-factor or email confirmation workflows for sensitive role changes.
 
-```css
-@import "tailwindcss";
+6) Audit Logs & Change History
+- What it does: Record actions performed by admins (approve/restrict/bulk ops), who performed them, and when.
+- Why it's important: Accountability, rollbacks, and legal/compliance support.
+- How it works: Create an `adminAction` Sanity document (or a dedicated logging DB) capturing action type, target id/type, admin id, timestamp, and a free-text note. Provide filterable audit views and export options.
 
-/* small DX niceties */
-:root { color-scheme: light dark; }
-html, body { height: 100%; }
-body { font-family: var(--font-sans, ui-sans-serif, system-ui, Segoe UI, Roboto, Helvetica, Apple Color Emoji, Segoe UI Emoji); }
-.container { margin-inline: auto; padding-inline: 1rem; width: 100%; max-width: 80rem; }
-```
+7) Health & Alerts
+- What it does: Surface system alerts (errors in background jobs, high moderation backlog, unusual activity spikes) and allow subscription to alert channels.
+- Why it's important: Early warning and SLA management.
+- How it works: Integrate with monitoring (Sentry, Datadog) and internal heuristics. Provide threshold-based alerting and Slack/email webhook configuration.
 
-(You can later add an `@theme` block for design tokens, but this is enough to restore sane styling quickly.)
+User Experience
 
-## 2) Root layout
+User personas
+- Admin: Full access to view analytics, run scans, perform moderation, and run bulk ops.
+- Moderator: Limited to moderation queue and approve/restrict actions, plus note-taking.
+- Content Editor: Can edit and approve content but not change roles or perform destructive bulk ops.
+- Venue Owner: Can manage own listings and respond to moderation on owned content.
 
-`app/layout.tsx`:
+Key user flows
+- Admin login -> Dashboard -> Click moderation task -> Review details -> Approve/Restrict -> Action logged and UI updated.
+- Admin -> Bulk operations -> Upload CSV -> Preview -> Run dry-run -> Confirm -> Execute -> View logs.
+- Admin -> Run content analysis -> View flagged items -> Send to moderation queue.
 
-```tsx
-import './globals.css';
-import type { ReactNode } from 'react';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
+UI/UX considerations
+- Keep the dashboard primarily server-rendered for performance and SEO (Next.js app router server components) while enabling interactivity via client components for actions.
+- Provide clear success/failure states and optimistic updates for moderation actions, with server-driven confirmation and fallback.
+- Accessibility: Ensure keyboard navigation, screen reader labels, and color contrast for status badges.
 
-export default function RootLayout({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        <Header />
-        <main>{children}</main>
-        <Footer />
-      </body>
-    </html>
-  );
-}
-```
+Technical Architecture
 
----
+System components
+- Frontend: Next.js (App Router) TypeScript + TailwindCSS. Server components for initial dashboard render, client components for interactive moderation actions.
+- Backend: Sanity CMS as the primary content store; Node/Next App Routes as API layer. Optional small service or job-worker for long-running content analysis tasks (e.g., serverless functions or queue consumer).
+- Auth: NextAuth.js (v5) using provider(s) configured for production (OAuth, email, or SSO). Sessions must include canonical `role` on the user object.
+- Logging & Monitoring: Sentry/Datadog for error tracking; optional Prometheus metrics for backlog counts.
 
-# Page shells (UI-only)
+Data models
+- Sanity documents (existing): `user`, `listing`, `review`, `moderationStatus`.
+- New/extended documents:
+  - `moderationStatus` (type): { status: 'pending'|'approved'|'rejected'|'flagged', item -> reference, reports: array, lastActivity, assignedTo? }
+  - `adminAction` (type): { admin->reference, actionType, targetId, targetType, note, timestamp, metadata }
 
-## Home
+APIs and integrations
+- GET /api/admin/analytics — returns overview counts, role distribution, moderation queue (secured, server-side RBAC)
+- POST /api/admin/moderation — apply moderation action (approve/restrict/note) with validation and audit logging
+- POST /api/admin/analyze-content — triggers content analysis job (sync lightweight or async with job id)
+- POST /api/admin/bulk-operations — server-side validated bulk changes with dry-run mode
+- Optional admin endpoints for CSV import status & audit logs
 
-`app/page.tsx`:
+Infrastructure requirements
+- Ensure Sanity has adequate read/write capacity and consider using a separate, indexed collection for audit logs if high volume is expected.
+- Job queue (Redis/BullMQ, or serverless queued functions) for heavy content analysis.
+- Secrets management for NextAuth and Sanity API tokens; ensure test and prod tokens are separated.
 
-```tsx
-import FeaturedListingsSection from '@/components/sections/FeaturedListingsSection';
-import CityCarouselSection from '@/components/sections/CityCarouselSection';
+Development Roadmap
 
-// UI-only: pass mocked data now; later wire to your DTO/API loaders
-export default function HomePage() {
-  return (
-    <div className="container py-8 space-y-8">
-      <FeaturedListingsSection listings={[]} />
-      <CityCarouselSection cities={[]} />
-    </div>
-  );
-}
-```
+MVP (must-haves to ship a usable admin dashboard)
+- Server-rendered Admin Dashboard with metrics from `GET /api/admin/analytics` and basic moderation table displaying last 10 items.
+- Server-side RBAC enforcement on admin routes using `auth()` and role checks.
+- `POST /api/admin/moderation` to perform approve/restrict actions and create `adminAction` audit entries.
+- Simple client components to trigger moderation actions and update UI on success/failure.
+- Unit tests for route handlers and auth checks; a small E2E test that logs in as admin and navigates to dashboard.
 
-## Listing Detail
+Phase 2 (immediate improvements)
+- Bulk operations endpoint & UI with CSV import & dry-run.
+- Content analysis endpoint & lightweight background job runner.
+- Pagination for moderation queue and filters by item-type/status/date.
+- Audit log UI and export.
 
-`app/listings/[slug]/page.tsx`:
+Phase 3 (scale & polish)
+- Asynchronous large-job processing with persistence, retries, and progress tracking.
+- Role management UI (invite/assign roles), 2FA for sensitive role modifications.
+- Alerts & integrations (Sentry, Slack webhooks).
 
-```tsx
-import type { Metadata } from 'next';
-import type { AppListingDetail } from '@/types/appView';
+Logical dependency chain
+- Foundation: Auth and RBAC (NextAuth + `auth()` utility), Sanity schema changes for audit logging/moderation statuses.
+- Middle: Admin analytics route + dashboard UI (server side) to present data.
+- Next: Moderation action endpoints and client wiring (approve/restrict/actions) plus audit logging.
+- Then: Bulk operations & content analysis features.
+- Final: Scaling features (job queue, alerts) and admin role management UX.
 
-function ListingDetailView({ listing }: { listing: AppListingDetail }) {
-  return (
-    <div className="container py-8">
-      <div className="mb-4 text-2xl font-semibold">{listing.name}</div>
-      {/* images, meta, amenities, rich text, etc. */}
-    </div>
-  );
-}
+Risks and mitigations
+- Risk: Sensitive admin actions run without audit logging or proper RBAC — Mitigation: enforce server-side auth checks and write an `adminAction` document on every action before commit; add tests.
+- Risk: Heavy content-analysis jobs block the server — Mitigation: offload to background workers or serverless jobs; provide async job endpoints and progress tracking.
+- Risk: Role inconsistency between Sanity schema and API queries — Mitigation: standardize role enum, validate role values on read/write, and add a migration script if necessary.
+- Risk: E2E tests failing due to environment variables or NextAuth client issues — Mitigation: add local dev/test env docs, a script to generate test JWTs (exists), and mock-next-auth strategies for unit tests.
 
-export default async function ListingDetailPage({ params }: { params: { slug: string } }) {
-  // UI-only shell for now; keep your existing DTO/API.
-  // const detail = await getListingBySlugDTO(params.slug)
-  const detail = null as unknown as AppListingDetail;
-  return <ListingDetailView listing={detail} />;
-}
+Appendix
+- Research notes: Use Sanity GROQ queries for moderation slices; for heavy aggregates prefer indexed collections or a secondary analytics store.
+- Implementation notes: Prefer server-side fetch for analytics and client components for interactive moderation actions; ensure `NEXTAUTH_URL` and NextAuth session cookies are available to server/runtime.
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  return { title: `${params.slug} – Listing` };
-}
-```
-
-(Your `LISTING_BY_SLUG_QUERYResult` already contains all fields you need to render this later. Keep DTO mapping in your data layer. )
-
-## City Detail
-
-`app/city/[slug]/page.tsx`:
-
-```tsx
-import { ListingGrid } from '@/components/listings/ListingGrid';
-import type { AppCity, AppListingCard } from '@/types/appView';
-
-function CityDetailView({ city, listings }: { city: AppCity; listings: AppListingCard[] }) {
-  return (
-    <div className="container py-8 space-y-6">
-      <div>
-        <div className="text-2xl font-semibold">{city.name}</div>
-        {city.country && <div className="text-muted-foreground">{city.country}</div>}
-      </div>
-      <ListingGrid listings={listings} />
-    </div>
-  );
-}
-
-export default async function CityDetailPage({ params }: { params: { slug: string } }) {
-  // UI-only shell; wire to existing queries later.
-  const city = { id: 'x', name: params.slug, slug: params.slug } as AppCity;
-  const listings: AppListingCard[] = [];
-  return <CityDetailView city={city} listings={listings} />;
-}
-```
-
-(You already have a `CityPageClient` that expects `{ city, listings }`—this composition mirrors that contract. )
-
-## Advanced Search (with auto-redirect)
-
-`app/search/page.tsx` (UI stub; keeps the redirect behavior):
-
-```tsx
-'use client';
-
-import { useEffect, useMemo, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { ListingGrid } from '@/components/listings/ListingGrid';
-import SearchBox from '@/components/search/SearchBox';
-import FiltersSidebar from '@/components/search/FiltersSidebar';
-import type { AppListingCard } from '@/types/appView';
-
-export default function SearchPage() {
-  const router = useRouter();
-  const params = useSearchParams();
-
-  // derive user selections from QS
-  const q = params.get('q') ?? '';
-  const cities = params.getAll('city');
-  const types = params.getAll('type');
-  const amenities = params.getAll('amenity');
-
-  const body = useMemo(() => ({ query: q, cities, types, amenities }), [q, cities, types, amenities]);
-
-  const [listings, setListings] = useState<AppListingCard[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      try {
-        // UI-only: replace with your real fetch later
-        const results: AppListingCard[] = [];
-        if (!cancelled) setListings(results);
-
-        // auto-redirect if exactly one
-        if (!cancelled && results.length === 1 && results[0].slug) {
-          router.replace(`/listings/${results[0].slug}`);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [body, router]);
-
-  return (
-    <div className="container grid grid-cols-1 gap-6 py-8 lg:grid-cols-[280px_1fr]">
-      <aside className="rounded-xl border p-4">
-        <FiltersSidebar />
-      </aside>
-      <main className="space-y-4">
-        <SearchBox initialValue={q} />
-        {loading ? <div>Loading…</div> : <ListingGrid listings={listings} />}
-      </main>
-    </div>
-  );
-}
-```
 
 ---
 
-# Sections & cards
-
-## Featured Listings section
-
-`src/components/sections/FeaturedListingsSection.tsx`:
-
-```tsx
-import { ListingGrid } from '@/components/listings/ListingGrid';
-import type { AppListingCard } from '@/types/appView';
-
-export default function FeaturedListingsSection({ listings }: { listings: AppListingCard[] }) {
-  return (
-    <section className="space-y-3">
-      <h2 className="text-xl font-semibold">Featured</h2>
-      <ListingGrid listings={listings} />
-    </section>
-  );
-}
-```
-
-You can continue to keep your existing `FeaturedListingsUnified` if you prefer (it already wraps the base and takes `FeaturedListingDTO[]`). If so, just use that inside `Home` and map DTO→Card once upstream. &#x20;
-
-## City carousel section
-
-`src/components/sections/CityCarouselSection.tsx`:
-
-```tsx
-import Link from 'next/link';
-import Image from 'next/image';
-import type { AppCity } from '@/types/appView';
-
-export default function CityCarouselSection({ cities }: { cities: AppCity[] }) {
-  return (
-    <section className="space-y-3">
-      <h2 className="text-xl font-semibold">Explore cities</h2>
-      <div className="flex gap-4 overflow-x-auto pb-2">
-        {cities.map((c) => (
-          <Link key={c.slug} href={`/city/${c.slug}`} className="min-w-[220px]">
-            <div className="relative h-36 w-56 overflow-hidden rounded-xl border">
-              {c.primaryImage?.asset?.url ? (
-                <Image src={c.primaryImage.asset.url} alt={c.name} fill sizes="224px" className="object-cover" />
-              ) : <div className="h-full w-full bg-muted" />}
-            </div>
-            <div className="mt-2 text-sm">{c.name}</div>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-```
-
----
-
-# Reuse + tiny patches
-
-## Reuse `ListingGrid` & `ListingCard`
-
-Your `ListingGrid` and `ListingCard` are already close to what we need. Just ensure `ListingCard` links to the detail page via slug (so all sections—Featured, City Detail, Search—navigate correctly). The file already has a `getListingUrl` and a `<Link …>` spot; ensure the href is `/listings/${slug}`. &#x20;
-
-**Patch sketch** inside `ListingCard.tsx`:
-
-```tsx
-const getListingUrl = (listing: AppListingCard) => listing?.slug ? `/listings/${listing.slug}` : '#';
-
-// later
-<Link href={getListingUrl(listing)} aria-label={`View ${listing.name}`}>
-  {/* card content */}
-</Link>
-```
-
-(Keep the rendering exactly as you have; this just standardizes navigation.)
-
----
-
-# Hooking this to your existing data later
-
-* **Types**: App types like `AppListingCard` already match the card/grid needs and cross-page reuse.&#x20;
-* **Detail data**: Your Sanity query result (`LISTING_BY_SLUG_QUERYResult`) already includes city, type, images, tags, price, contact, long/short descriptions, amenities, and reviews—perfect for the Listing Detail UI. Wire your DTO transformer back in when ready. &#x20;
-* **City detail**: You already have a client component that expects `{ city, listings }`, so this new City page composition is aligned.&#x20;
-
----
-
-## TL;DR plan
-
-* Stand up **Tailwind + layout** first (Header/Footer visible).
-* Drop in **Home** using `FeaturedListingsSection` + `CityCarouselSection`.
-* Implement **/listings/\[slug]**, **/city/\[slug]**, **/search** shells now (UI only).
-* Reuse your **ListingCard/ListingGrid**, with the tiny link patch for slug routing.
-* Once UI is stable, connect DTO/API and turn on the real fetchers/endpoints.
-
-🛠️ Overall Goal
-
-Refactor app-next-directory so that it uses the modern Next.js App Router structure with Tailwind v4 and shadcn UI. The data (DTOs, API layer, Sanity integration) should remain untouched. Focus purely on UI components, page structure, and navigation flow.
-
-✅ Tasks Breakdown for Codex
-
-Root Layout & Globals
-
-Create app-next-directory/app/layout.tsx if it doesn’t exist. It should import globals.css and wrap all pages with <Header /> and <Footer /> components (see below).
-
-Set up a new app-next-directory/app/globals.css to import Tailwind CSS and define any project‑wide styles.
-
-Create minimal src/components/layout/Header.tsx and Footer.tsx if they’re missing. The header should display the site logo and basic nav links; the footer can show copyright or site description.
-
-Home Page
-
-Replace the old home page with a new file at app-next-directory/app/page.tsx.
-
-This page should render FeaturedListingsSection and CityCarouselSection (defined below) and pass placeholder data for now.
-
-Section Components
-
-Under src/components/sections/, add:
-
-FeaturedListingsSection.tsx: accepts listings: AppListingCard[] and renders a heading plus a ListingGrid using the existing ListingGrid component.
-
-CityCarouselSection.tsx: accepts cities: AppCity[] and displays a horizontal scroll of city cards. Each card links to /city/[slug]. You can base this off the existing components/listings/CityCarousel.tsx.
-
-Be sure to import and re-use existing types from src/types/appView.ts (like AppListingCard and AppCity).
-
-Detail Pages
-
-Add app-next-directory/app/listings/[slug]/page.tsx. Use the existing ListingDetail component from src/components/listings/ListingDetail.tsx to render full listing details. For now, stub the data fetch (e.g., leave a comment where real data will be loaded later).
-
-Add app-next-directory/app/city/[slug]/page.tsx. Show the city name, maybe some high‑level info, and use the existing CityStats and ListingGrid components to list all listings in that city.
-
-Search Page
-
-Create app-next-directory/app/search/page.tsx. This page should:
-
-Display a search bar and filters sidebar.
-
-When a search is executed and exactly one listing is returned, automatically redirect to that listing’s detail page.
-
-Use ListingGrid to show search results.
-
-For the search bar, wrap the existing DigitalNomadSearch.tsx component inside a new wrapper (see next task).
-
-Search Components
-
-Under src/components/search/, add:
-
-SearchBox.tsx: a simple wrapper around DigitalNomadSearch.tsx from src/components/ui. Keep props minimal (e.g., initialValue and an onSearch callback).
-
-FiltersSidebar.tsx: a wrapper around DigitalNomadSearchFilter.tsx, mapping its outputs into search query parameters.
-
-These wrappers let you reuse existing advanced search/filter UIs while fitting the new page structure.
-
-Listing Card Update
-
-In src/components/listings/ListingCard.tsx, verify that the card’s link uses the slug to build the path:
-
-const getListingUrl = (listing: AppListingCard) => {
-  return listing.slug ? `/listings/${listing.slug}` : '#';
-};
-Task Breakdown
-
-Ensure the <Link> component points to this URL so clicking any listing always goes to its detail page.
-
-Cleanup & Navigation
-
-Remove or archive old pages like ListingsPage.tsx and ListingsPageWrapper.tsx which are not part of the new App Router flow.
-
-Ensure navigation flows: Featured cards link to /listings/[slug], city cards link to /city/[slug], and the search page links to detail pages.
-
-Ensure Build & Style Compatibility
-
-Confirm the project runs with npm run dev on the branch, adjusting next.config.js or tailwind.config.js if necessary.
-
-Make sure the layout and sections render correctly in both mobile and desktop views, using Tailwind’s responsive classes.
-
-Types & Imports
-
-Where new components need types like AppListingCard or AppCity, import them from src/types/appView.ts.
-
-Keep all new components typed and use consistent prop naming (e.g., listings, cities).
-
-
+Document saved to `.taskmaster/docs/prd-new.txt`.

@@ -33,8 +33,12 @@ describe('API - Listing Management', () => {
     regularUserCookie = regularLoginRes.headers['set-cookie'];
 
     // Register and login owner user
-    await agent.post('/api/auth/register').send(ownerUser);
-    const ownerLoginRes = await agent.post('/api/auth/login').send({
+// Register and login owner user
+await ownerAgent.post('/api/auth/register').send(ownerUser);
+const ownerLoginRes = await ownerAgent.post('/api/auth/login').send({
+  email: ownerUser.email,
+  password: ownerUser.password,
+});
       email: ownerUser.email,
       password: ownerUser.password,
     });

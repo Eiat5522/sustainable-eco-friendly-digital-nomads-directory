@@ -31,7 +31,8 @@ test.describe('Cross-Browser Compatibility Testing', () => {
 
         await page.fill('input[name="name"]', 'Test User');
         await page.fill('input[name="email"]', 'test@example.com');
-        await page.fill('textarea[name="message"]', 'Test message');
+        await page.fill('input[name="subject"]', 'Interested in sustainable stays');
+        await page.fill('textarea[name="enquiry"]', 'Test message about sustainable travel.');
 
         const responsePromise = page.waitForResponse('/api/contact');
         await page.click('button[type="submit"]');

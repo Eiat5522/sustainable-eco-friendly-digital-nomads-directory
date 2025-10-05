@@ -98,32 +98,55 @@ test.describe('Admin Dashboard Integration', () => {
       await expect(page.getByText('SLA: 8h')).toBeVisible();
     });
 
-    test('handles empty moderation queue', async ({ page }) => {
+    test('shows empty state when moderation queue is empty', async ({ page }) => {
+      // Mock API to return empty queue
+      await page.route('**/api/moderation/queue', route =>
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          json: { items: [] },
+        })
+      );
+
+      await page.reload();
+
       const moderationSection = page.getByTestId('moderation-tools');
+      await expect(moderationSection.getByText('No items pending moderation')).toBeVisible();
+    });
 
-      // If no items in queue, should show empty state
-      const emptyMessage = moderationSection.getByText('No items pending moderation');
-      const hasEmptyMessage = await emptyMessage.isVisible().catch(() => false);
+    test('displays moderation queue items with proper structure', async ({ page }) => {
+      // Mock API to return items
+      const mockItems = [
+        {
+          id: '1',
+          item: 'Test Listing',
+          type: 'Listing',
+          reports: 3,
+          lastActivity: new Date().toISOString(),
+          status: 'Pending',
+        },
+      ];
 
-      if (hasEmptyMessage) {
-        await expect(emptyMessage).toBeVisible();
-      } else {
-        // If there are items, verify they have proper structure
-        const tableRows = moderationSection.locator('tbody tr');
-        const rowCount = await tableRows.count();
+      await page.route('**/api/moderation/queue', route =>
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          json: { items: mockItems },
+        })
+      );
 
-        if (rowCount > 0) {
-          // Verify each row has the expected structure
-          for (let i = 0; i < Math.min(rowCount, 3); i++) {
-            const row = tableRows.nth(i);
-            await expect(row.locator('td')).toHaveCount(6); // 6 columns
+      await page.reload();
 
-            // Check for action buttons
-            const actionButtons = row.getByRole('button');
-            await expect(actionButtons).toHaveCount(3); // Notes, Approve, Restrict
-          }
-        }
-      }
+      const moderationSection = page.getByTestId('moderation-tools');
+      const tableRows = moderationSection.locator('tbody tr');
+      await expect(tableRows).toHaveCount(1);
+
+      const row = tableRows.first();
+      await expect(row.locator('td')).toHaveCount(6);
+
+      await expect(row.getByRole('button', { name: /notes/i })).toBeVisible();
+      await expect(row.getByRole('button', { name: /approve/i })).toBeVisible();
+      await expect(row.getByRole('button', { name: /restrict/i })).toBeVisible();
     });
 
     test('analytics cards show numeric values', async ({ page }) => {
@@ -150,18 +173,28 @@ test.describe('Admin Dashboard Integration', () => {
 
   test.describe('Error Handling', () => {
     test('handles API errors gracefully', async ({ page }) => {
-      // This test would require mocking API failures
-      // For now, we'll test that the page doesn't crash
       await loginAs(
         page,
         process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com',
         process.env.E2E_ADMIN_PASSWORD ?? 'password123'
       );
 
+      // Mock API endpoints to return errors
+      await page.route('**/api/analytics', route =>
+        route.fulfill({ status: 500, body: 'Internal Server Error' })
+      );
+      await page.route('**/api/moderation/queue', route =>
+        route.fulfill({ status: 500, body: 'Internal Server Error' })
+      );
+
       await page.goto(`${BASE_URL}/admin/dashboard`);
 
-      // Page should still load even if API fails
+      // Verify page still loads with error state
       await expect(page.getByTestId('admin-dashboard')).toBeVisible({ timeout: 15000 });
+
+      // Verify error messages are displayed
+      await expect(page.getByText(/failed to load analytics/i)).toBeVisible();
+      await expect(page.getByText(/failed to load moderation queue/i)).toBeVisible();
     });
   });
 });

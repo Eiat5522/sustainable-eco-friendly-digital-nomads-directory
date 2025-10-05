@@ -193,3 +193,9 @@ app-next-directory/.vscode/settings.backup.20250929012207.json
 .turbo/**
 app-next-directory/.turbo
 app-next-directory/src/utils/db-helpers.ts
+
+.vscode
+
+# Task files
+# tasks.json
+# tasks/ 

@@ -40,7 +40,7 @@ import {
   __getLastRateLimiterConfigForTests,
 } from '@/lib/auth/rateLimit';
 
-const mockDbConnect = dbConnect as jest.Mock;
+const mockDbConnect = dbConnect as jest.MockedFunction<typeof dbConnect>;
 const mockMongoose = mongoose as jest.Mocked<typeof mongoose>;
 
 // Cast getRedisClient to proper mock type with additional test helpers

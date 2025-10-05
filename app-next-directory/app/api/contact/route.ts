@@ -5,7 +5,27 @@ import nodemailer from 'nodemailer';
 import { z } from 'zod';
 import { sendMail } from '@/lib/email';
 import ContactSubmission from '@/models/ContactSubmission';
-import dbConnect from '@/lib/mongodb';
+import dbConnect from '@/lib/dbConnect';
+
+const CONTACT_RECIPIENT = String(
+  process.env.CONTACT_EMAIL ??
+  process.env.contactEmail ??
+  process.env.SMTP_USER ??
+  process.env.smtpUser ??
+  process.env.gmailUser ??
+  ''
+);
+
+const MAIL_FROM =
+  process.env.SMTP_FROM ??
+  process.env.smtpFrom ??
+  process.env.SMTP_USER ??
+  process.env.smtpUser ??
+  process.env.gmailUser ??
+  undefined;
+
+const GMAIL_USER = process.env.GMAIL_USER ?? process.env.gmailUser;
+const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD ?? process.env.gmailAppPassword;
 
 // Validation schema for contact form
 const contactFormSchema = z.object({
@@ -40,8 +60,8 @@ const createTransporter = () => {
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.gmailUser,
-      pass: process.env.gmailAppPassword, // Use app password for Gmail
+      user: GMAIL_USER ?? '',
+      pass: GMAIL_APP_PASSWORD ?? '', // Use app password for Gmail
     },
   });
 };
@@ -81,6 +101,7 @@ export async function POST(request: NextRequest) {
       subject,
       message,
       type,
+      listingSlug,
       ipAddress: ip,
       status: hasSpam ? 'spam' : 'unread',
     });
@@ -147,37 +168,45 @@ export async function POST(request: NextRequest) {
     let messageInfo: { adminId?: string; autoReplyId?: string } = {};
     if (process.env.RESEND_API_KEY) {
       // Prefer Resend when configured
-      await Promise.all([
-        sendMail({
-          to: String(process.env.contactEmail || process.env.SMTP_USER || process.env.gmailUser || ''),
+      const adminRecipient = CONTACT_RECIPIENT;
+      const resendJobs = [];
+      if (adminRecipient) {
+        resendJobs.push(sendMail({
+          to: adminRecipient,
           subject: emailSubject,
           html: emailBody,
-        }),
-        sendMail({
-          to: email,
-          subject: autoReplySubject,
-          html: autoReplyBody,
-        }),
-      ]);
-      messageInfo = { adminId: 'resend', autoReplyId: 'resend' };
+        }));
+      } else {
+        console.warn('No CONTACT_EMAIL configured; skipping admin notification email');
+      }
+      resendJobs.push(sendMail({
+        to: email,
+        subject: autoReplySubject,
+        html: autoReplyBody,
+      }));
+      await Promise.all(resendJobs);
+      messageInfo = { adminId: adminRecipient ? 'resend' : undefined, autoReplyId: 'resend' };
     } else {
       // Fallback to nodemailer
       const transporter = createTransporter();
-      const [adminResult, autoReplyResult] = await Promise.all([
-        transporter.sendMail({
-          from: process.env.smtpFrom || process.env.gmailUser,
-          to: process.env.contactEmail || process.env.smtpUser || process.env.gmailUser,
-          subject: emailSubject,
-          html: emailBody,
-          replyTo: email,
-        }),
-        transporter.sendMail({
-          from: process.env.smtpFrom || process.env.gmailUser,
-          to: email,
-          subject: autoReplySubject,
-          html: autoReplyBody,
-        }),
-      ]);
+      const adminRecipient = CONTACT_RECIPIENT;
+      const fromAddress = MAIL_FROM ?? GMAIL_USER ?? undefined;
+      const adminPromise = adminRecipient
+        ? transporter.sendMail({
+            from: fromAddress,
+            to: adminRecipient,
+            subject: emailSubject,
+            html: emailBody,
+            replyTo: email,
+          })
+        : Promise.resolve({ messageId: undefined } as any);
+      const autoReplyPromise = transporter.sendMail({
+        from: fromAddress,
+        to: email,
+        subject: autoReplySubject,
+        html: autoReplyBody,
+      });
+      const [adminResult, autoReplyResult] = await Promise.all([adminPromise, autoReplyPromise]);
       messageInfo = {
         adminId: typeof adminResult?.messageId === 'string' ? adminResult.messageId : undefined,
         autoReplyId: typeof autoReplyResult?.messageId === 'string' ? autoReplyResult.messageId : undefined,

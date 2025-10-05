@@ -42,7 +42,6 @@ const mockSendMail = emailModule.sendMail as jest.MockedFunction<typeof emailMod
 const mockGetClientIp = rateLimitModule.getClientIp as jest.MockedFunction<typeof rateLimitModule.getClientIp>;
 const mockIsEmailVerificationRequired = authConfigModule.isEmailVerificationRequired as jest.MockedFunction<typeof authConfigModule.isEmailVerificationRequired>;
 
-let registerPost: typeof import('@/app/api/auth/register/route').POST;
 const mockIsRateLimited = rateLimitModule.isRateLimited as jest.MockedFunction<typeof rateLimitModule.isRateLimited>;
 const mockGetRetryAfterMs = rateLimitModule.getRetryAfterMs as jest.MockedFunction<typeof rateLimitModule.getRetryAfterMs>;
 

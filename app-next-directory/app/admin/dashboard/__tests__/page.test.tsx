@@ -1,5 +1,6 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, act } from '@testing-library/react';
 import AdminDashboardPage, { dynamic, metadata } from '../page';
+import { Suspense } from 'react';
 
 describe('Admin dashboard metadata', () => {
   it('exports static generation flags for the route', () => {
@@ -15,11 +16,15 @@ describe('Admin dashboard metadata', () => {
 });
 
 describe('AdminDashboardPage', () => {
-  beforeEach(() => {
-    render(<AdminDashboardPage />);
-  });
+  it('renders the main shell and header information', async () => {
+    await act(async () => {
+      render(
+        <Suspense fallback={<div>Loading...</div>}>
+          <AdminDashboardPage />
+        </Suspense>
+      );
+    });
 
-  it('renders the main shell and header information', () => {
     const dashboard = screen.getByTestId('admin-dashboard');
     expect(dashboard).toBeInTheDocument();
 
@@ -32,7 +37,14 @@ describe('AdminDashboardPage', () => {
     expect(screen.getByText('SLA: 8h')).toBeInTheDocument();
   });
 
-  it('lists analytics highlight cards with their metrics', () => {
+  it('lists analytics highlight cards with their metrics', async () => {
+    await act(async () => {
+      render(
+        <Suspense fallback={<div>Loading...</div>}>
+          <AdminDashboardPage />
+        </Suspense>
+      );
+    });
     const analyticsSection = screen.getByTestId('analytics-overview');
     const highlightCards = within(analyticsSection).getAllByRole('article');
     expect(highlightCards.length).toBeGreaterThanOrEqual(4);
@@ -44,7 +56,14 @@ describe('AdminDashboardPage', () => {
     });
   });
 
-  it('renders the moderation queue table with proper structure', () => {
+  it('renders the moderation queue table with proper structure', async () => {
+    await act(async () => {
+      render(
+        <Suspense fallback={<div>Loading...</div>}>
+          <AdminDashboardPage />
+        </Suspense>
+      );
+    });
     const moderationSection = screen.getByTestId('moderation-tools');
     const table = within(moderationSection).getByRole('table');
 
@@ -59,7 +78,14 @@ describe('AdminDashboardPage', () => {
     ]);
   });
 
-  it('shows moderation queue actions', () => {
+  it('shows moderation queue actions', async () => {
+    await act(async () => {
+      render(
+        <Suspense fallback={<div>Loading...</div>}>
+          <AdminDashboardPage />
+        </Suspense>
+      );
+    });
     const moderationSection = screen.getByTestId('moderation-tools');
 
     // Check for action buttons (may not be present if no items in queue)

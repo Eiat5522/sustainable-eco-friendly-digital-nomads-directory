@@ -26,7 +26,7 @@ import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import { auth } from '@/lib/auth';
 
-const mockConnect = connect as jest.Mock<Promise<void>>;
+const mockConnect = connect as jest.MockedFunction<typeof connect>;
 const mockUserFindOne = User.findOne as jest.MockedFunction<typeof User.findOne>;
 const mockUserCreate = User.create as jest.MockedFunction<typeof User.create>;
 const mockBcryptHash = bcrypt.hash as jest.MockedFunction<(data: string | Buffer, saltOrRounds: string | number) => Promise<string>>;

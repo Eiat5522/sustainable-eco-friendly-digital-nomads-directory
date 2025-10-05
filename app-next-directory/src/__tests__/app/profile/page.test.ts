@@ -1,4 +1,6 @@
-import { normaliseFavorite, normaliseOwnerReviews } from '../../../../app/profile/page';
+
+
+import { normaliseFavorite, normaliseOwnerReviews } from '../../../app/profile/utils';
 
 describe('normaliseFavorite', () => {
   it('normalises a valid favorite entry', () => {

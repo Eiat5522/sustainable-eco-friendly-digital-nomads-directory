@@ -5,6 +5,31 @@ import type { UserRole } from '@/types/auth';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
+/**
+ * Efficiently get user role counts using separate queries instead of client-side aggregation.
+ * This approach is much more scalable for large user bases.
+ */
+async function getUserRoleCounts() {
+  // All possible roles from the UserRole type
+  const roleQueries = [
+    { role: 'admin', query: `count(*[_type == "user" && role == "admin"])` },
+    { role: 'user', query: `count(*[_type == "user" && (role == "user" || !defined(role))])` }, // Include default users
+    { role: 'moderator', query: `count(*[_type == "user" && role == "moderator"])` },
+    { role: 'editor', query: `count(*[_type == "user" && role == "editor"])` },
+    { role: 'venueOwner', query: `count(*[_type == "user" && role == "venueOwner"])` },
+    { role: 'superAdmin', query: `count(*[_type == "user" && role == "superAdmin"])` },
+    { role: 'contentEditor', query: `count(*[_type == "user" && role == "contentEditor"])` },
+    { role: 'unidentifiedUser', query: `count(*[_type == "user" && role == "unidentifiedUser"])` },
+  ];
+
+  const counts = await Promise.all(roleQueries.map(({ query }) => client.fetch(query)));
+  
+  return roleQueries.reduce((acc, { role }, index) => {
+    acc[role] = counts[index];
+    return acc;
+  }, {} as Record<string, number>);
+}
+
 async function getAdminAnalytics() {
   // Get basic counts
   const [userCount, listingCount, reviewCount, pendingModerationCount] = await Promise.all([
@@ -48,18 +73,8 @@ async function getAdminAnalytics() {
     }
   `);
 
-  // Get user role distribution
-  const userRoles = await client.fetch(`
-    *[_type == "user"] {
-      role
-    }
-  `);
-
-  const roleCounts = userRoles.reduce((acc: Record<string, number>, user: { role?: string }) => {
-    const role = user.role || 'user';
-    acc[role] = (acc[role] || 0) + 1;
-    return acc;
-  }, {});
+  // Get user role distribution efficiently
+  const roleCounts = await getUserRoleCounts();
 
   return {
     overview: {
@@ -70,7 +85,7 @@ async function getAdminAnalytics() {
       pendingModeration: pendingModerationCount,
     },
     userRoles: roleCounts,
-    moderationQueue: moderationQueue.map((item: any) => ({
+    moderationQueue: moderationQueue.map((item: ModerationQueueItem) => ({
       id: item._id,
       itemType: item.itemType,
       itemName: item.itemName || 'Unnamed Item',
@@ -81,6 +96,20 @@ async function getAdminAnalytics() {
     })),
     generatedAt: new Date().toISOString(),
   };
+}
+
+interface ModerationQueueItem {
+  _id: string;
+  _createdAt: string;
+  status: string;
+  itemType?: string;
+  itemName?: string;
+  itemId?: string;
+  userReports?: Array<{
+    reportedBy?: { name?: string };
+    reason?: string;
+    reportedAt?: string;
+  }>;
 }
 
 export async function GET(_request: NextRequest, _context: RouteContext) {

@@ -31,7 +31,7 @@ const newsletterSchema = z.object({
 function ContactForm() {
   const searchParams = useSearchParams()
   const initialType = searchParams.get('type') === 'newsletter' ? 'newsletter' : 'general'
-  const initialEmail = searchParams.get('email') || (typeof window !== 'undefined' && sessionStorage.getItem('newsletterEmail')) || ''
+  const initialEmail = searchParams.get('email') || ''
 
   const [enquiryType, setEnquiryType] = useState<EnquiryType>(initialType)
   const [name, setName] = useState('')
@@ -45,7 +45,8 @@ function ContactForm() {
 
   useEffect(() => {
     setEnquiryType(initialType)
-    setEmail(initialEmail)
+    const emailFromSession = sessionStorage.getItem('newsletterEmail')
+    setEmail(initialEmail || emailFromSession || '')
   }, [initialType, initialEmail])
 
   const validate = () => {

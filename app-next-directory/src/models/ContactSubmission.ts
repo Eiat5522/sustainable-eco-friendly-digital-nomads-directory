@@ -7,6 +7,7 @@ export interface IContactSubmission extends Document {
   subject: string;
   message: string;
   type: 'general' | 'listing' | 'partnership' | 'support' | 'feedback';
+  listingSlug?: string;
   createdAt: Date;
   ipAddress?: string;
   status: 'unread' | 'read' | 'archived' | 'spam';
@@ -30,6 +31,7 @@ const ContactSubmissionSchema = new Schema<IContactSubmission>({
     enum: ['general', 'listing', 'partnership', 'support', 'feedback'],
     default: 'general',
   },
+  listingSlug: { type: String, trim: true, maxlength: 200 },
   createdAt: { type: Date, default: Date.now },
   ipAddress: { type: String, maxlength: 45 },
   status: {

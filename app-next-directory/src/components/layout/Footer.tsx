@@ -65,7 +65,7 @@ export function Footer() {
                 className="flex-1 bg-white text-neo-text-primary"
              />
               {errors.email && (
-                <p id="newsletter-error" className="sr-only" role="alert">
+                <p id="newsletter-error" className="text-red-500 text-sm mt-1" role="alert">
                   {errors.email}
                 </p>
               )}
@@ -81,11 +81,6 @@ export function Footer() {
                       return
                     }
                     setErrors({ email: '' })
-                    try {
-                      sessionStorage.setItem('newsletterEmail', trimmed)
-                    } catch {
-                      /* no-op: storage may be unavailable */
-                    }
                     // Prevent default Link navigation and push with email query param so the contact page
                     // can prepopulate the email field from the URL.
                     e.preventDefault()

@@ -44,7 +44,7 @@ async function getAdminAnalytics(): Promise<AdminAnalytics | null> {
     }
 
     const data = await response.json();
-    return data.analytics;
+    return data?.analytics ?? null;
   } catch (error) {
     console.error('Failed to fetch admin analytics:', error);
     return null;
@@ -57,10 +57,14 @@ function formatNumber(num: number): string {
 
 function formatTimeAgo(dateString: string): string {
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) {
+    return 'Unknown';
+  }
+  
   const now = new Date();
   const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
 
-  if (diffInHours < 1) return 'Just now';
+  if (diffInHours <= 0) return 'Just now';
   if (diffInHours < 24) return `${diffInHours}h ago`;
   const diffInDays = Math.floor(diffInHours / 24);
   return `${diffInDays}d ago`;
@@ -141,22 +145,18 @@ export default async function AdminDashboardPage() {
             <AnalyticsCard
               title="Active members"
               value={formatNumber(analytics.overview.totalUsers)}
-              change="+5.2%"
             />
             <AnalyticsCard
               title="Total listings"
               value={formatNumber(analytics.overview.totalListings)}
-              change="+2.1%"
             />
             <AnalyticsCard
               title="Weekly signups"
               value={formatNumber(analytics.overview.weeklySignups)}
-              change="+8.4%"
             />
             <AnalyticsCard
               title="Items pending review"
               value={formatNumber(analytics.overview.pendingModeration)}
-              change={analytics.overview.pendingModeration > 0 ? `-${Math.min(analytics.overview.pendingModeration, 5)}` : "0"}
             />
           </div>
         </section>
