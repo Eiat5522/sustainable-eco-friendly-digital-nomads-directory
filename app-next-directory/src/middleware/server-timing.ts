@@ -17,7 +17,7 @@ export interface TimingMetric {
   description?: string
 }
 
-class ServerTiming {
+export class ServerTiming {
   private metrics: TimingMetric[] = []
   private startTimes: Map<string, number> = new Map()
 
