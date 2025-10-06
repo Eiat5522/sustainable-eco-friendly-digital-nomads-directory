@@ -162,33 +162,39 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
     id: string; name: string; slug: string; imageUrl: string; city: string | CityDTO | null; priceRange: 'budget'|'moderate'|'premium'; ecoFocusTags: string[];
   }>;
   try {
-    const raw = await client.fetch<RelatedListingRecord[]>(RELATED_QUERY, { cityId, excludeId });
-    return (raw ?? []).map((record, index) => {
-      const slug = typeof record.slug === 'string' && record.slug.length > 0 ? record.slug : '';
-      const fallbackId = slug || `related-${index}`;
-      const id = typeof record._id === 'string' && record._id.trim().length > 0 ? record._id : fallbackId;
-      const imageUrl = typeof record.imageUrl === 'string' && record.imageUrl.length > 0 ? record.imageUrl : '/placeholder_image.png';
-      const city = record.city && typeof record.city === 'object'
-        ? {
-            id: typeof record.city._id === 'string' ? record.city._id : '',
-            name: typeof record.city.name === 'string' ? record.city.name : '',
-            slug: typeof record.city.slug === 'string' ? record.city.slug : '',
-            country: typeof record.city.country === 'string' ? record.city.country : '',
-          }
-        : null;
-      const rawPriceRange = typeof record.priceRange === 'string' ? record.priceRange : null;
-      const priceRange = isPriceRange(rawPriceRange) ? rawPriceRange : 'moderate';
+async function fetchRelatedListings(cityId?: string, excludeId?: string) {
+  if (!cityId) return [] as Array<{
+    id: string
+    name: string
+    slug: string
+    imageUrl: string
+    city: string | CityDTO | null
+    priceRange: 'budget' | 'moderate' | 'premium'
+    ecoFocusTags: string[]
+  }>;
+
+  try {
+    const records = await client.fetch<RelatedListingRecord[]>(RELATED_QUERY, { cityId, excludeId });
+    return records.map((record) => {
+      const priceRange = isPriceRange(record.priceRange)
+        ? record.priceRange
+        : 'moderate';
 
       return {
-        id,
-        name: typeof record.name === 'string' ? record.name : '',
-        slug,
-        imageUrl,
-        city: city && (city.id || city.name || city.slug) ? (city as CityDTO) : null,
+        id: record._id ?? '',
+        name: record.name ?? '',
+        slug: record.slug ?? '',
+        imageUrl: record.imageUrl ?? '',
+        city: record.city ?? null,
         priceRange,
         ecoFocusTags: extractTagNames(record.ecoFocusTags),
       };
     });
+  } catch (error) {
+    console.error('[listings/[slug]] failed to fetch related listings', error);
+    return [];
+  }
+}
   } catch (error) {
     console.error('[listings/[slug]] failed to fetch related listings', error);
     return [];

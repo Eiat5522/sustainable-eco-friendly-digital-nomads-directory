@@ -31,8 +31,6 @@ const eslintConfig = [
       "**/.vercel/**",
       "**/__generated__/**",
       "tsconfig.test.json",
-      "src/types/**",
-      "src/utils/**",
     ],
   },
     {

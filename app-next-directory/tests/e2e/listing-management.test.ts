@@ -126,7 +126,7 @@ test.describe('Listing Management E2E', () => {
       // Attempt to delete
       const deleteResponse = await TestHelpers.makeAuthenticatedRequest(
         page,
-        `/api/listings/${listing.id}`,
+        `/api/listings/manage/${listing.id}`,
         {
           method: 'DELETE',
         }

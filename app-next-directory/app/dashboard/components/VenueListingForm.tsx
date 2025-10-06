@@ -87,7 +87,7 @@ const listingFormSchema = z.object({
   }).optional(),
 });
 
-export function VenueListingForm({ listing, onSave }) {
+export function VenueListingForm({ listing, onSave, saving = false }) {
   const [cities, setCities] = useState([]);
   const [ecoTags, setEcoTags] = useState([]);
   const [digitalNomadFeatures, setDigitalNomadFeatures] = useState([]);
@@ -1322,7 +1322,9 @@ export function VenueListingForm({ listing, onSave }) {
           )}
         />
 
-        <NeoButton type="submit">Save Listing</NeoButton>
+        <NeoButton type="submit" disabled={saving}>
+          {saving ? 'Saving...' : 'Save Listing'}
+        </NeoButton>
       </form>
     </Form>
   );

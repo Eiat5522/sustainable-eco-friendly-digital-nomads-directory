@@ -194,7 +194,22 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const rawResults = parsedResponse.success && Array.isArray(parsedResponse.data.data?.results)
     ? parsedResponse.data.data?.results ?? []
     : []
-  const mapped: ListingSummaryDTO[] = rawResults.map(mapResultToDTO)
+  let skippedCount = 0
+  const mapped: ListingSummaryDTO[] = rawResults.reduce<ListingSummaryDTO[]>((acc, item) => {
+    try {
+      acc.push(mapResultToDTO(item))
+    } catch (error) {
+      skippedCount++
+    console.error('Failed to map search result item:', {
+      error,
+      itemId: typeof item === 'object' && item && '_id' in item ? item._id : undefined,
+      itemSlug: typeof item === 'object' && item && 'slug' in item ? item.slug : undefined
+
+    })
+      // Skip invalid items instead of crashing the page
+    }
+    return acc
+  }, [])
   const paginationData = parsedResponse.success ? parsedResponse.data.data?.pagination ?? {} : {}
   const pagination = {
     page: paginationData?.page ?? 1,

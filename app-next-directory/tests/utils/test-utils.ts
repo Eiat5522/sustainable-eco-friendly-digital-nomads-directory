@@ -164,8 +164,16 @@ export const TestHelpers = {
     await TestHelpers.fillListingForm(page, data)
     await page.click('button[type="submit"]')
     await TestHelpers.checkToast(page, 'Listing created successfully')
-    const listingId = page.url().split('/').pop()
-    const response = await TestHelpers.makeAuthenticatedRequest(page, `/api/listings/${listingId}`)
+    const urlPath = new URL(page.url()).pathname
+    const listingId = urlPath.split('/').filter(segment => segment.length > 0).pop()
+    if (!listingId) {
+      throw new Error(`Failed to extract listing ID from URL: ${page.url()}`)
+    }
+    const response = await TestHelpers.makeAuthenticatedRequest(page, `/api/listings/manage/${listingId}`)
+    const response = await TestHelpers.makeAuthenticatedRequest(page, `/api/listings/manage/${listingId}`)
+    if (!response.ok()) {
+      throw new Error(`Failed to fetch listing: ${response.status()} ${response.statusText()}`)
+    }
     const listing = await response.json()
     return listing
   },

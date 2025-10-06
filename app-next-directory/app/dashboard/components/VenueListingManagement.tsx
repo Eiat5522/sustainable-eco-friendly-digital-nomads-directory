@@ -39,7 +39,7 @@ export function VenueListingManagement() {
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this listing?')) {
       try {
-        const response = await fetch(`/api/listings/${id}`, {
+        const response = await fetch(`/api/listings/manage/${id}`, {
           method: 'DELETE',
         });
 

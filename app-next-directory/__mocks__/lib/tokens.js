@@ -1,26 +1,13 @@
-import { jest } from '@jest/globals';
+import { fn } from 'jest-mock';
 
-export const generateToken = jest.fn();
-export const hashToken = jest.fn();
-export const minutesFromNow = jest.fn();
+export const generateToken = fn(() => ({ raw: 'test-token-raw', hash: 'test-token-hash' }));
+export const hashToken = fn(() => 'test-hash');
+export const minutesFromNow = fn(() => new Date(Date.now() + 60 * 60 * 1000));
 
-generateToken.mockReturnValue({ raw: 'test-token-raw', hash: 'test-token-hash' });
-hashToken.mockReturnValue('test-hash');
-minutesFromNow.mockImplementation(() => new Date(Date.now() + 60 * 60 * 1000));
-
-const defaultExport = {
+const tokensMock = {
   generateToken,
   hashToken,
   minutesFromNow,
 };
 
-export default defaultExport;
-
-// CommonJS compatibility
-module.exports = {
-  __esModule: true,
-  default: defaultExport,
-  generateToken,
-  hashToken,
-  minutesFromNow,
-};
+export default tokensMock;

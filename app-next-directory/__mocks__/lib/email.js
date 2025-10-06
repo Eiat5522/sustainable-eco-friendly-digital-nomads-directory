@@ -1,19 +1,15 @@
-import { jest } from '@jest/globals';
+import { fn } from 'jest-mock';
 
-export const buildVerifyEmail = jest.fn();
-export const sendMail = jest.fn();
-
-buildVerifyEmail.mockImplementation(() =>
+export const buildVerifyEmail = fn(() =>
   Promise.resolve({
     to: 'test@example.com',
     subject: 'Verify your email',
     html: '<p>Test email</p>',
     text: 'Test email',
-  }),
+  })
 );
-sendMail.mockImplementation(() =>
-  Promise.resolve({ messageId: 'test-message-id' }),
-);
+
+export const sendMail = fn(() => Promise.resolve({ messageId: 'test-message-id' }));
 
 const emailMock = {
   buildVerifyEmail,
@@ -21,11 +17,3 @@ const emailMock = {
 };
 
 export default emailMock;
-
-// CommonJS compatibility
-module.exports = {
-  __esModule: true,
-  default: emailMock,
-  buildVerifyEmail,
-  sendMail,
-};

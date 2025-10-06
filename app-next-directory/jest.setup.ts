@@ -374,10 +374,20 @@ try {
   const tk = require('@/lib/tokens');
   if (tk) {
     const { jest } = require('@jest/globals');
-    if (typeof tk.generateToken !== 'function') tk.generateToken = jest.fn(() => ({ raw: 'test-token-raw', hash: 'test-token-hash' }));
-    if (typeof tk.hashToken !== 'function') tk.hashToken = jest.fn(() => 'test-hash');
-    if (typeof tk.minutesFromNow !== 'function') tk.minutesFromNow = jest.fn(() => new Date(Date.now() + 60 * 60 * 1000));
-    try { (global as any).__TOKENS_generateToken = tk.generateToken; (global as any).__TOKENS_hashToken = tk.hashToken; (global as any).__TOKENS_minutesFromNow = tk.minutesFromNow; } catch (e) {}
+    const ensureJestFn = (key: string, impl: () => any) => {
+      const current = tk[key];
+      if (typeof current !== 'function' || typeof current?.mock === 'undefined') {
+        tk[key] = jest.fn(impl);
+      }
+    };
+    ensureJestFn('generateToken', () => ({ raw: 'test-token-raw', hash: 'test-token-hash' }));
+    ensureJestFn('hashToken', () => 'test-hash');
+    ensureJestFn('minutesFromNow', () => new Date(Date.now() + 60 * 60 * 1000));
+    try {
+      (global as any).__TOKENS_generateToken = tk.generateToken;
+      (global as any).__TOKENS_hashToken = tk.hashToken;
+      (global as any).__TOKENS_minutesFromNow = tk.minutesFromNow;
+    } catch (e) {}
   }
 } catch (e) {
   // ignore
@@ -387,9 +397,18 @@ try {
   const em = require('@/lib/email');
   if (em) {
     const { jest } = require('@jest/globals');
-    if (typeof em.buildVerifyEmail !== 'function') em.buildVerifyEmail = jest.fn(() => Promise.resolve({ to: 'test@example.com' }));
-    if (typeof em.sendMail !== 'function') em.sendMail = jest.fn(() => Promise.resolve({ messageId: 'test-message-id' }));
-    try { (global as any).__EMAIL_buildVerifyEmail = em.buildVerifyEmail; (global as any).__EMAIL_sendMail = em.sendMail; } catch (e) {}
+    const ensureJestFn = (key: string, impl: () => any) => {
+      const current = em[key];
+      if (typeof current !== 'function' || typeof current?.mock === 'undefined') {
+        em[key] = jest.fn(impl);
+      }
+    };
+    ensureJestFn('buildVerifyEmail', () => Promise.resolve({ to: 'test@example.com' }));
+    ensureJestFn('sendMail', () => Promise.resolve({ messageId: 'test-message-id' }));
+    try {
+      (global as any).__EMAIL_buildVerifyEmail = em.buildVerifyEmail;
+      (global as any).__EMAIL_sendMail = em.sendMail;
+    } catch (e) {}
   }
 } catch (e) {
   // ignore
