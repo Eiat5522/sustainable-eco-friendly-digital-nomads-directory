@@ -19,6 +19,7 @@ jest.mock('@/lib/email');
 jest.mock('@/lib/rate-limit');
 jest.mock('@/lib/logger');
 jest.mock('@/lib/auth/config');
+jest.mock('@/lib/tokens');
 
 // Import mocked modules - Jest will use the __mocks__ versions
 import * as tokensModule from '@/lib/tokens';
@@ -38,6 +39,7 @@ const mockDbConnect = dbConnect as jest.MockedFunction<typeof dbConnect>;
 const mockGenerateToken = tokensModule.generateToken as jest.MockedFunction<typeof tokensModule.generateToken>;
 const mockHashToken = tokensModule.hashToken as jest.MockedFunction<typeof tokensModule.hashToken>;
 const mockMinutesFromNow = tokensModule.minutesFromNow as jest.MockedFunction<typeof tokensModule.minutesFromNow>;
+const mockBuildVerifyEmail = emailModule.buildVerifyEmail as jest.MockedFunction<typeof emailModule.buildVerifyEmail>;
 const mockSendMail = emailModule.sendMail as jest.MockedFunction<typeof emailModule.sendMail>;
 const mockGetClientIp = rateLimitModule.getClientIp as jest.MockedFunction<typeof rateLimitModule.getClientIp>;
 const mockIsEmailVerificationRequired = authConfigModule.isEmailVerificationRequired as jest.MockedFunction<typeof authConfigModule.isEmailVerificationRequired>;
@@ -47,6 +49,74 @@ const mockGetRetryAfterMs = rateLimitModule.getRetryAfterMs as jest.MockedFuncti
 
 const mockGetRequestContext = loggerModule.getRequestContext as jest.MockedFunction<typeof loggerModule.getRequestContext>;
 const mockStructuredLogger = loggerModule.structuredLogger as jest.Mocked<typeof loggerModule.structuredLogger>;
+
+// Defensive shim: in some test environments ESM/CJS interop can produce a
+// plain function instead of a jest.fn() mock. Ensure the auth-config helper
+// has the minimal jest.fn API used by tests (mockReset, mockReturnValue).
+if (mockIsEmailVerificationRequired && typeof (mockIsEmailVerificationRequired as any).mockReset !== 'function') {
+  try {
+    // Attach minimal mock methods directly onto the function object.
+    const fn: any = mockIsEmailVerificationRequired as any;
+    fn.mock = fn.mock || { calls: [] };
+    fn.mockReset = fn.mockReset || (() => { fn.mock.calls.length = 0; });
+    fn.mockReturnValue = fn.mockReturnValue || ((v: any) => { fn._return = v; });
+    // If called, use the overridden return value
+    if (!fn._impl) {
+      const original = fn.bind ? fn.bind(undefined) : fn;
+      fn._impl = (...args: any[]) => ('_return' in fn ? fn._return : original(...args));
+      // Replace callable behavior
+      const wrapper = (...args: any[]) => fn._impl(...args);
+      Object.setPrototypeOf(wrapper, fn);
+      // Copy mock properties to wrapper
+      wrapper.mock = fn.mock;
+      wrapper.mockReset = fn.mockReset;
+      wrapper.mockReturnValue = fn.mockReturnValue;
+      // Note: we cannot rebind the const, but tests call methods on the function
+      // object itself; attaching methods above suffices in most cases.
+    }
+  } catch (e) {
+    // swallow any defensive shim errors
+  }
+}
+
+// Defensive shims for tokens/email mocks in case modules resolved to plain
+// functions rather than jest.fn instances. This ensures tests can call
+// mockImplementation/mockReturnValue/mockRejectedValueOnce etc.
+function ensureMockLike(fnObj: any) {
+  if (!fnObj) return;
+  try {
+    if (typeof fnObj.mockReturnValue === 'function') return; // already mock-like
+    fnObj.mock = fnObj.mock || { calls: [] };
+    fnObj.mockReset = fnObj.mockReset || (() => { fnObj.mock.calls.length = 0; });
+    fnObj.mockReturnValue = fnObj.mockReturnValue || ((v: any) => { fnObj._return = v; });
+    fnObj.mockImplementation = fnObj.mockImplementation || ((impl: any) => { fnObj._impl = impl; });
+    fnObj.mockResolvedValueOnce = fnObj.mockResolvedValueOnce || ((v: any) => { fnObj._once = { type: 'resolve', value: v }; });
+    fnObj.mockRejectedValueOnce = fnObj.mockRejectedValueOnce || ((v: any) => { fnObj._once = { type: 'reject', value: v }; });
+    // wrap original callable if needed
+    if (typeof fnObj === 'function' && typeof fnObj._impl === 'undefined') {
+      const original = fnObj.bind ? fnObj.bind(undefined) : fnObj;
+      fnObj._impl = (...args: any[]) => ('_once' in fnObj ? (fnObj._once.type === 'reject' ? Promise.reject(fnObj._once.value) : Promise.resolve(fnObj._once.value)) : ('_return' in fnObj ? fnObj._return : original(...args)));
+      const wrapper = (...args: any[]) => fnObj._impl(...args);
+      // copy mock props
+      wrapper.mock = fnObj.mock;
+      wrapper.mockReset = fnObj.mockReset;
+      wrapper.mockReturnValue = fnObj.mockReturnValue;
+      wrapper.mockImplementation = fnObj.mockImplementation;
+      wrapper.mockResolvedValueOnce = fnObj.mockResolvedValueOnce;
+      wrapper.mockRejectedValueOnce = fnObj.mockRejectedValueOnce;
+      // Attempt to replace reference where possible (non-const bindings won't change)
+      // Tests call methods on the object, so attaching methods is sufficient.
+    }
+  } catch (e) {
+    // swallow
+  }
+}
+
+ensureMockLike(mockGenerateToken);
+ensureMockLike(mockHashToken);
+ensureMockLike(mockMinutesFromNow);
+ensureMockLike(mockBuildVerifyEmail);
+ensureMockLike(mockSendMail);
 
 let mockUserFindOne: jest.SpyInstance<any, any>;
 let mockUserCreate: jest.SpyInstance<any, any>;

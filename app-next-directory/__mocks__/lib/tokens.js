@@ -8,7 +8,18 @@ generateToken.mockReturnValue({ raw: 'test-token-raw', hash: 'test-token-hash' }
 hashToken.mockReturnValue('test-hash');
 minutesFromNow.mockImplementation(() => new Date(Date.now() + 60 * 60 * 1000));
 
-export default {
+const defaultExport = {
+  generateToken,
+  hashToken,
+  minutesFromNow,
+};
+
+export default defaultExport;
+
+// CommonJS compatibility
+module.exports = {
+  __esModule: true,
+  default: defaultExport,
   generateToken,
   hashToken,
   minutesFromNow,

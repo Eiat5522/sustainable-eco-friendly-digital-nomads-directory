@@ -3,10 +3,10 @@ import { z } from 'zod';
 import dbConnect from '@/lib/dbConnect';
 import User from '@/models/User';
 import EmailVerificationToken from '@/models/EmailVerificationToken';
-import { generateToken, minutesFromNow } from '@/lib/tokens';
-import { buildVerifyEmail, sendMail } from '@/lib/email';
 import { getClientIp, isRateLimited, getRetryAfterMs } from '@/lib/rate-limit';
 import { structuredLogger, getRequestContext } from '@/lib/logger';
+import { generateToken, minutesFromNow } from '@/lib/tokens';
+import { buildVerifyEmail, sendMail } from '@/lib/email';
 import { isEmailVerificationRequired } from '@/lib/auth/config';
 
 const RegisterSchema = z.object({
@@ -54,9 +54,9 @@ export async function POST(req: Request) {
     }
 
     if (requiresVerification) {
-      // Issue verification token
-      const { raw, hash } = generateToken();
-      await EmailVerificationToken.create({ userId: user._id, tokenHash: hash, expiresAt: minutesFromNow(60 * 24) });
+    // Issue verification token
+    const { raw, hash } = generateToken();
+    await EmailVerificationToken.create({ userId: user._id, tokenHash: hash, expiresAt: minutesFromNow(60 * 24) });
 
       // Send verification email (best-effort)
       const emailPayload = await buildVerifyEmail(user.email, raw);

@@ -73,29 +73,18 @@ export async function POST(request: NextRequest, _context: RouteContext) {
       const text = typeof sample.text === 'string' ? sample.text.toLowerCase() : '';
       const wordBoundaryRegex = new RegExp(`\\b(${FLAGGED_KEYWORDS.join('|')})\\b`, 'gi');
       const matches = Array.from(
-        new Set(
-          (text.match(wordBoundaryRegex) || [])
-            .map(m => m.toLowerCase())
-        )
+        new Set((text.match(wordBoundaryRegex) || []).map((match) => match.toLowerCase()))
       );
+
       return {
         id: sample.id,
         flaggedKeywords: matches,
-        riskLevel: matches.length >= 2
-          ? 'high'
-          : matches.length === 1
-          ? 'medium'
-          : 'low',
-      };
-    });
-      return {
-        id: sample.id,
-        flaggedKeywords: matches,
-        riskLevel: matches.length >= 2
-          ? 'high'
-          : matches.length === 1
-          ? 'medium'
-          : 'low',
+        riskLevel:
+          matches.length >= 2
+            ? 'high'
+            : matches.length === 1
+              ? 'medium'
+              : 'low',
       };
     });
 

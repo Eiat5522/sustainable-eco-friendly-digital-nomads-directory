@@ -1,5 +1,6 @@
 
 import mongoose, { Document, Schema, models } from 'mongoose';
+import { Address4, Address6 } from 'ip-address';
 
 export const CONTACT_TYPES = ['general', 'listing', 'partnership', 'support', 'feedback'] as const;
 export type ContactType = (typeof CONTACT_TYPES)[number];
@@ -39,8 +40,6 @@ const ContactSubmissionSchema = new Schema<IContactSubmission>({
   },
   listingSlug: { type: String, trim: true, maxlength: 200 },
   createdAt: { type: Date, default: Date.now },
-import { Address4, Address6 } from 'ip-address';
-
   ipAddress: {
     type: String,
     maxlength: 45,

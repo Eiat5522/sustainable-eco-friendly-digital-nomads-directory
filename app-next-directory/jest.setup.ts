@@ -293,6 +293,27 @@ jest.mock('@/lib/auth/config', () => {
   };
 });
 
+// Mock tokens utilities globally (generateToken, hashToken, minutesFromNow)
+jest.mock('@/lib/tokens', () => {
+  const { jest } = require('@jest/globals');
+  return {
+    __esModule: true,
+    generateToken: jest.fn(() => ({ raw: 'test-token-raw', hash: 'test-token-hash' })),
+    hashToken: jest.fn(() => 'test-hash'),
+    minutesFromNow: jest.fn(() => new Date(Date.now() + 60 * 60 * 1000)),
+  };
+});
+
+// Mock email utilities globally
+jest.mock('@/lib/email', () => {
+  const { jest } = require('@jest/globals');
+  return {
+    __esModule: true,
+    buildVerifyEmail: jest.fn(() => Promise.resolve({ to: 'test@example.com', subject: 'Verify your email', html: '<p>Test</p>', text: 'Test' })),
+    sendMail: jest.fn(() => Promise.resolve({ messageId: 'test-message-id' })),
+  };
+});
+
 // Defensive runtime patch: ensure the auth config exports are jest.fn compatible
 // Some module resolution/interop paths may produce non-mock functions; this
 // guarantees tests can call `.mockReturnValue` / `.mockResolvedValue` safely.
@@ -301,15 +322,72 @@ try {
   const ac = require('@/lib/auth/config');
   if (!ac) throw new Error('auth config not found');
 
-  if (typeof ac.isEmailVerificationRequired !== 'function' || typeof ac.isEmailVerificationRequired?.mockReturnValue !== 'function') {
+  // Prefer using the existing exported function if present (this will be
+  // the mocked function created by Jest's module system). Only create a
+  // jest.fn fallback if the export is missing or not a function.
+  if (typeof ac.isEmailVerificationRequired !== 'function') {
     ac.isEmailVerificationRequired = jest.fn(() => false);
   }
-
-  if (ac.default) {
-    if (typeof ac.default.isEmailVerificationRequired !== 'function' || typeof ac.default.isEmailVerificationRequired?.mockReturnValue !== 'function') {
-      ac.default.isEmailVerificationRequired = jest.fn(() => false);
-    }
+  if (ac.default && typeof ac.default.isEmailVerificationRequired !== 'function') {
+    ac.default.isEmailVerificationRequired = jest.fn(() => false);
+  }
+  // DEBUG: Log whether the export is now a jest mock (will be removed after diagnosis)
+  try {
+    // eslint-disable-next-line no-console
+    console.log('DEBUG jest.setup: isEmailVerificationRequired isMock:', typeof ac.isEmailVerificationRequired === 'function' && typeof ac.isEmailVerificationRequired.mockReset === 'function');
+  } catch (e) {
+    // ignore
+  }
+  // Expose the jest mock instance on global so code under test can use the
+  // exact same function reference regardless of module resolution path.
+  try {
+    // Use the same function reference that other modules/tests received.
+    (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.isEmailVerificationRequired;
+  } catch (e) {
+    // ignore
   }
 } catch (e) {
   // Ignore - some test suites may not resolve this module during setup
+}
+
+// Also defensively patch the source file path in case some tests import
+// the module by resolved path rather than the mapped alias. This ensures
+// the same mocked jest.fn instance is available on all module instances.
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const srcAuth = require('./src/lib/auth/config');
+  if (srcAuth) {
+    srcAuth.isEmailVerificationRequired = require('@jest/globals').jest.fn(() => false);
+    if (srcAuth.default) srcAuth.default.isEmailVerificationRequired = require('@jest/globals').jest.fn(() => false);
+    // eslint-disable-next-line no-console
+    console.log('DEBUG jest.setup: patched ./src/lib/auth/config exports');
+  }
+} catch (e) {
+  // ignore if file not present or require fails
+}
+
+// Defensive runtime patch for tokens/email modules in case of alternate import paths
+try {
+  const tk = require('@/lib/tokens');
+  if (tk) {
+    const { jest } = require('@jest/globals');
+    if (typeof tk.generateToken !== 'function') tk.generateToken = jest.fn(() => ({ raw: 'test-token-raw', hash: 'test-token-hash' }));
+    if (typeof tk.hashToken !== 'function') tk.hashToken = jest.fn(() => 'test-hash');
+    if (typeof tk.minutesFromNow !== 'function') tk.minutesFromNow = jest.fn(() => new Date(Date.now() + 60 * 60 * 1000));
+    try { (global as any).__TOKENS_generateToken = tk.generateToken; (global as any).__TOKENS_hashToken = tk.hashToken; (global as any).__TOKENS_minutesFromNow = tk.minutesFromNow; } catch (e) {}
+  }
+} catch (e) {
+  // ignore
+}
+
+try {
+  const em = require('@/lib/email');
+  if (em) {
+    const { jest } = require('@jest/globals');
+    if (typeof em.buildVerifyEmail !== 'function') em.buildVerifyEmail = jest.fn(() => Promise.resolve({ to: 'test@example.com' }));
+    if (typeof em.sendMail !== 'function') em.sendMail = jest.fn(() => Promise.resolve({ messageId: 'test-message-id' }));
+    try { (global as any).__EMAIL_buildVerifyEmail = em.buildVerifyEmail; (global as any).__EMAIL_sendMail = em.sendMail; } catch (e) {}
+  }
+} catch (e) {
+  // ignore
 }

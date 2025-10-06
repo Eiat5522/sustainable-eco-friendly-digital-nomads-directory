@@ -21,3 +21,11 @@ const emailMock = {
 };
 
 export default emailMock;
+
+// CommonJS compatibility
+module.exports = {
+  __esModule: true,
+  default: emailMock,
+  buildVerifyEmail,
+  sendMail,
+};

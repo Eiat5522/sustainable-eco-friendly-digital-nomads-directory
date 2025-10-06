@@ -25,7 +25,7 @@ type RouteContext = {
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { searchParams } = new URL(request.url);
-    const listingSlug = searchParams.get('listing');
+  const listingSlug = searchParams.get('listing');
     const page = Math.max(1, Number.parseInt(searchParams.get('page') || '1') || 1);
     const limit = Math.min(50, Math.max(1, Number.parseInt(searchParams.get('limit') || '10') || 10));
     const sortBy = searchParams.get('sortBy') || 'createdAt';
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     // Build filter
     const filter: Record<string, unknown> = {};
-    if (listingSlug) filter.listingId = listingSlug; // Assuming listingId is used in DB
+  if (listingSlug) filter.listingSlug = listingSlug; // Filter by slug in DB
     if (filterRating) filter.rating = Number.parseInt(filterRating);
     if (verified) filter.verified = true;
 
@@ -202,9 +202,9 @@ export async function POST(request: NextRequest) {
     const newReview = await client.create(reviewDoc);
 
     const listingSlug = (listingDoc as { slug?: { current?: string } } | null | undefined)?.slug?.current;
-    if (listingId) {
+    if (listingSlug) {
       try {
-        revalidateTag(`listing:${listingId}`);
+        revalidateTag(`listing:${listingSlug}`);
       } catch {
         // Ignore revalidation errors in non-ISR contexts
       }

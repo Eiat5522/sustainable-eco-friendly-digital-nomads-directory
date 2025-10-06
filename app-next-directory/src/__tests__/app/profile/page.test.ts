@@ -13,33 +13,45 @@ describe('normaliseFavorite', () => {
         mainImage: {
           asset: {
             url: 'https://example.com/image.jpg',
+            metadata: {
+              dimensions: {
+                width: 800,
+                height: 600,
+              },
+            },
           },
+          altText: 'Eco retreat image',
         },
         city: {
           name: 'Lisbon',
         },
-        category: {
-          name: 'Coworking',
-        },
-        ecoTags: [{ name: 'Vegan Friendly' }],
+        category: 'Coworking', // Direct string instead of nested object
+        ecoFocusTags: [{ name: 'Vegan Friendly' }],
         digitalNomadFeatures: [{ name: 'Fast Wifi' }],
         shortDescription: 'A lovely eco retreat',
-        priceRange: '$$',
+        priceRange: 'moderate', // Use one of the allowed values: 'budget', 'moderate', 'premium'
       },
       createdAt: '2024-01-01T00:00:00.000Z',
     } as any;
 
     expect(normaliseFavorite(entry)).toEqual({
       id: 'fav-123',
-      category: 'Coworking',
-      type: undefined, // Assuming type is not directly available in the mock
-      ecoFocusTags: ['Vegan Friendly'],
-      digitalNomadFeatures: ['Fast Wifi'],
-      shortDescription: 'A lovely eco retreat',
-      priceRange: '$$',
       name: 'Eco Retreat',
       slug: 'eco-retreat',
       city: 'Lisbon',
+      country: undefined,
+      type: undefined,
+      category: 'Coworking',
+      shortDescription: 'A lovely eco retreat',
+      priceRange: 'moderate',
+      ecoFocusTags: ['Vegan Friendly'],
+      digitalNomadFeatures: ['Fast Wifi'],
+      image: {
+        url: 'https://example.com/image.jpg',
+        width: 800,
+        height: 600,
+        alt: 'Eco retreat image',
+      },
       imageUrl: 'https://example.com/image.jpg',
       createdAt: '2024-01-01T00:00:00.000Z',
     });
@@ -63,6 +75,14 @@ describe('normaliseFavorite', () => {
       name: 'Untitled listing',
       slug: 'sustainable-hub',
       city: undefined,
+      country: undefined,
+      type: undefined,
+      category: undefined,
+      shortDescription: undefined,
+      priceRange: undefined,
+      ecoFocusTags: [],
+      digitalNomadFeatures: [],
+      image: undefined,
       imageUrl: undefined,
       createdAt: undefined,
     });
