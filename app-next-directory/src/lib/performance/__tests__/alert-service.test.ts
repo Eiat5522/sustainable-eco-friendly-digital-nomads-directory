@@ -1,4 +1,4 @@
-import { processMetricForAlert } from '../alert-service';
+import { processMetricForAlert } from '../alert-service.ts';
 
 describe('alert-service', () => {
   describe('processMetricForAlert', () => {
@@ -77,10 +77,12 @@ describe('alert-service', () => {
     it('should process metrics with exact threshold values', async () => {
       const metricData = { name: 'LCP', value: 2500, status: 'good' };
       const alertThreshold = 2500;
+      const callback = jest.fn();
 
-      await processMetricForAlert(metricData, alertThreshold, 'performance');
+      await processMetricForAlert(metricData, alertThreshold, 'performance', callback);
 
-      expect(consoleWarnSpy).not.toHaveBeenCalled();
+      // Callback should not be called when value equals threshold
+      expect(callback).not.toHaveBeenCalled();
     });
 
     it('should handle different alert types', async () => {

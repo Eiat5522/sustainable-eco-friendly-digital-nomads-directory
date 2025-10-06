@@ -1,4 +1,4 @@
-import { WebVitalsReporter, WebVitalsMetric } from '../web-vitals-reporter';
+import { WebVitalsReporter, type WebVitalsMetric } from '../web-vitals-reporter.ts';
 
 describe('web-vitals-reporter', () => {
   let consoleLogSpy: jest.SpyInstance;
