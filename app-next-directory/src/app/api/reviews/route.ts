@@ -79,7 +79,7 @@ const buildUserImage = (user: RawReview['user']): string | undefined => {
 const normalizeReview = (review: RawReview): NormalizedReview | null => {
   const id = typeof review._id === 'string' ? review._id : null;
   const rating = Number(review.rating);
-  if (!id || !Number.isFinite(rating) || rating <= 0) {
+  if (!id || !Number.isFinite(rating) || rating <= 0 || rating > 5) {
     return null;
   }
 

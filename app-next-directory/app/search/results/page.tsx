@@ -8,7 +8,7 @@ import type { SearchParamRecord } from '@/types/search'
 import { NextRequest } from 'next/server'
 import { GET as searchGetHandler } from '../../api/search/route'
 
-const tagSchema = z.union([z.string(), z.object({ name: z.string().optional() })]);
+const tagSchema = z.union([z.string(), z.object({ name: z.string() })]);
 
 const searchResponseSchema = z
   .object({

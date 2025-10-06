@@ -417,10 +417,9 @@ describe('POST /api/contact', () => {
     const payload = await response.json();
     expect(payload.success).toBe(false);
     expect(payload.error).toBe('Email service temporarily unavailable. Please try again later.');
+  });
+
   it('should handle database connection failure gracefully', async () => {
--    jest.mock('@/lib/dbConnect', () => ({
--      __esModule: true,
--      default: jest.fn(async () => { throw new Error('DB Connection Failed'); }),
     const dbConnect = (await import('@/lib/dbConnect')).default as jest.Mock;
     dbConnect.mockRejectedValueOnce(new Error('DB Connection Failed'));
  
@@ -440,9 +439,6 @@ describe('POST /api/contact', () => {
      expect(payload.success).toBe(false);
      expect(payload.error).toBe('Failed to send message. Please try again later.');
    });
-
-    dbConnectSpy.mockRestore(); // Clean up the spy
-  });
 
   it('should handle database save failure gracefully', async () => {
     jest.mock('@/models/ContactSubmission', () => ({

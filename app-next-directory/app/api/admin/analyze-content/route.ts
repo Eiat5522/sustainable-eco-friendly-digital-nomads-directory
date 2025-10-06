@@ -24,7 +24,15 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     const url = new URL(request.url);
     const type = url.searchParams.get('type') ?? 'listing';
     const windowDaysParam = url.searchParams.get('windowDays');
-    const windowDays = windowDaysParam ? Number(windowDaysParam) : undefined;
+let windowDays: number | undefined;
+if (windowDaysParam) {
+  const parsed = Number(windowDaysParam);
+  if (!Number.isNaN(parsed) && parsed > 0 && Number.isInteger(parsed)) {
+    windowDays = parsed;
+  } else {
+    return NextResponse.json({ error: 'windowDays must be a positive integer' }, { status: 400 });
+  }
+}
 
     const analysis = await analyzeContent({ type, windowDays });
 
@@ -62,12 +70,32 @@ export async function POST(request: NextRequest, _context: RouteContext) {
     }
 
     const insights = samples.map((sample) => {
-      const text = String(sample.text ?? '').toLowerCase();
-      const matches = FLAGGED_KEYWORDS.filter((keyword) => text.includes(keyword));
+      const text = typeof sample.text === 'string' ? sample.text.toLowerCase() : '';
+      const wordBoundaryRegex = new RegExp(`\\b(${FLAGGED_KEYWORDS.join('|')})\\b`, 'gi');
+      const matches = Array.from(
+        new Set(
+          (text.match(wordBoundaryRegex) || [])
+            .map(m => m.toLowerCase())
+        )
+      );
       return {
         id: sample.id,
         flaggedKeywords: matches,
-        riskLevel: matches.length >= 2 ? 'high' : matches.length === 1 ? 'medium' : 'low',
+        riskLevel: matches.length >= 2
+          ? 'high'
+          : matches.length === 1
+          ? 'medium'
+          : 'low',
+      };
+    });
+      return {
+        id: sample.id,
+        flaggedKeywords: matches,
+        riskLevel: matches.length >= 2
+          ? 'high'
+          : matches.length === 1
+          ? 'medium'
+          : 'low',
       };
     });
 

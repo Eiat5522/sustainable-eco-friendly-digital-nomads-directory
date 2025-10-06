@@ -26,7 +26,8 @@
     "test:watch": "jest --config=jest.config.cjs --watch",
     "test:coverage": "jest --config=jest.config.cjs --coverage",
     "test:ci": "jest --config=jest.config.cjs --runInBand",
-    "lint": "next lint --max-warnings=10000",
+    "lint": "next lint --max-warnings=500",
+    "lint:strict": "next lint --max-warning=0",
     "test:visual": "pnpm exec percy exec -- pnpm exec playwright test tests/visual",
     "test:bs": "pnpm exec playwright test --config=playwright.browserstack.config.ts"
   },

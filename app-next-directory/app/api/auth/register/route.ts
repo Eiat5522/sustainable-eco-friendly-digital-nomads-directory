@@ -103,6 +103,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     // Handle errors (e.g., DB connection, hashing, creation)
+    console.error('[register] Registration failed', error);
     const message = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json(
       { success: false, error: { message, code: 'SERVER_ERROR' } },

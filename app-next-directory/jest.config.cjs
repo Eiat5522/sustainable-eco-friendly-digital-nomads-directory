@@ -74,6 +74,10 @@ module.exports = {
     '^next-sanity$': '<rootDir>/__mocks__/next-sanity.js',
     '^mongoose$': '<rootDir>/__mocks__/mongoose.ts',
     'node-fetch': '<rootDir>/__mocks__/node-fetch.js',
+    // Additional mocks for React 19 compatibility
+    '^clsx$': '<rootDir>/__mocks__/clsx.js',
+    '^tailwind-merge$': '<rootDir>/__mocks__/tailwind-merge.js',
+    '^next/link$': '<rootDir>/__mocks__/next/link.js',
     '^@/lib/dbConnect(?:\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/dbConnect.js',
     '^@/models/User$': '<rootDir>/__mocks__/@/models/User.js',
     '^@/lib/redis(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/redis.ts',

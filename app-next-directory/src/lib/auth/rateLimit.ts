@@ -68,7 +68,9 @@ const loadValidator = async (): Promise<Validator> => {
 
 const createSlidingWindowLimiter = () => {
   const ctor = getRatelimitCtor();
-  const slidingWindow = (ctor as unknown as { slidingWindow?: typeof ctor.slidingWindow }).slidingWindow;
+  // Use type assertion to avoid Promise type issues
+  const ctorAny = ctor as any;
+  const slidingWindow = ctorAny.slidingWindow;
   if (typeof slidingWindow === 'function') {
     return slidingWindow(LOGIN_WINDOW_LIMIT, LOGIN_WINDOW_DURATION);
   }
@@ -82,14 +84,12 @@ const createSlidingWindowLimiter = () => {
   } as unknown as RatelimitConfig['limiter'];
 };
 
-function normaliseRedisClient(redis: Redis): Redis & { evalsha?: (...args: unknown[]) => unknown; evalSha?: (...args: unknown[]) => unknown };
-function normaliseRedisClient(redis: Redis | undefined): (Redis & { evalsha?: (...args: unknown[]) => unknown; evalSha?: (...args: unknown[]) => unknown }) | undefined;
-function normaliseRedisClient(redis: Redis | undefined) {
+function normaliseRedisClient(redis: Redis | undefined): any {
   if (!redis) {
     return redis;
   }
 
-  const candidate = redis as Redis & { evalsha?: never; evalSha?: never };
+  const candidate = redis as any;
   if (typeof candidate.evalsha !== 'function' && typeof candidate.evalSha === 'function') {
     candidate.evalsha = candidate.evalSha.bind(candidate);
   }

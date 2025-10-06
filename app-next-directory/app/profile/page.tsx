@@ -42,7 +42,7 @@ export default function ProfilePage() {
       // Refresh session to get updated name
       await update();
       setIsEditing(false);
-    } catch (_error) {
+    } catch (error) {
       console.error('Failed to refresh session:', error);
       // TODO: Show toast notification
       alert('Profile updated successfully. Please refresh the page to see changes.');

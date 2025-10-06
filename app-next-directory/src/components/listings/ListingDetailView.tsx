@@ -19,6 +19,7 @@ interface Review {
     image?: string;
   };
   createdAt: string;
+  status: 'pending' | 'approved';
 }
 
 interface RelatedListing {

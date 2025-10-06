@@ -15,14 +15,8 @@ interface SanityCommentRecord {
   } | null;
 }
 
-type JsonFallbackResponse<T> = NextResponse<T> | { status: number; json: () => Promise<T> };
-
-function makeJsonResponse<T>(data: T, status = 200): JsonFallbackResponse<T> {
-  try {
-    return NextResponse.json<T>(data, { status });
-  } catch {
-    return { status, json: () => Promise.resolve(data) } as const;
-  }
+function makeJsonResponse<T>(data: T, status = 200): NextResponse {
+  return NextResponse.json<T>(data, { status });
 }
 
 // GET comments for a given post (optional, can be expanded later)

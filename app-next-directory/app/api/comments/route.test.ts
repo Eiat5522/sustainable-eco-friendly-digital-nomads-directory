@@ -1,6 +1,17 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 // Mock external deps used in the route
+// Ensure NextResponse is mocked before importing the route so module imports
+// that call NextResponse.json return a predictable test double.
+jest.mock('next/server', () => ({
+  NextResponse: {
+    json: jest.fn((data: any, init?: { status?: number }) => ({
+      status: init?.status ?? 200,
+      json: () => Promise.resolve(data),
+    })),
+  },
+}));
+
 jest.mock('@/lib/auth', () => ({ auth: jest.fn() }));
 jest.mock('@/lib/sanity/client', () => ({
   client: {
@@ -9,10 +20,15 @@ jest.mock('@/lib/sanity/client', () => ({
     getDocument: jest.fn(),
   },
 }));
-jest.mock('@/lib/sanity/user', () => ({ ensureSanityUser: jest.fn() }));
+// Make this mock ESM-compatible so `.mockResolvedValueOnce` is available
+jest.mock('@/lib/sanity/user', () => ({ __esModule: true, ensureSanityUser: jest.fn() }));
 
 // Import after mocks to receive mocked versions
 import { GET, POST } from './route';
+// Debug: ensure the handlers are imported correctly in the test environment
+// (temporary log to help diagnose failures)
+// eslint-disable-next-line no-console
+console.log('DEBUG: Imported route handlers', { GET: typeof GET, POST: typeof POST });
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import { ensureSanityUser } from '@/lib/sanity/user';

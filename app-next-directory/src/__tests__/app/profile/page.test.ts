@@ -1,6 +1,6 @@
 
 
-import { normaliseFavorite, normaliseOwnerReviews } from '../../../app/profile/utils';
+import { normaliseFavorite, normaliseOwnerReviews } from '../../../../app/profile/utils';
 
 describe('normaliseFavorite', () => {
   it('normalises a valid favorite entry', () => {
@@ -18,12 +18,25 @@ describe('normaliseFavorite', () => {
         city: {
           name: 'Lisbon',
         },
+        category: {
+          name: 'Coworking',
+        },
+        ecoTags: [{ name: 'Vegan Friendly' }],
+        digitalNomadFeatures: [{ name: 'Fast Wifi' }],
+        shortDescription: 'A lovely eco retreat',
+        priceRange: '$$',
       },
       createdAt: '2024-01-01T00:00:00.000Z',
     } as any;
 
     expect(normaliseFavorite(entry)).toEqual({
       id: 'fav-123',
+      category: 'Coworking',
+      type: undefined, // Assuming type is not directly available in the mock
+      ecoFocusTags: ['Vegan Friendly'],
+      digitalNomadFeatures: ['Fast Wifi'],
+      shortDescription: 'A lovely eco retreat',
+      priceRange: '$$',
       name: 'Eco Retreat',
       slug: 'eco-retreat',
       city: 'Lisbon',

@@ -50,7 +50,12 @@ export async function POST(request: NextRequest, _context: RouteContext) {
 
     const body = await request.json().catch(() => null);
     const operation = body?.operation as BulkOperationType | undefined;
-    const ids = Array.isArray(body?.ids) ? (body.ids as string[]) : [];
+    const rawIds = Array.isArray(body?.ids) ? body.ids : [];
+    const ids = rawIds.filter((id): id is string =>
+      typeof id === 'string' && id.trim().length > 0
+    );
+
+    const MAX_IDS = 1000; // Adjust based on your requirements
 
     if (!operation) {
       return NextResponse.json({ error: 'operation is required' }, { status: 400 });
@@ -62,7 +67,13 @@ export async function POST(request: NextRequest, _context: RouteContext) {
 
     if (!ids.length) {
       return NextResponse.json({
-        error: 'ids must contain at least one document identifier',
+        error: 'ids must contain at least one valid document identifier',
+      }, { status: 400 });
+    }
+
+    if (ids.length > MAX_IDS) {
+      return NextResponse.json({
+        error: `ids array exceeds maximum length of ${MAX_IDS}`,
       }, { status: 400 });
     }
 

@@ -142,7 +142,8 @@ export default async function AdminDashboardPage() {
           <div className="mt-4 flex items-center space-x-4 text-sm text-gray-500">
             <span>Last refresh: {formatTimeAgo(analytics.generatedAt)}</span>
             <span data-testid="pending-tasks">
-              {analytics.overview.pendingModeration} tasks assigned
+              {analytics.overview.pendingModeration}{' '}
+              {analytics.overview.pendingModeration === 1 ? 'task assigned' : 'tasks assigned'}
             </span>
             <span>SLA: 8h</span>
           </div>

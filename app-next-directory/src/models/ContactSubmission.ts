@@ -39,6 +39,8 @@ const ContactSubmissionSchema = new Schema<IContactSubmission>({
   },
   listingSlug: { type: String, trim: true, maxlength: 200 },
   createdAt: { type: Date, default: Date.now },
+import { Address4, Address6 } from 'ip-address';
+
   ipAddress: {
     type: String,
     maxlength: 45,
@@ -46,9 +48,17 @@ const ContactSubmissionSchema = new Schema<IContactSubmission>({
       validator: (v: string) => {
         if (!v) return true; // Allow empty for optional field
         // IPv4 or IPv6 validation
-        const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-        const ipv6Regex = /^(([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|::1|::)$/;
-        return ipv4Regex.test(v) || ipv6Regex.test(v);
+        try {
+          new Address4(v);
+          return true;
+        } catch {
+          try {
+            new Address6(v);
+            return true;
+          } catch {
+            return false;
+          }
+        }
       },
       message: 'Please provide a valid IP address',
     },

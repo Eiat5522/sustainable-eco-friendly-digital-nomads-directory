@@ -40,15 +40,19 @@ export function ModerationActions({ moderationId, itemName }: ModerationActionsP
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const runAction = (action: ActionType, customNotes?: string) => {
+  const runAction = (action: ActionType | 'saveNote', customNotes?: string) => {
     startTransition(async () => {
       setFeedback(null);
       try {
         const payloadNotes = customNotes ?? notes;
         const result = await postModerationAction({ moderationId, action, notes: payloadNotes });
         setFeedback(result?.message ?? `Action "${action}" applied`);
+        setNotes('');
         if (action === 'dismiss') {
-          setNotes('');
+          setNotesOpen(false);
+        }
+        // Only close notes panel if saving note and not dismissing
+        if (action === 'saveNote') {
           setNotesOpen(false);
         }
       } catch (error) {
@@ -60,7 +64,7 @@ export function ModerationActions({ moderationId, itemName }: ModerationActionsP
 
   const handleNotesSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    runAction('dismiss', notes);
+    runAction('saveNote', notes);
   };
 
   return (
@@ -114,9 +118,19 @@ export function ModerationActions({ moderationId, itemName }: ModerationActionsP
             <button
               type="submit"
               disabled={isPending}
+              aria-label={`Save note for ${itemName}`}
               className="inline-flex items-center rounded bg-emerald-600 px-3 py-1 font-medium text-white hover:bg-emerald-700 disabled:bg-emerald-300"
             >
               Save note
+            </button>
+            <button
+              type="button"
+              disabled={isPending}
+              aria-label={`Save note and dismiss ${itemName}`}
+              className="inline-flex items-center rounded bg-rose-600 px-3 py-1 font-medium text-white hover:bg-rose-700 disabled:bg-rose-300"
+              onClick={() => runAction('dismiss', notes)}
+            >
+              Save & Dismiss
             </button>
             <button
               type="button"

@@ -238,7 +238,7 @@ export const config = {
     '/settings/:path*',
     '/listings/manage/:path*',
     '/listings/create',
-    '/listings/edit/:id*', // Assuming edit takes an ID
+    '/listings/edit/:slug*', // Using slug to match route structure
     '/analytics/:path*',
 
     // Auth Pages (to handle redirect if already logged in or to allow access)

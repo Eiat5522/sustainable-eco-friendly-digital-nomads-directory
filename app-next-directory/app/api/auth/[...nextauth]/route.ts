@@ -6,7 +6,8 @@ export async function GET(request: Request) {
   try {
     const { pathname } = new URL(request.url);
     console.log('[auth route] incoming GET', pathname);
-  } catch (_error) {
+  } catch (error) {
+    console.error('[auth route] GET error:', error);
     console.log('[auth route] incoming GET');
   }
   return authGET(request as Parameters<typeof authGET>[0]);

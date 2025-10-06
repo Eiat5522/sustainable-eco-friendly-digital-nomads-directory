@@ -43,6 +43,47 @@ jest.mock('broadcast-channel', () => {
   return { __esModule: true, BroadcastChannel, default: BroadcastChannel };
 });
 
+// React 19 compatibility fix for act function - must be before other imports
+import React from 'react';
+
+// Set React 19 act environment
+(global as any).IS_REACT_ACT_ENVIRONMENT = true;
+
+// Create a working React.act polyfill for React 19
+if (typeof React.act === 'undefined') {
+  React.act = (callback: () => void | Promise<void>) => {
+    try {
+      const result = callback();
+      
+      // If it's a promise, return it
+      if (result && typeof result.then === 'function') {
+        return result.then(() => undefined);
+      }
+      
+      // For sync callbacks, return a resolved promise
+      return Promise.resolve();
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  };
+  
+  console.log('React 19: Installed act polyfill for testing compatibility');
+}
+
+// Suppress the deprecation warning about ReactDOMTestUtils.act
+const originalConsoleError = console.error;
+console.error = (...args: any[]) => {
+  if (
+    typeof args[0] === 'string' &&
+    args[0].includes('ReactDOMTestUtils.act') &&
+    args[0].includes('deprecated')
+  ) {
+    // Suppress this specific warning
+    return;
+  }
+  originalConsoleError.call(console, ...args);
+};
+
 // jest.setup.ts
 import { jest } from '@jest/globals';
 import './jest.polyfills';

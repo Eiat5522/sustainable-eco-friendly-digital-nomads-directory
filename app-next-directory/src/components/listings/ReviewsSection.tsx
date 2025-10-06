@@ -378,7 +378,25 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId 
                 data-testid="review-success-message"
                 role="status"
               >
-                Thank you! Your review has been submitted and is pending approval.
+                <p>Thank you! Your review has been submitted and is pending approval.</p>
+                {submittedReview && (
+                  <div className="mt-2 space-y-1" data-testid="submitted-review-details">
+                    <p
+                      className="font-medium"
+                      data-testid="submitted-review-status"
+                    >
+                      {submittedReview.status === 'approved'
+                        ? 'Approved and now visible to the community.'
+                        : 'Pending approval'}
+                    </p>
+                    <p
+                      className="text-neo-text-secondary"
+                      data-testid="submitted-review-comment"
+                    >
+                      {submittedReview.comment}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 

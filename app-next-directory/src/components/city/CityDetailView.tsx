@@ -51,10 +51,23 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
     { field: 'airQuality', icon: Wind, formatter: (v) => (typeof v === 'string' && v.trim() ? v : null) },
   ] as const;
 
+  // Transform listings to match RelatedListing interface
+  const transformedListings = listings
+    .filter(listing => listing.imageUrl) // Filter out listings without images
+    .map(listing => ({
+      id: listing.id,
+      name: listing.name,
+      slug: listing.slug,
+      imageUrl: listing.imageUrl!, // We filtered out undefined imageUrls above
+      city: listing.city,
+      priceRange: listing.priceRange || 'moderate',
+      ecoFocusTags: listing.ecoFocusTags || []
+    }));
+
   const listingsSection = (
     <div data-testid="city-listings-section" className="flex flex-col gap-6">
       <h2 className="heading-md">Places to Work &amp; Stay</h2>
-      <RelatedListings listings={listings} />
+      <RelatedListings listings={transformedListings} />
     </div>
   );
 
