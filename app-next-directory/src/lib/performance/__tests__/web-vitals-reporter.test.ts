@@ -1,5 +1,5 @@
-import { WebVitalsReporter } from '../web-vitals-reporter';
-import type { WebVitalsMetric } from '../web-vitals-reporter';
+import { WebVitalsReporter } from '../web-vitals-reporter.ts';
+import type { WebVitalsMetric } from '../web-vitals-reporter.ts';
 
 describe('web-vitals-reporter', () => {
   let originalEnv: string | undefined;

@@ -1,15 +1,14 @@
+// Mock the budgets module - must be before imports
+jest.mock('../budgets.ts', () => ({
+  shouldAlert: jest.fn(),
+}));
+
 import {
   PERFORMANCE_EVENTS,
   reportPerformanceEvent,
   usePerformanceTracking,
-} from '../plausible-integration';
-
-// Mock the budgets module
-jest.mock('../budgets', () => ({
-  shouldAlert: jest.fn(),
-}));
-
-import { shouldAlert } from '../budgets';
+} from '../plausible-integration.ts';
+import { shouldAlert } from '../budgets.ts';
 
 describe('plausible-integration', () => {
   let mockPlausible: jest.Mock;

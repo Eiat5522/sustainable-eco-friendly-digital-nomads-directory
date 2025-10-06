@@ -458,4 +458,43 @@ describe('collector', () => {
       );
     });
   });
+
+  describe('Edge cases', () => {
+    it('should handle undefined window in markPerformance gracefully', () => {
+      const originalWindow = (global as any).window;
+      delete (global as any).window;
+      
+      expect(() => markPerformance('MAP_INIT')).not.toThrow();
+      
+      (global as any).window = originalWindow;
+    });
+
+    it('should handle undefined window in measurePerformance gracefully', () => {
+      const originalWindow = (global as any).window;
+      delete (global as any).window;
+      
+      expect(() => measurePerformance('test', 'MAP_INIT', 'MAP_MARKERS_LOADED')).not.toThrow();
+      
+      (global as any).window = originalWindow;
+    });
+
+    it('should not throw when PerformanceObserver is not available', () => {
+      delete (global as any).PerformanceObserver;
+      delete (global as any).window.PerformanceObserver;
+      
+      expect(() => initPerformanceMonitoring()).not.toThrow();
+    });
+
+    it('should handle empty performance entries list', () => {
+      initPerformanceMonitoring();
+
+      const observerCallback = performanceCallbacks.get('observer');
+      observerCallback?.({
+        getEntries: () => [],
+      });
+
+      // Should not throw or cause errors
+      expect(mockPlausible).not.toHaveBeenCalled();
+    });
+  });
 });

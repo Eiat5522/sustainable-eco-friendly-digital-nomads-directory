@@ -1,4 +1,4 @@
-import { processMetricForAlert } from '../alert-service';
+import { processMetricForAlert } from '../alert-service.ts';
 
 describe('alert-service', () => {
   let consoleLogSpy: jest.SpyInstance;
