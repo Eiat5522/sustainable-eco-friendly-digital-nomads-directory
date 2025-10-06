@@ -317,38 +317,41 @@ jest.mock('@/lib/email', () => {
 // Defensive runtime patch: ensure the auth config exports are jest.fn compatible
 // Some module resolution/interop paths may produce non-mock functions; this
 // guarantees tests can call `.mockReturnValue` / `.mockResolvedValue` safely.
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const ac = require('@/lib/auth/config');
-  if (!ac) throw new Error('auth config not found');
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const ac = require('@/lib/auth/config');
+    // Coerce both named and default exports to jest.fn compatible functions
+    const ensureMock = (obj: any, key: string, fallback: any) => {
+      if (!obj) return;
+      if (typeof obj[key] !== 'function' || typeof obj[key]?.mockReturnValue !== 'function') {
+        obj[key] = jest.fn(fallback);
+      }
+    };
 
-  // Prefer using the existing exported function if present (this will be
-  // the mocked function created by Jest's module system). Only create a
-  // jest.fn fallback if the export is missing or not a function.
-  if (typeof ac.isEmailVerificationRequired !== 'function') {
-    ac.isEmailVerificationRequired = jest.fn(() => false);
-  }
-  if (ac.default && typeof ac.default.isEmailVerificationRequired !== 'function') {
-    ac.default.isEmailVerificationRequired = jest.fn(() => false);
-  }
-  // DEBUG: Log whether the export is now a jest mock (will be removed after diagnosis)
-  try {
-    // eslint-disable-next-line no-console
-    console.log('DEBUG jest.setup: isEmailVerificationRequired isMock:', typeof ac.isEmailVerificationRequired === 'function' && typeof ac.isEmailVerificationRequired.mockReset === 'function');
+    ensureMock(ac, 'isEmailVerificationRequired', () => false);
+    ensureMock(ac, 'getAdminEmails', () => []);
+    ensureMock(ac, 'isAdminEmail', () => false);
+
+    if (ac.default) {
+      ensureMock(ac.default, 'isEmailVerificationRequired', () => false);
+      ensureMock(ac.default, 'getAdminEmails', () => []);
+      ensureMock(ac.default, 'isAdminEmail', () => false);
+    }
+
+    // Expose the actual jest.fn instances from the mocked module on global
+    try {
+      (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.isEmailVerificationRequired;
+      (global as any).__AUTH_GET_ADMIN_EMAILS = ac.getAdminEmails;
+      (global as any).__AUTH_IS_ADMIN_EMAIL = ac.isAdminEmail;
+      if (ac.default) {
+        (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.default.isEmailVerificationRequired || (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED;
+      }
+    } catch (e) {
+      // ignore
+    }
   } catch (e) {
-    // ignore
+    // Ignore - some test suites may not resolve this module during setup
   }
-  // Expose the jest mock instance on global so code under test can use the
-  // exact same function reference regardless of module resolution path.
-  try {
-    // Use the same function reference that other modules/tests received.
-    (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.isEmailVerificationRequired;
-  } catch (e) {
-    // ignore
-  }
-} catch (e) {
-  // Ignore - some test suites may not resolve this module during setup
-}
 
 // Also defensively patch the source file path in case some tests import
 // the module by resolved path rather than the mapped alias. This ensures

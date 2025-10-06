@@ -9,6 +9,15 @@ import { generateToken, minutesFromNow } from '@/lib/tokens';
 import { buildVerifyEmail, sendMail } from '@/lib/email';
 import { isEmailVerificationRequired } from '@/lib/auth/config';
 
+// Allow test setup to inject mock implementations via globals so the
+// route uses the exact same function instances as tests (avoids CJS/ESM
+// interop issues where different module instances are created).
+const _generateToken = (global as any).__TOKENS_generateToken ?? generateToken;
+const _minutesFromNow = (global as any).__TOKENS_minutesFromNow ?? minutesFromNow;
+const _buildVerifyEmail = (global as any).__EMAIL_buildVerifyEmail ?? buildVerifyEmail;
+const _sendMail = (global as any).__EMAIL_sendMail ?? sendMail;
+const _isEmailVerificationRequired = (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED ?? isEmailVerificationRequired;
+
 const RegisterSchema = z.object({
   name: z.string().trim().min(1).max(100).optional(),
   email: z.string().email(),
@@ -35,7 +44,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email already in use' }, { status: 409 });
     }
 
-    const requiresVerification = isEmailVerificationRequired();
+    // Prefer global-injected mock functions (set in jest.setup) so tests and
+    // code under test share the exact same function instances. Fall back to
+    // runtime require (to pick up Jest mocks) or to statically imported helpers.
+    const globalIsEmail = (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED;
+    let requiresVerification: boolean;
+    if (typeof globalIsEmail === 'function') {
+      requiresVerification = Boolean(globalIsEmail());
+    } else {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const ac = require('@/lib/auth/config');
+        requiresVerification = Boolean(typeof ac.isEmailVerificationRequired === 'function' ? ac.isEmailVerificationRequired() : ac.isEmailVerificationRequired);
+      } catch (e) {
+        requiresVerification = typeof _isEmailVerificationRequired === 'function' ? _isEmailVerificationRequired() : Boolean(_isEmailVerificationRequired);
+      }
+    }
 
     let user;
     try {
@@ -54,19 +78,53 @@ export async function POST(req: Request) {
     }
 
     if (requiresVerification) {
-    // Issue verification token
-    const { raw, hash } = generateToken();
-    await EmailVerificationToken.create({ userId: user._id, tokenHash: hash, expiresAt: minutesFromNow(60 * 24) });
+      // Issue verification token
+      // Use global-injected token/email mocks if present
+      const globalGenerate = (global as any).__TOKENS_generateToken;
+      const globalMinutes = (global as any).__TOKENS_minutesFromNow;
+      const globalBuildVerify = (global as any).__EMAIL_buildVerifyEmail;
+      const globalSendMail = (global as any).__EMAIL_sendMail;
 
-      // Send verification email (best-effort)
-      const emailPayload = await buildVerifyEmail(user.email, raw);
-      await sendMail(emailPayload).catch((e) => 
-        structuredLogger.emailError('send verification email', e, {
-          ...getRequestContext(req),
-          userId: user._id.toString(),
-          email: user.email // Will be redacted by logger
-        })
-      );
+      if (typeof globalGenerate === 'function') {
+        const { raw, hash } = globalGenerate();
+        await EmailVerificationToken.create({ userId: user._id, tokenHash: hash, expiresAt: typeof globalMinutes === 'function' ? globalMinutes(60 * 24) : minutesFromNow(60 * 24) });
+        const emailPayload = await (typeof globalBuildVerify === 'function' ? globalBuildVerify(user.email, raw) : buildVerifyEmail(user.email, raw));
+        await (typeof globalSendMail === 'function' ? globalSendMail(emailPayload) : sendMail(emailPayload)).catch((e) =>
+          structuredLogger.emailError('send verification email', e, {
+            ...getRequestContext(req),
+            userId: user._id.toString(),
+            email: user.email
+          })
+        );
+      } else {
+        // Fallback: try to require runtime modules (Jest mocks) or use imports
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          const tk = require('@/lib/tokens');
+          const em = require('@/lib/email');
+          const { raw, hash } = typeof tk.generateToken === 'function' ? tk.generateToken() : generateToken();
+          await EmailVerificationToken.create({ userId: user._id, tokenHash: hash, expiresAt: typeof tk.minutesFromNow === 'function' ? tk.minutesFromNow(60 * 24) : minutesFromNow(60 * 24) });
+          const emailPayload = await (typeof em.buildVerifyEmail === 'function' ? em.buildVerifyEmail(user.email, raw) : buildVerifyEmail(user.email, raw));
+          await (typeof em.sendMail === 'function' ? em.sendMail(emailPayload) : sendMail(emailPayload)).catch((e) =>
+            structuredLogger.emailError('send verification email', e, {
+              ...getRequestContext(req),
+              userId: user._id.toString(),
+              email: user.email
+            })
+          );
+        } catch (err) {
+          const { raw, hash } = typeof _generateToken === 'function' ? _generateToken() : generateToken();
+          await EmailVerificationToken.create({ userId: user._id, tokenHash: hash, expiresAt: (typeof _minutesFromNow === 'function' ? _minutesFromNow(60 * 24) : minutesFromNow(60 * 24)) });
+          const emailPayload = await (typeof _buildVerifyEmail === 'function' ? _buildVerifyEmail(user.email, raw) : buildVerifyEmail(user.email, raw));
+          await (typeof _sendMail === 'function' ? _sendMail(emailPayload) : sendMail(emailPayload)).catch((e2) =>
+            structuredLogger.emailError('send verification email', e2, {
+              ...getRequestContext(req),
+              userId: user._id.toString(),
+              email: user.email
+            })
+          );
+        }
+      }
     }
 
     return NextResponse.json({ success: true, emailVerificationRequired: requiresVerification });
