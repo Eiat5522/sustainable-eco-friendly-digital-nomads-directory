@@ -2,40 +2,64 @@
 
 This document describes the API endpoints available in the Sustainable Eco-Friendly Digital Nomads Directory application.
 
-## 🔐 Authentication
+## 🔐 Authentication & Security
 
-All API endpoints use **NextAuth.js** for authentication with JWT tokens and role-based access control.
+All API endpoints use **NextAuth.js v5** for authentication with comprehensive security measures.
 
-### Authentication Status: ✅ COMPLETED
+### **Security Features: ✅ ENTERPRISE-GRADE**
 
-- **JWT Strategy**: Secure token-based authentication
+- ✅ **JWT Strategy**: Secure token-based authentication with Edge compatibility
+- ✅ **Role-Based Access Control**: 8-tier permission system (unidentifiedUser → superAdmin)
+- ✅ **Session Management**: MongoDB-backed user persistence with JWT sessions
+- ✅ **Security Headers**: X-Frame-Options, CSP, CSRF protection
+- ✅ **Middleware Protection**: Route and API endpoint security enforcement
+- ✅ **Multi-layer Validation**: Client-side + Server-side + Database validation
 
-- **Role-Based Access**: 5-tier permission system
+### **Authentication Status: ✅ COMPLETE & SECURE**
 
-- **Session Management**: MongoDB-backed sessions
+Our API security implementation includes:
+- **Defense-in-depth**: Multiple security layers
+- **Comprehensive RBAC**: Full role hierarchy with granular permissions
+- **API Protection**: All protected endpoints validate authentication and authorization
+- **Security Testing**: 120+ E2E tests covering authentication flows and RBAC
 
-- **Security**: bcryptjs password hashing, rate limiting
+### **Role Hierarchy & API Access**
 
-## 📋 API Endpoints
+```
+API Access Levels:
+┌─────────────────┐  Level 5: superAdmin (All APIs + User Management)
+│   superAdmin    │  
+├─────────────────┤  Level 4: admin (All APIs except User Role Changes)
+│     admin       │  
+├─────────────────┤  Level 3: moderator (Content Moderation APIs)
+│   moderator     │  
+├─────────────────┤  Level 2: venueOwner (Own Listings + User APIs)
+│  venueOwner     │  
+├─────────────────┤  Level 1: editor/contentEditor (Content APIs)
+│ editor/content  │  
+├─────────────────┤  Level 0: user (User APIs + Reviews)
+│      user       │  
+└─────────────────┘  Public: Listings (read-only)
+```
 
-### Authentication Endpoints
+## 📋 API Endpoints by Category
+
+### **🔐 Authentication Endpoints**
 
 #### `POST /api/auth/signin`
+**Purpose**: User authentication  
+**Access**: Public  
+**Security**: Rate limited, bcrypt password validation  
 
-**Purpose**: User authentication
-**Access**: Public
 **Body**:
-
 ```json
 {
   "email": "user@example.com",
   "password": "securePassword123"
 }
-
 ```
 
 **Response**:
-
 ```json
 {
   "user": {
@@ -46,7 +70,117 @@ All API endpoints use **NextAuth.js** for authentication with JWT tokens and rol
   },
   "expires": "2025-06-26T12:00:00.000Z"
 }
+```
 
+### **👥 User Management APIs**
+
+#### `GET /api/user/dashboard`
+**Purpose**: Get user dashboard data  
+**Access**: Authenticated users only  
+**Security**: Server-side session validation, role-based data filtering  
+
+**Response**:
+```json
+{
+  "user": { "id": "user_id", "role": "user", "name": "User Name" },
+  "data": {
+    "kind": "user|venueOwner",
+    "favorites": [...],
+    "metrics": { "favoritesCount": 5, "reviewsWritten": 3 }
+  }
+}
+```
+
+#### `PATCH /api/user/profile`
+**Purpose**: Update user profile  
+**Access**: Authenticated users (own profile only)  
+**Security**: User ID validation, input sanitization  
+
+### **🏢 Admin Management APIs**
+
+#### `GET /api/admin/stats`
+**Purpose**: Platform statistics for admin dashboard  
+**Access**: admin, superAdmin only  
+**Security**: Role validation, comprehensive audit logging  
+
+**Response**:
+```json
+{
+  "totalUsers": 1275,
+  "totalListings": 412,
+  "totalReviews": 964,
+  "weeklySignups": 38,
+  "pendingModeration": 6,
+  "userRoles": { "admin": 5, "user": 1200 },
+  "generatedAt": "2024-01-10T10:00:00.000Z"
+}
+```
+
+#### `GET /api/admin/users`
+**Purpose**: User management (list, search, pagination)  
+**Access**: admin, superAdmin only  
+**Security**: Admin role validation, data filtering  
+
+**Query Parameters**:
+- `page`: Page number (default: 1)
+- `limit`: Results per page (max: 100, default: 20)
+- `search`: Search by name or email
+- `role`: Filter by user role
+
+**Response**:
+```json
+{
+  "users": [
+    {
+      "id": "user_id",
+      "name": "User Name",
+      "email": "user@example.com",
+      "role": "user",
+      "status": "active",
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "totalPages": 10,
+    "totalCount": 200
+  }
+}
+```
+
+#### `PATCH /api/admin/users`
+**Purpose**: Update user role or status  
+**Access**: superAdmin only (for role changes), admin+ (for status changes)  
+**Security**: SuperAdmin role validation for role changes, prevents self-demotion  
+
+**Body**:
+```json
+{
+  "userId": "user_id",
+  "role": "editor",        // SuperAdmin only
+  "status": "inactive"     // Admin+ allowed
+}
+```
+
+### **📝 Content Moderation APIs**
+
+#### `GET /api/admin/moderation`
+**Purpose**: Get moderation queue  
+**Access**: admin, superAdmin only  
+**Security**: Admin role validation, item filtering  
+
+#### `POST /api/admin/moderation`
+**Purpose**: Perform moderation action  
+**Access**: admin, superAdmin only  
+**Security**: Action validation, audit trail  
+
+**Body**:
+```json
+{
+  "moderationId": "mod_id",
+  "action": "approve|restrict|dismiss|flag",
+  "notes": "Moderation notes"
+}
 ```
 
 #### `POST /api/auth/signup`

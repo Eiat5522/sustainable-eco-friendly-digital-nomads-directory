@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
+import { NeoButton } from '@/components/ui/neo-button';
 import { auth } from '@/lib/auth';
 import { getUserDashboardData } from '@/lib/dashboard/user-dashboard';
 import type {
@@ -76,6 +77,12 @@ function VenueOwnerView({ data, range }: { data: VenueOwnerDashboardDTO; range: 
           value={formatCount(data.totals.viewCount)}
           helper={data.totals.viewCount === null ? 'View analytics not yet enabled' : 'Current total views captured'}
         />
+      </div>
+
+      <div className="flex justify-end">
+        <Link href="/dashboard/listings">
+          <NeoButton>Manage Listings</NeoButton>
+        </Link>
       </div>
 
       <div className="space-y-4">

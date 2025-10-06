@@ -172,7 +172,7 @@ test.describe('Listings API', () => {
         data: listingData,
       });
 
-      expect(response.status()).toBe(200);
+      expect(response.status()).toBe(201);
       const created = await response.json();
       expect(created.name).toBe(listingData.name);
       expect(created.eco_features).toEqual(listingData.eco_features);

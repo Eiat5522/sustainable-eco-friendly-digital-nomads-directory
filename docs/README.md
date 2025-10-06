@@ -73,6 +73,8 @@ docs/
 
 - **🎨 Next.js App**: [`app-next-directory/README.md`](app-next-directory/README.md)
 - **🔐 Authentication**: [`app-next-directory/AUTHENTICATION.md`](app-next-directory/AUTHENTICATION.md)
+- **🛡️ Security & Access Control**: [`SECURITY_ACCESS_CONTROL.md`](SECURITY_ACCESS_CONTROL.md)
+- **🔐 Security Quick Reference**: [`SECURITY_QUICK_REFERENCE.md`](SECURITY_QUICK_REFERENCE.md)
 - **🧪 Testing Guide**: [`app-next-directory/TESTING.md`](app-next-directory/TESTING.md)
 
 ### **For Content Management**

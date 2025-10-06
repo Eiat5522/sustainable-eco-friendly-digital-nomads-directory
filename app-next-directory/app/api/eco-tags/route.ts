@@ -1,26 +1,14 @@
-import { NextRequest } from 'next/server';
-import { ApiResponseHandler } from '@/utils/api-response';
+import { NextResponse } from 'next/server';
+import { client } from '@/lib/sanity';
 
-// Eco tags data
-const ECO_TAGS = [
-  { id: 'zero-waste', label: 'Zero Waste', impact: 'high' },
-  { id: 'renewable-energy', label: 'Renewable Energy', impact: 'high' },
-  { id: 'plant-based', label: 'Plant-Based', impact: 'medium' },
-  { id: 'eco-construction', label: 'Eco Construction', impact: 'high' },
-  { id: 'water-conservation', label: 'Water Conservation', impact: 'medium' },
-  { id: 'local-community', label: 'Local Community', impact: 'medium' },
-  { id: 'organic', label: 'Organic', impact: 'medium' }
-];
-
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
-    const res = ApiResponseHandler.success({ tags: ECO_TAGS });
-    res.headers.set('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=600');
-    return res;
+    const ecoTags = await client.fetch(`*[_type == "ecoTag"] | order(name asc) {
+      _id,
+      name
+    }`);
+    return NextResponse.json({ ecoTags });
   } catch (error) {
-    console.error('Error fetching eco tags:', error);
-    return ApiResponseHandler.error('Failed to fetch eco tags', 500, {
-      code: 'ECO_TAGS_FETCH_FAILED',
-    });
+    return NextResponse.json({ error: 'Failed to fetch eco tags' }, { status: 500 });
   }
 }

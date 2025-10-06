@@ -12,14 +12,15 @@ interface PageLayoutProps {
 
 /**
  * Main page layout with accessibility features
- * - Skip links for keyboard navigation
+ * - Skip links for keyboard navigation (blends with white header)
  * - Proper semantic landmarks
  * - Consistent navigation structure
+ * - Scroll arrow provides visual navigation to main content
  */
 export function PageLayout({ children, className = '' }: PageLayoutProps) {
   return (
     <div className={`min-h-screen bg-background ${className}`}>
-      {/* Skip Links - Must be first focusable elements */}
+      {/* Skip Links - Styled to blend with white header, visible only on focus */}
       <SkipLink href="#main-content">Skip to main content</SkipLink>
       
       <Header />

@@ -417,28 +417,29 @@ describe('POST /api/contact', () => {
     const payload = await response.json();
     expect(payload.success).toBe(false);
     expect(payload.error).toBe('Email service temporarily unavailable. Please try again later.');
-  });
-
   it('should handle database connection failure gracefully', async () => {
-    const dbConnectSpy = jest.spyOn(dbConnect, 'default').mockImplementationOnce(async () => {
-      throw new Error('DB Connection Failed');
-    });
-
-    const { POST } = await import('../../../../app/api/contact/route');
-
-    const request = makeRequest({
-      name: 'Test User',
-      email: 'user@example.com',
-      subject: 'Test Subject',
-      message: 'Test Message',
-      type: 'general',
-    });
-
-    const response = await POST(request as any);
-    expect(response.status).toBe(500);
-    const payload = await response.json();
-    expect(payload.success).toBe(false);
-    expect(payload.error).toBe('Failed to send message. Please try again later.');
+-    jest.mock('@/lib/dbConnect', () => ({
+-      __esModule: true,
+-      default: jest.fn(async () => { throw new Error('DB Connection Failed'); }),
+    const dbConnect = (await import('@/lib/dbConnect')).default as jest.Mock;
+    dbConnect.mockRejectedValueOnce(new Error('DB Connection Failed'));
+ 
+     const { POST } = await import('../../../../app/api/contact/route');
+ 
+     const request = makeRequest({
+       name: 'Test User',
+       email: 'user@example.com',
+       subject: 'Test Subject',
+       message: 'Test Message',
+       type: 'general',
+     });
+ 
+     const response = await POST(request as any);
+     expect(response.status).toBe(500);
+     const payload = await response.json();
+     expect(payload.success).toBe(false);
+     expect(payload.error).toBe('Failed to send message. Please try again later.');
+   });
 
     dbConnectSpy.mockRestore(); // Clean up the spy
   });

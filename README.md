@@ -41,7 +41,10 @@ sustainable-eco-friendly-digital-nomads-directory/
 
 ## 📚 Documentation
 
-- **[Documentation Index](docs/INDEX.md)** - Complete table of contents and quick navigation
+- **[🔐 Security & Access Control](docs/SECURITY_ACCESS_CONTROL.md)** - Enterprise-grade security architecture and RBAC implementation
+- **[🔑 Authentication System](docs/app-next-directory/AUTHENTICATION.md)** - NextAuth.js v5 setup with comprehensive role management
+- **[📖 Documentation Index](docs/INDEX.md)** - Complete table of contents and quick navigation
+- **[🔌 API Documentation](docs/API_DOCUMENTATION.md)** - Comprehensive API reference with security details
 - All documentation is in [`docs/`](docs/), with subfolders for [`sanity/`](docs/sanity/), [`app-next-directory/`](docs/app-next-directory/), and [`shared/`](docs/shared/).
 - Six key context files are retained in [`memory-bank/`](memory-bank/).
 - See [`docs/README.md`](docs/README.md) for navigation and structure.

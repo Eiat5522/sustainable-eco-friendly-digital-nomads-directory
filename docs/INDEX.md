@@ -20,13 +20,21 @@
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture & Security
 
 ### System Architecture
 - **[Main README](README.md)** - Documentation structure overview
-- **[API Documentation](API_DOCUMENTATION.md)** - REST API endpoints and usage
+- **[🔐 Security & Access Control](SECURITY_ACCESS_CONTROL.md)** - Enterprise-grade security architecture and RBAC
+- **[API Documentation](API_DOCUMENTATION.md)** - REST API endpoints with security details
 - **[Development Guide](DEVELOPMENT_GUIDE.md)** - Development workflow and guidelines
 - **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - Production deployment procedures
+
+### Security & Authentication
+- **[🛡️ Security Overview](SECURITY_ACCESS_CONTROL.md)** - Comprehensive security documentation
+- **[🔐 Security Quick Reference](SECURITY_QUICK_REFERENCE.md)** - Developer quick reference card
+- **[🔑 Authentication System](app-next-directory/AUTHENTICATION.md)** - NextAuth.js v5 implementation
+- **[🔒 Access Control Matrix](SECURITY_ACCESS_CONTROL.md#access-control-matrix)** - Role-based permissions
+- **[🧪 Security Testing](SECURITY_ACCESS_CONTROL.md#security-testing)** - Security test coverage
 
 ### Frontend Architecture
 - **[Frontend Overview](app-next-directory/README.md)** - Next.js application structure
