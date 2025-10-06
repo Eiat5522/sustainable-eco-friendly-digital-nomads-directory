@@ -1,14 +1,87 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { auth } from '@/lib/auth';
+import type { UserRole } from '@/types/auth';
+import {
+  fetchModerationQueue,
+  performModerationAction,
+  summarizeModerationQueue,
+  type ModerationAction,
+} from '@/lib/admin/analytics';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
-const notImplemented = () =>
-  NextResponse.json({ error: 'Admin moderation API not implemented.' }, { status: 501 });
+type SessionUser = { id?: string; role?: UserRole } | undefined;
 
-export async function POST(_request: NextRequest, _context: RouteContext) {
-  return notImplemented();
+function ensureAdmin(sessionUser: SessionUser) {
+  const role = sessionUser?.role;
+  if (role === 'admin' || role === 'superAdmin') {
+    return true;
+  }
+  return false;
 }
 
-export async function GET(_request: NextRequest, _context: RouteContext) {
-  return notImplemented();
+export async function GET(request: NextRequest, _context: RouteContext) {
+  try {
+    const session = await auth();
+    const sessionUser = session?.user as SessionUser;
+
+    if (!ensureAdmin(sessionUser)) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
+
+    const url = new URL(request.url);
+    const limitParam = url.searchParams.get('limit');
+    const limit = Number(limitParam ?? 10);
+    const withSummary = url.searchParams.get('summary') === 'true';
+
+    const itemsPromise = fetchModerationQueue(Number.isFinite(limit) && limit > 0 ? limit : 10);
+    const summaryPromise = withSummary ? summarizeModerationQueue() : null;
+
+    const [items, summary] = await Promise.all([itemsPromise, summaryPromise]);
+
+    return NextResponse.json({ items, ...(summary ? { summary } : {}) });
+  } catch (error) {
+    console.error('Admin moderation GET error:', error);
+    return NextResponse.json({ error: 'Failed to load moderation queue' }, { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest, _context: RouteContext) {
+  try {
+    const session = await auth();
+    const sessionUser = session?.user as SessionUser;
+
+    if (!ensureAdmin(sessionUser)) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
+
+    const body = await request.json().catch(() => null);
+    const moderationId = body?.moderationId;
+    const action: ModerationAction | undefined = body?.action;
+    const notes: string | undefined = body?.notes;
+
+    if (!moderationId || typeof moderationId !== 'string') {
+      return NextResponse.json({ error: 'moderationId is required' }, { status: 400 });
+    }
+
+    if (!action) {
+      return NextResponse.json({ error: 'action is required' }, { status: 400 });
+    }
+
+    if (!['approve', 'restrict', 'dismiss', 'flag'].includes(action)) {
+      return NextResponse.json({ error: `Unsupported action: ${action}` }, { status: 400 });
+    }
+
+    const actor = sessionUser?.id ?? 'system';
+
+    const result = await performModerationAction({ moderationId, action, notes, actorId: actor });
+
+    return NextResponse.json({
+      message: `Action "${action}" applied`,
+      moderation: result,
+    });
+  } catch (error) {
+    console.error('Admin moderation POST error:', error);
+    return NextResponse.json({ error: 'Failed to process moderation action' }, { status: 500 });
+  }
 }

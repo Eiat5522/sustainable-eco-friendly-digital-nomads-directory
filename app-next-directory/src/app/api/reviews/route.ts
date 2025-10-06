@@ -1,10 +1,165 @@
-import { client } from '@/lib/sanity/client';
+import { client, urlFor } from '@/lib/sanity/client';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { revalidateTag } from 'next/cache';
 import { hasFeaturePermission, UserRole } from '@/types/auth';
 import { structuredLogger, getRequestContext } from '@/lib/logger';
 import { ensureSanityUser } from '@/lib/sanity/user';
+import { groq } from 'next-sanity';
+
+const REVIEWS_BY_LISTING_QUERY = groq`
+  *[_type == "review" && listing._ref == $listingId && (
+    (!defined(approved) || approved == true) ||
+    (defined($userId) && $userId != "" && user._ref == $userId)
+  )] | order(coalesce(createdAt, _createdAt) desc) {
+    _id,
+    rating,
+    comment,
+    approved,
+    createdAt,
+    _createdAt,
+    user->{
+      _id,
+      name,
+      image,
+      avatar
+    }
+  }
+`;
+
+type RawReview = {
+  _id?: unknown;
+  rating?: unknown;
+  comment?: unknown;
+  approved?: unknown;
+  createdAt?: unknown;
+  _createdAt?: unknown;
+  user?: {
+    _id?: unknown;
+    name?: unknown;
+    image?: unknown;
+    avatar?: unknown;
+  } | null;
+};
+
+type NormalizedReview = {
+  id: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  status: 'approved' | 'pending';
+  user: {
+    id?: string;
+    name: string;
+    image?: string;
+  };
+};
+
+const buildUserImage = (user: RawReview['user']): string | undefined => {
+  if (!user) return undefined;
+
+  const directUrl = typeof user.image === 'string' ? user.image.trim() : '';
+  if (directUrl) {
+    return directUrl;
+  }
+
+  if (user.avatar) {
+    try {
+      const builder = urlFor(user.avatar as Parameters<typeof urlFor>[0]);
+      return builder.width(96).height(96).fit('crop').auto('format').url();
+    } catch (error) {
+      console.warn('[api/reviews] failed to build avatar url', error);
+      return undefined;
+    }
+  }
+
+  return undefined;
+};
+
+const normalizeReview = (review: RawReview): NormalizedReview | null => {
+  const id = typeof review._id === 'string' ? review._id : null;
+  const rating = Number(review.rating);
+  if (!id || !Number.isFinite(rating) || rating <= 0) {
+    return null;
+  }
+
+  const comment = typeof review.comment === 'string' ? review.comment.trim() : '';
+  const createdAt =
+    (typeof review.createdAt === 'string' && review.createdAt) ||
+    (typeof review._createdAt === 'string' && review._createdAt) ||
+    new Date().toISOString();
+
+  const userName =
+    (review.user && typeof review.user.name === 'string' && review.user.name.trim().length > 0)
+      ? review.user.name.trim()
+      : 'Anonymous';
+
+  const status: 'approved' | 'pending' = review.approved === false ? 'pending' : 'approved';
+
+  return {
+    id,
+    rating,
+    comment,
+    createdAt,
+    status,
+    user: {
+      id: typeof review.user?._id === 'string' ? review.user?._id : undefined,
+      name: userName,
+      image: buildUserImage(review.user),
+    },
+  };
+};
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const listingId = searchParams.get('listingId')?.trim();
+  const userIdParam = searchParams.get('userId')?.trim();
+
+  if (!listingId) {
+    return NextResponse.json({ error: 'listingId query parameter is required' }, { status: 400 });
+  }
+
+  try {
+    const rawReviews = await client.fetch<RawReview[]>(REVIEWS_BY_LISTING_QUERY, {
+      listingId,
+      userId: userIdParam && userIdParam.length > 0 ? userIdParam : undefined,
+    });
+
+    const normalized: NormalizedReview[] = [];
+    let sum = 0;
+
+    for (const raw of rawReviews ?? []) {
+      const review = normalizeReview(raw);
+      if (!review) continue;
+
+      // Exclude pending reviews from aggregate metrics but keep them in payload for transparency
+      if (review.status === 'approved') {
+        sum += review.rating;
+      }
+
+      normalized.push(review);
+    }
+
+    const approvedCount = normalized.filter((r) => r.status === 'approved').length;
+    const pendingCount = normalized.length - approvedCount;
+    const statistics = {
+      totalReviews: approvedCount,
+      approvedReviews: approvedCount,
+      pendingReviews: pendingCount > 0 ? pendingCount : 0,
+      averageRating: approvedCount > 0 ? Number((sum / approvedCount).toFixed(2)) : null,
+    } as const;
+
+    return NextResponse.json({ reviews: normalized, statistics });
+  } catch (caughtError) {
+    structuredLogger.apiError('/api/reviews', caughtError, {
+      ...getRequestContext(request),
+      listingId,
+      userId: userIdParam,
+      operation: 'fetch_reviews',
+    });
+    return NextResponse.json({ error: 'Failed to load reviews' }, { status: 500 });
+  }
+}
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -57,7 +212,7 @@ export async function POST(request: Request) {
     }
 
     // Check if user has already reviewed this listing
-    const existingReview = await client.fetch(
+    const existingReview = await client.fetch<RawReview | null>(
       `*[_type == "review" && listing._ref == $listingId && user._ref == $userId][0]`,
       { listingId, userId }
     );
@@ -66,29 +221,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'You have already reviewed this listing' }, { status: 409 });
     }
 
-    const newReview = await client.create({
-      _type: 'review',
+    const reviewDoc = {
+      _type: 'review' as const,
       listing: { _type: 'reference', _ref: listingId },
       user: { _type: 'reference', _ref: sanityUser._id },
       rating,
       comment: comment.trim(),
-      approved: false, // Reviews need approval by default
+      approved: false,
       createdAt: new Date().toISOString(),
-    });
+    };
 
-    // Attempt to revalidate the listing page cache using slug if present
-    const listingSlug = (listingDoc as any)?.slug?.current as string | undefined;
-    if (listingSlug) {
-      try {
-        revalidateTag(`listing:${listingSlug}`);
-      } catch {
-        // ignore if not in a revalidatable context
-      }
+    type CreatedReview = typeof reviewDoc & { _id?: string };
+    const newReview = await client.create<CreatedReview>(reviewDoc);
+
+    try {
+      revalidateTag(`listing:${listingId}-reviews`);
+    } catch {
+      // ignore if not in a revalidatable context
     }
 
     return NextResponse.json(newReview);
-  } catch (error) {
-    structuredLogger.apiError('/api/reviews', error, {
+  } catch (caughtError) {
+    structuredLogger.apiError('/api/reviews', caughtError, {
       ...getRequestContext(request),
       userId,
       userRole,

@@ -63,9 +63,11 @@ export function FavoriteListingsShowcase({ listings, onRemove }: FavoriteListing
         const accentGradient = ACCENT_GRADIENTS[index % ACCENT_GRADIENTS.length];
         const categoryLabel = toLabel(listing.category ?? listing.type, CATEGORY_LABELS);
         const priceLabel = toLabel(listing.priceRange, PRICE_RANGE_LABELS);
+        const ecoTags = Array.isArray(listing.ecoFocusTags) ? listing.ecoFocusTags : [];
+        const digitalTags = Array.isArray(listing.digitalNomadFeatures) ? listing.digitalNomadFeatures : [];
         const highlightTags = [
-          ...listing.ecoFocusTags.slice(0, 2),
-          ...listing.digitalNomadFeatures.slice(0, 2),
+          ...ecoTags.slice(0, 2),
+          ...digitalTags.slice(0, 2),
         ];
         const description =
           listing.shortDescription ??

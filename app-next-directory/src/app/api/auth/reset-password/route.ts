@@ -5,7 +5,6 @@ import User from '@/models/User';
 import PasswordResetToken from '@/models/PasswordResetToken';
 import { hashToken } from '@/lib/tokens';
 import { getClientIp, isRateLimited, getRetryAfterMs } from '@/lib/rate-limit';
-import mongoose from 'mongoose';
 import { structuredLogger, getRequestContext } from '@/lib/logger';
 
 const Schema = z.object({
@@ -121,15 +120,14 @@ export async function POST(req: Request) {
       at: new Date().toISOString(),
     });
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    // Log the actual error for debugging
-    structuredLogger.authError('password reset', err, {
+  } catch (error) {
+    const resolvedError = error instanceof Error ? error : new Error('Unknown error');
+    structuredLogger.authError('password reset', resolvedError, {
       ...getRequestContext(req),
       operation: 'reset_password'
     });
-    
-    // Return generic error to client
-    if (err instanceof z.ZodError) {
+
+    if (error instanceof z.ZodError) {
       // Audit: bad request body
       console.log('[AUDIT] password_reset', {
         outcome: 'failure',
@@ -146,10 +144,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid request data' }, { status: 400 });
     }
     // Audit: generic failure
+    const errorName =
+      typeof error === 'object' && error !== null && 'name' in error && typeof (error as { name?: unknown }).name === 'string'
+        ? (error as { name: string }).name
+        : undefined;
+
     console.log('[AUDIT] password_reset', {
       outcome: 'failure',
       reason: 'exception',
-      errorName: err?.name,
+      errorName,
       ip: getClientIp(req),
       requestId:
         req.headers.get('x-request-id') ||

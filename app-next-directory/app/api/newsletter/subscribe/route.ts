@@ -76,6 +76,7 @@ function startMemoryCleanup() {
 
 // Upstash Redis (shared client) helpers with memory fallback
 const upstash = getRedisClient()
+startMemoryCleanup()
 
 async function storeGet(key: string) {
   if (upstash) {
@@ -121,7 +122,6 @@ async function storeIncr(key: string, ttlSeconds: number) {
 // Rate limit and idempotency settings
 const RATE_LIMIT_PER_IP = 10 // per hour
 const RATE_LIMIT_PER_IP_WINDOW = 60 * 60 // seconds
-const RATE_LIMIT_PER_EMAIL = 1 // per 24h
 const RATE_LIMIT_PER_EMAIL_WINDOW = 24 * 60 * 60 // seconds
 const IDEMPOTENCY_TTL = 24 * 60 * 60 // seconds — keep idempotency keys for 24h
 
@@ -203,7 +203,7 @@ export async function POST(request: Request) {
             const storedBody = parsed.body
             return json({ success: true, ...(storedBody ?? { data: null, message: 'Thank you for subscribing to our newsletter!' }) })
           }
-        } catch (e) {
+        } catch (_error) {
           // ignore parse errors and continue
         }
       }
@@ -255,10 +255,9 @@ export async function POST(request: Request) {
         const payload = await buildNewsletterConfirmEmail(email, token)
         await sendMail(payload)
       }
-    } catch (e) {
+    } catch (error) {
       // Swallow email errors to avoid leaking infra details
-       
-      console.warn('Newsletter confirmation email send failed', e)
+      console.warn('Newsletter confirmation email send failed', error)
     }
 
     // Persist an email marker to prevent repeated sends within the window

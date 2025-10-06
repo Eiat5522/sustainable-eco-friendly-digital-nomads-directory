@@ -1,7 +1,7 @@
+'use client'
+
 // Minimal client-safe typing to allow build-time inlining of NODE_ENV without exposing Node APIs.
 declare const process: { env: { NODE_ENV: 'development' | 'production' | 'test' } };
-
-'use client'
 
 import { ReactNode } from 'react'
 import { RawErrorBoundary as ErrorBoundary, type FallbackProps } from '@kombai/react-error-boundary'

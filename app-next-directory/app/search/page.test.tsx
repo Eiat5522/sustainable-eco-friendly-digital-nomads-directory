@@ -23,18 +23,13 @@ jest.doMock('@/components/layout/Footer', () => ({
   },
 }));
 
-jest.doMock('@/components/search/SearchFiltersForm', () => ({
-  __esModule: true,
-  default: function MockSearchFiltersForm() {
-    return <div data-testid="search-filters-form" />;
-  },
-}));
+
 
 // Create a test version of the page that doesn't use async searchParams
 function TestSearchPage() {
   const Header = require('@/components/layout/Header').default;
   const Footer = require('@/components/layout/Footer').default;
-  const SearchFiltersForm = require('@/components/search/SearchFiltersForm').default;
+  const { SearchFiltersForm } = require('@/components/search/SearchFiltersForm');
 
   return (
     <div className="min-h-screen bg-background">

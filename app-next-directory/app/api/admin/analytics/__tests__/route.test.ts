@@ -1,0 +1,101 @@
+import { describe, it, expect, jest, beforeEach, beforeAll } from '@jest/globals';
+
+jest.mock('@/lib/auth', () => ({
+  __esModule: true,
+  auth: jest.fn(),
+}));
+
+jest.mock('@/lib/admin/analytics', () => ({
+  __esModule: true,
+  fetchAdminAnalytics: jest.fn(),
+}));
+
+import { auth } from '@/lib/auth';
+import { fetchAdminAnalytics } from '@/lib/admin/analytics';
+
+const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
+const analyticsMockModule = jest.requireMock('@/lib/admin/analytics') as {
+  fetchAdminAnalytics: jest.Mock;
+};
+
+let GET: typeof import('../route').GET;
+
+const mockAuth = authMockModule.auth;
+const mockFetchAnalytics = analyticsMockModule.fetchAdminAnalytics;
+
+beforeAll(async () => {
+  ({ GET } = await import('../route'));
+});
+
+describe('/api/admin/analytics', () => {
+  beforeEach(() => {
+    mockAuth.mockReset();
+    mockFetchAnalytics.mockReset();
+  });
+
+  it('requires admin role', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+
+    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(403);
+    expect(json.error).toBe('Admin access required');
+    expect(mockFetchAnalytics).not.toHaveBeenCalled();
+  });
+
+  it('returns analytics for admin', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockFetchAnalytics.mockResolvedValue({
+      overview: {
+        totalUsers: 100,
+        totalListings: 40,
+        totalReviews: 15,
+        weeklySignups: 5,
+        pendingModeration: 2,
+      },
+      userRoles: { admin: 2, user: 95 },
+      moderationQueue: [],
+      generatedAt: '2024-01-01T00:00:00.000Z',
+    });
+
+    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.analytics).toBeDefined();
+    expect(json.analytics.overview.totalUsers).toBe(100);
+    expect(mockFetchAnalytics).toHaveBeenCalledTimes(1);
+  });
+
+  it('allows superAdmin role', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'superAdmin' } } as any);
+    mockFetchAnalytics.mockResolvedValue({
+      overview: {
+        totalUsers: 1,
+        totalListings: 1,
+        totalReviews: 1,
+        weeklySignups: 0,
+        pendingModeration: 0,
+      },
+      userRoles: { superAdmin: 1 },
+      moderationQueue: [],
+      generatedAt: '2024-01-01T00:00:00.000Z',
+    });
+
+    const response = await GET({} as any, { params: Promise.resolve({}) });
+    expect(response.status).toBe(200);
+    expect(mockFetchAnalytics).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles failures from analytics service', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockFetchAnalytics.mockRejectedValue(new Error('Sanity down'));
+
+    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(json.error).toBe('Failed to fetch admin analytics');
+  });
+});

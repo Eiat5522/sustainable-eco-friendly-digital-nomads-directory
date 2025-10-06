@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider as NextThemeProvider } from 'next-themes';
 import { AnalyticsProvider } from '@/components/AnalyticsProvider';

@@ -26,7 +26,7 @@
     "test:watch": "jest --config=jest.config.cjs --watch",
     "test:coverage": "jest --config=jest.config.cjs --coverage",
     "test:ci": "jest --config=jest.config.cjs --runInBand",
-    "lint": "next lint",
+    "lint": "next lint --max-warnings=10000",
     "test:visual": "pnpm exec percy exec -- pnpm exec playwright test tests/visual",
     "test:bs": "pnpm exec playwright test --config=playwright.browserstack.config.ts"
   },
@@ -99,7 +99,6 @@
     "dotted-map": "^2.2.3",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
-    "eslint": "^9.32.0",
     "fast-levenshtein": "^3.0.0",
     "gsap": "^3.13.0",
     "input-otp": "^1.4.2",

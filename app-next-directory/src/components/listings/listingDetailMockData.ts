@@ -74,21 +74,24 @@ export const mockReviews = [
     rating: 5,
     comment: "Absolutely stunning resort with incredible sustainability practices. The solar-powered facilities and zero-waste initiatives are impressive, and the staff is knowledgeable about eco-friendly practices.",
     user: { name: "Sarah Johnson", image: "/placeholder_image.png" },
-    createdAt: "2024-01-15T10:30:00Z"
+    createdAt: "2024-01-15T10:30:00Z",
+    status: 'approved' as const,
   },
   {
     id: "review-2", 
     rating: 4,
     comment: "Beautiful location and great amenities. The coworking space is perfect for digital nomads, though the WiFi could be faster in some areas.",
     user: { name: "Mike Chen", image: "/placeholder_image.png" },
-    createdAt: "2024-01-10T14:20:00Z"
+    createdAt: "2024-01-10T14:20:00Z",
+    status: 'approved' as const,
   },
   {
     id: "review-3",
     rating: 5,
     comment: "The perfect blend of luxury and sustainability. Loved the locally-sourced food and the educational programs about marine conservation.",
     user: { name: "Emma Rodriguez", image: "/placeholder_image.png" },
-    createdAt: "2024-01-08T09:15:00Z"
+    createdAt: "2024-01-08T09:15:00Z",
+    status: 'approved' as const,
   }
 ];
 

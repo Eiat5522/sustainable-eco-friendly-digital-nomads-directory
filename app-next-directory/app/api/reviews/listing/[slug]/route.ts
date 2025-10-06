@@ -38,7 +38,7 @@ export async function GET(
         pages: Math.ceil(total / limit)
       }
     });
-  } catch (error) {
+  } catch (_error) {
     return ApiResponseHandler.error('Failed to fetch listing reviews');
   }
 }

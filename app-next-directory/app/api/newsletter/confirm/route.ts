@@ -13,7 +13,7 @@ export async function GET(request: Request) {
     const { email } = await verifyNewsletterConfirmToken(token)
     if (!process.env.MONGODB_URI) {
       const status = process.env.NODE_ENV === 'production' ? 'server' : 'success'
-      return NextResponse.redirect(new URL(`/newsletter/confirmed?status=${status}`, origin))
+      return NextResponse.redirect(new URL(`/newsletter/confirmed?status=${status}`, url.origin))
     }
     await dbConnect()
     const normalizedEmail = email.trim().toLowerCase()
@@ -23,12 +23,12 @@ export async function GET(request: Request) {
       { upsert: true }
     )
     return NextResponse.redirect(new URL('/newsletter/confirmed?status=success', url.origin))
-  } catch (e) {
+  } catch (_error) {
     try {
       const url = new URL(request.url)
       return NextResponse.redirect(new URL('/newsletter/confirmed?status=invalid', url.origin))
     } catch {
-      return NextResponse.redirect('/newsletter/confirmed?status=invalid' as any)
+      return NextResponse.redirect('/newsletter/confirmed?status=invalid')
     }
   }
 }

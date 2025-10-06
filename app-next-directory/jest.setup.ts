@@ -1,39 +1,45 @@
 jest.mock('broadcast-channel', () => {
+  type MessageEvent = { data: unknown; type: 'message' };
+  type MessageListener = (event: MessageEvent) => void;
+
   class BroadcastChannel {
-    name;
-    #listeners = new Set();
-    #onmessageHandler = null;
-    
-    constructor(name) {
+    public name: string;
+    #listeners: Set<MessageListener> = new Set();
+    #onmessageHandler: MessageListener | null = null;
+
+    constructor(name: string) {
       this.name = name;
     }
-    
-    postMessage(message) {
-      const event = { data: message, type: 'message' };
-      for (const l of this.#listeners) l(event);
-      if (this.#onmessageHandler) this.#onmessageHandler(event);
+
+    postMessage(message: unknown): void {
+      const event: MessageEvent = { data: message, type: 'message' };
+      for (const listener of this.#listeners) {
+        listener(event);
+      }
+      this.#onmessageHandler?.(event);
     }
-    
-    addEventListener(type, listener) {
+
+    addEventListener(type: string, listener: MessageListener): void {
       if (type === 'message') this.#listeners.add(listener);
     }
-    
-    removeEventListener(type, listener) {
+
+    removeEventListener(type: string, listener: MessageListener): void {
       if (type === 'message') this.#listeners.delete(listener);
     }
-    
-    set onmessage(fn) {
+
+    set onmessage(fn: MessageListener | null) {
       this.#onmessageHandler = fn;
     }
 
-    get onmessage() {
+    get onmessage(): MessageListener | null {
       return this.#onmessageHandler;
     }
-    
-    close() {
+
+    close(): void {
       this.#listeners.clear();
     }
   }
+
   return { __esModule: true, BroadcastChannel, default: BroadcastChannel };
 });
 
@@ -42,7 +48,7 @@ import { jest } from '@jest/globals';
 import './jest.polyfills';
 import { TextEncoder, TextDecoder } from 'util';
 import '@testing-library/jest-dom';
-import { createTestData } from '@/tests/helpers/test-data';
+import { createTestData } from './src/tests/helpers/test-data';
 
 // Provide deterministic dataset for unit tests
 ;(global as any).__TEST_DATA__ = createTestData();
@@ -180,17 +186,21 @@ jest.mock('next/server', () => {
   };
 });
 
-jest.mock('@/lib/redis', () => ({
-  __esModule: true,
-  getRedisClient: jest.fn().mockReturnValue({
-    incr: jest.fn().mockResolvedValue(1),
-    expire: jest.fn().mockResolvedValue(1),
-    evalSha: jest.fn().mockResolvedValue(['1', '1']),
-    script: jest.fn().mockReturnValue({
-      load: jest.fn().mockResolvedValue('script-hash'),
-    }),
-  }),
-}));
+jest.mock('@/lib/redis', () => {
+  const mockRedisClient = {
+    incr: jest.fn(async () => 1),
+    expire: jest.fn(async () => 1),
+    evalSha: jest.fn(async () => ['1', '1'] as const),
+    script: jest.fn(() => ({
+      load: jest.fn(async () => 'script-hash'),
+    })),
+  };
+
+  return {
+    __esModule: true,
+    getRedisClient: jest.fn(() => mockRedisClient),
+  };
+});
 
 // Ensure the rate-limit utilities are mocked for all tests.
 // Ensure the rate-limit utilities are mocked for all tests. Some test files

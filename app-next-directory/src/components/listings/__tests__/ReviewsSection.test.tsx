@@ -150,6 +150,7 @@ const defaultReviews = [
     comment: 'Excellent place! Great atmosphere and eco-friendly practices.',
     user: { name: 'John Doe', image: '/john.jpg' },
     createdAt: '2023-12-01T10:00:00Z',
+    status: 'approved' as const,
   },
   {
     id: 'review-2',
@@ -157,6 +158,7 @@ const defaultReviews = [
     comment: 'Good location, friendly staff.',
     user: { name: 'Jane Smith' },
     createdAt: '2023-11-15T14:30:00Z',
+    status: 'approved' as const,
   },
 ]
 
@@ -326,6 +328,30 @@ describe('ReviewsSection', () => {
     expect(screen.getByText('Jane Smith')).toBeInTheDocument()
     expect(screen.getByText('Good location, friendly staff.')).toBeInTheDocument()
     expect(screen.getAllByTestId('separator')).toHaveLength(1)
+  })
+
+  it('surfaces pending reviews in a dedicated moderation section', () => {
+    const pendingReview = {
+      id: 'pending-1',
+      rating: 4,
+      comment: 'Awaiting moderation review.',
+      user: { name: 'Pending Person' },
+      createdAt: '2023-12-20T09:00:00Z',
+      status: 'pending' as const,
+    }
+
+    render(
+      <ReviewsSection
+        reviews={[...defaultReviews, pendingReview]}
+        listingId="test-listing"
+        isSignedIn
+      />
+    )
+
+    expect(screen.getByText('Your review is awaiting moderation')).toBeInTheDocument()
+    expect(screen.getByText('Awaiting moderation review.')).toBeInTheDocument()
+    expect(screen.getByText('Reviews (2)')).toBeInTheDocument()
+    expect(screen.getByText('Pending Person')).toBeInTheDocument()
   })
 
   it('shows an empty state when there are no reviews', () => {

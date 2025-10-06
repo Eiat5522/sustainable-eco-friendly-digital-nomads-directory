@@ -10,7 +10,7 @@ import { NeoButton } from '@/components/ui/neo-button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Mail, MessageSquare, Type } from 'lucide-react'
+import { Mail, MessageSquare, Type } from 'lucide-react';
 import Link from 'next/link'
 
 import { z } from 'zod';
@@ -111,7 +111,7 @@ function ContactForm() {
         setSubmitMessage(result.message || 'An error occurred. Please try again.')
         setSubmitStatus('error')
       }
-    } catch (error) {
+    } catch (_error) {
       setSubmitMessage('An error occurred. Please try again.')
       setSubmitStatus('error')
     } finally {

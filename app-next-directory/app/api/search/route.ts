@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest } from 'next/server';
-import { groq } from 'next-sanity';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 import {

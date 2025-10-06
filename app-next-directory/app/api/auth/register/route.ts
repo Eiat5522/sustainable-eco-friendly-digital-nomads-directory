@@ -67,8 +67,8 @@ export async function POST(request: NextRequest) {
     await connect();
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    const duplicateCount = await User.countDocuments({ email });
+    if (duplicateCount > 0) {
       return NextResponse.json(
         { success: false, error: { message: 'User already exists', code: 'CONFLICT' } },
         { status: 409 }
@@ -79,32 +79,34 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create new user
-    const newUser = await User.create({
+    const createdUserDoc = await User.create({
       name,
       email,
       password: hashedPassword,
       role: 'user',
     });
 
-    // Prepare response (exclude password)
+    const safeUser = (createdUserDoc && typeof createdUserDoc === 'object' && 'toObject' in createdUserDoc)
+      ? (createdUserDoc as { toObject: () => Record<string, unknown> }).toObject()
+      : (createdUserDoc as Record<string, unknown>);
+
     const userResponse = {
-      _id: newUser._id,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
+      _id: String(safeUser._id ?? ''),
+      name: typeof safeUser.name === 'string' ? safeUser.name : name,
+      email: typeof safeUser.email === 'string' ? safeUser.email : email,
+      role: typeof safeUser.role === 'string' ? safeUser.role : 'user',
     };
 
     return NextResponse.json(
       { success: true, data: { user: userResponse } },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error) {
     // Handle errors (e.g., DB connection, hashing, creation)
+    const message = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json(
-      { success: false, error: { message: error.message, code: 'SERVER_ERROR' } },
+      { success: false, error: { message, code: 'SERVER_ERROR' } },
       { status: 500 }
     );
   }
 }
-
-

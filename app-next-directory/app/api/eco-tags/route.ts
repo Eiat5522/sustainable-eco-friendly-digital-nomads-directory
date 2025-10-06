@@ -12,7 +12,7 @@ const ECO_TAGS = [
   { id: 'organic', label: 'Organic', impact: 'medium' }
 ];
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const res = ApiResponseHandler.success({ tags: ECO_TAGS });
     res.headers.set('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=600');

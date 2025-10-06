@@ -24,7 +24,7 @@ interface EnhancedMetricData extends MetricData {
 }
 
 // Function to store performance metrics in database
-async function storePerformanceData(metricData: EnhancedMetricData): Promise<boolean> {
+async function storePerformanceData(_metricData: EnhancedMetricData): Promise<boolean> {
   try {
     // In development, we'll just log the data
     if (process.env.NODE_ENV === 'development') {
@@ -49,7 +49,7 @@ async function storePerformanceData(metricData: EnhancedMetricData): Promise<boo
 export async function POST(request: Request) {
   try {
     // Parse the metrics data from the request
-    const metricsData: MetricData = await request.json();
+    const metricsData = (await request.json()) as MetricData;
 
     // Add timestamp and user agent
     const enhancedData: EnhancedMetricData = {
@@ -60,12 +60,14 @@ export async function POST(request: Request) {
     };
 
     // Check metrics against thresholds and add status
-    if (metricsData.name && (PERFORMANCE_BUDGETS.pageLoad as Record<string, any>)[metricsData.name]) {
-      const budget = (PERFORMANCE_BUDGETS.pageLoad as Record<string, any>)[metricsData.name];
+    if (metricsData.name) {
+      const budget = PERFORMANCE_BUDGETS.pageLoad[metricsData.name as keyof typeof PERFORMANCE_BUDGETS.pageLoad];
+      if (budget) {
       enhancedData.status =
         metricsData.value <= budget.target ? 'good' :
         metricsData.value <= budget.acceptable ? 'needs-improvement' :
         'poor';
+      }
     }
 
     // Store the enhanced data

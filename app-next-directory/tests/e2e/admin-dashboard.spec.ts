@@ -3,6 +3,32 @@ import { loginAs } from './helpers/auth';
 
 const BASE_URL = process.env.E2E_BASE_URL ?? process.env.BASE_URL ?? 'http://localhost:3000';
 
+const ANALYTICS_FIXTURE = {
+  overview: {
+    totalUsers: 1275,
+    totalListings: 412,
+    totalReviews: 964,
+    weeklySignups: 38,
+    pendingModeration: 6,
+  },
+  userRoles: {
+    admin: 5,
+    user: 1200,
+  },
+  moderationQueue: [
+    {
+      id: 'queue-1',
+      itemType: 'listing',
+      itemName: 'Forest Cabin',
+      itemId: 'listing-forest',
+      reports: 2,
+      lastActivity: '2024-01-10T10:00:00.000Z',
+      status: 'pending',
+    },
+  ],
+  generatedAt: '2024-01-10T10:00:00.000Z',
+} as const;
+
 test.describe('Admin Dashboard Integration', () => {
   test.describe('Access Control', () => {
     test('regular user cannot access admin dashboard', async ({ page }) => {
@@ -13,7 +39,7 @@ test.describe('Admin Dashboard Integration', () => {
       );
 
       await page.goto(`${BASE_URL}/admin/dashboard`);
-      await expect(page.getByText(/access denied/i)).toBeVisible({ timeout: 10000 });
+      await expect(page).toHaveURL(/\/auth\/login/);
     });
 
     test('venue owner cannot access admin dashboard', async ({ page }) => {
@@ -24,17 +50,40 @@ test.describe('Admin Dashboard Integration', () => {
       );
 
       await page.goto(`${BASE_URL}/admin/dashboard`);
-      await expect(page.getByText(/access denied/i)).toBeVisible({ timeout: 10000 });
+      await expect(page).toHaveURL(/\/auth\/login/);
     });
 
     test('unauthenticated user is redirected to login', async ({ page }) => {
       await page.goto(`${BASE_URL}/admin/dashboard`);
-      await expect(page).toHaveURL(/\/auth\/login/, { timeout: 10000 });
+      await expect(page).toHaveURL(/\/auth\/login/);
     });
   });
 
   test.describe('Admin Dashboard Functionality', () => {
     test.beforeEach(async ({ page }) => {
+      await page.route('**/api/admin/analytics', (route) => {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          json: { analytics: ANALYTICS_FIXTURE },
+        });
+      });
+      await page.route('**/api/admin/moderation*', (route) => {
+        if (route.request().method() === 'GET') {
+          route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            json: { items: ANALYTICS_FIXTURE.moderationQueue },
+          });
+        } else {
+          route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            json: { message: 'ok' },
+          });
+        }
+      });
+
       await loginAs(
         page,
         process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com',
@@ -52,61 +101,71 @@ test.describe('Admin Dashboard Integration', () => {
     test('displays analytics overview section', async ({ page }) => {
       const analyticsSection = page.getByTestId('analytics-overview');
       await expect(analyticsSection).toBeVisible();
-
-      // Check for overview heading
       await expect(page.getByText('Overview')).toBeVisible();
-
-      // Check for analytics cards
-      const analyticsCards = analyticsSection.locator('article');
-      await expect(analyticsCards).toHaveCount(4);
-
-      // Verify expected card titles
+      await expect(analyticsSection.locator('article')).toHaveCount(4);
       await expect(analyticsSection.getByText('Active members')).toBeVisible();
       await expect(analyticsSection.getByText('Total listings')).toBeVisible();
       await expect(analyticsSection.getByText('Weekly signups')).toBeVisible();
       await expect(analyticsSection.getByText('Items pending review')).toBeVisible();
     });
 
+    test('renders analytics card values from the API payload', async ({ page }) => {
+      const analyticsSection = page.getByTestId('analytics-overview');
+
+      const expectCardValue = async (title: string, expected: number) => {
+        const card = analyticsSection.locator('article').filter({ hasText: title });
+        const valueText = await card.locator('[data-testid="analytics-card-value"]').textContent();
+        const normalized = valueText?.replace(/[^\d-]/g, '') ?? '';
+        expect(normalized).toBe(String(expected));
+      };
+
+      await expectCardValue('Active members', ANALYTICS_FIXTURE.overview.totalUsers);
+      await expectCardValue('Total listings', ANALYTICS_FIXTURE.overview.totalListings);
+      await expectCardValue('Weekly signups', ANALYTICS_FIXTURE.overview.weeklySignups);
+      await expectCardValue('Items pending review', ANALYTICS_FIXTURE.overview.pendingModeration);
+
+      await expect(page.getByTestId('pending-tasks')).toHaveText(
+        `${ANALYTICS_FIXTURE.overview.pendingModeration} tasks assigned`
+      );
+    });
+
     test('displays moderation queue section', async ({ page }) => {
       const moderationSection = page.getByTestId('moderation-tools');
       await expect(moderationSection).toBeVisible();
-
-      // Check for moderation heading
       await expect(page.getByText('Moderation Queue')).toBeVisible();
 
-      // Check for table structure
       const table = moderationSection.locator('table');
       await expect(table).toBeVisible();
 
-      // Verify table headers
-      const headers = table.locator('thead th');
-      const headerTexts = await headers.allTextContents();
-      expect(headerTexts.map(h => h.trim())).toEqual([
+      const headers = await table.locator('thead th').allTextContents();
+      expect(headers.map((h) => h.trim())).toEqual([
         'Item',
         'Type',
         'Reports',
         'Last activity',
         'Status',
-        'Actions'
+        'Actions',
       ]);
     });
 
     test('shows dashboard metadata', async ({ page }) => {
-      // Check for last refresh info
       await expect(page.getByText('Last refresh')).toBeVisible();
-      await expect(page.getByText('tasks assigned')).toBeVisible();
+      await expect(page.getByTestId('pending-tasks')).toBeVisible();
       await expect(page.getByText('SLA: 8h')).toBeVisible();
     });
 
     test('shows empty state when moderation queue is empty', async ({ page }) => {
-      // Mock API to return empty queue
-      await page.route('**/api/moderation/queue', route =>
-        route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          json: { items: [] },
-        })
-      );
+      await page.route('**/api/admin/moderation*', (route) => {
+        if (route.request().method() === 'GET') {
+          route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            json: { items: [] },
+          });
+        } else {
+          route.fulfill({ status: 200, contentType: 'application/json', json: { message: 'ok' } });
+        }
+      });
 
       await page.reload();
 
@@ -115,57 +174,30 @@ test.describe('Admin Dashboard Integration', () => {
     });
 
     test('displays moderation queue items with proper structure', async ({ page }) => {
-      // Mock API to return items
-      const mockItems = [
-        {
-          id: '1',
-          item: 'Test Listing',
-          type: 'Listing',
-          reports: 3,
-          lastActivity: new Date().toISOString(),
-          status: 'Pending',
-        },
-      ];
-
-      await page.route('**/api/moderation/queue', route =>
-        route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          json: { items: mockItems },
-        })
-      );
-
-      await page.reload();
-
       const moderationSection = page.getByTestId('moderation-tools');
       const tableRows = moderationSection.locator('tbody tr');
       await expect(tableRows).toHaveCount(1);
 
       const row = tableRows.first();
       await expect(row.locator('td')).toHaveCount(6);
-
       await expect(row.getByRole('button', { name: /notes/i })).toBeVisible();
       await expect(row.getByRole('button', { name: /approve/i })).toBeVisible();
       await expect(row.getByRole('button', { name: /restrict/i })).toBeVisible();
     });
 
     test('analytics cards show numeric values', async ({ page }) => {
-      const analyticsSection = page.getByTestId('analytics-overview');
-      const analyticsCards = analyticsSection.locator('article');
+      const analyticsCards = page.getByTestId('analytics-overview').locator('article');
+      const count = await analyticsCards.count();
 
-      // Each card should have a numeric value
-      for (let i = 0; i < 4; i++) {
-        const card = analyticsCards.nth(i);
-        const valueElement = card.locator('[class*="text-2xl"]').first();
+      for (let i = 0; i < count; i += 1) {
+        const valueElement = analyticsCards.nth(i).locator('[data-testid="analytics-card-value"]');
         await expect(valueElement).toBeVisible();
-
         const valueText = await valueElement.textContent();
-        expect(valueText).toMatch(/[\d,]+|—/); // Should be a number or dash
+        expect(valueText).toMatch(/[\d,]+|—/);
       }
     });
 
     test('page has proper SEO protection', async ({ page }) => {
-      // Check that the page has noindex meta tag
       const robotsMeta = page.locator('meta[name="robots"]');
       await expect(robotsMeta).toHaveAttribute('content', 'noindex,nofollow');
     });
@@ -173,28 +205,23 @@ test.describe('Admin Dashboard Integration', () => {
 
   test.describe('Error Handling', () => {
     test('handles API errors gracefully', async ({ page }) => {
+      await page.route('**/api/admin/analytics', (route) => {
+        route.fulfill({ status: 500, body: 'Internal Server Error' });
+      });
+      await page.route('**/api/admin/moderation*', (route) => {
+        route.fulfill({ status: 500, body: 'Internal Server Error' });
+      });
+
       await loginAs(
         page,
         process.env.E2E_ADMIN_EMAIL ?? 'admin@example.com',
         process.env.E2E_ADMIN_PASSWORD ?? 'password123'
       );
 
-      // Mock API endpoints to return errors
-      await page.route('**/api/analytics', route =>
-        route.fulfill({ status: 500, body: 'Internal Server Error' })
-      );
-      await page.route('**/api/moderation/queue', route =>
-        route.fulfill({ status: 500, body: 'Internal Server Error' })
-      );
-
       await page.goto(`${BASE_URL}/admin/dashboard`);
 
-      // Verify page still loads with error state
       await expect(page.getByTestId('admin-dashboard')).toBeVisible({ timeout: 15000 });
-
-      // Verify error messages are displayed
-      await expect(page.getByText(/failed to load analytics/i)).toBeVisible();
-      await expect(page.getByText(/failed to load moderation queue/i)).toBeVisible();
+      await expect(page.getByText(/Unable to load dashboard data/i)).toBeVisible();
     });
   });
 });

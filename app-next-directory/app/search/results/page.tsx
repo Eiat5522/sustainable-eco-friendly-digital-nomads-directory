@@ -8,6 +8,27 @@ import type { SearchParamRecord } from '@/types/search'
 import { NextRequest } from 'next/server'
 import { GET as searchGetHandler } from '../../api/search/route'
 
+const tagSchema = z.union([z.string(), z.object({ name: z.string().optional() })]);
+
+const searchResponseSchema = z
+  .object({
+    data: z
+      .object({
+        results: z.array(z.unknown()).optional(),
+        pagination: z
+          .object({
+            page: z.number().optional(),
+            totalPages: z.number().optional(),
+            hasMore: z.boolean().optional(),
+            limit: z.number().optional(),
+            total: z.number().optional(),
+          })
+          .optional(),
+      })
+      .optional(),
+  })
+  .passthrough();
+
 const apiItemSchema = z.object({
   _id: z.string().optional(),
   name: z.string().optional(),
@@ -31,10 +52,31 @@ const apiItemSchema = z.object({
     }).optional()
   }).nullable().optional(),
   shortDescription: z.string().nullable().optional(),
-  amenityNames: z.array(z.string()).nullable().optional()
+  amenityNames: z.array(z.string()).nullable().optional(),
+  moderation: z.object({ featured: z.boolean().optional() }).optional(),
+  ecoFocusTags: z.array(tagSchema).nullable().optional(),
+  ecoFeatures: z.array(tagSchema).nullable().optional(),
+  digitalNomadFeatures: z.array(tagSchema).nullable().optional(),
 })
 
-function mapResultToDTO(item: any): ListingSummaryDTO {
+function extractTagNames(list?: Array<z.infer<typeof tagSchema> | null | undefined> | null): string[] {
+  if (!Array.isArray(list)) return [];
+  const tags: string[] = [];
+  for (const entry of list) {
+    if (typeof entry === 'string') {
+      const name = entry.trim();
+      if (name.length > 0) tags.push(name);
+      continue;
+    }
+    if (entry && typeof entry === 'object' && typeof entry.name === 'string') {
+      const name = entry.name.trim();
+      if (name.length > 0) tags.push(name);
+    }
+  }
+  return tags;
+}
+
+function mapResultToDTO(item: unknown): ListingSummaryDTO {
   const parseResult = apiItemSchema.safeParse(item)
   if (!parseResult.success) {
     console.error('Invalid API response shape:', parseResult.error)
@@ -46,6 +88,8 @@ function mapResultToDTO(item: any): ListingSummaryDTO {
   const imageUrl: string | undefined = validated?.primaryImage?.asset?.url ?? undefined
   const slugValue = validated.slug
   const slug: string = typeof slugValue === 'string' ? slugValue : (slugValue?.current ?? '')
+  const ecoFocusTags = extractTagNames(validated.ecoFocusTags ?? validated.ecoFeatures)
+  const digitalNomadFeatures = extractTagNames(validated.digitalNomadFeatures)
   return {
     id: String(validated._id ?? slug ?? `temp-${Date.now()}-${Math.random()}`),
     name: String(validated.name ?? ''),
@@ -57,25 +101,14 @@ function mapResultToDTO(item: any): ListingSummaryDTO {
           name: String(city.name ?? ''),
           slug: String(city.slug ?? ''),
           country: String(city.country ?? ''),
-        }
+    }
       : null,
     imageUrl,
     shortDescription: validated.shortDescription ?? undefined,
-    amenityNames: Array.isArray(validated.amenityNames)
-      ? validated.amenityNames.filter((v: any) => typeof v === 'string')
-      : undefined,
-    // Prefer moderation.featured when present
-    featured: Boolean((item as any)?.moderation?.featured === true),
-    // Attempt to normalize eco feature tags from various shapes
-    ecoFocusTags: Array.isArray((item as any)?.ecoFeatures)
-      ? ((item as any).ecoFeatures as any[])
-          .map((t: any) => (typeof t === 'string' ? t : (t?.name ?? null)))
-          .filter((t: any): t is string => typeof t === 'string')
-      : (Array.isArray((item as any)?.ecoFocusTags)
-          ? ((item as any).ecoFocusTags as any[])
-              .map((t: any) => (typeof t === 'string' ? t : (t?.name ?? null)))
-              .filter((t: any): t is string => typeof t === 'string')
-          : undefined),
+    amenityNames: Array.isArray(validated.amenityNames) ? validated.amenityNames : undefined,
+    featured: Boolean(validated.moderation?.featured === true),
+    ecoFocusTags: ecoFocusTags.length > 0 ? ecoFocusTags : undefined,
+    digitalNomadFeatures: digitalNomadFeatures.length > 0 ? digitalNomadFeatures : undefined,
   }
 }
 
@@ -112,7 +145,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   if (!params.has('limit')) params.set('limit', '12')
   params.set('facets', '1')
   url.search = params.toString()
-  let data: any = null
+  let payload: unknown = null
   try {
     const request = new NextRequest(url.toString())
     const res = await searchGetHandler(request)
@@ -134,7 +167,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       )
     }
 
-    data = await res.json()
+    payload = await res.json()
   } catch (error) {
     console.error('Search API request failed', error)
     return (
@@ -154,9 +187,22 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     )
   }
 
-  const raw = Array.isArray(data?.data?.results) ? data.data.results : []
-  const mapped: ListingSummaryDTO[] = raw.map(mapResultToDTO)
-  const pagination = data?.data?.pagination ?? { page: 1, totalPages: 1, hasMore: false, limit: Number(params.get('limit') || 12), total: 0 }
+  const parsedResponse = searchResponseSchema.safeParse(payload)
+  if (!parsedResponse.success) {
+    console.error('Unexpected search API payload shape:', parsedResponse.error)
+  }
+  const rawResults = parsedResponse.success && Array.isArray(parsedResponse.data.data?.results)
+    ? parsedResponse.data.data?.results ?? []
+    : []
+  const mapped: ListingSummaryDTO[] = rawResults.map(mapResultToDTO)
+  const paginationData = parsedResponse.success ? parsedResponse.data.data?.pagination ?? {} : {}
+  const pagination = {
+    page: paginationData?.page ?? 1,
+    totalPages: paginationData?.totalPages ?? 1,
+    hasMore: Boolean(paginationData?.hasMore),
+    limit: paginationData?.limit ?? Number(params.get('limit') || 12),
+    total: paginationData?.total ?? 0,
+  }
   const page = Math.max(1, Number(pagination.page ?? 1))
   const totalPages = Math.max(1, Number(pagination.totalPages ?? 1))
   const limit = Math.max(1, Number(pagination.limit ?? Number(params.get('limit') || 12)))

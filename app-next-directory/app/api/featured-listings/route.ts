@@ -1,6 +1,6 @@
 // PATCH: Align GROQ query and DTO mapping with appView.ts
 import { client } from '@/lib/sanity/client';
-import type { AppListingCard, AppListingDetail, AppCity, SanityImage } from '@/types/appView';
+import type { SanityImage } from '@/types/appView';
 interface FeaturedListing {
   _id: string;
   name: string;
@@ -131,27 +131,34 @@ export async function GET() {
     console.log('[DEBUG] Featured Listings API: Executing GROQ query');
     const queryStartTime = performance.now();
     
-    const listings = await client.fetch(FEATURED_LISTINGS_QUERY) as FeaturedListing[];
+    const listings = await client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY);
     
     const queryEndTime = performance.now();
     console.log('[DEBUG] Featured Listings API: GROQ query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');
     console.log('[DEBUG] Featured Listings API: Found', listings.length, 'listings');
     
     // Transform to FeaturedListingDTO shape expected by the frontend
-    const dtoListings = listings.map(listing => ({
-      id: listing._id,
-      name: listing.name,
-      slug: listing.slug || '',
-      imageUrl: listing.imageUrl || undefined,
-      city: listing.city?.name || '',
-      amenityNames: Array.isArray(listing.amenities)
-        ? listing.amenities.map(a => a?.name).filter(Boolean)
-        : [],
-      ecoFocusTags: Array.isArray(listing.ecoFocusTags)
-        ? listing.ecoFocusTags.filter((t): t is string => typeof t === 'string')
-        : [],
-      featured: true,
-    }));
+    const dtoListings = (listings ?? []).map((listing) => {
+      const amenityNames = Array.isArray(listing.amenities)
+        ? listing.amenities
+            .map((amenity) => (amenity && typeof amenity.name === 'string' ? amenity.name : null))
+            .filter((name): name is string => typeof name === 'string' && name.length > 0)
+        : [];
+      const ecoFocusTags = Array.isArray(listing.ecoFocusTags)
+        ? listing.ecoFocusTags.filter((tag): tag is string => typeof tag === 'string' && tag.length > 0)
+        : [];
+
+      return {
+        id: listing._id,
+        name: listing.name,
+        slug: listing.slug || '',
+        imageUrl: listing.imageUrl || undefined,
+        city: listing.city?.name || '',
+        amenityNames,
+        ecoFocusTags,
+        featured: true,
+      };
+    });
 
     const endTime = performance.now();
     console.log('[DEBUG] Featured Listings API: Total request time', (endTime - startTime).toFixed(2), 'ms');

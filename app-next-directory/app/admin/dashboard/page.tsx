@@ -3,6 +3,11 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import type { Metadata } from 'next';
 import type { UserRole } from '@/types/auth';
+import {
+  fetchAdminAnalytics,
+  type AdminAnalyticsSnapshot,
+} from '@/lib/admin/analytics';
+import { ModerationActions } from './ModerationActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,46 +15,6 @@ export const metadata: Metadata = {
   title: 'Admin Dashboard',
   robots: { index: false, follow: false },
 };
-
-type AdminAnalytics = {
-  overview: {
-    totalUsers: number;
-    totalListings: number;
-    totalReviews: number;
-    weeklySignups: number;
-    pendingModeration: number;
-  };
-  userRoles: Record<string, number>;
-  moderationQueue: Array<{
-    id: string;
-    itemType: string;
-    itemName: string;
-    itemId: string;
-    reports: number;
-    lastActivity: string;
-    status: string;
-  }>;
-  generatedAt: string;
-};
-
-async function getAdminAnalytics(): Promise<AdminAnalytics | null> {
-  try {
-    const response = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/admin/analytics`, {
-      cache: 'no-store',
-      signal: AbortSignal.timeout(10000), // 10 second timeout
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-    return data?.analytics ?? null;
-  } catch (error) {
-    console.error('Failed to fetch admin analytics:', error);
-    return null;
-  }
-}
 
 function formatNumber(num: number): string {
   return num.toLocaleString();
@@ -60,7 +25,7 @@ function formatTimeAgo(dateString: string): string {
   if (isNaN(date.getTime())) {
     return 'Unknown';
   }
-  
+
   const now = new Date();
   const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
 
@@ -70,13 +35,29 @@ function formatTimeAgo(dateString: string): string {
   return `${diffInDays}d ago`;
 }
 
-function AnalyticsCard({ title, value, change }: { title: string; value: string; change?: string }) {
+type AnalyticsCardProps = {
+  title: string;
+  value: string;
+  change?: string;
+};
+
+function AnalyticsCard({ title, value, change }: AnalyticsCardProps) {
   return (
     <article className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
       <h3 className="text-sm font-medium text-gray-600 mb-2">{title}</h3>
-      <p className="text-2xl font-bold text-gray-900 mb-1">{value}</p>
+      <p className="text-2xl font-bold text-gray-900 mb-1" data-testid="analytics-card-value">
+        {value}
+      </p>
       {change && (
-        <p className={`text-sm ${change.startsWith('+') ? 'text-green-600' : 'text-red-600'}`}>
+        <p
+          className={`text-sm ${
+            change.startsWith('+')
+              ? 'text-green-600'
+              : change.startsWith('-')
+                ? 'text-red-600'
+                : 'text-gray-600'
+          }`}
+        >
           {change}
         </p>
       )}
@@ -89,25 +70,55 @@ function StatusBadge({ status }: { status: string }) {
     pending: 'bg-amber-50 text-amber-700 border-amber-200',
     approved: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     rejected: 'bg-rose-50 text-rose-700 border-rose-200',
+    restricted: 'bg-rose-50 text-rose-700 border-rose-200',
     flagged: 'bg-red-50 text-red-700 border-red-200',
-  };
+    resolved: 'bg-sky-50 text-sky-700 border-sky-200',
+  } as const;
+
+  const readableStatus = status
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+
+  const fallbackClasses = 'bg-gray-50 text-gray-700 border-gray-200';
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusClasses[status as keyof typeof statusClasses] || 'bg-gray-50 text-gray-700 border-gray-200'}`}>
-      {status.replace('_', ' ')}
+    <span
+      role="status"
+      aria-live="polite"
+      aria-label={`Moderation status: ${readableStatus}`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+        statusClasses[status as keyof typeof statusClasses] ?? fallbackClasses
+      }`}
+    >
+      {readableStatus}
     </span>
   );
 }
 
+async function loadAnalytics(): Promise<AdminAnalyticsSnapshot | null> {
+  try {
+    const analytics = await fetchAdminAnalytics();
+    return analytics;
+  } catch (error) {
+    console.error('Failed to fetch admin analytics:', error);
+    return null;
+  }
+}
+
+function ensureAdminRole(role: UserRole | undefined): role is 'admin' | 'superAdmin' {
+  return role === 'admin' || role === 'superAdmin';
+}
+
 export default async function AdminDashboardPage() {
   const session = await auth();
-  const sessionUser = session?.user as { role?: UserRole } | undefined;
+  const sessionUser = session?.user as { id?: string; role?: UserRole } | undefined;
 
-  if (!sessionUser?.role || sessionUser.role !== 'admin') {
+  if (!ensureAdminRole(sessionUser?.role)) {
     redirect('/auth/login?callbackUrl=/admin/dashboard');
   }
 
-  const analytics = await getAdminAnalytics();
+  const analytics = await loadAnalytics();
 
   if (!analytics) {
     return (
@@ -123,47 +134,41 @@ export default async function AdminDashboardPage() {
   return (
     <main className="min-h-screen bg-gray-50" data-testid="admin-dashboard">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900" data-testid="admin-dashboard-title">
             Admin Dashboard
           </h1>
-          <p className="mt-2 text-gray-600">
-            Monitor community health and moderate member activity.
-          </p>
+          <p className="mt-2 text-gray-600">Monitor community health and moderate member activity.</p>
           <div className="mt-4 flex items-center space-x-4 text-sm text-gray-500">
             <span>Last refresh: {formatTimeAgo(analytics.generatedAt)}</span>
-            <span>{analytics.overview.pendingModeration} tasks assigned</span>
+            <span data-testid="pending-tasks">
+              {analytics.overview.pendingModeration} tasks assigned
+            </span>
             <span>SLA: 8h</span>
           </div>
         </div>
 
-        {/* Analytics Overview */}
         <section className="mb-8" data-testid="analytics-overview">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">Overview</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <AnalyticsCard
-              title="Active members"
-              value={formatNumber(analytics.overview.totalUsers)}
-            />
-            <AnalyticsCard
-              title="Total listings"
-              value={formatNumber(analytics.overview.totalListings)}
-            />
-            <AnalyticsCard
-              title="Weekly signups"
-              value={formatNumber(analytics.overview.weeklySignups)}
-            />
-            <AnalyticsCard
-              title="Items pending review"
-              value={formatNumber(analytics.overview.pendingModeration)}
-            />
+            <AnalyticsCard title="Active members" value={formatNumber(analytics.overview.totalUsers)} />
+            <AnalyticsCard title="Total listings" value={formatNumber(analytics.overview.totalListings)} />
+            <AnalyticsCard title="Weekly signups" value={formatNumber(analytics.overview.weeklySignups)} />
+            <AnalyticsCard title="Items pending review" value={formatNumber(analytics.overview.pendingModeration)} />
           </div>
         </section>
 
-        {/* Moderation Queue */}
         <section data-testid="moderation-tools">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Moderation Queue</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-gray-900">Moderation Queue</h2>
+            <p className="text-sm text-gray-500" data-testid="queue-summary">
+              {analytics.moderationQueue.length === 0
+                ? 'Queue is clear — great job!'
+                : `${analytics.moderationQueue.length} item${
+                    analytics.moderationQueue.length > 1 ? 's' : ''
+                  } awaiting review`}
+            </p>
+          </div>
           <div className="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -198,7 +203,7 @@ export default async function AdminDashboardPage() {
                     </tr>
                   ) : (
                     analytics.moderationQueue.map((item) => (
-                      <tr key={item.id}>
+                      <tr key={item.id} data-testid={`moderation-row-${item.id}`}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{item.itemName}</div>
                           <div className="text-sm text-gray-500">{item.itemId}</div>
@@ -216,9 +221,7 @@ export default async function AdminDashboardPage() {
                           <StatusBadge status={item.status} />
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                          <button className="text-indigo-600 hover:text-indigo-900">Notes</button>
-                          <button className="text-green-600 hover:text-green-900">Approve</button>
-                          <button className="text-red-600 hover:text-red-900">Restrict</button>
+                          <ModerationActions moderationId={item.id} itemName={item.itemName} />
                         </td>
                       </tr>
                     ))

@@ -6,18 +6,18 @@ export async function GET(request: Request) {
   try {
     const { pathname } = new URL(request.url);
     console.log('[auth route] incoming GET', pathname);
-  } catch (e) {
+  } catch (_error) {
     console.log('[auth route] incoming GET');
   }
-  return authGET(request as any);
+  return authGET(request as Parameters<typeof authGET>[0]);
 }
 
 export async function POST(request: Request) {
   try {
     const { pathname } = new URL(request.url);
     console.log('[auth route] incoming POST', pathname);
-  } catch (e) {
+  } catch (_error) {
     console.log('[auth route] incoming POST');
   }
-  return authPOST(request as any);
+  return authPOST(request as Parameters<typeof authPOST>[0]);
 }

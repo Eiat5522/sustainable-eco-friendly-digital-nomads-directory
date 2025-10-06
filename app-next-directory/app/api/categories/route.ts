@@ -16,15 +16,17 @@ export async function GET() {
     return ApiResponseHandler.success({ categories });
   } catch (error) {
     console.error('Categories API error:', error);
-    const anyErr = error as any;
-    const status = Number.isInteger(anyErr?.status) ? anyErr.status
-                 : Number.isInteger(anyErr?.statusCode) ? anyErr.statusCode
-                 : 500;
+    const status =
+      typeof error === 'object' && error !== null && typeof (error as { status?: unknown }).status === 'number'
+        ? (error as { status: number }).status
+        : typeof error === 'object' && error !== null && typeof (error as { statusCode?: unknown }).statusCode === 'number'
+          ? (error as { statusCode: number }).statusCode
+          : 500;
     // Fall back to default list on error
     try {
       const fallback = await getDefaultCategories();
       return ApiResponseHandler.success({ categories: fallback });
-    } catch (e) {
+    } catch (_error) {
       return ApiResponseHandler.error('Failed to fetch categories', status);
     }
   }

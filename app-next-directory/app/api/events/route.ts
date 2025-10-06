@@ -1,8 +1,7 @@
 import { client } from '@/lib/sanity/client';
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
     const now = new Date().toISOString();
 
     const query = `*[_type == "event" && dateTime(startDate) >= dateTime($now)] | order(startDate asc) {

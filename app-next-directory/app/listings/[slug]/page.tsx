@@ -23,6 +23,21 @@ type ListingFixture = {
   isFavorited?: boolean;
 };
 
+type RelatedListingRecord = {
+  _id?: string | null;
+  name?: string | null;
+  slug?: string | null;
+  priceRange?: string | null;
+  imageUrl?: string | null;
+  city?: {
+    _id?: string | null;
+    name?: string | null;
+    country?: string | null;
+    slug?: string | null;
+  } | null;
+  ecoFocusTags?: Array<{ name?: string | null } | string | null | undefined> | null;
+};
+
 type Review = {
   id: string;
   rating: number;
@@ -31,7 +46,9 @@ type Review = {
   user: {
     name: string;
     image?: string;
+    id?: string;
   };
+  status: 'pending' | 'approved';
 };
 
 const isE2ETest = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
@@ -46,6 +63,10 @@ const e2eFixtures: Record<string, ListingFixture> = {
     isFavorited: false,
   },
 };
+
+function isPriceRange(value: string | null | undefined): value is 'budget' | 'moderate' | 'premium' {
+  return value === 'budget' || value === 'moderate' || value === 'premium';
+}
 
 function cloneFixture(fixture: ListingFixture) {
   const listing = structuredClone(fixture.listing);
@@ -67,6 +88,23 @@ function cloneFixture(fixture: ListingFixture) {
     isSignedIn: Boolean(fixture.isSignedIn),
     isFavorited: Boolean(fixture.isFavorited),
   };
+}
+
+function extractTagNames(
+  tags?: RelatedListingRecord['ecoFocusTags']
+): string[] {
+  if (!Array.isArray(tags)) return [];
+  const names: string[] = [];
+  for (const tag of tags) {
+    if (typeof tag === 'string' && tag.trim().length > 0) {
+      names.push(tag);
+      continue;
+    }
+    if (tag && typeof tag === 'object' && typeof tag.name === 'string' && tag.name.trim().length > 0) {
+      names.push(tag.name.trim());
+    }
+  }
+  return names;
 }
 
 const LISTING_QUERY = groq`*[_type == "listing" && moderation.status == "published" && slug.current == $slug][0]{
@@ -106,17 +144,6 @@ const RELATED_QUERY = groq`*[_type == "listing" && moderation.status == "publish
   city->{ _id, name, country, "slug": slug.current }
 }`;
 
-const REVIEWS_QUERY = groq`*[_type == "review" && listing._ref == $listingId && approved == true] | order(createdAt desc) {
-  _id,
-  rating,
-  comment,
-  createdAt,
-  user->{
-    name,
-    image
-  }
-}`;
-
 const FAVORITE_QUERY = groq`*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]{ _id }`;
 
 async function fetchListingBySlug(slug: string): Promise<ListingDetailDTO | null> {
@@ -135,16 +162,33 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
     id: string; name: string; slug: string; imageUrl: string; city: string | CityDTO | null; priceRange: 'budget'|'moderate'|'premium'; ecoFocusTags: string[];
   }>;
   try {
-    const raw = await client.fetch<any[]>(RELATED_QUERY, { cityId, excludeId });
-    return (raw ?? []).map((r) => ({
-      id: r._id,
-      name: r.name,
-      slug: r.slug || '',
-      imageUrl: typeof r.imageUrl === 'string' && r.imageUrl.length > 0 ? r.imageUrl : '/placeholder_image.png',
-      city: r.city ? { id: r.city._id, name: r.city.name, slug: r.city.slug, country: r.city.country } as CityDTO : null,
-      priceRange: (['budget','moderate','premium'] as const).includes(r.priceRange) ? r.priceRange : 'moderate',
-      ecoFocusTags: Array.isArray(r.ecoFocusTags) ? r.ecoFocusTags.map((x: any) => x?.name).filter(Boolean) : [],
-    }));
+    const raw = await client.fetch<RelatedListingRecord[]>(RELATED_QUERY, { cityId, excludeId });
+    return (raw ?? []).map((record, index) => {
+      const slug = typeof record.slug === 'string' && record.slug.length > 0 ? record.slug : '';
+      const fallbackId = slug || `related-${index}`;
+      const id = typeof record._id === 'string' && record._id.trim().length > 0 ? record._id : fallbackId;
+      const imageUrl = typeof record.imageUrl === 'string' && record.imageUrl.length > 0 ? record.imageUrl : '/placeholder_image.png';
+      const city = record.city && typeof record.city === 'object'
+        ? {
+            id: typeof record.city._id === 'string' ? record.city._id : '',
+            name: typeof record.city.name === 'string' ? record.city.name : '',
+            slug: typeof record.city.slug === 'string' ? record.city.slug : '',
+            country: typeof record.city.country === 'string' ? record.city.country : '',
+          }
+        : null;
+      const rawPriceRange = typeof record.priceRange === 'string' ? record.priceRange : null;
+      const priceRange = isPriceRange(rawPriceRange) ? rawPriceRange : 'moderate';
+
+      return {
+        id,
+        name: typeof record.name === 'string' ? record.name : '',
+        slug,
+        imageUrl,
+        city: city && (city.id || city.name || city.slug) ? (city as CityDTO) : null,
+        priceRange,
+        ecoFocusTags: extractTagNames(record.ecoFocusTags),
+      };
+    });
   } catch (error) {
     console.error('[listings/[slug]] failed to fetch related listings', error);
     return [];
@@ -165,27 +209,37 @@ async function fetchReviews(listingId: string, userId?: string): Promise<Review[
     const data = await res.json();
     const source = Array.isArray(data?.reviews) ? data.reviews : [];
     const reviews: Review[] = [];
+
     for (const review of source) {
-      const id = typeof review?._id === 'string' ? review._id : null;
+      const id = typeof review?.id === 'string' ? review.id : typeof review?._id === 'string' ? review._id : null;
       const rating = Number(review?.rating);
       if (!id || !Number.isFinite(rating) || rating <= 0) {
         continue;
       }
+
+      const status = review?.status === 'pending' ? 'pending' : 'approved';
       const comment = typeof review?.comment === 'string' ? review.comment : '';
       const createdAt =
-        typeof review?.createdAt === 'string' ? review.createdAt : new Date().toISOString();
+        typeof review?.createdAt === 'string'
+          ? review.createdAt
+          : typeof review?._createdAt === 'string'
+            ? review._createdAt
+            : new Date().toISOString();
       const rawName = typeof review?.user?.name === 'string' ? review.user.name : '';
       const userName = rawName.trim().length > 0 ? rawName : 'Anonymous';
       const userImage =
         typeof review?.user?.image === 'string' && review.user.image.length > 0
           ? review.user.image
           : undefined;
+      const userIdValue = typeof review?.user?.id === 'string' ? review.user.id : typeof review?.user?._id === 'string' ? review.user._id : undefined;
+
       reviews.push({
         id,
         rating,
         comment,
         createdAt,
-        user: { name: userName, image: userImage },
+        status,
+        user: { name: userName, image: userImage, id: userIdValue },
       });
     }
     return reviews;

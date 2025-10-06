@@ -2,6 +2,7 @@ import { ApiResponseHandler } from '@/utils/api-response';
 import { rateLimit } from '@/utils/rate-limit';
 import { NextRequest } from 'next/server';
 import nodemailer from 'nodemailer';
+import type { SentMessageInfo, Transporter } from 'nodemailer';
 import { z } from 'zod';
 import { sendMail } from '@/lib/email';
 import ContactSubmission from '@/models/ContactSubmission';
@@ -44,7 +45,7 @@ const limiter = rateLimit({
 });
 
 // Email configuration
-const createTransporter = () => {
+const createTransporter = (): Transporter<SentMessageInfo> => {
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
       return ApiResponseHandler.error(
         'Invalid form data',
         400,
-        validationResult.error.errors
+        validationResult.error.formErrors.fieldErrors
       );
     }
 
@@ -191,22 +192,22 @@ export async function POST(request: NextRequest) {
       const transporter = createTransporter();
       const adminRecipient = CONTACT_RECIPIENT;
       const fromAddress = MAIL_FROM ?? GMAIL_USER ?? undefined;
-      const adminPromise = adminRecipient
-        ? transporter.sendMail({
-            from: fromAddress,
-            to: adminRecipient,
-            subject: emailSubject,
-            html: emailBody,
-            replyTo: email,
-          })
-        : Promise.resolve({ messageId: undefined } as any);
-      const autoReplyPromise = transporter.sendMail({
+      let adminResult: SentMessageInfo | undefined;
+      if (adminRecipient) {
+        adminResult = await transporter.sendMail({
+          from: fromAddress,
+          to: adminRecipient,
+          subject: emailSubject,
+          html: emailBody,
+          replyTo: email,
+        });
+      }
+      const autoReplyResult = await transporter.sendMail({
         from: fromAddress,
         to: email,
         subject: autoReplySubject,
         html: autoReplyBody,
       });
-      const [adminResult, autoReplyResult] = await Promise.all([adminPromise, autoReplyPromise]);
       messageInfo = {
         adminId: typeof adminResult?.messageId === 'string' ? adminResult.messageId : undefined,
         autoReplyId: typeof autoReplyResult?.messageId === 'string' ? autoReplyResult.messageId : undefined,
@@ -272,7 +273,7 @@ export async function GET() {
     };
 
     return ApiResponseHandler.success(config);
-  } catch (error) {
+  } catch (_error) {
     return ApiResponseHandler.error('Failed to fetch contact form configuration');
   }
 }

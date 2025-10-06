@@ -20,7 +20,7 @@ interface Review {
     image?: string;
   };
   createdAt: string;
-  status?: 'pending' | 'approved';
+  status: 'pending' | 'approved';
 }
 
 interface ReviewsSectionProps {
@@ -39,17 +39,15 @@ export const canSubmitReview = (rating: number, comment: string) => {
 
 
 interface SubmittedReviewSummary {
-
   id: string;
-
   rating: number;
-
   comment: string;
-
   createdAt: string;
-
   status: 'pending' | 'approved';
-
+  user: {
+    name: string;
+    image?: string;
+  };
 }
 
 
@@ -77,6 +75,14 @@ interface SubmitReviewPayload {
   approved?: boolean;
 
   createdAt?: string;
+
+  user?: {
+
+    name?: string;
+
+    image?: string;
+
+  };
 
 }
 
@@ -271,6 +277,12 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId 
               ? payload.createdAt
               : now;
             const status: 'pending' | 'approved' = payload?.approved ? 'approved' : 'pending';
+            const userName = typeof payload?.user?.name === 'string' && payload.user.name.trim().length > 0
+              ? payload.user.name.trim()
+              : 'You';
+            const userImage = typeof payload?.user?.image === 'string' && payload.user.image.length > 0
+              ? payload.user.image
+              : undefined;
 
             return {
               id,
@@ -278,6 +290,10 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId 
               comment,
               createdAt,
               status,
+              user: {
+                name: userName,
+                image: userImage,
+              },
             };
           });
           router.refresh();
@@ -306,25 +322,30 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId 
     });
   };
 
-  const combinedReviews = useMemo(() => {
-    if (!submittedReview) return reviews;
-    // Check if the submitted review is already in the main reviews list (e.g., after revalidation)
-    const isSubmittedReviewAlreadyApproved = reviews.some(r => r.id === submittedReview.id);
-    if (isSubmittedReviewAlreadyApproved) return reviews;
-    // Add the submitted review to the top of the list
-    return [submittedReview, ...reviews];
-  }, [reviews, submittedReview]);
+  const { approvedReviews, pendingReviews } = useMemo(() => {
+    const approved = reviews.filter(review => review.status === 'approved');
+    const pending = reviews.filter(review => review.status === 'pending');
+    return { approvedReviews: approved, pendingReviews: pending };
+  }, [reviews]);
 
-  const averageRating = combinedReviews.length > 0 
-    ? combinedReviews.reduce((sum, review) => sum + review.rating, 0) / combinedReviews.length 
+  const pendingQueue = useMemo(() => {
+    if (!submittedReview || submittedReview.status !== 'pending') {
+      return pendingReviews;
+    }
+    const exists = pendingReviews.some(r => r.id === submittedReview.id);
+    return exists ? pendingReviews : [submittedReview, ...pendingReviews];
+  }, [pendingReviews, submittedReview]);
+
+  const averageRating = approvedReviews.length > 0
+    ? approvedReviews.reduce((sum, review) => sum + review.rating, 0) / approvedReviews.length
     : 0;
 
   return (
     <NeoCard variant="elevated" className="mb-8">
       <NeoCardHeader>
         <div className="flex items-center justify-between">
-          <NeoCardTitle>Reviews ({combinedReviews.length})</NeoCardTitle>
-          {combinedReviews.length > 0 && (
+          <NeoCardTitle>Reviews ({approvedReviews.length})</NeoCardTitle>
+          {approvedReviews.length > 0 && (
             <div className="flex items-center gap-2">
               <StarRating rating={averageRating} size={20} />
               <span className="body-md text-neo-text-secondary">
@@ -408,8 +429,36 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId 
           </div>
         )}
 
+        {/* Pending Reviews */}
+        {pendingQueue.length > 0 && (
+          <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <h3 className="heading-sm mb-2">Your review is awaiting moderation</h3>
+            <p className="body-sm text-amber-700 mb-4">
+              Once approved, it will appear in the public reviews list.
+            </p>
+            <div className="space-y-4">
+              {pendingQueue.map((review, index) => (
+                <div key={review.id} className="bg-white border border-amber-100 rounded-lg p-4 shadow-sm">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h4 className="font-medium text-neo-text-primary">{review.user.name || 'You'}</h4>
+                    <StarRating rating={review.rating} size={16} />
+                    <span className="text-sm text-neo-text-secondary">
+                      {formatDate(review.createdAt)}
+                    </span>
+                    <span className="ml-auto text-xs font-semibold uppercase tracking-wide text-amber-600">
+                      Pending
+                    </span>
+                  </div>
+                  <p className="body-sm text-neo-text-secondary">{review.comment}</p>
+                  {index < pendingQueue.length - 1 && <Separator className="mt-4" />}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Reviews List */}
-        {combinedReviews.length === 0 ? (
+        {approvedReviews.length === 0 ? (
           <div className="text-center py-8">
             <p className="body-lg text-neo-text-secondary">No reviews yet</p>
             <p className="body-sm text-neo-text-secondary mt-1">
@@ -418,7 +467,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId 
           </div>
         ) : (
           <div className="space-y-6">
-            {combinedReviews.map((review, index) => (
+            {approvedReviews.map((review, index) => (
               <div key={review.id}>
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0">
@@ -454,7 +503,7 @@ export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId 
                   </div>
                 </div>
 
-                {index < combinedReviews.length - 1 && <Separator className="mt-6" />}
+                {index < approvedReviews.length - 1 && <Separator className="mt-6" />}
               </div>
             ))}
           </div>

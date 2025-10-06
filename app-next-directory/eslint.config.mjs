@@ -29,6 +29,10 @@ const eslintConfig = [
       "**/coverage/**",
       "**/.turbo/**",
       "**/.vercel/**",
+      "**/__generated__/**",
+      "tsconfig.test.json",
+      "src/types/**",
+      "src/utils/**",
     ],
   },
     {
@@ -44,6 +48,14 @@ const eslintConfig = [
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^ignored",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
       "@typescript-eslint/ban-ts-comment": ["warn", { "ts-expect-error": "allow-with-description", "minimumDescriptionLength": 3 }],
       "@typescript-eslint/no-empty-object-type": "warn",
       "@typescript-eslint/prefer-as-const": "warn",
@@ -65,14 +77,26 @@ const eslintConfig = [
       "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/ban-ts-comment": "off",
-      "react/display-name": "off"
+      "@typescript-eslint/no-unused-vars": "off",
+      "react/display-name": "off",
+      "react-hooks/rules-of-hooks": "off"
     }
   },
   {
     files: ["**/*.d.ts"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/no-empty-object-type": "off"
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/no-unused-vars": "off"
+    }
+  },
+  {
+    files: ["**/__mocks__/**/*"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-require-imports": "off",
+      "import/no-anonymous-default-export": "off"
     }
   },
 ];

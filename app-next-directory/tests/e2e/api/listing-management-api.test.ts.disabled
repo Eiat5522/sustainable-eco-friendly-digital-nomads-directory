@@ -30,18 +30,21 @@ describe('API - Listing Management', () => {
       email: regularUser.email,
       password: regularUser.password,
     });
+    expect([200, 201]).toContain(regularLoginRes.status);
     regularUserCookie = regularLoginRes.headers['set-cookie'];
-
+    
     // Register and login owner user
 // Register and login owner user
-await ownerAgent.post('/api/auth/register').send(ownerUser);
-const ownerLoginRes = await ownerAgent.post('/api/auth/login').send({
-  email: ownerUser.email,
-  password: ownerUser.password,
-});
+    const ownerRegisterRes = await ownerAgent.post('/api/auth/register').send(ownerUser);
+    expect([200, 201]).toContain(ownerRegisterRes.status);
+    const ownerLoginRes = await ownerAgent.post('/api/auth/login').send({
       email: ownerUser.email,
       password: ownerUser.password,
     });
+      email: ownerUser.email,
+      password: ownerUser.password,
+    });
+    expect([200, 201]).toContain(ownerLoginRes.status);
     ownerUserCookie = ownerLoginRes.headers['set-cookie'];
 
     // Create a listing as the owner
@@ -58,6 +61,8 @@ const ownerLoginRes = await ownerAgent.post('/api/auth/login').send({
       .send(listingData);
     
     expect(createListingRes.status).toBe(201);
+    expect(createListingRes.body.data).toBeDefined();
+    expect(createListingRes.body.data._id).toBeDefined();
     createdListingId = createListingRes.body.data._id;
   });
 

@@ -15,9 +15,10 @@ import {
 } from '@/components/ui/neo-card';
 import { NeoBadge } from '@/components/ui/neo-badge';
 import { NeoButton } from '@/components/ui/neo-button';
-import { Heart, Loader2, MapPin, MessageSquare, Star, Edit } from 'lucide-react';
+import { Heart, Loader2, MessageSquare, Star, Edit } from 'lucide-react';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
-import { normaliseFavorite, normaliseOwnerReviews } from './utils';
+import { normaliseFavorite, normaliseOwnerReviews, formatDate } from './utils';
+import type { FavoriteListing, OwnerListingReviews } from './utils';
 import { FavoriteListingsShowcase } from './FavoriteListingsShowcase';
 
 export default function ProfilePage() {
@@ -41,7 +42,7 @@ export default function ProfilePage() {
       // Refresh session to get updated name
       await update();
       setIsEditing(false);
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to refresh session:', error);
       // TODO: Show toast notification
       alert('Profile updated successfully. Please refresh the page to see changes.');
@@ -139,7 +140,7 @@ export default function ProfilePage() {
         setFavorites(originalFavorites);
         setFavoritesError('Failed to remove favorite. Please try again.');
       }
-    } catch (error) {
+    } catch (_error) {
       // Revert the change and show an error
       setFavorites(originalFavorites);
       setFavoritesError('An error occurred while removing the favorite.');

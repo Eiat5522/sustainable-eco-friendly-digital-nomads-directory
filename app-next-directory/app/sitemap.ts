@@ -8,18 +8,17 @@ interface SitemapEntry {
   priority?: number
 }
 
-// Types for Sanity query responses
-interface ListingData {
-  slug: string;
-  _updatedAt: string;
+type ListingRecord = {
+  slug?: string | null
+  _updatedAt?: string | null
 }
 
-interface CategoryData {
-  category: string;
+type CategoryRecord = {
+  category?: string | null
 }
 
-interface CityData {
-  name: string;
+type CityRecord = {
+  name?: string | null
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -55,28 +54,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Fetch listings
-    const listingsRaw = await client.fetch(
+    const listingsRaw = await client.fetch<ListingRecord[]>(
       `*[_type == "listing"]{
         "slug": slug.current,
         _updatedAt
       }`
     )
-    const listings = (Array.isArray(listingsRaw) ? listingsRaw : []) as { slug: string, _updatedAt: string }[]
+    const listings = (Array.isArray(listingsRaw) ? listingsRaw : [])
+      .filter((listing): listing is Required<Pick<ListingRecord, 'slug' | '_updatedAt'>> =>
+        typeof listing.slug === 'string' && listing.slug.length > 0 && typeof listing._updatedAt === 'string'
+      )
 
     // Fetch categories
-    const categoriesRaw = await client.fetch(
+    const categoriesRaw = await client.fetch<CategoryRecord[]>(
       `*[_type == "listing"]{category} | unique`
     )
-    const categories = (Array.isArray(categoriesRaw) ? categoriesRaw : []) as { category: string }[]
+    const categories = (Array.isArray(categoriesRaw) ? categoriesRaw : [])
+      .map((category) => category?.category)
+      .filter((value): value is string => typeof value === 'string' && value.length > 0)
 
     // Fetch cities
-    const citiesRaw = await client.fetch(
+    const citiesRaw = await client.fetch<CityRecord[]>(
       `*[_type == "city"]{name}`
     )
-    const cities = (Array.isArray(citiesRaw) ? citiesRaw : []) as { name: string }[]
+    const cities = (Array.isArray(citiesRaw) ? citiesRaw : [])
+      .map((city) => city?.name)
+      .filter((value): value is string => typeof value === 'string' && value.length > 0)
 
     // Listing pages
-    const listingPages: SitemapEntry[] = listings.map((listing: { slug: string, _updatedAt: string }) => ({
+    const listingPages: SitemapEntry[] = listings.map((listing) => ({
       url: `${baseUrl}/listings/${listing.slug}`,
       lastModified: listing._updatedAt,
       changeFrequency: 'weekly',
@@ -84,23 +90,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // Category pages
-    const categoryPages: SitemapEntry[] = categories.map((cat: { category: string }) => ({
-      url: `${baseUrl}/category/${cat.category?.toLowerCase?.() ?? ''}`,
+    const categoryPages: SitemapEntry[] = categories.map((category) => ({
+      url: `${baseUrl}/category/${category.toLowerCase()}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.6
     }));
 
     // City pages
-    const cityPages: SitemapEntry[] = cities.map((city: { name: string }) => ({
-      url: `${baseUrl}/city/${city.name?.toLowerCase?.() ?? ''}`,
+    const cityPages: SitemapEntry[] = cities.map((city) => ({
+      url: `${baseUrl}/city/${city.toLowerCase()}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.6
     }));
 
     return [...staticPages, ...listingPages, ...categoryPages, ...cityPages]
-  } catch (err) {
+  } catch (_error) {
     // Fallback to static pages only if any error occurs
     return staticPages
   }
