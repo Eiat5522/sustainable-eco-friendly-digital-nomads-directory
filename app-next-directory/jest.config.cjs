@@ -53,7 +53,7 @@ module.exports = {
   ],
   moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
   watchPathIgnorePatterns: [
-    '[\/]tests[\/]',
+    '^<rootDir>/tests/',
     '[\/]playwright[\/]'
   ],
   moduleNameMapper: {
@@ -101,7 +101,8 @@ module.exports = {
   ],
   testPathIgnorePatterns: [
     // Exclude all Playwright and integration tests - Jest only for unit tests
-    '[\/]tests[\/]',
+    // Note: Only ignore root-level /tests folder (Playwright), not src/tests (unit test helpers)
+    '^<rootDir>/tests/',
     '[\/]playwright[\/]',
     '[\/]__tests__[\/]__mocks__[\/]',
     '\.d(\\.test)?\.ts$',
