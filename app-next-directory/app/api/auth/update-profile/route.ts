@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-import { auth } from '@/lib/auth';
-import { updateUserProfile, type UpdateUserProfileInput } from '@/lib/auth/serverAuth';
+import type { UpdateUserProfileInput } from '@/lib/auth/serverAuth';
 
 const MAX_NAME_LENGTH = 120;
 
@@ -24,7 +23,7 @@ const serviceUnavailable = () =>
     { status: 503, headers: { 'Retry-After': '60' } }
   );
 
-const sanitizeUser = (user: Awaited<ReturnType<typeof updateUserProfile>>) => {
+const sanitizeUser = (user: any) => {
   if (!user) return null;
   return {
     id: user.id,
@@ -36,6 +35,7 @@ const sanitizeUser = (user: Awaited<ReturnType<typeof updateUserProfile>>) => {
 };
 
 async function ensureAuthenticated() {
+  const { auth } = await import('@/lib/auth');
   const session = await auth();
   if (!session?.user?.id) {
     return {
@@ -167,6 +167,7 @@ async function handleProfileMutation(request: NextRequest): Promise<NextResponse
   }
 
   try {
+    const { updateUserProfile } = await import('@/lib/auth/serverAuth');
     const updatedUser = await updateUserProfile(authResult.userId, validationResult.update);
 
     if (!updatedUser) {

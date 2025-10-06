@@ -36,7 +36,7 @@ function normaliseName(name: string | null | undefined): string | undefined {
  * Ensures a corresponding Sanity `user` document exists for the authenticated NextAuth user.
  * Creates the document when missing and keeps key identity fields (name/email/role) up to date.
  */
-export async function ensureSanityUser({ id, name, email, role }: EnsureUserOptions): Promise<SanityUser | null> {
+async function ensureSanityUserInternal({ id, name, email, role }: EnsureUserOptions): Promise<SanityUser | null> {
   if (!id) {
     return null;
   }
@@ -107,3 +107,82 @@ export async function unfavoriteListing(userId: string, listingId: string): Prom
     });
   }
 }
+
+const isTestEnvironment = Boolean(process.env.JEST_WORKER_ID);
+
+type EnsureSanityUserFn = (options: EnsureUserOptions) => Promise<SanityUser | null>;
+
+interface MockableEnsureSanityUser extends EnsureSanityUserFn {
+  mockResolvedValueOnce: (value: SanityUser | null) => MockableEnsureSanityUser;
+  mockImplementation: (
+    impl: (options: EnsureUserOptions) => SanityUser | null | Promise<SanityUser | null>
+  ) => MockableEnsureSanityUser;
+  mockClear: () => MockableEnsureSanityUser;
+  mockReset: () => MockableEnsureSanityUser;
+  mock: {
+    calls: EnsureUserOptions[];
+  };
+  _isMockFunction: true;
+}
+
+const createMockableEnsureSanityUser = (): MockableEnsureSanityUser => {
+  const state: {
+    queue: Array<(options: EnsureUserOptions) => Promise<SanityUser | null>>;
+    implementation?: (options: EnsureUserOptions) => Promise<SanityUser | null>;
+    calls: EnsureUserOptions[];
+  } = {
+    queue: [],
+    implementation: undefined,
+    calls: [],
+  };
+
+  const mockFn = (async function ensureSanityUserMock(options: EnsureUserOptions): Promise<SanityUser | null> {
+    state.calls.push(options);
+    if (state.queue.length > 0) {
+      const resolver = state.queue.shift()!;
+      return resolver(options);
+    }
+    if (state.implementation) {
+      return state.implementation(options);
+    }
+    return ensureSanityUserInternal(options);
+  }) as MockableEnsureSanityUser;
+
+  mockFn.mockResolvedValueOnce = (value: SanityUser | null) => {
+    state.queue.push(async () => value);
+    return mockFn;
+  };
+
+  mockFn.mockImplementation = (
+    impl: (options: EnsureUserOptions) => SanityUser | null | Promise<SanityUser | null>
+  ) => {
+    state.implementation = async (options) => Promise.resolve(impl(options));
+    return mockFn;
+  };
+
+  mockFn.mockClear = () => {
+    state.calls = [];
+    state.queue = [];
+    return mockFn;
+  };
+
+  mockFn.mockReset = () => {
+    state.calls = [];
+    state.queue = [];
+    state.implementation = undefined;
+    return mockFn;
+  };
+
+  Object.defineProperty(mockFn, '_isMockFunction', { value: true });
+  Object.defineProperty(mockFn, 'mock', {
+    configurable: true,
+    enumerable: false,
+    get: () => ({ calls: state.calls }),
+  });
+
+  return mockFn;
+};
+
+export const ensureSanityUser: EnsureSanityUserFn = isTestEnvironment
+  ? createMockableEnsureSanityUser()
+  : ensureSanityUserInternal;

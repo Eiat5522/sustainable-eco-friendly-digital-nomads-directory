@@ -19,6 +19,8 @@ const LOGIN_WINDOW_LIMIT = 5;
 const LOGIN_WINDOW_DURATION = '1 m';
 const LOGIN_RATE_LIMIT_PREFIX = 'auth:login';
 
+const isTestEnvironment = process.env.NODE_ENV === 'test' || Boolean(process.env.JEST_WORKER_ID);
+
 let RatelimitCtor: typeof UpstashRatelimit | undefined;
 let lastRateLimiterConfigForTests: RatelimitConfig | undefined;
 let ratelimitModulePromise: Promise<{ Ratelimit: typeof UpstashRatelimit }> | null = null;
@@ -37,7 +39,7 @@ const getRatelimitCtor = async (): Promise<typeof UpstashRatelimit> => {
 let loginRateLimiter: InstanceType<typeof UpstashRatelimit> | undefined;
 
 const getTestRateLimiterOverride = (): InstanceType<typeof UpstashRatelimit> | undefined => {
-  if (process.env.NODE_ENV === 'test') {
+  if (isTestEnvironment) {
     const override = (globalThis as { __TEST_LOGIN_RATE_LIMITER__?: InstanceType<typeof UpstashRatelimit> })
       .__TEST_LOGIN_RATE_LIMITER__;
     if (override) {
@@ -101,22 +103,14 @@ const buildRateLimiter = (redis: Redis | undefined) => {
   const testOverride = getTestRateLimiterOverride();
   if (testOverride) {
     if (redis) {
-      const ctor = getRatelimitCtor();
-      const ctorAsAny = ctor as unknown as { mock?: unknown };
-      if (process.env.NODE_ENV === 'test' && ctorAsAny && Object.prototype.hasOwnProperty.call(ctorAsAny, 'mock')) {
-        try {
-          const config: RatelimitConfig = {
-            redis,
-            limiter: createSlidingWindowLimiter(),
-            analytics: true,
-            prefix: LOGIN_RATE_LIMIT_PREFIX,
-          };
-          lastRateLimiterConfigForTests = config;
-          // eslint-disable-next-line new-cap
-          new (ctor as unknown as new (config: RatelimitConfig) => InstanceType<typeof UpstashRatelimit>)(config);
-        } catch {
-          // Ignore instantiation errors when only recording configuration for tests
-        }
+      const config: RatelimitConfig = {
+        redis: normaliseRedisClient(redis),
+        limiter: createSlidingWindowLimiter(),
+        analytics: true,
+        prefix: LOGIN_RATE_LIMIT_PREFIX,
+      };
+      if (isTestEnvironment) {
+        lastRateLimiterConfigForTests = config;
       }
     }
     loginRateLimiter = testOverride;
@@ -135,7 +129,7 @@ const buildRateLimiter = (redis: Redis | undefined) => {
       analytics: true,
       prefix: LOGIN_RATE_LIMIT_PREFIX,
     };
-    if (process.env.NODE_ENV === 'test') {
+    if (isTestEnvironment) {
       lastRateLimiterConfigForTests = config;
     }
     const ctor = getRatelimitCtor();
@@ -251,9 +245,14 @@ export async function recordLoginAttempt(params: {
 }
 
 export function __resetLoginRateLimiterForTests() {
-  if (process.env.NODE_ENV === 'test') {
+  if (isTestEnvironment) {
     loginRateLimiter = undefined;
     lastRateLimiterConfigForTests = undefined;
+    try {
+      buildRateLimiter(getRedisClient?.());
+    } catch {
+      // Ignore rebuild errors in tests
+    }
   }
 }
 
