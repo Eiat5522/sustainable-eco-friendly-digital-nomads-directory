@@ -1,19 +1,24 @@
 'use client';
 
 import { useSession, signIn, signOut } from "next-auth/react";
+import type { DefaultSession } from "next-auth";
 import { createContext, useContext, ReactNode } from "react";
 import { UserRole, hasPagePermission, hasFeaturePermission } from "../../types/auth";
+
+// Narrow the user shape from next-auth, adding optional role
+type AppUser = (DefaultSession["user"] & { role?: UserRole }) | null;
 
 // Auth Context Type
 interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
-  user: any;
+  user: AppUser;
   userRole: UserRole;
   hasPagePermission: (page: string, action: string) => boolean;
   hasFeaturePermission: (feature: string) => boolean;
-  signIn: () => void;
-  signOut: () => void;
+  // Forward exact next-auth types
+  signIn: typeof signIn;
+  signOut: typeof signOut;
 }
 
 // Create Auth Context
@@ -28,9 +33,9 @@ interface AuthProviderProps {
  */
 export function AuthProvider({ children }: AuthProviderProps) {
   const { data: session, status } = useSession();
-  
-  const user = session?.user;
-  const userRole = (user as any)?.role as UserRole || 'unidentifiedUser';
+
+  const user: AppUser = session?.user ?? null;
+  const userRole: UserRole = user?.role ?? 'unidentifiedUser';
 
   const contextValue: AuthContextType = {
     isAuthenticated: !!session,
@@ -43,9 +48,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     hasFeaturePermission: (feature: string) => {
       return hasFeaturePermission(userRole, feature as any);
     },
-    // Forward any arguments to next-auth's signIn/signOut helpers to preserve provider and options.
-    signIn: (...args: unknown[]) => signIn(...(args as any)),
-    signOut: (...args: unknown[]) => signOut(...(args as any)),
+    // IMPORTANT: assign the next-auth functions directly (no wrapper),
+    // so their TS signatures stay intact.
+    signIn,
+    signOut,
   };
 
   return (
@@ -78,9 +84,17 @@ export function Authenticated({ children, fallback = null }: AuthenticatedProps)
   const { isAuthenticated, isLoading } = useAuthContext();
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-    </div>;
+    return (
+      <div
+        data-testid="loading"
+        role="status"
+        aria-live="polite"
+        className="flex justify-center items-center h-64"
+      >
+        <div data-testid="spinner" className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
+        <span className="sr-only">Loading</span>
+      </div>
+    );
   }
 
   return isAuthenticated ? <>{children}</> : <>{fallback}</>;
@@ -99,9 +113,17 @@ export function RequireRole({ role, children, fallback = null }: RequireRoleProp
   const { userRole, isLoading } = useAuthContext();
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-    </div>;
+    return (
+      <div
+        data-testid="loading"
+        role="status"
+        aria-live="polite"
+        className="flex justify-center items-center h-64"
+      >
+        <div data-testid="spinner" className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
+        <span className="sr-only">Loading</span>
+      </div>
+    );
   }
 
   return userRole === role ? <>{children}</> : <>{fallback}</>;
@@ -120,9 +142,17 @@ export function RequirePermission({ feature, children, fallback = null }: Requir
   const { hasFeaturePermission, isLoading } = useAuthContext();
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-    </div>;
+    return (
+      <div
+        data-testid="loading"
+        role="status"
+        aria-live="polite"
+        className="flex justify-center items-center h-64"
+      >
+        <div data-testid="spinner" className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
+        <span className="sr-only">Loading</span>
+      </div>
+    );
   }
 
   return hasFeaturePermission(feature) ? <>{children}</> : <>{fallback}</>;
@@ -140,9 +170,17 @@ export function AdminOnly({ children, fallback = null }: AdminOnlyProps) {
   const { userRole, isLoading } = useAuthContext();
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-    </div>;
+    return (
+      <div
+        data-testid="loading"
+        role="status"
+        aria-live="polite"
+        className="flex justify-center items-center h-64"
+      >
+        <div data-testid="spinner" className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
+        <span className="sr-only">Loading</span>
+      </div>
+    );
   }
 
   const isAdmin = userRole === 'admin' || userRole === 'superAdmin';

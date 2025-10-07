@@ -249,9 +249,7 @@ jest.mock('@/lib/redis', () => {
 // exported functions are guaranteed to be `jest.fn()` and support
 // `.mockReturnValue` / `.mockResolvedValue` regardless of CJS/ESM interop.
 jest.mock('@/lib/rate-limit', () => {
-  // Using a factory keeps the mock creation in Jest's module system
-  // and avoids runtime require()/interop surprises.
-  const { jest } = require('@jest/globals');
+  // Using the module-level `jest` import instead of requiring it.
   return {
     __esModule: true,
     getClientIp: jest.fn(() => '127.0.0.1'),
@@ -283,7 +281,7 @@ try {
 
 // Ensure auth config is mocked early so tests can call .mockReturnValue
 jest.mock('@/lib/auth/config', () => {
-  const { jest } = require('@jest/globals');
+  // Use module-level `jest` instead of require('@jest/globals')
   return {
     __esModule: true,
     default: {
@@ -295,7 +293,7 @@ jest.mock('@/lib/auth/config', () => {
 
 // Mock tokens utilities globally (generateToken, hashToken, minutesFromNow)
 jest.mock('@/lib/tokens', () => {
-  const { jest } = require('@jest/globals');
+  // Use module-level `jest` instead of require('@jest/globals')
   return {
     __esModule: true,
     generateToken: jest.fn(() => ({ raw: 'test-token-raw', hash: 'test-token-hash' })),
@@ -306,7 +304,7 @@ jest.mock('@/lib/tokens', () => {
 
 // Mock email utilities globally
 jest.mock('@/lib/email', () => {
-  const { jest } = require('@jest/globals');
+  // Use module-level `jest` instead of require('@jest/globals')
   return {
     __esModule: true,
     buildVerifyEmail: jest.fn(() => Promise.resolve({ to: 'test@example.com', subject: 'Verify your email', html: '<p>Test</p>', text: 'Test' })),
@@ -317,41 +315,41 @@ jest.mock('@/lib/email', () => {
 // Defensive runtime patch: ensure the auth config exports are jest.fn compatible
 // Some module resolution/interop paths may produce non-mock functions; this
 // guarantees tests can call `.mockReturnValue` / `.mockResolvedValue` safely.
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const ac = require('@/lib/auth/config');
-    // Coerce both named and default exports to jest.fn compatible functions
-    const ensureMock = (obj: any, key: string, fallback: any) => {
-      if (!obj) return;
-      if (typeof obj[key] !== 'function' || typeof obj[key]?.mockReturnValue !== 'function') {
-        obj[key] = jest.fn(fallback);
-      }
-    };
-
-    ensureMock(ac, 'isEmailVerificationRequired', () => false);
-    ensureMock(ac, 'getAdminEmails', () => []);
-    ensureMock(ac, 'isAdminEmail', () => false);
-
-    if (ac.default) {
-      ensureMock(ac.default, 'isEmailVerificationRequired', () => false);
-      ensureMock(ac.default, 'getAdminEmails', () => []);
-      ensureMock(ac.default, 'isAdminEmail', () => false);
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const ac = require('@/lib/auth/config');
+  // Coerce both named and default exports to jest.fn compatible functions
+  const ensureMock = (obj: any, key: string, fallback: any) => {
+    if (!obj) return;
+    if (typeof obj[key] !== 'function' || typeof obj[key]?.mockReturnValue !== 'function') {
+      obj[key] = jest.fn(fallback);
     }
+  };
 
-    // Expose the actual jest.fn instances from the mocked module on global
-    try {
-      (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.isEmailVerificationRequired;
-      (global as any).__AUTH_GET_ADMIN_EMAILS = ac.getAdminEmails;
-      (global as any).__AUTH_IS_ADMIN_EMAIL = ac.isAdminEmail;
-      if (ac.default) {
-        (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.default.isEmailVerificationRequired || (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED;
-      }
-    } catch (e) {
-      // ignore
+  ensureMock(ac, 'isEmailVerificationRequired', () => false);
+  ensureMock(ac, 'getAdminEmails', () => []);
+  ensureMock(ac, 'isAdminEmail', () => false);
+
+  if (ac.default) {
+    ensureMock(ac.default, 'isEmailVerificationRequired', () => false);
+    ensureMock(ac.default, 'getAdminEmails', () => []);
+    ensureMock(ac.default, 'isAdminEmail', () => false);
+  }
+
+  // Expose the actual jest.fn instances from the mocked module on global
+  try {
+    (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.isEmailVerificationRequired;
+    (global as any).__AUTH_GET_ADMIN_EMAILS = ac.getAdminEmails;
+    (global as any).__AUTH_IS_ADMIN_EMAIL = ac.isAdminEmail;
+    if (ac.default) {
+      (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.default.isEmailVerificationRequired || (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED;
     }
   } catch (e) {
-    // Ignore - some test suites may not resolve this module during setup
+    // ignore
   }
+} catch (e) {
+  // Ignore - some test suites may not resolve this module during setup
+}
 
 // Also defensively patch the source file path in case some tests import
 // the module by resolved path rather than the mapped alias. This ensures
@@ -360,8 +358,9 @@ try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const srcAuth = require('./src/lib/auth/config');
   if (srcAuth) {
-    srcAuth.isEmailVerificationRequired = require('@jest/globals').jest.fn(() => false);
-    if (srcAuth.default) srcAuth.default.isEmailVerificationRequired = require('@jest/globals').jest.fn(() => false);
+    // Replace require('@jest/globals').jest.fn with module-level `jest.fn`
+    srcAuth.isEmailVerificationRequired = jest.fn(() => false);
+    if (srcAuth.default) srcAuth.default.isEmailVerificationRequired = jest.fn(() => false);
     // eslint-disable-next-line no-console
     console.log('DEBUG jest.setup: patched ./src/lib/auth/config exports');
   }
@@ -373,7 +372,6 @@ try {
 try {
   const tk = require('@/lib/tokens');
   if (tk) {
-    const { jest } = require('@jest/globals');
     const ensureJestFn = (key: string, impl: () => any) => {
       const current = tk[key];
       if (typeof current !== 'function' || typeof current?.mock === 'undefined') {
@@ -396,7 +394,6 @@ try {
 try {
   const em = require('@/lib/email');
   if (em) {
-    const { jest } = require('@jest/globals');
     const ensureJestFn = (key: string, impl: () => any) => {
       const current = em[key];
       if (typeof current !== 'function' || typeof current?.mock === 'undefined') {
@@ -410,6 +407,9 @@ try {
       (global as any).__EMAIL_sendMail = em.sendMail;
     } catch (e) {}
   }
+} catch (e) {
+  // ignore
+}
 } catch (e) {
   // ignore
 }
