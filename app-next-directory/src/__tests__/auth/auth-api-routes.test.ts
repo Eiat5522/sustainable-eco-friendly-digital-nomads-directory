@@ -171,6 +171,13 @@ describe('Authentication API Routes', () => {
     mockIsEmailVerificationRequired.mockReset();
     mockIsEmailVerificationRequired.mockReturnValue(false);
     
+    // Clear mock call history for token and email functions
+    mockGenerateToken.mockClear();
+    mockHashToken.mockClear();
+    mockMinutesFromNow.mockClear();
+    mockBuildVerifyEmail.mockClear();
+    mockSendMail.mockClear();
+    
     // Default mock implementations are set in __mocks__/ files:
     // - __mocks__/lib/tokens.js: generateToken, hashToken, minutesFromNow
     // - __mocks__/lib/email.js: buildVerifyEmail, sendMail  

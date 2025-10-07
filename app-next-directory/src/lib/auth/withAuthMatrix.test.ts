@@ -12,9 +12,10 @@ jest.mock('@/lib/auth', () => ({
 
 jest.mock('../../types/auth');
 
-const authMock = jest.requireMock('../../types/auth');
-const mockHasPagePermission = authMock.hasPagePermission as jest.Mock;
-const mockHasFeaturePermission = authMock.hasFeaturePermission as jest.Mock;
+// Import the module after mocking to get the mocked functions
+import * as authTypes from '../../types/auth';
+const mockHasPagePermission = authTypes.hasPagePermission as jest.Mock;
+const mockHasFeaturePermission = authTypes.hasFeaturePermission as jest.Mock;
 
 import {
   withAuthMatrix,
@@ -29,7 +30,9 @@ describe('withAuthMatrix', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    // Clear mocks but preserve their structure
+    mockGetToken.mockClear();
+    mockAuth.mockClear();
     mockHasPagePermission.mockReset();
     mockHasFeaturePermission.mockReset();
     mockHasPagePermission.mockImplementation(() => true);
@@ -161,7 +164,7 @@ describe('withAuthMatrix', () => {
 
     it('denies venue owners access to others listings', async () => {
       mockGetToken.mockResolvedValue({ role: 'venueOwner', email: 'owner@example.com' });
-      mockHasPagePermission.mockReturnValue(false);
+      mockHasPagePermission.mockImplementation(() => false);
 
       const request = new NextRequest('http://localhost:3000/listings/edit/456');
       const response = await withAuthMatrix(
@@ -220,7 +223,7 @@ describe('withAuthApiFeature', () => {
 
   it('returns 403 when user lacks required feature permission', async () => {
     mockGetToken.mockResolvedValue({ role: 'user', email: 'user@example.com' });
-    mockHasFeaturePermission.mockReturnValue(false);
+    mockHasFeaturePermission.mockImplementation(() => false);
 
     const request = new NextRequest('http://localhost:3000/api/feature');
     const response = await withAuthApiFeature(request, 'manageUsers' as any);
@@ -232,7 +235,7 @@ describe('withAuthApiFeature', () => {
 
   it('allows request when user has required feature permission', async () => {
     mockGetToken.mockResolvedValue({ role: 'admin', email: 'admin@example.com' });
-    mockHasFeaturePermission.mockReturnValue(true);
+    mockHasFeaturePermission.mockImplementation(() => true);
 
     const request = new NextRequest('http://localhost:3000/api/feature');
     const response = await withAuthApiFeature(request, 'manageUsers' as any);
