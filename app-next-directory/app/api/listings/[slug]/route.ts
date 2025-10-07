@@ -36,14 +36,20 @@ export async function PUT(
     const body = await request.json();
     const listings = await getCollection('listings');
 
-    const listing = await listings.findOne({ slug });
+    type ListingDocument = {
+      slug: string;
+      ownerId?: string | null;
+    };
+
+    const listing = await listings.findOne<ListingDocument>({ slug });
 
     if (!listing) {
       return ApiResponseHandler.notFound('Listing');
     }
 
     // Only owner can update
-    if (listing.ownerId !== session.user.id) {
+    const userId = session?.user?.id;
+    if (!userId || listing.ownerId !== userId) {
       return ApiResponseHandler.forbidden();
     }
 
@@ -72,14 +78,20 @@ export async function DELETE(
     const session = await requireAuth();
     const listings = await getCollection('listings');
 
-    const listing = await listings.findOne({ slug });
+    type ListingDocument = {
+      slug: string;
+      ownerId?: string | null;
+    };
+
+    const listing = await listings.findOne<ListingDocument>({ slug });
 
     if (!listing) {
       return ApiResponseHandler.notFound('Listing');
     }
 
     // Only owner can delete
-    if (listing.ownerId !== session.user.id) {
+    const userId = session?.user?.id;
+    if (!userId || listing.ownerId !== userId) {
       return ApiResponseHandler.forbidden();
     }
 

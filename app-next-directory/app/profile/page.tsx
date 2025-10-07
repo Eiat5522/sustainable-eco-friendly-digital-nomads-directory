@@ -17,9 +17,21 @@ import { NeoBadge } from '@/components/ui/neo-badge';
 import { NeoButton } from '@/components/ui/neo-button';
 import { Heart, Loader2, MessageSquare, Star, Edit } from 'lucide-react';
 import { ProfileEditForm } from '@/components/profile/ProfileEditForm';
-import { normaliseFavorite, normaliseOwnerReviews, formatDate } from './utils';
+import {
+  normaliseFavorite,
+  normaliseOwnerReviews,
+  formatDate,
+  type FavoriteEntry,
+  type OwnerReviewsResponse,
+} from './utils';
 import type { FavoriteListing, OwnerListingReviews } from './utils';
 import { FavoriteListingsShowcase } from './FavoriteListingsShowcase';
+
+type FavoritesResponse = {
+  favorites?: Array<FavoriteEntry | null> | null;
+};
+
+type OwnerReviewsResponseApi = OwnerReviewsResponse | null | undefined;
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession();
@@ -98,7 +110,7 @@ export default function ProfilePage() {
           const errorMessage = typeof payload?.error === 'string' ? payload.error : 'Unable to load reviews';
           throw new Error(errorMessage);
         }
-        const data = (await res.json()) as OwnerReviewsResponse;
+        const data = (await res.json()) as OwnerReviewsResponseApi;
         setOwnerListings(normaliseOwnerReviews(data));
       } catch (error) {
         if (!(error instanceof DOMException && error.name === 'AbortError')) {
@@ -385,7 +397,7 @@ export default function ProfilePage() {
                                             />
                                           ) : (
                                             <div className="flex h-full w-full items-center justify-center text-sm font-semibold text-neo-text-primary">
-                                              {review.reviewerName.charAt(0).toUpperCase()}
+                                          {(review.reviewerName ?? '?').charAt(0).toUpperCase()}
                                             </div>
                                           )}
                                         </div>

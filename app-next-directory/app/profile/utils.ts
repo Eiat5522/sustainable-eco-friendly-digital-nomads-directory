@@ -37,7 +37,7 @@ export interface OwnerListingReviews {
   reviews: OwnerReview[];
 }
 
-type FavoriteEntry = {
+export type FavoriteEntry = {
   _id?: string | null;
   createdAt?: string | null;
   listing?: {
@@ -68,7 +68,7 @@ type FavoriteEntry = {
   } | null;
 };
 
-type OwnerReviewsResponse = {
+export type OwnerReviewsResponse = {
   listings?: Array<{
     slug?: string | null;
     name?: string | null;

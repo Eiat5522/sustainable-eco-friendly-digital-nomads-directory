@@ -68,7 +68,7 @@ export async function POST(request: NextRequest, _context: RouteContext) {
       return NextResponse.json({ error: 'action is required' }, { status: 400 });
     }
 
-    if (!['approve', 'restrict', 'dismiss', 'flag'].includes(action)) {
+    if (!['approve', 'restrict', 'dismiss', 'flag', 'saveNote'].includes(action)) {
       return NextResponse.json({ error: `Unsupported action: ${action}` }, { status: 400 });
     }
 

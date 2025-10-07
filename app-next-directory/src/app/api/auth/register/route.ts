@@ -47,11 +47,12 @@ export async function POST(req: Request) {
     }
 
     const authModule = await import('@/lib/auth/config');
+    const authDefault = (authModule as { default?: { isEmailVerificationRequired?: unknown } }).default;
     const isEmailVerificationRequiredFn =
       typeof authModule.isEmailVerificationRequired === 'function'
         ? authModule.isEmailVerificationRequired
-        : typeof authModule.default?.isEmailVerificationRequired === 'function'
-          ? authModule.default.isEmailVerificationRequired
+        : typeof authDefault?.isEmailVerificationRequired === 'function'
+          ? authDefault.isEmailVerificationRequired
           : isEmailVerificationRequired;
 
     const requiresVerification = Boolean(isEmailVerificationRequiredFn());
@@ -95,32 +96,39 @@ export async function POST(req: Request) {
       const tokensModule = await import('@/lib/tokens');
       const emailModule = await import('@/lib/email');
 
+      const tokensDefault = (tokensModule as {
+        default?: { generateToken?: unknown; minutesFromNow?: unknown };
+      }).default;
+      const emailDefault = (emailModule as {
+        default?: { buildVerifyEmail?: unknown; sendMail?: unknown };
+      }).default;
+
       const generateTokenFn =
         typeof tokensModule.generateToken === 'function'
           ? tokensModule.generateToken
-          : typeof tokensModule.default?.generateToken === 'function'
-            ? tokensModule.default.generateToken
+          : typeof tokensDefault?.generateToken === 'function'
+            ? tokensDefault.generateToken
             : generateToken;
 
       const minutesFromNowFn =
         typeof tokensModule.minutesFromNow === 'function'
           ? tokensModule.minutesFromNow
-          : typeof tokensModule.default?.minutesFromNow === 'function'
-            ? tokensModule.default.minutesFromNow
+          : typeof tokensDefault?.minutesFromNow === 'function'
+            ? tokensDefault.minutesFromNow
             : minutesFromNow;
 
       const buildVerifyEmailFn =
         typeof emailModule.buildVerifyEmail === 'function'
           ? emailModule.buildVerifyEmail
-          : typeof emailModule.default?.buildVerifyEmail === 'function'
-            ? emailModule.default.buildVerifyEmail
+          : typeof emailDefault?.buildVerifyEmail === 'function'
+            ? emailDefault.buildVerifyEmail
             : buildVerifyEmail;
 
       const sendMailFn =
         typeof emailModule.sendMail === 'function'
           ? emailModule.sendMail
-          : typeof emailModule.default?.sendMail === 'function'
-            ? emailModule.default.sendMail
+          : typeof emailDefault?.sendMail === 'function'
+            ? emailDefault.sendMail
             : sendMail;
 
       const { raw, hash } = generateTokenFn();

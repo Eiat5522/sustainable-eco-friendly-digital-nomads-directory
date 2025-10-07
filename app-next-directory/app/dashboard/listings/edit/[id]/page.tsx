@@ -3,26 +3,28 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { VenueListingForm } from '@/app/dashboard/components/VenueListingForm';
+import { VenueListingForm } from '../../../components/VenueListingForm';
+import type { ListingFormValues } from '../../../components/VenueListingForm';
 
 export default function EditListingPage() {
   const router = useRouter();
-  const params = useParams();
-  const { id } = params;
-  const [listing, setListing] = useState(null);
+  const params = useParams<{ id: string }>();
+  const idParam = params?.id;
+  const listingId = Array.isArray(idParam) ? idParam[0] : idParam;
+  const [listing, setListing] = useState<(ListingFormValues & Record<string, unknown>) | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (id) {
+    if (listingId) {
       const fetchListing = async () => {
         try {
-          const response = await fetch(`/api/listings/manage/${id}`);
+          const response = await fetch(`/api/listings/manage/${listingId}`);
           if (!response.ok) {
             throw new Error('Failed to fetch listing');
           }
-          const data = await response.json();
+          const data = (await response.json()) as ListingFormValues & Record<string, unknown>;
           setListing(data);
         } catch (err) {
           setError(err instanceof Error ? err.message : 'An unexpected error occurred');
@@ -33,12 +35,15 @@ export default function EditListingPage() {
 
       fetchListing();
     }
-  }, [id]);
+  }, [listingId]);
 
-  const handleSave = async (data: any) => {
+  const handleSave = async (data: ListingFormValues & Record<string, unknown>) => {
     setSaving(true);
     try {
-      const response = await fetch(`/api/listings/manage/${id}`, {
+      if (!listingId) {
+        throw new Error('Listing identifier is missing');
+      }
+      const response = await fetch(`/api/listings/manage/${listingId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

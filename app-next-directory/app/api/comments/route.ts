@@ -201,7 +201,12 @@ export async function POST(request: Request | MaybeRequest) {
 
     const userRef = sanityUser?._id ?? userId;
 
-    const postDoc = await client.getDocument<{ slug?: { current?: string } } | null>(postId);
+    type PostDocument = {
+      _id: string;
+      slug?: { current?: string | null } | null;
+    };
+
+    const postDoc = await client.getDocument<PostDocument>(postId);
     if (!postDoc) {
       return errorResponse('Invalid reference(s)', 400);
     }
@@ -214,7 +219,7 @@ export async function POST(request: Request | MaybeRequest) {
       approved: false,
     });
 
-    const slug = postDoc?.slug?.current;
+    const slug = postDoc.slug?.current ?? undefined;
     if (slug) {
       try {
         revalidateTag(`post:${slug}`);

@@ -119,9 +119,9 @@ export async function fetchAdminAnalytics(): Promise<AdminAnalyticsSnapshot> {
   };
 }
 
-export type ModerationAction = 'approve' | 'restrict' | 'dismiss' | 'flag';
+export type ModerationAction = 'approve' | 'restrict' | 'dismiss' | 'flag' | 'saveNote';
 
-const MODERATION_STATUS_MAP: Record<ModerationAction, string> = {
+const MODERATION_STATUS_MAP: Record<Exclude<ModerationAction, 'saveNote'>, string> = {
   approve: 'approved',
   restrict: 'restricted',
   dismiss: 'resolved',
@@ -141,15 +141,19 @@ export async function performModerationAction({
   action,
   notes,
 }: ModerationActionInput): Promise<AdminModerationEntry | null> {
-  const status = MODERATION_STATUS_MAP[action];
-  if (!status) {
+  const status = action === 'saveNote' ? null : MODERATION_STATUS_MAP[action];
+  if (status === undefined && action !== 'saveNote') {
     throw new Error(`Unsupported moderation action: ${action}`);
   }
 
   const timestamp = new Date().toISOString();
   const patch = client
     .patch(moderationId)
-    .set({ status, lastActionAt: timestamp })
+    .set(
+      status
+        ? { status, lastActionAt: timestamp }
+        : { lastActionAt: timestamp }
+    )
     .setIfMissing({ moderationHistory: [] as any[] })
     .append('moderationHistory', [
       {

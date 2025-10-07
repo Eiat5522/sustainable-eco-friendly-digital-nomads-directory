@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useTransition, FormEvent } from 'react';
+import type { ModerationAction } from '@/lib/admin/analytics';
 
 type ModerationActionsProps = {
   moderationId: string;
   itemName: string;
 };
 
-type ActionType = 'approve' | 'restrict' | 'dismiss';
+type ActionType = ModerationAction;
 
 async function postModerationAction({
   moderationId,
@@ -40,7 +41,7 @@ export function ModerationActions({ moderationId, itemName }: ModerationActionsP
   const [feedback, setFeedback] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const runAction = (action: ActionType | 'saveNote', customNotes?: string) => {
+  const runAction = (action: ActionType, customNotes?: string) => {
     startTransition(async () => {
       setFeedback(null);
       try {
@@ -51,7 +52,6 @@ export function ModerationActions({ moderationId, itemName }: ModerationActionsP
         if (action === 'dismiss') {
           setNotesOpen(false);
         }
-        // Only close notes panel if saving note and not dismissing
         if (action === 'saveNote') {
           setNotesOpen(false);
         }

@@ -24,10 +24,22 @@ export function VenueListingManagement() {
         if (!response.ok) {
           throw new Error('Failed to fetch listings');
         }
-        const data = await response.json();
-        setListings(data.listings);
+        const data = (await response.json()) as { listings?: unknown };
+        const parsed = Array.isArray(data?.listings)
+          ? data.listings.filter((listing): listing is Listing =>
+              Boolean(
+                listing &&
+                typeof listing === 'object' &&
+                typeof (listing as Listing)._id === 'string' &&
+                typeof (listing as Listing).name === 'string' &&
+                typeof (listing as Listing).city === 'string' &&
+                typeof (listing as Listing).status === 'string'
+              )
+            )
+          : [];
+        setListings(parsed);
       } catch (err) {
-        setError(err.message);
+        setError(err instanceof Error ? err.message : 'Failed to fetch listings');
       } finally {
         setLoading(false);
       }
@@ -49,7 +61,7 @@ export function VenueListingManagement() {
 
         setListings(listings.filter((listing) => listing._id !== id));
       } catch (err) {
-        setError(err.message);
+        setError(err instanceof Error ? err.message : 'Failed to delete listing');
       }
     }
   };
@@ -90,7 +102,7 @@ export function VenueListingManagement() {
                     <Link href={`/dashboard/listings/edit/${listing._id}`}>Edit</Link>
                   </NeoButton>
                   <NeoButton
-                    variant="destructive"
+                    variant="outline"
                     size="sm"
                     onClick={() => handleDelete(listing._id)}
                   >

@@ -9,6 +9,29 @@ const voteSchema = z.object({
   userId: z.string().optional(), // For logged-in users
 });
 
+type ReviewDocument = {
+  _id: ObjectId;
+  status?: string;
+  helpfulCount?: number;
+  unhelpfulCount?: number;
+};
+
+type ReviewVoteDocument = {
+  _id?: ObjectId;
+  reviewId: ObjectId;
+  voterIdentifier: string;
+  helpful: boolean;
+  createdAt: Date;
+  updatedAt?: Date;
+  ipAddress?: string;
+};
+
+type VoteStat = {
+  _id: boolean;
+  count: number;
+  voters: string[];
+};
+
 // POST endpoint for voting on review helpfulness
 type RouteContext = { params: Promise<{ reviewId: string }> };
 
@@ -39,7 +62,7 @@ export async function POST(
     const reviewVotes = await getCollection('reviewVotes');
 
     // Check if review exists
-    const review = await reviews.findOne({
+    const review = await reviews.findOne<ReviewDocument>({
       _id: new ObjectId(reviewId),
       status: 'approved'
     });
@@ -52,16 +75,17 @@ export async function POST(
     const voterIdentifier = userId || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous';
 
     // Check for existing vote
-    const existingVote = await reviewVotes.findOne({
+    const existingVote = await reviewVotes.findOne<ReviewVoteDocument>({
       reviewId: new ObjectId(reviewId),
       voterIdentifier,
     });
 
     if (existingVote) {
+      const voteId = existingVote._id;
       // Update existing vote if different
-      if (existingVote.helpful !== helpful) {
+      if (existingVote.helpful !== helpful && voteId instanceof ObjectId) {
         await reviewVotes.updateOne(
-          { _id: existingVote._id },
+          { _id: voteId },
           {
             $set: {
               helpful,
@@ -143,7 +167,7 @@ export async function GET(
     const reviewVotes = await getCollection('reviewVotes');
 
     // Get review with vote counts
-    const review = await reviews.findOne(
+    const review = await reviews.findOne<ReviewDocument>(
       { _id: new ObjectId(reviewId) },
       { projection: { helpfulCount: 1, unhelpfulCount: 1 } }
     );
@@ -153,7 +177,9 @@ export async function GET(
     }
 
     // Get detailed vote breakdown
-    const voteStats = await reviewVotes.aggregate([
+    const aggregation = (reviewVotes as {
+      aggregate: <T = unknown>(pipeline?: Record<string, unknown>[]) => { toArray: () => Promise<T[]> };
+    }).aggregate<VoteStat>([
       { $match: { reviewId: new ObjectId(reviewId) } },
       {
         $group: {
@@ -162,10 +188,11 @@ export async function GET(
           voters: { $addToSet: '$voterIdentifier' }
         }
       }
-    ]).toArray();
+    ]);
+    const voteStats = await aggregation.toArray();
 
-    const helpful = voteStats.find((v: { _id: boolean; count: number; voters: string[] }) => v._id === true)?.count || 0;
-    const unhelpful = voteStats.find((v: { _id: boolean; count: number; voters: string[] }) => v._id === false)?.count || 0;
+    const helpful = voteStats.find((v) => v._id === true)?.count ?? 0;
+    const unhelpful = voteStats.find((v) => v._id === false)?.count ?? 0;
     const total = helpful + unhelpful;
 
     const response = {

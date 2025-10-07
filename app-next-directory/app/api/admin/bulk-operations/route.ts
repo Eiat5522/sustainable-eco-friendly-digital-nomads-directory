@@ -51,7 +51,7 @@ export async function POST(request: NextRequest, _context: RouteContext) {
     const body = await request.json().catch(() => null);
     const operation = body?.operation as BulkOperationType | undefined;
     const rawIds = Array.isArray(body?.ids) ? body.ids : [];
-    const ids = rawIds.filter((id): id is string =>
+    const ids = rawIds.filter((id: unknown): id is string =>
       typeof id === 'string' && id.trim().length > 0
     );
 

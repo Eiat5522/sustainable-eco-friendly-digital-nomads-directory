@@ -60,8 +60,8 @@ describe('withAuth HOC', () => {
 
       render(<WrappedComponent />);
       expect(screen.queryByText('Content')).not.toBeInTheDocument();
-      const spinnerElement = screen.container.querySelector('.animate-spin');
-      expect(spinnerElement).toBeInTheDocument();
+  const spinnerElement = document.querySelector('.animate-spin');
+  expect(spinnerElement).toBeInTheDocument();
     });
 
     it('redirects to login when not authenticated', async () => {

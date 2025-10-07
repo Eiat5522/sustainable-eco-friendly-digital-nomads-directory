@@ -8,67 +8,91 @@ class ObjectIdMock {
   toHexString() { return this._id; }
 }
 
+// Types used inside this mock
+type Hook = (this: unknown, next?: () => void) => void;
+type SetterFunction = (v: unknown) => unknown;
+
+interface PathOptions {
+  type?: unknown;
+  required?: boolean;
+  enum?: unknown[];
+  lowercase?: boolean;
+  trim?: boolean;
+  set?: SetterFunction;
+  default?: unknown;
+}
+
+interface PathDef {
+  path: string;
+  instance: string;
+  options: PathOptions | Record<string, unknown>;
+  isRequired: boolean;
+  enumValues?: unknown[];
+}
+
 class SchemaMock {
   static Types = { ObjectId: ObjectIdMock };
-  paths: Record<string, any> = {};
-  options: any = {};
-  private _preHooks: Map<string, Function[]> = new Map();
-  private indexList: Array<any> = [];
+  paths: Record<string, PathDef> = {};
+  options: Record<string, unknown> = {};
+  // expose preHooks so tests / mock can inspect and the model factory can run them
+  public preHooks: Map<string, Hook[]> = new Map();
+  private indexList: Array<[Record<string, unknown>, Record<string, unknown>]> = [];
   
-  constructor(definition: any, options?: any) {
+  constructor(definition?: Record<string, PathOptions>, options?: Record<string, unknown>) {
     this.options = options || {};
     // Store paths for later retrieval
     if (definition) {
       Object.keys(definition).forEach(key => {
+        const def = definition[key];
         this.paths[key] = {
           path: key,
-          instance: this.getInstanceType(definition[key]),
-          options: definition[key],
-          isRequired: definition[key].required === true,
-          enumValues: definition[key].enum,
+          instance: this.getInstanceType(def),
+          options: def,
+          isRequired: def.required === true,
+          enumValues: def.enum,
         };
       });
     }
   }
   
-  getInstanceType(fieldDef: any) {
+  getInstanceType(fieldDef?: PathOptions) {
     // Determine the string representation of the instance type for schema.path emulation
     if (!fieldDef || !fieldDef.type) return 'Mixed';
     if (fieldDef.type === String) return 'String';
     if (fieldDef.type === Number) return 'Number';
     if (fieldDef.type === Boolean) return 'Boolean';
     if (fieldDef.type === Date) return 'Date';
-    if (fieldDef.type === ObjectIdMock || (fieldDef.type && fieldDef.type.name === 'ObjectId')) return 'ObjectId';
-    if (Array.isArray(fieldDef.type)) return 'Array';
+    if (fieldDef.type === ObjectIdMock || (fieldDef.type && (fieldDef.type as any).name === 'ObjectId')) return 'ObjectId';
+    if (Array.isArray((fieldDef as any).type)) return 'Array';
     return 'Mixed';
   }
 
   path(pathName: string) {
     return this.paths[pathName] || {
       path: pathName,
-      options: {},
+      options: {} as Record<string, unknown>,
       isRequired: false,
-    };
+    } as PathDef;
   }
   
-  pre(hookNames: string | string[], fn?: Function) {
+  pre(hookNames: string | string[], fn?: Hook) {
     // Normalize to array
     const names = Array.isArray(hookNames) ? hookNames : [hookNames];
     if (typeof fn === 'function') {
       names.forEach((n) => {
-        const arr = this._preHooks.get(n) || [];
+        const arr = this.preHooks.get(n) || [];
         arr.push(fn);
-        this._preHooks.set(n, arr);
+        this.preHooks.set(n, arr);
       });
       return this;
     }
-    // If no fn provided, return hooks map for inspection (or truthy value)
-    return this._preHooks;
+    // If no fn provided, return hooks map for inspection
+    return this.preHooks;
   }
 
-  post(...args: any[]) { return this; }
+  post(..._args: unknown[]) { return this; }
   
-  index(fields: any, options?: any) {
+  index(fields: Record<string, unknown>, options?: Record<string, unknown>) {
     this.indexList.push([fields, options || {}]);
     return this;
   }
@@ -78,22 +102,22 @@ class SchemaMock {
   }
 }
 
-const collectionStore: Record<string, any> = {};
+const collectionStore: Record<string, Array<Record<string, unknown>>> = {};
 
-const createModelMock = (modelName: string, schema?: any) => {
-  const modelMock = function(doc?: any) {
-    const instance: any = { ...doc };
+const createModelMock = (modelName: string, schema?: SchemaMock) => {
+  const modelMock = function(doc?: Record<string, unknown>) {
+    const instance: Record<string, unknown> = { ...(doc || {}) };
     instance._id = instance._id || new ObjectIdMock();
     instance.isNew = true;
-    if (schema) instance.schema = schema;
+    if (schema) (instance as any).schema = schema; // keep runtime shape for code that expects .schema
 
-    const _store: Record<string, any> = {};
+    const _store: Record<string, unknown> = {};
 
     if (schema && schema.paths) {
       Object.keys(schema.paths).forEach(key => {
         const pathDef = schema.paths[key];
-        const opts = pathDef && pathDef.options ? pathDef.options : {};
-        const hasSetter = opts && (opts.lowercase || opts.trim || typeof opts.set === 'function');
+        const opts = (pathDef && pathDef.options) ? pathDef.options as PathOptions : {} as PathOptions;
+        const hasSetter = !!(opts && (opts.lowercase || opts.trim || typeof opts.set === 'function'));
 
         const initialVal = Object.prototype.hasOwnProperty.call(instance, key) ? instance[key] : undefined;
 
@@ -102,14 +126,14 @@ const createModelMock = (modelName: string, schema?: any) => {
             configurable: true,
             enumerable: true,
             get() { return _store[key]; },
-            set(val: any) {
-              let v = val;
+            set(val: unknown) {
+              let v: unknown = val;
               if (v !== undefined && v !== null && typeof v === 'string') {
-                if (opts.trim) v = v.trim();
-                if (opts.lowercase) v = v.toLowerCase();
+                if (opts.trim) v = (v as string).trim();
+                if (opts.lowercase) v = (v as string).toLowerCase();
               }
               if (typeof opts.set === 'function') {
-                try { v = opts.set(v); } catch (e) { /* ignore */ }
+                try { v = opts.set(v); } catch (_e) { /* ignore */ }
               }
               _store[key] = v;
             }
@@ -117,21 +141,22 @@ const createModelMock = (modelName: string, schema?: any) => {
         }
 
         if (initialVal !== undefined) {
-          try { instance[key] = initialVal; } catch (e) { instance[key] = initialVal; }
-        } else if (opts && opts.default !== undefined) {
-          const def = typeof opts.default === 'function' ? opts.default() : opts.default;
-          try { instance[key] = def; } catch (e) { instance[key] = def; }
+          try { instance[key] = initialVal; } catch (_e) { instance[key] = initialVal; }
+        } else if (opts && (opts as PathOptions).default !== undefined) {
+          const defaultVal = (opts as PathOptions).default;
+          const def = typeof defaultVal === 'function' ? (defaultVal as (...args: unknown[]) => unknown)() : defaultVal;
+          try { instance[key] = def; } catch (_e) { instance[key] = def; }
         }
 
         // apply simple normalization for fields without setters
         if (!hasSetter) {
           const val = instance[key];
           if (val !== undefined && val !== null && typeof val === 'string') {
-            let v = val;
-            if (opts.trim) v = v.trim();
-            if (opts.lowercase) v = v.toLowerCase();
+            let v: unknown = val;
+            if (opts.trim) v = (v as string).trim();
+            if (opts.lowercase) v = (v as string).toLowerCase();
             if (typeof opts.set === 'function') {
-              try { v = opts.set(v); } catch (e) { /* ignore */ }
+              try { v = opts.set(v); } catch (_e) { /* ignore */ }
             }
             instance[key] = v;
           }
@@ -139,7 +164,7 @@ const createModelMock = (modelName: string, schema?: any) => {
       });
     }
 
-    if (schema && schema.options && schema.options.timestamps) {
+    if (schema && (schema as SchemaMock).options && (schema as SchemaMock).options.timestamps) {
       const now = new Date();
       if (instance.createdAt === undefined) instance.createdAt = now;
       if (instance.updatedAt === undefined) instance.updatedAt = now;
@@ -148,62 +173,61 @@ const createModelMock = (modelName: string, schema?: any) => {
     // Run any registered pre('validate') hooks to emulate Mongoose behavior so
     // model-level pre('validate') normalization runs immediately in tests.
     try {
-      const validateHooks = (schema && (schema as any)._preHooks && (schema as any)._preHooks.get('validate')) || [];
-      validateHooks.forEach((h: Function) => {
+      const validateHooks = (schema && schema.preHooks && schema.preHooks.get('validate')) || [];
+      validateHooks.forEach((h) => {
         try {
           // Support both (next) => {} and function() { ... }
-          if (h.length >= 1) {
-            h.call(instance, () => {});
+          if ((h as Hook).length >= 1) {
+            (h as Hook).call(instance, () => {});
           } else {
-            h.call(instance);
+            (h as Hook).call(instance);
           }
-        } catch (e) {
+        } catch (_e) {
           // ignore hook errors in mock
         }
       });
-    } catch (e) {
+    } catch (_e) {
       // ignore
     }
 
-    instance.save = jest.fn().mockResolvedValue(instance);
-    instance.validate = jest.fn().mockResolvedValue(undefined);
-    instance.isModified = jest.fn(() => false);
-
-    // debug logs removed
+    (instance as any).save = jest.fn().mockResolvedValue(instance);
+    (instance as any).validate = jest.fn().mockResolvedValue(undefined);
+    (instance as any).isModified = jest.fn(() => false);
 
     return instance;
-  } as any;
+  } as unknown as (...args: unknown[]) => Record<string, unknown>;
 
-  modelMock.modelName = modelName;
-  modelMock.schema = schema;
-  modelMock.findOne = jest.fn();
-  modelMock.create = jest.fn();
-  modelMock.findById = jest.fn();
-  modelMock.findByIdAndUpdate = jest.fn();
-  modelMock.updateOne = jest.fn();
-  modelMock.exists = jest.fn();
-  modelMock.find = jest.fn();
-  modelMock.countDocuments = jest.fn();
+  // attach some runtime helpers that tests may use
+  (modelMock as any).modelName = modelName;
+  (modelMock as any).schema = schema;
+  (modelMock as any).findOne = jest.fn();
+  (modelMock as any).create = jest.fn();
+  (modelMock as any).findById = jest.fn();
+  (modelMock as any).findByIdAndUpdate = jest.fn();
+  (modelMock as any).updateOne = jest.fn();
+  (modelMock as any).exists = jest.fn();
+  (modelMock as any).find = jest.fn();
+  (modelMock as any).countDocuments = jest.fn();
 
   return modelMock;
 };
 
-function isValidObjectId(id: any): boolean {
+function isValidObjectId(id: unknown): boolean {
   if (id == null) { return false; }
   const value = typeof id === 'string'
     ? id
-    : typeof id.toString === 'function'
-      ? id.toString()
+    : typeof (id as { toString?: () => string }).toString === 'function'
+      ? (id as { toString: () => string }).toString()
       : '';
   return /^[a-fA-F0-9]{24}$/.test(value);
 }
 
-const modelsCache: Record<string, any> = {};
+const modelsCache: Record<string, ReturnType<typeof createModelMock>> = {};
 
 const mongoose = {
-  Schema: SchemaMock as any,
+  Schema: SchemaMock as unknown as typeof SchemaMock,
   Types: { ObjectId: SchemaMock.Types.ObjectId },
-  model: (name: string, schema?: any) => {
+  model: (name: string, schema?: SchemaMock) => {
     // If schema is provided, always (re)create the model using that schema so
     // the compiled model includes schema metadata (setters, defaults, timestamps).
     if (schema) {
@@ -215,12 +239,13 @@ const mongoose = {
     }
     return modelsCache[name];
   },
-  models: new Proxy({} as any, {
-    get: (target, prop: string) => {
-      if (!modelsCache[prop]) {
-        modelsCache[prop] = createModelMock(prop);
+  models: new Proxy({} as Record<string, ReturnType<typeof createModelMock>>, {
+    get: (_target, prop: string | symbol) => {
+      const key = String(prop);
+      if (!modelsCache[key]) {
+        modelsCache[key] = createModelMock(key);
       }
-      return modelsCache[prop];
+      return modelsCache[key];
     }
   }),
   connect: jest.fn().mockResolvedValue({ readyState: 1, connection: { readyState: 1 } }),
@@ -229,7 +254,7 @@ const mongoose = {
     once: noop,
     readyState: 1,
     collection: jest.fn((_name: string) => ({
-      insertOne: jest.fn(async (doc) => { collectionStore[_name] = collectionStore[_name] || []; collectionStore[_name].push(doc); return { acknowledged: true }; }),
+      insertOne: jest.fn(async (doc: Record<string, unknown>) => { collectionStore[_name] = collectionStore[_name] || []; collectionStore[_name].push(doc); return { acknowledged: true }; }),
       createIndexes: jest.fn().mockResolvedValue({}),
       findOne: jest.fn().mockResolvedValue(null),
       updateOne: jest.fn().mockResolvedValue({ matchedCount: 1 }),

@@ -6,7 +6,8 @@ const sampleReviews = [
     rating: 4,
     comment: 'Loved the solar-powered workspaces and community events focused on sustainability.',
     user: { name: 'Jordan Rivers' },
-    createdAt: '2024-05-01T12:00:00Z'
+    createdAt: '2024-05-01T12:00:00Z',
+    status: 'approved' as const
   }
 ];
 

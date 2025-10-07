@@ -12,7 +12,7 @@ type MockCursor<T = unknown> = {
 export type MockCollection = {
   find: (query?: Record<string, unknown>) => MockCursor;
   findOne: <T = unknown>(query?: Record<string, unknown>) => Promise<T | null>;
-  insertOne: (doc: never) => Promise<{ acknowledged: boolean; insertedId: string }>;
+  insertOne: (doc: unknown) => Promise<{ acknowledged: boolean; insertedId: string }>;
   insertMany: (docs: any[]) => Promise<{ acknowledged: boolean; insertedCount: number; insertedIds: Record<number, string> }>;
   updateOne: (
     filter: Record<string, unknown>,

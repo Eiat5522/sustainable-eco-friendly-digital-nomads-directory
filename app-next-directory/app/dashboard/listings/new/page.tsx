@@ -3,13 +3,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { VenueListingForm } from '@/app/dashboard/components/VenueListingForm';
+import { VenueListingForm } from '../../components/VenueListingForm';
+import type { ListingFormValues } from '../../components/VenueListingForm';
 
 export default function NewListingPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
-  const handleSave = async (data) => {
+  const handleSave = async (data: ListingFormValues & Record<string, unknown>) => {
     try {
       const response = await fetch('/api/listings', {
         method: 'POST',
@@ -25,7 +26,7 @@ export default function NewListingPage() {
 
       router.push('/dashboard/listings');
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'Failed to create listing');
     }
   };
 

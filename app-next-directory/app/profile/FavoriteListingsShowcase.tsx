@@ -158,8 +158,9 @@ export function FavoriteListingsShowcase({ listings, onRemove }: FavoriteListing
                     </NeoButton>
                     <NeoButton
                       type="button"
-                      variant="danger"
-                      size="icon"
+                      variant="accent"
+                      size="sm"
+                      className="h-8 w-8 p-0"
                       onClick={() => onRemove(listing.id)}
                       aria-label={`Remove ${listing.name} from favorites`}
                     >

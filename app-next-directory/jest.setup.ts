@@ -410,6 +410,3 @@ try {
 } catch (e) {
   // ignore
 }
-} catch (e) {
-  // ignore
-}

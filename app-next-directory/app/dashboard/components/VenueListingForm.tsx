@@ -1,3 +1,4 @@
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -87,14 +88,49 @@ const listingFormSchema = z.object({
   }).optional(),
 });
 
-export function VenueListingForm({ listing, onSave, saving = false }) {
-  const [cities, setCities] = useState([]);
-  const [ecoTags, setEcoTags] = useState([]);
-  const [digitalNomadFeatures, setDigitalNomadFeatures] = useState([]);
-  const [amenities, setAmenities] = useState([]);
-  const form = useForm({
+export type ListingFormValues = z.infer<typeof listingFormSchema>;
+export type VenueListingFormValues = ListingFormValues;
+
+type Option = { _id: string; name: string };
+
+type ListingFormExtendedValues = ListingFormValues & {
+  primaryImage?: File | null;
+  galleryImages?: FileList | File[] | null;
+};
+
+type VenueListingFormProps = {
+  listing?: Partial<ListingFormValues> | null;
+  onSave?: (values: ListingFormValues & Record<string, unknown>) => Promise<void> | void;
+  saving?: boolean;
+};
+
+function toOptions(value: unknown): Option[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .map((entry) => {
+      if (!entry || typeof entry !== 'object') {
+        return null;
+      }
+      const maybeId = (entry as { _id?: unknown })._id;
+      const maybeName = (entry as { name?: unknown }).name;
+      if (typeof maybeId === 'string' && typeof maybeName === 'string') {
+        return { _id: maybeId, name: maybeName };
+      }
+      return null;
+    })
+    .filter((option): option is Option => option !== null);
+}
+
+export function VenueListingForm({ listing, onSave, saving = false }: VenueListingFormProps) {
+  const [cities, setCities] = useState<Option[]>([]);
+  const [ecoTags, setEcoTags] = useState<Option[]>([]);
+  const [digitalNomadFeatures, setDigitalNomadFeatures] = useState<Option[]>([]);
+  const [amenities, setAmenities] = useState<Option[]>([]);
+  const form = useForm<ListingFormExtendedValues>({
     resolver: zodResolver(listingFormSchema),
-    defaultValues: listing || {
+    defaultValues: {
       name: '',
       shortDescription: '',
       longDescription: '',
@@ -107,20 +143,23 @@ export function VenueListingForm({ listing, onSave, saving = false }) {
       ecoFocusTags: [],
       digitalNomadFeatures: [],
       amenities: [],
+      primaryImage: null,
+      galleryImages: null,
+      ...(listing ?? {}) as Partial<ListingFormExtendedValues>,
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "coworkingDetails.pricingPlans",
+    name: 'coworkingDetails.pricingPlans',
   });
 
   useEffect(() => {
     const fetchCities = async () => {
       try {
         const response = await fetch('/api/cities');
-        const data = await response.json();
-        setCities(data.cities);
+        const data = (await response.json()) as { cities?: unknown };
+        setCities(toOptions(data?.cities));
       } catch (error) {
         console.error('Failed to fetch cities:', error);
       }
@@ -129,8 +168,8 @@ export function VenueListingForm({ listing, onSave, saving = false }) {
     const fetchEcoTags = async () => {
       try {
         const response = await fetch('/api/eco-tags');
-        const data = await response.json();
-        setEcoTags(data.ecoTags);
+        const data = (await response.json()) as { ecoTags?: unknown; tags?: unknown };
+        setEcoTags(toOptions(data?.ecoTags ?? data?.tags));
       } catch (error) {
         console.error('Failed to fetch eco tags:', error);
       }
@@ -139,8 +178,8 @@ export function VenueListingForm({ listing, onSave, saving = false }) {
     const fetchDigitalNomadFeatures = async () => {
       try {
         const response = await fetch('/api/digital-nomad-features');
-        const data = await response.json();
-        setDigitalNomadFeatures(data.digitalNomadFeatures);
+        const data = (await response.json()) as { digitalNomadFeatures?: unknown; features?: unknown };
+        setDigitalNomadFeatures(toOptions(data?.digitalNomadFeatures ?? data?.features));
       } catch (error) {
         console.error('Failed to fetch digital nomad features:', error);
       }
@@ -149,8 +188,8 @@ export function VenueListingForm({ listing, onSave, saving = false }) {
     const fetchAmenities = async () => {
       try {
         const response = await fetch('/api/amenities');
-        const data = await response.json();
-        setAmenities(data.amenities);
+        const data = (await response.json()) as { amenities?: unknown };
+        setAmenities(toOptions(data?.amenities));
       } catch (error) {
         console.error('Failed to fetch amenities:', error);
       }
@@ -162,12 +201,14 @@ export function VenueListingForm({ listing, onSave, saving = false }) {
     fetchAmenities();
   }, []);
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data: ListingFormExtendedValues) => {
     try {
+      const { primaryImage, galleryImages, ...rest } = data;
+
       let primaryImageAssetId = null;
-      if (data.primaryImage) {
+      if (primaryImage instanceof File) {
         const formData = new FormData();
-        formData.append('file', data.primaryImage);
+        formData.append('file', primaryImage);
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
@@ -176,9 +217,16 @@ export function VenueListingForm({ listing, onSave, saving = false }) {
         primaryImageAssetId = result.asset._id;
       }
 
-      let galleryImageAssetIds = [];
-      if (data.galleryImages) {
-        for (const file of data.galleryImages) {
+      const galleryImageAssetIds: Array<{
+        _type: 'image';
+        _key: string;
+        asset: { _type: 'reference'; _ref: string };
+      }> = [];
+      if (galleryImages) {
+        const galleryFiles = Array.isArray(galleryImages)
+          ? galleryImages
+          : Array.from(galleryImages);
+        for (const file of galleryFiles) {
           const formData = new FormData();
           formData.append('file', file);
           const response = await fetch('/api/upload', {
@@ -191,12 +239,12 @@ export function VenueListingForm({ listing, onSave, saving = false }) {
       }
 
       const listingData = {
-        ...data,
+        ...rest,
         primaryImage: primaryImageAssetId ? { _type: 'image', asset: { _type: 'reference', _ref: primaryImageAssetId } } : undefined,
         galleryImages: galleryImageAssetIds.length > 0 ? galleryImageAssetIds : undefined,
       };
 
-      onSave(listingData);
+      onSave?.(listingData);
     } catch (error) {
       console.error('Failed to save listing:', error);
     }
@@ -906,7 +954,7 @@ export function VenueListingForm({ listing, onSave, saving = false }) {
                       </FormItem>
                     )}
                   />
-                  <NeoButton type="button" variant="destructive" size="sm" onClick={() => remove(index)}>
+                  <NeoButton type="button" variant="outline" size="sm" onClick={() => remove(index)}>
                     Remove
                   </NeoButton>
                 </div>
@@ -1301,7 +1349,10 @@ export function VenueListingForm({ listing, onSave, saving = false }) {
             <FormItem>
               <FormLabel>Primary Image</FormLabel>
               <FormControl>
-                <Input type="file" onChange={(e) => field.onChange(e.target.files[0])} />
+                <Input
+                  type="file"
+                  onChange={(event) => field.onChange(event.target.files?.[0] ?? null)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -1315,7 +1366,11 @@ export function VenueListingForm({ listing, onSave, saving = false }) {
             <FormItem>
               <FormLabel>Gallery Images</FormLabel>
               <FormControl>
-                <Input type="file" multiple onChange={(e) => field.onChange(e.target.files)} />
+                <Input
+                  type="file"
+                  multiple
+                  onChange={(event) => field.onChange(event.target.files ?? null)}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

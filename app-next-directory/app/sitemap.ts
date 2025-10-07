@@ -1,5 +1,5 @@
 import { client } from '@/lib/sanity/client'
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from 'next'
 
 interface SitemapEntry {
   url: string
@@ -22,7 +22,7 @@ type CityRecord = {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.nextPublicSiteUrl || 'http://localhost:3001'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'
 
   // Static pages
   const staticPages: SitemapEntry[] = [
@@ -84,7 +84,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Listing pages
     const listingPages: SitemapEntry[] = listings.map((listing) => ({
       url: `${baseUrl}/listings/${listing.slug}`,
-      lastModified: listing._updatedAt,
+      lastModified: listing._updatedAt ? new Date(listing._updatedAt) : undefined,
       changeFrequency: 'weekly',
       priority: 0.7
     }));

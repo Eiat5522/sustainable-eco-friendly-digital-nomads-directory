@@ -111,15 +111,7 @@ const providers: NextAuthConfig['providers'] = [
 
 const adapter = createAuthAdapter();
 
-export const authOptions: NextAuthConfig = {
-  // Use adapter only when a valid Mongo URI is configured to avoid dev crashes
-  ...(adapter ? { adapter } : {}),
-  session: { strategy: 'jwt' },
-  providers,
-  pages: {
-    signIn: '/auth/login',
-  },
-  callbacks: {
+const callbacks = {
     async signIn({ user, account, profile }) {
       try {
         // Only apply to OAuth providers; credentials flow already enforces verification.
@@ -176,7 +168,7 @@ export const authOptions: NextAuthConfig = {
     },
     async jwt({ token, user }) {
       type AppToken = JWT & { id?: string; role?: UserRole; name?: string | null }
-      const t = token as AppToken
+      const t = token as unknown as AppToken
       if (user) {
         const u = user as Partial<{ id: string; role?: UserRole | null; name?: string | null }>
         if (u.id) t.id = u.id
@@ -201,7 +193,7 @@ export const authOptions: NextAuthConfig = {
       }).catch((err) => {
         console.error('[auth] failed to queue admin allowlist promotion flow', err)
       })
-      return t
+      return t as JWT | null
     },
     async session({ session, token, user }) {
       type WithAppUser = typeof session & { user: (typeof session.user) & { id?: string; role?: UserRole } }
@@ -221,7 +213,17 @@ export const authOptions: NextAuthConfig = {
       }
       return s
     },
+} as NextAuthConfig['callbacks'];
+
+export const authOptions: NextAuthConfig = {
+  // Use adapter only when a valid Mongo URI is configured to avoid dev crashes
+  ...(adapter ? { adapter } : {}),
+  session: { strategy: 'jwt' },
+  providers,
+  pages: {
+    signIn: '/auth/login',
   },
+  callbacks,
 }
 
 const nextAuthInstance = (() => {

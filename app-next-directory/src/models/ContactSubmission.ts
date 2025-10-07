@@ -1,6 +1,6 @@
 
 import mongoose, { Document, Schema, models } from 'mongoose';
-import { Address4, Address6 } from 'ip-address';
+import { isIP } from 'net';
 
 export const CONTACT_TYPES = ['general', 'listing', 'partnership', 'support', 'feedback'] as const;
 export type ContactType = (typeof CONTACT_TYPES)[number];
@@ -46,18 +46,7 @@ const ContactSubmissionSchema = new Schema<IContactSubmission>({
     validate: {
       validator: (v: string) => {
         if (!v) return true; // Allow empty for optional field
-        // IPv4 or IPv6 validation
-        try {
-          new Address4(v);
-          return true;
-        } catch {
-          try {
-            new Address6(v);
-            return true;
-          } catch {
-            return false;
-          }
-        }
+        return isIP(v) !== 0;
       },
       message: 'Please provide a valid IP address',
     },
