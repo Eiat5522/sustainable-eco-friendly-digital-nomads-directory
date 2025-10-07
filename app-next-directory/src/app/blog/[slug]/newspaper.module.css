@@ -1,0 +1,102 @@
+/* Newspaper-style typography for blog posts */
+.newspaperContent {
+  font-family: Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: #1F2937;
+}
+
+.newspaperContent :global(p:first-of-type)::first-letter {
+  float: left;
+  font-size: 5.5rem;
+  line-height: 0.85;
+  font-weight: 900;
+  margin-right: 0.5rem;
+  margin-top: 0.1rem;
+  font-family: serif;
+  border: 4px solid black;
+  padding: 1rem 1.2rem;
+  background: #FDE047;
+}
+
+.newspaperContent :global(h2) {
+  font-family: serif;
+  font-weight: 900;
+  font-size: 2.25rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 4px solid black;
+  padding-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.newspaperContent :global(h3) {
+  font-family: serif;
+  font-weight: 800;
+  font-size: 1.75rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.newspaperContent :global(p) {
+  margin-bottom: 1.5rem;
+  text-align: justify;
+}
+
+.newspaperContent :global(blockquote) {
+  border-left: 8px solid black;
+  background: #FEF3C7;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  font-style: italic;
+  font-weight: 600;
+  font-size: 1.25rem;
+  position: relative;
+}
+
+.newspaperContent :global(blockquote)::before {
+  content: '"';
+  font-size: 4rem;
+  position: absolute;
+  top: -0.5rem;
+  left: 1rem;
+  font-family: serif;
+  font-weight: 900;
+}
+
+.newspaperContent :global(a) {
+  color: #1F2937;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+  font-weight: 600;
+}
+
+.newspaperContent :global(a:hover) {
+  background: #FDE047;
+  text-decoration: none;
+}
+
+.newspaperContent :global(ul),
+.newspaperContent :global(ol) {
+  margin: 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.newspaperContent :global(li) {
+  margin-bottom: 0.75rem;
+  line-height: 1.8;
+}
+
+.newspaperContent :global(strong) {
+  font-weight: 800;
+  color: #000;
+}
+
+.newspaperContent :global(img) {
+  border: 6px solid black;
+  margin: 2rem 0;
+  box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+}

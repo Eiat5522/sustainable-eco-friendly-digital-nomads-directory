@@ -1,89 +1,90 @@
-import { client as sanityClient } from '@/lib/sanity/client';
+// import { client as sanityClient } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
-import { groq } from 'next-sanity';
+// import { groq } from 'next-sanity';
 import { NextRequest } from 'next/server';
-import { transformToBlogDetailDTO } from '@/lib/dto-transformer';
+// import { transformToBlogDetailDTO } from '@/lib/dto-transformer';
 
-// GROQ query for fetching a single blog post by slug
-const postQuery = groq`
-  *[_type == "blogPost" && slug.current == $slug][0] {
-    _id,
-    title,
-    "slug": slug.current,
-    // Include full image object with dereferenced asset for URL + metadata
-    "primaryImage": primaryImage{ ..., asset-> },
-    publishedAt,
-    excerpt,
-    body,
-    tags,
-    "authorName": author->name,
-    "authorImage": author->image,
-    "authorBio": author->bio,
-    "readingTime": round(length(pt::text(body)) / 200),
-    "relatedPosts": *[_type == "blogPost" && slug.current != $slug && count(tags[@ in ^.tags]) > 0] | order(publishedAt desc) [0...3] {
-      "slug": slug.current,
-      _id,
-      title,
-      // Ensure related posts also expose image URLs
-      "primaryImage": primaryImage{ ..., asset-> },
-      publishedAt,
-      excerpt,
-      "authorName": author->name
-    },
-    _createdAt,
-    _updatedAt
-  }
-`;
+// Mock blog posts
+const mockPosts: Record<string, any> = {
+  'sustainable-digital-nomadism': {
+    _id: '1',
+    title: 'The Rise of Sustainable Digital Nomadism',
+    slug: { current: 'sustainable-digital-nomadism' },
+    excerpt: 'Exploring how remote workers are embracing eco-friendly practices while traveling the world.',
+    imageUrl: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=1200&h=630&fit=crop',
+    body: [
+      {
+        _type: 'block',
+        children: [
+          {
+            _type: 'span',
+            text: 'The digital nomad lifestyle has undergone a remarkable transformation in recent years. What once was characterized by a focus on finding the cheapest accommodation and fastest wifi has evolved into a movement centered on sustainability and environmental consciousness.',
+          },
+        ],
+      },
+      {
+        _type: 'block',
+        children: [
+          {
+            _type: 'span',
+            text: 'Today\'s digital nomads are increasingly aware of their carbon footprint and the impact their lifestyle has on the communities they visit. This shift represents a maturation of the remote work movement, one that recognizes the privilege of location independence comes with responsibility.',
+          },
+        ],
+      },
+      {
+        _type: 'block',
+        children: [
+          {
+            _type: 'span',
+            text: 'Sustainable digital nomadism encompasses several key principles: choosing eco-friendly accommodations, supporting local businesses, minimizing waste, using green transportation, and giving back to local communities. These principles aren\'t just good for the planet—they often lead to richer, more meaningful travel experiences.',
+          },
+        ],
+      },
+      {
+        _type: 'block',
+        children: [
+          {
+            _type: 'span',
+            text: 'The rise of carbon-neutral coworking spaces, eco-hostels, and green coliving spaces demonstrates that the infrastructure for sustainable nomadism is growing. Cities around the world are recognizing the value of attracting environmentally conscious remote workers and are investing in the facilities and policies to support them.',
+          },
+        ],
+      },
+    ],
+  },
+};
 
 // GET endpoint for fetching a single blog post
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
-  try {
-    const { slug } = await params;
-
-    if (!slug) {
-      return ApiResponseHandler.error('Blog post slug is required', 400);
-    }
-
-    // Fetch the blog post
-    const post = await sanityClient.fetch(postQuery, { slug });
-
-    if (!post) {
-      return ApiResponseHandler.notFound('Blog post');
-    }
-
-    const dto = transformToBlogDetailDTO(post);
-    // Ensure related posts in DTO format if present
-    const response = {
-      post: dto,
-      relatedPosts: Array.isArray(dto.relatedPosts) ? dto.relatedPosts : [],
-      meta: {
-        readingTime: dto.readingTime ?? null,
-        publishedDate: dto.publishedAt ?? null,
-        lastModified: post._updatedAt,
-        wordCount: Array.isArray(dto.body) ? dto.body.length : 0,
-      },
-    };
-
-    // Return a single canonical payload shape
-    return ApiResponseHandler.success(response);
-
-  } catch (error) {
-    console.error('Error fetching blog post:', error);
-
-    if (error instanceof Error) {
-      if (error.message.includes('fetch failed')) {
-        return ApiResponseHandler.error('Failed to connect to CMS. Please try again later.', 503);
-      }
-      if (error.message.includes('Invalid parameter')) {
-        return ApiResponseHandler.error('Invalid blog post slug', 400);
-      }
-    }
-
-    return ApiResponseHandler.error('Failed to fetch blog post', 500);
+  // TODO: Re-enable Sanity integration when configured
+  // For now, use mock data to demonstrate the new newspaper-style UI
+  
+  const { slug } = await params;
+  
+  if (!slug) {
+    return ApiResponseHandler.error('Blog post slug is required', 400);
   }
+  
+  const mockPost = mockPosts[slug];
+  
+  if (!mockPost) {
+    return ApiResponseHandler.notFound('Blog post');
+  }
+
+  const formattedPost = {
+    id: mockPost._id,
+    title: mockPost.title,
+    body: mockPost.body,
+    imageUrl: mockPost.imageUrl,
+    excerpt: mockPost.excerpt,
+  };
+
+  return ApiResponseHandler.success({
+    post: formattedPost,
+    comments: [],
+  });
 }
 
 // Simple view count tracking (in-memory for demo - consider Redis for production)

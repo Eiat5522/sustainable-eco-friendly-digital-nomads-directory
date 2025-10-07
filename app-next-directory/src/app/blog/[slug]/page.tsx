@@ -9,6 +9,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import styles from './newspaper.module.css';
 
 // Subtle SVG gradient placeholder for hero image when missing
 function placeholderDataUri(width = 1200, height = 630) {
@@ -39,13 +40,10 @@ async function getPost(slug: string): Promise<PostResponse> {
   if (json && typeof json === 'object' && 'success' in json) {
     const data = (json as any).data;
     const post = data?.post as PostResponse['post'] | undefined;
+    const comments = data?.comments || [];
     if (!post?.id) {
       notFound();
     }
-    const comments = await client.fetch(
-      groq`*[_type == "comment" && post->slug.current == $slug && approved == true] | order(createdAt asc){ _id, content, user->{ name } }`,
-      { slug }
-    );
     return { post, comments } as PostResponse;
   }
   // Fallback to legacy src API shape
@@ -69,12 +67,7 @@ async function getPost(slug: string): Promise<PostResponse> {
   if (!post.id) {
     notFound();
   }
-  const comments = await client.fetch(
-    groq`*[_type == "comment" && post->slug.current == $slug && approved == true]
-      | order(createdAt asc){ _id, content, user->{ name } }`,
-    { slug }
-  );
-  return { post, comments } as PostResponse;
+  return { post, comments: [] } as PostResponse;
 }
 
  // minimal response type
@@ -144,97 +137,7 @@ export default async function BlogPostPage({ params }: Readonly<{ params: { slug
             </div>
 
             {/* Article Body */}
-            <div className="prose prose-lg max-w-none">
-              <style jsx global>{`
-                .prose {
-                  font-family: Georgia, serif;
-                  font-size: 1.125rem;
-                  line-height: 1.8;
-                  color: #1F2937;
-                }
-                .prose p:first-of-type::first-letter {
-                  float: left;
-                  font-size: 5.5rem;
-                  line-height: 0.85;
-                  font-weight: 900;
-                  margin-right: 0.5rem;
-                  margin-top: 0.1rem;
-                  font-family: serif;
-                  border: 4px solid black;
-                  padding: 1rem 1.2rem;
-                  background: #FDE047;
-                }
-                .prose h2 {
-                  font-family: serif;
-                  font-weight: 900;
-                  font-size: 2.25rem;
-                  margin-top: 2.5rem;
-                  margin-bottom: 1.5rem;
-                  border-bottom: 4px solid black;
-                  padding-bottom: 0.5rem;
-                  text-transform: uppercase;
-                  letter-spacing: 0.05em;
-                }
-                .prose h3 {
-                  font-family: serif;
-                  font-weight: 800;
-                  font-size: 1.75rem;
-                  margin-top: 2rem;
-                  margin-bottom: 1rem;
-                  text-transform: uppercase;
-                }
-                .prose p {
-                  margin-bottom: 1.5rem;
-                  text-align: justify;
-                }
-                .prose blockquote {
-                  border-left: 8px solid black;
-                  background: #FEF3C7;
-                  padding: 1.5rem;
-                  margin: 2rem 0;
-                  font-style: italic;
-                  font-weight: 600;
-                  font-size: 1.25rem;
-                  position: relative;
-                }
-                .prose blockquote::before {
-                  content: '"';
-                  font-size: 4rem;
-                  position: absolute;
-                  top: -0.5rem;
-                  left: 1rem;
-                  font-family: serif;
-                  font-weight: 900;
-                }
-                .prose a {
-                  color: #1F2937;
-                  text-decoration: underline;
-                  text-decoration-thickness: 2px;
-                  text-underline-offset: 2px;
-                  font-weight: 600;
-                }
-                .prose a:hover {
-                  background: #FDE047;
-                  text-decoration: none;
-                }
-                .prose ul, .prose ol {
-                  margin: 1.5rem 0;
-                  padding-left: 2rem;
-                }
-                .prose li {
-                  margin-bottom: 0.75rem;
-                  line-height: 1.8;
-                }
-                .prose strong {
-                  font-weight: 800;
-                  color: #000;
-                }
-                .prose img {
-                  border: 6px solid black;
-                  margin: 2rem 0;
-                  box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
-                }
-              `}</style>
+            <div className={`prose prose-lg max-w-none ${styles.newspaperContent}`}>
               <PortableText value={post.body} />
             </div>
           </div>
