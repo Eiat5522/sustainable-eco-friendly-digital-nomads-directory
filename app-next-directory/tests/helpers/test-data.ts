@@ -11,7 +11,7 @@ export const mockListings: AppListingCard[] = [
     address: '123 Green Street, Bangkok',
     ecoFocusTags: [], // Empty array for reference types
     digitalNomadFeatures: ['high_speed_wifi', 'meeting_rooms'],
-    primaryImage: { 
+    primaryImage: ({ 
       _type: 'image',
       asset: { 
         _ref: 'image1-ref', 
@@ -19,7 +19,7 @@ export const mockListings: AppListingCard[] = [
 
       },
       alt: 'Coworking space'
-    },
+    } as any),
     city: {
       id: 'bangkok-id',
       name: 'Bangkok',
@@ -45,7 +45,7 @@ export const mockListings: AppListingCard[] = [
       lng: 98.9853
     },
     
-    primaryImage: { 
+    primaryImage: ({ 
       _type: 'image',
       asset: { 
         _ref: 'image2-ref', 
@@ -53,9 +53,9 @@ export const mockListings: AppListingCard[] = [
 
       },
       alt: 'Bamboo café'
-    },
+    } as any),
     galleryImages: [
-      { 
+      ({ 
         _type: 'image',
         _key: 'gallery-1',
         asset: { 
@@ -64,8 +64,8 @@ export const mockListings: AppListingCard[] = [
   
         },
         alt: 'Café interior'
-      },
-      { 
+      } as any),
+      ({ 
         _type: 'image',
         _key: 'gallery-2',
         asset: { 
@@ -74,7 +74,7 @@ export const mockListings: AppListingCard[] = [
   
         },
         alt: 'Café exterior'
-      }
+      } as any)
     ],
     digitalNomadFeatures: ['wifi-available', 'power-outlets'],
         city: {

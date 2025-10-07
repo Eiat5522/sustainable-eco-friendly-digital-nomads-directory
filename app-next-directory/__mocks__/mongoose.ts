@@ -242,9 +242,10 @@ const mongoose = {
   models: new Proxy({} as Record<string, ReturnType<typeof createModelMock>>, {
     get: (_target, prop: string | symbol) => {
       const key = String(prop);
-      if (!modelsCache[key]) {
-        modelsCache[key] = createModelMock(key);
-      }
+      // Return an existing cached model only. Do NOT auto-create a model
+      // without a schema because that causes modules to pick up a model
+      // whose `.schema` is undefined. Real Mongoose returns `undefined`
+      // from `models[name]` when the model hasn't been compiled yet.
       return modelsCache[key];
     }
   }),

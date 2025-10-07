@@ -24,7 +24,9 @@
     ],
     "paths": {
       "@/*": [
-        "./src/*"
+        "./*",
+        "./src/*",
+        "./app/*"
       ]
     },
     "baseUrl": ".",
@@ -39,6 +41,8 @@
     "src/**/*.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
+    "app/**/*.ts",
+    "app/**/*.tsx",
     "dist/types/**/*.ts"
   ],
   "exclude": [

@@ -16,4 +16,31 @@ const mockRedisClient = {
   ping: jest.fn().mockResolvedValue('PONG'),
 };
 
+// Listener registry for onRedisClientChange
+const listeners: Set<(client: any) => void> = new Set();
+
+export function onRedisClientChange(fn: (client: any) => void) {
+  listeners.add(fn);
+  return () => listeners.delete(fn);
+}
+
+export function _notifyRedisClientChange(client: any) {
+  for (const l of listeners) l(client);
+}
+
 export const getRedisClient = jest.fn(() => mockRedisClient);
+
+// Provide test helper shims so tests can call mockGetRedisClient.mockClear()
+// and friends on the exported function.
+(getRedisClient as any).mockClear = () => {
+  (getRedisClient as any).mock.calls = [];
+};
+(getRedisClient as any).mockReset = () => {
+  (getRedisClient as any).mock.calls = [];
+  jest.clearAllMocks();
+};
+(getRedisClient as any).mockReturnValue = (val: any) => {
+  (getRedisClient as any).mockImplementation(() => val);
+};
+
+export default getRedisClient;

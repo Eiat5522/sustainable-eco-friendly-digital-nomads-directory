@@ -16,8 +16,8 @@ export const handlers = [
     const url = new URL(request.url)
     const query = url.searchParams.get('q') ?? ''
     const results = data.listings
-      .filter((listing) => listing.name.toLowerCase().includes(query.toLowerCase()))
-      .map((listing) => ({
+      .filter((listing: any) => listing.name.toLowerCase().includes(query.toLowerCase()))
+      .map((listing: any) => ({
         id: listing._id,
         name: listing.name,
         city: listing.city.name,
@@ -46,15 +46,13 @@ export const handlers = [
     }
     const query = typeof body?.query === 'string' ? body.query.trim().toLowerCase() : ''
     const results = data.listings
-      .filter((listing) => listing.name.toLowerCase().includes(query))
-      .map((listing) => ({
+      .filter((listing: any) => listing.name.toLowerCase().includes(query))
+      .map((listing: any) => ({
         id: listing._id,
         name: listing.name,
         city: listing.city.name,
         slug: listing.slug?.current
       }))
-
-    console.log('MSW POST /api/search hit with query:', query)
 
     return ok({
       results,
@@ -72,14 +70,14 @@ export const handlers = [
   http.get('/api/featured-listings', () => ok({ listings: mockFeaturedVenues })),
 
   http.get('/api/categories', () => {
-    const categories = Array.from(new Set(data.listings.map((listing) => listing.type)))
+  const categories = Array.from(new Set(data.listings.map((listing: any) => listing.type)))
     return ok({ categories })
   }),
 
   http.get('/api/amenities', () => ok({ amenities: [] })),
 
   http.get('/api/cities', () => {
-    const cities = listCities().map((city) => ({
+    const cities = listCities().map((city: any) => ({
       id: city.id,
       name: city.name,
       slug: city.slug,
@@ -110,7 +108,7 @@ export const handlers = [
     const url = new URL(request.url)
     const citySlug = url.searchParams.get('citySlug')
     const listings = citySlug
-      ? data.listings.filter((listing) => listing.city.slug?.current === citySlug)
+      ? data.listings.filter((listing: any) => listing.city.slug?.current === citySlug)
       : data.listings
 
     return ok({
@@ -154,7 +152,7 @@ export const handlers = [
     const average =
       reviews.length === 0
         ? 0
-        : reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+        : reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length
 
     return ok({
       success: true,
@@ -188,8 +186,8 @@ export const handlers = [
 
   http.get('/api/user/favorites', () => {
     const user = data.users[0]
-    const favorites = getFavoritesForUser(user.id).map((favorite) => {
-      const listing = data.listings.find((item) => item._id === favorite.listingId)
+    const favorites = getFavoritesForUser(user.id).map((favorite: any) => {
+      const listing = data.listings.find((item: any) => item._id === favorite.listingId)
       return {
         _id: favorite.id,
         createdAt: favorite.createdAt,

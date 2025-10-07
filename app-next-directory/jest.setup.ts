@@ -155,6 +155,15 @@ if (!global.fetch) {
   };
 }
 
+// Ensure a safe default `window` and `window.plausible` exists to avoid
+// module-load time errors in modules that access `window.plausible` during
+// import. Individual tests may still delete or override `global.window`.
+if (!(global as any).window) {
+  (global as any).window = { plausible: jest.fn() };
+} else if (typeof (global as any).window.plausible !== 'function') {
+  (global as any).window.plausible = jest.fn();
+}
+
 // Mock next/navigation globally for all tests using jest.fn
 jest.mock('next/navigation', () => ({
   __esModule: true,

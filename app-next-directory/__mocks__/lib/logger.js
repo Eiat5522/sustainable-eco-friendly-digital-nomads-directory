@@ -4,6 +4,7 @@ export const structuredLogger = {
   info: jest.fn(),
   warn: jest.fn(),
   error: jest.fn(),
+  middlewareError: jest.fn(),
   debug: jest.fn(),
   emailError: jest.fn(),
   child: jest.fn(),
