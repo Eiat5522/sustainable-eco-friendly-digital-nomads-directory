@@ -12,10 +12,12 @@ jest.mock('@/lib/auth', () => ({
 
 jest.mock('../../types/auth');
 
-// Import the module after mocking to get the mocked functions
-import * as authTypes from '../../types/auth';
-const mockHasPagePermission = authTypes.hasPagePermission as jest.Mock;
-const mockHasFeaturePermission = authTypes.hasFeaturePermission as jest.Mock;
+// Import to force the mock to be loaded
+import * as authTypesMocked from '../../types/auth';
+
+// Extract the mock functions from the mocked module
+const mockHasPagePermission = (authTypesMocked as any).hasPagePermission as jest.Mock;
+const mockHasFeaturePermission = (authTypesMocked as any).hasFeaturePermission as jest.Mock;
 
 import {
   withAuthMatrix,
@@ -164,7 +166,11 @@ describe('withAuthMatrix', () => {
 
     it('denies venue owners access to others listings', async () => {
       mockGetToken.mockResolvedValue({ role: 'venueOwner', email: 'owner@example.com' });
-      mockHasPagePermission.mockImplementation(() => false);
+      mockHasPagePermission.mockClear();
+      mockHasPagePermission.mockImplementation((role, page, action) => {
+        console.log('[TEST] mockHasPagePermission called with:', { role, page, action });
+        return false;
+      });
 
       const request = new NextRequest('http://localhost:3000/listings/edit/456');
       const response = await withAuthMatrix(
@@ -175,6 +181,8 @@ describe('withAuthMatrix', () => {
         { userId: 'user123', resourceOwnerId: 'user456' }
       );
 
+      console.log('[TEST] response.status:', response.status);
+      console.log('[TEST] mockHasPagePermission.mock.calls:', mockHasPagePermission.mock.calls);
       expect(response.status).toBe(307);
       const location = response.headers.get('location');
       expect(location).toContain('/auth/unauthorized');
