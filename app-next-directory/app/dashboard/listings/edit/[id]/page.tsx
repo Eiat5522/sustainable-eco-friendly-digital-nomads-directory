@@ -8,8 +8,7 @@ import type { ListingFormValues } from '../../../components/VenueListingForm';
 
 export default function EditListingPage() {
   const router = useRouter();
-  const params = useParams<{ id: string }>();
-  const idParam = params?.id;
+  const params = useParams<{ id: string }>();gl
   const listingId = Array.isArray(idParam) ? idParam[0] : idParam;
   const [listing, setListing] = useState<(ListingFormValues & Record<string, unknown>) | null>(null);
   const [error, setError] = useState<string | null>(null);

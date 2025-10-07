@@ -236,21 +236,10 @@ jest.mock('next/server', () => {
   };
 });
 
-jest.mock('@/lib/redis', () => {
-  const mockRedisClient = {
-    incr: jest.fn(async () => 1),
-    expire: jest.fn(async () => 1),
-    evalSha: jest.fn(async () => ['1', '1'] as const),
-    script: jest.fn(() => ({
-      load: jest.fn(async () => 'script-hash'),
-    })),
-  };
-
-  return {
-    __esModule: true,
-    getRedisClient: jest.fn(() => mockRedisClient),
-  };
-});
+// NOTE: don't globally mock '@/lib/redis' here — tests that validate the
+// attach/detach helpers need to import the real module so they can assert
+// helpers are attached only in test environments. Use per-test mocks when
+// specific behavior is required.
 
 // Ensure the rate-limit utilities are mocked for all tests.
 // Ensure the rate-limit utilities are mocked for all tests. Some test files

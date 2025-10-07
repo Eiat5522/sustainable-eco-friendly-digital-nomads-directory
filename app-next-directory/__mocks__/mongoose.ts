@@ -225,7 +225,7 @@ function isValidObjectId(id: unknown): boolean {
 const modelsCache: Record<string, ReturnType<typeof createModelMock>> = {};
 
 const mongoose = {
-  Schema: SchemaMock as unknown as typeof SchemaMock,
+  Schema: SchemaMock,
   Types: { ObjectId: SchemaMock.Types.ObjectId },
   model: (name: string, schema?: SchemaMock) => {
     // If schema is provided, always (re)create the model using that schema so
@@ -267,4 +267,4 @@ const mongoose = {
 
 // Export both as default and named exports to handle different import styles
 export default mongoose;
-export = mongoose;
+export { SchemaMock as Schema };
