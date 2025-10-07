@@ -21,25 +21,30 @@ const mockValidator = {
 };
 
 jest.mock('@upstash/ratelimit', () => ({
+  __esModule: true,
   Ratelimit: mockRatelimitClass,
 }));
 
 jest.mock('@/lib/redis', () => ({
+  __esModule: true,
   getRedisClient: mockGetRedisClient,
   onRedisClientChange: mockOnRedisClientChange,
 }));
 
 jest.mock('@/lib/dbConnect', () => ({
+  __esModule: true,
   default: mockDbConnect,
 }));
 
 jest.mock('mongoose', () => ({
+  __esModule: true,
   default: {
     connection: mockMongooseConnection,
   },
 }));
 
 jest.mock('@/models/LoginAttempt', () => ({
+  __esModule: true,
   default: {
     create: mockLoginAttemptCreate,
   },
@@ -50,7 +55,10 @@ jest.mock('@/models/LoginAttempt', () => ({
   },
 }));
 
-jest.mock('validator', () => mockValidator);
+jest.mock('validator', () => ({
+  __esModule: true,
+  ...mockValidator,
+}));
 
 describe('rateLimit module', () => {
   const originalEnv = process.env;

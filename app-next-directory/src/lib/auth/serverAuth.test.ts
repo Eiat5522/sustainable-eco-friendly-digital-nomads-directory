@@ -1,5 +1,4 @@
 import { jest } from '@jest/globals';
-import { Types } from 'mongoose';
 
 // Mock dependencies
 const mockBcryptCompare = jest.fn();
@@ -19,6 +18,7 @@ const mockUserModel = {
 };
 
 jest.mock('bcryptjs', () => ({
+  __esModule: true,
   default: {
     compare: mockBcryptCompare,
     hash: mockBcryptHash,
@@ -28,30 +28,36 @@ jest.mock('bcryptjs', () => ({
 }));
 
 jest.mock('@/lib/dbConnect', () => ({
+  __esModule: true,
   default: mockDbConnect,
 }));
 
 jest.mock('./config', () => ({
+  __esModule: true,
   isEmailVerificationRequired: mockIsEmailVerificationRequired,
 }));
 
-jest.mock('mongoose', () => {
-  const originalModule = jest.requireActual('mongoose');
-  return {
-    ...originalModule,
-    Types: {
-      ObjectId: class ObjectId {
-        constructor(public value: string) {}
-        toString() {
-          return this.value;
-        }
-      },
-    },
-    isValidObjectId: mockIsValidObjectId,
-  };
-});
+class MockObjectId {
+  value: string;
+  constructor(value: string) {
+    this.value = value;
+  }
+  toString() {
+    return this.value;
+  }
+}
+
+const Types = {
+  ObjectId: MockObjectId,
+};
+
+jest.mock('mongoose', () => ({
+  __esModule: true,
+  isValidObjectId: mockIsValidObjectId,
+}));
 
 jest.mock('@/models/User', () => ({
+  __esModule: true,
   default: mockUserModel,
 }));
 

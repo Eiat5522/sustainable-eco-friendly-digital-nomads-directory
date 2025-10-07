@@ -31,7 +31,7 @@ const getRatelimitCtor = async (): Promise<typeof UpstashRatelimit> => {
       ratelimitModulePromise = import('@upstash/ratelimit') as Promise<{ Ratelimit: typeof UpstashRatelimit }>;
     }
     const mod = await ratelimitModulePromise;
-    RatelimitCtor = mod.Ratelimit;
+    RatelimitCtor = mod.Ratelimit ?? ((mod as unknown as { default?: typeof UpstashRatelimit }).default ?? (mod as unknown as typeof UpstashRatelimit));
   }
   return RatelimitCtor;
 };
@@ -68,18 +68,12 @@ const loadValidator = async (): Promise<Validator> => {
 // control is required. This production module now focuses solely on runtime
 // functionality; no test-only mutation occurs here.
 
-const createSlidingWindowLimiter = () => {
-  const ctor = getRatelimitCtor();
-  // Use type assertion to avoid Promise type issues
-  const ctorAny = ctor as any;
-  const slidingWindow = ctorAny.slidingWindow;
-  if (typeof slidingWindow === 'function') {
-    return slidingWindow(LOGIN_WINDOW_LIMIT, LOGIN_WINDOW_DURATION);
+const createSlidingWindowLimiter = (ctor: typeof UpstashRatelimit) => {
+  const maybeStatic = (ctor as unknown as { slidingWindow?: (limit: number, window: string) => RatelimitConfig['limiter'] }).slidingWindow;
+  if (typeof maybeStatic === 'function') {
+    return maybeStatic(LOGIN_WINDOW_LIMIT, LOGIN_WINDOW_DURATION);
   }
 
-  // Provide a minimal limiter config for mocked constructors that do not expose
-  // the static helper. The structure only needs to satisfy the shape expected by
-  // the mocked constructor in unit tests.
   return {
     limit: LOGIN_WINDOW_LIMIT,
     window: LOGIN_WINDOW_DURATION,
@@ -99,13 +93,18 @@ function normaliseRedisClient(redis: Redis | undefined): any {
   return candidate;
 }
 
+let loginRateLimiterPromise: Promise<void> | null = null;
+
 const buildRateLimiter = (redis: Redis | undefined) => {
   const testOverride = getTestRateLimiterOverride();
   if (testOverride) {
     if (redis) {
       const config: RatelimitConfig = {
         redis: normaliseRedisClient(redis),
-        limiter: createSlidingWindowLimiter(),
+        limiter: {
+          limit: LOGIN_WINDOW_LIMIT,
+          window: LOGIN_WINDOW_DURATION,
+        } as unknown as RatelimitConfig['limiter'],
         analytics: true,
         prefix: LOGIN_RATE_LIMIT_PREFIX,
       };
@@ -114,53 +113,82 @@ const buildRateLimiter = (redis: Redis | undefined) => {
       }
     }
     loginRateLimiter = testOverride;
+    loginRateLimiterPromise = Promise.resolve();
     return;
   }
 
   if (!redis) {
     loginRateLimiter = undefined;
+    loginRateLimiterPromise = null;
     return;
   }
 
-  try {
-    const config: RatelimitConfig = {
-      redis: normaliseRedisClient(redis),
-      limiter: createSlidingWindowLimiter(),
-      analytics: true,
-      prefix: LOGIN_RATE_LIMIT_PREFIX,
-    };
-    if (isTestEnvironment) {
-      lastRateLimiterConfigForTests = config;
-    }
-    const ctor = getRatelimitCtor();
-    if (typeof ctor === 'function') {
-      // eslint-disable-next-line new-cap
-      loginRateLimiter = new (ctor as new (config: RatelimitConfig) => InstanceType<typeof UpstashRatelimit>)(config);
-    } else {
-      const defaultCtor = (ctor as { default?: unknown }).default;
-      if (typeof defaultCtor === 'function') {
+  loginRateLimiterPromise = (async () => {
+    try {
+      const ctor = await getRatelimitCtor();
+      const config: RatelimitConfig = {
+        redis: normaliseRedisClient(redis),
+        limiter: createSlidingWindowLimiter(ctor),
+        analytics: true,
+        prefix: LOGIN_RATE_LIMIT_PREFIX,
+      };
+
+      if (isTestEnvironment) {
+        lastRateLimiterConfigForTests = config;
+      }
+
+      if (typeof ctor === 'function') {
         // eslint-disable-next-line new-cap
-        loginRateLimiter = new (defaultCtor as new (config: RatelimitConfig) => InstanceType<typeof UpstashRatelimit>)(config);
+        loginRateLimiter = new (ctor as new (config: RatelimitConfig) => InstanceType<typeof UpstashRatelimit>)(config);
       } else {
-        loginRateLimiter = undefined;
+        const defaultCtor = (ctor as unknown as { default?: unknown }).default;
+        if (typeof defaultCtor === 'function') {
+          // eslint-disable-next-line new-cap
+          loginRateLimiter = new (defaultCtor as new (config: RatelimitConfig) => InstanceType<typeof UpstashRatelimit>)(config);
+        } else {
+          loginRateLimiter = undefined;
+        }
+      }
+    } catch (error) {
+      console.warn('[auth] Failed to initialize login rate limiter', error);
+      loginRateLimiter = undefined;
+      if (isTestEnvironment) {
+        lastRateLimiterConfigForTests = undefined;
       }
     }
-  } catch (error) {
-    console.warn('[auth] Failed to initialize login rate limiter', error);
-    loginRateLimiter = undefined;
-  }
+  })();
 };
 
-buildRateLimiter(getRedisClient?.());
+let initialRedis: Redis | undefined;
+try {
+  initialRedis = getRedisClient?.();
+} catch (error) {
+  console.warn('[auth] Failed to obtain Redis client during initialization', error);
+  initialRedis = undefined;
+}
+
+buildRateLimiter(initialRedis);
 
 if (typeof onRedisClientChange === 'function') {
   onRedisClientChange(redis => {
-    buildRateLimiter(redis);
+    try {
+      buildRateLimiter(redis);
+    } catch (error) {
+      console.warn('[auth] Failed to rebuild login rate limiter', error);
+    }
   });
 }
 
 export async function enforceLoginRateLimit(identifier: string): Promise<LoginRateLimitResult> {
   const override = getTestRateLimiterOverride();
+  if (!override && loginRateLimiterPromise) {
+    try {
+      await loginRateLimiterPromise;
+    } catch (error) {
+      console.warn('[auth] Login ratelimiter initialisation error; allowing attempt', error);
+    }
+  }
+
   const limiter = override ?? loginRateLimiter;
 
   if (override) {
@@ -248,6 +276,7 @@ export function __resetLoginRateLimiterForTests() {
   if (isTestEnvironment) {
     loginRateLimiter = undefined;
     lastRateLimiterConfigForTests = undefined;
+    loginRateLimiterPromise = null;
     try {
       buildRateLimiter(getRedisClient?.());
     } catch {

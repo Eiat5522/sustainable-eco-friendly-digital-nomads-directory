@@ -24,6 +24,7 @@ beforeAll(async () => {
   // Export the jest.fn references directly so tests can call
   // mockUseSession.mockReturnValue(...) and have useSession() return it.
   await jest.unstable_mockModule('next-auth/react', () => ({
+    __esModule: true,
     useSession: mockUseSession,
     signIn: mockSignIn,
     signOut: mockSignOut,
@@ -31,6 +32,7 @@ beforeAll(async () => {
 
   // Export permission helpers as predictable functions (or jest.fn references).
   await jest.unstable_mockModule('../../types/auth', () => ({
+    __esModule: true,
     hasPagePermission: (role: string, page: string) => {
       if (role === 'admin') return true;
       if (role === 'user' && page === 'listings') return true;

@@ -8,15 +8,18 @@ const mockUseRouter = jest.fn();
 const mockPush = jest.fn();
 
 jest.mock('next-auth/react', () => ({
+  __esModule: true,
   useSession: () => mockUseSession(),
 }));
 
 jest.mock('next/navigation', () => ({
+  __esModule: true,
   useRouter: () => mockUseRouter(),
 }));
 
 // Mock auth types
 jest.mock('../../types/auth', () => ({
+  __esModule: true,
   hasPagePermission: jest.fn(() => true),
 }));
 

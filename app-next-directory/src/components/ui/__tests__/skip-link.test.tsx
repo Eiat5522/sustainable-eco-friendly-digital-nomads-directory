@@ -1,9 +1,12 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { SkipLink } from '../skip-link';
 
-jest.mock('next/link', () => ({ 
-  __esModule: true, 
-  default: ({ children, href, ...props }: any) => <a href={href} {...props}>{children}</a> 
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ children, href, ...props }: any) => {
+    return <a href={href} {...props}>{children}</a>;
+  },
 }));
 
 describe('SkipLink', () => {

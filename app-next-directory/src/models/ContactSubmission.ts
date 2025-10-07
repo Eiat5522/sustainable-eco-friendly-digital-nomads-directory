@@ -17,7 +17,7 @@ export interface IContactSubmission extends Document {
   ipAddress?: string;
   status?: string;
   notes?: string;
-  createdAt?: Date;
+  createdAt: Date;
 }
 
 const ContactSubmissionSchema = new Schema<IContactSubmission>(
@@ -88,6 +88,4 @@ const ContactSubmissionSchema = new Schema<IContactSubmission>(
 ContactSubmissionSchema.index({ email: 1, createdAt: -1 });
 ContactSubmissionSchema.index({ status: 1, createdAt: -1 });
 
-const ContactSubmission = models.ContactSubmission || mongoose.model<IContactSubmission>('ContactSubmission', ContactSubmissionSchema);
-
-export default ContactSubmission;
+export default mongoose.models.ContactSubmission || mongoose.model<IContactSubmission>('ContactSubmission', ContactSubmissionSchema);

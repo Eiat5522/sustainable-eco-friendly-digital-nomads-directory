@@ -66,7 +66,7 @@ describe('RBAC guardrails integration', () => {
     expect(nextResponse.redirect).toHaveBeenCalledTimes(1);
     expect(result.type).toBe('redirect');
     expect(result.status).toBe(307);
-    expect(result.url).toBe('https://example.com/auth/signin?callbackUrl=%2Fadmin');
+        expect(result.url).toBe('https://example.com/auth/login?callbackUrl=%2Fadmin');
   });
 
   it('returns a 401 response for unauthenticated admin API requests', async () => {

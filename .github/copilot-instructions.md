@@ -16,7 +16,7 @@ applyTo: "**"
 - **Proactive Task Linking:** When providing solutions, code, or completing a request that appears to correspond to a known task (e.g., from a task file or a previously discussed objective), proactively ask if the user would like to mark that task as in-progress, completed, or if the solution addresses a specific sub-task.
   - _Example prompt:_ 'This code should resolve the issue with X. Does this complete task Y, or a part of it?' or 'Now that we've outlined the plan for Z, shall I update its status to \'in-progress\'?'
 
-- **Tech Stack**: Familiarize yourself with the tech stack used in the project, including Next.js, Tailwind CSS, Sanity, MongoDB, Leaflet.js, Vercel,and NextAuth.js.
+- **Tech Stack**: Familiarize yourself with the tech stack used in the project, including Next.js, Tailwind CSS, Sanity, MongoDB, Leaflet.js, Vercel, and NextAuth.js.
 
 ## 🤖 GitHub Copilot Custom Instruction: Memory Management
 

@@ -186,7 +186,7 @@ jest.mock('next/navigation', () => ({
   }),
 }));
 
-// Mock next/server globally for all tests  
+// Mock next/server globally for all tests
 jest.mock('next/server', () => {
   const createHeaders = (init?: any) => {
     const HeadersCtor = (globalThis as any).Headers;
@@ -201,7 +201,7 @@ jest.mock('next/server', () => {
       } else if (init instanceof Map) {
         for (const [key, value] of init.entries()) map.set(key, String(value));
       } else if (typeof init === 'object') {
-        for (const key of Object.keys(init)) map.set(key, String(init[key]));
+        for (const key of Object.keys(init)) map.set(key, String((init as Record<string, unknown>)[key]));
       }
     }
 
@@ -218,21 +218,91 @@ jest.mock('next/server', () => {
     } as any;
   };
 
-  return {
-    NextResponse: {
-      json: jest.fn((data: any, init?: { status?: number; headers?: any }) => {
-        const status = init?.status ?? 200;
-        const headers = createHeaders(init?.headers);
+  class MockNextResponse {
+    public status: number;
+    public headers: any;
+    public ok: boolean;
+    #body: unknown;
 
-        return {
-          status,
-          headers,
-          ok: status >= 200 && status < 300,
-          json: () => Promise.resolve(data),
-          text: () => Promise.resolve(JSON.stringify(data)),
-        };
-      }),
-    },
+    constructor(body?: unknown, init?: { status?: number; headers?: any }) {
+      this.#body = body;
+      this.status = init?.status ?? 200;
+      this.headers = createHeaders(init?.headers);
+      this.ok = this.status >= 200 && this.status < 300;
+    }
+
+    static next(): MockNextResponse {
+      return new MockNextResponse(null);
+    }
+
+    static redirect(url: string | URL, status = 307): MockNextResponse {
+      const target = typeof url === 'string' ? url : url.toString();
+      return new MockNextResponse(null, {
+        status,
+        headers: { Location: target },
+      });
+    }
+
+    static json(data: unknown, init: { status?: number; headers?: any } = {}): MockNextResponse {
+      const headers = createHeaders({ 'Content-Type': 'application/json', ...(init.headers ?? {}) });
+      return new MockNextResponse(data, { status: init.status, headers });
+    }
+
+    async json() {
+      if (typeof this.#body === 'string') {
+        try {
+          return JSON.parse(this.#body);
+        } catch (error) {
+          console.warn('MockNextResponse.json failed to parse body', error);
+          return this.#body;
+        }
+      }
+      return this.#body;
+    }
+
+    async text() {
+      if (typeof this.#body === 'string') {
+        return this.#body;
+      }
+      try {
+        return JSON.stringify(this.#body);
+      } catch {
+        return String(this.#body);
+      }
+    }
+  }
+
+  class MockNextRequest {
+    public nextUrl: URL;
+    public url: string;
+    public method: string;
+    public headers: any;
+    #json: unknown;
+
+    constructor(input: string | { url: string; method?: string; headers?: any; json?: unknown }) {
+      if (typeof input === 'string') {
+        this.url = input;
+        this.method = 'GET';
+        this.headers = createHeaders();
+        this.#json = undefined;
+      } else {
+        this.url = input.url;
+        this.method = input.method ?? 'GET';
+        this.headers = createHeaders(input.headers);
+        this.#json = input.json;
+      }
+      this.nextUrl = new URL(this.url, this.url.startsWith('http') ? undefined : 'http://localhost');
+    }
+
+    async json() {
+      return this.#json ?? {};
+    }
+  }
+
+  return {
+    __esModule: true,
+    NextResponse: MockNextResponse,
+    NextRequest: MockNextRequest,
   };
 });
 
@@ -277,15 +347,38 @@ try {
   // If require fails (module not found), swallow — some suites don't import rate-limit at all
 }
 
-// Ensure auth config is mocked early so tests can call .mockReturnValue
+// Ensure auth config is mocked early so tests can spy on helpers while keeping
+// the production implementation as the default behaviour.
 jest.mock('@/lib/auth/config', () => {
-  // Use module-level `jest` instead of require('@jest/globals')
+  const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
+
+  const wrap = <T extends (...args: any[]) => any>(key: string) => {
+    const impl = actual[key] as T | undefined;
+    if (typeof impl !== 'function') {
+      return jest.fn();
+    }
+    const spy = jest.fn((...args: Parameters<T>) => (impl as T)(...args));
+    spy.mockImplementation((...args: Parameters<T>) => (impl as T)(...args));
+    return spy;
+  };
+
+  const isEmailVerificationRequired = wrap('isEmailVerificationRequired');
+  const getAdminEmails = wrap('getAdminEmails');
+  const isAdminEmail = wrap('isAdminEmail');
+
+  const shared = {
+    ...actual,
+    isEmailVerificationRequired,
+    getAdminEmails,
+    isAdminEmail,
+  } as Record<string, unknown>;
+
   return {
     __esModule: true,
+    ...shared,
     default: {
-      isEmailVerificationRequired: jest.fn(() => false),
+      ...shared,
     },
-    isEmailVerificationRequired: jest.fn(() => false),
   };
 });
 
@@ -324,14 +417,16 @@ try {
     }
   };
 
-  ensureMock(ac, 'isEmailVerificationRequired', () => false);
-  ensureMock(ac, 'getAdminEmails', () => []);
-  ensureMock(ac, 'isAdminEmail', () => false);
+  const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
+
+  ensureMock(ac, 'isEmailVerificationRequired', (...args: unknown[]) => (actual.isEmailVerificationRequired as (...fnArgs: unknown[]) => unknown)(...args));
+  ensureMock(ac, 'getAdminEmails', (...args: unknown[]) => (actual.getAdminEmails as (...fnArgs: unknown[]) => unknown)(...args));
+  ensureMock(ac, 'isAdminEmail', (...args: unknown[]) => (actual.isAdminEmail as (...fnArgs: unknown[]) => unknown)(...args));
 
   if (ac.default) {
-    ensureMock(ac.default, 'isEmailVerificationRequired', () => false);
-    ensureMock(ac.default, 'getAdminEmails', () => []);
-    ensureMock(ac.default, 'isAdminEmail', () => false);
+    ensureMock(ac.default, 'isEmailVerificationRequired', (...args: unknown[]) => (actual.isEmailVerificationRequired as (...fnArgs: unknown[]) => unknown)(...args));
+    ensureMock(ac.default, 'getAdminEmails', (...args: unknown[]) => (actual.getAdminEmails as (...fnArgs: unknown[]) => unknown)(...args));
+    ensureMock(ac.default, 'isAdminEmail', (...args: unknown[]) => (actual.isAdminEmail as (...fnArgs: unknown[]) => unknown)(...args));
   }
 
   // Expose the actual jest.fn instances from the mocked module on global
@@ -356,9 +451,31 @@ try {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const srcAuth = require('./src/lib/auth/config');
   if (srcAuth) {
-    // Replace require('@jest/globals').jest.fn with module-level `jest.fn`
-    srcAuth.isEmailVerificationRequired = jest.fn(() => false);
-    if (srcAuth.default) srcAuth.default.isEmailVerificationRequired = jest.fn(() => false);
+    const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
+    const wrap = (key: string) => {
+      const impl = actual[key];
+      if (typeof impl !== 'function') {
+        return jest.fn();
+      }
+      const spy = jest.fn((...args: any[]) => (impl as (...fnArgs: any[]) => unknown)(...args));
+      spy.mockImplementation((...args: any[]) => (impl as (...fnArgs: any[]) => unknown)(...args));
+      return spy;
+    };
+
+    const isEmailVerificationRequired = wrap('isEmailVerificationRequired');
+    const getAdminEmails = wrap('getAdminEmails');
+    const isAdminEmail = wrap('isAdminEmail');
+
+    srcAuth.isEmailVerificationRequired = isEmailVerificationRequired;
+    srcAuth.getAdminEmails = getAdminEmails;
+    srcAuth.isAdminEmail = isAdminEmail;
+
+    if (srcAuth.default) {
+      srcAuth.default.isEmailVerificationRequired = isEmailVerificationRequired;
+      srcAuth.default.getAdminEmails = getAdminEmails;
+      srcAuth.default.isAdminEmail = isAdminEmail;
+    }
+
     // eslint-disable-next-line no-console
     console.log('DEBUG jest.setup: patched ./src/lib/auth/config exports');
   }

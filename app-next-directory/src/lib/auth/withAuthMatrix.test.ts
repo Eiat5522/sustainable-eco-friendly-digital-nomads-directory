@@ -1,80 +1,20 @@
 import { jest } from '@jest/globals';
-
+import { NextRequest, NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 // Mock dependencies
-const mockGetToken = jest.fn();
+const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
 const mockAuth = jest.fn();
-const mockHasPagePermission = jest.fn();
-const mockHasFeaturePermission = jest.fn();
-
-// Mock NextRequest and NextResponse
-class MockNextRequest {
-  nextUrl: { pathname: string };
-  url: string;
-  
-  constructor(url: string) {
-    this.url = url;
-    this.nextUrl = { pathname: new URL(url).pathname };
-  }
-}
-
-class MockNextResponse {
-  status: number;
-  headers: Map<string, string>;
-  body: any;
-
-  constructor(body: any, init?: { status?: number; headers?: Record<string, string> }) {
-    this.body = body;
-    this.status = init?.status || 200;
-    this.headers = new Map(Object.entries(init?.headers || {}));
-  }
-
-  static next() {
-    return new MockNextResponse(null);
-  }
-
-  static redirect(url: URL | string) {
-    return new MockNextResponse(null, {
-      status: 307,
-      headers: { location: url.toString() },
-    });
-  }
-
-  async json() {
-    return typeof this.body === 'string' ? JSON.parse(this.body) : this.body;
-  }
-}
-
-jest.mock('next/server', () => ({
-  NextRequest: MockNextRequest,
-  NextResponse: MockNextResponse,
-}));
-
-jest.mock('next-auth/jwt', () => ({
-  getToken: mockGetToken,
-}));
 
 jest.mock('@/lib/auth', () => ({
+  __esModule: true,
   auth: mockAuth,
 }));
 
-jest.mock('../../types/auth', () => ({
-  hasPagePermission: mockHasPagePermission,
-  hasFeaturePermission: mockHasFeaturePermission,
-  ACCESS_CONTROL_MATRIX: {
-    admin: { pages: {}, features: {} },
-    user: { pages: {}, features: {} },
-    unidentifiedUser: { pages: {}, features: {} },
-  },
-  ROLE_HIERARCHY: {
-    unidentifiedUser: 0,
-    defaultUser: 1,
-    user: 2,
-    venueOwner: 3,
-    moderator: 4,
-    admin: 5,
-    superAdmin: 6,
-  },
-}));
+jest.mock('../../types/auth');
+
+const authMock = jest.requireMock('../../types/auth');
+const mockHasPagePermission = authMock.hasPagePermission as jest.Mock;
+const mockHasFeaturePermission = authMock.hasFeaturePermission as jest.Mock;
 
 import {
   withAuthMatrix,
@@ -84,14 +24,16 @@ import {
   withAuth,
 } from './withAuthMatrix';
 
-const NextRequest = MockNextRequest as any;
-const NextResponse = MockNextResponse as any;
 
 describe('withAuthMatrix', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockHasPagePermission.mockReset();
+    mockHasFeaturePermission.mockReset();
+    mockHasPagePermission.mockImplementation(() => true);
+    mockHasFeaturePermission.mockImplementation(() => true);
     process.env = { ...originalEnv };
     process.env.NEXTAUTH_SECRET = 'test-secret';
   });
@@ -119,6 +61,7 @@ describe('withAuthMatrix', () => {
       const request = new NextRequest('http://localhost:3000/api/test');
       const response = await withAuthMatrix(request, null, null, true);
 
+      expect(mockGetToken).toHaveBeenCalled();
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(401);
     });
@@ -130,6 +73,7 @@ describe('withAuthMatrix', () => {
       const request = new NextRequest('http://localhost:3000/api/test');
       const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, true);
 
+      expect(mockHasPagePermission).toHaveBeenCalled();
       expect(response.status).toBe(403);
       const json = await response.json();
       expect(json.error).toBe('Insufficient permissions');

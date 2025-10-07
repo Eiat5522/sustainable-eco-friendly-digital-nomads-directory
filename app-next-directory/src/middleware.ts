@@ -120,7 +120,6 @@ export function createMiddleware({
         '/auth/error',
         '/auth/login',
         '/auth/signup',
-        '/auth/signin',
         '/login',
         '/register'
       ];

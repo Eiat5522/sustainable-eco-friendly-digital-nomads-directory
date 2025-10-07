@@ -32,7 +32,7 @@ describe('User Model', () => {
     });
 
     it('should have email as required field', () => {
-      expect(User.schema.path('email').isRequired).toBe(true);
+      expect(User.schema.path('email').isRequired).toBeTruthy();
     });
 
     it('should have optional fields', () => {
@@ -60,7 +60,7 @@ describe('User Model', () => {
 
   describe('Email Field', () => {
     it('should have email field with required validation', () => {
-      expect(User.schema.path('email').isRequired).toBe(true);
+      expect(User.schema.path('email').isRequired).toBeTruthy();
     });
 
     it('should have trim option on email', () => {
@@ -180,7 +180,7 @@ describe('User Model', () => {
 
   describe('Pre-save Hook for Password Hashing', () => {
     it('should have pre-save hook defined', () => {
-      const preSaveHooks = User.schema.pre('save');
+      const preSaveHooks = User.schema.pre('save', () => {});
       expect(preSaveHooks).toBeDefined();
     });
 

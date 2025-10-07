@@ -4,6 +4,7 @@
 
 // Mock NextResponse for this test file
 jest.mock('next/server', () => ({
+  __esModule: true,
   NextResponse: {
     json: jest.fn((body: any, init?: { status?: number }) => ({
       status: init?.status || 200,
