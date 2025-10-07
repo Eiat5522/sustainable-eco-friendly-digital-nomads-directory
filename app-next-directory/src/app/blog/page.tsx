@@ -109,27 +109,51 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
     <>
     <Header />
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-5xl font-extrabold text-center mb-6 text-gray-900">The Nomad's Chronicle</h1>
+      {/* Newspaper Masthead */}
+      <div className="border-8 border-black bg-white mb-8 p-8">
+        <div className="border-b-4 border-black pb-4 mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs font-bold tracking-widest uppercase">Est. 2024</div>
+            <div className="text-xs font-bold tracking-widest uppercase">Digital Nomad Edition</div>
+          </div>
+          <h1 className="text-6xl md:text-8xl font-black text-center tracking-tight leading-none" style={{ fontFamily: 'serif' }}>
+            The Nomad's Chronicle
+          </h1>
+          <div className="text-center text-sm font-bold mt-2 tracking-wider">
+            SUSTAINABILITY • TRAVEL • REMOTE WORK
+          </div>
+        </div>
+        <div className="flex justify-between items-center text-xs font-bold border-b-2 border-black pb-2">
+          <div>VOL. {pagination.page}</div>
+          <div className="text-center flex-1">ALL THE NEWS NOMADS NEED</div>
+          <div>ISSUE #{pagination.page}</div>
+        </div>
+      </div>
 
-      {/* Filters */}
-      <form className="mb-10 flex flex-col md:flex-row items-stretch md:items-center gap-3" action="/blog" method="get">
-        <input
-          type="search"
-          name="search"
-          defaultValue={search || ''}
-          placeholder="Search posts..."
-          className="flex-1 p-3 bg-white border-4 border-black rounded-lg shadow-sm"
-        />
-        <input
-          type="text"
-          name="tag"
-          defaultValue={tag || ''}
-          placeholder="Tag (e.g. eco, remote-work)"
-          className="w-full md:w-64 p-3 bg-white border-4 border-black rounded-lg shadow-sm"
-        />
-        <button className="px-6 py-3 bg-yellow-400 border-4 border-black rounded-lg font-bold">Apply</button>
-        {limit ? <input type="hidden" name="limit" value={limit} /> : null}
-      </form>
+      {/* Search and Filter Section */}
+      <div className="bg-yellow-300 border-4 border-black p-6 mb-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        <h2 className="text-2xl font-black mb-4 uppercase tracking-wide">Find Your Story</h2>
+        <form className="flex flex-col md:flex-row items-stretch md:items-center gap-3" action="/blog" method="get">
+          <input
+            type="search"
+            name="search"
+            defaultValue={search || ''}
+            placeholder="Search articles..."
+            className="flex-1 p-3 bg-white border-4 border-black font-bold placeholder:text-gray-500"
+          />
+          <input
+            type="text"
+            name="tag"
+            defaultValue={tag || ''}
+            placeholder="Filter by topic..."
+            className="w-full md:w-64 p-3 bg-white border-4 border-black font-bold placeholder:text-gray-500"
+          />
+          <button className="px-8 py-3 bg-white border-4 border-black font-black uppercase tracking-wide hover:bg-black hover:text-white transition-colors">
+            Search
+          </button>
+          {limit ? <input type="hidden" name="limit" value={limit} /> : null}
+        </form>
+      </div>
 
       {uniqueTags.length > 0 && (
         <div className="mb-8 flex flex-wrap gap-2">
@@ -139,74 +163,157 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
             if (search) sp.set('search', search);
             if (limit) sp.set('limit', limit);
             return (
-              <Link key={t} href={`/blog?${sp.toString()}`} className={`px-3 py-1 border-2 border-black rounded-full text-sm ${t === tag ? 'bg-black text-white' : 'bg-white'}`}>
-                #{t}
+              <Link 
+                key={t} 
+                href={`/blog?${sp.toString()}`} 
+                className={`px-4 py-2 border-3 border-black font-bold text-sm uppercase tracking-wide transition-all ${
+                  t === tag 
+                    ? 'bg-black text-white' 
+                    : 'bg-white hover:bg-yellow-300'
+                }`}
+              >
+                {t}
               </Link>
             );
           })}
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {posts.map((post: Post, idx: number) => {
-          const imageUrl = post.imageUrl ?? null;
-          const usingPlaceholder = !imageUrl;
-          const src = imageUrl ?? placeholderDataUri(800, 450);
-          const alt = usingPlaceholder ? '' : (post.title || '');
-          return (
-            <Link key={post.id} href={`/blog/${post.slug}`} className="flex">
-              <div className="flex flex-col w-full bg-white border-4 border-black rounded-lg shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 ease-in-out overflow-hidden">
-                <div className="relative h-48 flex-shrink-0">
-                  <Image
-                    src={src}
-                    alt={alt}
-                    aria-hidden={usingPlaceholder}
-                    fill
-                    className="object-cover"
-                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                    priority={idx < 3}
-                    
-                  />
+      {/* Featured Story (First Post) */}
+      {posts.length > 0 && (
+        <div className="mb-12">
+          {(() => {
+            const post = posts[0];
+            const imageUrl = post.imageUrl ?? null;
+            const usingPlaceholder = !imageUrl;
+            const src = imageUrl ?? placeholderDataUri(1200, 600);
+            const alt = usingPlaceholder ? '' : (post.title || '');
+            return (
+              <Link href={`/blog/${post.slug}`} className="block">
+                <div className="bg-white border-8 border-black p-0 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] transition-all group">
+                  <div className="relative h-96 border-b-8 border-black">
+                    <Image
+                      src={src}
+                      alt={alt}
+                      aria-hidden={usingPlaceholder}
+                      fill
+                      className="object-cover"
+                      sizes="100vw"
+                      priority
+                    />
+                    <div className="absolute top-4 left-4 bg-yellow-300 border-4 border-black px-4 py-2 font-black uppercase text-sm">
+                      Featured Story
+                    </div>
+                  </div>
+                  <div className="p-8">
+                    <h2 className="text-5xl md:text-6xl font-black mb-4 leading-tight group-hover:underline" style={{ fontFamily: 'serif' }}>
+                      {post.title}
+                    </h2>
+                    <p className="text-xl text-gray-700 leading-relaxed font-medium">
+                      {post.excerpt}
+                    </p>
+                    <div className="mt-4 flex items-center gap-4 text-sm font-bold uppercase">
+                      {post.tags && post.tags.length > 0 && (
+                        <div className="flex gap-2">
+                          {post.tags.slice(0, 3).map((tag) => (
+                            <span key={tag} className="bg-black text-white px-3 py-1 text-xs">
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="p-6 flex-grow">
-                  <h2 className="text-3xl font-bold mb-2 text-gray-800">{post.title}</h2>
-                  <p className="text-gray-600">{post.excerpt}</p>
-                </div>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
+              </Link>
+            );
+          })()}
+        </div>
+      )}
 
-      {/* Pagination */}
-      <div className="mt-10 flex items-center justify-center gap-4">
-        {pagination.hasPrevPage && (
-          <Link
-            href={`/blog?${new URLSearchParams({
-              page: String(pagination.prevPage ?? 1),
-              ...(tag ? { tag } : {}),
-              ...(search ? { search } : {}),
-              ...(limit ? { limit } : {}),
-            }).toString()}`}
-            className="px-4 py-2 border-4 border-black rounded-lg bg-white"
-          >
-            ← Previous
-          </Link>
-        )}
-        <span className="text-sm text-gray-700">Page {pagination.page} of {pagination.totalPages}</span>
-        {pagination.hasNextPage && (
-          <Link
-            href={`/blog?${new URLSearchParams({
-              page: String(pagination.nextPage ?? (pagination.page + 1)),
-              ...(tag ? { tag } : {}),
-              ...(search ? { search } : {}),
-              ...(limit ? { limit } : {}),
-            }).toString()}`}
-            className="px-4 py-2 border-4 border-black rounded-lg bg-white"
-          >
-            Next →
-          </Link>
-        )}
+      {/* News Grid - Remaining Posts */}
+      {posts.length > 1 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          {posts.slice(1).map((post: Post, idx: number) => {
+            const imageUrl = post.imageUrl ?? null;
+            const usingPlaceholder = !imageUrl;
+            const src = imageUrl ?? placeholderDataUri(800, 450);
+            const alt = usingPlaceholder ? '' : (post.title || '');
+            return (
+              <Link key={post.id} href={`/blog/${post.slug}`} className="block group">
+                <article className="bg-white border-6 border-black h-full flex flex-col shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all">
+                  <div className="relative h-48 border-b-6 border-black flex-shrink-0">
+                    <Image
+                      src={src}
+                      alt={alt}
+                      aria-hidden={usingPlaceholder}
+                      fill
+                      className="object-cover"
+                      sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                      priority={idx < 2}
+                    />
+                  </div>
+                  <div className="p-6 flex-grow flex flex-col">
+                    <h3 className="text-2xl md:text-3xl font-black mb-3 leading-tight group-hover:underline" style={{ fontFamily: 'serif' }}>
+                      {post.title}
+                    </h3>
+                    <p className="text-gray-700 leading-relaxed flex-grow font-medium">
+                      {post.excerpt}
+                    </p>
+                    {post.tags && post.tags.length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {post.tags.slice(0, 2).map((tag) => (
+                          <span key={tag} className="bg-yellow-300 border-2 border-black px-2 py-1 text-xs font-bold uppercase">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </article>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Pagination - Newspaper Style */}
+      <div className="border-t-4 border-b-4 border-black py-6 flex items-center justify-between bg-white">
+        <div className="flex-1">
+          {pagination.hasPrevPage && (
+            <Link
+              href={`/blog?${new URLSearchParams({
+                page: String(pagination.prevPage ?? 1),
+                ...(tag ? { tag } : {}),
+                ...(search ? { search } : {}),
+                ...(limit ? { limit } : {}),
+              }).toString()}`}
+              className="inline-block px-6 py-3 bg-white border-4 border-black font-black uppercase text-sm hover:bg-black hover:text-white transition-colors"
+            >
+              ← Previous Issue
+            </Link>
+          )}
+        </div>
+        <div className="text-center flex-1">
+          <span className="text-lg font-black uppercase tracking-wider">
+            Issue {pagination.page} of {pagination.totalPages}
+          </span>
+        </div>
+        <div className="flex-1 text-right">
+          {pagination.hasNextPage && (
+            <Link
+              href={`/blog?${new URLSearchParams({
+                page: String(pagination.nextPage ?? (pagination.page + 1)),
+                ...(tag ? { tag } : {}),
+                ...(search ? { search } : {}),
+                ...(limit ? { limit } : {}),
+              }).toString()}`}
+              className="inline-block px-6 py-3 bg-white border-4 border-black font-black uppercase text-sm hover:bg-black hover:text-white transition-colors"
+            >
+              Next Issue →
+            </Link>
+          )}
+        </div>
       </div>
     </div>
     <Footer />

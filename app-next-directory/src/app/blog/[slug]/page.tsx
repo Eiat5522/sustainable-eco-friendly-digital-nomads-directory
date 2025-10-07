@@ -6,6 +6,7 @@ import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import type { Metadata } from 'next'
 import Image from 'next/image';
+import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 
@@ -95,29 +96,181 @@ export default async function BlogPostPage({ params }: Readonly<{ params: { slug
     <>
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <article className="prose lg:prose-xl max-w-none">
-          <h1 className="text-5xl font-extrabold text-center mb-6 text-gray-900">{post.title}</h1>
-          <div className="relative w-full h-64 md:h-96 mb-8 border-4 border-black rounded-lg overflow-hidden">
-            <Image
-              src={src}
-              alt={alt}
-              aria-hidden={usingPlaceholder}
-              fill
-              className="object-cover"
-              sizes="100vw"
-              placeholder={usingPlaceholder ? 'empty' : 'blur'}
-              blurDataURL={usingPlaceholder ? undefined : placeholderDataUri(1200, 630)}
-              priority={!usingPlaceholder}
-            />
+        {/* Newspaper Masthead */}
+        <div className="border-8 border-black bg-white mb-8 p-6">
+          <div className="text-center">
+            <div className="text-xs font-bold tracking-widest uppercase mb-2">The Nomad's Chronicle</div>
+            <div className="border-t-2 border-b-2 border-black py-2">
+              <div className="text-xs font-bold tracking-wider uppercase">
+                Sustainability • Travel • Remote Work
+              </div>
+            </div>
           </div>
-          <div className="bg-white border-4 border-black rounded-lg shadow-lg p-8">
-            <PortableText value={post.body} />
+        </div>
+
+        <article className="max-w-5xl mx-auto">
+          {/* Article Header */}
+          <div className="bg-white border-8 border-black p-8 md:p-12 mb-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+            <div className="border-b-4 border-black pb-6 mb-6">
+              <h1 className="text-5xl md:text-7xl font-black leading-none mb-6" style={{ fontFamily: 'serif' }}>
+                {post.title}
+              </h1>
+              
+              {/* Byline */}
+              <div className="flex flex-wrap items-center gap-4 text-sm font-bold uppercase tracking-wide border-t-2 border-black pt-4">
+                <div className="flex items-center gap-2">
+                  <span className="bg-black text-white px-3 py-1">Breaking News</span>
+                </div>
+                <div className="flex-1 border-l-2 border-black pl-4">
+                  <div>Published by The Chronicle Staff</div>
+                  <div className="text-xs text-gray-600 normal-case mt-1">Special Correspondent</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Hero Image */}
+            <div className="relative w-full h-96 md:h-[600px] border-8 border-black mb-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <Image
+                src={src}
+                alt={alt}
+                aria-hidden={usingPlaceholder}
+                fill
+                className="object-cover"
+                sizes="100vw"
+                placeholder={usingPlaceholder ? 'empty' : 'blur'}
+                blurDataURL={usingPlaceholder ? undefined : placeholderDataUri(1200, 630)}
+                priority={!usingPlaceholder}
+              />
+            </div>
+
+            {/* Article Body */}
+            <div className="prose prose-lg max-w-none">
+              <style jsx global>{`
+                .prose {
+                  font-family: Georgia, serif;
+                  font-size: 1.125rem;
+                  line-height: 1.8;
+                  color: #1F2937;
+                }
+                .prose p:first-of-type::first-letter {
+                  float: left;
+                  font-size: 5.5rem;
+                  line-height: 0.85;
+                  font-weight: 900;
+                  margin-right: 0.5rem;
+                  margin-top: 0.1rem;
+                  font-family: serif;
+                  border: 4px solid black;
+                  padding: 1rem 1.2rem;
+                  background: #FDE047;
+                }
+                .prose h2 {
+                  font-family: serif;
+                  font-weight: 900;
+                  font-size: 2.25rem;
+                  margin-top: 2.5rem;
+                  margin-bottom: 1.5rem;
+                  border-bottom: 4px solid black;
+                  padding-bottom: 0.5rem;
+                  text-transform: uppercase;
+                  letter-spacing: 0.05em;
+                }
+                .prose h3 {
+                  font-family: serif;
+                  font-weight: 800;
+                  font-size: 1.75rem;
+                  margin-top: 2rem;
+                  margin-bottom: 1rem;
+                  text-transform: uppercase;
+                }
+                .prose p {
+                  margin-bottom: 1.5rem;
+                  text-align: justify;
+                }
+                .prose blockquote {
+                  border-left: 8px solid black;
+                  background: #FEF3C7;
+                  padding: 1.5rem;
+                  margin: 2rem 0;
+                  font-style: italic;
+                  font-weight: 600;
+                  font-size: 1.25rem;
+                  position: relative;
+                }
+                .prose blockquote::before {
+                  content: '"';
+                  font-size: 4rem;
+                  position: absolute;
+                  top: -0.5rem;
+                  left: 1rem;
+                  font-family: serif;
+                  font-weight: 900;
+                }
+                .prose a {
+                  color: #1F2937;
+                  text-decoration: underline;
+                  text-decoration-thickness: 2px;
+                  text-underline-offset: 2px;
+                  font-weight: 600;
+                }
+                .prose a:hover {
+                  background: #FDE047;
+                  text-decoration: none;
+                }
+                .prose ul, .prose ol {
+                  margin: 1.5rem 0;
+                  padding-left: 2rem;
+                }
+                .prose li {
+                  margin-bottom: 0.75rem;
+                  line-height: 1.8;
+                }
+                .prose strong {
+                  font-weight: 800;
+                  color: #000;
+                }
+                .prose img {
+                  border: 6px solid black;
+                  margin: 2rem 0;
+                  box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+                }
+              `}</style>
+              <PortableText value={post.body} />
+            </div>
+          </div>
+
+          {/* Comments Section */}
+          <div className="bg-yellow-100 border-8 border-black p-8 md:p-12 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+            <div className="border-b-4 border-black pb-4 mb-8">
+              <h2 className="text-4xl md:text-5xl font-black uppercase tracking-wide" style={{ fontFamily: 'serif' }}>
+                Letters to the Editor
+              </h2>
+              <p className="text-sm font-bold uppercase tracking-wide mt-2">
+                Join the conversation
+              </p>
+            </div>
+            
+            <div className="bg-white border-4 border-black p-6 mb-6">
+              <CommentList comments={comments} />
+            </div>
+            
+            <div className="bg-white border-4 border-black p-6">
+              <h3 className="text-2xl font-black uppercase mb-4 border-b-2 border-black pb-2">
+                Submit Your Letter
+              </h3>
+              <CommentForm postId={post.id} />
+            </div>
           </div>
         </article>
-        <div className="mt-16">
-          <h2 className="text-4xl font-bold mb-8 text-gray-800">Comments</h2>
-          <CommentList comments={comments} />
-          <CommentForm postId={post.id} />
+
+        {/* Back to Chronicle */}
+        <div className="text-center mt-12">
+          <Link 
+            href="/blog"
+            className="inline-block px-8 py-4 bg-white border-6 border-black font-black uppercase text-lg shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:bg-yellow-300 transition-all"
+          >
+            ← Back to The Chronicle
+          </Link>
         </div>
       </main>
       <Footer />
