@@ -100,7 +100,6 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
     const existingListing = await client.fetch(
       `*[_type == "listing" && _id == $id && owner._ref == $userId][0]`,
       { id: params.id, userId: sessionUser.id }
-      { id: params.id, userId: sessionUser.id }
     );
 
     if (!existingListing) {
