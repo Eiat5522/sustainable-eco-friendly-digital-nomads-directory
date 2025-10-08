@@ -1,4 +1,3 @@
-import React from 'react';
 import { render } from '@testing-library/react';
 import { NeoBadge } from '../neo-badge';
 
@@ -14,6 +13,7 @@ describe('NeoBadge', () => {
       const badge = container.firstChild as HTMLElement;
       
       expect(badge).toHaveClass('bg-neo-primary');
+      expect(badge).toHaveClass('text-white');
       expect(badge).toHaveClass('px-3');
       expect(badge).toHaveClass('py-1');
       expect(badge).toHaveClass('text-sm');
@@ -38,6 +38,7 @@ describe('NeoBadge', () => {
       const badge = container.firstChild as HTMLElement;
       
       expect(badge).toHaveClass('bg-neo-primary');
+      expect(badge).toHaveClass('text-white');
     });
 
     it('renders secondary variant', () => {
@@ -53,6 +54,7 @@ describe('NeoBadge', () => {
       const badge = container.firstChild as HTMLElement;
       
       expect(badge).toHaveClass('bg-neo-accent');
+      expect(badge).toHaveClass('text-white');
     });
 
     it('renders success variant', () => {
@@ -60,6 +62,7 @@ describe('NeoBadge', () => {
       const badge = container.firstChild as HTMLElement;
       
       expect(badge).toHaveClass('bg-neo-success');
+      expect(badge).toHaveClass('text-white');
     });
 
     it('renders outline variant', () => {
@@ -120,8 +123,8 @@ describe('NeoBadge', () => {
     });
 
     it('forwards ref correctly', () => {
-      const ref = React.createRef<HTMLDivElement>();
-      render(<NeoBadge ref={ref}>Ref Test</NeoBadge>);
+      const ref = { current: null };
+      render(<NeoBadge ref={ref as React.RefObject<HTMLDivElement>}>Ref Test</NeoBadge>);
       
       expect(ref.current).not.toBeNull();
       expect(ref.current).toBeInstanceOf(HTMLDivElement);
@@ -134,6 +137,7 @@ describe('NeoBadge', () => {
       const badge = container.firstChild as HTMLElement;
       
       expect(badge).toHaveClass('focus:outline-none');
+      expect(badge).toHaveClass('focus:ring-2');
       expect(badge).toHaveClass('focus:ring-ring');
       expect(badge).toHaveClass('focus:ring-offset-2');
     });
@@ -154,6 +158,7 @@ describe('NeoBadge', () => {
       const badge = container.firstChild as HTMLElement;
       
       expect(badge).toHaveClass('bg-neo-accent');
+      expect(badge).toHaveClass('text-white');
       expect(badge).toHaveClass('px-4');
       expect(badge).toHaveClass('py-1.5');
       expect(badge).toHaveClass('text-base');

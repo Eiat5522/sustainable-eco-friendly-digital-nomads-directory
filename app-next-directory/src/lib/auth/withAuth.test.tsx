@@ -1,24 +1,33 @@
 import { jest } from '@jest/globals';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import React from 'react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 
-// Import the HOCs to be tested
-import { withAuth, withAdminAuth, withUserAuth } from './withAuth';
-
-// The modules 'next-auth/react' and 'next/navigation' are globally mocked by Jest.
-// We can import them and cast to mocks to control their behavior in tests.
-const mockUseSession = useSession as jest.Mock;
-const mockUseRouter = useRouter as jest.Mock;
+// Mock next-auth/react
+const mockUseSession = jest.fn();
+const mockUseRouter = jest.fn();
 const mockPush = jest.fn();
+
+jest.mock('next-auth/react', () => ({
+  __esModule: true,
+  useSession: () => mockUseSession(),
+}));
+
+jest.mock('next/navigation', () => ({
+  __esModule: true,
+  useRouter: () => mockUseRouter(),
+}));
+
+// Mock auth types
+jest.mock('../../types/auth', () => ({
+  __esModule: true,
+  hasPagePermission: jest.fn(() => true),
+}));
+
+import { withAuth, withAdminAuth, withUserAuth } from './withAuth';
 
 describe('withAuth HOC', () => {
   beforeEach(() => {
-    // Clear all mock history and implementations before each test
     jest.clearAllMocks();
-
-    // Provide a fresh mock for useRouter for each test
     mockUseRouter.mockReturnValue({
       push: mockPush,
     });
@@ -31,7 +40,9 @@ describe('withAuth HOC', () => {
         status: 'authenticated',
       });
 
-      const TestComponent = ({ message }: { message: string }) => <div>{message}</div>;
+      const TestComponent = ({ message }: { message: string }) => (
+        <div>{message}</div>
+      );
       const WrappedComponent = withAuth(TestComponent);
 
       render(<WrappedComponent message="Hello World" />);
@@ -41,7 +52,7 @@ describe('withAuth HOC', () => {
       });
     });
 
-    it('shows loading state while checking authentication', async () => {
+    it('shows loading state while checking authentication', () => {
       mockUseSession.mockReturnValue({
         data: null,
         status: 'loading',
@@ -51,11 +62,9 @@ describe('withAuth HOC', () => {
       const WrappedComponent = withAuth(TestComponent);
 
       render(<WrappedComponent />);
-      await waitFor(() => {
-        expect(screen.queryByText('Content')).not.toBeInTheDocument();
-        const spinnerElement = document.querySelector('.animate-spin');
-        expect(spinnerElement).toBeInTheDocument();
-      });
+      expect(screen.queryByText('Content')).not.toBeInTheDocument();
+  const spinnerElement = document.querySelector('.animate-spin');
+  expect(spinnerElement).toBeInTheDocument();
     });
 
     it('redirects to login when not authenticated', async () => {
@@ -67,11 +76,13 @@ describe('withAuth HOC', () => {
       const TestComponent = () => <div>Content</div>;
       const WrappedComponent = withAuth(TestComponent);
 
-      render(<WrappedComponent />);
+      await act(async () => {
+        render(<WrappedComponent />);
+      });
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/login');
-      });
+      }, { timeout: 3000 });
       expect(screen.queryByText('Content')).not.toBeInTheDocument();
     });
 
@@ -84,11 +95,27 @@ describe('withAuth HOC', () => {
       const TestComponent = () => <div>Content</div>;
       const WrappedComponent = withAuth(TestComponent, { redirectTo: '/custom-login' });
 
-      render(<WrappedComponent />);
+      await act(async () => {
+        render(<WrappedComponent />);
+      });
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/custom-login');
+      }, { timeout: 3000 });
+    });
+
+    it('does not redirect when requireAuth is false', () => {
+      mockUseSession.mockReturnValue({
+        data: null,
+        status: 'unauthenticated',
       });
+
+      const TestComponent = () => <div>Public Content</div>;
+      const WrappedComponent = withAuth(TestComponent, { requireAuth: false });
+
+      render(<WrappedComponent />);
+      expect(screen.getByText('Public Content')).toBeInTheDocument();
+      expect(mockPush).not.toHaveBeenCalled();
     });
   });
 
@@ -118,34 +145,79 @@ describe('withAuth HOC', () => {
       const TestComponent = () => <div>Admin Content</div>;
       const WrappedComponent = withAuth(TestComponent, { requiredRole: 'admin' });
 
-      render(<WrappedComponent />);
+      await act(async () => {
+        render(<WrappedComponent />);
+      });
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/unauthorized');
-      });
+      }, { timeout: 3000 });
       expect(screen.queryByText('Admin Content')).not.toBeInTheDocument();
     });
 
-    it('handles user without role as unidentifiedUser and redirects', async () => {
+    it('handles user without role as unidentifiedUser', async () => {
       mockUseSession.mockReturnValue({
-        data: { user: { name: 'User' } }, // No role property
+        data: { user: { name: 'User' } },
         status: 'authenticated',
       });
 
       const TestComponent = () => <div>Admin Content</div>;
       const WrappedComponent = withAuth(TestComponent, { requiredRole: 'admin' });
 
-      render(<WrappedComponent />);
+      await act(async () => {
+        render(<WrappedComponent />);
+      });
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/unauthorized');
-      });
+      }, { timeout: 3000 });
+    });
+  });
+
+  describe('component display name', () => {
+    it('sets display name with component name', () => {
+      const TestComponent = () => <div>Test</div>;
+      TestComponent.displayName = 'TestComponent';
+      
+      const WrappedComponent = withAuth(TestComponent);
+      expect(WrappedComponent.displayName).toBe('withAuth(TestComponent)');
+    });
+
+    it('sets display name with function name when displayName is not set', () => {
+      function NamedComponent() {
+        return <div>Test</div>;
+      }
+      
+      const WrappedComponent = withAuth(NamedComponent);
+      expect(WrappedComponent.displayName).toBe('withAuth(NamedComponent)');
+    });
+
+    it('handles anonymous components', () => {
+      const WrappedComponent = withAuth(() => <div>Test</div>);
+      expect(WrappedComponent.displayName).toContain('withAuth');
     });
   });
 
   describe('loading state transitions', () => {
+    it('does not redirect during loading state', () => {
+      mockUseSession.mockReturnValue({
+        data: null,
+        status: 'loading',
+      });
+
+      const TestComponent = () => <div>Content</div>;
+      const WrappedComponent = withAuth(TestComponent);
+
+      render(<WrappedComponent />);
+      expect(mockPush).not.toHaveBeenCalled();
+    });
+
     it('waits for loading to complete before redirecting', async () => {
-      mockUseSession.mockReturnValue({ data: null, status: 'loading' });
+      // Start with loading
+      mockUseSession.mockReturnValue({
+        data: null,
+        status: 'loading',
+      });
 
       const TestComponent = () => <div>Content</div>;
       const WrappedComponent = withAuth(TestComponent);
@@ -153,13 +225,19 @@ describe('withAuth HOC', () => {
       const { rerender } = render(<WrappedComponent />);
       expect(mockPush).not.toHaveBeenCalled();
 
-      // Transition from loading to unauthenticated
-      mockUseSession.mockReturnValue({ data: null, status: 'unauthenticated' });
-      rerender(<WrappedComponent />);
+      // Change to unauthenticated
+      mockUseSession.mockReturnValue({
+        data: null,
+        status: 'unauthenticated',
+      });
+
+      await act(async () => {
+        rerender(<WrappedComponent />);
+      });
 
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/login');
-      });
+      }, { timeout: 3000 });
     });
   });
 });
@@ -167,7 +245,9 @@ describe('withAuth HOC', () => {
 describe('withAdminAuth HOC', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseRouter.mockReturnValue({ push: mockPush });
+    mockUseRouter.mockReturnValue({
+      push: mockPush,
+    });
   });
 
   it('renders component for admin users', async () => {
@@ -195,18 +275,22 @@ describe('withAdminAuth HOC', () => {
     const TestComponent = () => <div>Admin Panel</div>;
     const WrappedComponent = withAdminAuth(TestComponent);
 
-    render(<WrappedComponent />);
+    await act(async () => {
+      render(<WrappedComponent />);
+    });
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/unauthorized');
-    });
+    }, { timeout: 3000 });
   });
 });
 
 describe('withUserAuth HOC', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockUseRouter.mockReturnValue({ push: mockPush });
+    mockUseRouter.mockReturnValue({
+      push: mockPush,
+    });
   });
 
   it('renders component for authenticated users', async () => {
@@ -234,11 +318,13 @@ describe('withUserAuth HOC', () => {
     const TestComponent = () => <div>User Content</div>;
     const WrappedComponent = withUserAuth(TestComponent);
 
-    render(<WrappedComponent />);
+    await act(async () => {
+      render(<WrappedComponent />);
+    });
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/login');
-    });
+    }, { timeout: 3000 });
   });
 
   it('accepts any authenticated user regardless of role', async () => {

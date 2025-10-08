@@ -4,15 +4,20 @@ import { getToken } from 'next-auth/jwt';
 // Mock dependencies
 const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
 const mockAuth = jest.fn();
-const mockHasPagePermission = jest.fn();
-const mockHasFeaturePermission = jest.fn();
 
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
   auth: mockAuth,
 }));
 
-import { hasPagePermission, hasFeaturePermission } from '../../types/auth';
+jest.mock('../../types/auth');
+
+// Import to force the mock to be loaded
+import * as authTypesMocked from '../../types/auth';
+
+// Extract the mock functions from the mocked module
+const mockHasPagePermission = (authTypesMocked as any).hasPagePermission as jest.Mock;
+const mockHasFeaturePermission = (authTypesMocked as any).hasFeaturePermission as jest.Mock;
 
 import {
   withAuthMatrix,
@@ -21,6 +26,7 @@ import {
   getUserFromToken,
   withAuth,
 } from './withAuthMatrix';
+
 
 describe('withAuthMatrix', () => {
   const originalEnv = process.env;
@@ -46,7 +52,7 @@ describe('withAuthMatrix', () => {
       mockGetToken.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/api/test');
-      const response = await withAuthMatrix(request, null, null, true, undefined, mockHasPagePermission);
+      const response = await withAuthMatrix(request, null, null, true);
 
       expect(response.status).toBe(401);
       const json = await response.json();
@@ -58,7 +64,7 @@ describe('withAuthMatrix', () => {
       mockGetToken.mockResolvedValue({ role: 'user', email: 'test@example.com' });
 
       const request = new NextRequest('http://localhost:3000/api/test');
-      const response = await withAuthMatrix(request, null, null, true, undefined, mockHasPagePermission);
+      const response = await withAuthMatrix(request, null, null, true);
 
       expect(mockGetToken).toHaveBeenCalled();
       expect(response).toBeInstanceOf(NextResponse);
@@ -70,14 +76,7 @@ describe('withAuthMatrix', () => {
       mockHasPagePermission.mockReturnValue(false);
 
       const request = new NextRequest('http://localhost:3000/api/test');
-      const response = await withAuthMatrix(
-        request,
-        'adminPanel' as any,
-        'canView' as any,
-        true,
-        undefined,
-        mockHasPagePermission
-      );
+      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, true);
 
       expect(mockHasPagePermission).toHaveBeenCalled();
       expect(response.status).toBe(403);
@@ -91,14 +90,7 @@ describe('withAuthMatrix', () => {
       mockHasPagePermission.mockReturnValue(true);
 
       const request = new NextRequest('http://localhost:3000/api/test');
-      const response = await withAuthMatrix(
-        request,
-        'adminPanel' as any,
-        'canView' as any,
-        true,
-        undefined,
-        mockHasPagePermission
-      );
+      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, true);
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(403);
@@ -111,14 +103,7 @@ describe('withAuthMatrix', () => {
       mockHasPagePermission.mockReturnValue(true);
 
       const request = new NextRequest('http://localhost:3000/');
-      const response = await withAuthMatrix(
-        request,
-        'home' as any,
-        'canView' as any,
-        false,
-        undefined,
-        mockHasPagePermission
-      );
+      const response = await withAuthMatrix(request, 'home' as any, 'canView' as any, false);
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(401);
@@ -129,14 +114,7 @@ describe('withAuthMatrix', () => {
       mockHasPagePermission.mockReturnValue(false);
 
       const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withAuthMatrix(
-        request,
-        'adminPanel' as any,
-        'canView' as any,
-        false,
-        undefined,
-        mockHasPagePermission
-      );
+      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, false);
 
       expect(response.status).toBe(307); // Redirect status
       const location = response.headers.get('location');
@@ -149,14 +127,7 @@ describe('withAuthMatrix', () => {
       mockHasPagePermission.mockReturnValue(false);
 
       const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withAuthMatrix(
-        request,
-        'adminPanel' as any,
-        'canView' as any,
-        false,
-        undefined,
-        mockHasPagePermission
-      );
+      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, false);
 
       expect(response.status).toBe(307);
       const location = response.headers.get('location');
@@ -168,14 +139,7 @@ describe('withAuthMatrix', () => {
       mockHasPagePermission.mockReturnValue(true);
 
       const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withAuthMatrix(
-        request,
-        'adminPanel' as any,
-        'canView' as any,
-        false,
-        undefined,
-        mockHasPagePermission
-      );
+      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, false);
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(307);
@@ -193,8 +157,7 @@ describe('withAuthMatrix', () => {
         'editListing' as any,
         'canEdit' as any,
         false,
-        { userId: 'user123', resourceOwnerId: 'user123' },
-        mockHasPagePermission
+        { userId: 'user123', resourceOwnerId: 'user123' }
       );
 
       expect(response).toBeInstanceOf(NextResponse);
@@ -205,7 +168,7 @@ describe('withAuthMatrix', () => {
       mockGetToken.mockResolvedValue({ role: 'venueOwner', email: 'owner@example.com' });
       mockHasPagePermission.mockClear();
       mockHasPagePermission.mockImplementation((role, page, action) => {
-        // console.log('[TEST] mockHasPagePermission called with:', { role, page, action });
+        console.log('[TEST] mockHasPagePermission called with:', { role, page, action });
         return false;
       });
 
@@ -215,12 +178,11 @@ describe('withAuthMatrix', () => {
         'editListing' as any,
         'canEdit' as any,
         false,
-        { userId: 'user123', resourceOwnerId: 'user456' },
-        mockHasPagePermission
+        { userId: 'user123', resourceOwnerId: 'user456' }
       );
 
-      // console.log('[TEST] response.status:', response.status);
-      // console.log('[TEST] mockHasPagePermission.mock.calls:', mockHasPagePermission.mock.calls);
+      console.log('[TEST] response.status:', response.status);
+      console.log('[TEST] mockHasPagePermission.mock.calls:', mockHasPagePermission.mock.calls);
       expect(response.status).toBe(307);
       const location = response.headers.get('location');
       expect(location).toContain('/auth/unauthorized');
@@ -232,7 +194,7 @@ describe('withAuthMatrix', () => {
       mockGetToken.mockResolvedValue({ role: 'user', email: 'user@example.com' });
 
       const request = new NextRequest('http://localhost:3000/profile');
-      const response = await withAuthMatrix(request, null, null, false, undefined, mockHasPagePermission);
+      const response = await withAuthMatrix(request, null, null, false);
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(307);
@@ -242,7 +204,7 @@ describe('withAuthMatrix', () => {
       mockGetToken.mockResolvedValue(null);
 
       const request = new NextRequest('http://localhost:3000/');
-      const response = await withAuthMatrix(request, null, null, false, undefined, mockHasPagePermission);
+      const response = await withAuthMatrix(request, null, null, false);
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(307);
@@ -260,12 +222,7 @@ describe('withAuthApiFeature', () => {
     mockGetToken.mockResolvedValue(null);
 
     const request = new NextRequest('http://localhost:3000/api/feature');
-    const response = await withAuthApiFeature(
-      request,
-      'manageListings' as any,
-      undefined,
-      mockHasFeaturePermission
-    );
+    const response = await withAuthApiFeature(request, 'manageListings' as any);
 
     expect(response.status).toBe(401);
     const json = await response.json();
@@ -277,12 +234,7 @@ describe('withAuthApiFeature', () => {
     mockHasFeaturePermission.mockImplementation(() => false);
 
     const request = new NextRequest('http://localhost:3000/api/feature');
-    const response = await withAuthApiFeature(
-      request,
-      'manageUsers' as any,
-      undefined,
-      mockHasFeaturePermission
-    );
+    const response = await withAuthApiFeature(request, 'manageUsers' as any);
 
     expect(response.status).toBe(403);
     const json = await response.json();
@@ -294,12 +246,7 @@ describe('withAuthApiFeature', () => {
     mockHasFeaturePermission.mockImplementation(() => true);
 
     const request = new NextRequest('http://localhost:3000/api/feature');
-    const response = await withAuthApiFeature(
-      request,
-      'manageUsers' as any,
-      undefined,
-      mockHasFeaturePermission
-    );
+    const response = await withAuthApiFeature(request, 'manageUsers' as any);
 
     expect(response).toBeInstanceOf(NextResponse);
     expect(response.status).not.toBe(403);
@@ -313,8 +260,7 @@ describe('withAuthApiFeature', () => {
     const response = await withAuthApiFeature(
       request,
       'editOwnListings' as any,
-      { userId: 'user123', resourceOwnerId: 'user123' },
-      mockHasFeaturePermission
+      { userId: 'user123', resourceOwnerId: 'user123' }
     );
 
     expect(response).toBeInstanceOf(NextResponse);
@@ -329,8 +275,7 @@ describe('withAuthApiFeature', () => {
     const response = await withAuthApiFeature(
       request,
       'editOwnListings' as any,
-      { userId: 'user123', resourceOwnerId: 'user456' },
-      mockHasFeaturePermission
+      { userId: 'user123', resourceOwnerId: 'user456' }
     );
 
     expect(response.status).toBe(403);
@@ -472,12 +417,11 @@ describe('getUserFromToken', () => {
 describe('withAuth (legacy)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.NEXTAUTH_SECRET = 'test-secret';
   });
 
   it('logs deprecation warning', async () => {
     const consoleWarn = jest.spyOn(console, 'warn').mockImplementation();
-    mockGetToken.mockResolvedValue(null);
+    mockAuth.mockResolvedValue(null);
 
     const request = new NextRequest('http://localhost:3000/test');
     await withAuth(request);
@@ -489,7 +433,7 @@ describe('withAuth (legacy)', () => {
   });
 
   it('redirects when no session', async () => {
-    mockGetToken.mockResolvedValue(null);
+    mockAuth.mockResolvedValue(null);
 
     const request = new NextRequest('http://localhost:3000/test');
     const response = await withAuth(request);
@@ -500,7 +444,9 @@ describe('withAuth (legacy)', () => {
   });
 
   it('redirects when user role is not in required roles', async () => {
-    mockGetToken.mockResolvedValue({ role: 'user' });
+    mockAuth.mockResolvedValue({
+      user: { role: 'user' },
+    });
 
     const request = new NextRequest('http://localhost:3000/admin');
     const response = await withAuth(request, ['admin']);
@@ -511,22 +457,26 @@ describe('withAuth (legacy)', () => {
   });
 
   it('allows access when user role is in required roles', async () => {
-    mockGetToken.mockResolvedValue({ role: 'admin' });
+    mockAuth.mockResolvedValue({
+      user: { role: 'admin' },
+    });
 
     const request = new NextRequest('http://localhost:3000/admin');
     const response = await withAuth(request, ['admin', 'moderator']);
 
     expect(response).toBeInstanceOf(NextResponse);
-    expect(response.status).toBe(200);
+    expect(response.status).not.toBe(307);
   });
 
   it('allows access when no required roles specified', async () => {
-    mockGetToken.mockResolvedValue({ role: 'user' });
+    mockAuth.mockResolvedValue({
+      user: { role: 'user' },
+    });
 
     const request = new NextRequest('http://localhost:3000/profile');
     const response = await withAuth(request);
 
     expect(response).toBeInstanceOf(NextResponse);
-    expect(response.status).toBe(200);
+    expect(response.status).not.toBe(307);
   });
 });

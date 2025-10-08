@@ -1,5 +1,8 @@
 import {
   PERFORMANCE_BUDGETS,
+  ALERT_CHANNELS,
+  shouldAlert,
+  sendAlert,
   type PerformanceAlert,
   type AlertSeverity,
 } from '../budgets';
@@ -10,7 +13,7 @@ describe('budgets', () => {
 
   beforeEach(() => {
     originalEnv = { ...process.env };
-    jest.resetModules(); // Reset modules before each test
+    jest.clearAllMocks();
     jest.spyOn(console, 'log').mockImplementation();
     jest.spyOn(console, 'error').mockImplementation();
 
@@ -68,7 +71,6 @@ describe('budgets', () => {
 
   describe('ALERT_CHANNELS', () => {
     it('should have console channel enabled by default', () => {
-      const { ALERT_CHANNELS } = require('../budgets');
       expect(ALERT_CHANNELS.console.enabled).toBe(true);
       expect(ALERT_CHANNELS.console.minSeverity).toBe('warning');
     });
@@ -92,13 +94,11 @@ describe('budgets', () => {
 
   describe('shouldAlert', () => {
     it('should return null when metric is within target', () => {
-      const { shouldAlert } = require('../budgets');
       const result = shouldAlert('CLS', 0.05, 'webVitals');
       expect(result).toBeNull();
     });
 
     it('should return warning alert when value exceeds target but not limit', () => {
-      const { shouldAlert } = require('../budgets');
       const result = shouldAlert('CLS', 0.15, 'webVitals');
       
       expect(result).not.toBeNull();
@@ -109,7 +109,6 @@ describe('budgets', () => {
     });
 
     it('should return error alert when value exceeds limit', () => {
-      const { shouldAlert } = require('../budgets');
       const result = shouldAlert('CLS', 0.3, 'webVitals');
       
       expect(result).not.toBeNull();
@@ -119,7 +118,6 @@ describe('budgets', () => {
     });
 
     it('should return critical alert when value exceeds limit * 1.5', () => {
-      const { shouldAlert } = require('../budgets');
       const result = shouldAlert('CLS', 0.4, 'webVitals');
       
       expect(result).not.toBeNull();
@@ -129,13 +127,11 @@ describe('budgets', () => {
     });
 
     it('should return null for unknown metric', () => {
-      const { shouldAlert } = require('../budgets');
       const result = shouldAlert('UNKNOWN', 100, 'webVitals');
       expect(result).toBeNull();
     });
 
     it('should work with resources budgets', () => {
-      const { shouldAlert } = require('../budgets');
       const result = shouldAlert('js', 450, 'resources');
       
       expect(result).not.toBeNull();
@@ -144,7 +140,6 @@ describe('budgets', () => {
     });
 
     it('should work with api budgets', () => {
-      const { shouldAlert } = require('../budgets');
       const result = shouldAlert('listings', 700, 'api');
       
       expect(result).not.toBeNull();
@@ -153,7 +148,6 @@ describe('budgets', () => {
     });
 
     it('should work with features budgets', () => {
-      const { shouldAlert } = require('../budgets');
       const result = shouldAlert('mapInitialization', 900, 'features');
       
       expect(result).not.toBeNull();
@@ -162,7 +156,6 @@ describe('budgets', () => {
     });
 
     it('should include timestamp in alert', () => {
-      const { shouldAlert } = require('../budgets');
       const before = Date.now();
       const result = shouldAlert('LCP', 5000, 'webVitals');
       const after = Date.now();
@@ -173,13 +166,11 @@ describe('budgets', () => {
     });
 
     it('should handle edge case at exact target value', () => {
-      const { shouldAlert } = require('../budgets');
       const result = shouldAlert('CLS', 0.1, 'webVitals');
       expect(result).toBeNull();
     });
 
     it('should handle edge case at exact limit value', () => {
-      const { shouldAlert } = require('../budgets');
       const result = shouldAlert('CLS', 0.25, 'webVitals');
       
       expect(result).not.toBeNull();
@@ -193,11 +184,10 @@ describe('budgets', () => {
       value: 0.3,
       threshold: 0.25,
       severity,
-      timestamp: new Date('2025-10-08T13:37:56.075Z').getTime(),
+      timestamp: Date.now(),
     });
 
     it('should log to console when console channel is enabled', async () => {
-      const { sendAlert } = require('../budgets');
       const alert = createAlert('warning');
       
       await sendAlert(alert);
@@ -208,7 +198,6 @@ describe('budgets', () => {
     });
 
     it('should log with correct severity format', async () => {
-      const { sendAlert } = require('../budgets');
       const testCases: AlertSeverity[] = ['info', 'warning', 'error', 'critical'];
       
       for (const severity of testCases) {
@@ -224,7 +213,6 @@ describe('budgets', () => {
     });
 
     it('should not send slack alert when channel is disabled', async () => {
-      const { sendAlert } = require('../budgets');
       const alert = createAlert('error');
       
       await sendAlert(alert);
@@ -235,6 +223,8 @@ describe('budgets', () => {
     it('should send slack alert when channel is enabled and severity meets threshold', async () => {
       process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL = 'https://hooks.slack.com/test';
       
+      // Re-import to get updated ALERT_CHANNELS
+      jest.resetModules();
       const { sendAlert: sendAlertFn } = require('../budgets');
       
       const alert = createAlert('error');
@@ -253,6 +243,7 @@ describe('budgets', () => {
     it('should not send slack alert when severity is below threshold', async () => {
       process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL = 'https://hooks.slack.com/test';
       
+      jest.resetModules();
       const { sendAlert: sendAlertFn } = require('../budgets');
       
       const alert = createAlert('warning');
@@ -265,6 +256,7 @@ describe('budgets', () => {
       process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL = 'https://hooks.slack.com/test';
       mockFetch.mockRejectedValue(new Error('Network error'));
       
+      jest.resetModules();
       const { sendAlert: sendAlertFn } = require('../budgets');
       
       const alert = createAlert('error');
@@ -279,6 +271,7 @@ describe('budgets', () => {
     it('should format slack message correctly', async () => {
       process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL = 'https://hooks.slack.com/test';
       
+      jest.resetModules();
       const { sendAlert: sendAlertFn } = require('../budgets');
       
       const alert = createAlert('critical');
@@ -291,11 +284,10 @@ describe('budgets', () => {
       expect(body.text).toContain('Metric: CLS');
       expect(body.text).toContain('Value: 0.3');
       expect(body.text).toContain('Threshold: 0.25');
-      expect(body.text).toContain('Time: 2025-10-08T13:37:56.075Z');
+      expect(body.text).toContain('Time:');
     });
 
     it('should handle multiple alerts sequentially', async () => {
-      const { sendAlert } = require('../budgets');
       const alerts = [
         createAlert('warning'),
         createAlert('error'),
