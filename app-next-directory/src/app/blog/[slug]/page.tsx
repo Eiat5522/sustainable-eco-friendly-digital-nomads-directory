@@ -1,5 +1,5 @@
 
-import { PortableText } from '@portabletext/react';
+import { PortableText, type PortableTextComponents } from '@portabletext/react';
 import { notFound } from 'next/navigation';
 import { getBaseUrl } from '@/lib/absolute-url';
 import { client } from '@/lib/sanity/client';
@@ -22,29 +22,64 @@ import type { PortableTextBlock } from '@portabletext/types';
 
 async function getPost(slug: string): Promise<PostResponse> {
   const url = new URL(`/api/blog/${encodeURIComponent(slug)}`, await getBaseUrl());
-  const res = await fetch(url.toString(), { next: { revalidate: 60, tags: [`post:${slug}`] } });
-  if (res.status === 404) {
-    notFound();
-  }
-  if (!res.ok) {
-    throw new Error(`Failed to fetch post: ${res.status} ${res.statusText}`);
-  }
-  const ct = res.headers.get('content-type') || '';
-  if (!ct.includes('application/json')) {
-    throw new Error(`Unexpected content-type: ${ct}`);
-  }
-  const json = await res.json();
+  const fallbackPost: PostDTO = {
+    id: 'placeholder-post',
+    title: 'Dispatch coming soon',
+    body: [
+      {
+        _key: 'fallback-0',
+        _type: 'block',
+        style: 'normal',
+        children: [
+          { _key: 'fallback-0-0', _type: 'span', text: 'Our correspondents are gathering fresh insights for this story. Please check back soon for the full report on sustainable nomad life.' },
+        ],
+        markDefs: [],
+      },
+      {
+        _key: 'fallback-1',
+        _type: 'block',
+        style: 'normal',
+        children: [
+          { _key: 'fallback-1-0', _type: 'span', text: 'In the meantime, explore other sections of The Nomad’s Chronicle for eco-minded itineraries, community spotlights, and practical tips for life on the move.' },
+        ],
+        markDefs: [],
+      },
+    ],
+    imageUrl: null,
+  };
+
+  try {
+    const res = await fetch(url.toString(), { next: { revalidate: 60, tags: [`post:${slug}`] } });
+    if (res.status === 404) {
+      notFound();
+    }
+    if (!res.ok) {
+      console.error(`Failed to fetch post: ${res.status} ${res.statusText}`);
+      return { post: fallbackPost, comments: [] };
+    }
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) {
+      console.error(`Unexpected content-type: ${ct}`);
+      return { post: fallbackPost, comments: [] };
+    }
+    const json = await res.json();
   // Prefer DTO-wrapped API shape
   if (json && typeof json === 'object' && 'success' in json) {
     const data = (json as any).data;
     const post = data?.post as PostResponse['post'] | undefined;
     if (!post?.id) {
-      notFound();
+      console.error('Blog API responded with success but missing post data');
+      return { post: fallbackPost, comments: [] };
     }
-    const comments = await client.fetch(
-      groq`*[_type == "comment" && post->slug.current == $slug && approved == true] | order(createdAt asc){ _id, content, user->{ name } }`,
-      { slug }
-    );
+    let comments: Comment[] = [];
+    try {
+      comments = await client.fetch(
+        groq`*[_type == "comment" && post->slug.current == $slug && approved == true] | order(createdAt asc){ _id, content, user->{ name } }`,
+        { slug }
+      );
+    } catch (error) {
+      console.error('Failed to fetch comments for post', slug, error);
+    }
     return { post, comments } as PostResponse;
   }
   // Fallback to legacy src API shape
@@ -66,14 +101,24 @@ async function getPost(slug: string): Promise<PostResponse> {
       : ((data as any)?.primaryImage?.asset?.url ?? null);
   const post: PostDTO = { id, title, body, imageUrl };
   if (!post.id) {
-    notFound();
+    console.error('Post payload missing id, returning fallback');
+    return { post: fallbackPost, comments: [] };
   }
-  const comments = await client.fetch(
-    groq`*[_type == "comment" && post->slug.current == $slug && approved == true]
+    let comments: Comment[] = [];
+    try {
+      comments = await client.fetch(
+        groq`*[_type == "comment" && post->slug.current == $slug && approved == true]
       | order(createdAt asc){ _id, content, user->{ name } }`,
-    { slug }
-  );
-  return { post, comments } as PostResponse;
+        { slug }
+      );
+    } catch (error) {
+      console.error('Failed to fetch comments for post', slug, error);
+    }
+    return { post, comments } as PostResponse;
+  } catch (error) {
+    console.error('Unable to load blog post', slug, error);
+    return { post: fallbackPost, comments: [] };
+  }
 }
 
  // minimal response type
@@ -91,33 +136,109 @@ export default async function BlogPostPage({ params }: Readonly<{ params: { slug
   const src = heroUrl ?? placeholderDataUri(1200, 630);
   const alt = usingPlaceholder ? '' : (post.title || '');
 
+  let isFirstParagraph = true;
+  const portableTextComponents: PortableTextComponents = {
+    block: {
+      normal: ({ children }) => {
+        const isLead = isFirstParagraph;
+        isFirstParagraph = false;
+        return (
+          <p
+            className={`mb-6 text-lg leading-relaxed text-gray-800 md:text-xl ${
+              isLead
+                ? 'first-letter:float-left first-letter:mr-3 first-letter:font-black first-letter:text-6xl first-letter:leading-[0.8] first-letter:uppercase'
+                : ''
+            }`}
+          >
+            {children}
+          </p>
+        );
+      },
+      h2: ({ children }) => (
+        <h2 className="mt-12 font-serif text-3xl font-bold uppercase tracking-[0.3em] text-gray-900">
+          {children}
+        </h2>
+      ),
+      h3: ({ children }) => (
+        <h3 className="mt-10 font-serif text-2xl font-semibold uppercase tracking-[0.28em] text-gray-900">
+          {children}
+        </h3>
+      ),
+      blockquote: ({ children }) => (
+        <blockquote className="my-8 border-l-4 border-black/70 bg-[#f8f2e4] px-6 py-4 font-serif text-lg italic text-gray-800 shadow-[6px_6px_0_rgba(0,0,0,0.08)]">
+          {children}
+        </blockquote>
+      ),
+    },
+    list: {
+      bullet: ({ children }) => (
+        <ul className="my-6 list-disc pl-8 text-lg leading-relaxed text-gray-800">{children}</ul>
+      ),
+      number: ({ children }) => (
+        <ol className="my-6 list-decimal pl-8 text-lg leading-relaxed text-gray-800">{children}</ol>
+      ),
+    },
+    marks: {
+      em: ({ children }) => <em className="italic text-gray-700">{children}</em>,
+      strong: ({ children }) => <strong className="font-semibold text-gray-900">{children}</strong>,
+      link: ({ children, value }) => (
+        <a
+          href={value?.href}
+          className="border-b border-black text-gray-900 transition hover:bg-black hover:text-[#fefcf6]"
+          target={value?.href?.startsWith('http') ? '_blank' : undefined}
+          rel={value?.href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+        >
+          {children}
+        </a>
+      ),
+    },
+  };
+
+  const dateline = new Intl.DateTimeFormat('en-US', { dateStyle: 'full' }).format(new Date());
+
   return (
     <>
       <Header />
-      <main className="container mx-auto px-4 py-8">
-        <article className="prose lg:prose-xl max-w-none">
-          <h1 className="text-5xl font-extrabold text-center mb-6 text-gray-900">{post.title}</h1>
-          <div className="relative w-full h-64 md:h-96 mb-8 border-4 border-black rounded-lg overflow-hidden">
-            <Image
-              src={src}
-              alt={alt}
-              aria-hidden={usingPlaceholder}
-              fill
-              className="object-cover"
-              sizes="100vw"
-              placeholder={usingPlaceholder ? 'empty' : 'blur'}
-              blurDataURL={usingPlaceholder ? undefined : placeholderDataUri(1200, 630)}
-              priority={!usingPlaceholder}
-            />
-          </div>
-          <div className="bg-white border-4 border-black rounded-lg shadow-lg p-8">
-            <PortableText value={post.body} />
-          </div>
-        </article>
-        <div className="mt-16">
-          <h2 className="text-4xl font-bold mb-8 text-gray-800">Comments</h2>
-          <CommentList comments={comments} />
-          <CommentForm postId={post.id} />
+      <main className="bg-[#f8f2e4] text-gray-900">
+        <div className="mx-auto max-w-4xl px-4 py-12">
+          <article className="border border-black bg-[#fefcf6] shadow-[14px_14px_0_rgba(0,0,0,0.06)]">
+            <header className="border-b border-black px-6 py-10 text-center">
+              <p className="text-xs uppercase tracking-[0.35em] text-gray-600">{dateline}</p>
+              <h1 className="mt-4 font-serif text-4xl font-black uppercase leading-tight md:text-5xl">{post.title}</h1>
+            </header>
+            <div className="border-b border-black bg-[#f9f5ea] px-6 py-6">
+              <div className="relative mx-auto aspect-[3/2] w-full max-w-3xl border border-black/80 bg-[#fefaf0] shadow-[8px_8px_0_rgba(0,0,0,0.08)]">
+                <Image
+                  src={src}
+                  alt={alt}
+                  aria-hidden={usingPlaceholder}
+                  fill
+                  className="object-cover grayscale-[20%]"
+                  sizes="(min-width: 1024px) 70vw, 100vw"
+                  placeholder={usingPlaceholder ? 'empty' : 'blur'}
+                  blurDataURL={usingPlaceholder ? undefined : placeholderDataUri(1200, 630)}
+                  priority={!usingPlaceholder}
+                />
+              </div>
+            </div>
+            <div className="px-6 py-10 font-serif">
+              <PortableText value={post.body} components={portableTextComponents} />
+              <div className="mt-12 border-t border-black/60 pt-6 text-xs uppercase tracking-[0.35em] text-gray-500">
+                Filed under The Nomad's Chronicle
+              </div>
+            </div>
+          </article>
+
+          <section className="mt-12 border border-black bg-[#fffdf7] px-6 py-10 shadow-[10px_10px_0_rgba(0,0,0,0.05)]">
+            <h2 className="font-serif text-2xl font-semibold uppercase tracking-[0.35em] text-gray-900">Letters to the Editor</h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Share your reflections on this story. Thoughtful discourse keeps our global community thriving.
+            </p>
+            <div className="mt-8 space-y-10">
+              <CommentList comments={comments} />
+              <CommentForm postId={post.id} />
+            </div>
+          </section>
         </div>
       </main>
       <Footer />
