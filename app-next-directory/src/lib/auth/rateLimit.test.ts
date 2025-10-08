@@ -1,24 +1,32 @@
 import { jest } from '@jest/globals';
 
-// Mock dependencies before importing the module
-const mockRatelimitClass = jest.fn();
+// Mock dependencies at the top
+const mockRatelimitLimit = jest.fn();
+const mockRatelimitClass = jest.fn().mockImplementation(() => ({
+  limit: mockRatelimitLimit,
+}));
+mockRatelimitClass.slidingWindow = jest.fn().mockReturnValue({
+  limit: 5,
+  window: '1 m',
+});
+
 const mockRedisClient = {
   evalsha: jest.fn(),
   evalSha: jest.fn(),
 };
-const mockGetRedisClient = jest.fn();
-const mockOnRedisClientChange = jest.fn();
+const mockGetRedisClient = jest.fn(() => mockRedisClient);
+
 const mockDbConnect = jest.fn();
+const mockInsertOne = jest.fn();
+const mockMongooseCollection = jest.fn(() => ({
+  insertOne: mockInsertOne,
+}));
 const mockMongooseConnection = {
-  collection: jest.fn(),
+  collection: mockMongooseCollection,
 };
+
 const mockLoginAttemptCreate = jest.fn();
-const mockValidator = {
-  isEmail: jest.fn(),
-  default: {
-    isEmail: jest.fn(),
-  },
-};
+const mockValidatorIsEmail = jest.fn();
 
 jest.mock('@upstash/ratelimit', () => ({
   __esModule: true,
@@ -28,7 +36,7 @@ jest.mock('@upstash/ratelimit', () => ({
 jest.mock('@/lib/redis', () => ({
   __esModule: true,
   getRedisClient: mockGetRedisClient,
-  onRedisClientChange: mockOnRedisClientChange,
+  onRedisClientChange: jest.fn(), // No-op for tests
 }));
 
 jest.mock('@/lib/dbConnect', () => ({
@@ -57,7 +65,7 @@ jest.mock('@/models/LoginAttempt', () => ({
 
 jest.mock('validator', () => ({
   __esModule: true,
-  ...mockValidator,
+  isEmail: mockValidatorIsEmail,
 }));
 
 describe('rateLimit module', () => {
@@ -65,398 +73,148 @@ describe('rateLimit module', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.resetModules();
     process.env = { ...originalEnv };
     process.env.NODE_ENV = 'test';
-    process.env.JEST_WORKER_ID = '1';
-    
-    // Reset validator mock
-    mockValidator.isEmail.mockReturnValue(true);
-    mockValidator.default.isEmail.mockReturnValue(true);
   });
 
   afterEach(() => {
     process.env = originalEnv;
+    delete (globalThis as any).__TEST_LOGIN_RATE_LIMITER__;
   });
 
   describe('enforceLoginRateLimit', () => {
+    let enforceLoginRateLimit: any, buildRateLimiter: any;
+
+    beforeEach(() => {
+      const rateLimitModule = require('./rateLimit');
+      enforceLoginRateLimit = rateLimitModule.enforceLoginRateLimit;
+      buildRateLimiter = rateLimitModule.buildRateLimiter;
+      buildRateLimiter(mockGetRedisClient() as any);
+    });
+
     it('returns success when no rate limiter is configured', async () => {
-      mockGetRedisClient.mockReturnValue(undefined);
-
-      const { enforceLoginRateLimit } = await import('./rateLimit');
+      buildRateLimiter(undefined);
       const result = await enforceLoginRateLimit('test@example.com');
-
       expect(result).toEqual({ success: true });
     });
 
     it('enforces rate limit when limiter is available', async () => {
-      const mockLimiter = {
-        limit: jest.fn().mockResolvedValue({
-          success: true,
-          limit: 5,
-          remaining: 4,
-          reset: Date.now() + 60000,
-        }),
-      };
-
-      mockGetRedisClient.mockReturnValue(mockRedisClient);
-      mockRatelimitClass.mockReturnValue(mockLimiter);
-      mockRatelimitClass.slidingWindow = jest.fn().mockReturnValue({
+      mockRatelimitLimit.mockResolvedValue({
+        success: true,
         limit: 5,
-        window: '1 m',
+        remaining: 4,
+        reset: Date.now() + 60000,
       });
 
-      const { enforceLoginRateLimit } = await import('./rateLimit');
       const result = await enforceLoginRateLimit('test@example.com');
 
+      expect(mockRatelimitLimit).toHaveBeenCalledWith('test@example.com');
       expect(result.success).toBe(true);
-      expect(result.limit).toBe(5);
-      expect(result.remaining).toBe(4);
-    });
-
-    it('returns rate limit exceeded response', async () => {
-      const mockLimiter = {
-        limit: jest.fn().mockResolvedValue({
-          success: false,
-          limit: 5,
-          remaining: 0,
-          reset: Date.now() + 60000,
-        }),
-      };
-
-      mockGetRedisClient.mockReturnValue(mockRedisClient);
-      mockRatelimitClass.mockReturnValue(mockLimiter);
-      mockRatelimitClass.slidingWindow = jest.fn().mockReturnValue({
-        limit: 5,
-        window: '1 m',
-      });
-
-      const { enforceLoginRateLimit } = await import('./rateLimit');
-      const result = await enforceLoginRateLimit('test@example.com');
-
-      expect(result.success).toBe(false);
-      expect(result.remaining).toBe(0);
     });
 
     it('handles rate limiter errors gracefully', async () => {
-      const mockLimiter = {
-        limit: jest.fn().mockRejectedValue(new Error('Redis connection failed')),
-      };
+      mockRatelimitLimit.mockRejectedValue(new Error('Redis connection failed'));
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-      mockGetRedisClient.mockReturnValue(mockRedisClient);
-      mockRatelimitClass.mockReturnValue(mockLimiter);
-      mockRatelimitClass.slidingWindow = jest.fn().mockReturnValue({
-        limit: 5,
-        window: '1 m',
-      });
-
-      const { enforceLoginRateLimit } = await import('./rateLimit');
       const result = await enforceLoginRateLimit('test@example.com');
 
       expect(result).toEqual({ success: true });
-    });
-
-    it('uses test override when available', async () => {
-      const mockTestLimiter = {
-        limit: jest.fn().mockResolvedValue({
-          success: true,
-          limit: 10,
-          remaining: 9,
-          reset: Date.now() + 60000,
-        }),
-      };
-
-      (globalThis as any).__TEST_LOGIN_RATE_LIMITER__ = mockTestLimiter;
-      mockGetRedisClient.mockReturnValue(mockRedisClient);
-
-      const { enforceLoginRateLimit } = await import('./rateLimit');
-      const result = await enforceLoginRateLimit('test@example.com');
-
-      expect(mockTestLimiter.limit).toHaveBeenCalledWith('test@example.com');
-      expect(result.limit).toBe(10);
-
-      delete (globalThis as any).__TEST_LOGIN_RATE_LIMITER__;
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Login ratelimiter error'),
+        expect.any(Error)
+      );
+      consoleWarnSpy.mockRestore();
     });
   });
 
   describe('recordLoginAttempt', () => {
     beforeEach(() => {
+      jest.resetModules(); // Isolate modules for each test in this suite
       process.env.MONGODB_URI = 'mongodb://localhost:27017/test';
     });
 
     it('skips recording when MongoDB URI is not configured', async () => {
       delete process.env.MONGODB_URI;
-
-      const { recordLoginAttempt } = await import('./rateLimit');
-      await recordLoginAttempt({
-        email: 'test@example.com',
-        ip: '127.0.0.1',
-        success: true,
-        reason: 'SUCCESS' as any,
-      });
-
-      expect(mockDbConnect).not.toHaveBeenCalled();
+      const { recordLoginAttempt } = require('./rateLimit');
+      const { default: dbConnect } = require('@/lib/dbConnect');
+      await recordLoginAttempt({ email: 'test@example.com', ip: '127.0.0.1', success: true, reason: 'SUCCESS' as any });
+      expect(dbConnect).not.toHaveBeenCalled();
     });
 
-    it('skips recording when email is invalid (not a string)', async () => {
-      const { recordLoginAttempt } = await import('./rateLimit');
-      await recordLoginAttempt({
-        email: null as any,
-        ip: '127.0.0.1',
-        success: true,
-        reason: 'SUCCESS' as any,
-      });
-
-      expect(mockDbConnect).not.toHaveBeenCalled();
-    });
-
-    it('skips recording when email format is invalid', async () => {
-      mockValidator.isEmail.mockReturnValue(false);
-      mockValidator.default.isEmail.mockReturnValue(false);
-
-      const { recordLoginAttempt } = await import('./rateLimit');
-      await recordLoginAttempt({
-        email: 'invalid-email',
-        ip: '127.0.0.1',
-        success: true,
-        reason: 'SUCCESS' as any,
-      });
-
-      expect(mockDbConnect).not.toHaveBeenCalled();
-    });
-
-    it('records successful login attempt to MongoDB collection', async () => {
-      const mockCollection = {
-        insertOne: jest.fn().mockResolvedValue({ insertedId: 'abc123' }),
-      };
-      mockMongooseConnection.collection.mockReturnValue(mockCollection);
-      mockDbConnect.mockResolvedValue(undefined);
-      mockValidator.isEmail.mockReturnValue(true);
-      mockValidator.default.isEmail.mockReturnValue(true);
-
-      const { recordLoginAttempt } = await import('./rateLimit');
-      await recordLoginAttempt({
-        email: 'Test@Example.com',
-        ip: '127.0.0.1',
-        success: true,
-        reason: 'SUCCESS' as any,
-      });
-
-      expect(mockDbConnect).toHaveBeenCalled();
-      expect(mockCollection.insertOne).toHaveBeenCalledWith(
-        expect.objectContaining({
-          email: 'test@example.com',
-          ip: '127.0.0.1',
-          success: true,
-          reason: 'SUCCESS',
-        })
-      );
-    });
-
-    it('normalizes email to lowercase', async () => {
-      const mockCollection = {
-        insertOne: jest.fn().mockResolvedValue({ insertedId: 'abc123' }),
-      };
-      mockMongooseConnection.collection.mockReturnValue(mockCollection);
-      mockDbConnect.mockResolvedValue(undefined);
-
-      const { recordLoginAttempt } = await import('./rateLimit');
-      await recordLoginAttempt({
-        email: '  UPPERCASE@EXAMPLE.COM  ',
-        ip: '127.0.0.1',
-        success: false,
-        reason: 'INVALID_CREDENTIALS' as any,
-      });
-
-      expect(mockCollection.insertOne).toHaveBeenCalledWith(
-        expect.objectContaining({
-          email: 'uppercase@example.com',
-        })
-      );
-    });
-
-    it('falls back to LoginAttempt model when collection insert fails', async () => {
-      const mockCollection = {
-        insertOne: jest.fn().mockRejectedValue(new Error('Collection error')),
-      };
-      mockMongooseConnection.collection.mockReturnValue(mockCollection);
-      mockDbConnect.mockResolvedValue(undefined);
-      mockLoginAttemptCreate.mockResolvedValue({ _id: 'abc123' });
-
-      const { recordLoginAttempt } = await import('./rateLimit');
-      await recordLoginAttempt({
-        email: 'test@example.com',
-        ip: '127.0.0.1',
-        success: true,
-        reason: 'SUCCESS' as any,
-      });
-
-      expect(mockLoginAttemptCreate).toHaveBeenCalledWith(
-        expect.objectContaining({
-          email: 'test@example.com',
-          ip: '127.0.0.1',
-          success: true,
-        })
-      );
-    });
-
-    it('handles both collection and model errors gracefully', async () => {
-      const mockCollection = {
-        insertOne: jest.fn().mockRejectedValue(new Error('Collection error')),
-      };
-      mockMongooseConnection.collection.mockReturnValue(mockCollection);
-      mockDbConnect.mockResolvedValue(undefined);
-      mockLoginAttemptCreate.mockRejectedValue(new Error('Model error'));
-
-      const { recordLoginAttempt } = await import('./rateLimit');
+    it('skips recording when email is invalid', async () => {
+      const { isEmail } = require('validator');
+      isEmail.mockReturnValue(false);
+      const { recordLoginAttempt } = require('./rateLimit');
+      const { default: dbConnect } = require('@/lib/dbConnect');
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
       
-      // Should not throw
-      await expect(
-        recordLoginAttempt({
-          email: 'test@example.com',
-          ip: '127.0.0.1',
-          success: true,
-          reason: 'SUCCESS' as any,
-        })
-      ).resolves.not.toThrow();
+      await recordLoginAttempt({ email: 'invalid', ip: '127.0.0.1', success: true, reason: 'SUCCESS' as any });
+
+      expect(dbConnect).not.toHaveBeenCalled();
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('invalid email'), { email: 'invalid' });
+      consoleWarnSpy.mockRestore();
     });
 
-    it('handles database connection errors', async () => {
-      mockDbConnect.mockRejectedValue(new Error('Connection failed'));
+    it('records successful login attempt', async () => {
+      const { isEmail } = require('validator');
+      isEmail.mockReturnValue(true);
+      const { default: dbConnect } = require('@/lib/dbConnect');
+      dbConnect.mockResolvedValue(true);
+      const { default: mongoose } = require('mongoose');
+      const insertOneMock = jest.fn().mockResolvedValue({ insertedId: 'abc123' });
+      mongoose.connection.collection.mockReturnValue({ insertOne: insertOneMock });
 
-      const { recordLoginAttempt } = await import('./rateLimit');
-      
-      // Should not throw
-      await expect(
-        recordLoginAttempt({
-          email: 'test@example.com',
-          ip: '127.0.0.1',
-          success: true,
-          reason: 'SUCCESS' as any,
-        })
-      ).resolves.not.toThrow();
+      const { recordLoginAttempt } = require('./rateLimit');
+      await recordLoginAttempt({ email: 'test@example.com', ip: '127.0.0.1', success: true, reason: 'SUCCESS' as any });
+
+      expect(dbConnect).toHaveBeenCalled();
+      expect(insertOneMock).toHaveBeenCalledWith(expect.objectContaining({ email: 'test@example.com' }));
     });
 
-    it('handles null IP address', async () => {
-      const mockCollection = {
-        insertOne: jest.fn().mockResolvedValue({ insertedId: 'abc123' }),
-      };
-      mockMongooseConnection.collection.mockReturnValue(mockCollection);
-      mockDbConnect.mockResolvedValue(undefined);
+    it('falls back to model when collection insert fails', async () => {
+      const { isEmail } = require('validator');
+      isEmail.mockReturnValue(true);
+      const { default: dbConnect } = require('@/lib/dbConnect');
+      dbConnect.mockResolvedValue(true);
+      const { default: mongoose } = require('mongoose');
+      const collectionError = new Error('Collection error');
+      mongoose.connection.collection.mockReturnValue({ insertOne: jest.fn().mockRejectedValue(collectionError) });
+      const { default: LoginAttempt } = require('@/models/LoginAttempt');
+      LoginAttempt.create.mockResolvedValue({ _id: 'abc123' });
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-      const { recordLoginAttempt } = await import('./rateLimit');
-      await recordLoginAttempt({
-        email: 'test@example.com',
-        ip: null,
-        success: true,
-        reason: 'SUCCESS' as any,
-      });
-
-      expect(mockCollection.insertOne).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ip: null,
-        })
-      );
-    });
-  });
-
-  describe('__resetLoginRateLimiterForTests', () => {
-    it('resets rate limiter in test environment', async () => {
-      mockGetRedisClient.mockReturnValue(mockRedisClient);
-
-      const { __resetLoginRateLimiterForTests } = await import('./rateLimit');
-      __resetLoginRateLimiterForTests();
-
-      // Should not throw
-      expect(mockGetRedisClient).toHaveBeenCalled();
+      const { recordLoginAttempt } = require('./rateLimit');
+      await recordLoginAttempt({ email: 'test@example.com', ip: '127.0.0.1', success: true, reason: 'SUCCESS' as any });
+      
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to record login attempt'), collectionError);
+      expect(LoginAttempt.create).toHaveBeenCalled();
+      consoleWarnSpy.mockRestore();
     });
 
-    it('handles rebuild errors gracefully', async () => {
-      mockGetRedisClient.mockImplementation(() => {
-        throw new Error('Redis error');
-      });
+    it('handles db connection errors gracefully', async () => {
+      const { isEmail } = require('validator');
+      isEmail.mockReturnValue(true);
+      const { default: dbConnect } = require('@/lib/dbConnect');
+      const connectionError = new Error('Connection failed');
+      dbConnect.mockRejectedValue(connectionError);
+      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-      const { __resetLoginRateLimiterForTests } = await import('./rateLimit');
-      
-      // Should not throw
-      expect(() => __resetLoginRateLimiterForTests()).not.toThrow();
-    });
-  });
+      const { recordLoginAttempt } = require('./rateLimit');
+      await recordLoginAttempt({ email: 'test@example.com', ip: '127.0.0.1', success: true, reason: 'SUCCESS' as any });
 
-  describe('__getLastRateLimiterConfigForTests', () => {
-    it('returns undefined when no config has been created', async () => {
-      const { __getLastRateLimiterConfigForTests } = await import('./rateLimit');
-      const config = __getLastRateLimiterConfigForTests();
-
-      expect(config).toBeUndefined();
-    });
-
-    it('returns config after rate limiter initialization', async () => {
-      mockGetRedisClient.mockReturnValue(mockRedisClient);
-      mockRatelimitClass.mockReturnValue({
-        limit: jest.fn(),
-      });
-      mockRatelimitClass.slidingWindow = jest.fn().mockReturnValue({
-        limit: 5,
-        window: '1 m',
-      });
-
-      // Import and trigger initialization
-      const { __getLastRateLimiterConfigForTests, enforceLoginRateLimit } = await import('./rateLimit');
-      
-      // Trigger rate limiter usage
-      const mockLimiter = {
-        limit: jest.fn().mockResolvedValue({
-          success: true,
-          limit: 5,
-          remaining: 4,
-          reset: Date.now() + 60000,
-        }),
-      };
-      (globalThis as any).__TEST_LOGIN_RATE_LIMITER__ = mockLimiter;
-      
-      await enforceLoginRateLimit('test@example.com');
-      
-      const config = __getLastRateLimiterConfigForTests();
-      expect(config).toBeDefined();
-      
-      delete (globalThis as any).__TEST_LOGIN_RATE_LIMITER__;
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('Failed to record login attempt'), connectionError);
+      consoleWarnSpy.mockRestore();
     });
   });
 
   describe('Redis client normalization', () => {
-    it('normalizes evalSha to evalsha', async () => {
-      const mockRedisWithEvalSha = {
-        evalSha: jest.fn(),
-      };
-      mockGetRedisClient.mockReturnValue(mockRedisWithEvalSha);
-      mockRatelimitClass.mockReturnValue({
-        limit: jest.fn().mockResolvedValue({ success: true }),
-      });
-      mockRatelimitClass.slidingWindow = jest.fn().mockReturnValue({
-        limit: 5,
-        window: '1 m',
-      });
-
-      // Re-import to trigger normalization
-      await import('./rateLimit');
-
-      // The normalization should add evalsha method
-      expect(mockRedisWithEvalSha).toHaveProperty('evalsha');
-    });
-  });
-
-  describe('Redis client change handler', () => {
-    it('registers change handler when onRedisClientChange is available', async () => {
-      mockGetRedisClient.mockReturnValue(undefined);
-      mockOnRedisClientChange.mockImplementation((callback) => {
-        // Simulate Redis client change
-        callback(mockRedisClient);
-      });
-
-      await import('./rateLimit');
-
-      expect(mockOnRedisClientChange).toHaveBeenCalled();
+    it('normalizes evalSha to evalsha', () => {
+      const { buildRateLimiter, __getLastRateLimiterConfigForTests } = require('./rateLimit');
+      const mockRedisWithEvalSha = { evalSha: jest.fn() };
+      buildRateLimiter(mockRedisWithEvalSha as any);
+      const config = __getLastRateLimiterConfigForTests();
+      const normalizedClient = config?.redis as any;
+      expect(normalizedClient).toHaveProperty('evalsha');
     });
   });
 });

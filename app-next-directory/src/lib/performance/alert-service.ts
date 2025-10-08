@@ -16,5 +16,6 @@ export async function processMetricForAlert(
     }
   } catch (error) {
     console.error('Error processing metric for alert:', error);
+    throw error;
   }
 }
