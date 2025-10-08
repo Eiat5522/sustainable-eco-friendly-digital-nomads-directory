@@ -1,13 +1,11 @@
 const actual = jest.requireActual('../auth');
 
-const mockHasPagePermission = jest.fn(actual.hasPagePermission);
-const mockHasFeaturePermission = jest.fn(actual.hasFeaturePermission);
+const mockHasPagePermission = jest.fn(() => true);
+const mockHasFeaturePermission = jest.fn(() => true);
 
 module.exports = {
   __esModule: true,
   ...actual,
   hasPagePermission: mockHasPagePermission,
   hasFeaturePermission: mockHasFeaturePermission,
-  mockHasPagePermission,
-  mockHasFeaturePermission,
 };
