@@ -1,6 +1,7 @@
 // PATCH: Align GROQ query and DTO mapping with appView.ts
 import { client } from '@/lib/sanity/client';
 import type { SanityImage } from '@/types/appView';
+import { redis } from '@/lib/redis';
 interface FeaturedListing {
   _id: string;
   name: string;
@@ -57,7 +58,20 @@ export async function GET() {
     return ApiResponseHandler.error('Server configuration error: Sanity credentials missing.', 500);
   }
   
+  const cacheKey = 'featured-listings';
+
   try {
+    if (redis) {
+      const cachedListings = await redis.get(cacheKey);
+      if (cachedListings) {
+        console.log('[DEBUG] Featured Listings API: Cache hit');
+        const endTime = performance.now();
+        console.log('[DEBUG] Featured Listings API: Total request time', (endTime - startTime).toFixed(2), 'ms');
+        return ApiResponseHandler.success({ listings: JSON.parse(cachedListings) });
+      }
+    }
+
+    console.log('[DEBUG] Featured Listings API: Cache miss, executing GROQ query');
     // Corrected GROQ query to match your schema and DTO
     const FEATURED_LISTINGS_QUERY = groq`*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {
       _id,
@@ -128,7 +142,6 @@ export async function GET() {
         openingHours[] { day, opens, closes }
       }
     }`;
-    console.log('[DEBUG] Featured Listings API: Executing GROQ query');
     const queryStartTime = performance.now();
     
     const listings = await client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY);
@@ -159,6 +172,11 @@ export async function GET() {
         featured: true,
       };
     });
+
+    if (redis) {
+      await redis.set(cacheKey, JSON.stringify(dtoListings), 'EX', 3600); // Cache for 1 hour
+      console.log('[DEBUG] Featured Listings API: Stored in cache');
+    }
 
     const endTime = performance.now();
     console.log('[DEBUG] Featured Listings API: Total request time', (endTime - startTime).toFixed(2), 'ms');

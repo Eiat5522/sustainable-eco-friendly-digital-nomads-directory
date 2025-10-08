@@ -1,6 +1,7 @@
 import { client as sanityClient } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { transformToBlogSummaryDTO } from '@/lib/dto-transformer';
+import { redis } from '@/lib/redis';
 import { groq } from 'next-sanity';
 import type { QueryParams } from '@sanity/client';
 import { NextRequest } from 'next/server';
@@ -52,6 +53,15 @@ export async function GET(request: NextRequest) {
     const rawSearch = searchParams.get('search');
     const tag = rawTag?.trim() ? rawTag.trim() : null;
     const search = rawSearch?.trim() ? rawSearch.trim() : null;
+
+    const cacheKey = `blog:page=${page}:limit=${limit}:tag=${tag || ''}:search=${search || ''}`;
+
+    if (redis) {
+      const cachedData = await redis.get(cacheKey);
+      if (cachedData) {
+        return ApiResponseHandler.success(JSON.parse(cachedData));
+      }
+    }
 
     let finalQuery = postsQuery;
     let finalCountQuery = countQuery;
@@ -107,7 +117,7 @@ export async function GET(request: NextRequest) {
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
 
-    return ApiResponseHandler.success({
+    const responseData = {
       posts,
       pagination: {
         page,
@@ -123,7 +133,13 @@ export async function GET(request: NextRequest) {
         tag: tag ?? null,
         search: search ?? null,
       },
-    });
+    };
+
+    if (redis) {
+      await redis.set(cacheKey, JSON.stringify(responseData), 'EX', 3600); // Cache for 1 hour
+    }
+
+    return ApiResponseHandler.success(responseData);
   } catch (error) {
     console.error('Error fetching blog posts:', error);
 

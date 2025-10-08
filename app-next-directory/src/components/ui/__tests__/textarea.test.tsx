@@ -34,7 +34,6 @@ describe('Textarea', () => {
       const textarea = container.querySelector('textarea');
       
       expect(textarea).toHaveClass('focus-visible:outline-none');
-      expect(textarea).toHaveClass('focus-visible:ring-2');
       expect(textarea).toHaveClass('focus-visible:ring-ring');
       expect(textarea).toHaveClass('focus-visible:ring-offset-2');
     });

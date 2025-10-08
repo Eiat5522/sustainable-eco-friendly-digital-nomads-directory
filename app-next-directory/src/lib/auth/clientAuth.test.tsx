@@ -2,6 +2,7 @@
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { SessionProvider } from 'next-auth/react';
 
 // No extend-expect import needed; either rely on jest.setup.ts importing '@testing-library/jest-dom'
 // or keep the triple-slash reference above with this per-file import if you prefer:
@@ -28,6 +29,7 @@ beforeAll(async () => {
     useSession: mockUseSession,
     signIn: mockSignIn,
     signOut: mockSignOut,
+    SessionProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   }));
 
   // Export permission helpers as predictable functions (or jest.fn references).
@@ -114,9 +116,16 @@ describe('AuthProvider', () => {
     };
 
     render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>
+      <SessionProvider session={null}>
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>
+      </SessionProvider>
+      <SessionProvider session={{ user: { role: 'user' } } as any}>
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>
+      </SessionProvider>
     );
 
     expect(screen.getByText('not authenticated')).toBeInTheDocument();

@@ -1,6 +1,4 @@
 import { client } from './client';
-import { cacheService } from '../redis/cache';
-import { config } from '../config';
 
 async function getListingBySlug(slug: string, preview = false) {
   const sanityClient = client;
@@ -101,16 +99,8 @@ async function getLatestBlogPosts(limit = 3, preview = false) {
 }
 
 async function getFeaturedListings(limit = 10, preview = false) {
-  const cacheKey = `featured-listings:${limit}`;
-
-  if (!preview) {
-    const cachedData = await cacheService.get<any[]>(cacheKey);
-    if (cachedData) {
-      return cachedData;
-    }
-  }
-
   const sanityClient = client;
+
   const query = `*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...$limit] {
     _id,
     name,
@@ -132,13 +122,7 @@ async function getFeaturedListings(limit = 10, preview = false) {
     priceRange
   }`;
 
-  const freshData = await sanityClient.fetch(query, { limit });
-
-  if (!preview) {
-    await cacheService.set(cacheKey, freshData, config.redis.featuredListingsTTL);
-  }
-
-  return freshData;
+  return await sanityClient.fetch(query, { limit });
 }
 
 // Export all functions

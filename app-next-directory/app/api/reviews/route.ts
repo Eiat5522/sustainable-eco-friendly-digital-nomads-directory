@@ -1,5 +1,6 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
+import { redis } from '@/lib/redis';
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import { ensureSanityUser } from '@/lib/sanity/user';
@@ -25,7 +26,7 @@ type RouteContext = {
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { searchParams } = new URL(request.url);
-  const listingSlug = searchParams.get('listing');
+    const listingSlug = searchParams.get('listing');
     const page = Math.max(1, Number.parseInt(searchParams.get('page') || '1') || 1);
     const limit = Math.min(50, Math.max(1, Number.parseInt(searchParams.get('limit') || '10') || 10));
     const sortBy = searchParams.get('sortBy') || 'createdAt';
@@ -33,12 +34,20 @@ export async function GET(request: NextRequest, context: RouteContext) {
     const verified = searchParams.get('verified') === 'true';
     const userId = searchParams.get('userId'); // New: Optional userId parameter
 
+    const cacheKey = `reviews:listing=${listingSlug}:page=${page}:limit=${limit}:sortBy=${sortBy}:rating=${filterRating}:verified=${verified}:userId=${userId}`;
+    if (redis) {
+      const cachedReviews = await redis.get(cacheKey);
+      if (cachedReviews) {
+        return ApiResponseHandler.success(JSON.parse(cachedReviews));
+      }
+    }
+
     const reviews: Collection<ReviewDoc> =
       context.collection ?? ((await getCollection('reviews')) as Collection<ReviewDoc>);
 
     // Build filter
     const filter: Record<string, unknown> = {};
-  if (listingSlug) filter.listingSlug = listingSlug; // Filter by slug in DB
+    if (listingSlug) filter.listingSlug = listingSlug; // Filter by slug in DB
     if (filterRating) filter.rating = Number.parseInt(filterRating);
     if (verified) filter.verified = true;
 
@@ -73,7 +82,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       reviews.countDocuments(filter)
     ]);
 
-    const response = {
+    const responseData = {
       reviews: (results as ReviewDoc[]).map((review) => ({
         ...review,
         reviewerEmail: undefined,
@@ -90,7 +99,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
       }
     };
 
-    return ApiResponseHandler.success(response);
+    if (redis) {
+      await redis.set(cacheKey, JSON.stringify(responseData), 'EX', 3600); // Cache for 1 hour
+    }
+
+    return ApiResponseHandler.success(responseData);
   } catch (error) {
     console.error('Error fetching reviews:', error);
     return ApiResponseHandler.error('Failed to fetch reviews', 500);
@@ -203,6 +216,22 @@ export async function POST(request: NextRequest) {
 
     const listingSlug = (listingDoc as { slug?: { current?: string } } | null | undefined)?.slug?.current;
     if (listingSlug) {
+      if (redis) {
+        const stream = redis.scanStream({
+          match: `reviews:listing=${listingSlug}:*`,
+          count: 100,
+        });
+        stream.on('data', (keys) => {
+          if (keys.length) {
+            const pipeline = redis.pipeline();
+            keys.forEach((key) => {
+              pipeline.del(key);
+            });
+            pipeline.exec();
+          }
+        });
+      }
+
       try {
         revalidateTag(`listing:${listingSlug}`);
       } catch {

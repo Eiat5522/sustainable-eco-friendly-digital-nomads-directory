@@ -1,7 +1,5 @@
 import { SearchFilters, SortOption } from '@/types/search';
 import { client } from './sanity/client';
-import { cacheService } from './redis/cache';
-import { config } from './config';
 
 interface SearchResults {
   results: any[];
@@ -24,15 +22,6 @@ export async function searchListings(
   sort?: SortOption,
   preview = false
 ): Promise<SearchResults> {
-  const cacheKey = `search-listings:${JSON.stringify({ query, filters, page, limit, sort })}`;
-
-  if (!preview) {
-    const cachedData = await cacheService.get<SearchResults>(cacheKey);
-    if (cachedData) {
-      return cachedData;
-    }
-  }
-
   const sanityClient = client;
   const start = (page - 1) * limit;
 
@@ -142,7 +131,7 @@ export async function searchListings(
   const countQuery = groqQuery.replace(/\{[^}]*\} \[\d+\.\.\.\d+\]$/, '').replace('*[', 'count(*[');
   const total = await sanityClient.fetch(countQuery, params);
 
-  const freshData = {
+  return {
     results,
     pagination: {
       total,
@@ -151,12 +140,6 @@ export async function searchListings(
       hasMore: start + limit < total
     }
   };
-
-  if (!preview) {
-    await cacheService.set(cacheKey, freshData, config.redis.searchTTL);
-  }
-
-  return freshData;
 }
 
 /**

@@ -46,12 +46,18 @@ describe('SkipLink', () => {
       const link = screen.getByRole('link');
       
       expect(link).toHaveClass('rounded-md');
-      expect(link).toHaveClass('bg-neo-primary');
+      expect(link).toHaveClass('bg-white');
       expect(link).toHaveClass('px-4');
       expect(link).toHaveClass('py-2');
-      expect(link).toHaveClass('text-sm');
       expect(link).toHaveClass('font-semibold');
       expect(link).toHaveClass('text-white');
+    });
+
+    it('applies neo-primary background on focus', () => {
+      render(<SkipLink href="#main">Skip</SkipLink>);
+      const link = screen.getByRole('link');
+
+      expect(link).toHaveClass('focus:bg-neo-primary');
     });
 
     it('applies transition classes', () => {

@@ -430,19 +430,24 @@ describe('rateLimit module', () => {
         evalSha: jest.fn(),
       };
       mockGetRedisClient.mockReturnValue(mockRedisWithEvalSha);
-      mockRatelimitClass.mockReturnValue({
+      const mockLimiter = {
         limit: jest.fn().mockResolvedValue({ success: true }),
-      });
+      };
+      mockRatelimitClass.mockReturnValue(mockLimiter);
       mockRatelimitClass.slidingWindow = jest.fn().mockReturnValue({
         limit: 5,
         window: '1 m',
       });
 
-      // Re-import to trigger normalization
-      await import('./rateLimit');
+      // Re-import to trigger rate limiter initialization
+      const { enforceLoginRateLimit } = await import('./rateLimit');
+      await enforceLoginRateLimit('test@example.com');
 
-      // The normalization should add evalsha method
-      expect(mockRedisWithEvalSha).toHaveProperty('evalsha');
+      // The constructor for Ratelimit should be called with a normalized redis client
+      expect(mockRatelimitClass).toHaveBeenCalled();
+      const constructorOptions = mockRatelimitClass.mock.calls[0][0];
+      expect(constructorOptions.redis).toHaveProperty('evalsha');
+      expect(typeof constructorOptions.redis.evalsha).toBe('function');
     });
   });
 
