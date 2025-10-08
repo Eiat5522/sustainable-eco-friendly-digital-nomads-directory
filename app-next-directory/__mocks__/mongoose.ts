@@ -48,7 +48,7 @@ class SchemaMock {
           path: key,
           instance: this.getInstanceType(def),
           options: def,
-          isRequired: def.required === true,
+          isRequired: !!def.required,
           enumValues: def.enum,
         };
       });
@@ -144,8 +144,16 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
           try { instance[key] = initialVal; } catch (_e) { instance[key] = initialVal; }
         } else if (opts && (opts as PathOptions).default !== undefined) {
           const defaultVal = (opts as PathOptions).default;
-          const def = typeof defaultVal === 'function' ? (defaultVal as (...args: unknown[]) => unknown)() : defaultVal;
-          try { instance[key] = def; } catch (_e) { instance[key] = def; }
+          let def = defaultVal;
+          if (typeof defaultVal === 'function') {
+            // Special case for Mongoose's `Date.now` default
+            if (opts.type === Date && defaultVal === Date.now) {
+              def = new Date();
+            } else {
+              def = defaultVal();
+            }
+          }
+          instance[key] = def;
         }
 
         // apply simple normalization for fields without setters
@@ -193,6 +201,9 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
     (instance as any).save = jest.fn().mockResolvedValue(instance);
     (instance as any).validate = jest.fn().mockResolvedValue(undefined);
     (instance as any).isModified = jest.fn(() => false);
+
+    // Set the prototype to make `instanceof` checks work
+    Object.setPrototypeOf(instance, modelMock.prototype);
 
     return instance;
   } as unknown as (...args: unknown[]) => Record<string, unknown>;

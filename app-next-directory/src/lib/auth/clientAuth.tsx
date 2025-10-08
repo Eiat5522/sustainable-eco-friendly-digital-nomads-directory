@@ -31,7 +31,14 @@ interface AuthProviderProps {
 /**
  * Auth Provider Component - wraps app with authentication context
  */
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({
+  children,
+  hasPagePermission: hasPagePermissionProp = hasPagePermission,
+  hasFeaturePermission: hasFeaturePermissionProp = hasFeaturePermission,
+}: AuthProviderProps & {
+  hasPagePermission?: typeof hasPagePermission;
+  hasFeaturePermission?: typeof hasFeaturePermission;
+}) {
   const { data: session, status } = useSession();
 
   const user: AppUser = session?.user ?? null;
@@ -43,22 +50,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     user,
     userRole,
     hasPagePermission: (page: string, action: string) => {
-      return hasPagePermission(userRole, page as any, action as any);
+      return hasPagePermissionProp(userRole, page as any, action as any);
     },
     hasFeaturePermission: (feature: string) => {
-      return hasFeaturePermission(userRole, feature as any);
+      return hasFeaturePermissionProp(userRole, feature as any);
     },
-    // IMPORTANT: assign the next-auth functions directly (no wrapper),
-    // so their TS signatures stay intact.
     signIn,
     signOut,
   };
 
-  return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
 
 /**
