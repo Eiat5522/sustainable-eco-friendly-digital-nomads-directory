@@ -1,57 +1,36 @@
 /// <reference types="@testing-library/jest-dom" />
-import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { useSession, signIn, signOut } from 'next-auth/react';
+import {
+  AuthProvider,
+  useAuthContext,
+  Authenticated,
+  RequireRole,
+  RequirePermission,
+  AdminOnly,
+} from './clientAuth';
 
-// No extend-expect import needed; either rely on jest.setup.ts importing '@testing-library/jest-dom'
-// or keep the triple-slash reference above with this per-file import if you prefer:
-// import '@testing-library/jest-dom';
+jest.mock('next-auth/react');
+const mockUseSession = useSession as jest.Mock;
+const mockSignIn = signIn as jest.Mock;
+const mockSignOut = signOut as jest.Mock;
 
-const mockUseSession = jest.fn();
-const mockSignIn = jest.fn();
-const mockSignOut = jest.fn();
-
-// We'll load the SUT after mocking, so declare holders:
-let AuthProvider: any;
-let useAuthContext: any;
-let Authenticated: any;
-let RequireRole: any;
-let RequirePermission: any;
-let AdminOnly: any;
-
-// Mock modules BEFORE importing the SUT
-beforeAll(async () => {
-  // Export the jest.fn references directly so tests can call
-  // mockUseSession.mockReturnValue(...) and have useSession() return it.
-  await jest.unstable_mockModule('next-auth/react', () => ({
-    __esModule: true,
-    useSession: mockUseSession,
-    signIn: mockSignIn,
-    signOut: mockSignOut,
-  }));
-
-  // Export permission helpers as predictable functions (or jest.fn references).
-  await jest.unstable_mockModule('../../types/auth', () => ({
-    __esModule: true,
-    hasPagePermission: (role: string, page: string) => {
+jest.mock('../../types/auth', () => {
+  const originalModule = jest.requireActual('../../types/auth');
+  return {
+    ...originalModule,
+    hasPagePermission: jest.fn((role, page) => {
       if (role === 'admin') return true;
       if (role === 'user' && page === 'listings') return true;
       return false;
-    },
-    hasFeaturePermission: (role: string, feature: string) => {
+    }),
+    hasFeaturePermission: jest.fn((role, feature) => {
       if (role === 'admin') return true;
-      if (role === 'user' && feature === 'viewListings') return true;
+      if (role === 'user' && feature === 'manageListings') return true; // Corrected feature name
       return false;
-    },
-  }));
-
-  const mod = await import('./clientAuth');
-  AuthProvider = mod.AuthProvider;
-  useAuthContext = mod.useAuthContext;
-  Authenticated = mod.Authenticated;
-  RequireRole = mod.RequireRole;
-  RequirePermission = mod.RequirePermission;
-  AdminOnly = mod.AdminOnly;
+    }),
+  };
 });
 
 describe('AuthProvider', () => {

@@ -111,12 +111,19 @@ const fetch = jest.fn(async (query: string, params: Record<string, any> = {}) =>
   return []
 })
 
+const commit = jest.fn().mockResolvedValue({});
+const set = jest.fn(() => ({ commit }));
+const patch = jest.fn(() => ({ set }));
+
 export const createClient = jest.fn(() => ({
   fetch,
   create: jest.fn().mockResolvedValue({ _id: 'mock-id' }),
   update: jest.fn().mockResolvedValue({}),
   delete: jest.fn().mockResolvedValue(''),
-  getDocument: jest.fn().mockResolvedValue({ _id: 'mock-id' })
+  getDocument: jest.fn().mockResolvedValue({ _id: 'mock-id' }),
+  patch,
+  _mockCommit: commit,
+  _mockSet: set,
 }))
 
 export default createClient()

@@ -1,3 +1,7 @@
+import React from 'react';
+import { render } from '@testing-library/react';
+import { Textarea } from '../textarea';
+
 it('applies focus styles', () => {
   const { container } = render(<Textarea />);
   const textarea = container.querySelector('textarea')!;

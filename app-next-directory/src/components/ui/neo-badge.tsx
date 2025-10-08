@@ -8,13 +8,13 @@ export interface NeoBadgeProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const NeoBadge = React.forwardRef<HTMLDivElement, NeoBadgeProps>(
   ({ className, variant = "default", size = "md", ...props }, ref) => {
-    const baseClasses = "inline-flex items-center rounded-full border-2 border-neo-border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+    const baseClasses = "inline-flex items-center rounded-full border-2 border-neo-border font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-white"
     
     const variants = {
-      default: "bg-neo-primary text-white",
+      default: "bg-neo-primary",
       secondary: "bg-neo-secondary text-neo-text-primary",
-      accent: "bg-neo-accent text-white",
-      success: "bg-neo-success text-white",
+      accent: "bg-neo-accent",
+      success: "bg-neo-success",
       outline: "bg-transparent text-neo-text-primary"
     }
     

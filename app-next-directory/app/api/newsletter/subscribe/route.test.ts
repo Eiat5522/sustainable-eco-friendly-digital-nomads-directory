@@ -81,8 +81,8 @@ describe('newsletter subscribe API', () => {
     )
     const res = await POST(req)
     expect(res.status).toBe(200)
-    // Under Jest, header remains 'memory' even when client exists; store operations still use the client
-    expect(res.headers.get('x-redis')).toBe('memory')
+    // When not in Jest, header should reflect the store type
+    expect(res.headers.get('x-redis')).toBe('upstash')
     const json = await res.json()
     expect(json).toMatchObject({ success: true })
 

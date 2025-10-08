@@ -28,8 +28,9 @@ import bcrypt from 'bcryptjs';
 import { auth } from '@/lib/auth';
 
 const mockConnect = connect as jest.MockedFunction<typeof connect>;
-const mockUserFindOne = User.findOne as jest.MockedFunction<typeof User.findOne>;
 const mockUserCreate = User.create as jest.MockedFunction<typeof User.create>;
+(User as any).countDocuments = jest.fn();
+const mockUserCountDocuments = User.countDocuments as jest.Mock;
 const mockBcryptHash = bcrypt.hash as jest.MockedFunction<(data: string | Buffer, saltOrRounds: string | number) => Promise<string>>;
 const mockAuth = auth as jest.MockedFunction<() => Promise<any>>;
 
@@ -46,6 +47,7 @@ async function getResponseBody(response: any) {
 describe('Registration API Routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUserCountDocuments.mockClear();
   });
 
   describe('POST /api/auth/register', () => {
@@ -61,7 +63,7 @@ describe('Registration API Routes', () => {
       } as any;
 
       mockConnect.mockResolvedValue(undefined);
-      mockUserFindOne.mockResolvedValue(null);
+      mockUserCountDocuments.mockResolvedValue(0);
       mockBcryptHash.mockResolvedValue('hashedpassword');
       mockUserCreate.mockResolvedValue({
         _id: 'someid',
@@ -80,7 +82,7 @@ describe('Registration API Routes', () => {
       expect(body.data.user.email).toBe('test@example.com');
       expect(body.data.user).not.toHaveProperty('password');
       expect(mockConnect).toHaveBeenCalledTimes(1);
-      expect(mockUserFindOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+      expect(mockUserCountDocuments).toHaveBeenCalledWith({ email: 'test@example.com' });
       expect(mockUserCreate).toHaveBeenCalledTimes(1);
     });
 
@@ -96,7 +98,7 @@ describe('Registration API Routes', () => {
       } as any;
 
       mockConnect.mockResolvedValue(undefined);
-      mockUserFindOne.mockResolvedValue({ email: 'test@example.com' });
+      mockUserCountDocuments.mockResolvedValue(1);
 
       // Act
       const response = await registerPOST(req);
@@ -107,6 +109,7 @@ describe('Registration API Routes', () => {
       expect(body.success).toBe(false);
       expect(body.error.message).toBe('User already exists');
       expect(body.error.code).toBe('CONFLICT');
+      expect(mockUserCountDocuments).toHaveBeenCalledWith({ email: 'test@example.com' });
       expect(mockUserCreate).not.toHaveBeenCalled();
     });
 
@@ -144,7 +147,7 @@ describe('Registration API Routes', () => {
       } as any;
 
       mockConnect.mockResolvedValue(undefined);
-      mockUserFindOne.mockResolvedValue(null);
+      mockUserCountDocuments.mockResolvedValue(0);
       mockBcryptHash.mockRejectedValue(new Error('Hash error'));
 
       // Act
@@ -171,7 +174,7 @@ describe('Registration API Routes', () => {
       } as any;
 
       mockConnect.mockResolvedValue(undefined);
-      mockUserFindOne.mockResolvedValue(null);
+      mockUserCountDocuments.mockResolvedValue(0);
       mockBcryptHash.mockResolvedValue('hashedpassword');
       mockUserCreate.mockRejectedValue(new Error('DB error'));
 

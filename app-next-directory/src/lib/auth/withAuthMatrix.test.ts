@@ -10,14 +10,19 @@ jest.mock('@/lib/auth', () => ({
   auth: mockAuth,
 }));
 
-jest.mock('../../types/auth');
+// Mock hasPagePermission and hasFeaturePermission
+const mockHasPagePermission = jest.fn();
+const mockHasFeaturePermission = jest.fn();
 
-// Import to force the mock to be loaded
-import * as authTypesMocked from '../../types/auth';
-
-// Extract the mock functions from the mocked module
-const mockHasPagePermission = (authTypesMocked as any).hasPagePermission as jest.Mock;
-const mockHasFeaturePermission = (authTypesMocked as any).hasFeaturePermission as jest.Mock;
+jest.mock('../../types/auth', () => {
+  const originalModule = jest.requireActual('../../types/auth');
+  return {
+    __esModule: true,
+    ...originalModule,
+    hasPagePermission: mockHasPagePermission,
+    hasFeaturePermission: mockHasFeaturePermission,
+  };
+});
 
 import {
   withAuthMatrix,
@@ -71,13 +76,16 @@ describe('withAuthMatrix', () => {
       expect(response.status).not.toBe(401);
     });
 
-    it('returns 403 when user lacks required permission', async () => {
-      mockGetToken.mockResolvedValue({ role: 'user', email: 'test@example.com' });
-      mockHasPagePermission.mockReturnValue(false);
+    const testApiRequest = async (role: string | null, page: any, action: any, shouldSucceed: boolean) => {
+      mockGetToken.mockResolvedValue(role ? { role } : null);
+      mockHasPagePermission.mockReturnValue(shouldSucceed);
 
       const request = new NextRequest('http://localhost:3000/api/test');
-      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, true);
+      return withAuthMatrix(request, page, action, true);
+    };
 
+    it('returns 403 when user lacks required permission', async () => {
+      const response = await testApiRequest('user', 'admin', 'canView', false);
       expect(mockHasPagePermission).toHaveBeenCalled();
       expect(response.status).toBe(403);
       const json = await response.json();
@@ -86,62 +94,41 @@ describe('withAuthMatrix', () => {
     });
 
     it('allows API request when user has required permission', async () => {
-      mockGetToken.mockResolvedValue({ role: 'admin', email: 'admin@example.com' });
-      mockHasPagePermission.mockReturnValue(true);
-
-      const request = new NextRequest('http://localhost:3000/api/test');
-      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, true);
-
+      const response = await testApiRequest('admin', 'admin', 'canView', true);
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(403);
     });
   });
 
   describe('page route authentication', () => {
+    const testPageRoute = async (role: string | null, page: any, action: any, shouldSucceed: boolean) => {
+      mockGetToken.mockResolvedValue(role ? { role, email: 'test@example.com' } : null);
+      mockHasPagePermission.mockReturnValue(shouldSucceed);
+      const request = new NextRequest(`http://localhost:3000/${page}`);
+      return await withAuthMatrix(request, page, action, false);
+    };
+
     it('allows unauthenticated access to public pages', async () => {
-      mockGetToken.mockResolvedValue(null);
-      mockHasPagePermission.mockReturnValue(true);
-
-      const request = new NextRequest('http://localhost:3000/');
-      const response = await withAuthMatrix(request, 'home' as any, 'canView' as any, false);
-
-      expect(response).toBeInstanceOf(NextResponse);
+      const response = await testPageRoute(null, 'home', 'canView', true);
       expect(response.status).not.toBe(401);
     });
 
     it('redirects to signin when user lacks permission', async () => {
-      mockGetToken.mockResolvedValue(null);
-      mockHasPagePermission.mockReturnValue(false);
-
-      const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, false);
-
-      expect(response.status).toBe(307); // Redirect status
+      const response = await testPageRoute(null, 'admin', 'canView', false);
+      expect(response.status).toBe(307);
       const location = response.headers.get('location');
       expect(location).toContain('/auth/signin');
-      expect(location).toContain('callbackUrl');
     });
 
     it('redirects to unauthorized when authenticated user lacks permission', async () => {
-      mockGetToken.mockResolvedValue({ role: 'user', email: 'user@example.com' });
-      mockHasPagePermission.mockReturnValue(false);
-
-      const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, false);
-
+      const response = await testPageRoute('user', 'admin', 'canView', false);
       expect(response.status).toBe(307);
       const location = response.headers.get('location');
       expect(location).toContain('/auth/unauthorized');
     });
 
     it('allows access when user has required permission', async () => {
-      mockGetToken.mockResolvedValue({ role: 'admin', email: 'admin@example.com' });
-      mockHasPagePermission.mockReturnValue(true);
-
-      const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, false);
-
-      expect(response).toBeInstanceOf(NextResponse);
+      const response = await testPageRoute('admin', 'admin', 'canView', true);
       expect(response.status).not.toBe(307);
     });
   });

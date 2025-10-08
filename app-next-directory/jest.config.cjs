@@ -78,7 +78,6 @@ module.exports = {
 			'^mongoose$': '<rootDir>/__mocks__/mongoose.ts',
 			'node-fetch': '<rootDir>/__mocks__/node-fetch.js',
 			'^clsx$': '<rootDir>/__mocks__/clsx.js',
-			'^tailwind-merge$': '<rootDir>/__mocks__/tailwind-merge.js',
 			'^embla-carousel-react$': '<rootDir>/__mocks__/embla-carousel-react.js',
 			'^embla-carousel-autoplay$': '<rootDir>/__mocks__/embla-carousel-autoplay.js',
 			'^leaflet$': '<rootDir>/__mocks__/leaflet.ts',

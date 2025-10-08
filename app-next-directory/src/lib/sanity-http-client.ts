@@ -191,21 +191,8 @@ export class SanityHTTPClient {
       throw new SanityAPIError('Cannot update document: No API token provided');
     }
     try {
-      const patchObj = this.writeClient.patch(id);
-      const setObj = patchObj.set(patches);
-      if (typeof setObj.commit !== 'function') {
-        throw new SanityAPIError('Update failed: commit is not a function');
-      }
-      let result;
-      try {
-        result = await setObj.commit();
-      } catch (error: any) {
-        throw new SanityAPIError(
-          `Update failed: ${error.message}`,
-          error.statusCode,
-          error
-        );
-      }
+      const result = await this.writeClient.patch(id).set(patches).commit();
+
       if (result && (result as any).error) {
         throw new SanityAPIError(
           `Update failed: ${(result as any).error}`,
@@ -213,9 +200,7 @@ export class SanityHTTPClient {
           result
         );
       }
-      if (typeof result === 'undefined') {
-        throw new SanityAPIError('Update failed: Update error');
-      }
+
       if (!result) {
         throw new SanityAPIError('Update operation returned no result');
       }

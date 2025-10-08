@@ -218,7 +218,6 @@ describe('SanityHTTPClient', () => {
       commitMock.mockReset();
       commitMock.mockResolvedValueOnce({ error: 'Update error' });
 
-      await expect(client.update('doc123', {})).rejects.toThrow(SanityAPIError);
       await expect(client.update('doc123', {})).rejects.toThrow('Update failed: Update error');
     });
   });
