@@ -11,13 +11,13 @@
 import { shouldAlert, type PerformanceAlert } from './budgets'
 
 // Performance event categories in Plausible
-export const PERFORMANCE_EVENTS = {
+export const PERFORMANCE_EVENTS = Object.freeze({
   WEB_VITALS: 'web_vitals',
   SERVER_TIMING: 'server_timing',
   RESOURCE_TIMING: 'resource_timing',
   CUSTOM_MARK: 'custom_mark',
   ALERT: 'performance_alert'
-} as const
+} as const)
 
 interface PerformanceEvent {
   name: string
@@ -26,13 +26,20 @@ interface PerformanceEvent {
   metadata?: Record<string, any>
 }
 
+// For testability, we inject dependencies.
+// This is safe for production as it defaults to the real window object.
+export const dependencies = {
+  window: typeof window !== 'undefined' ? window : (undefined as (Window & typeof globalThis & { plausible?: any }) | undefined),
+};
+
+
 /**
  * Reports a performance event to Plausible Analytics
  */
 export function reportPerformanceEvent(event: PerformanceEvent) {
-  if (typeof window === 'undefined') return
+  if (typeof dependencies.window === 'undefined') return
 
-  const plausible = window.plausible
+  const plausible = dependencies.window.plausible
   if (!plausible) {
     console.warn('[Performance] Plausible Analytics not initialized')
     return

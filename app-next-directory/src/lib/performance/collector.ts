@@ -29,30 +29,52 @@ declare global {
 }
 
 // Mock web-vitals functions if the package is not available
-const onCLS = (callback: ReportCallback) => {
+const mockOnCLS = (callback: ReportCallback) => {
   // Mock implementation - would need actual web-vitals package for real functionality
-  console.warn('web-vitals package not installed - onCLS is mocked');
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('web-vitals package not installed - onCLS is mocked');
+  }
 };
 
-const onFCP = (callback: ReportCallback) => {
-  console.warn('web-vitals package not installed - onFCP is mocked');
+const mockOnFCP = (callback: ReportCallback) => {
+    if (process.env.NODE_ENV === 'development') {
+        console.warn('web-vitals package not installed - onFCP is mocked');
+    }
 };
 
-const onFID = (callback: ReportCallback) => {
-  console.warn('web-vitals package not installed - onFID is mocked');
+const mockOnFID = (callback: ReportCallback) => {
+    if (process.env.NODE_ENV === 'development') {
+        console.warn('web-vitals package not installed - onFID is mocked');
+    }
 };
 
-const onINP = (callback: ReportCallback) => {
-  console.warn('web-vitals package not installed - onINP is mocked');
+const mockOnINP = (callback: ReportCallback) => {
+    if (process.env.NODE_ENV === 'development') {
+        console.warn('web-vitals package not installed - onINP is mocked');
+    }
 };
 
-const onLCP = (callback: ReportCallback) => {
-  console.warn('web-vitals package not installed - onLCP is mocked');
+const mockOnLCP = (callback: ReportCallback) => {
+    if (process.env.NODE_ENV === 'development') {
+        console.warn('web-vitals package not installed - onLCP is mocked');
+    }
 };
 
-const onTTFB = (callback: ReportCallback) => {
-  console.warn('web-vitals package not installed - onTTFB is mocked');
+const mockOnTTFB = (callback: ReportCallback) => {
+    if (process.env.NODE_ENV === 'development') {
+        console.warn('web-vitals package not installed - onTTFB is mocked');
+    }
 };
+
+export const dependencies = {
+    window: typeof window !== 'undefined' ? window : (undefined as (Window & typeof globalThis & { plausible?: any, PerformanceObserver?: any }) | undefined),
+    onCLS: mockOnCLS,
+    onFCP: mockOnFCP,
+    onFID: mockOnFID,
+    onINP: mockOnINP,
+    onLCP: mockOnLCP,
+    onTTFB: mockOnTTFB,
+}
 
 // Performance metric thresholds based on Core Web Vitals
 export const PERFORMANCE_THRESHOLDS = {
@@ -102,7 +124,7 @@ function reportMetric({ name, value, rating }: PerformanceMetric) {
   }
 
   // Report to Plausible as custom event
-  const plausible = window.plausible
+  const plausible = dependencies.window?.plausible
   if (plausible) {
     plausible('performance', {
       props: {
@@ -120,7 +142,7 @@ function reportMetric({ name, value, rating }: PerformanceMetric) {
  */
 export function initPerformanceMonitoring() {
   // Monitor Core Web Vitals
-  onCLS((metric: Metric) => {
+  dependencies.onCLS((metric: Metric) => {
     reportMetric({
       name: 'CLS',
       value: metric.value,
@@ -128,7 +150,7 @@ export function initPerformanceMonitoring() {
     })
   })
 
-  onFCP((metric: Metric) => {
+  dependencies.onFCP((metric: Metric) => {
     reportMetric({
       name: 'FCP',
       value: metric.value,
@@ -136,7 +158,7 @@ export function initPerformanceMonitoring() {
     })
   })
 
-  onFID((metric: Metric) => {
+  dependencies.onFID((metric: Metric) => {
     reportMetric({
       name: 'FID',
       value: metric.value,
@@ -144,7 +166,7 @@ export function initPerformanceMonitoring() {
     })
   })
 
-  onINP((metric: Metric) => {
+  dependencies.onINP((metric: Metric) => {
     reportMetric({
       name: 'INP',
       value: metric.value,
@@ -152,7 +174,7 @@ export function initPerformanceMonitoring() {
     })
   })
 
-  onLCP((metric: Metric) => {
+  dependencies.onLCP((metric: Metric) => {
     reportMetric({
       name: 'LCP',
       value: metric.value,
@@ -160,7 +182,7 @@ export function initPerformanceMonitoring() {
     })
   })
 
-  onTTFB((metric: Metric) => {
+  dependencies.onTTFB((metric: Metric) => {
     reportMetric({
       name: 'TTFB',
       value: metric.value,
@@ -169,9 +191,9 @@ export function initPerformanceMonitoring() {
   })
 
   // Initialize Performance Observer for custom marks
-  if (typeof window !== 'undefined' && 'PerformanceObserver' in window) {
-    const perfObserver = new PerformanceObserver((list) => {
-      list.getEntries().forEach((entry) => {
+  if (typeof dependencies.window !== 'undefined' && 'PerformanceObserver' in dependencies.window) {
+    const perfObserver = new dependencies.window.PerformanceObserver((list: any) => {
+      list.getEntries().forEach((entry: any) => {
         reportMetric({
           name: entry.name,
           value: entry.duration || entry.startTime,
@@ -188,8 +210,8 @@ export function initPerformanceMonitoring() {
  * Creates a performance mark with the given name
  */
 export function markPerformance(markName: keyof typeof PERFORMANCE_MARKS) {
-  if (typeof window !== 'undefined' && 'performance' in window) {
-    performance.mark(PERFORMANCE_MARKS[markName])
+  if (typeof dependencies.window !== 'undefined' && 'performance' in dependencies.window) {
+    dependencies.window.performance.mark(PERFORMANCE_MARKS[markName])
   }
 }
 
@@ -201,8 +223,8 @@ export function measurePerformance(
   startMark: keyof typeof PERFORMANCE_MARKS,
   endMark: keyof typeof PERFORMANCE_MARKS
 ) {
-  if (typeof window !== 'undefined' && 'performance' in window) {
-    performance.measure(
+  if (typeof dependencies.window !== 'undefined' && 'performance' in dependencies.window) {
+    dependencies.window.performance.measure(
       measureName,
       PERFORMANCE_MARKS[startMark],
       PERFORMANCE_MARKS[endMark]
