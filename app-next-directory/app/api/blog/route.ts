@@ -4,6 +4,7 @@ import { transformToBlogSummaryDTO } from '@/lib/dto-transformer';
 import { groq } from 'next-sanity';
 import type { QueryParams } from '@sanity/client';
 import { NextRequest } from 'next/server';
+import { withCache } from '@/lib/cache';
 
 interface RawBlogPost {
   _id: string;
@@ -93,37 +94,50 @@ export async function GET(request: NextRequest) {
     if (tag) params.tag = tag;
     if (search) params.search = search;
 
-    const [postsRaw, totalCount] = await Promise.all([
-      sanityClient.fetch<RawBlogPost[]>(finalQuery, params as QueryParams),
-      sanityClient.fetch<number>(finalCountQuery, params as QueryParams),
-    ]);
+    // Create a unique cache key based on query parameters
+    const cacheKey = `blog:page=${page}:limit=${limit}${tag ? `:tag=${tag}` : ''}${search ? `:search=${search}` : ''}`;
 
-    const posts = Array.isArray(postsRaw)
-      ? postsRaw.map((post) => transformToBlogSummaryDTO(post))
-      : [];
-
-    const total = Number.isFinite(totalCount) ? Number(totalCount) : 0;
-    const totalPages = Math.max(1, Math.ceil(total / limit));
-    const hasNextPage = page < totalPages;
-    const hasPrevPage = page > 1;
-
-    return ApiResponseHandler.success({
-      posts,
-      pagination: {
-        page,
-        limit,
-        totalCount: total,
-        totalPages,
-        hasNextPage,
-        hasPrevPage,
-        nextPage: hasNextPage ? page + 1 : null,
-        prevPage: hasPrevPage ? page - 1 : null,
+    const result = await withCache(
+      {
+        key: cacheKey,
+        ttl: 300, // 5 minutes
       },
-      filters: {
-        tag: tag ?? null,
-        search: search ?? null,
-      },
-    });
+      async () => {
+        const [postsRaw, totalCount] = await Promise.all([
+          sanityClient.fetch<RawBlogPost[]>(finalQuery, params as QueryParams),
+          sanityClient.fetch<number>(finalCountQuery, params as QueryParams),
+        ]);
+
+        const posts = Array.isArray(postsRaw)
+          ? postsRaw.map((post) => transformToBlogSummaryDTO(post))
+          : [];
+
+        const total = Number.isFinite(totalCount) ? Number(totalCount) : 0;
+        const totalPages = Math.max(1, Math.ceil(total / limit));
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+
+        return {
+          posts,
+          pagination: {
+            page,
+            limit,
+            totalCount: total,
+            totalPages,
+            hasNextPage,
+            hasPrevPage,
+            nextPage: hasNextPage ? page + 1 : null,
+            prevPage: hasPrevPage ? page - 1 : null,
+          },
+          filters: {
+            tag: tag ?? null,
+            search: search ?? null,
+          },
+        };
+      }
+    );
+
+    return ApiResponseHandler.success(result);
   } catch (error) {
     console.error('Error fetching blog posts:', error);
 
