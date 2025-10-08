@@ -1,6 +1,7 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getClient } from '@/lib/sanity.utils';
 import type { FeaturedListingDTO } from '@/types/dto';
+import { getRedisClient } from '@/lib/redis';
 import { structuredLogger, getRequestContext } from '@/lib/logger';
 
 const FEATURED_LISTINGS_QUERY = `
@@ -19,6 +20,9 @@ const FEATURED_LISTINGS_QUERY = `
   "amenityNames": coalesce(amenities[defined(@->name) && @->name != ""]->name, [])
 }`;
 
+const CACHE_KEY = 'featured-listings';
+const CACHE_EXPIRATION_SECONDS = 1800; // 30 minutes
+
 type SanityFeaturedListing = {
   _id: string;
   name?: string | null;
@@ -29,28 +33,60 @@ type SanityFeaturedListing = {
 };
 
 export async function GET(request: Request) {
+  const redis = getRedisClient();
+
+  if (redis) {
+    try {
+      const cached = await redis.get<FeaturedListingDTO[]>(CACHE_KEY);
+      if (cached) {
+        return ApiResponseHandler.success({ listings: cached });
+      }
+    } catch (error) {
+      structuredLogger.apiError('/api/featured-listings', error, {
+        ...getRequestContext(request),
+        operation: 'get_featured_listings_cache_read',
+        message: 'Failed to read from Redis cache, fetching from source',
+      });
+    }
+  }
+
   try {
     const client = getClient(false);
     const results = await client.fetch<SanityFeaturedListing[]>(FEATURED_LISTINGS_QUERY);
 
-    const listings: FeaturedListingDTO[] = [];
-    for (const item of results ?? []) {
-      if (!item || typeof item._id !== 'string' || typeof item.slug !== 'string') {
-        continue;
+    const listings: FeaturedListingDTO[] = (results ?? [])
+      .map((item) => {
+        if (!item || typeof item._id !== 'string' || typeof item.slug !== 'string') {
+          return null;
+        }
+
+        const amenityNames = Array.isArray(item.amenityNames)
+          ? item.amenityNames.filter((name): name is string => typeof name === 'string' && name.trim().length > 0)
+          : [];
+
+        return {
+          id: item._id,
+          name: item.name ?? '',
+          slug: item.slug,
+          imageUrl: item.imageUrl || undefined,
+          city: item.city ?? '',
+          amenityNames,
+        };
+      })
+      .filter((listing): listing is FeaturedListingDTO => listing !== null);
+
+    if (redis) {
+      try {
+        await redis.set(CACHE_KEY, JSON.stringify(listings), {
+          ex: CACHE_EXPIRATION_SECONDS,
+        });
+      } catch (error) {
+        structuredLogger.apiError('/api/featured-listings', error, {
+          ...getRequestContext(request),
+          operation: 'get_featured_listings_cache_write',
+          message: 'Failed to write to Redis cache',
+        });
       }
-
-      const amenityNames = Array.isArray(item.amenityNames)
-        ? item.amenityNames.filter((name): name is string => typeof name === 'string' && name.trim().length > 0)
-        : [];
-
-      listings.push({
-        id: item._id,
-        name: item.name ?? '',
-        slug: item.slug,
-        imageUrl: item.imageUrl || undefined,
-        city: item.city ?? '',
-        amenityNames,
-      });
     }
 
     return ApiResponseHandler.success({ listings });

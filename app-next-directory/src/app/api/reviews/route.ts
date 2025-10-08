@@ -3,9 +3,12 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { revalidateTag } from 'next/cache';
 import { hasFeaturePermission, UserRole } from '@/types/auth';
+import { getRedisClient } from '@/lib/redis';
 import { structuredLogger, getRequestContext } from '@/lib/logger';
 import { ensureSanityUser } from '@/lib/sanity/user';
 import { groq } from 'next-sanity';
+
+const CACHE_EXPIRATION_SECONDS = 1800; // 30 minutes
 
 const REVIEWS_BY_LISTING_QUERY = groq`
   *[_type == "review" && listing._ref == $listingId && (
@@ -114,9 +117,28 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const listingId = searchParams.get('listingId')?.trim();
   const userIdParam = searchParams.get('userId')?.trim();
+  const redis = getRedisClient();
+  const cacheKey = `reviews:${listingId}:${userIdParam || 'all'}`;
 
   if (!listingId) {
     return NextResponse.json({ error: 'listingId query parameter is required' }, { status: 400 });
+  }
+
+  if (redis) {
+    try {
+      const cached = await redis.get<any>(cacheKey);
+      if (cached) {
+        return NextResponse.json(cached);
+      }
+    } catch (error) {
+      structuredLogger.apiError('/api/reviews', error, {
+        ...getRequestContext(request),
+        listingId,
+        userId: userIdParam,
+        operation: 'fetch_reviews_cache_read',
+        message: 'Failed to read from Redis cache, fetching from source',
+      });
+    }
   }
 
   try {
@@ -132,7 +154,6 @@ export async function GET(request: Request) {
       const review = normalizeReview(raw);
       if (!review) continue;
 
-      // Exclude pending reviews from aggregate metrics but keep them in payload for transparency
       if (review.status === 'approved') {
         sum += review.rating;
       }
@@ -149,7 +170,25 @@ export async function GET(request: Request) {
       averageRating: approvedCount > 0 ? Number((sum / approvedCount).toFixed(2)) : null,
     } as const;
 
-    return NextResponse.json({ reviews: normalized, statistics });
+    const data = { reviews: normalized, statistics };
+
+    if (redis) {
+      try {
+        await redis.set(cacheKey, JSON.stringify(data), {
+          ex: CACHE_EXPIRATION_SECONDS,
+        });
+      } catch (error) {
+        structuredLogger.apiError('/api/reviews', error, {
+          ...getRequestContext(request),
+          listingId,
+          userId: userIdParam,
+          operation: 'fetch_reviews_cache_write',
+          message: 'Failed to write to Redis cache',
+        });
+      }
+    }
+
+    return NextResponse.json(data);
   } catch (caughtError) {
     structuredLogger.apiError('/api/reviews', caughtError, {
       ...getRequestContext(request),
@@ -172,7 +211,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Check if user has permission to submit reviews
   if (!hasFeaturePermission(userRole, 'submitReviews')) {
     return NextResponse.json({ error: 'Forbidden: Insufficient permissions to create reviews' }, { status: 403 });
   }
@@ -196,7 +234,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid listing ID' }, { status: 422 });
     }
 
-    // Validate referenced documents to avoid dangling references
     const [listingDoc, sanityUser] = await Promise.all([
       client.getDocument(listingId),
       ensureSanityUser({
@@ -211,7 +248,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid reference(s)' }, { status: 400 });
     }
 
-    // Check if user has already reviewed this listing
     const existingReview = await client.fetch<RawReview | null>(
       `*[_type == "review" && listing._ref == $listingId && user._ref == $userId][0]`,
       { listingId, userId }
@@ -236,8 +272,21 @@ export async function POST(request: Request) {
 
     try {
       revalidateTag(`listing:${listingId}-reviews`);
-    } catch {
-      // ignore if not in a revalidatable context
+      const redis = getRedisClient();
+      if (redis) {
+        await redis.del(`reviews:${listingId}:all`);
+        if (userId) {
+          await redis.del(`reviews:${listingId}:${userId}`);
+        }
+      }
+    } catch (error) {
+      structuredLogger.apiError('/api/reviews', error, {
+        ...getRequestContext(request),
+        listingId,
+        userId,
+        operation: 'post_review_cache_invalidation',
+        message: 'Failed to invalidate Redis cache for reviews',
+      });
     }
 
     return NextResponse.json(newReview);

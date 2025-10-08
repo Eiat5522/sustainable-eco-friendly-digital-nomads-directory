@@ -10,14 +10,15 @@ jest.mock('@/lib/auth', () => ({
   auth: mockAuth,
 }));
 
-jest.mock('../../types/auth');
+const mockHasPagePermission = jest.fn();
+const mockHasFeaturePermission = jest.fn();
 
-// Import to force the mock to be loaded
-import * as authTypesMocked from '../../types/auth';
-
-// Extract the mock functions from the mocked module
-const mockHasPagePermission = (authTypesMocked as any).hasPagePermission as jest.Mock;
-const mockHasFeaturePermission = (authTypesMocked as any).hasFeaturePermission as jest.Mock;
+jest.mock('../../types/auth', () => ({
+  ...jest.requireActual('../../types/auth'),
+  __esModule: true,
+  hasPagePermission: mockHasPagePermission,
+  hasFeaturePermission: mockHasFeaturePermission,
+}));
 
 import {
   withAuthMatrix,
@@ -76,7 +77,7 @@ describe('withAuthMatrix', () => {
       mockHasPagePermission.mockReturnValue(false);
 
       const request = new NextRequest('http://localhost:3000/api/test');
-      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, true);
+      const response = await withAuthMatrix(request, 'admin' as any, 'canView' as any, true);
 
       expect(mockHasPagePermission).toHaveBeenCalled();
       expect(response.status).toBe(403);
@@ -90,7 +91,7 @@ describe('withAuthMatrix', () => {
       mockHasPagePermission.mockReturnValue(true);
 
       const request = new NextRequest('http://localhost:3000/api/test');
-      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, true);
+      const response = await withAuthMatrix(request, 'admin' as any, 'canView' as any, true);
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(403);
@@ -114,7 +115,7 @@ describe('withAuthMatrix', () => {
       mockHasPagePermission.mockReturnValue(false);
 
       const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, false);
+      const response = await withAuthMatrix(request, 'admin' as any, 'canView' as any, false);
 
       expect(response.status).toBe(307); // Redirect status
       const location = response.headers.get('location');
@@ -127,7 +128,7 @@ describe('withAuthMatrix', () => {
       mockHasPagePermission.mockReturnValue(false);
 
       const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, false);
+      const response = await withAuthMatrix(request, 'admin' as any, 'canView' as any, false);
 
       expect(response.status).toBe(307);
       const location = response.headers.get('location');
@@ -139,7 +140,7 @@ describe('withAuthMatrix', () => {
       mockHasPagePermission.mockReturnValue(true);
 
       const request = new NextRequest('http://localhost:3000/admin');
-      const response = await withAuthMatrix(request, 'adminPanel' as any, 'canView' as any, false);
+      const response = await withAuthMatrix(request, 'admin' as any, 'canView' as any, false);
 
       expect(response).toBeInstanceOf(NextResponse);
       expect(response.status).not.toBe(307);
