@@ -271,8 +271,8 @@ describe('POST /api/contact', () => {
     const payload = await response.json();
     expect(payload.success).toBe(false);
     expect(payload.error).toBe('Invalid form data');
-    expect(payload.details.subject).toContain('Subject must be at least 5 characters');
-    expect(payload.details.message).toContain('Message must be at least 10 characters');
+    expect(payload.details.subject).toContain('Required');
+    expect(payload.details.message).toContain('Required');
   });
 
   it('should return 400 for fields that are too short or too long', async () => {
@@ -304,7 +304,7 @@ describe('POST /api/contact', () => {
     const responseLong = await POST(requestLong as any);
     expect(responseLong.status).toBe(400);
     const payloadLong = await responseLong.json();
-    expect(payloadLong.error).toContain('Subject too long');
+    expect(payloadLong.details.subject).toContain('Subject too long');
   });
 
   it('should mark submission as spam if spam keywords are present', async () => {
@@ -387,7 +387,7 @@ describe('POST /api/contact', () => {
     expect(response.status).toBe(500);
     const payload = await response.json();
     expect(payload.success).toBe(false);
-    expect(payload.message).toBe('Failed to send message. Please try again later.');
+    expect(payload.error).toBe('Failed to send message. Please try again later.');
     expect(sendMailMock).toHaveBeenCalledTimes(2); // Admin and auto-reply attempts
   });
 

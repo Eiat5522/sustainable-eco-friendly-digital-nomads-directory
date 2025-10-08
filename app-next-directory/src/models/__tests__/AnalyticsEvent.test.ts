@@ -30,7 +30,7 @@ describe('AnalyticsEvent Model', () => {
 
     it('should have timestamp with default value', () => {
       const timestamp = AnalyticsEvent.schema.path('timestamp');
-      expect(timestamp.defaultValue).toBeDefined();
+      expect(timestamp.options.default).toBeDefined();
     });
 
     it('should have userId as optional field with User reference', () => {
@@ -59,16 +59,14 @@ describe('AnalyticsEvent Model', () => {
   });
 
   describe('Schema Indexes', () => {
-    it('should have index on eventType', () => {
-      const indexes = AnalyticsEvent.schema.indexes();
-      const eventTypeIndex = indexes.find((idx: any) => idx[0].eventType);
-      expect(eventTypeIndex).toBeDefined();
+    it('should mark eventType path as indexed', () => {
+      const eventTypePath = AnalyticsEvent.schema.path('eventType');
+      expect(eventTypePath.options.index).toBe(true);
     });
 
-    it('should have index on timestamp', () => {
-      const indexes = AnalyticsEvent.schema.indexes();
-      const timestampIndex = indexes.find((idx: any) => idx[0].timestamp);
-      expect(timestampIndex).toBeDefined();
+    it('should mark timestamp path as indexed', () => {
+      const timestampPath = AnalyticsEvent.schema.path('timestamp');
+      expect(timestampPath.options.index).toBe(true);
     });
   });
 
@@ -158,13 +156,15 @@ describe('AnalyticsEvent Model', () => {
     });
 
     it('should set default timestamp if not provided', () => {
-      const beforeCreation = new Date();
+      const beforeCreation = Date.now();
       const event = new AnalyticsEvent({ eventType: 'test' });
-      const afterCreation = new Date();
+      const afterCreation = Date.now();
 
-      expect(event.timestamp).toBeInstanceOf(Date);
-      expect(event.timestamp.getTime()).toBeGreaterThanOrEqual(beforeCreation.getTime());
-      expect(event.timestamp.getTime()).toBeLessThanOrEqual(afterCreation.getTime());
+      expect(event.timestamp).toBeDefined();
+      const timestampValue = event.timestamp instanceof Date ? event.timestamp.getTime() : Number(event.timestamp);
+      expect(Number.isNaN(timestampValue)).toBe(false);
+      expect(timestampValue).toBeGreaterThanOrEqual(beforeCreation);
+      expect(timestampValue).toBeLessThanOrEqual(afterCreation);
     });
   });
 

@@ -62,7 +62,9 @@ function initializeClientPromise(): Promise<MongoClient> | undefined {
     throw new Error(`MongoDB URI is missing. Please set the MONGODB_URI environment variable in ${envFile}.`);
   }
 
-  if (typeof window === 'undefined') {
+  const isServerLikeEnvironment = typeof window === 'undefined' || process.env.NODE_ENV === 'test';
+
+  if (isServerLikeEnvironment) {
     if (!globalWithMongo._mongoClientPromise) {
       const client = new MongoClient(uri, {});
       globalWithMongo._mongoClientPromise = client.connect();
@@ -472,46 +474,75 @@ export async function getDatabase(): Promise<Db | MockDb> {
     initializeClientPromise();
   }
 
-  const client = await clientPromise;
-  if (!client || typeof client.db !== 'function') {
-    // Attempt to reinitialize the client in test environments in case a
-    // previous test left a bad `global._mongoClientPromise` value. If
-    // reinitialization fails, fall back to an in-memory mock DB for
-    // deterministic test behavior.
-    if (process.env.NODE_ENV === 'test') {
-      const uri = process.env.MONGODB_URI;
-      if (uri) {
-        try {
-          // Close old client if it exists
-          if (globalWithMongo._mongoClientPromise) {
-            try {
-              const oldClient = await globalWithMongo._mongoClientPromise;
-              await oldClient.close();
-            } catch {
-              // Old client already closed or invalid
-            }
-          }
-          const newClient = new MongoClient(uri, {});
-          globalWithMongo._mongoClientPromise = newClient.connect();
-          clientPromise = globalWithMongo._mongoClientPromise;
-          const retriedClient = await clientPromise;
-          if (retriedClient && typeof retriedClient.db === 'function') {
-            return retriedClient.db('sustainable-nomads');
-          }
-        } catch (err) {
-          console.warn(
-            'Failed to reinitialize MongoDB client in test, falling back to mock:',
-            err
-          );
-        }
-      }
-      return createMockDb();
+  const resolveClient = async (): Promise<MongoClient | undefined> => {
+    if (!clientPromise) {
+      return undefined;
     }
 
-    throw new Error('MongoDB client is invalid or not connected');
+    try {
+      return await clientPromise;
+    } catch (error) {
+      if (process.env.NODE_ENV === 'test' && !allowRealMongoInTests) {
+        return undefined;
+      }
+      throw error;
+    }
+  };
+
+  let client = await resolveClient();
+
+  const recreateClient = async (): Promise<MongoClient | undefined> => {
+    const uri = process.env.MONGODB_URI;
+    if (!uri) {
+      return undefined;
+    }
+
+    try {
+      if (globalWithMongo._mongoClientPromise) {
+        try {
+          const oldClient = await globalWithMongo._mongoClientPromise;
+          await oldClient.close?.();
+        } catch {
+          // Ignore errors closing an invalid client
+        }
+      }
+
+      const newClient = new MongoClient(uri, {});
+      const newPromise = newClient.connect();
+      globalWithMongo._mongoClientPromise = newPromise;
+      clientPromise = newPromise;
+      return await resolveClient();
+    } catch (error) {
+      if (process.env.NODE_ENV === 'test' && !allowRealMongoInTests) {
+        return undefined;
+      }
+      throw error;
+    }
+  };
+
+  const hasValidDbFunction = (value: MongoClient | undefined): value is MongoClient =>
+    Boolean(value && typeof value.db === 'function');
+
+  if (!hasValidDbFunction(client) && process.env.NODE_ENV === 'test') {
+    client = await recreateClient();
   }
 
-  return client.db('sustainable-nomads');
+  if (!hasValidDbFunction(client)) {
+    if (process.env.NODE_ENV === 'test' && !allowRealMongoInTests) {
+      return createMockDb();
+    }
+    throw new Error('Client is not a valid MongoClient instance');
+  }
+
+  const database = client.db('sustainable-nomads');
+  if (!database || typeof (database as any).collection !== 'function') {
+    if (process.env.NODE_ENV === 'test' && !allowRealMongoInTests) {
+      return createMockDb();
+    }
+    throw new Error('Database instance is invalid');
+  }
+
+  return database;
 }
 
 export async function getCollection(name: string): Promise<Collection | MockCollection> {
