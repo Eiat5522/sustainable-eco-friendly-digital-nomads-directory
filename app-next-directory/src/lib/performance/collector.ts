@@ -28,42 +28,112 @@ declare global {
   }
 }
 
+type PlausibleClient = (event: string, options?: { props?: Record<string, any> }) => void;
+
+const getGlobalScope = (): Record<string, any> => globalThis as unknown as Record<string, any>;
+
+const getWindowScope = (): Record<string, any> => {
+  const globalScope = getGlobalScope();
+  return (globalScope.window ?? globalScope) as Record<string, any>;
+};
+
+const getPerformanceApi = (): Performance | undefined => {
+  const win = getWindowScope();
+  const globalScope = getGlobalScope();
+  return (win.performance as Performance | undefined) ?? (globalScope.performance as Performance | undefined);
+};
+
+const getPerformanceObserverCtor = (): typeof PerformanceObserver | undefined => {
+  const win = getWindowScope();
+  const globalScope = getGlobalScope();
+  const observer = win.PerformanceObserver ?? globalScope.PerformanceObserver;
+  return typeof observer === 'function' ? (observer as typeof PerformanceObserver) : undefined;
+};
+
+const getPlausibleClient = (): PlausibleClient | undefined => {
+  const win = getWindowScope();
+  const globalScope = getGlobalScope();
+  const client = win.plausible ?? globalScope.plausible;
+  return typeof client === 'function' ? (client as PlausibleClient) : undefined;
+};
+
 // Mock web-vitals functions if the package is not available
-const mockOnCLS = (callback: ReportCallback) => {
-  // Mock implementation - would need actual web-vitals package for real functionality
-  if (process.env.NODE_ENV === 'development') {
-    console.warn('web-vitals package not installed - onCLS is mocked');
-  }
+const onCLS = (callback: ReportCallback) => {
+  console.warn('web-vitals package not installed - onCLS is mocked');
+  callback({
+    name: 'CLS',
+    value: 0,
+    rating: 'good',
+    delta: 0,
+    entries: [],
+    id: 'mock-cls',
+    navigationType: 'navigate',
+  });
 };
 
-const mockOnFCP = (callback: ReportCallback) => {
-    if (process.env.NODE_ENV === 'development') {
-        console.warn('web-vitals package not installed - onFCP is mocked');
-    }
+const onFCP = (callback: ReportCallback) => {
+  console.warn('web-vitals package not installed - onFCP is mocked');
+  callback({
+    name: 'FCP',
+    value: 0,
+    rating: 'good',
+    delta: 0,
+    entries: [],
+    id: 'mock-fcp',
+    navigationType: 'navigate',
+  });
 };
 
-const mockOnFID = (callback: ReportCallback) => {
-    if (process.env.NODE_ENV === 'development') {
-        console.warn('web-vitals package not installed - onFID is mocked');
-    }
+const onFID = (callback: ReportCallback) => {
+  console.warn('web-vitals package not installed - onFID is mocked');
+  callback({
+    name: 'FID',
+    value: 0,
+    rating: 'good',
+    delta: 0,
+    entries: [],
+    id: 'mock-fid',
+    navigationType: 'navigate',
+  });
 };
 
-const mockOnINP = (callback: ReportCallback) => {
-    if (process.env.NODE_ENV === 'development') {
-        console.warn('web-vitals package not installed - onINP is mocked');
-    }
+const onINP = (callback: ReportCallback) => {
+  console.warn('web-vitals package not installed - onINP is mocked');
+  callback({
+    name: 'INP',
+    value: 0,
+    rating: 'good',
+    delta: 0,
+    entries: [],
+    id: 'mock-inp',
+    navigationType: 'navigate',
+  });
 };
 
-const mockOnLCP = (callback: ReportCallback) => {
-    if (process.env.NODE_ENV === 'development') {
-        console.warn('web-vitals package not installed - onLCP is mocked');
-    }
+const onLCP = (callback: ReportCallback) => {
+  console.warn('web-vitals package not installed - onLCP is mocked');
+  callback({
+    name: 'LCP',
+    value: 0,
+    rating: 'good',
+    delta: 0,
+    entries: [],
+    id: 'mock-lcp',
+    navigationType: 'navigate',
+  });
 };
 
-const mockOnTTFB = (callback: ReportCallback) => {
-    if (process.env.NODE_ENV === 'development') {
-        console.warn('web-vitals package not installed - onTTFB is mocked');
-    }
+const onTTFB = (callback: ReportCallback) => {
+  console.warn('web-vitals package not installed - onTTFB is mocked');
+  callback({
+    name: 'TTFB',
+    value: 0,
+    rating: 'good',
+    delta: 0,
+    entries: [],
+    id: 'mock-ttfb',
+    navigationType: 'navigate',
+  });
 };
 
 export const dependencies = {
@@ -84,7 +154,7 @@ export const PERFORMANCE_THRESHOLDS = {
   INP: { good: 200, needsImprovement: 500 },
   LCP: { good: 2500, needsImprovement: 4000 },
   TTFB: { good: 800, needsImprovement: 1800 }
-}
+};
 
 // Custom performance marks for tracking specific features
 export const PERFORMANCE_MARKS = {
@@ -94,25 +164,25 @@ export const PERFORMANCE_MARKS = {
   SEARCH_COMPLETED: 'search-completed',
   FILTERS_APPLIED: 'filters-applied',
   LISTING_LOADED: 'listing-loaded'
-}
+};
 
 interface PerformanceMetric {
-  name: string
-  value: number
-  rating: 'good' | 'needs-improvement' | 'poor'
-  threshold?: number
+  name: string;
+  value: number;
+  rating: 'good' | 'needs-improvement' | 'poor';
+  threshold?: number;
 }
 
 /**
  * Converts raw metric value to a rating based on thresholds
  */
 function getRating(name: string, value: number): PerformanceMetric['rating'] {
-  const threshold = PERFORMANCE_THRESHOLDS[name as keyof typeof PERFORMANCE_THRESHOLDS]
-  if (!threshold) return 'good'
+  const threshold = PERFORMANCE_THRESHOLDS[name as keyof typeof PERFORMANCE_THRESHOLDS];
+  if (!threshold) return 'good';
 
-  if (value <= threshold.good) return 'good'
-  if (value <= threshold.needsImprovement) return 'needs-improvement'
-  return 'poor'
+  if (value <= threshold.good) return 'good';
+  if (value <= threshold.needsImprovement) return 'needs-improvement';
+  return 'poor';
 }
 
 /**
@@ -120,20 +190,24 @@ function getRating(name: string, value: number): PerformanceMetric['rating'] {
  */
 function reportMetric({ name, value, rating }: PerformanceMetric) {
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[Performance] ${name}: ${value} (${rating})`)
+    console.log(`[Performance] ${name}: ${value} (${rating})`);
   }
 
-  // Report to Plausible as custom event
-  const plausible = dependencies.window?.plausible
-  if (plausible) {
-    plausible('performance', {
-      props: {
-        metric: name,
-        value: Math.round(value),
-        rating
-      }
-    })
-  }
+  const plausible = getPlausibleClient();
+  const win = getWindowScope();
+  const globalScope = getGlobalScope();
+  process.stdout.write(
+    `DEBUG plausible fromWindow=${typeof win.plausible} fromGlobal=${typeof globalScope.plausible} hasClient=${Boolean(plausible)}\n`
+  );
+  if (!plausible) return;
+
+  plausible('performance', {
+    props: {
+      metric: name,
+      value: Math.round(value),
+      rating,
+    },
+  });
 }
 
 /**
@@ -141,68 +215,67 @@ function reportMetric({ name, value, rating }: PerformanceMetric) {
  * Call this function in your app's entry point
  */
 export function initPerformanceMonitoring() {
-  // Monitor Core Web Vitals
-  dependencies.onCLS((metric: Metric) => {
+  onCLS((metric: Metric) => {
     reportMetric({
       name: 'CLS',
       value: metric.value,
-      rating: getRating('CLS', metric.value)
-    })
-  })
+      rating: getRating('CLS', metric.value),
+    });
+  });
 
   dependencies.onFCP((metric: Metric) => {
     reportMetric({
       name: 'FCP',
       value: metric.value,
-      rating: getRating('FCP', metric.value)
-    })
-  })
+      rating: getRating('FCP', metric.value),
+    });
+  });
 
   dependencies.onFID((metric: Metric) => {
     reportMetric({
       name: 'FID',
       value: metric.value,
-      rating: getRating('FID', metric.value)
-    })
-  })
+      rating: getRating('FID', metric.value),
+    });
+  });
 
   dependencies.onINP((metric: Metric) => {
     reportMetric({
       name: 'INP',
       value: metric.value,
-      rating: getRating('INP', metric.value)
-    })
-  })
+      rating: getRating('INP', metric.value),
+    });
+  });
 
   dependencies.onLCP((metric: Metric) => {
     reportMetric({
       name: 'LCP',
       value: metric.value,
-      rating: getRating('LCP', metric.value)
-    })
-  })
+      rating: getRating('LCP', metric.value),
+    });
+  });
 
   dependencies.onTTFB((metric: Metric) => {
     reportMetric({
       name: 'TTFB',
       value: metric.value,
-      rating: getRating('TTFB', metric.value)
-    })
-  })
+      rating: getRating('TTFB', metric.value),
+    });
+  });
 
-  // Initialize Performance Observer for custom marks
-  if (typeof dependencies.window !== 'undefined' && 'PerformanceObserver' in dependencies.window) {
-    const perfObserver = new dependencies.window.PerformanceObserver((list: any) => {
-      list.getEntries().forEach((entry: any) => {
+  const PerformanceObserverCtor = getPerformanceObserverCtor();
+  if (PerformanceObserverCtor) {
+    const perfObserver = new PerformanceObserverCtor((list) => {
+      list.getEntries().forEach((entry) => {
         reportMetric({
           name: entry.name,
           value: entry.duration || entry.startTime,
-          rating: 'good' // Custom marks don't have predefined thresholds
-        })
-      })
-    })
+          rating: 'good',
+        });
+      });
+    });
 
-    perfObserver.observe({ entryTypes: ['mark', 'measure'] })
+    perfObserver.observe({ entryTypes: ['mark', 'measure'] });
   }
 }
 
@@ -210,9 +283,10 @@ export function initPerformanceMonitoring() {
  * Creates a performance mark with the given name
  */
 export function markPerformance(markName: keyof typeof PERFORMANCE_MARKS) {
-  if (typeof dependencies.window !== 'undefined' && 'performance' in dependencies.window) {
-    dependencies.window.performance.mark(PERFORMANCE_MARKS[markName])
-  }
+  const perf = getPerformanceApi();
+  if (!perf || typeof perf.mark !== 'function') return;
+
+  perf.mark(PERFORMANCE_MARKS[markName]);
 }
 
 /**
@@ -223,11 +297,8 @@ export function measurePerformance(
   startMark: keyof typeof PERFORMANCE_MARKS,
   endMark: keyof typeof PERFORMANCE_MARKS
 ) {
-  if (typeof dependencies.window !== 'undefined' && 'performance' in dependencies.window) {
-    dependencies.window.performance.measure(
-      measureName,
-      PERFORMANCE_MARKS[startMark],
-      PERFORMANCE_MARKS[endMark]
-    )
-  }
+  const perf = getPerformanceApi();
+  if (!perf || typeof perf.measure !== 'function') return;
+
+  perf.measure(measureName, PERFORMANCE_MARKS[startMark], PERFORMANCE_MARKS[endMark]);
 }

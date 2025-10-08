@@ -12,7 +12,6 @@ const PasswordResetTokenSchema = new Schema<IPasswordResetToken>({
   tokenHash: {
     type: String,
     required: true,
-    index: true,
     select: false,                 // don't return by default
     minlength: 64,
     maxlength: 64,
@@ -21,7 +20,7 @@ const PasswordResetTokenSchema = new Schema<IPasswordResetToken>({
   },
 
   expiresAt: { type: Date, required: true },
-  createdAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: () => new Date() },
 });
 
 
@@ -37,6 +36,7 @@ PasswordResetTokenSchema.pre('save', function (next) {
 PasswordResetTokenSchema.index({ userId: 1 }, { unique: true });
 // TTL index defined centrally to avoid duplicate index warnings
 PasswordResetTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+PasswordResetTokenSchema.index({ tokenHash: 1 });
 
 export default (mongoose.models.PasswordResetToken as mongoose.Model<IPasswordResetToken>)
   || mongoose.model<IPasswordResetToken>('PasswordResetToken', PasswordResetTokenSchema);

@@ -41,7 +41,7 @@ const LoginAttemptSchema = new Schema<ILoginAttempt>({
   },
   createdAt: {
     type: Date,
-    default: Date.now,
+    default: () => new Date(),
   },
 });
 

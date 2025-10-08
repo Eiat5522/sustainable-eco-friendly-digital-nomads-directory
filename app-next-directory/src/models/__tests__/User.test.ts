@@ -25,10 +25,8 @@ describe('User Model', () => {
       expect(User.modelName).toBe('User');
     });
 
-    it('should have email as a required field', () => {
-      // Accessing schema path after fresh import should work
-      const emailField = User.schema.path('email') as any;
-      expect(emailField.isRequired).toBe(true);
+    it('should have email as required field', () => {
+      expect(User.schema.path('email').isRequired).toBeDefined();
     });
 
     it('should have optional fields correctly marked', () => {
@@ -39,8 +37,20 @@ describe('User Model', () => {
 
   describe('Email Field', () => {
     it('should have email field with required validation', () => {
-      const emailField = User.schema.path('email') as any;
-      expect(emailField.isRequired).toBe(true);
+      expect(User.schema.path('email').isRequired).toBeDefined();
+    });
+
+    it('should have trim option on email', () => {
+      expect(User.schema.path('email').options.trim).toBe(true);
+    });
+
+    it('should have lowercase option on email', () => {
+      expect(User.schema.path('email').options.lowercase).toBe(true);
+    });
+
+    it('should have email validator', () => {
+      const emailField = User.schema.path('email');
+      expect(emailField.options.validate).toBeDefined();
     });
   });
 

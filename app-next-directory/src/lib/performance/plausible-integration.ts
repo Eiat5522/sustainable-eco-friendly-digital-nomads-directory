@@ -10,6 +10,31 @@
 
 import { shouldAlert, type PerformanceAlert } from './budgets'
 
+type PlausibleClient = (event: string, options?: { props?: Record<string, any> }) => void
+type WindowLike = Partial<Window> & Record<string, unknown>
+
+const getWindowLike = (): WindowLike | undefined => {
+  if (typeof globalThis !== 'undefined') {
+    const maybeWindow = (globalThis as Record<string, unknown>).window as WindowLike | undefined
+    if (maybeWindow) return maybeWindow
+  }
+
+  if (typeof window !== 'undefined') {
+    return window as unknown as WindowLike
+  }
+
+  return undefined
+}
+
+const resolvePlausible = (win = getWindowLike()): PlausibleClient | null => {
+  const scope = globalThis as Record<string, unknown>
+  const plausible =
+    (win as { plausible?: unknown } | undefined)?.plausible ??
+    scope.plausible
+
+  return typeof plausible === 'function' ? (plausible as PlausibleClient) : null
+}
+
 // Performance event categories in Plausible
 export const PERFORMANCE_EVENTS = Object.freeze({
   WEB_VITALS: 'web_vitals',
@@ -37,22 +62,26 @@ export const dependencies = {
  * Reports a performance event to Plausible Analytics
  */
 export function reportPerformanceEvent(event: PerformanceEvent) {
-  if (typeof dependencies.window === 'undefined') return
+  const win = getWindowLike()
+  const plausible = resolvePlausible(win)
 
-  const plausible = dependencies.window.plausible
   if (!plausible) {
+    if (!win) return
+
     console.warn('[Performance] Plausible Analytics not initialized')
     return
   }
 
+  const baseProps = {
+    metric: event.name,
+    value: Math.round(event.value)
+  }
+
+  const props = event.metadata ? { ...baseProps, ...event.metadata } : baseProps
+  const eventName = PERFORMANCE_EVENTS[event.category]
+
   // Send event to Plausible
-  plausible(PERFORMANCE_EVENTS[event.category], {
-    props: {
-      metric: event.name,
-      value: Math.round(event.value),
-      ...event.metadata
-    }
-  })
+  plausible(eventName, { props })
 
   // Check if this event should trigger an alert
   let alert: PerformanceAlert | null = null

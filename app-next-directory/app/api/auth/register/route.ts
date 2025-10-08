@@ -39,15 +39,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Test mode: return fake user for tests
-    if (process.env.TEST_MODE === '1') {
-      const fakeUser = { _id: 'test-user-1', name, email, role: 'user' };
-      return NextResponse.json(
-        { success: true, data: { user: fakeUser }, error: null },
-        { status: 201, headers: { 'X-Test-Mode': '1' } }
-      );
-    }
-
     // If MONGODB_URI is not configured during non-test runs, return a clear 503
     if (!process.env.MONGODB_URI) {
       console.warn('MONGODB_URI is not set; responding 503 from /api/auth/register');
@@ -66,9 +57,8 @@ export async function POST(request: NextRequest) {
 
     await connect();
 
-    // Check if user already exists
-    const duplicateCount = await User.countDocuments({ email });
-    if (duplicateCount > 0) {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
       return NextResponse.json(
         { success: false, error: { message: 'User already exists', code: 'CONFLICT' } },
         { status: 409 }

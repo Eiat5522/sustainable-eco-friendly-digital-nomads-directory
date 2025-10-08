@@ -43,24 +43,6 @@ export const PERFORMANCE_BUDGETS = {
   }
 }
 
-// Alert configuration for different channels
-export const ALERT_CHANNELS = {
-  console: {
-    enabled: true,
-    minSeverity: 'warning'
-  },
-  slack: {
-    enabled: process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL !== undefined,
-    minSeverity: 'error',
-    webhookUrl: process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL
-  },
-  email: {
-    enabled: process.env.NEXT_PUBLIC_ALERT_EMAIL !== undefined,
-    minSeverity: 'error',
-    recipient: process.env.NEXT_PUBLIC_ALERT_EMAIL
-  }
-}
-
 // Alert severity levels
 export type AlertSeverity = 'info' | 'warning' | 'error' | 'critical'
 
@@ -80,6 +62,35 @@ export interface PerformanceAlert {
   timestamp: number
   context?: Record<string, any>
 }
+
+interface BaseChannelConfig {
+  readonly enabled: boolean
+  readonly minSeverity: AlertSeverity
+}
+
+interface SlackChannelConfig extends BaseChannelConfig {
+  readonly webhookUrl?: string
+}
+
+interface EmailChannelConfig extends BaseChannelConfig {
+  readonly recipient?: string
+}
+
+interface AlertChannels {
+  readonly console: BaseChannelConfig
+  readonly slack: SlackChannelConfig
+  readonly email: EmailChannelConfig
+}
+
+const severityRanking: Record<AlertSeverity, number> = {
+  info: 0,
+  warning: 1,
+  error: 2,
+  critical: 3
+}
+
+const meetsSeverityThreshold = (severity: AlertSeverity, minSeverity: AlertSeverity) =>
+  severityRanking[severity] >= severityRanking[minSeverity]
 
 /**
  * Determines if a metric should trigger an alert
@@ -117,6 +128,10 @@ export function shouldAlert(
  * Sends an alert through configured channels
  */
 export async function sendAlert(alert: PerformanceAlert) {
+  const slackChannel = ALERT_CHANNELS.slack
+  const emailChannel = ALERT_CHANNELS.email
+  const fetchFn = typeof globalThis.fetch === 'function' ? globalThis.fetch.bind(globalThis) : null
+
   // Console logging (development & production)
   if (ALERT_CHANNELS.console.enabled) {
     const severity = alert.severity.toUpperCase()
@@ -127,11 +142,13 @@ export async function sendAlert(alert: PerformanceAlert) {
 
   // Slack alerts (if configured)
   if (
-    ALERT_CHANNELS.slack.enabled &&
-    SEVERITY_LEVELS[alert.severity] >= SEVERITY_LEVELS[ALERT_CHANNELS.slack.minSeverity]
+    slackChannel.enabled &&
+    slackChannel.webhookUrl &&
+    meetsSeverityThreshold(alert.severity, slackChannel.minSeverity) &&
+    fetchFn
   ) {
     try {
-      await fetch(ALERT_CHANNELS.slack.webhookUrl!, {
+      await fetchFn(slackChannel.webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -148,11 +165,76 @@ export async function sendAlert(alert: PerformanceAlert) {
   }
 
   // Email alerts (if configured)
-  if (
-    ALERT_CHANNELS.email.enabled &&
-    SEVERITY_LEVELS[alert.severity] >= SEVERITY_LEVELS[ALERT_CHANNELS.email.minSeverity]
-  ) {
+  if (emailChannel.enabled && meetsSeverityThreshold(alert.severity, emailChannel.minSeverity)) {
     // Implement email sending logic here
     // You might want to use a service like SendGrid or Amazon SES
   }
+}
+
+const createSlackChannelConfig = (): SlackChannelConfig => {
+  const config: Record<string, unknown> = {}
+
+  Object.defineProperties(config, {
+    enabled: {
+      enumerable: true,
+      get: () => {
+        const webhook = process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL?.trim()
+        return Boolean(webhook)
+      }
+    },
+    minSeverity: {
+      enumerable: true,
+      value: 'error' as AlertSeverity,
+      writable: false,
+      configurable: false
+    },
+    webhookUrl: {
+      enumerable: true,
+      get: () => {
+        const webhook = process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL?.trim()
+        return webhook || undefined
+      }
+    }
+  })
+
+  return config as SlackChannelConfig
+}
+
+const createEmailChannelConfig = (): EmailChannelConfig => {
+  const config: Record<string, unknown> = {}
+
+  Object.defineProperties(config, {
+    enabled: {
+      enumerable: true,
+      get: () => {
+        const recipient = process.env.NEXT_PUBLIC_ALERT_EMAIL?.trim()
+        return Boolean(recipient)
+      }
+    },
+    minSeverity: {
+      enumerable: true,
+      value: 'error' as AlertSeverity,
+      writable: false,
+      configurable: false
+    },
+    recipient: {
+      enumerable: true,
+      get: () => {
+        const recipient = process.env.NEXT_PUBLIC_ALERT_EMAIL?.trim()
+        return recipient || undefined
+      }
+    }
+  })
+
+  return config as EmailChannelConfig
+}
+
+// Alert configuration for different channels
+export const ALERT_CHANNELS: AlertChannels = {
+  console: Object.freeze({
+    enabled: true,
+    minSeverity: 'warning' as AlertSeverity
+  }),
+  slack: createSlackChannelConfig(),
+  email: createEmailChannelConfig()
 }

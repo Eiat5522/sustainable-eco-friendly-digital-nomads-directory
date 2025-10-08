@@ -1,17 +1,18 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { NeoBadge } from '../neo-badge';
 
 describe('NeoBadge', () => {
   describe('Rendering', () => {
     it('renders with children', () => {
-      const { container } = render(<NeoBadge>Test Badge</NeoBadge>);
-      expect(container.textContent).toBe('Test Badge');
+      const { getByText } = render(<NeoBadge>Test Badge</NeoBadge>);
+      expect(getByText('Test Badge')).toBeInTheDocument();
     });
 
     it('renders with default variant and size', () => {
-      const { container } = render(<NeoBadge>Default</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge>Default</NeoBadge>);
+      const badge = getByText('Default');
       
       expect(badge).toHaveClass('bg-neo-primary');
       expect(badge).toHaveClass('px-3');
@@ -20,8 +21,8 @@ describe('NeoBadge', () => {
     });
 
     it('applies base classes', () => {
-      const { container } = render(<NeoBadge>Badge</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge>Badge</NeoBadge>);
+      const badge = getByText('Badge');
       
       expect(badge).toHaveClass('inline-flex');
       expect(badge).toHaveClass('items-center');
@@ -34,37 +35,37 @@ describe('NeoBadge', () => {
 
   describe('Variants', () => {
     it('renders default variant', () => {
-      const { container } = render(<NeoBadge variant="default">Default</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge variant="default">Default</NeoBadge>);
+      const badge = getByText('Default');
       
       expect(badge).toHaveClass('bg-neo-primary');
     });
 
     it('renders secondary variant', () => {
-      const { container } = render(<NeoBadge variant="secondary">Secondary</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge variant="secondary">Secondary</NeoBadge>);
+      const badge = getByText('Secondary');
       
       expect(badge).toHaveClass('bg-neo-secondary');
       expect(badge).toHaveClass('text-neo-text-primary');
     });
 
     it('renders accent variant', () => {
-      const { container } = render(<NeoBadge variant="accent">Accent</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge variant="accent">Accent</NeoBadge>);
+      const badge = getByText('Accent');
       
       expect(badge).toHaveClass('bg-neo-accent');
     });
 
     it('renders success variant', () => {
-      const { container } = render(<NeoBadge variant="success">Success</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge variant="success">Success</NeoBadge>);
+      const badge = getByText('Success');
       
       expect(badge).toHaveClass('bg-neo-success');
     });
 
     it('renders outline variant', () => {
-      const { container } = render(<NeoBadge variant="outline">Outline</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge variant="outline">Outline</NeoBadge>);
+      const badge = getByText('Outline');
       
       expect(badge).toHaveClass('bg-transparent');
       expect(badge).toHaveClass('text-neo-text-primary');
@@ -73,8 +74,8 @@ describe('NeoBadge', () => {
 
   describe('Sizes', () => {
     it('renders small size', () => {
-      const { container } = render(<NeoBadge size="sm">Small</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge size="sm">Small</NeoBadge>);
+      const badge = getByText('Small');
       
       expect(badge).toHaveClass('px-2.5');
       expect(badge).toHaveClass('py-0.5');
@@ -82,8 +83,8 @@ describe('NeoBadge', () => {
     });
 
     it('renders medium size', () => {
-      const { container } = render(<NeoBadge size="md">Medium</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge size="md">Medium</NeoBadge>);
+      const badge = getByText('Medium');
       
       expect(badge).toHaveClass('px-3');
       expect(badge).toHaveClass('py-1');
@@ -91,8 +92,8 @@ describe('NeoBadge', () => {
     });
 
     it('renders large size', () => {
-      const { container } = render(<NeoBadge size="lg">Large</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge size="lg">Large</NeoBadge>);
+      const badge = getByText('Large');
       
       expect(badge).toHaveClass('px-4');
       expect(badge).toHaveClass('py-1.5');
@@ -102,18 +103,18 @@ describe('NeoBadge', () => {
 
   describe('Custom Props', () => {
     it('applies custom className', () => {
-      const { container } = render(<NeoBadge className="custom-class">Custom</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge className="custom-class">Custom</NeoBadge>);
+      const badge = getByText('Custom');
       
       expect(badge).toHaveClass('custom-class');
       expect(badge).toHaveClass('bg-neo-primary'); // Still has default classes
     });
 
     it('forwards additional HTML attributes', () => {
-      const { container } = render(
+      const { getByTestId } = render(
         <NeoBadge data-testid="test-badge" id="badge-id">Attributes</NeoBadge>
       );
-      const badge = container.firstChild as HTMLElement;
+      const badge = getByTestId('test-badge');
       
       expect(badge).toHaveAttribute('data-testid', 'test-badge');
       expect(badge).toHaveAttribute('id', 'badge-id');
@@ -130,8 +131,8 @@ describe('NeoBadge', () => {
 
   describe('Accessibility', () => {
     it('has proper focus styles', () => {
-      const { container } = render(<NeoBadge>Focus Test</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge>Focus Test</NeoBadge>);
+      const badge = getByText('Focus Test');
       
       expect(badge).toHaveClass('focus:outline-none');
       expect(badge).toHaveClass('focus:ring-ring');
@@ -139,8 +140,8 @@ describe('NeoBadge', () => {
     });
 
     it('has transition classes for smooth state changes', () => {
-      const { container } = render(<NeoBadge>Transition</NeoBadge>);
-      const badge = container.firstChild as HTMLElement;
+      const { getByText } = render(<NeoBadge>Transition</NeoBadge>);
+      const badge = getByText('Transition');
       
       expect(badge).toHaveClass('transition-colors');
     });
@@ -148,10 +149,10 @@ describe('NeoBadge', () => {
 
   describe('Combinations', () => {
     it('renders with variant and size combinations', () => {
-      const { container } = render(
+      const { getByText } = render(
         <NeoBadge variant="accent" size="lg">Large Accent</NeoBadge>
       );
-      const badge = container.firstChild as HTMLElement;
+      const badge = getByText('Large Accent');
       
       expect(badge).toHaveClass('bg-neo-accent');
       expect(badge).toHaveClass('px-4');
@@ -160,7 +161,7 @@ describe('NeoBadge', () => {
     });
 
     it('renders with all custom props', () => {
-      const { container } = render(
+      const { getByTestId } = render(
         <NeoBadge 
           variant="success" 
           size="sm" 
@@ -170,7 +171,7 @@ describe('NeoBadge', () => {
           Full Props
         </NeoBadge>
       );
-      const badge = container.firstChild as HTMLElement;
+      const badge = getByTestId('full-test');
       
       expect(badge).toHaveClass('bg-neo-success');
       expect(badge).toHaveClass('px-2.5');

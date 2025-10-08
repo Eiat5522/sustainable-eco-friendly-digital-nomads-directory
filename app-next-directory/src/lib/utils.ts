@@ -15,22 +15,18 @@ function mergeTailwindFallback(value: string): string {
     return tokens.join(' ');
   }
 
-  const lastIndexByPrefix = new Map<string, number>();
-
-  tokens.forEach((token, index) => {
-    const prefix = token.includes('-') ? token.replace(/-[^-]+$/, '') : token;
-    lastIndexByPrefix.set(prefix, index);
-  });
-
+  const seen = new Set<string>();
   const deduped: string[] = [];
-  tokens.forEach((token, index) => {
-    const prefix = token.includes('-') ? token.replace(/-[^-]+$/, '') : token;
-    if (lastIndexByPrefix.get(prefix) === index) {
+
+  for (let index = tokens.length - 1; index >= 0; index -= 1) {
+    const token = tokens[index];
+    if (!seen.has(token)) {
+      seen.add(token);
       deduped.push(token);
     }
-  });
+  }
 
-  return deduped.join(' ');
+  return deduped.reverse().join(' ');
 }
 
 export function cn(...inputs: ClassValue[]) {

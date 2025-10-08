@@ -15,7 +15,9 @@ export async function processMetricForAlert(
       }
     }
   } catch (error) {
-    console.error('Error processing metric for alert:', error);
-    throw error;
+    const err = error instanceof Error ? error : new Error(String(error));
+
+    console.error('Error processing metric for alert:', err);
+    throw err;
   }
 }
