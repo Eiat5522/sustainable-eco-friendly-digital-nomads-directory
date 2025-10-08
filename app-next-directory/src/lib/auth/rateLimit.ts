@@ -124,7 +124,7 @@ function normaliseRedisClient(redis: Redis | undefined): any {
 
 let loginRateLimiterPromise: Promise<void> | null = null;
 
-const buildRateLimiter = (redis: Redis | undefined) => {
+export const buildRateLimiter = (redis: Redis | undefined) => {
   const testOverride = getTestRateLimiterOverride();
   if (testOverride) {
     if (redis) {
