@@ -1,10 +1,14 @@
 // Mock the logger
-const mockMiddlewareError = jest.fn();
 jest.mock('@/lib/logger', () => ({
+  __esModule: true,
   structuredLogger: {
-    middlewareError: mockMiddlewareError,
+    middlewareError: jest.fn(),
   },
 }));
+
+import { structuredLogger } from '@/lib/logger';
+
+const mockMiddlewareError = structuredLogger.middlewareError as jest.Mock;
 
 // Mock fetch
 const mockFetch = jest.fn();
