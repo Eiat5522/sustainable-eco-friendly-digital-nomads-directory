@@ -158,7 +158,7 @@ export function FavoriteListingsShowcase({ listings, onRemove }: FavoriteListing
                     </NeoButton>
                     <NeoButton
                       type="button"
-                      variant="danger"
+                      variant="outline"
                       size="sm"
                       className="h-8 w-8 p-0"
                       onClick={() => onRemove(listing.id)}
