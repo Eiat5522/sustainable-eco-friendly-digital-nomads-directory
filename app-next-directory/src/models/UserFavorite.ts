@@ -56,6 +56,15 @@ const UserFavoriteSchema: Schema<IUserFavorite> = new Schema({
   },
 });
 
+
+// Ensure createdAt is always a Date instance
+UserFavoriteSchema.pre('save', function (next) {
+  if (this.createdAt && !(this.createdAt instanceof Date)) {
+    this.createdAt = new Date(this.createdAt);
+  }
+  next();
+});
+
 // Add a compound index to prevent duplicate favorites
 UserFavoriteSchema.index({ userId: 1, listingId: 1 }, { unique: true });
 

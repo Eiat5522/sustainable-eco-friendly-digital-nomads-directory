@@ -129,58 +129,64 @@ export function CityCarousel() {
               aria-label="Featured city destinations"
             >
               <div className="flex gap-6" role="list">
-                {cities.map((city) => (
-                  <div
-                    key={city.id}
-                    role="listitem"
-                    className="flex-none w-[85%] sm:w-[55%] lg:w-1/3 xl:w-1/4"
-                  >
-                    <Link
-                      href={`/cities/${city.slug}`}
-                      className="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                {cities.map((city, index) => {
+                  const safeSlug = typeof city.slug === 'string' ? city.slug.trim() : '';
+                  const safeId = typeof city.id === 'string' ? city.id.trim() : '';
+                  const safeName = typeof city.name === 'string' ? city.name.trim() : '';
+                  const key = safeSlug || safeId || safeName || `city-${index}`;
+                  return (
+                    <div
+                      key={key}
+                      role="listitem"
+                      className="flex-none w-[85%] sm:w-[55%] lg:w-1/3 xl:w-1/4"
                     >
-                      <div className="relative h-48 w-full overflow-hidden rounded-xl border-4 border-black bg-white shadow-[8px_8px_0_0_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0_0_rgba(0,0,0,1)] group-focus-within:shadow-[12px_12px_0_0_rgba(0,0,0,1)] transition-all">
-                        {/* Always render local placeholder to avoid 404s and layout shifts */}
-                        <Image
-                          src="/placeholder_image.png"
-                          alt=""
-                          aria-hidden="true"
-                          fill
-                          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                          className="object-cover"
-                          priority={false}
-                        />
-                        {/* If a city image exists, layer it above the placeholder; hide if it errors */}
-                        {city.imageUrl ? (
+                      <Link
+                        href={`/cities/${city.slug}`}
+                        className="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                      >
+                        <div className="relative h-48 w-full overflow-hidden rounded-xl border-4 border-black bg-white shadow-[8px_8px_0_0_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0_0_rgba(0,0,0,1)] group-focus-within:shadow-[12px_12px_0_0_rgba(0,0,0,1)] transition-all">
+                          {/* Always render local placeholder to avoid 404s and layout shifts */}
                           <Image
-                            src={city.imageUrl}
-                            alt={city.name}
+                            src="/placeholder_image.png"
+                            alt=""
+                            aria-hidden="true"
                             fill
                             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
-                              // Hide broken remote image so local placeholder remains visible
-                              e.currentTarget.hidden = true;
-                            }}
+                            className="object-cover"
+                            priority={false}
                           />
-                        ) : null}
-                        <div className="absolute inset-x-0 bottom-0 p-3 bg-black/60 text-white">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold">{city.name}</span>
-                            {typeof city.sustainabilityScore === 'number' && (
-                              <span className="text-xs bg-emerald-400 text-black px-2 py-0.5 rounded-full font-bold">
-                                {city.sustainabilityScore}%
-                              </span>
+                          {/* If a city image exists, layer it above the placeholder; hide if it errors */}
+                          {city.imageUrl ? (
+                            <Image
+                              src={city.imageUrl}
+                              alt={city.name}
+                              fill
+                              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+                                // Hide broken remote image so local placeholder remains visible
+                                e.currentTarget.hidden = true;
+                              }}
+                            />
+                          ) : null}
+                          <div className="absolute inset-x-0 bottom-0 p-3 bg-black/60 text-white">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold">{city.name}</span>
+                              {typeof city.sustainabilityScore === 'number' && (
+                                <span className="text-xs bg-emerald-400 text-black px-2 py-0.5 rounded-full font-bold">
+                                  {city.sustainabilityScore}%
+                                </span>
+                              )}
+                            </div>
+                            {city.country && (
+                              <p className="text-xs opacity-90">{city.country}</p>
                             )}
                           </div>
-                          {city.country && (
-                            <p className="text-xs opacity-90">{city.country}</p>
-                          )}
                         </div>
-                      </div>
-                    </Link>
-                  </div>
-                ))}
+                      </Link>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 

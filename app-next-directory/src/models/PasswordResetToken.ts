@@ -24,6 +24,15 @@ const PasswordResetTokenSchema = new Schema<IPasswordResetToken>({
   createdAt: { type: Date, default: Date.now },
 });
 
+
+// Ensure createdAt is always a Date instance
+PasswordResetTokenSchema.pre('save', function (next) {
+  if (this.createdAt && !(this.createdAt instanceof Date)) {
+    this.createdAt = new Date(this.createdAt);
+  }
+  next();
+});
+
 // Ensure only one active reset token per user, and let MongoDB auto-expire docs
 PasswordResetTokenSchema.index({ userId: 1 }, { unique: true });
 // TTL index defined centrally to avoid duplicate index warnings

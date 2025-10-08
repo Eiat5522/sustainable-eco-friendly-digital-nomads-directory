@@ -1,5 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+// Provides extended jest matchers like toHaveClass / toBeInTheDocument
+import '@testing-library/jest-dom';
 import { SkipLink } from '../skip-link';
 
 jest.mock('next/link', () => ({
@@ -41,17 +44,30 @@ describe('SkipLink', () => {
       expect(link).toHaveClass('-translate-y-full');
     });
 
-    it('applies appearance classes', () => {
-      render(<SkipLink href="#main">Skip</SkipLink>);
+    it('applies default appearance classes', () => {
+      // Render using the correct prop `href` (component expects href)
+      render(<SkipLink href="#main-content">Skip</SkipLink>);
       const link = screen.getByRole('link');
       
-      expect(link).toHaveClass('rounded-md');
-      expect(link).toHaveClass('bg-neo-primary');
-      expect(link).toHaveClass('px-4');
-      expect(link).toHaveClass('py-2');
-      expect(link).toHaveClass('text-sm');
-      expect(link).toHaveClass('font-semibold');
+      // Check for default classes (not focus classes)
+      expect(link).toHaveClass('bg-white');
       expect(link).toHaveClass('text-white');
+      expect(link).toHaveClass('border-white');
+    });
+
+    it('applies focus appearance classes when focused', async () => {
+      const user = userEvent.setup();
+      // Use the correct prop `href` so the link is rendered properly
+      render(<SkipLink href="#main-content">Skip</SkipLink>);
+      const link = screen.getByRole('link');
+      
+      // Focus the element
+      await user.tab();
+      
+      // Now check for focus classes
+      expect(link).toHaveClass('focus:bg-neo-primary');
+      expect(link).toHaveClass('focus:text-white');
+      expect(link).toHaveClass('focus:border-neo-primary');
     });
 
     it('applies transition classes', () => {

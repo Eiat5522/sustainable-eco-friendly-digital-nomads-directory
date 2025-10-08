@@ -56,22 +56,27 @@ export const getRedisClient = jest.fn(() => mockRedisClient);
   (getRedisClient as any).mock.calls = [];
 };
 
-(getRedisClient as any).mockReset = () => {
-  // Reset to default: return undefined and clear listeners and mocks
-  (getRedisClient as any).mockImplementation(() => undefined);
-  _notifyRedisClientChange(undefined);
-  listeners.clear();
-
-  // Reset internal mock implementations on the mock client
-  for (const key of Object.keys(mockRedisClient)) {
-    const v: any = (mockRedisClient as any)[key];
-    if (v && typeof v.mockReset === 'function') v.mockReset();
-  }
+/**
+ * Jest mock helpers:
+ * - mockClear: only clears call history (matches Jest semantics)
+ * - mockResetClient: resets implementation to undefined and notifies listeners (for full reset)
+ *
+ * Use mockClear for normal test isolation. Use mockResetClient if you need to simulate client disconnect/reset.
+ */
+(getRedisClient as any).mockClear = () => {
+  // Only clear recorded calls to align with Jest's mockClear semantics in our shim
   (getRedisClient as any).mock.calls = [];
 };
 
-(getRedisClient as any).mockReturnValue = (val: any) => {
-  (getRedisClient as any).mockImplementation(() => val);
+(getRedisClient as any).mockResetClient = () => {
+  (getRedisClient as any).mockImplementation(() => undefined);
+  _notifyRedisClientChange(undefined);
+  listeners.clear();
+  // Optionally, reset internal mock implementations on the mock client if needed
+};
+
+// Alias for legacy usage
+(getRedisClient as any).mockClearAndReset = (getRedisClient as any).mockResetClient;
   _notifyRedisClientChange(val);
 };
 

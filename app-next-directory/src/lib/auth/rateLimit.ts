@@ -80,6 +80,35 @@ const createSlidingWindowLimiter = (ctor: typeof UpstashRatelimit) => {
   } as unknown as RatelimitConfig['limiter'];
 };
 
+// Add: normalizeRedisClient helper
+function normalizeRedisClient(client: any) {
+  if (!client || typeof client !== 'object') return client;
+
+  // Normalize evalSha -> evalsha (some clients use camelCase)
+  if ('evalSha' in client && !('evalsha' in client)) {
+    try {
+      client.evalsha = (client.evalSha as Function).bind(client);
+    } catch {
+      // noop: binding may fail in some mocks; fall back to a simple assignment
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (client as any).evalsha = (client as any).evalSha;
+    }
+  }
+
+  // Also ensure the reverse mapping just in case code expects evalSha
+  if ('evalsha' in client && !('evalSha' in client)) {
+    try {
+      client.evalSha = (client.evalsha as Function).bind(client);
+    } catch {
+      // noop
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (client as any).evalSha = (client as any).evalsha;
+    }
+  }
+
+  return client;
+}
+
 function normaliseRedisClient(redis: Redis | undefined): any {
   if (!redis) {
     return redis;
@@ -169,10 +198,12 @@ try {
 
 buildRateLimiter(initialRedis);
 
+// Ensure handler registration uses normalization
 if (typeof onRedisClientChange === 'function') {
-  onRedisClientChange(redis => {
+  onRedisClientChange((newClient: any) => {
     try {
-      buildRateLimiter(redis);
+      normalizeRedisClient(newClient);
+      buildRateLimiter(newClient);
     } catch (error) {
       console.warn('[auth] Failed to rebuild login rate limiter', error);
     }
