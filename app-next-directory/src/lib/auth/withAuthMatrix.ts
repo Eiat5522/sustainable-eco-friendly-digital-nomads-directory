@@ -23,8 +23,7 @@ export async function withAuthMatrix(
   page?: keyof typeof ACCESS_CONTROL_MATRIX[UserRole]['pages'] | null,
   action?: keyof PagePermissions | null,
   isApiRoute: boolean = false,
-  resourceOwnership?: { userId: string; resourceOwnerId: string },
-  hasPagePermissionFn: typeof hasPagePermission = hasPagePermission
+  resourceOwnership?: { userId: string; resourceOwnerId: string }
 ) {
   const pathname = request.nextUrl.pathname;
 
@@ -61,7 +60,7 @@ export async function withAuthMatrix(
       return NextResponse.next();
     }
 
-    const hasPermission = hasPagePermissionFn(userRole, page, action);
+    const hasPermission = hasPagePermission(userRole, page, action);
 
     if (!hasPermission) {
       return new NextResponse(
@@ -86,7 +85,7 @@ export async function withAuthMatrix(
 
   // If no token and accessing protected routes
   if (!token && page && action) {
-    const hasPermission = hasPagePermissionFn('unidentifiedUser', page, action);
+    const hasPermission = hasPagePermission('unidentifiedUser', page, action);
 
     if (!hasPermission) {
       // Create redirect URL with return path
@@ -100,7 +99,7 @@ export async function withAuthMatrix(
 
   // If we have specific page and action to check
   if (page && action) {
-    const hasPermission = hasPagePermissionFn(userRole, page, action);
+    const hasPermission = hasPagePermission(userRole, page, action);
 
     // Handle ownership-based permissions for venue owners
     if (!hasPermission && resourceOwnership && userRole === 'venueOwner') {
@@ -136,8 +135,7 @@ export async function withAuthMatrix(
 export async function withAuthApiFeature(
   request: NextRequest,
   feature: keyof typeof ACCESS_CONTROL_MATRIX[UserRole]['features'],
-  resourceOwnership?: { userId: string; resourceOwnerId: string },
-  hasFeaturePermissionFn: typeof hasFeaturePermission = hasFeaturePermission
+  resourceOwnership?: { userId: string; resourceOwnerId: string }
 ) {
   const token = await getToken({
     req: request,
@@ -163,7 +161,7 @@ export async function withAuthApiFeature(
   }
 
   const userRole: UserRole = (token?.role as UserRole) || 'unidentifiedUser';
-  const hasPermission = hasFeaturePermissionFn(userRole, feature);
+  const hasPermission = hasFeaturePermission(userRole, feature);
 
   // Handle ownership-based permissions
   if (!hasPermission && resourceOwnership) {
@@ -280,19 +278,15 @@ export async function withAuth(
 ) {
   console.warn('withAuth is deprecated. Use withAuthMatrix for audit compliance.');
 
-  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
-  if (!token) {
-    const url = new URL('/auth/signin', request.url);
-    url.searchParams.set('callbackUrl', encodeURI(request.nextUrl.pathname));
-    return NextResponse.redirect(url);
+  const session = await auth();
+  if (!session) {
+    return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
 
-  const userRole = (token?.role as string) || 'user';
+  const userRole = session?.user?.role as string || 'user';
 
   if (requiredRoles && !requiredRoles.includes(userRole)) {
-    const url = new URL('/auth/unauthorized', request.url);
-    url.searchParams.set('reason', 'insufficient_role');
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(new URL('/auth/unauthorized', request.url));
   }
 
   return NextResponse.next();

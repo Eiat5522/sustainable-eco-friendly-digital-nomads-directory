@@ -64,13 +64,6 @@ export const ALERT_CHANNELS = {
 // Alert severity levels
 export type AlertSeverity = 'info' | 'warning' | 'error' | 'critical'
 
-export const SEVERITY_LEVELS: { [key in AlertSeverity]: number } = {
-  info: 0,
-  warning: 1,
-  error: 2,
-  critical: 3,
-};
-
 // Alert message structure
 export interface PerformanceAlert {
   metric: string
@@ -126,10 +119,7 @@ export async function sendAlert(alert: PerformanceAlert) {
   }
 
   // Slack alerts (if configured)
-  if (
-    ALERT_CHANNELS.slack.enabled &&
-    SEVERITY_LEVELS[alert.severity] >= SEVERITY_LEVELS[ALERT_CHANNELS.slack.minSeverity]
-  ) {
+  if (ALERT_CHANNELS.slack.enabled && alert.severity >= ALERT_CHANNELS.slack.minSeverity) {
     try {
       await fetch(ALERT_CHANNELS.slack.webhookUrl!, {
         method: 'POST',
@@ -148,10 +138,7 @@ export async function sendAlert(alert: PerformanceAlert) {
   }
 
   // Email alerts (if configured)
-  if (
-    ALERT_CHANNELS.email.enabled &&
-    SEVERITY_LEVELS[alert.severity] >= SEVERITY_LEVELS[ALERT_CHANNELS.email.minSeverity]
-  ) {
+  if (ALERT_CHANNELS.email.enabled && alert.severity >= ALERT_CHANNELS.email.minSeverity) {
     // Implement email sending logic here
     // You might want to use a service like SendGrid or Amazon SES
   }

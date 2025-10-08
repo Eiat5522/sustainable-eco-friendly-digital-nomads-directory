@@ -7,13 +7,12 @@ import {
   PERFORMANCE_EVENTS,
   reportPerformanceEvent,
   usePerformanceTracking,
-  dependencies,
 } from '../plausible-integration.ts';
 import { shouldAlert } from '../budgets.ts';
 
 describe('plausible-integration', () => {
   let mockPlausible: jest.Mock;
-  let originalWindow: (Window & typeof globalThis & { plausible?: any }) | undefined;
+  let originalWindow: typeof window;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -21,15 +20,14 @@ describe('plausible-integration', () => {
 
     // Setup window mock
     mockPlausible = jest.fn();
-    originalWindow = dependencies.window;
-    dependencies.window = {
-        plausible: mockPlausible,
-    } as any;
+    (global as any).window = {
+      plausible: mockPlausible,
+    };
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
-    dependencies.window = originalWindow;
+    delete (global as any).window;
   });
 
   describe('PERFORMANCE_EVENTS', () => {
@@ -50,7 +48,7 @@ describe('plausible-integration', () => {
 
   describe('reportPerformanceEvent', () => {
     it('should return early if window is undefined', () => {
-      dependencies.window = undefined;
+      delete (global as any).window;
 
       reportPerformanceEvent({
         name: 'CLS',
@@ -62,7 +60,7 @@ describe('plausible-integration', () => {
     });
 
     it('should warn if plausible is not initialized', () => {
-      dependencies.window = {} as any;
+      (global as any).window = {};
 
       reportPerformanceEvent({
         name: 'CLS',
@@ -338,7 +336,7 @@ describe('plausible-integration', () => {
     });
 
     it('should work when plausible is not initialized', () => {
-      dependencies.window = {} as any;
+      (global as any).window = {};
       const { trackPerformance } = usePerformanceTracking();
       
       expect(() => {
