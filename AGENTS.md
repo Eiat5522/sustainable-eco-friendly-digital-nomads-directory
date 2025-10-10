@@ -35,3 +35,38 @@
 - Regenerate schema types with `pnpm typegen`, then run `pnpm types:postprocess` to sync DTOs.
 - Store environment secrets locally (`app-next-directory/.env.local`, `sanity/.env`); do not commit them.
 - Use `pnpm validate:specs` after schema or data-model edits to confirm Sanity definitions remain compatible with the app.
+
+## Agent-Specific Instructions
+- For repo-wide search, use `rg` (ripgrep) and `fd/fdfind`; avoid `grep/find`.
+- Cap file reads at ~250 lines; prefer `rg -n -A3 -B3` for context.
+- Use `jq` for JSON parsing.
+- Fast-tools prompt: copy the block in `cdx/prompts/setup-fast-tools.md` if it is missing from this file.
+
+<!-- FAST-TOOLS PROMPT v1 | codex-mastery | watermark:do-not-alter -->
+
+## CRITICAL: Use ripgrep, not grep
+
+NEVER use grep for project-wide searches (slow, ignores .gitignore). ALWAYS use rg.
+
+- `rg "pattern"` — search content
+- `rg --files | rg "name"` — find files
+- `rg -t python "def"` — language filters
+
+## File finding
+
+- Prefer `fd` (or `fdfind` on Debian/Ubuntu). Respects .gitignore.
+
+## JSON
+
+- Use `jq` for parsing and transformations.
+
+## Install Guidance
+
+- macOS: `brew install ripgrep fd jq`
+- Debian/Ubuntu: `sudo apt update && sudo apt install -y ripgrep fd-find jq` (alias `fd=fdfind`)
+
+## Agent Instructions
+
+- Replace commands: grep→rg, find→rg --files/fd, ls -R→rg --files, cat|grep→rg pattern file
+- Cap reads at 250 lines; prefer `rg -n -A 3 -B 3` for context
+- Use `jq` for JSON instead of regex
