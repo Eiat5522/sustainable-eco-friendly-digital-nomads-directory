@@ -48,9 +48,7 @@ async function inspectCityReferences() {
     `);
 
     cities.forEach((city, index) => {
-      console.log(`${index + 1}. ${city.title || city.name} (ID: ${city.id})`);
-    });
-
+      console.log(`${index + 1}. ${city.title || city.name} (ID: ${city._id})`);
       if (city.primaryImage?.asset) {
         console.log('- Image Asset ID:', city.primaryImage.asset._id);
         console.log('- Image URL:', city.primaryImage.asset.url);

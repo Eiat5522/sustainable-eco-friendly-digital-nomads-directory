@@ -17,6 +17,9 @@ export async function withMongooseCache(
       return JSON.parse(cachedData as string);
     }
   } catch (error) {
+    // Cache read failed, continue to fetch fresh data
+  }
+  
   const data = await queryFn();
   try {
     await redis.set(key, JSON.stringify(data), { ex: ttl });
@@ -24,9 +27,5 @@ export async function withMongooseCache(
     console.error('Cache write failed:', error);
     // Continue and return data even if caching fails
   }
-  return data;
-
-  const data = await queryFn();
-  await redis.set(key, JSON.stringify(data), { ex: ttl });
   return data;
 }

@@ -37,7 +37,9 @@ describe('API - Listing Management', () => {
     const ownerRegisterRes = await ownerAgent.post('/api/auth/register').send(ownerUser);
     expect([200, 201]).toContain(ownerRegisterRes.status);
     const ownerLoginRes = await ownerAgent.post('/api/auth/login').send({
-    expect([200, 201]).toContain(ownerLoginRes.status);
+      email: ownerUser.email,
+      password: ownerUser.password,
+    });
     expect([200, 201]).toContain(ownerLoginRes.status);
     ownerUserCookie = ownerLoginRes.headers['set-cookie'];
 
