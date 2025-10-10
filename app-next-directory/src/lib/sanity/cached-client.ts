@@ -18,10 +18,6 @@ async function fetchAndCache(query: string, params: any, ttl: number) {
     console.warn('Cache read failed, falling through to fetch:', error);
   }
 
-  if (cachedData) {
-    return JSON.parse(cachedData as string);
-  }
-
   const data = await client.fetch(query, params);
   await redis.set(key, JSON.stringify(data), { ex: ttl });
   return data;
