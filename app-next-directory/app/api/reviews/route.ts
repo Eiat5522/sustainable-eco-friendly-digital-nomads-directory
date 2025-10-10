@@ -9,6 +9,7 @@ import { revalidateTag } from 'next/cache';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { Collection } from 'mongodb';
+import { withCache, invalidateCache } from '@/lib/cache';
 
 type ReviewDoc = {
   verified?: boolean;
@@ -64,31 +65,42 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     const skip = (page - 1) * limit;
 
-    const [results, total] = await Promise.all([
-      reviews.find(filter)
-        .sort(sort)
-        .skip(skip)
-        .limit(limit)
-        .toArray(),
-      reviews.countDocuments(filter)
-    ]);
+    // Create a unique cache key based on query parameters
+    const cacheKey = `reviews:page=${page}:limit=${limit}${listingSlug ? `:listing=${listingSlug}` : ''}${sortBy !== 'createdAt' ? `:sortBy=${sortBy}` : ''}${filterRating ? `:rating=${filterRating}` : ''}${verified ? ':verified' : ''}${userId ? `:userId=${userId}` : ''}`;
 
-    const response = {
-      reviews: (results as ReviewDoc[]).map((review) => ({
-        ...review,
-        reviewerEmail: undefined,
-        isVerified: Boolean(review.verified),
-        isHelpful: (review.helpfulCount ?? 0) > 0,
-      })),
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-        hasNext: page < Math.ceil(total / limit),
-        hasPrev: page > 1,
+    const response = await withCache(
+      {
+        key: cacheKey,
+        ttl: 60, // 1 minute (shorter TTL for reviews due to real-time nature)
+      },
+      async () => {
+        const [results, total] = await Promise.all([
+          reviews.find(filter)
+            .sort(sort)
+            .skip(skip)
+            .limit(limit)
+            .toArray(),
+          reviews.countDocuments(filter)
+        ]);
+
+        return {
+          reviews: (results as ReviewDoc[]).map((review) => ({
+            ...review,
+            reviewerEmail: undefined,
+            isVerified: Boolean(review.verified),
+            isHelpful: (review.helpfulCount ?? 0) > 0,
+          })),
+          pagination: {
+            page,
+            limit,
+            total,
+            pages: Math.ceil(total / limit),
+            hasNext: page < Math.ceil(total / limit),
+            hasPrev: page > 1,
+          }
+        };
       }
-    };
+    );
 
     return ApiResponseHandler.success(response);
   } catch (error) {
@@ -205,6 +217,10 @@ export async function POST(request: NextRequest) {
     if (listingSlug) {
       try {
         revalidateTag(`listing:${listingSlug}`);
+        // Invalidate reviews cache for this listing
+        // Note: This is a simple implementation that invalidates a single key
+        // In production, you might want to track all cache keys for a listing
+        await invalidateCache(`reviews:page=1:limit=10:listing=${listingSlug}`);
       } catch {
         // Ignore revalidation errors in non-ISR contexts
       }

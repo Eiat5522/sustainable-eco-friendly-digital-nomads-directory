@@ -47,6 +47,7 @@ interface FeaturedListing {
 
 import { groq } from 'next-sanity';
 import { ApiResponseHandler } from '@/utils/api-response';
+import { withCache } from '@/lib/cache';
 
 export async function GET() {
   const startTime = performance.now();
@@ -58,107 +59,115 @@ export async function GET() {
   }
   
   try {
-    // Corrected GROQ query to match your schema and DTO
-    const FEATURED_LISTINGS_QUERY = groq`*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {
-      _id,
-      name,
-      "slug": slug.current,
-      "city": city->{ _id, name, "slug": slug.current, country },
-      "ecoFocusTags": ecoFocusTags[]->name,
-            "digitalNomadFeatures": digitalNomadFeatures[]->name,
-      "amenities": amenities[]-> {
-        _id,
-        name,
-        description,
-        badge{
-          asset->{
+    const dtoListings = await withCache(
+      {
+        key: 'featured-listings',
+        ttl: 300, // 5 minutes
+      },
+      async () => {
+        // Corrected GROQ query to match your schema and DTO
+        const FEATURED_LISTINGS_QUERY = groq`*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {
+          _id,
+          name,
+          "slug": slug.current,
+          "city": city->{ _id, name, "slug": slug.current, country },
+          "ecoFocusTags": ecoFocusTags[]->name,
+                "digitalNomadFeatures": digitalNomadFeatures[]->name,
+          "amenities": amenities[]-> {
             _id,
-            url,
-            metadata {
-              dimensions,
-              lqip
+            name,
+            description,
+            badge{
+              asset->{
+                _id,
+                url,
+                metadata {
+                  dimensions,
+                  lqip
+                }
+              }
             }
+          },
+          primaryImage,
+          galleryImages,
+          contactPhone,
+          contactEmail,
+          website,
+          priceRange,
+          type,
+          shortDescription,
+          address,
+          category,
+          location,
+          primaryImage{
+            alt,
+            asset->{
+              _id,
+              url,
+              metadata {
+                dimensions,
+                lqip
+              }
+            }
+          },
+          galleryImages[] {
+            alt,
+            asset->{
+              _id,
+              url,
+              metadata {
+                dimensions,
+                lqip
+              }
+            }
+          },
+          "imageUrl": primaryImage.asset->url,
+          coworkingDetails{
+            capacity,
+            pricingPlans[] { type, price, period },
+            openingHours[] { day, opens, closes }
+          },
+          accommodationDetails{
+            pricePerNightThb { min, max },
+            openingHours[] { day, opens, closes }
+          },
+          cafeDetails{
+            openingHours[] { day, opens, closes }
           }
-        }
-      },
-      primaryImage,
-      galleryImages,
-      contactPhone,
-      contactEmail,
-      website,
-      priceRange,
-      type,
-      shortDescription,
-      address,
-      category,
-      location,
-      primaryImage{
-        alt,
-        asset->{
-          _id,
-          url,
-          metadata {
-            dimensions,
-            lqip
-          }
-        }
-      },
-      galleryImages[] {
-        alt,
-        asset->{
-          _id,
-          url,
-          metadata {
-            dimensions,
-            lqip
-          }
-        }
-      },
-      "imageUrl": primaryImage.asset->url,
-      coworkingDetails{
-        capacity,
-        pricingPlans[] { type, price, period },
-        openingHours[] { day, opens, closes }
-      },
-      accommodationDetails{
-        pricePerNightThb { min, max },
-        openingHours[] { day, opens, closes }
-      },
-      cafeDetails{
-        openingHours[] { day, opens, closes }
-      }
-    }`;
-    console.log('[DEBUG] Featured Listings API: Executing GROQ query');
-    const queryStartTime = performance.now();
-    
-    const listings = await client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY);
-    
-    const queryEndTime = performance.now();
-    console.log('[DEBUG] Featured Listings API: GROQ query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');
-    console.log('[DEBUG] Featured Listings API: Found', listings.length, 'listings');
-    
-    // Transform to FeaturedListingDTO shape expected by the frontend
-    const dtoListings = (listings ?? []).map((listing) => {
-      const amenityNames = Array.isArray(listing.amenities)
-        ? listing.amenities
-            .map((amenity) => (amenity && typeof amenity.name === 'string' ? amenity.name : null))
-            .filter((name): name is string => typeof name === 'string' && name.length > 0)
-        : [];
-      const ecoFocusTags = Array.isArray(listing.ecoFocusTags)
-        ? listing.ecoFocusTags.filter((tag): tag is string => typeof tag === 'string' && tag.length > 0)
-        : [];
+        }`;
+        console.log('[DEBUG] Featured Listings API: Executing GROQ query');
+        const queryStartTime = performance.now();
+        
+        const listings = await client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY);
+        
+        const queryEndTime = performance.now();
+        console.log('[DEBUG] Featured Listings API: GROQ query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');
+        console.log('[DEBUG] Featured Listings API: Found', listings.length, 'listings');
+        
+        // Transform to FeaturedListingDTO shape expected by the frontend
+        return (listings ?? []).map((listing) => {
+          const amenityNames = Array.isArray(listing.amenities)
+            ? listing.amenities
+                .map((amenity) => (amenity && typeof amenity.name === 'string' ? amenity.name : null))
+                .filter((name): name is string => typeof name === 'string' && name.length > 0)
+            : [];
+          const ecoFocusTags = Array.isArray(listing.ecoFocusTags)
+            ? listing.ecoFocusTags.filter((tag): tag is string => typeof tag === 'string' && tag.length > 0)
+            : [];
 
-      return {
-        id: listing._id,
-        name: listing.name,
-        slug: listing.slug || '',
-        imageUrl: listing.imageUrl || undefined,
-        city: listing.city?.name || '',
-        amenityNames,
-        ecoFocusTags,
-        featured: true,
-      };
-    });
+          return {
+            id: listing._id,
+            name: listing.name,
+            slug: listing.slug || '',
+            imageUrl: listing.imageUrl || undefined,
+            city: listing.city?.name || '',
+            amenityNames,
+            ecoFocusTags,
+            featured: true,
+          };
+        });
+      }
+    );
 
     const endTime = performance.now();
     console.log('[DEBUG] Featured Listings API: Total request time', (endTime - startTime).toFixed(2), 'ms');
