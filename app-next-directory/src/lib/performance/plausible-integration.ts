@@ -14,6 +14,10 @@ type PlausibleClient = (event: string, options?: { props?: Record<string, any> }
 type WindowLike = Partial<Window> & Record<string, unknown>
 
 const getWindowLike = (): WindowLike | undefined => {
+  if (typeof dependencies.window !== 'undefined') {
+    return dependencies.window as WindowLike
+  }
+
   if (typeof globalThis !== 'undefined') {
     const maybeWindow = (globalThis as Record<string, unknown>).window as WindowLike | undefined
     if (maybeWindow) return maybeWindow
@@ -27,12 +31,18 @@ const getWindowLike = (): WindowLike | undefined => {
 }
 
 const resolvePlausible = (win = getWindowLike()): PlausibleClient | null => {
-  const scope = globalThis as Record<string, unknown>
-  const plausible =
-    (win as { plausible?: unknown } | undefined)?.plausible ??
-    scope.plausible
+  const scope = (typeof globalThis !== 'undefined' ? globalThis : {}) as Record<string, unknown>
 
-  return typeof plausible === 'function' ? (plausible as PlausibleClient) : null
+  if (win && typeof (win as { plausible?: unknown }).plausible === 'function') {
+    return ((win as { plausible?: unknown }).plausible as PlausibleClient)
+  }
+
+  if (win && win !== scope) {
+    return null
+  }
+
+  const fromGlobal = scope.plausible
+  return typeof fromGlobal === 'function' ? (fromGlobal as PlausibleClient) : null
 }
 
 // Performance event categories in Plausible
@@ -55,7 +65,7 @@ interface PerformanceEvent {
 // This is safe for production as it defaults to the real window object.
 export const dependencies = {
   window: typeof window !== 'undefined' ? window : (undefined as (Window & typeof globalThis & { plausible?: any }) | undefined),
-};
+}
 
 
 /**

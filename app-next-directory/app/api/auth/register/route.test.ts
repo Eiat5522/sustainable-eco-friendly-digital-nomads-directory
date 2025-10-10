@@ -1,23 +1,34 @@
 import { NextRequest } from 'next/server';
 
-// Mock stable dependencies at the top level
-jest.mock('next/server', () => ({
+// Mock dependencies first to avoid hoisting issues
+jest.mock('@/lib/dbConnect', () => ({
   __esModule: true,
-  NextResponse: {
-    json: jest.fn((body: any, init?: { status?: number }) => ({
-      status: init?.status || 200,
-      json: () => Promise.resolve(body),
-    })),
-  },
+  default: jest.fn(),
 }));
 
-// Mock dependencies first to avoid hoisting issues
-jest.mock('@/lib/dbConnect');
-jest.mock('@/models/User');
-jest.mock('bcryptjs');
-jest.mock('@/lib/auth');
+jest.mock('@/models/User', () => {
+  const findOne = jest.fn();
+  const create = jest.fn();
+  return {
+    __esModule: true,
+    default: { findOne, create },
+  };
+});
 
-import { testApiHandler } from 'next-test-api-route-handler';
+jest.mock('bcryptjs', () => {
+  const hash = jest.fn();
+  return {
+    __esModule: true,
+    default: { hash },
+    hash,
+  };
+});
+
+jest.mock('@/lib/auth', () => ({
+  __esModule: true,
+  auth: jest.fn(),
+}));
+
 import { POST as registerPOST } from './route';
 import { GET as authGET } from '../test/route';
 import connect from '@/lib/dbConnect';
@@ -42,9 +53,15 @@ async function getResponseBody(response: any) {
 }
 
 describe('Registration API Routes', () => {
-  // Reset modules before each test to ensure a clean state
   beforeEach(() => {
-    jest.resetModules();
+    jest.clearAllMocks();
+    process.env.MONGODB_URI = 'mongodb://localhost/test-db';
+    delete process.env.EDGE_RUNTIME;
+  });
+
+  afterEach(() => {
+    delete process.env.MONGODB_URI;
+    delete process.env.EDGE_RUNTIME;
   });
 
   describe('POST /api/auth/register', () => {
@@ -60,14 +77,14 @@ describe('Registration API Routes', () => {
       } as any;
 
       mockConnect.mockResolvedValue(undefined);
-
+      mockUserFindOne.mockResolvedValue(null);
       mockBcryptHash.mockResolvedValue('hashedpassword');
       mockUserCreate.mockResolvedValue({
         _id: 'someid',
         name: 'Test User',
         email: 'test@example.com',
         role: 'user',
-      });
+      } as any);
 
       // Act
       const response = await registerPOST(req);
@@ -76,7 +93,7 @@ describe('Registration API Routes', () => {
       // Assert
       expect(response.status).toBe(201);
       expect(body.success).toBe(true);
-      expect(mockUserCountDocuments).toHaveBeenCalledWith({ email: 'test@example.com' });
+      expect(mockUserFindOne).toHaveBeenCalledWith({ email: 'test@example.com' });
       expect(mockUserCreate).toHaveBeenCalledTimes(1);
     });
 
@@ -91,7 +108,8 @@ describe('Registration API Routes', () => {
         json: jest.fn().mockResolvedValue(reqBody),
       } as any;
 
-      mockUserFindOne.mockResolvedValue({ email: 'test@example.com' });
+  mockConnect.mockResolvedValue(undefined);
+  mockUserFindOne.mockResolvedValue({ email: 'test@example.com' } as any);
 
       // Act
       const response = await registerPOST(req);
@@ -142,7 +160,7 @@ describe('Registration API Routes', () => {
         json: jest.fn().mockResolvedValue(reqBody),
       } as any;
 
-      mockConnect.mockRejectedValue(new Error('Connection error'));
+  mockConnect.mockRejectedValue(new Error('Connection error'));
 
       // Act
       const response = await registerPOST(req);
@@ -233,89 +251,73 @@ describe('Registration API Routes', () => {
       expect(body.success).toBe(false);
       expect(body.error.message).toMatch(/Invalid request body/i);
       expect(body.error.code).toBe('INVALID_INPUT');
+    });
+  });
+
+  describe('GET /api/auth/test', () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    test('returns 200 and correct test results when JWT is present', async () => {
+      mockAuth.mockResolvedValue({
+        user: {
+          id: '123',
+          email: 'test@example.com',
+          role: 'user',
+          name: 'Test User',
+        }
       });
-});
 
-describe('GET /api/auth/test', () => {
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
+      const response = await authGET(new NextRequest('http://localhost/api/auth/test'));
+      const body = await getResponseBody(response);
 
-  it('returns 200 and correct test results when JWT is present', async () => {
-    mockAuth.mockResolvedValue({
-      user: {
-        id: '123',
-        email: 'test@example.com',
-        role: 'user',
-        name: 'Test User',
-      }
+      expect(response.status).toBe(200);
+      expect(body.tests.jwtVerification.passed).toBe(true);
+      expect(body.tests.jwtVerification.details.isAuthenticated).toBe(true);
+      expect(body.tests.jwtVerification.details.user.email).toBe('test@example.com');
+      expect(body.tests.sessionStrategy.passed).toBe(true);
     });
 
-    await testApiHandler({
-      handler: authGET,
-      test: async ({ fetch }) => {
-        const res = await fetch();
-        expect(res.status).toBe(200);
-        const json = await res.json();
-        expect(json.tests.jwtVerification.passed).toBe(true);
-        expect(json.tests.jwtVerification.details.isAuthenticated).toBe(true);
-        expect(json.tests.jwtVerification.details.user.email).toBe('test@example.com');
-        expect(json.tests.sessionStrategy.passed).toBe(true);
-      },
+    test('returns 200 and isAuthenticated false if no JWT token', async () => {
+      mockAuth.mockResolvedValue(null);
+
+      const response = await authGET(new NextRequest('http://localhost/api/auth/test'));
+      const body = await getResponseBody(response);
+
+      expect(response.status).toBe(200);
+      expect(body.tests.jwtVerification.details.isAuthenticated).toBe(false);
+      expect(body.tests.jwtVerification.details.user).toBeNull();
+      expect(body.tests.sessionStrategy.passed).toBe(true);
     });
-  });
 
-  it('returns 200 and isAuthenticated false if no JWT token', async () => {
-    mockAuth.mockResolvedValue(null);
+    test('returns 500 and error message if auth throws', async () => {
+      mockAuth.mockRejectedValue(new Error('JWT error'));
 
-    await testApiHandler({
-      handler: authGET,
-      test: async ({ fetch }) => {
-        const res = await fetch();
-        expect(res.status).toBe(200);
-        const json = await res.json();
-        expect(json.tests.jwtVerification.details.isAuthenticated).toBe(false);
-        expect(json.tests.jwtVerification.details.user).toBeNull();
-        expect(json.tests.sessionStrategy.passed).toBe(true);
-      },
+      const response = await authGET(new NextRequest('http://localhost/api/auth/test'));
+      const body = await getResponseBody(response);
+
+      expect(response.status).toBe(500);
+      expect(body.error).toBe('Auth.js test failed');
+      expect(body.message).toBe('JWT error');
     });
-  });
 
-  it('returns 500 and error message if auth throws', async () => {
-    mockAuth.mockRejectedValue(new Error('JWT error'));
+    test('detects edge runtime via process.env.EDGE_RUNTIME', async () => {
+      process.env.EDGE_RUNTIME = '1';
+      mockAuth.mockResolvedValue({
+        user: {
+          id: '123',
+          email: 'test@example.com',
+          role: 'user',
+          name: 'Test User',
+        }
+      });
 
-    await testApiHandler({
-      handler: authGET,
-      test: async ({ fetch }) => {
-        const res = await fetch();
-        expect(res.status).toBe(500);
-        const json = await res.json();
-        expect(json.error).toBe('Auth.js test failed');
-        expect(json.message).toBe('JWT error');
-      },
+      const response = await authGET(new NextRequest('http://localhost/api/auth/test'));
+      const body = await getResponseBody(response);
+
+      expect(body.tests.edgeRuntime.passed).toBe(true);
+      expect(body.runtime).toBe('edge');
     });
   });
-
-  it('detects edge runtime via process.env.edgeRuntime', async () => {
-    process.env.EDGE_RUNTIME = '1';
-    mockAuth.mockResolvedValue({
-      user: {
-        id: '123',
-        email: 'test@example.com',
-        role: 'user',
-        name: 'Test User',
-      }
-    });
-
-    await testApiHandler({
-      handler: authGET,
-      test: async ({ fetch }) => {
-        const res = await fetch();
-        const json = await res.json();
-        expect(json.tests.edgeRuntime.passed).toBe(true);
-        expect(json.runtime).toBe(process.env.EDGE_RUNTIME ? 'edge' : 'node');
-      },
-    });
-  });
-});
 });

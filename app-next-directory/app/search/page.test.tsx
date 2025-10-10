@@ -5,6 +5,7 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 // Mock next/navigation hooks used by the page and components
 const pushMock = jest.fn()
 jest.mock('next/navigation', () => ({
+  __esModule: true,
   useRouter: () => ({ push: pushMock, replace: jest.fn(), prefetch: jest.fn() }),
   useSearchParams: () => new URLSearchParams(''),
 }))

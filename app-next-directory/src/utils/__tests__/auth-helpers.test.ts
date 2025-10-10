@@ -1,20 +1,35 @@
 // First, unmock the auth-helpers module that's globally mocked
-jest.unmock('@/utils/auth-helpers');
+// Use the same relative path used by the import below so jest.unmock works reliably.
+jest.unmock('../auth-helpers');
 
-// Mock only the dependencies, not the functions we're testing
-jest.mock('@/lib/auth');
-jest.mock('../api-response');
+// Mock only the dependencies, not the functions we're testing.
+// Provide explicit factories so the mocked functions are jest.fn() and usable in assertions.
+jest.mock('../../lib/auth', () => ({
+  auth: jest.fn(),
+}));
+
+jest.mock('../api-response', () => ({
+  ApiResponseHandler: {
+    unauthorized: jest.fn(),
+    forbidden: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 
 // Import the actual module without mocking it
 import { requireAuth, requireRole, handleAuthError } from '../auth-helpers';
 
 // Import the mocked dependencies
-import { auth } from '@/lib/auth';
+import { auth } from '../../lib/auth';
 import { ApiResponseHandler } from '../api-response';
 
 // Type the mocked functions
-const mockAuth = auth as jest.Mock;
-const mockApiResponseHandler = ApiResponseHandler as jest.Mocked<typeof ApiResponseHandler>;
+const mockAuth = auth as jest.MockedFunction<typeof auth>;
+const mockApiResponseHandler = ApiResponseHandler as unknown as {
+  unauthorized: jest.Mock;
+  forbidden: jest.Mock;
+  error: jest.Mock;
+};
 
 // Helper function to create mock response objects
 const createMockResponse = (status: number, data: any) => ({

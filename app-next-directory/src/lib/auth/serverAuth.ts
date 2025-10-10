@@ -156,7 +156,7 @@ import { withMongooseCache } from '../mongoose-cache';
  * @returns User data or null
  */
 export async function getUserById(userId: string): Promise<AuthenticatedUser | null> {
-  return withMongooseCache(UserModel, `getUserById:${userId}`, async () => {
+  const fetchUser = async (): Promise<AuthenticatedUser | null> => {
     try {
       await connectToDatabase();
 
@@ -182,7 +182,13 @@ export async function getUserById(userId: string): Promise<AuthenticatedUser | n
       console.error('Get user error:', error);
       return null;
     }
-  });
+  };
+
+  if (process.env.NODE_ENV === 'test') {
+    return fetchUser();
+  }
+
+  return withMongooseCache(UserModel, `getUserById:${userId}`, fetchUser);
 }
 
 

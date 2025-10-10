@@ -1,23 +1,16 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import { http, HttpResponse } from 'msw';
 import { CityCarousel } from '../CityCarousel';
 import useEmblaCarousel from 'embla-carousel-react';
+import { server } from '../../../test-helpers/msw-server-bridge';
 
-// Mock the module
 jest.mock('embla-carousel-react');
-
-// Mock embla-carousel-autoplay
 jest.mock('embla-carousel-autoplay', () => ({
   __esModule: true,
-  default: jest.fn(),
+  default: jest.fn(() => ({ stop: jest.fn(), play: jest.fn() })),
 }));
 
-// Mock next/image and next/link
-jest.mock('next/image', () => ({ __esModule: true, default: (props: any) => <img {...props} /> }));
-jest.mock('next/link', () => ({ __esModule: true, default: ({ children, href }: any) => <a href={href}>{children}</a> }));
-
-// Define the mock object that tests will interact with
 const emblaApiMock = {
   scrollPrev: jest.fn(),
   scrollNext: jest.fn(),
@@ -25,15 +18,9 @@ const emblaApiMock = {
   canScrollNext: jest.fn(() => true),
   on: jest.fn(),
   off: jest.fn(),
-  reInit: jest.fn(),
 };
 
-// Mock fetch globally
-const mockFetch = jest.fn();
-Object.defineProperty(global, 'fetch', {
-  value: mockFetch,
-  writable: true,
-});
+const mockedUseEmblaCarousel = useEmblaCarousel as jest.MockedFunction<typeof useEmblaCarousel>;
 
 describe('CityCarousel', () => {
   const mockCities = [
@@ -43,26 +30,24 @@ describe('CityCarousel', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    // Reset mock return values
     emblaApiMock.canScrollPrev.mockReturnValue(true);
     emblaApiMock.canScrollNext.mockReturnValue(true);
+    mockedUseEmblaCarousel.mockReturnValue([jest.fn(), emblaApiMock as any]);
 
-    // Provide the mock implementation for the hook
-    jest.mocked(useEmblaCarousel).mockReturnValue([jest.fn(), emblaApiMock]);
-
-    mockFetch.mockImplementation(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ cities: mockCities }),
-      }) as unknown as Promise<Response>
+    server.use(
+      http.get('/api/cities', () =>
+        HttpResponse.json({ cities: mockCities })
+      )
     );
+  });
+
+  afterEach(() => {
+    server.resetHandlers();
   });
 
   it('renders loading state initially, then the carousel with cities', async () => {
     render(<CityCarousel />);
-    
-    // Check for loading text or wait for cities to appear
+
     const loadingText = screen.queryByText('Loading cities…');
     if (loadingText) {
       expect(loadingText).toBeInTheDocument();
@@ -78,8 +63,7 @@ describe('CityCarousel', () => {
     render(<CityCarousel />);
     await waitFor(() => expect(screen.getByText('City 1')).toBeInTheDocument());
 
-    const nextButton = screen.getByRole('button', { name: /Scroll cities right/i });
-    fireEvent.click(nextButton);
+    fireEvent.click(screen.getByRole('button', { name: /Scroll cities right/i }));
 
     expect(emblaApiMock.scrollNext).toHaveBeenCalled();
   });
@@ -88,8 +72,7 @@ describe('CityCarousel', () => {
     render(<CityCarousel />);
     await waitFor(() => expect(screen.getByText('City 1')).toBeInTheDocument());
 
-    const prevButton = screen.getByRole('button', { name: /Scroll cities left/i });
-    fireEvent.click(prevButton);
+    fireEvent.click(screen.getByRole('button', { name: /Scroll cities left/i }));
 
     expect(emblaApiMock.scrollPrev).toHaveBeenCalled();
   });
@@ -106,7 +89,9 @@ describe('CityCarousel', () => {
   });
 
   it('shows an error message if fetching cities fails', async () => {
-    mockFetch.mockImplementationOnce(() => Promise.reject(new Error('API Error')));
+    server.use(
+      http.get('/api/cities', () => new HttpResponse(null, { status: 500 }))
+    );
 
     render(<CityCarousel />);
 
@@ -116,11 +101,10 @@ describe('CityCarousel', () => {
   });
 
   it('does not render carousel if no cities are returned', async () => {
-    mockFetch.mockImplementationOnce(() =>
-      Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ cities: [] }),
-      }) as unknown as Promise<Response>
+    server.use(
+      http.get('/api/cities', () =>
+        HttpResponse.json({ cities: [] })
+      )
     );
 
     render(<CityCarousel />);

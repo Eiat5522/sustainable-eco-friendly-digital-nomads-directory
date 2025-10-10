@@ -1,6 +1,8 @@
 import { jest } from '@jest/globals';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { http, HttpResponse } from 'msw';
+import { server } from '../test-helpers/msw-server-bridge';
 
 type SearchParams = URLSearchParams;
 
@@ -95,6 +97,9 @@ const createSearchParamsMock = (values: Record<string, string | null>): SearchPa
 };
 
 describe('Contact Us form', () => {
+  let capturedContactBody: Record<string, unknown> | null;
+  let capturedNewsletterBody: Record<string, unknown> | null;
+
   beforeAll(async () => {
     ({ default: ContactUsPage } = await import('../../app/contact-us/page'));
   });
@@ -102,7 +107,19 @@ describe('Contact Us form', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseSearchParams.mockReturnValue(createSearchParamsMock({}));
-    global.fetch = jest.fn() as unknown as typeof fetch;
+    capturedContactBody = null;
+    capturedNewsletterBody = null;
+
+    server.use(
+      http.post('/api/contact', async ({ request }) => {
+        capturedContactBody = await request.json();
+        return HttpResponse.json({ message: 'Thank you for contacting us!' });
+      }),
+      http.post('/api/newsletter/subscribe', async ({ request }) => {
+        capturedNewsletterBody = await request.json();
+        return HttpResponse.json({ message: 'Subscribed!' });
+      })
+    );
   });
 
   it('renders general enquiry fields by default and validates required input', async () => {
@@ -127,12 +144,6 @@ describe('Contact Us form', () => {
 
   it('submits a general enquiry successfully and resets the form', async () => {
     const user = userEvent.setup();
-    const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>;
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ message: 'Thank you for contacting us!' }),
-    } as Response);
-
     render(<ContactUsPage />);
 
     await user.type(screen.getByLabelText('Full Name'), 'Jane Doe');
@@ -148,11 +159,7 @@ describe('Contact Us form', () => {
     });
 
     // Verify the fetch call was made correctly
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [endpoint, options] = fetchMock.mock.calls[0];
-    expect(endpoint).toBe('/api/contact');
-    expect(options?.method).toBe('POST');
-    expect(JSON.parse(options?.body as string)).toEqual({
+    expect(capturedContactBody).toEqual({
       name: 'Jane Doe',
       email: 'jane@example.com',
       subject: 'Interested in sustainable stays',
@@ -175,11 +182,12 @@ describe('Contact Us form', () => {
     );
 
     const user = userEvent.setup();
-    const fetchMock = global.fetch as jest.MockedFunction<typeof fetch>;
-    fetchMock.mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ message: 'Rate limit exceeded' }),
-    } as Response);
+    server.use(
+      http.post('/api/newsletter/subscribe', async ({ request }) => {
+        capturedNewsletterBody = await request.json();
+        return HttpResponse.json({ message: 'Rate limit exceeded' }, { status: 429 });
+      })
+    );
 
     render(<ContactUsPage />);
 
@@ -190,13 +198,8 @@ describe('Contact Us form', () => {
     await user.click(screen.getByRole('button', { name: 'Submit' }));
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(capturedNewsletterBody).toEqual({ email: 'subscriber@example.com' });
     });
-
-    const [newsletterEndpoint, newsletterOptions] = fetchMock.mock.calls[0];
-    expect(newsletterEndpoint).toBe('/api/newsletter/subscribe');
-    expect(newsletterOptions?.method).toBe('POST');
-    expect(JSON.parse(newsletterOptions?.body as string)).toEqual({ email: 'subscriber@example.com' });
 
     await waitFor(() => {
       expect(screen.getByText('Rate limit exceeded')).toBeInTheDocument();

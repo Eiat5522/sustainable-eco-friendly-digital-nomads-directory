@@ -1,7 +1,7 @@
 // Mock for next/link
 const React = require('react');
 
-function Link({ children, href, ...props }) {
+function Link({ children, href, passHref, legacyBehavior, ...props }) {
   return React.createElement('a', { href, ...props }, children);
 }
 

@@ -71,6 +71,7 @@ module.exports = {
 			'^server-only$': '<rootDir>/__mocks__/server-only.js',
 			'^tree-sitter-.*$': '<rootDir>/__mocks__/tree-sitter.js',
 			'^next/link$': '<rootDir>/__mocks__/next/link.js',
+			'^next/image$': '<rootDir>/__mocks__/next/image.js',
 			'^@/mocks/server$': '<rootDir>/__mocks__/server.ts',
 			'^mocks/server$': '<rootDir>/__mocks__/server.ts',
 			'^@sanity/client$': '<rootDir>/__mocks__/@sanity/client.ts',

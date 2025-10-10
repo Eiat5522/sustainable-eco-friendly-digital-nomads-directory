@@ -30,31 +30,34 @@ declare global {
 
 type PlausibleClient = (event: string, options?: { props?: Record<string, any> }) => void;
 
-const getGlobalScope = (): Record<string, any> => globalThis as unknown as Record<string, any>;
+type WindowLike = Record<string, any> | undefined;
 
-const getWindowScope = (): Record<string, any> => {
-  const globalScope = getGlobalScope();
-  return (globalScope.window ?? globalScope) as Record<string, any>;
+const getGlobalScope = (): Record<string, any> | undefined => {
+  return dependencies.global ?? (globalThis as unknown as Record<string, any>);
+};
+
+const getWindowScope = (): Record<string, any> | undefined => {
+  return (dependencies.window as Record<string, any> | undefined) ?? getGlobalScope();
 };
 
 const getPerformanceApi = (): Performance | undefined => {
   const win = getWindowScope();
   const globalScope = getGlobalScope();
-  return (win.performance as Performance | undefined) ?? (globalScope.performance as Performance | undefined);
+  return (win?.performance as Performance | undefined) ?? (globalScope?.performance as Performance | undefined);
 };
 
 const getPerformanceObserverCtor = (): typeof PerformanceObserver | undefined => {
   const win = getWindowScope();
   const globalScope = getGlobalScope();
-  const observer = win.PerformanceObserver ?? globalScope.PerformanceObserver;
-  return typeof observer === 'function' ? (observer as typeof PerformanceObserver) : undefined;
+  const observer = (win?.PerformanceObserver ?? globalScope?.PerformanceObserver) as typeof PerformanceObserver | undefined;
+  return typeof observer === 'function' ? observer : undefined;
 };
 
 const getPlausibleClient = (): PlausibleClient | undefined => {
   const win = getWindowScope();
   const globalScope = getGlobalScope();
-  const client = win.plausible ?? globalScope.plausible;
-  return typeof client === 'function' ? (client as PlausibleClient) : undefined;
+  const client = (win?.plausible ?? globalScope?.plausible) as PlausibleClient | undefined;
+  return typeof client === 'function' ? client : undefined;
 };
 
 // Mock web-vitals functions if the package is not available
@@ -136,15 +139,27 @@ const onTTFB = (callback: ReportCallback) => {
   });
 };
 
-export const dependencies = {
-    window: typeof window !== 'undefined' ? window : (undefined as (Window & typeof globalThis & { plausible?: any, PerformanceObserver?: any }) | undefined),
-    onCLS: mockOnCLS,
-    onFCP: mockOnFCP,
-    onFID: mockOnFID,
-    onINP: mockOnINP,
-    onLCP: mockOnLCP,
-    onTTFB: mockOnTTFB,
+interface CollectorDependencies {
+  window?: WindowLike;
+  global?: Record<string, any>;
+  onCLS: (callback: ReportCallback) => void;
+  onFCP: (callback: ReportCallback) => void;
+  onFID: (callback: ReportCallback) => void;
+  onINP: (callback: ReportCallback) => void;
+  onLCP: (callback: ReportCallback) => void;
+  onTTFB: (callback: ReportCallback) => void;
 }
+
+export const dependencies: CollectorDependencies = {
+  window: typeof window !== 'undefined' ? (window as unknown as WindowLike) : undefined,
+  global: typeof globalThis !== 'undefined' ? (globalThis as unknown as Record<string, any>) : undefined,
+  onCLS,
+  onFCP,
+  onFID,
+  onINP,
+  onLCP,
+  onTTFB,
+};
 
 // Performance metric thresholds based on Core Web Vitals
 export const PERFORMANCE_THRESHOLDS = {
@@ -194,11 +209,6 @@ function reportMetric({ name, value, rating }: PerformanceMetric) {
   }
 
   const plausible = getPlausibleClient();
-  const win = getWindowScope();
-  const globalScope = getGlobalScope();
-  process.stdout.write(
-    `DEBUG plausible fromWindow=${typeof win.plausible} fromGlobal=${typeof globalScope.plausible} hasClient=${Boolean(plausible)}\n`
-  );
   if (!plausible) return;
 
   plausible('performance', {
@@ -215,7 +225,7 @@ function reportMetric({ name, value, rating }: PerformanceMetric) {
  * Call this function in your app's entry point
  */
 export function initPerformanceMonitoring() {
-  onCLS((metric: Metric) => {
+  dependencies.onCLS((metric: Metric) => {
     reportMetric({
       name: 'CLS',
       value: metric.value,
