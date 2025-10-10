@@ -2,7 +2,7 @@
 #Sustainable Digital Nomads Directory - Backend Integration
 
 # Core async HTTP and API libraries
-aiohttp==3.9.1
+aiohttp==3.12.14
 asyncio-mqtt==0.14.0
 
 # Sanity CMS client
