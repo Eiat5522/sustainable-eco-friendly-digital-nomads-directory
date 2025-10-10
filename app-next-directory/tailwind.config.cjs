@@ -39,4 +39,3 @@ if (resolved) {
     plugins: [],
   };
 }
-}

@@ -77,8 +77,6 @@ export const getRedisClient = jest.fn(() => mockRedisClient);
 
 // Alias for legacy usage
 (getRedisClient as any).mockClearAndReset = (getRedisClient as any).mockResetClient;
-  _notifyRedisClientChange(val);
-};
 
 // Provide an explicit, lighter reset that only changes the return implementation
 // and notifies listeners, without clearing other internal mocks or listeners.

@@ -87,7 +87,8 @@ function normalizeRedisClient(client: any) {
   // Normalize evalSha -> evalsha (some clients use camelCase)
   if ('evalSha' in client && !('evalsha' in client)) {
     try {
-      client.evalsha = (client.evalSha as Function).bind(client);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      client.evalsha = ((client.evalSha as any) as (...args: any[]) => any).bind(client);
     } catch {
       // noop: binding may fail in some mocks; fall back to a simple assignment
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -98,7 +99,8 @@ function normalizeRedisClient(client: any) {
   // Also ensure the reverse mapping just in case code expects evalSha
   if ('evalsha' in client && !('evalSha' in client)) {
     try {
-      client.evalSha = (client.evalsha as Function).bind(client);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      client.evalSha = ((client.evalsha as any) as (...args: any[]) => any).bind(client);
     } catch {
       // noop
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

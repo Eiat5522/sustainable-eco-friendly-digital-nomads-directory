@@ -3,6 +3,7 @@ import request from 'supertest';
 // Assumes Next.js dev server is running at http://localhost:3000 for API tests
 const baseURL = process.env.BASE_URL || 'http://localhost:3000';
 
+describe('Preview API Routes', () => {
   // allow longer for server warmup
   jest.setTimeout(60000);
   beforeAll(async () => {
