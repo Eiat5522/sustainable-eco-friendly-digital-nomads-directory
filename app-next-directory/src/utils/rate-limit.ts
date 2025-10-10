@@ -12,14 +12,17 @@ interface RateLimitInfo {
 const rateLimitStore = new Map<string, RateLimitInfo>();
 
 // Clean up expired entries every 10 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, info] of rateLimitStore.entries()) {
-    if (now > info.resetTime) {
-      rateLimitStore.delete(key);
+// Avoid keeping Jest alive: do not schedule in test environment
+if (process.env.NODE_ENV !== 'test') {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, info] of rateLimitStore.entries()) {
+      if (now > info.resetTime) {
+        rateLimitStore.delete(key);
+      }
     }
-  }
-}, 10 * 60 * 1000);
+  }, 10 * 60 * 1000);
+}
 
 export interface RateLimitOptions {
   max: number; // Maximum requests

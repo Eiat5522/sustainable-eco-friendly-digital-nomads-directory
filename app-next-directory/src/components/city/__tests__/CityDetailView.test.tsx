@@ -1,10 +1,11 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { CityDetailView } from '@/components/city/CityDetailView'
-import type { CityDetailDTO, ListingSummaryDTO } from '@/types/dto'
+import { jest } from '@jest/globals';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import type { CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
 
-jest.mock('next/image', () => {
-  return function MockNextImage({ alt, src, priority, fill, onError, ...props }: any) {
-    const resolvedSrc = typeof src === 'string' ? src : src?.src ?? ''
+await jest.unstable_mockModule('next/image', () => ({
+  __esModule: true,
+  default: function MockNextImage({ alt, src, priority, fill, onError, ...props }: any) {
+    const resolvedSrc = typeof src === 'string' ? src : src?.src ?? '';
     return (
       <img
         alt={alt}
@@ -15,11 +16,11 @@ jest.mock('next/image', () => {
         data-priority={priority ? 'true' : 'false'}
         {...props}
       />
-    )
-  }
-})
+    );
+  },
+}));
 
-jest.mock('lucide-react', () => ({
+await jest.unstable_mockModule('lucide-react', () => ({
   __esModule: true,
   Leaf: ({ children, ...props }: any) => (
     <svg data-icon="leaf" {...props}>
@@ -61,9 +62,9 @@ jest.mock('lucide-react', () => ({
       {children}
     </svg>
   ),
-}))
+}));
 
-jest.mock('@/components/listings/RelatedListings', () => ({
+await jest.unstable_mockModule('@/components/listings/RelatedListings', () => ({
   __esModule: true,
   RelatedListings: ({ listings }: { listings: ListingSummaryDTO[] }) => (
     <div data-testid="related-listings" data-count={listings.length}>
@@ -72,7 +73,9 @@ jest.mock('@/components/listings/RelatedListings', () => ({
       ))}
     </div>
   ),
-}))
+}));
+
+const { CityDetailView } = await import('@/components/city/CityDetailView');
 
 describe('CityDetailView', () => {
   const makeCityDetail = (overrides: Partial<CityDetailDTO> = {}): CityDetailDTO => ({

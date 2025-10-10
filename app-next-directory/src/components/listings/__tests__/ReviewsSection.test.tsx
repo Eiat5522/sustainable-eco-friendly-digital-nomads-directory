@@ -1,65 +1,85 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
-import { useRouter } from 'next/navigation'
-import * as ReviewsSectionModule from '../ReviewsSection'
+import { jest } from '@jest/globals';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 
-jest.mock('../ReviewsSection', () => {
-  const actual = jest.requireActual('../ReviewsSection')
-  return {
-    ...actual,
-    submitReview: jest.fn(actual.submitReview),
-  }
-})
-const { ReviewsSection, canSubmitReview, submitReview } = ReviewsSectionModule
-import { getCurrentHref } from '@/utils/navigation'
+const { useRouter } = await import('next/navigation');
+const ReviewsSectionModule = await import('../ReviewsSection');
+const { ReviewsSection, canSubmitReview, submitReview } = ReviewsSectionModule;
+const { getCurrentHref } = await import('@/utils/navigation');
 
-type FetchReturn = Awaited<ReturnType<typeof fetch>>
+type FetchReturn = Awaited<ReturnType<typeof fetch>>;
 
-jest.mock('next/navigation', () => ({
+await jest.unstable_mockModule('next/navigation', () => ({
+  __esModule: true,
   useRouter: jest.fn(),
-}))
+}));
 
-jest.mock('@/utils/navigation', () => ({
+await jest.unstable_mockModule('@/utils/navigation', () => ({
+  __esModule: true,
   getCurrentHref: jest.fn(),
-}))
+}));
 
-jest.mock('@/components/ui/StarRating', () => ({
+await jest.unstable_mockModule('@/components/ui/StarRating', () => ({
+
+  __esModule: true,
+
   StarRating: function MockStarRating({ rating, interactive, onRatingChange }: any) {
+
     if (interactive) {
+
       return (
+
         <div data-testid="star-rating-interactive" data-rating={rating}>
+
           {[1, 2, 3, 4, 5].map((star) => (
+
             <button
+
               key={star}
+
               data-testid={`star-${star}`}
+
               onClick={() => onRatingChange?.(star)}
+
             >
+
               ★
+
             </button>
+
           ))}
+
         </div>
-      )
+
+      );
+
     }
 
-    return <div data-testid="star-rating-display" data-rating={rating}>★★★★★</div>
-  },
-}))
 
-jest.mock('@/components/ui/neo-card', () => ({
+
+    return <div data-testid="star-rating-display" data-rating={rating}>★★★★★</div>;
+
+  },
+
+}));
+
+await jest.unstable_mockModule('@/components/ui/neo-card', () => ({
+  __esModule: true,
   NeoCard: function MockNeoCard({ children }: any) {
-    return <div data-testid="neo-card">{children}</div>
+    return <div data-testid="neo-card">{children}</div>;
   },
   NeoCardHeader: function MockNeoCardHeader({ children }: any) {
-    return <div data-testid="neo-card-header">{children}</div>
+    return <div data-testid="neo-card-header">{children}</div>;
   },
   NeoCardTitle: function MockNeoCardTitle({ children }: any) {
-    return <h2 data-testid="neo-card-title">{children}</h2>
+    return <h2 data-testid="neo-card-title">{children}</h2>;
   },
   NeoCardContent: function MockNeoCardContent({ children }: any) {
-    return <div data-testid="neo-card-content">{children}</div>
+    return <div data-testid="neo-card-content">{children}</div>;
   },
-}))
+}));
 
-jest.mock('@/components/ui/neo-button', () => ({
+await jest.unstable_mockModule('@/components/ui/neo-button', () => ({
+  __esModule: true,
   NeoButton: function MockNeoButton({ children, onClick, disabled, variant, size }: any) {
     return (
       <button
@@ -71,17 +91,19 @@ jest.mock('@/components/ui/neo-button', () => ({
       >
         {children}
       </button>
-    )
+    );
   },
-}))
+}));
 
-jest.mock('@/components/ui/separator', () => ({
+await jest.unstable_mockModule('@/components/ui/separator', () => ({
+  __esModule: true,
   Separator: function MockSeparator() {
-    return <hr data-testid="separator" />
+    return <hr data-testid="separator" />;
   },
-}))
+}));
 
-jest.mock('@/components/ui/textarea', () => ({
+await jest.unstable_mockModule('@/components/ui/textarea', () => ({
+  __esModule: true,
   Textarea: function MockTextarea({ value, onChange, placeholder, disabled, rows, maxLength }: any) {
     return (
       <textarea
@@ -93,11 +115,11 @@ jest.mock('@/components/ui/textarea', () => ({
         rows={rows}
         maxLength={maxLength}
       />
-    )
+    );
   },
-}))
+}));
 
-jest.mock('next/image', () => ({
+await jest.unstable_mockModule('next/image', () => ({
   __esModule: true,
   default: function MockImage({ src, alt, ...rest }: any) {
     return (
@@ -108,20 +130,20 @@ jest.mock('next/image', () => ({
         aria-label={alt}
         {...rest}
       />
-    )
+    );
   },
-}))
+}));
 
-jest.mock('next/link', () => ({
+await jest.unstable_mockModule('next/link', () => ({
   __esModule: true,
   default: function MockLink({ href, children }: any) {
     return (
       <a data-testid="next-link" href={href}>
         {children}
       </a>
-    )
+    );
   },
-}))
+}));
 
 const originalFetch = global.fetch
 const mockFetch = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>()
@@ -162,8 +184,8 @@ const defaultReviews = [
   },
 ]
 
-const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
-const mockGetCurrentHref = getCurrentHref as jest.MockedFunction<typeof getCurrentHref>
+const mockUseRouter = useRouter as jest.Mock;
+const mockGetCurrentHref = getCurrentHref as jest.Mock;
 
 describe('submitReview', () => {
   it('returns invalid when rating or comment are insufficient', async () => {

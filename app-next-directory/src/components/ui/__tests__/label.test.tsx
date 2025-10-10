@@ -1,14 +1,6 @@
+import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
-import { Label } from '../label';
-
-// Mock Radix UI Label
-jest.mock('@radix-ui/react-label', () => ({
-  Root: jest.fn(({ children, className, ...props }) => (
-    <label data-testid="label-root" className={className} {...props}>
-      {children}
-    </label>
-  )),
-}));
+const { Label } = await import('../label');
 
 describe('Label', () => {
   describe('Basic Rendering', () => {

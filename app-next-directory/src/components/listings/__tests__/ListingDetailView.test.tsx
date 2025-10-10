@@ -10,18 +10,18 @@ const mockFetch = jest.fn<ReturnType<typeof fetch>, Parameters<typeof fetch>>()
 const originalHref = window.location.href
 const defaultListingHref = 'http://localhost/listings/test-listing'
 
-jest.mock('@/utils/navigation', () => ({
+await jest.unstable_mockModule('@/utils/navigation', () => ({
+  __esModule: true,
   getCurrentHref: jest.fn(),
   redirectTo: jest.fn(),
-}))
+}));
 
-jest.mock('next/navigation', () => ({
+await jest.unstable_mockModule('next/navigation', () => ({
+  __esModule: true,
   usePathname: jest.fn(),
-}))
+}));
 
-const mockGetCurrentHref = getCurrentHref as jest.MockedFunction<typeof getCurrentHref>
-const mockRedirectTo = redirectTo as jest.MockedFunction<typeof redirectTo>
-const mockUsePathname = usePathname as jest.MockedFunction<typeof usePathname>
+
 
 const mockResponse = (
   body: unknown,
@@ -37,79 +37,76 @@ const mockResponse = (
   }
 }
 
-jest.mock('../GalleryGrid', () => {
-  return function MockGalleryGrid({ images }: { images: string[] }) {
+await jest.unstable_mockModule('../GalleryGrid', () => ({
+  __esModule: true,
+  default: function MockGalleryGrid({ images }: { images: string[] }) {
     return (
       <div data-testid="gallery-grid" data-image-count={images.length}>
         Gallery Grid
       </div>
-    )
-  }
-})
+    );
+  },
+}));
 
-jest.mock('../HeroSection', () => {
-  return {
-    HeroSection: function MockHeroSection({
-      listing,
-      isFavorited,
-      onToggleFavorite,
-    }: {
-      listing: ListingDetailDTO
-      isFavorited: boolean
-      onToggleFavorite?: () => void
-    }) {
-      return (
-        <div data-testid="hero-section">
-          <h1 data-testid="hero-title">{listing.name}</h1>
-          <button data-testid="favorite-button" onClick={onToggleFavorite}>
-            {isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-          </button>
-        </div>
-      )
-    },
-  }
-})
+await jest.unstable_mockModule('../HeroSection', () => ({
+  __esModule: true,
+  HeroSection: function MockHeroSection({
+    listing,
+    isFavorited,
+    onToggleFavorite,
+  }: {
+    listing: ListingDetailDTO;
+    isFavorited: boolean;
+    onToggleFavorite?: () => void;
+  }) {
+    return (
+      <div data-testid="hero-section">
+        <h1 data-testid="hero-title">{listing.name}</h1>
+        <button data-testid="favorite-button" onClick={onToggleFavorite}>
+          {isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+        </button>
+      </div>
+    );
+  },
+}));
 
-jest.mock('../ListingDetailsCard', () => {
-  return {
-    ListingDetailsCard: function MockListingDetailsCard() {
-      return <div data-testid="listing-details-card">Listing Details</div>
-    },
-  }
-})
+await jest.unstable_mockModule('../ListingDetailsCard', () => ({
+  __esModule: true,
+  ListingDetailsCard: function MockListingDetailsCard() {
+    return <div data-testid="listing-details-card">Listing Details</div>;
+  },
+}));
 
-jest.mock('../ReviewsSection', () => {
-  return {
-    ReviewsSection: function MockReviewsSection({
-      reviews,
-      listingId,
-      isSignedIn,
-    }: {
-      reviews: Array<{ id: string }>
-      listingId: string
-      isSignedIn: boolean
-    }) {
-      return (
-        <div data-testid="reviews-section" data-listing-id={listingId} data-signed-in={isSignedIn}>
-          <div data-testid="reviews-count">{reviews.length}</div>
-          <div data-testid="signin-status">{isSignedIn ? 'signed-in' : 'not-signed-in'}</div>
-        </div>
-      )
-    },
-  }
-})
+await jest.unstable_mockModule('../ReviewsSection', () => ({
+  __esModule: true,
+  ReviewsSection: function MockReviewsSection({
+    reviews,
+    listingId,
+    isSignedIn,
+  }: {
+    reviews: Array<{ id: string }>;
+    listingId: string;
+    isSignedIn: boolean;
+  }) {
+    return (
+      <div data-testid="reviews-section" data-listing-id={listingId} data-signed-in={isSignedIn}>
+        <div data-testid="reviews-count">{reviews.length}</div>
+        <div data-testid="signin-status">{isSignedIn ? 'signed-in' : 'not-signed-in'}</div>
+      </div>
+    );
+  },
+}));
 
-jest.mock('../RelatedListings', () => {
-  return {
-    RelatedListings: function MockRelatedListings({ listings }: { listings: Array<{ id: string }> }) {
-      return (
-        <div data-testid="related-listings" data-count={listings.length}>
-          Related Listings
-        </div>
-      )
-    },
-  }
-})
+await jest.unstable_mockModule('../RelatedListings', () => ({
+  __esModule: true,
+  RelatedListings: function MockRelatedListings({ listings }: { listings: Array<{ id: string }> }) {
+    return (
+      <div data-testid="related-listings" data-count={listings.length}>
+        Related Listings
+      </div>
+    );
+  },
+}));
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -180,6 +177,10 @@ const baseReviews = [
     createdAt: '2023-01-01',
   },
 ]
+
+const { ListingDetailView } = await import('../ListingDetailView');
+const { getCurrentHref, redirectTo } = await import('@/utils/navigation');
+const { usePathname } = await import('next/navigation');
 
 describe('ListingDetailView', () => {
   it('renders core sections of the listing detail page', () => {

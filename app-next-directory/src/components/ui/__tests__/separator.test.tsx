@@ -1,10 +1,13 @@
+import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
-import { Separator } from '../separator';
 
 // Mock Radix UI Separator
-jest.mock('@radix-ui/react-separator', () => ({
+await jest.unstable_mockModule('@radix-ui/react-separator', () => ({
+  __esModule: true,
   Root: jest.fn(({ children, ...props }) => <div data-testid="separator-root" {...props}>{children}</div>),
 }));
+
+const { Separator } = await import('../separator');
 
 describe('Separator', () => {
   describe('Basic Rendering', () => {

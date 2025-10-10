@@ -10,18 +10,18 @@ if (fs.existsSync(basePath)) {
   // Will throw if the base config itself has a runtime/parse error (desired).
   base = require(basePath);
 }
-const baseModuleNameMapper = (base && typeof base === 'object' && base.moduleNameMapper)
-  ? base.moduleNameMapper
-  : {};
 const baseTransformIgnorePatterns = (base && typeof base === 'object' && base.transformIgnorePatterns)
   ? base.transformIgnorePatterns
   : ['/node_modules/'];
+const baseResolver = (base && typeof base === 'object' && base.resolver)
+  ? base.resolver
+  : path.resolve(__dirname, './jest/resolver.cjs');
 try {
-  const shouldLog = process.env.JEST_CONFIG_DEBUG === '1' || process.env.DEBUG_JEST_CONFIG === '1' || true;
+  const shouldLog = process.env.JEST_CONFIG_DEBUG === '1' || process.env.DEBUG_JEST_CONFIG === '1';
   if (shouldLog) {
     const lim = (v) => JSON.stringify(v, null, 2);
     console.log('[jest-e2e-config] Using base from:', basePath);
-    console.log('[jest-e2e-config] moduleNameMapper =', lim(baseModuleNameMapper));
+    console.log('[jest-e2e-config] resolver =', baseResolver);
     console.log('[jest-e2e-config] transformIgnorePatterns =', lim(baseTransformIgnorePatterns));
   }
 } catch {}
@@ -45,7 +45,7 @@ module.exports = {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
-  moduleNameMapper: Object.assign({}, baseModuleNameMapper),
+  resolver: baseResolver,
   transformIgnorePatterns: baseTransformIgnorePatterns,
   testPathIgnorePatterns: [
     '[\\\\/]src[\\\\/]',

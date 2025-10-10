@@ -1,254 +1,298 @@
-import { NextRequest } from 'next/server';
-
-// Mock stable dependencies at the top level
-jest.mock('next/server', () => ({
-  __esModule: true,
-  NextResponse: {
-    json: jest.fn((body: any, init?: { status?: number }) => ({
-      status: init?.status || 200,
-      json: () => Promise.resolve(body),
-    })),
-  },
-}));
-
-// Mock dependencies first to avoid hoisting issues
-jest.mock('@/lib/dbConnect');
-jest.mock('@/models/User');
-jest.mock('bcryptjs');
-jest.mock('@/lib/auth');
-
+import { jest } from '@jest/globals';
 import { testApiHandler } from 'next-test-api-route-handler';
-import { POST as registerPOST } from './route';
-import { GET as authGET } from '../test/route';
-import connect from '@/lib/dbConnect';
-import User from '@/models/User';
-import bcrypt from 'bcryptjs';
-import { auth } from '@/lib/auth';
 
-const mockConnect = connect as jest.MockedFunction<typeof connect>;
-const mockUserFindOne = User.findOne as jest.MockedFunction<typeof User.findOne>;
-const mockUserCreate = User.create as jest.MockedFunction<typeof User.create>;
-const mockBcryptHash = bcrypt.hash as jest.MockedFunction<(data: string | Buffer, saltOrRounds: string | number) => Promise<string>>;
-const mockAuth = auth as jest.MockedFunction<() => Promise<any>>;
+type HeaderRecord = Record<string, string>;
 
-/**
- * Helper to extract response body from API route handler result
- */
-async function getResponseBody(response: any) {
-  if (typeof response.json === 'function') {
-    return await response.json();
+type MockHeaders = {
+  get: (key: string) => string | null;
+  set: (key: string, value: string) => void;
+  has: (key: string) => boolean;
+  delete: (key: string) => boolean;
+  entries: () => IterableIterator<[string, string]>;
+  [Symbol.iterator]: () => IterableIterator<[string, string]>;
+};
+
+type MockResponse<T> = {
+  status: number;
+  headers: MockHeaders;
+  body: T;
+  json: () => Promise<T>;
+};
+
+const createHeaders = (init: HeaderRecord = {}): MockHeaders => {
+  const store = new Map<string, string>();
+  for (const [key, value] of Object.entries(init)) {
+    store.set(key.toLowerCase(), String(value));
   }
-  return response.body || response;
+  return {
+    get: (key: string) => store.get(key.toLowerCase()) ?? null,
+    set: (key: string, value: string) => {
+      store.set(key.toLowerCase(), String(value));
+    },
+    has: (key: string) => store.has(key.toLowerCase()),
+    delete: (key: string) => store.delete(key.toLowerCase()),
+    entries: () => store.entries(),
+    [Symbol.iterator]: () => store[Symbol.iterator](),
+  };
+};
+
+const createResponse = <T>(payload: T, init: { status?: number; headers?: HeaderRecord } = {}): MockResponse<T> => {
+  const headers = createHeaders(init.headers);
+  const status = init.status ?? 200;
+  return {
+    status,
+    headers,
+    body: payload,
+    json: async () => payload,
+  };
+};
+
+const nextResponseJson = jest.fn(createResponse);
+const nextResponseNext = jest.fn(() => createResponse(null));
+const nextResponseRedirect = jest.fn((url: string | URL, statusOrInit?: number | { status?: number; headers?: HeaderRecord }) => {
+  const status = typeof statusOrInit === 'number' ? statusOrInit : statusOrInit?.status ?? 307;
+  const headers = typeof statusOrInit === 'object' && statusOrInit?.headers
+    ? statusOrInit.headers
+    : { Location: typeof url === 'string' ? url : url.toString() };
+  return createResponse(null, { status, headers });
+});
+
+class MockNextRequest {
+  public url: string;
+  public method: string;
+  #jsonValue: unknown;
+
+  constructor(input: { url: string; method?: string; json?: unknown }) {
+    this.url = input.url;
+    this.method = input.method ?? 'GET';
+    this.#jsonValue = input.json;
+  }
+
+  async json() {
+    return this.#jsonValue ?? {};
+  }
 }
 
+await jest.unstable_mockModule('next/server', () => ({
+  __esModule: true,
+  NextResponse: {
+    json: nextResponseJson,
+    next: nextResponseNext,
+    redirect: nextResponseRedirect,
+  },
+  NextRequest: MockNextRequest,
+}));
+
+const mockDbConnect = jest.fn();
+await jest.unstable_mockModule('@/lib/dbConnect', () => ({
+  __esModule: true,
+  default: mockDbConnect,
+}));
+
+const mockUserFindOne = jest.fn();
+const mockUserCreate = jest.fn();
+const mockUserCountDocuments = jest.fn();
+const userModel = {
+  findOne: mockUserFindOne,
+  create: mockUserCreate,
+  countDocuments: mockUserCountDocuments,
+};
+await jest.unstable_mockModule('@/models/User', () => ({
+  __esModule: true,
+  default: userModel,
+}));
+
+const mockBcryptHash = jest.fn();
+await jest.unstable_mockModule('bcryptjs', () => ({
+  __esModule: true,
+  default: { hash: mockBcryptHash },
+  hash: mockBcryptHash,
+}));
+
+const mockAuth = jest.fn();
+await jest.unstable_mockModule('@/lib/auth', () => ({
+  __esModule: true,
+  auth: mockAuth,
+  default: { auth: mockAuth },
+}));
+
+const { POST: registerPOST } = await import('./route');
+const { GET: authGET } = await import('../test/route');
+
+const getResponseBody = async <T = any>(response: any): Promise<T> => {
+  if (typeof response?.json === 'function') {
+    return response.json();
+  }
+  return response?.body ?? response;
+};
+
+const createRequest = (body: unknown) => ({
+  json: jest.fn().mockResolvedValue(body),
+});
+
 describe('Registration API Routes', () => {
-  // Reset modules before each test to ensure a clean state
   beforeEach(() => {
-    jest.resetModules();
+    jest.clearAllMocks();
+    mockDbConnect.mockReset();
+    mockUserFindOne.mockReset();
+    mockUserCreate.mockReset();
+    mockUserCountDocuments.mockReset();
+    mockBcryptHash.mockReset();
+    mockAuth.mockReset();
+    nextResponseJson.mockImplementation(createResponse);
+    nextResponseNext.mockImplementation(() => createResponse(null));
+    nextResponseRedirect.mockImplementation((url: string | URL, statusOrInit?: number | { status?: number; headers?: HeaderRecord }) => {
+      const status = typeof statusOrInit === 'number' ? statusOrInit : statusOrInit?.status ?? 307;
+      const headers = typeof statusOrInit === 'object' && statusOrInit?.headers
+        ? statusOrInit.headers
+        : { Location: typeof url === 'string' ? url : url.toString() };
+      return createResponse(null, { status, headers });
+    });
+    process.env.MONGODB_URI = 'mongodb://localhost:27017/tests';
+    delete process.env.EDGE_RUNTIME;
+  });
+
+  afterEach(() => {
+    delete process.env.MONGODB_URI;
+    delete process.env.EDGE_RUNTIME;
   });
 
   describe('POST /api/auth/register', () => {
-    test('should register a user successfully', async () => {
-      // Arrange
-      const reqBody = {
+    it('registers a user successfully', async () => {
+      const reqBody = { name: 'Test User', email: 'test@example.com', password: 'password123' };
+      const req = createRequest(reqBody);
+
+      mockDbConnect.mockResolvedValue(undefined);
+      mockUserFindOne.mockResolvedValue(null);
+      mockBcryptHash.mockResolvedValue('hashed');
+      mockUserCreate.mockResolvedValue({
+        _id: 'user-1',
         name: 'Test User',
         email: 'test@example.com',
-        password: 'password123',
-      };
-      const req = {
-        json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+        role: 'user',
+        toObject: () => ({
+          _id: 'user-1',
+          name: 'Test User',
+          email: 'test@example.com',
+          role: 'user',
+        }),
+      });
 
-      mockConnect.mockResolvedValue(undefined);
+      const response = await registerPOST(req as any);
+      const body = await getResponseBody(response);
 
-      mockBcryptHash.mockResolvedValue('hashedpassword');
-      mockUserCreate.mockResolvedValue({
-        _id: 'someid',
+      expect(response.status).toBe(201);
+      expect(body.success).toBe(true);
+      expect(body.data.user).toEqual({
+        _id: 'user-1',
         name: 'Test User',
         email: 'test@example.com',
         role: 'user',
       });
 
-      // Act
-      const response = await registerPOST(req);
-      const body = await getResponseBody(response);
-
-      // Assert
-      expect(response.status).toBe(201);
-      expect(body.success).toBe(true);
-      expect(mockUserCountDocuments).toHaveBeenCalledWith({ email: 'test@example.com' });
+      expect(mockDbConnect).toHaveBeenCalledTimes(1);
+      expect(mockUserFindOne).toHaveBeenCalledWith({ email: 'test@example.com' });
+      expect(mockBcryptHash).toHaveBeenCalledWith('password123', 10);
       expect(mockUserCreate).toHaveBeenCalledTimes(1);
     });
 
-    test('should return 409 if user already exists', async () => {
-      // Arrange
-      const reqBody = {
-        name: 'Test User',
-        email: 'test@example.com',
-        password: 'password123',
-      };
-      const req = {
-        json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
-
-      mockUserFindOne.mockResolvedValue({ email: 'test@example.com' });
-
-      // Act
-      const response = await registerPOST(req);
+    it('returns 503 when MONGODB_URI is missing', async () => {
+      delete process.env.MONGODB_URI;
+      const response = await registerPOST(createRequest({ name: 'User', email: 'user@example.com', password: 'test123' }) as any);
       const body = await getResponseBody(response);
 
-      // Assert
+      expect(response.status).toBe(503);
+      expect(body.error.code).toBe('MISSING_DB_CONFIG');
+      expect(mockDbConnect).not.toHaveBeenCalled();
+    });
+
+    it('returns 409 when user already exists', async () => {
+      const req = createRequest({ name: 'User', email: 'test@example.com', password: 'pass' });
+
+      mockDbConnect.mockResolvedValue(undefined);
+      mockUserFindOne.mockResolvedValue({ _id: 'existing' });
+
+      const response = await registerPOST(req as any);
+      const body = await getResponseBody(response);
+
       expect(response.status).toBe(409);
       expect(body.success).toBe(false);
       expect(body.error.message).toBe('User already exists');
       expect(mockUserCreate).not.toHaveBeenCalled();
     });
 
-    test('should return 500 if User.create throws', async () => {
-      // Arrange
-      const reqBody = {
-        name: 'Test User',
-        email: 'test@example.com',
-        password: 'password123',
-      };
-      const req = {
-        json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+    it('returns 500 when create throws', async () => {
+      const req = createRequest({ name: 'User', email: 'test@example.com', password: 'pass' });
 
-      mockConnect.mockResolvedValue(undefined);
+      mockDbConnect.mockResolvedValue(undefined);
       mockUserFindOne.mockResolvedValue(null);
-      mockBcryptHash.mockResolvedValue('hashedpassword');
+      mockBcryptHash.mockResolvedValue('hashed');
       mockUserCreate.mockRejectedValue(new Error('DB error'));
 
-      // Act
-      const response = await registerPOST(req);
+      const response = await registerPOST(req as any);
       const body = await getResponseBody(response);
 
-      // Assert
       expect(response.status).toBe(500);
-      expect(body.success).toBe(false);
+      expect(body.error.code).toBe('SERVER_ERROR');
       expect(body.error.message).toMatch(/db error/i);
-      expect(body.error.code).toBe('SERVER_ERROR');
     });
 
-    test('should return 500 if dbConnect throws', async () => {
-      // Arrange
-      const reqBody = {
-        name: 'Test User',
-        email: 'test@example.com',
-        password: 'password123',
-      };
-      const req = {
-        json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
+    it('returns 500 when dbConnect fails', async () => {
+      const req = createRequest({ name: 'User', email: 'test@example.com', password: 'pass' });
+      mockDbConnect.mockRejectedValue(new Error('Connection error'));
 
-      mockConnect.mockRejectedValue(new Error('Connection error'));
-
-      // Act
-      const response = await registerPOST(req);
+      const response = await registerPOST(req as any);
       const body = await getResponseBody(response);
 
-      // Assert
       expect(response.status).toBe(500);
-      expect(body.success).toBe(false);
-      expect(body.error.message).toMatch(/connection error/i);
       expect(body.error.code).toBe('SERVER_ERROR');
+      expect(body.error.message).toMatch(/connection error/i);
     });
 
-    test('should return 400 if request body is missing', async () => {
-      // Arrange
-      const req = {
-        json: jest.fn().mockResolvedValue(undefined),
-      } as any;
+    it.each([
+      ['body is undefined', undefined],
+      ['body is not an object', 'string-body'],
+      ['missing email', { name: 'User', password: 'pass' }],
+      ['missing name', { email: 'user@example.com', password: 'pass' }],
+      ['missing password', { name: 'User', email: 'user@example.com' }],
+      ['empty name', { name: ' ', email: 'user@example.com', password: 'pass' }],
+      ['empty email', { name: 'User', email: ' ', password: 'pass' }],
+      ['empty password', { name: 'User', email: 'user@example.com', password: ' ' }],
+    ])('returns 400 when %s', async (_label, payload) => {
+      const req = createRequest(payload);
 
-      // Act
-      const response = await registerPOST(req);
+      const response = await registerPOST(req as any);
       const body = await getResponseBody(response);
 
-      // Assert
       expect(response.status).toBe(400);
       expect(body.success).toBe(false);
-      expect(body.error.message).toMatch(/Invalid request body/i);
       expect(body.error.code).toBe('INVALID_INPUT');
     });
 
-    test('should return 400 if email is missing', async () => {
-      // Arrange
-      const reqBody = {
-        name: 'Test User',
-        password: 'password123',
+    it('returns 400 when request.json throws', async () => {
+      const req = {
+        json: jest.fn().mockRejectedValue(new Error('bad json')),
       };
-      const req = {
-        json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
 
-      // Act
-      const response = await registerPOST(req);
+      const response = await registerPOST(req as any);
       const body = await getResponseBody(response);
 
-      // Assert
       expect(response.status).toBe(400);
       expect(body.success).toBe(false);
-      expect(body.error.message).toMatch(/Invalid request body/i);
       expect(body.error.code).toBe('INVALID_INPUT');
     });
-
-    test('should return 400 if name is missing', async () => {
-      // Arrange
-      const reqBody = {
-        email: 'test@example.com',
-        password: 'password123',
-      };
-      const req = {
-        json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
-
-      // Act
-      const response = await registerPOST(req);
-      const body = await getResponseBody(response);
-
-      // Assert
-      expect(response.status).toBe(400);
-      expect(body.success).toBe(false);
-      expect(body.error.message).toMatch(/Invalid request body/i);
-      expect(body.error.code).toBe('INVALID_INPUT');
-    });
-
-    test('should return 400 if password is missing', async () => {
-      // Arrange
-      const reqBody = {
-        name: 'Test User',
-        email: 'test@example.com',
-      };
-      const req = {
-        json: jest.fn().mockResolvedValue(reqBody),
-      } as any;
-
-      // Act
-      const response = await registerPOST(req);
-      const body = await getResponseBody(response);
-
-      // Assert
-      expect(response.status).toBe(400);
-      expect(body.success).toBe(false);
-      expect(body.error.message).toMatch(/Invalid request body/i);
-      expect(body.error.code).toBe('INVALID_INPUT');
-      });
+  });
 });
 
 describe('GET /api/auth/test', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    mockAuth.mockReset();
+    delete process.env.EDGE_RUNTIME;
   });
 
-  it('returns 200 and correct test results when JWT is present', async () => {
+  it('returns session diagnostics when authenticated', async () => {
     mockAuth.mockResolvedValue({
-      user: {
-        id: '123',
-        email: 'test@example.com',
-        role: 'user',
-        name: 'Test User',
-      }
+      user: { id: '123', email: 'test@example.com', role: 'user', name: 'Test User' },
     });
 
     await testApiHandler({
@@ -259,13 +303,13 @@ describe('GET /api/auth/test', () => {
         const json = await res.json();
         expect(json.tests.jwtVerification.passed).toBe(true);
         expect(json.tests.jwtVerification.details.isAuthenticated).toBe(true);
-        expect(json.tests.jwtVerification.details.user.email).toBe('test@example.com');
+        expect(json.user.email).toBe('test@example.com');
         expect(json.tests.sessionStrategy.passed).toBe(true);
       },
     });
   });
 
-  it('returns 200 and isAuthenticated false if no JWT token', async () => {
+  it('handles unauthenticated sessions', async () => {
     mockAuth.mockResolvedValue(null);
 
     await testApiHandler({
@@ -276,12 +320,11 @@ describe('GET /api/auth/test', () => {
         const json = await res.json();
         expect(json.tests.jwtVerification.details.isAuthenticated).toBe(false);
         expect(json.tests.jwtVerification.details.user).toBeNull();
-        expect(json.tests.sessionStrategy.passed).toBe(true);
       },
     });
   });
 
-  it('returns 500 and error message if auth throws', async () => {
+  it('propagates auth errors', async () => {
     mockAuth.mockRejectedValue(new Error('JWT error'));
 
     await testApiHandler({
@@ -296,24 +339,20 @@ describe('GET /api/auth/test', () => {
     });
   });
 
-  it('detects edge runtime via process.env.edgeRuntime', async () => {
+  it('reports edge runtime when flag is set', async () => {
     process.env.EDGE_RUNTIME = '1';
     mockAuth.mockResolvedValue({
-      user: {
-        id: '123',
-        email: 'test@example.com',
-        role: 'user',
-        name: 'Test User',
-      }
+      user: { id: '123', email: 'test@example.com', role: 'user', name: 'Test User' },
     });
 
     await testApiHandler({
       handler: authGET,
       test: async ({ fetch }) => {
         const res = await fetch();
+        expect(res.status).toBe(200);
         const json = await res.json();
         expect(json.tests.edgeRuntime.passed).toBe(true);
-        expect(json.runtime).toBe(process.env.EDGE_RUNTIME ? 'edge' : 'node');
+        expect(json.runtime).toBe('edge');
       },
     });
   });

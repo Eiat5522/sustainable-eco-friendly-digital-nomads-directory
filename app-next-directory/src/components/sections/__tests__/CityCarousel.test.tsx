@@ -1,21 +1,23 @@
+import { jest } from '@jest/globals';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { CityCarousel } from '../CityCarousel';
-import useEmblaCarousel from 'embla-carousel-react';
 
 // Mock the module
-jest.mock('embla-carousel-react');
+await jest.unstable_mockModule('embla-carousel-react', () => ({
+  __esModule: true,
+  default: jest.fn(),
+}));
 
 // Mock embla-carousel-autoplay
-jest.mock('embla-carousel-autoplay', () => ({
+await jest.unstable_mockModule('embla-carousel-autoplay', () => ({
   __esModule: true,
   default: jest.fn(),
 }));
 
 // Mock next/image and next/link
-jest.mock('next/image', () => ({ __esModule: true, default: (props: any) => <img {...props} /> }));
-jest.mock('next/link', () => ({ __esModule: true, default: ({ children, href }: any) => <a href={href}>{children}</a> }));
+await jest.unstable_mockModule('next/image', () => ({ __esModule: true, default: (props: any) => <img {...props} /> }));
+await jest.unstable_mockModule('next/link', () => ({ __esModule: true, default: ({ children, href }: any) => <a href={href}>{children}</a> }));
 
 // Define the mock object that tests will interact with
 const emblaApiMock = {
@@ -34,6 +36,9 @@ Object.defineProperty(global, 'fetch', {
   value: mockFetch,
   writable: true,
 });
+
+const { CityCarousel } = await import('../CityCarousel');
+const { default: useEmblaCarousel } = await import('embla-carousel-react');
 
 describe('CityCarousel', () => {
   const mockCities = [

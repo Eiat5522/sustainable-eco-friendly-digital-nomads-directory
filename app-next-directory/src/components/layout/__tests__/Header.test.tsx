@@ -1,18 +1,20 @@
-import React from 'react'
-import { render, screen } from '@testing-library/react'
-import { Header } from '../Header'
-import * as nextAuth from 'next-auth/react'
+import { jest } from '@jest/globals';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import * as nextAuth from 'next-auth/react';
 
 // Mock next/image used inside Header - strip props that aren't valid DOM attributes (like priority)
-jest.mock('next/image', () => ({
+await jest.unstable_mockModule('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
-    const { priority, ...rest } = props
+    const { priority, ...rest } = props;
     // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...rest} />
-  }
-}))
+    return <img {...rest} />;
+  },
+}));
 import userEvent from '@testing-library/user-event'
+
+const { Header } = await import('../Header');
 
 describe('Header', () => {
   const useSessionSpy = jest.spyOn(nextAuth, 'useSession')

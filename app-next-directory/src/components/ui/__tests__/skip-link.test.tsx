@@ -1,16 +1,18 @@
+import { jest } from '@jest/globals';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 // Provides extended jest matchers like toHaveClass / toBeInTheDocument
 import '@testing-library/jest-dom';
-import { SkipLink } from '../skip-link';
 
-jest.mock('next/link', () => ({
+await jest.unstable_mockModule('next/link', () => ({
   __esModule: true,
   default: ({ children, href, ...props }: any) => {
     return <a href={href} {...props}>{children}</a>;
   },
 }));
+
+const { SkipLink } = await import('../skip-link');
 
 describe('SkipLink', () => {
   describe('Basic Rendering', () => {

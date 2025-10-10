@@ -4,27 +4,47 @@
  * in a unit test environment instead of e2e testing
  */
 
+import { jest } from '@jest/globals';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SearchForm } from '@/components/search/SearchForm';
-import { useRouter } from 'next/navigation';
-import { useSearchListings } from '@/hooks/useSearchListings';
-
-// Mock external dependencies
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(),
-}));
-
-jest.mock('@/hooks/useSearchListings', () => ({
-  useSearchListings: jest.fn(),
-}));
 
 const mockPush = jest.fn();
-const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
-const mockUseSearchListings = useSearchListings as jest.MockedFunction<typeof useSearchListings>;
+const mockUseRouter = jest.fn(() => ({
+    push: mockPush,
+    query: {},
+}));
+await jest.unstable_mockModule('next/navigation', () => ({
+    __esModule: true,
+    useRouter: mockUseRouter,
+}));
+
+const mockSearchListings = jest.fn();
+const mockUseSearchListings = jest.fn(() => ({
+    listings: [],
+    loading: false,
+    error: null,
+    searchListings: mockSearchListings,
+    totalCount: 0,
+    hasMore: false,
+}));
+await jest.unstable_mockModule('@/hooks/useSearchListings', () => ({
+    __esModule: true,
+    useSearchListings: mockUseSearchListings,
+}));
+
+const { useRouter } = await import('next/navigation');
+const { useSearchListings } = await import('@/hooks/useSearchListings');
+
+
 
 describe('SearchForm Unit Tests', () => {
   beforeEach(() => {
+    mockPush.mockClear();
+    mockUseRouter.mockClear();
+    mockUseSearchListings.mockClear();
+    mockSearchListings.mockClear();
+
     mockUseRouter.mockReturnValue({
       push: mockPush,
       query: {},
@@ -34,12 +54,10 @@ describe('SearchForm Unit Tests', () => {
       listings: [],
       loading: false,
       error: null,
-      searchListings: jest.fn(),
+      searchListings: mockSearchListings,
       totalCount: 0,
       hasMore: false,
     });
-
-    jest.clearAllMocks();
   });
 
   test('renders search form with proper accessibility attributes', () => {

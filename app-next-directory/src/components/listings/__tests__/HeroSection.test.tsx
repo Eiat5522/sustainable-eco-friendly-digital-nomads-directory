@@ -1,11 +1,12 @@
+import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { HeroSection } from '../HeroSection';
 import type { ListingDetailDTO, CityDTO } from '@/types/dto';
 
 // Mock Next.js Image component
-jest.mock('next/image', () => {
-  return function MockImage({ src, alt, fill, sizes, className, priority }: any) {
+await jest.unstable_mockModule('next/image', () => ({
+  __esModule: true,
+  default: function MockImage({ src, alt, fill, sizes, className, priority }: any) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
@@ -18,11 +19,12 @@ jest.mock('next/image', () => {
         data-priority={priority}
       />
     );
-  };
-});
+  },
+}));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
+await jest.unstable_mockModule('lucide-react', () => ({
+  __esModule: true,
   MapPin: function MockMapPin({ size, className }: any) {
     return <span data-testid="map-pin-icon" data-size={size} className={className}>📍</span>;
   },
@@ -32,7 +34,8 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock UI components
-jest.mock('@/components/ui/neo-card', () => ({
+await jest.unstable_mockModule('@/components/ui/neo-card', () => ({
+  __esModule: true,
   NeoCard: function MockNeoCard({ children, variant, className }: any) {
     return <div className={className} data-variant={variant} data-testid="neo-card">{children}</div>;
   },
@@ -44,7 +47,8 @@ jest.mock('@/components/ui/neo-card', () => ({
   },
 }));
 
-jest.mock('@/components/ui/neo-button', () => ({
+await jest.unstable_mockModule('@/components/ui/neo-button', () => ({
+  __esModule: true,
   NeoButton: function MockNeoButton({ 
     children, 
     onClick, 
@@ -69,9 +73,12 @@ jest.mock('@/components/ui/neo-button', () => ({
 }));
 
 // Mock FALLBACK_IMAGE constant
-jest.mock('@/lib/dto-transformer', () => ({
+await jest.unstable_mockModule('@/lib/dto-transformer', () => ({
+  __esModule: true,
   FALLBACK_IMAGE: '/placeholder_image.png',
 }));
+
+const { HeroSection } = await import('../HeroSection');
 
 describe('HeroSection', () => {
   const mockCity: CityDTO = {

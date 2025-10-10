@@ -13,14 +13,7 @@
 import { jest } from '@jest/globals';
 import type { NextRequest } from 'next/server';
 
-// Explicitly mock modules before importing them
-jest.mock('@/lib/dbConnect');
-jest.mock('@/lib/email');
-jest.mock('@/lib/rate-limit');
-jest.mock('@/lib/logger');
-jest.mock('@/lib/auth/config');
-jest.mock('@/lib/tokens');
-
+// Rely on global ESM mocks registered in jest.setup.ts via unstable_mockModule
 // Import mocked modules - Jest will use the __mocks__ versions
 import * as tokensModule from '@/lib/tokens';
 import * as emailModule from '@/lib/email';
