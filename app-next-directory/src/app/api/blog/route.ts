@@ -15,6 +15,7 @@ export async function GET() {
     );
     return NextResponse.json(posts);
   } catch (error) {
+    console.error('Error fetching blog posts:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

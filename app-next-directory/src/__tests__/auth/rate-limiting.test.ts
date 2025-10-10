@@ -31,6 +31,7 @@ jest.mock('mongoose', () => ({
 }));
 
 import { getRedisClient } from '@/lib/redis';
+const mockGetRedisClient = getRedisClient as jest.MockedFunction<typeof getRedisClient>;
 import dbConnect from '@/lib/dbConnect';
 import mongoose from 'mongoose';
 import {
@@ -43,10 +44,8 @@ import {
 const mockDbConnect = dbConnect as jest.MockedFunction<typeof dbConnect>;
 const mockMongoose = mongoose as jest.Mocked<typeof mongoose>;
 
-// Create the mock function first
-const mockGetRedisClient = jest.fn();
 jest.mock('@/lib/redis', () => ({
-  getRedisClient: mockGetRedisClient,
+  getRedisClient: jest.fn(),
 }));
 
 import type { Redis } from '@upstash/redis';
@@ -83,11 +82,9 @@ describe('Rate Limiting and Redis Integration', () => {
     process.env.NODE_ENV = 'test';
     process.env.JEST_WORKER_ID = '1';
 
-    // Setup default mocks - ensure mockGetRedisClient is properly initialized
-    if (mockGetRedisClient) {
-      mockGetRedisClient.mockClear();
-      mockGetRedisClient.mockReturnValue(mockRedisClient);
-    }
+    // Setup default mocks
+    mockGetRedisClient.mockClear();
+    mockGetRedisClient.mockReturnValue(mockRedisClient);
     mockDbConnect.mockResolvedValue(undefined);
 
     // Mock mongoose connection

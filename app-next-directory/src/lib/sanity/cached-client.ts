@@ -18,13 +18,29 @@ async function fetchAndCache(query: string, params: any, ttl: number) {
     console.warn('Cache read failed, falling through to fetch:', error);
   }
 
-  const data = await client.fetch(query, params);
-  await redis.set(key, JSON.stringify(data), { ex: ttl });
-  return data;
+  // Check if request is already in-flight to prevent stampede
+  if (inflightRequests.has(key)) {
+    return inflightRequests.get(key);
+  }
+
+  const fetchPromise = (async () => {
+    try {
+      const data = await client.fetch(query, params);
+      await redis.set(key, JSON.stringify(data), { ex: ttl }).catch((error) => {
+        console.warn('Cache write failed:', error);
+      });
+      return data;
+    } finally {
+      inflightRequests.delete(key);
+    }
+  })();
+  
+  inflightRequests.set(key, fetchPromise);
+  return fetchPromise;
 }
 
 export const cachedClient = {
-  fetch: async (query: string, params: any = {}, ttl: number = CACHE_TTL_SECONDS) => {
+  fetch: async <T = any>(query: string, params: Record<string, any> = {}, ttl: number = CACHE_TTL_SECONDS): Promise<T> => {
     return fetchAndCache(query, params, ttl);
   },
 };

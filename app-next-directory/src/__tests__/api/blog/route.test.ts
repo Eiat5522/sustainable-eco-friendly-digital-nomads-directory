@@ -54,24 +54,30 @@ describe('Blog API - GET /api/blog', () => {
 
       mockFetch.mockResolvedValueOnce(mockPosts);
 
-      let response = await GET();
-      let data = await response.json();
+      // First request - cache miss
+      {
+        const response = await GET();
+        const data = await response.json();
 
-      expect(response.status).toBe(200);
-      expect(data).toEqual(mockPosts);
-      expect(mockFetch).toHaveBeenCalledTimes(1);
-      expect(redis.set).toHaveBeenCalledTimes(1);
+        expect(response.status).toBe(200);
+        expect(data).toEqual(mockPosts);
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+        expect(redis.set).toHaveBeenCalledTimes(1);
+      }
 
       // Now, mock redis.get to return the cached data
       (redis.get as jest.Mock).mockResolvedValue(JSON.stringify(mockPosts));
 
-      response = await GET();
-      data = await response.json();
+      // Second request - cache hit
+      {
+        const response = await GET();
+        const data = await response.json();
 
-      expect(response.status).toBe(200);
-      expect(data).toEqual(mockPosts);
-      // client.fetch should not be called again
-      expect(mockFetch).toHaveBeenCalledTimes(1);
+        expect(response.status).toBe(200);
+        expect(data).toEqual(mockPosts);
+        // client.fetch should not be called again
+        expect(mockFetch).toHaveBeenCalledTimes(1);
+      }
     });
 
     it('should return empty array when no posts exist', async () => {

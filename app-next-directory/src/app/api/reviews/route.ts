@@ -1,5 +1,5 @@
 import { cachedClient } from '@/lib/sanity/cached-client';
-import { urlFor } from '@/lib/sanity/client';
+import { client, urlFor } from '@/lib/sanity/client';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { revalidateTag } from 'next/cache';

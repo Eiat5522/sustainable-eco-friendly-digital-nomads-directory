@@ -26,34 +26,23 @@ export function validatePreviewToken(token: string | null): boolean {
 import { cachedClient } from './sanity/cached-client';
 
 // GROQ query helper
+const FETCH_BY_SLUG_QUERY = `*[_type == $type && slug.current == $slug][0]{
+  ...,
+  "author": author->{name, image},
+  "categories": categories[]->{title, slug},
+  "related": *[_type == $type && slug.current != $slug][0..2]{
+    title,
+    slug,
+    "imageUrl": primaryImage.asset->url
+  }
+}`;
+
 export async function fetchBySlug(type: string, slug: string, preview = false) {
   if (preview) {
     const client = getClient(true);
-    return client.fetch(
-      `*[_type == $type && slug.current == $slug][0]{
-        ...,
-        "author": author->{name, image},
-        "categories": categories[]->{title, slug},
-        "related": *[_type == $type && slug.current != $slug][0..2]{
-          title,
-          slug,
-          "imageUrl": primaryImage.asset->url
-        }
-      }`,
-      { type, slug }
-    );
+    return client.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
   }
-  const query = `*[_type == $type && slug.current == $slug][0]{
-    ...,
-    "author": author->{name, image},
-    "categories": categories[]->{title, slug},
-    "related": *[_type == $type && slug.current != $slug][0..2]{
-      title,
-      slug,
-      "imageUrl": primaryImage.asset->url
-    }
-  }`;
-  return cachedClient.fetch(query, { type, slug });
+    return cachedClient.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
 }
 
 // GraphQL configuration
