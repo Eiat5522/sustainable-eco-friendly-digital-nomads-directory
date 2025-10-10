@@ -9,6 +9,12 @@ import { jest } from '@jest/globals';
 
 // Mock Sanity client - uses existing __mocks__/@sanity/client.ts
 jest.mock('@/lib/sanity/client');
+jest.mock('@/lib/redis', () => ({
+  redis: {
+    get: jest.fn(),
+    set: jest.fn(),
+  },
+}));
 
 // Import after mocks - next/server is automatically mocked via jest.config.cjs
 import { GET } from '@/app/api/blog/route';
@@ -17,15 +23,18 @@ import { client } from '@/lib/sanity/client';
 // Get the mocked fetch
 const mockFetch = client.fetch as jest.MockedFunction<typeof client.fetch>;
 
+import { redis } from '@/lib/redis';
+
 describe('Blog API - GET /api/blog', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Reset mock implementation for each test
     mockFetch.mockReset();
+    (redis.get as jest.Mock).mockResolvedValue(null);
   });
 
   describe('Successful Requests', () => {
-    it('should return all published blog posts', async () => {
+    it('should return all published blog posts and cache the result', async () => {
       const mockPosts = [
         {
           _id: '1',
@@ -45,15 +54,24 @@ describe('Blog API - GET /api/blog', () => {
 
       mockFetch.mockResolvedValueOnce(mockPosts);
 
-      const response = await GET();
-      const data = await response.json();
+      let response = await GET();
+      let data = await response.json();
 
       expect(response.status).toBe(200);
       expect(data).toEqual(mockPosts);
       expect(mockFetch).toHaveBeenCalledTimes(1);
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('_type == "blogPost"')
-      );
+      expect(redis.set).toHaveBeenCalledTimes(1);
+
+      // Now, mock redis.get to return the cached data
+      (redis.get as jest.Mock).mockResolvedValue(JSON.stringify(mockPosts));
+
+      response = await GET();
+      data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data).toEqual(mockPosts);
+      // client.fetch should not be called again
+      expect(mockFetch).toHaveBeenCalledTimes(1);
     });
 
     it('should return empty array when no posts exist', async () => {

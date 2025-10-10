@@ -148,37 +148,41 @@ export async function createUserAccount(userData: {
   }
 }
 
+import { withMongooseCache } from '../mongoose-cache';
+
 /**
 * Get user by ID
  * @param userId User ID
  * @returns User data or null
  */
 export async function getUserById(userId: string): Promise<AuthenticatedUser | null> {
-  try {
-    await connectToDatabase();
+  return withMongooseCache(UserModel, `getUserById:${userId}`, async () => {
+    try {
+      await connectToDatabase();
 
-    if (!isValidObjectId(userId)) {
+      if (!isValidObjectId(userId)) {
+        return null;
+      }
+
+      const user = await UserModel.findById(userId)
+        .select('_id name email image role')
+        .lean();
+      if (!user) {
+        return null;
+      }
+
+      return {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        role: user.role as UserRole,
+      };
+    } catch (error) {
+      console.error('Get user error:', error);
       return null;
     }
-
-    const user = await UserModel.findById(userId)
-      .select('_id name email image role')
-      .lean();
-    if (!user) {
-      return null;
-    }
-
-    return {
-      id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      image: user.image,
-      role: user.role as UserRole,
-    };
-  } catch (error) {
-    console.error('Get user error:', error);
-    return null;
-  }
+  });
 }
 
 

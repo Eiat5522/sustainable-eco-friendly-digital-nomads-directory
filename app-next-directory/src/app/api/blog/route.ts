@@ -1,11 +1,11 @@
 
-import { client } from '@/lib/sanity/client';
+import { cachedClient } from '@/lib/sanity/cached-client';
 import { groq } from 'next-sanity';
 import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const posts = await client.fetch(
+    const posts = await cachedClient.fetch(
       groq`*[
         _type == "blogPost" &&
         !(_id in path('drafts.**')) &&

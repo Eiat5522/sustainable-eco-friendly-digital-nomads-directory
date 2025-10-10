@@ -12,7 +12,7 @@ interface RateLimitInfo {
 const rateLimitStore = new Map<string, RateLimitInfo>();
 
 // Clean up expired entries every 10 minutes
-setInterval(() => {
+const cleanupInterval = setInterval(() => {
   const now = Date.now();
   for (const [key, info] of rateLimitStore.entries()) {
     if (now > info.resetTime) {
@@ -20,6 +20,8 @@ setInterval(() => {
     }
   }
 }, 10 * 60 * 1000);
+
+cleanupInterval.unref?.();
 
 export interface RateLimitOptions {
   max: number; // Maximum requests

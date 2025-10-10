@@ -1,4 +1,4 @@
-import { client } from './client';
+import { cachedClient } from './cached-client';
 import { groq } from 'next-sanity';
 
 // GROQ query to fetch a single listing by slug
@@ -75,7 +75,7 @@ export async function getListingData(
   usePreview = false
 ): Promise<AppListingDetail | null> {
   try {
-    const listing = await client.fetch(
+    const listing = await cachedClient.fetch(
       LISTING_BY_SLUG_QUERY,
       { slug }
     );

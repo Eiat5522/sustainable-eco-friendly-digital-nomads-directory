@@ -150,7 +150,7 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
     }
   }`;
 
-  const raw = await client.fetch(getCitySummaryBySlugQuery, { slug });
+  const raw = await cachedClient.fetch(getCitySummaryBySlugQuery, { slug });
   return toCityDTO(raw);
 }
 
@@ -188,7 +188,7 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     }
   }`;
 
-  const raw = await client.fetch(getCityFullDetailsBySlugQuery, { slug });
+  const raw = await cachedClient.fetch(getCityFullDetailsBySlugQuery, { slug });
   return toCityDetailDTO(raw);
 }
 
@@ -230,7 +230,7 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
     }
   }`;
 
-  const listingsRaw = await client.fetch<ListingSummarySource[]>(getPublishedListingsInCityQuery, { cityId });
+  const listingsRaw = await cachedClient.fetch<ListingSummarySource[]>(getPublishedListingsInCityQuery, { cityId });
 
   return listingsRaw.map((listing) =>
     transformToSummaryDTO({
@@ -263,6 +263,6 @@ export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
     }
   }`;
 
-  const raw = await client.fetch(getAllCitiesPaginatedQuery, { limit });
+  const raw = await cachedClient.fetch(getAllCitiesPaginatedQuery, { limit });
   return (Array.isArray(raw) ? raw : []).map(toCityDTO).filter(Boolean) as CityDTO[];
 }

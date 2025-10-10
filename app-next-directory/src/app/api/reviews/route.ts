@@ -1,4 +1,5 @@
-import { client, urlFor } from '@/lib/sanity/client';
+import { cachedClient } from '@/lib/sanity/cached-client';
+import { urlFor } from '@/lib/sanity/client';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { revalidateTag } from 'next/cache';
@@ -120,10 +121,10 @@ export async function GET(request: Request) {
   }
 
   try {
-    const rawReviews = await client.fetch<RawReview[]>(REVIEWS_BY_LISTING_QUERY, {
+    const rawReviews = await cachedClient.fetch<RawReview[]>(REVIEWS_BY_LISTING_QUERY, {
       listingId,
       userId: userIdParam && userIdParam.length > 0 ? userIdParam : undefined,
-    });
+    }, { next: { tags: [`listing:${listingId}-reviews`] } });
 
     const normalized: NormalizedReview[] = [];
     let sum = 0;
