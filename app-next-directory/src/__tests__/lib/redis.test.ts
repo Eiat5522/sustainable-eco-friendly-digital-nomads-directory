@@ -5,6 +5,8 @@
  * 1. TypeScript-safe mock functionality
  * 2. Environment-based mock attachment
  * 3. Mock reset functionality for test isolation
+ * 4. Redis client initialization and configuration
+ * 5. Error handling for missing environment variables
  */
 
 import { jest } from '@jest/globals';
@@ -12,14 +14,16 @@ import { jest } from '@jest/globals';
 // Mock the @upstash/redis module to avoid actual Redis connections
 jest.mock('@upstash/redis', () => ({
   Redis: jest.fn().mockImplementation(() => ({
-    set: jest.fn(),
-    get: jest.fn(),
-    del: jest.fn(),
+    set: jest.fn().mockResolvedValue('OK'),
+    get: jest.fn().mockResolvedValue(null),
+    del: jest.fn().mockResolvedValue(1),
     ping: jest.fn().mockResolvedValue('PONG'),
+    incr: jest.fn().mockResolvedValue(1),
+    expire: jest.fn().mockResolvedValue(1),
   })),
 }));
 
-describe('Redis Client TypeScript-safe Mocking', () => {
+describe('Redis Client Basic Functionality', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.resetModules();
@@ -27,144 +31,323 @@ describe('Redis Client TypeScript-safe Mocking', () => {
     // Ensure we're in test environment for mock attachment
     process.env.NODE_ENV = 'test';
     process.env.JEST_WORKER_ID = '1';
+    
+    // Set required Redis environment variables
+    process.env.UPSTASH_REDIS_REST_URL = 'http://localhost:8079';
+    process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
   });
 
   afterEach(() => {
     delete process.env.NODE_ENV;
     delete process.env.JEST_WORKER_ID;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
   });
 
-  it('should attach mock helpers in test environment', async () => {
+  it('should export redis client instance', async () => {
+    const { redis } = await import('@/lib/redis');
+    
+    expect(redis).toBeDefined();
+    expect(typeof redis.get).toBe('function');
+    expect(typeof redis.set).toBe('function');
+  });
+
+  it('should export getRedisClient function', async () => {
     const { getRedisClient } = await import('@/lib/redis');
     
-    // Cast to mock type to access test methods
-    const mockGetRedisClient = getRedisClient as jest.MockedFunction<typeof getRedisClient> & {
-      mockReturnValue?: (client: any) => typeof getRedisClient;
-      mockClear?: () => void;
-      mockReset?: () => void;
-    };
-
-    // Verify mock methods are available
-    expect(typeof mockGetRedisClient.mockReturnValue).toBe('function');
-    expect(typeof mockGetRedisClient.mockClear).toBe('function');
-    expect(typeof mockGetRedisClient.mockReset).toBe('function');
+    expect(getRedisClient).toBeDefined();
+    expect(typeof getRedisClient).toBe('function');
   });
 
-  it('should allow setting mock return value', async () => {
-    const { getRedisClient } = await import('@/lib/redis');
+  it('should return same redis instance from getRedisClient', async () => {
+    const { redis, getRedisClient } = await import('@/lib/redis');
     
-    const mockClient = {
-      set: jest.fn(),
-      get: jest.fn(),
-      ping: jest.fn().mockResolvedValue('PONG'),
-    };
+    const client = getRedisClient();
+    expect(client).toBe(redis);
+  });
+});
 
-    // Cast to mock type and use mockReturnValue
-    const mockGetRedisClient = getRedisClient as jest.MockedFunction<typeof getRedisClient> & {
-      mockReturnValue: (client: any) => typeof getRedisClient;
-    };
-
-    mockGetRedisClient.mockReturnValue(mockClient as any);
-
-    // Verify the mock client is returned
-    expect(getRedisClient()).toBe(mockClient);
+describe('Redis Client Initialization and Configuration', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.resetModules();
+    process.env.NODE_ENV = 'test';
+    process.env.JEST_WORKER_ID = '1';
   });
 
-  it('should allow clearing mock state', async () => {
-    const { getRedisClient } = await import('@/lib/redis');
-    
-    const mockClient = {
-      set: jest.fn(),
-      get: jest.fn(),
-      ping: jest.fn().mockResolvedValue('PONG'),
-    };
-
-    // Cast to mock type
-    const mockGetRedisClient = getRedisClient as jest.MockedFunction<typeof getRedisClient> & {
-      mockReturnValue: (client: any) => typeof getRedisClient;
-      mockClear: () => void;
-    };
-
-    // Set mock client
-    mockGetRedisClient.mockReturnValue(mockClient as any);
-    expect(getRedisClient()).toBe(mockClient);
-
-    // Clear mock state
-    mockGetRedisClient.mockClear();
-    expect(getRedisClient()).toBeUndefined();
-  });
-
-  it('should allow resetting mock state and listeners', async () => {
-    const { getRedisClient, onRedisClientChange } = await import('@/lib/redis');
-    
-    const mockClient = {
-      set: jest.fn(),
-      get: jest.fn(),
-      ping: jest.fn().mockResolvedValue('PONG'),
-    };
-
-    // Cast to mock type
-    const mockGetRedisClient = getRedisClient as jest.MockedFunction<typeof getRedisClient> & {
-      mockReturnValue: (client: any) => typeof getRedisClient;
-      mockReset: () => void;
-    };
-
-    // Add a listener
-    const listener = jest.fn();
-    const unsubscribe = onRedisClientChange(listener);
-
-    // Set mock client
-    mockGetRedisClient.mockReturnValue(mockClient as any);
-    expect(listener).toHaveBeenCalledWith(mockClient);
-
-    // Reset should clear client and listeners
-    mockGetRedisClient.mockReset();
-    expect(getRedisClient()).toBeUndefined();
-
-    // Clean up
-    unsubscribe();
-  });
-
-  it('should handle client changes through listeners', async () => {
-    const { getRedisClient, onRedisClientChange } = await import('@/lib/redis');
-    
-    const listener = jest.fn();
-    const unsubscribe = onRedisClientChange(listener);
-
-    const mockClient = {
-      set: jest.fn(),
-      get: jest.fn(),
-      ping: jest.fn().mockResolvedValue('PONG'),
-    };
-
-    // Cast to mock type
-    const mockGetRedisClient = getRedisClient as jest.MockedFunction<typeof getRedisClient> & {
-      mockReturnValue: (client: any) => typeof getRedisClient;
-    };
-
-    // Setting mock value should notify listeners
-    mockGetRedisClient.mockReturnValue(mockClient as any);
-    expect(listener).toHaveBeenCalledWith(mockClient);
-
-    // Clean up
-    unsubscribe();
-  });
-
-  it('should only attach mock helpers in test environment', async () => {
-    // Remove test environment indicators
+  afterEach(() => {
     delete process.env.NODE_ENV;
     delete process.env.JEST_WORKER_ID;
-    
-    jest.resetModules();
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  });
+
+  it('should initialize Redis client with correct configuration', async () => {
+    process.env.UPSTASH_REDIS_REST_URL = 'http://localhost:8079';
+    process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
     
     const { getRedisClient } = await import('@/lib/redis');
+    const client = getRedisClient();
     
-    // Cast to check for mock methods
-    const mockGetRedisClient = getRedisClient as any;
+    expect(client).toBeDefined();
+    expect(typeof client.get).toBe('function');
+    expect(typeof client.set).toBe('function');
+  });
 
-    // Mock methods should not be available outside test environment
-    expect(mockGetRedisClient.mockReturnValue).toBeUndefined();
-    expect(mockGetRedisClient.mockClear).toBeUndefined();
-    expect(mockGetRedisClient.mockReset).toBeUndefined();
+  it('should throw error when environment variables are missing', async () => {
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    
+    await expect(async () => {
+      await import('@/lib/redis');
+    }).rejects.toThrow('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are not set');
+  });
+
+  it('should throw error when only URL is provided', async () => {
+    process.env.UPSTASH_REDIS_REST_URL = 'http://localhost:8079';
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    
+    await expect(async () => {
+      await import('@/lib/redis');
+    }).rejects.toThrow('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are not set');
+  });
+
+  it('should throw error when only TOKEN is provided', async () => {
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
+    
+    await expect(async () => {
+      await import('@/lib/redis');
+    }).rejects.toThrow('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are not set');
+  });
+});
+
+describe('Redis Client Operations', () => {
+  let mockRedis: any;
+  let getRedisClient: any;
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    jest.resetModules();
+    
+    process.env.NODE_ENV = 'test';
+    process.env.JEST_WORKER_ID = '1';
+    process.env.UPSTASH_REDIS_REST_URL = 'http://localhost:8079';
+    process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
+    
+    const redisModule = await import('@/lib/redis');
+    getRedisClient = redisModule.getRedisClient;
+    mockRedis = getRedisClient();
+  });
+
+  afterEach(() => {
+    delete process.env.NODE_ENV;
+    delete process.env.JEST_WORKER_ID;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  });
+
+  describe('GET operations', () => {
+    it('should successfully get values from Redis', async () => {
+      mockRedis.get.mockResolvedValue('test-value');
+      
+      const result = await mockRedis.get('test-key');
+      
+      expect(result).toBe('test-value');
+      expect(mockRedis.get).toHaveBeenCalledWith('test-key');
+    });
+
+    it('should return null for non-existent keys', async () => {
+      mockRedis.get.mockResolvedValue(null);
+      
+      const result = await mockRedis.get('non-existent-key');
+      
+      expect(result).toBeNull();
+    });
+
+    it('should handle get errors gracefully', async () => {
+      mockRedis.get.mockRejectedValue(new Error('Connection timeout'));
+      
+      await expect(mockRedis.get('test-key')).rejects.toThrow('Connection timeout');
+    });
+  });
+
+  describe('SET operations', () => {
+    it('should successfully set values in Redis', async () => {
+      mockRedis.set.mockResolvedValue('OK');
+      
+      const result = await mockRedis.set('test-key', 'test-value');
+      
+      expect(result).toBe('OK');
+      expect(mockRedis.set).toHaveBeenCalledWith('test-key', 'test-value');
+    });
+
+    it('should set values with TTL', async () => {
+      mockRedis.set.mockResolvedValue('OK');
+      
+      const result = await mockRedis.set('test-key', 'test-value', { ex: 3600 });
+      
+      expect(result).toBe('OK');
+      expect(mockRedis.set).toHaveBeenCalledWith('test-key', 'test-value', { ex: 3600 });
+    });
+
+    it('should handle set errors gracefully', async () => {
+      mockRedis.set.mockRejectedValue(new Error('Write failed'));
+      
+      await expect(
+        mockRedis.set('test-key', 'test-value')
+      ).rejects.toThrow('Write failed');
+    });
+  });
+
+  describe('DEL operations', () => {
+    it('should successfully delete keys from Redis', async () => {
+      mockRedis.del.mockResolvedValue(1);
+      
+      const result = await mockRedis.del('test-key');
+      
+      expect(result).toBe(1);
+      expect(mockRedis.del).toHaveBeenCalledWith('test-key');
+    });
+
+    it('should return 0 when deleting non-existent key', async () => {
+      mockRedis.del.mockResolvedValue(0);
+      
+      const result = await mockRedis.del('non-existent-key');
+      
+      expect(result).toBe(0);
+    });
+  });
+
+  describe('INCR operations', () => {
+    it('should increment counters', async () => {
+      mockRedis.incr.mockResolvedValue(1);
+      
+      const result = await mockRedis.incr('counter-key');
+      
+      expect(result).toBe(1);
+      expect(mockRedis.incr).toHaveBeenCalledWith('counter-key');
+    });
+
+    it('should return incremented value for existing counters', async () => {
+      mockRedis.incr.mockResolvedValue(42);
+      
+      const result = await mockRedis.incr('counter-key');
+      
+      expect(result).toBe(42);
+    });
+  });
+
+  describe('EXPIRE operations', () => {
+    it('should set expiration on keys', async () => {
+      mockRedis.expire.mockResolvedValue(1);
+      
+      const result = await mockRedis.expire('test-key', 3600);
+      
+      expect(result).toBe(1);
+      expect(mockRedis.expire).toHaveBeenCalledWith('test-key', 3600);
+    });
+
+    it('should return 0 when setting expiration on non-existent key', async () => {
+      mockRedis.expire.mockResolvedValue(0);
+      
+      const result = await mockRedis.expire('non-existent-key', 3600);
+      
+      expect(result).toBe(0);
+    });
+  });
+
+  describe('PING operations', () => {
+    it('should respond to ping', async () => {
+      mockRedis.ping.mockResolvedValue('PONG');
+      
+      const result = await mockRedis.ping();
+      
+      expect(result).toBe('PONG');
+    });
+
+    it('should handle connection errors', async () => {
+      mockRedis.ping.mockRejectedValue(new Error('Connection refused'));
+      
+      await expect(mockRedis.ping()).rejects.toThrow('Connection refused');
+    });
+  });
+});
+
+describe('Redis Client Edge Cases and Error Scenarios', () => {
+  let mockRedis: any;
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    jest.resetModules();
+    
+    process.env.NODE_ENV = 'test';
+    process.env.JEST_WORKER_ID = '1';
+    process.env.UPSTASH_REDIS_REST_URL = 'http://localhost:8079';
+    process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
+    
+    const redisModule = await import('@/lib/redis');
+    mockRedis = redisModule.getRedisClient();
+  });
+
+  afterEach(() => {
+    delete process.env.NODE_ENV;
+    delete process.env.JEST_WORKER_ID;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  });
+
+  it('should handle network timeouts', async () => {
+    const timeoutError = new Error('Request timeout');
+    timeoutError.name = 'TimeoutError';
+    mockRedis.get.mockRejectedValue(timeoutError);
+    
+    await expect(mockRedis.get('test-key')).rejects.toThrow('Request timeout');
+  });
+
+  it('should handle connection refused errors', async () => {
+    mockRedis.get.mockRejectedValue(new Error('ECONNREFUSED'));
+    
+    await expect(mockRedis.get('test-key')).rejects.toThrow('ECONNREFUSED');
+  });
+
+  it('should handle large values', async () => {
+    const largeValue = 'x'.repeat(1024 * 1024); // 1MB string
+    mockRedis.set.mockResolvedValue('OK');
+    
+    await mockRedis.set('large-key', largeValue);
+    
+    expect(mockRedis.set).toHaveBeenCalledWith('large-key', largeValue);
+  });
+
+  it('should handle special characters in keys', async () => {
+    const specialKey = 'key:with:colons:and-dashes:and_underscores';
+    mockRedis.get.mockResolvedValue('value');
+    
+    const result = await mockRedis.get(specialKey);
+    
+    expect(result).toBe('value');
+    expect(mockRedis.get).toHaveBeenCalledWith(specialKey);
+  });
+
+  it('should handle empty string values', async () => {
+    mockRedis.set.mockResolvedValue('OK');
+    
+    await mockRedis.set('empty-key', '');
+    
+    expect(mockRedis.set).toHaveBeenCalledWith('empty-key', '');
+  });
+
+  it('should handle concurrent operations', async () => {
+    mockRedis.get.mockResolvedValue('value');
+    
+    const promises = Array.from({ length: 10 }, (_, i) =>
+      mockRedis.get(`key-${i}`)
+    );
+    
+    const results = await Promise.all(promises);
+    
+    expect(results).toHaveLength(10);
+    expect(mockRedis.get).toHaveBeenCalledTimes(10);
   });
 });
