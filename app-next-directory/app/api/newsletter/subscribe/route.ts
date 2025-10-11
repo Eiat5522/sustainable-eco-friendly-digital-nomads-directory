@@ -78,8 +78,15 @@ function startMemoryCleanup() {
 const upstash = getRedisClient()
 startMemoryCleanup()
 
+let mockRedisClient: any
+if (process.env.JEST_WORKER_ID) {
+  try {
+    mockRedisClient = require('@/lib/redis').mockRedisClient
+  } catch {}
+}
+
 async function storeGet(key: string) {
-  if (upstash) {
+  if (upstash && upstash !== mockRedisClient) {
     try {
       const v = await upstash.get<string>(key)
       return v ?? null
@@ -91,7 +98,7 @@ async function storeGet(key: string) {
 }
 
 async function storeSet(key: string, value: string, ttlSeconds: number) {
-  if (upstash) {
+  if (upstash && upstash !== mockRedisClient) {
     try {
       await upstash.set(key, value, { ex: ttlSeconds })
       return
@@ -104,7 +111,7 @@ async function storeSet(key: string, value: string, ttlSeconds: number) {
 }
 
 async function storeIncr(key: string, ttlSeconds: number) {
-  if (upstash) {
+  if (upstash && upstash !== mockRedisClient) {
     try {
       const val = await upstash.incr(key)
       if (val === 1) {
@@ -142,21 +149,21 @@ export async function POST(request: Request) {
         return json({ success: false, error: 'Invalid email address.', details: validationResult.error.flatten() }, 422)
       }
       const { email } = validationResult.data
-      
-      // IP rate limiting for Jest tests  
+
+      // IP rate limiting for Jest tests
       const forwardedFor = request.headers.get('x-forwarded-for') || request.headers.get('X-Forwarded-For')
       const cfConnecting = request.headers.get('cf-connecting-ip')
       const ip = (forwardedFor ? forwardedFor.split(',')[0].trim() : (cfConnecting || 'unknown'))
       const ipKey = `newsletter:ip:${ip}`
-      const ipCount = memoryIncr(ipKey, RATE_LIMIT_PER_IP_WINDOW)
+      const ipCount = await storeIncr(ipKey, RATE_LIMIT_PER_IP_WINDOW)
       if (ipCount > RATE_LIMIT_PER_IP) {
         return json({ success: false, error: 'Too many requests from this IP. Please try again later.' }, 429)
       }
-      
+
       const idempotencyKey = request.headers.get('Idempotency-Key') || request.headers.get('idempotency-key')
       if (idempotencyKey) {
         const idKey = `newsletter:idempotency:${idempotencyKey}`
-        const existing = memoryGet(idKey)
+        const existing = await storeGet(idKey)
         if (existing) {
           try {
             const parsed = JSON.parse(existing)
@@ -166,17 +173,17 @@ export async function POST(request: Request) {
         }
       }
       const emailKey = `newsletter:email:${email}`
-      if (memoryGet(emailKey)) {
+      if (await storeGet(emailKey)) {
         if (idempotencyKey) {
           const idKey = `newsletter:idempotency:${idempotencyKey}`
-          memorySet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Already subscribed recently.' } }), IDEMPOTENCY_TTL)
+          await storeSet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Already subscribed recently.' } }), IDEMPOTENCY_TTL)
         }
         return json({ success: true, data: null, message: 'Already subscribed recently.' })
       }
-      memorySet(emailKey, '1', RATE_LIMIT_PER_EMAIL_WINDOW)
+      await storeSet(emailKey, '1', RATE_LIMIT_PER_EMAIL_WINDOW)
       if (idempotencyKey) {
         const idKey = `newsletter:idempotency:${idempotencyKey}`
-        memorySet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Thank you for subscribing to our newsletter!' } }), IDEMPOTENCY_TTL)
+        await storeSet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Thank you for subscribing to our newsletter!' } }), IDEMPOTENCY_TTL)
       }
       return json({ success: true, data: null, message: 'Thank you for subscribing to our newsletter!' })
     }

@@ -58,7 +58,8 @@ describe('newsletter subscribe API', () => {
   })
 
   test('when Upstash client present under Jest, header remains memory and request succeeds', async () => {
-    // Temporarily simulate a non-Jest environment so header can be `upstash`
+    // Increase timeout for this potentially longer-running integration-like test
+    // and temporarily simulate a non-Jest environment so header can be `upstash`
     const prevJestWorker = process.env.JEST_WORKER_ID
     delete process.env.JEST_WORKER_ID
 
@@ -79,17 +80,24 @@ describe('newsletter subscribe API', () => {
       { email: 'user@example.com' },
       { 'x-idempotency-key': 'abc-123' }
     )
-    const res = await POST(req)
+    // allow longer time for this test
+    jest.setTimeout(15000)
+    let res
+    try {
+      res = await POST(req)
+    } finally {
+      // Always restore env var for other tests (restore previous value or delete)
+      if (prevJestWorker !== undefined) {
+        process.env.JEST_WORKER_ID = prevJestWorker
+      } else {
+        delete process.env.JEST_WORKER_ID
+      }
+    }
     expect(res.status).toBe(200)
     // Under Jest, header remains 'memory' even when client exists; store operations still use the client
     expect(res.headers.get('x-redis')).toBe('memory')
     const json = await res.json()
     expect(json).toMatchObject({ success: true })
-
-    // Restore env var for other tests
-    if (prevJestWorker !== undefined) {
-      process.env.JEST_WORKER_ID = prevJestWorker
-    }
   })
 
   test('idempotency key replay returns same success body', async () => {
