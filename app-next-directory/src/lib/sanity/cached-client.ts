@@ -26,9 +26,7 @@ async function fetchAndCache(query: string, params: any, ttl: number) {
   const fetchPromise = (async () => {
     try {
       const data = await client.fetch(query, params);
-      await redis.set(key, JSON.stringify(data), { ex: ttl }).catch((error) => {
-        console.warn('Cache write failed:', error);
-      });
+      await redis.set(key, JSON.stringify(data), { ex: ttl });
       return data;
     } finally {
       inflightRequests.delete(key);
