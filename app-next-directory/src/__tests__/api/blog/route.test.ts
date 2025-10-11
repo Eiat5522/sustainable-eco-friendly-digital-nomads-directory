@@ -3,116 +3,107 @@
  * Tests covering:
  * 1. GET /api/blog - Fetch all published blog posts
  * 2. Error handling for database failures
- * 3. Pagination, filtering, and search
  */
 
-import { jest } from '@jest/globals';
-import { NextRequest } from 'next/server';
+import { jest, beforeAll } from '@jest/globals';
+
+import { http, HttpResponse } from 'msw';
+import { server } from '@/__mocks__/server';
+
+// Add Redis handler for MSW - Upstash Redis uses a specific response format
+// All commands return immediately to avoid hanging
+beforeAll(() => {
+  server.use(
+    http.post('http://localhost:8079/pipeline', async ({ request }) => {
+      try {
+        const body = await request.json();
+        // Upstash Redis expects responses in format: [{ result: value }, ...]
+        if (Array.isArray(body)) {
+          return HttpResponse.json(body.map((cmd: any) => {
+            const [command] = cmd;
+            // GET returns null (cache miss), SET returns 'OK'
+            return { result: command === 'set' ? 'OK' : null };
+          }));
+        }
+      } catch (e) {
+        // If parsing fails, return a default response
+      }
+      return HttpResponse.json([{ result: null }]);
+    }),
+    http.post('http://localhost:8079/*', () => {
+      return HttpResponse.json({ result: 'OK' });
+    }),
+    http.options('http://localhost:8079/*', () => {
+      return new HttpResponse(null, { status: 200 });
+    })
+  );
+});
 
 // Mock Sanity client
-jest.mock('@/lib/sanity/client');
-// Mock Redis
-jest.mock('@/lib/sanity/cached-client');
+jest.mock('@/lib/sanity/client', () => ({
+  client: {
+    fetch: jest.fn(),
+  },
+}));
 
 import { GET } from '@/app/api/blog/route';
-import { cachedClient } from '@/lib/sanity/cached-client';
-
-const mockCachedFetch = cachedClient.fetch as jest.MockedFunction<
-  typeof cachedClient.fetch
->;
-
-// Helper to create a mock NextRequest
-const createMockRequest = (searchParams: Record<string, string> = {}): NextRequest => {
-  const url = new URL('http://localhost/api/blog');
-  Object.entries(searchParams).forEach(([key, value]) => {
-    url.searchParams.set(key, value);
-  });
-  return new NextRequest(url.toString());
-};
+import { client } from '@/lib/sanity/client';
 
 describe('Blog API - GET /api/blog', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockCachedFetch.mockReset();
   });
 
   describe('Successful Requests', () => {
-    it('should return paginated blog posts', async () => {
-      const mockPosts = [{ _id: '1', title: 'Test Post' }];
-      mockFetch.mockResolvedValueOnce(mockPosts).mockResolvedValueOnce(1);
+    it('should return all published blog posts', async () => {
+      const mockPosts = [
+        { _id: '1', title: 'Test Post 1', publishedAt: '2024-01-01' },
+        { _id: '2', title: 'Test Post 2', publishedAt: '2024-01-02' }
+      ];
+      (client.fetch as jest.Mock).mockResolvedValue(mockPosts);
 
-      const request = createMockRequest({ page: '1', limit: '10' });
-      const response = await GET(request);
+      const response = await GET();
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.posts).toEqual(mockPosts);
-      expect(data.pagination.totalCount).toBe(1);
-      expect(mockFetch).toHaveBeenCalledTimes(2); // Once for posts, once for count
+      expect(data).toEqual(mockPosts);
+      expect(client.fetch).toHaveBeenCalledTimes(1);
     });
 
     it('should return an empty array when no posts exist', async () => {
-      mockFetch.mockResolvedValueOnce([]).mockResolvedValueOnce(0);
+      (client.fetch as jest.Mock).mockResolvedValue([]);
 
-      const request = createMockRequest();
-      const response = await GET(request);
+      const response = await GET();
       const data = await response.json();
 
       expect(response.status).toBe(200);
-      expect(data.posts).toEqual([]);
-      expect(data.pagination.totalCount).toBe(0);
-    });
-
-    it('should handle tag and search filters', async () => {
-      mockFetch.mockResolvedValueOnce([]).mockResolvedValueOnce(0);
-
-      const request = createMockRequest({ tag: 'tech', search: 'nextjs' });
-      await GET(request);
-
-      const query = mockFetch.mock.calls[0][0];
-      expect(query).toContain('\"tech\" in tags');
-      expect(query).toContain('title match \"*nextjs*\"');
+      expect(data).toEqual([]);
     });
   });
 
   describe('Error Handling', () => {
     it('should return 500 on database fetch failure', async () => {
-      mockFetch.mockRejectedValue(new Error('DB Error'));
+      (client.fetch as jest.Mock).mockRejectedValue(new Error('DB Error'));
 
-      const request = createMockRequest();
-      const response = await GET(request);
-      const data = await response.json();
+      const response = await GET();
 
       expect(response.status).toBe(500);
-      expect(data.message).toBe('Failed to fetch blog posts');
-    });
-
-    it('should return 400 for invalid page/limit parameters', async () => {
-      const request = createMockRequest({ page: 'invalid', limit: '-10' });
-      const response = await GET(request);
-      const data = await response.json();
-
-      // The route logic coerces invalid values, so we check the outcome
-      expect(response.status).toBe(200);
-      expect(data.pagination.page).toBe(1);
-      expect(data.pagination.limit).toBe(10); // Default limit
+      expect(client.fetch).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('Query Validation', () => {
     it('should use correct GROQ query structure', async () => {
-      mockFetch.mockResolvedValueOnce([]).mockResolvedValueOnce(0);
+      (client.fetch as jest.Mock).mockResolvedValue([]);
 
-      const request = createMockRequest();
-      await GET(request);
+      await GET();
 
-      const postsQuery = mockFetch.mock.calls[0][0];
-      expect(postsQuery).toContain('_type == "blogPost"');
-      expect(postsQuery).toContain('order(publishedAt desc)');
-
-      const countQuery = mockFetch.mock.calls[1][0];
-      expect(countQuery).toContain('count(*[_type == "blogPost"');
+      const query = (client.fetch as jest.Mock).mock.calls[0][0];
+      expect(query).toContain('_type == "blogPost"');
+      expect(query).toContain('order(publishedAt desc');
+      expect(query).toContain('!(_id in path(\'drafts.**\'))');
+      expect(query).toContain('defined(publishedAt)');
+      expect(query).toContain('publishedAt <= now()');
     });
   });
 });
-
