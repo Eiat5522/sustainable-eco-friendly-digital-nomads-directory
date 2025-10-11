@@ -59,9 +59,7 @@ describe('newsletter subscribe API', () => {
 
   test('when Upstash client present under Jest, header remains memory and request succeeds', async () => {
     // Increase timeout for this potentially longer-running integration-like test
-    // and temporarily simulate a non-Jest environment so header can be `upstash`
-    const prevJestWorker = process.env.JEST_WORKER_ID
-    delete process.env.JEST_WORKER_ID
+    process.env.JEST_WORKER_ID = process.env.JEST_WORKER_ID || '1'
 
     // Simple in-memory fake of Upstash client
     const store = new Map<string, string>()
@@ -82,17 +80,7 @@ describe('newsletter subscribe API', () => {
     )
     // allow longer time for this test
     jest.setTimeout(15000)
-    let res
-    try {
-      res = await POST(req)
-    } finally {
-      // Always restore env var for other tests (restore previous value or delete)
-      if (prevJestWorker !== undefined) {
-        process.env.JEST_WORKER_ID = prevJestWorker
-      } else {
-        delete process.env.JEST_WORKER_ID
-      }
-    }
+    const res = await POST(req)
     expect(res.status).toBe(200)
     // Under Jest, header remains 'memory' even when client exists; store operations still use the client
     expect(res.headers.get('x-redis')).toBe('memory')
@@ -108,7 +96,8 @@ describe('newsletter subscribe API', () => {
     const { POST } = await import('./route')
 
     const idempotencyKey = 'test-idempotency-123'
-    const req1 = makeRequest({ email: 'idempotent@example.com' }, { 'Idempotency-Key': idempotencyKey })
+    // Use the same header name used elsewhere in tests and in the route implementation
+    const req1 = makeRequest({ email: 'idempotent@example.com' }, { 'x-idempotency-key': idempotencyKey })
     const res1 = await POST(req1)
     expect(res1.status).toBe(200)
     expect(res1.headers.get('x-redis')).toBe('memory')
@@ -116,7 +105,7 @@ describe('newsletter subscribe API', () => {
     expect(json1).toMatchObject({ success: true, message: 'Thank you for subscribing to our newsletter!' })
 
     // Second request with same key should return the same response
-    const req2 = makeRequest({ email: 'idempotent@example.com' }, { 'Idempotency-Key': idempotencyKey })
+    const req2 = makeRequest({ email: 'idempotent@example.com' }, { 'x-idempotency-key': idempotencyKey })
     const res2 = await POST(req2)
     expect(res2.status).toBe(200)
     expect(res2.headers.get('x-redis')).toBe('memory')

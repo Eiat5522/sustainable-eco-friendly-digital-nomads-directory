@@ -1,14 +1,32 @@
 import { Redis } from '@upstash/redis';
 
-type RedisLike = Pick<Redis, 'set' | 'get' | 'del' | 'ping' | 'incr' | 'expire'> & Record<string, any>;
+type RedisLike = Pick<Redis, 'set' | 'get' | 'del' | 'ping' | 'incr' | 'expire'>;
 type RedisListener = (client: RedisLike | undefined) => void;
 
-const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
-const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+// --- before (imports) ---
+import { Redis } from '@upstash/redis';
+import type { RedisLike } from './types';
 
-if (!redisUrl || !redisToken) {
-  throw new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are not set');
-}
+// --- moved and wrapped env check into a function ---
+const getRedisCredentials = () => {
+  const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!redisUrl || !redisToken) {
+    throw new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are not set');
+  }
+
+  return { redisUrl, redisToken };
+};
+
+// --- updated createRedisClient to invoke the above ---
+export const createRedisClient = (): RedisLike => {
+  const { redisUrl, redisToken } = getRedisCredentials();
+  return new Redis({
+    url: redisUrl,
+    token: redisToken,
+  }) as unknown as RedisLike;
+};
 
 const listeners = new Set<RedisListener>();
 
@@ -29,23 +47,22 @@ const createRedisClient = (): RedisLike => {
   }) as unknown as RedisLike;
 };
 
-let redis: RedisLike = createRedisClient();
-let currentClient: RedisLike | undefined = redis;
+let redis: RedisLike | undefined;
+let currentClient: RedisLike | undefined;
 
 const setClient = (client: RedisLike | undefined) => {
   currentClient = client;
-  if (client) {
-    redis = client;
-  }
+  redis = client;
   notifyListeners();
 };
-
-const isTestEnvironment = () => {
   return process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined';
 };
 
 const baseGetRedisClient = () => {
-  if (!currentClient && !isTestEnvironment()) {
+  if (!currentClient) {
+    if (isTestEnvironment()) {
+      return undefined;
+    }
     currentClient = redis = createRedisClient();
   }
   return currentClient;
@@ -82,8 +99,7 @@ export const onRedisClientChange = (listener: RedisListener) => {
   listener(currentClient);
 
   return () => {
-    listeners.delete(listener);
-  };
+    listeners.del  };
 };
 
 export { redis };

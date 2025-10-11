@@ -17,12 +17,13 @@ const newsletterSubscriptionSchema = z
 type StoredValue = { value: string; expiresAt: number }
 const memoryStore = new Map<string, StoredValue>()
 
-function memoryGet(key: string) {
-  // Allow tests to override the behavior
+async function memoryGet(key: string): Promise<string | null> {
+  // Allow tests to override the behavior synchronously or asynchronously.
   if (testControl.memoryGetOverride) {
-    return testControl.memoryGetOverride(key)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return await testControl.memoryGetOverride(key)
   }
-  
+
   const entry = memoryStore.get(key)
   if (!entry) return null
   if (Date.now() > entry.expiresAt) {
@@ -35,18 +36,26 @@ function memorySet(key: string, value: string, ttlSeconds: number) {
   const expiresAt = Date.now() + ttlSeconds * 1000
   memoryStore.set(key, { value, expiresAt })
 }
-// Global test control for mocking memory functions
+// Exported test control hooks used by tests to simulate specific memory behaviors.
+// Tests will assign functions to these properties to override in-memory operations.
 export const testControl = {
-  memoryIncrOverride: null as ((key: string, ttl: number) => number) | null,
-  memoryGetOverride: null as ((key: string) => string | null) | null
+  // (key) => string|null | Promise<string|null>
+  memoryGetOverride: undefined as
+    | ((key: string) => string | null | Promise<string | null>)
+    | undefined,
+  // (key, ttl) => number | Promise<number>
+  memoryIncrOverride: undefined as
+    | ((key: string, ttlSeconds: number) => number | Promise<number>)
+    | undefined,
 }
 
-function memoryIncr(key: string, ttlSeconds: number) {
-  // Allow tests to override the behavior
+async function memoryIncr(key: string, ttlSeconds: number): Promise<number> {
+  // Allow tests to override the behavior synchronously or asynchronously.
   if (testControl.memoryIncrOverride) {
-    return testControl.memoryIncrOverride(key, ttlSeconds)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return await testControl.memoryIncrOverride(key, ttlSeconds)
   }
-  
+
   const entry = memoryStore.get(key)
   const now = Date.now()
   if (!entry || now > entry.expiresAt) {

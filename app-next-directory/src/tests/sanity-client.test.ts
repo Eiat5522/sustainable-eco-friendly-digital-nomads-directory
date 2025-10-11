@@ -8,12 +8,8 @@ jest.mock('@sanity/image-url', () => ({
   })),
 }));
 jest.mock('next-sanity', () => ({
-  createClient: jest.fn((config) => ({
-    fetch: jest.fn(() => Promise.resolve([])),
-    create: jest.fn(() => Promise.resolve({ _id: 'mock-id' })),
-    update: jest.fn(() => Promise.resolve({})),
-    delete: jest.fn(() => Promise.resolve('')),
-    patch: jest.fn(() => ({
+  createClient: jest.fn((config) => {
+    const patchChain = {
       set: jest.fn(() => ({
         unset: jest.fn(() => ({
           commit: jest.fn(() => Promise.resolve({})),
@@ -29,8 +25,22 @@ jest.mock('next-sanity', () => ({
         commit: jest.fn(() => Promise.resolve({})),
       })),
       commit: jest.fn(() => Promise.resolve({})),
-    })),
-  })),
+    }
+
+    const clientMock = {
+      fetch: jest.fn(() => Promise.resolve([])),
+      create: jest.fn(() => Promise.resolve({ _id: 'mock-id' })),
+      update: jest.fn(() => Promise.resolve({})),
+      delete: jest.fn(() => Promise.resolve('')),
+      patch: jest.fn(() => patchChain),
+      // Provide a writeClient object that has the same patch behaviour
+      writeClient: {
+        patch: jest.fn(() => patchChain),
+      },
+    }
+
+    return clientMock
+  }),
 }));
 /**
  * Sanity HTTP Client Test Suite

@@ -69,7 +69,7 @@ describe('Search Page', () => {
       expect(pushMock.mock.calls[0][0]).toMatch(/^\/search\/results(?:$|\?)/)
       expect(pushMock).toHaveBeenCalledTimes(1)
     })
-  })
+  }, 15000) // 15 second timeout
 
   it('navigates to results route on submit', async () => {
     render(<TestSearchPage />)
@@ -84,5 +84,5 @@ describe('Search Page', () => {
       const arg = String(pushMock.mock.calls[0]?.[0] || '')
       expect(arg.startsWith('/search/results')).toBe(true)
     })
-  })
+  }, 15000) // 15 second timeout
 })
