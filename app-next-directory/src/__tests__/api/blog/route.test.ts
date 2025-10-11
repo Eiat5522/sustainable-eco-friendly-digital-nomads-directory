@@ -5,39 +5,10 @@
  * 2. Error handling for database failures
  */
 
-import { jest, beforeAll } from '@jest/globals';
+import { jest } from '@jest/globals';
 
 import { http, HttpResponse } from 'msw';
 import { server } from '@/__mocks__/server';
-
-// Add Redis handler for MSW - Upstash Redis uses a specific response format
-// All commands return immediately to avoid hanging
-beforeAll(() => {
-  server.use(
-    http.post('http://localhost:8079/pipeline', async ({ request }) => {
-      try {
-        const body = await request.json();
-        // Upstash Redis expects responses in format: [{ result: value }, ...]
-        if (Array.isArray(body)) {
-          return HttpResponse.json(body.map((cmd: any) => {
-            const [command] = cmd;
-            // GET returns null (cache miss), SET returns 'OK'
-            return { result: command === 'set' ? 'OK' : null };
-          }));
-        }
-      } catch (e) {
-        // If parsing fails, return a default response
-      }
-      return HttpResponse.json([{ result: null }]);
-    }),
-    http.post('http://localhost:8079/*', () => {
-      return HttpResponse.json({ result: 'OK' });
-    }),
-    http.options('http://localhost:8079/*', () => {
-      return new HttpResponse(null, { status: 200 });
-    })
-  );
-});
 
 // Mock Sanity client
 jest.mock('@/lib/sanity/client', () => ({
@@ -46,12 +17,44 @@ jest.mock('@/lib/sanity/client', () => ({
   },
 }));
 
-import { GET } from '@/app/api/blog/route';
-import { client } from '@/lib/sanity/client';
-
 describe('Blog API - GET /api/blog', () => {
-  beforeEach(() => {
+  let GET: any;
+  let client: any;
+
+  beforeEach(async () => {
     jest.clearAllMocks();
+    jest.resetModules();
+    
+    // Re-add Redis handlers after reset
+    server.use(
+      http.post('http://localhost:8079/pipeline', async ({ request }) => {
+        try {
+          const body = await request.json();
+          if (Array.isArray(body)) {
+            return HttpResponse.json(body.map((cmd: any) => {
+              const [command] = cmd;
+              return { result: command === 'set' ? 'OK' : null };
+            }));
+          }
+        } catch (e) {
+          // Parsing failed
+        }
+        return HttpResponse.json([{ result: null }]);
+      }),
+      http.post('http://localhost:8079/*', () => {
+        return HttpResponse.json({ result: 'OK' });
+      }),
+      http.options('http://localhost:8079/*', () => {
+        return new HttpResponse(null, { status: 200 });
+      })
+    );
+    
+    // Re-import modules after reset to get fresh instances
+    const routeModule = await import('@/app/api/blog/route');
+    GET = routeModule.GET;
+    
+    const clientModule = await import('@/lib/sanity/client');
+    client = clientModule.client;
   });
 
   describe('Successful Requests', () => {
