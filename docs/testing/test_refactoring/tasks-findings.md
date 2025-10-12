@@ -11,12 +11,10 @@ This section identifies all test files that interact with external systems (Sani
 
 ### 1.1 Sanity CMS Tests
 
-#### Tests Potentially Touching Sanity (Requires Verification)
+#### Tests Using Mocked Sanity
 - **File:** `app-next-directory/src/__tests__/api/featured-listings/route.test.ts`
-  - **System:** Sanity
-  - **Notes:** This test may use Sanity client. Requires verification to confirm if it connects to actual Sanity or uses mocks from `__mocks__/@sanity/client.ts`.
-
-#### Tests Using Mocked Sanity (For Reference)
+  - **System:** Sanity (MOCKED)
+  - **Notes:** Uses existing Sanity client mocks from `__mocks__/@sanity/client.ts`
 - **File:** `app-next-directory/src/__tests__/api/search/route.test.ts`
   - **System:** Sanity (MOCKED)
   - **Notes:** Uses jest.mock for Sanity client
@@ -202,10 +200,10 @@ This section identifies all test files that interact with external systems (Sani
 
 | External System | Tests Without Mocking | Tests With Mocking | Total |
 |-----------------|----------------------|-------------------|-------|
-| **Sanity** | 1 | 6 | 7 |
+| **Sanity** | 0 | 7 | 7 |
 | **MongoDB/Mongoose** | 22 | 4 | 26 |
 | **Redis** | 4 | 7 | 11 |
-| **Total** | **27** | **17** | **44** |
+| **Total** | **26** | **18** | **44** |
 
 ---
 
@@ -435,9 +433,9 @@ Address remaining components as needed:
 ### For External System Tests (Section 1):
 
 1. **Sanity Tests:**
-   - Verify if `src/__tests__/api/featured-listings/route.test.ts` actually connects to Sanity or uses mocks
-   - Consider creating a test environment in Sanity or using mock data consistently
-   - Standardize mocking approach across all Sanity tests
+   - All Sanity tests currently use mocking (7 tests with mocks)
+   - Consider creating integration tests with actual Sanity test environment if needed
+   - Standardize mocking approach across all Sanity tests (currently consistent)
 
 2. **MongoDB/Mongoose Tests:**
    - Consider migrating all integration tests to use MongoMemoryServer for consistency
@@ -472,11 +470,11 @@ Address remaining components as needed:
 ## Appendix: Test Files Count by Category
 
 ### External System Tests Distribution
-- **Sanity-related tests:** 7 files
-- **MongoDB/Mongoose-related tests:** 26 files (including 1 with MongoMemoryServer)
-- **Redis-related tests:** 11 files
-- **Tests with mocking:** 17 files across all systems
-- **Tests without mocking:** 27 files across all systems
+- **Sanity-related tests:** 7 files (all mocked)
+- **MongoDB/Mongoose-related tests:** 26 files (22 without mocking, 1 with MongoMemoryServer, 4 with mocking)
+- **Redis-related tests:** 11 files (4 without mocking, 7 with mocking)
+- **Tests with mocking:** 18 files across all systems
+- **Tests without mocking:** 26 files across all systems (MongoDB and Redis only)
 
 ### Component Test Coverage
 - **Total component files:** 59
