@@ -1,10 +1,9 @@
-import studio from '@sanity/eslint-config-studio'
-import tseslint from '@typescript-eslint/eslint-plugin'
+import studio from '@sanity/eslint-config-studio';
 
-const config = [
+export default [
   ...studio,
   {
-    files: ['**/*.js'],
+    files: ['migrate-city-references.js', 'migrate-legacy-fields.js', 'migrate-orphan-favorites.js'],
     languageOptions: {
       globals: {
         console: 'readonly',
@@ -14,14 +13,6 @@ const config = [
     },
   },
   {
-    files: ['sanity.types.ts'],
-    plugins: {
-      '@typescript-eslint': tseslint,
-    },
-    rules: {
-      '@typescript-eslint/no-use-before-define': 'off',
-    },
+    ignores: ['sanity.types.ts'],
   },
-]
-
-export default config
+];

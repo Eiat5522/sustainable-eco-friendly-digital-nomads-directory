@@ -1,11 +1,9 @@
-import { Redis } from '@upstash/redis';
-
-type RedisLike = Pick<Redis, 'set' | 'get' | 'del' | 'ping' | 'incr' | 'expire'>;
-type RedisListener = (client: RedisLike | undefined) => void;
-
 // --- before (imports) ---
 import { Redis } from '@upstash/redis';
 import type { RedisLike } from './types';
+
+type RedisLike = Pick<Redis, 'set' | 'get' | 'del' | 'ping' | 'incr' | 'expire'>;
+type RedisListener = (client: RedisLike | undefined) => void;
 
 // --- moved and wrapped env check into a function ---
 const getRedisCredentials = () => {
@@ -39,22 +37,14 @@ const notifyListeners = () => {
     }
   }
 };
-
-const createRedisClient = (): RedisLike => {
-  return new Redis({
-    url: redisUrl,
-    token: redisToken,
-  }) as unknown as RedisLike;
-};
-
-let redis: RedisLike | undefined;
 let currentClient: RedisLike | undefined;
 
 const setClient = (client: RedisLike | undefined) => {
   currentClient = client;
-  redis = client;
   notifyListeners();
 };
+
+const isTestEnvironment = () => {
   return process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined';
 };
 
@@ -99,7 +89,6 @@ export const onRedisClientChange = (listener: RedisListener) => {
   listener(currentClient);
 
   return () => {
-    listeners.del  };
+    listeners.delete(listener);  };
 };
 
-export { redis };

@@ -108,16 +108,6 @@ async function cleanupOrphanFavorites(dryRun = true) {
   return results;
 }
 
-  try {
-    const result = await transaction.commit();
-    console.log(`✅ Successfully deleted ${orphans.length} orphan favorites`);
-    return { dryRun: false, orphans, deletedCount: orphans.length, result };
-  } catch (error) {
-    console.error('❌ Error deleting orphan favorites:', error);
-    throw error;
-  }
-}
-
 async function validateFavoritesIntegrity() {
   console.log('🔍 Validating userFavorite collection integrity...');
   
