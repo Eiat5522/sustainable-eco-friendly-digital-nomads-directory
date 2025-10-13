@@ -25,6 +25,11 @@ jobs:
         with:
           version: 8
 
+      - name: Activate pnpm (Corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@8 --activate
+
       - name: Install dependencies
         run: |
           cd app-next-directory
@@ -63,6 +68,11 @@ jobs:
         uses: pnpm/action-setup@v2
         with:
           version: 8
+
+      - name: Activate pnpm (Corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@8 --activate
 
       - name: Install dependencies
         run: |
