@@ -13,6 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Ensure pnpm (early)
+        run: |
+          # Make sure corepack is enabled and pnpm is available early so that
+          # later steps (and any actions that expect pnpm) don't fail.
+          corepack enable || true
+          corepack prepare pnpm@8 --activate || npm install -g pnpm@8
+          pnpm --version || true
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -66,6 +74,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Ensure pnpm (early)
+        run: |
+          # Make sure corepack is enabled and pnpm is available early so that
+          # later steps (and any actions that expect pnpm) don't fail.
+          corepack enable || true
+          corepack prepare pnpm@8 --activate || npm install -g pnpm@8
+          pnpm --version || true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
