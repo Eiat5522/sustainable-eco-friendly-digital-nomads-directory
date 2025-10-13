@@ -1,4 +1,4 @@
-name: Pull Request Checks
+`name: Pull Request Checks
 
 on:
   pull_request:
@@ -29,6 +29,17 @@ jobs:
         run: |
           corepack enable
           corepack prepare pnpm@8 --activate
+
+      - name: Ensure pnpm is available (fallback)
+        run: |
+          echo "Checking pnpm..."
+          if command -v pnpm >/dev/null 2>&1; then
+            echo "pnpm found: $(pnpm --version)"
+          else
+            echo "pnpm not found after action/setup and corepack; attempting global install as fallback"
+            npm install -g pnpm@8
+            echo "pnpm version after fallback: $(pnpm --version)"
+          fi
 
       - name: Install dependencies
         run: |
@@ -73,6 +84,17 @@ jobs:
         run: |
           corepack enable
           corepack prepare pnpm@8 --activate
+
+      - name: Ensure pnpm is available (fallback)
+        run: |
+          echo "Checking pnpm..."
+          if command -v pnpm >/dev/null 2>&1; then
+            echo "pnpm found: $(pnpm --version)"
+          else
+            echo "pnpm not found after action/setup and corepack; attempting global install as fallback"
+            npm install -g pnpm@8
+            echo "pnpm version after fallback: $(pnpm --version)"
+          fi
 
       - name: Install dependencies
         run: |
