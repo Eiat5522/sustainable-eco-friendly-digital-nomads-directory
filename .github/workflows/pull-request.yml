@@ -92,12 +92,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20.19.x"
-<<<<<<< HEAD
-          # see note above about pnpm cache
-=======
+          # Use setup-node's pnpm cache. We activate pnpm early above so
+          # setup-node can safely use the pnpm cache. If the runner doesn't
+          # have pnpm available, the earlier Ensure pnpm step will activate
+          # or install it.
           cache: "pnpm"
           cache-dependency-path: "pnpm-lock.yaml"
->>>>>>> origin/revert-2/detail-pages
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -111,13 +111,6 @@ jobs:
 
       - name: Ensure pnpm is available (fallback)
         run: |
-<<<<<<< HEAD
-          if ! command -v pnpm >/dev/null 2>&1; then
-            echo "pnpm not found, installing globally"
-            npm install -g pnpm@8
-          fi
-          pnpm --version
-=======
           echo "Checking pnpm..."
           if command -v pnpm >/dev/null 2>&1; then
             echo "pnpm found: $(pnpm --version)"
@@ -126,7 +119,6 @@ jobs:
             npm install -g pnpm@8
             echo "pnpm version after fallback: $(pnpm --version)"
           fi
->>>>>>> origin/revert-2/detail-pages
 
       - name: Install dependencies
         run: |
