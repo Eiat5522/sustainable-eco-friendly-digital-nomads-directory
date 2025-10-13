@@ -1,9 +1,19 @@
 import { jest } from '@jest/globals';
 import mongoose from 'mongoose';
 import EmailVerificationToken, { IEmailVerificationToken } from '../EmailVerificationToken';
+import { connectInMemoryMongo, disconnectInMemoryMongo, clearInMemoryMongo } from '../../../tests/utils/dbHandler';
 
 describe('EmailVerificationToken Model', () => {
-  beforeEach(() => {
+  beforeAll(async () => {
+    await connectInMemoryMongo();
+  });
+
+  afterAll(async () => {
+    await disconnectInMemoryMongo();
+  });
+
+  beforeEach(async () => {
+    await clearInMemoryMongo();
     jest.clearAllMocks();
   });
 
@@ -401,6 +411,215 @@ describe('EmailVerificationToken Model', () => {
       } else {
         expect(EmailVerificationToken).toBeDefined();
       }
+    });
+  });
+
+  describe('Database Operations with In-Memory MongoDB', () => {
+    it('should save an email verification token to database', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const tokenHash = 'a'.repeat(64);
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+      const token = await EmailVerificationToken.create({
+        userId,
+        tokenHash,
+        expiresAt,
+      });
+
+      expect(token._id).toBeDefined();
+      expect(token.userId.toString()).toBe(userId.toString());
+      expect(token.expiresAt).toBeInstanceOf(Date);
+      expect(token.createdAt).toBeInstanceOf(Date);
+    });
+
+    it('should retrieve token by userId', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      await EmailVerificationToken.create({
+        userId,
+        tokenHash: 'b'.repeat(64),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      });
+
+      const found = await EmailVerificationToken.findOne({ userId });
+
+      expect(found).toBeDefined();
+      expect(found?.userId.toString()).toBe(userId.toString());
+    });
+
+    it('should enforce unique combination of userId and tokenHash', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const tokenHash = 'c'.repeat(64);
+
+      await EmailVerificationToken.create({
+        userId,
+        tokenHash,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      });
+
+      await expect(
+        EmailVerificationToken.create({
+          userId,
+          tokenHash,
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        })
+      ).rejects.toThrow();
+    });
+
+    it('should delete token after verification', async () => {
+      const token = await EmailVerificationToken.create({
+        userId: new mongoose.Types.ObjectId(),
+        tokenHash: 'd'.repeat(64),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      });
+
+      await EmailVerificationToken.findByIdAndDelete(token._id);
+
+      const deleted = await EmailVerificationToken.findById(token._id);
+      expect(deleted).toBeNull();
+    });
+
+    it('should query tokens by expiration date', async () => {
+      const now = new Date();
+      const future = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+      const past = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+      await EmailVerificationToken.create([
+        {
+          userId: new mongoose.Types.ObjectId(),
+          tokenHash: 'e'.repeat(64),
+          expiresAt: future,
+        },
+        {
+          userId: new mongoose.Types.ObjectId(),
+          tokenHash: 'f'.repeat(64),
+          expiresAt: past,
+        },
+      ]);
+
+      const validTokens = await EmailVerificationToken.find({
+        expiresAt: { $gt: now },
+      });
+
+      expect(validTokens).toHaveLength(1);
+      expect(validTokens[0].expiresAt.getTime()).toBeGreaterThan(now.getTime());
+    });
+
+    it('should count total tokens', async () => {
+      await EmailVerificationToken.create([
+        {
+          userId: new mongoose.Types.ObjectId(),
+          tokenHash: 'g'.repeat(64),
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        },
+        {
+          userId: new mongoose.Types.ObjectId(),
+          tokenHash: 'h'.repeat(64),
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        },
+      ]);
+
+      const count = await EmailVerificationToken.countDocuments();
+      expect(count).toBe(2);
+    });
+
+    it('should allow multiple tokens for same user with different tokenHash', async () => {
+      const userId = new mongoose.Types.ObjectId();
+
+      await EmailVerificationToken.create([
+        {
+          userId,
+          tokenHash: 'i'.repeat(64),
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        },
+        {
+          userId,
+          tokenHash: 'j'.repeat(64),
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        },
+      ]);
+
+      const tokens = await EmailVerificationToken.find({ userId });
+      expect(tokens).toHaveLength(2);
+    });
+
+    it('should retrieve token with select tokenHash explicitly', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const tokenHash = 'k'.repeat(64);
+
+      await EmailVerificationToken.create({
+        userId,
+        tokenHash,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      });
+
+      const found = await EmailVerificationToken.findOne({ userId }).select('+tokenHash');
+
+      expect(found).toBeDefined();
+      expect(found?.tokenHash).toBe(tokenHash);
+    });
+
+    it('should not include tokenHash by default', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const tokenHash = 'l'.repeat(64);
+
+      await EmailVerificationToken.create({
+        userId,
+        tokenHash,
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      });
+
+      const found = await EmailVerificationToken.findOne({ userId });
+
+      expect(found).toBeDefined();
+      expect((found as any).tokenHash).toBeUndefined();
+    });
+
+    it('should delete expired tokens', async () => {
+      const past = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+      await EmailVerificationToken.create([
+        {
+          userId: new mongoose.Types.ObjectId(),
+          tokenHash: 'm'.repeat(64),
+          expiresAt: past,
+        },
+        {
+          userId: new mongoose.Types.ObjectId(),
+          tokenHash: 'n'.repeat(64),
+          expiresAt: past,
+        },
+      ]);
+
+      await EmailVerificationToken.deleteMany({ expiresAt: { $lt: new Date() } });
+
+      const count = await EmailVerificationToken.countDocuments();
+      expect(count).toBe(0);
+    });
+
+    it('should maintain immutability of userId', async () => {
+      const userId = new mongoose.Types.ObjectId();
+      const token = await EmailVerificationToken.create({
+        userId,
+        tokenHash: 'o'.repeat(64),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      });
+
+      const newUserId = new mongoose.Types.ObjectId();
+      token.userId = newUserId as any;
+
+      // Immutable fields should not change
+      expect(token.userId.toString()).toBe(userId.toString());
+    });
+
+    it('should store createdAt automatically', async () => {
+      const token = await EmailVerificationToken.create({
+        userId: new mongoose.Types.ObjectId(),
+        tokenHash: 'p'.repeat(64),
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      });
+
+      const retrieved = await EmailVerificationToken.findById(token._id);
+      expect(retrieved?.createdAt).toBeInstanceOf(Date);
     });
   });
 });

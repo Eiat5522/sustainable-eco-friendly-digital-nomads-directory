@@ -2,7 +2,7 @@ name: Pull Request Checks
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, revert-2/detail-pages]
   push:
     branches: [main, develop]
 
@@ -25,10 +25,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20.19.x"
-          # Do not ask setup-node to use a pnpm cache here because
-          # setup-node may try to invoke pnpm before we activate it
-          # (causes "Unable to locate executable file: pnpm").
-          # We'll install/activate pnpm explicitly below and use pnpm for installs.
+          # Use setup-node's pnpm cache. We activate pnpm early above so
+          # setup-node can safely use the pnpm cache. If the runner doesn't
+          # have pnpm available, the earlier Ensure pnpm step will activate
+          # or install it.
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -42,11 +44,14 @@ jobs:
 
       - name: Ensure pnpm is available (fallback)
         run: |
-          if ! command -v pnpm >/dev/null 2>&1; then
-            echo "pnpm not found, installing globally"
+          echo "Checking pnpm..."
+          if command -v pnpm >/dev/null 2>&1; then
+            echo "pnpm found: $(pnpm --version)"
+          else
+            echo "pnpm not found after action/setup and corepack; attempting global install as fallback"
             npm install -g pnpm@8
+            echo "pnpm version after fallback: $(pnpm --version)"
           fi
-          pnpm --version
 
       - name: Install dependencies
         run: |
@@ -66,7 +71,7 @@ jobs:
       - name: Check formatting
         run: |
           cd app-next-directory
-          pnpm dlx -- prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
+          pnpm exec -- prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
 
   build:
     runs-on: ubuntu-latest
@@ -87,7 +92,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20.19.x"
+<<<<<<< HEAD
           # see note above about pnpm cache
+=======
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+>>>>>>> origin/revert-2/detail-pages
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -101,11 +111,22 @@ jobs:
 
       - name: Ensure pnpm is available (fallback)
         run: |
+<<<<<<< HEAD
           if ! command -v pnpm >/dev/null 2>&1; then
             echo "pnpm not found, installing globally"
             npm install -g pnpm@8
           fi
           pnpm --version
+=======
+          echo "Checking pnpm..."
+          if command -v pnpm >/dev/null 2>&1; then
+            echo "pnpm found: $(pnpm --version)"
+          else
+            echo "pnpm not found after action/setup and corepack; attempting global install as fallback"
+            npm install -g pnpm@8
+            echo "pnpm version after fallback: $(pnpm --version)"
+          fi
+>>>>>>> origin/revert-2/detail-pages
 
       - name: Install dependencies
         run: |
