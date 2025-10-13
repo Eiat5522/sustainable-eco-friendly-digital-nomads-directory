@@ -17,28 +17,48 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20.19.x"
-          cache: "npm"
-          cache-dependency-path: "app-next-directory/package-lock.json"
+          # Do not ask setup-node to use a pnpm cache here because
+          # setup-node may try to invoke pnpm before we activate it
+          # (causes "Unable to locate executable file: pnpm").
+          # We'll install/activate pnpm explicitly below and use pnpm for installs.
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Activate pnpm (Corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@8 --activate
+
+      - name: Ensure pnpm is available (fallback)
+        run: |
+          if ! command -v pnpm >/dev/null 2>&1; then
+            echo "pnpm not found, installing globally"
+            npm install -g pnpm@8
+          fi
+          pnpm --version
 
       - name: Install dependencies
         run: |
           cd app-next-directory
-          npm ci
+          pnpm install --frozen-lockfile
 
       - name: Type check
         run: |
           cd app-next-directory
-          npm run type-check
+          pnpm run type-check
 
       - name: Lint
         run: |
           cd app-next-directory
-          npm run lint
+          pnpm run lint
 
       - name: Check formatting
         run: |
           cd app-next-directory
-          npx prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
+          pnpm dlx -- prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
 
   build:
     runs-on: ubuntu-latest
@@ -51,15 +71,32 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20.19.x"
-          cache: "npm"
-          cache-dependency-path: "app-next-directory/package-lock.json"
+          # see note above about pnpm cache
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Activate pnpm (Corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@8 --activate
+
+      - name: Ensure pnpm is available (fallback)
+        run: |
+          if ! command -v pnpm >/dev/null 2>&1; then
+            echo "pnpm not found, installing globally"
+            npm install -g pnpm@8
+          fi
+          pnpm --version
 
       - name: Install dependencies
         run: |
           cd app-next-directory
-          npm ci
+          pnpm install --frozen-lockfile
 
       - name: Build
         run: |
           cd app-next-directory
-          npm run build
+          pnpm run build
