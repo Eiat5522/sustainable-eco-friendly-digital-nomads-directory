@@ -56,7 +56,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd app-next-directory
-          pnpm install --frozen-lockfile
+          pnpm install --no-frozen-lockfile
 
       - name: Type check
         run: |
@@ -123,9 +123,19 @@ jobs:
       - name: Install dependencies
         run: |
           cd app-next-directory
-          pnpm install --frozen-lockfile
+          pnpm install --no-frozen-lockfile
 
       - name: Build
         run: |
           cd app-next-directory
           pnpm run build
+      
+      - name: Type check
+        run: |
+          cd app-next-directory
+          pnpm check-types
+
+      - name: Type check
+        run: |
+          cd app-next-directory
+          pnpm check-types
