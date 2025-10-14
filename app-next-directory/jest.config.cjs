@@ -146,5 +146,7 @@ module.exports = {
 			'[\\/]__tests__[\\/]__mocks__[\\/]',
 			'\\.d(\\.test)?\\.ts$',
 			'reporter\\.js$',
+			// Exclude integration tests when JEST_UNIT_ONLY is set
+			...(process.env.JEST_UNIT_ONLY === '1' ? ['\\.(int|integration)\\.test\\.(ts|tsx|js|jsx)$'] : []),
 		],
 	};
