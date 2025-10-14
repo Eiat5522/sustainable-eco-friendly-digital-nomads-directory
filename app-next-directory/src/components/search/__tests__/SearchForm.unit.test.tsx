@@ -1,5 +1,5 @@
+/** @jest-environment jsdom */
 /**
- * @jest-environment jsdom
  * Unit tests for SearchForm component
  * 
  * Component: SearchForm - Main search form handling search queries and filters

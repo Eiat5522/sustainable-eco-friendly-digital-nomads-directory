@@ -1,5 +1,5 @@
+/** @jest-environment jsdom */
 /**
- * @jest-environment jsdom
  * Unit tests for SearchFiltersForm component
  * 
  * Component: SearchFiltersForm - Form component managing search filter state and submission
