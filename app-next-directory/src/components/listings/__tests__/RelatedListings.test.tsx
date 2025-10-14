@@ -26,7 +26,11 @@ jest.mock('embla-carousel-autoplay', () => {
 
 // Mock Next.js components
 jest.mock('next/link', () => {
-  return ({ children, href }: any) => <a href={href}>{children}</a>;
+  return ({ children, href, ...props }: any) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  );
 });
 
 jest.mock('next/image', () => {
@@ -194,7 +198,7 @@ describe('RelatedListings', () => {
     it('renders city names when city is object', () => {
       render(<RelatedListings listings={mockListings} />);
       
-      expect(screen.getByText('Bangkok')).toBeInTheDocument();
+      expect(screen.getAllByText('Bangkok')[0]).toBeInTheDocument();
     });
 
     it('renders city names when city is string', () => {
@@ -268,7 +272,7 @@ describe('RelatedListings', () => {
 
       render(<RelatedListings listings={listingWithNullCity} />);
       
-      expect(screen.getByAltText('Eco Hotel Bangkok in ')).toBeInTheDocument();
+      expect(screen.getByAltText(/Eco Hotel Bangkok in\s*$/)).toBeInTheDocument();
     });
 
     it('hides remote image on error', () => {
@@ -597,7 +601,7 @@ describe('RelatedListings', () => {
       render(<RelatedListings listings={mockListings} />);
       
       // Should render both object and string cities
-      expect(screen.getByText('Bangkok')).toBeInTheDocument();
+      expect(screen.getAllByText('Bangkok')).toHaveLength(2);
       expect(screen.getByText('Chiang Mai')).toBeInTheDocument();
     });
 

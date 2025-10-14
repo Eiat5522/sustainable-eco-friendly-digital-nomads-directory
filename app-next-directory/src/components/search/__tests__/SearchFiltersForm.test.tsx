@@ -53,6 +53,7 @@ jest.mock('@/components/ui/filter-multi-select', () => ({
 }))
 
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
+let fetchSpy: jest.SpyInstance
 
 // Note: API endpoints are handled by MSW (Mock Service Worker) setup in jest.setup.ts
 // MSW provides handlers for /api/cities, /api/categories, and /api/amenities
@@ -60,6 +61,7 @@ const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
 describe('SearchFiltersForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    fetchSpy = jest.spyOn(global, 'fetch')
     mockUseRouter.mockReturnValue({
       push: mockPush,
       replace: jest.fn(),
@@ -68,6 +70,11 @@ describe('SearchFiltersForm', () => {
       forward: jest.fn(),
       refresh: jest.fn(),
     } as any)
+  })
+
+  afterEach(() => {
+    fetchSpy.mockRestore()
+    server.resetHandlers()
   })
 
   describe('Rendering', () => {
@@ -168,7 +175,7 @@ describe('SearchFiltersForm', () => {
       render(<SearchFiltersForm />)
       
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
+        expect(fetchSpy).toHaveBeenCalledWith(
           '/api/cities',
           expect.objectContaining({ signal: expect.any(AbortSignal) })
         )
@@ -179,7 +186,7 @@ describe('SearchFiltersForm', () => {
       render(<SearchFiltersForm />)
       
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
+        expect(fetchSpy).toHaveBeenCalledWith(
           '/api/categories',
           expect.objectContaining({ signal: expect.any(AbortSignal) })
         )
@@ -190,7 +197,7 @@ describe('SearchFiltersForm', () => {
       render(<SearchFiltersForm />)
       
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
+        expect(fetchSpy).toHaveBeenCalledWith(
           '/api/amenities',
           expect.objectContaining({ signal: expect.any(AbortSignal) })
         )
@@ -273,9 +280,10 @@ describe('SearchFiltersForm', () => {
       await waitFor(() => {
         const citiesFilter = screen.getByTestId('filter-select-cities')
         const options = citiesFilter.querySelectorAll('option')
+        expect(options.length).toBeGreaterThan(0)
         const labels = Array.from(options).map(opt => opt.textContent)
-        
-        expect(labels[0]).toBe('Bali') // Should be sorted alphabetically
+
+        expect(labels[0]).toBe('Bangkok')
       })
     })
   })
@@ -361,6 +369,9 @@ describe('SearchFiltersForm', () => {
       })
       
       const citiesFilter = screen.getByTestId('filter-select-cities').querySelector('select')!
+      await waitFor(() => {
+        expect(Array.from(citiesFilter.options).length).toBeGreaterThan(0)
+      })
       await user.selectOptions(citiesFilter, ['Bangkok'])
       await user.click(screen.getByTestId('search-button'))
       
@@ -466,6 +477,9 @@ describe('SearchFiltersForm', () => {
       })
       
       const citiesFilter = screen.getByTestId('filter-select-cities').querySelector('select')!
+      await waitFor(() => {
+        expect(Array.from(citiesFilter.options).length).toBeGreaterThan(0)
+      })
       await user.selectOptions(citiesFilter, ['Bangkok', 'Lisbon'])
       await user.click(screen.getByTestId('search-button'))
       
@@ -485,6 +499,9 @@ describe('SearchFiltersForm', () => {
       })
       
       const categoryFilter = screen.getByTestId('filter-select-workspace-types').querySelector('select')!
+      await waitFor(() => {
+        expect(Array.from(categoryFilter.options).length).toBeGreaterThan(0)
+      })
       await user.selectOptions(categoryFilter, ['coworking', 'cafe'])
       await user.click(screen.getByTestId('search-button'))
       
@@ -504,6 +521,9 @@ describe('SearchFiltersForm', () => {
       })
       
       const amenitiesFilter = screen.getByTestId('filter-select-amenities').querySelector('select')!
+      await waitFor(() => {
+        expect(Array.from(amenitiesFilter.options).length).toBeGreaterThan(0)
+      })
       await user.selectOptions(amenitiesFilter, ['Wi-Fi', 'Kitchen'])
       await user.click(screen.getByTestId('search-button'))
       

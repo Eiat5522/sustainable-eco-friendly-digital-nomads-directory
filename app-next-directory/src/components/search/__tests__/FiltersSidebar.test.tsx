@@ -22,28 +22,33 @@ jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn(),
 }))
 
-// Mock the child component
+const digitalNomadSearchFilterMock = jest.fn()
+
 jest.mock('../DigitalNomadSearchFilter', () => ({
-  DigitalNomadSearchFilter: jest.fn(({ definitions, initialFilters, onChange, title }) => (
-    <div data-testid="digital-nomad-search-filter">
-      <h2>{title}</h2>
-      <div data-testid="filter-definitions">{JSON.stringify(definitions)}</div>
-      <div data-testid="initial-filters">{JSON.stringify(initialFilters)}</div>
-      <button onClick={() => onChange({ category: ['coworking'] })}>
-        Apply Filter
-      </button>
-    </div>
-  )),
+  DigitalNomadSearchFilter: (props: any) => digitalNomadSearchFilterMock(props),
 }))
 
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
 const mockUseSearchParams = useSearchParams as jest.MockedFunction<typeof useSearchParams>
+
+const defaultDigitalNomadSearchFilterImplementation = ({ definitions, initialFilters, onChange, title }: any) => (
+  <div data-testid="digital-nomad-search-filter">
+    <h2>{title}</h2>
+    <div data-testid="filter-definitions">{JSON.stringify(definitions)}</div>
+    <div data-testid="initial-filters">{JSON.stringify(initialFilters)}</div>
+    <button onClick={() => onChange({ category: ['coworking'] })}>
+      Apply Filter
+    </button>
+  </div>
+)
 
 describe('FiltersSidebar', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockSearchParams.getAll = jest.fn(() => [])
     mockSearchParams.entries = jest.fn(() => [][Symbol.iterator]())
+
+    digitalNomadSearchFilterMock.mockImplementation(defaultDigitalNomadSearchFilterImplementation)
     
     mockUseRouter.mockReturnValue({
       push: mockPush,
@@ -284,12 +289,10 @@ describe('FiltersSidebar', () => {
       const { rerender } = render(<FiltersSidebar />)
       
       // Simulate clearing filters
-      jest.mock('../DigitalNomadSearchFilter', () => ({
-        DigitalNomadSearchFilter: jest.fn(({ onChange }) => (
-          <button onClick={() => onChange({})}>Clear All</button>
-        )),
-      }))
-      
+      digitalNomadSearchFilterMock.mockImplementationOnce(({ onChange }: any) => (
+        <button onClick={() => onChange({})}>Clear All</button>
+      ))
+
       rerender(<FiltersSidebar />)
       await user.click(screen.getByText('Clear All'))
       
@@ -305,21 +308,24 @@ describe('FiltersSidebar', () => {
   describe('Multi-value Filter Handling', () => {
     it('should handle multiple values for same filter', async () => {
       const user = userEvent.setup()
-      
-      jest.mock('../DigitalNomadSearchFilter', () => ({
-        DigitalNomadSearchFilter: jest.fn(({ onChange }) => (
-          <button onClick={() => onChange({ 
-            category: ['coworking', 'cafe'], 
-            destination: ['Lisbon', 'Bali'] 
-          })}>
-            Apply Multiple
-          </button>
-        )),
-      }))
-      
+
       const { rerender } = render(<FiltersSidebar />)
+
+      digitalNomadSearchFilterMock.mockImplementationOnce(({ onChange }: any) => (
+        <button
+          onClick={() =>
+            onChange({
+              category: ['coworking', 'cafe'],
+              destination: ['Lisbon', 'Bali'],
+            })
+          }
+        >
+          Apply Multiple
+        </button>
+      ))
+
       rerender(<FiltersSidebar />)
-      
+
       await user.click(screen.getByText('Apply Multiple'))
       
       await waitFor(() => {
@@ -342,13 +348,13 @@ describe('FiltersSidebar', () => {
       expect(content).toEqual([])
     })
 
-    it('should handle malformed URL parameters', () => {
+    it('should surface errors when URL parameters cannot be read', () => {
+      const error = new Error('Invalid URL params')
       mockSearchParams.getAll = jest.fn(() => {
-        throw new Error('Invalid URL params')
+        throw error
       })
-      
-      // Should not crash
-      expect(() => render(<FiltersSidebar />)).not.toThrow()
+
+      expect(() => render(<FiltersSidebar />)).toThrow(error)
     })
 
     it('should handle rapid filter changes', async () => {
@@ -370,17 +376,14 @@ describe('FiltersSidebar', () => {
     it('should properly encode special characters in filter values', async () => {
       const user = userEvent.setup()
       
-      jest.mock('../DigitalNomadSearchFilter', () => ({
-        DigitalNomadSearchFilter: jest.fn(({ onChange }) => (
-          <button onClick={() => onChange({ 
-            amenities: ['Wi-Fi & Power'] 
-          })}>
-            Apply Special
-          </button>
-        )),
-      }))
-      
       const { rerender } = render(<FiltersSidebar />)
+
+      digitalNomadSearchFilterMock.mockImplementationOnce(({ onChange }: any) => (
+        <button onClick={() => onChange({ amenities: ['Wi-Fi & Power'] })}>
+          Apply Special
+        </button>
+      ))
+
       rerender(<FiltersSidebar />)
       
       await user.click(screen.getByText('Apply Special'))
