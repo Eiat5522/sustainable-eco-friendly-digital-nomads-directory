@@ -11,6 +11,8 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SearchFiltersForm } from '../SearchFiltersForm'
 import { useRouter } from 'next/navigation'
+import { http, HttpResponse } from 'msw'
+import { server } from '@/__mocks__/server'
 
 // Mock Next.js navigation
 const mockPush = jest.fn()
@@ -52,8 +54,8 @@ jest.mock('@/components/ui/filter-multi-select', () => ({
 
 const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
 
-// Mock fetch for API calls
-global.fetch = jest.fn()
+// Note: API endpoints are handled by MSW (Mock Service Worker) setup in jest.setup.ts
+// MSW provides handlers for /api/cities, /api/categories, and /api/amenities
 
 describe('SearchFiltersForm', () => {
   beforeEach(() => {
@@ -66,43 +68,6 @@ describe('SearchFiltersForm', () => {
       forward: jest.fn(),
       refresh: jest.fn(),
     } as any)
-
-    // Mock successful API responses
-    ;(global.fetch as jest.Mock).mockImplementation((url) => {
-      if (url === '/api/cities') {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({
-            cities: [
-              { name: 'Bangkok' },
-              { name: 'Lisbon' },
-              { name: 'Bali' },
-            ],
-          }),
-        })
-      }
-      if (url === '/api/categories') {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({
-            categories: ['coworking', 'cafe', 'coliving'],
-          }),
-        })
-      }
-      if (url === '/api/amenities') {
-        return Promise.resolve({
-          ok: true,
-          json: () => Promise.resolve({
-            amenities: [
-              { name: 'Wi-Fi' },
-              { name: 'Air Conditioning' },
-              { name: 'Kitchen' },
-            ],
-          }),
-        })
-      }
-      return Promise.reject(new Error('Not found'))
-    })
   })
 
   describe('Rendering', () => {
@@ -233,7 +198,12 @@ describe('SearchFiltersForm', () => {
     })
 
     it('should handle API errors gracefully', async () => {
-      ;(global.fetch as jest.Mock).mockRejectedValue(new Error('API Error'))
+      // Override MSW handlers to return errors
+      server.use(
+        http.get('/api/cities', () => HttpResponse.error()),
+        http.get('/api/categories', () => HttpResponse.error()),
+        http.get('/api/amenities', () => HttpResponse.error())
+      )
       
       // Should not crash
       expect(() => render(<SearchFiltersForm />)).not.toThrow()
@@ -244,10 +214,12 @@ describe('SearchFiltersForm', () => {
     })
 
     it('should handle malformed API responses', async () => {
-      ;(global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        json: () => Promise.resolve({}),
-      })
+      // Override MSW handlers to return empty/malformed responses
+      server.use(
+        http.get('/api/cities', () => HttpResponse.json({})),
+        http.get('/api/categories', () => HttpResponse.json({})),
+        http.get('/api/amenities', () => HttpResponse.json({}))
+      )
       
       render(<SearchFiltersForm />)
       
@@ -257,21 +229,16 @@ describe('SearchFiltersForm', () => {
     })
 
     it('should deduplicate city options', async () => {
-      ;(global.fetch as jest.Mock).mockImplementation((url) => {
-        if (url === '/api/cities') {
-          return Promise.resolve({
-            ok: true,
-            json: () => Promise.resolve({
-              cities: [
-                { name: 'Bangkok' },
-                { name: 'Bangkok' }, // Duplicate
-                { name: 'Lisbon' },
-              ],
-            }),
-          })
-        }
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-      })
+      // Override MSW handler for cities with duplicates
+      server.use(
+        http.get('/api/cities', () => HttpResponse.json({
+          cities: [
+            { name: 'Bangkok' },
+            { name: 'Bangkok' }, // Duplicate
+            { name: 'Lisbon' },
+          ],
+        }))
+      )
       
       render(<SearchFiltersForm />)
       
@@ -281,22 +248,17 @@ describe('SearchFiltersForm', () => {
     })
 
     it('should filter out invalid city entries', async () => {
-      ;(global.fetch as jest.Mock).mockImplementation((url) => {
-        if (url === '/api/cities') {
-          return Promise.resolve({
-            ok: true,
-            json: () => Promise.resolve({
-              cities: [
-                { name: 'Bangkok' },
-                { name: '' }, // Invalid
-                null, // Invalid
-                { name: '  ' }, // Whitespace only
-              ],
-            }),
-          })
-        }
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-      })
+      // Override MSW handler for cities with invalid entries
+      server.use(
+        http.get('/api/cities', () => HttpResponse.json({
+          cities: [
+            { name: 'Bangkok' },
+            { name: '' }, // Invalid
+            null, // Invalid
+            { name: '  ' }, // Whitespace only
+          ],
+        }))
+      )
       
       render(<SearchFiltersForm />)
       
@@ -587,10 +549,15 @@ describe('SearchFiltersForm', () => {
 
   describe('Edge Cases', () => {
     it('should handle API timeout/abort', async () => {
-      ;(global.fetch as jest.Mock).mockImplementation(() => 
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Aborted')), 100)
-        )
+      // Override MSW handlers to simulate timeout
+      server.use(
+        http.get('/api/cities', () => {
+          return new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Aborted')), 100)
+          )
+        }),
+        http.get('/api/categories', () => HttpResponse.json({ categories: [] })),
+        http.get('/api/amenities', () => HttpResponse.json({ amenities: [] }))
       )
       
       const { unmount } = render(<SearchFiltersForm />)
@@ -619,17 +586,12 @@ describe('SearchFiltersForm', () => {
     })
 
     it('should handle special characters in filters', async () => {
-      ;(global.fetch as jest.Mock).mockImplementation((url) => {
-        if (url === '/api/cities') {
-          return Promise.resolve({
-            ok: true,
-            json: () => Promise.resolve({
-              cities: [{ name: 'São Paulo' }, { name: 'Zürich' }],
-            }),
-          })
-        }
-        return Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-      })
+      // Override MSW handler for cities with special characters
+      server.use(
+        http.get('/api/cities', () => HttpResponse.json({
+          cities: [{ name: 'São Paulo' }, { name: 'Zürich' }],
+        }))
+      )
       
       render(<SearchFiltersForm />)
       
