@@ -123,7 +123,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd app-next-directory
-          pnpm install --frozen-lockfile
+          pnpm install --no-frozen-lockfile
 
       - name: Build
         run: |
