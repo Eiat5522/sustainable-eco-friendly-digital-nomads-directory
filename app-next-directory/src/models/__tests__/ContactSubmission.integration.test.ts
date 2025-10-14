@@ -3,8 +3,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import ContactSubmission, { CONTACT_TYPES, CONTACT_STATUSES } from '../ContactSubmission';
 
 const getMongoose = async () => {
-  const mod = await import('mongoose');
-  return mod.default ?? (mod as unknown as typeof import('mongoose'));
+  return (await import('mongoose')).default;
 };
 
 /**
