@@ -40,16 +40,29 @@ describe('Mongoose Cache with Redis', () => {
     // Reset modules to get fresh imports
     jest.resetModules();
     
-    // Re-import to get mocked version
-    const redisModule = await import('@/lib/redis');
-    mockRedis = redisModule.redis;
+    // Create a mock Redis client
+    mockRedis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      del: jest.fn(),
+      exists: jest.fn(),
+      expire: jest.fn(),
+    };
     
+    // Mock the redis module to return our mock client
+    jest.doMock('@/lib/redis', () => ({
+      redis: mockRedis,
+      getRedisClient: () => mockRedis,
+    }));
+    
+    // Re-import to get mocked version
     const cacheModule = await import('@/lib/mongoose-cache');
     withMongooseCache = cacheModule.withMongooseCache;
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.dontMock('@/lib/redis');
   });
 
   describe('Cache Hit Scenarios', () => {

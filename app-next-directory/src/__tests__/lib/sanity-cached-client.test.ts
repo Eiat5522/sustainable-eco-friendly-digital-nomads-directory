@@ -45,13 +45,20 @@ describe('Sanity Cached Client with Redis', () => {
     jest.clearAllMocks();
     jest.resetModules();
     
-    // Re-import mocked modules
-  const redisModule = await import('@/lib/redis');
-  // The real module exports `getRedisClient` as the test-friendly getter.
-  // Our jest mock also provides this as the default export and helpers.
-  // Use the getter to obtain the mocked client instance.
-  mockRedis = redisModule.getRedisClient();
+    // Create a mock Redis client
+    mockRedis = {
+      get: jest.fn(),
+      set: jest.fn(),
+      del: jest.fn(),
+    };
     
+    // Mock the redis module to return our mock client
+    jest.doMock('@/lib/redis', () => ({
+      redis: mockRedis,
+      getRedisClient: () => mockRedis,
+    }));
+    
+    // Re-import mocked modules
     const sanityModule = await import('@/lib/sanity/client');
     mockSanityClient = sanityModule.client;
     
@@ -61,6 +68,7 @@ describe('Sanity Cached Client with Redis', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.dontMock('@/lib/redis');
   });
 
   describe('Cache Hit Scenarios', () => {

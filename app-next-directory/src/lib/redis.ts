@@ -51,9 +51,23 @@ const isTestEnvironment = () => {
 const baseGetRedisClient = () => {
   if (!currentClient) {
     if (isTestEnvironment()) {
-      return undefined;
+      // In test environment, try to create client if env vars are present
+      // This allows tests to work with mocked Redis
+      const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+      const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+      if (redisUrl && redisToken) {
+        try {
+          currentClient = redis = createRedisClient();
+        } catch (error) {
+          // If creation fails in test, return undefined
+          return undefined;
+        }
+      } else {
+        return undefined;
+      }
+    } else {
+      currentClient = redis = createRedisClient();
     }
-    currentClient = redis = createRedisClient();
   }
   return currentClient;
 };
@@ -91,4 +105,7 @@ export const onRedisClientChange = (listener: RedisListener) => {
   return () => {
     listeners.delete(listener);  };
 };
+
+// Export singleton instance - will be initialized on first use
+export let redis: RedisLike = getRedisClient() as RedisLike;
 
