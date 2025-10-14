@@ -129,9 +129,9 @@ jobs:
         run: |
           cd app-next-directory
           pnpm run build
-          
+
       - name: Type check
         run: |
           cd app-next-directory
-          pnpm check-types
+          pnpm tsc --noEmit
           
