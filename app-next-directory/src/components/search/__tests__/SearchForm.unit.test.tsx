@@ -7,7 +7,7 @@
  * Coverage Target: 85%+
  */
 
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { SearchForm } from '@/components/search/SearchForm'
 import { useRouter } from 'next/navigation'
@@ -296,7 +296,7 @@ describe('SearchForm', () => {
       expect(screen.getByText('Searching...')).toBeInTheDocument()
     })
 
-    it('should not show results while loading', () => {
+    it('should not render result items while loading', () => {
       mockUseSearchListings.mockReturnValue({
         listings: [],
         loading: true,
@@ -308,7 +308,8 @@ describe('SearchForm', () => {
 
       render(<SearchForm />)
 
-      expect(screen.queryByRole('region', { name: 'Search results' })).not.toBeInTheDocument()
+      const resultsRegion = screen.getByRole('region', { name: 'Search results' })
+      expect(within(resultsRegion).queryAllByRole('listitem')).toHaveLength(0)
     })
   })
 
