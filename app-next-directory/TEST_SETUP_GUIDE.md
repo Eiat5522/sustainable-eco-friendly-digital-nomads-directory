@@ -281,22 +281,22 @@ See `jest.config.cjs` for the complete list of mocked modules.
 
 ```bash
 # Run all unit tests (fast)
-npm run test:unit
+pnpm test:unit
 
 # Run specific unit test file
-npm run test:unit -- src/models/__tests__/MyModel.test.ts
+pnpm test:unit src/models/__tests__/MyModel.test.ts
 
 # Run all integration tests (slower, requires mongodb-memory-server)
-npm run test:integration
+pnpm test:integration
 
 # Run specific integration test
-npm run test:integration -- src/models/__tests__/MyModel.integration.test.ts
+pnpm test:integration -- src/models/__tests__/MyModel.integration.test.ts
 
 # Run tests in watch mode
-npm run test:watch
+pnpm test:watch
 
 # Run tests with coverage
-npm run test:coverage
+pnpm test:coverage
 ```
 
 ## Best Practices

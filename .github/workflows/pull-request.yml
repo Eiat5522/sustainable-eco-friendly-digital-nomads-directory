@@ -61,7 +61,7 @@ jobs:
       - name: Type check
         run: |
           cd app-next-directory
-          pnpm run type-check
+          pnpm type-check
 
       - name: Lint
         run: |
