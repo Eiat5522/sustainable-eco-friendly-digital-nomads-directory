@@ -7,18 +7,34 @@ import { useSession } from 'next-auth/react';
 jest.mock('next-auth/react');
 const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
 
-// Mock fetch globally
+// Mock fetch using jest.spyOn
 const mockFetch = jest.fn();
-global.fetch = mockFetch as any;
+let fetchSpy: jest.SpyInstance;
 
 // Mock alert
 global.alert = jest.fn();
 
 describe('FavoriteButton', () => {
+  beforeAll(() => {
+    // Set up fetch spy once before all tests
+    fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(mockFetch as any);
+  });
+
+  afterAll(() => {
+    // Restore original fetch after all tests
+    fetchSpy.mockRestore();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockFetch.mockReset();
     (global.alert as jest.Mock).mockClear();
+    // Reset the useSession mock to unauthenticated state
+    mockUseSession.mockReturnValue({
+      data: null,
+      status: 'unauthenticated',
+      update: jest.fn(),
+    });
   });
 
   describe('Basic Rendering', () => {
