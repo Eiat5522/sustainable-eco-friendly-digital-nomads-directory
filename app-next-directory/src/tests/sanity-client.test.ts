@@ -7,39 +7,25 @@ jest.mock('@sanity/image-url', () => ({
     })),
   })),
 }));
-jest.mock('next-sanity', () => ({
+jest.mock('../lib/sanity/client', () => ({
   createClient: jest.fn((config) => {
     const patchChain = {
       set: jest.fn(() => ({
-        unset: jest.fn(() => ({
-          commit: jest.fn(() => Promise.resolve({})),
-        })),
         commit: jest.fn(() => Promise.resolve({})),
       })),
-      insert: jest.fn(() => ({
-        after: jest.fn(() => ({
-          commit: jest.fn(() => Promise.resolve({})),
-        })),
-      })),
-      diffMatchPatch: jest.fn(() => ({
-        commit: jest.fn(() => Promise.resolve({})),
-      })),
-      commit: jest.fn(() => Promise.resolve({})),
-    }
+    };
 
     const clientMock = {
       fetch: jest.fn(() => Promise.resolve([])),
       create: jest.fn(() => Promise.resolve({ _id: 'mock-id' })),
-      update: jest.fn(() => Promise.resolve({})),
       delete: jest.fn(() => Promise.resolve('')),
       patch: jest.fn(() => patchChain),
-      // Provide a writeClient object that has the same patch behaviour
-      writeClient: {
-        patch: jest.fn(() => patchChain),
-      },
-    }
+      assets: {
+        upload: jest.fn(() => Promise.resolve({ _id: 'mock-asset-id' }))
+      }
+    };
 
-    return clientMock
+    return clientMock;
   }),
 }));
 /**
@@ -48,9 +34,17 @@ jest.mock('next-sanity', () => ({
  * Date: May 24, 2025
  */
 
-import { SanityAPIError, sanityHTTPClient } from '../lib/sanity-http-client'
+import { SanityAPIError } from '../lib/sanity-http-client';
 
 describe('Sanity HTTP Client Test Suite', () => {
+  let sanityHTTPClient: any;
+
+  beforeEach(async () => {
+    jest.resetModules();
+    const mod = await import('../lib/sanity-http-client');
+    sanityHTTPClient = mod.sanityHTTPClient;
+  });
+
   // Test suite for the HTTP client
   class SanityClientTester {
 

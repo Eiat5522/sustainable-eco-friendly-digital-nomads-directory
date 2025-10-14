@@ -7,27 +7,22 @@ import { signIn } from 'next-auth/react';
 jest.mock('next-auth/react');
 const mockSignIn = signIn as jest.MockedFunction<typeof signIn>;
 
-// Mock fetch globally
-const mockFetch = jest.fn();
-global.fetch = mockFetch as any;
-
 describe('SocialAuthRow', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockFetch.mockReset();
     delete process.env.NEXT_PUBLIC_AUTH_DISABLE_OAUTH;
   });
 
   describe('Basic Rendering', () => {
     it('renders loading state initially', () => {
-      mockFetch.mockImplementation(() => new Promise(() => {})); // Never resolves
+      jest.spyOn(global, 'fetch').mockImplementation(() => new Promise(() => {})); // Never resolves
       
       render(<SocialAuthRow />);
       expect(screen.getByText(/Loading sign-in options/i)).toBeInTheDocument();
     });
 
     it('renders provider buttons when loaded successfully', async () => {
-      mockFetch.mockResolvedValueOnce({
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           facebook: { id: 'facebook', name: 'Facebook' },
@@ -48,7 +43,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('filters out credentials provider', async () => {
-      mockFetch.mockResolvedValueOnce({
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           credentials: { id: 'credentials', name: 'Credentials' },
@@ -77,18 +72,17 @@ describe('SocialAuthRow', () => {
 
     it('does not fetch providers when OAuth is disabled', () => {
       process.env.NEXT_PUBLIC_AUTH_DISABLE_OAUTH = 'true';
+      const fetchSpy = jest.spyOn(global, 'fetch');
 
       render(<SocialAuthRow />);
       
-      expect(mockFetch).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
     });
 
     it('renders normally when NEXT_PUBLIC_AUTH_DISABLE_OAUTH is not set', async () => {
-      mockFetch.mockResolvedValueOnce({
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
-        json: async () => ({
-          google: { id: 'google', name: 'Google' },
-        }),
+        json: async () => ({ google: { id: 'google', name: 'Google' } }),
       } as Response);
 
       render(<SocialAuthRow />);
@@ -101,7 +95,7 @@ describe('SocialAuthRow', () => {
 
   describe('Provider Loading', () => {
     it('fetches providers from /api/auth/providers', async () => {
-      mockFetch.mockResolvedValueOnce({
+      const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
         json: async () => ({ google: { id: 'google' } }),
       } as Response);
@@ -109,12 +103,12 @@ describe('SocialAuthRow', () => {
       render(<SocialAuthRow />);
       
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledWith('/api/auth/providers');
+        expect(fetchSpy).toHaveBeenCalledWith('/api/auth/providers');
       });
     });
 
     it('handles empty provider list', async () => {
-      mockFetch.mockResolvedValueOnce({
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
         json: async () => ({}),
       } as Response);
@@ -127,10 +121,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('handles null response from providers endpoint', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => null,
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => null } as Response);
 
       render(<SocialAuthRow />);
       
@@ -141,7 +132,7 @@ describe('SocialAuthRow', () => {
 
     it('handles fetch error gracefully', async () => {
       const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      jest.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('Network error'));
 
       render(<SocialAuthRow />);
       
@@ -155,7 +146,7 @@ describe('SocialAuthRow', () => {
 
     it('handles non-ok response from providers endpoint', async () => {
       const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-      mockFetch.mockResolvedValueOnce({
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: false,
         status: 500,
       } as Response);
@@ -172,7 +163,7 @@ describe('SocialAuthRow', () => {
 
   describe('Provider Buttons', () => {
     it('renders buttons with correct icons', async () => {
-      mockFetch.mockResolvedValueOnce({
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           facebook: { id: 'facebook' },
@@ -194,7 +185,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('renders buttons with correct colors', async () => {
-      mockFetch.mockResolvedValueOnce({
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           facebook: { id: 'facebook' },
@@ -214,12 +205,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('applies correct styling classes to buttons', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          google: { id: 'google' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ google: { id: 'google' } }) } as Response);
 
       render(<SocialAuthRow />);
       
@@ -234,12 +220,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('renders buttons with proper accessibility attributes', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          google: { id: 'google' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ google: { id: 'google' } }) } as Response);
 
       render(<SocialAuthRow />);
       
@@ -254,12 +235,7 @@ describe('SocialAuthRow', () => {
 
   describe('Sign In Functionality', () => {
     it('calls signIn when button is clicked', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          google: { id: 'google' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ google: { id: 'google' } }) } as Response);
 
       mockSignIn.mockResolvedValue(undefined as any);
 
@@ -278,12 +254,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('disables button while sign in is in progress', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          google: { id: 'google' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ google: { id: 'google' } }) } as Response);
 
       // Mock signIn to never resolve
       mockSignIn.mockImplementation(() => new Promise(() => {}));
@@ -304,7 +275,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('only disables the clicked button, not other buttons', async () => {
-      mockFetch.mockResolvedValueOnce({
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           google: { id: 'google' },
@@ -332,12 +303,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('re-enables button after sign in completes', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          google: { id: 'google' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ google: { id: 'google' } }) } as Response);
 
       mockSignIn.mockResolvedValue(undefined as any);
 
@@ -373,12 +339,7 @@ describe('SocialAuthRow', () => {
       ];
 
       // Still need to fetch available providers, but custom provider should be in the list
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          custom: { id: 'custom' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ custom: { id: 'custom' } }) } as Response);
 
       render(<SocialAuthRow providers={customProviders} />);
       
@@ -404,12 +365,7 @@ describe('SocialAuthRow', () => {
       ];
 
       // Only provider1 is available from the server
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          provider1: { id: 'provider1' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ provider1: { id: 'provider1' } }) } as Response);
 
       render(<SocialAuthRow providers={customProviders} />);
       
@@ -422,9 +378,7 @@ describe('SocialAuthRow', () => {
 
   describe('Component Cleanup', () => {
     it('cancels fetch on unmount', async () => {
-      let fetchCallCount = 0;
-      mockFetch.mockImplementation(() => {
-        fetchCallCount++;
+      const fetchSpy = jest.spyOn(global, 'fetch').mockImplementation(() => {
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve({
@@ -445,14 +399,14 @@ describe('SocialAuthRow', () => {
 
       // The component should not update state after unmount
       // This is tested by ensuring no warnings are thrown
-      expect(fetchCallCount).toBe(1);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
 
     it('does not update state after unmounting during fetch', async () => {
       const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
       const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-      mockFetch.mockImplementation(() => 
+      jest.spyOn(global, 'fetch').mockImplementation(() => 
         new Promise((resolve) => {
           setTimeout(() => {
             resolve({
@@ -479,12 +433,7 @@ describe('SocialAuthRow', () => {
 
   describe('Layout and Styling', () => {
     it('centers providers in a flex container', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          google: { id: 'google' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ google: { id: 'google' } }) } as Response);
 
       const { container } = render(<SocialAuthRow />);
       
@@ -497,7 +446,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('renders multiple providers in a row', async () => {
-      mockFetch.mockResolvedValueOnce({
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           facebook: { id: 'facebook' },
@@ -517,12 +466,7 @@ describe('SocialAuthRow', () => {
 
   describe('Provider Icons', () => {
     it('renders Google icon with correct paths', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          google: { id: 'google' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ google: { id: 'google' } }) } as Response);
 
       render(<SocialAuthRow />);
       
@@ -535,12 +479,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('renders Facebook icon', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          facebook: { id: 'facebook' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ facebook: { id: 'facebook' } }) } as Response);
 
       render(<SocialAuthRow />);
       
@@ -552,12 +491,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('renders Twitter/X icon', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          twitter: { id: 'twitter' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ twitter: { id: 'twitter' } }) } as Response);
 
       render(<SocialAuthRow />);
       
@@ -569,12 +503,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('renders Microsoft icon', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          microsoft: { id: 'microsoft' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ microsoft: { id: 'microsoft' } }) } as Response);
 
       render(<SocialAuthRow />);
       
@@ -586,12 +515,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('sets aria-hidden on icons', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          google: { id: 'google' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ google: { id: 'google' } }) } as Response);
 
       render(<SocialAuthRow />);
       
@@ -605,7 +529,7 @@ describe('SocialAuthRow', () => {
 
   describe('Edge Cases', () => {
     it('handles providers with missing properties gracefully', async () => {
-      mockFetch.mockResolvedValueOnce({
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           google: { id: 'google' },
@@ -622,7 +546,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('handles very slow API response', async () => {
-      mockFetch.mockImplementation(() => 
+      jest.spyOn(global, 'fetch').mockImplementation(() => 
         new Promise((resolve) => {
           setTimeout(() => {
             resolve({
@@ -640,7 +564,7 @@ describe('SocialAuthRow', () => {
     }, 10000);
 
     it('handles rapid re-renders during loading', async () => {
-      mockFetch.mockImplementation(() => 
+      jest.spyOn(global, 'fetch').mockImplementation(() => 
         new Promise((resolve) => {
           setTimeout(() => {
             resolve({
@@ -666,7 +590,7 @@ describe('SocialAuthRow', () => {
 
   describe('Accessibility', () => {
     it('provides proper button roles', async () => {
-      mockFetch.mockResolvedValueOnce({
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({
         ok: true,
         json: async () => ({
           google: { id: 'google' },
@@ -683,12 +607,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('has descriptive labels for screen readers', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          google: { id: 'google' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ google: { id: 'google' } }) } as Response);
 
       render(<SocialAuthRow />);
       
@@ -699,12 +618,7 @@ describe('SocialAuthRow', () => {
     });
 
     it('maintains focus management during loading state changes', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({
-          google: { id: 'google' },
-        }),
-      } as Response);
+      jest.spyOn(global, 'fetch').mockResolvedValueOnce({ ok: true, json: async () => ({ google: { id: 'google' } }) } as Response);
 
       render(<SocialAuthRow />);
       

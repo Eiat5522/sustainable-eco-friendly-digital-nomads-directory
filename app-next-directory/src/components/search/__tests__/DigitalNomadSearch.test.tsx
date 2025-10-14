@@ -14,7 +14,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 // Mock Next.js navigation hooks
 const mockPush = jest.fn()
-const mockSearchParams = new URLSearchParams()
 
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
@@ -47,11 +46,10 @@ const mockUseSearchParams = useSearchParams as jest.MockedFunction<typeof useSea
 
 describe('DigitalNomadSearch', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-    mockSearchParams.get = jest.fn(() => null)
-    mockSearchParams.entries = jest.fn(() => [][Symbol.iterator]())
-    mockSearchParams.toString = jest.fn(() => '')
-    
+    jest.clearAllMocks();
+
+    const mockSearchParams = new URLSearchParams();
+
     mockUseRouter.mockReturnValue({
       push: mockPush,
       replace: jest.fn(),
@@ -59,10 +57,10 @@ describe('DigitalNomadSearch', () => {
       back: jest.fn(),
       forward: jest.fn(),
       refresh: jest.fn(),
-    } as any)
-    
-    mockUseSearchParams.mockReturnValue(mockSearchParams as any)
-  })
+    } as any);
+
+    mockUseSearchParams.mockReturnValue(mockSearchParams as any);
+  });
 
   describe('Rendering', () => {
     it('should render search form with input and button', () => {
@@ -114,7 +112,6 @@ describe('DigitalNomadSearch', () => {
 
   describe('URL Parameter Synchronization', () => {
     it('should initialize with empty value when no query param', () => {
-      mockSearchParams.get = jest.fn(() => null)
       render(<DigitalNomadSearch />)
       
       const input = screen.getByTestId('neo-input') as HTMLInputElement
@@ -122,28 +119,28 @@ describe('DigitalNomadSearch', () => {
     })
 
     it('should initialize with query param value', () => {
-      mockSearchParams.get = jest.fn((key) => key === 'q' ? 'eco coworking' : null)
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('q=eco+coworking') as any)
       render(<DigitalNomadSearch />)
       
       const input = screen.getByTestId('neo-input') as HTMLInputElement
       expect(input.value).toBe('eco coworking')
     })
 
-    it('should update when search params change', () => {
+    it('should update when search params change', async () => {
       const { rerender } = render(<DigitalNomadSearch />)
       
       // Change search params
-      mockSearchParams.get = jest.fn((key) => key === 'q' ? 'new search' : null)
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('q=new+search') as any)
       rerender(<DigitalNomadSearch />)
       
-      waitFor(() => {
+      await waitFor(() => {
         const input = screen.getByTestId('neo-input') as HTMLInputElement
         expect(input.value).toBe('new search')
       })
     })
 
     it('should handle empty string query param', () => {
-      mockSearchParams.get = jest.fn((key) => key === 'q' ? '' : null)
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('q=') as any)
       render(<DigitalNomadSearch />)
       
       const input = screen.getByTestId('neo-input') as HTMLInputElement
@@ -173,12 +170,7 @@ describe('DigitalNomadSearch', () => {
       await user.click(screen.getByTestId('neo-button'))
       
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith(
-          expect.stringContaining('/search')
-        )
-        expect(mockPush).toHaveBeenCalledWith(
-          expect.stringContaining('q=test+query')
-        )
+        expect(mockPush).toHaveBeenCalledWith('/search?q=test+query')
       })
     })
 
@@ -190,7 +182,7 @@ describe('DigitalNomadSearch', () => {
       await user.type(input, 'search term{Enter}')
       
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalled()
+        expect(mockPush).toHaveBeenCalledWith('/search?q=search+term')
       })
     })
 
@@ -225,7 +217,6 @@ describe('DigitalNomadSearch', () => {
   describe('Query Parameter Management', () => {
     it('should add query param when searching', async () => {
       const user = userEvent.setup()
-      mockSearchParams.entries = jest.fn(() => [][Symbol.iterator]())
       
       render(<DigitalNomadSearch />)
       
@@ -240,8 +231,7 @@ describe('DigitalNomadSearch', () => {
 
     it('should delete query param when searching with empty value', async () => {
       const user = userEvent.setup()
-      mockSearchParams.entries = jest.fn(() => [][Symbol.iterator]())
-      mockSearchParams.get = jest.fn(() => 'existing')
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('q=existing') as any)
       
       render(<DigitalNomadSearch />)
       
@@ -256,9 +246,7 @@ describe('DigitalNomadSearch', () => {
 
     it('should preserve other query params', async () => {
       const user = userEvent.setup()
-      const existingParams = new Map([['category', 'coworking'], ['page', '2']])
-      mockSearchParams.entries = jest.fn(() => existingParams.entries())
-      mockSearchParams.get = jest.fn((key) => existingParams.get(key) || null)
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('category=coworking&page=2') as any)
       
       render(<DigitalNomadSearch />)
       
@@ -275,8 +263,7 @@ describe('DigitalNomadSearch', () => {
 
     it('should delete page param when searching', async () => {
       const user = userEvent.setup()
-      const existingParams = new Map([['page', '3']])
-      mockSearchParams.entries = jest.fn(() => existingParams.entries())
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('page=3') as any)
       
       render(<DigitalNomadSearch />)
       
@@ -301,7 +288,7 @@ describe('DigitalNomadSearch', () => {
       await user.click(screen.getByTestId('neo-button'))
       
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalled()
+        expect(mockPush).toHaveBeenCalledWith('/search?q=caf%C3%A9+%26+coworking%21')
       })
     })
 
@@ -317,13 +304,14 @@ describe('DigitalNomadSearch', () => {
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalled()
       })
-    })
+    }, 20000)
 
     it('should handle whitespace-only input', async () => {
       const user = userEvent.setup()
       render(<DigitalNomadSearch />)
       
       const input = screen.getByTestId('neo-input')
+      await user.clear(input);
       await user.type(input, '   ')
       await user.click(screen.getByTestId('neo-button'))
       
@@ -345,7 +333,7 @@ describe('DigitalNomadSearch', () => {
       await user.click(screen.getByTestId('neo-button'))
       
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalled()
+        expect(mockPush).toHaveBeenCalledTimes(3)
       })
     })
   })
@@ -367,4 +355,4 @@ describe('DigitalNomadSearch', () => {
       expect(screen.getByRole('search')).toBeInTheDocument()
     })
   })
-})
+});

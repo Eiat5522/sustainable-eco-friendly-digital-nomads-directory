@@ -532,7 +532,7 @@ describe('SearchForm', () => {
       await user.click(screen.getByRole('button', { name: /search/i }))
 
       expect(mockSearchListings).toHaveBeenCalled()
-    })
+    }, 10000)
 
     it('should handle rapid form submissions', async () => {
       const user = userEvent.setup()

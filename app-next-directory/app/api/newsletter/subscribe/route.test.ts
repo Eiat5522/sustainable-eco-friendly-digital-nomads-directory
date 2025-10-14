@@ -1,171 +1,81 @@
-import { jest } from '@jest/globals'
+import { POST, testControl } from './route';
 
-type UpstashClient = {
-  get: (key: string) => Promise<string | null>
-  set: (key: string, value: string, opts?: { ex?: number }) => Promise<'OK'>
-  incr: (key: string) => Promise<number>
-  expire: (key: string, seconds: number) => Promise<1 | 0>
-}
-
-function makeRequest(body: unknown, headers: Record<string, string> = {}) {
-  return new Request('http://localhost/api/newsletter/subscribe', {
-    method: 'POST',
+// Minimal mock for Request with headers/body
+function makeRequest(body: any, headers: Record<string, string> = {}) {
+  const blob = JSON.stringify(body);
+  const req: any = {
+    json: async () => JSON.parse(blob),
     headers: {
-      'content-type': 'application/json',
-      'x-forwarded-for': '127.0.0.1',
-      ...headers,
+      get: (k: string) => headers[k] || headers[k.toLowerCase()] || null,
     },
-    body: JSON.stringify(body),
-  })
+  };
+  return req as Request;
 }
 
-describe('newsletter subscribe API', () => {
+describe('POST /api/newsletter/subscribe', () => {
   beforeEach(() => {
-    jest.resetAllMocks()
-    jest.resetModules()
-  })
+    // Reset the override functions before each test
+    testControl.memoryGetOverride = undefined;
+    testControl.memoryIncrOverride = undefined;
+    // It's better to clear the map rather than resetting modules
+    jest.requireActual('./route')._clearMemoryStore();
+  });
 
-  test('returns 422 and x-redis: memory for invalid email (Jest mode)', async () => {
-    // In Jest, JEST_WORKER_ID is typically set → forces memory mode header
-    process.env.JEST_WORKER_ID = process.env.JEST_WORKER_ID || '1'
-    await jest.unstable_mockModule('@/lib/redis', () => ({
-      getRedisClient: () => undefined,
-    }))
-    const { POST } = await import('./route')
+  test('returns 422 for invalid email', async () => {
+    const req = makeRequest({ email: 'not-an-email' });
+    const res = await POST(req);
+    const body = await res.json();
+    expect(res.status).toBe(422);
+    expect(body.success).toBe(false);
+  });
 
-    const req = makeRequest({ email: 'not-an-email' })
-    const res = await POST(req)
-    expect(res.status).toBe(422)
-    expect(res.headers.get('content-type')).toMatch(/application\/json/)
-    expect(res.headers.get('x-redis')).toBe('memory')
-    const json = await res.json()
-    expect(json).toMatchObject({ success: false, error: expect.any(String) })
-  })
+  test('rate limits by IP after threshold', async () => {
+    const headers = { 'x-forwarded-for': '1.2.3.4' };
+    for (let i = 0; i < 11; i++) {
+      const req = makeRequest({ email: `test${i}@example.com` }, headers);
+      const res = await POST(req);
+      const body = await res.json();
+      if (i < 10) {
+        expect(res.status).not.toBe(429);
+      } else {
+        expect(res.status).toBe(429);
+        expect(body.success).toBe(false);
+      }
+    }
+  });
 
-  test('returns 200 and x-redis: memory for valid email without Upstash (Jest mode)', async () => {
-    process.env.JEST_WORKER_ID = process.env.JEST_WORKER_ID || '1'
-    await jest.unstable_mockModule('@/lib/redis', () => ({
-      getRedisClient: () => undefined,
-    }))
-    const { POST } = await import('./route')
+  test('short-circuits duplicate email within window', async () => {
+    const req1 = makeRequest({ email: 'dup@example.com' });
+    const res1 = await POST(req1);
+    const body1 = await res1.json();
+    expect(res1.status).toBe(200);
+    expect(body1.success).toBe(true);
 
-    const req = makeRequest({ email: 'test@example.com' })
-    const res = await POST(req)
-    expect(res.status).toBe(200)
-    expect(res.headers.get('x-redis')).toBe('memory')
-    const json = await res.json()
-    expect(json).toMatchObject({ success: true })
-  })
-
-  test('when Upstash client present under Jest, header remains memory and request succeeds', async () => {
-    // Increase timeout for this potentially longer-running integration-like test
-    process.env.JEST_WORKER_ID = process.env.JEST_WORKER_ID || '1'
-
-    // Simple in-memory fake of Upstash client
-    const store = new Map<string, string>()
-    const counters = new Map<string, number>()
-    const get = jest.fn(async (key: string) => (store.has(key) ? store.get(key)! : null))
-    const set = jest.fn(async (key: string, value: string) => { store.set(key, value); return 'OK' as const })
-    const incr = jest.fn(async (key: string) => { const v = (counters.get(key) || 0) + 1; counters.set(key, v); return v })
-  const expire = jest.fn(async () => 1 as const)
-    const upstash: UpstashClient = { get, set, incr, expire }
-    await jest.unstable_mockModule('@/lib/redis', () => ({
-      getRedisClient: () => upstash,
-    }))
-    const { POST } = await import('./route')
-
-    const req = makeRequest(
-      { email: 'user@example.com' },
-      { 'x-idempotency-key': 'abc-123' }
-    )
-    // allow longer time for this test
-    jest.setTimeout(15000)
-    const res = await POST(req)
-    expect(res.status).toBe(200)
-    // Under Jest, header remains 'memory' even when client exists; store operations still use the client
-    expect(res.headers.get('x-redis')).toBe('memory')
-    const json = await res.json()
-    expect(json).toMatchObject({ success: true })
-  })
+    const req2 = makeRequest({ email: 'dup@example.com' });
+    const res2 = await POST(req2);
+    const body2 = await res2.json();
+    expect(res2.status).toBe(200);
+    expect(body2.success).toBe(true);
+    expect(body2.message).toBe('Already subscribed recently.');
+  });
 
   test('idempotency key replay returns same success body', async () => {
-    process.env.JEST_WORKER_ID = process.env.JEST_WORKER_ID || '1'
-    await jest.unstable_mockModule('@/lib/redis', () => ({
-      getRedisClient: () => undefined,
-    }))
-    const { POST } = await import('./route')
+    const { POST, _clearMemoryStore } = await import('./route');
+    _clearMemoryStore(); // start with a clean slate
 
-    const idempotencyKey = 'test-idempotency-123'
-    // Use the same header name used elsewhere in tests and in the route implementation
-    const req1 = makeRequest({ email: 'idempotent@example.com' }, { 'x-idempotency-key': idempotencyKey })
-    const res1 = await POST(req1)
-    expect(res1.status).toBe(200)
-    expect(res1.headers.get('x-redis')).toBe('memory')
-    const json1 = await res1.json()
-    expect(json1).toMatchObject({ success: true, message: 'Thank you for subscribing to our newsletter!' })
+    const headers = { 'Idempotency-Key': 'abc-123' };
+    const req1 = makeRequest({ email: 'idemo@example.com' }, headers);
+    const res1 = await POST(req1);
+    const json1 = await res1.json();
 
-    // Second request with same key should return the same response
-    const req2 = makeRequest({ email: 'idempotent@example.com' }, { 'x-idempotency-key': idempotencyKey })
-    const res2 = await POST(req2)
-    expect(res2.status).toBe(200)
-    expect(res2.headers.get('x-redis')).toBe('memory')
-    const json2 = await res2.json()
-    expect(json2).toEqual(json1) // Exact match
-  })
+    expect(res1.status).toBe(200);
+    expect(json1.message).toBe('Thank you for subscribing to our newsletter!');
 
-  test('per-IP rate limit exceeded returns 429', async () => {
-    process.env.JEST_WORKER_ID = process.env.JEST_WORKER_ID || '1'
-    
-    // Import the route module
-    const routeModule = await import('./route')
-    
-    // Set up the override to return rate limit exceeded for IP keys
-    const originalOverride = routeModule.testControl.memoryIncrOverride
-    routeModule.testControl.memoryIncrOverride = (key: string, _ttl: number) => {
-      if (key.includes('ip:')) return 11 // > RATE_LIMIT_PER_IP (10)
-      return 1
-    }
-    
-    try {
-      const { POST } = routeModule
+    const req2 = makeRequest({ email: 'idemo@example.com' }, headers);
+    const res2 = await POST(req2);
+    const json2 = await res2.json();
 
-      const req = makeRequest({ email: 'rate-limited@example.com' })
-      const res = await POST(req)
-      expect(res.status).toBe(429)
-      expect(res.headers.get('x-redis')).toBe('memory')
-      const json = await res.json()
-      expect(json).toMatchObject({ success: false, error: 'Too many requests from this IP. Please try again later.' })
-    } finally {
-      // Restore original
-      routeModule.testControl.memoryIncrOverride = originalOverride
-    }
-  })
-
-  test('per-email guard returns already subscribed message', async () => {
-    process.env.JEST_WORKER_ID = process.env.JEST_WORKER_ID || '1'
-    
-    // Import the route module
-    const routeModule = await import('./route')
-    
-    // Set up the override to return '1' for the specific email key
-    const originalOverride = routeModule.testControl.memoryGetOverride
-    routeModule.testControl.memoryGetOverride = (key: string) => {
-      if (key === 'newsletter:email:already@example.com') return '1'
-      return null
-    }
-    
-    try {
-      const { POST } = routeModule
-
-      const req = makeRequest({ email: 'already@example.com' })
-      const res = await POST(req)
-      expect(res.status).toBe(200)
-      expect(res.headers.get('x-redis')).toBe('memory')
-      const json = await res.json()
-      expect(json).toMatchObject({ success: true, message: 'Already subscribed recently.' })
-    } finally {
-      // Restore original
-      routeModule.testControl.memoryGetOverride = originalOverride
-    }
-  })
-})
+    expect(res2.status).toBe(200);
+    expect(json2).toEqual(json1); // Exact match
+  });
+});

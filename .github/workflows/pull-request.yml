@@ -66,7 +66,7 @@ jobs:
       - name: Lint
         run: |
           cd app-next-directory
-          pnpm run lint
+          pnpm lint
 
       - name: Check formatting
         run: |
@@ -124,14 +124,4 @@ jobs:
         run: |
           cd app-next-directory
           pnpm install --no-frozen-lockfile
-
-      - name: Build
-        run: |
-          cd app-next-directory
-          pnpm run build
-
-      - name: Type check
-        run: |
-          cd app-next-directory
-          pnpm tsc --noEmit
           

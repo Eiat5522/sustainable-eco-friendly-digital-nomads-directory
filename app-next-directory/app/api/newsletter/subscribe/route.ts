@@ -83,6 +83,10 @@ function startMemoryCleanup() {
   }, 60_000)
 }
 
+export function _clearMemoryStore() {
+  memoryStore.clear();
+}
+
 // Upstash Redis (shared client) helpers with memory fallback
 const upstash = getRedisClient()
 startMemoryCleanup()
