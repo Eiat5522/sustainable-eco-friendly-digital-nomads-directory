@@ -1,5 +1,5 @@
+/** @jest-environment jsdom */
 /**
- * @jest-environment jsdom
  * Unit tests for FiltersSidebar component
  * 
  * Component: FiltersSidebar - Sidebar containing search filters

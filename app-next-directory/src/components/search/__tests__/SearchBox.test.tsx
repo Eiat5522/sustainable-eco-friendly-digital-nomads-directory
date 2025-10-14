@@ -1,5 +1,5 @@
+/** @jest-environment jsdom */
 /**
- * @jest-environment jsdom
  * Unit tests for SearchBox component
  * 
  * Component: SearchBox - A wrapper component that renders DigitalNomadSearch in a NeoCard
@@ -12,7 +12,7 @@ import { SearchBox } from '../SearchBox'
 
 // Mock the child components
 jest.mock('../DigitalNomadSearch', () => ({
-  DigitalNomadSearch: jest.fn(({ placeholder }) => (
+  DigitalNomadSearch: jest.fn(({ placeholder = 'Search listings...' }) => (
     <div data-testid="digital-nomad-search">
       <input placeholder={placeholder} aria-label="Search query" />
     </div>
@@ -38,7 +38,7 @@ describe('SearchBox', () => {
     it('should render with default placeholder', () => {
       render(<SearchBox />)
       const input = screen.getByLabelText('Search query')
-      expect(input).toHaveAttribute('placeholder', '')
+      expect(input).toHaveAttribute('placeholder', 'Search listings...')
     })
 
     it('should pass custom placeholder to DigitalNomadSearch', () => {

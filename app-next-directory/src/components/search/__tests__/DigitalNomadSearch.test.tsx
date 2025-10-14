@@ -1,5 +1,5 @@
+/** @jest-environment jsdom */
 /**
- * @jest-environment jsdom
  * Unit tests for DigitalNomadSearch component
  * 
  * Component: DigitalNomadSearch - Core search component for digital nomad listings

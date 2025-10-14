@@ -74,7 +74,15 @@ export const handlers = [
     return ok({ categories })
   }),
 
-  http.get('/api/amenities', () => ok({ amenities: [] })),
+  http.get('/api/amenities', () => ok({ 
+    amenities: [
+      { name: 'Wi-Fi' },
+      { name: 'Air Conditioning' },
+      { name: 'Kitchen' },
+      { name: 'Parking' },
+      { name: 'Garden' },
+    ]
+  })),
 
   http.get('/api/cities', () => {
     const cities = listCities().map((city: any) => ({
