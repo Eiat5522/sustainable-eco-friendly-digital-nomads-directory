@@ -35,6 +35,8 @@ const moduleNameMapper = {
 	'^tree-sitter-.*$': '<rootDir>/__mocks__/tree-sitter.js',
 	'^next/link$': '<rootDir>/__mocks__/next/link.js',
 	'^next/image$': '<rootDir>/__mocks__/next/image.js',
+	'^next/font/google$': '<rootDir>/__mocks__/next/font/google.js',
+	'^next/headers$': '<rootDir>/__mocks__/next/headers.js',
 	'^@/mocks/server$': '<rootDir>/__mocks__/server.ts',
 	'^mocks/server$': '<rootDir>/__mocks__/server.ts',
 	'^@sanity/client$': '<rootDir>/__mocks__/@sanity/client.ts',
