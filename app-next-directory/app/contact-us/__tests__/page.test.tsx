@@ -93,9 +93,6 @@ describe('ContactUsPage', () => {
 
   afterEach(() => {
     jest.clearAllMocks()
-  })
-
-  afterAll(() => {
     global.fetch = originalFetch
   })
 
