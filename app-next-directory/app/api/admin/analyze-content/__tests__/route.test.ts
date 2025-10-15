@@ -63,6 +63,41 @@ describe('/api/admin/analyze-content', () => {
     expect(mockAnalyze).toHaveBeenCalledWith({ type: 'listing', windowDays: 14 });
   });
 
+  it('defaults to listing type when query params are missing', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAnalyze.mockResolvedValue({ type: 'listing' });
+
+    const request = { url: 'https://example.com/api/admin/analyze-content' } as any;
+    const response = await GET(request, { params: Promise.resolve({}) });
+
+    expect(response.status).toBe(200);
+    expect(mockAnalyze).toHaveBeenCalledWith({ type: 'listing', windowDays: undefined });
+  });
+
+  it('rejects invalid windowDays values', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+
+    const request = { url: 'https://example.com/api/admin/analyze-content?windowDays=0' } as any;
+    const response = await GET(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(json.error).toBe('windowDays must be a positive integer');
+    expect(mockAnalyze).not.toHaveBeenCalled();
+  });
+
+  it('returns 500 when the analyze service fails during GET', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockAnalyze.mockRejectedValue(new Error('service down'));
+
+    const request = { url: 'https://example.com/api/admin/analyze-content' } as any;
+    const response = await GET(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(json.error).toBe('Failed to analyze content');
+  });
+
   it('rejects POST without samples', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
 
@@ -97,5 +132,46 @@ describe('/api/admin/analyze-content', () => {
     expect(response.status).toBe(200);
     expect(json.total).toBe(2);
     expect(json.insights.find((item: any) => item.id === 'b').riskLevel).toBe('medium');
+  });
+
+  it('flags multiple keywords as high risk and deduplicates matches', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+
+    const request = {
+      json: () =>
+        Promise.resolve({
+          samples: [{ id: 'sample', text: 'Spam spam! Possible scam in this listing.' }],
+        }),
+    } as any;
+
+    const response = await POST(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.insights[0].flaggedKeywords).toEqual(['spam', 'scam']);
+    expect(json.insights[0].riskLevel).toBe('high');
+  });
+
+  it('handles malformed POST bodies and authorization issues', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+
+    const malformed = await POST({ json: () => Promise.reject(new Error('nope')) } as any, {
+      params: Promise.resolve({}),
+    });
+    expect(malformed.status).toBe(400);
+
+    mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+    const forbidden = await POST({ json: () => Promise.resolve({ samples: [{ id: '1', text: 'ok' }] }) } as any, {
+      params: Promise.resolve({}),
+    });
+    expect(forbidden.status).toBe(403);
+
+    mockAuth.mockRejectedValue(new Error('auth failed'));
+    const errorResponse = await POST({ json: () => Promise.resolve({ samples: [{ id: '2', text: 'spam' }] }) } as any, {
+      params: Promise.resolve({}),
+    });
+    const errorJson = await errorResponse.json();
+    expect(errorResponse.status).toBe(500);
+    expect(errorJson.error).toBe('Failed to analyze content samples');
   });
 });

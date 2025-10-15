@@ -93,6 +93,44 @@ describe('/api/user/analytics GET', () => {
     });
   });
 
+  it('falls back to default month window when the query is not numeric', async () => {
+    const dashboardPayload = {
+      user: { id: 'user-456', role: 'user' },
+      generatedAt: '2024-03-01T00:00:00.000Z',
+      range: { months: 3, from: '2023-12-01T00:00:00.000Z', to: '2024-03-01T00:00:00.000Z' },
+      data: {
+        kind: 'user',
+        metrics: { favoritesCount: 0, reviewsWritten: 0, avgRatingGiven: 0 },
+        monthly: [],
+      },
+    };
+
+    fetchDashboardMock.mockResolvedValueOnce(dashboardPayload);
+
+    await GET(createRequest('http://localhost/api/user/analytics?months=abc') as any);
+
+    expect(fetchDashboardMock).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'user-456' }),
+      { months: 3 }
+    );
+  });
+
+  it('clamps the month window to at least one month when zero or negative is provided', async () => {
+    fetchDashboardMock.mockResolvedValueOnce({
+      user: { id: 'user-456', role: 'user' },
+      generatedAt: '2024-04-01T00:00:00.000Z',
+      range: { months: 1, from: '2024-03-01T00:00:00.000Z', to: '2024-04-01T00:00:00.000Z' },
+      data: { kind: 'user', metrics: { favoritesCount: 0, reviewsWritten: 0, avgRatingGiven: 0 }, monthly: [] },
+    });
+
+    await GET(createRequest('http://localhost/api/user/analytics?months=0') as any);
+
+    expect(fetchDashboardMock).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'user-456' }),
+      { months: 1 }
+    );
+  });
+
   it('returns 404 when analytics data is missing', async () => {
     fetchDashboardMock.mockResolvedValueOnce(null);
 
@@ -178,5 +216,31 @@ describe('/api/user/analytics GET', () => {
 
     expect(consoleErrorSpy).toHaveBeenCalledWith('[user-analytics] GET failed', expect.any(Error));
     expect(response.status).toBe(500);
+  });
+
+  it('uses default role and clears nullable fields when session omits optional properties', async () => {
+    authMock.mockResolvedValueOnce({ user: { id: 'bare-user' } } as any);
+    fetchDashboardMock.mockResolvedValueOnce({
+      user: { id: 'bare-user', role: 'user' },
+      generatedAt: '2024-05-01T00:00:00.000Z',
+      range: { months: 3, from: '2024-02-01T00:00:00.000Z', to: '2024-05-01T00:00:00.000Z' },
+      data: {
+        kind: 'user',
+        metrics: { favoritesCount: 1, reviewsWritten: 1, avgRatingGiven: 5 },
+        monthly: [],
+      },
+    });
+
+    await GET(createRequest('http://localhost/api/user/analytics') as any);
+
+    expect(fetchDashboardMock).toHaveBeenCalledWith(
+      {
+        id: 'bare-user',
+        role: 'user',
+        name: null,
+        email: null,
+      },
+      { months: 3 }
+    );
   });
 });
