@@ -1,11 +1,38 @@
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
+const signMock = jest.fn();
+const jwtVerifyMock = jest.fn();
+
+jest.mock('jose', () => ({
+  SignJWT: class {
+    private payload: unknown;
+    constructor(payload: unknown) {
+      this.payload = payload;
+    }
+    setProtectedHeader() {
+      return this;
+    }
+    setIssuedAt() {
+      return this;
+    }
+    setExpirationTime() {
+      return this;
+    }
+    sign(key: Uint8Array) {
+      return signMock(key, this.payload);
+    }
+  },
+  jwtVerify: (...args: unknown[]) => jwtVerifyMock(...args),
+}));
+
 describe('newsletterTokens', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
     jest.resetModules();
     process.env = { ...originalEnv };
+    signMock.mockReset();
+    jwtVerifyMock.mockReset();
   });
 
   afterAll(() => {
@@ -92,7 +119,7 @@ describe('newsletterTokens', () => {
     it('should not throw error on module load when secret is missing', () => {
       delete process.env.NEXTAUTH_SECRET;
       delete process.env.JWT_SECRET;
-      
+
       // Should not throw on require
       expect(() => {
         require('../newsletterTokens');
@@ -101,11 +128,54 @@ describe('newsletterTokens', () => {
 
     it('should not throw error on module load when secret is too short', () => {
       process.env.NEXTAUTH_SECRET = 'short';
-      
+
       // Should not throw on require
       expect(() => {
         require('../newsletterTokens');
       }).not.toThrow();
+    });
+  });
+
+  describe('success paths', () => {
+    it('signs and verifies newsletter tokens when a strong secret is provided', async () => {
+      process.env.NEXTAUTH_SECRET = 'a'.repeat(64);
+
+      signMock.mockResolvedValue('signed-token');
+      jwtVerifyMock.mockResolvedValue({ payload: { email: 'test@example.com ' } });
+
+      const { signNewsletterConfirmToken, verifyNewsletterConfirmToken } = await import('../newsletterTokens');
+
+      const token = await signNewsletterConfirmToken('test@example.com');
+
+      expect(signMock).toHaveBeenCalledTimes(1);
+      const [keyArg, payloadArg] = signMock.mock.calls[0];
+      const expectedKey = new TextEncoder().encode('a'.repeat(64));
+      expect(ArrayBuffer.isView(keyArg)).toBe(true);
+      expect(keyArg).toEqual(expectedKey);
+      expect(payloadArg).toEqual({ email: 'test@example.com' });
+
+      const verified = await verifyNewsletterConfirmToken(token);
+
+      expect(verified).toEqual({ email: 'test@example.com' });
+      expect(jwtVerifyMock).toHaveBeenCalledTimes(1);
+      const verifyArgs = jwtVerifyMock.mock.calls[0];
+      expect(verifyArgs[0]).toBe('signed-token');
+      expect(ArrayBuffer.isView(verifyArgs[1])).toBe(true);
+      expect(verifyArgs[1]).toEqual(expectedKey);
+      expect(verifyArgs[2]).toEqual({ algorithms: ['HS256'] });
+    });
+
+    it('throws when verified payload does not contain an email', async () => {
+      process.env.NEXTAUTH_SECRET = 'b'.repeat(64);
+
+      signMock.mockResolvedValue('bad-token');
+      jwtVerifyMock.mockResolvedValue({ payload: {} });
+
+      const { signNewsletterConfirmToken, verifyNewsletterConfirmToken } = await import('../newsletterTokens');
+
+      const token = await signNewsletterConfirmToken('someone@example.com');
+
+      await expect(verifyNewsletterConfirmToken(token)).rejects.toThrow('Invalid token payload');
     });
   });
 });
