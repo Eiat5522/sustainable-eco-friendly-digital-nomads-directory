@@ -232,8 +232,6 @@ describe('API /api/reviews/listing/[slug]', () => {
     });
   });
 
-
-
   it('handles database errors gracefully', async () => {
     mockGetCollection.mockRejectedValue(new Error('Database connection failed'));
 
