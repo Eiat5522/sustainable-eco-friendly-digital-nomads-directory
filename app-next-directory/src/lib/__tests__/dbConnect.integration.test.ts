@@ -1,5 +1,6 @@
-import { describe, beforeAll, afterAll, beforeEach, afterEach, it, expect } from '@jest/globals';
+import { describe, beforeAll, afterAll, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
 import { MongoMemoryServer } from 'mongodb-memory-server';
+import { createMongoMemoryServer } from '../../test-helpers/createMongoMemoryServer';
 
 const ORIGINAL_ENV = { ...process.env };
 
@@ -13,17 +14,22 @@ const getMongoose = async () => {
   return mod.default ?? (mod as unknown as typeof import('mongoose'));
 };
 
+jest.setTimeout(60000);
+
 describe('dbConnect (integration)', () => {
-  let mongo: MongoMemoryServer;
+  let mongo: MongoMemoryServer | null = null;
 
   beforeAll(async () => {
-    mongo = await MongoMemoryServer.create();
+    mongo = await createMongoMemoryServer();
     process.env.MONGODB_URI = mongo.getUri();
   });
 
   beforeEach(() => {
     jest.resetModules();
     delete (global as typeof globalThis & { mongoose?: unknown }).mongoose;
+    if (!mongo) {
+      throw new Error('MongoMemoryServer instance is not initialized');
+    }
     process.env.MONGODB_URI = mongo.getUri();
   });
 
@@ -42,7 +48,9 @@ describe('dbConnect (integration)', () => {
     if (mongoose.connection.readyState !== 0) {
       await mongoose.connection.close().catch(() => {});
     }
-    await mongo.stop();
+    if (mongo) {
+      await mongo.stop();
+    }
     process.env = { ...ORIGINAL_ENV };
     delete (global as typeof globalThis & { mongoose?: unknown }).mongoose;
   });

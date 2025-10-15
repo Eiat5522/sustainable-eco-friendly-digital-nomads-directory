@@ -1,10 +1,13 @@
-import { describe, beforeAll, afterAll, beforeEach, afterEach, it, expect } from '@jest/globals';
+import { describe, beforeAll, afterAll, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import ContactSubmission, { CONTACT_TYPES, CONTACT_STATUSES } from '../ContactSubmission';
+import { createMongoMemoryServer } from '../../test-helpers/createMongoMemoryServer';
 
 const getMongoose = async () => {
   return (await import('mongoose')).default;
 };
+
+jest.setTimeout(60000);
 
 /**
  * Integration tests for ContactSubmission model with real MongoDB operations.
@@ -13,19 +16,19 @@ const getMongoose = async () => {
  * Run these tests with: npm run test:integration
  */
 describe('ContactSubmission Model (Integration)', () => {
-  let mongo: MongoMemoryServer;
-  let mongoose: typeof import('mongoose');
+  let mongo: MongoMemoryServer | null = null;
+  let mongoose: (typeof import('mongoose')) | null = null;
 
   beforeAll(async () => {
     // Create in-memory MongoDB instance
-    mongo = await MongoMemoryServer.create();
+    mongo = await createMongoMemoryServer();
     mongoose = await getMongoose();
     await mongoose.connect(mongo.getUri(), { bufferCommands: false });
   });
 
   beforeEach(async () => {
     // Clear all collections before each test
-    if (mongoose.connection.readyState !== 0) {
+    if (mongoose?.connection.readyState !== 0) {
       const collections = mongoose.connection.collections;
       await Promise.all(
         Object.values(collections).map(async (collection) => {
@@ -41,10 +44,12 @@ describe('ContactSubmission Model (Integration)', () => {
 
   afterAll(async () => {
     // Cleanup: disconnect and stop server
-    if (mongoose.connection.readyState !== 0) {
+    if (mongoose?.connection.readyState !== 0) {
       await mongoose.connection.close();
     }
-    await mongo.stop();
+    if (mongo) {
+      await mongo.stop();
+    }
   });
 
   describe('Database Operations', () => {
