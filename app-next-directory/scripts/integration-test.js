@@ -107,8 +107,8 @@ async function runIntegrationTests() {
     { path: 'src/models/User.ts', desc: 'User model' },
     { path: 'src/lib/dbConnect.ts', desc: 'Database connection' },
     { path: 'src/types/auth.ts', desc: 'Authentication types' },
-    { path: 'src/app/api/auth/[...nextauth]/route.ts', desc: 'NextAuth configuration' },
-    { path: 'src/app/api/auth/register/route.ts', desc: 'Registration API' },
+    { path: 'app/api/auth/[...nextauth]/route.ts', desc: 'NextAuth configuration' },
+    { path: 'app/api/auth/register/route.ts', desc: 'Registration API' },
     { path: 'src/middleware.ts', desc: 'Route protection middleware' },
     { path: 'src/app/register/page.tsx', desc: 'Registration UI' },
     { path: 'src/app/login/page.tsx', desc: 'Login UI' }
