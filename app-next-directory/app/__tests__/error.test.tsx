@@ -16,7 +16,7 @@ describe('Error Component', () => {
   let ErrorComponent: any;
   let consoleErrorSpy: jest.SpyInstance;
   const mockReset = jest.fn();
-  const mockError = new (global as any).Error('Test error message');
+  const mockError = new Error('Test error message');
 
   beforeAll(async () => {
     const module = await import('../error');
