@@ -61,7 +61,7 @@ jobs:
       - name: Type check
         run: |
           cd app-next-directory
-          pnpm type-check
+          pnpm tsc --noEmit
 
       - name: Lint
         run: |
