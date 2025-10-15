@@ -161,28 +161,33 @@ describe('BlogPostPage', () => {
 
     getBaseUrl.mockResolvedValue('https://example.com');
 
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      statusText: 'OK',
-      headers: { get: () => 'application/json' },
-      json: async () => ({
-        _id: 'fallback-1',
-        title: 'Fallback Format',
-        body: [],
-        primaryImage: { asset: { url: 'https://example.com/fallback.jpg' } },
-      }),
-    } as Response);
+    const originalFetch = global.fetch;
+    try {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        headers: { get: () => 'application/json' },
+        json: async () => ({
+          _id: 'fallback-1',
+          title: 'Fallback Format',
+          body: [],
+          primaryImage: { asset: { url: 'https://example.com/fallback.jpg' } },
+        }),
+      } as Response);
 
-    sanityFetch.mockResolvedValue([]);
+      sanityFetch.mockResolvedValue([]);
 
-    const element = await pageModule.default({ params: { slug: 'fallback-format' } });
-    render(element);
+      const element = await pageModule.default({ params: { slug: 'fallback-format' } });
+      render(element);
 
-    expect(screen.getByText('Fallback Format')).toBeInTheDocument();
-    const hero = screen.getByRole('img');
-    expect(hero).toHaveAttribute('src', 'https://example.com/fallback.jpg');
-    expect(screen.getByTestId('comment-list')).toHaveTextContent('comments:0');
+      expect(screen.getByText('Fallback Format')).toBeInTheDocument();
+      const hero = screen.getByRole('img');
+      expect(hero).toHaveAttribute('src', 'https://example.com/fallback.jpg');
+      expect(screen.getByTestId('comment-list')).toHaveTextContent('comments:0');
+    } finally {
+      global.fetch = originalFetch;
+    }
   });
 
   it('invokes notFound when API returns 404', async () => {
