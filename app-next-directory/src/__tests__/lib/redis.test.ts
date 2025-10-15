@@ -150,7 +150,7 @@ describe('Redis Client Operations', () => {
     process.env.UPSTASH_REDIS_REST_TOKEN = 'test-token';
     
     // Get the mocked Redis instance from @upstash/redis
-    const Redis = require('@upstash/redis').Redis;
+    const { Redis } = await import('@upstash/redis');
     mockRedis = new Redis();
     
     const redisModule = await import('@/lib/redis');
