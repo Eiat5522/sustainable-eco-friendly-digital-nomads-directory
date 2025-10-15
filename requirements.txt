@@ -16,7 +16,7 @@ python-dotenv==1.0.0
 
 # Progress tracking and console output
 rich==13.7.0
-tqdm==4.66.1
+tqdm==4.66.3
 
 # Retry and error handling
 tenacity==8.2.3
