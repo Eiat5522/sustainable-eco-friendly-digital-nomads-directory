@@ -48,7 +48,7 @@ describe('/api/user/analytics GET', () => {
     expect(fetchDashboardMock).not.toHaveBeenCalled();
   });
 
-  it('normalises the requested months before fetching analytics', async () => {
+  it('normalizes the requested months before fetching analytics', async () => {
     const dashboardPayload = {
       user: { id: 'user-456', role: 'user' },
       generatedAt: '2024-01-01T00:00:00.000Z',
