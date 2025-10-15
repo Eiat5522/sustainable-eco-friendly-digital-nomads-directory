@@ -41,5 +41,4 @@ export async function createMongoMemoryServer(
     }
   }
 
-  throw lastError ?? new Error('Failed to create MongoMemoryServer instance')
 }
