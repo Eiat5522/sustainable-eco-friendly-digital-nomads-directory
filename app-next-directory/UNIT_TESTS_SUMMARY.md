@@ -212,9 +212,9 @@ npm run test:ci
 | All files                        |   87.92 |    77.44 |   85.54 |   88.48 |
 | src                              |   79.64 |    75.55 |   88.88 |   80.37 |
 | src/app/admin                    |   100   |   100    |   100   |   100   |
-| src/app/api/auth/register/route  |   94.73 |   92.85  |   100   |   94.73 |
-| src/app/api/auth/test/route      |   100   |   66.66  |   100   |   100   |
-| src/app/api/listings/route       |   93.1  |   93.65  |   80    |   93.1  |
+| app/api/auth/register/route      |   94.73 |   92.85  |   100   |   94.73 |
+| app/api/auth/test/route          |   100   |   66.66  |   100   |   100   |
+| app/api/listings/route           |   93.1  |   93.65  |   80    |   93.1  |
 | src/components/listings/ListingCard.tsx | 84.41 | 70.07 | 100 | 84.41 |
 | src/components/listings/ListingDetail.tsx | 59.61 | 56.42 | 45.83 | 58.82 |
 | src/components/map               |   100   |   100    |   100   |   100   |

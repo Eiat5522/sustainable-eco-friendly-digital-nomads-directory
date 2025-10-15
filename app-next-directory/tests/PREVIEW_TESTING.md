@@ -6,7 +6,7 @@ This guide explains how to test the preview mode functionality in the applicatio
 
 - `tests/preview-mode.spec.ts`: UI and integration tests for preview functionality
 - `tests/preview-api.spec.ts`: API route tests for preview endpoints
-- `src/app/api/mock-env/route.ts`: Mock environment API for testing different configurations
+- `app/api/mock-env/route.ts`: Mock environment API for testing different configurations
 
 ## Key Test Areas
 
