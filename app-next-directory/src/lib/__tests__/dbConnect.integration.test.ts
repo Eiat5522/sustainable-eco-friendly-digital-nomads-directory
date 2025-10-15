@@ -28,7 +28,11 @@ describe('dbConnect (integration)', () => {
     jest.resetModules();
     delete (global as typeof globalThis & { mongoose?: unknown }).mongoose;
     if (!mongo) {
+<<<<<<< ours
       throw new Error('MongoMemoryServer instance is not initialized');
+=======
+      throw new Error('MongoMemoryServer instance is not initialised');
+>>>>>>> theirs
     }
     process.env.MONGODB_URI = mongo.getUri();
   });
