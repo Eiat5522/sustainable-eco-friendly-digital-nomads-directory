@@ -27,6 +27,7 @@ jest.mock('@/lib/data/city', () => ({
 const loggerErrorMock = jest.fn();
 
 jest.mock('@/lib/logger', () => ({
+  __esModule: true,
   structuredLogger: { error: loggerErrorMock },
 }));
 
