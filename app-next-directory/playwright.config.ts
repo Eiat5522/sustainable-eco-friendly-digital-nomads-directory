@@ -17,15 +17,10 @@ if (serverWaitURL.hostname === '0.0.0.0' || serverWaitURL.hostname === '::1') {
 }
 
 export default defineConfig({
-  // Run Playwright tests from the project tests directory so both .spec.ts and .test.ts files are picked up.
+  // Run Playwright tests from the project tests directory using .spec.ts extension only
   testDir: './tests',
-  testMatch: ['**/*.spec.ts', '**/*.test.ts'],
-  testIgnore: [
-    'tests/api/*-api.test.ts',
-    'tests/api/events-api.test.ts',
-    'tests/api/preview-api.test.ts',
-    'tests/CityCarousel.test.tsx',
-  ],
+  testMatch: ['**/*.spec.ts'],
+  testIgnore: [],
   timeout: 60_000,
   expect: {
     timeout: 5_000,

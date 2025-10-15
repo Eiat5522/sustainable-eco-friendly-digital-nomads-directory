@@ -50,7 +50,7 @@ This section identifies all test files that interact with external systems (Sani
   - **System:** MongoDB/Mongoose
   - **Notes:** Tests review API endpoints with database
   
-- **File:** `app-next-directory/tests/e2e/security/security.test.ts`
+- **File:** `app-next-directory/tests/e2e/security/security.spec.ts`
   - **System:** MongoDB/Mongoose
   - **Notes:** E2E security tests that may interact with MongoDB
   

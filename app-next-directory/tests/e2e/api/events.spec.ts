@@ -1,4 +1,4 @@
-// events.test.ts - Simple E2E test for /api/events endpoint structure
+// events.spec.ts - Simple E2E test for /api/events endpoint structure
 
 import { test, expect } from '@playwright/test';
 

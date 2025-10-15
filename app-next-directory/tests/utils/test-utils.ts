@@ -170,7 +170,6 @@ export const TestHelpers = {
       throw new Error(`Failed to extract listing ID from URL: ${page.url()}`)
     }
     const response = await TestHelpers.makeAuthenticatedRequest(page, `/api/listings/manage/${listingId}`)
-    const response = await TestHelpers.makeAuthenticatedRequest(page, `/api/listings/manage/${listingId}`)
     if (!response.ok()) {
       throw new Error(`Failed to fetch listing: ${response.status()} ${response.statusText()}`)
     }
