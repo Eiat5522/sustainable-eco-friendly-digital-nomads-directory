@@ -9,36 +9,7 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => mockUseSearchParams(),
 }))
 
-jest.mock('@/components/layout/Header', () => ({
-  __esModule: true,
-  Header: () => <header data-testid="header" />,
-}))
-
-jest.mock('@/components/layout/Footer', () => ({
-  __esModule: true,
-  Footer: () => <footer data-testid="footer" />,
-}))
-
-jest.mock('@/components/ui/neo-card', () => ({
-  __esModule: true,
-  NeoCard: ({ children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-    <div {...props} data-testid="neo-card">
-      {children}
-    </div>
-  ),
-}))
-
-jest.mock('@/components/ui/neo-button', () => ({
-  __esModule: true,
-  NeoButton: ({ children, asChild, ...props }: any) =>
-    asChild ? <span {...props}>{children}</span> : <button {...props}>{children}</button>,
-}))
-
-jest.mock('next/link', () => ({
-  __esModule: true,
-  default: ({ children, href }: any) => <a href={href}>{children}</a>,
-}))
-
+import '../../test-utils/setupMocks'
 let NewsletterConfirmedPage: React.ComponentType
 
 beforeAll(async () => {
