@@ -20,20 +20,21 @@ jest.mock('@/lib/sanity/client', () => ({
 
 describe('Featured Listings API - GET /api/featured-listings', () => {
   let mockedFetch: jest.Mock;
-  const originalEnv = process.env;
+  const ORIGINAL_ENV = { ...process.env };
 
   beforeEach(() => {
+    jest.resetModules();
     jest.clearAllMocks();
     mockedFetch = client.fetch as jest.Mock;
     process.env = {
-      ...originalEnv,
+      ...ORIGINAL_ENV,
       NEXT_PUBLIC_SANITY_PROJECT_ID: 'test-project',
       NEXT_PUBLIC_SANITY_DATASET: 'production',
     };
   });
 
   afterEach(() => {
-    process.env = originalEnv;
+    process.env = { ...ORIGINAL_ENV };
   });
 
   describe('Successful Requests', () => {
