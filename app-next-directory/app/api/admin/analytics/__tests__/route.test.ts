@@ -19,12 +19,13 @@ const analyticsMockModule = jest.requireMock('@/lib/admin/analytics') as {
 };
 
 let GET: typeof import('../route').GET;
+let POST: typeof import('../route').POST;
 
 const mockAuth = authMockModule.auth;
 const mockFetchAnalytics = analyticsMockModule.fetchAdminAnalytics;
 
 beforeAll(async () => {
-  ({ GET } = await import('../route'));
+  ({ GET, POST } = await import('../route'));
 });
 
 describe('/api/admin/analytics', () => {
@@ -97,5 +98,34 @@ describe('/api/admin/analytics', () => {
 
     expect(response.status).toBe(500);
     expect(json.error).toBe('Failed to fetch admin analytics');
+  });
+
+  it('returns 403 when the session has no role information', async () => {
+    mockAuth.mockResolvedValue({ user: {} } as any);
+
+    const response = await GET({} as any, { params: Promise.resolve({}) });
+
+    expect(response.status).toBe(403);
+    expect(mockFetchAnalytics).not.toHaveBeenCalled();
+  });
+
+  it('returns 500 when authentication fails', async () => {
+    mockAuth.mockRejectedValue(new Error('auth error'));
+
+    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(json.error).toBe('Failed to fetch admin analytics');
+  });
+
+  it('rejects unsupported methods via POST handler', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+
+    const response = await POST({} as any, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(405);
+    expect(json.error).toBe('Method not allowed');
   });
 });

@@ -25,13 +25,10 @@ jest.mock('@/lib/sanity/user', () => ({ __esModule: true, ensureSanityUser: jest
 
 // Import after mocks to receive mocked versions
 import { GET, POST } from './route';
-// Debug: ensure the handlers are imported correctly in the test environment
-// (temporary log to help diagnose failures)
-// eslint-disable-next-line no-console
-console.log('DEBUG: Imported route handlers', { GET: typeof GET, POST: typeof POST });
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import { ensureSanityUser } from '@/lib/sanity/user';
+import { NextResponse } from 'next/server';
 
 describe('API /api/comments', () => {
   beforeEach(() => {
@@ -44,6 +41,20 @@ describe('API /api/comments', () => {
       const res = await GET(req);
       expect(res.status).toBe(400);
       expect(client.fetch).not.toHaveBeenCalled();
+    });
+
+    it('falls back to manual response handling when NextResponse.json is unavailable', async () => {
+      const originalJson = (NextResponse as any).json;
+      (NextResponse as any).json = undefined;
+
+      try {
+        (client.fetch as jest.Mock).mockResolvedValueOnce([]);
+        const res = await GET(new Request('http://localhost/api/comments?postId=p1'));
+        expect(res.status).toBe(200);
+        await expect(res.json()).resolves.toMatchObject({ success: true });
+      } finally {
+        (NextResponse as any).json = originalJson;
+      }
     });
 
     it('returns approved comments for a post with pagination', async () => {
@@ -71,6 +82,20 @@ describe('API /api/comments', () => {
         expect.any(String),
         expect.objectContaining({ postId: 'p1', skip: 100, end: 150 })
       );
+    });
+
+    it('rejects invalid URLs when parsing pagination parameters', async () => {
+      const res = await GET({ url: 'not-a-valid-url' } as any);
+      expect(res.status).toBe(400);
+      await expect(res.json()).resolves.toEqual({ error: 'Invalid request URL' });
+    });
+
+    it('rejects invalid pagination values', async () => {
+      const invalidPage = await GET(new Request('http://localhost/api/comments?postId=p1&page=0'));
+      expect(invalidPage.status).toBe(400);
+
+      const invalidLimit = await GET(new Request('http://localhost/api/comments?postId=p1&limit=0'));
+      expect(invalidLimit.status).toBe(400);
     });
 
     it('returns 500 when fetching comments throws an error', async () => {
@@ -108,6 +133,20 @@ describe('API /api/comments', () => {
       expect(res.status).toBe(403);
       await expect(res.json()).resolves.toEqual({ error: 'Forbidden: Insufficient permissions to create comments' });
       expect(client.create).not.toHaveBeenCalled();
+    });
+
+    it('returns fallback error response when NextResponse.json is unavailable', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+      const originalJson = (NextResponse as any).json;
+      (NextResponse as any).json = undefined;
+
+      try {
+        const res = await POST({} as any);
+        expect(res.status).toBe(422);
+        await expect(res.json()).resolves.toEqual({ error: 'Invalid or missing fields' });
+      } finally {
+        (NextResponse as any).json = originalJson;
+      }
     });
 
     it('rejects sessions without a user id', async () => {
@@ -195,6 +234,26 @@ describe('API /api/comments', () => {
       expect(client.create).not.toHaveBeenCalled();
     });
 
+    it('rejects requests without a json body parser', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+
+      const res = await POST({ method: 'POST' } as any);
+      expect(res.status).toBe(422);
+      await expect(res.json()).resolves.toEqual({ error: 'Invalid or missing fields' });
+    });
+
+    it('handles failures to parse the body gracefully', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+
+      const failingRequest = {
+        json: jest.fn().mockRejectedValue(new Error('nope')),
+      } as any;
+
+      const res = await POST(failingRequest);
+      expect(res.status).toBe(422);
+      await expect(res.json()).resolves.toEqual({ error: 'Invalid or missing fields' });
+    });
+
     it('trims content and rejects empty comments', async () => {
       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
 
@@ -208,6 +267,20 @@ describe('API /api/comments', () => {
       expect(res.status).toBe(422);
       await expect(res.json()).resolves.toEqual({ error: 'Comment is required' });
       expect(client.create).not.toHaveBeenCalled();
+    });
+
+    it('requires comment content to be a string', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user' } });
+
+      const res = await POST(
+        new Request('http://localhost/api/comments', {
+          method: 'POST',
+          body: JSON.stringify({ content: { text: 'nope' }, postId: 'p1' }),
+        })
+      );
+
+      expect(res.status).toBe(422);
+      await expect(res.json()).resolves.toEqual({ error: 'Comment is required' });
     });
 
     it('returns 400 when the referenced post cannot be found', async () => {
