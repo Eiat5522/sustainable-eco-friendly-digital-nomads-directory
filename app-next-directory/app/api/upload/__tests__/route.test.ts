@@ -4,10 +4,12 @@ import { POST } from '../route';
 import { client } from '@/lib/sanity';
 import { auth } from '@/lib/auth';
 
+const mockUpload = jest.fn();
+
 jest.mock('@/lib/sanity', () => ({
   client: {
     assets: {
-      upload: jest.fn(),
+      upload: mockUpload,
     },
   },
 }));
@@ -18,12 +20,10 @@ jest.mock('@/lib/auth', () => ({
 
 describe('/api/upload', () => {
   let mockedAuth: jest.Mock;
-  let mockedUpload: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockedAuth = auth as jest.Mock;
-    mockedUpload = client.assets.upload as jest.Mock;
   });
 
   it('returns 401 when user is not authenticated', async () => {
@@ -87,7 +87,7 @@ describe('/api/upload', () => {
       _id: 'image-asset-1',
       url: 'https://cdn.sanity.io/images/test.jpg',
     };
-    mockedUpload.mockResolvedValue(mockAsset as any);
+    mockUpload.mockResolvedValue(mockAsset as any);
     
     const file = new File(['test content'], 'test.jpg', { type: 'image/jpeg' });
     const formData = new FormData();
@@ -103,7 +103,7 @@ describe('/api/upload', () => {
 
     expect(response.status).toBe(200);
     expect(json.asset).toEqual(mockAsset);
-    expect(mockedUpload).toHaveBeenCalledWith('image', file);
+    expect(mockUpload).toHaveBeenCalledWith('image', file);
   });
 
   it('handles upload errors', async () => {
@@ -111,7 +111,7 @@ describe('/api/upload', () => {
       user: { id: 'user-1', role: 'venueOwner' },
     } as any);
     
-    mockedUpload.mockRejectedValue(new Error('Upload failed'));
+    mockUpload.mockRejectedValue(new Error('Upload failed'));
     
     const file = new File(['test content'], 'test.jpg', { type: 'image/jpeg' });
     const formData = new FormData();

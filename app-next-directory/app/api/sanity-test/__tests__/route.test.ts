@@ -40,12 +40,12 @@ describe('/api/sanity-test', () => {
     const json = await response.json();
 
     expect(response.status).toBe(200);
-    expect(json.message).toBe('Sanity connection successful');
-    expect(json.config).toEqual({
+    expect(json.data.message).toBe('Sanity connection successful');
+    expect(json.data.config).toEqual({
       projectId: 'test-project',
       dataset: 'test-dataset',
     });
-    expect(json.testResult).toEqual(mockResult);
+    expect(json.data.testResult).toEqual(mockResult);
     expect(mockedFetch).toHaveBeenCalledTimes(1);
   });
 

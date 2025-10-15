@@ -23,7 +23,7 @@ describe('/api/test-mongodb', () => {
 
     expect(response.status).toBe(200);
     expect(json.success).toBe(true);
-    expect(json.message).toBe('Successfully connected to MongoDB!');
+    expect(json.data.message).toBe('Successfully connected to MongoDB!');
     expect(mockCommand).toHaveBeenCalledWith({ ping: 1 });
   });
 

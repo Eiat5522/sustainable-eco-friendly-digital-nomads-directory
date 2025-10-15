@@ -1,17 +1,15 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { GET } from '../route';
-import { createTestData } from '@/tests/helpers/test-data';
+
+const mockCreateTestData = jest.fn();
 
 jest.mock('@/tests/helpers/test-data', () => ({
-  createTestData: jest.fn(),
+  createTestData: mockCreateTestData,
 }));
 
 describe('/api/test-listings', () => {
-  let mockedCreateTestData: jest.Mock;
-
   beforeEach(() => {
     jest.clearAllMocks();
-    mockedCreateTestData = createTestData as jest.Mock;
     delete process.env.NODE_ENV;
   });
 
@@ -31,14 +29,14 @@ describe('/api/test-listings', () => {
       { id: '2', name: 'Test Listing 2' },
     ];
     
-    mockedCreateTestData.mockReturnValue({ listings: mockListings } as any);
+    mockCreateTestData.mockReturnValue({ listings: mockListings } as any);
     
     const response = await GET();
     const json = await response.json();
 
     expect(response.status).toBe(200);
     expect(json.success).toBe(true);
-    expect(json.listings).toEqual(mockListings);
-    expect(mockedCreateTestData).toHaveBeenCalledTimes(1);
+    expect(json.data.listings).toEqual(mockListings);
+    expect(mockCreateTestData).toHaveBeenCalledTimes(1);
   });
 });
