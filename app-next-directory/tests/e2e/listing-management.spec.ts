@@ -24,6 +24,12 @@ test.describe('Listing Management E2E', () => {
     },
   };
 
+  // Track created resources for cleanup
+  const createdResources: { listings: string[]; users: string[] } = {
+    listings: [],
+    users: [],
+  };
+
   // Role-Based Access Tests
   test.describe('role-based access control', () => {
     test('regular user cannot access admin features', async ({ page }) => {
@@ -111,6 +117,7 @@ test.describe('Listing Management E2E', () => {
         testData.users.owner.password
       );
       const listing = await TestHelpers.createListing(page, testData.listing);
+      createdResources.listings.push(listing.id);
 
       // Try to modify as different user
       await TestHelpers.loginAsUser(
@@ -145,14 +152,31 @@ test.describe('Listing Management E2E', () => {
         testData.users.owner.password
       );
       const listing = await TestHelpers.createListing(page, testData.listing);
+      createdResources.listings.push(listing.id);
+
+      // Generate unique users for concurrent test
+      const concurrentUsers = {
+        user1: {
+          email: `concurrent-user1-${Date.now()}@example.com`,
+          password: 'ConcurrentUser1Pass123!'
+        },
+        user2: {
+          email: `concurrent-user2-${Date.now()}@example.com`,
+          password: 'ConcurrentUser2Pass123!'
+        }
+      };
+
 
       // Create two user pages
       const userPage1 = await context.newPage();
       const userPage2 = await context.newPage();
 
       // Login as different users
-      await TestHelpers.loginAsUser(userPage1, 'user1@example.com', 'password123');
-      await TestHelpers.loginAsUser(userPage2, 'user2@example.com', 'password123');
+      const user1Email = 'user1@example.com';
+      const user2Email = 'user2@example.com';
+      createdResources.users.push(user1Email, user2Email);
+      await TestHelpers.loginAsUser(userPage1, concurrentUsers.user1.email, concurrentUsers.user1.password);
+      await TestHelpers.loginAsUser(userPage2, concurrentUsers.user2.email, concurrentUsers.user2.password);
 
       // Navigate to listing
       await userPage1.goto(`/listings/${listing.id}`);
@@ -187,6 +211,7 @@ test.describe('Listing Management E2E', () => {
         testData.users.owner.password
       );
       const listing = await TestHelpers.createListing(page, testData.listing);
+      createdResources.listings.push(listing.id);
 
       // Refresh page
       await page.reload();
@@ -229,10 +254,14 @@ test.describe('Listing Management E2E', () => {
   // Clean up test data after all tests
   test.afterAll(async ({ request }) => {
     // Clean up created listings
-    // Note: In a real application, you'd want to track created resources and clean them up properly
+    for (const listingId of createdResources.listings) {
+      await request.delete(`/api/listings/manage/${listingId}`);
+    }
+    
+    // Clean up test users
     const response = await request.post('/api/test/cleanup', {
       data: {
-        emails: [testData.users.regular.email, testData.users.owner.email],
+        emails: [...createdResources.users, testData.users.regular.email, testData.users.owner.email],
       },
     });
     expect(response.ok()).toBeTruthy();

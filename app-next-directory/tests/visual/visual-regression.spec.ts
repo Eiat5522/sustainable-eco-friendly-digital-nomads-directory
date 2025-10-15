@@ -45,8 +45,8 @@ test.describe('Visual Regression Testing', () => {
     test('dashboard page visual consistency', async ({ page }) => {
       // Login first
       await page.goto('/auth/signin');
-      await page.fill('input[name="email"]', process.env.TEST_USER_EMAIL || 'user@example.com');
-      await page.fill('input[name="password"]', process.env.TEST_USER_PASSWORD || 'password123');
+      await page.fill('input[name="email"]', process.env.TEST_USER_EMAIL!);
+      await page.fill('input[name="password"]', process.env.TEST_USER_PASSWORD!);
       await page.click('button[type="submit"]');
       await page.waitForURL('/dashboard');
 
@@ -272,8 +272,8 @@ test.describe('Visual Regression Testing', () => {
 
       // Intercept API to show skeleton longer
       await page.route('/api/search*', async route => {
-        await page.waitForTimeout(3000);
-        route.continue();
+        setTimeout(() => route.continue(), 3000);
+      });
       });
 
       await page.fill('input[name="search"]', 'coworking');

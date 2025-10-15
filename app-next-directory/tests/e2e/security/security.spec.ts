@@ -27,7 +27,7 @@ const parseJsonStringArray = (value: string | undefined, fallback: string[]) => 
   return fallback;
 };
 
-const escapeForRegex = (value: string) => value.replace(/[-\/\^$*+?.()|[\]{}]/g, '\$&');
+const escapeForRegex = (value: string) => value.replace(/[-\/\^$*+?.()|[\]{}]/g, '\\const escapeForRegex = (value: string) => value.replace(/[-\/\^$*+?.()|[\]{}]/g, '\\c');onst escapeForRegex = (value: string) => value.replace(/[-\/\^$*+?.()|[\]{}]/g, '\$&');');
 
 const createUrlPattern = (url: string) => new RegExp(`.*${escapeForRegex(url)}`);
 

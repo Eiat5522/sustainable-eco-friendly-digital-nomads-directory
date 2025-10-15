@@ -202,11 +202,10 @@ This resolves the issue mentioned in the problem statement where tests "being ex
 
 ## Future Recommendations
 
-1. **Enforce Naming Convention**: Consider adding a linter rule to enforce `.test.ts` in `src/app` and `.spec.ts` in `tests/`
+1. **Enforce Naming Convention**: Consider adding a linter rule to enforce `.test.ts` in `src/` and `app/` and `.spec.ts` in `tests/`
 2. **Pre-commit Hook**: Add a check to prevent `.test.ts` files in `tests/` directory
 3. **Developer Guide**: Update contributor documentation with these conventions
 4. **CI/CD**: Ensure CI pipeline runs both test suites separately
-
 ---
 
 **Date Completed**: 2025-10-15

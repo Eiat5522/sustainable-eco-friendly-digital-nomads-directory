@@ -80,24 +80,21 @@ test.describe('Performance & Load Testing', () => {
   test.describe('API Performance', () => {
     test('listings API response time under concurrent requests', async ({ request }) => {
       const concurrentRequests = 10;
+      const startTime = performance.now();
       const promises = [];
 
       for (let i = 0; i < concurrentRequests; i++) {
         promises.push(
-          request.get('/api/listings').then(response => ({
-            status: response.status(),
-            time: Date.now(),
-          }))
+          request.get('/api/listings')
         );
       }
 
-      const startTime = Date.now();
       const results = await Promise.all(promises);
-      const totalTime = Date.now() - startTime;
+      const totalTime = performance.now() - startTime;
 
       // All requests should succeed
       results.forEach(result => {
-        expect(result.status).toBe(200);
+        expect(result.status()).toBe(200);
       });
 
       // All concurrent requests should complete within 5 seconds

@@ -12,24 +12,16 @@ test.describe('/api/events E2E', () => {
 
   test('endpoint returns proper response structure', async ({ request }) => {
     const response = await request.get(endpoint);
-    
-    // The endpoint should return a response (may be 200 with data or 500 due to config)
-    expect([200, 500]).toContain(response.status());
-    
+
+    // The endpoint should return a successful response
+    expect(response.status()).toBe(200);
+
     const json = await response.json();
-    
-    if (response.status() === 200) {
-      // Success case - verify structure
-      expect(json).toHaveProperty('success');
-      expect(json).toHaveProperty('data');
-      expect(json.success).toBe(true);
-      expect(Array.isArray(json.data)).toBe(true);
-    } else {
-      // Error case - verify error structure
-      expect(json).toHaveProperty('success');
-      expect(json).toHaveProperty('error');
-      expect(json.success).toBe(false);
-      expect(typeof json.error).toBe('string');
-    }
+
+    // Verify success structure
+    expect(json).toHaveProperty('success');
+    expect(json).toHaveProperty('data');
+    expect(json.success).toBe(true);
+    expect(Array.isArray(json.data)).toBe(true);
   });
 });
