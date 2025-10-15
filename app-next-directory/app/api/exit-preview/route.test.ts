@@ -13,8 +13,8 @@ const mockGet = jest.fn();
 const mockRedirect = jest.fn();
 
 jest.mock('next/headers', () => ({
-  draftMode: jest.fn(async () => ({ disable: mockDisable })),
-  headers: jest.fn(async () => ({ get: mockGet })),
+  draftMode: jest.fn(() => ({ disable: mockDisable })),
+  headers: jest.fn(() => ({ get: mockGet })),
 }));
 
 jest.mock('next/navigation', () => ({
