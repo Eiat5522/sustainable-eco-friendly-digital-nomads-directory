@@ -178,7 +178,9 @@ describe('POST /api/comments', () => {
   it('handles unexpected errors gracefully', async () => {
     mockAuthenticatedSession();
 
-    const failingRequest = { json: jest.fn().mockRejectedValue(new Error('parse failure')) } as unknown as Request;
+    const failingRequest = new Request('http://localhost/api/comments', { method: 'POST' });
+    // Override the json method to simulate a parse failure
+    jest.spyOn(failingRequest, 'json').mockRejectedValue(new Error('parse failure'));
 
     const response = await postHandler(failingRequest);
     const body = await response.json();
