@@ -38,8 +38,6 @@ jest.mock('@/lib/email', () => ({
 jest.mock('@/lib/redis', () => ({
   __esModule: true,
   getRedisClient: jest.fn(() => mockRedisClient),
-  mockRedisClient,
-  __redisStore: redisStore,
 }));
 
 type RouteModule = typeof import('./route');

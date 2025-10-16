@@ -147,6 +147,49 @@ describe('BlogPostPage', () => {
     expect(hero).toHaveAttribute('src', 'https://example.com/hero.jpg');
   });
 
+  it('handles minimal fallback payloads lacking DTO wrappers', async () => {
+    jest.resetModules();
+
+    const [pageModule, absoluteModule, clientModule] = await Promise.all([
+      import('../../src/app/blog/[slug]/page'),
+      import('@/lib/absolute-url'),
+      import('@/lib/sanity/client'),
+    ]);
+
+    const getBaseUrl = absoluteModule.getBaseUrl as jest.Mock;
+    const sanityFetch = clientModule.client.fetch as jest.Mock;
+
+    getBaseUrl.mockResolvedValue('https://example.com');
+
+    const originalFetch = global.fetch;
+    try {
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        headers: { get: () => 'application/json' },
+        json: async () => ({
+          _id: 'fallback-1',
+          title: 'Fallback Format',
+          body: [],
+          primaryImage: { asset: { url: 'https://example.com/fallback.jpg' } },
+        }),
+      } as Response);
+
+      sanityFetch.mockResolvedValue([]);
+
+      const element = await pageModule.default({ params: { slug: 'fallback-format' } });
+      render(element);
+
+      expect(screen.getByText('Fallback Format')).toBeInTheDocument();
+      const hero = screen.getByRole('img');
+      expect(hero).toHaveAttribute('src', 'https://example.com/fallback.jpg');
+      expect(screen.getByTestId('comment-list')).toHaveTextContent('comments:0');
+    } finally {
+      global.fetch = originalFetch;
+    }
+  });
+
   it('invokes notFound when API returns 404', async () => {
     jest.resetModules();
 
@@ -253,5 +296,38 @@ describe('BlogPostPage.generateMetadata', () => {
 
     const metadata = await pageModule.generateMetadata({ params: { slug: 'meta-error' } });
     expect(metadata).toEqual({ title: 'Blog' });
+  });
+
+  it('returns summary card metadata when image and excerpt are missing', async () => {
+    jest.resetModules();
+
+    const [pageModule, absoluteModule] = await Promise.all([
+      import('../../src/app/blog/[slug]/page'),
+      import('@/lib/absolute-url'),
+    ]);
+
+    const getBaseUrl = absoluteModule.getBaseUrl as jest.Mock;
+    getBaseUrl.mockResolvedValue('https://example.com');
+
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      json: async () => ({
+        success: true,
+        data: { post: { title: 'Meta Fallback' } },
+      }),
+    } as Response);
+
+    const metadata = await pageModule.generateMetadata({ params: { slug: 'meta-fallback' } });
+
+    expect(metadata).toEqual(
+      expect.objectContaining({
+        title: 'Meta Fallback',
+        description: undefined,
+        openGraph: expect.objectContaining({ images: undefined }),
+        twitter: expect.objectContaining({ card: 'summary', images: undefined }),
+      })
+    );
   });
 });
