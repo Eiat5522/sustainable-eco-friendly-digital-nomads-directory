@@ -4,6 +4,20 @@ import { groq } from 'next-sanity';
 import { NextRequest } from 'next/server';
 import { transformToBlogDetailDTO } from '@/lib/dto-transformer';
 
+type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<any>;
+type TransformFn = typeof transformToBlogDetailDTO;
+
+const viewCounts = new Map<string, number>();
+
+export const testControl = {
+  sanityFetchOverride: undefined as FetchFn | undefined,
+  transformOverride: undefined as TransformFn | undefined,
+  trackViewCountOverride: undefined as ((postId: string) => Promise<number>) | undefined,
+  resetViewCounts: () => {
+    viewCounts.clear();
+  },
+};
+
 // GROQ query for fetching a single blog post by slug
 const postQuery = groq`
   *[_type == "blogPost" && slug.current == $slug][0] {
@@ -48,13 +62,17 @@ export async function GET(
     }
 
     // Fetch the blog post
-    const post = await sanityClient.fetch(postQuery, { slug });
+    const fetchFn =
+      testControl.sanityFetchOverride ??
+      ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
+    const post = await fetchFn(postQuery, { slug });
 
     if (!post) {
       return ApiResponseHandler.notFound('Blog post');
     }
 
-    const dto = transformToBlogDetailDTO(post);
+    const transform = testControl.transformOverride ?? transformToBlogDetailDTO;
+    const dto = transform(post);
     // Ensure related posts in DTO format if present
     const response = {
       post: dto,
@@ -87,9 +105,10 @@ export async function GET(
 }
 
 // Simple view count tracking (in-memory for demo - consider Redis for production)
-const viewCounts = new Map<string, number>();
-
 async function trackViewCount(postId: string): Promise<number> {
+  if (testControl.trackViewCountOverride) {
+    return testControl.trackViewCountOverride(postId);
+  }
   const currentCount = viewCounts.get(postId) || 0;
   const newCount = currentCount + 1;
   viewCounts.set(postId, newCount);
@@ -111,7 +130,10 @@ export async function PUT(
 
     if (body.action === 'increment_view') {
       // Find post ID by slug
-      const post = await sanityClient.fetch(
+      const fetchFn =
+        testControl.sanityFetchOverride ??
+        ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
+      const post = await fetchFn(
         groq`*[_type == "blogPost" && slug.current == $slug][0]{ _id, "slug": slug.current }`,
         { slug }
       );

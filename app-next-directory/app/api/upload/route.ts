@@ -3,8 +3,19 @@ import { NextResponse } from 'next/server';
 import { client } from '@/lib/sanity';
 import { auth } from '@/lib/auth';
 
+type AuthFn = () => Promise<unknown>;
+type UploadFn = (assetType: string, file: File) => Promise<unknown>;
+type FormDataFn = (request: Request) => Promise<FormData>;
+
+export const testControl = {
+  authOverride: undefined as AuthFn | undefined,
+  uploadOverride: undefined as UploadFn | undefined,
+  formDataOverride: undefined as FormDataFn | undefined,
+};
+
 export async function POST(request: Request) {
-  const session = await auth();
+  const authFn = testControl.authOverride ?? auth;
+  const session = await authFn();
   const sessionUser = session?.user as {
     id?: string;
     role?: string;
@@ -15,14 +26,18 @@ export async function POST(request: Request) {
   }
 
   try {
-    const formData = await request.formData();
+    const formDataGetter =
+      testControl.formDataOverride ?? ((req: Request) => req.formData());
+    const formData = await formDataGetter(request);
     const file = formData.get('file') as File;
 
     if (!file) {
       return NextResponse.json({ error: 'File is required' }, { status: 400 });
     }
 
-    const imageAsset = await client.assets.upload('image', file);
+    const uploadFn =
+      testControl.uploadOverride ?? ((assetType: string, uploadFile: File) => client.assets.upload(assetType, uploadFile));
+    const imageAsset = await uploadFn('image', file);
 
     return NextResponse.json({ asset: imageAsset });
   } catch (error) {

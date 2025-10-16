@@ -1,73 +1,10 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
-
-const mockSanityFetch = jest.fn();
-const mockTransformToBlogDetailDTO = jest.fn();
-const successMock = jest.fn();
-const errorMock = jest.fn();
-const notFoundMock = jest.fn();
-
-let GET: typeof import('../route').GET;
-let PUT: typeof import('../route').PUT;
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { GET, PUT, testControl } from '../route';
 
 type RouteContext = { params: Promise<{ slug: string }> };
 
-const createSuccessResponse = (data: unknown, message?: string) =>
-  new Response(
-    JSON.stringify(
-      message === undefined
-        ? { success: true, data }
-        : { success: true, data, message }
-    ),
-    { status: 200 }
-  );
-
-const createErrorResponse = (message: string, status = 400) =>
-  new Response(JSON.stringify({ success: false, error: message }), { status });
-
-const createNotFoundResponse = (resource?: string) =>
-  new Response(
-    JSON.stringify({
-      success: false,
-      error: resource ? `${resource} not found` : 'Resource not found',
-    }),
-    { status: 404 }
-  );
-
-const loadRouteHandlers = async () => {
-  jest.resetModules();
-  mockSanityFetch.mockReset();
-  mockTransformToBlogDetailDTO.mockReset();
-  successMock.mockReset();
-  errorMock.mockReset();
-  notFoundMock.mockReset();
-
-  successMock.mockImplementation(createSuccessResponse);
-  errorMock.mockImplementation(createErrorResponse);
-  notFoundMock.mockImplementation(createNotFoundResponse);
-
-  jest.doMock('@/lib/sanity/client', () => ({
-    __esModule: true,
-    client: { fetch: mockSanityFetch },
-  }));
-
-  jest.doMock('@/lib/dto-transformer', () => ({
-    __esModule: true,
-    transformToBlogDetailDTO: mockTransformToBlogDetailDTO,
-  }));
-
-  jest.doMock('@/utils/api-response', () => ({
-    __esModule: true,
-    ApiResponseHandler: {
-      success: successMock,
-      error: errorMock,
-      notFound: notFoundMock,
-    },
-  }));
-
-  const mod = await import('../route');
-  GET = mod.GET;
-  PUT = mod.PUT;
-};
+const fetchMock = jest.fn();
+const transformMock = jest.fn();
 
 const parseResponse = async (response: Response) => ({
   status: response.status,
@@ -82,8 +19,20 @@ const createPutRequest = (body: unknown, headers: HeadersInit = { 'content-type'
   });
 
 describe('API /api/blog/[slug] route handlers', () => {
-  beforeEach(async () => {
-    await loadRouteHandlers();
+  beforeEach(() => {
+    fetchMock.mockReset();
+    transformMock.mockReset();
+    testControl.sanityFetchOverride = fetchMock;
+    testControl.transformOverride = transformMock;
+    testControl.trackViewCountOverride = undefined;
+    testControl.resetViewCounts();
+  });
+
+  afterEach(() => {
+    testControl.sanityFetchOverride = undefined;
+    testControl.transformOverride = undefined;
+    testControl.trackViewCountOverride = undefined;
+    testControl.resetViewCounts();
   });
 
   describe('GET', () => {
@@ -93,8 +42,8 @@ describe('API /api/blog/[slug] route handlers', () => {
         title: 'Eco Friendly Travel',
         _updatedAt: '2024-02-01T00:00:00.000Z',
       } as const;
-      mockSanityFetch.mockResolvedValueOnce(sanityRecord);
-      mockTransformToBlogDetailDTO.mockReturnValueOnce({
+      fetchMock.mockResolvedValueOnce(sanityRecord);
+      transformMock.mockReturnValueOnce({
         id: 'sanity-post-1',
         title: 'Eco Friendly Travel',
         body: [{ _type: 'block' }, { _type: 'image' }],
@@ -122,10 +71,10 @@ describe('API /api/blog/[slug] route handlers', () => {
           wordCount: 2,
         })
       );
-      expect(mockSanityFetch).toHaveBeenCalledWith(expect.anything(), {
+      expect(fetchMock).toHaveBeenCalledWith(expect.anything(), {
         slug: 'eco-friendly-travel',
       });
-      expect(mockTransformToBlogDetailDTO).toHaveBeenCalledWith(sanityRecord);
+      expect(transformMock).toHaveBeenCalledWith(sanityRecord);
     });
 
     it('returns validation error when slug is missing', async () => {
@@ -136,11 +85,11 @@ describe('API /api/blog/[slug] route handlers', () => {
 
       expect(status).toBe(400);
       expect(body).toEqual({ success: false, error: 'Blog post slug is required' });
-      expect(mockSanityFetch).not.toHaveBeenCalled();
+      expect(fetchMock).not.toHaveBeenCalled();
     });
 
     it('returns not found when no post exists for slug', async () => {
-      mockSanityFetch.mockResolvedValueOnce(null);
+      fetchMock.mockResolvedValueOnce(null);
 
       const response = await GET({} as any, {
         params: Promise.resolve({ slug: 'missing-post' }),
@@ -149,11 +98,10 @@ describe('API /api/blog/[slug] route handlers', () => {
 
       expect(status).toBe(404);
       expect(body).toEqual({ success: false, error: 'Blog post not found' });
-      expect(notFoundMock).toHaveBeenCalledWith('Blog post');
     });
 
     it('returns service unavailable when the CMS fetch fails', async () => {
-      mockSanityFetch.mockRejectedValueOnce(new Error('fetch failed: timeout'));
+      fetchMock.mockRejectedValueOnce(new Error('fetch failed: timeout'));
 
       const response = await GET({} as any, {
         params: Promise.resolve({ slug: 'eco-friendly-travel' }),
@@ -168,7 +116,7 @@ describe('API /api/blog/[slug] route handlers', () => {
     });
 
     it('returns bad request when the CMS rejects the slug parameter', async () => {
-      mockSanityFetch.mockRejectedValueOnce(new Error('Invalid parameter: slug'));
+      fetchMock.mockRejectedValueOnce(new Error('Invalid parameter: slug'));
 
       const response = await GET({} as any, {
         params: Promise.resolve({ slug: 'bad/slug' }),
@@ -180,8 +128,8 @@ describe('API /api/blog/[slug] route handlers', () => {
     });
 
     it('returns internal server error for unexpected failures', async () => {
-      mockSanityFetch.mockResolvedValueOnce({ _id: 'post-1' });
-      mockTransformToBlogDetailDTO.mockImplementationOnce(() => {
+      fetchMock.mockResolvedValueOnce({ _id: 'post-1' });
+      transformMock.mockImplementationOnce(() => {
         throw new Error('transform failure');
       });
 
@@ -201,7 +149,7 @@ describe('API /api/blog/[slug] route handlers', () => {
     };
 
     it('increments the view count for a blog post', async () => {
-      mockSanityFetch.mockResolvedValueOnce({ _id: 'post-100', slug: 'eco-friendly-travel' });
+      fetchMock.mockResolvedValueOnce({ _id: 'post-100', slug: 'eco-friendly-travel' });
 
       const response = await PUT(
         createPutRequest({ action: 'increment_view' }),
@@ -215,11 +163,11 @@ describe('API /api/blog/[slug] route handlers', () => {
         data: { viewCount: 1 },
         message: 'View count updated successfully',
       });
-      expect(mockSanityFetch).toHaveBeenCalledWith(expect.anything(), {
+      expect(fetchMock).toHaveBeenCalledWith(expect.anything(), {
         slug: 'eco-friendly-travel',
       });
 
-      mockSanityFetch.mockResolvedValueOnce({ _id: 'post-100', slug: 'eco-friendly-travel' });
+      fetchMock.mockResolvedValueOnce({ _id: 'post-100', slug: 'eco-friendly-travel' });
       const secondResponse = await PUT(
         createPutRequest({ action: 'increment_view' }),
         context
@@ -229,7 +177,7 @@ describe('API /api/blog/[slug] route handlers', () => {
     });
 
     it('returns not found when the post does not exist', async () => {
-      mockSanityFetch.mockResolvedValueOnce(null);
+      fetchMock.mockResolvedValueOnce(null);
 
       const response = await PUT(
         createPutRequest({ action: 'increment_view' }),
@@ -264,7 +212,7 @@ describe('API /api/blog/[slug] route handlers', () => {
     });
 
     it('returns server error when CMS lookup fails', async () => {
-      mockSanityFetch.mockRejectedValueOnce(new Error('fetch failed'));
+      fetchMock.mockRejectedValueOnce(new Error('fetch failed'));
 
       const response = await PUT(
         createPutRequest({ action: 'increment_view' }),

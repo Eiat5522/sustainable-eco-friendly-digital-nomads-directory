@@ -6,9 +6,12 @@
  * 3. Error handling
  */
 
-import { jest } from '@jest/globals';
-import { GET, PUT } from './route';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { client as sanityClient } from '@/lib/sanity/client';
+
+type RouteModule = typeof import('./route');
+let GET: RouteModule['GET'];
+let PUT: RouteModule['PUT'];
 
 // Mock Sanity client
 jest.mock('@/lib/sanity/client', () => ({
@@ -30,7 +33,9 @@ jest.mock('@/lib/dto-transformer', () => ({
 describe('Blog [slug] API', () => {
   let mockedFetch: jest.Mock;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    jest.resetModules();
+    ({ GET, PUT } = await import('./route'));
     jest.clearAllMocks();
     mockedFetch = sanityClient.fetch as jest.Mock;
   });

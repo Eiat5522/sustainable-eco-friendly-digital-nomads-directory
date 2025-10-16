@@ -1,20 +1,21 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { GET } from '../route';
-import { client } from '@/lib/sanity/client';
-
-jest.mock('@/lib/sanity/client', () => ({
-  client: {
-    fetch: jest.fn(),
-  },
-}));
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { GET, testControl } from '../route';
 
 describe('/api/sanity-test', () => {
-  let mockedFetch: jest.Mock;
+  const mockedFetch = jest.fn();
+  const originalEnv = { ...process.env };
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockedFetch = client.fetch as jest.Mock;
+  beforeEach(async () => {
+    mockedFetch.mockReset();
+    testControl.clientFetchOverride = mockedFetch;
+    testControl.nodeEnvOverride = undefined;
     delete process.env.NODE_ENV;
+  });
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
+    testControl.clientFetchOverride = undefined;
+    testControl.nodeEnvOverride = undefined;
   });
 
   it('returns 404 in production environment', async () => {

@@ -1,40 +1,36 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { NextRequest } from 'next/server';
-import { GET, POST, DELETE } from '../route';
-import { auth } from '@/lib/auth';
-import { client } from '@/lib/sanity/client';
-import { ensureSanityUser } from '@/lib/sanity/user';
-
-jest.mock('@/lib/auth', () => ({
-  auth: jest.fn(),
-}));
-
-jest.mock('@/lib/sanity/client', () => ({
-  client: {
-    fetch: jest.fn(),
-    createOrReplace: jest.fn(),
-    delete: jest.fn(),
-  },
-}));
-
-jest.mock('@/lib/sanity/user', () => ({
-  ensureSanityUser: jest.fn(),
-}));
+import { GET, POST, DELETE, testControl } from '../route';
 
 describe('/api/user/favorites', () => {
-  let mockedAuth: jest.Mock;
-  let mockedFetch: jest.Mock;
-  let mockedCreateOrReplace: jest.Mock;
-  let mockedDelete: jest.Mock;
-  let mockedEnsureSanityUser: jest.Mock;
+  const mockedAuth = jest.fn();
+  const mockedFetch = jest.fn();
+  const mockedCreateOrReplace = jest.fn();
+  const mockedDelete = jest.fn();
+  const mockedEnsureSanityUser = jest.fn();
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockedAuth = auth as jest.Mock;
-    mockedFetch = client.fetch as jest.Mock;
-    mockedCreateOrReplace = client.createOrReplace as jest.Mock;
-    mockedDelete = client.delete as jest.Mock;
-    mockedEnsureSanityUser = ensureSanityUser as jest.Mock;
+  beforeEach(async () => {
+    mockedAuth.mockReset();
+    mockedFetch.mockReset();
+    mockedCreateOrReplace.mockReset();
+    mockedDelete.mockReset();
+    mockedEnsureSanityUser.mockReset();
+
+    testControl.authOverride = mockedAuth;
+    testControl.clientFetchOverride = mockedFetch;
+    testControl.clientCreateOrReplaceOverride = mockedCreateOrReplace;
+    testControl.clientDeleteOverride = mockedDelete;
+    testControl.ensureSanityUserOverride = mockedEnsureSanityUser;
+    testControl.parseBodyOverride = undefined;
+  });
+
+  afterEach(() => {
+    testControl.authOverride = undefined;
+    testControl.clientFetchOverride = undefined;
+    testControl.clientCreateOrReplaceOverride = undefined;
+    testControl.clientDeleteOverride = undefined;
+    testControl.ensureSanityUserOverride = undefined;
+    testControl.parseBodyOverride = undefined;
   });
 
   describe('GET', () => {
@@ -85,10 +81,10 @@ describe('/api/user/favorites', () => {
       mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-1' });
       mockedFetch.mockResolvedValue({ _id: 'listing-1' });
       mockedCreateOrReplace.mockResolvedValue({ _id: 'fav-1' });
+      testControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
       
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
-        body: JSON.stringify({ slug: 'test-listing' }),
       });
       
       const response = await POST(request);
@@ -107,10 +103,10 @@ describe('/api/user/favorites', () => {
       mockedFetch
         .mockResolvedValueOnce({ _id: 'listing-1' })
         .mockResolvedValueOnce({ _id: 'fav-1' });
+      testControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
       
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'DELETE',
-        body: JSON.stringify({ slug: 'test-listing' }),
       });
       
       const response = await DELETE(request);

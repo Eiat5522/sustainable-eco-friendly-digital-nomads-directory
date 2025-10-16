@@ -2,12 +2,21 @@ import { revalidatePath } from 'next/cache';
 import { NextRequest } from 'next/server';
 import { ApiResponseHandler } from '@/utils/api-response';
 
+type RevalidateFn = (path: string) => void;
+type TokenFn = () => string | undefined;
+
+export const testControl = {
+  revalidatePathOverride: undefined as RevalidateFn | undefined,
+  tokenOverride: undefined as TokenFn | undefined,
+};
+
 export async function POST(request: NextRequest) {
   try {
     const token = request.nextUrl.searchParams.get('token');
+    const expectedToken = testControl.tokenOverride ? testControl.tokenOverride() : process.env.revalidationToken;
 
     // Validate the revalidation token
-    if (!token || token !== process.env.revalidationToken) {
+    if (!token || token !== expectedToken) {
       return ApiResponseHandler.error('Invalid token', 401);
     }
 
@@ -20,8 +29,9 @@ export async function POST(request: NextRequest) {
     ];
 
     // Revalidate each route
+    const revalidate = testControl.revalidatePathOverride ?? revalidatePath;
     for (const route of routesToRevalidate) {
-      revalidatePath(route);
+      revalidate(route);
     }
 
     return ApiResponseHandler.success({

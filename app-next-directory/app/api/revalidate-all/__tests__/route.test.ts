@@ -1,18 +1,22 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { NextRequest } from 'next/server';
-import { POST } from '../route';
-import * as nextCache from 'next/cache';
-
-// Mock next/cache module
-jest.mock('next/cache');
+import { POST, testControl } from '../route';
 
 describe('/api/revalidate-all', () => {
   const validToken = 'test-token-123';
-  const mockedRevalidatePath = nextCache.revalidatePath as jest.Mock;
+  const mockedRevalidatePath = jest.fn();
+  const originalToken = process.env.revalidationToken;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  beforeEach(async () => {
     process.env.revalidationToken = validToken;
+    mockedRevalidatePath.mockReset();
+    testControl.revalidatePathOverride = mockedRevalidatePath;
+  });
+
+  afterEach(() => {
+    process.env.revalidationToken = originalToken;
+    testControl.revalidatePathOverride = undefined;
+    testControl.tokenOverride = undefined;
   });
 
   it('returns 401 when token is missing', async () => {

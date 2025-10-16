@@ -1,23 +1,29 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { GET } from '../route';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 
-// Mock mongodb client
+import { GET, testControl } from '../route';
+
 const mockCommand = jest.fn();
 const mockDb = jest.fn(() => ({ command: mockCommand }));
-const mockClient = { db: mockDb };
+const mockClient = { db: mockDb } as const;
 
-jest.mock('@/lib/mongodb', () => ({
-  __esModule: true,
-  default: Promise.resolve(mockClient),
-}));
+const originalNodeEnv = process.env.NODE_ENV;
+
+beforeEach(() => {
+  mockCommand.mockReset();
+  mockDb.mockReset().mockReturnValue({ command: mockCommand });
+  testControl.clientOverride = Promise.resolve(mockClient as any);
+  process.env.NODE_ENV = 'test';
+});
+
+afterEach(() => {
+  testControl.clientOverride = undefined;
+  process.env.NODE_ENV = originalNodeEnv;
+});
 
 describe('/api/test-mongodb', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockCommand.mockResolvedValue({ ok: 1 });
-  });
-
   it('returns success when MongoDB connection succeeds', async () => {
+    mockCommand.mockResolvedValue({ ok: 1 });
+
     const response = await GET();
     const json = await response.json();
 
@@ -29,8 +35,7 @@ describe('/api/test-mongodb', () => {
 
   it('handles MongoDB connection errors', async () => {
     mockCommand.mockRejectedValue(new Error('Connection failed'));
-    
-    process.env.NODE_ENV = 'development';
+
     const response = await GET();
     const json = await response.json();
 
@@ -39,9 +44,9 @@ describe('/api/test-mongodb', () => {
   });
 
   it('hides error details in production', async () => {
-    mockCommand.mockRejectedValue(new Error('Connection failed'));
-    
     process.env.NODE_ENV = 'production';
+    mockCommand.mockRejectedValue(new Error('Connection failed'));
+
     const response = await GET();
     const json = await response.json();
 

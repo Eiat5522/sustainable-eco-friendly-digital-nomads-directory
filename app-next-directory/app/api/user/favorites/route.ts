@@ -4,9 +4,35 @@ import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
 import { ensureSanityUser } from '@/lib/sanity/user';
 
+type AuthFn = () => Promise<unknown>;
+type EnsureUserFn = (args: {
+  id: string;
+  name: string | null;
+  email: string | null;
+  role: UserRole | null;
+}) => Promise<{ _id?: string } | null>;
+type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<any>;
+type CreateOrReplaceFn = (doc: Record<string, unknown>) => Promise<any>;
+type DeleteFn = (id: string) => Promise<unknown>;
+type ParseBodyFn = (request: NextRequest) => Promise<any>;
+
+export const testControl = {
+  authOverride: undefined as AuthFn | undefined,
+  ensureSanityUserOverride: undefined as EnsureUserFn | undefined,
+  clientFetchOverride: undefined as FetchFn | undefined,
+  clientCreateOrReplaceOverride: undefined as CreateOrReplaceFn | undefined,
+  clientDeleteOverride: undefined as DeleteFn | undefined,
+  parseBodyOverride: undefined as ParseBodyFn | undefined,
+};
+
 // Get user's favorites
 export async function GET() {
-  const session = await auth();
+  const authFn = testControl.authOverride ?? auth;
+  const ensureUser = testControl.ensureSanityUserOverride ?? ensureSanityUser;
+  const fetchFn =
+    testControl.clientFetchOverride ?? ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
+
+  const session = await authFn();
 
   const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
   const userId: string | undefined = user?.id;
@@ -16,7 +42,7 @@ export async function GET() {
   }
 
   try {
-    const sanityUser = await ensureSanityUser({
+    const sanityUser = await ensureUser({
       id: userId,
       name: user?.name ?? null,
       email: user?.email ?? null,
@@ -28,7 +54,7 @@ export async function GET() {
     }
 
     // Fetch user's favorites from Sanity using the Sanity user ID
-    const favorites = await client.fetch(
+    const favorites = await fetchFn(
       `*[_type == "userFavorite" && user._ref == $sanityUserId] {
         _id,
         listing -> {
@@ -87,7 +113,14 @@ export async function GET() {
 
 // Add listing to favorites
 export async function POST(request: NextRequest) {
-  const session = await auth();
+  const authFn = testControl.authOverride ?? auth;
+  const ensureUser = testControl.ensureSanityUserOverride ?? ensureSanityUser;
+  const fetchFn =
+    testControl.clientFetchOverride ?? ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
+  const createOrReplaceFn =
+    testControl.clientCreateOrReplaceOverride ?? ((doc: Record<string, unknown>) => client.createOrReplace(doc));
+
+  const session = await authFn();
 
   const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
   const userId: string | undefined = user?.id;
@@ -98,14 +131,15 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const parseBody = testControl.parseBodyOverride ?? ((req: NextRequest) => req.json());
+    const body = await parseBody(request);
     const { slug } = body;
 
     if (!slug || typeof slug !== 'string') {
       return NextResponse.json({ error: 'Listing slug is required' }, { status: 400 });
     }
 
-    const sanityUser = await ensureSanityUser({
+    const sanityUser = await ensureUser({
       id: userId,
       name: user?.name ?? null,
       email: user?.email ?? null,
@@ -117,14 +151,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Resolve listing by slug to get its Sanity ID
-    const listing = await client.fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug });
+    const listing = await fetchFn(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug });
     if (!listing?._id) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
     const listingId = listing._id;
 
     const favoriteId = `userFavorite-${sanityUser._id}-${listingId}`;
-    const favorite = await client.createOrReplace({
+    const favorite = await createOrReplaceFn({
       _id: favoriteId,
       _type: 'userFavorite',
       user: { _type: 'reference', _ref: sanityUser._id },
@@ -145,7 +179,12 @@ export async function POST(request: NextRequest) {
 
 // Remove listing from favorites
 export async function DELETE(request: NextRequest) {
-  const session = await auth();
+  const authFn = testControl.authOverride ?? auth;
+  const fetchFn =
+    testControl.clientFetchOverride ?? ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
+  const deleteFn = testControl.clientDeleteOverride ?? ((id: string) => client.delete(id));
+
+  const session = await authFn();
 
   const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
   const userId: string | undefined = user?.id;
@@ -155,7 +194,8 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const parseBody = testControl.parseBodyOverride ?? ((req: NextRequest) => req.json());
+    const body = await parseBody(request);
     const { slug } = body;
 
     if (!slug || typeof slug !== 'string') {
@@ -163,20 +203,20 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Resolve listing by slug to get its Sanity ID
-    const listing = await client.fetch(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug });
+    const listing = await fetchFn(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug });
     if (!listing?._id) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
     const listingId = listing._id;
 
     // Find and remove the favorite
-    const existingFavorite = await client.fetch(
+    const existingFavorite = await fetchFn(
       `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
       { userId, listingId }
     );
 
     if (existingFavorite) {
-      await client.delete(existingFavorite._id);
+      await deleteFn(existingFavorite._id);
       return NextResponse.json({ 
         favorited: false, 
         message: 'Removed from favorites' 

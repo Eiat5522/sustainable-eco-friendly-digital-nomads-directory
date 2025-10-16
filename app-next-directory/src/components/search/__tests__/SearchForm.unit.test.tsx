@@ -522,17 +522,18 @@ describe('SearchForm', () => {
       )
     })
 
-    it('should handle very long search queries', async () => {
-      const user = userEvent.setup()
+    it('should handle very long search queries', () => {
       const longQuery = 'a'.repeat(500)
       render(<SearchForm />)
 
       const searchInput = screen.getByLabelText('Search for eco-friendly venues')
-      await user.type(searchInput, longQuery)
-      await user.click(screen.getByRole('button', { name: /search/i }))
+      fireEvent.change(searchInput, { target: { value: longQuery } })
+      fireEvent.click(screen.getByRole('button', { name: /search/i }))
 
-      expect(mockSearchListings).toHaveBeenCalled()
-    }, 10000)
+      expect(mockSearchListings).toHaveBeenCalledWith(
+        expect.objectContaining({ query: longQuery })
+      )
+    })
 
     it('should handle rapid form submissions', async () => {
       const user = userEvent.setup()
