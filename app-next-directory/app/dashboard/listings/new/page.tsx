@@ -5,8 +5,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { VenueListingForm } from '../../components/VenueListingForm';
 import type { ListingFormValues } from '../../components/VenueListingForm';
-
-export default function NewListingPage() {
+import { VenueListingForm } from '@/app/dashboard/components/VenueListingForm';
+import type { ListingFormValues } from '@/app/dashboard/components/VenueListingForm';
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
 
