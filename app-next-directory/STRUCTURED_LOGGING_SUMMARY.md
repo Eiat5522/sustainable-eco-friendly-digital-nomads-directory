@@ -33,12 +33,12 @@ Successfully implemented structured logging using Pino to replace console.error 
 ## Files Updated
 
 ### API Routes (7 files)
-1. `src/app/api/auth/register/route.ts` - Email verification error logging
-2. `src/app/api/auth/verify/route.ts` - Email verification processing errors
-3. `src/app/api/auth/request-password-reset/route.ts` - Password reset email errors
-4. `src/app/api/auth/reset-password/route.ts` - Password reset processing errors
-5. `src/app/api/reviews/route.ts` - Review creation errors
-6. `src/app/api/featured-listings/route.ts` - Featured listings API errors
+1. `app/api/auth/register/route.ts` - Email verification error logging
+2. `app/api/auth/verify/route.ts` - Email verification processing errors
+3. `app/api/auth/request-password-reset/route.ts` - Password reset email errors
+4. `app/api/auth/reset-password/route.ts` - Password reset processing errors
+5. `app/api/reviews/route.ts` - Review creation errors
+6. `app/api/featured-listings/route.ts` - Featured listings API errors
 
 ### Middleware (3 files)
 1. `src/middleware.ts` - Main middleware error handling
