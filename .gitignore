@@ -183,8 +183,8 @@ app-next-directory/src/__tests__/api/search/FORTEST-route.copy.skip.ts
 **/*/search-route-test-run.txt
 tmp/
 *.debug.js
-+desktop.ini
-+**/desktop.ini
+desktop.ini
+**/desktop.ini
 
 # Ignore generated Playwright reports
 app-next-directory/playwright-report/**
@@ -201,3 +201,7 @@ app-next-directory/src/utils/db-helpers.ts
 # tasks/ 
 docs/chat-history/**
 .bashrc.zip
+app-next-directory/testCoverage/*/**
+app-next-directory/testCoverage/lcov-report/*/**
+app-next-directory/testCoverage/
+app-next-directory/testCoverage/lcov-report/
