@@ -1,7 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import levenshtein from 'fast-levenshtein';
-const { client } = require('../lib/sanity/client');
+import { client } from '../lib/sanity/client';
 
 interface ContentAnalysisResult {
   thinContent: {
