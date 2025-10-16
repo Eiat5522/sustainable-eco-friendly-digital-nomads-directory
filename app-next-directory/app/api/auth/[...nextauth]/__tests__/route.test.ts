@@ -1,0 +1,233 @@
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+
+// Mock the auth library
+const mockAuthGET = jest.fn();
+const mockAuthPOST = jest.fn();
+
+jest.mock('@/lib/auth', () => ({
+  __esModule: true,
+  GET: mockAuthGET,
+  POST: mockAuthPOST,
+}));
+
+type GetHandler = typeof import('../route').GET;
+type PostHandler = typeof import('../route').POST;
+let GET: GetHandler;
+let POST: PostHandler;
+
+describe('NextAuth Route Handler', () => {
+  let consoleLogSpy: jest.SpiedFunction<typeof console.log>;
+  let consoleErrorSpy: jest.SpiedFunction<typeof console.error>;
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    // Set default mock responses
+    mockAuthGET.mockResolvedValue(new Response('OK', { status: 200 }));
+    mockAuthPOST.mockResolvedValue(new Response('OK', { status: 200 }));
+
+    // Import handlers with isolated modules
+    await jest.isolateModulesAsync(async () => {
+      const module = await import('../route');
+      GET = module.GET;
+      POST = module.POST;
+    });
+  });
+
+  afterEach(() => {
+    consoleLogSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
+  });
+
+  describe('GET handler', () => {
+    it('forwards GET requests to NextAuth', async () => {
+      const mockResponse = new Response('OK', { status: 200 });
+      mockAuthGET.mockResolvedValue(mockResponse);
+
+      const request = new Request('https://example.com/api/auth/signin', {
+        method: 'GET',
+      });
+
+      const response = await GET(request);
+
+      expect(mockAuthGET).toHaveBeenCalled();
+      expect(response).toBe(mockResponse);
+      expect(consoleLogSpy).toHaveBeenCalled();
+    });
+
+    it('logs the pathname for GET requests', async () => {
+      const request = new Request('https://example.com/api/auth/signin', {
+        method: 'GET',
+      });
+
+      await GET(request);
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        '[auth route] incoming GET',
+        '/api/auth/signin'
+      );
+    });
+
+    it('handles errors during URL parsing gracefully', async () => {
+      const mockResponse = new Response('OK', { status: 200 });
+      mockAuthGET.mockResolvedValue(mockResponse);
+
+      // Create a request with an invalid URL property
+      const request = {
+        url: 'not-a-valid-url',
+      } as Request;
+
+      const response = await GET(request);
+
+      expect(mockAuthGET).toHaveBeenCalledWith(request);
+      expect(response).toBe(mockResponse);
+      expect(consoleErrorSpy).toHaveBeenCalled();
+    });
+
+    it('passes through NextAuth response', async () => {
+      const mockResponse = new Response(
+        JSON.stringify({ user: { id: '123' } }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+      mockAuthGET.mockResolvedValue(mockResponse);
+
+      const request = new Request('https://example.com/api/auth/session', {
+        method: 'GET',
+      });
+
+      const response = await GET(request);
+
+      expect(response.status).toBe(200);
+    });
+
+    it('handles NextAuth errors by propagating them', async () => {
+      mockAuthGET.mockRejectedValue(new Error('NextAuth error'));
+
+      const request = new Request('https://example.com/api/auth/signin', {
+        method: 'GET',
+      });
+
+      await expect(GET(request)).rejects.toThrow('NextAuth error');
+    });
+  });
+
+  describe('POST handler', () => {
+    it('forwards POST requests to NextAuth', async () => {
+      const mockResponse = new Response('OK', { status: 200 });
+      mockAuthPOST.mockResolvedValue(mockResponse);
+
+      const request = new Request('https://example.com/api/auth/signin', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'test@example.com', password: 'pass' }),
+      });
+
+      const response = await POST(request);
+
+      expect(mockAuthPOST).toHaveBeenCalled();
+      expect(response).toBe(mockResponse);
+    });
+
+    it('logs the pathname for POST requests', async () => {
+      const request = new Request('https://example.com/api/auth/signin', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'test@example.com', password: 'pass' }),
+      });
+
+      await POST(request);
+
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        '[auth route] incoming POST',
+        '/api/auth/signin'
+      );
+    });
+
+    it('handles errors during URL parsing in POST', async () => {
+      const mockResponse = new Response('OK', { status: 200 });
+      mockAuthPOST.mockResolvedValue(mockResponse);
+
+      // Create a request with an invalid URL property
+      const request = {
+        url: 'invalid-url-format',
+        method: 'POST',
+      } as Request;
+
+      const response = await POST(request);
+
+      expect(mockAuthPOST).toHaveBeenCalledWith(request);
+      expect(response).toBe(mockResponse);
+    });
+
+    it('passes through NextAuth POST response', async () => {
+      const mockResponse = new Response(
+        JSON.stringify({ url: '/dashboard' }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+      mockAuthPOST.mockResolvedValue(mockResponse);
+
+      const request = new Request('https://example.com/api/auth/signin', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'test@example.com', password: 'pass' }),
+      });
+
+      const response = await POST(request);
+
+      expect(response.status).toBe(200);
+    });
+
+    it('handles NextAuth POST errors by propagating them', async () => {
+      mockAuthPOST.mockRejectedValue(new Error('Authentication failed'));
+
+      const request = new Request('https://example.com/api/auth/signin', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'test@example.com', password: 'pass' }),
+      });
+
+      await expect(POST(request)).rejects.toThrow('Authentication failed');
+    });
+
+    it('handles various NextAuth callback endpoints', async () => {
+      const mockResponse = new Response('OK', { status: 200 });
+      mockAuthPOST.mockResolvedValue(mockResponse);
+
+      const request = new Request('https://example.com/api/auth/callback/credentials', {
+        method: 'POST',
+      });
+
+      await POST(request);
+
+      expect(mockAuthPOST).toHaveBeenCalled();
+      expect(consoleLogSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('Logging behavior', () => {
+    it('logs module load on import', () => {
+      // The module load message is logged when the module is imported
+      // This happens before the tests run
+      expect(consoleLogSpy).toHaveBeenCalled();
+    });
+
+    it('logs incoming requests', async () => {
+      const request = new Request('https://example.com/api/auth/signin', {
+        method: 'GET',
+      });
+
+      await GET(request);
+
+      // Check that console.log was called with the incoming GET message
+      const calls = consoleLogSpy.mock.calls;
+      const hasIncomingGetLog = calls.some(call => 
+        call.some(arg => typeof arg === 'string' && arg.includes('[auth route] incoming GET'))
+      );
+      expect(hasIncomingGetLog).toBe(true);
+    });
+  });
+});
