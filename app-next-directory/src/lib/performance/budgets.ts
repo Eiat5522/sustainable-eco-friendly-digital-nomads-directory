@@ -172,61 +172,23 @@ export async function sendAlert(alert: PerformanceAlert) {
 }
 
 const createSlackChannelConfig = (): SlackChannelConfig => {
-  const config: Record<string, unknown> = {}
+  const webhook = process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL?.trim()
 
-  Object.defineProperties(config, {
-    enabled: {
-      enumerable: true,
-      get: () => {
-        const webhook = process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL?.trim()
-        return Boolean(webhook)
-      }
-    },
-    minSeverity: {
-      enumerable: true,
-      value: 'error' as AlertSeverity,
-      writable: false,
-      configurable: false
-    },
-    webhookUrl: {
-      enumerable: true,
-      get: () => {
-        const webhook = process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL?.trim()
-        return webhook || undefined
-      }
-    }
-  })
-
-  return config as SlackChannelConfig
+  return Object.freeze({
+    enabled: Boolean(webhook),
+    minSeverity: 'error' as AlertSeverity,
+    webhookUrl: webhook || undefined
+  }) as SlackChannelConfig
 }
 
 const createEmailChannelConfig = (): EmailChannelConfig => {
-  const config: Record<string, unknown> = {}
+  const recipient = process.env.NEXT_PUBLIC_ALERT_EMAIL?.trim()
 
-  Object.defineProperties(config, {
-    enabled: {
-      enumerable: true,
-      get: () => {
-        const recipient = process.env.NEXT_PUBLIC_ALERT_EMAIL?.trim()
-        return Boolean(recipient)
-      }
-    },
-    minSeverity: {
-      enumerable: true,
-      value: 'error' as AlertSeverity,
-      writable: false,
-      configurable: false
-    },
-    recipient: {
-      enumerable: true,
-      get: () => {
-        const recipient = process.env.NEXT_PUBLIC_ALERT_EMAIL?.trim()
-        return recipient || undefined
-      }
-    }
-  })
-
-  return config as EmailChannelConfig
+  return Object.freeze({
+    enabled: Boolean(recipient),
+    minSeverity: 'error' as AlertSeverity,
+    recipient: recipient || undefined
+  }) as EmailChannelConfig
 }
 
 // Alert configuration for different channels

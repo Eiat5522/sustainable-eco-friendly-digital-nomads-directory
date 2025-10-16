@@ -1,4 +1,5 @@
 import { client } from '@/lib/sanity/client';
+import { cachedClient } from '@/lib/sanity/cached-client';
 import { groq } from 'next-sanity';
 import { transformToSummaryDTO } from '@/lib/dto-transformer';
 import type { CityDTO, CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
@@ -232,7 +233,7 @@ export async function getListingsByCityId(cityId: string): Promise<ListingSummar
 
   const listingsRaw = await cachedClient.fetch<ListingSummarySource[]>(getPublishedListingsInCityQuery, { cityId });
 
-  return listingsRaw.map((listing) =>
+  return listingsRaw.map((listing: ListingSummarySource) =>
     transformToSummaryDTO({
       ...listing,
       slug: { current: listing.slug },
