@@ -26,11 +26,11 @@ function isSafePath(base, target) {
 }
 
 const requiredEndpoints = [
-  'src/app/api/user/dashboard/route.ts',
-  'src/app/api/user/favorites/route.ts',
-  'src/app/api/user/favorites/[slug]/route.ts',
-  'src/app/api/user/analytics/route.ts',
-  'src/app/api/user/profile/route.ts',
+  'app/api/user/dashboard/route.ts',
+  'app/api/user/favorites/route.ts',
+  'app/api/user/favorites/[slug]/route.ts',
+  'app/api/user/analytics/route.ts',
+  'app/api/user/profile/route.ts',
 ];
 
 console.log('✅ Test 1: API Endpoint Existence');
@@ -93,14 +93,14 @@ const checkApiImplementation = (filePath, requiredMethods) => {
 };
 
 // Check dashboard endpoint
-const dashboardResults = checkApiImplementation('src/app/api/user/dashboard/route.ts', ['GET']);
+const dashboardResults = checkApiImplementation('app/api/user/dashboard/route.ts', ['GET']);
 console.log('  📊 Dashboard API (/api/user/dashboard):');
 dashboardResults.forEach(result => {
   console.log(`    ${result.implemented ? '✅' : '❌'} ${result.method} method`);
 });
 
 // Check favorites endpoint
-const favoritesResults = checkApiImplementation('src/app/api/user/favorites/route.ts', [
+const favoritesResults = checkApiImplementation('app/api/user/favorites/route.ts', [
   'GET',
   'POST',
 ]);
@@ -111,7 +111,7 @@ favoritesResults.forEach(result => {
 
 // Check individual favorite endpoint
 const favoriteSingleResults = checkApiImplementation(
-  'src/app/api/user/favorites/[slug]/route.ts',
+  'app/api/user/favorites/[slug]/route.ts',
   ['DELETE']
 );
 console.log('  ❤️ Individual Favorite API (/api/user/favorites/[slug]):');
@@ -120,7 +120,7 @@ favoriteSingleResults.forEach(result => {
 });
 
 // Check analytics endpoint
-const analyticsResults = checkApiImplementation('src/app/api/user/analytics/route.ts', [
+const analyticsResults = checkApiImplementation('app/api/user/analytics/route.ts', [
   'GET',
   'POST',
 ]);
@@ -132,9 +132,9 @@ analyticsResults.forEach(result => {
 // Test 4: Check for comprehensive dashboard data structure
 console.log('\n✅ Test 4: Dashboard Data Structure Completeness');
 try {
-  const dashboardPath = path.join(__dirname, 'src/app/api/user/dashboard/route.ts');
+  const dashboardPath = path.join(__dirname, 'app/api/user/dashboard/route.ts');
   try {
-    if (!isSafePath(__dirname, 'src/app/api/user/dashboard/route.ts')) {
+    if (!isSafePath(__dirname, 'app/api/user/dashboard/route.ts')) {
       throw new Error('Unsafe file path');
     }
     const dashboardContent = fs.readFileSync(dashboardPath, 'utf8');

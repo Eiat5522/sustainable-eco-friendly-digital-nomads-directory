@@ -315,4 +315,74 @@ describe('ListingPage', () => {
 
     expect(metadata).toEqual({ title: 'Listing not found' });
   });
+
+  it('truncates long descriptions when generating metadata', async () => {
+    process.env.NEXT_PUBLIC_E2E = '0';
+    process.env.E2E = '0';
+    jest.resetModules();
+
+    const [pageModule, clientModule, transformerModule] = await Promise.all([
+      import('../listings/[slug]/page'),
+      import('@/lib/sanity/client'),
+      import('@/lib/dto-transformer'),
+    ]);
+
+    const sanityFetch = clientModule.client.fetch as jest.Mock;
+    const transformToDetailDTO = transformerModule.transformToDetailDTO as jest.Mock;
+
+    sanityFetch.mockResolvedValueOnce({ _id: 'raw-listing' });
+    const longSummary = 'Sustainable paradise '.repeat(20);
+    transformToDetailDTO.mockReturnValue({
+      id: 'listing-meta-long',
+      name: 'Long Meta Listing',
+      shortDescription: longSummary,
+      longDescription: longSummary,
+      galleryImages: ['https://example.com/gallery.jpg'],
+      imageUrl: null,
+      city: null,
+    });
+
+    const metadata = await pageModule.generateMetadata({
+      params: Promise.resolve({ slug: 'meta-listing-long' }),
+    } as any);
+
+    const description = metadata.description as string;
+    expect(description).toHaveLength(160);
+    expect(description).toBe(longSummary.slice(0, 160));
+    expect(metadata.openGraph?.images).toEqual(['https://example.com/gallery.jpg']);
+  });
+
+  it('omits metadata description and images when listing lacks summary content', async () => {
+    process.env.NEXT_PUBLIC_E2E = '0';
+    process.env.E2E = '0';
+    jest.resetModules();
+
+    const [pageModule, clientModule, transformerModule] = await Promise.all([
+      import('../listings/[slug]/page'),
+      import('@/lib/sanity/client'),
+      import('@/lib/dto-transformer'),
+    ]);
+
+    const sanityFetch = clientModule.client.fetch as jest.Mock;
+    const transformToDetailDTO = transformerModule.transformToDetailDTO as jest.Mock;
+
+    sanityFetch.mockResolvedValueOnce({ _id: 'raw-listing' });
+    transformToDetailDTO.mockReturnValue({
+      id: 'listing-meta-minimal',
+      name: 'Minimal Listing',
+      shortDescription: null,
+      longDescription: null,
+      galleryImages: [],
+      imageUrl: null,
+      city: null,
+    });
+
+    const metadata = await pageModule.generateMetadata({
+      params: Promise.resolve({ slug: 'minimal-listing' }),
+    } as any);
+
+    expect(metadata.title).toBe('Minimal Listing');
+    expect(metadata.description).toBeUndefined();
+    expect(metadata.openGraph?.images).toBeUndefined();
+  });
 });

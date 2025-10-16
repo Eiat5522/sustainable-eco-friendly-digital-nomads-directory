@@ -1,133 +1,328 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { NextRequest } from 'next/server';
-import { POST, DELETE, GET } from '../route';
-import { auth } from '@/lib/auth';
-import { client } from '@/lib/sanity/client';
-import { ensureSanityUser, unfavoriteListing } from '@/lib/sanity/user';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-jest.mock('@/lib/auth', () => ({
-  auth: jest.fn(),
-}));
+type RouteContext = { params: Promise<{ slug: string }> };
 
-jest.mock('@/lib/sanity/client', () => ({
-  client: {
-    fetch: jest.fn(),
-    create: jest.fn(),
-    delete: jest.fn(),
-  },
-}));
+type Session = {
+  user?: {
+    id?: string;
+    role?: string | null;
+    email?: string | null;
+    name?: string | null;
+  } | null;
+} | null;
 
-jest.mock('@/lib/sanity/user', () => ({
-  ensureSanityUser: jest.fn(),
-  unfavoriteListing: jest.fn(),
-}));
+const mockAuth = jest.fn<Promise<Session>, []>();
+const mockEnsureSanityUser = jest.fn();
+const mockUnfavoriteListing = jest.fn();
+const mockClientFetch = jest.fn();
+const mockClientCreate = jest.fn();
+const mockClientDelete = jest.fn();
 
-describe('/api/user/favorites/[slug]', () => {
-  let mockedAuth: jest.Mock;
-  let mockedFetch: jest.Mock;
-  let mockedCreate: jest.Mock;
-  let mockedDelete: jest.Mock;
-  let mockedEnsureSanityUser: jest.Mock;
-  let mockedUnfavorite: jest.Mock;
+let POST: typeof import('../route').POST;
+let GET: typeof import('../route').GET;
+let DELETE: typeof import('../route').DELETE;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockedAuth = auth as jest.Mock;
-    mockedFetch = client.fetch as jest.Mock;
-    mockedCreate = client.create as jest.Mock;
-    mockedDelete = client.delete as jest.Mock;
-    mockedEnsureSanityUser = ensureSanityUser as jest.Mock;
-    mockedUnfavorite = unfavoriteListing as jest.Mock;
+const parseResponse = async (response: Response) => ({
+  status: response.status,
+  body: await response.json(),
+});
+
+const loadRouteHandlers = async () => {
+  jest.resetModules();
+  mockAuth.mockReset();
+  mockEnsureSanityUser.mockReset();
+  mockUnfavoriteListing.mockReset();
+  mockClientFetch.mockReset();
+  mockClientCreate.mockReset();
+  mockClientDelete.mockReset();
+
+  jest.doMock('@/lib/auth', () => ({
+    __esModule: true,
+    auth: mockAuth,
+  }));
+
+  jest.doMock('@/lib/sanity/user', () => ({
+    __esModule: true,
+    ensureSanityUser: mockEnsureSanityUser,
+    unfavoriteListing: mockUnfavoriteListing,
+  }));
+
+  jest.doMock('@/lib/sanity/client', () => ({
+    __esModule: true,
+    client: {
+      fetch: mockClientFetch,
+      create: mockClientCreate,
+      delete: mockClientDelete,
+    },
+  }));
+
+  const mod = await import('../route');
+  POST = mod.POST;
+  GET = mod.GET;
+  DELETE = mod.DELETE;
+};
+
+describe('API /api/user/favorites/[slug]', () => {
+  beforeEach(async () => {
+    await loadRouteHandlers();
   });
 
-  const mockContext = { params: Promise.resolve({ slug: 'test-listing' }) };
+  describe('POST', () => {
+    const createRequest = () =>
+      new Request('http://localhost/api/user/favorites/eco-hub', {
+        method: 'POST',
+      });
 
-  describe('POST - Toggle favorite', () => {
-    it('returns 401 when not authenticated', async () => {
-      mockedAuth.mockResolvedValue(null);
-      
-      const request = new NextRequest('http://localhost/api/user/favorites/test');
-      const response = await POST(request, mockContext);
-      const json = await response.json();
+    const context: RouteContext = {
+      params: Promise.resolve({ slug: 'eco-hub' }),
+    };
 
-      expect(response.status).toBe(401);
-      expect(json.error).toBe('Unauthorized');
+    it('returns unauthorized when no session is present', async () => {
+      mockAuth.mockResolvedValueOnce(null);
+
+      const response = await POST(createRequest(), context);
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(401);
+      expect(body).toEqual({ error: 'Unauthorized' });
+      expect(mockEnsureSanityUser).not.toHaveBeenCalled();
     });
 
-    it('adds favorite when not already favorited', async () => {
-      mockedAuth.mockResolvedValue({
-        user: { id: 'user-1', email: 'test@example.com', name: 'Test', role: 'user' },
-      });
-      mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-1' });
-      mockedFetch
-        .mockResolvedValueOnce({ _id: 'listing-1' })
-        .mockResolvedValueOnce(null); // no existing favorite
-      mockedCreate.mockResolvedValue({ _id: 'fav-1' });
-      
-      const request = new NextRequest('http://localhost/api/user/favorites/test');
-      const response = await POST(request, mockContext);
-      const json = await response.json();
+    it('returns validation error when slug is missing', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
 
-      expect(response.status).toBe(200);
-      expect(json.favorited).toBe(true);
+      const response = await POST(createRequest(), {
+        params: Promise.resolve({ slug: '' }),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(400);
+      expect(body).toEqual({ error: 'Listing slug is required' });
     });
 
-    it('removes favorite when already favorited', async () => {
-      mockedAuth.mockResolvedValue({
-        user: { id: 'user-1', email: 'test@example.com', name: 'Test', role: 'user' },
+    it('returns server error when user cannot be resolved in Sanity', async () => {
+      mockAuth.mockResolvedValueOnce({
+        user: { id: 'user-1', email: 'test@example.com', name: 'Test User', role: 'member' },
       });
-      mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-1' });
-      mockedFetch
-        .mockResolvedValueOnce({ _id: 'listing-1' })
-        .mockResolvedValueOnce({ _id: 'fav-1' }); // existing favorite
-      
-      const request = new NextRequest('http://localhost/api/user/favorites/test');
-      const response = await POST(request, mockContext);
-      const json = await response.json();
+      mockEnsureSanityUser.mockResolvedValueOnce(null);
 
-      expect(response.status).toBe(200);
-      expect(json.favorited).toBe(false);
+      const response = await POST(createRequest(), context);
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(500);
+      expect(body).toEqual({ error: 'Unable to access user profile' });
+    });
+
+    it('returns not found when the listing cannot be resolved', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'member' } });
+      mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanity-user-1' });
+      mockClientFetch.mockResolvedValueOnce(null);
+
+      const response = await POST(createRequest(), context);
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(404);
+      expect(body).toEqual({ error: 'Listing not found' });
+      expect(mockClientFetch).toHaveBeenCalledWith(
+        expect.stringContaining('*[_type == "listing"'),
+        { slug: 'eco-hub' }
+      );
+    });
+
+    it('removes an existing favorite and returns updated status', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'member', email: 'u@example.com' } });
+      mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanity-user-1' });
+      mockClientFetch
+        .mockResolvedValueOnce({ _id: 'listing-1' })
+        .mockResolvedValueOnce({ _id: 'favorite-1' });
+
+      const response = await POST(createRequest(), context);
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(200);
+      expect(body).toEqual({ favorited: false, message: 'Removed from favorites' });
+      expect(mockClientDelete).toHaveBeenCalledWith('favorite-1');
+    });
+
+    it('creates a favorite when none exists', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'member', email: 'u@example.com' } });
+      mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanity-user-1' });
+      mockClientFetch
+        .mockResolvedValueOnce({ _id: 'listing-1' })
+        .mockResolvedValueOnce(null);
+      mockClientCreate.mockResolvedValueOnce({ _id: 'favorite-999' });
+
+      const response = await POST(createRequest(), context);
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(200);
+      expect(body).toEqual({ favorited: true, message: 'Added to favorites', favoriteId: 'favorite-999' });
+      expect(mockClientCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          _type: 'userFavorite',
+          user: expect.objectContaining({ _ref: 'sanity-user-1' }),
+          listing: expect.objectContaining({ _ref: 'listing-1' }),
+        })
+      );
+    });
+
+    it('returns server error when toggling favorites fails unexpectedly', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'member' } });
+      mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanity-user-1' });
+      mockClientFetch.mockRejectedValueOnce(new Error('sanity offline'));
+
+      const response = await POST(createRequest(), context);
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(500);
+      expect(body).toEqual({ error: 'Internal Server Error' });
     });
   });
 
-  describe('GET - Check favorite status', () => {
-    it('returns not favorited when not authenticated', async () => {
-      mockedAuth.mockResolvedValue(null);
-      
-      const request = new NextRequest('http://localhost/api/user/favorites/test');
-      const response = await GET(request, mockContext);
-      const json = await response.json();
-
-      expect(json.favorited).toBe(false);
+  describe('DELETE', () => {
+    const request = new Request('http://localhost/api/user/favorites/eco-hub', {
+      method: 'DELETE',
     });
 
-    it('returns favorited status', async () => {
-      mockedAuth.mockResolvedValue({
-        user: { id: 'user-1', email: 'test@example.com', name: 'Test', role: 'user' },
-      });
-      mockedFetch
-        .mockResolvedValueOnce({ _id: 'listing-1' })
-        .mockResolvedValueOnce({ _id: 'fav-1' });
-      
-      const request = new NextRequest('http://localhost/api/user/favorites/test');
-      const response = await GET(request, mockContext);
-      const json = await response.json();
+    it('returns unauthorized when user is not signed in', async () => {
+      mockAuth.mockResolvedValueOnce(null);
 
-      expect(json.favorited).toBe(true);
+      const response = await DELETE(request, {
+        params: Promise.resolve({ slug: 'eco-hub' }),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(401);
+      expect(body).toEqual({ error: 'Unauthorized' });
+    });
+
+    it('returns validation error when slug is missing', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
+
+      const response = await DELETE(request, {
+        params: Promise.resolve({ slug: '' }),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(400);
+      expect(body).toEqual({ error: 'Missing listing slug' });
+    });
+
+    it('unfavorites a listing successfully', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
+      mockUnfavoriteListing.mockResolvedValueOnce(undefined);
+
+      const response = await DELETE(request, {
+        params: Promise.resolve({ slug: 'eco-hub' }),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(200);
+      expect(body).toEqual({ success: true });
+      expect(mockUnfavoriteListing).toHaveBeenCalledWith('user-1', 'eco-hub');
+    });
+
+    it('handles errors thrown during unfavorite operation', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
+      mockUnfavoriteListing.mockRejectedValueOnce(new Error('sanity failure'));
+
+      const response = await DELETE(request, {
+        params: Promise.resolve({ slug: 'eco-hub' }),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(500);
+      expect(body).toEqual({ error: 'Failed to unfavorite listing' });
     });
   });
 
-  describe('DELETE - Remove favorite', () => {
-    it('removes favorite successfully', async () => {
-      mockedAuth.mockResolvedValue({ user: { id: 'user-1' } });
-      mockedUnfavorite.mockResolvedValue(undefined);
-      
-      const request = new NextRequest('http://localhost/api/user/favorites/test');
-      const response = await DELETE(request, mockContext);
-      const json = await response.json();
+  describe('GET', () => {
+    const request = new Request('http://localhost/api/user/favorites/eco-hub');
 
-      expect(response.status).toBe(200);
-      expect(json.success).toBe(true);
+    it('returns false when the user is not signed in', async () => {
+      mockAuth.mockResolvedValueOnce(null);
+
+      const response = await GET(request, {
+        params: Promise.resolve({ slug: 'eco-hub' }),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(200);
+      expect(body).toEqual({ favorited: false });
+    });
+
+    it('returns false when slug is missing', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
+
+      const response = await GET(request, {
+        params: Promise.resolve({ slug: '' }),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(200);
+      expect(body).toEqual({ favorited: false });
+    });
+
+    it('returns false when the listing cannot be found', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
+      mockClientFetch.mockResolvedValueOnce(null);
+
+      const response = await GET(request, {
+        params: Promise.resolve({ slug: 'eco-hub' }),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(200);
+      expect(body).toEqual({ favorited: false });
+    });
+
+    it('returns false when no favorite record exists for the user', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
+      mockClientFetch
+        .mockResolvedValueOnce({ _id: 'listing-1' })
+        .mockResolvedValueOnce(null);
+
+      const response = await GET(request, {
+        params: Promise.resolve({ slug: 'eco-hub' }),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(200);
+      expect(body).toEqual({ favorited: false });
+      expect(mockClientFetch).toHaveBeenLastCalledWith(
+        expect.stringContaining('userFavorite'),
+        { userId: 'user-1', listingId: 'listing-1' }
+      );
+    });
+
+    it('returns true when the listing is already favorited', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
+      mockClientFetch
+        .mockResolvedValueOnce({ _id: 'listing-1' })
+        .mockResolvedValueOnce({ _id: 'favorite-1' });
+
+      const response = await GET(request, {
+        params: Promise.resolve({ slug: 'eco-hub' }),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(200);
+      expect(body).toEqual({ favorited: true });
+    });
+
+    it('returns false when the favorite lookup throws an error', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
+      mockClientFetch
+        .mockResolvedValueOnce({ _id: 'listing-1' })
+        .mockRejectedValueOnce(new Error('sanity offline'));
+
+      const response = await GET(request, {
+        params: Promise.resolve({ slug: 'eco-hub' }),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(200);
+      expect(body).toEqual({ favorited: false });
     });
   });
 });
