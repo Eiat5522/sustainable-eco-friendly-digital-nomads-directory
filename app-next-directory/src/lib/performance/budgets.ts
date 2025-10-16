@@ -178,7 +178,15 @@ const createSlackChannelConfig = (): SlackChannelConfig => {
     enabled: Boolean(webhook),
     minSeverity: 'error' as AlertSeverity,
     webhookUrl: webhook || undefined
-  }) as SlackChannelConfig
+  const webhook = process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL?.trim();
+
+  const config: SlackChannelConfig = {
+    enabled: Boolean(webhook),
+    minSeverity: 'error',
+    webhookUrl: webhook || undefined,
+  };
+
+  return Object.freeze(config);
 }
 
 const createEmailChannelConfig = (): EmailChannelConfig => {
