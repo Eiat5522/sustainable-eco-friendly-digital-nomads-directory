@@ -335,7 +335,7 @@ jest.mock('@/lib/rate-limit', () => {
 // compatible so tests can call mockReturnValue / mockResolvedValue reliably.
 try {
   // Use require to avoid static ESM resolution issues in the test environment
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+   
   const rl = require('@/lib/rate-limit');
   if (!rl || typeof rl.getClientIp !== 'function' || typeof rl.getClientIp?.mockReturnValue !== 'function') {
     // Replace with jest.fn implementations
@@ -411,7 +411,7 @@ jest.mock('@/lib/email', () => {
 // Some module resolution/interop paths may produce non-mock functions; this
 // guarantees tests can call `.mockReturnValue` / `.mockResolvedValue` safely.
 try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+   
   const ac = require('@/lib/auth/config');
   // Coerce both named and default exports to jest.fn compatible functions
   const ensureMock = (obj: any, key: string, fallback: any) => {
@@ -452,7 +452,7 @@ try {
 // the module by resolved path rather than the mapped alias. This ensures
 // the same mocked jest.fn instance is available on all module instances.
 try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+   
   const srcAuth = require('./src/lib/auth/config');
   if (srcAuth) {
     const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
@@ -480,7 +480,7 @@ try {
       srcAuth.default.isAdminEmail = isAdminEmail;
     }
 
-    // eslint-disable-next-line no-console
+     
     console.log('DEBUG jest.setup: patched ./src/lib/auth/config exports');
   }
 } catch (e) {

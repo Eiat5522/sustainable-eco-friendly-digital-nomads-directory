@@ -31,7 +31,7 @@ declare global {
     promise: Promise<import('mongoose').Mongoose> | null;
   }
 
-  // eslint-disable-next-line no-var
+   
   var mongoose: MongooseCache;
   interface Global {
     mongoose: MongooseCache;

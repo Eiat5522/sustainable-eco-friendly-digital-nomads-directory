@@ -20,7 +20,7 @@ const memoryStore = new Map<string, StoredValue>()
 async function memoryGet(key: string): Promise<string | null> {
   // Allow tests to override the behavior synchronously or asynchronously.
   if (testControl.memoryGetOverride) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+     
     return await testControl.memoryGetOverride(key)
   }
 
@@ -52,7 +52,7 @@ export const testControl = {
 async function memoryIncr(key: string, ttlSeconds: number): Promise<number> {
   // Allow tests to override the behavior synchronously or asynchronously.
   if (testControl.memoryIncrOverride) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+     
     return await testControl.memoryIncrOverride(key, ttlSeconds)
   }
 

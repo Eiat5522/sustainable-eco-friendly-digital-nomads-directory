@@ -1,5 +1,5 @@
 declare global {
-  var mongoose: any; // eslint-disable-line no-var
+  var mongoose: any;  
 }
 
 export {}; // This makes the file a module

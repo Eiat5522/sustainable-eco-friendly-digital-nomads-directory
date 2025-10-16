@@ -130,7 +130,7 @@ describe('filterListings', () => {
   });
 
   it('filters by category', () => {
-    const result = filterListings({ category: 'accommodation' as 'accommodation' });
+    const result = filterListings({ category: 'accommodation' as const });
     expect(result).toHaveLength(2);
     expect(result.map(l => l.name))
       .toEqual(expect.arrayContaining(['Eco-Friendly Coworking Space', 'Green Resort']));
@@ -170,7 +170,7 @@ describe('filterListings', () => {
   it('returns empty array if no listings match', () => {
     const result = filterListings({
       city: 'Bangkok',
-      category: 'cafe' as 'cafe',
+      category: 'cafe' as const,
     });
     expect(result).toEqual([]);
   });
@@ -178,7 +178,7 @@ describe('filterListings', () => {
   it('returns empty array if all filters exclude all', () => {
     const result = filterListings({
       city: 'Phuket',
-      category: 'accommodation' as 'accommodation',
+      category: 'accommodation' as const,
       hasEcoTags: true,
       hasDnFeatures: true,
     });

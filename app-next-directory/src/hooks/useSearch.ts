@@ -58,7 +58,7 @@ export function useSearch({
       try {
         setIsLoading(true);
         // FORTEST: Debug log for query
-        // eslint-disable-next-line no-console
+         
         console.log('FORTEST: Query sent to API:', debouncedQuery);
         const res = await fetch('/api/search', {
           method: 'POST',
@@ -85,7 +85,7 @@ export function useSearch({
         }
         const data = await res.json();
         // FORTEST: Debug log for API response
-        // eslint-disable-next-line no-console
+         
         console.log('FORTEST: API response data:', JSON.stringify(data));
         setResults(prev => ({
           ...prev,
@@ -100,7 +100,7 @@ export function useSearch({
         }
       } catch (err) {
         // FORTEST: Debug log for error
-        // eslint-disable-next-line no-console
+         
         console.log('FORTEST: Caught error in search:', err);
         setResults(r => ({ ...r, error: err instanceof Error ? err : new Error('Unknown') }));
       } finally {

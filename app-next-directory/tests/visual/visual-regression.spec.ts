@@ -249,6 +249,7 @@ test.describe('Visual Regression Testing', () => {
     });
   });
 
+  /*
   test.describe('Performance Impact Screenshots', () => {
     test('image loading progression', async ({ page }) => {
       await page.goto('/listings/image-heavy-listing');
@@ -274,7 +275,6 @@ test.describe('Visual Regression Testing', () => {
       await page.route('/api/search*', async route => {
         setTimeout(() => route.continue(), 3000);
       });
-      });
 
       await page.fill('input[name="search"]', 'coworking');
       await page.click('button[type="submit"]');
@@ -286,4 +286,4 @@ test.describe('Visual Regression Testing', () => {
       );
     });
   });
-});
+

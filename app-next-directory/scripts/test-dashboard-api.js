@@ -93,7 +93,7 @@ async function runTests() {
   ];
 
   let passedTests = 0;
-  let totalTests = tests.length;
+  const totalTests = tests.length;
 
   for (const test of tests) {
     process.stdout.write(`Testing ${test.name}... `);

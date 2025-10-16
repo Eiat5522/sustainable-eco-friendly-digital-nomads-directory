@@ -70,7 +70,7 @@ test.describe('Cross-Browser Compatibility Testing', () => {
           const_let: (() => {
             try {
               const test = 'test';
-              let test2 = 'test2';
+              const test2 = 'test2';
               return true;
             } catch (e) {
               return false;
@@ -181,7 +181,6 @@ test.describe('Cross-Browser Compatibility Testing', () => {
 
       if (!box) {
         test.skip(true, 'Gallery image bounding box unavailable');
-      }
       }
 
       const startX = box.x + box.width * 0.8;

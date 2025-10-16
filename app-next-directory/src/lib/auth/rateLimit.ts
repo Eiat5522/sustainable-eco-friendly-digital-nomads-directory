@@ -155,12 +155,12 @@ export const buildRateLimiter = (redis: Redis | undefined) => {
       }
 
       if (typeof ctor === 'function') {
-        // eslint-disable-next-line new-cap
+         
         loginRateLimiter = new (ctor as new (config: RatelimitConfig) => InstanceType<typeof UpstashRatelimit>)(config);
       } else {
         const defaultCtor = (ctor as unknown as { default?: unknown }).default;
         if (typeof defaultCtor === 'function') {
-          // eslint-disable-next-line new-cap
+           
           loginRateLimiter = new (defaultCtor as new (config: RatelimitConfig) => InstanceType<typeof UpstashRatelimit>)(config);
         } else {
           loginRateLimiter = undefined;

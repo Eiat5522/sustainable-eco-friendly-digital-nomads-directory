@@ -172,12 +172,6 @@ export async function sendAlert(alert: PerformanceAlert) {
 }
 
 const createSlackChannelConfig = (): SlackChannelConfig => {
-  const webhook = process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL?.trim()
-
-  return Object.freeze({
-    enabled: Boolean(webhook),
-    minSeverity: 'error' as AlertSeverity,
-    webhookUrl: webhook || undefined
   const webhook = process.env.NEXT_PUBLIC_SLACK_WEBHOOK_URL?.trim();
 
   const config: SlackChannelConfig = {
@@ -190,11 +184,6 @@ const createSlackChannelConfig = (): SlackChannelConfig => {
 }
 
 const createEmailChannelConfig = (): EmailChannelConfig => {
-  const recipient = process.env.NEXT_PUBLIC_ALERT_EMAIL?.trim()
-
-  return Object.freeze({
-    enabled: Boolean(recipient),
-    minSeverity: 'error' as AlertSeverity,
   const recipient = process.env.NEXT_PUBLIC_ALERT_EMAIL?.trim();
 
   const config: EmailChannelConfig = {
@@ -204,7 +193,6 @@ const createEmailChannelConfig = (): EmailChannelConfig => {
   };
 
   return Object.freeze(config);
-  }) as EmailChannelConfig
 }
 
 // Alert configuration for different channels

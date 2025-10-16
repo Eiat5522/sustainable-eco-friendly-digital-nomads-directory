@@ -55,7 +55,7 @@ describe('useSearch', () => {
     await waitFor(() => {
       expect(screen.getByTestId('query').textContent).toBe('an');
       // Debug log for actual results
-      // eslint-disable-next-line no-console
+       
       console.log('Actual results:', screen.getByTestId('results').textContent);
       expect(screen.getByTestId('results').textContent).toContain('Bangkok Eco Hub');
     });

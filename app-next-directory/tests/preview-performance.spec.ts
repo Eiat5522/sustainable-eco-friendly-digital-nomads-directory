@@ -35,7 +35,7 @@ async function measureEndpoint(page: Page, url: string): Promise<number> {
 }
 
 // Store metrics at file scope for report generation
-let testMetrics: {
+const testMetrics: {
   normal?: PerformanceMetrics;
   preview?: PerformanceMetrics;
 } = {};
