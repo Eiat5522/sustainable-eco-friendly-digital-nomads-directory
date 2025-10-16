@@ -169,8 +169,9 @@ async function handleProfileMutation(request: NextRequest): Promise<NextResponse
   try {
     const { updateUserProfile } = await import('@/lib/auth/serverAuth');
     const updatedUser = await updateUserProfile(authResult.userId, validationResult.update);
+    const sanitizedUser = sanitizeUser(updatedUser);
 
-    if (!updatedUser) {
+    if (!sanitizedUser) {
       return json(
         {
           success: false,
@@ -187,7 +188,7 @@ async function handleProfileMutation(request: NextRequest): Promise<NextResponse
     return json({
       success: true,
       data: {
-        user: sanitizeUser(updatedUser),
+        user: sanitizedUser,
       },
       error: null,
     });

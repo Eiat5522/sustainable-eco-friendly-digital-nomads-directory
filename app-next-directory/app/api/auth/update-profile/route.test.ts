@@ -1,256 +1,280 @@
-import { jest } from '@jest/globals';
+import { describe, it, expect, beforeAll, beforeEach, afterEach, jest } from '@jest/globals';
+import type { NextRequest } from 'next/server';
 
-// Create mocks with the correct signature before importing
-import type { updateUserProfile as UpdateUserProfileFn } from '@/lib/auth/serverAuth';
-
-const mockUpdateUserProfile = jest.fn<
-  ReturnType<UpdateUserProfileFn>,
-  Parameters<UpdateUserProfileFn>
->();
 const mockAuth = jest.fn();
+const mockUpdateUserProfile = jest.fn();
 
-// Explicitly mock these modules before importing
 jest.mock('@/lib/auth', () => ({
   __esModule: true,
   auth: mockAuth,
-  authOptions: {},
-  getToken: jest.fn(),
 }));
 
 jest.mock('@/lib/auth/serverAuth', () => ({
   __esModule: true,
-  authenticateUser: jest.fn(),
-  createUserAccount: jest.fn(),
-  getUserById: jest.fn(),
-  updateUserRole: jest.fn(),
   updateUserProfile: mockUpdateUserProfile,
 }));
 
-import { PATCH, POST, GET } from './route';
+type RouteModule = typeof import('./route');
 
-const originalEnv = { ...process.env };
-
-const createRequest = (payload?: unknown, method: 'PATCH' | 'POST' | 'GET' = 'PATCH') => {
-  const init: RequestInit = {
+const createJsonRequest = (body: unknown, method: 'PATCH' | 'POST' = 'PATCH'): NextRequest => {
+  const request = new Request('http://localhost/api/auth/update-profile', {
     method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
+    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+  });
 
-  if (payload !== undefined) {
-    init.body = typeof payload === 'string' ? payload : JSON.stringify(payload);
-  }
-  return new Request('http://localhost/api/auth/update-profile', init);
+  return request as unknown as NextRequest;
 };
 
-describe('auth/update-profile route', () => {
+const createRawRequest = (rawBody: string, method: 'PATCH' | 'POST' = 'PATCH'): NextRequest => {
+  const request = new Request('http://localhost/api/auth/update-profile', {
+    method,
+    body: rawBody,
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  return request as unknown as NextRequest;
+};
+
+describe('api/auth/update-profile route', () => {
+  let route: RouteModule;
+  const originalEnv = { ...process.env };
+
+  beforeAll(async () => {
+    route = await import('./route');
+  });
+
   beforeEach(() => {
-    jest.clearAllMocks();
-    process.env = { ...originalEnv, MONGODB_URI: 'mongodb://example.com' };
+    process.env = { ...originalEnv, MONGODB_URI: 'mongodb://test' } as NodeJS.ProcessEnv;
+    mockAuth.mockReset();
+    mockUpdateUserProfile.mockReset();
   });
 
-  afterAll(() => {
-    process.env = originalEnv;
+  afterEach(() => {
+    process.env = { ...originalEnv } as NodeJS.ProcessEnv;
+    jest.restoreAllMocks();
   });
 
-  it('rejects unauthenticated requests with 401', async () => {
-    mockAuth.mockResolvedValue(null as any);
+  it('rejects unsupported GET requests', async () => {
+    const response = await route.GET();
+    const payload = await response.json();
 
-    const response = await PATCH(createRequest({ name: 'Tester' }));
-    const body = await response.json();
-
-    expect(response.status).toBe(401);
-    expect(body.error?.code).toBe('UNAUTHORIZED');
+    expect(response.status).toBe(405);
+    expect(payload).toEqual({
+      success: false,
+      data: null,
+      error: {
+        code: 'METHOD_NOT_ALLOWED',
+        message: 'Use PATCH to update the profile.',
+      },
+    });
+    expect(response.headers.get('Cache-Control')).toBe('no-store');
   });
 
-  it('returns 503 when database configuration is missing', async () => {
-    process.env = { ...originalEnv };
+  it('returns service unavailable when MongoDB is not configured', async () => {
     delete process.env.MONGODB_URI;
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
 
-    const response = await PATCH(createRequest({ name: 'Tester' }));
-    const body = await response.json();
+    const response = await route.PATCH(createJsonRequest({ name: 'Taylor Swift' }));
+    const payload = await response.json();
 
     expect(response.status).toBe(503);
-    expect(body.error?.code).toBe('SERVICE_UNAVAILABLE');
+    expect(payload.error).toEqual({
+      code: 'SERVICE_UNAVAILABLE',
+      message: 'Profile updates are currently disabled.',
+    });
+    expect(response.headers.get('Retry-After')).toBe('60');
+    expect(mockAuth).not.toHaveBeenCalled();
   });
 
-  it('handles invalid JSON payloads with 400', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
+  it('enforces authentication', async () => {
+    mockAuth.mockResolvedValueOnce(null);
 
-    const response = await PATCH(createRequest('{"badJson"'));
-    const body = await response.json();
+    const response = await route.PATCH(createJsonRequest({ name: 'Taylor Swift' }));
+    const payload = await response.json();
 
-    expect(response.status).toBe(400);
-    expect(body.error?.code).toBe('INVALID_JSON');
-  });
-
-  it('validates input fields and returns 400 for invalid data', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
-
-    const response = await PATCH(createRequest({}));
-    const body = await response.json();
-
-    expect(response.status).toBe(400);
-    expect(body.error?.code).toBe('INVALID_INPUT');
-  });
-
-  it('rejects sessions that lack a user id', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
-
-    const response = await PATCH(createRequest({ name: 'Tester' }));
-    const body = await response.json();
-
+    expect(mockAuth).toHaveBeenCalledTimes(1);
     expect(response.status).toBe(401);
-    expect(body.error?.code).toBe('UNAUTHORIZED');
+    expect(payload.error).toEqual({
+      code: 'UNAUTHORIZED',
+      message: 'Authentication required.',
+    });
   });
 
-  it('rejects payloads that are not JSON objects', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
+  it('handles malformed JSON bodies', async () => {
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
 
-    const response = await PATCH(createRequest('"plain-string"'));
-    const body = await response.json();
+    const response = await route.PATCH(createRawRequest('{"broken"'));
+    const payload = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error?.code).toBe('INVALID_INPUT');
+    expect(payload.error).toEqual({
+      code: 'INVALID_JSON',
+      message: 'Unable to parse request body.',
+    });
   });
 
-  it('validates name to be a non-empty string within the limit', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
+  it('requires a JSON object body', async () => {
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
 
-    const invalidType = await PATCH(createRequest({ name: 123 }));
-    expect(invalidType.status).toBe(400);
-    await expect(invalidType.json()).resolves.toEqual(
-      expect.objectContaining({ error: expect.objectContaining({ code: 'INVALID_INPUT' }) })
-    );
+    const response = await route.PATCH(createJsonRequest('invalid'));
+    const payload = await response.json();
 
-    const emptyName = await PATCH(createRequest({ name: '   ' }));
-    expect(emptyName.status).toBe(400);
-
-    const longName = 'a'.repeat(121);
-    const tooLong = await PATCH(createRequest({ name: longName }));
-    const longBody = await tooLong.json();
-    expect(tooLong.status).toBe(400);
-    expect(longBody.error?.message).toMatch(/120/);
+    expect(response.status).toBe(400);
+    expect(payload.error).toEqual({
+      code: 'INVALID_INPUT',
+      message: 'Request body must be a JSON object.',
+    });
   });
 
-  it('validates image to be a string URL or null', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
+  it('validates the name field thoroughly', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'user-1' } });
 
-    const invalidImage = await PATCH(createRequest({ image: 123 }));
-    const invalidBody = await invalidImage.json();
-    expect(invalidImage.status).toBe(400);
-    expect(invalidBody.error?.code).toBe('INVALID_INPUT');
+    const cases: Array<{ body: Record<string, unknown>; expected: string }> = [
+      { body: { name: 123 }, expected: 'Name must be a string.' },
+      { body: { name: '   ' }, expected: 'Name cannot be empty.' },
+      {
+        body: { name: 'a'.repeat(121) },
+        expected: 'Name cannot exceed 120 characters.',
+      },
+    ];
+
+    for (const testCase of cases) {
+      const response = await route.PATCH(createJsonRequest(testCase.body));
+      const payload = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(payload.error.code).toBe('INVALID_INPUT');
+      expect(payload.error.message).toContain(testCase.expected);
+    }
   });
 
-  it('trims provided fields before updating the profile', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
-    mockUpdateUserProfile.mockResolvedValue({
-      id: 'user-1',
-      name: 'New Name',
-      email: 'user@example.com',
-      image: 'https://example.com/img.png',
-      role: 'user',
+  it('validates the image field and requires at least one update field', async () => {
+    mockAuth.mockResolvedValue({ user: { id: 'user-1' } });
+
+    const noFieldsResponse = await route.PATCH(createJsonRequest({}));
+    const noFieldsPayload = await noFieldsResponse.json();
+
+    expect(noFieldsResponse.status).toBe(400);
+    expect(noFieldsPayload.error).toEqual({
+      code: 'INVALID_INPUT',
+      message: 'At least one of name or image must be provided.',
     });
 
-    const response = await PATCH(
-      createRequest({ name: '  New Name  ', image: '  https://example.com/img.png  ' })
+    const invalidImageResponse = await route.PATCH(createJsonRequest({ image: 123 }));
+    const invalidImagePayload = await invalidImageResponse.json();
+
+    expect(invalidImageResponse.status).toBe(400);
+    expect(invalidImagePayload.error.code).toBe('INVALID_INPUT');
+    expect(invalidImagePayload.error.message).toContain('Image must be a string URL or null.');
+  });
+
+  it('trims string fields and supports null images', async () => {
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
+    const updatedUser = {
+      id: 'user-1',
+      name: 'Trimmed Name',
+      email: 'user@example.com',
+      image: undefined,
+      role: 'user',
+      extra: 'ignored',
+    };
+
+    mockUpdateUserProfile.mockResolvedValueOnce(updatedUser);
+
+    const response = await route.PATCH(
+      createJsonRequest({ name: '  Trimmed Name  ', image: '  https://image.test/avatar.png  ' })
     );
-    const body = await response.json();
+    const payload = await response.json();
 
     expect(mockUpdateUserProfile).toHaveBeenCalledWith('user-1', {
-      name: 'New Name',
-      image: 'https://example.com/img.png',
+      name: 'Trimmed Name',
+      image: 'https://image.test/avatar.png',
     });
-    expect(body.data?.user).toMatchObject({ name: 'New Name', image: 'https://example.com/img.png' });
-  });
-
-  it('allows null image updates and sanitizes missing properties', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
-    mockUpdateUserProfile.mockResolvedValue({
-      id: 'user-1',
-      name: 'Updated',
-      email: 'user@example.com',
-      role: 'user',
-    });
-
-    const response = await PATCH(createRequest({ image: null }));
-    const body = await response.json();
-
-    expect(mockUpdateUserProfile).toHaveBeenCalledWith('user-1', { image: null });
-    expect(body.data?.user).toMatchObject({ image: null });
-  });
-
-  it('returns 500 when profile update throws an error', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
-    mockUpdateUserProfile.mockRejectedValue(new Error('update failed'));
-
-    const response = await PATCH(createRequest({ name: 'Boom' }));
-    const body = await response.json();
-
-    expect(response.status).toBe(500);
-    expect(body.error?.code).toBe('SERVER_ERROR');
-    expect(body.error?.message).toBe('Failed to update profile.');
-  });
-
-  it('returns 404 when the user cannot be updated', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
-    mockUpdateUserProfile.mockResolvedValue(null as any);
-
-    const response = await PATCH(createRequest({ name: 'Tester' }));
-    const body = await response.json();
-
-    expect(mockUpdateUserProfile).toHaveBeenCalledWith('user-1', { name: 'Tester' });
-    expect(response.status).toBe(404);
-    expect(body.error?.code).toBe('NOT_FOUND');
-  });
-
-  it('updates the user profile via PATCH', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
-    mockUpdateUserProfile.mockResolvedValue({
-      id: 'user-1',
-      name: 'Updated User',
-      email: 'test@example.com',
-      image: 'https://example.com/avatar.png',
-      role: 'user',
-    });
-
-    const response = await PATCH(createRequest({ name: 'Updated User' }));
-    const body = await response.json();
-
     expect(response.status).toBe(200);
-    expect(body.success).toBe(true);
-    expect(body.data?.user).toMatchObject({
-      id: 'user-1',
-      name: 'Updated User',
-      email: 'test@example.com',
+    expect(payload).toEqual({
+      success: true,
+      data: {
+        user: {
+          id: 'user-1',
+          name: 'Trimmed Name',
+          email: 'user@example.com',
+          image: null,
+          role: 'user',
+        },
+      },
+      error: null,
     });
+    expect(response.headers.get('Cache-Control')).toBe('no-store');
   });
 
-  it('treats POST the same as PATCH for updates', async () => {
-    mockAuth.mockResolvedValue({ user: { id: 'user-1' } } as any);
-    mockUpdateUserProfile.mockResolvedValue({
-      id: 'user-1',
-      name: 'Updated User',
-      email: 'test@example.com',
+  it('propagates null images to the update operation', async () => {
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-2' } });
+    mockUpdateUserProfile.mockResolvedValueOnce({
+      id: 'user-2',
+      name: 'Taylor',
+      email: 'taylor@example.com',
       image: null,
       role: 'user',
     });
 
-    const response = await POST(createRequest({ image: null }, 'POST'));
-    const body = await response.json();
+    const response = await route.PATCH(createJsonRequest({ image: null }));
+    const payload = await response.json();
 
-    expect(mockUpdateUserProfile).toHaveBeenCalledWith('user-1', { image: null });
-    expect(response.status).toBe(200);
-    expect(body.success).toBe(true);
+    expect(mockUpdateUserProfile).toHaveBeenCalledWith('user-2', { image: null });
+    expect(payload.data.user.image).toBeNull();
   });
 
-  it('rejects GET requests with 405', async () => {
-    const response = await GET();
-    const body = await response.json();
+  it('returns 404 when the user cannot be updated', async () => {
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-3' } });
+    mockUpdateUserProfile.mockResolvedValueOnce(null);
 
-    expect(response.status).toBe(405);
-    expect(body.error?.code).toBe('METHOD_NOT_ALLOWED');
+    const response = await route.PATCH(createJsonRequest({ name: 'Taylor' }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(payload.error).toEqual({
+      code: 'NOT_FOUND',
+      message: 'User not found or update failed.',
+    });
+  });
+
+  it('logs and reports server errors', async () => {
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-4' } });
+    const error = new Error('database down');
+    mockUpdateUserProfile.mockRejectedValueOnce(error);
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    const response = await route.PATCH(createJsonRequest({ name: 'Taylor' }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(payload.error).toEqual({
+      code: 'SERVER_ERROR',
+      message: 'Failed to update profile.',
+    });
+    expect(consoleSpy).toHaveBeenCalledWith('Profile update error:', error);
+  });
+
+  it('supports POST requests as an alias for PATCH', async () => {
+    mockAuth.mockResolvedValueOnce({ user: { id: 'user-5' } });
+    mockUpdateUserProfile.mockResolvedValueOnce({
+      id: 'user-5',
+      name: 'Alias Name',
+      email: 'alias@example.com',
+      image: 'avatar.png',
+      role: 'admin',
+    });
+
+    const response = await route.POST(createJsonRequest({ name: 'Alias Name' }, 'POST'));
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.data.user).toEqual({
+      id: 'user-5',
+      name: 'Alias Name',
+      email: 'alias@example.com',
+      image: 'avatar.png',
+      role: 'admin',
+    });
   });
 });
