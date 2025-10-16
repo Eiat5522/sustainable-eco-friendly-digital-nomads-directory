@@ -255,7 +255,7 @@ describe('app/listings/[slug]/page', () => {
     mockTransformToDetailDTO.mockReturnValue({
       id: 'listing-999',
       name: 'Mountain Base',
-      city: { id: null },
+      city: { id: 'city-1' },
       galleryImages: [],
     });
     mockAuth.mockResolvedValue({ user: { id: 'user-7', role: 'venueOwner' } });
