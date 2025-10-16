@@ -14,6 +14,10 @@ dist/
 !app-next-directory/__mocks__/leaflet/dist/
 !app-next-directory/__mocks__/leaflet/dist/leaflet.css.js
 
+# Allow the Jest Leaflet CSS mock to be committed
+!app-next-directory/__mocks__/leaflet/dist/
+!app-next-directory/__mocks__/leaflet/dist/leaflet.css.js
+
 # misc
 .DS_Store
 *.pem
