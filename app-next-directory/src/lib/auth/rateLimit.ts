@@ -81,47 +81,33 @@ const createSlidingWindowLimiter = (ctor: typeof UpstashRatelimit) => {
 };
 
 // Add: normalizeRedisClient helper
-function normalizeRedisClient(client: any) {
+function normalizeRedisClient<T extends Redis | undefined>(client: T): T {
   if (!client || typeof client !== 'object') return client;
 
-  // Normalize evalSha -> evalsha (some clients use camelCase)
-  if ('evalSha' in client && !('evalsha' in client)) {
+  type RedisEval = {
+    evalsha?: (...args: any[]) => any;
+    evalSha?: (...args: any[]) => any;
+  };
+
+  const candidate = client as Redis & RedisEval;
+
+  if (!candidate.evalsha && typeof candidate.evalSha === 'function') {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      client.evalsha = ((client.evalSha as any) as (...args: any[]) => any).bind(client);
+      candidate.evalsha = candidate.evalSha.bind(candidate);
     } catch {
-      // noop: binding may fail in some mocks; fall back to a simple assignment
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (client as any).evalsha = (client as any).evalSha;
+      candidate.evalsha = candidate.evalSha as (...args: any[]) => any;
     }
   }
 
-  // Also ensure the reverse mapping just in case code expects evalSha
-  if ('evalsha' in client && !('evalSha' in client)) {
+  if (!candidate.evalSha && typeof candidate.evalsha === 'function') {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      client.evalSha = ((client.evalsha as any) as (...args: any[]) => any).bind(client);
+      candidate.evalSha = candidate.evalsha.bind(candidate);
     } catch {
-      // noop
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (client as any).evalSha = (client as any).evalsha;
+      candidate.evalSha = candidate.evalsha as (...args: any[]) => any;
     }
   }
 
-  return client;
-}
-
-function normaliseRedisClient(redis: Redis | undefined): any {
-  if (!redis) {
-    return redis;
-  }
-
-  const candidate = redis as any;
-  if (typeof candidate.evalsha !== 'function' && typeof candidate.evalSha === 'function') {
-    candidate.evalsha = candidate.evalSha.bind(candidate);
-  }
-
-  return candidate;
+  return candidate as unknown as T;
 }
 
 let loginRateLimiterPromise: Promise<void> | null = null;
@@ -131,7 +117,7 @@ export const buildRateLimiter = (redis: Redis | undefined) => {
   if (testOverride) {
     if (redis) {
       const config: RatelimitConfig = {
-        redis: normaliseRedisClient(redis),
+        redis: normalizeRedisClient(redis),
         limiter: {
           limit: LOGIN_WINDOW_LIMIT,
           window: LOGIN_WINDOW_DURATION,
@@ -158,7 +144,7 @@ export const buildRateLimiter = (redis: Redis | undefined) => {
     try {
       const ctor = await getRatelimitCtor();
       const config: RatelimitConfig = {
-        redis: normaliseRedisClient(redis),
+        redis: normalizeRedisClient(redis),
         limiter: createSlidingWindowLimiter(ctor),
         analytics: true,
         prefix: LOGIN_RATE_LIMIT_PREFIX,
@@ -192,7 +178,7 @@ export const buildRateLimiter = (redis: Redis | undefined) => {
 
 let initialRedis: Redis | undefined;
 try {
-  initialRedis = getRedisClient?.();
+  initialRedis = getRedisClient();
 } catch (error) {
   console.warn('[auth] Failed to obtain Redis client during initialization', error);
   initialRedis = undefined;
@@ -202,10 +188,10 @@ buildRateLimiter(initialRedis);
 
 // Ensure handler registration uses normalization
 if (typeof onRedisClientChange === 'function') {
-  onRedisClientChange((newClient: any) => {
+  onRedisClientChange((newClient) => {
     try {
-      normalizeRedisClient(newClient);
-      buildRateLimiter(newClient);
+      const normalized = normalizeRedisClient(newClient);
+      buildRateLimiter(normalized);
     } catch (error) {
       console.warn('[auth] Failed to rebuild login rate limiter', error);
     }
@@ -311,7 +297,7 @@ export function __resetLoginRateLimiterForTests() {
     lastRateLimiterConfigForTests = undefined;
     loginRateLimiterPromise = null;
     try {
-      buildRateLimiter(getRedisClient?.());
+      buildRateLimiter(getRedisClient());
     } catch {
       // Ignore rebuild errors in tests
     }

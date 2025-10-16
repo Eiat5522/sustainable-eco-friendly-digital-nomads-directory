@@ -1,11 +1,31 @@
-// --- before (imports) ---
 import { Redis } from '@upstash/redis';
-import type { RedisLike } from './types';
 
-type RedisLike = Pick<Redis, 'set' | 'get' | 'del' | 'ping' | 'incr' | 'expire'>;
-type RedisListener = (client: RedisLike | undefined) => void;
+export type RedisLike = Pick<Redis, 'get' | 'set' | 'del' | 'incr' | 'expire' | 'ping'> & Record<string, unknown>;
 
-// --- moved and wrapped env check into a function ---
+type RedisListener = (client: Redis | undefined) => void;
+
+type MockableGetRedisClient = (() => Redis | undefined) & {
+  mockReturnValue: (client: Redis | undefined) => MockableGetRedisClient;
+  mockClear: () => void;
+  mockReset: () => void;
+};
+
+const listeners = new Set<RedisListener>();
+let currentClient: Redis | undefined;
+
+const notifyListeners = () => {
+  for (const listener of listeners) {
+    try {
+      listener(currentClient);
+    } catch (error) {
+      console.warn('[redis] listener threw error', error);
+    }
+  }
+};
+
+const isTestEnvironment = () =>
+  process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined';
+
 const getRedisCredentials = () => {
   const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
   const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -17,35 +37,14 @@ const getRedisCredentials = () => {
   return { redisUrl, redisToken };
 };
 
-// --- updated createRedisClient to invoke the above ---
-export const createRedisClient = (): RedisLike => {
+export const createRedisClient = (): Redis => {
   const { redisUrl, redisToken } = getRedisCredentials();
-  return new Redis({
-    url: redisUrl,
-    token: redisToken,
-  }) as unknown as RedisLike;
+  return new Redis({ url: redisUrl, token: redisToken });
 };
 
-const listeners = new Set<RedisListener>();
-
-const notifyListeners = () => {
-  for (const listener of listeners) {
-    try {
-      listener(currentClient);
-    } catch (error) {
-      console.warn('[redis] listener threw error', error);
-    }
-  }
-};
-let currentClient: RedisLike | undefined;
-
-const setClient = (client: RedisLike | undefined) => {
+const setClient = (client: Redis | undefined) => {
   currentClient = client;
   notifyListeners();
-};
-
-const isTestEnvironment = () => {
-  return process.env.NODE_ENV === 'test' || typeof process.env.JEST_WORKER_ID !== 'undefined';
 };
 
 const baseGetRedisClient = () => {
@@ -53,17 +52,14 @@ const baseGetRedisClient = () => {
     if (isTestEnvironment()) {
       return undefined;
     }
-    currentClient = redis = createRedisClient();
+    setClient(createRedisClient());
   }
+
   return currentClient;
 };
 
-const attachMockHelpers = (getter: () => RedisLike | undefined) => {
-  const mock = getter as typeof getter & {
-    mockReturnValue: (client: RedisLike | undefined) => typeof getter;
-    mockClear: () => void;
-    mockReset: () => void;
-  };
+const attachMockHelpers = (getter: () => Redis | undefined): MockableGetRedisClient => {
+  const mock = getter as MockableGetRedisClient;
 
   mock.mockReturnValue = (client) => {
     setClient(client);
@@ -80,15 +76,42 @@ const attachMockHelpers = (getter: () => RedisLike | undefined) => {
   return mock;
 };
 
-export const getRedisClient = isTestEnvironment()
-  ? attachMockHelpers(baseGetRedisClient)
-  : baseGetRedisClient;
+export const getRedisClient = (
+  isTestEnvironment() ? attachMockHelpers(baseGetRedisClient) : baseGetRedisClient
+) as MockableGetRedisClient;
+
+export const setRedisClient = (client: Redis | undefined) => {
+  setClient(client);
+};
 
 export const onRedisClientChange = (listener: RedisListener) => {
   listeners.add(listener);
   listener(currentClient);
 
   return () => {
-    listeners.delete(listener);  };
+    listeners.delete(listener);
+  };
 };
 
+export const mockRedisClient: RedisLike | undefined = isTestEnvironment()
+  ? {
+      async get() {
+        return null;
+      },
+      async set() {
+        return 'OK';
+      },
+      async del() {
+        return 0;
+      },
+      async incr() {
+        return 0;
+      },
+      async expire() {
+        return 0 as 0 | 1;
+      },
+      async ping() {
+        return 'PONG';
+      },
+    }
+  : undefined;

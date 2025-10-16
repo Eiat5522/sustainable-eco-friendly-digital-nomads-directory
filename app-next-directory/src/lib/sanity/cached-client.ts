@@ -1,6 +1,6 @@
 
 import { createClient, groq } from 'next-sanity';
-import { redis } from '../redis';
+import { getRedisClient } from '../redis';
 import { client } from './client';
 
 const CACHE_TTL_SECONDS = 60 * 60; // 1 hour
@@ -9,13 +9,17 @@ const inflightRequests = new Map<string, Promise<any>>();
 async function fetchAndCache(query: string, params: any, ttl: number) {
   const key = `sanity:${query}:${JSON.stringify(params, Object.keys(params).sort())}`;
   
-  try {
-    const cachedData = await redis.get(key);
-    if (cachedData) {
-      return JSON.parse(cachedData as string);
+  const redis = getRedisClient();
+
+  if (redis) {
+    try {
+      const cachedData = await redis.get<string>(key);
+      if (cachedData) {
+        return JSON.parse(cachedData);
+      }
+    } catch (error) {
+      console.warn('Cache read failed, falling through to fetch:', error);
     }
-  } catch (error) {
-    console.warn('Cache read failed, falling through to fetch:', error);
   }
 
   // Check if request is already in-flight to prevent stampede
@@ -26,7 +30,14 @@ async function fetchAndCache(query: string, params: any, ttl: number) {
   const fetchPromise = (async () => {
     try {
       const data = await client.fetch(query, params);
-      await redis.set(key, JSON.stringify(data), { ex: ttl });
+
+      if (redis) {
+        try {
+          await redis.set(key, JSON.stringify(data), { ex: ttl });
+        } catch (error) {
+          console.warn('Cache write failed, continuing without Redis:', error);
+        }
+      }
       return data;
     } finally {
       inflightRequests.delete(key);

@@ -15,7 +15,7 @@ type WindowLike = Partial<Window> & Record<string, unknown>
 
 const getWindowLike = (): WindowLike | undefined => {
   if (typeof dependencies.window !== 'undefined') {
-    return dependencies.window as WindowLike
+    return dependencies.window
   }
 
   if (typeof globalThis !== 'undefined') {
@@ -63,8 +63,8 @@ interface PerformanceEvent {
 
 // For testability, we inject dependencies.
 // This is safe for production as it defaults to the real window object.
-export const dependencies = {
-  window: typeof window !== 'undefined' ? window : (undefined as (Window & typeof globalThis & { plausible?: any }) | undefined),
+export const dependencies: { window?: WindowLike } = {
+  window: typeof window !== 'undefined' ? (window as unknown as WindowLike) : undefined,
 }
 
 

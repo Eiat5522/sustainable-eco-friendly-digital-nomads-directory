@@ -1,5 +1,5 @@
 
-import { VenueListingManagement } from '@/app/dashboard/components/VenueListingManagement';
+import { VenueListingManagement } from '../components/VenueListingManagement';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
