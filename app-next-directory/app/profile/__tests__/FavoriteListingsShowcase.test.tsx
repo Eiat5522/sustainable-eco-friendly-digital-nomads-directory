@@ -43,7 +43,7 @@ describe('FavoriteListingsShowcase', () => {
     expect(screen.getByText('Budget Friendly')).toBeInTheDocument();
     expect(screen.getByText('Lisbon, Portugal')).toBeInTheDocument();
     expect(screen.getByText('Saved Jan 10, 2024')).toBeInTheDocument();
-    expect(screen.getAllByText('Bright eco-conscious coworking space.')).toHaveLength(2);
+    expect(screen.getByText('Bright eco-conscious coworking space.')).toBeInTheDocument();
 
     const removeButton = screen.getByRole('button', { name: /remove eco workspace/i });
     fireEvent.click(removeButton);
