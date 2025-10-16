@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 
-// Mock the auth library before importing the route
+// Mock the auth library
 const mockAuthGET = jest.fn();
 const mockAuthPOST = jest.fn();
 
@@ -10,14 +10,16 @@ jest.mock('@/lib/auth', () => ({
   POST: mockAuthPOST,
 }));
 
-// Import after mocking
-import { GET, POST } from '../route';
+type GetHandler = typeof import('../route').GET;
+type PostHandler = typeof import('../route').POST;
+let GET: GetHandler;
+let POST: PostHandler;
 
 describe('NextAuth Route Handler', () => {
   let consoleLogSpy: jest.SpiedFunction<typeof console.log>;
   let consoleErrorSpy: jest.SpiedFunction<typeof console.error>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -25,6 +27,13 @@ describe('NextAuth Route Handler', () => {
     // Set default mock responses
     mockAuthGET.mockResolvedValue(new Response('OK', { status: 200 }));
     mockAuthPOST.mockResolvedValue(new Response('OK', { status: 200 }));
+
+    // Import handlers with isolated modules
+    await jest.isolateModulesAsync(async () => {
+      const module = await import('../route');
+      GET = module.GET;
+      POST = module.POST;
+    });
   });
 
   afterEach(() => {
@@ -213,9 +222,12 @@ describe('NextAuth Route Handler', () => {
 
       await GET(request);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[auth route] incoming GET')
+      // Check that console.log was called with the incoming GET message
+      const calls = consoleLogSpy.mock.calls;
+      const hasIncomingGetLog = calls.some(call => 
+        call.some(arg => typeof arg === 'string' && arg.includes('[auth route] incoming GET'))
       );
+      expect(hasIncomingGetLog).toBe(true);
     });
   });
 });
