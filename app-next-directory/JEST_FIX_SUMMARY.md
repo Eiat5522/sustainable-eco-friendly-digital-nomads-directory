@@ -65,7 +65,7 @@ const { client } = require('../lib/sanity/client');
 
 **After**:
 ```typescript
-import { client } from '../lib/sanity/client.js';
+import { client } from '../lib/sanity/client';
 ```
 
 ### 3. Verified Jest Configuration
