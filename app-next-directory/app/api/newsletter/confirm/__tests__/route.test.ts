@@ -192,6 +192,20 @@ describe('Newsletter Confirmation API - GET /api/newsletter/confirm', () => {
       // Should have a fallback redirect
       expect(response.headers.get('location')).toBeTruthy();
     });
+
+    it('should handle error when URL parsing fails in catch block', async () => {
+      mockVerifyToken.mockRejectedValueOnce(new Error('Invalid token'));
+
+      // Create a request object that will fail URL parsing in the catch block
+      const request = {
+        url: 'invalid-url-format',
+      } as Request;
+
+      const response = await GET(request);
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get('location')).toBe('/newsletter/confirmed?status=invalid');
+    });
   });
 
   describe('Token Validation', () => {
@@ -218,8 +232,12 @@ describe('Newsletter Confirmation API - GET /api/newsletter/confirm', () => {
 
   describe('Email Handling', () => {
     it('should handle email with plus addressing', async () => {
+      mockVerifyToken.mockReset();
+      mockUpdateOne.mockReset();
+      mockDbConnect.mockResolvedValue(undefined);
+      mockUpdateOne.mockResolvedValue({ acknowledged: true });
       process.env.MONGODB_URI = 'mongodb://localhost/test';
-      mockVerifyToken.mockResolvedValueOnce({ email: 'user+newsletter@example.com' });
+      mockVerifyToken.mockResolvedValue({ email: 'user+newsletter@example.com' });
 
       const request = new Request('http://localhost/api/newsletter/confirm?token=valid-token');
 
@@ -227,14 +245,18 @@ describe('Newsletter Confirmation API - GET /api/newsletter/confirm', () => {
 
       expect(mockUpdateOne).toHaveBeenCalledWith(
         { email: 'user+newsletter@example.com' },
-        expect.any(Object),
+        { $set: { email: 'user+newsletter@example.com', confirmedAt: expect.any(Date) } },
         { upsert: true }
       );
     });
 
     it('should handle email with subdomain', async () => {
+      mockVerifyToken.mockReset();
+      mockUpdateOne.mockReset();
+      mockDbConnect.mockResolvedValue(undefined);
+      mockUpdateOne.mockResolvedValue({ acknowledged: true });
       process.env.MONGODB_URI = 'mongodb://localhost/test';
-      mockVerifyToken.mockResolvedValueOnce({ email: 'user@mail.example.com' });
+      mockVerifyToken.mockResolvedValue({ email: 'user@mail.example.com' });
 
       const request = new Request('http://localhost/api/newsletter/confirm?token=valid-token');
 
@@ -242,7 +264,7 @@ describe('Newsletter Confirmation API - GET /api/newsletter/confirm', () => {
 
       expect(mockUpdateOne).toHaveBeenCalledWith(
         { email: 'user@mail.example.com' },
-        expect.any(Object),
+        { $set: { email: 'user@mail.example.com', confirmedAt: expect.any(Date) } },
         { upsert: true }
       );
     });
