@@ -1,11 +1,7 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect } from '@jest/globals';
 import { POST } from '../route';
 
 describe('/api/session', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('POST returns success', async () => {
     const response = await POST();
     const json = await response.json();

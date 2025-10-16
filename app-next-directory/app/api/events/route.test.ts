@@ -6,27 +6,23 @@
  * 3. Date filtering (only future events)
  */
 
-import { jest } from '@jest/globals';
-import { GET } from './route';
-import { client } from '@/lib/sanity/client';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { GET, testControl } from './route';
 
-// Mock Sanity client
-jest.mock('@/lib/sanity/client', () => ({
-  client: {
-    fetch: jest.fn(),
-  },
-}));
+const fetchMock = jest.fn();
 
 describe('Events API - GET /api/events', () => {
-  let mockedFetch: jest.Mock;
-
   beforeEach(() => {
-    jest.clearAllMocks();
-    mockedFetch = client.fetch as jest.Mock;
+    fetchMock.mockReset();
+    testControl.clientFetchOverride = fetchMock;
+  });
+
+  afterEach(() => {
+    testControl.clientFetchOverride = undefined;
   });
 
   describe('Successful Requests', () => {
-    it('should return upcoming events ordered by start date', async () => {
+    it('returns upcoming events ordered by start date', async () => {
       const mockEvents = [
         {
           _id: '1',
@@ -37,7 +33,7 @@ describe('Events API - GET /api/events', () => {
           location: 'Bangkok',
           ecoInitiatives: ['Carbon Neutral', 'Zero Waste'],
           imageUrl: 'https://example.com/image1.jpg',
-          description: 'Annual eco summit'
+          description: 'Annual eco summit',
         },
         {
           _id: '2',
@@ -48,10 +44,10 @@ describe('Events API - GET /api/events', () => {
           location: 'Chiang Mai',
           ecoInitiatives: ['Local Food'],
           imageUrl: 'https://example.com/image2.jpg',
-          description: 'Monthly meetup'
-        }
+          description: 'Monthly meetup',
+        },
       ];
-      mockedFetch.mockResolvedValueOnce(mockEvents);
+      fetchMock.mockResolvedValueOnce(mockEvents);
 
       const request = new Request('http://localhost/api/events');
       const response = await GET(request);
@@ -60,12 +56,11 @@ describe('Events API - GET /api/events', () => {
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
       expect(data.data).toEqual(mockEvents);
-      expect(data.data.length).toBe(2);
-      expect(mockedFetch).toHaveBeenCalledTimes(1);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
     });
 
-    it('should return an empty array when no upcoming events exist', async () => {
-      mockedFetch.mockResolvedValueOnce([]);
+    it('returns an empty array when no upcoming events exist', async () => {
+      fetchMock.mockResolvedValueOnce([]);
 
       const request = new Request('http://localhost/api/events');
       const response = await GET(request);
@@ -76,14 +71,14 @@ describe('Events API - GET /api/events', () => {
       expect(data.data).toEqual([]);
     });
 
-    it('should use correct GROQ query with date filtering', async () => {
-      mockedFetch.mockResolvedValueOnce([]);
+    it('uses correct GROQ query with date filtering', async () => {
+      fetchMock.mockResolvedValueOnce([]);
 
       const request = new Request('http://localhost/api/events');
       await GET(request);
 
-      const query = mockedFetch.mock.calls[0][0];
-      const params = mockedFetch.mock.calls[0][1];
+      const query = fetchMock.mock.calls[0][0] as string;
+      const params = fetchMock.mock.calls[0][1] as { now: string };
 
       expect(query).toContain('_type == "event"');
       expect(query).toContain('dateTime(startDate) >= dateTime($now)');
@@ -92,13 +87,13 @@ describe('Events API - GET /api/events', () => {
       expect(typeof params.now).toBe('string');
     });
 
-    it('should include all required event fields', async () => {
-      mockedFetch.mockResolvedValueOnce([]);
+    it('includes all required event fields', async () => {
+      fetchMock.mockResolvedValueOnce([]);
 
       const request = new Request('http://localhost/api/events');
       await GET(request);
 
-      const query = mockedFetch.mock.calls[0][0];
+      const query = fetchMock.mock.calls[0][0] as string;
       expect(query).toContain('_id');
       expect(query).toContain('title');
       expect(query).toContain('slug');
@@ -112,8 +107,8 @@ describe('Events API - GET /api/events', () => {
   });
 
   describe('Error Handling', () => {
-    it('should return 500 on database fetch failure', async () => {
-      mockedFetch.mockRejectedValueOnce(new Error('Sanity fetch error'));
+    it('returns 500 on database fetch failure', async () => {
+      fetchMock.mockRejectedValueOnce(new Error('Sanity fetch error'));
 
       const request = new Request('http://localhost/api/events');
       const response = await GET(request);
@@ -122,11 +117,11 @@ describe('Events API - GET /api/events', () => {
       expect(response.status).toBe(500);
       expect(data.success).toBe(false);
       expect(data.error).toBe('Failed to fetch events');
-      expect(mockedFetch).toHaveBeenCalledTimes(1);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle network timeout errors', async () => {
-      mockedFetch.mockRejectedValueOnce(new Error('Network timeout'));
+    it('handles network timeout errors', async () => {
+      fetchMock.mockRejectedValueOnce(new Error('Network timeout'));
 
       const request = new Request('http://localhost/api/events');
       const response = await GET(request);

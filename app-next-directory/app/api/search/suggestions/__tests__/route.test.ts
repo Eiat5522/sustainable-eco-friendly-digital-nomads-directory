@@ -1,17 +1,19 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { GET } from '../route';
-import { getSearchSuggestions } from '@/lib/search';
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { GET, testControl } from '../route';
 
-jest.mock('@/lib/search', () => ({
-  getSearchSuggestions: jest.fn(),
-}));
+const mockedGetSearchSuggestions = jest.fn();
 
 describe('/api/search/suggestions', () => {
-  let mockedGetSearchSuggestions: jest.Mock;
+  const originalNodeEnv = process.env.NODE_ENV;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockedGetSearchSuggestions = getSearchSuggestions as jest.Mock;
+  beforeEach(async () => {
+    mockedGetSearchSuggestions.mockReset();
+    testControl.getSearchSuggestionsOverride = mockedGetSearchSuggestions;
+  });
+
+  afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+    testControl.getSearchSuggestionsOverride = undefined;
   });
 
   it('returns suggestions for valid query', async () => {
@@ -27,7 +29,7 @@ describe('/api/search/suggestions', () => {
 
     expect(response.status).toBe(200);
     expect(json.success).toBe(true);
-    expect(json.suggestions).toEqual(mockSuggestions);
+    expect(json.data.suggestions).toEqual(mockSuggestions);
     expect(mockedGetSearchSuggestions).toHaveBeenCalledWith('Ban');
   });
 
@@ -38,8 +40,8 @@ describe('/api/search/suggestions', () => {
 
     expect(response.status).toBe(400);
     expect(json.error).toBe('Missing required query param "q"');
-    expect(json.code).toBe('MISSING_QUERY');
-    expect(json.param).toBe('q');
+    expect(json.details?.code).toBe('MISSING_QUERY');
+    expect(json.details?.param).toBe('q');
     expect(mockedGetSearchSuggestions).not.toHaveBeenCalled();
   });
 
@@ -61,8 +63,8 @@ describe('/api/search/suggestions', () => {
 
     expect(response.status).toBe(400);
     expect(json.error).toBe('Query too long');
-    expect(json.code).toBe('QUERY_TOO_LONG');
-    expect(json.maxLength).toBe(256);
+    expect(json.details?.code).toBe('QUERY_TOO_LONG');
+    expect(json.details?.maxLength).toBe(256);
     expect(mockedGetSearchSuggestions).not.toHaveBeenCalled();
   });
 
@@ -86,7 +88,7 @@ describe('/api/search/suggestions', () => {
     const json = await response.json();
 
     expect(response.status).toBe(500);
-    expect(json.details).toBe('Specific error');
+    expect(json.details?.details).toBe('Specific error');
   });
 
   it('excludes error details in production', async () => {

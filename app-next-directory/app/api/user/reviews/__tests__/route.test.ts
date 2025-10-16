@@ -1,29 +1,26 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { GET } from '../route';
-import { auth } from '@/lib/auth';
-import { getCollection } from '@/utils/db-helpers';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 
-jest.mock('@/lib/auth', () => ({
-  auth: jest.fn(),
-}));
+import { GET, testControl } from '../route';
 
-jest.mock('@/utils/db-helpers', () => ({
-  getCollection: jest.fn(),
-}));
+const authMock = jest.fn();
+const getCollectionMock = jest.fn();
+
+beforeEach(() => {
+  testControl.authOverride = undefined;
+  testControl.getCollectionOverride = undefined;
+  authMock.mockReset();
+  getCollectionMock.mockReset();
+});
+
+afterEach(() => {
+  testControl.authOverride = undefined;
+  testControl.getCollectionOverride = undefined;
+});
 
 describe('/api/user/reviews', () => {
-  let mockedAuth: jest.Mock;
-  let mockedGetCollection: jest.Mock;
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockedAuth = auth as jest.Mock;
-    mockedGetCollection = getCollection as jest.Mock;
-  });
-
   it('returns 401 when not authenticated', async () => {
-    mockedAuth.mockResolvedValue(null);
-    
+    testControl.authOverride = authMock.mockResolvedValue(null);
+
     const response = await GET();
     const json = await response.json();
 
@@ -32,27 +29,27 @@ describe('/api/user/reviews', () => {
   });
 
   it('returns empty array for non-venue owners', async () => {
-    mockedAuth.mockResolvedValue({
+    testControl.authOverride = authMock.mockResolvedValue({
       user: { id: 'user-1', role: 'user' },
     });
-    
+
     const response = await GET();
     const json = await response.json();
 
     expect(response.status).toBe(200);
     expect(json.listings).toEqual([]);
-    expect(mockedGetCollection).not.toHaveBeenCalled();
+    expect(getCollectionMock).not.toHaveBeenCalled();
   });
 
   it('returns listings with reviews for venue owner', async () => {
-    mockedAuth.mockResolvedValue({
+    testControl.authOverride = authMock.mockResolvedValue({
       user: { id: 'user-1', role: 'venueOwner' },
     });
-    
+
     const mockListings = [
-      { slug: 'test-listing', name: 'Test Listing', status: 'published' },
+      { slug: 'test-listing', name: 'Test Listing', status: 'published', ownerId: 'user-1' },
     ];
-    
+
     const mockReviews = [
       {
         _id: 'review-1',
@@ -64,29 +61,31 @@ describe('/api/user/reviews', () => {
         status: 'approved',
       },
     ];
-    
-    const mockListingsCollection = {
-      find: jest.fn().mockReturnValue({
-        project: jest.fn().mockReturnValue({
-          toArray: jest.fn().mockResolvedValue(mockListings),
+
+    const listingsCursor = {
+      project: jest.fn().mockReturnValue({
+        toArray: jest.fn().mockResolvedValue(mockListings),
+      }),
+    };
+
+    const reviewsCursor = {
+      sort: jest.fn().mockReturnValue({
+        limit: jest.fn().mockReturnValue({
+          toArray: jest.fn().mockResolvedValue(mockReviews),
         }),
       }),
     };
-    
-    const mockReviewsCollection = {
-      find: jest.fn().mockReturnValue({
-        sort: jest.fn().mockReturnValue({
-          limit: jest.fn().mockReturnValue({
-            toArray: jest.fn().mockResolvedValue(mockReviews),
-          }),
-        }),
-      }),
-    };
-    
-    mockedGetCollection
-      .mockResolvedValueOnce(mockListingsCollection)
-      .mockResolvedValueOnce(mockReviewsCollection);
-    
+
+    getCollectionMock
+      .mockResolvedValueOnce({
+        find: jest.fn().mockReturnValue(listingsCursor),
+      })
+      .mockResolvedValueOnce({
+        find: jest.fn().mockReturnValue(reviewsCursor),
+      });
+
+    testControl.getCollectionOverride = getCollectionMock;
+
     const response = await GET();
     const json = await response.json();
 
@@ -97,12 +96,13 @@ describe('/api/user/reviews', () => {
   });
 
   it('handles database errors', async () => {
-    mockedAuth.mockResolvedValue({
+    testControl.authOverride = authMock.mockResolvedValue({
       user: { id: 'user-1', role: 'venueOwner' },
     });
-    
-    mockedGetCollection.mockRejectedValue(new Error('Database error'));
-    
+
+    getCollectionMock.mockRejectedValue(new Error('Database error'));
+    testControl.getCollectionOverride = getCollectionMock;
+
     const response = await GET();
     const json = await response.json();
 

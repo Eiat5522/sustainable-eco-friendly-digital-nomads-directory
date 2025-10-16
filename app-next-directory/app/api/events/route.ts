@@ -1,5 +1,11 @@
 import { client } from '@/lib/sanity/client';
 
+type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
+
+export const testControl = {
+  clientFetchOverride: undefined as FetchFn | undefined,
+};
+
 export async function GET(_request: Request) {
   try {
     const now = new Date().toISOString();
@@ -16,7 +22,10 @@ export async function GET(_request: Request) {
       description
     }`;
 
-    const events = await client.fetch(query, { now });
+    const fetchFn =
+      testControl.clientFetchOverride ??
+      ((queryString: string, params?: Record<string, unknown>) => client.fetch(queryString, params));
+    const events = await fetchFn(query, { now });
 
     return new Response(JSON.stringify({ success: true, data: events }), {
       headers: { 'Content-Type': 'application/json' },

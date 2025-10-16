@@ -1,12 +1,16 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import clientPromise from '@/lib/mongodb';
 
+export const testControl = {
+  clientOverride: undefined as Promise<typeof clientPromise extends Promise<infer C> ? C : never> | undefined,
+};
+
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 export async function GET() {
   try {
     // Test the connection
-    const client = await clientPromise;
+    const client = await (testControl.clientOverride ?? clientPromise);
     await client.db().command({ ping: 1 });
 
     return ApiResponseHandler.success({ message: 'Successfully connected to MongoDB!' });

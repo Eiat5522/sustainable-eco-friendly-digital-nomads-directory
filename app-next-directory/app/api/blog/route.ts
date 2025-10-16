@@ -93,13 +93,18 @@ export async function GET(request: NextRequest) {
     if (tag) params.tag = tag;
     if (search) params.search = search;
 
+    const fetchFn =
+      testControl.sanityFetchOverride ??
+      ((query: string, queryParams?: QueryParams) => sanityClient.fetch(query, queryParams));
+    const transform = testControl.transformOverride ?? transformToBlogSummaryDTO;
+
     const [postsRaw, totalCount] = await Promise.all([
-      sanityClient.fetch<RawBlogPost[]>(finalQuery, params as QueryParams),
-      sanityClient.fetch<number>(finalCountQuery, params as QueryParams),
+      fetchFn(finalQuery, params as QueryParams),
+      fetchFn(finalCountQuery, params as QueryParams),
     ]);
 
     const posts = Array.isArray(postsRaw)
-      ? postsRaw.map((post) => transformToBlogSummaryDTO(post))
+      ? postsRaw.map((post) => transform(post as RawBlogPost))
       : [];
 
     const total = Number.isFinite(totalCount) ? Number(totalCount) : 0;
@@ -144,3 +149,10 @@ export async function GET(request: NextRequest) {
     return ApiResponseHandler.error('Failed to fetch blog posts', 500);
   }
 }
+type FetchFn = (query: string, params?: QueryParams) => Promise<any>;
+type TransformFn = typeof transformToBlogSummaryDTO;
+
+export const testControl = {
+  sanityFetchOverride: undefined as FetchFn | undefined,
+  transformOverride: undefined as TransformFn | undefined,
+};

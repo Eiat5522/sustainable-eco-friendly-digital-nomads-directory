@@ -32,7 +32,6 @@ describe('dbConnect (integration)', () => {
     }
     process.env.MONGODB_URI = mongo.getUri();
   });
-
   afterEach(async () => {
     const mongoose = await getMongoose();
     if (mongoose.connection.readyState !== 0) {

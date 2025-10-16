@@ -1,16 +1,20 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { GET } from '../route';
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { GET, testControl } from '../route';
 
 const mockCreateTestData = jest.fn();
 
-jest.mock('@/tests/helpers/test-data', () => ({
-  createTestData: mockCreateTestData,
-}));
-
 describe('/api/test-listings', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+  const originalNodeEnv = process.env.NODE_ENV;
+
+  beforeEach(async () => {
+    mockCreateTestData.mockReset();
+    testControl.createTestDataOverride = mockCreateTestData;
     delete process.env.NODE_ENV;
+  });
+
+  afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+    testControl.createTestDataOverride = undefined;
   });
 
   it('returns 404 in production environment', async () => {

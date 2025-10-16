@@ -1,9 +1,21 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { client } from '@/lib/sanity/client';
 
+type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
+type NodeEnvFn = () => string | undefined;
+
+export const testControl = {
+  clientFetchOverride: undefined as FetchFn | undefined,
+  nodeEnvOverride: undefined as NodeEnvFn | undefined,
+};
+
 export async function GET(): Promise<Response> {
   try {
-    const nodeEnv = process.env.NODE_ENV?.toLowerCase();
+    const rawEnv = testControl.nodeEnvOverride ? testControl.nodeEnvOverride() : process.env.NODE_ENV;
+    const nodeEnv = rawEnv?.toLowerCase();
+    const fetchFn =
+      testControl.clientFetchOverride ??
+      ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
 
     if (nodeEnv === 'production') {
       return ApiResponseHandler.error('Not found', 404);
@@ -18,7 +30,7 @@ export async function GET(): Promise<Response> {
       });
     }
     // Simple query to test connection
-    const result = await client.fetch(`*[_type == "listing"][0...1] {
+    const result = await fetchFn(`*[_type == "listing"][0...1] {
       _id,
       title
     }`);

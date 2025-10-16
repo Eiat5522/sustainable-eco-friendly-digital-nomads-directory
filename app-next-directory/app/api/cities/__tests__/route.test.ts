@@ -6,23 +6,19 @@
  * 3. Response structure validation
  */
 
-import { jest } from '@jest/globals';
-import { GET } from '../route';
-import { client } from '@/lib/sanity';
-
-// Mock Sanity client
-jest.mock('@/lib/sanity', () => ({
-  client: {
-    fetch: jest.fn(),
-  },
-}));
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { GET, testControl } from '../route';
 
 describe('Cities API - GET /api/cities', () => {
-  let mockedFetch: jest.Mock;
+  const mockedFetch = jest.fn();
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockedFetch = client.fetch as jest.Mock;
+  beforeEach(async () => {
+    mockedFetch.mockReset();
+    testControl.clientFetchOverride = mockedFetch;
+  });
+
+  afterEach(() => {
+    testControl.clientFetchOverride = undefined;
   });
 
   describe('Successful Requests', () => {

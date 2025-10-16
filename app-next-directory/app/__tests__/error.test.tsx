@@ -106,7 +106,7 @@ describe('Error Component', () => {
   it('has proper ARIA attributes', () => {
     render(<ErrorComponent error={mockError} reset={mockReset} />);
 
-    const section = screen.getByRole('region', { name: /error-title/i });
+    const section = screen.getByRole('region', { name: /unexpected error/i });
     expect(section).toBeInTheDocument();
     expect(screen.getByRole('alert')).toBeInTheDocument();
   });

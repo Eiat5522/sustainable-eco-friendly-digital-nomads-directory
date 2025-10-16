@@ -1,29 +1,33 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { NextRequest } from 'next/server';
-import { GET, POST } from '../route';
-import { client } from '@/lib/sanity/client';
-import { isE2ERun } from '@/data/e2e/discovery-fixtures';
+import { GET, POST, testControl } from '../route';
 
-jest.mock('@/lib/sanity/client', () => ({
-  client: {
-    fetch: jest.fn(),
-  },
-}));
+const mockedFetch = jest.fn();
+const mockedIsE2ERun = jest.fn();
+const mockedBuildE2EResponse = jest.fn();
 
-jest.mock('@/data/e2e/discovery-fixtures', () => ({
-  buildE2ESearchResponse: jest.fn(),
-  isE2ERun: jest.fn(() => false),
-}));
-
-let mockedFetch: jest.Mock;
-let mockedIsE2ERun: jest.Mock;
+const createRequest = (input: ConstructorParameters<typeof NextRequest>[0], init?: ConstructorParameters<typeof NextRequest>[1]) =>
+  new NextRequest(input, init);
 
 describe('/api/search', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockedFetch = client.fetch as jest.Mock;
-    mockedIsE2ERun = isE2ERun as jest.Mock;
+  beforeEach(async () => {
+    mockedFetch.mockReset();
+    mockedIsE2ERun.mockReset();
+    mockedBuildE2EResponse.mockReset();
+
+    testControl.clientFetchOverride = mockedFetch;
+    testControl.isE2ERunOverride = mockedIsE2ERun;
+    testControl.buildE2ESearchResponseOverride = mockedBuildE2EResponse;
+    testControl.parseBodyOverride = undefined;
+
     mockedIsE2ERun.mockReturnValue(false);
+  });
+
+  afterEach(() => {
+    testControl.clientFetchOverride = undefined;
+    testControl.isE2ERunOverride = undefined;
+    testControl.buildE2ESearchResponseOverride = undefined;
+    testControl.parseBodyOverride = undefined;
   });
 
   describe('GET', () => {
@@ -35,20 +39,20 @@ describe('/api/search', () => {
         .mockResolvedValueOnce(mockResults) // results query
         .mockResolvedValueOnce(10); // count query
       
-      const request = new NextRequest('http://localhost:3000/api/search?q=test');
+      const request = createRequest('http://localhost:3000/api/search?q=test');
       const response = await GET(request);
       const json = await response.json();
 
       expect(response.status).toBe(200);
-      expect(json.results).toEqual(mockResults);
-      expect(json.pagination).toEqual({
+      expect(json.data.results).toEqual(mockResults);
+      expect(json.data.pagination).toEqual({
         page: 1,
         limit: 12,
         total: 10,
         totalPages: 1,
         hasMore: false,
       });
-      expect(json.filters.query).toBe('test');
+      expect(json.data.filters.query).toBe('test');
     });
 
     it('handles pagination parameters', async () => {
@@ -56,11 +60,11 @@ describe('/api/search', () => {
         .mockResolvedValueOnce([]) // results
         .mockResolvedValueOnce(100); // count
       
-      const request = new NextRequest('http://localhost:3000/api/search?page=2&limit=20');
+      const request = createRequest('http://localhost:3000/api/search?page=2&limit=20');
       const response = await GET(request);
       const json = await response.json();
 
-      expect(json.pagination).toEqual({
+      expect(json.data.pagination).toEqual({
         page: 2,
         limit: 20,
         total: 100,
@@ -74,11 +78,11 @@ describe('/api/search', () => {
         .mockResolvedValueOnce([])
         .mockResolvedValueOnce(0);
       
-      const request = new NextRequest('http://localhost:3000/api/search?category=cafe&category=coworking');
+      const request = createRequest('http://localhost:3000/api/search?category=cafe&category=coworking');
       const response = await GET(request);
       const json = await response.json();
 
-      expect(json.filters.category).toEqual(['cafe', 'coworking']);
+      expect(json.data.filters.category).toEqual(['cafe', 'coworking']);
     });
 
     it('includes facets when requested', async () => {
@@ -90,20 +94,20 @@ describe('/api/search', () => {
         .mockResolvedValueOnce(0) // count
         .mockResolvedValueOnce(mockFacetData); // facets
       
-      const request = new NextRequest('http://localhost:3000/api/search?facets=true');
+      const request = createRequest('http://localhost:3000/api/search?facets=true');
       const response = await GET(request);
       const json = await response.json();
 
-      expect(json.facets).toBeDefined();
-      expect(json.facets.category).toBeInstanceOf(Array);
-      expect(json.facets.destination).toBeInstanceOf(Array);
-      expect(json.facets.amenities).toBeInstanceOf(Array);
+      expect(json.data.facets).toBeDefined();
+      expect(json.data.facets.category).toBeInstanceOf(Array);
+      expect(json.data.facets.destination).toBeInstanceOf(Array);
+      expect(json.data.facets.amenities).toBeInstanceOf(Array);
     });
 
     it('handles search errors', async () => {
       mockedFetch.mockRejectedValue(new Error('Sanity error'));
       
-      const request = new NextRequest('http://localhost:3000/api/search?q=test');
+      const request = createRequest('http://localhost:3000/api/search?q=test');
       const response = await GET(request);
       const json = await response.json();
 
@@ -115,7 +119,7 @@ describe('/api/search', () => {
       const longQuery = 'a'.repeat(300);
       mockedFetch.mockRejectedValue(new Error('Search query too long'));
       
-      const request = new NextRequest(`http://localhost:3000/api/search?q=${longQuery}`);
+      const request = createRequest(`http://localhost:3000/api/search?q=${longQuery}`);
       const response = await GET(request);
       const json = await response.json();
 
@@ -132,24 +136,28 @@ describe('/api/search', () => {
         .mockResolvedValueOnce(mockResults)
         .mockResolvedValueOnce(5);
       
-      const request = new NextRequest('http://localhost:3000/api/search', {
+      testControl.parseBodyOverride = async () => ({ query: 'test', page: 1, limit: 10 });
+
+      const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
-        body: JSON.stringify({ query: 'test', page: 1, limit: 10 }),
       });
       
       const response = await POST(request);
       const json = await response.json();
 
       expect(response.status).toBe(200);
-      expect(json.results).toEqual(mockResults);
-      expect(json.pagination.page).toBe(1);
-      expect(json.pagination.limit).toBe(10);
+      expect(json.data.results).toEqual(mockResults);
+      expect(json.data.pagination.page).toBe(1);
+      expect(json.data.pagination.limit).toBe(10);
     });
 
     it('handles invalid JSON', async () => {
-      const request = new NextRequest('http://localhost:3000/api/search', {
+      testControl.parseBodyOverride = async () => {
+        throw new Error('invalid json');
+      };
+
+      const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
-        body: 'invalid json',
       });
       
       const response = await POST(request);
@@ -164,32 +172,34 @@ describe('/api/search', () => {
         .mockResolvedValueOnce([])
         .mockResolvedValueOnce(0);
       
-      const request = new NextRequest('http://localhost:3000/api/search', {
+      testControl.parseBodyOverride = async () => ({
+        query: 'test',
+        category: ['cafe'],
+        destination: ['Bangkok'],
+        amenities: ['wifi'],
+        nomadFeatures: ['fast-internet'],
+      });
+
+      const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
-        body: JSON.stringify({
-          query: 'test',
-          category: ['cafe'],
-          destination: ['Bangkok'],
-          amenities: ['wifi'],
-          nomadFeatures: ['fast-internet'],
-        }),
       });
       
       const response = await POST(request);
       const json = await response.json();
 
-      expect(json.filters.category).toEqual(['cafe']);
-      expect(json.filters.destination).toEqual(['Bangkok']);
-      expect(json.filters.amenities).toEqual(['wifi']);
-      expect(json.filters.nomadFeatures).toEqual(['fast-internet']);
+      expect(json.data.filters.category).toEqual(['cafe']);
+      expect(json.data.filters.destination).toEqual(['Bangkok']);
+      expect(json.data.filters.amenities).toEqual(['wifi']);
+      expect(json.data.filters.nomadFeatures).toEqual(['fast-internet']);
     });
 
     it('handles POST errors', async () => {
       mockedFetch.mockRejectedValue(new Error('Database error'));
       
-      const request = new NextRequest('http://localhost:3000/api/search', {
+      testControl.parseBodyOverride = async () => ({ query: 'test' });
+
+      const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
-        body: JSON.stringify({ query: 'test' }),
       });
       
       const response = await POST(request);

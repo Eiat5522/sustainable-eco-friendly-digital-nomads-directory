@@ -123,8 +123,13 @@ export function isDeletedStatus(status: unknown): boolean {
   return normalised === 'deleted' || normalised === 'archived' || normalised === 'removed';
 }
 
+export const testControl = {
+  authOverride: undefined as (() => Promise<unknown>) | undefined,
+  getCollectionOverride: undefined as ((collection: string) => Promise<unknown>) | undefined,
+};
+
 export async function GET() {
-  const session = await auth();
+  const session = await (testControl.authOverride ? testControl.authOverride() : auth());
   const user = session?.user as SessionUser | undefined;
   const userId = user?.id ?? null;
   const role = user?.role ?? null;
@@ -138,7 +143,8 @@ export async function GET() {
   }
 
   try {
-    const listingsCollection = (await getCollection('listings')) as Collection<ListingDoc>;
+    const collectionGetter = testControl.getCollectionOverride ?? getCollection;
+    const listingsCollection = (await collectionGetter('listings')) as Collection<ListingDoc>;
     const rawListings = await listingsCollection
       .find({ ownerId: userId })
       .project({ slug: 1, name: 1, status: 1 })
@@ -159,7 +165,7 @@ export async function GET() {
       return NextResponse.json({ listings: [] });
     }
 
-    const reviewsCollection = (await getCollection('reviews')) as Collection<ReviewDoc>;
+    const reviewsCollection = (await collectionGetter('reviews')) as Collection<ReviewDoc>;
     const results: Array<{ slug: string; name: string; reviews: NormalisedReview[] }> = [];
 
     for (const listing of listings) {
