@@ -363,4 +363,7 @@ describe('ContactSubmission Model', () => {
       expect(submission.status).toBe('spam');
     });
   });
+
+  // Note: Database operation tests have been moved to ContactSubmission.integration.test.ts
+  // This keeps unit tests fast and focused on schema validation
 });

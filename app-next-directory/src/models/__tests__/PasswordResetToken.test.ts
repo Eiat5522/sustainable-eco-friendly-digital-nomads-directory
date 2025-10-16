@@ -6,6 +6,12 @@ import { IPasswordResetToken } from '../PasswordResetToken';
 let PasswordResetToken: mongoose.Model<IPasswordResetToken>;
 
 describe('PasswordResetToken Model', () => {
+  beforeAll(() => {
+  });
+
+  afterAll(() => {
+  });
+
   beforeEach(async () => {
     jest.resetModules();
     // Re-import the model to get a fresh copy with the reset module cache
@@ -32,9 +38,11 @@ describe('PasswordResetToken Model', () => {
 
     it('should have an index on tokenHash', () => {
       const indexes = (PasswordResetToken.schema as any).indexes();
-      // The index is defined inline, so we check the path options
-      const tokenHashPath = PasswordResetToken.schema.path('tokenHash') as any;
-      expect(tokenHashPath.options.index).toBe(true);
+      // The index is defined separately using schema.index()
+      const tokenHashIndex = indexes.find(
+        (idx: any) => idx[0].tokenHash === 1
+      );
+      expect(tokenHashIndex).toBeDefined();
     });
 
     it('should have a TTL index on expiresAt', () => {
@@ -73,4 +81,8 @@ describe('PasswordResetToken Model', () => {
       expect(token.createdAt).toBeInstanceOf(Date);
     });
   });
+
+
+  // Note: Database operation tests have been moved to PasswordResetToken.integration.test.ts
+  // This keeps unit tests fast and focused on schema validation
 });

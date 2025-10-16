@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { auth } from '@/lib/auth';
 import { getUserDashboardData } from '@/lib/dashboard/user-dashboard';
+import { structuredLogger } from '@/lib/logger';
 import type { UserRole } from '@/types/auth';
 import type {
   UserAnalyticsPayloadDTO,
@@ -20,77 +21,96 @@ function normaliseMonthWindow(monthsParam: string | null): number {
   return Math.min(Math.max(parsed, 1), MAX_MONTH_WINDOW);
 }
 
-export async function GET(request: NextRequest) {
-  try {
-    const session = await auth();
-    const sessionUser = session?.user as {
-      id?: string;
-      role?: UserRole;
-      name?: string | null;
-      email?: string | null;
-    } | undefined;
+type AnalyticsDependencies = {
+  authFn: typeof auth;
+  fetchDashboard: typeof getUserDashboardData;
+  logger?: Pick<typeof structuredLogger, 'error'>;
+};
 
-    if (!sessionUser?.id) {
-      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
-    }
+export function createAnalyticsHandler({ authFn, fetchDashboard, logger }: AnalyticsDependencies) {
+  return async function GET(request: NextRequest) {
+    try {
+      const session = await authFn();
+      const sessionUser = session?.user as {
+        id?: string;
+        role?: UserRole;
+        name?: string | null;
+        email?: string | null;
+      } | undefined;
 
-    const { searchParams } = new URL(request.url);
-    const months = normaliseMonthWindow(searchParams.get('months'));
+      if (!sessionUser?.id) {
+        return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+      }
 
-    const dashboard = await getUserDashboardData(
-      {
-        id: sessionUser.id,
-        role: sessionUser.role ?? 'user',
-        name: sessionUser.name ?? null,
-        email: sessionUser.email ?? null,
-      },
-      { months },
-    );
+      const { searchParams } = new URL(request.url);
+      const months = normaliseMonthWindow(searchParams.get('months'));
 
-    if (!dashboard) {
-      return NextResponse.json({ error: 'Analytics unavailable' }, { status: 404 });
-    }
-
-    let analyticsData: UserAnalyticsPayloadDTO['data'];
-
-    if (dashboard.data.kind === 'venueOwner') {
-      const summary: UserAnalyticsSummaryDTO = {
-        avgRating: dashboard.data.totals.avgRating,
-        reviewCount: dashboard.data.totals.reviewCount,
-        favoritesCount: dashboard.data.totals.favoritesCount,
-        viewCount: dashboard.data.totals.viewCount,
-      };
-
-      analyticsData = {
-        kind: 'venueOwner',
-        summary,
-        monthly: dashboard.data.monthlyTotals,
-      };
-    } else {
-      analyticsData = {
-        kind: 'user',
-        summary: {
-          avgRating: dashboard.data.metrics.avgRatingGiven,
-          reviewCount: dashboard.data.metrics.reviewsWritten,
-          favoritesCount: dashboard.data.metrics.favoritesCount,
+      const dashboard = await fetchDashboard(
+        {
+          id: sessionUser.id,
+          role: sessionUser.role ?? 'user',
+          name: sessionUser.name ?? null,
+          email: sessionUser.email ?? null,
         },
-        monthly: dashboard.data.monthly,
+        { months },
+      );
+
+      if (!dashboard) {
+        return NextResponse.json({ error: 'Analytics unavailable' }, { status: 404 });
+      }
+
+      let analyticsData: UserAnalyticsPayloadDTO['data'];
+
+      if (dashboard.data.kind === 'venueOwner') {
+        const summary: UserAnalyticsSummaryDTO = {
+          avgRating: dashboard.data.totals.avgRating,
+          reviewCount: dashboard.data.totals.reviewCount,
+          favoritesCount: dashboard.data.totals.favoritesCount,
+          viewCount: dashboard.data.totals.viewCount,
+        };
+
+        analyticsData = {
+          kind: 'venueOwner',
+          summary,
+          monthly: dashboard.data.monthlyTotals,
+        };
+      } else {
+        analyticsData = {
+          kind: 'user',
+          summary: {
+            avgRating: dashboard.data.metrics.avgRatingGiven,
+            reviewCount: dashboard.data.metrics.reviewsWritten,
+            favoritesCount: dashboard.data.metrics.favoritesCount,
+          },
+          monthly: dashboard.data.monthly,
+        };
+      }
+
+      const analytics: UserAnalyticsPayloadDTO = {
+        user: {
+          id: dashboard.user.id,
+          role: dashboard.user.role,
+        },
+        generatedAt: dashboard.generatedAt,
+        range: dashboard.range,
+        data: analyticsData,
       };
+
+      return NextResponse.json({ analytics });
+    } catch (error) {
+      const logMessage = '[user-analytics] GET failed';
+      if (logger?.error) {
+        logger.error(logMessage, error, { route: '/api/user/analytics' });
+      } else {
+        console.error(logMessage, error);
+      }
+      return NextResponse.json({ error: 'Unable to load analytics data' }, { status: 500 });
     }
-
-    const analytics: UserAnalyticsPayloadDTO = {
-      user: {
-        id: dashboard.user.id,
-        role: dashboard.user.role,
-      },
-      generatedAt: dashboard.generatedAt,
-      range: dashboard.range,
-      data: analyticsData,
-    };
-
-    return NextResponse.json({ analytics });
-  } catch (error) {
-    console.error('[user-analytics] GET failed', error);
-    return NextResponse.json({ error: 'Unable to load analytics data' }, { status: 500 });
-  }
+  };
 }
+
+export const GET = createAnalyticsHandler({
+  authFn: auth,
+  fetchDashboard: getUserDashboardData,
+  logger: structuredLogger,
+});

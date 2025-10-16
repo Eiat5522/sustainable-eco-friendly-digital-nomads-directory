@@ -2,7 +2,7 @@ name: Pull Request Checks
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, revert-2/detail-pages]
   push:
     branches: [main, develop]
 
@@ -13,32 +13,65 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Ensure pnpm (early)
+        run: |
+          # Make sure corepack is enabled and pnpm is available early so that
+          # later steps (and any actions that expect pnpm) don't fail.
+          corepack enable || true
+          corepack prepare pnpm@8 --activate || npm install -g pnpm@8
+          pnpm --version || true
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20.19.x"
-          cache: "npm"
-          cache-dependency-path: "app-next-directory/package-lock.json"
+          # Use setup-node's pnpm cache. We activate pnpm early above so
+          # setup-node can safely use the pnpm cache. If the runner doesn't
+          # have pnpm available, the earlier Ensure pnpm step will activate
+          # or install it.
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Activate pnpm (Corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@8 --activate
+
+      - name: Ensure pnpm is available (fallback)
+        run: |
+          echo "Checking pnpm..."
+          if command -v pnpm >/dev/null 2>&1; then
+            echo "pnpm found: $(pnpm --version)"
+          else
+            echo "pnpm not found after action/setup and corepack; attempting global install as fallback"
+            npm install -g pnpm@8
+            echo "pnpm version after fallback: $(pnpm --version)"
+          fi
 
       - name: Install dependencies
         run: |
           cd app-next-directory
-          npm ci
+          pnpm install --no-frozen-lockfile
 
       - name: Type check
         run: |
           cd app-next-directory
-          npm run type-check
+          pnpm tsc --noEmit
 
       - name: Lint
         run: |
           cd app-next-directory
-          npm run lint
+          pnpm lint
 
       - name: Check formatting
         run: |
           cd app-next-directory
-          npx prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
+          pnpm exec -- prettier --check "**/*.{ts,tsx,js,jsx,json,md}"
 
   build:
     runs-on: ubuntu-latest
@@ -47,19 +80,48 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Ensure pnpm (early)
+        run: |
+          # Make sure corepack is enabled and pnpm is available early so that
+          # later steps (and any actions that expect pnpm) don't fail.
+          corepack enable || true
+          corepack prepare pnpm@8 --activate || npm install -g pnpm@8
+          pnpm --version || true
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20.19.x"
-          cache: "npm"
-          cache-dependency-path: "app-next-directory/package-lock.json"
+          # Use setup-node's pnpm cache. We activate pnpm early above so
+          # setup-node can safely use the pnpm cache. If the runner doesn't
+          # have pnpm available, the earlier Ensure pnpm step will activate
+          # or install it.
+          cache: "pnpm"
+          cache-dependency-path: "pnpm-lock.yaml"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Activate pnpm (Corepack)
+        run: |
+          corepack enable
+          corepack prepare pnpm@8 --activate
+
+      - name: Ensure pnpm is available (fallback)
+        run: |
+          echo "Checking pnpm..."
+          if command -v pnpm >/dev/null 2>&1; then
+            echo "pnpm found: $(pnpm --version)"
+          else
+            echo "pnpm not found after action/setup and corepack; attempting global install as fallback"
+            npm install -g pnpm@8
+            echo "pnpm version after fallback: $(pnpm --version)"
+          fi
 
       - name: Install dependencies
         run: |
           cd app-next-directory
-          npm ci
-
-      - name: Build
-        run: |
-          cd app-next-directory
-          npm run build
+          pnpm install --no-frozen-lockfile
+          

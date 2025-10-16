@@ -1,9 +1,12 @@
 packages:
-  - 'app-next-directory'
-  - 'sanity'
+  - app-next-directory
+  - sanity
 
 ignoredBuiltDependencies:
   - bcrypt
   - esbuild
   - sharp
   - unrs-resolver
+
+onlyBuiltDependencies:
+  - mongodb-memory-server

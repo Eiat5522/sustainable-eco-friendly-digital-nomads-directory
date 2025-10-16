@@ -6,6 +6,12 @@ import { IUserFavorite } from '../UserFavorite';
 let UserFavorite: mongoose.Model<IUserFavorite>;
 
 describe('UserFavorite Model', () => {
+  beforeAll(() => {
+  });
+
+  afterAll(() => {
+  });
+
   beforeEach(async () => {
     jest.resetModules();
     // Re-import the model to get a fresh copy with the reset module cache
@@ -81,4 +87,8 @@ describe('UserFavorite Model', () => {
       expect(favorite).toBeInstanceOf(UserFavorite);
     });
   });
+
+
+  // Note: Database operation tests have been moved to UserFavorite.integration.test.ts
+  // This keeps unit tests fast and focused on schema validation
 });

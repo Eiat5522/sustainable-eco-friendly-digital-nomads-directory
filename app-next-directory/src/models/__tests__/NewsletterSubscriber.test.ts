@@ -1,15 +1,6 @@
 import { jest } from '@jest/globals';
 import mongoose from 'mongoose';
 import NewsletterSubscriber, { INewsletterSubscriber } from '../NewsletterSubscriber';
-import mongoose from 'mongoose';
-
-// FORTEST: inspect model and mongoose.models
-// eslint-disable-next-line no-console
-console.log('FORTEST modelName:', (NewsletterSubscriber as any).modelName);
-// eslint-disable-next-line no-console
-console.log('FORTEST NewsletterSubscriber.schema (raw):', (NewsletterSubscriber as any).schema);
-// eslint-disable-next-line no-console
-console.log('FORTEST mongoose.models keys:', Object.keys(mongoose.models));
 
 describe('NewsletterSubscriber Model', () => {
   beforeEach(() => {
@@ -354,4 +345,7 @@ describe('NewsletterSubscriber Model', () => {
       expect(subscriber.email).toBe('test@example.com');
     });
   });
+
+  // Note: Database operation tests have been moved to NewsletterSubscriber.integration.test.ts
+  // This keeps unit tests fast and focused on schema validation
 });

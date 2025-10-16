@@ -3,6 +3,12 @@ import mongoose from 'mongoose';
 import { AnalyticsEvent, IAnalyticsEvent } from '../AnalyticsEvent';
 
 describe('AnalyticsEvent Model', () => {
+  beforeAll(() => {
+  });
+
+  afterAll(() => {
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -221,4 +227,8 @@ describe('AnalyticsEvent Model', () => {
       expect(event.eventData.stringValue).toBe('test');
     });
   });
+
+
+  // Note: Database operation tests have been moved to AnalyticsEvent.integration.test.ts
+  // This keeps unit tests fast and focused on schema validation
 });

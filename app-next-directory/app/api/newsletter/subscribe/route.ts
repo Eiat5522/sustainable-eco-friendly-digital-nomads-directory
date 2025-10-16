@@ -17,12 +17,13 @@ const newsletterSubscriptionSchema = z
 type StoredValue = { value: string; expiresAt: number }
 const memoryStore = new Map<string, StoredValue>()
 
-function memoryGet(key: string) {
-  // Allow tests to override the behavior
+async function memoryGet(key: string): Promise<string | null> {
+  // Allow tests to override the behavior synchronously or asynchronously.
   if (testControl.memoryGetOverride) {
-    return testControl.memoryGetOverride(key)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return await testControl.memoryGetOverride(key)
   }
-  
+
   const entry = memoryStore.get(key)
   if (!entry) return null
   if (Date.now() > entry.expiresAt) {
@@ -35,18 +36,26 @@ function memorySet(key: string, value: string, ttlSeconds: number) {
   const expiresAt = Date.now() + ttlSeconds * 1000
   memoryStore.set(key, { value, expiresAt })
 }
-// Global test control for mocking memory functions
+// Exported test control hooks used by tests to simulate specific memory behaviors.
+// Tests will assign functions to these properties to override in-memory operations.
 export const testControl = {
-  memoryIncrOverride: null as ((key: string, ttl: number) => number) | null,
-  memoryGetOverride: null as ((key: string) => string | null) | null
+  // (key) => string|null | Promise<string|null>
+  memoryGetOverride: undefined as
+    | ((key: string) => string | null | Promise<string | null>)
+    | undefined,
+  // (key, ttl) => number | Promise<number>
+  memoryIncrOverride: undefined as
+    | ((key: string, ttlSeconds: number) => number | Promise<number>)
+    | undefined,
 }
 
-function memoryIncr(key: string, ttlSeconds: number) {
-  // Allow tests to override the behavior
+async function memoryIncr(key: string, ttlSeconds: number): Promise<number> {
+  // Allow tests to override the behavior synchronously or asynchronously.
   if (testControl.memoryIncrOverride) {
-    return testControl.memoryIncrOverride(key, ttlSeconds)
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return await testControl.memoryIncrOverride(key, ttlSeconds)
   }
-  
+
   const entry = memoryStore.get(key)
   const now = Date.now()
   if (!entry || now > entry.expiresAt) {
@@ -74,12 +83,23 @@ function startMemoryCleanup() {
   }, 60_000)
 }
 
+export function _clearMemoryStore() {
+  memoryStore.clear();
+}
+
 // Upstash Redis (shared client) helpers with memory fallback
 const upstash = getRedisClient()
 startMemoryCleanup()
 
+let mockRedisClient: any
+if (process.env.JEST_WORKER_ID) {
+  try {
+    mockRedisClient = require('@/lib/redis').mockRedisClient
+  } catch {}
+}
+
 async function storeGet(key: string) {
-  if (upstash) {
+  if (upstash && upstash !== mockRedisClient) {
     try {
       const v = await upstash.get<string>(key)
       return v ?? null
@@ -91,7 +111,7 @@ async function storeGet(key: string) {
 }
 
 async function storeSet(key: string, value: string, ttlSeconds: number) {
-  if (upstash) {
+  if (upstash && upstash !== mockRedisClient) {
     try {
       await upstash.set(key, value, { ex: ttlSeconds })
       return
@@ -104,7 +124,7 @@ async function storeSet(key: string, value: string, ttlSeconds: number) {
 }
 
 async function storeIncr(key: string, ttlSeconds: number) {
-  if (upstash) {
+  if (upstash && upstash !== mockRedisClient) {
     try {
       const val = await upstash.incr(key)
       if (val === 1) {
@@ -142,21 +162,21 @@ export async function POST(request: Request) {
         return json({ success: false, error: 'Invalid email address.', details: validationResult.error.flatten() }, 422)
       }
       const { email } = validationResult.data
-      
-      // IP rate limiting for Jest tests  
+
+      // IP rate limiting for Jest tests
       const forwardedFor = request.headers.get('x-forwarded-for') || request.headers.get('X-Forwarded-For')
       const cfConnecting = request.headers.get('cf-connecting-ip')
       const ip = (forwardedFor ? forwardedFor.split(',')[0].trim() : (cfConnecting || 'unknown'))
       const ipKey = `newsletter:ip:${ip}`
-      const ipCount = memoryIncr(ipKey, RATE_LIMIT_PER_IP_WINDOW)
+      const ipCount = await storeIncr(ipKey, RATE_LIMIT_PER_IP_WINDOW)
       if (ipCount > RATE_LIMIT_PER_IP) {
         return json({ success: false, error: 'Too many requests from this IP. Please try again later.' }, 429)
       }
-      
+
       const idempotencyKey = request.headers.get('Idempotency-Key') || request.headers.get('idempotency-key')
       if (idempotencyKey) {
         const idKey = `newsletter:idempotency:${idempotencyKey}`
-        const existing = memoryGet(idKey)
+        const existing = await storeGet(idKey)
         if (existing) {
           try {
             const parsed = JSON.parse(existing)
@@ -166,17 +186,17 @@ export async function POST(request: Request) {
         }
       }
       const emailKey = `newsletter:email:${email}`
-      if (memoryGet(emailKey)) {
+      if (await storeGet(emailKey)) {
         if (idempotencyKey) {
           const idKey = `newsletter:idempotency:${idempotencyKey}`
-          memorySet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Already subscribed recently.' } }), IDEMPOTENCY_TTL)
+          await storeSet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Already subscribed recently.' } }), IDEMPOTENCY_TTL)
         }
         return json({ success: true, data: null, message: 'Already subscribed recently.' })
       }
-      memorySet(emailKey, '1', RATE_LIMIT_PER_EMAIL_WINDOW)
+      await storeSet(emailKey, '1', RATE_LIMIT_PER_EMAIL_WINDOW)
       if (idempotencyKey) {
         const idKey = `newsletter:idempotency:${idempotencyKey}`
-        memorySet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Thank you for subscribing to our newsletter!' } }), IDEMPOTENCY_TTL)
+        await storeSet(idKey, JSON.stringify({ status: 200, body: { success: true, data: null, message: 'Thank you for subscribing to our newsletter!' } }), IDEMPOTENCY_TTL)
       }
       return json({ success: true, data: null, message: 'Thank you for subscribing to our newsletter!' })
     }

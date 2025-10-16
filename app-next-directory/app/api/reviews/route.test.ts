@@ -86,6 +86,22 @@ describe('API /api/reviews GET', () => {
     expect(mockCollection._mockCursor.limit).toHaveBeenCalledWith(10);
   });
 
+  it('merges pending reviews for the requesting user when userId is supplied', async () => {
+    const mockCollection = createMockCollection([{ _id: 'r1', status: 'pending', user: 'user-1' }]);
+    const req = new Request('http://localhost/api/reviews?listing=list-1&userId=user-1&page=2&limit=5');
+
+    await GET(req, { collection: mockCollection } as any);
+
+    expect(mockCollection.find).toHaveBeenCalledWith({
+      $or: [
+        { status: 'approved' },
+        { status: 'pending', user: 'user-1' },
+      ],
+      listingSlug: 'list-1',
+    });
+    expect(mockCollection._mockCursor.skip).toHaveBeenCalledWith(5);
+  });
+
   it('supports filtering by listing and sorting by helpful, and sets isHelpful correctly', async () => {
     const mockCollection = createMockCollection([{ _id: 'r1', verified: true, helpfulCount: 5 }]);
     const req = new Request('http://localhost/api/reviews?listing=slug-1&sortBy=helpful');
@@ -211,6 +227,24 @@ describe('API /api/reviews POST', () => {
     expect(client.create).not.toHaveBeenCalled();
   });
 
+  it('returns 422 when the request body cannot be parsed', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+
+    const failingRequest = {
+      json: jest.fn().mockRejectedValue(new Error('boom')),
+      method: 'POST',
+      headers: new Headers(),
+    } as unknown as Request;
+
+    const res = await POST(failingRequest);
+
+    expect(res.status).toBe(422);
+    const payload = await res.json();
+    expect(payload.error).toBe('Invalid review data');
+    expect(payload.success).toBe(false);
+    expect(client.create).not.toHaveBeenCalled();
+  });
+
   it('requires valid listing and user references', async () => {
     (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user', email: 'user@example.com' } });
     (client.getDocument as jest.Mock).mockResolvedValueOnce(null);
@@ -253,6 +287,35 @@ describe('API /api/reviews POST', () => {
     if (jest.isMockFunction(revalidateTag)) {
       expect(revalidateTag).toHaveBeenCalledWith('listing:listing-slug');
     }
+  });
+
+  it('includes optional eco and nomad ratings when supplied', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({
+      user: { id: 'user-2', role: 'user', name: 'Eco Fan', email: 'eco@example.com' },
+    });
+    (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'listing-eco', slug: { current: 'eco-slug' } });
+    (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanity-user-eco' });
+    (client.create as jest.Mock).mockResolvedValueOnce({ _id: 'review-eco', approved: false });
+
+    const res = await POST(
+      new Request('http://localhost/api/reviews', {
+        method: 'POST',
+        body: JSON.stringify({
+          listingId: 'listing-eco',
+          rating: 4,
+          comment: 'Plenty of plants and thoughtful amenities make this a joy.',
+          ecoRating: 5,
+          nomadRating: 4,
+        }),
+      })
+    );
+
+    const body = await res.json();
+    expect(res.status).toBe(201);
+    expect(body.data).toMatchObject({ ecoRating: 5, nomadRating: 4 });
+    expect(client.create).toHaveBeenCalledWith(
+      expect.objectContaining({ ecoRating: 5, nomadRating: 4 })
+    );
   });
 
   it('logs and returns 500 when creation fails unexpectedly', async () => {

@@ -116,24 +116,28 @@ try {
 }
 
 // MSW setup for tests that rely on HTTP mocks
-try {
-  const { server } = require('./__mocks__/server');
-  beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
-  afterEach(() => server.resetHandlers());
-  afterAll(() => server.close());
-} catch (e) {
-  const code = (e as any)?.code;
-  const msg = (e as Error)?.message ?? '';
-  const isModuleNotFound =
-    code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND';
-  // Swallow only if the unresolved module is the MSW server shim itself
-  if (
-    isModuleNotFound &&
-    (msg.includes('__mocks__/server') || msg.includes('./__mocks__/server'))
-  ) {
-    // MSW not used in some test suites
-  } else {
-    throw e;
+// Skip MSW setup for model/database tests that use real mongoose
+const skipMSW = process.env.JEST_USE_REAL_MONGOOSE === '1';
+if (!skipMSW) {
+  try {
+    const { server } = require('./__mocks__/server');
+    beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
+    afterEach(() => server.resetHandlers());
+    afterAll(() => server.close());
+  } catch (e) {
+    const code = (e as any)?.code;
+    const msg = (e as Error)?.message ?? '';
+    const isModuleNotFound =
+      code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND';
+      // Swallow only if the unresolved module is the MSW server shim itself
+    if (
+      isModuleNotFound &&
+      (msg.includes('__mocks__/server') || msg.includes('./__mocks__/server'))
+    ) {
+      // MSW not used in some test suites
+    } else {
+      throw e;
+    }
   }
 }
 

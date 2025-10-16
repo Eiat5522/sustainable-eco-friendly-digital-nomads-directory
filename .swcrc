@@ -15,7 +15,7 @@
     "noInterop": false
   },
   "sourceMaps": true,
-  "ignore": [
+  "exclude": [
     "babel.config.js"
   ]
 }

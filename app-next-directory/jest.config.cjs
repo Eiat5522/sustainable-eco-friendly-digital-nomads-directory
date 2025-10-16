@@ -27,6 +27,57 @@ try {
 	// ignore - leave compilerOptions empty
 }
 
+const useMockedMongoose = process.env.JEST_USE_REAL_MONGOOSE === '1' ? false : true;
+
+const moduleNameMapper = {
+	// Common Next/DOM/library mocks – adjust paths if needed
+	'^server-only$': '<rootDir>/__mocks__/server-only.js',
+	'^tree-sitter-.*$': '<rootDir>/__mocks__/tree-sitter.js',
+	'^next/link$': '<rootDir>/__mocks__/next/link.js',
+	'^next/image$': '<rootDir>/__mocks__/next/image.js',
+	'^next/font/google$': '<rootDir>/__mocks__/next/font/google.js',
+	'^next/headers$': '<rootDir>/__mocks__/next/headers.js',
+	'^@/mocks/server$': '<rootDir>/__mocks__/server.ts',
+	'^mocks/server$': '<rootDir>/__mocks__/server.ts',
+	'^@sanity/client$': '<rootDir>/__mocks__/@sanity/client.ts',
+	'^next-sanity$': '<rootDir>/__mocks__/next-sanity.js',
+	'node-fetch': '<rootDir>/__mocks__/node-fetch.js',
+	'^clsx$': '<rootDir>/__mocks__/clsx.js',
+	'^tailwind-merge$': '<rootDir>/__mocks__/tailwind-merge.js',
+	'^embla-carousel-react$': '<rootDir>/__mocks__/embla-carousel-react.js',
+	'^embla-carousel-autoplay$': '<rootDir>/__mocks__/embla-carousel-autoplay.js',
+	'^leaflet$': '<rootDir>/__mocks__/leaflet.ts',
+	'leaflet/dist/leaflet.css$': '<rootDir>/__mocks__/leaflet/dist/leaflet.css.js',
+	'leaflet.markercluster/dist/MarkerCluster.css$': '<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.css.js',
+	'leaflet.markercluster/dist/MarkerCluster.Default.css$': '<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.Default.css.js',
+	'\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',
+
+	// next-auth & providers mocks (if you still rely on them elsewhere)
+	'^next-auth$': '<rootDir>/__mocks__/next-auth.js',
+	'^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.js',
+	'^next-auth/jwt$': '<rootDir>/__mocks__/next-auth/jwt.js',
+	'^next-auth/providers/credentials$': '<rootDir>/__mocks__/next-auth/providers/credentials.js',
+	'^next-auth/providers/(.*)$': '<rootDir>/__mocks__/next-auth/providers/$1.js',
+	'^@auth/core/providers/(.*)$': '<rootDir>/__mocks__/next-auth/providers/$1.js',
+	'^@auth/mongodb-adapter$': '<rootDir>/__mocks__/@auth/mongodb-adapter.js',
+
+	'^@/(.*)$': '<rootDir>/src/$1',
+	'^@/__mocks__/(.*)$': '<rootDir>/__mocks__/$1',
+	'^@/lib/dbConnect(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/dbConnect.js',
+	'^@/models/User$': '<rootDir>/__mocks__/@/models/User.js',
+	// '^@/lib/redis(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/redis.ts', // REMOVED: global Redis mock mapping for best practice
+	'^@/lib/rate-limit(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/rate-limit.js',
+	'^@/lib/logger(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/logger.js',
+
+	// TS path aliases from tsconfig.json (resolved at runtime). If
+	// ts-jest isn't available, this will be a no-op.
+	...pathsToModuleNameMapper(compilerOptions && compilerOptions.paths ? compilerOptions.paths : {}, { prefix: '<rootDir>/' }),
+};
+
+if (useMockedMongoose) {
+	moduleNameMapper['^mongoose$'] = '<rootDir>/__mocks__/mongoose.ts';
+}
+
 module.exports = {
 		// Scope discovery to your source dirs in this package
 		roots: ['<rootDir>/src', '<rootDir>/app'],
@@ -56,6 +107,10 @@ module.exports = {
 		setupFiles: ['<rootDir>/jest/setEnvVars.js'],
 		setupFilesAfterEnv: ['<rootDir>/jest.setup.ts', '<rootDir>/__mocks__/node.ts'],
 
+		// Optionally start an in-memory MongoDB for integration tests.
+		globalSetup: '<rootDir>/jest/globalSetup.cjs',
+		globalTeardown: '<rootDir>/jest/globalTeardown.cjs',
+
 		testMatch: [
 			'<rootDir>/src/**/*.test.(ts|tsx|js|jsx)',
 			'<rootDir>/src/**/__tests__/**/*.(ts|tsx|js|jsx)',
@@ -66,53 +121,12 @@ module.exports = {
 		moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 		moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
 
-		moduleNameMapper: {
-			// Common Next/DOM/library mocks – adjust paths if needed
-			'^server-only$': '<rootDir>/__mocks__/server-only.js',
-			'^tree-sitter-.*$': '<rootDir>/__mocks__/tree-sitter.js',
-			'^next/link$': '<rootDir>/__mocks__/next/link.js',
-			'^next/image$': '<rootDir>/__mocks__/next/image.js',
-			'^@/mocks/server$': '<rootDir>/__mocks__/server.ts',
-			'^mocks/server$': '<rootDir>/__mocks__/server.ts',
-			'^@sanity/client$': '<rootDir>/__mocks__/@sanity/client.ts',
-			'^next-sanity$': '<rootDir>/__mocks__/next-sanity.js',
-			'^mongoose$': '<rootDir>/__mocks__/mongoose.ts',
-			'node-fetch': '<rootDir>/__mocks__/node-fetch.js',
-			'^clsx$': '<rootDir>/__mocks__/clsx.js',
-			'^tailwind-merge$': '<rootDir>/__mocks__/tailwind-merge.js',
-			'^embla-carousel-react$': '<rootDir>/__mocks__/embla-carousel-react.js',
-			'^embla-carousel-autoplay$': '<rootDir>/__mocks__/embla-carousel-autoplay.js',
-			'^leaflet$': '<rootDir>/__mocks__/leaflet.ts',
-			'leaflet/dist/leaflet.css$': '<rootDir>/__mocks__/leaflet/dist/leaflet.css.js',
-			'leaflet.markercluster/dist/MarkerCluster.css$': '<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.css.js',
-			'leaflet.markercluster/dist/MarkerCluster.Default.css$': '<rootDir>/__mocks__/leaflet.markercluster/dist/MarkerCluster.Default.css.js',
-			'\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',
+		moduleNameMapper,
 
-			// next-auth & providers mocks (if you still rely on them elsewhere)
-			'^next-auth$': '<rootDir>/__mocks__/next-auth.js',
-			'^next-auth/react$': '<rootDir>/__mocks__/next-auth/react.js',
-			'^next-auth/jwt$': '<rootDir>/__mocks__/next-auth/jwt.js',
-			'^next-auth/providers/credentials$': '<rootDir>/__mocks__/next-auth/providers/credentials.js',
-			'^next-auth/providers/(.*)$': '<rootDir>/__mocks__/next-auth/providers/$1.js',
-			'^@auth/core/providers/(.*)$': '<rootDir>/__mocks__/next-auth/providers/$1.js',
-			'^@auth/mongodb-adapter$': '<rootDir>/__mocks__/@auth/mongodb-adapter.js',
-
-			'^@/(.*)$': '<rootDir>/src/$1',
-			'^@/__mocks__/(.*)$': '<rootDir>/__mocks__/$1',
-			'^@/lib/dbConnect(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/dbConnect.js',
-			'^@/models/User$': '<rootDir>/__mocks__/@/models/User.js',
-			// '^@/lib/redis(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/redis.ts', // REMOVED: global Redis mock mapping for best practice
-			'^@/lib/rate-limit(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/rate-limit.js',
-			'^@/lib/logger(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/logger.js',
-
-			// TS path aliases from tsconfig.json (resolved at runtime). If
-			// ts-jest isn't available, this will be a no-op.
-			...pathsToModuleNameMapper(compilerOptions && compilerOptions.paths ? compilerOptions.paths : {}, { prefix: '<rootDir>/' }),
-		},
 
 		transformIgnorePatterns: [
 			// Allow ESM libs through transform
-			'/node_modules/(?!(next-auth|@auth|jose|broadcast-channel)/)',
+			'/node_modules/(?!(next-auth|@auth|jose|broadcast-channel|msw|@mswjs|until-async|strict-event-emitter|@open-draft)/)',
 		],
 
 		collectCoverageFrom: [
@@ -134,5 +148,9 @@ module.exports = {
 			'[\\/]__tests__[\\/]__mocks__[\\/]',
 			'\\.d(\\.test)?\\.ts$',
 			'reporter\\.js$',
-		],
+		].concat(
+			process.env.JEST_UNIT_ONLY === '1'
+				? ['\\.(int|integration)\\.test\\.(ts|tsx|js|jsx)$']
+				: []
+		),
 	};

@@ -31,6 +31,7 @@ const eslintConfig = [
       "**/.vercel/**",
       "**/__generated__/**",
       "tsconfig.test.json",
+      "../sanity/**",
     ],
   },
     {
@@ -96,6 +97,12 @@ const eslintConfig = [
       "@typescript-eslint/no-require-imports": "off",
       "import/no-anonymous-default-export": "off"
     }
+  },
+{
+    files: ["./sanity.types.ts"],
+    rules: {
+      "@typescript-eslint/no-use-before-define": "off",
+    },
   },
 ];
 export default eslintConfig;

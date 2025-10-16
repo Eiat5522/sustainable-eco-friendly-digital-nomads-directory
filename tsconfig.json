@@ -10,6 +10,8 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
+    "types": ["node"],
+    "typeRoots": ["./node_modules/@types", "./app-next-directory/node_modules/@types"],
     "baseUrl": ".",
     "noErrorTruncation": true,
     "jsx": "preserve",

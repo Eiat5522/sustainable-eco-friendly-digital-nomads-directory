@@ -43,3 +43,5 @@ next-env.d.ts
 
 # test files
 test-connection-resilience.cjs
+testConverage/**
+testConverage/lcov-report/*/**

@@ -55,6 +55,19 @@ async function getResponseBody(response: any) {
 describe('Registration API Routes', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockConnect.mockReset();
+    mockUserFindOne.mockReset();
+    mockUserCreate.mockReset();
+    mockBcryptHash.mockReset();
+    mockConnect.mockResolvedValue(undefined);
+    mockUserFindOne.mockResolvedValue(null as any);
+    mockBcryptHash.mockResolvedValue('hashedpassword');
+    mockUserCreate.mockResolvedValue({
+      _id: 'new-id',
+      name: 'Test User',
+      email: 'test@example.com',
+      role: 'user',
+    } as any);
     process.env.MONGODB_URI = 'mongodb://localhost/test-db';
     delete process.env.EDGE_RUNTIME;
   });
@@ -108,8 +121,8 @@ describe('Registration API Routes', () => {
         json: jest.fn().mockResolvedValue(reqBody),
       } as any;
 
-  mockConnect.mockResolvedValue(undefined);
-  mockUserFindOne.mockResolvedValue({ email: 'test@example.com' } as any);
+      mockConnect.mockResolvedValue(undefined);
+      mockUserFindOne.mockResolvedValue({ email: 'test@example.com' } as any);
 
       // Act
       const response = await registerPOST(req);
@@ -160,7 +173,7 @@ describe('Registration API Routes', () => {
         json: jest.fn().mockResolvedValue(reqBody),
       } as any;
 
-  mockConnect.mockRejectedValue(new Error('Connection error'));
+      mockConnect.mockRejectedValue(new Error('Connection error'));
 
       // Act
       const response = await registerPOST(req);
@@ -171,6 +184,40 @@ describe('Registration API Routes', () => {
       expect(body.success).toBe(false);
       expect(body.error.message).toMatch(/connection error/i);
       expect(body.error.code).toBe('SERVER_ERROR');
+    });
+
+    test('should return 400 if the body cannot be parsed', async () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const req = {
+        json: jest.fn().mockRejectedValue(new Error('invalid json')),
+      } as any;
+
+      const response = await registerPOST(req);
+      const body = await getResponseBody(response);
+
+      expect(response.status).toBe(400);
+      expect(body.error.code).toBe('INVALID_INPUT');
+      expect(warnSpy).toHaveBeenCalledWith('[register] Failed to parse request body', expect.any(Error));
+      warnSpy.mockRestore();
+    });
+
+    test('should return 503 when database configuration is missing', async () => {
+      delete process.env.MONGODB_URI;
+
+      const req = {
+        json: jest.fn().mockResolvedValue({
+          name: 'Tester',
+          email: 'tester@example.com',
+          password: 'password123',
+        }),
+      } as any;
+
+      const response = await registerPOST(req);
+      const body = await getResponseBody(response);
+
+      expect(response.status).toBe(503);
+      expect(body.error.code).toBe('MISSING_DB_CONFIG');
+      expect(body.success).toBe(false);
     });
 
     test('should return 400 if request body is missing', async () => {
@@ -188,6 +235,61 @@ describe('Registration API Routes', () => {
       expect(body.success).toBe(false);
       expect(body.error.message).toMatch(/Invalid request body/i);
       expect(body.error.code).toBe('INVALID_INPUT');
+    });
+
+    test('uses document toObject method when available', async () => {
+      const reqBody = {
+        name: 'To Object User',
+        email: 'toobject@example.com',
+        password: 'password123',
+      };
+      const req = {
+        json: jest.fn().mockResolvedValue(reqBody),
+      } as any;
+
+      const doc = {
+        toObject: jest.fn().mockReturnValue({
+          _id: 'obj-id',
+          name: 'To Object User',
+          email: 'toobject@example.com',
+          role: 'user',
+        }),
+      };
+
+      mockUserFindOne.mockResolvedValue(null);
+      mockBcryptHash.mockResolvedValue('hashed');
+      mockUserCreate.mockResolvedValue(doc as any);
+
+      const response = await registerPOST(req);
+      const body = await getResponseBody(response);
+
+      expect(doc.toObject).toHaveBeenCalled();
+      expect(body.data?.user).toMatchObject({ _id: 'obj-id', name: 'To Object User' });
+    });
+
+    test('falls back to provided values when created document lacks fields', async () => {
+      const reqBody = {
+        name: 'Fallback User',
+        email: 'fallback@example.com',
+        password: 'password123',
+      };
+      const req = {
+        json: jest.fn().mockResolvedValue(reqBody),
+      } as any;
+
+      mockUserFindOne.mockResolvedValue(null);
+      mockBcryptHash.mockResolvedValue('hashed');
+      mockUserCreate.mockResolvedValue({ _id: 'created-id' } as any);
+
+      const response = await registerPOST(req);
+      const body = await getResponseBody(response);
+
+      expect(body.data?.user).toMatchObject({
+        _id: 'created-id',
+        name: 'Fallback User',
+        email: 'fallback@example.com',
+        role: 'user',
+      });
     });
 
     test('should return 400 if email is missing', async () => {
@@ -251,6 +353,57 @@ describe('Registration API Routes', () => {
       expect(body.success).toBe(false);
       expect(body.error.message).toMatch(/Invalid request body/i);
       expect(body.error.code).toBe('INVALID_INPUT');
+    });
+
+    test('rejects non-object request bodies', async () => {
+      const req = {
+        json: jest.fn().mockResolvedValue('not-an-object'),
+      } as any;
+
+      const response = await registerPOST(req);
+      const body = await getResponseBody(response);
+
+      expect(response.status).toBe(400);
+      expect(body.error.code).toBe('INVALID_INPUT');
+      expect(mockUserFindOne).not.toHaveBeenCalled();
+    });
+
+    test('rejects whitespace-only fields', async () => {
+      const req = {
+        json: jest
+          .fn()
+          .mockResolvedValue({ name: '   ', email: '   ', password: '   ' }),
+      } as any;
+
+      const response = await registerPOST(req);
+      const body = await getResponseBody(response);
+
+      expect(response.status).toBe(400);
+      expect(body.error.code).toBe('INVALID_INPUT');
+      expect(mockUserFindOne).not.toHaveBeenCalled();
+      expect(mockBcryptHash).not.toHaveBeenCalled();
+    });
+
+    test('returns 500 when password hashing fails', async () => {
+      const reqBody = {
+        name: 'Hash Failure',
+        email: 'hash@example.com',
+        password: 'password123',
+      };
+      const req = {
+        json: jest.fn().mockResolvedValue(reqBody),
+      } as any;
+
+      mockUserFindOne.mockResolvedValue(null);
+      mockBcryptHash.mockRejectedValue(new Error('hash failed'));
+
+      const response = await registerPOST(req);
+      const body = await getResponseBody(response);
+
+      expect(response.status).toBe(500);
+      expect(body.error.code).toBe('SERVER_ERROR');
+      expect(body.error.message).toMatch(/hash failed/i);
+      expect(mockUserCreate).not.toHaveBeenCalled();
     });
   });
 

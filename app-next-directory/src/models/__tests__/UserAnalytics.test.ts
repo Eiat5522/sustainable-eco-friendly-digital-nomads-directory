@@ -4,6 +4,15 @@ import UserAnalytics from '../UserAnalytics';
 describe('UserAnalytics model schema', () => {
   const schema = UserAnalytics.schema as any;
 
+  beforeAll(() => {
+  });
+
+  afterAll(() => {
+  });
+
+  beforeEach(() => {
+  });
+
   it('exposes the compiled model with expected metadata', () => {
     expect(UserAnalytics).toBeDefined();
     expect(UserAnalytics.modelName).toBe('UserAnalytics');
@@ -114,4 +123,8 @@ describe('UserAnalytics model schema', () => {
   it('reuses the compiled model from mongoose.models', () => {
     expect(mongoose.models.UserAnalytics).toBe(UserAnalytics);
   });
+
+
+  // Note: Database operation tests have been moved to UserAnalytics.integration.test.ts
+  // This keeps unit tests fast and focused on schema validation
 });

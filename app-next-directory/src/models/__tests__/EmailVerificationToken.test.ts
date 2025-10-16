@@ -3,6 +3,12 @@ import mongoose from 'mongoose';
 import EmailVerificationToken, { IEmailVerificationToken } from '../EmailVerificationToken';
 
 describe('EmailVerificationToken Model', () => {
+  beforeAll(() => {
+  });
+
+  afterAll(() => {
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -403,4 +409,8 @@ describe('EmailVerificationToken Model', () => {
       }
     });
   });
+
+
+  // Note: Database operation tests have been moved to EmailVerificationToken.integration.test.ts
+  // This keeps unit tests fast and focused on schema validation
 });

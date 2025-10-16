@@ -52,7 +52,7 @@ Security Layers:
 
 ### Step 1: ✅ Auth Configuration (Edge Compatible)
 
-- **File**: `src/app/api/auth/[...nextauth]/route.ts`
+- **File**: `app/api/auth/[...nextauth]/route.ts`
 - **Features**:
   - JWT sessions (required for credentials provider compatibility, with helper caches supported by Redis)
   - MongoDBAdapter for user data persistence
@@ -91,7 +91,7 @@ Security Layers:
 
 ### Step 5: ✅ API Route Example
 
-- **File**: `src/app/api/user/profile/route.ts`
+- **File**: `app/api/user/profile/route.ts`
 - **Features**:
   - Server-side session validation
   - MongoDB operations in Node.js runtime

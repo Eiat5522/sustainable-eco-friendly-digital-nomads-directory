@@ -2,7 +2,7 @@
 
 ## Problem Identified
 
-The original `tests/e2e/ux/search.test.ts` had inconsistent testing approach:
+The original `tests/e2e/ux/search.spec.ts` had inconsistent testing approach:
 - **Location**: E2E test directory (`tests/e2e/ux/`)
 - **Expectation**: Mocked behavior (comment: "Sanity mock returns [] by default")
 - **Reality**: Making real HTTP requests to live APIs
@@ -12,7 +12,7 @@ The original `tests/e2e/ux/search.test.ts` had inconsistent testing approach:
 
 ### Solution 1: Proper E2E Testing with Controlled Environment
 
-**File**: `tests/e2e/ux/search.test.ts` (Updated)
+**File**: `tests/e2e/ux/search.spec.ts` (Updated)
 
 **Approach**:
 - Use Playwright's `page.route()` to mock API responses
@@ -168,7 +168,7 @@ app-next-directory/
 └── tests/
     └── e2e/
         └── ux/
-            └── search.test.ts                    # E2E tests
+            └── search.spec.ts                    # E2E tests
 ```
 
 This separation ensures:
