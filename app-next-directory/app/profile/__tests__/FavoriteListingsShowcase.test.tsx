@@ -26,14 +26,7 @@ describe('FavoriteListingsShowcase', () => {
     createdAt: '2024-01-10T00:00:00.000Z',
   };
 
-  beforeEach(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date('2024-05-01T12:00:00.000Z'));
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
+  // Removed unnecessary global fake timers and setSystemTime
 
   it('returns null when there are no listings', () => {
     const { container } = render(<FavoriteListingsShowcase listings={[]} onRemove={jest.fn()} />);
