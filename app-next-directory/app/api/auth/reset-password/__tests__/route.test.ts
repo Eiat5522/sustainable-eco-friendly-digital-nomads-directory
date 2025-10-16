@@ -49,7 +49,6 @@ const loggerMock = jest.requireMock('@/lib/logger') as {
 };
 
 let POST: typeof import('../route').POST;
-let consoleSpy: jest.SpiedFunction<typeof console.log>;
 
 const createLeanResult = <T,>(value: T) => ({
   lean: jest.fn().mockResolvedValue(value),
@@ -93,10 +92,6 @@ describe('POST /api/auth/reset-password', () => {
     mockDeleteOne.mockReturnValue({ session: jest.fn().mockResolvedValue({ deletedCount: 1 }) });
     mockFindById.mockReturnValue(createSelectResult(null));
     mockStartSession.mockResolvedValue(createSession());
-    loggerMock.structuredLogger.security = jest.fn();
-    loggerMock.structuredLogger.authError = jest.fn();
-    loggerMock.getRequestContext.mockReturnValue({ requestId: undefined });
-    consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
 
     await jest.isolateModulesAsync(async () => {
       POST = (await import('../route')).POST;
@@ -105,7 +100,6 @@ describe('POST /api/auth/reset-password', () => {
 
   afterEach(() => {
     process.env = originalEnv;
-    consoleSpy.mockRestore();
   });
 
   it('enforces IP rate limiting', async () => {
@@ -120,10 +114,9 @@ describe('POST /api/auth/reset-password', () => {
 
     expect(response.status).toBe(429);
     expect(rateLimitMock.getRetryAfterMs).toHaveBeenCalledWith('auth:reset:203.0.113.10');
-    const [message, payload] = consoleSpy.mock.calls.at(-1)!;
-    expect(message).toBe('[AUDIT] password_reset');
-    expect(payload).toEqual(
-      expect.objectContaining({ reason: 'rate_limited', requestId: 'req-1', ip: '203.0.113.10' })
+    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
+      'auth.reset_password.rate_limited',
+      expect.objectContaining({ retryAfterSeconds: 120 })
     );
     expect(mockDbConnect).not.toHaveBeenCalled();
   });
@@ -135,10 +128,9 @@ describe('POST /api/auth/reset-password', () => {
 
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ error: 'Server not configured (db)' });
-    const [message, payload] = consoleSpy.mock.calls.at(-1)!;
-    expect(message).toBe('[AUDIT] password_reset');
-    expect(payload).toEqual(
-      expect.objectContaining({ reason: 'server_not_configured', ip: '203.0.113.10' })
+    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
+      'auth.reset_password.missing_db_configuration',
+      expect.objectContaining({ ip: '203.0.113.10' })
     );
   });
 
@@ -153,9 +145,8 @@ describe('POST /api/auth/reset-password', () => {
     expect(mockDbConnect).toHaveBeenCalled();
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({ error: 'Invalid content type' });
-    const [message, payload] = consoleSpy.mock.calls.at(-1)!;
-    expect(message).toBe('[AUDIT] password_reset');
-    expect(payload).toEqual(expect.objectContaining({ reason: 'invalid_content_type', requestId: '00-abc123' }));
+    const [, context] = loggerMock.structuredLogger.security.mock.calls.at(-1)!;
+    expect(context).toEqual(expect.objectContaining({ requestId: '00-abc123' }));
   });
 
   it('returns 400 for invalid request bodies', async () => {
@@ -163,10 +154,11 @@ describe('POST /api/auth/reset-password', () => {
 
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({ error: 'Invalid request data' });
+    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
+      'auth.reset_password.invalid_request_data',
+      expect.any(Object)
+    );
     expect(loggerMock.structuredLogger.authError).toHaveBeenCalled();
-    const [message, payload] = consoleSpy.mock.calls.at(-1)!;
-    expect(message).toBe('[AUDIT] password_reset');
-    expect(payload).toEqual(expect.objectContaining({ reason: 'invalid_request_data' }));
   });
 
   it('returns 400 when reset token is missing or expired', async () => {
@@ -180,10 +172,9 @@ describe('POST /api/auth/reset-password', () => {
 
     const responseExpired = await POST(createRequest({ token: 'token-00002', password: 'Password123!' }));
     expect(responseExpired.status).toBe(400);
-    const [message, payload] = consoleSpy.mock.calls.at(-1)!;
-    expect(message).toBe('[AUDIT] password_reset');
-    expect(payload).toEqual(
-      expect.objectContaining({ reason: 'invalid_or_expired_token', userId: 'user-42' })
+    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
+      'auth.reset_password.invalid_or_expired_token',
+      expect.objectContaining({ userId: 'user-42' })
     );
   });
 
@@ -195,10 +186,9 @@ describe('POST /api/auth/reset-password', () => {
     const response = await POST(createRequest({ token: 'token-00003', password: 'Password123!' }));
 
     expect(response.status).toBe(404);
-    const [message, payload] = consoleSpy.mock.calls.at(-1)!;
-    expect(message).toBe('[AUDIT] password_reset');
-    expect(payload).toEqual(
-      expect.objectContaining({ reason: 'user_not_found', userId: 'user-100' })
+    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
+      'auth.reset_password.user_not_found',
+      expect.objectContaining({ userId: 'user-100' })
     );
   });
 
@@ -212,10 +202,11 @@ describe('POST /api/auth/reset-password', () => {
 
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ error: 'Password reset failed' });
+    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
+      'auth.reset_password.exception',
+      expect.objectContaining({ errorName: 'Error' })
+    );
     expect(loggerMock.structuredLogger.authError).toHaveBeenCalled();
-    const [message, payload] = consoleSpy.mock.calls.at(-1)!;
-    expect(message).toBe('[AUDIT] password_reset');
-    expect(payload).toEqual(expect.objectContaining({ reason: 'exception', errorName: 'Error' }));
   });
 
   it('resets the password and clears token on success', async () => {
@@ -247,10 +238,9 @@ describe('POST /api/auth/reset-password', () => {
     expect(user.save).toHaveBeenCalledWith({ session });
     expect(deleteOneSession).toHaveBeenCalledWith(session);
     expect(session.withTransaction).toHaveBeenCalledTimes(1);
-    const [message, payload] = consoleSpy.mock.calls.at(-1)!;
-    expect(message).toBe('[AUDIT] password_reset');
-    expect(payload).toEqual(
-      expect.objectContaining({ outcome: 'success', userId: 'user-777', requestId: 'req-777' })
+    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
+      'auth.reset_password.success',
+      expect.objectContaining({ userId: 'user-777', requestId: 'req-777' })
     );
   });
 });

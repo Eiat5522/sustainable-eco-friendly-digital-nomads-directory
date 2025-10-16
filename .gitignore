@@ -205,3 +205,4 @@ app-next-directory/testCoverage/*/**
 app-next-directory/testCoverage/lcov-report/*/**
 app-next-directory/testCoverage/
 app-next-directory/testCoverage/lcov-report/
+changes_need.patch
