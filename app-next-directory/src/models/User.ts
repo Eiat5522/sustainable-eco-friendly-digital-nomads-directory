@@ -1,5 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import isEmail from 'validator/lib/isEmail';
+import bcrypt from 'bcryptjs';
 
 /**
  * User Model - Index Management Notes:
@@ -89,7 +90,6 @@ UserSchema.pre('save', async function (next) {
     if (typeof user.password === 'string' && user.password.startsWith('$2')) {
       return next();
     }
-    const bcrypt = require('bcryptjs');
     user.password = await bcrypt.hash(user.password, BCRYPT_COST);
     return next();
   } catch (err) {
