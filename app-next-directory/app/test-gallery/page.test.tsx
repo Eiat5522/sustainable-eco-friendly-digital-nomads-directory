@@ -41,21 +41,41 @@ describe('TestGalleryPage', () => {
 
     expect(galleryMock).toHaveBeenCalledTimes(2);
 
-    const [fewCall, manyCall] = galleryMock.mock.calls as [
-      [{ images: string[] }],
-      [{ images: string[] }],
+    expect(galleryMock).toHaveBeenNthCalledWith(
+      1,
+      {
+        images: [
+          'https://picsum.photos/seed/1/400/300',
+          'https://picsum.photos/seed/2/400/300',
+          'https://picsum.photos/seed/3/400/300',
+        ],
+      }
+    );
+
+    // For the second call, check the array length and contents
+    const manyImages = [
+      'https://picsum.photos/seed/4/400/300',
+      'https://picsum.photos/seed/5/400/300',
+      'https://picsum.photos/seed/6/400/300',
+      'https://picsum.photos/seed/7/400/300',
+      'https://picsum.photos/seed/8/400/300',
+      'https://picsum.photos/seed/9/400/300',
+      'https://picsum.photos/seed/10/400/300',
+      'https://picsum.photos/seed/11/400/300',
+      'https://picsum.photos/seed/12/400/300',
+      'https://picsum.photos/seed/13/400/300',
+      'https://picsum.photos/seed/14/400/300',
+      'https://picsum.photos/seed/15/400/300',
     ];
-
-    expect(fewCall[0].images).toHaveLength(3);
-    expect(fewCall[0].images).toEqual([
-      'https://picsum.photos/seed/1/400/300',
-      'https://picsum.photos/seed/2/400/300',
-      'https://picsum.photos/seed/3/400/300',
-    ]);
-
-    expect(manyCall[0].images).toHaveLength(12);
-    expect(manyCall[0].images[0]).toBe('https://picsum.photos/seed/4/400/300');
-    expect(manyCall[0].images[11]).toBe('https://picsum.photos/seed/15/400/300');
-    expect(new Set(manyCall[0].images).size).toBe(12);
+    expect(galleryMock).toHaveBeenNthCalledWith(
+      2,
+      {
+        images: manyImages,
+      }
+    );
+    expect(manyImages).toHaveLength(12);
+    expect(manyImages[0]).toBe('https://picsum.photos/seed/4/400/300');
+    expect(manyImages[11]).toBe('https://picsum.photos/seed/15/400/300');
+    expect(new Set(manyImages).size).toBe(12);
   });
 });
