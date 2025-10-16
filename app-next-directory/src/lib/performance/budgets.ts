@@ -195,7 +195,15 @@ const createEmailChannelConfig = (): EmailChannelConfig => {
   return Object.freeze({
     enabled: Boolean(recipient),
     minSeverity: 'error' as AlertSeverity,
-    recipient: recipient || undefined
+  const recipient = process.env.NEXT_PUBLIC_ALERT_EMAIL?.trim();
+
+  const config: EmailChannelConfig = {
+    enabled: Boolean(recipient),
+    minSeverity: 'error',
+    recipient: recipient || undefined,
+  };
+
+  return Object.freeze(config);
   }) as EmailChannelConfig
 }
 
