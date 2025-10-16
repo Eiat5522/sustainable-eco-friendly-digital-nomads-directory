@@ -96,7 +96,7 @@ const ecoTags: TestEcoTag[] = [
   }
 ]
 
-const pickTags = (...slugs: string[]): EcoTag[] =>
+export const pickTags = (...slugs: string[]): EcoTag[] =>
   slugs.map((slug) => {
     const tag = ecoTags.find((candidate) => candidate.slug.current === slug)
     if (!tag) {

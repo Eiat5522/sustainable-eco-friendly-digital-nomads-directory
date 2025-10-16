@@ -14,6 +14,7 @@ import {
   listCities,
   listEcoTags,
   mockListings,
+  pickTags,
   TEST_SESSION_COOKIE_NAME
 } from './test-data';
 import type { Role } from '@/models/User';
@@ -509,6 +510,29 @@ describe('Test Data Utilities', () => {
       expect(testData2.users[0].email).not.toBe('modified@example.com');
     });
 
+    it('should clone objects using JSON when structuredClone is not available', () => {
+      // Save the original structuredClone
+      const originalStructuredClone = global.structuredClone;
+      
+      // Temporarily delete structuredClone to test the fallback
+      // @ts-expect-error - Intentionally deleting for test
+      delete global.structuredClone;
+      
+      try {
+        const testData1 = createTestData();
+        const testData2 = createTestData();
+
+        // Modify one object
+        testData1.users[0].email = 'modified@example.com';
+
+        // Verify other object is unaffected
+        expect(testData2.users[0].email).not.toBe('modified@example.com');
+      } finally {
+        // Restore structuredClone
+        global.structuredClone = originalStructuredClone;
+      }
+    });
+
     it('should handle deep cloning of nested objects', () => {
       const listing1 = getListingBySlug('bangkok-eco-hub');
       const listing2 = getListingBySlug('bangkok-eco-hub');
@@ -538,6 +562,31 @@ describe('Test Data Utilities', () => {
         // Verify other listing array is unaffected
         expect(listing2.ecoFocusTags.length).not.toBe(listing1.ecoFocusTags.length);
       }
+    });
+  });
+
+  describe('pickTags', () => {
+    it('should throw error for unknown eco tag', () => {
+      expect(() => {
+        pickTags('invalid-slug');
+      }).toThrow('Unknown eco tag requested: invalid-slug');
+    });
+
+    it('should return valid tags when given valid slugs', () => {
+      const tags = pickTags('zero-waste', 'solar-powered');
+      
+      expect(tags.length).toBe(2);
+      expect(tags[0].slug.current).toBe('zero-waste');
+      expect(tags[1].slug.current).toBe('solar-powered');
+    });
+
+    it('should return cloned tag objects', () => {
+      const tags1 = pickTags('zero-waste');
+      const tags2 = pickTags('zero-waste');
+      
+      expect(tags1).not.toBe(tags2);
+      expect(tags1[0]).not.toBe(tags2[0]);
+      expect(tags1[0]._id).toBe(tags2[0]._id);
     });
   });
 

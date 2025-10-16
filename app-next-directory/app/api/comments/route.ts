@@ -150,7 +150,7 @@ export async function GET(request: Request | MaybeRequest) {
     });
   } catch (error) {
     console.error('[comments] Failed to fetch comments', error);
-    return errorResponse('Failed to fetch comments', 500);
+    return errorResponse('Failed to fetch comments', 500, error instanceof Error ? error.message : String(error));
   }
 }
 

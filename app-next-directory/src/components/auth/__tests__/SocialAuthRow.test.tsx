@@ -402,6 +402,32 @@ describe('SocialAuthRow', () => {
       expect(fetchSpy).toHaveBeenCalledTimes(1);
     });
 
+    it('does not update state when unmounted during error', async () => {
+      const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      jest.spyOn(global, 'fetch').mockImplementation(() => 
+        new Promise((_, reject) => {
+          setTimeout(() => {
+            reject(new Error('Network error'));
+          }, 50);
+        })
+      );
+
+      const { unmount } = render(<SocialAuthRow />);
+      
+      // Unmount before error is thrown
+      unmount();
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Should not have any React warnings about setting state on unmounted component
+      expect(consoleError).not.toHaveBeenCalledWith(expect.stringContaining('unmounted'));
+
+      consoleWarn.mockRestore();
+      consoleError.mockRestore();
+    });
+
     it('does not update state after unmounting during fetch', async () => {
       const consoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
       const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
