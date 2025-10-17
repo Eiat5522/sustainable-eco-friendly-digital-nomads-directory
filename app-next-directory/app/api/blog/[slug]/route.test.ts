@@ -4,40 +4,34 @@
  * 1. GET /api/blog/[slug] - Fetch single blog post by slug
  * 2. PUT /api/blog/[slug] - Update view count
  * 3. Error handling
+ * 
+ * Uses testControl pattern for dependency injection as recommended in TEST_SETUP_GUIDE.md
  */
 
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { client as sanityClient } from '@/lib/sanity/client';
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { GET, PUT, testControl } from './route';
 
-type RouteModule = typeof import('./route');
-let GET: RouteModule['GET'];
-let PUT: RouteModule['PUT'];
-
-// Mock Sanity client
-jest.mock('@/lib/sanity/client', () => ({
-  client: {
-    fetch: jest.fn(),
-  },
-}));
-
-// Mock DTO transformer
-jest.mock('@/lib/dto-transformer', () => ({
-  transformToBlogDetailDTO: jest.fn((post) => ({
-    ...post,
-    readingTime: post.readingTime || 5,
-    body: post.body || [],
-    relatedPosts: post.relatedPosts || [],
-  })),
-}));
+const fetchMock = jest.fn();
+const transformMock = jest.fn();
+const trackViewCountMock = jest.fn();
 
 describe('Blog [slug] API', () => {
-  let mockedFetch: jest.Mock;
-
-  beforeEach(async () => {
-    jest.resetModules();
-    ({ GET, PUT } = await import('./route'));
+  beforeEach(() => {
     jest.clearAllMocks();
-    mockedFetch = sanityClient.fetch as jest.Mock;
+    fetchMock.mockReset();
+    transformMock.mockReset();
+    trackViewCountMock.mockReset();
+    testControl.sanityFetchOverride = fetchMock;
+    testControl.transformOverride = transformMock;
+    testControl.trackViewCountOverride = trackViewCountMock;
+    testControl.resetViewCounts();
+  });
+
+  afterEach(() => {
+    testControl.sanityFetchOverride = undefined;
+    testControl.transformOverride = undefined;
+    testControl.trackViewCountOverride = undefined;
+    testControl.resetViewCounts();
   });
 
   describe('GET /api/blog/[slug]', () => {
@@ -57,9 +51,16 @@ describe('Blog [slug] API', () => {
           _createdAt: '2024-01-01',
           _updatedAt: '2024-01-02',
         };
-        mockedFetch.mockResolvedValueOnce(mockPost);
+        fetchMock.mockResolvedValueOnce(mockPost);
+        transformMock.mockReturnValueOnce({
+          ...mockPost,
+          readingTime: 5,
+          body: mockPost.body,
+          relatedPosts: [],
+          publishedAt: mockPost.publishedAt,
+        });
 
-        const request = new Request('http://localhost/api/blog/sustainable-living-guide');
+        const request = {} as any;
         const params = Promise.resolve({ slug: 'sustainable-living-guide' });
         const response = await GET(request, { params });
         const data = await response.json();
@@ -70,7 +71,7 @@ describe('Blog [slug] API', () => {
         expect(data.data.post.slug).toBe('sustainable-living-guide');
         expect(data.data.meta).toBeDefined();
         expect(data.data.meta.readingTime).toBe(5);
-        expect(mockedFetch).toHaveBeenCalledTimes(1);
+        expect(fetchMock).toHaveBeenCalledTimes(1);
       });
 
       it('should include related posts in response', async () => {
@@ -79,6 +80,7 @@ describe('Blog [slug] API', () => {
           title: 'Test Post',
           slug: 'test-post',
           publishedAt: '2024-01-01',
+          body: [],
           relatedPosts: [
             {
               _id: '2',
@@ -89,9 +91,14 @@ describe('Blog [slug] API', () => {
           ],
           _updatedAt: '2024-01-02',
         };
-        mockedFetch.mockResolvedValueOnce(mockPost);
+        fetchMock.mockResolvedValueOnce(mockPost);
+        transformMock.mockReturnValueOnce({
+          ...mockPost,
+          readingTime: 5,
+          relatedPosts: mockPost.relatedPosts,
+        });
 
-        const request = new Request('http://localhost/api/blog/test-post');
+        const request = {} as any;
         const params = Promise.resolve({ slug: 'test-post' });
         const response = await GET(request, { params });
         const data = await response.json();
@@ -101,14 +108,14 @@ describe('Blog [slug] API', () => {
       });
 
       it('should use correct GROQ query with slug parameter', async () => {
-        mockedFetch.mockResolvedValueOnce(null);
+        fetchMock.mockResolvedValueOnce(null);
 
-        const request = new Request('http://localhost/api/blog/test-slug');
+        const request = {} as any;
         const params = Promise.resolve({ slug: 'test-slug' });
         await GET(request, { params });
 
-        const query = mockedFetch.mock.calls[0][0];
-        const queryParams = mockedFetch.mock.calls[0][1];
+        const query = fetchMock.mock.calls[0][0];
+        const queryParams = fetchMock.mock.calls[0][1];
 
         expect(query).toContain('_type == "blogPost"');
         expect(query).toContain('slug.current == $slug');
@@ -118,9 +125,9 @@ describe('Blog [slug] API', () => {
 
     describe('Error Handling', () => {
       it('should return 404 when blog post not found', async () => {
-        mockedFetch.mockResolvedValueOnce(null);
+        fetchMock.mockResolvedValueOnce(null);
 
-        const request = new Request('http://localhost/api/blog/non-existent');
+        const request = {} as any;
         const params = Promise.resolve({ slug: 'non-existent' });
         const response = await GET(request, { params });
         const data = await response.json();
@@ -131,7 +138,7 @@ describe('Blog [slug] API', () => {
       });
 
       it('should return 400 when slug is missing', async () => {
-        const request = new Request('http://localhost/api/blog/');
+        const request = {} as any;
         const params = Promise.resolve({ slug: '' });
         const response = await GET(request, { params });
         const data = await response.json();
@@ -139,13 +146,13 @@ describe('Blog [slug] API', () => {
         expect(response.status).toBe(400);
         expect(data.success).toBe(false);
         expect(data.error).toBe('Blog post slug is required');
-        expect(mockedFetch).not.toHaveBeenCalled();
+        expect(fetchMock).not.toHaveBeenCalled();
       });
 
       it('should return 500 on database fetch failure', async () => {
-        mockedFetch.mockRejectedValueOnce(new Error('Database error'));
+        fetchMock.mockRejectedValueOnce(new Error('Database error'));
 
-        const request = new Request('http://localhost/api/blog/test-slug');
+        const request = {} as any;
         const params = Promise.resolve({ slug: 'test-slug' });
         const response = await GET(request, { params });
         const data = await response.json();
@@ -156,9 +163,9 @@ describe('Blog [slug] API', () => {
       });
 
       it('should return 503 on CMS connection failure', async () => {
-        mockedFetch.mockRejectedValueOnce(new Error('fetch failed'));
+        fetchMock.mockRejectedValueOnce(new Error('fetch failed'));
 
-        const request = new Request('http://localhost/api/blog/test-slug');
+        const request = {} as any;
         const params = Promise.resolve({ slug: 'test-slug' });
         const response = await GET(request, { params });
         const data = await response.json();
@@ -168,9 +175,9 @@ describe('Blog [slug] API', () => {
       });
 
       it('should return 400 on invalid slug parameter', async () => {
-        mockedFetch.mockRejectedValueOnce(new Error('Invalid parameter'));
+        fetchMock.mockRejectedValueOnce(new Error('Invalid parameter'));
 
-        const request = new Request('http://localhost/api/blog/test-slug');
+        const request = {} as any;
         const params = Promise.resolve({ slug: 'test-slug' });
         const response = await GET(request, { params });
         const data = await response.json();
@@ -188,7 +195,8 @@ describe('Blog [slug] API', () => {
           _id: 'post-123',
           slug: 'test-post',
         };
-        mockedFetch.mockResolvedValueOnce(mockPost);
+        fetchMock.mockResolvedValueOnce(mockPost);
+        trackViewCountMock.mockResolvedValueOnce(1);
 
         const request = new Request('http://localhost/api/blog/test-post', {
           method: 'PUT',
@@ -202,6 +210,7 @@ describe('Blog [slug] API', () => {
         expect(data.success).toBe(true);
         expect(data.data.viewCount).toBe(1);
         expect(data.message).toBe('View count updated successfully');
+        expect(trackViewCountMock).toHaveBeenCalledWith('post-123');
       });
 
       it('should increment view count multiple times', async () => {
@@ -209,7 +218,8 @@ describe('Blog [slug] API', () => {
           _id: 'post-456',
           slug: 'another-post',
         };
-        mockedFetch.mockResolvedValue(mockPost);
+        fetchMock.mockResolvedValue(mockPost);
+        trackViewCountMock.mockResolvedValueOnce(1);
 
         const request1 = new Request('http://localhost/api/blog/another-post', {
           method: 'PUT',
@@ -221,6 +231,7 @@ describe('Blog [slug] API', () => {
         const data1 = await response1.json();
         expect(data1.data.viewCount).toBe(1);
 
+        trackViewCountMock.mockResolvedValueOnce(2);
         const request2 = new Request('http://localhost/api/blog/another-post', {
           method: 'PUT',
           body: JSON.stringify({ action: 'increment_view' }),
@@ -231,7 +242,7 @@ describe('Blog [slug] API', () => {
       });
 
       it('should return 404 when post not found for view tracking', async () => {
-        mockedFetch.mockResolvedValueOnce(null);
+        fetchMock.mockResolvedValueOnce(null);
 
         const request = new Request('http://localhost/api/blog/non-existent', {
           method: 'PUT',
@@ -259,7 +270,7 @@ describe('Blog [slug] API', () => {
       });
 
       it('should return 500 on error during view count update', async () => {
-        mockedFetch.mockRejectedValueOnce(new Error('Database error'));
+        fetchMock.mockRejectedValueOnce(new Error('Database error'));
 
         const request = new Request('http://localhost/api/blog/test-post', {
           method: 'PUT',
