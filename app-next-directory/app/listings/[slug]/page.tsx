@@ -162,18 +162,6 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
     id: string; name: string; slug: string; imageUrl: string; city: string | CityDTO | null; priceRange: 'budget'|'moderate'|'premium'; ecoFocusTags: string[];
   }>;
   try {
-async function fetchRelatedListings(cityId?: string, excludeId?: string) {
-  if (!cityId) return [] as Array<{
-    id: string
-    name: string
-    slug: string
-    imageUrl: string
-    city: string | CityDTO | null
-    priceRange: 'budget' | 'moderate' | 'premium'
-    ecoFocusTags: string[]
-  }>;
-
-  try {
     const records = await client.fetch<RelatedListingRecord[]>(RELATED_QUERY, { cityId, excludeId });
     return records.map((record) => {
       const priceRange = isPriceRange(record.priceRange)
@@ -190,11 +178,6 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
         ecoFocusTags: extractTagNames(record.ecoFocusTags),
       };
     });
-  } catch (error) {
-    console.error('[listings/[slug]] failed to fetch related listings', error);
-    return [];
-  }
-}
   } catch (error) {
     console.error('[listings/[slug]] failed to fetch related listings', error);
     return [];

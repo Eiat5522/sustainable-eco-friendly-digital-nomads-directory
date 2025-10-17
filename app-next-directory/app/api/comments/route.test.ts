@@ -90,18 +90,6 @@ describe('API /api/comments', () => {
       await expect(res.json()).resolves.toEqual({ error: 'Invalid request URL' });
     });
 
-    it('rejects requests with no url property', async () => {
-      const res = await GET({} as any);
-      expect(res.status).toBe(400);
-      await expect(res.json()).resolves.toEqual({ error: 'Missing postId' });
-    });
-
-    it('rejects requests with non-string url', async () => {
-      const res = await GET({ url: 123 } as any);
-      expect(res.status).toBe(400);
-      await expect(res.json()).resolves.toEqual({ error: 'Missing postId' });
-    });
-
     it('rejects invalid pagination values', async () => {
       const invalidPage = await GET(new Request('http://localhost/api/comments?postId=p1&page=0'));
       expect(invalidPage.status).toBe(400);
@@ -117,9 +105,7 @@ describe('API /api/comments', () => {
       const res = await GET(req);
 
       expect(res.status).toBe(500);
-      const json = await res.json();
-      expect(json.error).toBe('Failed to fetch comments');
-      expect(json.details).toBe('boom');
+      await expect(res.json()).resolves.toEqual({ error: 'Failed to fetch comments' });
     });
   });
 

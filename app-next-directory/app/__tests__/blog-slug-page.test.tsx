@@ -60,7 +60,7 @@ describe('BlogPostPage', () => {
     jest.resetModules();
 
     const [pageModule, absoluteModule, clientModule] = await Promise.all([
-      import('../../src/app/blog/[slug]/page'),
+      import('../blog/[slug]/page'),
       import('@/lib/absolute-url'),
       import('@/lib/sanity/client'),
     ]);
@@ -108,7 +108,7 @@ describe('BlogPostPage', () => {
     jest.resetModules();
 
     const [pageModule, absoluteModule, clientModule] = await Promise.all([
-      import('../../src/app/blog/[slug]/page'),
+      import('../blog/[slug]/page'),
       import('@/lib/absolute-url'),
       import('@/lib/sanity/client'),
     ]);
@@ -151,7 +151,7 @@ describe('BlogPostPage', () => {
     jest.resetModules();
 
     const [pageModule, absoluteModule, clientModule] = await Promise.all([
-      import('../../src/app/blog/[slug]/page'),
+      import('../blog/[slug]/page'),
       import('@/lib/absolute-url'),
       import('@/lib/sanity/client'),
     ]);
@@ -194,7 +194,7 @@ describe('BlogPostPage', () => {
     jest.resetModules();
 
     const [pageModule, absoluteModule] = await Promise.all([
-      import('../../src/app/blog/[slug]/page'),
+      import('../blog/[slug]/page'),
       import('@/lib/absolute-url'),
     ]);
 
@@ -221,7 +221,7 @@ describe('BlogPostPage.generateMetadata', () => {
     jest.resetModules();
 
     const [pageModule, absoluteModule] = await Promise.all([
-      import('../../src/app/blog/[slug]/page'),
+      import('../blog/[slug]/page'),
       import('@/lib/absolute-url'),
     ]);
 
@@ -263,7 +263,7 @@ describe('BlogPostPage.generateMetadata', () => {
     jest.resetModules();
 
     const [pageModule, absoluteModule] = await Promise.all([
-      import('../../src/app/blog/[slug]/page'),
+      import('../blog/[slug]/page'),
       import('@/lib/absolute-url'),
     ]);
 
@@ -285,7 +285,7 @@ describe('BlogPostPage.generateMetadata', () => {
     jest.resetModules();
 
     const [pageModule, absoluteModule] = await Promise.all([
-      import('../../src/app/blog/[slug]/page'),
+      import('../blog/[slug]/page'),
       import('@/lib/absolute-url'),
     ]);
 
@@ -302,7 +302,7 @@ describe('BlogPostPage.generateMetadata', () => {
     jest.resetModules();
 
     const [pageModule, absoluteModule] = await Promise.all([
-      import('../../src/app/blog/[slug]/page'),
+      import('../blog/[slug]/page'),
       import('@/lib/absolute-url'),
     ]);
 

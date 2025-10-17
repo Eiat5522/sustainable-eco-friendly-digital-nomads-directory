@@ -55,6 +55,54 @@ describe('/api/search', () => {
       expect(json.data.filters.query).toBe('test');
     });
 
+    it('throws error when too many category filters provided', async () => {
+      const tooManyCategories = Array.from({ length: 51 }, (_, i) => `cat-${i}`);
+      const url = `http://localhost:3000/api/search?${tooManyCategories.map(c => `category=${c}`).join('&')}`;
+      
+      const request = createRequest(url);
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(json.error).toBe('Search failed');
+    });
+
+    it('throws error when too many destination filters provided', async () => {
+      const tooManyDestinations = Array.from({ length: 51 }, (_, i) => `dest-${i}`);
+      const url = `http://localhost:3000/api/search?${tooManyDestinations.map(d => `destination=${d}`).join('&')}`;
+      
+      const request = createRequest(url);
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(json.error).toBe('Search failed');
+    });
+
+    it('throws error when too many amenity filters provided', async () => {
+      const tooManyAmenities = Array.from({ length: 51 }, (_, i) => `amenity-${i}`);
+      const url = `http://localhost:3000/api/search?${tooManyAmenities.map(a => `amenities=${a}`).join('&')}`;
+      
+      const request = createRequest(url);
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(json.error).toBe('Search failed');
+    });
+
+    it('throws error when too many nomad feature filters provided', async () => {
+      const tooManyFeatures = Array.from({ length: 51 }, (_, i) => `feature-${i}`);
+      const url = `http://localhost:3000/api/search?${tooManyFeatures.map(f => `nomadFeatures=${f}`).join('&')}`;
+      
+      const request = createRequest(url);
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(json.error).toBe('Search failed');
+    });
+
     it('handles pagination parameters', async () => {
       mockedFetch
         .mockResolvedValueOnce([]) // results
@@ -124,6 +172,76 @@ describe('/api/search', () => {
       const json = await response.json();
 
       expect(response.status).toBe(400);
+    });
+
+    it('handles E2E scenario with fail-once', async () => {
+      mockedIsE2ERun.mockReturnValue(true);
+      mockedBuildE2EResponse.mockReturnValue({
+        results: [],
+        pagination: { page: 1, limit: 12, total: 0, totalPages: 0, hasMore: false },
+        filters: {},
+      });
+
+      const request = createRequest('http://localhost:3000/api/search?e2eScenario=fail-once');
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(503);
+      expect(json.error).toBe('Simulated search failure');
+    });
+
+    it('handles E2E scenario with retry', async () => {
+      mockedIsE2ERun.mockReturnValue(true);
+      mockedBuildE2EResponse.mockReturnValue({
+        results: [{ _id: '1', name: 'Test' }],
+        pagination: { page: 1, limit: 12, total: 1, totalPages: 1, hasMore: false },
+        filters: {},
+      });
+
+      const request = createRequest('http://localhost:3000/api/search?e2eScenario=fail-once&retry=1');
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json.data.results).toHaveLength(1);
+    });
+
+    it('handles E2E scenario with timeout', async () => {
+      mockedIsE2ERun.mockReturnValue(true);
+      mockedBuildE2EResponse.mockReturnValue({
+        results: [],
+        pagination: { page: 1, limit: 12, total: 0, totalPages: 0, hasMore: false },
+        filters: {},
+      });
+
+      const request = createRequest('http://localhost:3000/api/search?e2eScenario=timeout');
+      const startTime = Date.now();
+      const response = await GET(request);
+      const elapsed = Date.now() - startTime;
+
+      expect(response.status).toBe(200);
+      expect(elapsed).toBeGreaterThanOrEqual(1000);
+    });
+
+    it('handles E2E run with facets', async () => {
+      mockedIsE2ERun.mockReturnValue(true);
+      mockedBuildE2EResponse.mockReturnValue({
+        results: [],
+        pagination: { page: 1, limit: 12, total: 0, totalPages: 0, hasMore: false },
+        facets: {
+          category: [],
+          destination: [],
+          amenities: [],
+        },
+        filters: {},
+      });
+
+      const request = createRequest('http://localhost:3000/api/search?facets=true');
+      const response = await GET(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json.data.facets).toBeDefined();
     });
   });
 
@@ -207,6 +325,133 @@ describe('/api/search', () => {
 
       expect(response.status).toBe(400);
       expect(json.error).toBe('Failed to perform search');
+    });
+
+    it('handles E2E POST scenario with fail-once', async () => {
+      mockedIsE2ERun.mockReturnValue(true);
+      mockedBuildE2EResponse.mockReturnValue({
+        results: [],
+        pagination: { page: 1, limit: 12, total: 0, totalPages: 0, hasMore: false },
+        filters: {},
+      });
+
+      testControl.parseBodyOverride = async () => ({ 
+        query: 'test',
+        e2eScenario: 'fail-once'
+      });
+
+      const request = createRequest('http://localhost:3000/api/search', {
+        method: 'POST',
+      });
+      
+      const response = await POST(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(503);
+      expect(json.error).toBe('Simulated search failure');
+    });
+
+    it('handles E2E POST scenario with retry', async () => {
+      mockedIsE2ERun.mockReturnValue(true);
+      mockedBuildE2EResponse.mockReturnValue({
+        results: [{ _id: '1', name: 'Test' }],
+        pagination: { page: 1, limit: 12, total: 1, totalPages: 1, hasMore: false },
+        filters: {},
+      });
+
+      testControl.parseBodyOverride = async () => ({ 
+        query: 'test',
+        e2eScenario: 'fail-once',
+        retry: 'token'
+      });
+
+      const request = createRequest('http://localhost:3000/api/search', {
+        method: 'POST',
+      });
+      
+      const response = await POST(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json.data.results).toHaveLength(1);
+    });
+
+    it('handles E2E POST scenario with timeout', async () => {
+      mockedIsE2ERun.mockReturnValue(true);
+      mockedBuildE2EResponse.mockReturnValue({
+        results: [],
+        pagination: { page: 1, limit: 12, total: 0, totalPages: 0, hasMore: false },
+        filters: {},
+      });
+
+      testControl.parseBodyOverride = async () => ({ 
+        query: 'test',
+        e2eScenario: 'timeout'
+      });
+
+      const request = createRequest('http://localhost:3000/api/search', {
+        method: 'POST',
+      });
+      
+      const startTime = Date.now();
+      const response = await POST(request);
+      const elapsed = Date.now() - startTime;
+
+      expect(response.status).toBe(200);
+      expect(elapsed).toBeGreaterThanOrEqual(1000);
+    });
+
+    it('handles E2E POST with facets', async () => {
+      mockedIsE2ERun.mockReturnValue(true);
+      mockedBuildE2EResponse.mockReturnValue({
+        results: [],
+        pagination: { page: 1, limit: 12, total: 0, totalPages: 0, hasMore: false },
+        facets: {
+          category: [],
+          destination: [],
+          amenities: [],
+        },
+        filters: {},
+      });
+
+      testControl.parseBodyOverride = async () => ({ 
+        query: 'test',
+        facets: true
+      });
+
+      const request = createRequest('http://localhost:3000/api/search', {
+        method: 'POST',
+      });
+      
+      const response = await POST(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json.data.facets).toBeDefined();
+    });
+
+    it('handles non-real-client fetch function call', async () => {
+      testControl.clientFetchOverride = undefined;
+      mockedIsE2ERun.mockReturnValue(false);
+
+      // Mock the Sanity client
+      const mockClient = {
+        fetch: jest.fn().mockResolvedValueOnce([]).mockResolvedValueOnce(0)
+      };
+      
+      // This test verifies the fallback to client.fetch when no override is set
+      testControl.parseBodyOverride = async () => ({ query: 'test' });
+
+      const request = createRequest('http://localhost:3000/api/search', {
+        method: 'POST',
+      });
+      
+      // Set up mock to use real client path
+      mockedFetch.mockResolvedValueOnce([]).mockResolvedValueOnce(0);
+      
+      const response = await POST(request);
+
+      expect(response.status).toBe(200);
     });
   });
 });

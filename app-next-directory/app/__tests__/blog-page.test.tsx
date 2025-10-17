@@ -26,7 +26,7 @@ describe('BlogPage', () => {
     jest.resetModules();
 
     const [pageModule, absoluteModule] = await Promise.all([
-      import('../../src/app/blog/page'),
+      import('../blog/page'),
       import('@/lib/absolute-url'),
     ]);
 
@@ -115,7 +115,7 @@ describe('BlogPage', () => {
     jest.resetModules();
 
     const [pageModule, absoluteModule] = await Promise.all([
-      import('../../src/app/blog/page'),
+      import('../blog/page'),
       import('@/lib/absolute-url'),
     ]);
 
@@ -152,7 +152,7 @@ describe('BlogPage', () => {
     jest.resetModules();
 
     const [pageModule, absoluteModule] = await Promise.all([
-      import('../../src/app/blog/page'),
+      import('../blog/page'),
       import('@/lib/absolute-url'),
     ]);
 
