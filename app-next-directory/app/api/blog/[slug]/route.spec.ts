@@ -7,6 +7,24 @@
  */
 
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+
+// Test-only types
+type BlogPost = {
+  _id: string;
+  title?: string;
+  slug?: string;
+  publishedAt?: string;
+  excerpt?: string;
+  body?: any[]; // keep flexible for portability with portable block types
+  tags?: string[];
+  authorName?: string;
+  readingTime?: number;
+  relatedPosts?: BlogPost[];
+  _createdAt?: string;
+  _updatedAt?: string;
+};
+
+type SanityFetchFn = (...args: any[]) => Promise<BlogPost | BlogPost[] | null>;
 import { client as sanityClient } from '@/lib/sanity/client';
 
 type RouteModule = typeof import('./route');
@@ -22,8 +40,8 @@ jest.mock('@/lib/sanity/client', () => ({
 
 // Mock DTO transformer
 jest.mock('@/lib/dto-transformer', () => ({
-  transformToBlogDetailDTO: jest.fn((post) => ({
-    ...post,
+  transformToBlogDetailDTO: jest.fn((post: BlogPost) => ({
+    ...(post as any),
     readingTime: post.readingTime || 5,
     body: post.body || [],
     relatedPosts: post.relatedPosts || [],
@@ -31,13 +49,14 @@ jest.mock('@/lib/dto-transformer', () => ({
 }));
 
 describe('Blog [slug] API', () => {
-  let mockedFetch: jest.Mock;
+  let mockedFetch: jest.MockedFunction<SanityFetchFn>;
 
   beforeEach(async () => {
     jest.resetModules();
     ({ GET, PUT } = await import('./route'));
     jest.clearAllMocks();
-    mockedFetch = sanityClient.fetch as jest.Mock;
+
+  mockedFetch = (sanityClient.fetch as unknown) as jest.MockedFunction<SanityFetchFn>;
   });
 
   describe('GET /api/blog/[slug]', () => {
@@ -61,7 +80,7 @@ describe('Blog [slug] API', () => {
 
         const request = new Request('http://localhost/api/blog/sustainable-living-guide');
         const params = Promise.resolve({ slug: 'sustainable-living-guide' });
-        const response = await GET(request, { params });
+  const response = await GET(request as any, { params });
         const data = await response.json();
 
         expect(response.status).toBe(200);
@@ -93,7 +112,7 @@ describe('Blog [slug] API', () => {
 
         const request = new Request('http://localhost/api/blog/test-post');
         const params = Promise.resolve({ slug: 'test-post' });
-        const response = await GET(request, { params });
+  const response = await GET(request as any, { params });
         const data = await response.json();
 
         expect(data.data.relatedPosts).toBeDefined();
@@ -105,7 +124,7 @@ describe('Blog [slug] API', () => {
 
         const request = new Request('http://localhost/api/blog/test-slug');
         const params = Promise.resolve({ slug: 'test-slug' });
-        await GET(request, { params });
+  await GET(request as any, { params });
 
         const query = mockedFetch.mock.calls[0][0];
         const queryParams = mockedFetch.mock.calls[0][1];
@@ -122,7 +141,7 @@ describe('Blog [slug] API', () => {
 
         const request = new Request('http://localhost/api/blog/non-existent');
         const params = Promise.resolve({ slug: 'non-existent' });
-        const response = await GET(request, { params });
+  const response = await GET(request as any, { params });
         const data = await response.json();
 
         expect(response.status).toBe(404);
@@ -133,7 +152,7 @@ describe('Blog [slug] API', () => {
       it('should return 400 when slug is missing', async () => {
         const request = new Request('http://localhost/api/blog/');
         const params = Promise.resolve({ slug: '' });
-        const response = await GET(request, { params });
+  const response = await GET(request as any, { params });
         const data = await response.json();
 
         expect(response.status).toBe(400);
@@ -147,7 +166,7 @@ describe('Blog [slug] API', () => {
 
         const request = new Request('http://localhost/api/blog/test-slug');
         const params = Promise.resolve({ slug: 'test-slug' });
-        const response = await GET(request, { params });
+  const response = await GET(request as any, { params });
         const data = await response.json();
 
         expect(response.status).toBe(500);
@@ -160,7 +179,7 @@ describe('Blog [slug] API', () => {
 
         const request = new Request('http://localhost/api/blog/test-slug');
         const params = Promise.resolve({ slug: 'test-slug' });
-        const response = await GET(request, { params });
+  const response = await GET(request as any, { params });
         const data = await response.json();
 
         expect(response.status).toBe(503);
@@ -172,7 +191,7 @@ describe('Blog [slug] API', () => {
 
         const request = new Request('http://localhost/api/blog/test-slug');
         const params = Promise.resolve({ slug: 'test-slug' });
-        const response = await GET(request, { params });
+  const response = await GET(request as any, { params });
         const data = await response.json();
 
         expect(response.status).toBe(400);
@@ -195,7 +214,7 @@ describe('Blog [slug] API', () => {
           body: JSON.stringify({ action: 'increment_view' }),
         });
         const params = Promise.resolve({ slug: 'test-post' });
-        const response = await PUT(request, { params });
+  const response = await PUT(request as any, { params });
         const data = await response.json();
 
         expect(response.status).toBe(200);
@@ -217,7 +236,7 @@ describe('Blog [slug] API', () => {
         });
         const params = Promise.resolve({ slug: 'another-post' });
         
-        const response1 = await PUT(request1, { params });
+  const response1 = await PUT(request1 as any, { params });
         const data1 = await response1.json();
         expect(data1.data.viewCount).toBe(1);
 
@@ -225,7 +244,7 @@ describe('Blog [slug] API', () => {
           method: 'PUT',
           body: JSON.stringify({ action: 'increment_view' }),
         });
-        const response2 = await PUT(request2, { params });
+  const response2 = await PUT(request2 as any, { params });
         const data2 = await response2.json();
         expect(data2.data.viewCount).toBe(2);
       });
@@ -238,7 +257,7 @@ describe('Blog [slug] API', () => {
           body: JSON.stringify({ action: 'increment_view' }),
         });
         const params = Promise.resolve({ slug: 'non-existent' });
-        const response = await PUT(request, { params });
+  const response = await PUT(request as any, { params });
         const data = await response.json();
 
         expect(response.status).toBe(404);
@@ -251,7 +270,7 @@ describe('Blog [slug] API', () => {
           body: JSON.stringify({ action: 'invalid_action' }),
         });
         const params = Promise.resolve({ slug: 'test-post' });
-        const response = await PUT(request, { params });
+  const response = await PUT(request as any, { params });
         const data = await response.json();
 
         expect(response.status).toBe(400);
@@ -266,7 +285,7 @@ describe('Blog [slug] API', () => {
           body: JSON.stringify({ action: 'increment_view' }),
         });
         const params = Promise.resolve({ slug: 'test-post' });
-        const response = await PUT(request, { params });
+  const response = await PUT(request as any, { params });
         const data = await response.json();
 
         expect(response.status).toBe(500);

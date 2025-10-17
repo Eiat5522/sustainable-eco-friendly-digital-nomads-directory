@@ -12,7 +12,8 @@ type EnsureUserFn = (args: {
   role: UserRole | null;
 }) => Promise<{ _id?: string } | null>;
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<any>;
-type CreateOrReplaceFn = (doc: Record<string, unknown>) => Promise<any>;
+// createOrReplace typically expects an object with at least an _id for Sanity; allow that shape in tests
+type CreateOrReplaceFn = (doc: { _id: string } & Record<string, unknown>) => Promise<any>;
 type DeleteFn = (id: string) => Promise<unknown>;
 type ParseBodyFn = (request: NextRequest) => Promise<any>;
 
@@ -30,11 +31,12 @@ export async function GET() {
   const authFn = testControl.authOverride ?? auth;
   const ensureUser = testControl.ensureSanityUserOverride ?? ensureSanityUser;
   const fetchFn =
-    testControl.clientFetchOverride ?? ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
+    testControl.clientFetchOverride ?? ((query: string, params?: Record<string, unknown>) => client.fetch(query, params as any));
 
   const session = await authFn();
 
-  const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
+  // session may be untyped in tests; cast to any before accessing .user
+  const user = (session as any)?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
   const userId: string | undefined = user?.id;
 
   if (!userId) {
@@ -116,13 +118,13 @@ export async function POST(request: NextRequest) {
   const authFn = testControl.authOverride ?? auth;
   const ensureUser = testControl.ensureSanityUserOverride ?? ensureSanityUser;
   const fetchFn =
-    testControl.clientFetchOverride ?? ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
+    testControl.clientFetchOverride ?? ((query: string, params?: Record<string, unknown>) => client.fetch(query, params as any));
   const createOrReplaceFn =
-    testControl.clientCreateOrReplaceOverride ?? ((doc: Record<string, unknown>) => client.createOrReplace(doc));
+    testControl.clientCreateOrReplaceOverride ?? ((doc: Record<string, unknown>) => client.createOrReplace(doc as any));
 
   const session = await authFn();
 
-  const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
+  const user = (session as any)?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
   const userId: string | undefined = user?.id;
   const userRole: UserRole = user?.role || 'unidentifiedUser';
 
@@ -164,7 +166,7 @@ export async function POST(request: NextRequest) {
       user: { _type: 'reference', _ref: sanityUser._id },
       listing: { _type: 'reference', _ref: listingId },
       createdAt: new Date().toISOString(),
-    });
+    } as any);
 
     return NextResponse.json({ 
       favorited: true, 
@@ -186,7 +188,7 @@ export async function DELETE(request: NextRequest) {
 
   const session = await authFn();
 
-  const user = session?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
+  const user = (session as any)?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
   const userId: string | undefined = user?.id;
 
   if (!userId) {

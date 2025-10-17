@@ -260,7 +260,7 @@ export async function GET(request: NextRequest) {
 
     const fetchFn =
       testControl.clientFetchOverride ??
-      ((queryString: string, params?: unknown) => client.fetch(queryString, params));
+      ((queryString: string, params?: unknown) => client.fetch(queryString, params as any));
 
     // Fetch results and total concurrently; facets only if requested
     const promises: Array<Promise<any>> = [fetchFn(query), fetchFn(countQuery)];
@@ -352,7 +352,7 @@ export async function POST(request: NextRequest) {
     const { query, countQuery, facetQuery } = buildQuery({ q, categories, destinations, amenities, nomadFeatures, start, end });
     const fetchFn =
       testControl.clientFetchOverride ??
-      ((queryString: string, params?: unknown) => client.fetch(queryString, params));
+      ((queryString: string, params?: unknown) => client.fetch(queryString, params as any));
     // Fetch results and total concurrently; facets only if requested
     const promises: Array<Promise<any>> = [fetchFn(query), fetchFn(countQuery)];
     if (includeFacets) promises.push(fetchFn(facetQuery));

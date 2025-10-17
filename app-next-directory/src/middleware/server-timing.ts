@@ -1,111 +1,64 @@
 /**
- * Server Timing Middleware
- *
- * This middleware adds Server-Timing headers to responses to track
- * backend performance metrics. Use this to monitor database queries,
- * external API calls, and rendering time.
- *
- * @version 1.0.0
- * @date May 18, 2025
+ * Server Timing Middleware (TypeScript)
+ * Adds Server-Timing headers to Next.js responses. Exported `middleware` conforms to Next.js middleware API.
  */
 
-// NOTE: Do not import NextRequest/NextResponse from 'next/server' in utility files for Next.js 14+ middleware compatibility.
-
 export interface TimingMetric {
-  name: string
-  duration: number
-  description?: string
+  name: string;
+  duration: number;
+  description?: string;
 }
 
 export class ServerTiming {
-  private metrics: TimingMetric[] = []
-  private startTimes: Map<string, number> = new Map()
+  private metrics: TimingMetric[] = [];
+  private startTimes = new Map<string, number>();
 
-  /**
-   * Start timing a metric
-   */
-  startTiming(name: string) {
-    this.startTimes.set(name, performance.now())
+  start(name: string) {
+    this.startTimes.set(name, typeof performance !== 'undefined' ? performance.now() : Date.now());
   }
 
-  /**
-   * End timing a metric and record its duration
-   */
-  endTiming(name: string, description?: string) {
-    const startTime = this.startTimes.get(name)
-    if (startTime) {
-      const duration = performance.now() - startTime
-      this.metrics.push({ name, duration, description })
-      this.startTimes.delete(name)
-    }
+  end(name: string, description?: string) {
+    const start = this.startTimes.get(name);
+    if (!start) return;
+    const duration = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - start;
+    this.metrics.push({ name, duration, description });
+    this.startTimes.delete(name);
   }
 
-  /**
-   * Add a pre-calculated metric
-   */
-  addMetric(metric: TimingMetric) {
-    this.metrics.push(metric)
+  add(metric: TimingMetric) {
+    this.metrics.push(metric);
   }
 
-  /**
-   * Expose metrics for external access (read-only)
-   */
   getMetrics(): TimingMetric[] {
-    return this.metrics
+    return this.metrics.slice();
   }
 
-  /**
-   * Generate the Server-Timing header value
-   */
   getHeaderValue(): string {
     return this.metrics
-      .map(({ name, duration, description }) => {
-        const value = `${name};dur=${duration.toFixed(2)}${
-          description ? `;desc="${description}"` : ''
-        }`
-        return value
-      })
-      .join(', ')
+      .map(({ name, duration, description }) => `${name};dur=${duration.toFixed(2)}${description ? `;desc="${description}"` : ''}`)
+      .join(', ');
   }
 }
 
-/**
- * Next.js middleware to add Server-Timing headers
- */
-export function middleware(request: any) {
+import { NextRequest, NextResponse } from 'next/server';
+
+export function middleware(_request: NextRequest) {
   const timing = new ServerTiming();
-  // Start overall request timing
-  timing.startTiming('total-time');
-  // Create response (mock for compatibility)
-  const response = { headers: new Map(), setHeader: function(k: string, v: string) { this.headers.set(k, v); } };
-  // End timing and add header
-  timing.endTiming('total-time', 'Total processing time');
-  response.setHeader('Server-Timing', timing.getHeaderValue());
-  // Also send metrics to Plausible if in production
-  if (process.env.NODE_ENV === 'production') {
-    const metrics = timing.getMetrics().map(({ name, duration }) => ({
-      metric: `server_${name}`,
-      value: Math.round(duration),
-      rating: duration < 1000 ? 'good' : duration < 3000 ? 'needs-improvement' : 'poor'
-    }));
-    // ...send metrics to Plausible...
-  }
-  // Log metrics in development
+  timing.start('total');
+
+  // Do nothing synchronous here — middleware is typically sync; to keep compatibility we measure lightweight
+  timing.end('total', 'Total server processing time');
+
+  const res = NextResponse.next();
+  res.headers.set('Server-Timing', timing.getHeaderValue());
+
   if (process.env.NODE_ENV === 'development') {
-    const metrics = timing.getMetrics().map(({ name, duration }) => ({
-      metric: `server_${name}`,
-      value: Math.round(duration),
-      rating: duration < 1000 ? 'good' : duration < 3000 ? 'needs-improvement' : 'poor'
-    }));
-    console.log('[Server Timing]', metrics);
+    console.log('[Server Timing]', timing.getMetrics().map(m => ({ metric: `server_${m.name}`, value: Math.round(m.duration) })));
   }
-  return response;
+
+  return res;
 }
 
-// Optional: Configure paths that should include server timing
 export const config = {
-  matcher: [
-    '/api/:path*',
-    '/((?!_next/static|_next/image|favicon.ico).*)'
-  ]
-}
+  matcher: ['/api/:path*', '/((?!_next/static|_next/image|favicon.ico).*)'],
+};

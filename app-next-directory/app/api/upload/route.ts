@@ -16,7 +16,8 @@ export const testControl = {
 export async function POST(request: Request) {
   const authFn = testControl.authOverride ?? auth;
   const session = await authFn();
-  const sessionUser = session?.user as {
+  // session.user can be a loose object in tests; cast to any to avoid typing issues
+  const sessionUser = (session as any)?.user as {
     id?: string;
     role?: string;
   } | undefined;
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
     }
 
     const uploadFn =
-      testControl.uploadOverride ?? ((assetType: string, uploadFile: File) => client.assets.upload(assetType, uploadFile));
+      testControl.uploadOverride ?? ((assetType: string, uploadFile: File) => client.assets.upload(assetType as any, uploadFile as any));
     const imageAsset = await uploadFn('image', file);
 
     return NextResponse.json({ asset: imageAsset });

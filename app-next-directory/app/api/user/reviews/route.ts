@@ -130,7 +130,8 @@ export const testControl = {
 
 export async function GET() {
   const session = await (testControl.authOverride ? testControl.authOverride() : auth());
-  const user = session?.user as SessionUser | undefined;
+  // session may be untyped in tests; cast to any to access user
+  const user = (session as any)?.user as SessionUser | undefined;
   const userId = user?.id ?? null;
   const role = user?.role ?? null;
 

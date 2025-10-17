@@ -79,16 +79,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // Process metric for alerting
+    // Process metric for alerting — call service with (category, name, value, additionalInfo)
     await processMetricForAlert(
-      {
-        name: enhancedData.name || 'Unknown',
-        value: enhancedData.value || 0,
-        status: enhancedData.status || 'unknown',
-      },
-      1000, // Example alert threshold
       'performance',
-      () => console.log('Alert callback executed')
+      enhancedData.name || 'Unknown',
+      enhancedData.value || 0,
+      { status: enhancedData.status || 'unknown', page: enhancedData.page, timestamp: enhancedData.timestamp }
     );
 
     return new Response(

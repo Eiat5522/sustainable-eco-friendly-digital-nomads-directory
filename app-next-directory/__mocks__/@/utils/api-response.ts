@@ -1,3 +1,4 @@
+// Jest typed mocks for API responses used in tests
 export const ApiResponseHandler = {
   success: jest.fn((data: unknown) => Promise.resolve({ status: 200, json: () => Promise.resolve({ success: true, data }) })),
   error: jest.fn((message: string, status: number = 400) => Promise.resolve({ status, json: () => Promise.resolve({ error: message }) })),

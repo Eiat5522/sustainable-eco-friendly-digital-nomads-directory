@@ -1,26 +1,39 @@
-// MongoDB client for NextAuth adapter
+// Consolidated MongoDB client for the app
+// Combines the richer TS implementation and test mock shapes from previous JS/TS duplicates.
 import { MongoClient } from 'mongodb';
-import { initializeDatabase } from './mongodb/init';
+
+type MockCollection = {
+  createIndexes?: (...args: any[]) => Promise<any>;
+  findOne?: (...args: any[]) => Promise<any>;
+  insertOne?: (...args: any[]) => Promise<any>;
+  updateOne?: (...args: any[]) => Promise<any>;
+  deleteOne?: (...args: any[]) => Promise<any>;
+};
+
+type MockDb = {
+  createCollection?: (...args: any[]) => Promise<any>;
+  collection: (name?: string) => MockCollection;
+};
 
 let clientPromise: Promise<any>;
 
 const shouldMockMongo = process.env.NODE_ENV === 'test' || process.env.E2E === '1';
 
-// Skip MongoDB initialization in test/e2e environments
 if (shouldMockMongo) {
   const mockClient = {
     db: () => ({
-      createCollection: () => Promise.resolve(),
+      createCollection: async () => ({}),
       collection: () => ({
-        createIndexes: () => Promise.resolve(),
-        findOne: () => Promise.resolve(),
-        insertOne: () => Promise.resolve(),
-        updateOne: () => Promise.resolve(),
-        deleteOne: () => Promise.resolve(),
+        createIndexes: async () => ({}),
+        findOne: async () => null,
+        insertOne: async () => ({ insertedId: 'mock' }),
+        updateOne: async () => ({ matchedCount: 0, modifiedCount: 0 }),
+        deleteOne: async () => ({ deletedCount: 0 }),
       }),
     }),
-  };
-  clientPromise = Promise.resolve(mockClient as any);
+  } as { db: () => MockDb };
+
+  clientPromise = Promise.resolve(mockClient);
 } else {
   if (!process.env.MONGODB_URI) {
     const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env.local';
@@ -28,58 +41,43 @@ if (shouldMockMongo) {
   }
 
   const uri = process.env.MONGODB_URI;
-  let client: MongoClient;
 
-  // Connection options with proper timeouts
+  // Connection options with reasonable defaults
   const options = {
-    serverSelectionTimeoutMS: 10000, // Reduce from 30s to 10s
+    serverSelectionTimeoutMS: 10000,
     connectTimeoutMS: 10000,
     socketTimeoutMS: 45000,
     maxPoolSize: 10,
     minPoolSize: 2,
     retryWrites: true,
     retryReads: true,
-  };
+  } as any;
 
   if (process.env.NODE_ENV === 'development') {
-    // In development mode, use a global variable so that the value
-    // is preserved across module reloads caused by HMR (Hot Module Replacement).
     const globalWithMongo = global as typeof globalThis & {
       _mongoClientPromise?: Promise<MongoClient>
     }
 
     if (!globalWithMongo._mongoClientPromise) {
-      client = new MongoClient(uri, options);
+      const client = new MongoClient(uri, options);
       globalWithMongo._mongoClientPromise = client.connect()
-        .then(async (client) => {
-          // Initialize database on first connection
-          await initializeDatabase(client);
-          return client;
-        })
+        .then((clientInstance) => clientInstance)
         .catch((error) => {
-          // Clear the promise on error so next attempt can retry
           globalWithMongo._mongoClientPromise = undefined;
-          console.error('MongoDB connection failed:', error.message);
+          console.error('MongoDB connection failed:', error?.message ?? error);
           throw error;
         });
     }
-    clientPromise = globalWithMongo._mongoClientPromise;
+    clientPromise = globalWithMongo._mongoClientPromise as Promise<MongoClient>;
   } else {
-    // In production mode, it's best to not use a global variable.
-    client = new MongoClient(uri, options);
+    const client = new MongoClient(uri, options);
     clientPromise = client.connect()
-      .then(async (client) => {
-        // Initialize database on first connection
-        await initializeDatabase(client);
-        return client;
-      })
+      .then((clientInstance) => clientInstance)
       .catch((error) => {
-        console.error('MongoDB connection failed:', error.message);
+        console.error('MongoDB connection failed:', error?.message ?? error);
         throw error;
       });
   }
 }
 
-// Export a module-scoped MongoClient promise. By doing this in a
-// separate module, the client can be shared across functions.
 export default clientPromise;

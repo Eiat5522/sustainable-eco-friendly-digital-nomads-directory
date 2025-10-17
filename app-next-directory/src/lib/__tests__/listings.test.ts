@@ -1,187 +1,314 @@
-/**
- * @fileoverview
- * Jest unit tests for listings.ts.
- * Ensures robust mocking, isolation, and modern Jest best practices.
- */
-import { Listing } from '../../types/listings';
+import type { SanityListingRaw } from '../listings';
 
-// Mock data for listings
-const mockListings: Listing[] = [
-  {
-    _id: '1',
-    name: 'Eco-Friendly Coworking Space',
-    slug: { current: 'eco-friendly-coworking-space' },
-    city: { name: 'Bangkok', slug: { current: 'bangkok' } },
-    address: '123 Green Street, Bangkok',
-    shortDescription: 'A sustainable coworking space with solar panels and recycling',
-    longDescription: 'A very eco-friendly hostel.',
-    ecoFocusTags: [
-      { _id: 'solar', name: 'Solar Powered', slug: { current: 'solar-powered' } },
-      { _id: 'recycling', name: 'Recycling Program', slug: { current: 'recycling-program' } }
-    ],
-    priceRange: 'moderate',
-    website: 'http://example.com/eco-hostel',
-    type: 'accommodation',
-    primaryImage: { _type: 'image', asset: { _ref: 'image-ref-1' } },
-    galleryImages: [],
-    digitalNomadFeatures: ['high_speed_wifi', 'meeting_rooms'],
-    lastVerifiedDate: '2025-01-01',
-    location: { lat: 13.7563, lng: 100.5018 },
-  },
-  {
-    _id: '2',
-    name: 'Nomad Cafe',
-    slug: { current: 'nomad-cafe' },
-    city: { name: 'Chiang Mai', slug: { current: 'chiang-mai' } },
-    type: 'cafe',
-    address: '456 Nomad Rd',
-    shortDescription: 'Cafe for digital nomads',
-    longDescription: 'A great cafe with fast wifi for digital nomads.',
-    ecoFocusTags: [],
-    priceRange: 'budget',
-    website: 'http://example.com/nomad-cafe',
-    category: 'cafe',
-    primaryImage: { _type: 'image', asset: { _ref: 'image-ref-2' } },
-    galleryImages: [
-  { _type: 'image', _key: 'img3', asset: { _ref: 'image-ref-3' } },
-  { _type: 'image', _key: 'img4', asset: { _ref: 'image-ref-4' } }
-],
-    digitalNomadFeatures: ['wifi-available', 'power-outlets'],
-    lastVerifiedDate: '2025-01-01',
-    location: { lat: 18.7880, lng: 98.9870 },
-  },
-  {
-    _id: '3',
-    name: 'Green Resort',
-    slug: { current: 'green-resort' },
-    city: { name: 'Bangkok', slug: { current: 'bangkok' } },
-    type: 'accommodation',
-    address: '789 Green Blvd',
-    shortDescription: 'Resort with organic food',
-    longDescription: 'A beautiful resort focusing on organic produce.',
-    ecoFocusTags: [
-      { _id: 'organic', name: 'Organic', slug: { current: 'organic' } }
-    ],
-    priceRange: 'premium',
-    website: 'http://example.com/green-resort',
-    category: 'accommodation',
-    primaryImage: { _type: 'image', asset: { _ref: 'image-ref-5' } },
-    galleryImages: [
-  { _type: 'image', _key: 'img6', asset: { _ref: 'image-ref-6' } }
-],
-    digitalNomadFeatures: [],
-    lastVerifiedDate: '2025-01-01',
-    location: { lat: 13.7123, lng: 100.5555 },
-  },
-];
+describe('listings library', () => {
+  const loadListingsLib = () => require('../listings') as typeof import('../listings');
 
-// Always reset modules and mock listings.json before each test suite
-beforeEach(() => {
-  jest.resetModules();
-  jest.doMock('../../data/listings.json', () => mockListings, { virtual: true });
-});
-
-describe('getListingsByCity', () => {
-  let getListingsByCity: typeof import('../listings').getListingsByCity;
   beforeEach(() => {
-    // Re-import after mocking
-    getListingsByCity = require('../listings').getListingsByCity;
+    jest.resetModules();
+    jest.clearAllMocks();
   });
 
-  it('returns listings for a city (case-insensitive)', () => {
-    const result = getListingsByCity('bangkok');
-    expect(result).toHaveLength(2);
-    expect(result.map(l => l.name))
-      .toEqual(expect.arrayContaining([
-        'Eco-Friendly Coworking Space',
-        'Green Resort'
-      ]));
-  });
+  describe('legacy JSON mapping helpers', () => {
+    it('getListingsByCity normalizes legacy data into typed listings', () => {
+      const mockListings = [
+        {
+          id: 'legacy-1',
+          name: 'Legacy Alpha',
+          city: 'Bangkok',
+          slug: 'legacy-alpha',
+          category: 'Activities',
+          address: '1 Sustainability Way',
+          shortDescription: 'Eco friendly',
+          longDescription: 'All the green things',
+          primary_image_url: 'https://images.example/alpha-primary.jpg',
+          gallery_image_urls: ['https://images.example/alpha-gallery.jpg'],
+          ecoFocusTags: ['Solar Panels', { name: 'Zero Waste' }, { label: 'ignored' }],
+          digitalNomadFeatures: ['Fast Wifi', { name: 'Phone booths' }, null],
+          lastVerifiedDate: '2024-02-14',
+          location: { lat: 1.234, lng: 4.321 },
+        },
+        {
+          _id: 'legacy-2',
+          name: 'Legacy Beta',
+          city: {
+            _id: 'city-2',
+            name: 'Bangkok',
+            slug: { current: 'bangkok-city' },
+          },
+          slug: { _type: 'slug', current: 'legacy-beta' },
+          type: 'co working',
+          address: '2 Sustainability Way',
+          primaryImage: 'https://images.example/beta-primary.jpg',
+          galleryImages: [
+            'https://images.example/beta-gallery-a.jpg',
+            { _type: 'image', asset: { url: 'https://images.example/beta-gallery-b.jpg' } },
+            { asset: { url: 'https://images.example/beta-gallery-c.jpg' } },
+            { foo: 'bar' },
+          ],
+          ecoTags: [{ name: 'Water Saver' }],
+          digitalNomadFeatures: [{ name: 'Focus rooms' }, 'Phone booths', null],
+        },
+        {
+          _id: 'legacy-3',
+          name: 'Legacy Outside City',
+          city: 'Chiang Mai',
+          slug: 'legacy-outside',
+          category: 'cafe',
+          digitalNomadFeatures: [],
+          ecoFocusTags: [],
+        },
+      ];
 
-  it('should return listings for a city with different casing', () => {
-    const result = getListingsByCity('CHIANG MAI');
-    expect(result).toHaveLength(1);
-    expect(result[0].name).toEqual('Nomad Cafe');
-  });
+      jest.doMock('../../data/listings.json', () => mockListings);
+      const { getListingsByCity } = loadListingsLib();
 
-  it('should return an empty array if no listings in city', () => {
-    const result = getListingsByCity('Phuket');
-    expect(result).toEqual([]);
-  });
+      const results = getListingsByCity('Bangkok');
+      expect(results).toHaveLength(2);
 
-  it('should return all listings for a city with multiple listings', () => {
-    const result = getListingsByCity('Bangkok');
-    expect(result).toHaveLength(2);
-    expect(result.map(l => l.name))
-      .toEqual(expect.arrayContaining(['Eco-Friendly Coworking Space', 'Green Resort']));
-  });
-});
+      const [alpha, beta] = results;
+      expect(alpha.slug).toEqual({ _type: 'slug', current: 'legacy-alpha' });
+      expect(alpha.city?.name).toBe('Bangkok');
+      expect(alpha.city?.slug.current).toBe('bangkok');
+      expect(alpha.type).toBe('activities');
+      expect(alpha.primaryImage?.asset.url).toBe('https://images.example/alpha-primary.jpg');
+      expect(alpha.primaryImage?.asset._ref).toBe('placeholder-ref');
+      expect(alpha.galleryImages).toEqual([
+        { _type: 'image', asset: { url: 'https://images.example/alpha-gallery.jpg' } },
+      ]);
+      expect(alpha.ecoFocusTags).toEqual([
+        {
+          _id: 'solar-panels',
+          name: 'Solar Panels',
+          slug: { current: 'solar-panels' },
+        },
+        {
+          _id: 'zero-waste',
+          name: 'Zero Waste',
+          slug: { current: 'zero-waste' },
+        },
+      ]);
+      expect(alpha.digitalNomadFeatures).toEqual(['Fast Wifi', 'Phone booths']);
+      expect(alpha.location).toEqual({ lat: 1.234, lng: 4.321 });
 
-describe('filterListings', () => {
-  let filterListings: typeof import('../listings').filterListings;
-  beforeEach(() => {
-    // Re-import after mocking
-    filterListings = require('../listings').filterListings;
-  });
-
-  it('returns all listings if no filters', () => {
-    const result = filterListings({});
-    expect(result).toHaveLength(3);
-  });
-
-  it('filters by category', () => {
-    const result = filterListings({ category: 'accommodation' as const });
-    expect(result).toHaveLength(2);
-    expect(result.map(l => l.name))
-      .toEqual(expect.arrayContaining(['Eco-Friendly Coworking Space', 'Green Resort']));
-  });
-
-  it('filters by city (case-insensitive)', () => {
-    const result = filterListings({ city: 'bangkok' });
-    expect(result).toHaveLength(2);
-    expect(result.map(l => l.name))
-      .toEqual(expect.arrayContaining(['Eco-Friendly Coworking Space', 'Green Resort']));
-  });
-
-  it('filters by hasEcoTags', () => {
-    const result = filterListings({ hasEcoTags: true });
-    expect(result).toHaveLength(2);
-    expect(result.map(l => l.name))
-      .toEqual(expect.arrayContaining(['Eco-Friendly Coworking Space', 'Green Resort']));
-  });
-
-  it('filters by hasDnFeatures', () => {
-    const result = filterListings({ hasDnFeatures: true });
-    expect(result).toHaveLength(2);
-    expect(result.map(l => l.name))
-      .toEqual(expect.arrayContaining(['Eco-Friendly Coworking Space', 'Nomad Cafe']));
-  });
-
-  it('filters by multiple criteria', () => {
-    const result = filterListings({
-      city: 'Bangkok',
-      hasEcoTags: true,
-      hasDnFeatures: true,
+      expect(beta.slug).toEqual({ _type: 'slug', current: 'legacy-beta' });
+      expect(beta.city).toEqual({
+        _id: 'city-2',
+        name: 'Bangkok',
+        slug: { _type: 'slug', current: 'bangkok-city' },
+      });
+      expect(beta.type).toBe('coworking');
+      expect(beta.primaryImage?.asset.url).toBe('https://images.example/beta-primary.jpg');
+      expect(beta.galleryImages).toEqual([
+        { _type: 'image', asset: { url: 'https://images.example/beta-gallery-a.jpg' } },
+        { _type: 'image', asset: { url: 'https://images.example/beta-gallery-b.jpg' } },
+        { _type: 'image', asset: { url: 'https://images.example/beta-gallery-c.jpg' } },
+        { foo: 'bar' },
+      ]);
+      expect(beta.ecoFocusTags).toEqual([
+        {
+          _id: 'water-saver',
+          name: 'Water Saver',
+          slug: { current: 'water-saver' },
+        },
+      ]);
+      expect(beta.digitalNomadFeatures).toEqual(['Focus rooms', 'Phone booths']);
+      expect(beta.location).toEqual({ lat: 0, lng: 0 });
     });
-    expect(result).toHaveLength(1);
-    expect(result[0].name).toBe('Eco-Friendly Coworking Space');
+
+    it('filterListings applies city, category, eco tag, and digital nomad filters together', () => {
+      const mockListings = [
+        {
+          id: 'legacy-a',
+          name: 'Alpha Activities',
+          city: 'Bangkok',
+          slug: 'alpha-activities',
+          category: 'Activities',
+          ecoFocusTags: ['Solar'],
+          digitalNomadFeatures: ['Wifi'],
+          primary_image_url: 'https://images.example/alpha.jpg',
+        },
+        {
+          id: 'legacy-b',
+          name: 'Beta Cafe',
+          city: 'Bangkok',
+          slug: 'beta-cafe',
+          category: 'Cafe',
+          ecoFocusTags: [],
+          digitalNomadFeatures: ['Standing desks'],
+          primary_image_url: 'https://images.example/beta.jpg',
+        },
+        {
+          id: 'legacy-c',
+          name: 'Gamma Stay',
+          city: 'Lisbon',
+          slug: 'gamma-stay',
+          category: 'Accommodation',
+          ecoFocusTags: ['Organic'],
+          digitalNomadFeatures: [],
+          primary_image_url: 'https://images.example/gamma.jpg',
+        },
+        {
+          id: 'legacy-d',
+          name: 'Fallback Type',
+          city: 'Bangkok',
+          slug: 'fallback-type',
+          type: 'unlisted-category',
+          ecoFocusTags: [],
+          digitalNomadFeatures: [],
+          primary_image_url: 'https://images.example/fallback.jpg',
+        },
+      ];
+
+      jest.doMock('../../data/listings.json', () => mockListings);
+      const { filterListings } = loadListingsLib();
+
+      const allListings = filterListings({});
+      expect(allListings).toHaveLength(4);
+      expect(allListings.find((item) => item.name === 'Fallback Type')?.type).toBe('coworking');
+
+      const cityMatches = filterListings({ city: 'bangkok' });
+      expect(cityMatches.map((item) => item.name)).toEqual([
+        'Alpha Activities',
+        'Beta Cafe',
+        'Fallback Type',
+      ]);
+
+      const activities = filterListings({ category: 'activity' });
+      expect(activities).toHaveLength(1);
+      expect(activities[0].type).toBe('activities');
+
+      const withEco = filterListings({ hasEcoTags: true });
+      expect(withEco.map((item) => item.name)).toEqual([
+        'Alpha Activities',
+        'Gamma Stay',
+      ]);
+
+      const withDigitalNomadFeatures = filterListings({ hasDnFeatures: true });
+      expect(withDigitalNomadFeatures.map((item) => item.name)).toEqual([
+        'Alpha Activities',
+        'Beta Cafe',
+      ]);
+
+      const combined = filterListings({ city: 'Bangkok', hasEcoTags: true, hasDnFeatures: true });
+      expect(combined).toHaveLength(1);
+      expect(combined[0].name).toBe('Alpha Activities');
+    });
   });
 
-  it('returns empty array if no listings match', () => {
-    const result = filterListings({
-      city: 'Bangkok',
-      category: 'cafe' as const,
+  describe('Sanity mapping utilities', () => {
+    const buildValidSanity = (): SanityListingRaw => ({
+      _id: 'sanity-1',
+      name: 'Sanity Listing',
+      slug: { _type: 'slug', current: 'sanity-listing' },
+      city: {
+        _id: 'city-1',
+        name: 'Sanity City',
+        slug: { _type: 'slug', current: 'sanity-city' },
+        country: 'SC',
+      },
+      ecoFocusTags: ['Solar', { name: 'Wind' }],
+      digitalNomadFeatures: [{ name: 'Focus rooms' }, 'Standing desks'],
+      priceRange: '$$',
+      website: null,
+      primaryImage: { _type: 'image', asset: { url: 'https://images.example/hero.jpg' } },
+      galleryImages: [{ _type: 'image', asset: { url: 'https://images.example/gallery.jpg' } }],
+      shortDescription: 'Short desc',
+      address: '123 Eco Way',
+      category: 'coworking',
+      location: { lat: 10, lng: 20 },
+      type: 'coworking',
+      longDescription: 'Long description',
+      reviews: [
+        {
+          _id: 'review-1',
+          user: { _id: 'user-1', name: '  Alice  ', image: '   ' },
+          rating: 5,
+          comment: 'Great',
+          createdAt: '2024-01-01',
+        },
+        null,
+        {
+          _id: 'review-2',
+          user: {},
+          rating: 4,
+          comment: 'Ok',
+        },
+        'invalid',
+      ] as unknown as SanityListingRaw['reviews'],
+      amenities: [
+        { _id: 'amenity-1', name: 'Solar Power' },
+        null,
+      ] as unknown as SanityListingRaw['amenities'],
+      contactPhone: '123-456',
+      contactEmail: 'info@example.com',
+      lastVerifiedDate: '2024-02-14',
+      coworkingDetails: { seats: 20 },
+      accommodationDetails: null,
+      cafeDetails: { beans: 'Local' },
+      restaurantDetails: undefined,
+      activitiesDetails: { equipment: 'Included' },
     });
-    expect(result).toEqual([]);
-  });
 
-  it('returns empty array if all filters exclude all', () => {
-    const result = filterListings({
-      city: 'Phuket',
-      category: 'accommodation' as const,
-      hasEcoTags: true,
-      hasDnFeatures: true,
+    it('validates Sanity listing shape', () => {
+      jest.doMock('../../data/listings.json', () => []);
+      const { isSanityListing } = loadListingsLib();
+
+      expect(isSanityListing(buildValidSanity())).toBe(true);
+      expect(isSanityListing({ ...buildValidSanity(), _id: '   ' })).toBe(false);
+      expect(isSanityListing({ ...buildValidSanity(), name: '' })).toBe(false);
+      expect(isSanityListing({ ...buildValidSanity(), slug: { _type: 'slug', current: '' } })).toBe(false);
     });
-    expect(result).toEqual([]);
+
+    it('maps Sanity listing to card DTO and guards invalid input', () => {
+      jest.doMock('../../data/listings.json', () => []);
+      const { mapSanityListingToCard } = loadListingsLib();
+
+      expect(() => mapSanityListingToCard({})).toThrow('Invalid Sanity listing object');
+
+      const sanity = buildValidSanity();
+      const card = mapSanityListingToCard(sanity);
+      expect(card.id).toBe('sanity-1');
+      expect(card.slug).toBe('sanity-listing');
+      expect(card.city).toEqual({ id: 'city-1', name: 'Sanity City', slug: 'sanity-city', country: 'SC' });
+      expect(card.ecoFocusTags).toEqual(['Solar', 'Wind']);
+      expect(card.digitalNomadFeatures).toEqual(['Focus rooms', 'Standing desks']);
+      expect(card.galleryImages).toEqual(sanity.galleryImages);
+      expect(card.website).toBeNull();
+    });
+
+    it('maps Sanity listing to detailed DTO including nested collections', () => {
+      jest.doMock('../../data/listings.json', () => []);
+      const { mapSanityListingToAppListingDetail } = loadListingsLib();
+
+      const detail = mapSanityListingToAppListingDetail(buildValidSanity());
+      expect(detail.id).toBe('sanity-1');
+      expect(detail.slug).toBe('sanity-listing');
+      expect(detail.city).toEqual({ id: 'city-1', name: 'Sanity City', slug: 'sanity-city', country: 'SC' });
+      expect(detail.website).toBeUndefined();
+      expect(detail.digitalNomadFeatures).toEqual(['Focus rooms', 'Standing desks']);
+      expect(detail.ecoFocusTags).toEqual(['Solar', 'Wind']);
+      expect(detail.reviews).toHaveLength(2);
+      expect(detail.reviews[0]).toEqual({
+        id: 'review-1',
+        listingId: 'sanity-1',
+        userId: 'user-1',
+        rating: 5,
+        comment: 'Great',
+        user: { name: 'Alice' },
+        createdAt: '2024-01-01',
+      });
+      expect(detail.reviews[1].user).toEqual({ name: 'Anonymous' });
+      expect(detail.amenities).toEqual([
+        {
+          _id: 'amenity-1',
+          name: 'Solar Power',
+          description: undefined,
+          badge: undefined,
+        },
+      ]);
+      expect(detail.coworkingDetails).toEqual({ seats: 20 });
+      expect(detail.cafeDetails).toEqual({ beans: 'Local' });
+      expect(detail.activitiesDetails).toEqual({ equipment: 'Included' });
+    });
   });
 });

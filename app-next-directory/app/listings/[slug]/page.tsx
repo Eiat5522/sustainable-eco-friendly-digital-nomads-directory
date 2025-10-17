@@ -299,14 +299,14 @@ export default async function ListingPage({ params }: Props) {
     <>
       <Header />
       <main>
-        <ListingDetailView
-          listing={listing}
-          reviews={reviews}
-          relatedListings={relatedListings}
-          isSignedIn={isSignedIn}
-          isFavorited={isFavorited}
-          userId={userId}
-        />
+          <ListingDetailView
+            listing={listing}
+            reviews={reviews}
+            relatedListings={relatedListings as any}
+            isSignedIn={isSignedIn}
+            isFavorited={isFavorited}
+            userId={userId}
+          />
       </main>
       <Footer />
     </>
