@@ -1,27 +1,30 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 
+// Mock external dependencies instead of exporting mutable testControl from production code.
+jest.mock('@/lib/auth', () => ({ auth: jest.fn() }));
+jest.mock('@/utils/db-helpers', () => ({ getCollection: jest.fn() }));
+
 import {
   GET,
-  testControl,
   normaliseSlug,
   normaliseListing,
   normaliseReview,
   isDeletedStatus,
 } from '../route';
 
-const authMock = jest.fn();
-const getCollectionMock = jest.fn();
+import { auth } from '@/lib/auth';
+import { getCollection } from '@/utils/db-helpers';
+
+const authMock = auth as unknown as jest.Mock;
+const getCollectionMock = getCollection as unknown as jest.Mock;
 
 beforeEach(() => {
-  testControl.authOverride = undefined;
-  testControl.getCollectionOverride = undefined;
+  jest.clearAllMocks();
   authMock.mockReset();
-  getCollectionMock.mockReset();
 });
 
 afterEach(() => {
-  testControl.authOverride = undefined;
-  testControl.getCollectionOverride = undefined;
+  jest.clearAllMocks();
 });
 
 describe('helper utilities', () => {
@@ -117,7 +120,7 @@ describe('helper utilities', () => {
 
 describe('/api/user/reviews', () => {
   it('returns 401 when not authenticated', async () => {
-    testControl.authOverride = authMock.mockResolvedValue(null);
+    authMock.mockResolvedValue(null);
 
     const response = await GET();
     const json = await response.json();
@@ -127,9 +130,7 @@ describe('/api/user/reviews', () => {
   });
 
   it('returns empty array for non-venue owners', async () => {
-    testControl.authOverride = authMock.mockResolvedValue({
-      user: { id: 'user-1', role: 'user' },
-    });
+    authMock.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
 
     const response = await GET();
     const json = await response.json();
@@ -140,9 +141,7 @@ describe('/api/user/reviews', () => {
   });
 
   it('returns listings with reviews for venue owner', async () => {
-    testControl.authOverride = authMock.mockResolvedValue({
-      user: { id: 'user-1', role: 'venueOwner' },
-    });
+    authMock.mockResolvedValue({ user: { id: 'user-1', role: 'venueOwner' } });
 
     const mockListings = [
       { slug: 'test-listing', name: 'Test Listing', status: 'published', ownerId: 'user-1' },
@@ -175,14 +174,8 @@ describe('/api/user/reviews', () => {
     };
 
     getCollectionMock
-      .mockResolvedValueOnce({
-        find: jest.fn().mockReturnValue(listingsCursor),
-      })
-      .mockResolvedValueOnce({
-        find: jest.fn().mockReturnValue(reviewsCursor),
-      });
-
-    testControl.getCollectionOverride = getCollectionMock;
+      .mockResolvedValueOnce({ find: jest.fn().mockReturnValue(listingsCursor) })
+      .mockResolvedValueOnce({ find: jest.fn().mockReturnValue(reviewsCursor) });
 
     const response = await GET();
     const json = await response.json();
@@ -194,9 +187,7 @@ describe('/api/user/reviews', () => {
   });
 
   it('filters out deleted listings and invalid reviews', async () => {
-    testControl.authOverride = authMock.mockResolvedValue({
-      user: { id: 'user-1', role: 'venueOwner' },
-    });
+    authMock.mockResolvedValue({ user: { id: 'user-1', role: 'venueOwner' } });
 
     const listingsCursor = {
       project: jest.fn().mockReturnValue({
@@ -222,8 +213,6 @@ describe('/api/user/reviews', () => {
       .mockResolvedValueOnce({ find: jest.fn().mockReturnValue(listingsCursor) })
       .mockResolvedValueOnce({ find: jest.fn().mockReturnValue(reviewsCursor) });
 
-    testControl.getCollectionOverride = getCollectionMock;
-
     const response = await GET();
     const json = await response.json();
 
@@ -235,12 +224,9 @@ describe('/api/user/reviews', () => {
   });
 
   it('handles database errors', async () => {
-    testControl.authOverride = authMock.mockResolvedValue({
-      user: { id: 'user-1', role: 'venueOwner' },
-    });
+    authMock.mockResolvedValue({ user: { id: 'user-1', role: 'venueOwner' } });
 
     getCollectionMock.mockRejectedValue(new Error('Database error'));
-    testControl.getCollectionOverride = getCollectionMock;
 
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 

@@ -13,7 +13,49 @@ export const testControl = {
   sanityFetchOverride: undefined as FetchFn | undefined,
   transformOverride: undefined as TransformFn | undefined,
   trackViewCountOverride: undefined as ((postId: string) => Promise<number>) | undefined,
+  get sanityFetchOverride() {
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error('testControl is only available in test environment');
+    }
+    return this._sanityFetchOverride;
+  },
+  set sanityFetchOverride(value: FetchFn | undefined) {
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error('testControl is only available in test environment');
+    }
+    this._sanityFetchOverride = value;
+  },
+  _sanityFetchOverride: undefined as FetchFn | undefined,
+  get transformOverride() {
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error('testControl is only available in test environment');
+    }
+    return this._transformOverride;
+  },
+  set transformOverride(value: TransformFn | undefined) {
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error('testControl is only available in test environment');
+    }
+    this._transformOverride = value;
+  },
+  get trackViewCountOverride() {
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error('testControl is only available in test environment');
+    }
+    return this._trackViewCountOverride;
+  },
+  set trackViewCountOverride(value: ((postId: string) => Promise<number>) | undefined) {
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error('testControl is only available in test environment');
+    }
+    this._trackViewCountOverride = value;
+  },
+  _transformOverride: undefined as TransformFn | undefined,
+  _trackViewCountOverride: undefined as ((postId: string) => Promise<number>) | undefined,
   resetViewCounts: () => {
+    if (process.env.NODE_ENV !== 'test') {
+      throw new Error('testControl is only available in test environment');
+    }
     viewCounts.clear();
   },
 };

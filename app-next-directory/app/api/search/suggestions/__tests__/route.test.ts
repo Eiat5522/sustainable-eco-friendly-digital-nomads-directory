@@ -1,19 +1,25 @@
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { GET, testControl } from '../route';
 
 const mockedGetSearchSuggestions = jest.fn();
+
+// Mock the search helper used by the route instead of mutating testControl
+jest.mock('@/lib/search', () => ({ getSearchSuggestions: mockedGetSearchSuggestions }));
+
+let GET: any;
 
 describe('/api/search/suggestions', () => {
   const originalNodeEnv = process.env.NODE_ENV;
 
   beforeEach(async () => {
+    jest.resetModules();
     mockedGetSearchSuggestions.mockReset();
-    testControl.getSearchSuggestionsOverride = mockedGetSearchSuggestions;
+    // require route after mocks are set
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    GET = require('../route').GET;
   });
 
   afterEach(() => {
     process.env.NODE_ENV = originalNodeEnv;
-    testControl.getSearchSuggestionsOverride = undefined;
   });
 
   it('returns suggestions for valid query', async () => {

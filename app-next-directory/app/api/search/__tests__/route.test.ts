@@ -1,33 +1,35 @@
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { NextRequest } from 'next/server';
-import { GET, POST, testControl } from '../route';
 
 const mockedFetch = jest.fn();
 const mockedIsE2ERun = jest.fn();
 const mockedBuildE2EResponse = jest.fn();
 
+// Mock sanity client, e2e fixture utilities and ensure route uses these mocks
+jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => mockedFetch(...args) } }));
+jest.mock('@/data/e2e/discovery-fixtures', () => ({ isE2ERun: () => mockedIsE2ERun(), buildE2ESearchResponse: (...args: any[]) => mockedBuildE2EResponse(...args) }));
+
 const createRequest = (input: ConstructorParameters<typeof NextRequest>[0], init?: ConstructorParameters<typeof NextRequest>[1]) =>
   new NextRequest(input, init);
 
+let GET: any;
+let POST: any;
+let routeTestControl: any;
+
 describe('/api/search', () => {
   beforeEach(async () => {
+    jest.resetModules();
     mockedFetch.mockReset();
     mockedIsE2ERun.mockReset();
     mockedBuildE2EResponse.mockReset();
 
-    testControl.clientFetchOverride = mockedFetch;
-    testControl.isE2ERunOverride = mockedIsE2ERun;
-    testControl.buildE2ESearchResponseOverride = mockedBuildE2EResponse;
-    testControl.parseBodyOverride = undefined;
-
     mockedIsE2ERun.mockReturnValue(false);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    ({ GET, POST, testControl: routeTestControl } = require('../route'));
   });
 
   afterEach(() => {
-    testControl.clientFetchOverride = undefined;
-    testControl.isE2ERunOverride = undefined;
-    testControl.buildE2ESearchResponseOverride = undefined;
-    testControl.parseBodyOverride = undefined;
+    // nothing to cleanup when using module mocks
   });
 
   describe('GET', () => {
@@ -254,7 +256,7 @@ describe('/api/search', () => {
         .mockResolvedValueOnce(mockResults)
         .mockResolvedValueOnce(5);
       
-      testControl.parseBodyOverride = async () => ({ query: 'test', page: 1, limit: 10 });
+  routeTestControl.parseBodyOverride = async () => ({ query: 'test', page: 1, limit: 10 });
 
       const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
@@ -270,7 +272,7 @@ describe('/api/search', () => {
     });
 
     it('handles invalid JSON', async () => {
-      testControl.parseBodyOverride = async () => {
+      routeTestControl.parseBodyOverride = async () => {
         throw new Error('invalid json');
       };
 
@@ -290,7 +292,7 @@ describe('/api/search', () => {
         .mockResolvedValueOnce([])
         .mockResolvedValueOnce(0);
       
-      testControl.parseBodyOverride = async () => ({
+      routeTestControl.parseBodyOverride = async () => ({
         query: 'test',
         category: ['cafe'],
         destination: ['Bangkok'],
@@ -314,7 +316,7 @@ describe('/api/search', () => {
     it('handles POST errors', async () => {
       mockedFetch.mockRejectedValue(new Error('Database error'));
       
-      testControl.parseBodyOverride = async () => ({ query: 'test' });
+  routeTestControl.parseBodyOverride = async () => ({ query: 'test' });
 
       const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',
@@ -335,7 +337,7 @@ describe('/api/search', () => {
         filters: {},
       });
 
-      testControl.parseBodyOverride = async () => ({ 
+      routeTestControl.parseBodyOverride = async () => ({ 
         query: 'test',
         e2eScenario: 'fail-once'
       });
@@ -359,7 +361,7 @@ describe('/api/search', () => {
         filters: {},
       });
 
-      testControl.parseBodyOverride = async () => ({ 
+      routeTestControl.parseBodyOverride = async () => ({ 
         query: 'test',
         e2eScenario: 'fail-once',
         retry: 'token'
@@ -384,7 +386,7 @@ describe('/api/search', () => {
         filters: {},
       });
 
-      testControl.parseBodyOverride = async () => ({ 
+      routeTestControl.parseBodyOverride = async () => ({ 
         query: 'test',
         e2eScenario: 'timeout'
       });
@@ -414,7 +416,7 @@ describe('/api/search', () => {
         filters: {},
       });
 
-      testControl.parseBodyOverride = async () => ({ 
+      routeTestControl.parseBodyOverride = async () => ({ 
         query: 'test',
         facets: true
       });
@@ -431,7 +433,7 @@ describe('/api/search', () => {
     });
 
     it('handles non-real-client fetch function call', async () => {
-      testControl.clientFetchOverride = undefined;
+  routeTestControl.clientFetchOverride = undefined;
       mockedIsE2ERun.mockReturnValue(false);
 
       // Mock the Sanity client
@@ -440,7 +442,7 @@ describe('/api/search', () => {
       };
       
       // This test verifies the fallback to client.fetch when no override is set
-      testControl.parseBodyOverride = async () => ({ query: 'test' });
+  routeTestControl.parseBodyOverride = async () => ({ query: 'test' });
 
       const request = createRequest('http://localhost:3000/api/search', {
         method: 'POST',

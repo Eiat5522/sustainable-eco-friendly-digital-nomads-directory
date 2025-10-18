@@ -24,7 +24,7 @@ type BlogPost = {
   _updatedAt?: string;
 };
 
-type SanityFetchFn = (...args: any[]) => Promise<BlogPost | BlogPost[] | null>;
+type SanityFetchFn = (...args: unknown[]) => Promise<BlogPost | BlogPost[] | null>;
 import { client as sanityClient } from '@/lib/sanity/client';
 
 type RouteModule = typeof import('./route');

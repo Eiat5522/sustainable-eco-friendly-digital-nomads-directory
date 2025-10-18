@@ -4,7 +4,18 @@
  */
 
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { GET, PUT, testControl } from './route';
+
+// We'll mock the modules the route imports so tests don't need to mutate exported testControl
+const fetchMock = jest.fn() as jest.MockedFunction<(...args: any[]) => Promise<any>>;
+const transformMock = jest.fn() as jest.MockedFunction<(p: any) => any>;
+const trackViewCountMock = jest.fn() as jest.MockedFunction<(id: string) => Promise<number>>;
+
+jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => fetchMock(...args) } }));
+jest.mock('@/lib/dto-transformer', () => ({ transformToBlogDetailDTO: (...args: any[]) => transformMock(...args) }));
+
+let GET: any;
+let PUT: any;
+let routeTestControl: any;
 
 // Test-only types
 type BlogPost = {
@@ -24,28 +35,34 @@ type BlogPost = {
 
 type SanityFetchFn = (...args: any[]) => Promise<BlogPost | BlogPost[] | null>;
 
-const fetchMock = jest.fn() as jest.MockedFunction<SanityFetchFn>;
-const transformMock = jest.fn() as jest.MockedFunction<(p: BlogPost) => any>;
-const trackViewCountMock = jest.fn() as jest.MockedFunction<(id: string) => Promise<number>>;
+// (mocks defined above and used by module mocks)
 
 describe('Blog [slug] API', () => {
   beforeEach(() => {
+    // Ensure a fresh module instance so our module mocks are applied
+    jest.resetModules();
     jest.clearAllMocks();
     fetchMock.mockReset();
     transformMock.mockReset();
     trackViewCountMock.mockReset();
 
-    testControl.sanityFetchOverride = fetchMock as unknown as any;
-    testControl.transformOverride = transformMock as unknown as any;
-    testControl.trackViewCountOverride = trackViewCountMock as unknown as any;
-    testControl.resetViewCounts();
+    // Load the route after mocks are in place so it picks up the mocked client and transformer
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const route = require('./route');
+    GET = route.GET;
+    PUT = route.PUT;
+    routeTestControl = route.testControl;
+
+    // trackViewCount is internal; set the override on the required module's testControl
+    routeTestControl.trackViewCountOverride = trackViewCountMock as any;
+    routeTestControl.resetViewCounts();
   });
 
   afterEach(() => {
-    testControl.sanityFetchOverride = undefined;
-    testControl.transformOverride = undefined;
-    testControl.trackViewCountOverride = undefined;
-    testControl.resetViewCounts();
+    if (routeTestControl) {
+      routeTestControl.trackViewCountOverride = undefined;
+      routeTestControl.resetViewCounts();
+    }
   });
 
   describe('GET /api/blog/[slug]', () => {

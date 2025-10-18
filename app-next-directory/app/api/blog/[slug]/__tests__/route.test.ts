@@ -1,10 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { GET, PUT, testControl } from '../route';
-
-type RouteContext = { params: Promise<{ slug: string }> };
 
 const fetchMock = jest.fn();
 const transformMock = jest.fn();
+const trackViewCountMock = jest.fn();
+
+// Mock the sanity client and transformer used by the route
+jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => fetchMock(...args) } }));
+jest.mock('@/lib/dto-transformer', () => ({ transformToBlogDetailDTO: transformMock }));
+
+let GET: any;
+let PUT: any;
+type RouteContext = { params: Promise<{ slug: string }> };
 
 const parseResponse = async (response: Response) => ({
   status: response.status,
@@ -20,19 +26,16 @@ const createPutRequest = (body: unknown, headers: HeadersInit = { 'content-type'
 
 describe('API /api/blog/[slug] route handlers', () => {
   beforeEach(() => {
+    jest.resetModules();
     fetchMock.mockReset();
     transformMock.mockReset();
-    testControl.sanityFetchOverride = fetchMock;
-    testControl.transformOverride = transformMock;
-    testControl.trackViewCountOverride = undefined;
-    testControl.resetViewCounts();
+    trackViewCountMock.mockReset();
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    ({ GET, PUT } = require('../route'));
   });
 
   afterEach(() => {
-    testControl.sanityFetchOverride = undefined;
-    testControl.transformOverride = undefined;
-    testControl.trackViewCountOverride = undefined;
-    testControl.resetViewCounts();
+    // module mocks reset per-test via jest.resetAllMocks in the file-level hooks if desired
   });
 
   describe('GET', () => {
