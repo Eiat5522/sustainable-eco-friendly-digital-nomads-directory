@@ -1,21 +1,17 @@
+import { jest } from '@jest/globals';
+
 const setupWorkerMock = jest.fn(() => ({ start: jest.fn() }));
 
 jest.mock('msw/browser', () => ({
-  setupWorker: (...args: unknown[]) => setupWorkerMock(...args),
+  setupWorker: setupWorkerMock,
 }));
 
-describe('MSW browser worker', () => {
-  afterEach(() => {
-    jest.resetModules();
-    jest.clearAllMocks();
-    setupWorkerMock.mockClear();
-  });
+describe('msw browser worker', () => {
+  it('creates the worker with the registered handlers', async () => {
+    const module = await import('../browser');
+    const { handlers } = await import('../../__mocks__/handlers');
 
-  it('creates a worker with registered handlers', () => {
-    const handlers = jest.requireActual('../../__mocks__/handlers');
-    const { worker } = require('../browser');
-    expect(worker).toHaveProperty('start');
-    expect(setupWorkerMock).toHaveBeenCalledTimes(1);
-    expect(setupWorkerMock.mock.calls[0]).toEqual(handlers.handlers);
+    expect(setupWorkerMock).toHaveBeenCalledWith(...handlers);
+    expect(module.worker).toEqual(expect.objectContaining({ start: expect.any(Function) }));
   });
 });
