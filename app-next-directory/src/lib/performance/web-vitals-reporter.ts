@@ -26,7 +26,11 @@ export const WebVitalsReporter = (metric: WebVitalsMetric) => {
   const canUseSendBeacon = hasNavigator && typeof navigator.sendBeacon === 'function';
 
   if (canUseSendBeacon) {
-    try {
+  if (canUseSendBeacon) {
+    if (navigator.sendBeacon(url, body)) {
+      return;
+    }
+  }
       const sendBeaconResult = navigator.sendBeacon(url, body);
       if (sendBeaconResult) {
         return;
