@@ -44,7 +44,7 @@ jest.mock('@/components/layout/Footer', () => ({
 const originalFetch = global.fetch;
 const originalStructuredClone = global.structuredClone;
 
-const structuredClonePolyfill = <T>(value: T): T => JSON.parse(JSON.stringify(value));
+const structuredClonePolyfill = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
 
 beforeAll(() => {
   if (typeof global.structuredClone !== 'function') {
@@ -90,9 +90,9 @@ describe('app/listings/[slug]/page', () => {
 
   it('uses fixture data when E2E flag is enabled', async () => {
     process.env.NEXT_PUBLIC_E2E = '1';
-    const module = await importPageModule();
+    const pageModule = await importPageModule();
 
-    const element = await module.default({ params: Promise.resolve({ slug: 'banyan-tree-phuket' }) });
+    const element = await pageModule.default({ params: Promise.resolve({ slug: 'banyan-tree-phuket' }) });
     render(element);
 
     expect(screen.getByTestId('listing-detail-view')).toBeInTheDocument();
@@ -107,16 +107,16 @@ describe('app/listings/[slug]/page', () => {
 
   it('invokes notFound for missing E2E fixture', async () => {
     process.env.NEXT_PUBLIC_E2E = '1';
-    const module = await importPageModule();
+    const pageModule = await importPageModule();
 
     await expect(
-      module.default({ params: Promise.resolve({ slug: 'unknown-fixture' }) })
+      pageModule.default({ params: Promise.resolve({ slug: 'unknown-fixture' }) })
     ).rejects.toThrow('NOT_FOUND_TRIGGERED');
     expect(mockNotFound).toHaveBeenCalled();
   });
 
   it('fetches listing data and renders detail view for standard requests', async () => {
-    const module = await importPageModule();
+    const pageModule = await importPageModule();
     const listing = {
       id: 'listing-123',
       name: 'Eco Retreat',
@@ -165,7 +165,7 @@ describe('app/listings/[slug]/page', () => {
       }),
     });
 
-    const element = await module.default({ params: Promise.resolve({ slug: 'eco-retreat' }) });
+    const element = await pageModule.default({ params: Promise.resolve({ slug: 'eco-retreat' }) });
     render(element);
 
     expect(mockTransformToDetailDTO).toHaveBeenCalledWith({ _id: 'listing-raw' });
@@ -196,10 +196,10 @@ describe('app/listings/[slug]/page', () => {
       throw new Error('bad transform');
     });
 
-    const module = await importPageModule();
+    const pageModule = await importPageModule();
 
     await expect(
-      module.default({ params: Promise.resolve({ slug: 'broken-listing' }) })
+      pageModule.default({ params: Promise.resolve({ slug: 'broken-listing' }) })
     ).rejects.toThrow('NOT_FOUND_TRIGGERED');
 
     expect(consoleSpy).toHaveBeenCalledWith(
@@ -214,8 +214,8 @@ describe('app/listings/[slug]/page', () => {
   it('returns graceful metadata when listing is missing', async () => {
     mockClientFetch.mockResolvedValueOnce(null);
 
-    const module = await importPageModule();
-    const metadata = await module.generateMetadata({ params: Promise.resolve({ slug: 'missing' }) });
+    const pageModule = await importPageModule();
+    const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'missing' }) });
 
     expect(metadata).toEqual({ title: 'Listing not found' });
   });
@@ -230,8 +230,8 @@ describe('app/listings/[slug]/page', () => {
       galleryImages: ['https://cdn.test/ocean.jpg'],
     });
 
-    const module = await importPageModule();
-    const metadata = await module.generateMetadata({ params: Promise.resolve({ slug: 'ocean-escape' }) });
+    const pageModule = await importPageModule();
+    const metadata = await pageModule.generateMetadata({ params: Promise.resolve({ slug: 'ocean-escape' }) });
 
     expect(metadata).toEqual({
       title: 'Ocean Escape',
@@ -245,7 +245,7 @@ describe('app/listings/[slug]/page', () => {
   });
 
   it('recovers from related listing and review errors gracefully', async () => {
-    const module = await importPageModule();
+    const pageModule = await importPageModule();
 
     mockClientFetch
       .mockResolvedValueOnce({ _id: 'listing-raw' })
@@ -266,7 +266,7 @@ describe('app/listings/[slug]/page', () => {
       json: async () => ({ error: 'boom' }),
     });
 
-    const element = await module.default({ params: Promise.resolve({ slug: 'mountain-base' }) });
+    const element = await pageModule.default({ params: Promise.resolve({ slug: 'mountain-base' }) });
     render(element);
 
     expect(renderListingDetailView).toHaveBeenCalledWith(

@@ -9,8 +9,8 @@ import { jest } from '@jest/globals';
 const ORIGINAL_ENV = { ...process.env };
 
 const loadDbConnect = async () => {
-  const module = await import('../dbConnect');
-  return module.default;
+  const importedModule = await import('../dbConnect');
+  return importedModule.default;
 };
 
 const importMongooseMock = async () => {

@@ -46,8 +46,8 @@ describe('Newsletter Confirmation API - GET /api/newsletter/confirm', () => {
     mockUpdateOne.mockResolvedValue({ acknowledged: true });
     
     // Dynamically import the route handler
-    const module = await import('../route');
-    GET = module.GET;
+    const importedModule = await import('../route');
+    GET = importedModule.GET;
   });
 
   afterEach(() => {

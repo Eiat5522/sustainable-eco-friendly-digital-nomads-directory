@@ -19,8 +19,8 @@ describe('Error Component', () => {
   const mockError = new Error('Test error message');
 
   beforeAll(async () => {
-    const module = await import('../error');
-    ErrorComponent = module.default;
+    const importedModule = await import('../error');
+    ErrorComponent = importedModule.default;
   });
 
   beforeAll(() => {

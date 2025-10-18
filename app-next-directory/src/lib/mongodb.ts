@@ -1,26 +1,31 @@
 // Consolidated MongoDB client for the app
 // Combines the richer TS implementation and test mock shapes from previous JS/TS duplicates.
-import { MongoClient } from 'mongodb';
+import { MongoClient, type MongoClientOptions } from 'mongodb';
 
 type MockCollection = {
-  createIndexes?: (...args: any[]) => Promise<any>;
-  findOne?: (...args: any[]) => Promise<any>;
-  insertOne?: (...args: any[]) => Promise<any>;
-  updateOne?: (...args: any[]) => Promise<any>;
-  deleteOne?: (...args: any[]) => Promise<any>;
+  createIndexes: (...args: unknown[]) => Promise<unknown>;
+  findOne: (...args: unknown[]) => Promise<unknown>;
+  insertOne: (...args: unknown[]) => Promise<{ insertedId: string }>;
+  updateOne: (...args: unknown[]) => Promise<{ matchedCount: number; modifiedCount: number }>;
+  deleteOne: (...args: unknown[]) => Promise<{ deletedCount: number }>;
 };
 
 type MockDb = {
-  createCollection?: (...args: any[]) => Promise<any>;
-  collection: (name?: string) => MockCollection;
+  createCollection: (...args: unknown[]) => Promise<Record<string, never>>;
+  collection: (...args: unknown[]) => MockCollection;
+  command: (...args: unknown[]) => Promise<Record<string, unknown>>;
 };
 
-let clientPromise: Promise<any>;
+type MockMongoClient = {
+  db: () => MockDb;
+};
 
 const shouldMockMongo = process.env.NODE_ENV === 'test' || process.env.E2E === '1';
 
+let clientPromise: Promise<MongoClient>;
+
 if (shouldMockMongo) {
-  const mockClient = {
+  const mockClient: MockMongoClient = {
     db: () => ({
       createCollection: async () => ({}),
       collection: () => ({
@@ -30,20 +35,19 @@ if (shouldMockMongo) {
         updateOne: async () => ({ matchedCount: 0, modifiedCount: 0 }),
         deleteOne: async () => ({ deletedCount: 0 }),
       }),
+      command: async () => ({}),
     }),
-  } as { db: () => MockDb };
+  };
 
-  clientPromise = Promise.resolve(mockClient);
+  clientPromise = Promise.resolve(mockClient as unknown as MongoClient);
 } else {
-  if (!process.env.MONGODB_URI) {
-    const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env.local';
-    throw new Error(`Please add your MongoDB URI to ${envFile}`);
-  }
-
   const uri = process.env.MONGODB_URI;
 
-  // Connection options with reasonable defaults
-  const options = {
+  if (typeof uri !== 'string' || !/^mongodb(\+srv)?:\/\/.+/.test(uri)) {
+    throw new Error('Please add a valid Mongo URI to .env.test');
+  }
+
+  const options: MongoClientOptions = {
     serverSelectionTimeoutMS: 10000,
     connectTimeoutMS: 10000,
     socketTimeoutMS: 45000,
@@ -51,32 +55,31 @@ if (shouldMockMongo) {
     minPoolSize: 2,
     retryWrites: true,
     retryReads: true,
-  } as any;
+  };
 
-  if (process.env.NODE_ENV === 'development') {
-    const globalWithMongo = global as typeof globalThis & {
-      _mongoClientPromise?: Promise<MongoClient>
-    }
+  const globalWithMongo = globalThis as typeof globalThis & {
+    _mongoClientPromise?: Promise<MongoClient>;
+  };
 
-    if (!globalWithMongo._mongoClientPromise) {
-      const client = new MongoClient(uri, options);
-      globalWithMongo._mongoClientPromise = client.connect()
-        .then((clientInstance) => clientInstance)
-        .catch((error) => {
-          globalWithMongo._mongoClientPromise = undefined;
-          console.error('MongoDB connection failed:', error?.message ?? error);
-          throw error;
-        });
-    }
-    clientPromise = globalWithMongo._mongoClientPromise as Promise<MongoClient>;
-  } else {
-    const client = new MongoClient(uri, options);
-    clientPromise = client.connect()
-      .then((clientInstance) => clientInstance)
+  const createClient = () =>
+    new MongoClient(uri, options)
+      .connect()
       .catch((error) => {
         console.error('MongoDB connection failed:', error?.message ?? error);
         throw error;
       });
+
+  if (process.env.NODE_ENV === 'development') {
+    if (!globalWithMongo._mongoClientPromise) {
+      globalWithMongo._mongoClientPromise = createClient();
+    }
+    clientPromise = globalWithMongo._mongoClientPromise;
+  } else {
+    clientPromise = createClient();
+  }
+
+  if (!clientPromise) {
+    throw new Error('MongoDB client promise was not created');
   }
 }
 

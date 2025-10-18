@@ -3,6 +3,12 @@
  * Adds Server-Timing headers to Next.js responses. Exported `middleware` conforms to Next.js middleware API.
  */
 
+import { NextRequest, NextResponse } from 'next/server';
+
+import { SERVER_TIMING_CONFIG } from '../lib/performance/monitoring-config';
+
+const now = () => (typeof performance !== 'undefined' && typeof performance.now === 'function' ? performance.now() : Date.now());
+
 export interface TimingMetric {
   name: string;
   duration: number;
@@ -10,54 +16,76 @@ export interface TimingMetric {
 }
 
 export class ServerTiming {
-  private metrics: TimingMetric[] = [];
+  private metrics = new Map<string, TimingMetric>();
   private startTimes = new Map<string, number>();
 
   start(name: string) {
-    this.startTimes.set(name, typeof performance !== 'undefined' ? performance.now() : Date.now());
+    if (!SERVER_TIMING_CONFIG.enabled) return;
+    this.startTimes.set(name, now());
   }
 
   end(name: string, description?: string) {
+    if (!SERVER_TIMING_CONFIG.enabled) return;
     const start = this.startTimes.get(name);
     if (!start) return;
-    const duration = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - start;
-    this.metrics.push({ name, duration, description });
+    const duration = now() - start;
+    this.metrics.set(name, { name, duration, description });
     this.startTimes.delete(name);
   }
 
-  add(metric: TimingMetric) {
-    this.metrics.push(metric);
+  add(name: string, duration: number, description?: string) {
+    if (!SERVER_TIMING_CONFIG.enabled) return;
+    this.metrics.set(name, { name, duration, description });
   }
 
   getMetrics(): TimingMetric[] {
-    return this.metrics.slice();
+    return Array.from(this.metrics.values());
   }
 
   getHeaderValue(): string {
-    return this.metrics
+    if (!SERVER_TIMING_CONFIG.enabled) return '';
+
+    return this.getMetrics()
       .map(({ name, duration, description }) => `${name};dur=${duration.toFixed(2)}${description ? `;desc="${description}"` : ''}`)
       .join(', ');
   }
 }
 
-import { NextRequest, NextResponse } from 'next/server';
+export function middleware(request: NextRequest) {
+  if (!SERVER_TIMING_CONFIG.enabled) {
+    return NextResponse.next();
+  }
 
-export function middleware(_request: NextRequest) {
   const timing = new ServerTiming();
   timing.start('total');
 
-  // Do nothing synchronous here — middleware is typically sync; to keep compatibility we measure lightweight
+  const requestWithTiming = request as NextRequest & { serverTiming?: ServerTiming };
+  requestWithTiming.serverTiming = timing;
+
+  const response = NextResponse.next();
+
   timing.end('total', 'Total server processing time');
 
-  const res = NextResponse.next();
-  res.headers.set('Server-Timing', timing.getHeaderValue());
-
-  if (process.env.NODE_ENV === 'development') {
-    console.log('[Server Timing]', timing.getMetrics().map(m => ({ metric: `server_${m.name}`, value: Math.round(m.duration) })));
+  const headerValue = timing.getHeaderValue();
+  if (headerValue) {
+    response.headers.set('Server-Timing', headerValue);
   }
 
-  return res;
+  if (SERVER_TIMING_CONFIG.verbose && process.env.NODE_ENV !== 'production') {
+    console.log(
+      '[Server Timing]',
+      timing.getMetrics().map((metric) => ({ metric: `server_${metric.name}`, value: Math.round(metric.duration) })),
+    );
+  }
+
+  return response;
 }
+
+export function createServerTiming() {
+  return new ServerTiming();
+}
+
+export default middleware;
 
 export const config = {
   matcher: ['/api/:path*', '/((?!_next/static|_next/image|favicon.ico).*)'],

@@ -40,8 +40,8 @@ describe('Preview Mode API - GET /api/preview', () => {
     });
     
     // Dynamically import the route handler
-    const module = await import('../route');
-    GET = module.GET;
+    const importedModule = await import('../route');
+    GET = importedModule.GET;
   });
 
   describe('Successful Preview Activation', () => {

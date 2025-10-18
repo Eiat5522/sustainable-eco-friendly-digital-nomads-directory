@@ -5,8 +5,8 @@ import { createMongoMemoryServer } from '../../test-helpers/createMongoMemorySer
 const ORIGINAL_ENV = { ...process.env };
 
 const loadDbConnect = async () => {
-  const module = await import('../dbConnect');
-  return module.default;
+  const importedModule = await import('../dbConnect');
+  return importedModule.default;
 };
 
 const getMongoose = async () => {

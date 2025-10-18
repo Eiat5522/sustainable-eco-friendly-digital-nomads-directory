@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { PlausibleAnalyticsProvider } from '../provider';
 import * as plausible from '../index';
+import { AnalyticsProvider } from '../../AnalyticsProvider';
 
 describe('PlausibleAnalyticsProvider', () => {
   it('renders children without modification', () => {
@@ -17,7 +18,6 @@ describe('PlausibleAnalyticsProvider', () => {
 
 describe('AnalyticsProvider', () => {
   it('acts as a passthrough wrapper', () => {
-    const { AnalyticsProvider } = require('../../analytics.tsx');
     render(
       <AnalyticsProvider>
         <span>Analytics child</span>

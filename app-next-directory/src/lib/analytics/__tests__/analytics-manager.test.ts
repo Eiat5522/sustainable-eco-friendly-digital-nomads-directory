@@ -22,7 +22,7 @@ describe('AnalyticsManager', () => {
 
   it('does not track events before initialization', async () => {
     process.env.NEXT_PUBLIC_POSTHOG_KEY = 'key';
-    const module = await import('../analytics');
+    const importedModule = await import('../analytics');
     const { analytics } = module;
 
     analytics.trackPageView('/early');
@@ -32,7 +32,7 @@ describe('AnalyticsManager', () => {
   });
 
   it('reuses the singleton instance and skips experiment tracking before init', async () => {
-    const module = await import('../analytics');
+    const importedModule = await import('../analytics');
     const { analytics } = module;
 
     const again = (analytics.constructor as any).getInstance();
@@ -50,7 +50,7 @@ describe('AnalyticsManager', () => {
     process.env.NEXT_PUBLIC_POSTHOG_KEY = 'test-key';
     process.env.NEXT_PUBLIC_POSTHOG_HOST = 'https://example.com';
 
-    const module = await import('../analytics');
+    const importedModule = await import('../analytics');
     const { analytics } = module;
 
     await analytics.initialize();
@@ -78,7 +78,7 @@ describe('AnalyticsManager', () => {
   });
 
   it('skips PostHog initialization when key is missing', async () => {
-    const module = await import('../analytics');
+    const importedModule = await import('../analytics');
     const { analytics } = module;
 
     await analytics.initialize();
@@ -90,7 +90,7 @@ describe('AnalyticsManager', () => {
     process.env.NODE_ENV = 'development';
     process.env.NEXT_PUBLIC_POSTHOG_KEY = 'dev-key';
 
-    const module = await import('../analytics');
+    const importedModule = await import('../analytics');
     const { analytics } = module;
 
     await analytics.initialize();

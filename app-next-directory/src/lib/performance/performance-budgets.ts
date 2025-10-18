@@ -1,12 +1,17 @@
 export type Budget = { target: number; acceptable: number; critical: number };
 
-export const PERFORMANCE_BUDGETS: {
-  pageLoad: Record<string, Budget>;
-  resourceSize?: Record<string, Budget>;
-  apiResponses?: Record<string, Budget>;
-  components?: Record<string, unknown>;
-  serverResources?: Record<string, unknown>;
-} = {
+type NestedBudgets = Record<string, Budget>;
+type PerformanceBudgetLookup = Record<string, NestedBudgets | Budget>;
+
+export type PerformanceBudgets = {
+  pageLoad: NestedBudgets;
+  resourceSize: NestedBudgets;
+  apiResponses: NestedBudgets;
+  components: Record<string, NestedBudgets>;
+  serverResources: NestedBudgets;
+};
+
+export const PERFORMANCE_BUDGETS: PerformanceBudgets = {
   pageLoad: {
     FCP: { target: 1500, acceptable: 2500, critical: 3500 },
     LCP: { target: 2500, acceptable: 4000, critical: 6000 },
@@ -52,13 +57,20 @@ export const PERFORMANCE_BUDGETS: {
   },
 };
 
-export function evaluatePerformanceMetric(category: string, metric: string, value: number): 'good' | 'needs-improvement' | 'poor' | 'unknown' {
-  if (!PERFORMANCE_BUDGETS[category as keyof typeof PERFORMANCE_BUDGETS] || !(PERFORMANCE_BUDGETS as any)[category][metric]) {
+export function evaluatePerformanceMetric(
+  category: string,
+  metric: string,
+  value: number,
+): 'good' | 'needs-improvement' | 'poor' | 'unknown' {
+  const budgets = PERFORMANCE_BUDGETS as unknown as Record<string, PerformanceBudgetLookup>;
+  const budgetCandidate = budgets[category]?.[metric];
+
+  if (!budgetCandidate || typeof budgetCandidate !== 'object' || !('target' in budgetCandidate)) {
     console.warn(`Unknown performance metric: ${category}.${metric}`);
     return 'unknown';
   }
 
-  const budget: any = (PERFORMANCE_BUDGETS as any)[category][metric];
+  const budget = budgetCandidate as Budget;
 
   if (metric === 'CLS') {
     if (value <= budget.target) return 'good';
@@ -71,11 +83,14 @@ export function evaluatePerformanceMetric(category: string, metric: string, valu
   return 'poor';
 }
 
-export function getMetricThresholds(category: string, metric: string) {
-  if (!PERFORMANCE_BUDGETS[category as keyof typeof PERFORMANCE_BUDGETS] || !(PERFORMANCE_BUDGETS as any)[category][metric]) {
+export function getMetricThresholds(category: string, metric: string): Budget | NestedBudgets | null {
+  const budgets = PERFORMANCE_BUDGETS as unknown as Record<string, PerformanceBudgetLookup>;
+  const threshold = budgets[category]?.[metric];
+
+  if (!threshold) {
     console.warn(`Unknown performance metric: ${category}.${metric}`);
     return null;
   }
-  return (PERFORMANCE_BUDGETS as any)[category][metric];
+  return threshold as Budget | NestedBudgets;
 }
 
