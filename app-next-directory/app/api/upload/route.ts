@@ -12,6 +12,16 @@ export const testControl = {
   uploadOverride: undefined as UploadFn | undefined,
   formDataOverride: undefined as FormDataFn | undefined,
 };
+// Only export testControl in test environment
+export const testControl = process.env.NODE_ENV === 'test' 
+  ? {
+      authOverride: undefined as AuthFn | undefined,
+      uploadOverride: undefined as UploadFn | undefined,
+      formDataOverride: undefined as FormDataFn | undefined,
+    }
+  : undefined;
+
+const authFn = (testControl?.authOverride) ?? auth;
 
 export async function POST(request: Request) {
   const authFn = testControl.authOverride ?? auth;

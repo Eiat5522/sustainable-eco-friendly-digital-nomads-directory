@@ -1,27 +1,68 @@
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { NextRequest } from 'next/server';
-import { POST, testControl } from '../route';
+
+// Simple module-level mock for revalidatePath
+const mockedRevalidatePath = jest.fn();
+jest.mock('next/cache', () => ({ revalidatePath: mockedRevalidatePath }));
+
+let POST: any;
+let routeTestControl: any;
+
+describe('/api/revalidate-all', () => {
+  beforeEach(() => {
+    jest.resetModules();
+    ({ POST, testControl: routeTestControl } = require('../route'));
+    if (routeTestControl) routeTestControl.revalidatePathOverride = mockedRevalidatePath;
+  });
+
+  afterEach(() => {
+    if (routeTestControl) routeTestControl.revalidatePathOverride = undefined;
+  });
+
+  it('basic smoke - calls handler', async () => {
+    const request = new NextRequest('http://localhost:3000/api/revalidate-all');
+    const res = await POST(request);
+    expect(res).toBeDefined();
+  });
+});
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { NextRequest } from 'next/server';
+
+// Module-level mock for revalidatePath so real Next internals are never called
+const mockedRevalidatePath = jest.fn();
+jest.mock('next/cache', () => ({ revalidatePath: mockedRevalidatePath }));
+
+let POST: any;
+let routeTestControl: any;
 
 describe('/api/revalidate-all', () => {
   const validToken = 'test-token-123';
-  const mockedRevalidatePath = jest.fn();
   const originalToken = process.env.revalidationToken;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     process.env.revalidationToken = validToken;
     mockedRevalidatePath.mockReset();
-    testControl.revalidatePathOverride = mockedRevalidatePath;
+
+    jest.resetModules();
+    // Require after mocks are registered so route loads with mocked next/cache
+    ({ POST, testControl: routeTestControl } = require('../route'));
+
+    if (routeTestControl) {
+      routeTestControl.revalidatePathOverride = mockedRevalidatePath;
+    }
   });
 
   afterEach(() => {
     process.env.revalidationToken = originalToken;
-    testControl.revalidatePathOverride = undefined;
-    testControl.tokenOverride = undefined;
+    if (routeTestControl) {
+      routeTestControl.revalidatePathOverride = undefined;
+      routeTestControl.tokenOverride = undefined;
+    }
   });
 
   it('returns 401 when token is missing', async () => {
     const request = new NextRequest('http://localhost:3000/api/revalidate-all');
-    
+
     const response = await POST(request);
     const json = await response.json();
 
@@ -32,7 +73,7 @@ describe('/api/revalidate-all', () => {
 
   it('returns 401 when token is invalid', async () => {
     const request = new NextRequest('http://localhost:3000/api/revalidate-all?token=wrong-token');
-    
+
     const response = await POST(request);
     const json = await response.json();
 
@@ -43,7 +84,7 @@ describe('/api/revalidate-all', () => {
 
   it('revalidates all routes with valid token', async () => {
     const request = new NextRequest(`http://localhost:3000/api/revalidate-all?token=${validToken}`);
-    
+
     const response = await POST(request);
     const json = await response.json();
 
@@ -59,3 +100,136 @@ describe('/api/revalidate-all', () => {
   });
 
 });
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { NextRequest } from 'next/server';
+
+let POST: any;
+let routeTestControl: any;
+
+describe('/api/revalidate-all', () => {
+  const validToken = 'test-token-123';
+  const mockedRevalidatePath = jest.fn();
+  import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+  import { NextRequest } from 'next/server';
+
+  // Mock next/cache so tests never call the real revalidatePath implementation
+  import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+  import { NextRequest } from 'next/server';
+
+  // Mock next/cache so tests never call the real revalidatePath implementation
+  import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+  import { NextRequest } from 'next/server';
+
+  // Prevent calling Next's real revalidatePath in tests
+  jest.mock('next/cache', () => ({ revalidatePath: jest.fn() }));
+
+  let POST: any;
+  let routeTestControl: any;
+
+  describe('/api/revalidate-all', () => {
+    const validToken = 'test-token-123';
+    const mockedRevalidatePath = jest.fn();
+    const originalToken = process.env.revalidationToken;
+
+    beforeEach(() => {
+      process.env.revalidationToken = validToken;
+      mockedRevalidatePath.mockReset();
+
+      // Load the route after resetting modules so we can set overrides on its testControl
+      jest.resetModules();
+      ({ POST, testControl: routeTestControl } = require('../route'));
+
+      // Set overrides on the required module's testControl
+      routeTestControl.revalidatePathOverride = mockedRevalidatePath;
+    });
+
+    afterEach(() => {
+      process.env.revalidationToken = originalToken;
+      if (routeTestControl) {
+        routeTestControl.revalidatePathOverride = undefined;
+        routeTestControl.tokenOverride = undefined;
+      }
+    });
+
+    it('returns 401 when token is missing', async () => {
+      const request = new NextRequest('http://localhost:3000/api/revalidate-all');
+
+      const response = await POST(request);
+      import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+      import { NextRequest } from 'next/server';
+
+      // Create a module-level mock function so we can assert calls
+      const mockedRevalidatePath = jest.fn();
+
+      // Mock next/cache so tests never call the real revalidatePath implementation
+      jest.mock('next/cache', () => ({ revalidatePath: mockedRevalidatePath }));
+
+      let POST: any;
+      let routeTestControl: any;
+
+      describe('/api/revalidate-all', () => {
+        const validToken = 'test-token-123';
+        const originalToken = process.env.revalidationToken;
+
+        beforeEach(() => {
+          process.env.revalidationToken = validToken;
+          mockedRevalidatePath.mockReset();
+
+          // Load the route after resetting modules so we can set overrides on its testControl
+          jest.resetModules();
+          ({ POST, testControl: routeTestControl } = require('../route'));
+
+          // Set overrides on the required module's testControl (if the route exposes them)
+          if (routeTestControl) {
+            routeTestControl.revalidatePathOverride = mockedRevalidatePath;
+          }
+        });
+
+        afterEach(() => {
+          process.env.revalidationToken = originalToken;
+          if (routeTestControl) {
+            routeTestControl.revalidatePathOverride = undefined;
+            routeTestControl.tokenOverride = undefined;
+          }
+        });
+
+        it('returns 401 when token is missing', async () => {
+          const request = new NextRequest('http://localhost:3000/api/revalidate-all');
+
+          const response = await POST(request);
+          const json = await response.json();
+
+          expect(response.status).toBe(401);
+          expect(json.error).toBe('Invalid token');
+          expect(mockedRevalidatePath).not.toHaveBeenCalled();
+        });
+
+        it('returns 401 when token is invalid', async () => {
+          const request = new NextRequest('http://localhost:3000/api/revalidate-all?token=wrong-token');
+
+          const response = await POST(request);
+          const json = await response.json();
+
+          expect(response.status).toBe(401);
+          expect(json.error).toBe('Invalid token');
+          expect(mockedRevalidatePath).not.toHaveBeenCalled();
+        });
+
+        it('revalidates all routes with valid token', async () => {
+          const request = new NextRequest(`http://localhost:3000/api/revalidate-all?token=${validToken}`);
+
+          const response = await POST(request);
+          const json = await response.json();
+
+          expect(response.status).toBe(200);
+          expect(json.data.revalidated).toBe(true);
+          expect(json.data.routes).toEqual(['/', '/listings', '/category', '/city']);
+          expect(json.data.now).toBeDefined();
+          expect(mockedRevalidatePath).toHaveBeenCalledTimes(4);
+          expect(mockedRevalidatePath).toHaveBeenCalledWith('/');
+          expect(mockedRevalidatePath).toHaveBeenCalledWith('/listings');
+          expect(mockedRevalidatePath).toHaveBeenCalledWith('/category');
+          expect(mockedRevalidatePath).toHaveBeenCalledWith('/city');
+        });
+
+      });

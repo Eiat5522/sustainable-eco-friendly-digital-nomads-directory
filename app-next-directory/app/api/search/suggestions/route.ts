@@ -2,7 +2,10 @@ import { getSearchSuggestions } from '@/lib/search';
 import { ApiResponseHandler } from '@/utils/api-response';
 
 export const testControl = {
-  getSearchSuggestionsOverride: undefined as typeof getSearchSuggestions | undefined,
+  getSearchSuggestionsOverride: 
+    process.env.NODE_ENV === 'test' 
+      ? (undefined as typeof getSearchSuggestions | undefined)
+      : undefined as never,
 };
 
 export async function GET(request: Request) {

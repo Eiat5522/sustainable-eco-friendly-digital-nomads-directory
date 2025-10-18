@@ -16,6 +16,7 @@ type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<any>
 type CreateOrReplaceFn = (doc: { _id: string } & Record<string, unknown>) => Promise<any>;
 type DeleteFn = (id: string) => Promise<unknown>;
 type ParseBodyFn = (request: NextRequest) => Promise<any>;
+const IS_TEST = process.env.NODE_ENV === 'test';
 
 export const testControl = {
   authOverride: undefined as AuthFn | undefined,
@@ -24,7 +25,13 @@ export const testControl = {
   clientCreateOrReplaceOverride: undefined as CreateOrReplaceFn | undefined,
   clientDeleteOverride: undefined as DeleteFn | undefined,
   parseBodyOverride: undefined as ParseBodyFn | undefined,
-};
+} as const;
+
+function getAuthFn(): AuthFn {
+  if (!IS_TEST) return auth;
+  return testControl.authOverride ?? auth;
+}
+// Similar functions for other dependencies...
 
 // Get user's favorites
 export async function GET() {

@@ -1,36 +1,48 @@
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { NextRequest } from 'next/server';
-import { GET, POST, DELETE, testControl } from '../route';
+
+// We'll mock the modules the route imports so tests don't need to mutate exported testControl
+const mockedAuth = jest.fn();
+const mockedFetch = jest.fn();
+const mockedCreateOrReplace = jest.fn();
+const mockedDelete = jest.fn();
+const mockedEnsureSanityUser = jest.fn();
+
+jest.mock('@/lib/auth', () => ({ auth: (...args: any[]) => mockedAuth(...args) }));
+jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => mockedFetch(...args), createOrReplace: (...args: any[]) => mockedCreateOrReplace(...args), delete: (...args: any[]) => mockedDelete(...args) } }));
+jest.mock('@/lib/sanity/user', () => ({ ensureSanityUser: (...args: any[]) => mockedEnsureSanityUser(...args) }));
+
+let GET: any;
+let POST: any;
+let DELETE: any;
+let routeTestControl: any;
 
 describe('/api/user/favorites', () => {
-  const mockedAuth = jest.fn();
-  const mockedFetch = jest.fn();
-  const mockedCreateOrReplace = jest.fn();
-  const mockedDelete = jest.fn();
-  const mockedEnsureSanityUser = jest.fn();
-
   beforeEach(async () => {
+    jest.resetModules();
     mockedAuth.mockReset();
     mockedFetch.mockReset();
     mockedCreateOrReplace.mockReset();
     mockedDelete.mockReset();
     mockedEnsureSanityUser.mockReset();
 
-    testControl.authOverride = mockedAuth;
-    testControl.clientFetchOverride = mockedFetch;
-    testControl.clientCreateOrReplaceOverride = mockedCreateOrReplace;
-    testControl.clientDeleteOverride = mockedDelete;
-    testControl.ensureSanityUserOverride = mockedEnsureSanityUser;
-    testControl.parseBodyOverride = undefined;
+    // require the route after mocks are registered
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    ({ GET, POST, DELETE, testControl: routeTestControl } = require('../route'));
+
+    // ensure parseBody override starts undefined
+    routeTestControl.parseBodyOverride = undefined;
   });
 
   afterEach(() => {
-    testControl.authOverride = undefined;
-    testControl.clientFetchOverride = undefined;
-    testControl.clientCreateOrReplaceOverride = undefined;
-    testControl.clientDeleteOverride = undefined;
-    testControl.ensureSanityUserOverride = undefined;
-    testControl.parseBodyOverride = undefined;
+    if (routeTestControl) {
+      routeTestControl.authOverride = undefined;
+      routeTestControl.clientFetchOverride = undefined;
+      routeTestControl.clientCreateOrReplaceOverride = undefined;
+      routeTestControl.clientDeleteOverride = undefined;
+      routeTestControl.ensureSanityUserOverride = undefined;
+      routeTestControl.parseBodyOverride = undefined;
+    }
   });
 
   describe('GET', () => {
@@ -108,8 +120,8 @@ describe('/api/user/favorites', () => {
       });
       mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-1' });
       mockedFetch.mockResolvedValue({ _id: 'listing-1' });
-      mockedCreateOrReplace.mockResolvedValue({ _id: 'fav-1' });
-      testControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
+  mockedCreateOrReplace.mockResolvedValue({ _id: 'fav-1' });
+  routeTestControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
@@ -126,7 +138,7 @@ describe('/api/user/favorites', () => {
       mockedAuth.mockResolvedValue({
         user: { id: 'user-1', email: 'test@example.com', name: 'Test', role: 'user' },
       });
-      testControl.parseBodyOverride = async () => {
+  routeTestControl.parseBodyOverride = async () => {
         throw new Error('bad body');
       };
 
@@ -148,7 +160,7 @@ describe('/api/user/favorites', () => {
 
     it('validates that the listing slug is provided', async () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
-      testControl.parseBodyOverride = async () => ({ slug: '' });
+  routeTestControl.parseBodyOverride = async () => ({ slug: '' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
@@ -164,7 +176,7 @@ describe('/api/user/favorites', () => {
     it('returns 500 when the Sanity user lookup fails', async () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
       mockedEnsureSanityUser.mockResolvedValue(null);
-      testControl.parseBodyOverride = async () => ({ slug: 'test' });
+  routeTestControl.parseBodyOverride = async () => ({ slug: 'test' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
@@ -181,7 +193,7 @@ describe('/api/user/favorites', () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
       mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-1' });
       mockedFetch.mockResolvedValue(null);
-      testControl.parseBodyOverride = async () => ({ slug: 'missing-listing' });
+  routeTestControl.parseBodyOverride = async () => ({ slug: 'missing-listing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
@@ -200,7 +212,7 @@ describe('/api/user/favorites', () => {
       mockedFetch.mockResolvedValue({ _id: 'listing-1' });
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       mockedCreateOrReplace.mockRejectedValue(new Error('sanity failure'));
-      testControl.parseBodyOverride = async () => ({ slug: 'listing' });
+  routeTestControl.parseBodyOverride = async () => ({ slug: 'listing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
@@ -224,7 +236,7 @@ describe('/api/user/favorites', () => {
       mockedFetch
         .mockResolvedValueOnce({ _id: 'listing-1' })
         .mockResolvedValueOnce({ _id: 'fav-1' });
-      testControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
+  routeTestControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'DELETE',
@@ -239,7 +251,7 @@ describe('/api/user/favorites', () => {
 
     it('returns 400 when the slug is missing from the payload', async () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1' } });
-      testControl.parseBodyOverride = async () => ({ slug: '' });
+  routeTestControl.parseBodyOverride = async () => ({ slug: '' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'DELETE',
@@ -255,7 +267,7 @@ describe('/api/user/favorites', () => {
     it('returns 404 when the listing lookup fails', async () => {
       mockedAuth.mockResolvedValue({ user: { id: 'user-1' } });
       mockedFetch.mockResolvedValueOnce(null);
-      testControl.parseBodyOverride = async () => ({ slug: 'missing' });
+  routeTestControl.parseBodyOverride = async () => ({ slug: 'missing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'DELETE',
@@ -273,7 +285,7 @@ describe('/api/user/favorites', () => {
       mockedFetch
         .mockResolvedValueOnce({ _id: 'listing-1' })
         .mockResolvedValueOnce(null);
-      testControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
+  routeTestControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'DELETE',
@@ -292,7 +304,7 @@ describe('/api/user/favorites', () => {
         .mockResolvedValueOnce({ _id: 'listing-1' })
         .mockRejectedValueOnce(new Error('sanity down'));
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      testControl.parseBodyOverride = async () => ({ slug: 'listing' });
+  routeTestControl.parseBodyOverride = async () => ({ slug: 'listing' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'DELETE',

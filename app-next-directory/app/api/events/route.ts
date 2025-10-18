@@ -2,11 +2,7 @@ import { client } from '@/lib/sanity/client';
 
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 
-export const testControl = {
-  clientFetchOverride: undefined as FetchFn | undefined,
-};
-
-export async function GET(_request: Request) {
+export async function GET(_request: Request, fetchFn: FetchFn = client.fetch.bind(client)) {
   try {
     const now = new Date().toISOString();
 

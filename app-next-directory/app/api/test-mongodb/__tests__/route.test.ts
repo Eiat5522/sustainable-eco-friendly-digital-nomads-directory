@@ -1,22 +1,28 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 
-import { GET, testControl } from '../route';
-
 const mockCommand = jest.fn();
 const mockDb = jest.fn(() => ({ command: mockCommand }));
 const mockClient = { db: mockDb } as const;
 
+let GET: any;
+let routeTestControl: any;
 const originalNodeEnv = process.env.NODE_ENV;
 
-beforeEach(() => {
+beforeEach(async () => {
   mockCommand.mockReset();
   mockDb.mockReset().mockReturnValue({ command: mockCommand });
-  testControl.clientOverride = Promise.resolve(mockClient as any);
   process.env.NODE_ENV = 'test';
+  jest.resetModules();
+  // require after reset so we can set overrides on the required module's testControl
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  ({ GET, testControl: routeTestControl } = require('../route'));
+  routeTestControl.clientOverride = Promise.resolve(mockClient as any);
 });
 
 afterEach(() => {
-  testControl.clientOverride = undefined;
+  if (routeTestControl) {
+    routeTestControl.clientOverride = undefined;
+  }
   process.env.NODE_ENV = originalNodeEnv;
 });
 

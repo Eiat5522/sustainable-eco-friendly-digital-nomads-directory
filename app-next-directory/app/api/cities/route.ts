@@ -9,10 +9,7 @@ export const testControl = {
 
 export async function GET() {
   try {
-    const fetchFn =
-      testControl.clientFetchOverride ??
-      ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
-    const cities = await fetchFn(`*[_type == "city"] | order(name asc) {
+    const cities = await client.fetch(`*[_type == "city"] | order(name asc) {
       _id,
       name
     }`);

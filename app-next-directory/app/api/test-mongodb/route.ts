@@ -1,8 +1,22 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import clientPromise from '@/lib/mongodb';
 
+const isTestEnv = process.env.NODE_ENV === 'test';
+
 export const testControl = {
-  clientOverride: undefined as Promise<typeof clientPromise extends Promise<infer C> ? C : never> | undefined,
+  get clientOverride() {
+    if (!isTestEnv && this._override !== undefined) {
+      console.error('testControl.clientOverride should only be used in tests');
+    }
+    return this._override;
+  },
+  set clientOverride(value: Promise<typeof clientPromise extends Promise<infer C> ? C : never> | undefined) {
+    if (!isTestEnv) {
+      throw new Error('testControl.clientOverride cannot be set outside test environment');
+    }
+    this._override = value;
+  },
+  _override: undefined as Promise<typeof clientPromise extends Promise<infer C> ? C : never> | undefined,
 };
 
 export const dynamic = 'force-dynamic';

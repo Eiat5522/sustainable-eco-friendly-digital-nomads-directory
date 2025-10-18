@@ -7,18 +7,27 @@
  */
 
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { GET, testControl } from '../route';
+
+// Module-level mock for the Sanity client fetch
+const mockedFetch = jest.fn();
+jest.mock('@/lib/sanity', () => ({ client: { fetch: (...args: any[]) => mockedFetch(...args) } }));
+
+let GET: any;
+let routeTestControl: any;
 
 describe('Cities API - GET /api/cities', () => {
-  const mockedFetch = jest.fn();
-
   beforeEach(async () => {
+    jest.resetModules();
     mockedFetch.mockReset();
-    testControl.clientFetchOverride = mockedFetch;
+    // require after mocks so the route picks up the mocked client
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    ({ GET, testControl: routeTestControl } = require('../route'));
   });
 
   afterEach(() => {
-    testControl.clientFetchOverride = undefined;
+    if (routeTestControl) {
+      routeTestControl.clientFetchOverride = undefined;
+    }
   });
 
   describe('Successful Requests', () => {

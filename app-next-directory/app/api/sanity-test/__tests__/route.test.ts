@@ -1,21 +1,30 @@
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { GET, testControl } from '../route';
+
+const mockedFetch = jest.fn();
+jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => mockedFetch(...args) } }));
+
+let GET: any;
+let routeTestControl: any;
+const originalEnv = { ...process.env };
 
 describe('/api/sanity-test', () => {
-  const mockedFetch = jest.fn();
-  const originalEnv = { ...process.env };
-
   beforeEach(async () => {
+    jest.resetModules();
     mockedFetch.mockReset();
-    testControl.clientFetchOverride = mockedFetch;
-    testControl.nodeEnvOverride = undefined;
+    // require after mocks
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    ({ GET, testControl: routeTestControl } = require('../route'));
+    routeTestControl.clientFetchOverride = undefined;
+    routeTestControl.nodeEnvOverride = undefined;
     delete process.env.NODE_ENV;
   });
 
   afterEach(() => {
     process.env = { ...originalEnv };
-    testControl.clientFetchOverride = undefined;
-    testControl.nodeEnvOverride = undefined;
+    if (routeTestControl) {
+      routeTestControl.clientFetchOverride = undefined;
+      routeTestControl.nodeEnvOverride = undefined;
+    }
   });
 
   it('returns 404 in production environment', async () => {
