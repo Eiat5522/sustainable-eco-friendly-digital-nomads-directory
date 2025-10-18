@@ -47,7 +47,7 @@ export const WebVitalsReporter = (metric: WebVitalsMetric) => {
 
 export const reportWebVitals = WebVitalsReporter;
 
-export function measureFunctionTime<T>(fn: () => T, name = 'Function'): T {
+  const start = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
   const start = typeof performance !== 'undefined' ? performance.now() : Date.now();
   const result = fn();
   const end = typeof performance !== 'undefined' ? performance.now() : Date.now();
