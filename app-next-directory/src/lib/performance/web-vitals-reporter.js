@@ -1,7 +1,7 @@
 export const WebVitalsReporter = (metric) => {
   const metricPayload = {
     ...metric,
-    entries: Array.isArray(metric?.entries) ? metric.entries : [],
+    entries: Array.isArray(metric.entries) ? metric.entries : [],
   };
 
   if (process.env.NODE_ENV === 'development') {
