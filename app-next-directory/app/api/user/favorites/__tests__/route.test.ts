@@ -36,7 +36,7 @@ describe('/api/user/favorites', () => {
   describe('GET', () => {
     it('returns 401 when not authenticated', async () => {
       mockedAuth.mockResolvedValue(null);
-      
+
       const response = await GET();
       const json = await response.json();
 
@@ -56,6 +56,34 @@ describe('/api/user/favorites', () => {
 
       expect(response.status).toBe(200);
       expect(json.favorites).toHaveLength(1);
+    });
+
+    it('returns 500 when the Sanity user cannot be ensured', async () => {
+      mockedAuth.mockResolvedValue({
+        user: { id: 'user-1', email: 'test@example.com', name: 'Test', role: 'user' },
+      });
+      mockedEnsureSanityUser.mockResolvedValue(null);
+
+      const response = await GET();
+      const json = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(json.error).toBe('Unable to access user profile');
+    });
+
+    it('returns 500 when fetching favorites throws an error', async () => {
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+      mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-1' });
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockedFetch.mockRejectedValue(new Error('sanity unavailable'));
+
+      const response = await GET();
+      const json = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(json.error).toBe('Internal Server Error');
+
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -82,16 +110,109 @@ describe('/api/user/favorites', () => {
       mockedFetch.mockResolvedValue({ _id: 'listing-1' });
       mockedCreateOrReplace.mockResolvedValue({ _id: 'fav-1' });
       testControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
-      
+
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'POST',
       });
-      
+
       const response = await POST(request);
       const json = await response.json();
 
       expect(response.status).toBe(200);
       expect(json.favorited).toBe(true);
+    });
+
+    it('returns 500 when parsing the request body fails', async () => {
+      mockedAuth.mockResolvedValue({
+        user: { id: 'user-1', email: 'test@example.com', name: 'Test', role: 'user' },
+      });
+      testControl.parseBodyOverride = async () => {
+        throw new Error('bad body');
+      };
+
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      const request = new NextRequest('http://localhost/api/user/favorites', {
+        method: 'POST',
+      });
+
+      const response = await POST(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(json.error).toBe('Internal Server Error');
+      expect(mockedEnsureSanityUser).not.toHaveBeenCalled();
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('validates that the listing slug is provided', async () => {
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+      testControl.parseBodyOverride = async () => ({ slug: '' });
+
+      const request = new NextRequest('http://localhost/api/user/favorites', {
+        method: 'POST',
+      });
+
+      const response = await POST(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(json.error).toBe('Listing slug is required');
+    });
+
+    it('returns 500 when the Sanity user lookup fails', async () => {
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+      mockedEnsureSanityUser.mockResolvedValue(null);
+      testControl.parseBodyOverride = async () => ({ slug: 'test' });
+
+      const request = new NextRequest('http://localhost/api/user/favorites', {
+        method: 'POST',
+      });
+
+      const response = await POST(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(json.error).toBe('Unable to access user profile');
+    });
+
+    it('returns 404 when the listing cannot be found', async () => {
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+      mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-1' });
+      mockedFetch.mockResolvedValue(null);
+      testControl.parseBodyOverride = async () => ({ slug: 'missing-listing' });
+
+      const request = new NextRequest('http://localhost/api/user/favorites', {
+        method: 'POST',
+      });
+
+      const response = await POST(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(404);
+      expect(json.error).toBe('Listing not found');
+    });
+
+    it('returns 500 when the favorite cannot be created', async () => {
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
+      mockedEnsureSanityUser.mockResolvedValue({ _id: 'sanity-1' });
+      mockedFetch.mockResolvedValue({ _id: 'listing-1' });
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockedCreateOrReplace.mockRejectedValue(new Error('sanity failure'));
+      testControl.parseBodyOverride = async () => ({ slug: 'listing' });
+
+      const request = new NextRequest('http://localhost/api/user/favorites', {
+        method: 'POST',
+      });
+
+      const response = await POST(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(json.error).toBe('Internal Server Error');
+
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -104,16 +225,86 @@ describe('/api/user/favorites', () => {
         .mockResolvedValueOnce({ _id: 'listing-1' })
         .mockResolvedValueOnce({ _id: 'fav-1' });
       testControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
-      
+
       const request = new NextRequest('http://localhost/api/user/favorites', {
         method: 'DELETE',
       });
-      
+
       const response = await DELETE(request);
       const json = await response.json();
 
       expect(response.status).toBe(200);
       expect(json.favorited).toBe(false);
+    });
+
+    it('returns 400 when the slug is missing from the payload', async () => {
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1' } });
+      testControl.parseBodyOverride = async () => ({ slug: '' });
+
+      const request = new NextRequest('http://localhost/api/user/favorites', {
+        method: 'DELETE',
+      });
+
+      const response = await DELETE(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(400);
+      expect(json.error).toBe('Listing slug is required');
+    });
+
+    it('returns 404 when the listing lookup fails', async () => {
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1' } });
+      mockedFetch.mockResolvedValueOnce(null);
+      testControl.parseBodyOverride = async () => ({ slug: 'missing' });
+
+      const request = new NextRequest('http://localhost/api/user/favorites', {
+        method: 'DELETE',
+      });
+
+      const response = await DELETE(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(404);
+      expect(json.error).toBe('Listing not found');
+    });
+
+    it('returns a friendly message when no favorite exists', async () => {
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1' } });
+      mockedFetch
+        .mockResolvedValueOnce({ _id: 'listing-1' })
+        .mockResolvedValueOnce(null);
+      testControl.parseBodyOverride = async () => ({ slug: 'test-listing' });
+
+      const request = new NextRequest('http://localhost/api/user/favorites', {
+        method: 'DELETE',
+      });
+
+      const response = await DELETE(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json).toEqual({ favorited: false, message: 'Not in favorites' });
+    });
+
+    it('propagates errors from the Sanity client', async () => {
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1' } });
+      mockedFetch
+        .mockResolvedValueOnce({ _id: 'listing-1' })
+        .mockRejectedValueOnce(new Error('sanity down'));
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      testControl.parseBodyOverride = async () => ({ slug: 'listing' });
+
+      const request = new NextRequest('http://localhost/api/user/favorites', {
+        method: 'DELETE',
+      });
+
+      const response = await DELETE(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(json.error).toBe('Internal Server Error');
+
+      consoleErrorSpy.mockRestore();
     });
   });
 });
