@@ -6,27 +6,42 @@ export type WebVitalsMetric = {
   entries?: PerformanceEntry[];
 };
 
-export const reportWebVitals = (metric: WebVitalsMetric) => {
+export const WebVitalsReporter = (metric: WebVitalsMetric) => {
+  const metricPayload: WebVitalsMetric & { entries: PerformanceEntry[] } = {
+    ...metric,
+    entries: Array.isArray(metric.entries) ? metric.entries : [],
+  };
+
   if (process.env.NODE_ENV === 'development') {
-    console.debug('Web Vitals:', metric.name, metric.value, metric.delta);
+    console.log('Web Vitals:', {
+      name: metricPayload.name,
+      value: metricPayload.value,
+      delta: metricPayload.delta,
+    });
   }
 
   const url = '/api/performance/web-vitals';
-  const body = JSON.stringify(metric);
+  const body = JSON.stringify(metricPayload);
+  const hasNavigator = typeof navigator !== 'undefined';
+  const canUseSendBeacon = hasNavigator && typeof navigator.sendBeacon === 'function';
 
-  if (typeof navigator !== 'undefined' && 'sendBeacon' in navigator) {
+  if (canUseSendBeacon) {
     try {
-      // Call sendBeacon via a safe cast to avoid compiler errors while still guarding at runtime
-      const n = navigator as unknown as { sendBeacon?: (u: string, data: string) => boolean };
-      n.sendBeacon?.(url, body);
+      const sendBeaconResult = navigator.sendBeacon(url, body);
+      if (sendBeaconResult) {
+        return;
+      }
     } catch {
-      // fallback
-      if (typeof fetch !== 'undefined') fetch(url, { method: 'POST', body, keepalive: true }).catch(() => {});
+      // Intentionally fall through to the fetch fallback if sendBeacon throws.
     }
-  } else if (typeof fetch !== 'undefined') {
+  }
+
+  if (typeof fetch !== 'undefined') {
     fetch(url, { method: 'POST', body, keepalive: true }).catch(() => {});
   }
 };
+
+export const reportWebVitals = WebVitalsReporter;
 
 export function measureFunctionTime<T>(fn: () => T, name = 'Function'): T {
   const start = typeof performance !== 'undefined' ? performance.now() : Date.now();
@@ -54,4 +69,4 @@ export const recordMetric = (name: string, value: number, details: Record<string
   }
 };
 
-export default reportWebVitals;
+export default WebVitalsReporter;
