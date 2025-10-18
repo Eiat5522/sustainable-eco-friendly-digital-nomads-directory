@@ -2,7 +2,14 @@ import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals
 
 jest.mock('@/lib/rate-limit');
 jest.mock('@/lib/tokens');
-jest.mock('@/lib/logger');
+jest.mock('@/lib/logger', () => ({
+  __esModule: true,
+  structuredLogger: {
+    security: jest.fn(),
+    authError: jest.fn(),
+  },
+  getRequestContext: jest.fn(),
+}));
 
 const mockDbConnect = jest.fn();
 jest.mock('@/lib/dbConnect', () => ({

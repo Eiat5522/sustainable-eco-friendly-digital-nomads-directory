@@ -1,106 +1,106 @@
 {
-  "name": "sustainable-eco-friendly-digital-nomads-directory-root",
-  "packageManager": "pnpm@10.15.0",
-  "workspaces": [
-    "app-next-directory",
-    "sanity"
-  ],
-  "version": "0.1.3",
-  "private": true,
-  "description": "Root package for the Sustainable Eco-Friendly Digital Nomads Directory project",
-  "scripts": {
-    "clean": "bash ./scripts/clean-build-artifacts.sh",
-    "exec:jest": "pnpm --filter app-next-directory exec:jest",
-    "test": "pnpm --filter app-next-directory test",
-    "test:unit": "pnpm --filter app-next-directory test:unit",
-    "test:integration": "pnpm --filter app-next-directory test:integration",
-    "test:e2e": "pnpm --filter app-next-directory test:e2e",
-    "test:e2e:legacy": "pnpm --filter app-next-directory test:e2e:legacy",
-    "dev:next": "pnpm --filter app-next-directory dev",
-    "dev:clean": "bash ./scripts/clean-build-artifacts.sh && pnpm dev:next",
-    "dev:sanity": "pnpm --filter sanity dev",
-    "dev": "pnpm dev:next",
-    "build:next": "pnpm --filter app-next-directory build",
-    "build:sanity": "pnpm --filter sanity build",
-    "build": "pnpm build:next && pnpm build:sanity",
-    "start:next": "pnpm --filter app-next-directory start",
-    "start:sanity": "pnpm --filter sanity start",
-    "start": "pnpm start:next",
-    "lint:next": "pnpm --filter app-next-directory lint",
-    "lint": "pnpm lint:next",
-    "test:watch": "pnpm --filter app-next-directory test:watch",
-    "test:coverage": "pnpm --filter app-next-directory test:coverage",
-    "test:ci": "pnpm --filter app-next-directory test:ci",
-    "check-types": "tsc --noEmit",
-    "types:postprocess": "node sanity-types-postprocess.js",
-    "typegen": "pnpm --filter sanity update-types && pnpm run types:postprocess",
-    "validate:specs": "node ./scripts/spec-validator.js"
-  },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not op_mini all"
-  ],
-  "dependencies": {
-    "@sanity/client": "^7.9.0",
-    "bcrypt": "^6.0.0",
-    "clsx": "^2.1.1",
-    "dotenv": "16.5.0",
-    "react-hook-form": "^7.62.0",
-    "resend": "^4.8.0",
-    "vscode-variables": "^1.0.1"
-  },
-  "jest": "./app-next-directory/jest.config.cjs",
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "eslint"
-      ]
-    },
-    "onlyBuiltDependencies": [
-      "@next/swc",
-      "@parcel/watcher",
-      "@playwright/test",
-      "@prisma/engines",
-      "@swc/core",
-      "@tailwindcss/oxide",
-      "bcrypt",
-      "better-sqlite3",
-      "canvas",
-      "esbuild",
-      "fsevents",
-      "msw",
-      "node-gyp",
-      "node-sass",
-      "playwright",
-      "prisma",
-      "sharp",
-      "sqlite3"
+    "name": "sustainable-eco-friendly-digital-nomads-directory-root",
+    "packageManager": "pnpm@10.15.0",
+    "workspaces": [
+        "app-next-directory",
+        "sanity"
     ],
-    "ignoredBuiltDependencies": [
-      "bcrypt",
-      "core-js",
-      "esbuild",
-      "sharp",
-      "unrs-resolver"
-    ]
-  },
-  "devDependencies": {
-    "@auth/mongodb-adapter": "^3.10.0",
-    "@next/eslint-plugin-next": "15.5.0",
-    "@playwright/test": "^1.55.0",
-    "@swc/jest": "^0.2.39",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/react-hooks": "^8.0.1",
-    "@types/jest": "^30.0.0",
-    "ajv": "^8.12.0",
-    "cross-fetch": "^4.1.0",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "^15.5.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "jest-mock-extended": "^4.0.0",
-    "js-yaml": "^4.1.0",
-    "ts-jest": "^29.4.1",
-    "typescript": "5.9.2"
-  }
+    "version": "0.1.3",
+    "private": true,
+    "description": "Root package for the Sustainable Eco-Friendly Digital Nomads Directory project",
+    "scripts": {
+        "clean": "bash ./scripts/clean-build-artifacts.sh",
+        "exec:jest": "pnpm --filter app-next-directory exec:jest",
+        "test": "pnpm --filter app-next-directory test",
+        "test:unit": "pnpm --filter app-next-directory test:unit",
+        "test:integration": "pnpm --filter app-next-directory test:integration",
+        "test:e2e": "pnpm --filter app-next-directory test:e2e",
+        "test:e2e:legacy": "pnpm --filter app-next-directory test:e2e:legacy",
+        "dev:next": "pnpm --filter app-next-directory dev",
+        "dev:clean": "bash ./scripts/clean-build-artifacts.sh && pnpm dev:next",
+        "dev:sanity": "pnpm --filter sanity dev",
+        "dev": "pnpm dev:next",
+        "build:next": "pnpm --filter app-next-directory build",
+        "build:sanity": "pnpm --filter sanity build",
+        "build": "pnpm build:next && pnpm build:sanity",
+        "start:next": "pnpm --filter app-next-directory start",
+        "start:sanity": "pnpm --filter sanity start",
+        "start": "pnpm start:next",
+        "lint:next": "pnpm --filter app-next-directory lint",
+        "lint": "pnpm lint:next",
+        "test:watch": "pnpm --filter app-next-directory test:watch",
+        "test:coverage": "pnpm --filter app-next-directory test:coverage",
+        "test:ci": "pnpm --filter app-next-directory",
+        "check-types": "tsc --noEmit",
+        "types:postprocess": "node sanity-types-postprocess.js",
+        "typegen": "pnpm --filter sanity update-types && pnpm run types:postprocess",
+        "validate:specs": "node ./scripts/spec-validator.js"
+    },
+    "browserslist": [
+        ">0.2%",
+        "not dead",
+        "not op_mini all"
+    ],
+    "dependencies": {
+        "@sanity/client": "^7.9.0",
+        "bcrypt": "^6.0.0",
+        "clsx": "^2.1.1",
+        "dotenv": "16.5.0",
+        "react-hook-form": "^7.62.0",
+        "resend": "^4.8.0",
+        "vscode-variables": "^1.0.1"
+    },
+    "jest": "./app-next-directory/jest.config.cjs",
+    "pnpm": {
+        "peerDependencyRules": {
+            "ignoreMissing": [
+                "eslint"
+            ]
+        },
+        "onlyBuiltDependencies": [
+            "@next/swc",
+            "@parcel/watcher",
+            "@playwright/test",
+            "@prisma/engines",
+            "@swc/core",
+            "@tailwindcss/oxide",
+            "bcrypt",
+            "better-sqlite3",
+            "canvas",
+            "esbuild",
+            "fsevents",
+            "msw",
+            "node-gyp",
+            "node-sass",
+            "playwright",
+            "prisma",
+            "sharp",
+            "sqlite3"
+        ],
+        "ignoredBuiltDependencies": [
+            "bcrypt",
+            "core-js",
+            "esbuild",
+            "sharp",
+            "unrs-resolver"
+        ]
+    },
+    "devDependencies": {
+        "@auth/mongodb-adapter": "^3.10.0",
+        "@next/eslint-plugin-next": "15.5.0",
+        "@playwright/test": "^1.55.0",
+        "@swc/jest": "^0.2.39",
+        "@testing-library/dom": "^10.4.1",
+        "@testing-library/react-hooks": "^8.0.1",
+        "@types/jest": "^30.0.0",
+        "ajv": "^8.12.0",
+        "cross-fetch": "^4.1.0",
+        "eslint": "^8.57.1",
+        "eslint-config-next": "^15.5.0",
+        "eslint-plugin-react-hooks": "^5.2.0",
+        "jest-mock-extended": "^4.0.0",
+        "js-yaml": "^4.1.0",
+        "ts-jest": "^29.4.1",
+        "typescript": "5.9.2"
+    }
 }
