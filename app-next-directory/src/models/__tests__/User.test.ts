@@ -1,253 +1,155 @@
 import { jest } from '@jest/globals';
-import mongoose from 'mongoose';
-import { IUser, ROLE_VALUES } from '../User';
 
-// Mock bcryptjs for password hashing tests
+const mockHash = jest.fn().mockResolvedValue('$2a$12$hashed');
+
 jest.mock('bcryptjs', () => ({
-  hash: jest.fn().mockResolvedValue('$2a$12$mockedHashedPassword'),
-  compare: jest.fn().mockResolvedValue(true),
+  hash: (...args: unknown[]) => mockHash(...args),
 }));
 
-// Dynamically import the User model to ensure a fresh instance for each test
-let User: mongoose.Model<IUser>;
+const loadModule = async () => {
+  const mod = await import('../User');
+  return mod;
+};
 
-describe('User Model', () => {
-  beforeEach(async () => {
+describe('User model', () => {
+  beforeEach(() => {
     jest.resetModules();
-    // Re-import the model and its dependencies to get a fresh copy
-    const UserModule = await import('../User');
-    User = UserModule.default;
+    jest.clearAllMocks();
+    mockHash.mockResolvedValue('$2a$12$hashed');
+    delete process.env.BCRYPT_COST;
   });
 
-  describe('Schema Definition', () => {
-    it('should define the User model with the correct name', () => {
-      expect(User).toBeDefined();
-      expect(User.modelName).toBe('User');
-    });
-
-    it('should have email as required field', () => {
-      expect(User.schema.path('email').isRequired).toBeDefined();
-    });
-
-    it('should have optional fields correctly marked', () => {
-      expect(User.schema.path('name').isRequired).toBe(false);
-      expect(User.schema.path('password').isRequired).toBe(false);
-    });
+  it('defaults the bcrypt cost to 12 when the environment variable is absent', async () => {
+    delete process.env.BCRYPT_COST;
+    const { BCRYPT_COST } = await loadModule();
+    expect(BCRYPT_COST).toBe(12);
   });
 
-  describe('Email Field', () => {
-    it('should have email field with required validation', () => {
-      expect(User.schema.path('email').isRequired).toBeDefined();
-    });
-
-    it('should have trim option on email', () => {
-      expect(User.schema.path('email').options.trim).toBe(true);
-    });
-
-    it('should have lowercase option on email', () => {
-      expect(User.schema.path('email').options.lowercase).toBe(true);
-    });
-
-    it('should have email validator', () => {
-      const emailField = User.schema.path('email');
-      expect(emailField.options.validate).toBeDefined();
-    });
-
-    it('should convert email to lowercase on instantiation', () => {
-      const user = new User({
-        email: 'TEST@EXAMPLE.COM',
-        name: 'Test User',
-      });
-
-      expect(user.email).toBe('test@example.com');
-    });
-
-    it('should trim whitespace from email', () => {
-      const user = new User({
-        email: '  user@example.com  ',
-      });
-
-      expect(user.email).toBe('user@example.com');
-    });
-
-    it('should handle various email formats', () => {
-      const testCases = [
-        { input: 'User@Example.COM', expected: 'user@example.com' },
-        { input: '  TEST@EXAMPLE.COM  ', expected: 'test@example.com' },
-        { input: 'valid.email+tag@subdomain.example.com', expected: 'valid.email+tag@subdomain.example.com' },
-      ];
-
-      testCases.forEach(({ input, expected }) => {
-        const user = new User({ email: input });
-        expect(user.email).toBe(expected);
-      });
-    });
+  it('reads the bcrypt cost from the environment', async () => {
+    process.env.BCRYPT_COST = '8';
+    const { BCRYPT_COST } = await loadModule();
+    expect(BCRYPT_COST).toBe(8);
   });
 
-  describe('Password Field', () => {
-    it('should not be selected by default', () => {
-      const passwordField = User.schema.path('password') as any;
-      expect(passwordField.options.select).toBe(false);
-    });
+  it('declares schema fields with appropriate defaults and validators', async () => {
+    const { default: User, ROLE_VALUES } = await loadModule();
 
-    it('should have password field as optional', () => {
-      const user = new User({
-        email: 'test@example.com',
-      });
-      expect(user.password).toBeUndefined();
-    });
+    const emailPath = User.schema.path('email') as any;
+    const rolePath = User.schema.path('role') as any;
+    const passwordPath = User.schema.path('password') as any;
 
-    it('should allow users without passwords for OAuth', () => {
-      const user = new User({
-        email: 'oauth-user@example.com',
-        name: 'OAuth User',
-      });
+    expect(emailPath.isRequired).toBeDefined();
+    expect(emailPath.options.trim).toBe(true);
+    expect(emailPath.options.lowercase).toBe(true);
+    expect(typeof emailPath.options.validate.validator).toBe('function');
 
-      expect(user.password).toBeUndefined();
-    });
+    expect(rolePath.options.enum).toEqual(ROLE_VALUES);
+    expect(rolePath.options.default).toBe('user');
 
-    it('should allow setting password field', () => {
-      const user = new User({
-        email: 'test@example.com',
-        password: 'plainPassword',
-      });
-
-      expect(user.password).toBeDefined();
-    });
+    expect(passwordPath.options.select).toBe(false);
+    expect(passwordPath.isRequired).toBe(false);
   });
 
-  describe('Role Field', () => {
-    it('should have enum with all defined roles', () => {
-      const roleField = User.schema.path('role') as any;
-      expect(roleField.enumValues).toEqual(ROLE_VALUES);
+  it('instantiates documents with normalised email and timestamps', async () => {
+    const { default: User } = await loadModule();
+
+    const doc = new User({
+      email: '  TEST@Example.COM  ',
+      name: 'Example',
+      emailVerified: null,
+      image: 'https://example.com/avatar.png',
     });
 
-    it('should default role to "user"', () => {
-      const user = new User({ email: 'test@example.com' });
-      expect(user.role).toBe('user');
-    });
-
-    it('should accept all valid role values', () => {
-      ROLE_VALUES.forEach(role => {
-        const user = new User({
-          email: `${role}@example.com`,
-          role,
-        });
-        expect(user.role).toBe(role);
-      });
-    });
-
-    it('should maintain role hierarchy values', () => {
-      expect(ROLE_VALUES).toContain('user');
-      expect(ROLE_VALUES).toContain('admin');
-      expect(ROLE_VALUES).toContain('superAdmin');
-      expect(ROLE_VALUES).toHaveLength(5);
-    });
+    expect(doc.email).toBe('test@example.com');
+    expect(doc.role).toBe('user');
+    expect(doc.emailVerified).toBeNull();
+    expect(doc.createdAt).toBeInstanceOf(Date);
+    expect(doc.updatedAt).toBeInstanceOf(Date);
   });
 
-  describe('Default Values', () => {
-    it('should default role to "user"', () => {
-      const user = new User({ email: 'test@example.com' });
-      expect(user.role).toBe('user');
-    });
+  const invokeSaveHook = async (doc: any, next = jest.fn()) => {
+    const { default: User } = await loadModule();
+    const schema = User.schema as any;
+    const hook = schema.preHooks.get('save')?.[0] as (this: any, next: (err?: unknown) => void) => Promise<void>;
+    await hook.call(doc, next);
+    return next;
+  };
 
-    it('should default emailVerified to null', () => {
-      const user = new User({ email: 'test@example.com' });
-      expect(user.emailVerified).toBeNull();
-    });
+  it('hashes passwords when the field is modified', async () => {
+    const { default: User, BCRYPT_COST } = await loadModule();
+    const doc: any = new User({ email: 'user@example.com', password: 'password123' });
+    doc.isModified = jest.fn().mockReturnValue(true);
+
+    const next = await invokeSaveHook(doc);
+
+    expect(doc.password).toBe('$2a$12$hashed');
+    expect(mockHash).toHaveBeenCalledWith('password123', BCRYPT_COST);
+    expect(next).toHaveBeenCalledWith();
   });
 
-  describe('Timestamps', () => {
-    it('should have timestamps enabled', () => {
-      expect(User.schema.options.timestamps).toBe(true);
-    });
+  it('skips hashing when the password has not been modified', async () => {
+    const { default: User } = await loadModule();
+    const doc: any = new User({ email: 'user@example.com', password: 'unchanged' });
+    doc.isModified = jest.fn().mockReturnValue(false);
 
-    it('should have createdAt and updatedAt fields on instantiation', () => {
-      const user = new User({
-        email: 'test@example.com',
-      });
+    const next = await invokeSaveHook(doc);
 
-      expect(user.createdAt).toBeInstanceOf(Date);
-      expect(user.updatedAt).toBeInstanceOf(Date);
-    });
-
-    it('should set timestamps within reasonable time range', () => {
-      const before = new Date();
-      const user = new User({
-        email: 'test@example.com',
-      });
-      const after = new Date();
-
-      expect(user.createdAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
-      expect(user.createdAt.getTime()).toBeLessThanOrEqual(after.getTime());
-      expect(user.updatedAt).toEqual(user.createdAt);
-    });
+    expect(mockHash).not.toHaveBeenCalled();
+    expect(doc.password).toBe('unchanged');
+    expect(next).toHaveBeenCalledWith();
   });
 
-  describe('User Instance Creation', () => {
-    it('should create a user with all fields', () => {
-      const userData = {
-        name: 'John Doe',
-        email: 'john@example.com',
-        password: 'securePassword123',
-        role: 'editor' as const,
-        image: 'https://example.com/avatar.jpg',
-      };
+  it('skips hashing when the password is undefined even if marked modified', async () => {
+    const { default: User } = await loadModule();
+    const doc: any = new User({ email: 'user@example.com' });
+    doc.isModified = jest.fn().mockReturnValue(true);
 
-      const user = new User(userData);
+    const next = await invokeSaveHook(doc);
 
-      expect(user._id).toBeDefined();
-      expect(user.name).toBe(userData.name);
-      expect(user.email).toBe(userData.email.toLowerCase());
-      expect(user.role).toBe(userData.role);
-      expect(user.image).toBe(userData.image);
-    });
-
-    it('should create minimal user with only email', () => {
-      const user = new User({ email: 'minimal@example.com' });
-
-      expect(user._id).toBeDefined();
-      expect(user.email).toBe('minimal@example.com');
-      expect(user.role).toBe('user');
-      expect(user.emailVerified).toBeNull();
-    });
-
-    it('should handle email verification state', () => {
-      const unverified = new User({ email: 'test@example.com' });
-      expect(unverified.emailVerified).toBeNull();
-
-      const verificationDate = new Date();
-      const verified = new User({
-        email: 'verified@example.com',
-        emailVerified: verificationDate,
-      });
-      expect(verified.emailVerified).toEqual(verificationDate);
-    });
-
-    it('should support profile image field', () => {
-      const user = new User({
-        email: 'user@example.com',
-        image: 'https://example.com/avatar.jpg',
-      });
-
-      expect(user.image).toBe('https://example.com/avatar.jpg');
-    });
+    expect(mockHash).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith();
   });
 
-  describe('Model Methods', () => {
-    it('should have save method', () => {
-      const user = new User({ email: 'test@example.com' });
-      expect(typeof user.save).toBe('function');
-    });
+  it('does not rehash passwords that are already bcrypt hashes', async () => {
+    const { default: User } = await loadModule();
+    const doc: any = new User({ email: 'user@example.com', password: '$2a$12$existingHash' });
+    doc.isModified = jest.fn().mockReturnValue(true);
 
-    it('should have validate method', () => {
-      const user = new User({ email: 'test@example.com' });
-      expect(typeof user.validate).toBe('function');
-    });
+    const next = await invokeSaveHook(doc);
 
-    it('should have isModified method', () => {
-      const user = new User({ email: 'test@example.com' });
-      expect(typeof user.isModified).toBe('function');
+    expect(mockHash).not.toHaveBeenCalled();
+    expect(doc.password).toBe('$2a$12$existingHash');
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it('propagates hashing errors through the save hook', async () => {
+    const { default: User } = await loadModule();
+    const doc: any = new User({ email: 'user@example.com', password: 'password123' });
+    doc.isModified = jest.fn().mockReturnValue(true);
+
+    mockHash.mockImplementationOnce(() => Promise.reject(new Error('hash failure')));
+
+    const next = jest.fn();
+    const schema = User.schema as any;
+    const hook = schema.preHooks.get('save')?.[0] as (this: any, next: (err?: unknown) => void) => Promise<void>;
+    await hook.call(doc, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(next.mock.calls[0][0]).toBeInstanceOf(Error);
+    expect((next.mock.calls[0][0] as Error).message).toBe('hash failure');
+  });
+
+  it('reuses a cached compiled model when available', async () => {
+    jest.resetModules();
+    const imported = await import('mongoose');
+    const mongooseMod = (imported as any).default ?? imported;
+    const cachedModel = Object.assign(jest.fn(), {
+      schema: {},
+      modelName: 'User',
     });
+    mongooseMod.models = { User: cachedModel } as any;
+
+    const { default: reused } = await import('../User');
+    expect(reused).toBe(cachedModel);
   });
 });

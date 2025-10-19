@@ -1,214 +1,244 @@
 import { jest } from '@jest/globals';
-import mongoose from 'mongoose';
-import { ILoginAttempt, LoginAttemptReason } from '../LoginAttempt';
+import type { CallbackError } from 'mongoose';
 
-// Use a dynamic import for the model to ensure a fresh instance for each test
-let LoginAttempt: mongoose.Model<ILoginAttempt>;
+const ensureMongooseErrors = async () => {
+  const imported = await import('mongoose');
+  const mongooseMod = (imported as any).default ?? imported;
+  if (!mongooseMod.Error) {
+    class MockValidatorError extends Error {
+      path: string;
+      constructor({ message, path }: { message: string; path: string }) {
+        super(message);
+        this.path = path;
+      }
+    }
 
-describe('LoginAttempt Model', () => {
+    class MockValidationError extends Error {
+      errors: Record<string, Error> = {};
+
+      constructor() {
+        super('Validation failed');
+      }
+
+      addError(path: string, error: Error) {
+        this.errors[path] = error;
+        this.message = error.message;
+      }
+    }
+
+    (mongooseMod as any).Error = {
+      ValidationError: MockValidationError,
+      ValidatorError: MockValidatorError,
+    };
+  }
+  return mongooseMod;
+};
+
+const loadModel = async () => {
+  const mod = await import('../LoginAttempt');
+  return mod.default;
+};
+
+describe('LoginAttempt model', () => {
   beforeEach(async () => {
     jest.resetModules();
-    // Re-import the model to get a fresh copy with the reset module cache
-    const mod = await import('../LoginAttempt');
-    LoginAttempt = mod.default;
+    jest.clearAllMocks();
+    await ensureMongooseErrors();
   });
 
-  describe('Schema Definition', () => {
-    it('should define LoginAttempt model', () => {
-      expect(LoginAttempt).toBeDefined();
-      expect(LoginAttempt.modelName).toBe('LoginAttempt');
-    });
+  it('defines schema fields with expected defaults and validators', async () => {
+    const LoginAttempt = await loadModel();
 
-    it('should have required fields marked correctly', () => {
-      expect(LoginAttempt.schema.path('email').isRequired).toBe(true);
-      expect(LoginAttempt.schema.path('success').isRequired).toBe(true);
-      expect(LoginAttempt.schema.path('reason').isRequired).toBe(true);
-    });
+    const emailPath = LoginAttempt.schema.path('email');
+    const reasonPath = LoginAttempt.schema.path('reason') as any;
+    const successPath = LoginAttempt.schema.path('success');
+    const createdAtPath = LoginAttempt.schema.path('createdAt') as any;
+
+    expect(emailPath?.isRequired).toBe(true);
+    expect(emailPath?.options.trim).toBe(true);
+    expect(emailPath?.options.lowercase).toBe(true);
+
+    expect(successPath?.isRequired).toBe(true);
+
+    expect(reasonPath?.options.enum).toEqual(['success', 'invalid_credentials', 'rate_limited']);
+    expect(createdAtPath?.options.default).toBeInstanceOf(Function);
+
+    const doc = new LoginAttempt({ email: '  USER@Example.Com  ', success: true, reason: 'success' });
+    expect(doc.email).toBe('user@example.com');
+    expect(doc.createdAt).toBeInstanceOf(Date);
+    expect(doc.ip).toBeNull();
   });
 
-  describe('Email Field', () => {
-    it('should convert email to lowercase and trim whitespace', () => {
-      const attempt = new LoginAttempt({
-        email: '  TEST@EXAMPLE.COM  ',
-        success: true,
-        reason: 'success',
-      });
-      expect(attempt.email).toBe('test@example.com');
-    });
+  const getValidateHook = async () => {
+    const LoginAttempt = await loadModel();
+    const schema = LoginAttempt.schema as any;
+    return schema.preHooks.get('validate')?.[0] as (this: any, next: (err?: CallbackError | null) => void) => void;
+  };
 
-    it('should handle various email formats correctly', () => {
-      const testCases = [
-        { input: 'USER@EXAMPLE.COM', expected: 'user@example.com' },
-        { input: '  user@example.com  ', expected: 'user@example.com' },
-        { input: 'User@Example.Com', expected: 'user@example.com' },
-      ];
-      
-      testCases.forEach(({ input, expected }) => {
-        const attempt = new LoginAttempt({
-          email: input,
-          success: true,
-          reason: 'success',
-        });
-        expect(attempt.email).toBe(expected);
-      });
-    });
+  it('enforces invariants for successful login attempts via the validate hook', async () => {
+    const hook = await getValidateHook();
+    const doc: any = { success: true, reason: 'invalid_credentials' };
+    const next = jest.fn();
+
+    hook.call(doc, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    const error = next.mock.calls[0][0];
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toContain('Successful login attempts');
   });
 
-  describe('Reason Field', () => {
-    it('should have enum validation', () => {
-      const reasonField = LoginAttempt.schema.path('reason');
-      expect(reasonField.enumValues).toEqual(['success', 'invalid_credentials', 'rate_limited']);
-    });
+  it('enforces invariants for failed login attempts via the validate hook', async () => {
+    const hook = await getValidateHook();
+    const doc: any = { success: false, reason: 'success' };
+    const next = jest.fn();
 
-    it('should accept all valid reason values', () => {
-      const validReasons: LoginAttemptReason[] = ['success', 'invalid_credentials', 'rate_limited'];
-      
-      validReasons.forEach(reason => {
-        const attempt = new LoginAttempt({
-          email: 'test@example.com',
-          success: reason === 'success',
-          reason,
-        });
-        expect(attempt.reason).toBe(reason);
-      });
-    });
+    hook.call(doc, next);
+
+    const error = next.mock.calls[0][0];
+    expect(error).toBeInstanceOf(Error);
+    expect((error as Error).message).toContain('Failed login attempts');
   });
 
-  describe('CreatedAt Field', () => {
-    it('should have default createdAt value as a Date instance', () => {
-      const attempt = new LoginAttempt({
-        email: 'test@example.com',
-        success: true,
-        reason: 'success',
-      });
-      expect(attempt.createdAt).toBeInstanceOf(Date);
-    });
+  it('allows valid combinations in the validate hook', async () => {
+    const hook = await getValidateHook();
+    const doc: any = { success: false, reason: 'invalid_credentials' };
+    const next = jest.fn();
 
-    it('should set createdAt within reasonable time range', () => {
-      const before = new Date();
-      const attempt = new LoginAttempt({
-        email: 'test@example.com',
-        success: true,
-        reason: 'success',
-      });
-      const after = new Date();
+    hook.call(doc, next);
 
-      expect(attempt.createdAt).toBeInstanceOf(Date);
-      expect(attempt.createdAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
-      expect(attempt.createdAt.getTime()).toBeLessThanOrEqual(after.getTime());
-    });
+    expect(next).toHaveBeenCalledWith();
   });
 
-  describe('Validation Invariants', () => {
-    it('should accept valid combination: success=true, reason=success', () => {
-      const attempt = new LoginAttempt({
-        email: 'test@example.com',
-        success: true,
-        reason: 'success',
-      });
-      expect(attempt.success).toBe(true);
-      expect(attempt.reason).toBe('success');
+  const callUpdateHook = async (
+    update: unknown,
+    options: Record<string, unknown> = {},
+    existsResult: any = null,
+    filter: Record<string, unknown> = { email: 'user@example.com' },
+  ) => {
+    const LoginAttempt = await loadModel();
+    const schema = LoginAttempt.schema as any;
+    const hook = schema.preHooks.get('updateOne')?.[0] as (
+      this: any,
+      next: (err?: CallbackError | null) => void,
+    ) => Promise<void>;
+
+    const exists = jest.fn().mockReturnValue({
+      setOptions: jest.fn().mockResolvedValue(existsResult),
     });
 
-    it('should accept valid combination: success=false, reason=invalid_credentials', () => {
-      const attempt = new LoginAttempt({
-        email: 'test@example.com',
-        success: false,
-        reason: 'invalid_credentials',
-      });
-      expect(attempt.success).toBe(false);
-      expect(attempt.reason).toBe('invalid_credentials');
-    });
+    const context = {
+      getUpdate: () => update,
+      getFilter: () => filter,
+      getOptions: () => options,
+      model: { exists },
+    };
 
-    it('should accept valid combination: success=false, reason=rate_limited', () => {
-      const attempt = new LoginAttempt({
-        email: 'test@example.com',
-        success: false,
-        reason: 'rate_limited',
-      });
-      expect(attempt.success).toBe(false);
-      expect(attempt.reason).toBe('rate_limited');
-    });
+    const next = jest.fn();
+    await hook.call(context, next);
+    return { next, exists };
+  };
+
+  it('rejects pipeline style updates', async () => {
+    const { next } = await callUpdateHook([], {});
+    expect(next.mock.calls[0][0]).toBeInstanceOf(Error);
+    expect((next.mock.calls[0][0] as Error).message).toContain('pipelines');
   });
 
-  describe('Use Cases', () => {
-    it('should track successful login with IP', () => {
-      const attempt = new LoginAttempt({
-        email: 'user@example.com',
-        ip: '192.168.1.1',
-        success: true,
-        reason: 'success',
-      });
-
-      expect(attempt.success).toBe(true);
-      expect(attempt.reason).toBe('success');
-      expect(attempt.ip).toBe('192.168.1.1');
-      expect(attempt.createdAt).toBeInstanceOf(Date);
-    });
-
-    it('should track failed login without IP', () => {
-      const attempt = new LoginAttempt({
-        email: 'user@example.com',
-        success: false,
-        reason: 'invalid_credentials',
-      });
-
-      expect(attempt.success).toBe(false);
-      expect(attempt.reason).toBe('invalid_credentials');
-      expect(attempt.ip).toBeNull();
-    });
-
-    it('should track rate-limited attempts', () => {
-      const attempt = new LoginAttempt({
-        email: 'user@example.com',
-        ip: '10.0.0.1',
-        success: false,
-        reason: 'rate_limited',
-      });
-
-      expect(attempt.reason).toBe('rate_limited');
-      expect(attempt.ip).toBe('10.0.0.1');
-    });
-
-    it('should have IP as optional field with null default', () => {
-      const attempt = new LoginAttempt({
-        email: 'user@example.com',
-        success: false,
-        reason: 'invalid_credentials',
-      });
-
-      expect(attempt.ip).toBeNull();
-    });
+  it('rejects updates using disallowed operators', async () => {
+    const update = { $inc: { success: 1 } };
+    const { next } = await callUpdateHook(update);
+    expect(next.mock.calls[0][0]).toBeInstanceOf(Error);
+    expect((next.mock.calls[0][0] as Error).message).toContain('Operator $inc');
   });
 
-  describe('Timestamps', () => {
-    it('should automatically set createdAt on creation', () => {
-      const attempt = new LoginAttempt({
-        email: 'test@example.com',
-        success: true,
-        reason: 'success',
-      });
-      expect(attempt.createdAt).toBeInstanceOf(Date);
-    });
+  it('rejects conflicting success values across clauses', async () => {
+    const update = { success: true, $set: { success: false } };
+    const { next } = await callUpdateHook(update);
+    expect(next.mock.calls[0][0]).toBeInstanceOf(Error);
+    expect((next.mock.calls[0][0] as Error).message).toContain('Conflicting success values');
   });
 
-  describe('Model Methods', () => {
-    it('should have save method', () => {
-      const attempt = new LoginAttempt({
-        email: 'test@example.com',
-        success: true,
-        reason: 'success',
-      });
-      expect(typeof attempt.save).toBe('function');
-    });
+  it('rejects conflicting reason values specified via multiple clauses', async () => {
+    const update = {
+      success: false,
+      reason: 'invalid_credentials',
+      $set: { reason: 'rate_limited' },
+    };
+    const { next } = await callUpdateHook(update);
+    expect(next.mock.calls[0][0]).toBeInstanceOf(Error);
+    expect((next.mock.calls[0][0] as Error).message).toContain('Conflicting reason values');
+  });
 
-    it('should have validate method', () => {
-      const attempt = new LoginAttempt({
-        email: 'test@example.com',
-        success: true,
-        reason: 'success',
-      });
-      expect(typeof attempt.validate).toBe('function');
-    });
+  it('rejects attempts to unset success or reason fields', async () => {
+    const update = { $unset: { success: true } };
+    const { next } = await callUpdateHook(update);
+    const error = next.mock.calls[0][0] as Error;
+    expect(error.message).toContain('cannot be unset');
+  });
+
+  it('ensures success remains boolean when provided', async () => {
+    const update = { success: 'yes' } as any;
+    const { next } = await callUpdateHook(update);
+    expect((next.mock.calls[0][0] as Error).message).toContain('must be a boolean');
+  });
+
+  it('ensures reason is a recognised value when provided', async () => {
+    const update = { reason: 'unknown_reason' } as any;
+    const { next } = await callUpdateHook(update);
+    expect((next.mock.calls[0][0] as Error).message).toContain('not recognised');
+  });
+
+  it('rejects invalid success/reason combinations in updates', async () => {
+    const update = { success: true, reason: 'invalid_credentials' };
+    const { next } = await callUpdateHook(update);
+    expect((next.mock.calls[0][0] as Error).message).toContain('Successful login attempts');
+  });
+
+  it('rejects updates that conflict with existing records when success is provided alone', async () => {
+    const update = { success: true };
+    const { next, exists } = await callUpdateHook(update, {}, true);
+    expect(exists).toHaveBeenCalled();
+    expect((next.mock.calls[0][0] as Error).message).toContain('Cannot set success=true');
+  });
+
+  it('rejects updates that conflict with existing records when reason is provided alone', async () => {
+    const update = { reason: 'success' };
+    const { next, exists } = await callUpdateHook(update, {}, true);
+    expect(exists).toHaveBeenCalled();
+    expect((next.mock.calls[0][0] as Error).message).toContain('Cannot set reason "success"');
+  });
+
+  it('requires both fields when performing upserts', async () => {
+    const update = { success: true };
+    const { next } = await callUpdateHook(update, { upsert: true });
+    expect((next.mock.calls[0][0] as Error).message).toContain('must provide both success and reason');
+  });
+
+  it('rejects invalid combinations provided via upsert onInsert values', async () => {
+    const update = { $setOnInsert: { success: true, reason: 'invalid_credentials' } };
+    const { next } = await callUpdateHook(update, { upsert: true });
+    expect((next.mock.calls[0][0] as Error).message).toContain('Successful login attempts');
+  });
+
+  it('accepts valid updates when invariants hold', async () => {
+    const update = { success: false, reason: 'invalid_credentials' };
+    const { next, exists } = await callUpdateHook(update);
+    expect(next).toHaveBeenCalledWith();
+    expect(exists).not.toHaveBeenCalled();
+  });
+
+  it('accepts valid upserts when both fields are provided and consistent', async () => {
+    const update = { $setOnInsert: { success: false, reason: 'rate_limited' } };
+    const { next } = await callUpdateHook(update, { upsert: true });
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it('shares the same update hook across other operations', async () => {
+    const LoginAttempt = await loadModel();
+    const schema = LoginAttempt.schema as any;
+    const updateHook = schema.preHooks.get('updateOne')?.[0];
+    expect(schema.preHooks.get('updateMany')?.[0]).toBe(updateHook);
+    expect(schema.preHooks.get('findOneAndUpdate')?.[0]).toBe(updateHook);
   });
 });
