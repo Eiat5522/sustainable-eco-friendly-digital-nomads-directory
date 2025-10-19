@@ -1,94 +1,98 @@
 import { jest } from '@jest/globals';
 import mongoose from 'mongoose';
-import { IUserFavorite } from '../UserFavorite';
 
-// Use a dynamic import for the model to ensure a fresh instance for each test
-let UserFavorite: mongoose.Model<IUserFavorite>;
+const loadModel = async () => {
+  const mod = await import('../UserFavorite');
+  return mod.default;
+};
 
-describe('UserFavorite Model', () => {
-  beforeAll(() => {
-  });
-
-  afterAll(() => {
-  });
-
-  beforeEach(async () => {
+describe('UserFavorite model', () => {
+  beforeEach(() => {
     jest.resetModules();
-    // Re-import the model to get a fresh copy with the reset module cache
-    const mod = await import('../UserFavorite');
-    UserFavorite = mod.default;
+    jest.clearAllMocks();
   });
 
-  describe('Schema Definition', () => {
-    it('should have required fields marked correctly', () => {
-      expect(UserFavorite.schema.path('userId').isRequired).toBe(true);
-      expect(UserFavorite.schema.path('listingId').isRequired).toBe(true);
-    });
+  it('declares the expected schema fields', async () => {
+    const UserFavorite = await loadModel();
+    const userIdPath = UserFavorite.schema.path('userId');
+    const listingIdPath = UserFavorite.schema.path('listingId');
+    const createdAtPath = UserFavorite.schema.path('createdAt');
 
-    it('should have correct references', () => {
-      expect(UserFavorite.schema.path('userId').options.ref).toBe('User');
-      expect(UserFavorite.schema.path('listingId').options.ref).toBe('Listing');
-    });
+    expect(userIdPath?.isRequired).toBe(true);
+    expect(userIdPath?.options.ref).toBe('User');
+    expect(listingIdPath?.isRequired).toBe(true);
+    expect(listingIdPath?.options.ref).toBe('Listing');
+    expect(createdAtPath?.options.default).toBe(Date.now);
   });
 
-  describe('CreatedAt Field', () => {
-    it('should have createdAt field with a default Date value', () => {
-      const favorite = new UserFavorite({
-        userId: new mongoose.Types.ObjectId(),
-        listingId: new mongoose.Types.ObjectId(),
-      });
-      expect(favorite.createdAt).toBeInstanceOf(Date);
-    });
+  it('registers the compound uniqueness index', async () => {
+    const UserFavorite = await loadModel();
+    const indexes = (UserFavorite.schema as any).indexes();
+
+    const compound = indexes.find(
+      (entry: any) => entry[0].userId === 1 && entry[0].listingId === 1 && entry[1]?.unique === true,
+    );
+
+    expect(compound).toBeDefined();
   });
 
-  describe('Schema Indexes', () => {
-    it('should have a compound unique index on userId and listingId', () => {
-      const indexes = (UserFavorite.schema as any).indexes();
-      const compoundIndex = indexes.find(
-        (idx: any) => idx[0].userId === 1 && idx[0].listingId === 1 && idx[1]?.unique === true
-      );
-      expect(compoundIndex).toBeDefined();
+  it('sets createdAt defaults to dates and coerces string values in the save hook', async () => {
+    const UserFavorite = await loadModel();
+
+    const doc = new UserFavorite({
+      userId: new mongoose.Types.ObjectId(),
+      listingId: new mongoose.Types.ObjectId(),
     });
+
+    expect(doc.createdAt).toBeInstanceOf(Date);
+
+    const schema = UserFavorite.schema as any;
+    const hook = schema.preHooks.get('save')?.[0] as (this: any, next: () => void) => void;
+    const manual = new UserFavorite({
+      userId: new mongoose.Types.ObjectId(),
+      listingId: new mongoose.Types.ObjectId(),
+    }) as any;
+    manual.createdAt = '2024-02-02T10:00:00.000Z';
+
+    const next = jest.fn();
+    hook.call(manual, next);
+
+    expect(manual.createdAt).toBeInstanceOf(Date);
+    expect(manual.createdAt.toISOString()).toBe('2024-02-02T10:00:00.000Z');
+    expect(next).toHaveBeenCalledTimes(1);
   });
 
-  describe('Model Creation', () => {
-    it('should create a valid user favorite', () => {
-      const userId = new mongoose.Types.ObjectId();
-      const listingId = new mongoose.Types.ObjectId();
-      const favorite = new UserFavorite({ userId, listingId });
+  it('leaves Date instances untouched in the save hook', async () => {
+    const UserFavorite = await loadModel();
+    const schema = UserFavorite.schema as any;
+    const hook = schema.preHooks.get('save')?.[0] as (this: any, next: () => void) => void;
 
-      expect(favorite.userId).toEqual(userId);
-      expect(favorite.listingId).toEqual(listingId);
-      expect(favorite.createdAt).toBeInstanceOf(Date);
+    const initial = new Date('2024-02-03T05:06:07Z');
+    const doc: any = new UserFavorite({
+      userId: new mongoose.Types.ObjectId(),
+      listingId: new mongoose.Types.ObjectId(),
+      createdAt: initial,
     });
+
+    const next = jest.fn();
+    hook.call(doc, next);
+
+    expect(doc.createdAt).toBe(initial);
+    expect(next).toHaveBeenCalledTimes(1);
   });
 
-  describe('Use Cases', () => {
-    it('should track when a user favorited a listing', () => {
-      const beforeFavorite = Date.now();
-      const favorite = new UserFavorite({
-        userId: new mongoose.Types.ObjectId(),
-        listingId: new mongoose.Types.ObjectId(),
-      });
-      const afterFavorite = Date.now();
-
-      expect(favorite.createdAt.getTime()).toBeGreaterThanOrEqual(beforeFavorite);
-      expect(favorite.createdAt.getTime()).toBeLessThanOrEqual(afterFavorite);
+  it('reuses the compiled model if present in the mongoose cache', async () => {
+    jest.resetModules();
+    const imported = await import('mongoose');
+    const mongooseMod = (imported as any).default ?? imported;
+    const cachedModel = Object.assign(jest.fn(), {
+      schema: {},
+      modelName: 'UserFavorite',
     });
+    mongooseMod.models = { UserFavorite: cachedModel } as any;
+
+    const { default: reused } = await import('../UserFavorite');
+
+    expect(reused).toBe(cachedModel);
   });
-
-  describe('Model Instantiation', () => {
-    it('should create an instance with the new keyword', () => {
-      const favorite = new UserFavorite({
-        userId: new mongoose.Types.ObjectId(),
-        listingId: new mongoose.Types.ObjectId(),
-      });
-      // The mock returns a plain object, but it should be an instance of the mocked constructor
-      expect(favorite).toBeInstanceOf(UserFavorite);
-    });
-  });
-
-
-  // Note: Database operation tests have been moved to UserFavorite.integration.test.ts
-  // This keeps unit tests fast and focused on schema validation
 });

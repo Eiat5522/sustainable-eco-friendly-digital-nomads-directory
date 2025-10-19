@@ -1,88 +1,112 @@
 import { jest } from '@jest/globals';
 import mongoose from 'mongoose';
-import { IPasswordResetToken } from '../PasswordResetToken';
 
-// Use a dynamic import for the model to ensure a fresh instance for each test
-let PasswordResetToken: mongoose.Model<IPasswordResetToken>;
+const loadModel = async () => {
+  const mod = await import('../PasswordResetToken');
+  return mod.default;
+};
 
-describe('PasswordResetToken Model', () => {
-  beforeAll(() => {
-  });
-
-  afterAll(() => {
-  });
-
-  beforeEach(async () => {
+describe('PasswordResetToken model', () => {
+  beforeEach(() => {
     jest.resetModules();
-    // Re-import the model to get a fresh copy with the reset module cache
-    const mod = await import('../PasswordResetToken');
-    PasswordResetToken = mod.default;
+    jest.clearAllMocks();
   });
 
-  describe('Schema Definition', () => {
-    it('should have required fields marked correctly', () => {
-      expect(PasswordResetToken.schema.path('userId').isRequired).toBe(true);
-      expect(PasswordResetToken.schema.path('tokenHash').isRequired).toBe(true);
-      expect(PasswordResetToken.schema.path('expiresAt').isRequired).toBe(true);
-    });
+  it('describes required schema fields and validators', async () => {
+    const PasswordResetToken = await loadModel();
+    const userIdPath = PasswordResetToken.schema.path('userId');
+    const tokenHashPath = PasswordResetToken.schema.path('tokenHash') as any;
+    const expiresAtPath = PasswordResetToken.schema.path('expiresAt');
+
+    expect(userIdPath?.isRequired).toBe(true);
+    expect(userIdPath?.options.ref).toBe('User');
+    expect(expiresAtPath?.isRequired).toBe(true);
+
+    expect(tokenHashPath?.isRequired).toBe(true);
+    expect(tokenHashPath?.options.select).toBe(false);
+    expect(tokenHashPath?.options.lowercase).toBe(true);
+    expect(tokenHashPath?.options.minlength).toBe(64);
+    expect(tokenHashPath?.options.maxlength).toBe(64);
+    expect(tokenHashPath?.options.match).toEqual(/^[a-f0-9]{64}$/);
   });
 
-  describe('Schema Indexes', () => {
-    it('should have a unique index on userId', () => {
-      const indexes = (PasswordResetToken.schema as any).indexes();
-      const userIdIndex = indexes.find(
-        (idx: any) => idx[0].userId === 1 && idx[1]?.unique === true
-      );
-      expect(userIdIndex).toBeDefined();
-    });
+  it('registers all expected indexes', async () => {
+    const PasswordResetToken = await loadModel();
+    const indexes = (PasswordResetToken.schema as any).indexes();
 
-    it('should have an index on tokenHash', () => {
-      const indexes = (PasswordResetToken.schema as any).indexes();
-      // The index is defined separately using schema.index()
-      const tokenHashIndex = indexes.find(
-        (idx: any) => idx[0].tokenHash === 1
-      );
-      expect(tokenHashIndex).toBeDefined();
-    });
-
-    it('should have a TTL index on expiresAt', () => {
-      const indexes = (PasswordResetToken.schema as any).indexes();
-      const ttlIndex = indexes.find(
-        (idx: any) => idx[0].expiresAt === 1 && idx[1]?.expireAfterSeconds === 0
-      );
-      expect(ttlIndex).toBeDefined();
-    });
+    expect(indexes).toEqual(
+      expect.arrayContaining([
+        [expect.objectContaining({ userId: 1 }), expect.objectContaining({ unique: true })],
+        [expect.objectContaining({ expiresAt: 1 }), expect.objectContaining({ expireAfterSeconds: 0 })],
+        [expect.objectContaining({ tokenHash: 1 }), expect.any(Object)],
+      ]),
+    );
   });
 
-  describe('Model Creation', () => {
-    it('should create a valid password reset token', () => {
-      const userId = new mongoose.Types.ObjectId();
-      const tokenHash = 'a'.repeat(64);
-      const expiresAt = new Date(Date.now() + 3600000);
+  it('ensures createdAt defaults to a Date instance', async () => {
+    const PasswordResetToken = await loadModel();
 
-      const token = new PasswordResetToken({
-        userId,
-        tokenHash,
-        expiresAt,
-      });
-
-      expect(token.userId).toEqual(userId);
-      expect(token.tokenHash).toBe(tokenHash);
-      expect(token.expiresAt).toEqual(expiresAt);
+    const doc = new PasswordResetToken({
+      userId: new mongoose.Types.ObjectId(),
+      tokenHash: 'a'.repeat(64),
+      expiresAt: new Date(Date.now() + 1000),
     });
 
-    it('should set default createdAt value as a Date instance', () => {
-      const token = new PasswordResetToken({
-        userId: new mongoose.Types.ObjectId(),
-        tokenHash: 'a'.repeat(64),
-        expiresAt: new Date(Date.now() + 3600000),
-      });
-      
-      expect(token.createdAt).toBeInstanceOf(Date);
-    });
+    expect(doc.createdAt).toBeInstanceOf(Date);
   });
 
+  it('coerces createdAt values to Date inside the save hook', async () => {
+    const PasswordResetToken = await loadModel();
+    const schema = PasswordResetToken.schema as any;
+    const hook = schema.preHooks.get('save')?.[0] as (this: any, next: () => void) => void;
 
-  // Note: Database operation tests have been moved to PasswordResetToken.integration.test.ts
-  // This keeps unit tests fast and focused on schema validation
+    const doc: any = new PasswordResetToken({
+      userId: new mongoose.Types.ObjectId(),
+      tokenHash: 'b'.repeat(64),
+      expiresAt: new Date(Date.now() + 2000),
+    });
+
+    doc.createdAt = '2024-01-01T00:00:00.000Z';
+
+    const next = jest.fn();
+    hook.call(doc, next);
+
+    expect(doc.createdAt).toBeInstanceOf(Date);
+    expect(doc.createdAt.toISOString()).toBe('2024-01-01T00:00:00.000Z');
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps Date instances intact within the save hook', async () => {
+    const PasswordResetToken = await loadModel();
+    const schema = PasswordResetToken.schema as any;
+    const hook = schema.preHooks.get('save')?.[0] as (this: any, next: () => void) => void;
+
+    const initialDate = new Date('2023-12-31T23:59:59.000Z');
+    const doc: any = new PasswordResetToken({
+      userId: new mongoose.Types.ObjectId(),
+      tokenHash: 'c'.repeat(64),
+      expiresAt: new Date(Date.now() + 3000),
+      createdAt: initialDate,
+    });
+
+    const next = jest.fn();
+    hook.call(doc, next);
+
+    expect(doc.createdAt).toBe(initialDate);
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
+  it('reuses an existing compiled model from the mongoose cache', async () => {
+    jest.resetModules();
+    const imported = await import('mongoose');
+    const mongooseMod = (imported as any).default ?? imported;
+    const cachedModel = Object.assign(jest.fn(), {
+      schema: {},
+      modelName: 'PasswordResetToken',
+    });
+    mongooseMod.models = { PasswordResetToken: cachedModel } as any;
+
+    const { default: reused } = await import('../PasswordResetToken');
+    expect(reused).toBe(cachedModel);
+  });
 });
