@@ -45,7 +45,7 @@ export function ImageCarousel({ images, alt, className }: ImageCarouselProps) {
           fill
           sizes="(min-width: 768px) 100vw, 100vw"
           className="object-cover"
-          priority={currentIndex === 0}
+          priority={currentIndex === 0 ? 'true' : 'false'}
         />
         
         {/* Navigation Buttons */}
