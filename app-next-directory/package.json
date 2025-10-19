@@ -19,7 +19,7 @@
     "postinstall": "node scripts/postinstall-msw.cjs",
     "exec:jest": "jest",
     "test": "pnpm test:unit",
-    "test:unit": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.browser.config.cjs --passWithNoTests && cross-env JEST_UNIT_ONLY=1 jest --config=jest.node.config.cjs --passWithNoTests",
+    "test:unit": "cross-env JEST_UNIT_ONLY=1 jest --config=jest.config.cjs --passWithNoTests",
   "test:integration": "cross-env JEST_USE_REAL_MONGOOSE=1 JEST_RUN_INTEGRATION=1 jest --config=jest.config.cjs --testPathPatterns \"src/.*\\.(int|integration)\\.test\\.(ts|tsx)$\" --runInBand --passWithNoTests",
     "test:e2e": "playwright test",
     "test:e2e:legacy": "jest --config=jest.e2e.config.cjs --runInBand --detectOpenHandles --passWithNoTests --",

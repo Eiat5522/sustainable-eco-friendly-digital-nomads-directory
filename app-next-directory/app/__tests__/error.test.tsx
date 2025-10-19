@@ -11,21 +11,9 @@ jest.mock('@/components/ui/neo-button', () => ({
   ),
 }));
 
-// Mock window.location globally for this test file
-const mockReload = jest.fn();
-const mockAssign = jest.fn();
-
-Object.defineProperty(window, 'location', {
-  configurable: true,
-  value: {
-    ...window.location, // Keep other properties of window.location
-    reload: mockReload,
-    assign: mockAssign,
-    href: 'http://mocked.com/initial',
-  },
-});
 
 import ErrorComponent from '../error';
+
 
 describe('Error Component', () => {
   let mockError: Error;
@@ -36,16 +24,6 @@ describe('Error Component', () => {
     mockError = new Error('Test error message');
     mockReset = jest.fn();
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
-    // Clear mocks for window.location.reload and assign
-    mockReload.mockClear();
-    mockAssign.mockClear();
-    // Reset href for each test
-    Object.defineProperty(window.location, 'href', {
-      configurable: true,
-      enumerable: true,
-      value: 'http://mocked.com/initial',
-    });
   });
 
   afterEach(() => {
@@ -76,7 +54,7 @@ describe('Error Component', () => {
     const reloadButton = screen.getByRole('button', { name: /reload/i });
     fireEvent.click(reloadButton);
 
-    expect(mockReload).toHaveBeenCalledTimes(1);
+    expect(window.location.reload).toHaveBeenCalledTimes(1);
   });
 
   it('displays error digest in production mode', () => {

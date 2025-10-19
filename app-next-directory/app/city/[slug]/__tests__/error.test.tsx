@@ -4,9 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 const mockReset = jest.fn();
 
-
-
-
+import CityError from '../error';
 
 describe('CityError boundary', () => {
   it('renders the fallback UI with retry controls and error details in non-production environments', async () => {

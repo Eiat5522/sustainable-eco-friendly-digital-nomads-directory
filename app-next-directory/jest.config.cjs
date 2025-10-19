@@ -98,70 +98,65 @@ module.exports = {
 		},
 
 		// Treat these as ESM inside Jest
-		extensionsToTreatAsEsm: ['.ts', '.tsx', '.jsx'],
+	extensionsToTreatAsEsm: ['.ts', '.tsx', '.jsx'],
 
-		testEnvironment: 'jsdom',
-		testEnvironmentOptions: {
-			customExportConditions: ['node', 'node-addons'],
-		},
+	testEnvironment: 'jsdom',
+	testEnvironmentOptions: {
+		customExportConditions: ['node', 'node-addons'],
+	},
 
-		setupFiles: ['<rootDir>/jest/setEnvVars.js'],
-		setupFilesAfterEnv: ['<rootDir>/jest/setup-window-location.ts', '<rootDir>/jest.setup.ts', '<rootDir>/__mocks__/node.ts'],
+	setupFiles: ['<rootDir>/jest/setEnvVars.js'],
+	setupFilesAfterEnv: ['<rootDir>/jest.setup.ts', '<rootDir>/__mocks__/node.ts'],
 
 		// Optionally start an in-memory MongoDB for integration tests.
-		globalSetup: '<rootDir>/jest/globalSetup.cjs',
-		globalTeardown: '<rootDir>/jest/globalTeardown.cjs',
+	globalSetup: '<rootDir>/jest/globalSetup.cjs',
+	globalTeardown: '<rootDir>/jest/globalTeardown.cjs',
 
-		testMatch: [
-			'<rootDir>/src/**/*.test.(ts|tsx|js|jsx)',
-			'<rootDir>/src/**/__tests__/**/*.(ts|tsx|js|jsx)',
-			'<rootDir>/app/**/*.test.(ts|tsx|js|jsx)',
-			'<rootDir>/app/**/__tests__/**/*.(ts|tsx|js|jsx)',
-		],
+	testMatch: [
+		'<rootDir>/src/**/*.test.(ts|tsx|js|jsx)',
+		'<rootDir>/src/**/__tests__/**/*.(ts|tsx|js|jsx)',
+		'<rootDir>/app/**/*.test.(ts|tsx|js|jsx)',
+		'<rootDir>/app/**/__tests__/**/*.(ts|tsx|js|jsx)',
+	],
 
-		moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-		moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
+	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+	moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
 
-		moduleNameMapper,
+	moduleNameMapper,
 
 
-		transformIgnorePatterns: [
-			// Allow ESM libs through transform
-			'/node_modules/(?!(next-auth|@auth|jose|broadcast-channel|msw|@mswjs|until-async|strict-event-emitter|@open-draft)/)',
-		],
+	transformIgnorePatterns: [
+		// Allow ESM libs through transform
+		'/node_modules/(?!(next-auth|@auth|jose|broadcast-channel|msw|@mswjs|until-async|strict-event-emitter|@open-draft)/)',
+	],
 
-		collectCoverageFrom: [
-			'src/**/*.{ts,tsx,js,jsx}',
-			'app/**/*.{ts,tsx,js,jsx}',
-			'!src/**/*.d.ts',
-			'!src/__mocks__/**/*',
-			'!**/*.test.*',
-			'!**/node_modules/**',
-			'!**/*.config.*',
-			'!**/middleware.*',
-		],
+	collectCoverageFrom: [
+		'src/**/*.{ts,tsx,js,jsx}',
+		'app/**/*.{ts,tsx,js,jsx}',
+		'!src/**/*.d.ts',
+		'!src/__mocks__/**/*',
+		'!**/*.test.*',
+		'!**/node_modules/**',
+		'!**/*.config.*',
+		'!**/middleware.*',
+	],
 
-		watchPathIgnorePatterns: ['^<rootDir>/tests/', '[\\/](playwright)[\\/]'],
+	watchPathIgnorePatterns: ['^<rootDir>/tests/', '[\\/](playwright)[\\/]'],
 
 		// By default, ignore integration tests (files ending with .int.test.* or .integration.test.*)
 		// unless the test runner explicitly sets JEST_RUN_INTEGRATION=1. This avoids
 		// accidentally picking up long-running DB integration tests during unit runs.
-		testPathIgnorePatterns: [
-			'^<rootDir>/tests/',
-			'[\\/](playwright)[\\/]',
-			'[\\/]__tests__[\\/]__mocks__[\\/]',
-			'\\.d(\\.test)?\\.ts$',
-			'reporter\\.js$',
-			// Exclude files handled by jest.node.config.cjs
-			'<rootDir>/src/utils/__tests__/sanitize.test.ts',
-			'<rootDir>/src/utils/__tests__/rate-limit.test.ts',
-			'<rootDir>/src/utils/__tests__/api-response.test.ts',
-			'<rootDir>/src/utils/__tests__/priceRange.test.ts',
-		].concat(
-			// If JEST_UNIT_ONLY=1 we also ignore integration tests. Integration tests
-			// will only be run when JEST_RUN_INTEGRATION=1 is set (e.g., in test:integration).
-			process.env.JEST_UNIT_ONLY === '1' || process.env.JEST_RUN_INTEGRATION !== '1'
-				? ['\\.(int|integration)\\.test\\.(ts|tsx|js|jsx)$']
-				: []
-		),
+	testPathIgnorePatterns: [
+		'^<rootDir>/tests/',
+		'[\\/](playwright)[\\/]',
+		'[\\/]__tests__[\\/]__mocks__[\\/]',
+		'\\.d(\\.test)?\\.ts$',
+		'reporter\\.js$',
+	].concat(
+		// If JEST_UNIT_ONLY=1 we also ignore integration tests. Integration tests
+		// will only be run when JEST_RUN_INTEGRATION=1 is set (e.g., in test:integration).
+		process.env.JEST_UNIT_ONLY === '1' || process.env.JEST_RUN_INTEGRATION !== '1'
+			? ['\\.(int|integration)\\.test\\.(ts|tsx|js|jsx)$']
+			: []
+	),
 	};
