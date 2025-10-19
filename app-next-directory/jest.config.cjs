@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 // jest.config.cjs
 // Jest config for TypeScript + ESM + React 18/19 compatible unit tests
 
@@ -105,7 +106,7 @@ module.exports = {
 		},
 
 		setupFiles: ['<rootDir>/jest/setEnvVars.js'],
-		setupFilesAfterEnv: ['<rootDir>/jest.setup.ts', '<rootDir>/__mocks__/node.ts'],
+		setupFilesAfterEnv: ['<rootDir>/jest/setup-window-location.ts', '<rootDir>/jest.setup.ts', '<rootDir>/__mocks__/node.ts'],
 
 		// Optionally start an in-memory MongoDB for integration tests.
 		globalSetup: '<rootDir>/jest/globalSetup.cjs',
@@ -142,14 +143,24 @@ module.exports = {
 
 		watchPathIgnorePatterns: ['^<rootDir>/tests/', '[\\/](playwright)[\\/]'],
 
+		// By default, ignore integration tests (files ending with .int.test.* or .integration.test.*)
+		// unless the test runner explicitly sets JEST_RUN_INTEGRATION=1. This avoids
+		// accidentally picking up long-running DB integration tests during unit runs.
 		testPathIgnorePatterns: [
 			'^<rootDir>/tests/',
 			'[\\/](playwright)[\\/]',
 			'[\\/]__tests__[\\/]__mocks__[\\/]',
 			'\\.d(\\.test)?\\.ts$',
 			'reporter\\.js$',
+			// Exclude files handled by jest.node.config.cjs
+			'<rootDir>/src/utils/__tests__/sanitize.test.ts',
+			'<rootDir>/src/utils/__tests__/rate-limit.test.ts',
+			'<rootDir>/src/utils/__tests__/api-response.test.ts',
+			'<rootDir>/src/utils/__tests__/priceRange.test.ts',
 		].concat(
-			process.env.JEST_UNIT_ONLY === '1'
+			// If JEST_UNIT_ONLY=1 we also ignore integration tests. Integration tests
+			// will only be run when JEST_RUN_INTEGRATION=1 is set (e.g., in test:integration).
+			process.env.JEST_UNIT_ONLY === '1' || process.env.JEST_RUN_INTEGRATION !== '1'
 				? ['\\.(int|integration)\\.test\\.(ts|tsx|js|jsx)$']
 				: []
 		),

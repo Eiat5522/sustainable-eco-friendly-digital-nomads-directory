@@ -38,7 +38,7 @@ function memorySet(key: string, value: string, ttlSeconds: number) {
 }
 // Exported test control hooks used by tests to simulate specific memory behaviors.
 // Tests will assign functions to these properties to override in-memory operations.
-const isTestEnv = process.env.NODE_ENV === 'test'
+const isTestEnv = !!process.env.JEST_WORKER_ID
 
 export const testControl = isTestEnv
   ? {

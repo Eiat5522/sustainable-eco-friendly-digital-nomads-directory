@@ -13,17 +13,7 @@ jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
 }));
 
-jest.mock(
-  '@/app/dashboard/components/VenueListingManagement',
-  () => ({
-    VenueListingManagement: (...args: unknown[]) => managementSpy(...args),
-  }),
-  { virtual: true }
-);
-
-jest.mock(
-  '../../src/app/dashboard/components/VenueListingManagement',
-  () => ({
+jest.mock('../dashboard/components/VenueListingManagement', () => ({
     VenueListingManagement: (...args: unknown[]) => managementSpy(...args),
   }),
   { virtual: true }

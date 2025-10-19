@@ -51,7 +51,6 @@ Successfully implemented structured logging using Pino to replace console.error 
 
 ### Tests & Documentation
 1. `src/lib/__tests__/logger.test.ts` - Comprehensive test suite (16 test cases)
-2. `src/lib/__tests__/logger-demo.js` - Environment behavior demonstration
 
 ## Backward Compatibility
 - Provides `logError()` function as drop-in replacement for `console.error`

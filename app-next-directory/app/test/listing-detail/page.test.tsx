@@ -32,6 +32,7 @@ describe('ListingDetailTestPage', () => {
   });
 
   it('renders the disabled message in production when test pages are not enabled', async () => {
+    // @ts-ignore
     process.env.NODE_ENV = 'production';
     delete process.env.ENABLE_TEST_PAGES;
 
@@ -45,6 +46,7 @@ describe('ListingDetailTestPage', () => {
   });
 
   it('renders the listing detail view when not in production', async () => {
+    // @ts-ignore
     process.env.NODE_ENV = 'development';
     process.env.ENABLE_TEST_PAGES = 'false';
 
@@ -66,6 +68,7 @@ describe('ListingDetailTestPage', () => {
   });
 
   it('allows enabling the page in production via the ENABLE_TEST_PAGES flag', async () => {
+    // @ts-ignore
     process.env.NODE_ENV = 'production';
     process.env.ENABLE_TEST_PAGES = 'true';
 

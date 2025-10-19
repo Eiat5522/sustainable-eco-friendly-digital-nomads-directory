@@ -3,26 +3,10 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 const mockReset = jest.fn();
-const originalLocation = window.location;
 
-beforeEach(() => {
-  jest.resetModules();
-  mockReset.mockReset();
-  Object.defineProperty(window, 'location', {
-    value: {
-      ...originalLocation,
-      reload: jest.fn(),
-    },
-    writable: true,
-  });
-});
 
-afterEach(() => {
-  Object.defineProperty(window, 'location', {
-    value: originalLocation,
-    writable: true,
-  });
-});
+
+
 
 describe('CityError boundary', () => {
   it('renders the fallback UI with retry controls and error details in non-production environments', async () => {

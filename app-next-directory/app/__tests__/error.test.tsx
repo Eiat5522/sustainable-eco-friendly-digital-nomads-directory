@@ -11,29 +11,19 @@ jest.mock('@/components/ui/neo-button', () => ({
   ),
 }));
 
+
+import ErrorComponent from '../error';
+
+
 describe('Error Component', () => {
-  // Dynamic import to avoid module-level React hook issues
-  let ErrorComponent: any;
+  let mockError: Error;
+  let mockReset: jest.Mock;
   let consoleErrorSpy: jest.SpyInstance;
-  const mockReset = jest.fn();
-  const mockError = new Error('Test error message');
-
-  beforeAll(async () => {
-    const module = await import('../error');
-    ErrorComponent = module.default;
-  });
-
-  beforeAll(() => {
-    // Mock window.location.reload once for all tests
-    delete (window as any).location;
-    (window as any).location = { reload: jest.fn() };
-  });
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-    mockReset.mockClear();
-    // Reset the mock function between tests
-    ((window as any).location.reload as jest.Mock).mockClear();
+    mockError = new Error('Test error message');
+    mockReset = jest.fn();
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -73,6 +63,9 @@ describe('Error Component', () => {
     const errorWithDigest = Object.assign(new Error('Test error'), { digest: 'abc123' });
 
     render(<ErrorComponent error={errorWithDigest} reset={mockReset} />);
+
+    expect(screen.getByText(/error code: abc123/i)).toBeInTheDocument();
+    expect(screen.queryByText(/test error/i)).not.toBeInTheDocument();
 
     process.env.NODE_ENV = originalEnv;
   });
