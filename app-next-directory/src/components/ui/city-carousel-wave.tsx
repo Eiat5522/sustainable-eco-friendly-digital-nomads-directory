@@ -97,7 +97,7 @@ export default function CityCarouselWave({ cities }: CityCarouselWaveProps) {
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 100vw, 33vw"
-                      priority={index === 0}
+                      priority={index === 0 ? 'true' : 'false'}
                       onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
                         e.currentTarget.src = '/placeholder_image.png';
                       }}

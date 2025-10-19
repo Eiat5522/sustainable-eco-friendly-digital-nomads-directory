@@ -174,12 +174,14 @@ export default function Slider_01() {
       <div className="absolute bottom-6 right-6 flex gap-2">
         <button
           onClick={() => shift('prev')}
+          aria-label="Previous"
           className="p-2 rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:scale-110 transition"
         >
           <ChevronLeft className="w-5 h-5 text-zinc-700 dark:text-white" />
         </button>
         <button
           onClick={() => shift('next')}
+          aria-label="Next"
           className="p-2 rounded-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:scale-110 transition"
         >
           <ChevronRight className="w-5 h-5 text-zinc-700 dark:text-white" />
