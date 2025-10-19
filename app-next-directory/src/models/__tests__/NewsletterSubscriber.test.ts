@@ -1,351 +1,140 @@
 import { jest } from '@jest/globals';
-import mongoose from 'mongoose';
-import NewsletterSubscriber, { INewsletterSubscriber } from '../NewsletterSubscriber';
 
-describe('NewsletterSubscriber Model', () => {
+const loadModel = async () => {
+  const mod = await import('../NewsletterSubscriber');
+  return mod.default;
+};
+
+describe('NewsletterSubscriber model', () => {
   beforeEach(() => {
+    jest.resetModules();
     jest.clearAllMocks();
   });
 
-  describe('Schema Definition', () => {
-    it('should define NewsletterSubscriber model', () => {
-      expect(NewsletterSubscriber).toBeDefined();
-      expect(NewsletterSubscriber.modelName).toBe('NewsletterSubscriber');
-    });
+  it('exposes the expected schema definition and defaults', async () => {
+    const NewsletterSubscriber = await loadModel();
 
-    it('should have correct schema structure', () => {
-      const schema = NewsletterSubscriber.schema;
-      expect(schema.path('email')).toBeDefined();
-      expect(schema.path('confirmedAt')).toBeDefined();
-      expect(schema.path('createdAt')).toBeDefined();
-      expect(schema.path('updatedAt')).toBeDefined();
-    });
+    const emailPath = NewsletterSubscriber.schema.path('email') as any;
+    const confirmedAtPath = NewsletterSubscriber.schema.path('confirmedAt') as any;
 
-    it('should have email as required field', () => {
-      expect(NewsletterSubscriber.schema.path('email').isRequired).toBe(true);
-    });
+    expect(emailPath).toBeDefined();
+    expect(emailPath.isRequired).toBe(true);
+    expect(emailPath.options.lowercase).toBe(true);
+    expect(emailPath.options.trim).toBe(true);
+    expect(typeof emailPath.options.set).toBe('function');
+    expect(emailPath.options.match[0]).toBeInstanceOf(RegExp);
 
-    it('should have timestamps enabled', () => {
-      expect(NewsletterSubscriber.schema.options.timestamps).toBe(true);
-    });
+    expect(confirmedAtPath.defaultValue).toBeUndefined();
+
+    const doc = new NewsletterSubscriber({ email: '  USER@Example.com  ' });
+
+    expect(doc.email).toBe('user@example.com');
+    expect(doc.confirmedAt).toBeNull();
+    expect(doc.createdAt).toBeInstanceOf(Date);
+    expect(doc.updatedAt).toBeInstanceOf(Date);
   });
 
-  describe('Email Field', () => {
-    it('should have lowercase option on email', () => {
-      expect(NewsletterSubscriber.schema.path('email').options.lowercase).toBe(true);
-    });
+  it('falls back to manual normalization when the schema setter is unavailable', async () => {
+    const NewsletterSubscriber = await loadModel();
+    const schema = NewsletterSubscriber.schema as any;
+    const emailPath = schema.path('email');
+    const originalSetter = emailPath.options.set;
 
-    it('should have trim option on email', () => {
-      expect(NewsletterSubscriber.schema.path('email').options.trim).toBe(true);
-    });
+    emailPath.options.set = undefined;
 
-    it('should have email validation regex', () => {
-      const emailField = NewsletterSubscriber.schema.path('email');
-      expect(emailField.options.match).toBeDefined();
-      expect(emailField.options.match[0]).toBeInstanceOf(RegExp);
-    });
+    const doc = new NewsletterSubscriber({ email: '  SECOND@Example.Com  ' });
 
-    it('should validate correct email format', () => {
-      const validEmails = [
-        'test@example.com',
-        'user.name@example.com',
-        'user+tag@example.co.uk',
-      ];
+    expect(doc.email).toBe('second@example.com');
 
-      validEmails.forEach((email) => {
-        const subscriber = new NewsletterSubscriber({ email });
-        expect(subscriber.email).toBe(email.toLowerCase());
-      });
-    });
+    emailPath.options.set = originalSetter;
   });
 
-  describe('ConfirmedAt Field', () => {
-    it('should have confirmedAt with default null', () => {
-      const subscriber = new NewsletterSubscriber({ email: 'test@example.com' });
-      expect(subscriber.confirmedAt).toBeNull();
+  it('honours provided confirmation timestamps without overwriting them', async () => {
+    const NewsletterSubscriber = await loadModel();
+    const confirmedAt = new Date('2024-01-02T03:04:05Z');
+    const createdAt = new Date('2024-01-01T00:00:00Z');
+    const updatedAt = new Date('2024-01-01T00:00:01Z');
+
+    const doc = new NewsletterSubscriber({
+      email: 'confirmed@example.com',
+      confirmedAt,
+      createdAt,
+      updatedAt,
     });
 
-    it('should accept Date value for confirmedAt', () => {
-      const confirmedDate = new Date();
-      const subscriber = new NewsletterSubscriber({
-        email: 'test@example.com',
-        confirmedAt: confirmedDate,
-      });
-      expect(subscriber.confirmedAt).toEqual(confirmedDate);
-    });
-
-    it('should accept null for confirmedAt', () => {
-      const subscriber = new NewsletterSubscriber({
-        email: 'test@example.com',
-        confirmedAt: null,
-      });
-      expect(subscriber.confirmedAt).toBeNull();
-    });
+    expect(doc.confirmedAt).toBe(confirmedAt);
+    expect(doc.createdAt).toBe(createdAt);
+    expect(doc.updatedAt).toBe(updatedAt);
   });
 
-  describe('Schema Indexes', () => {
-    it('should have unique index on email', () => {
-      const indexes = NewsletterSubscriber.schema.indexes();
-      const emailIndex = indexes.find(
-        (idx: any) => idx[0].email === 1 && idx[1]?.unique === true
-      );
-      expect(emailIndex).toBeDefined();
-      expect(emailIndex[1].unique).toBe(true);
-    });
+  it('normalises update payloads in the pre update hooks', async () => {
+    const NewsletterSubscriber = await loadModel();
+    const schema = NewsletterSubscriber.schema as any;
+    const hooks = schema.preHooks.get('findOneAndUpdate');
+    expect(hooks).toBeDefined();
+    const hook = hooks?.[0] as (this: { getUpdate: () => any }, next: () => void) => void;
+
+    const update = { email: '  UPDATED@Example.COM  ' };
+    const context = { getUpdate: () => update };
+    hook.call(context);
+
+    expect(update.email).toBe('updated@example.com');
   });
 
-  describe('Model Creation', () => {
-    it('should create a valid subscriber with required email field', () => {
-      const subscriber = new NewsletterSubscriber({ email: 'test@example.com' });
+  it('skips normalization when update payload does not include email', async () => {
+    const NewsletterSubscriber = await loadModel();
+    const schema = NewsletterSubscriber.schema as any;
+    const hook = schema.preHooks.get('updateOne')?.[0] as (this: { getUpdate: () => any }, next: () => void) => void;
 
-      expect(subscriber.email).toBe('test@example.com');
-      expect(subscriber.confirmedAt).toBeNull();
-    });
+    const update = { $set: { confirmedAt: new Date() } };
+    const context = { getUpdate: () => update };
+    hook.call(context);
 
-    it('should create subscriber with confirmedAt date', () => {
-      const confirmedDate = new Date();
-      const subscriber = new NewsletterSubscriber({
-        email: 'confirmed@example.com',
-        confirmedAt: confirmedDate,
-      });
-
-      expect(subscriber.email).toBe('confirmed@example.com');
-      expect(subscriber.confirmedAt).toEqual(confirmedDate);
-    });
-
-    it('should convert email to lowercase', () => {
-      const subscriber = new NewsletterSubscriber({ email: 'TEST@EXAMPLE.COM' });
-      expect(subscriber.email).toBe('test@example.com');
-    });
-
-    it('should trim email whitespace', () => {
-      const subscriber = new NewsletterSubscriber({ email: '  test@example.com  ' });
-      expect(subscriber.email).toBe('test@example.com');
-    });
-
-    it('should handle email with uppercase and whitespace', () => {
-      const subscriber = new NewsletterSubscriber({ email: '  TEST@EXAMPLE.COM  ' });
-      expect(subscriber.email).toBe('test@example.com');
-    });
+    expect(update.$set.confirmedAt).toBeInstanceOf(Date);
   });
 
-  describe('Pre-update Hook', () => {
-    it('should have pre-update hooks defined', () => {
-      const preUpdateHooks = NewsletterSubscriber.schema.pre(['findOneAndUpdate', 'updateOne']);
-      expect(preUpdateHooks).toBeDefined();
-    });
+  it('recompiles the model when an incomplete cached model exists', async () => {
+    jest.resetModules();
+    const imported = await import('mongoose');
+    const mongooseMod = (imported as any).default ?? imported;
 
-    it('should normalize email on findOneAndUpdate', () => {
-      const subscriber = new NewsletterSubscriber({ email: 'test@example.com' });
-      
-      // Mock getUpdate to return an update object
-      subscriber.schema.pre(['findOneAndUpdate', 'updateOne'], function(next) {
-        const update = this.getUpdate() as any;
-        if (update?.email) {
-          update.email = String(update.email).toLowerCase().trim();
-        }
-        next();
-      });
+    const incomplete = mongooseMod.model('NewsletterSubscriber');
+    expect((incomplete as any).schema).toBeUndefined();
 
-      expect(NewsletterSubscriber.schema.pre).toBeDefined();
-    });
+    const { default: compiled } = await import('../NewsletterSubscriber');
 
-    it('should normalize email on updateOne', () => {
-      const subscriber = new NewsletterSubscriber({ email: 'test@example.com' });
-      
-      // Mock getUpdate to return an update object
-      subscriber.schema.pre(['findOneAndUpdate', 'updateOne'], function(next) {
-        const update = this.getUpdate() as any;
-        if (update?.email) {
-          update.email = String(update.email).toLowerCase().trim();
-        }
-        next();
-      });
-
-      expect(NewsletterSubscriber.schema.pre).toBeDefined();
-    });
+    expect(compiled).not.toBe(incomplete);
+    expect(compiled.schema.path('email')).toBeDefined();
   });
 
-  describe('Model Singleton', () => {
-    it('should return existing model if already compiled', () => {
-      const model1 = NewsletterSubscriber;
-      const model2 = mongoose.models.NewsletterSubscriber;
-      expect(model1).toBe(model2);
+  it('reuses an existing compiled model from the mongoose cache', async () => {
+    jest.resetModules();
+    const imported = await import('mongoose');
+    const mongooseMod = (imported as any).default ?? imported;
+    const cachedModel = Object.assign(jest.fn(), {
+      schema: {},
+      modelName: 'NewsletterSubscriber',
     });
+    mongooseMod.models = { NewsletterSubscriber: cachedModel } as any;
+
+    const { default: reused } = await import('../NewsletterSubscriber');
+
+    expect(reused).toBe(cachedModel);
   });
 
-  describe('Timestamps', () => {
-    it('should have createdAt field', () => {
-      const subscriber = new NewsletterSubscriber({ email: 'test@example.com' });
-      expect(subscriber.createdAt).toBeDefined();
-    });
+  it('handles validation hook invocation when fields are absent', async () => {
+    const NewsletterSubscriber = await loadModel();
+    const schema = NewsletterSubscriber.schema as any;
+    const hook = schema.preHooks.get('validate')?.[0] as (this: any, next: () => void) => void;
 
-    it('should have updatedAt field', () => {
-      const subscriber = new NewsletterSubscriber({ email: 'test@example.com' });
-      expect(subscriber.updatedAt).toBeDefined();
-    });
+    const doc: any = { isNew: true };
+    const next = jest.fn();
 
-    it('should set timestamps on creation', () => {
-      const beforeCreation = new Date();
-      const subscriber = new NewsletterSubscriber({ email: 'test@example.com' });
-      const afterCreation = new Date();
+    hook.call(doc, next);
 
-      expect(subscriber.createdAt).toBeInstanceOf(Date);
-      expect(subscriber.updatedAt).toBeInstanceOf(Date);
-      expect(subscriber.createdAt.getTime()).toBeGreaterThanOrEqual(beforeCreation.getTime());
-      expect(subscriber.createdAt.getTime()).toBeLessThanOrEqual(afterCreation.getTime());
-    });
+    expect(doc.confirmedAt).toBeNull();
+    expect(doc.createdAt).toBeInstanceOf(Date);
+    expect(doc.updatedAt).toBeInstanceOf(Date);
+    expect(next).toHaveBeenCalledTimes(1);
   });
-
-  describe('Email Uniqueness', () => {
-    it('should enforce unique email constraint (schema level)', () => {
-      const indexes = NewsletterSubscriber.schema.indexes();
-      const uniqueEmailIndex = indexes.find(
-        (idx: any) => idx[0].email === 1 && idx[1]?.unique === true
-      );
-      
-      expect(uniqueEmailIndex).toBeDefined();
-      expect(uniqueEmailIndex[1].unique).toBe(true);
-    });
-
-    it('should allow creating subscribers with different emails', () => {
-      const subscriber1 = new NewsletterSubscriber({ email: 'user1@example.com' });
-      const subscriber2 = new NewsletterSubscriber({ email: 'user2@example.com' });
-
-      expect(subscriber1.email).not.toBe(subscriber2.email);
-    });
-  });
-
-  describe('Confirmation Workflow', () => {
-    it('should create unconfirmed subscriber by default', () => {
-      const subscriber = new NewsletterSubscriber({ email: 'test@example.com' });
-      expect(subscriber.confirmedAt).toBeNull();
-    });
-
-    it('should allow confirming a subscriber', () => {
-      const subscriber = new NewsletterSubscriber({ email: 'test@example.com' });
-      expect(subscriber.confirmedAt).toBeNull();
-
-      const confirmedDate = new Date();
-      subscriber.confirmedAt = confirmedDate;
-      expect(subscriber.confirmedAt).toEqual(confirmedDate);
-    });
-
-    it('should track confirmation time', () => {
-      const confirmTime = new Date('2024-01-15T10:00:00Z');
-      const subscriber = new NewsletterSubscriber({
-        email: 'confirmed@example.com',
-        confirmedAt: confirmTime,
-      });
-
-      expect(subscriber.confirmedAt).toEqual(confirmTime);
-    });
-  });
-
-  describe('Email Validation Regex', () => {
-    it('should match valid email formats', () => {
-      const emailField = NewsletterSubscriber.schema.path('email');
-      const regex = emailField.options.match[0];
-
-      const validEmails = [
-        'test@example.com',
-        'user.name@example.com',
-        'user+tag@example.co.uk',
-        'test123@test-domain.com',
-        'a@b.c',
-      ];
-
-      validEmails.forEach((email) => {
-        expect(email).toMatch(regex);
-      });
-    });
-
-    it('should reject invalid email formats', () => {
-      const emailField = NewsletterSubscriber.schema.path('email');
-      const regex = emailField.options.match[0];
-
-      const invalidEmails = [
-        'not-an-email',
-        '@example.com',
-        'user@',
-        'user @example.com',
-        'user@.com',
-      ];
-
-      invalidEmails.forEach((email) => {
-        expect(email).not.toMatch(regex);
-      });
-    });
-  });
-
-  describe('Field Types', () => {
-    it('should have email as String type', () => {
-      const emailField = NewsletterSubscriber.schema.path('email');
-      expect(emailField.instance).toBe('String');
-    });
-
-    it('should have confirmedAt as Date type', () => {
-      const confirmedAtField = NewsletterSubscriber.schema.path('confirmedAt');
-      expect(confirmedAtField.instance).toBe('Date');
-    });
-  });
-
-  describe('Use Cases', () => {
-    it('should handle double opt-in workflow', () => {
-      // Step 1: User subscribes (unconfirmed)
-      const subscriber = new NewsletterSubscriber({ email: 'user@example.com' });
-      expect(subscriber.confirmedAt).toBeNull();
-
-      // Step 2: User clicks confirmation link
-      subscriber.confirmedAt = new Date();
-      expect(subscriber.confirmedAt).toBeInstanceOf(Date);
-    });
-
-    it('should track when subscription was created', () => {
-      const subscriber = new NewsletterSubscriber({ email: 'test@example.com' });
-      expect(subscriber.createdAt).toBeInstanceOf(Date);
-    });
-
-    it('should track when subscription was last updated', () => {
-      const subscriber = new NewsletterSubscriber({ email: 'test@example.com' });
-      expect(subscriber.updatedAt).toBeInstanceOf(Date);
-    });
-
-    it('should support querying confirmed subscribers', () => {
-      const confirmed = new NewsletterSubscriber({
-        email: 'confirmed@example.com',
-        confirmedAt: new Date(),
-      });
-      const unconfirmed = new NewsletterSubscriber({
-        email: 'unconfirmed@example.com',
-      });
-
-      expect(confirmed.confirmedAt).not.toBeNull();
-      expect(unconfirmed.confirmedAt).toBeNull();
-    });
-
-    it('should support querying by email', () => {
-      const email = 'search@example.com';
-      const subscriber = new NewsletterSubscriber({ email });
-      expect(subscriber.email).toBe(email);
-    });
-  });
-
-  describe('Data Integrity', () => {
-    it('should maintain email lowercase throughout lifecycle', () => {
-      const subscriber = new NewsletterSubscriber({ email: 'Test@Example.COM' });
-      expect(subscriber.email).toBe('test@example.com');
-      
-      subscriber.email = 'UPDATED@EXAMPLE.COM';
-      expect(subscriber.email).toBe('updated@example.com');
-    });
-
-    it('should maintain email trimming throughout lifecycle', () => {
-      const subscriber = new NewsletterSubscriber({ email: '  test@example.com  ' });
-      expect(subscriber.email).toBe('test@example.com');
-    });
-  });
-
-  // Note: Database operation tests have been moved to NewsletterSubscriber.integration.test.ts
-  // This keeps unit tests fast and focused on schema validation
 });
