@@ -19,9 +19,9 @@ const memoryStore = new Map<string, StoredValue>()
 
 async function memoryGet(key: string): Promise<string | null> {
   // Allow tests to override the behavior synchronously or asynchronously.
-  if (testControl.memoryGetOverride) {
-     
-    return await testControl.memoryGetOverride(key)
+  const override = testControl?.memoryGetOverride
+  if (override) {
+    return await override(key)
   }
 
   const entry = memoryStore.get(key)
@@ -38,22 +38,26 @@ function memorySet(key: string, value: string, ttlSeconds: number) {
 }
 // Exported test control hooks used by tests to simulate specific memory behaviors.
 // Tests will assign functions to these properties to override in-memory operations.
-export const testControl = {
-  // (key) => string|null | Promise<string|null>
-  memoryGetOverride: undefined as
-    | ((key: string) => string | null | Promise<string | null>)
-    | undefined,
-  // (key, ttl) => number | Promise<number>
-  memoryIncrOverride: undefined as
-    | ((key: string, ttlSeconds: number) => number | Promise<number>)
-    | undefined,
-}
+const isTestEnv = process.env.NODE_ENV === 'test'
+
+export const testControl = isTestEnv
+  ? {
+      // (key) => string|null | Promise<string|null>
+      memoryGetOverride: undefined as
+        | ((key: string) => string | null | Promise<string | null>)
+        | undefined,
+      // (key, ttl) => number | Promise<number>
+      memoryIncrOverride: undefined as
+        | ((key: string, ttlSeconds: number) => number | Promise<number>)
+        | undefined,
+    }
+  : undefined
 
 async function memoryIncr(key: string, ttlSeconds: number): Promise<number> {
   // Allow tests to override the behavior synchronously or asynchronously.
-  if (testControl.memoryIncrOverride) {
-     
-    return await testControl.memoryIncrOverride(key, ttlSeconds)
+  const override = testControl?.memoryIncrOverride
+  if (override) {
+    return await override(key, ttlSeconds)
   }
 
   const entry = memoryStore.get(key)

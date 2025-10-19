@@ -7,13 +7,9 @@ type AuthFn = () => Promise<unknown>;
 type UploadFn = (assetType: string, file: File) => Promise<unknown>;
 type FormDataFn = (request: Request) => Promise<FormData>;
 
-export const testControl = {
-  authOverride: undefined as AuthFn | undefined,
-  uploadOverride: undefined as UploadFn | undefined,
-  formDataOverride: undefined as FormDataFn | undefined,
-};
-// Only export testControl in test environment
-export const testControl = process.env.NODE_ENV === 'test' 
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+export const testControl = isTestEnv
   ? {
       authOverride: undefined as AuthFn | undefined,
       uploadOverride: undefined as UploadFn | undefined,
@@ -21,10 +17,8 @@ export const testControl = process.env.NODE_ENV === 'test'
     }
   : undefined;
 
-const authFn = (testControl?.authOverride) ?? auth;
-
 export async function POST(request: Request) {
-  const authFn = testControl.authOverride ?? auth;
+  const authFn = testControl?.authOverride ?? auth;
   const session = await authFn();
   // session.user can be a loose object in tests; cast to any to avoid typing issues
   const sessionUser = (session as any)?.user as {
@@ -38,7 +32,7 @@ export async function POST(request: Request) {
 
   try {
     const formDataGetter =
-      testControl.formDataOverride ?? ((req: Request) => req.formData());
+      testControl?.formDataOverride ?? ((req: Request) => req.formData());
     const formData = await formDataGetter(request);
     const file = formData.get('file') as File;
 
@@ -47,7 +41,8 @@ export async function POST(request: Request) {
     }
 
     const uploadFn =
-      testControl.uploadOverride ?? ((assetType: string, uploadFile: File) => client.assets.upload(assetType as any, uploadFile as any));
+      testControl?.uploadOverride ??
+      ((assetType: string, uploadFile: File) => client.assets.upload(assetType as any, uploadFile as any));
     const imageAsset = await uploadFn('image', file);
 
     return NextResponse.json({ asset: imageAsset });

@@ -123,13 +123,18 @@ export function isDeletedStatus(status: unknown): boolean {
   return normalised === 'deleted' || normalised === 'archived' || normalised === 'removed';
 }
 
-export const testControl = {
-  authOverride: undefined as (() => Promise<unknown>) | undefined,
-  getCollectionOverride: undefined as ((collection: string) => Promise<unknown>) | undefined,
-};
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+export const testControl = isTestEnv
+  ? {
+      authOverride: undefined as (() => Promise<unknown>) | undefined,
+      getCollectionOverride: undefined as ((collection: string) => Promise<unknown>) | undefined,
+    }
+  : undefined;
 
 export async function GET() {
-  const session = await (testControl.authOverride ? testControl.authOverride() : auth());
+  const authFn = testControl?.authOverride ?? auth;
+  const session = await authFn();
   // session may be untyped in tests; cast to any to access user
   const user = (session as any)?.user as SessionUser | undefined;
   const userId = user?.id ?? null;
@@ -144,7 +149,7 @@ export async function GET() {
   }
 
   try {
-    const collectionGetter = testControl.getCollectionOverride ?? getCollection;
+    const collectionGetter = testControl?.getCollectionOverride ?? getCollection;
     const listingsCollection = (await collectionGetter('listings')) as Collection<ListingDoc>;
     const rawListings = await listingsCollection
       .find({ ownerId: userId })

@@ -11,12 +11,16 @@ import {
 } from '@/utils/sanitize';
 import { buildE2ESearchResponse, isE2ERun } from '@/data/e2e/discovery-fixtures';
 
-export const testControl = {
-  clientFetchOverride: undefined as ((query: string, params?: unknown) => Promise<any>) | undefined,
-  isE2ERunOverride: undefined as (() => boolean) | undefined,
-  buildE2ESearchResponseOverride: undefined as (typeof buildE2ESearchResponse) | undefined,
-  parseBodyOverride: undefined as ((request: NextRequest) => Promise<any>) | undefined,
-};
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+export const testControl = isTestEnv
+  ? {
+      clientFetchOverride: undefined as ((query: string, params?: unknown) => Promise<any>) | undefined,
+      isE2ERunOverride: undefined as (() => boolean) | undefined,
+      buildE2ESearchResponseOverride: undefined as (typeof buildE2ESearchResponse) | undefined,
+      parseBodyOverride: undefined as ((request: NextRequest) => Promise<any>) | undefined,
+    }
+  : undefined;
 
 // Fields selected for listing documents in GROQ queries
 const LISTING_FIELDS = `
@@ -217,7 +221,7 @@ export async function GET(request: NextRequest) {
     const amenities = sanitizeStringArray(searchParams.getAll('amenities'));
     const nomadFeatures = sanitizeStringArray(searchParams.getAll('nomadFeatures'));
 
-    const isE2ERunFn = testControl.isE2ERunOverride ?? isE2ERun;
+    const isE2ERunFn = testControl?.isE2ERunOverride ?? isE2ERun;
     if (isE2ERunFn()) {
       const scenario = searchParams.get('e2eScenario');
       const hasRetry = searchParams.has('retry');
@@ -230,7 +234,7 @@ export async function GET(request: NextRequest) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
 
-      const buildE2E = testControl.buildE2ESearchResponseOverride ?? buildE2ESearchResponse;
+      const buildE2E = testControl?.buildE2ESearchResponseOverride ?? buildE2ESearchResponse;
       const response = buildE2E({
         q,
         categories,
@@ -259,7 +263,7 @@ export async function GET(request: NextRequest) {
     });
 
     const fetchFn =
-      testControl.clientFetchOverride ??
+      testControl?.clientFetchOverride ??
       ((queryString: string, params?: unknown) => client.fetch(queryString, params as any));
 
     // Fetch results and total concurrently; facets only if requested
@@ -301,7 +305,7 @@ export async function POST(request: NextRequest) {
     let body: any;
     try {
       const parseBody =
-        testControl.parseBodyOverride ?? ((req: NextRequest) => req.json());
+        testControl?.parseBodyOverride ?? ((req: NextRequest) => req.json());
       body = await parseBody(request);
     } catch {
       // Standardize error message and status as tests expect
@@ -318,7 +322,7 @@ export async function POST(request: NextRequest) {
     const amenities = sanitizeStringArray(body.amenities);
     const nomadFeatures = sanitizeStringArray(body.nomadFeatures);
 
-    const isE2ERunFn = testControl.isE2ERunOverride ?? isE2ERun;
+    const isE2ERunFn = testControl?.isE2ERunOverride ?? isE2ERun;
     if (isE2ERunFn()) {
       const scenario = typeof body?.e2eScenario === 'string' ? body.e2eScenario : undefined;
       const retryToken = typeof body?.retry === 'string' ? body.retry : undefined;
@@ -331,7 +335,7 @@ export async function POST(request: NextRequest) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
 
-      const buildE2E = testControl.buildE2ESearchResponseOverride ?? buildE2ESearchResponse;
+      const buildE2E = testControl?.buildE2ESearchResponseOverride ?? buildE2ESearchResponse;
       const response = buildE2E({
         q,
         categories,
@@ -351,7 +355,7 @@ export async function POST(request: NextRequest) {
     const end = start + limit - 1;
     const { query, countQuery, facetQuery } = buildQuery({ q, categories, destinations, amenities, nomadFeatures, start, end });
     const fetchFn =
-      testControl.clientFetchOverride ??
+      testControl?.clientFetchOverride ??
       ((queryString: string, params?: unknown) => client.fetch(queryString, params as any));
     // Fetch results and total concurrently; facets only if requested
     const promises: Array<Promise<any>> = [fetchFn(query), fetchFn(countQuery)];

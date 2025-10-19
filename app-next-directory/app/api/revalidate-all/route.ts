@@ -5,15 +5,20 @@ import { ApiResponseHandler } from '@/utils/api-response';
 type RevalidateFn = (path: string) => void;
 type TokenFn = () => string | undefined;
 
-export const testControl = {
-  revalidatePathOverride: undefined as RevalidateFn | undefined,
-  tokenOverride: undefined as TokenFn | undefined,
-};
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+export const testControl = isTestEnv
+  ? {
+      revalidatePathOverride: undefined as RevalidateFn | undefined,
+      tokenOverride: undefined as TokenFn | undefined,
+    }
+  : undefined;
 
 export async function POST(request: NextRequest) {
   try {
     const token = request.nextUrl.searchParams.get('token');
-    const expectedToken = testControl.tokenOverride ? testControl.tokenOverride() : process.env.revalidationToken;
+    const tokenOverride = testControl?.tokenOverride;
+    const expectedToken = tokenOverride ? tokenOverride() : process.env.revalidationToken;
 
     // Validate the revalidation token
     if (!token || token !== expectedToken) {
@@ -29,7 +34,7 @@ export async function POST(request: NextRequest) {
     ];
 
     // Revalidate each route
-    const revalidate = testControl.revalidatePathOverride ?? revalidatePath;
+    const revalidate = testControl?.revalidatePathOverride ?? revalidatePath;
     for (const route of routesToRevalidate) {
       revalidate(route);
     }

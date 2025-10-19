@@ -9,56 +9,25 @@ type TransformFn = typeof transformToBlogDetailDTO;
 
 const viewCounts = new Map<string, number>();
 
-export const testControl = {
-  sanityFetchOverride: undefined as FetchFn | undefined,
-  transformOverride: undefined as TransformFn | undefined,
-  trackViewCountOverride: undefined as ((postId: string) => Promise<number>) | undefined,
-  get sanityFetchOverride() {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('testControl is only available in test environment');
-    }
-    return this._sanityFetchOverride;
-  },
-  set sanityFetchOverride(value: FetchFn | undefined) {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('testControl is only available in test environment');
-    }
-    this._sanityFetchOverride = value;
-  },
-  _sanityFetchOverride: undefined as FetchFn | undefined,
-  get transformOverride() {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('testControl is only available in test environment');
-    }
-    return this._transformOverride;
-  },
-  set transformOverride(value: TransformFn | undefined) {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('testControl is only available in test environment');
-    }
-    this._transformOverride = value;
-  },
-  get trackViewCountOverride() {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('testControl is only available in test environment');
-    }
-    return this._trackViewCountOverride;
-  },
-  set trackViewCountOverride(value: ((postId: string) => Promise<number>) | undefined) {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('testControl is only available in test environment');
-    }
-    this._trackViewCountOverride = value;
-  },
-  _transformOverride: undefined as TransformFn | undefined,
-  _trackViewCountOverride: undefined as ((postId: string) => Promise<number>) | undefined,
-  resetViewCounts: () => {
-    if (process.env.NODE_ENV !== 'test') {
-      throw new Error('testControl is only available in test environment');
-    }
-    viewCounts.clear();
-  },
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+type TestControl = {
+  sanityFetchOverride: FetchFn | undefined;
+  transformOverride: TransformFn | undefined;
+  trackViewCountOverride: ((postId: string) => Promise<number>) | undefined;
+  resetViewCounts: () => void;
 };
+
+export const testControl: TestControl | undefined = isTestEnv
+  ? {
+      sanityFetchOverride: undefined,
+      transformOverride: undefined,
+      trackViewCountOverride: undefined,
+      resetViewCounts: () => {
+        viewCounts.clear();
+      },
+    }
+  : undefined;
 
 // GROQ query for fetching a single blog post by slug
 const postQuery = groq`
@@ -105,7 +74,7 @@ export async function GET(
 
     // Fetch the blog post
     const fetchFn =
-      testControl.sanityFetchOverride ??
+      testControl?.sanityFetchOverride ??
       ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
     const post = await fetchFn(postQuery, { slug });
 
@@ -113,7 +82,7 @@ export async function GET(
       return ApiResponseHandler.notFound('Blog post');
     }
 
-    const transform = testControl.transformOverride ?? transformToBlogDetailDTO;
+    const transform = testControl?.transformOverride ?? transformToBlogDetailDTO;
     const dto = transform(post);
     // Ensure related posts in DTO format if present
     const response = {
@@ -148,7 +117,7 @@ export async function GET(
 
 // Simple view count tracking (in-memory for demo - consider Redis for production)
 async function trackViewCount(postId: string): Promise<number> {
-  if (testControl.trackViewCountOverride) {
+  if (testControl?.trackViewCountOverride) {
     return testControl.trackViewCountOverride(postId);
   }
   const currentCount = viewCounts.get(postId) || 0;
@@ -173,7 +142,7 @@ export async function PUT(
     if (body.action === 'increment_view') {
       // Find post ID by slug
       const fetchFn =
-        testControl.sanityFetchOverride ??
+        testControl?.sanityFetchOverride ??
         ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
       const post = await fetchFn(
         groq`*[_type == "blogPost" && slug.current == $slug][0]{ _id, "slug": slug.current }`,

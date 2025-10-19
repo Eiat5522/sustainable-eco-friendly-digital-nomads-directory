@@ -94,17 +94,17 @@ export async function GET(request: NextRequest) {
     if (search) params.search = search;
 
     const fetchFn =
-      testControl.sanityFetchOverride ??
+      testControl?.sanityFetchOverride ??
       ((query: string, queryParams?: QueryParams) => sanityClient.fetch(query, queryParams));
-    const transform = testControl.transformOverride ?? transformToBlogSummaryDTO;
+    const transform = testControl?.transformOverride ?? transformToBlogSummaryDTO;
 
     const [postsRaw, totalCount] = await Promise.all([
-      fetchFn(finalQuery, params as QueryParams),
-      fetchFn(finalCountQuery, params as QueryParams),
+      sanityClient.fetch(finalQuery, params as QueryParams),
+      sanityClient.fetch(finalCountQuery, params as QueryParams),
     ]);
 
     const posts = Array.isArray(postsRaw)
-      ? postsRaw.map((post) => transform(post as RawBlogPost))
+      ? postsRaw.map((post) => transformToBlogSummaryDTO(post as RawBlogPost))
       : [];
 
     const total = Number.isFinite(totalCount) ? Number(totalCount) : 0;
@@ -152,7 +152,11 @@ export async function GET(request: NextRequest) {
 type FetchFn = (query: string, params?: QueryParams) => Promise<any>;
 type TransformFn = typeof transformToBlogSummaryDTO;
 
-export const testControl = {
-  sanityFetchOverride: undefined as FetchFn | undefined,
-  transformOverride: undefined as TransformFn | undefined,
-};
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+export const testControl = isTestEnv
+  ? {
+      sanityFetchOverride: undefined as FetchFn | undefined,
+      transformOverride: undefined as TransformFn | undefined,
+    }
+  : undefined;

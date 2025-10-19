@@ -3,13 +3,20 @@ import { client } from '@/lib/sanity';
 
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 
-export const testControl = {
-  clientFetchOverride: undefined as FetchFn | undefined,
-};
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+export const testControl = isTestEnv
+  ? {
+      clientFetchOverride: undefined as FetchFn | undefined,
+    }
+  : undefined;
 
 export async function GET() {
   try {
-    const cities = await client.fetch(`*[_type == "city"] | order(name asc) {
+    const fetchFn =
+      testControl?.clientFetchOverride ??
+      ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
+    const cities = await fetchFn(`*[_type == "city"] | order(name asc) {
       _id,
       name
     }`);

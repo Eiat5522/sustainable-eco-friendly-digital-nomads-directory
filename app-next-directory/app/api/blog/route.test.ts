@@ -1,22 +1,18 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
-// Module-level mocks for external dependencies
 const fetchMock = jest.fn<any, any[]>();
 const transformMock = jest.fn((post: any) => ({ id: post._id, title: post.title }));
 
 jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => fetchMock(...args) } }));
 jest.mock('@/lib/dto-transformer', () => ({ transformToBlogSummaryDTO: (...args: any[]) => transformMock(...args) }));
 
-let GET: any;
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { GET } = require('./route') as { GET: typeof import('./route').GET };
 
 describe('Blog API - GET /api/blog', () => {
   beforeEach(() => {
-    jest.resetModules();
     fetchMock.mockReset();
     transformMock.mockClear();
-    // require the route after mocks are registered
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    ({ GET } = require('./route'));
   });
 
   it('returns paginated blog posts', async () => {

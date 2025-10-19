@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 
 export const setupWorker = jest.fn(() => ({
   start: jest.fn(),

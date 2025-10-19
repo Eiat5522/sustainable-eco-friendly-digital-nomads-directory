@@ -4,17 +4,22 @@ import { client } from '@/lib/sanity/client';
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 type NodeEnvFn = () => string | undefined;
 
-export const testControl = {
-  clientFetchOverride: undefined as FetchFn | undefined,
-  nodeEnvOverride: undefined as NodeEnvFn | undefined,
-};
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+export const testControl = isTestEnv
+  ? {
+      clientFetchOverride: undefined as FetchFn | undefined,
+      nodeEnvOverride: undefined as NodeEnvFn | undefined,
+    }
+  : undefined;
 
 export async function GET(): Promise<Response> {
   try {
-    const rawEnv = testControl.nodeEnvOverride ? testControl.nodeEnvOverride() : process.env.NODE_ENV;
+    const nodeEnvOverride = testControl?.nodeEnvOverride;
+    const rawEnv = nodeEnvOverride ? nodeEnvOverride() : process.env.NODE_ENV;
     const nodeEnv = rawEnv?.toLowerCase();
     const fetchFn =
-      testControl.clientFetchOverride ??
+      testControl?.clientFetchOverride ??
       ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
 
     if (nodeEnv === 'production') {

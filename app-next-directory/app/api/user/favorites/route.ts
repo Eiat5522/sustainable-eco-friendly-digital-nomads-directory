@@ -16,29 +16,27 @@ type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<any>
 type CreateOrReplaceFn = (doc: { _id: string } & Record<string, unknown>) => Promise<any>;
 type DeleteFn = (id: string) => Promise<unknown>;
 type ParseBodyFn = (request: NextRequest) => Promise<any>;
-const IS_TEST = process.env.NODE_ENV === 'test';
 
-export const testControl = {
-  authOverride: undefined as AuthFn | undefined,
-  ensureSanityUserOverride: undefined as EnsureUserFn | undefined,
-  clientFetchOverride: undefined as FetchFn | undefined,
-  clientCreateOrReplaceOverride: undefined as CreateOrReplaceFn | undefined,
-  clientDeleteOverride: undefined as DeleteFn | undefined,
-  parseBodyOverride: undefined as ParseBodyFn | undefined,
-} as const;
+const isTestEnv = process.env.NODE_ENV === 'test';
 
-function getAuthFn(): AuthFn {
-  if (!IS_TEST) return auth;
-  return testControl.authOverride ?? auth;
-}
-// Similar functions for other dependencies...
+export const testControl = isTestEnv
+  ? {
+      authOverride: undefined as AuthFn | undefined,
+      ensureSanityUserOverride: undefined as EnsureUserFn | undefined,
+      clientFetchOverride: undefined as FetchFn | undefined,
+      clientCreateOrReplaceOverride: undefined as CreateOrReplaceFn | undefined,
+      clientDeleteOverride: undefined as DeleteFn | undefined,
+      parseBodyOverride: undefined as ParseBodyFn | undefined,
+    }
+  : undefined;
 
 // Get user's favorites
 export async function GET() {
-  const authFn = testControl.authOverride ?? auth;
-  const ensureUser = testControl.ensureSanityUserOverride ?? ensureSanityUser;
+  const authFn = testControl?.authOverride ?? auth;
+  const ensureUser = testControl?.ensureSanityUserOverride ?? ensureSanityUser;
   const fetchFn =
-    testControl.clientFetchOverride ?? ((query: string, params?: Record<string, unknown>) => client.fetch(query, params as any));
+    testControl?.clientFetchOverride ??
+    ((query: string, params?: Record<string, unknown>) => client.fetch(query, params as any));
 
   const session = await authFn();
 
@@ -122,12 +120,13 @@ export async function GET() {
 
 // Add listing to favorites
 export async function POST(request: NextRequest) {
-  const authFn = testControl.authOverride ?? auth;
-  const ensureUser = testControl.ensureSanityUserOverride ?? ensureSanityUser;
+  const authFn = testControl?.authOverride ?? auth;
+  const ensureUser = testControl?.ensureSanityUserOverride ?? ensureSanityUser;
   const fetchFn =
-    testControl.clientFetchOverride ?? ((query: string, params?: Record<string, unknown>) => client.fetch(query, params as any));
+    testControl?.clientFetchOverride ??
+    ((query: string, params?: Record<string, unknown>) => client.fetch(query, params as any));
   const createOrReplaceFn =
-    testControl.clientCreateOrReplaceOverride ?? ((doc: Record<string, unknown>) => client.createOrReplace(doc as any));
+    testControl?.clientCreateOrReplaceOverride ?? ((doc: Record<string, unknown>) => client.createOrReplace(doc as any));
 
   const session = await authFn();
 
@@ -140,7 +139,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const parseBody = testControl.parseBodyOverride ?? ((req: NextRequest) => req.json());
+    const parseBody = testControl?.parseBodyOverride ?? ((req: NextRequest) => req.json());
     const body = await parseBody(request);
     const { slug } = body;
 
@@ -188,10 +187,11 @@ export async function POST(request: NextRequest) {
 
 // Remove listing from favorites
 export async function DELETE(request: NextRequest) {
-  const authFn = testControl.authOverride ?? auth;
+  const authFn = testControl?.authOverride ?? auth;
   const fetchFn =
-    testControl.clientFetchOverride ?? ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
-  const deleteFn = testControl.clientDeleteOverride ?? ((id: string) => client.delete(id));
+    testControl?.clientFetchOverride ??
+    ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
+  const deleteFn = testControl?.clientDeleteOverride ?? ((id: string) => client.delete(id));
 
   const session = await authFn();
 
@@ -203,7 +203,7 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const parseBody = testControl.parseBodyOverride ?? ((req: NextRequest) => req.json());
+    const parseBody = testControl?.parseBodyOverride ?? ((req: NextRequest) => req.json());
     const body = await parseBody(request);
     const { slug } = body;
 

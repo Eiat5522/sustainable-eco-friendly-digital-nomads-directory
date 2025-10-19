@@ -2,7 +2,15 @@ import { client } from '@/lib/sanity/client';
 
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 
-export async function GET(_request: Request, fetchFn: FetchFn = client.fetch.bind(client)) {
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+export const testControl = isTestEnv
+  ? {
+      clientFetchOverride: undefined as FetchFn | undefined,
+    }
+  : undefined;
+
+export async function GET(_request: Request) {
   try {
     const now = new Date().toISOString();
 
@@ -19,7 +27,7 @@ export async function GET(_request: Request, fetchFn: FetchFn = client.fetch.bin
     }`;
 
     const fetchFn =
-      testControl.clientFetchOverride ??
+      testControl?.clientFetchOverride ??
       ((queryString: string, params?: Record<string, unknown>) => client.fetch(queryString, params));
     const events = await fetchFn(query, { now });
 

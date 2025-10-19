@@ -1,12 +1,13 @@
 import { getSearchSuggestions } from '@/lib/search';
 import { ApiResponseHandler } from '@/utils/api-response';
 
-export const testControl = {
-  getSearchSuggestionsOverride: 
-    process.env.NODE_ENV === 'test' 
-      ? (undefined as typeof getSearchSuggestions | undefined)
-      : undefined as never,
-};
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+export const testControl = isTestEnv
+  ? {
+      getSearchSuggestionsOverride: undefined as typeof getSearchSuggestions | undefined,
+    }
+  : undefined;
 
 export async function GET(request: Request) {
   try {
@@ -20,7 +21,7 @@ export async function GET(request: Request) {
     if (query.length > 256) {
       return ApiResponseHandler.error('Query too long', 400, { code: 'QUERY_TOO_LONG', maxLength: 256 });
     }
-    const fetchSuggestions = testControl.getSearchSuggestionsOverride ?? getSearchSuggestions;
+    const fetchSuggestions = testControl?.getSearchSuggestionsOverride ?? getSearchSuggestions;
     const suggestions = await fetchSuggestions(query);
     return ApiResponseHandler.success({ suggestions });
   } catch (error: unknown) {
