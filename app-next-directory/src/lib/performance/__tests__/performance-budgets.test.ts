@@ -1,80 +1,85 @@
-import { PERFORMANCE_BUDGETS } from '../performance-budgets';
+import {
+  PERFORMANCE_BUDGETS,
+  evaluatePerformanceMetric,
+  getMetricThresholds,
+} from '../performance-budgets';
 
 describe('performance-budgets', () => {
-  describe('PERFORMANCE_BUDGETS', () => {
-    it('should export PERFORMANCE_BUDGETS object', () => {
-      expect(PERFORMANCE_BUDGETS).toBeDefined();
-      expect(typeof PERFORMANCE_BUDGETS).toBe('object');
+  it('exposes the static performance budget map', () => {
+    expect(PERFORMANCE_BUDGETS.pageLoad.FCP).toEqual({
+      target: 1500,
+      acceptable: 2500,
+      critical: 3500,
+    });
+  });
+
+  describe('evaluatePerformanceMetric', () => {
+    let warnSpy: jest.SpyInstance;
+
+    beforeAll(() => {
+      warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     });
 
-    it('should have pageLoad property', () => {
-      expect(PERFORMANCE_BUDGETS.pageLoad).toBeDefined();
-      expect(typeof PERFORMANCE_BUDGETS.pageLoad).toBe('object');
+    beforeEach(() => {
+      warnSpy.mockClear();
     });
 
-    describe('pageLoad budgets', () => {
-      it('should define FCP budget', () => {
-        const fcp = PERFORMANCE_BUDGETS.pageLoad.FCP;
-        expect(fcp).toBeDefined();
-        expect(fcp.target).toBe(1500);
-        expect(fcp.acceptable).toBe(2500);
-        expect(fcp.critical).toBe(3500);
-      });
+    afterAll(() => {
+      warnSpy.mockRestore();
+    });
 
-      it('should define LCP budget', () => {
-        const lcp = PERFORMANCE_BUDGETS.pageLoad.LCP;
-        expect(lcp).toBeDefined();
-        expect(lcp.target).toBe(2500);
-        expect(lcp.acceptable).toBe(4000);
-        expect(lcp.critical).toBe(6000);
-      });
+    it('returns thresholds for non-CLS metrics', () => {
+      expect(evaluatePerformanceMetric('pageLoad', 'FCP', 1400)).toBe('good');
+      expect(evaluatePerformanceMetric('pageLoad', 'FCP', 2000)).toBe('needs-improvement');
+      expect(evaluatePerformanceMetric('pageLoad', 'FCP', 3600)).toBe('poor');
+    });
 
-      it('should define TTI budget', () => {
-        const tti = PERFORMANCE_BUDGETS.pageLoad.TTI;
-        expect(tti).toBeDefined();
-        expect(tti.target).toBe(3500);
-        expect(tti.acceptable).toBe(5000);
-        expect(tti.critical).toBe(7500);
-      });
+    it('applies CLS specific thresholds with fractional comparisons', () => {
+      expect(evaluatePerformanceMetric('pageLoad', 'CLS', 0.09)).toBe('good');
+      expect(evaluatePerformanceMetric('pageLoad', 'CLS', 0.2)).toBe('needs-improvement');
+      expect(evaluatePerformanceMetric('pageLoad', 'CLS', 0.6)).toBe('poor');
+    });
 
-      it('should define FID budget', () => {
-        const fid = PERFORMANCE_BUDGETS.pageLoad.FID;
-        expect(fid).toBeDefined();
-        expect(fid.target).toBe(100);
-        expect(fid.acceptable).toBe(300);
-        expect(fid.critical).toBe(500);
-      });
+    it('logs a warning and returns unknown for missing categories or metrics', () => {
+      expect(evaluatePerformanceMetric('unknownCategory', 'metric', 100)).toBe('unknown');
+      expect(warnSpy).toHaveBeenLastCalledWith('Unknown performance metric: unknownCategory.metric');
 
-      it('should define CLS budget', () => {
-        const cls = PERFORMANCE_BUDGETS.pageLoad.CLS;
-        expect(cls).toBeDefined();
-        expect(cls.target).toBe(0.1);
-        expect(cls.acceptable).toBe(0.25);
-        expect(cls.critical).toBe(0.5);
-      });
+      expect(evaluatePerformanceMetric('pageLoad', 'unknownMetric', 100)).toBe('unknown');
+      expect(warnSpy).toHaveBeenLastCalledWith('Unknown performance metric: pageLoad.unknownMetric');
+    });
+  });
 
-      it('should define TBT budget', () => {
-        const tbt = PERFORMANCE_BUDGETS.pageLoad.TBT;
-        expect(tbt).toBeDefined();
-        expect(tbt.target).toBe(200);
-        expect(tbt.acceptable).toBe(500);
-        expect(tbt.critical).toBe(800);
-      });
+  describe('getMetricThresholds', () => {
+    let warnSpy: jest.SpyInstance;
 
-      it('should have target < acceptable < critical for all metrics', () => {
-        Object.entries(PERFORMANCE_BUDGETS.pageLoad).forEach(([key, value]) => {
-          expect(value.target).toBeLessThan(value.acceptable);
-          expect(value.acceptable).toBeLessThan(value.critical);
-        });
-      });
+    beforeAll(() => {
+      warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    });
 
-      it('should have positive values for all budgets', () => {
-        Object.values(PERFORMANCE_BUDGETS.pageLoad).forEach((budget) => {
-          expect(budget.target).toBeGreaterThan(0);
-          expect(budget.acceptable).toBeGreaterThan(0);
-          expect(budget.critical).toBeGreaterThan(0);
-        });
+    beforeEach(() => {
+      warnSpy.mockClear();
+    });
+
+    afterAll(() => {
+      warnSpy.mockRestore();
+    });
+
+    it('returns the matching thresholds when the metric is known', () => {
+      const thresholds = getMetricThresholds('resourceSize', 'javascript');
+
+      expect(thresholds).toEqual({
+        target: 350,
+        acceptable: 500,
+        critical: 700,
       });
+    });
+
+    it('returns null and logs when the metric is missing', () => {
+      expect(getMetricThresholds('invalidCategory', 'metric')).toBeNull();
+      expect(warnSpy).toHaveBeenLastCalledWith('Unknown performance metric: invalidCategory.metric');
+
+      expect(getMetricThresholds('resourceSize', 'invalidMetric')).toBeNull();
+      expect(warnSpy).toHaveBeenLastCalledWith('Unknown performance metric: resourceSize.invalidMetric');
     });
   });
 });

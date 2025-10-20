@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LoginForm from '../LoginForm';
 
@@ -28,7 +28,7 @@ const buildSearchParams = (params: Record<string, string> = {}) => ({
 describe('LoginForm', () => {
   beforeEach(() => {
     signInMock.mockReset();
-    sanitizeCallbackUrlMock.mockReset();
+    sanitizeCallbackUrlMock.mockReset().mockImplementation((value: string | null) => value);
     useRouterMock.mockReturnValue({ replace: jest.fn() });
     useSearchParamsMock.mockReturnValue(buildSearchParams());
   });
@@ -39,21 +39,37 @@ describe('LoginForm', () => {
 
     await user.type(screen.getByLabelText(/email/i), 'invalid-email');
     await user.type(screen.getByLabelText(/password/i), 'short');
+
     const submit = screen.getByRole('button', { name: /login/i });
-    await user.click(submit);
+    const form = submit.closest('form');
+    expect(form).not.toBeNull();
+
+    fireEvent.submit(form!);
+
+    expect(await screen.findByText('Enter a valid email address.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Enter your password (min 8 characters).'),
+    ).toBeInTheDocument();
     await waitFor(() => {
       expect(signInMock).not.toHaveBeenCalled();
     });
   });
 
-  it('displays mapped error messages from query parameters', async () => {
-    useSearchParamsMock.mockReturnValue(
-      buildSearchParams({ error: 'CredentialsSignin' }),
-    );
+  it.each([
+    ['CredentialsSignin', /invalid email or password/i],
+    [
+      'OAuthAccountNotLinked',
+      /linked to a different sign-in method/i,
+    ],
+    ['AccessDenied', /access denied/i],
+    ['Configuration', /auth configuration issue/i],
+    ['TotallyUnknown', /unable to sign in/i],
+  ])('maps %s query error to the expected message', async (code, message) => {
+    useSearchParamsMock.mockReturnValue(buildSearchParams({ error: code }));
 
     render(<LoginForm />);
 
-    expect(await screen.findByText(/invalid email or password/i)).toBeInTheDocument();
+    expect(await screen.findByText(message)).toBeInTheDocument();
   });
 
   it('submits credentials and navigates using sanitized callback url', async () => {
@@ -84,7 +100,71 @@ describe('LoginForm', () => {
         callbackUrl: '/dashboard',
       });
     });
+
+    expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/dashboard', window.location.origin);
     expect(routerReplace).toHaveBeenCalledWith('/dashboard');
+  });
+
+  it('falls back to window location when sanitized callback is unsafe', async () => {
+    const routerReplace = jest.fn();
+    useRouterMock.mockReturnValue({ replace: routerReplace });
+
+    useSearchParamsMock.mockReturnValue(
+      buildSearchParams({ callbackUrl: 'https://evil.example' }),
+    );
+
+    sanitizeCallbackUrlMock
+      .mockReturnValueOnce(null) // initial memoized callback value
+      .mockReturnValueOnce(null); // sanitize returned url from signIn
+
+    signInMock.mockResolvedValue({
+      error: null,
+      url: 'https://evil.example',
+    });
+
+    render(<LoginForm />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/email/i), 'valid@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'verysecure');
+    await user.click(screen.getByRole('button', { name: /login/i }));
+
+    await waitFor(() => {
+      expect(signInMock).toHaveBeenCalled();
+    });
+
+    // first call is for query param, second for response url
+    expect(sanitizeCallbackUrlMock.mock.calls[0]).toEqual([
+      'https://evil.example',
+      window.location.origin,
+    ]);
+    expect(sanitizeCallbackUrlMock.mock.calls[1]).toEqual([
+      'https://evil.example',
+      window.location.origin,
+    ]);
+    expect(routerReplace).not.toHaveBeenCalled();
+  });
+
+  it('uses the callbackUrl fallback when signIn resolves without a url', async () => {
+    useSearchParamsMock.mockReturnValue(
+      buildSearchParams({ callbackUrl: '/dashboard' }),
+    );
+    const routerReplace = jest.fn();
+    useRouterMock.mockReturnValue({ replace: routerReplace });
+
+    sanitizeCallbackUrlMock.mockReturnValue('/dashboard');
+    signInMock.mockResolvedValue({ error: null, url: undefined });
+
+    render(<LoginForm />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/email/i), 'user@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'supersecret');
+    await user.click(screen.getByRole('button', { name: /login/i }));
+
+    await waitFor(() => {
+      expect(routerReplace).toHaveBeenCalledWith('/dashboard');
+    });
   });
 
   it('shows backend errors returned from signIn', async () => {
@@ -98,5 +178,35 @@ describe('LoginForm', () => {
     await user.click(screen.getByRole('button', { name: /login/i }));
 
     expect(await screen.findByText(/invalid email or password/i)).toBeInTheDocument();
+  });
+
+  it('shows generic error when signIn returns unknown error', async () => {
+    signInMock.mockResolvedValue({ error: 'SomeOtherError' });
+
+    render(<LoginForm />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/email/i), 'user@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'supersecret');
+    await user.click(screen.getByRole('button', { name: /login/i }));
+
+    expect(await screen.findByText(/unable to sign in/i)).toBeInTheDocument();
+  });
+
+  it('handles signIn rejections gracefully', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    signInMock.mockRejectedValue(new Error('network down'));
+
+    render(<LoginForm />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/email/i), 'user@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'supersecret');
+    await user.click(screen.getByRole('button', { name: /login/i }));
+
+    expect(await screen.findByText(/something went wrong/i)).toBeInTheDocument();
+    expect(errorSpy).toHaveBeenCalled();
+
+    errorSpy.mockRestore();
   });
 });
