@@ -304,6 +304,12 @@ export function __resetLoginRateLimiterForTests() {
   }
 }
 
+export function __setLoginRateLimiterPromiseForTests(promise: Promise<void> | null) {
+  if (isTestEnvironment) {
+    loginRateLimiterPromise = promise;
+  }
+}
+
 export function __getLastRateLimiterConfigForTests(): RatelimitConfig | undefined {
   return lastRateLimiterConfigForTests;
 }
