@@ -121,6 +121,7 @@ module.exports = {
 
 	moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
 	moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
+	resolver: '<rootDir>/jest/resolver.cjs',
 
 	moduleNameMapper,
 
