@@ -1,5 +1,6 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { Header } from '../Header'
 import * as nextAuth from 'next-auth/react'
 
@@ -12,7 +13,6 @@ jest.mock('next/image', () => ({
     return <img {...rest} />
   }
 }))
-import userEvent from '@testing-library/user-event'
 
 describe('Header', () => {
   const useSessionSpy = jest.spyOn(nextAuth, 'useSession')
@@ -21,7 +21,20 @@ describe('Header', () => {
     jest.resetAllMocks()
   })
 
-  it('shows Dashboard link for authenticated venueOwner in the account menu', async () => {
+  it('renders the sign-in shortcut when unauthenticated', () => {
+    useSessionSpy.mockReturnValue({
+      data: null,
+      status: 'unauthenticated'
+    } as any)
+
+    render(<Header />)
+
+    expect(
+      screen.getByRole('link', { name: /sign in to your account/i })
+    ).toBeInTheDocument()
+  })
+
+  it('shows Dashboard link for authenticated members in the account menu', async () => {
     useSessionSpy.mockReturnValue({
       data: {
         user: {
@@ -34,15 +47,77 @@ describe('Header', () => {
       status: 'authenticated'
     } as any)
 
-  const { container } = render(<Header />)
+    render(<Header />)
 
-    // Open the account menu (Radix menu content is hidden by default)
-    const trigger = screen.getByRole('button', { name: /open account menu/i })
     const user = userEvent.setup()
-    await user.click(trigger)
+    await user.click(screen.getByRole('button', { name: /open account menu/i }))
 
-    // Now the Dashboard link should be present in the DOM (may be rendered with aria-hidden by Radix in tests)
-    const link = container.querySelector('a[href="/dashboard"]')
-    expect(link).toBeTruthy()
+    await waitFor(() => {
+      const dashboardLink = document.querySelector('a[href="/dashboard"]')
+      expect(dashboardLink).toBeTruthy()
+    })
+  })
+
+  it('reveals admin dashboards link for admin users', async () => {
+    useSessionSpy.mockReturnValue({
+      data: {
+        user: {
+          id: 'admin-1',
+          name: 'Admin User',
+          email: 'admin@example.com',
+          role: 'admin'
+        }
+      },
+      status: 'authenticated'
+    } as any)
+
+    render(<Header />)
+
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: /open account menu/i }))
+
+    await waitFor(() => {
+      const adminLink = document.querySelector('a[href="/admin/dashboard"]')
+      expect(adminLink).toBeTruthy()
+    })
+  })
+
+  it('invokes signOut and shows transient feedback when selecting sign out', async () => {
+    useSessionSpy.mockReturnValue({
+      data: {
+        user: {
+          id: 'user-1',
+          name: 'Sign Out Tester',
+          email: 'tester@example.com',
+          role: 'member'
+        }
+      },
+      status: 'authenticated'
+    } as any)
+
+    let resolveSignOut: (() => void) | undefined
+    const signOutSpy = jest.spyOn(nextAuth, 'signOut').mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSignOut = resolve
+        })
+    )
+
+    render(<Header />)
+
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: /open account menu/i }))
+
+    const signOutItem = await screen.findByText(/^sign out$/i)
+    await user.click(signOutItem)
+
+    expect(signOutSpy).toHaveBeenCalledWith({ redirectTo: '/' })
+    expect(await screen.findByText(/signing out/i)).toBeInTheDocument()
+
+    await act(async () => {
+      resolveSignOut?.()
+    })
+
+    expect(await screen.findByText(/^sign out$/i)).toBeInTheDocument()
   })
 })

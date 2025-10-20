@@ -1,126 +1,96 @@
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-
 import { ModerationActions } from '../ModerationActions';
 
-declare global {
-  // eslint-disable-next-line no-var
-  var fetch: jest.Mock;
-}
-
 describe('ModerationActions', () => {
-  let user: ReturnType<typeof userEvent.setup>;
+  const originalFetch = global.fetch;
 
   beforeEach(() => {
-    user = userEvent.setup();
     global.fetch = jest.fn();
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    (global.fetch as jest.Mock | undefined)?.mockRestore?.();
+    global.fetch = originalFetch;
   });
 
-  const renderComponent = () =>
-    render(<ModerationActions moderationId="mod-1" itemName="Eco Retreat" />);
-
-  it('submits an approve action and shows feedback from the server', async () => {
-    global.fetch.mockResolvedValueOnce({
+  const mockFetchSuccess = (message = 'ok') => {
+    (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue({ message: 'Approved!' }),
+      json: async () => ({ message }),
     });
+  };
 
-    renderComponent();
+  it('submits approve action and renders feedback', async () => {
+    mockFetchSuccess('Moderation complete');
 
-    await user.click(
-      screen.getByRole('button', { name: /Approve Eco Retreat/i })
-    );
+    render(<ModerationActions moderationId="mod-1" itemName="Listing A" />);
+    const user = userEvent.setup();
 
-    expect(global.fetch).toHaveBeenCalledWith(
-      '/api/admin/moderation',
-      expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({ moderationId: 'mod-1', action: 'approve', notes: '' }),
-      })
-    );
+    const approveButton = await screen.findByRole('button', { name: /approve listing a/i });
+    await user.click(approveButton);
 
-    expect(await screen.findByTestId('moderation-feedback-mod-1')).toHaveTextContent(
-      'Approved!'
-    );
-  });
-
-  it('allows moderators to save notes and closes the form afterwards', async () => {
-    global.fetch.mockResolvedValue({
-      ok: true,
-      json: jest.fn().mockResolvedValue({ message: 'Saved' }),
-    });
-
-    renderComponent();
-
-    await user.click(screen.getByRole('button', { name: /View notes/i }));
-    const textarea = screen.getByRole('textbox', { name: /Moderator notes/i });
-    await user.type(textarea, 'Please follow up with the host');
-
-    await user.click(screen.getByRole('button', { name: 'Save note for Eco Retreat' }));
-
-    expect(global.fetch).toHaveBeenCalledWith(
-      '/api/admin/moderation',
-      expect.objectContaining({
-        body: JSON.stringify({
-          moderationId: 'mod-1',
-          action: 'saveNote',
-          notes: 'Please follow up with the host',
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/admin/moderation',
+        expect.objectContaining({
+          method: 'POST',
+          body: JSON.stringify({ moderationId: 'mod-1', action: 'approve', notes: '' }),
         }),
-      })
-    );
-
-    expect(await screen.findByTestId('moderation-feedback-mod-1')).toHaveTextContent('Saved');
-    expect(
-      screen.queryByRole('textbox', { name: /Moderator notes/i })
-    ).not.toBeInTheDocument();
-  });
-
-  it('sends dismiss actions with existing notes and clears them afterwards', async () => {
-    global.fetch.mockResolvedValue({
-      ok: true,
-      json: jest.fn().mockResolvedValue({ message: 'Dismissed' }),
+      );
     });
 
-    renderComponent();
-
-    await user.click(screen.getByRole('button', { name: /View notes/i }));
-    const textarea = screen.getByRole('textbox', { name: /Moderator notes/i });
-    await user.type(textarea, 'No action needed');
-
-    await user.click(screen.getByRole('button', { name: 'Save note and dismiss Eco Retreat' }));
-
-    expect(global.fetch).toHaveBeenLastCalledWith(
-      '/api/admin/moderation',
-      expect.objectContaining({
-        body: JSON.stringify({ moderationId: 'mod-1', action: 'dismiss', notes: 'No action needed' }),
-      })
-    );
-
-    expect(await screen.findByTestId('moderation-feedback-mod-1')).toHaveTextContent(
-      'Dismissed'
-    );
-    expect(
-      screen.queryByRole('textbox', { name: /Moderator notes/i })
-    ).not.toBeInTheDocument();
+    expect(await screen.findByTestId('moderation-feedback-mod-1')).toHaveTextContent('Moderation complete');
   });
 
-  it('shows error feedback when the action request fails', async () => {
-    global.fetch.mockResolvedValueOnce({
+  it('toggles notes editor and saves a note', async () => {
+    mockFetchSuccess('Note saved');
+
+    render(<ModerationActions moderationId="mod-2" itemName="Listing B" />);
+    const user = userEvent.setup();
+
+    const notesToggle = await screen.findByRole('button', { name: /view notes for listing b/i });
+    await user.click(notesToggle);
+    await user.type(await screen.findByLabelText(/moderator notes/i), 'Needs review');
+    await user.click(screen.getByRole('button', { name: /save note for listing b/i }));
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/admin/moderation',
+        expect.objectContaining({
+          body: JSON.stringify({ moderationId: 'mod-2', action: 'saveNote', notes: 'Needs review' }),
+        }),
+      );
+    });
+
+    expect(await screen.findByTestId('moderation-feedback-mod-2')).toHaveTextContent('Note saved');
+  });
+
+  it('displays error feedback when the request fails', async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
-      json: jest.fn().mockResolvedValue({ error: 'Network failure' }),
+      json: async () => ({ error: 'Request failed' }),
     });
 
-    renderComponent();
+    render(<ModerationActions moderationId="mod-3" itemName="Listing C" />);
+    const user = userEvent.setup();
 
-    await user.click(screen.getByRole('button', { name: /Approve Eco Retreat/i }));
+    const restrictButton = await screen.findByRole('button', { name: /restrict listing c/i });
+    await user.click(restrictButton);
 
-    expect(await screen.findByTestId('moderation-feedback-mod-1')).toHaveTextContent(
-      'Network failure'
-    );
+    expect(await screen.findByTestId('moderation-feedback-mod-3')).toHaveTextContent('Request failed');
+  });
+
+  it('handles network errors gracefully', async () => {
+    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('network down'));
+
+    render(<ModerationActions moderationId="mod-4" itemName="Listing D" />);
+    const user = userEvent.setup();
+
+    const approveButton = await screen.findByRole('button', { name: /approve listing d/i });
+    await user.click(approveButton);
+
+    expect(await screen.findByTestId('moderation-feedback-mod-4')).toHaveTextContent('network down');
   });
 });

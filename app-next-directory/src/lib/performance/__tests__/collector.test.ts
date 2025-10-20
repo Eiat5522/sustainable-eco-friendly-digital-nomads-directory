@@ -36,6 +36,7 @@ describe('performance collector', () => {
     dependencies.onTTFB = originalDependencies.onTTFB;
     process.env.NODE_ENV = originalEnv;
     jest.restoreAllMocks();
+    observerCallback = undefined;
   });
 
   it('wires reporters, logs metrics in development, and forwards data to Plausible', () => {
@@ -147,6 +148,9 @@ describe('performance collector', () => {
         { name: 'search-completed', duration: 123, startTime: 5 } as Record<string, unknown>,
       ],
     });
+    expect(console.log).toHaveBeenCalledWith('[Performance] FCP: 2800 (needs-improvement)');
+    expect(console.log).toHaveBeenCalledWith('[Performance] INP: 123.6 (good)');
+  });
 
     expect(observe).toHaveBeenCalledWith({ entryTypes: ['mark', 'measure'] });
     expect(plausible).toHaveBeenCalledWith(
@@ -243,6 +247,10 @@ describe('performance collector', () => {
     dependencies.onTTFB = jest.fn((cb: MetricCallback) => {
       callbacks.TTFB = cb;
     });
+    expect(mockPlausible).toHaveBeenCalledWith('performance', {
+      props: { metric: 'custom-mark', value: 88, rating: 'good' },
+    });
+  });
 
     const mark = jest.fn();
     const measure = jest.fn();
