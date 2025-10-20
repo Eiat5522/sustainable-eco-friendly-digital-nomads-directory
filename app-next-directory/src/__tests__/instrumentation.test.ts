@@ -1,110 +1,141 @@
-/**
- * @jest-environment node
- */
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 
-import { jest } from '@jest/globals';
+import { register } from '../instrumentation';
 
-type Handler = (...args: unknown[]) => void;
+type ListenerMap = Record<string, ((...args: any[]) => void) | undefined>;
 
-const originalNodeEnv = process.env.NODE_ENV;
-const originalNextRuntime = process.env.NEXT_RUNTIME;
+describe('instrumentation register', () => {
+  const originalNextRuntime = process.env.NEXT_RUNTIME;
+  const originalNodeEnv = process.env.NODE_ENV;
 
-const restoreEnv = () => {
-	if (originalNodeEnv === undefined) {
-		delete process.env.NODE_ENV;
-	} else {
-		process.env.NODE_ENV = originalNodeEnv;
-	}
+  let listeners: ListenerMap;
+  let processOnSpy: jest.SpyInstance;
+  let processExitSpy: jest.SpyInstance;
+  let consoleErrorSpy: jest.SpyInstance;
+  let consoleLogSpy: jest.SpyInstance;
 
-	if (originalNextRuntime === undefined) {
-		delete process.env.NEXT_RUNTIME;
-	} else {
-		process.env.NEXT_RUNTIME = originalNextRuntime;
-	}
-};
+  beforeEach(() => {
+    listeners = {};
+    process.env.NEXT_RUNTIME = 'nodejs';
+    process.env.NODE_ENV = 'production';
 
-const captureProcessHandlers = () => {
-	const handlers = new Map<string, Handler>();
-	const onSpy = jest.spyOn(process, 'on').mockImplementation(
-		((event: string, handler: Handler) => {
-			handlers.set(event, handler);
-			return process;
-		}) as unknown as typeof process.on,
-	);
+    processOnSpy = jest.spyOn(process, 'on').mockImplementation((event: any, handler: any) => {
+      listeners[event as string] = handler as (...args: any[]) => void;
+      return process;
+    });
 
-	return { handlers, onSpy };
-};
+    processExitSpy = jest.spyOn(process, 'exit').mockImplementation((() => undefined) as any);
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+  });
 
-beforeEach(() => {
-	jest.resetModules();
-});
+  afterEach(() => {
+    processOnSpy.mockRestore();
+    processExitSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
+    consoleLogSpy.mockRestore();
+    process.env.NEXT_RUNTIME = originalNextRuntime;
+    process.env.NODE_ENV = originalNodeEnv;
+  });
 
-afterEach(() => {
-	restoreEnv();
-	jest.restoreAllMocks();
-});
+  it('registers rejection and exception handlers when running in the node runtime', () => {
+    register();
 
-describe('instrumentation register()', () => {
-	it('registers process listeners when running on the Node.js runtime', async () => {
-		process.env.NEXT_RUNTIME = 'nodejs';
+    expect(processOnSpy).toHaveBeenCalledWith('unhandledRejection', expect.any(Function));
+    expect(processOnSpy).toHaveBeenCalledWith('uncaughtException', expect.any(Function));
+    expect(consoleLogSpy).toHaveBeenCalledWith('Server instrumentation registered: Error handlers active');
 
-		const { handlers } = captureProcessHandlers();
-		jest.spyOn(console, 'log').mockImplementation(() => undefined);
-		jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const rejectionHandler = listeners.unhandledRejection;
+    expect(rejectionHandler).toBeDefined();
 
-		const { register } = await import('../instrumentation');
-		await register();
+    const rejectionError = new Error('MongoServerSelectionError: connection timeout');
+    rejectionHandler?.(rejectionError, Promise.resolve());
 
-		expect(handlers.get('unhandledRejection')).toEqual(expect.any(Function));
-		expect(handlers.get('uncaughtException')).toEqual(expect.any(Function));
-	});
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'MongoDB connection issue detected. The server will continue running and retry on next request.',
+    );
+    expect(processExitSpy).not.toHaveBeenCalled();
+  });
 
-	it('does not register handlers when not running on the Node.js runtime', async () => {
-		process.env.NEXT_RUNTIME = 'edge';
+  it('handles non-error rejection reasons without crashing the process', () => {
+    register();
 
-		const { onSpy } = captureProcessHandlers();
-		jest.spyOn(console, 'log').mockImplementation(() => undefined);
-		jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const rejectionHandler = listeners.unhandledRejection;
+    expect(rejectionHandler).toBeDefined();
 
-		const { register } = await import('../instrumentation');
-		await register();
+    rejectionHandler?.('transient network blip', Promise.resolve());
 
-		expect(onSpy).not.toHaveBeenCalled();
-	});
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Reason:', 'transient network blip');
+    expect(consoleErrorSpy).not.toHaveBeenCalledWith('Error stack:', expect.anything());
+    expect(consoleErrorSpy).not.toHaveBeenCalledWith(
+      'MongoDB connection issue detected. The server will continue running and retry on next request.',
+    );
+  });
 
-	it('keeps the process alive for MongoDB errors and only exits on critical errors in production', async () => {
-		process.env.NEXT_RUNTIME = 'nodejs';
-		process.env.NODE_ENV = 'production';
+  it('logs Mongo retry guidance when server selection timeouts occur', () => {
+    register();
 
-		const { handlers } = captureProcessHandlers();
-		jest.spyOn(console, 'log').mockImplementation(() => undefined);
-		jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    const rejectionHandler = listeners.unhandledRejection;
+    rejectionHandler?.(new Error('Server selection timed out after 5000 ms'), Promise.resolve());
 
-		const exitSpy = jest
-			.spyOn(process, 'exit')
-			.mockImplementation(((code?: number) => undefined) as unknown as typeof process.exit);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'MongoDB connection issue detected. The server will continue running and retry on next request.',
+    );
+  });
 
-		const { register } = await import('../instrumentation');
-		await register();
+  it('logs the rejection reason without Mongo messaging for unrelated errors', () => {
+    register();
 
-		const uncaughtHandler = handlers.get('uncaughtException');
-		expect(uncaughtHandler).toEqual(expect.any(Function));
+    const rejectionHandler = listeners.unhandledRejection;
+    const genericError = new Error('Generic failure');
+    rejectionHandler?.(genericError, Promise.resolve());
 
-		const mongoError = new Error('MongoServerSelectionError: timed out');
-		uncaughtHandler?.(mongoError);
-		expect(exitSpy).not.toHaveBeenCalled();
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Reason:', genericError);
+    expect(consoleErrorSpy).not.toHaveBeenCalledWith(
+      'MongoDB connection issue detected. The server will continue running and retry on next request.',
+    );
+  });
 
-		exitSpy.mockClear();
-		process.env.NODE_ENV = 'development';
+  it('prevents process exit for Mongo related uncaught exceptions', () => {
+    register();
 
-		const runtimeError = new Error('Unexpected failure');
-		uncaughtHandler?.(runtimeError);
-		expect(exitSpy).not.toHaveBeenCalled();
+    const exceptionHandler = listeners.uncaughtException;
+    expect(exceptionHandler).toBeDefined();
 
-		exitSpy.mockClear();
-		process.env.NODE_ENV = 'production';
+    exceptionHandler?.(new Error('MongoServerSelectionError: primary down'));
 
-		uncaughtHandler?.(runtimeError);
-		expect(exitSpy).toHaveBeenCalledWith(1);
-	});
+    expect(processExitSpy).not.toHaveBeenCalled();
+    expect(consoleErrorSpy).toHaveBeenCalledWith('MongoDB connection issue detected. Continuing...');
+  });
+
+  it('logs the failure context and exits the process for critical production errors', () => {
+    register();
+
+    const exceptionHandler = listeners.uncaughtException;
+    exceptionHandler?.(new Error('Unexpected fatal error'));
+
+    expect(processExitSpy).toHaveBeenCalledWith(1);
+    expect(consoleErrorSpy).not.toHaveBeenCalledWith('Development mode: Server will continue running');
+  });
+
+  it('keeps the server alive in development mode for non-mongo exceptions', () => {
+    process.env.NODE_ENV = 'development';
+
+    register();
+
+    const exceptionHandler = listeners.uncaughtException;
+    exceptionHandler?.(new Error('Rendering error'));
+
+    expect(processExitSpy).not.toHaveBeenCalled();
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Development mode: Server will continue running');
+  });
+
+  it('skips registration when executed outside of the node runtime', () => {
+    process.env.NEXT_RUNTIME = 'edge';
+
+    register();
+
+    expect(processOnSpy).not.toHaveBeenCalled();
+    expect(consoleLogSpy).not.toHaveBeenCalled();
+  });
 });
