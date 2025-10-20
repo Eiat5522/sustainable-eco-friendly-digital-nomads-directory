@@ -299,7 +299,7 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
                 {pagination.hasNextPage && (
                   <Link
                     href={`/blog?${new URLSearchParams({
-                      page: String(pagination.nextPage ?? pagination.page + 1),
+                      page: String(pagination.nextPage ?? (pagination.page + 1)),
                       ...(tag ? { tag } : {}),
                       ...(search ? { search } : {}),
                       ...(limit ? { limit } : {}),
