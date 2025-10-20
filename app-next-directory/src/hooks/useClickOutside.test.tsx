@@ -1,48 +1,87 @@
 /** @jest-environment jsdom */
-import React, { useRef } from 'react';
-import { render, fireEvent } from '@testing-library/react';
-import { useClickOutside } from './useClickOutside';
+import { fireEvent, render } from '@testing-library/react'
+import { forwardRef, useImperativeHandle, useRef } from 'react'
+import { useClickOutside } from './useClickOutside'
 
-// Test component to use the hook in a real DOM tree
-function TestComponent({ handler }: { handler: () => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref as React.RefObject<HTMLElement>, handler);
-  return <div data-testid="outside"><div ref={ref} data-testid="inside" /></div>;
+type Handler = () => void
+
+function HookHarness({ handler }: { handler: Handler }) {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  useClickOutside(containerRef, handler)
+
+  return (
+    <div data-testid="outer">
+      <div data-testid="inner" ref={containerRef} />
+    </div>
+  )
 }
 
 describe('useClickOutside', () => {
-  it('should call the handler when clicking outside the ref', () => {
-    const handler = jest.fn();
-    const { getByTestId } = render(<TestComponent handler={handler} />);
-    fireEvent.mouseDown(document.body);
-    expect(handler).toHaveBeenCalledTimes(1);
-  });
+  it('invokes the handler when an external target is clicked', () => {
+    const handler = jest.fn()
+    const { getByTestId } = render(<HookHarness handler={handler} />)
 
-  it('should not call the handler when clicking inside the ref', () => {
-    const handler = jest.fn();
-    const { getByTestId } = render(<TestComponent handler={handler} />);
-    fireEvent.mouseDown(getByTestId('inside'));
-    expect(handler).not.toHaveBeenCalled();
-  });
+    fireEvent.mouseDown(getByTestId('outer'))
 
-  it('should not call the handler if ref is null', () => {
-    // Simulate null ref by not rendering the inside div
-    function NullRefComponent({ handler }: { handler: () => void }) {
-      const ref = useRef<HTMLDivElement>(null);
-      useClickOutside(ref as React.RefObject<HTMLElement>, handler);
-      return <div data-testid="outside" />;
+    expect(handler).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not invoke the handler when clicking inside the referenced element', () => {
+    const handler = jest.fn()
+    const { getByTestId } = render(<HookHarness handler={handler} />)
+
+    fireEvent.mouseDown(getByTestId('inner'))
+
+    expect(handler).not.toHaveBeenCalled()
+  })
+
+  it('ignores events when the ref is null', () => {
+    const handler = jest.fn()
+
+    const NullHarness = () => {
+      const ref = useRef<HTMLDivElement | null>(null)
+      useClickOutside(ref, handler)
+      return <div data-testid="outer" />
     }
-    const handler = jest.fn();
-    render(<NullRefComponent handler={handler} />);
-    fireEvent.mouseDown(document.body);
-    expect(handler).not.toHaveBeenCalled();
-  });
 
-  it('should cleanup event listener on unmount', () => {
-    const handler = jest.fn();
-    const { unmount } = render(<TestComponent handler={handler} />);
-    unmount();
-    fireEvent.mouseDown(document.body);
-    expect(handler).not.toHaveBeenCalled();
-  });
-});
+    const { getByTestId, unmount } = render(<NullHarness />)
+
+    fireEvent.mouseDown(getByTestId('outer'))
+    expect(handler).not.toHaveBeenCalled()
+
+    unmount()
+  })
+
+  it('treats non-Node event targets as outside clicks', () => {
+    const handler = jest.fn()
+    render(<HookHarness handler={handler} />)
+
+    const event = new MouseEvent('mousedown', { bubbles: true })
+    Object.defineProperty(event, 'target', {
+      value: { arbitrary: 'value' },
+      configurable: true,
+    })
+
+    document.dispatchEvent(event)
+
+    expect(handler).toHaveBeenCalledTimes(1)
+  })
+
+  it('cleans up document listeners on unmount', () => {
+    const handler = jest.fn()
+
+    const Wrapper = forwardRef<HTMLDivElement | null, { handler: Handler }>((props, ref) => {
+      const innerRef = useRef<HTMLDivElement | null>(null)
+      useClickOutside(innerRef, props.handler)
+      useImperativeHandle(ref, () => innerRef.current)
+      return <div ref={innerRef} data-testid="inner" />
+    })
+
+    const { unmount } = render(<Wrapper handler={handler} />)
+    unmount()
+
+    fireEvent.mouseDown(document.body)
+
+    expect(handler).not.toHaveBeenCalled()
+  })
+})
