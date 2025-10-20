@@ -136,12 +136,10 @@ export default async function BlogPostPage({ params }: Readonly<{ params: { slug
   const src = heroUrl ?? placeholderDataUri(1200, 630);
   const alt = usingPlaceholder ? '' : (post.title || '');
 
-  let isFirstParagraph = true;
   const portableTextComponents: PortableTextComponents = {
     block: {
-      normal: ({ children }) => {
-        const isLead = isFirstParagraph;
-        isFirstParagraph = false;
+      normal: ({ children, index }) => {
+        const isLead = index === 0;
         return (
           <p
             className={`mb-6 text-lg leading-relaxed text-gray-800 md:text-xl ${
