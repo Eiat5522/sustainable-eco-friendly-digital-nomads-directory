@@ -157,27 +157,23 @@ export const ALERTING_THRESHOLDS: AlertingThresholds = {
     },
   },
   components: {
-    mapRendering: {
-      initialLoad: {
-        [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.components.mapRendering.initialLoad.acceptable,
-        [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.components.mapRendering.initialLoad.critical,
-        cooldown: 15 * 60,
-        destinations: DEFAULT_ALERT_DESTINATIONS,
-      },
-      panZoom: {
-        [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.components.mapRendering.panZoom.acceptable,
-        [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.components.mapRendering.panZoom.critical,
-        cooldown: 15 * 60,
-        destinations: DEFAULT_ALERT_DESTINATIONS,
-      },
+    'mapRendering.initialLoad': {
+      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.components.mapRendering.initialLoad.acceptable,
+      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.components.mapRendering.initialLoad.critical,
+      cooldown: 15 * 60,
+      destinations: DEFAULT_ALERT_DESTINATIONS,
     },
-    imageLoading: {
-      heroImage: {
-        [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.components.imageLoading.heroImage.acceptable,
-        [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.components.imageLoading.heroImage.critical,
-        cooldown: 15 * 60,
-        destinations: DEFAULT_ALERT_DESTINATIONS,
-      },
+    'mapRendering.panZoom': {
+      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.components.mapRendering.panZoom.acceptable,
+      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.components.mapRendering.panZoom.critical,
+      cooldown: 15 * 60,
+      destinations: DEFAULT_ALERT_DESTINATIONS,
+    },
+    'imageLoading.heroImage': {
+      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.components.imageLoading.heroImage.acceptable,
+      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.components.imageLoading.heroImage.critical,
+      cooldown: 15 * 60,
+      destinations: DEFAULT_ALERT_DESTINATIONS,
     },
   },
 };

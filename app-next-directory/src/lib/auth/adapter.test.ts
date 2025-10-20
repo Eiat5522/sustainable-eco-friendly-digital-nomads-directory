@@ -4,7 +4,13 @@ jest.mock('@auth/mongodb-adapter', () => ({
   MongoDBAdapter: jest.fn(),
 }));
 
-jest.mock('@/lib/mongodb', () => Promise.resolve({}));
+const mockClient = { mocked: true };
+const mockClientPromise = Promise.resolve(mockClient);
+
+jest.mock('@/lib/mongodb', () => ({
+  __esModule: true,
+  default: mockClientPromise,
+}));
 
 import { MongoDBAdapter } from '@auth/mongodb-adapter';
 import clientPromise from '@/lib/mongodb';
@@ -41,7 +47,7 @@ describe('createAuthAdapter', () => {
     expect(mockMongoDBAdapter).not.toHaveBeenCalled();
   });
 
-  it('returns MongoDB adapter when USE_REAL_MONGODB_FOR_TESTS is set', () => {
+  it('returns MongoDB adapter when USE_REAL_MONGODB_FOR_TESTS is set', async () => {
     process.env.MONGODB_URI = 'mongodb://example.com';
     process.env.USE_REAL_MONGODB_FOR_TESTS = '1';
     const adapterInstance = { connected: true };
@@ -49,7 +55,9 @@ describe('createAuthAdapter', () => {
 
     const { createAuthAdapter } = require('./adapter');
     const adapter = createAuthAdapter();
-    expect(mockMongoDBAdapter).toHaveBeenCalledWith(clientPromise);
+    expect(mockMongoDBAdapter).toHaveBeenCalledTimes(1);
+    const [clientArg] = mockMongoDBAdapter.mock.calls[0] ?? [];
+    await expect(clientArg).resolves.toEqual(mockClient);
     expect(adapter).toBe(adapterInstance);
   });
 });
