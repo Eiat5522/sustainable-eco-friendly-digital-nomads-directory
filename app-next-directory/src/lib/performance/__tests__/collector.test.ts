@@ -1,243 +1,198 @@
+import { describe, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
 import {
-  PERFORMANCE_THRESHOLDS,
   PERFORMANCE_MARKS,
+  PERFORMANCE_THRESHOLDS,
+  dependencies,
   initPerformanceMonitoring,
   markPerformance,
   measurePerformance,
-  dependencies,
 } from '../collector';
 
-// Mock the plausible-integration module
-jest.mock('../plausible-integration', () => ({
-  reportPerformanceEvent: jest.fn(),
-}));
-
-import { reportPerformanceEvent } from '../plausible-integration';
-
-describe('collector', () => {
-  let mockPlausible: jest.Mock;
-  let mockMark: jest.Mock;
-  let mockMeasure: jest.Mock;
-  let mockPerformanceObserver: jest.Mock;
-  let observeMock: jest.Mock;
+describe('performance collector', () => {
   let originalDependencies: typeof dependencies;
-
-  // Mock web-vitals callbacks
-  let onCLSCallback: (metric: any) => void;
-  let onFCPCallback: (metric: any) => void;
-  let onFIDCallback: (metric: any) => void;
-  let onINPCallback: (metric: any) => void;
-  let onLCPCallback: (metric: any) => void;
-  let onTTFBCallback: (metric: any) => void;
+  let originalEnv: string | undefined;
+  let mockPlausible: jest.Mock;
+  let mockPerformance: { mark: jest.Mock; measure: jest.Mock };
+  let observeMock: jest.Mock;
+  let performanceObserverCtor: jest.Mock;
+  let observerCallback: ((list: { getEntries: () => Array<Record<string, any>> }) => void) | undefined;
+  const callbacks: Record<string, ((metric: any) => void) | undefined> = {};
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.spyOn(console, 'log').mockImplementation();
-    jest.spyOn(console, 'warn').mockImplementation();
+    originalDependencies = { ...dependencies };
+    originalEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'test';
+
+    jest.restoreAllMocks();
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
 
     mockPlausible = jest.fn();
-    mockMark = jest.fn();
-    mockMeasure = jest.fn();
-    
+    mockPerformance = {
+      mark: jest.fn(),
+      measure: jest.fn(),
+    };
     observeMock = jest.fn();
-    const disconnectMock = jest.fn();
-    mockPerformanceObserver = jest.fn(() => ({
-        observe: observeMock,
-        disconnect: disconnectMock,
-        takeRecords: jest.fn(),
-    }));
 
-    // Backup original dependencies and setup mocks
-    originalDependencies = { ...dependencies };
+    performanceObserverCtor = jest.fn((cb: typeof observerCallback) => {
+      observerCallback = cb;
+      return {
+        observe: observeMock,
+        disconnect: jest.fn(),
+        takeRecords: jest.fn(),
+      };
+    });
+
+    callbacks.CLS = undefined;
+    callbacks.FCP = undefined;
+    callbacks.FID = undefined;
+    callbacks.INP = undefined;
+    callbacks.LCP = undefined;
+    callbacks.TTFB = undefined;
+
     dependencies.window = {
       plausible: mockPlausible,
-      performance: {
-        mark: mockMark,
-        measure: mockMeasure,
-      },
-      PerformanceObserver: mockPerformanceObserver,
-    } as any;
+      performance: mockPerformance,
+      PerformanceObserver: performanceObserverCtor as unknown as typeof PerformanceObserver,
+    } as unknown as Window;
+    dependencies.global = {
+      ...dependencies.global,
+      plausible: mockPlausible,
+    };
 
-    dependencies.onCLS = jest.fn(cb => (onCLSCallback = cb));
-    dependencies.onFCP = jest.fn(cb => (onFCPCallback = cb));
-    dependencies.onFID = jest.fn(cb => (onFIDCallback = cb));
-    dependencies.onINP = jest.fn(cb => (onINPCallback = cb));
-    dependencies.onLCP = jest.fn(cb => (onLCPCallback = cb));
-    dependencies.onTTFB = jest.fn(cb => (onTTFBCallback = cb));
+    dependencies.onCLS = jest.fn((cb) => {
+      callbacks.CLS = cb;
+    });
+    dependencies.onFCP = jest.fn((cb) => {
+      callbacks.FCP = cb;
+    });
+    dependencies.onFID = jest.fn((cb) => {
+      callbacks.FID = cb;
+    });
+    dependencies.onINP = jest.fn((cb) => {
+      callbacks.INP = cb;
+    });
+    dependencies.onLCP = jest.fn((cb) => {
+      callbacks.LCP = cb;
+    });
+    dependencies.onTTFB = jest.fn((cb) => {
+      callbacks.TTFB = cb;
+    });
   });
 
   afterEach(() => {
-    // Restore original dependencies
     Object.assign(dependencies, originalDependencies);
+    process.env.NODE_ENV = originalEnv;
     jest.restoreAllMocks();
+    observerCallback = undefined;
   });
 
-  describe('PERFORMANCE_THRESHOLDS', () => {
-    it('should export correct thresholds', () => {
-      expect(PERFORMANCE_THRESHOLDS.FCP.good).toBe(1800);
-      expect(PERFORMANCE_THRESHOLDS.LCP.needsImprovement).toBe(4000);
-    });
+  it('exposes expected performance metadata constants', () => {
+    expect(PERFORMANCE_THRESHOLDS.FCP.good).toBe(1800);
+    expect(PERFORMANCE_THRESHOLDS.LCP.needsImprovement).toBe(4000);
+    expect(PERFORMANCE_MARKS.SEARCH_COMPLETED).toBe('search-completed');
+    expect(PERFORMANCE_MARKS.LISTING_LOADED).toBe('listing-loaded');
   });
 
-  describe('PERFORMANCE_MARKS', () => {
-    it('should export correct mark names', () => {
-      expect(PERFORMANCE_MARKS.SEARCH_STARTED).toBe('search-started');
-      expect(PERFORMANCE_MARKS.LISTING_LOADED).toBe('listing-loaded');
+  it('registers web vitals callbacks and reports ratings with console output in development', () => {
+    process.env.NODE_ENV = 'development';
+
+    initPerformanceMonitoring();
+
+    expect(dependencies.onCLS).toHaveBeenCalledTimes(1);
+    expect(dependencies.onFCP).toHaveBeenCalledTimes(1);
+    expect(dependencies.onFID).toHaveBeenCalledTimes(1);
+    expect(dependencies.onINP).toHaveBeenCalledTimes(1);
+    expect(dependencies.onLCP).toHaveBeenCalledTimes(1);
+    expect(dependencies.onTTFB).toHaveBeenCalledTimes(1);
+    expect(performanceObserverCtor).toHaveBeenCalledTimes(1);
+    expect(observeMock).toHaveBeenCalledWith({ entryTypes: ['mark', 'measure'] });
+
+    callbacks.FCP?.({ name: 'FCP', value: 2800 });
+    callbacks.INP?.({ name: 'INP', value: 123.6 });
+
+    expect(mockPlausible).toHaveBeenCalledWith('performance', {
+      props: { metric: 'FCP', value: 2800, rating: 'needs-improvement' },
     });
+    expect(mockPlausible).toHaveBeenCalledWith('performance', {
+      props: { metric: 'INP', value: 124, rating: 'good' },
+    });
+    expect(console.log).toHaveBeenCalledWith('[Performance] FCP: 2800 (needs-improvement)');
+    expect(console.log).toHaveBeenCalledWith('[Performance] INP: 123.6 (good)');
   });
 
-  describe('initPerformanceMonitoring', () => {
-    it('should set up web-vitals monitoring', () => {
-      initPerformanceMonitoring();
+  it('falls back to global scope when window does not provide a plausible client', () => {
+    (dependencies.window as Record<string, any>).plausible = undefined;
 
-      expect(dependencies.onCLS).toHaveBeenCalled();
-      expect(dependencies.onFCP).toHaveBeenCalled();
-      expect(dependencies.onFID).toHaveBeenCalled();
-      expect(dependencies.onINP).toHaveBeenCalled();
-      expect(dependencies.onLCP).toHaveBeenCalled();
-      expect(dependencies.onTTFB).toHaveBeenCalled();
-    });
+    initPerformanceMonitoring();
 
-    it('should report web-vitals metrics correctly', () => {
-      initPerformanceMonitoring();
+    callbacks.CLS?.({ name: 'CLS', value: 0.08 });
 
-      onLCPCallback({ name: 'LCP', value: 2000, rating: 'good' });
-      expect(mockPlausible).toHaveBeenCalledWith('performance', {
-        props: {
-          metric: 'LCP',
-          value: 2000,
-          rating: 'good',
-        },
-      });
-
-      onFCPCallback({ name: 'FCP', value: 4000, rating: 'poor' });
-      expect(mockPlausible).toHaveBeenCalledWith('performance', {
-        props: {
-            metric: 'FCP',
-            value: 4000,
-            rating: 'poor',
-        },
-      });
-    });
-
-    it('should set up observer to handle performance entries', () => {
-      initPerformanceMonitoring();
-
-      expect(mockPerformanceObserver).toHaveBeenCalledWith(expect.any(Function));
-      expect(observeMock).toHaveBeenCalledWith({ entryTypes: ['mark', 'measure'] });
-
-      const handler = mockPerformanceObserver.mock.calls[0][0];
-      handler({
-          getEntries: () => [{ name: 'test-mark', duration: 123, entryType: 'mark' }],
-      });
-
-      expect(mockPlausible).toHaveBeenCalledWith('performance', {
-        props: { metric: 'test-mark', value: 123, rating: 'good' },
-      });
-    });
-
-    it('should handle performance entries with duration', () => {
-      initPerformanceMonitoring();
-      const handler = mockPerformanceObserver.mock.calls[0][0];
-
-      handler({
-        getEntries: () => [{ name: 'test-measure', duration: 500, entryType: 'measure' }],
-      });
-
-      expect(mockPlausible).toHaveBeenCalledWith('performance', {
-        props: { metric: 'test-measure', value: 500, rating: 'good' },
-      });
-    });
-
-    it('should handle performance entries without duration (marks)', () => {
-      initPerformanceMonitoring();
-      const handler = mockPerformanceObserver.mock.calls[0][0];
-
-      handler({
-        getEntries: () => [
-          { name: 'start_event', startTime: 100, entryType: 'mark' },
-        ],
-      });
-
-      expect(mockPlausible).toHaveBeenCalledWith('performance', {
-        props: { metric: 'start_event', value: 100, rating: 'good' },
-      });
-    });
-
-    it('should send metrics to Plausible when available', () => {
-      initPerformanceMonitoring();
-
-      onTTFBCallback({ name: 'custom-metric', value: 200, rating: 'poor' });
-
-      expect(mockPlausible).toHaveBeenCalledWith('performance', {
-        props: {
-          metric: 'TTFB',
-          value: 200,
-          rating: 'good',
-        },
-      });
-    });
-
-    it('should handle multiple performance entries', () => {
-      initPerformanceMonitoring();
-      const handler = mockPerformanceObserver.mock.calls[0][0];
-
-      handler({
-        getEntries: () => [
-          { name: 'mark1', startTime: 50 },
-          { name: 'mark2', duration: 150 },
-          { name: 'mark3', startTime: 250 },
-        ],
-      });
-
-      expect(mockPlausible).toHaveBeenCalledTimes(3);
+    expect(mockPlausible).toHaveBeenCalledWith('performance', {
+      props: { metric: 'CLS', value: 0, rating: 'good' },
     });
   });
 
-  describe('markPerformance', () => {
-    it('should not throw if window is not available', () => {
-      dependencies.window = undefined;
-      expect(() => markPerformance('SEARCH_STARTED')).not.toThrow();
-    });
+  it('handles missing PerformanceObserver without throwing and without observing entries', () => {
+    (dependencies.window as Record<string, any>).PerformanceObserver = undefined;
 
-    it('should not throw if performance API is not available', () => {
-      dependencies.window = {} as any;
-      expect(() => markPerformance('SEARCH_STARTED')).not.toThrow();
-    });
-
-    it('should call performance.mark with the correct name', () => {
-      markPerformance('MAP_INIT');
-      expect(mockMark).toHaveBeenCalledWith('map-initialization');
-    });
-
-    it('should work in browser environment', () => {
-        markPerformance('SEARCH_STARTED');
-
-        expect(mockMark).toHaveBeenCalledWith('search-started');
-      });
+    expect(() => initPerformanceMonitoring()).not.toThrow();
+    expect(observeMock).not.toHaveBeenCalled();
   });
 
-  describe('measurePerformance', () => {
-    it('should not throw if window or performance API not available', () => {
-      dependencies.window = undefined;
-      expect(() =>
-        measurePerformance('search-time', 'SEARCH_STARTED', 'SEARCH_COMPLETED')
-      ).not.toThrow();
+  it('reports entries emitted by the PerformanceObserver', () => {
+    initPerformanceMonitoring();
+    expect(typeof observerCallback).toBe('function');
 
-      dependencies.window = {} as any;
-      expect(() =>
-        measurePerformance('search-time', 'SEARCH_STARTED', 'SEARCH_COMPLETED')
-      ).not.toThrow();
+    observerCallback?.({
+      getEntries: () => [
+        { name: 'custom-measure', duration: 56.3 },
+        { name: 'custom-mark', startTime: 88 },
+      ],
     });
 
-    it('should call performance.measure with correct arguments', () => {
-      measurePerformance('map-load-time', 'MAP_INIT', 'MAP_MARKERS_LOADED');
-
-      expect(mockMeasure).toHaveBeenCalledWith(
-        'map-load-time',
-        'map-initialization',
-        'map-markers-loaded'
-      );
+    expect(mockPlausible).toHaveBeenCalledWith('performance', {
+      props: { metric: 'custom-measure', value: 56, rating: 'good' },
     });
+    expect(mockPlausible).toHaveBeenCalledWith('performance', {
+      props: { metric: 'custom-mark', value: 88, rating: 'good' },
+    });
+  });
+
+  it('creates performance marks when the API is available', () => {
+    markPerformance('SEARCH_COMPLETED');
+
+    expect(mockPerformance.mark).toHaveBeenCalledWith('search-completed');
+  });
+
+  it('does not attempt to mark performance when the API is unavailable', () => {
+    dependencies.window = undefined;
+    dependencies.global = undefined;
+
+    markPerformance('MAP_INIT');
+
+    expect(mockPerformance.mark).not.toHaveBeenCalledWith('map-initialization');
+  });
+
+  it('measures performance duration when both marks exist', () => {
+    measurePerformance('search-latency', 'SEARCH_STARTED', 'SEARCH_COMPLETED');
+
+    expect(mockPerformance.measure).toHaveBeenCalledWith(
+      'search-latency',
+      'search-started',
+      'search-completed'
+    );
+  });
+
+  it('bails out of measuring when the performance API is missing', () => {
+    (dependencies.window as Record<string, any>).performance = {};
+
+    measurePerformance('search-latency', 'SEARCH_STARTED', 'SEARCH_COMPLETED');
+
+    expect(mockPerformance.measure).not.toHaveBeenCalledWith(
+      'search-latency',
+      'search-started',
+      'search-completed'
+    );
   });
 });
