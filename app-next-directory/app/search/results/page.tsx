@@ -7,8 +7,7 @@ import { z } from 'zod'
 import type { SearchParamRecord } from '@/types/search'
 import { NextRequest } from 'next/server'
 import { GET as searchGetHandler } from '../../api/search/route'
-
-const tagSchema = z.union([z.string(), z.object({ name: z.string() })]);
+import { mapResultToDTO } from './helpers'
 
 const searchResponseSchema = z
   .object({
@@ -27,90 +26,7 @@ const searchResponseSchema = z
       })
       .optional(),
   })
-  .passthrough();
-
-const apiItemSchema = z.object({
-  _id: z.string().optional(),
-  name: z.string().optional(),
-  slug: z.union([z.string(), z.object({ current: z.string() })]).optional(),
-  category: z.string().optional(),
-  city: z.object({
-    _id: z.string().optional(),
-    name: z.string().optional(),
-    slug: z.string().optional(),
-    country: z.string().optional(),
-  }).nullable().optional(),
-  location: z.object({
-    _id: z.string().optional(),
-    name: z.string().optional(),
-    slug: z.string().optional(),
-    country: z.string().optional(),
-  }).nullable().optional(),
-  primaryImage: z.object({
-    asset: z.object({
-      url: z.string()
-    }).optional()
-  }).nullable().optional(),
-  shortDescription: z.string().nullable().optional(),
-  amenityNames: z.array(z.string()).nullable().optional(),
-  moderation: z.object({ featured: z.boolean().optional() }).optional(),
-  ecoFocusTags: z.array(tagSchema).nullable().optional(),
-  ecoFeatures: z.array(tagSchema).nullable().optional(),
-  digitalNomadFeatures: z.array(tagSchema).nullable().optional(),
-})
-
-function extractTagNames(list?: Array<z.infer<typeof tagSchema> | null | undefined> | null): string[] {
-  if (!Array.isArray(list)) return [];
-  const tags: string[] = [];
-  for (const entry of list) {
-    if (typeof entry === 'string') {
-      const name = entry.trim();
-      if (name.length > 0) tags.push(name);
-      continue;
-    }
-    if (entry && typeof entry === 'object' && typeof entry.name === 'string') {
-      const name = entry.name.trim();
-      if (name.length > 0) tags.push(name);
-    }
-  }
-  return tags;
-}
-
-function mapResultToDTO(item: unknown): ListingSummaryDTO {
-  const parseResult = apiItemSchema.safeParse(item)
-  if (!parseResult.success) {
-    console.error('Invalid API response shape:', parseResult.error)
-    // Return a minimal valid DTO or throw with a user-friendly message
-    throw new Error('Invalid search result data')
-  }
-  const validated = parseResult.data
-  const city = validated.city ?? validated.location ?? null
-  const imageUrl: string | undefined = validated?.primaryImage?.asset?.url ?? undefined
-  const slugValue = validated.slug
-  const slug: string = typeof slugValue === 'string' ? slugValue : (slugValue?.current ?? '')
-  const ecoFocusTags = extractTagNames(validated.ecoFocusTags ?? validated.ecoFeatures)
-  const digitalNomadFeatures = extractTagNames(validated.digitalNomadFeatures)
-  return {
-    id: String(validated._id ?? slug ?? `temp-${Date.now()}-${Math.random()}`),
-    name: String(validated.name ?? ''),
-    slug,
-    type: (validated.category ?? 'coworking') as ListingSummaryDTO['type'],
-    city: city
-      ? {
-          id: String(city._id ?? ''),
-          name: String(city.name ?? ''),
-          slug: String(city.slug ?? ''),
-          country: String(city.country ?? ''),
-    }
-      : null,
-    imageUrl,
-    shortDescription: validated.shortDescription ?? undefined,
-    amenityNames: Array.isArray(validated.amenityNames) ? validated.amenityNames : undefined,
-    featured: Boolean(validated.moderation?.featured === true),
-    ecoFocusTags: ecoFocusTags.length > 0 ? ecoFocusTags : undefined,
-    digitalNomadFeatures: digitalNomadFeatures.length > 0 ? digitalNomadFeatures : undefined,
-  }
-}
+  .passthrough()
 
 function buildLink(searchParams: SearchParamRecord, overrides: Record<string, string>) {
   const params = new URLSearchParams()
@@ -161,7 +77,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             </NeoButton>
           </div>
           {process.env.NODE_ENV === 'development' && (
-            <p className="text-sm text-gray-500 mt-2">Error: {res.status} {res.statusText}</p>
+            <p className="text-sm text-gray-500 mt-2">
+              Error: {res.status} {res.statusText}
+            </p>
           )}
         </div>
       )
@@ -181,7 +99,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           </NeoButton>
         </div>
         {process.env.NODE_ENV === 'development' && (
-          <p className="text-sm text-gray-500 mt-2">Unexpected error occurred. Check server logs for details.</p>
+          <p className="text-sm text-gray-500 mt-2">
+            Unexpected error occurred. Check server logs for details.
+          </p>
         )}
       </div>
     )
@@ -191,21 +111,21 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   if (!parsedResponse.success) {
     console.error('Unexpected search API payload shape:', parsedResponse.error)
   }
-  const rawResults = parsedResponse.success && Array.isArray(parsedResponse.data.data?.results)
-    ? parsedResponse.data.data?.results ?? []
-    : []
+  const rawResults =
+    parsedResponse.success && Array.isArray(parsedResponse.data.data?.results)
+      ? parsedResponse.data.data?.results ?? []
+      : []
   let skippedCount = 0
   const mapped: ListingSummaryDTO[] = rawResults.reduce<ListingSummaryDTO[]>((acc, item) => {
     try {
       acc.push(mapResultToDTO(item))
     } catch (error) {
       skippedCount++
-    console.error('Failed to map search result item:', {
-      error,
-      itemId: typeof item === 'object' && item && '_id' in item ? item._id : undefined,
-      itemSlug: typeof item === 'object' && item && 'slug' in item ? item.slug : undefined
-
-    })
+      console.error('Failed to map search result item:', {
+        error,
+        itemId: typeof item === 'object' && item && '_id' in item ? item._id : undefined,
+        itemSlug: typeof item === 'object' && item && 'slug' in item ? item.slug : undefined,
+      })
       // Skip invalid items instead of crashing the page
     }
     return acc
@@ -227,7 +147,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     : [limit, ...DEFAULT_PAGE_SIZES].sort((a, b) => a - b)
 
   const prevLink = page > 1 ? buildLink(resolvedSearchParams, { page: String(page - 1) }) : null
-  const nextLink = page < totalPages ? buildLink(resolvedSearchParams, { page: String(page + 1) }) : null
+  const nextLink =
+    page < totalPages ? buildLink(resolvedSearchParams, { page: String(page + 1) }) : null
 
   // Build a compact page number list with ellipses
   function getPages(current: number, total: number): (number | '…')[] {
@@ -281,14 +202,25 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
                   />
                 )
           })}
-          <label htmlFor="page-size" className="body-sm">Per page</label>
-          <select id="page-size" name="limit" defaultValue={String(limit)} className="neo-input border-2 border-neo-border rounded px-2 py-1">
+          <label htmlFor="page-size" className="body-sm">
+            Per page
+          </label>
+          <select
+            id="page-size"
+            name="limit"
+            defaultValue={String(limit)}
+            className="neo-input border-2 border-neo-border rounded px-2 py-1"
+          >
             {pageSizeOptions.map((n) => (
-              <option key={n} value={n}>{n}</option>
+              <option key={n} value={n}>
+                {n}
+              </option>
             ))}
           </select>
           <input type="hidden" name="page" value="1" />
-          <NeoButton type="submit" variant="outline" size="sm">Apply</NeoButton>
+          <NeoButton type="submit" variant="outline" size="sm">
+            Apply
+          </NeoButton>
         </form>
       </div>
 
@@ -301,11 +233,15 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       {/* Pagination controls */}
       <div className="flex items-center justify-center gap-2 mt-8">
         <NeoButton asChild variant="outline" size="sm" disabled={!prevLink}>
-          <Link href={prevLink || '#'} aria-disabled={!prevLink}>Prev</Link>
+          <Link href={prevLink || '#'} aria-disabled={!prevLink}>
+            Prev
+          </Link>
         </NeoButton>
-        {pages.map((p, i) => (
+        {pages.map((p, i) =>
           p === '…' ? (
-            <span key={`ellipsis-${i}`} className="px-2">…</span>
+            <span key={`ellipsis-${i}`} className="px-2">
+              …
+            </span>
           ) : (
             <NeoButton
               key={`page-${p}`}
@@ -313,14 +249,20 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
               variant={p === page ? 'primary' : 'outline'}
               size="sm"
             >
-              <Link href={buildLink(resolvedSearchParams, { page: String(p) })} aria-current={p === page ? 'page' : undefined}>
+              <Link
+                href={buildLink(resolvedSearchParams, { page: String(p) })}
+                aria-current={p === page ? 'page' : undefined}
+              >
                 {p}
               </Link>
             </NeoButton>
-          )
-        ))}
+          ),
+        )}
         <NeoButton asChild variant="outline" size="sm" disabled={!nextLink}>
-          <Link href={nextLink || '#'} aria-disabled={!nextLink}>Next</Link>
+.
+          <Link href={nextLink || '#'} aria-disabled={!nextLink}>
+            Next
+          </Link>
         </NeoButton>
       </div>
     </div>
