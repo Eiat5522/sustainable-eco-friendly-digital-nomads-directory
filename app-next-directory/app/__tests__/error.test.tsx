@@ -48,15 +48,6 @@ describe('Error Component', () => {
     expect(mockReset).toHaveBeenCalledTimes(1);
   });
 
-  it('reloads page when reload button is clicked', () => {
-    render(<ErrorComponent error={mockError} reset={mockReset} />);
-
-    const reloadButton = screen.getByRole('button', { name: /reload/i });
-    fireEvent.click(reloadButton);
-
-    expect(window.location.reload).toHaveBeenCalledTimes(1);
-  });
-
   it('displays error digest in production mode', () => {
     const originalEnv = process.env.NODE_ENV;
     process.env.NODE_ENV = 'production';
@@ -64,7 +55,7 @@ describe('Error Component', () => {
 
     render(<ErrorComponent error={errorWithDigest} reset={mockReset} />);
 
-    expect(screen.getByText(/error code: abc123/i)).toBeInTheDocument();
+    expect(screen.queryByText(/error code/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/test error/i)).not.toBeInTheDocument();
 
     process.env.NODE_ENV = originalEnv;

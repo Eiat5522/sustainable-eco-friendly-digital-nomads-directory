@@ -80,12 +80,16 @@ export async function POST(request: Request) {
     }
 
     // Process metric for alerting — call service with (category, name, value, additionalInfo)
-    await processMetricForAlert(
-      'performance',
-      enhancedData.name || 'Unknown',
-      enhancedData.value || 0,
-      { status: enhancedData.status || 'unknown', page: enhancedData.page, timestamp: enhancedData.timestamp }
-    );
+    try {
+      await processMetricForAlert(
+        'performance',
+        enhancedData.name || 'Unknown',
+        enhancedData.value || 0,
+        { status: enhancedData.status || 'unknown', page: enhancedData.page, timestamp: enhancedData.timestamp }
+      );
+    } catch (alertError) {
+      console.error('[Performance API] Alert processing failed:', alertError);
+    }
 
     return new Response(
       JSON.stringify({ success: true, data: enhancedData }),

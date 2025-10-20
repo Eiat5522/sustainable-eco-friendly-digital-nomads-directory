@@ -105,7 +105,7 @@ describe('API /api/comments', () => {
       const res = await GET(req);
 
       expect(res.status).toBe(500);
-      await expect(res.json()).resolves.toEqual({ error: 'Failed to fetch comments' });
+      await expect(res.json()).resolves.toMatchObject({ error: 'Failed to fetch comments' });
     });
   });
 

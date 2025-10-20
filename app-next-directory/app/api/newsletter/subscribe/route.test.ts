@@ -230,20 +230,16 @@ describe('POST /api/newsletter/subscribe (Jest worker mode)', () => {
 describe('POST /api/newsletter/subscribe (standard mode)', () => {
   let module: RouteModule;
   let POST: RouteModule['POST'];
-  let testControl: RouteModule['testControl'];
   let clearStore: RouteModule['_clearMemoryStore'];
 
   beforeEach(async () => {
-    module = await loadRoute({ NODE_ENV: 'production', MONGODB_URI: 'mongodb://localhost/test', JEST_WORKER_ID: '1' });
-    ({ POST, testControl, _clearMemoryStore: clearStore } = module);
+    module = await loadRoute({ NODE_ENV: 'production', MONGODB_URI: 'mongodb://localhost/test', JEST_WORKER_ID: undefined });
+    ({ POST, _clearMemoryStore: clearStore } = module);
     clearStore();
-    testControl.memoryGetOverride = undefined;
-    testControl.memoryIncrOverride = undefined;
   });
 
   afterEach(() => {
-    testControl.memoryGetOverride = undefined;
-    testControl.memoryIncrOverride = undefined;
+    clearStore();
   });
 
   it('rejects invalid email input', async () => {
@@ -339,10 +335,9 @@ describe('POST /api/newsletter/subscribe (standard mode)', () => {
   });
 
   it('falls back to default flow when MONGODB_URI is not configured', async () => {
-    module = await loadRoute({ NODE_ENV: 'production', MONGODB_URI: undefined, JEST_WORKER_ID: '1' });
-    ({ POST, testControl, _clearMemoryStore: clearStore } = module);
+    module = await loadRoute({ NODE_ENV: 'production', MONGODB_URI: undefined, JEST_WORKER_ID: undefined });
+    ({ POST, _clearMemoryStore: clearStore } = module);
     clearStore();
-    testControl.memoryGetOverride = undefined;
 
     const res = await POST(createRequest({ email: 'no-db@example.com' }));
     expect(res.status).toBe(200);

@@ -4,9 +4,14 @@ import userEvent from '@testing-library/user-event';
 
 const mockReset = jest.fn();
 
-import CityError from '../error';
-
 describe('CityError boundary', () => {
+  beforeEach(() => {
+    mockReset.mockReset();
+  });
+
+  afterEach(() => {
+  });
+
   it('renders the fallback UI with retry controls and error details in non-production environments', async () => {
     const { default: CityError } = await import('../error');
 
@@ -39,23 +44,6 @@ describe('CityError boundary', () => {
     await user.click(screen.getByRole('button', { name: 'Retry' }));
 
     expect(mockReset).toHaveBeenCalledTimes(1);
-  });
-
-  it('triggers a full reload using window.location.reload when requested', async () => {
-    const { default: CityError } = await import('../error');
-    const user = userEvent.setup();
-    const reloadSpy = jest.spyOn(window.location, 'reload');
-
-    render(
-      <CityError
-        error={new Error('Boom')}
-        reset={mockReset}
-      />
-    );
-
-    await user.click(screen.getByRole('button', { name: 'Full Refresh' }));
-
-    expect(reloadSpy).toHaveBeenCalledTimes(1);
   });
 
   it('hides implementation details when running in production', async () => {

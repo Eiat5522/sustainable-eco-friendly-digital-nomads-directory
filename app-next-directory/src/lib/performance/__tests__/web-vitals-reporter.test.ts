@@ -5,16 +5,27 @@ describe('WebVitalsReporter', () => {
 	const originalFetch = (global as any).fetch;
 
 	afterEach(() => {
-		(global as any).navigator = originalNavigator;
-		(global as any).fetch = originalFetch;
+		Object.defineProperty(global, 'navigator', {
+			configurable: true,
+			value: originalNavigator,
+		});
+		Object.defineProperty(global, 'fetch', {
+			configurable: true,
+			value: originalFetch,
+		});
 		jest.resetAllMocks();
 	});
 
 	test('uses navigator.sendBeacon when available and returns true', () => {
-			const sendBeacon = jest.fn(() => true);
-			(global as any).navigator = { sendBeacon };
-			// ensure fetch returns a Promise so .catch exists if called unexpectedly
-			(global as any).fetch = jest.fn(() => Promise.resolve({ ok: true }));
+		const sendBeacon = jest.fn(() => true);
+		Object.defineProperty(global, 'navigator', {
+			configurable: true,
+			value: { sendBeacon },
+		});
+		Object.defineProperty(global, 'fetch', {
+			configurable: true,
+			value: jest.fn(() => Promise.resolve({ ok: true })),
+		});
 
 		const metric = { id: '1', name: 'CLS', value: 1 } as any;
 		WebVitalsReporter(metric);
@@ -26,17 +37,22 @@ describe('WebVitalsReporter', () => {
 		expect((global as any).fetch).not.toHaveBeenCalled();
 	});
 
-	test('falls back to fetch when sendBeacon unavailable or returns false', () => {
-			// simulate sendBeacon not available
-			(global as any).navigator = {};
-			(global as any).fetch = jest.fn(() => Promise.resolve({ ok: true }));
+	test('falls back to fetch when sendBeacon is unavailable', () => {
+		Object.defineProperty(global, 'navigator', {
+			configurable: true,
+			value: {},
+		});
+		const fetchMock = jest.fn(() => Promise.resolve({ ok: true }));
+		Object.defineProperty(global, 'fetch', {
+			configurable: true,
+			value: fetchMock,
+		});
 
 		const metric = { id: '2', name: 'LCP', value: 2 } as any;
 		WebVitalsReporter(metric);
 
-		expect(sendBeacon).toHaveBeenCalled();
-		expect((global as any).fetch).toHaveBeenCalled();
-		const [url, opts] = (global as any).fetch.mock.calls[0];
+		expect(fetchMock).toHaveBeenCalled();
+		const [url, opts] = fetchMock.mock.calls[0];
 		expect(url).toBe('/api/performance/web-vitals');
 		expect(opts.method).toBe('POST');
 	});

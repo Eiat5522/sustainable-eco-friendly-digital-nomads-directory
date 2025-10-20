@@ -5,15 +5,27 @@ describe('WebVitalsReporter (fixed)', () => {
   const originalFetch = (global as any).fetch;
 
   afterEach(() => {
-    (global as any).navigator = originalNavigator;
-    (global as any).fetch = originalFetch;
+    Object.defineProperty(global, 'navigator', {
+      configurable: true,
+      value: originalNavigator,
+    });
+    Object.defineProperty(global, 'fetch', {
+      configurable: true,
+      value: originalFetch,
+    });
     jest.resetAllMocks();
   });
 
   test('uses navigator.sendBeacon when available and returns true', () => {
     const sendBeacon = jest.fn(() => true);
-    (global as any).navigator = { sendBeacon };
-    (global as any).fetch = jest.fn(() => Promise.resolve({ ok: true }));
+    Object.defineProperty(global, 'navigator', {
+      configurable: true,
+      value: { sendBeacon },
+    });
+    Object.defineProperty(global, 'fetch', {
+      configurable: true,
+      value: jest.fn(() => Promise.resolve({ ok: true })),
+    });
 
     const metric = { id: '1', name: 'CLS', value: 1 } as any;
     WebVitalsReporter(metric);
@@ -27,15 +39,22 @@ describe('WebVitalsReporter (fixed)', () => {
 
   test('falls back to fetch when sendBeacon exists but returns false', () => {
     const sendBeacon = jest.fn(() => false);
-    (global as any).navigator = { sendBeacon };
-    (global as any).fetch = jest.fn(() => Promise.resolve({ ok: true }));
+    Object.defineProperty(global, 'navigator', {
+      configurable: true,
+      value: { sendBeacon },
+    });
+    const fetchMock = jest.fn(() => Promise.resolve({ ok: true }));
+    Object.defineProperty(global, 'fetch', {
+      configurable: true,
+      value: fetchMock,
+    });
 
     const metric = { id: '2', name: 'LCP', value: 2 } as any;
     WebVitalsReporter(metric);
 
     expect(sendBeacon).toHaveBeenCalled();
-    expect((global as any).fetch).toHaveBeenCalled();
-    const [url, opts] = (global as any).fetch.mock.calls[0];
+    expect(fetchMock).toHaveBeenCalled();
+    const [url, opts] = fetchMock.mock.calls[0];
     expect(url).toBe('/api/performance/web-vitals');
     expect(opts.method).toBe('POST');
   });

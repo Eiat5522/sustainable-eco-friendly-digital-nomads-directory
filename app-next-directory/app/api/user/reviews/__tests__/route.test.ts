@@ -1,30 +1,29 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 
-// Mock external dependencies instead of exporting mutable testControl from production code.
-jest.mock('@/lib/auth', () => ({ auth: jest.fn() }));
-jest.mock('@/utils/db-helpers', () => ({ getCollection: jest.fn() }));
-
 import {
   GET,
   normaliseSlug,
   normaliseListing,
   normaliseReview,
   isDeletedStatus,
+  testControl,
 } from '../route';
 
-import { auth } from '@/lib/auth';
-import { getCollection } from '@/utils/db-helpers';
+const testHarness = testControl!;
 
-const authMock = auth as unknown as jest.Mock;
-const getCollectionMock = getCollection as unknown as jest.Mock;
+let authMock: jest.Mock;
+let getCollectionMock: jest.Mock;
 
 beforeEach(() => {
-  jest.clearAllMocks();
-  authMock.mockReset();
+  authMock = jest.fn();
+  getCollectionMock = jest.fn();
+  testHarness.authOverride = authMock;
+  testHarness.getCollectionOverride = getCollectionMock;
 });
 
 afterEach(() => {
-  jest.clearAllMocks();
+  testHarness.authOverride = undefined;
+  testHarness.getCollectionOverride = undefined;
 });
 
 describe('helper utilities', () => {

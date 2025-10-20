@@ -1,68 +1,88 @@
 /**
  * Performance Monitoring Configuration
- * 
- * This file contains the configuration for performance monitoring tools
- * used in the Sustainable Eco-Friendly Digital Nomads Directory.
- * 
- * @version 1.0.0
- * @date May 15, 2025
+ *
+ * Consolidates the configuration used by performance monitoring tools.
  */
-
 import { PERFORMANCE_BUDGETS } from './performance-budgets';
 
-// Configuration for Web Vitals reporting
-export const WEB_VITALS_CONFIG = {
-  // Whether to report web vitals metrics
+export type WebVitalsConfig = {
+  enabled: boolean;
+  reportingEndpoint: string;
+  samplingRate: number;
+  metrics: string[];
+  debug: boolean;
+  thresholds: {
+    FCP: number;
+    LCP: number;
+    CLS: number;
+    FID: number;
+    TTFB: number;
+    INP: number;
+  };
+};
+
+export type ServerTimingConfig = {
+  enabled: boolean;
+  verbose: boolean;
+  operations: string[];
+};
+
+export type ApiMonitoringConfig = {
+  enabled: boolean;
+  logSlowCalls: boolean;
+  endpoints: Record<
+    string,
+    {
+      threshold: number;
+    }
+  >;
+};
+
+export type ResourceSizeConfig = {
+  enabled: boolean;
+  monitorBundleSize: boolean;
+  monitorImageSize: boolean;
+  thresholds: {
+    javascript: number;
+    css: number;
+    images: number;
+    fonts: number;
+    total: number;
+  };
+};
+
+export type MonitoringConfig = {
+  webVitals: WebVitalsConfig;
+  serverTiming: ServerTimingConfig;
+  apiMonitoring: ApiMonitoringConfig;
+  resourceSize: ResourceSizeConfig;
+};
+
+export const WEB_VITALS_CONFIG: WebVitalsConfig = {
   enabled: true,
-  
-  // Endpoint to send metrics to (could be an analytics endpoint or custom API)
   reportingEndpoint: '/api/performance/web-vitals',
-  
-  // Sampling rate for metrics (1.0 = 100% of users, 0.1 = 10% of users)
   samplingRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-  
-  // Which metrics to track
   metrics: ['FCP', 'LCP', 'CLS', 'FID', 'TTFB', 'INP'],
-  
-  // Debug mode - log metrics to console
   debug: process.env.NODE_ENV === 'development',
-  
-  // Thresholds based on our performance budgets
   thresholds: {
     FCP: PERFORMANCE_BUDGETS.pageLoad.FCP.acceptable,
     LCP: PERFORMANCE_BUDGETS.pageLoad.LCP.acceptable,
     CLS: PERFORMANCE_BUDGETS.pageLoad.CLS.acceptable,
     FID: PERFORMANCE_BUDGETS.pageLoad.FID.acceptable,
-    TTFB: 800, // Time to First Byte threshold
-    INP: 200, // Interaction to Next Paint threshold
+    TTFB: 800,
+    INP: 200,
   },
 };
 
-// Configuration for Server Timing headers
-export const SERVER_TIMING_CONFIG = {
+export const SERVER_TIMING_CONFIG: ServerTimingConfig = {
   enabled: true,
-  
-  // Include detailed timing information in development
   verbose: process.env.NODE_ENV === 'development',
-  
-  // Which operations to include in the timing headers
-  operations: [
-    'database-query',
-    'cms-fetch',
-    'render-time',
-    'api-response',
-    'cache-operations',
-  ],
+  operations: ['database-query', 'cms-fetch', 'render-time', 'api-response', 'cache-operations'],
 };
 
-// Configuration for API monitoring
-export const API_MONITORING_CONFIG = {
+export const API_MONITORING_CONFIG: ApiMonitoringConfig = {
   enabled: true,
-  
-  // Log slow API calls (based on thresholds)
   logSlowCalls: true,
-  
-  // Endpoints to track
   endpoints: {
     listings: {
       threshold: PERFORMANCE_BUDGETS.apiResponses.listings.acceptable,
@@ -79,17 +99,10 @@ export const API_MONITORING_CONFIG = {
   },
 };
 
-// Configuration for Resource size monitoring
-export const RESOURCE_SIZE_CONFIG = {
+export const RESOURCE_SIZE_CONFIG: ResourceSizeConfig = {
   enabled: true,
-  
-  // Monitor JS bundle sizes against budget
   monitorBundleSize: true,
-  
-  // Monitor image sizes against budget
   monitorImageSize: true,
-  
-  // Thresholds based on our performance budgets
   thresholds: {
     javascript: PERFORMANCE_BUDGETS.resourceSize.javascript.acceptable,
     css: PERFORMANCE_BUDGETS.resourceSize.css.acceptable,
@@ -99,8 +112,7 @@ export const RESOURCE_SIZE_CONFIG = {
   },
 };
 
-// Export all configurations as a single object
-export const MONITORING_CONFIG = {
+export const MONITORING_CONFIG: MonitoringConfig = {
   webVitals: WEB_VITALS_CONFIG,
   serverTiming: SERVER_TIMING_CONFIG,
   apiMonitoring: API_MONITORING_CONFIG,

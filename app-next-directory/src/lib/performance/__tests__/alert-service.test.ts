@@ -1,142 +1,90 @@
-import { processMetricForAlert } from '../alert-service.ts';
+import { beforeEach, afterEach, describe, expect, it, jest } from '@jest/globals';
+import { ALERT_SEVERITY } from '../alerting-thresholds';
+import { __TEST_ONLY__, processMetricForAlert } from '../alert-service';
 
 describe('alert-service', () => {
   let consoleLogSpy: jest.SpyInstance;
   let consoleWarnSpy: jest.SpyInstance;
   let consoleErrorSpy: jest.SpyInstance;
+  let dateNowSpy: jest.SpyInstance;
+  let randomSpy: jest.SpyInstance;
+  let fetchMock: jest.Mock;
+  let originalFetch: typeof globalThis.fetch | undefined;
 
   beforeEach(() => {
-    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    process.env.NODE_ENV = 'test';
+    (__TEST_ONLY__ as { resetAlertHistory: () => void }).resetAlertHistory();
+    consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.123456789);
+    fetchMock = jest.fn();
+    originalFetch = globalThis.fetch;
+    (globalThis as { fetch?: typeof globalThis.fetch }).fetch = fetchMock as unknown as typeof globalThis.fetch;
   });
 
   afterEach(() => {
     consoleLogSpy.mockRestore();
     consoleWarnSpy.mockRestore();
     consoleErrorSpy.mockRestore();
+    randomSpy.mockRestore();
+    dateNowSpy?.mockRestore();
+    if (originalFetch) {
+      (globalThis as { fetch?: typeof globalThis.fetch }).fetch = originalFetch;
+    } else {
+      delete (globalThis as { fetch?: unknown }).fetch;
+    }
+    originalFetch = undefined;
   });
 
   describe('processMetricForAlert', () => {
-    it('should process metric without triggering alert when value is below threshold', async () => {
-      const metricData = { name: 'test-metric', value: 50, status: 'ok' };
-      const alertThreshold = 100;
-      const callback = jest.fn();
+    it('returns null when the metric value is below configured thresholds', async () => {
+      dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(1_710_000_000_000);
 
-      await processMetricForAlert(metricData, alertThreshold, 'test', callback);
+      const result = await processMetricForAlert('pageLoad', 'FCP', 1800, { source: 'test-suite' });
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('Processing metric for alert:', metricData);
-      expect(consoleWarnSpy).not.toHaveBeenCalled();
-      expect(callback).not.toHaveBeenCalled();
+      expect(result).toBeNull();
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+      expect(fetchMock).not.toHaveBeenCalled();
     });
 
-    it('should trigger alert when value exceeds threshold', async () => {
-      const metricData = { name: 'test-metric', value: 150, status: 'warning' };
-      const alertThreshold = 100;
-      const callback = jest.fn();
+    it('dispatches an alert when the metric exceeds the threshold', async () => {
+      dateNowSpy = jest.spyOn(Date, 'now').mockReturnValue(1_710_000_000_000);
 
-      await processMetricForAlert(metricData, alertThreshold, 'test', callback);
-
-      expect(consoleLogSpy).toHaveBeenCalledWith('Processing metric for alert:', metricData);
-      expect(consoleWarnSpy).toHaveBeenCalledWith('Alert triggered for test-metric: 150');
-      expect(callback).toHaveBeenCalledTimes(1);
-    });
-
-    it('should trigger alert when value equals threshold', async () => {
-      const metricData = { name: 'threshold-test', value: 100, status: 'ok' };
-      const alertThreshold = 100;
-      const callback = jest.fn();
-
-      await processMetricForAlert(metricData, alertThreshold, 'equal', callback);
-
-      expect(consoleLogSpy).toHaveBeenCalledWith('Processing metric for alert:', metricData);
-      expect(consoleWarnSpy).not.toHaveBeenCalled();
-      expect(callback).not.toHaveBeenCalled();
-    });
-
-    it('should work without callback function', async () => {
-      const metricData = { name: 'no-callback', value: 150, status: 'error' };
-      const alertThreshold = 100;
-
-      await expect(
-        processMetricForAlert(metricData, alertThreshold, 'test')
-      ).resolves.not.toThrow();
-
-      expect(consoleWarnSpy).toHaveBeenCalledWith('Alert triggered for no-callback: 150');
-    });
-
-    it('should handle different metric values correctly', async () => {
-      const testCases = [
-        { value: 0, threshold: 100, shouldAlert: false },
-        { value: 99, threshold: 100, shouldAlert: false },
-        { value: 101, threshold: 100, shouldAlert: true },
-        { value: 200, threshold: 100, shouldAlert: true },
-      ];
-
-      const callback = jest.fn();
-
-      for (const testCase of testCases) {
-        callback.mockClear();
-        consoleWarnSpy.mockClear();
-
-        await processMetricForAlert(
-          { name: 'test', value: testCase.value, status: 'ok' },
-          testCase.threshold,
-          'test',
-          callback
-        );
-
-        if (testCase.shouldAlert) {
-          expect(callback).toHaveBeenCalled();
-          expect(consoleWarnSpy).toHaveBeenCalled();
-        } else {
-          expect(callback).not.toHaveBeenCalled();
-          expect(consoleWarnSpy).not.toHaveBeenCalled();
-        }
-      }
-    });
-
-    it('should handle errors gracefully', async () => {
-      const metricData = { name: 'error-test', value: 150, status: 'error' };
-      const alertThreshold = 100;
-      const callback = jest.fn().mockImplementation(() => {
-        throw new Error('Callback error');
+      const result = await processMetricForAlert('pageLoad', 'FCP', 4200, {
+        source: 'lighthouse',
+        url: '/sample',
       });
 
-      // Should throw since callback throws
-      await expect(
-        processMetricForAlert(metricData, alertThreshold, 'test', callback)
-      ).rejects.toThrow();
+      expect(result).not.toBeNull();
+      expect(result?.severity).toBe(ALERT_SEVERITY.ERROR);
+      expect(result?.metricName).toBe('FCP');
+      expect(result?.source).toBe('lighthouse');
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('[Performance Alert][ERROR] pageLoad.FCP: 4200'),
+        expect.objectContaining({ metricName: 'FCP' })
+      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Would send email to'),
+        expect.objectContaining({ metricName: 'FCP' })
+      );
+      expect(fetchMock).not.toHaveBeenCalled();
     });
 
-    it('should handle different alert types', async () => {
-      const metricData = { name: 'type-test', value: 150, status: 'critical' };
-      const alertThreshold = 100;
-      const callback = jest.fn();
+    it('enforces cooldown periods between repeated alerts', async () => {
+      dateNowSpy = jest.spyOn(Date, 'now');
 
-      await processMetricForAlert(metricData, alertThreshold, 'critical-alert', callback);
+      dateNowSpy.mockReturnValue(0);
+      const firstAlert = await processMetricForAlert('apiResponses', 'listings', 1200);
+      expect(firstAlert).not.toBeNull();
 
-      expect(callback).toHaveBeenCalled();
-    });
+      dateNowSpy.mockReturnValue(120_000); // 2 minutes later, still within 5 minute cooldown
+      const secondAlert = await processMetricForAlert('apiResponses', 'listings', 1400);
+      expect(secondAlert).toBeNull();
 
-    it('should handle negative values', async () => {
-      const metricData = { name: 'negative-test', value: -10, status: 'ok' };
-      const alertThreshold = 100;
-      const callback = jest.fn();
-
-      await processMetricForAlert(metricData, alertThreshold, 'test', callback);
-
-      expect(callback).not.toHaveBeenCalled();
-    });
-
-    it('should handle zero threshold', async () => {
-      const metricData = { name: 'zero-threshold', value: 1, status: 'ok' };
-      const alertThreshold = 0;
-      const callback = jest.fn();
-
-      await processMetricForAlert(metricData, alertThreshold, 'test', callback);
-
-      expect(callback).toHaveBeenCalled();
+      dateNowSpy.mockReturnValue(400_000); // After cooldown expires
+      const thirdAlert = await processMetricForAlert('apiResponses', 'listings', 1400);
+      expect(thirdAlert).not.toBeNull();
     });
   });
 });

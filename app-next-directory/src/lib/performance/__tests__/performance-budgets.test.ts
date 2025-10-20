@@ -1,4 +1,4 @@
-import { PERFORMANCE_BUDGETS } from '../performance-budgets.ts';
+import { PERFORMANCE_BUDGETS } from '../performance-budgets';
 
 describe('performance-budgets', () => {
   describe('PERFORMANCE_BUDGETS', () => {
@@ -16,9 +16,9 @@ describe('performance-budgets', () => {
       it('should define FCP budget', () => {
         const fcp = PERFORMANCE_BUDGETS.pageLoad.FCP;
         expect(fcp).toBeDefined();
-        expect(fcp.target).toBe(1000);
-        expect(fcp.acceptable).toBe(1500);
-        expect(fcp.critical).toBe(2000);
+        expect(fcp.target).toBe(1500);
+        expect(fcp.acceptable).toBe(2500);
+        expect(fcp.critical).toBe(3500);
       });
 
       it('should define LCP budget', () => {
@@ -32,9 +32,9 @@ describe('performance-budgets', () => {
       it('should define TTI budget', () => {
         const tti = PERFORMANCE_BUDGETS.pageLoad.TTI;
         expect(tti).toBeDefined();
-        expect(tti.target).toBe(3000);
+        expect(tti.target).toBe(3500);
         expect(tti.acceptable).toBe(5000);
-        expect(tti.critical).toBe(7000);
+        expect(tti.critical).toBe(7500);
       });
 
       it('should define FID budget', () => {
@@ -57,8 +57,8 @@ describe('performance-budgets', () => {
         const tbt = PERFORMANCE_BUDGETS.pageLoad.TBT;
         expect(tbt).toBeDefined();
         expect(tbt.target).toBe(200);
-        expect(tbt.acceptable).toBe(400);
-        expect(tbt.critical).toBe(600);
+        expect(tbt.acceptable).toBe(500);
+        expect(tbt.critical).toBe(800);
       });
 
       it('should have target < acceptable < critical for all metrics', () => {

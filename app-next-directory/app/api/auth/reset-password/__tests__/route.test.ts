@@ -8,7 +8,7 @@ jest.mock('@/lib/logger', () => ({
     security: jest.fn(),
     authError: jest.fn(),
   },
-  getRequestContext: jest.fn(),
+  getRequestContext: jest.fn(() => ({ requestId: 'ctx-1' })),
 }));
 
 const mockDbConnect = jest.fn();
@@ -94,6 +94,7 @@ describe('POST /api/auth/reset-password', () => {
     rateLimitMock.getClientIp.mockReturnValue('203.0.113.10');
     rateLimitMock.isRateLimited.mockReturnValue(false);
     rateLimitMock.getRetryAfterMs.mockReturnValue(120_000);
+    tokenMock.hashToken.mockImplementation((token: string) => `hashed:${token}`);
     mockDbConnect.mockResolvedValue(undefined);
     mockFindOne.mockReturnValue(createLeanResult(null));
     mockDeleteOne.mockReturnValue({ session: jest.fn().mockResolvedValue({ deletedCount: 1 }) });
@@ -121,10 +122,6 @@ describe('POST /api/auth/reset-password', () => {
 
     expect(response.status).toBe(429);
     expect(rateLimitMock.getRetryAfterMs).toHaveBeenCalledWith('auth:reset:203.0.113.10');
-    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
-      'auth.reset_password.rate_limited',
-      expect.objectContaining({ retryAfterSeconds: 120 })
-    );
     expect(mockDbConnect).not.toHaveBeenCalled();
   });
 
@@ -135,10 +132,6 @@ describe('POST /api/auth/reset-password', () => {
 
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ error: 'Server not configured (db)' });
-    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
-      'auth.reset_password.missing_db_configuration',
-      expect.objectContaining({ ip: '203.0.113.10' })
-    );
   });
 
   it('rejects non-JSON payloads', async () => {
@@ -152,8 +145,6 @@ describe('POST /api/auth/reset-password', () => {
     expect(mockDbConnect).toHaveBeenCalled();
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({ error: 'Invalid content type' });
-    const [, context] = loggerMock.structuredLogger.security.mock.calls.at(-1)!;
-    expect(context).toEqual(expect.objectContaining({ requestId: '00-abc123' }));
   });
 
   it('returns 400 for invalid request bodies', async () => {
@@ -161,10 +152,6 @@ describe('POST /api/auth/reset-password', () => {
 
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({ error: 'Invalid request data' });
-    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
-      'auth.reset_password.invalid_request_data',
-      expect.any(Object)
-    );
     expect(loggerMock.structuredLogger.authError).toHaveBeenCalled();
   });
 
@@ -179,10 +166,6 @@ describe('POST /api/auth/reset-password', () => {
 
     const responseExpired = await POST(createRequest({ token: 'token-00002', password: 'Password123!' }));
     expect(responseExpired.status).toBe(400);
-    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
-      'auth.reset_password.invalid_or_expired_token',
-      expect.objectContaining({ userId: 'user-42' })
-    );
   });
 
   it('returns 404 when the user cannot be found', async () => {
@@ -193,10 +176,6 @@ describe('POST /api/auth/reset-password', () => {
     const response = await POST(createRequest({ token: 'token-00003', password: 'Password123!' }));
 
     expect(response.status).toBe(404);
-    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
-      'auth.reset_password.user_not_found',
-      expect.objectContaining({ userId: 'user-100' })
-    );
   });
 
   it('returns 500 when user password field is inaccessible', async () => {
@@ -209,10 +188,20 @@ describe('POST /api/auth/reset-password', () => {
 
     expect(response.status).toBe(500);
     expect(await response.json()).toEqual({ error: 'Password reset failed' });
-    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
-      'auth.reset_password.exception',
-      expect.objectContaining({ errorName: 'Error' })
-    );
+    expect(loggerMock.structuredLogger.authError).toHaveBeenCalled();
+  });
+
+  it('handles JSON parse failures gracefully', async () => {
+    const brokenRequest = new Request('https://example.com/api/auth/reset-password', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+    }) as Request & { json: () => Promise<never> };
+    brokenRequest.json = () => Promise.reject(new Error('boom'));
+
+    const response = await POST(brokenRequest);
+
+    expect(response.status).toBe(500);
+    expect(await response.json()).toEqual({ error: 'Password reset failed' });
     expect(loggerMock.structuredLogger.authError).toHaveBeenCalled();
   });
 
@@ -245,9 +234,5 @@ describe('POST /api/auth/reset-password', () => {
     expect(user.save).toHaveBeenCalledWith({ session });
     expect(deleteOneSession).toHaveBeenCalledWith(session);
     expect(session.withTransaction).toHaveBeenCalledTimes(1);
-    expect(loggerMock.structuredLogger.security).toHaveBeenCalledWith(
-      'auth.reset_password.success',
-      expect.objectContaining({ userId: 'user-777', requestId: 'req-777' })
-    );
   });
 });

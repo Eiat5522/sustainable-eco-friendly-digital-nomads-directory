@@ -1,73 +1,76 @@
 /**
  * Performance Alerting Thresholds Configuration
- * 
- * This file configures alerting thresholds for various performance metrics
- * based on the performance budgets established for the application.
- * 
- * @version 1.0.0
- * @date May 15, 2025
+ *
+ * This module centralises alert severity definitions, notification routing,
+ * and the concrete metric thresholds derived from the performance budgets.
  */
-
 import { PERFORMANCE_BUDGETS } from './performance-budgets';
 
-/**
- * Alert severity levels
- */
 export const ALERT_SEVERITY = {
   INFO: 'info',
   WARNING: 'warning',
   ERROR: 'error',
   CRITICAL: 'critical',
-};
+} as const;
 
-/**
- * Alert notification channels
- */
+export type AlertSeverity = (typeof ALERT_SEVERITY)[keyof typeof ALERT_SEVERITY];
+
 export const NOTIFICATION_CHANNELS = {
-  CONSOLE: 'console', // Log to console (development only)
-  EMAIL: 'email',     // Send email notifications
-  SLACK: 'slack',     // Post to Slack channel
-  WEBHOOK: 'webhook', // Send to generic webhook
-};
+  CONSOLE: 'console',
+  EMAIL: 'email',
+  SLACK: 'slack',
+  WEBHOOK: 'webhook',
+} as const;
 
-/**
- * Default alert destinations by severity
- */
-const DEFAULT_ALERT_DESTINATIONS = {
+export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[keyof typeof NOTIFICATION_CHANNELS];
+
+export type DestinationMap = Partial<Record<AlertSeverity, NotificationChannel[]>>;
+
+const DEFAULT_ALERT_DESTINATIONS: DestinationMap = {
   [ALERT_SEVERITY.INFO]: [NOTIFICATION_CHANNELS.CONSOLE],
   [ALERT_SEVERITY.WARNING]: [NOTIFICATION_CHANNELS.CONSOLE, NOTIFICATION_CHANNELS.SLACK],
-  [ALERT_SEVERITY.ERROR]: [NOTIFICATION_CHANNELS.CONSOLE, NOTIFICATION_CHANNELS.SLACK, NOTIFICATION_CHANNELS.EMAIL],
-  [ALERT_SEVERITY.CRITICAL]: [NOTIFICATION_CHANNELS.CONSOLE, NOTIFICATION_CHANNELS.SLACK, NOTIFICATION_CHANNELS.EMAIL],
+  [ALERT_SEVERITY.ERROR]: [
+    NOTIFICATION_CHANNELS.CONSOLE,
+    NOTIFICATION_CHANNELS.SLACK,
+    NOTIFICATION_CHANNELS.EMAIL,
+  ],
+  [ALERT_SEVERITY.CRITICAL]: [
+    NOTIFICATION_CHANNELS.CONSOLE,
+    NOTIFICATION_CHANNELS.SLACK,
+    NOTIFICATION_CHANNELS.EMAIL,
+  ],
 };
 
-/**
- * Configuration for alert destinations
- */
 export const ALERT_DESTINATION_CONFIG = {
   [NOTIFICATION_CHANNELS.EMAIL]: {
-    recipients: process.env.ALERT_EMAIL_RECIPIENTS?.split(',') || ['admin@sustainablenomads.com'],
-    from: process.env.ALERT_EMAIL_FROM || 'alerts@sustainablenomads.com',
+    recipients: process.env.ALERT_EMAIL_RECIPIENTS?.split(',') ?? ['admin@sustainablenomads.com'],
+    from: process.env.ALERT_EMAIL_FROM ?? 'alerts@sustainablenomads.com',
   },
   [NOTIFICATION_CHANNELS.SLACK]: {
     webhook: process.env.ALERT_SLACK_WEBHOOK,
-    channel: process.env.ALERT_SLACK_CHANNEL || '#performance-alerts',
+    channel: process.env.ALERT_SLACK_CHANNEL ?? '#performance-alerts',
   },
   [NOTIFICATION_CHANNELS.WEBHOOK]: {
     url: process.env.ALERT_WEBHOOK_URL,
     method: 'POST',
   },
+} as const;
+
+export type AlertDestinationConfig = typeof ALERT_DESTINATION_CONFIG;
+
+export type AlertThresholdEntry = Partial<Record<AlertSeverity, number>> & {
+  cooldown?: number;
+  destinations?: DestinationMap;
 };
 
-/**
- * Performance alerting threshold configuration
- */
-export const ALERTING_THRESHOLDS = {
-  // Page Load Metrics Thresholds
+export type AlertingThresholds = Record<string, Record<string, AlertThresholdEntry>>;
+
+export const ALERTING_THRESHOLDS: AlertingThresholds = {
   pageLoad: {
     FCP: {
       [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.pageLoad.FCP.acceptable,
       [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.pageLoad.FCP.critical,
-      cooldown: 15 * 60, // 15 minutes between repeat alerts
+      cooldown: 15 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     LCP: {
@@ -101,14 +104,12 @@ export const ALERTING_THRESHOLDS = {
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
   },
-  
-  // API Response Time Thresholds
   apiResponses: {
     listings: {
       [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.apiResponses.listings.acceptable,
       [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.apiResponses.listings.critical,
       [ALERT_SEVERITY.CRITICAL]: PERFORMANCE_BUDGETS.apiResponses.listings.critical * 1.5,
-      cooldown: 5 * 60, // 5 minutes between repeat alerts
+      cooldown: 5 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     search: {
@@ -133,20 +134,18 @@ export const ALERTING_THRESHOLDS = {
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
   },
-  
-  // Server Resource Utilization Thresholds
   serverResources: {
     cpuUtilization: {
       [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.serverResources.cpuUtilization.acceptable,
       [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.serverResources.cpuUtilization.critical,
-      [ALERT_SEVERITY.CRITICAL]: 95, // Near complete CPU saturation
+      [ALERT_SEVERITY.CRITICAL]: 95,
       cooldown: 5 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     memoryUtilization: {
       [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.serverResources.memoryUtilization.acceptable,
       [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.serverResources.memoryUtilization.critical,
-      [ALERT_SEVERITY.CRITICAL]: 95, // Near out of memory
+      [ALERT_SEVERITY.CRITICAL]: 95,
       cooldown: 5 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
@@ -157,8 +156,6 @@ export const ALERTING_THRESHOLDS = {
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
   },
-  
-  // Component-Specific Thresholds
   components: {
     mapRendering: {
       initialLoad: {
@@ -185,58 +182,57 @@ export const ALERTING_THRESHOLDS = {
   },
 };
 
-/**
- * Determine the alert severity based on a metric value
- * @param {string} category - The metric category (e.g., 'pageLoad', 'apiResponses')
- * @param {string} name - The specific metric name
- * @param {number} value - The measured value
- * @returns {string|null} - The alert severity or null if no threshold is exceeded
- */
-export function getAlertSeverity(category, name, value) {
-  if (!ALERTING_THRESHOLDS[category] || !ALERTING_THRESHOLDS[category][name]) {
-    return null; // No configured thresholds for this metric
-  }
-  
-  const thresholds = ALERTING_THRESHOLDS[category][name];
-  
-  // Handle CLS where lower is better
-  if (category === 'pageLoad' && name === 'CLS') {
-    if (value >= thresholds[ALERT_SEVERITY.CRITICAL]) return ALERT_SEVERITY.CRITICAL;
-    if (value >= thresholds[ALERT_SEVERITY.ERROR]) return ALERT_SEVERITY.ERROR;
-    if (value >= thresholds[ALERT_SEVERITY.WARNING]) return ALERT_SEVERITY.WARNING;
+export function getAlertSeverity(category: string, name: string, value: number): AlertSeverity | null {
+  const thresholds = ALERTING_THRESHOLDS[category]?.[name];
+  if (!thresholds) {
     return null;
   }
-  
-  // For normal metrics (where higher values are worse)
-  if (thresholds[ALERT_SEVERITY.CRITICAL] && value >= thresholds[ALERT_SEVERITY.CRITICAL]) {
+
+  if (category === 'pageLoad' && name === 'CLS') {
+    const criticalThreshold = thresholds[ALERT_SEVERITY.CRITICAL];
+    if (criticalThreshold !== undefined && value >= criticalThreshold) {
+      return ALERT_SEVERITY.CRITICAL;
+    }
+    const errorThreshold = thresholds[ALERT_SEVERITY.ERROR];
+    if (errorThreshold !== undefined && value >= errorThreshold) {
+      return ALERT_SEVERITY.ERROR;
+    }
+    const warningThreshold = thresholds[ALERT_SEVERITY.WARNING];
+    if (warningThreshold !== undefined && value >= warningThreshold) {
+      return ALERT_SEVERITY.WARNING;
+    }
+    return null;
+  }
+
+  const criticalThreshold = thresholds[ALERT_SEVERITY.CRITICAL];
+  if (criticalThreshold !== undefined && value >= criticalThreshold) {
     return ALERT_SEVERITY.CRITICAL;
   }
-  if (value >= thresholds[ALERT_SEVERITY.ERROR]) {
+
+  const errorThreshold = thresholds[ALERT_SEVERITY.ERROR];
+  if (errorThreshold !== undefined && value >= errorThreshold) {
     return ALERT_SEVERITY.ERROR;
   }
-  if (value >= thresholds[ALERT_SEVERITY.WARNING]) {
+
+  const warningThreshold = thresholds[ALERT_SEVERITY.WARNING];
+  if (warningThreshold !== undefined && value >= warningThreshold) {
     return ALERT_SEVERITY.WARNING;
   }
-  
-  return null; // No threshold exceeded
+
+  return null;
 }
 
-/**
- * Get the notification channels for a given metric and severity
- * @param {string} category - The metric category
- * @param {string} name - The specific metric name
- * @param {string} severity - The alert severity
- * @returns {Array} - Array of notification channels
- */
-export function getNotificationChannels(category, name, severity) {
-  if (!ALERTING_THRESHOLDS[category] || 
-      !ALERTING_THRESHOLDS[category][name] || 
-      !ALERTING_THRESHOLDS[category][name].destinations ||
-      !ALERTING_THRESHOLDS[category][name].destinations[severity]) {
-    return DEFAULT_ALERT_DESTINATIONS[severity] || [NOTIFICATION_CHANNELS.CONSOLE];
+export function getNotificationChannels(
+  category: string,
+  name: string,
+  severity: AlertSeverity
+): NotificationChannel[] {
+  const destinations = ALERTING_THRESHOLDS[category]?.[name]?.destinations;
+  if (!destinations || !destinations[severity]) {
+    return DEFAULT_ALERT_DESTINATIONS[severity] ?? [NOTIFICATION_CHANNELS.CONSOLE];
   }
-  
-  return ALERTING_THRESHOLDS[category][name].destinations[severity];
+
+  return destinations[severity] ?? [NOTIFICATION_CHANNELS.CONSOLE];
 }
 
 export default ALERTING_THRESHOLDS;

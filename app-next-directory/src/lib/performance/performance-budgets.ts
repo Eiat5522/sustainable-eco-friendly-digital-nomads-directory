@@ -1,12 +1,22 @@
 export type Budget = { target: number; acceptable: number; critical: number };
 
-export const PERFORMANCE_BUDGETS: {
-  pageLoad: Record<string, Budget>;
-  resourceSize?: Record<string, Budget>;
-  apiResponses?: Record<string, Budget>;
-  components?: Record<string, unknown>;
-  serverResources?: Record<string, unknown>;
-} = {
+type BudgetCategory = Record<string, Budget>;
+
+type ComponentBudgets = {
+  mapRendering: BudgetCategory;
+  imageLoading: BudgetCategory;
+  ssrCaching: BudgetCategory;
+};
+
+export type PerformanceBudgets = {
+  pageLoad: BudgetCategory;
+  resourceSize: BudgetCategory;
+  apiResponses: BudgetCategory;
+  components: ComponentBudgets;
+  serverResources: BudgetCategory;
+};
+
+export const PERFORMANCE_BUDGETS: PerformanceBudgets = {
   pageLoad: {
     FCP: { target: 1500, acceptable: 2500, critical: 3500 },
     LCP: { target: 2500, acceptable: 4000, critical: 6000 },
@@ -78,4 +88,3 @@ export function getMetricThresholds(category: string, metric: string) {
   }
   return (PERFORMANCE_BUDGETS as any)[category][metric];
 }
-
