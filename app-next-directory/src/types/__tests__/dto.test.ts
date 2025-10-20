@@ -15,8 +15,10 @@ import type {
   RestaurantDetails,
   ActivityDetails,
   AccommodationDetails,
-  ListingDetailDTO
+  ListingDetailDTO,
+  ISODateString
 } from '../dto';
+import { asISODateString, assertISODateString, isISODateString } from '../dto';
 
 describe('dto types', () => {
   describe('ImageDimensionsDTO', () => {
@@ -433,6 +435,44 @@ describe('dto types', () => {
       if (listing.type === 'cafe') {
         expect(listing.cafeDetails).toBeDefined();
       }
+    });
+  });
+
+  describe('ISO date helpers', () => {
+    it('validates multiple ISO 8601 formats', () => {
+      const dateOnly = '2024-01-31';
+      const dateTimeZulu = '2024-01-31T15:45:30Z';
+      const dateTimeOffset = '2024-01-31T15:45:30+07:00';
+
+      expect(isISODateString(dateOnly)).toBe(true);
+      expect(isISODateString(dateTimeZulu)).toBe(true);
+      expect(isISODateString(dateTimeOffset)).toBe(true);
+    });
+
+    it('treats space separated date times as valid ISO values', () => {
+      expect(isISODateString('2024-01-31 15:45:30')).toBe(true);
+      expect(isISODateString('2024-01-31 15:45:30.123')).toBe(true);
+    });
+
+    it('rejects non ISO formatted values', () => {
+      expect(isISODateString('31-01-2024')).toBe(false);
+      expect(isISODateString('2024/01/31')).toBe(false);
+    });
+
+    it('asserts when value is not ISO 8601 compliant', () => {
+      expect(() => assertISODateString('not-a-date')).toThrow(TypeError);
+      expect(() => assertISODateString('2024-13-01T00:00:00')).not.toThrow();
+    });
+
+    it('surfaces a descriptive error message when assertion fails', () => {
+      expect(() => assertISODateString('invalid!')).toThrow(
+        new TypeError('Invalid ISO 8601 date/time string'),
+      );
+    });
+
+    it('brands values using asISODateString', () => {
+      const branded: ISODateString = asISODateString('2024-01-31T00:00:00Z');
+      expect(branded).toBe('2024-01-31T00:00:00Z');
     });
   });
 });
