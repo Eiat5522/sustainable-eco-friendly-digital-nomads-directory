@@ -177,8 +177,7 @@ export function createEmptyTestResults(): BaselineTestResults {
 }
 
 export function evaluateMetric(category: string, name: string, value: number): MetricEvaluation {
-  const categoryBudgets = (PERFORMANCE_BUDGETS as Record<string, Record<string, { target: number; acceptable: number }>>)[category];
-  const budget = categoryBudgets?.[name];
+  const budget = (PERFORMANCE_BUDGETS as any)[category]?.[name];
 
   if (!budget) {
     return {
@@ -228,10 +227,7 @@ export function generateMarkdownReport(results: BaselineTestResults): string {
       markdown += `|--------|-------|--------|------------|---------|\n`;
 
       for (const metric of pageTest.metrics) {
-        const budget =
-          (PERFORMANCE_BUDGETS as Record<string, Record<string, { target: number; acceptable: number }>>)[
-            metric.category
-          ]?.[metric.name];
+        const budget = (PERFORMANCE_BUDGETS as any)[metric.category]?.[metric.name];
         const statusEmoji =
           metric.result.status === 'pass'
             ? '✅'
