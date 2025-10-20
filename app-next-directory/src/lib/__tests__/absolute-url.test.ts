@@ -35,6 +35,7 @@ describe('absolute-url', () => {
 
     it('should reject unsafe host strings', async () => {
       process.env.VERCEL = '1';
+      process.env.NEXT_PUBLIC_FRONTEND_URL = 'http://localhost:3000';
       const mockHeadersObj = {
         get: jest.fn((key: string) => {
           if (key === 'x-forwarded-proto') return 'https';
