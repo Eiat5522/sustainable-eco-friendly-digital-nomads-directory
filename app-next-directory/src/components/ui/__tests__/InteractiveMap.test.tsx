@@ -5,32 +5,59 @@ import { InteractiveMap } from '../InteractiveMap';
 import L from 'leaflet';
 
 // Mock Leaflet
-jest.mock('leaflet', () => ({
-  map: jest.fn(() => ({
-    setView: jest.fn(),
-    remove: jest.fn(),
-  })),
-  marker: jest.fn(() => ({
+jest.mock('leaflet', () => {
+  const createMapInstance = () => {
+    const instance: any = {
+      setView: jest.fn().mockImplementation(() => instance),
+      remove: jest.fn(),
+      whenReady: jest.fn(callback => {
+        if (typeof callback === 'function') {
+          callback();
+        }
+        return instance;
+      }),
+      invalidateSize: jest.fn(),
+    };
+    return instance;
+  };
+
+  const createMarkerInstance = () => ({
     addTo: jest.fn().mockReturnThis(),
     bindPopup: jest.fn().mockReturnThis(),
     getPopup: jest.fn(() => ({
       setContent: jest.fn(),
     })),
-  })),
-  divIcon: jest.fn(),
-  tileLayer: jest.fn(() => ({
+  });
+
+  const createTileLayerInstance = () => ({
     addTo: jest.fn().mockReturnThis(),
-  })),
-}));
+    on: jest.fn(),
+    off: jest.fn(),
+    remove: jest.fn(),
+  });
+
+  return {
+    map: jest.fn(() => createMapInstance()),
+    marker: jest.fn(() => createMarkerInstance()),
+    divIcon: jest.fn(),
+    tileLayer: jest.fn(() => createTileLayerInstance()),
+  };
+});
 
 describe('InteractiveMap', () => {
   const mockLocation = { lat: 51.505, lng: -0.09 };
 
   beforeEach(() => {
-    // Clear mock history before each test
-    (L.map as jest.Mock).mockClear();
-    (L.marker as jest.Mock).mockClear();
-    (L.tileLayer as jest.Mock).mockClear();
+    jest.clearAllMocks();
+  });
+
+  beforeAll(() => {
+    (global as any).requestAnimationFrame = (callback: any) => {
+      if (typeof callback === 'function') {
+        callback(0);
+      }
+      return 0;
+    };
   });
 
   it('renders the map when a location is provided', async () => {
