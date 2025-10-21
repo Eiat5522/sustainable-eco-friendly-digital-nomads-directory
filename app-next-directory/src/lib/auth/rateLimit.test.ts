@@ -137,9 +137,91 @@ const setupModule = async (options: SetupOptions = {}) => {
 };
 
 describe('auth rateLimit utilities', () => {
+// Mock dependencies at the top
+const mockRatelimitLimit = jest.fn();
+const mockRatelimitClass = jest.fn().mockImplementation(() => ({
+  limit: mockRatelimitLimit,
+}));
+mockRatelimitClass.slidingWindow = jest.fn().mockReturnValue({
+  limit: 5,
+  window: '1 m',
+});
+
+const ratelimitModuleMock = Object.assign(jest.fn(), {
+  __esModule: true as const,
+  Ratelimit: mockRatelimitClass as typeof mockRatelimitClass | undefined,
+  default: undefined as unknown,
+});
+
+const mockRedisClient = {
+  evalsha: jest.fn(),
+  evalSha: jest.fn(),
+};
+const mockGetRedisClient = jest.fn(() => mockRedisClient);
+const mockOnRedisClientChange = jest.fn();
+
+const redisMockExports: {
+  __esModule: true;
+  getRedisClient: typeof mockGetRedisClient;
+  onRedisClientChange: typeof mockOnRedisClientChange | undefined;
+} = {
+  __esModule: true,
+  getRedisClient: mockGetRedisClient,
+  onRedisClientChange: mockOnRedisClientChange,
+};
+
+const mockDbConnect = jest.fn();
+const mockInsertOne = jest.fn();
+const mockMongooseCollection = jest.fn(() => ({
+  insertOne: mockInsertOne,
+}));
+const mockMongooseConnection = {
+  collection: mockMongooseCollection,
+};
+
+const mockLoginAttemptCreate = jest.fn();
+const mockValidatorIsEmail = jest.fn();
+
+jest.mock('@upstash/ratelimit', () => ratelimitModuleMock);
+
+jest.mock('@/lib/redis', () => redisMockExports);
+
+jest.mock('@/lib/dbConnect', () => ({
+  __esModule: true,
+  default: mockDbConnect,
+}));
+
+jest.mock('mongoose', () => ({
+  __esModule: true,
+  default: {
+    connection: mockMongooseConnection,
+  },
+}));
+
+jest.mock('@/models/LoginAttempt', () => ({
+  __esModule: true,
+  default: {
+    create: mockLoginAttemptCreate,
+  },
+  LoginAttemptReason: {
+    SUCCESS: 'SUCCESS',
+    INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+    RATE_LIMITED: 'RATE_LIMITED',
+  },
+}));
+
+jest.mock('validator', () => ({
+  __esModule: true,
+  isEmail: mockValidatorIsEmail,
+}));
+
+const flushRateLimiter = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+describe('rateLimit module', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
+    jest.resetModules();
     jest.clearAllMocks();
     process.env = { ...originalEnv, NODE_ENV: 'test', MONGODB_URI: 'mongodb://example' };
     delete (globalThis as { __TEST_LOGIN_RATE_LIMITER__?: unknown }).__TEST_LOGIN_RATE_LIMITER__;
