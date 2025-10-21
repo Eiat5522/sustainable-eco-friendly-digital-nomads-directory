@@ -1,187 +1,429 @@
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor, fireEvent, act, within } from '@testing-library/react';
 import { UserManagementTable } from '../UserManagementTable';
 
 describe('UserManagementTable', () => {
   const originalFetch = global.fetch;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     global.fetch = jest.fn();
   });
 
   afterEach(() => {
-    (global.fetch as jest.Mock | undefined)?.mockRestore?.();
     global.fetch = originalFetch;
+    jest.useRealTimers();
   });
 
-  const buildUsersResponse = (overrides?: Partial<ReturnType<typeof createUser>>) => ({
-    users: [
-      createUser({ id: 'user-1', name: 'Alice Admin', email: 'alice@example.com', role: 'admin' }),
-      createUser({ id: 'user-2', name: 'Bob Owner', email: 'bob@example.com', role: 'venueOwner', status: 'inactive' }),
-    ].map((user, index) => (index === 1 && overrides ? { ...user, ...overrides } : user)),
+  type UsersResponse = {
+    users: Array<{
+      id: string;
+      name: string | null;
+      email: string | null;
+      role: string;
+      createdAt: string;
+      lastActiveAt: string | null;
+      status: 'active' | 'inactive';
+    }>;
+    pagination: {
+      page: number;
+      limit: number;
+      totalCount: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
+    filters: {
+      search: string | null;
+      role: string | null;
+    };
+  };
+
+  const createUsersResponse = (
+    users: UsersResponse['users'],
+    overrides: Partial<UsersResponse> = {}
+  ): UsersResponse => ({
+    users,
     pagination: {
       page: 1,
       limit: 20,
-      totalCount: 2,
+      totalCount: users.length,
       totalPages: 1,
       hasNextPage: false,
       hasPrevPage: false,
+      ...overrides.pagination,
     },
     filters: {
-      search: '',
+      search: null,
       role: null,
+      ...overrides.filters,
     },
   });
 
-  const fetchMock = () => global.fetch as jest.Mock;
-
-  const queueFetchResponses = (...responses: Array<{ ok: boolean; json: () => Promise<unknown> }>) => {
-    fetchMock().mockImplementation(() => {
-      const next = responses.shift();
-      if (!next) {
-        return Promise.resolve({ ok: true, json: async () => ({}) });
-      }
-      return Promise.resolve(next);
-    });
-  };
-
-  it('loads and renders users for super admins', async () => {
-    queueFetchResponses({
+  it('renders loaded users, formats activity timestamps, and triggers filter fetches', async () => {
+    const now = new Date();
+    const fiveHoursAgo = new Date(now.getTime() - 5 * 60 * 60 * 1000).toISOString();
+    const fiveDaysAgo = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString();
+    const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString();
+    const fetchMock = global.fetch as jest.Mock;
+    fetchMock.mockResolvedValue({
       ok: true,
-      json: async () => buildUsersResponse(),
+      json: jest.fn().mockResolvedValue(
+        createUsersResponse([
+          {
+            id: 'user-1',
+            name: 'Alice Example',
+            email: 'alice@example.com',
+            role: 'user',
+            createdAt: now.toISOString(),
+            lastActiveAt: now.toISOString(),
+            status: 'active',
+          },
+          {
+            id: 'user-2',
+            name: null,
+            email: 'second@example.com',
+            role: 'editor',
+            createdAt: now.toISOString(),
+            lastActiveAt: null,
+            status: 'inactive',
+          },
+          {
+            id: 'user-3',
+            name: 'Invalid Date',
+            email: 'third@example.com',
+            role: 'moderator',
+            createdAt: now.toISOString(),
+            lastActiveAt: 'invalid-date',
+            status: 'active',
+          },
+          {
+            id: 'user-4',
+            name: 'Frequent Visitor',
+            email: 'frequent@example.com',
+            role: 'venueOwner',
+            createdAt: now.toISOString(),
+            lastActiveAt: fiveHoursAgo,
+            status: 'active',
+          },
+          {
+            id: 'user-5',
+            name: 'Occasional User',
+            email: 'occasional@example.com',
+            role: 'editor',
+            createdAt: now.toISOString(),
+            lastActiveAt: fiveDaysAgo,
+            status: 'inactive',
+          },
+          {
+            id: 'user-6',
+            name: 'Long Absent',
+            email: 'absent@example.com',
+            role: 'user',
+            createdAt: now.toISOString(),
+            lastActiveAt: threeMonthsAgo,
+            status: 'inactive',
+          },
+        ])
+      ),
     });
 
-    render(
-      <UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />,
-    );
+    render(<UserManagementTable currentUserRole="admin" currentUserId="admin-1" />);
 
-    const adminRow = await screen.findByTestId('user-row-user-1');
-    expect(adminRow).toBeInTheDocument();
-    expect(within(adminRow).getByRole('combobox')).toHaveValue('admin');
-    expect(screen.getByText('2 users total')).toBeInTheDocument();
-  });
+    expect(screen.getByText('Loading users...')).toBeInTheDocument();
 
-  it('allows super admins to change user roles and refreshes the table', async () => {
-    queueFetchResponses(
-      {
-        ok: true,
-        json: async () => buildUsersResponse(),
-      },
-      {
-        ok: true,
-        json: async () => ({ success: true }),
-      },
-      {
-        ok: true,
-        json: async () => buildUsersResponse({ role: 'editor' }),
-      },
-    );
+    await screen.findByTestId('user-row-user-1');
 
-    render(
-      <UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />,
-    );
-    const user = userEvent.setup();
+    expect(screen.getByText('Just now')).toBeInTheDocument();
+    expect(screen.getByText('Never')).toBeInTheDocument();
+    expect(screen.getByText('Unknown')).toBeInTheDocument();
+    expect(screen.getByText('5h ago')).toBeInTheDocument();
+    expect(screen.getByText('5d ago')).toBeInTheDocument();
+    expect(screen.getByText('3mo ago')).toBeInTheDocument();
 
-    const adminRow = await screen.findByTestId('user-row-user-1');
-    const select = within(adminRow).getByRole('combobox');
-    await user.selectOptions(select, 'editor');
+    const firstRow = screen.getByTestId('user-row-user-1');
+    expect(within(firstRow).queryByRole('combobox')).toBeNull();
+
+    const searchInput = screen.getByPlaceholderText('Search by name or email...') as HTMLInputElement;
+    fireEvent.change(searchInput, { target: { value: 'alice' } });
 
     await waitFor(() => {
-      expect(fetchMock()).toHaveBeenCalledWith(
+      expect(fetchMock).toHaveBeenNthCalledWith(2, expect.stringContaining('search=alice'));
+    });
+
+    const roleFilter = screen.getByLabelText('Filter by role', { selector: 'select' }) as HTMLSelectElement;
+    fireEvent.change(roleFilter, { target: { value: 'editor' } });
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenNthCalledWith(3, expect.stringContaining('role=editor'));
+    });
+  });
+
+  it('displays an error message when loading users fails', async () => {
+    const fetchMock = global.fetch as jest.Mock;
+    fetchMock.mockResolvedValue({
+      ok: false,
+      json: jest.fn().mockResolvedValue({ error: 'Unable to fetch users' }),
+    });
+
+    render(<UserManagementTable currentUserRole="admin" currentUserId="admin-1" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Unable to fetch users')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Loading users...')).not.toBeInTheDocument();
+  });
+
+  it('allows super admins to update user roles and clears feedback after timeout', async () => {
+    jest.useFakeTimers();
+    const fetchMock = global.fetch as jest.Mock;
+
+    const initialResponse = createUsersResponse([
+      {
+        id: 'target-user',
+        name: 'Target User',
+        email: 'target@example.com',
+        role: 'user',
+        createdAt: new Date().toISOString(),
+        lastActiveAt: null,
+        status: 'active',
+      },
+    ]);
+    const updatedResponse = createUsersResponse([
+      {
+        ...initialResponse.users[0],
+        role: 'editor',
+      },
+    ]);
+
+    fetchMock
+      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue(initialResponse) })
+      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue({ success: true }) })
+      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue(updatedResponse) });
+
+    render(<UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />);
+
+    const row = await screen.findByTestId('user-row-target-user');
+    const select = within(row).getByDisplayValue('User') as HTMLSelectElement;
+
+    fireEvent.change(select, { target: { value: 'editor' } });
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        2,
         '/api/admin/users',
         expect.objectContaining({
           method: 'PATCH',
-          body: JSON.stringify({ userId: 'user-1', role: 'editor' }),
-        }),
+          body: JSON.stringify({ userId: 'target-user', role: 'editor' }),
+        })
       );
     });
 
+    await screen.findByRole('status');
+    expect(screen.getByRole('status')).toHaveTextContent('User role updated to editor');
+
+    await act(async () => {
+      jest.advanceTimersByTime(3000);
+    });
+
     await waitFor(() => {
-      expect(screen.getByText('User role updated to editor')).toBeInTheDocument();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
     });
   });
 
-  it('toggles user status via the actions column', async () => {
-    queueFetchResponses(
+  it('prevents super admins from changing their own role', async () => {
+    const fetchMock = global.fetch as jest.Mock;
+    const response = createUsersResponse([
       {
-        ok: true,
-        json: async () => buildUsersResponse(),
+        id: 'super-1',
+        name: 'Super Admin',
+        email: 'super@example.com',
+        role: 'superAdmin',
+        createdAt: new Date().toISOString(),
+        lastActiveAt: null,
+        status: 'active',
       },
-      {
-        ok: true,
-        json: async () => ({ success: true }),
-      },
-      {
-        ok: true,
-        json: async () => buildUsersResponse({
-          status: 'active',
-        }),
-      },
-    );
+    ]);
 
-    render(
-      <UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />,
-    );
-    const user = userEvent.setup();
+    fetchMock.mockResolvedValue({ ok: true, json: jest.fn().mockResolvedValue(response) });
 
-    const ownerRow = await screen.findByTestId('user-row-user-2');
-    const toggle = within(ownerRow).getByRole('button', { name: /activate/i });
-    await user.click(toggle);
+    render(<UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />);
+
+    const row = await screen.findByTestId('user-row-super-1');
+    const select = within(row).getByDisplayValue('Super Admin') as HTMLSelectElement;
+
+    fireEvent.change(select, { target: { value: 'admin' } });
 
     await waitFor(() => {
-      expect(fetchMock()).toHaveBeenCalledWith(
+      expect(screen.getByRole('status')).toHaveTextContent('Cannot change your own Super Admin role');
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('surfaces errors when status updates fail', async () => {
+    const fetchMock = global.fetch as jest.Mock;
+
+    const listResponse = createUsersResponse([
+      {
+        id: 'inactive-user',
+        name: 'Inactive User',
+        email: 'inactive@example.com',
+        role: 'user',
+        createdAt: new Date().toISOString(),
+        lastActiveAt: null,
+        status: 'active',
+      },
+    ]);
+
+    fetchMock
+      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue(listResponse) })
+      .mockResolvedValueOnce({ ok: false, json: jest.fn().mockResolvedValue({ error: 'Unable to update status' }) });
+
+    render(<UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />);
+
+    const row = await screen.findByTestId('user-row-inactive-user');
+    const button = within(row).getByRole('button', { name: /Deactivate/ });
+
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByRole('status')).toHaveTextContent('Unable to update status');
+    });
+  });
+
+  it('updates user status successfully and clears the success message', async () => {
+    jest.useFakeTimers();
+    const fetchMock = global.fetch as jest.Mock;
+
+    const listResponse = createUsersResponse([
+      {
+        id: 'status-user',
+        name: 'Status User',
+        email: 'status@example.com',
+        role: 'user',
+        createdAt: new Date().toISOString(),
+        lastActiveAt: null,
+        status: 'inactive',
+      },
+    ]);
+    const reloadResponse = createUsersResponse([
+      {
+        ...listResponse.users[0],
+        status: 'active',
+      },
+    ]);
+
+    fetchMock
+      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue(listResponse) })
+      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue({ success: true }) })
+      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue(reloadResponse) });
+
+    render(<UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />);
+
+    const row = await screen.findByTestId('user-row-status-user');
+    const button = within(row).getByRole('button', { name: /Activate/ });
+
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        2,
         '/api/admin/users',
         expect.objectContaining({
           method: 'PATCH',
-          body: JSON.stringify({ userId: 'user-2', status: 'active' }),
-        }),
+          body: JSON.stringify({ userId: 'status-user', status: 'active' }),
+        })
       );
     });
 
+    await screen.findByRole('status');
+    expect(screen.getByRole('status')).toHaveTextContent('User activated successfully');
+
+    await act(async () => {
+      jest.advanceTimersByTime(3000);
+    });
+
     await waitFor(() => {
-      expect(screen.getByText(/activated successfully/i)).toBeInTheDocument();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
     });
   });
 
-  it('prevents non-super admins from changing roles', async () => {
-    queueFetchResponses({
-      ok: true,
-      json: async () => buildUsersResponse(),
-    });
+  it('renders pagination controls and loads adjacent pages when navigating', async () => {
+    const fetchMock = global.fetch as jest.Mock;
 
-    render(
-      <UserManagementTable currentUserRole="admin" currentUserId="admin-1" />,
+    const baseUsers = [
+      {
+        id: 'paged-user',
+        name: 'Paged User',
+        email: 'paged@example.com',
+        role: 'user',
+        createdAt: new Date().toISOString(),
+        lastActiveAt: null,
+        status: 'active',
+      },
+    ];
+
+    fetchMock
+      .mockResolvedValueOnce(
+        Promise.resolve({
+          ok: true,
+          json: jest
+            .fn()
+            .mockResolvedValue(
+              createUsersResponse(baseUsers, {
+                pagination: { page: 2, totalPages: 3, hasNextPage: true, hasPrevPage: true },
+              })
+            ),
+        })
+      )
+      .mockResolvedValueOnce(
+        Promise.resolve({
+          ok: true,
+          json: jest
+            .fn()
+            .mockResolvedValue(
+              createUsersResponse(baseUsers, {
+                pagination: { page: 1, totalPages: 3, hasNextPage: true, hasPrevPage: false },
+              })
+            ),
+        })
+      )
+      .mockResolvedValueOnce(
+        Promise.resolve({
+          ok: true,
+          json: jest
+            .fn()
+            .mockResolvedValue(
+              createUsersResponse(baseUsers, {
+                pagination: { page: 2, totalPages: 3, hasNextPage: true, hasPrevPage: true },
+              })
+            ),
+        })
+      );
+
+    render(<UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />);
+
+    await screen.findByTestId('user-row-paged-user');
+    const pageIndicators = screen.getAllByText((_, element) =>
+      element?.textContent?.replace(/\s+/g, ' ').trim() === 'Showing page 2 of 3'
     );
+    expect(pageIndicators.length).toBeGreaterThan(0);
 
-    const adminRow = await screen.findByTestId('user-row-user-1');
-    expect(within(adminRow).queryByRole('combobox')).toBeNull();
+    const previousButtons = screen.getAllByRole('button', { name: 'Previous' });
+    fireEvent.click(previousButtons[0]);
 
-    const feedback = screen.queryByRole('status');
-    expect(feedback).toBeNull();
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenNthCalledWith(2, expect.stringContaining('page=1'));
+    });
+    await screen.findByTestId('user-row-paged-user');
+
+    const nextButtons = screen.getAllByRole('button', { name: 'Next' });
+    fireEvent.click(nextButtons[0]);
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenNthCalledWith(3, expect.stringContaining('page=2'));
+    });
+    await screen.findByTestId('user-row-paged-user');
   });
 });
-
-function createUser({
-  id,
-  name,
-  email,
-  role,
-  status = 'active',
-}: {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  status?: 'active' | 'inactive';
-}) {
-  return {
-    id,
-    name,
-    email,
-    role,
-    status,
-    createdAt: new Date().toISOString(),
-    lastActiveAt: new Date().toISOString(),
-  };
-}
