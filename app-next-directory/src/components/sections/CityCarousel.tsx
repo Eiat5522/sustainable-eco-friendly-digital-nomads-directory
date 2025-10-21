@@ -89,6 +89,21 @@ export function CityCarousel() {
     };
   }, []);
 
+  const sanitizedCities = cities
+    .map((city) => {
+      const safeSlug = typeof city.slug === 'string' ? city.slug.trim() : '';
+      const safeId = typeof city.id === 'string' ? city.id.trim() : '';
+      const safeName = typeof city.name === 'string' ? city.name.trim() : '';
+      return {
+        ...city,
+        slug: safeSlug || safeId,
+        name: safeName,
+        _originalSlug: safeSlug,
+        _fallbackId: safeId,
+      };
+    })
+    .filter((city) => city.slug && city.slug.length > 0);
+
   return (
     <section className="py-16 bg-gradient-to-r from-green-50 to-blue-50">
       <div className="container mx-auto px-4">
@@ -107,7 +122,7 @@ export function CityCarousel() {
           <p className="body-md text-red-600">{error}</p>
         )}
 
-        {!loading && !error && cities.length > 0 && (
+        {!loading && !error && sanitizedCities.length > 0 && (
           <div className="relative">
             <NeoButton
               variant="secondary"
@@ -129,11 +144,10 @@ export function CityCarousel() {
               aria-label="Featured city destinations"
             >
               <div className="flex gap-6" role="list">
-                {cities.map((city, index) => {
-                  const safeSlug = typeof city.slug === 'string' ? city.slug.trim() : '';
-                  const safeId = typeof city.id === 'string' ? city.id.trim() : '';
-                  const safeName = typeof city.name === 'string' ? city.name.trim() : '';
-                  const key = safeSlug || safeId || safeName || `city-${index}`;
+                {sanitizedCities.map((city, index) => {
+                  const key = city._originalSlug || city._fallbackId || city.name || `city-${index}`;
+                  const slugSegment = city.slug;
+                  const displayName = city.name && city.name.length > 0 ? city.name : 'Explore City';
                   return (
                     <div
                       key={key}
@@ -141,8 +155,9 @@ export function CityCarousel() {
                       className="flex-none w-[85%] sm:w-[55%] lg:w-1/3 xl:w-1/4"
                     >
                       <Link
-                        href={`/cities/${city.slug}`}
+                        href={`/cities/${encodeURIComponent(slugSegment)}`}
                         className="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+                        aria-label={`Explore ${displayName}`}
                       >
                         <div className="relative h-48 w-full overflow-hidden rounded-xl border-4 border-black bg-white shadow-[8px_8px_0_0_rgba(0,0,0,1)] group-hover:shadow-[12px_12px_0_0_rgba(0,0,0,1)] group-focus-within:shadow-[12px_12px_0_0_rgba(0,0,0,1)] transition-all">
                           {/* Always render local placeholder to avoid 404s and layout shifts */}
@@ -171,8 +186,8 @@ export function CityCarousel() {
                           ) : null}
                           <div className="absolute inset-x-0 bottom-0 p-3 bg-black/60 text-white">
                             <div className="flex items-center justify-between">
-                              <span className="font-bold">{city.name}</span>
-                              {typeof city.sustainabilityScore === 'number' && (
+                              <span className="font-bold">{displayName}</span>
+                             {typeof city.sustainabilityScore === 'number' && (
                                 <span className="text-xs bg-emerald-400 text-black px-2 py-0.5 rounded-full font-bold">
                                   {city.sustainabilityScore}%
                                 </span>

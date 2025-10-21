@@ -59,6 +59,13 @@ describe('CityCarousel', () => {
     });
   });
 
+  it('links each city card to its slugged route', async () => {
+    render(<CityCarousel />);
+
+    const link = await screen.findByRole('link', { name: /Explore City 1/i });
+    expect(link).toHaveAttribute('href', '/cities/city-1');
+  });
+
   it('calls scrollNext when the right arrow is clicked', async () => {
     render(<CityCarousel />);
     await waitFor(() => expect(screen.getByText('City 1')).toBeInTheDocument());

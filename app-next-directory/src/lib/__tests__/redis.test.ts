@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 
 describe('redis module', () => {
   const originalEnv = process.env;
@@ -149,7 +149,8 @@ describe('redis module', () => {
     await expect(mockClient?.incr?.('key')).resolves.toBe(0);
     await expect(mockClient?.expire?.('key', 60)).resolves.toBe(0);
     await expect(mockClient?.ping?.()).resolves.toBe('PONG');
-import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+  });
+});
 
 const redisConstructor = jest.fn(function Redis(this: any, config: Record<string, unknown>) {
   Object.assign(this, { config });
@@ -264,8 +265,11 @@ describe('redis helpers', () => {
     process.env.UPSTASH_REDIS_REST_URL = 'https://example.com';
     process.env.UPSTASH_REDIS_REST_TOKEN = 'token';
 
-    jest.isolateModules(() => {
-      const { getRedisClient } = require('../redis');
+    await jest.isolateModulesAsync(async () => {
+      jest.doMock('@upstash/redis', () => ({
+        Redis: redisConstructor,
+      }));
+      const { getRedisClient } = await import('../redis');
       const client = getRedisClient();
       expect(client).toBeDefined();
     });

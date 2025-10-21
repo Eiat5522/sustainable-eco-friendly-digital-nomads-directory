@@ -21,6 +21,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
 
 
   useEffect(() => {
+    console.log('useEffect called');
     if (!location || !mapRef.current) return;
 
     // Dynamically import Leaflet to avoid SSR issues
@@ -42,7 +43,9 @@ export function InteractiveMap({ location, address, name, className }: Interacti
   const map = L.map(container).setView([location.lat, location.lng], 15);
 
         // Add tile layer with proper options
-        L.tileLayer(process.env.NEXT_PUBLIC_TILE_URL ?? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        const tileUrl = process.env.NEXT_PUBLIC_TILE_URL ?? 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        console.log('Tile URL:', tileUrl);
+        L.tileLayer(tileUrl, {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 19,
           minZoom: 1,
@@ -76,6 +79,11 @@ export function InteractiveMap({ location, address, name, className }: Interacti
         marker.bindPopup(popupContent);
         markerRef.current = marker;
         mapInstanceRef.current = map;
+
+        map.whenReady(() => {
+          map.invalidateSize();
+        });
+        
       } catch (error) {
         console.error('Failed to load map:', error);
       }

@@ -1,25 +1,21 @@
 import { NextResponse } from 'next/server';
-import { client } from '@/lib/sanity';
+import { getCitiesList } from '@/lib/data/city';
+import type { CityDTO } from '@/types/dto';
 
-type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
+type CitiesFetcher = (limit?: number) => Promise<CityDTO[]>;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
 export const testControl = isTestEnv
   ? {
-      clientFetchOverride: undefined as FetchFn | undefined,
+      fetchCitiesOverride: undefined as CitiesFetcher | undefined,
     }
   : undefined;
 
 export async function GET() {
   try {
-    const fetchFn =
-      testControl?.clientFetchOverride ??
-      ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
-    const cities = await fetchFn(`*[_type == "city"] | order(name asc) {
-      _id,
-      name
-    }`);
+    const fetchCities = testControl?.fetchCitiesOverride ?? getCitiesList;
+    const cities = await fetchCities(8);
     return NextResponse.json({ cities });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch cities' }, { status: 500 });

@@ -131,6 +131,39 @@ describe('Blog [slug] API', () => {
         expect(Array.isArray(data.data.relatedPosts)).toBe(true);
       });
 
+      it('should normalize optional fields when transformer omits them', async () => {
+        const mockPost: BlogPost = {
+          _id: '1',
+          title: 'Test Post Without Extras',
+          slug: 'test-post',
+          publishedAt: undefined,
+          body: undefined,
+          relatedPosts: undefined,
+          _updatedAt: '2024-02-01T00:00:00.000Z',
+        };
+        fetchMock.mockResolvedValueOnce(mockPost);
+        transformMock.mockReturnValueOnce({
+          _id: mockPost._id,
+          title: mockPost.title,
+          slug: mockPost.slug,
+          body: undefined,
+          relatedPosts: undefined,
+          publishedAt: undefined,
+          readingTime: undefined,
+        });
+
+        const request = new Request('http://localhost/api/blog/test-post');
+        const params = Promise.resolve({ slug: 'test-post' });
+        const response = await GET(request as any, { params });
+        const data = await response.json();
+
+        expect(data.data.relatedPosts).toEqual([]);
+        expect(data.data.meta.readingTime).toBeNull();
+        expect(data.data.meta.publishedDate).toBeNull();
+        expect(data.data.meta.wordCount).toBe(0);
+        expect(data.data.meta.lastModified).toBe('2024-02-01T00:00:00.000Z');
+      });
+
       it('should use correct GROQ query with slug parameter', async () => {
         fetchMock.mockResolvedValueOnce(null);
 
@@ -306,6 +339,34 @@ describe('Blog [slug] API', () => {
 
         expect(response.status).toBe(500);
         expect(data.error).toBe('Failed to update blog post');
+      });
+
+      it('should fallback to in-memory view count tracking when no override is provided', async () => {
+        routeTestControl.trackViewCountOverride = undefined;
+        routeTestControl.resetViewCounts();
+
+        fetchMock.mockResolvedValue({
+          _id: 'post-in-memory',
+          slug: 'in-memory',
+        });
+
+        const params = Promise.resolve({ slug: 'in-memory' });
+
+        const request1 = new Request('http://localhost/api/blog/in-memory', {
+          method: 'PUT',
+          body: JSON.stringify({ action: 'increment_view' }),
+        });
+        const response1 = await PUT(request1, { params });
+        const data1 = await response1.json();
+        expect(data1.data.viewCount).toBe(1);
+
+        const request2 = new Request('http://localhost/api/blog/in-memory', {
+          method: 'PUT',
+          body: JSON.stringify({ action: 'increment_view' }),
+        });
+        const response2 = await PUT(request2, { params });
+        const data2 = await response2.json();
+        expect(data2.data.viewCount).toBe(2);
       });
     });
   });
