@@ -1,4 +1,11 @@
 import { handleAuthCallbackUrl } from '../authCallbackHandler';
+import { structuredLogger } from '@/lib/logger';
+
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    middlewareError: jest.fn(),
+  },
+}));
 
 describe('handleAuthCallbackUrl', () => {
   it('should return null if callbackUrl is not present', () => {
@@ -81,5 +88,22 @@ describe('handleAuthCallbackUrl', () => {
     };
     const result = handleAuthCallbackUrl(req);
     expect(result).toBe('https://example.com/path?param=value&other=test');
+  });
+
+  it('should log an error if decoding fails', () => {
+    const req = {
+      nextUrl: {
+        searchParams: new URLSearchParams({ callbackUrl: '%' }), // Invalid URI component
+      },
+    };
+    handleAuthCallbackUrl(req);
+    expect(structuredLogger.middlewareError).toHaveBeenCalledWith(
+      'auth callback URL decoder',
+      expect.any(Error),
+      {
+        component: 'auth-callback',
+        callbackUrl: '[REDACTED]',
+      }
+    );
   });
 });

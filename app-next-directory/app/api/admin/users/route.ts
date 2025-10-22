@@ -36,8 +36,8 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     }
 
     const url = new URL(request.url);
-    const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10));
-    const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') || '20', 10)));
+    const page = Math.max(1, parseInt(url.searchParams.get('page') as string, 10) || 1);
+    const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') as string, 10) || 20));
     const search = url.searchParams.get('search')?.trim() || '';
     const roleFilter = url.searchParams.get('role') as UserRole | null;
 

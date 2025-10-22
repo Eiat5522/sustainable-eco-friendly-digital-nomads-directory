@@ -269,5 +269,20 @@ describe('Newsletter Confirmation API - GET /api/newsletter/confirm', () => {
 
       expect(response.headers.get('location')).toContain('https://secure.example.com');
     });
+
+    it('should fallback to a static redirect if URL constructor fails', async () => {
+      mockVerifyToken.mockRejectedValueOnce(new Error('Invalid token'));
+
+      const invalidRequest = {
+        url: 'http://invalid-url:badport',
+      } as Request;
+
+      // This setup will cause `new URL(request.url)` to throw, testing the inner catch block.
+      const response = await GET(invalidRequest);
+
+      expect(response).toBeInstanceOf(NextResponse);
+      expect(response.status).toBe(307);
+      expect(response.headers.get('location')).toBe('/newsletter/confirmed?status=invalid');
+    });
   });
 });

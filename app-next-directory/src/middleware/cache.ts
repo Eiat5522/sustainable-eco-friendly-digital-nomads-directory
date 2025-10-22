@@ -43,7 +43,7 @@ function shouldCache(request: { cookies: any; method: string; nextUrl: { pathnam
 /**
  * Gets cache configuration based on request path
  */
-function getCacheConfig(request: { nextUrl: { pathname: string } }): CacheConfig {
+export function getCacheConfig(request: { nextUrl: { pathname: string } }): CacheConfig {
   const path = request.nextUrl.pathname;
 
   // Listing pages
@@ -80,7 +80,7 @@ function getCacheConfig(request: { nextUrl: { pathname: string } }): CacheConfig
 /**
  * Generates cache control header value
  */
-function getCacheControlValue(config: CacheConfig): string {
+export function getCacheControlValue(config: CacheConfig): string {
   const directives = [
     config.isPrivate ? 'private' : 'public',
     `max-age=${config.maxAge}`,

@@ -456,4 +456,42 @@ describe('/api/search', () => {
       expect(response.status).toBe(200);
     });
   });
+
+  describe('buildWhereClause', () => {
+    it('should build a where clause with all filters', () => {
+      const { buildWhereClause } = require('../route');
+      const where = buildWhereClause({
+        q: 'test',
+        categories: ['cafe'],
+        destinations: ['Bangkok'],
+        amenities: ['wifi'],
+        nomadFeatures: ['fast-internet'],
+      });
+      expect(where).toContain('lower(name) match "*test*"');
+      expect(where).toContain('category == "cafe"');
+      expect(where).toContain('city->name == "Bangkok"');
+      expect(where).toContain('amenities[]->name');
+      expect(where).toContain('digitalNomadFeatures[]->name');
+    });
+  });
+
+  describe('buildFacetBuckets', () => {
+    it('should build facet buckets from source data', () => {
+      const { buildFacetBuckets } = require('../route');
+      const source = [
+        { category: 'cafe', destination: 'Bangkok', amenities: ['wifi', 'coffee'] },
+        { category: 'cafe', destination: 'Chiang Mai', amenities: ['wifi'] },
+      ];
+      const buckets = buildFacetBuckets(source);
+      expect(buckets.category).toEqual([{ value: 'cafe', count: 2 }]);
+      expect(buckets.destination).toEqual([
+        { value: 'Bangkok', count: 1 },
+        { value: 'Chiang Mai', count: 1 },
+      ]);
+      expect(buckets.amenities).toEqual([
+        { value: 'wifi', count: 2 },
+        { value: 'coffee', count: 1 },
+      ]);
+    });
+  });
 });

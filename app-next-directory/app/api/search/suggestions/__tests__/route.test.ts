@@ -108,4 +108,15 @@ describe('/api/search/suggestions', () => {
     expect(response.status).toBe(500);
     expect(json.details).toBeUndefined();
   });
+
+  it('handles null or undefined from suggestion service', async () => {
+    mockedGetSearchSuggestions.mockResolvedValue(null);
+
+    const request = new Request('http://localhost:3000/api/search/suggestions?q=test');
+    const response = await GET(request);
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.data.suggestions).toEqual(null);
+  });
 });

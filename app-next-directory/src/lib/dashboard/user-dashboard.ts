@@ -63,7 +63,7 @@ type FavoriteSummary = UserDashboardFavoriteDTO;
 type RegularUserDashboard = RegularUserDashboardDTO;
 type DashboardPayload = UserDashboardPayloadDTO;
 
-function createMonthBuckets(monthCount: number, reference: Date): MonthBucket[] {
+export function createMonthBuckets(monthCount: number, reference: Date): MonthBucket[] {
   const buckets: MonthBucket[] = [];
   const base = new Date(Date.UTC(reference.getUTCFullYear(), reference.getUTCMonth(), 1));
 
@@ -87,12 +87,12 @@ function toISODate(date: Date): string {
   return new Date(date).toISOString();
 }
 
-function normaliseAvg(sum: number, count: number): number | null {
+export function normaliseAvg(sum: number, count: number): number | null {
   if (count <= 0) return null;
   return Number((sum / count).toFixed(2));
 }
 
-function groupByListing<T extends { listingId: string }>(docs: T[]): Map<string, T[]> {
+export function groupByListing<T extends { listingId: string }>(docs: T[]): Map<string, T[]> {
   return docs.reduce((map, doc) => {
     const existing = map.get(doc.listingId) ?? [];
     existing.push(doc);

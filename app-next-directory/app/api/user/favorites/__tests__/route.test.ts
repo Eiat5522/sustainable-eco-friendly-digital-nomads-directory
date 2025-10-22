@@ -231,7 +231,7 @@ describe('/api/user/favorites', () => {
   describe('DELETE', () => {
     it('removes listing from favorites', async () => {
       mockedAuth.mockResolvedValue({
-        user: { id: 'user-1' },
+        user: { id: 'user-1', role: 'user' },
       });
       mockedFetch
         .mockResolvedValueOnce({ _id: 'listing-1' })
@@ -250,7 +250,7 @@ describe('/api/user/favorites', () => {
     });
 
     it('returns 400 when the slug is missing from the payload', async () => {
-      mockedAuth.mockResolvedValue({ user: { id: 'user-1' } });
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
   routeTestControl.parseBodyOverride = async () => ({ slug: '' });
 
       const request = new NextRequest('http://localhost/api/user/favorites', {
@@ -265,7 +265,7 @@ describe('/api/user/favorites', () => {
     });
 
     it('returns 404 when the listing lookup fails', async () => {
-      mockedAuth.mockResolvedValue({ user: { id: 'user-1' } });
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
       mockedFetch.mockResolvedValueOnce(null);
   routeTestControl.parseBodyOverride = async () => ({ slug: 'missing' });
 
@@ -281,7 +281,7 @@ describe('/api/user/favorites', () => {
     });
 
     it('returns a friendly message when no favorite exists', async () => {
-      mockedAuth.mockResolvedValue({ user: { id: 'user-1' } });
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
       mockedFetch
         .mockResolvedValueOnce({ _id: 'listing-1' })
         .mockResolvedValueOnce(null);
@@ -299,7 +299,7 @@ describe('/api/user/favorites', () => {
     });
 
     it('propagates errors from the Sanity client', async () => {
-      mockedAuth.mockResolvedValue({ user: { id: 'user-1' } });
+      mockedAuth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
       mockedFetch
         .mockResolvedValueOnce({ _id: 'listing-1' })
         .mockRejectedValueOnce(new Error('sanity down'));
@@ -317,6 +317,22 @@ describe('/api/user/favorites', () => {
       expect(json.error).toBe('Internal Server Error');
 
       consoleErrorSpy.mockRestore();
+    });
+
+    it('returns 401 when user role is not "user"', async () => {
+      mockedAuth.mockResolvedValue({
+        user: { id: 'user-1', role: 'admin' },
+      });
+
+      const request = new NextRequest('http://localhost/api/user/favorites', {
+        method: 'DELETE',
+      });
+
+      const response = await DELETE(request);
+      const json = await response.json();
+
+      expect(response.status).toBe(401);
+      expect(json.error).toBe('Unauthorized');
     });
   });
 });
