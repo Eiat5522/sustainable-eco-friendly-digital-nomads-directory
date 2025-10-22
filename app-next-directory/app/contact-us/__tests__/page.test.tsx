@@ -204,4 +204,36 @@ describe('ContactUsPage', () => {
       expect(screen.getByTestId('contact-error')).toHaveTextContent('Already subscribed')
     })
   })
+
+  it('prefills the form from search params', () => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams('type=newsletter&email=test@example.com'))
+    render(<ContactUsPage />)
+
+    expect(screen.getByTestId('enquiry-type-select')).toHaveValue('newsletter')
+    expect(screen.getByTestId('contact-email')).toHaveValue('test@example.com')
+  })
+
+  it('handles network errors gracefully', async () => {
+    const fetchMock = global.fetch as jest.Mock
+    fetchMock.mockRejectedValue(new Error('Network error'))
+    render(<ContactUsPage />)
+
+    fireEvent.change(screen.getByTestId('contact-name'), { target: { value: 'Jane Doe' } })
+    fireEvent.change(screen.getByTestId('contact-email'), { target: { value: 'jane@example.com' } })
+    fireEvent.change(screen.getByTestId('contact-subject'), { target: { value: 'Question about listings' } })
+    fireEvent.change(screen.getByTestId('contact-message'), { target: { value: 'Could you tell me more about eco stays?' } })
+
+    fireEvent.click(screen.getByTestId('contact-submit'))
+
+    await waitFor(() => {
+      expect(screen.getByTestId('contact-error')).toHaveTextContent('An error occurred. Please try again.')
+    })
+  })
+
+  it('maintains form state on re-render', () => {
+    const { rerender } = render(<ContactUsPage />)
+    fireEvent.change(screen.getByTestId('contact-name'), { target: { value: 'John Doe' } })
+    rerender(<ContactUsPage />)
+    expect(screen.getByTestId('contact-name')).toHaveValue('John Doe')
+  })
 })

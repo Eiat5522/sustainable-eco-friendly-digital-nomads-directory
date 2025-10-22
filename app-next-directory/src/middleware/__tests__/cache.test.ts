@@ -249,6 +249,33 @@ describe('cache middleware', () => {
       expect(mockAppend).toHaveBeenCalledWith('Vary', 'Cookie');
     });
 
+    it('should generate private cache control header', async () => {
+      const request = {
+        cookies: {
+          has: jest.fn().mockReturnValue(false),
+        },
+        method: 'GET',
+        nextUrl: {
+          pathname: '/profile',
+        },
+      };
+      const mockSet = jest.fn();
+      const mockAppend = jest.fn();
+      const response = {
+        headers: {
+          set: mockSet,
+          append: mockAppend,
+        },
+      };
+
+      // Manually call getCacheConfig to test the private scenario
+      const { getCacheConfig, getCacheControlValue } = await import('../cache');
+      const config = getCacheConfig(request);
+      config.isPrivate = true;
+      const cacheControl = getCacheControlValue(config);
+      expect(cacheControl).toContain('private');
+    });
+
     it('should allow caching for cacheable API routes', async () => {
       const request = {
         cookies: {
@@ -323,6 +350,39 @@ describe('cache middleware', () => {
 
       // Should not throw - errors are caught internally
       await expect(purgeCache()).resolves.not.toThrow();
+    });
+
+    it('should log an error when fetch fails in invalidateCache', async () => {
+      const error = new Error('Network error');
+      mockFetch.mockRejectedValueOnce(error);
+
+      await invalidateCache('/listings/test');
+
+      expect(mockMiddlewareError).toHaveBeenCalledWith(
+        'cache invalidation',
+        error,
+        expect.objectContaining({
+          component: 'cache',
+          operation: 'invalidate',
+          path: '/listings/test',
+        })
+      );
+    });
+
+    it('should log an error when fetch fails in purgeCache', async () => {
+      const error = new Error('Network error');
+      mockFetch.mockRejectedValueOnce(error);
+
+      await purgeCache();
+
+      expect(mockMiddlewareError).toHaveBeenCalledWith(
+        'cache purge',
+        error,
+        expect.objectContaining({
+          component: 'cache',
+          operation: 'purge_all',
+        })
+      );
     });
   });
 });

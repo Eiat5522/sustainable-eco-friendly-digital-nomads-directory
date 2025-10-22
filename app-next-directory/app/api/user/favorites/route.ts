@@ -43,8 +43,9 @@ export async function GET() {
   // session may be untyped in tests; cast to any before accessing .user
   const user = (session as any)?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
   const userId: string | undefined = user?.id;
+  const userRole: UserRole | undefined = user?.role;
 
-  if (!userId) {
+  if (!userId || userRole !== 'user') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -197,8 +198,9 @@ export async function DELETE(request: NextRequest) {
 
   const user = (session as any)?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
   const userId: string | undefined = user?.id;
+  const userRole: UserRole | undefined = user?.role;
 
-  if (!userId) {
+  if (!userId || userRole !== 'user') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

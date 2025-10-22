@@ -326,4 +326,32 @@ describe('Search results page module', () => {
       })
     })
   })
+
+  it('handles single-page results gracefully', async () => {
+    const payload = {
+      data: {
+        results: [{ _id: '1', name: 'Single Listing', slug: 'single-listing', category: 'cafe' }],
+        pagination: { page: 1, totalPages: 1, limit: 12, total: 1 },
+      },
+    }
+    mockSearchHandler.mockResolvedValueOnce(new Response(JSON.stringify(payload), { status: 200 }))
+
+    const ui = await ResultsPage({ searchParams: Promise.resolve({}) })
+    render(ui)
+
+    expect(screen.getByText('Showing page 1 of 1')).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /prev/i })).toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /next/i })).toBeInTheDocument()
+    const pageButtons = screen.getAllByRole('link', { name: /^[1]$/ })
+    expect(pageButtons).toHaveLength(1)
+  })
+
+  it('sanitizes the retry search parameter', async () => {
+    mockSearchHandler.mockResolvedValueOnce(new Response('Error', { status: 500 }))
+    const ui = await ResultsPage({ searchParams: Promise.resolve({ retry: 'invalid' }) })
+    render(ui)
+
+    const retryLink = screen.getByRole('link', { name: /retry search/i })
+    expect(retryLink).toHaveAttribute('href', '/search/results?retry=1')
+  })
 })

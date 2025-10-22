@@ -42,7 +42,7 @@ const LISTING_FIELDS = `
   "amenityNames": amenities[]->name
 `;
 
-function buildWhereClause({
+export function buildWhereClause({
   q,
   categories,
   destinations,
@@ -142,7 +142,7 @@ type FacetBuckets = {
   amenities: Array<{ value: string; count: number }>;
 };
 
-function buildFacetBuckets(source: FacetSourceRecord[]): FacetBuckets {
+export function buildFacetBuckets(source: FacetSourceRecord[]): FacetBuckets {
   const categoryCounts = new Map<string, number>();
   const destinationCounts = new Map<string, number>();
   const amenityCounts = new Map<string, number>();

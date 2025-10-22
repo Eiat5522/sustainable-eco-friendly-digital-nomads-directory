@@ -305,4 +305,132 @@ describe('/api/admin/users', () => {
     expect(Number.isNaN(Date.parse(updateData.updatedAt))).toBe(false);
     expect(mockCommit).toHaveBeenCalledTimes(1);
   });
+
+  it('handles errors when updating users', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockCommit.mockRejectedValueOnce(new Error('commit failed'));
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    const request = {
+      json: () => Promise.resolve({ userId: 'user-1', status: 'inactive' }),
+    } as any;
+
+    const response = await PATCH(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(json.error).toBe('Failed to update user');
+    consoleSpy.mockRestore();
+  });
+
+  it('allows superAdmin to access GET endpoint', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'superAdmin' } } as any);
+    mockFetch.mockResolvedValueOnce([]);
+    mockFetch.mockResolvedValueOnce(0);
+
+    const request = { url: 'https://example.com/api/admin/users' } as any;
+    const response = await GET(request, { params: Promise.resolve({}) });
+
+    expect(response.status).toBe(200);
+    expect(mockFetch).toHaveBeenCalled();
+  });
+
+  it('handles missing user data fields gracefully', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    const mockUser = { _id: 'user-1' }; // User with many missing fields
+    mockFetch.mockResolvedValueOnce([mockUser]);
+    mockFetch.mockResolvedValueOnce(1);
+
+    const request = { url: 'https://example.com/api/admin/users' } as any;
+    const response = await GET(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.users[0]).toEqual(
+      expect.objectContaining({
+        id: 'user-1',
+        name: null,
+        email: null,
+        role: 'user',
+        lastActiveAt: null,
+        status: 'active',
+      })
+    );
+  });
+
+  it('clamps limit parameter correctly', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockFetch.mockResolvedValueOnce([]);
+    mockFetch.mockResolvedValueOnce(0);
+
+    const request = { url: 'https://example.com/api/admin/users?limit=200' } as any;
+    await GET(request, { params: Promise.resolve({}) });
+
+    const query = mockFetch.mock.calls[0][0];
+    expect(query).toContain('[0...100]');
+  });
+
+  it('handles non-numeric page parameter', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockFetch.mockResolvedValueOnce([]);
+    mockFetch.mockResolvedValueOnce(0);
+
+    const request = { url: 'https://example.com/api/admin/users?page=abc' } as any;
+    const response = await GET(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+    expect(json.pagination.page).toBe(1);
+  });
+
+  it('allows an admin to update only status', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin', id: 'admin-1' } } as any);
+    const request = {
+      json: () => Promise.resolve({ userId: 'user-1', status: 'inactive' }),
+    } as any;
+    const response = await PATCH(request, { params: Promise.resolve({}) });
+    expect(response.status).toBe(200);
+    const [updateData] = mockSet.mock.calls[0];
+    expect(updateData).toEqual({
+      status: 'inactive',
+      updatedAt: expect.any(String),
+      updatedBy: 'admin-1',
+    });
+  });
+
+  it('handles invalid JSON body in PATCH', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    const request = {
+      json: () => Promise.reject(new Error('Invalid JSON')),
+    } as any;
+    const response = await PATCH(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+    expect(response.status).toBe(400);
+    expect(json.error).toBe('userId is required');
+  });
+
+  it('handles non-string userId in PATCH', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    const request = {
+      json: () => Promise.resolve({ userId: 123 }),
+    } as any;
+    const response = await PATCH(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+    expect(response.status).toBe(400);
+    expect(json.error).toBe('userId is required');
+  });
+
+  it('rejects unauthenticated GET request', async () => {
+    mockAuth.mockResolvedValue(null);
+    const request = { url: 'https://example.com/api/admin/users' } as any;
+    const response = await GET(request, { params: Promise.resolve({}) });
+    expect(response.status).toBe(403);
+  });
+
+  it('rejects unauthenticated PATCH request', async () => {
+    mockAuth.mockResolvedValue(null);
+    const request = {
+      json: () => Promise.resolve({ userId: 'user-1', status: 'inactive' }),
+    } as any;
+    const response = await PATCH(request, { params: Promise.resolve({}) });
+    expect(response.status).toBe(403);
+  });
 });

@@ -273,6 +273,54 @@ describe('Manage Listings API', () => {
         expect(response.status).toBe(200);
         expect(mockCommit).toHaveBeenCalled();
       });
+
+      it('should ignore unexpected fields in payload', async () => {
+        const existingListing = {
+          _id: 'listing-1',
+          owner: { _ref: 'user-1' },
+        };
+        mockAuth.mockResolvedValueOnce({
+          user: { id: 'user-1', role: 'venueOwner' },
+        });
+        mockFetch.mockResolvedValueOnce(existingListing);
+        mockCommit.mockResolvedValueOnce(existingListing);
+
+        const request = new Request('http://localhost/api/listings/manage/listing-1', {
+          method: 'PUT',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ title: 'New Title', unexpected: 'field' }),
+        });
+        const context: RouteContext = { params: { id: 'listing-1' } };
+
+        await PUT(request, context);
+        expect(mockSet).toHaveBeenCalledWith({ title: 'New Title' });
+      });
+
+      it('should handle null and undefined values for nested objects', async () => {
+        const existingListing = {
+          _id: 'listing-1',
+          owner: { _ref: 'user-1' },
+        };
+        mockAuth.mockResolvedValueOnce({
+          user: { id: 'user-1', role: 'venueOwner' },
+        });
+        mockFetch.mockResolvedValueOnce(existingListing);
+        mockCommit.mockResolvedValueOnce(existingListing);
+
+        const request = new Request('http://localhost/api/listings/manage/listing-1', {
+          method: 'PUT',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            accommodationDetails: null,
+            activitiesDetails: undefined,
+          }),
+        });
+        const context: RouteContext = { params: { id: 'listing-1' } };
+
+        await PUT(request, context);
+
+        expect(mockSet).toHaveBeenCalledWith({});
+      });
     });
 
     describe('Authorization', () => {
@@ -430,6 +478,23 @@ describe('Manage Listings API', () => {
         expect(response.status).toBe(401);
         expect(data.error).toBe('Unauthorized');
         expect(mockDelete).not.toHaveBeenCalled();
+      });
+
+      it('should return 401 when user role is not venueOwner', async () => {
+        mockAuth.mockResolvedValueOnce({
+          user: { id: 'user-1', role: 'user' },
+        });
+
+        const request = new Request('http://localhost/api/listings/manage/listing-1', {
+          method: 'DELETE',
+        });
+        const context: RouteContext = { params: { id: 'listing-1' } };
+
+        const response = await DELETE(request, context);
+        const data = await response.json();
+
+        expect(response.status).toBe(401);
+        expect(data.error).toBe('Unauthorized');
       });
     });
 

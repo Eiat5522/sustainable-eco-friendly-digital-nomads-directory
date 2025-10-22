@@ -177,4 +177,140 @@ describe('getUserDashboardData', () => {
     expect(result?.data.listings).toHaveLength(0);
     expect(result?.data.notices).toEqual(['No linked listings were found for this account.']);
   });
+
+  it('handles regular user with no favorites or reviews', async () => {
+    ensureSanityUserMock.mockResolvedValueOnce(null);
+    fetchMock.mockResolvedValue([]);
+
+    const result = await getUserDashboardData({
+      id: 'user-2',
+      role: 'user',
+      name: 'Bob',
+      email: 'bob@example.com',
+    });
+
+    expect(result?.data.kind).toBe('user');
+    expect(result?.data.favorites).toHaveLength(0);
+    expect(result?.data.metrics).toMatchObject({
+      favoritesCount: 0,
+      reviewsWritten: 0,
+      avgRatingGiven: null,
+    });
+  });
+
+  it('handles venue owner with listings but no data', async () => {
+    ensureSanityUserMock.mockResolvedValue(null);
+    fetchMock.mockImplementation((query: string) => {
+      if (query.startsWith('*[_type == "user"')) {
+        return Promise.resolve({
+          ownedListings: [
+            {
+              _id: 'listing-1',
+              name: 'Eco Stay',
+              slug: { current: 'eco-stay' },
+              city: { name: 'Bangkok' },
+            },
+          ],
+        });
+      }
+      return Promise.resolve([]);
+    });
+
+    getMonthlyViewCountsMock.mockResolvedValue(new Map());
+    getLifetimeViewCountsMock.mockResolvedValue(new Map());
+
+    const result = await getUserDashboardData({
+      id: 'owner-3',
+      role: 'venueOwner',
+      name: 'Charlie',
+      email: 'charlie@example.com',
+    });
+
+    expect(result?.data.kind).toBe('venueOwner');
+    expect(result?.data.listings).toHaveLength(1);
+    expect(result?.data.totals).toMatchObject({
+      avgRating: null,
+      reviewCount: 0,
+      favoritesCount: 0,
+      viewCount: null,
+    });
+  });
+
+  it('handles null or undefined values in raw data', async () => {
+    ensureSanityUserMock.mockResolvedValueOnce(null);
+    fetchMock.mockImplementation((query: string) => {
+      if (query.includes('userFavorite')) {
+        return Promise.resolve([
+          {
+            _id: 'fav-1',
+            createdAt: '2024-01-10T00:00:00.000Z',
+            listing: null,
+          },
+        ]);
+      }
+      if (query.includes('_type == "review"')) {
+        return Promise.resolve([
+          {
+            rating: null,
+            createdAt: '2024-01-11T00:00:00.000Z',
+          },
+        ]);
+      }
+      return Promise.resolve(null);
+    });
+
+    const result = await getUserDashboardData({
+      id: 'user-3',
+      role: 'user',
+      name: 'David',
+      email: 'david@example.com',
+    });
+
+    expect(result?.data.kind).toBe('user');
+    expect(result?.data.favorites).toHaveLength(0);
+    expect(result?.data.metrics).toMatchObject({
+      favoritesCount: 0,
+      reviewsWritten: 0,
+      avgRatingGiven: null,
+    });
+  });
+});
+
+describe('dashboard helpers', () => {
+  describe('createMonthBuckets', () => {
+    it('should create the correct number of buckets', () => {
+      const { createMonthBuckets } = require('../user-dashboard');
+      const buckets = createMonthBuckets(3, new Date('2024-01-15T00:00:00.000Z'));
+      expect(buckets).toHaveLength(3);
+    });
+  });
+
+  describe('normaliseAvg', () => {
+    it('should return null when count is zero', () => {
+      const { normaliseAvg } = require('../user-dashboard');
+      expect(normaliseAvg(10, 0)).toBeNull();
+    });
+
+    it('should return the correct average', () => {
+      const { normaliseAvg } = require('../user-dashboard');
+      expect(normaliseAvg(10, 3)).toBe(3.33);
+    });
+  });
+
+  describe('groupByListing', () => {
+    it('should group documents by listingId', () => {
+      const { groupByListing } = require('../user-dashboard');
+      const docs = [
+        { listingId: 'a', value: 1 },
+        { listingId: 'b', value: 2 },
+        { listingId: 'a', value: 3 },
+      ];
+      const grouped = groupByListing(docs);
+      expect(grouped.get('a')).toEqual([
+        { listingId: 'a', value: 1 },
+        { listingId: 'a', value: 3 },
+      ]);
+      expect(grouped.get('b')).toEqual([{ listingId: 'b', value: 2 }]);
+    });
+  });
 });

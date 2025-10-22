@@ -9,7 +9,7 @@ export interface TimingMetric {
   description?: string;
 }
 
-export class ServerTiming {
+export default class ServerTiming {
   private metrics: TimingMetric[] = [];
   private startTimes = new Map<string, number>();
 
@@ -42,7 +42,7 @@ export class ServerTiming {
 
 import { NextRequest, NextResponse } from 'next/server';
 
-export function middleware(_request: NextRequest) {
+export const serverTimingMiddleware = (_request: NextRequest) => {
   const timing = new ServerTiming();
   timing.start('total');
 

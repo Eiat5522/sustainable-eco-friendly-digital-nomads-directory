@@ -177,6 +177,17 @@ describe('API /api/user/favorites/[slug]', () => {
       expect(status).toBe(500);
       expect(body).toEqual({ error: 'Internal Server Error' });
     });
+
+    it('handles rejected params promise', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1', role: 'member' } });
+      const response = await POST(createRequest(), {
+        params: Promise.reject(new Error('test error')),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(500);
+      expect(body).toEqual({ error: 'Internal Server Error' });
+    });
   });
 
   describe('DELETE', () => {
@@ -244,6 +255,17 @@ describe('API /api/user/favorites/[slug]', () => {
 
       const response = await GET(request, {
         params: Promise.resolve({ slug: 'eco-hub' }),
+      });
+      const { status, body } = await parseResponse(response);
+
+      expect(status).toBe(200);
+      expect(body).toEqual({ favorited: false });
+    });
+
+    it('handles rejected params promise', async () => {
+      mockAuth.mockResolvedValueOnce({ user: { id: 'user-1' } });
+      const response = await GET(request, {
+        params: Promise.reject(new Error('test error')),
       });
       const { status, body } = await parseResponse(response);
 
