@@ -82,6 +82,11 @@ describe('helper utilities', () => {
       expect(review?.id).toEqual(expect.any(String));
     });
 
+    it('handles invalid createdAt date', () => {
+      const review = normaliseReview({ rating: 4, createdAt: 'invalid-date' });
+      expect(review?.createdAt).not.toBe('invalid-date');
+    });
+
     it('prefers explicit userName over nested user.name', () => {
       const review = normaliseReview({
         rating: 4,
@@ -183,6 +188,43 @@ describe('/api/user/reviews', () => {
     expect(json.listings).toHaveLength(1);
     expect(json.listings[0].reviews).toHaveLength(1);
     expect(json.listings[0].reviews[0].rating).toBe(5);
+  });
+
+  it('handles venue owner with no listings', async () => {
+    authMock.mockResolvedValue({ user: { id: 'user-1', role: 'venueOwner' } });
+    const listingsCursor = {
+      project: jest.fn().mockReturnValue({
+        toArray: jest.fn().mockResolvedValue([]),
+      }),
+    };
+    getCollectionMock.mockResolvedValueOnce({ find: jest.fn().mockReturnValue(listingsCursor) });
+    const response = await GET();
+    const json = await response.json();
+    expect(response.status).toBe(200);
+    expect(json.listings).toEqual([]);
+  });
+
+  it('handles listing with no reviews', async () => {
+    authMock.mockResolvedValue({ user: { id: 'user-1', role: 'venueOwner' } });
+    const listingsCursor = {
+      project: jest.fn().mockReturnValue({
+        toArray: jest.fn().mockResolvedValue([{ slug: 'test-listing', name: 'Test Listing' }]),
+      }),
+    };
+    const reviewsCursor = {
+      sort: jest.fn().mockReturnValue({
+        limit: jest.fn().mockReturnValue({
+          toArray: jest.fn().mockResolvedValue([]),
+        }),
+      }),
+    };
+    getCollectionMock
+      .mockResolvedValueOnce({ find: jest.fn().mockReturnValue(listingsCursor) })
+      .mockResolvedValueOnce({ find: jest.fn().mockReturnValue(reviewsCursor) });
+    const response = await GET();
+    const json = await response.json();
+    expect(response.status).toBe(200);
+    expect(json.listings[0].reviews).toEqual([]);
   });
 
   it('filters out deleted listings and invalid reviews', async () => {

@@ -82,11 +82,17 @@ export function normaliseReview(doc: ReviewDoc): NormalisedReview | null {
   }
 
   const comment = typeof doc.comment === 'string' ? doc.comment : '';
-  const createdAt = doc.createdAt instanceof Date
-    ? doc.createdAt.toISOString()
-    : typeof doc.createdAt === 'string' && doc.createdAt.trim().length > 0
-      ? new Date(doc.createdAt).toISOString()
-      : new Date().toISOString();
+  let createdAt: string;
+  try {
+    createdAt = doc.createdAt instanceof Date
+      ? doc.createdAt.toISOString()
+      : typeof doc.createdAt === 'string' && doc.createdAt.trim().length > 0
+        ? new Date(doc.createdAt).toISOString()
+        : new Date().toISOString();
+  } catch (e) {
+    createdAt = new Date().toISOString();
+  }
+
 
   let reviewerName: string | undefined;
   if (typeof doc.userName === 'string' && doc.userName.trim().length > 0) {

@@ -20,14 +20,18 @@ jest.mock('@/lib/sanity/client', () => ({
     getDocument: jest.fn(),
   },
 }));
+
 // Make this mock ESM-compatible so `.mockResolvedValueOnce` is available
-jest.mock('@/lib/sanity/user', () => ({ __esModule: true, ensureSanityUser: jest.fn() }));
+const mockEnsureSanityUser = jest.fn();
+jest.mock('@/lib/sanity/user', () => ({
+  __esModule: true,
+  ensureSanityUser: mockEnsureSanityUser,
+}));
 
 // Import after mocks to receive mocked versions
 import { GET, POST } from './route';
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
-import { ensureSanityUser } from '@/lib/sanity/user';
 import { NextResponse } from 'next/server';
 
 describe('API /api/comments', () => {
@@ -166,7 +170,7 @@ describe('API /api/comments', () => {
 
     it('creates a comment and revalidates tag', async () => {
       (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' } });
-      (ensureSanityUser as jest.Mock).mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
+      mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
       (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1', slug: { current: 'post-slug' } });
       (client.create as jest.Mock).mockResolvedValueOnce({ _id: 'comment1', _type: 'comment' });
 
@@ -183,7 +187,7 @@ describe('API /api/comments', () => {
       expect(client.create).toHaveBeenCalledWith({
         _type: 'comment',
         post: { _type: 'reference', _ref: 'p1' },
-        user: { _type: 'reference', _ref: 'user1' },
+        user: { _type: 'reference', _ref: 'sanityUser1' },
         content: 'Great article!',
         approved: false,
       });
@@ -314,6 +318,40 @@ describe('API /api/comments', () => {
       expect(res.status).toBe(500);
       await expect(res.json()).resolves.toEqual({ error: 'Internal Server Error' });
       expect(client.create).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns 500 when ensureSanityUser throws an unexpected error', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user', name: 'User', email: 'u@example.com' } });
+      mockEnsureSanityUser.mockRejectedValueOnce(new Error('Sanity user failure'));
+      (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1' });
+
+      const res = await POST(
+        new Request('http://localhost/api/comments', {
+          method: 'POST',
+          body: JSON.stringify({ content: 'User sync failure', postId: 'p1' }),
+        })
+      );
+
+      expect(res.status).toBe(500);
+      await expect(res.json()).resolves.toEqual({ error: 'Internal Server Error' });
+    });
+
+    it('still creates a comment if user has no email', async () => {
+      (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user1', role: 'user', name: 'User' } });
+      mockEnsureSanityUser.mockResolvedValueOnce({ _id: 'sanityUser1', _type: 'user' });
+      (client.getDocument as jest.Mock).mockResolvedValueOnce({ _id: 'p1', slug: { current: 'post-slug' } });
+      (client.create as jest.Mock).mockResolvedValueOnce({ _id: 'comment1', _type: 'comment' });
+
+      const req = new Request('http://localhost/api/comments', {
+        method: 'POST',
+        body: JSON.stringify({ content: 'Great article!', postId: 'p1' }),
+      });
+
+      const res = await POST(req);
+      const json = await res.json();
+      expect(res.status).toBe(201);
+      expect(json.success).toBe(true);
+      expect(json.data).toMatchObject({ _id: 'comment1' });
     });
   });
 });

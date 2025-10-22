@@ -102,7 +102,22 @@ describe('API /api/reviews GET', () => {
     expect(mockCollection._mockCursor.skip).toHaveBeenCalledWith(5);
   });
 
-  it('supports filtering by listing and sorting by helpful, and sets isHelpful correctly', async () => {
+  it('supports filtering by listing, rating, and verified status', async () => {
+    const mockCollection = createMockCollection([{ _id: 'r1', verified: true, helpfulCount: 5 }]);
+    const req = new Request('http://localhost/api/reviews?listing=slug-1&rating=5&verified=true');
+    const res = await GET(req, { collection: mockCollection } as any);
+
+    expect(res.status).toBe(200);
+
+    expect(mockCollection.find).toHaveBeenCalledWith({
+      status: 'approved',
+      listingSlug: 'slug-1',
+      rating: 5,
+      verified: true
+    });
+  });
+
+  it('supports sorting by helpful, and sets isHelpful correctly', async () => {
     const mockCollection = createMockCollection([{ _id: 'r1', verified: true, helpfulCount: 5 }]);
     const req = new Request('http://localhost/api/reviews?listing=slug-1&sortBy=helpful');
     const res = await GET(req, { collection: mockCollection } as any);
@@ -193,6 +208,20 @@ describe('API /api/reviews POST', () => {
     expect(res.status).toBe(403);
     const json = await res.json();
     expect(json.error).toBe('Forbidden: Insufficient permissions to create reviews');
+    expect(client.create).not.toHaveBeenCalled();
+  });
+
+  it('validates incoming payload and enforces rating constraints', async () => {
+    (auth as jest.Mock).mockResolvedValueOnce({ user: { id: 'user-1', role: 'user' } });
+
+    const res = await POST(new Request('http://localhost/api/reviews', {
+      method: 'POST',
+      body: JSON.stringify({ listingId: 'listing-1', rating: 6, comment: 'This is a sufficiently long review text.' })
+    }));
+
+    expect(res.status).toBe(422);
+    const json = await res.json();
+    expect(json.error).toBe('Rating must be a number between 1 and 5.');
     expect(client.create).not.toHaveBeenCalled();
   });
 

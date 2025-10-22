@@ -62,6 +62,34 @@ describe('LoginPage', () => {
     expect(redirectMock).toHaveBeenCalledWith('/dashboard');
   });
 
+  it('handles getBaseUrl errors gracefully', async () => {
+    authMock.mockResolvedValueOnce({ user: { id: 'user-1' } });
+    getBaseUrlMock.mockRejectedValueOnce(new Error('Base URL error'));
+    sanitizeCallbackUrlMock.mockReturnValue('/fallback');
+    redirectMock.mockImplementation(() => {
+      throw new Error('redirect');
+    });
+
+    const LoginPage = (await import('../page')).default;
+    await expect(LoginPage({ searchParams: { callbackUrl: '/dashboard' } })).rejects.toThrow('redirect');
+    expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/dashboard', undefined);
+    expect(redirectMock).toHaveBeenCalledWith('/fallback');
+  });
+
+  it('handles missing searchParams', async () => {
+    authMock.mockResolvedValueOnce({ user: { id: 'user-1' } });
+    getBaseUrlMock.mockResolvedValueOnce('https://example.com');
+    sanitizeCallbackUrlMock.mockReturnValue('/');
+    redirectMock.mockImplementation(() => {
+      throw new Error('redirect');
+    });
+
+    const LoginPage = (await import('../page')).default;
+    await expect(LoginPage({})).rejects.toThrow('redirect');
+    expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith(undefined, 'https://example.com');
+    expect(redirectMock).toHaveBeenCalledWith('/');
+  });
+
   it('renders the login form layout for unauthenticated users', async () => {
     authMock.mockResolvedValueOnce(null);
 
