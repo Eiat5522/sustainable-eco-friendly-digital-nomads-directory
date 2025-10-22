@@ -621,6 +621,25 @@ describe('Contact API', () => {
         consoleErrorSpy.mockRestore();
       });
 
+      it('should handle generic email sending errors', async () => {
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        process.env.RESEND_API_KEY = 'test-key';
+        (sendMail as jest.Mock).mockRejectedValue(new Error('Generic error'));
+
+        const request = createPostRequest(validContactData);
+
+        const response = await POST(request);
+        const data = await response.json();
+
+        expect(response.status).toBe(500);
+        expect(data.success).toBe(false);
+        expect(data.error).toContain('Failed to send message');
+
+        delete process.env.RESEND_API_KEY;
+        consoleErrorSpy.mockRestore();
+      });
+
+
       it('should handle authentication errors', async () => {
         const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
         process.env.RESEND_API_KEY = 'test-key';

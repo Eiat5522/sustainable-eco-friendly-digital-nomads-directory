@@ -52,6 +52,20 @@ describe('city data helpers', () => {
     expect(result).toBeNull();
   });
 
+  it('returns null for invalid input to toCityDTO', async () => {
+    fixtures.isE2ERun.mockReturnValue(false);
+    cachedClient.fetch.mockResolvedValue(null);
+    const result = await getCityBySlug('unknown');
+    expect(result).toBeNull();
+  });
+
+  it('returns null for invalid input to toCityDetailDTO', async () => {
+    fixtures.isE2ERun.mockReturnValue(false);
+    cachedClient.fetch.mockResolvedValue(null);
+    const result = await getCityDetailBySlug('unknown');
+    expect(result).toBeNull();
+  });
+
   it('normalizes city summaries from Sanity', async () => {
     fixtures.isE2ERun.mockReturnValue(false);
     cachedClient.fetch.mockResolvedValue({
@@ -216,6 +230,13 @@ describe('city data helpers', () => {
     expect(listings).toEqual([{ id: 'listing-1', name: 'Eco Hub' }]);
   });
 
+  it('handles empty listings array from Sanity', async () => {
+    fixtures.isE2ERun.mockReturnValue(false);
+    cachedClient.fetch.mockResolvedValue([]);
+    const listings = await getListingsByCityId('city-1');
+    expect(listings).toEqual([]);
+  });
+
   it('handles listings without populated city reference', async () => {
     fixtures.isE2ERun.mockReturnValue(false);
     cachedClient.fetch.mockResolvedValue([
@@ -266,6 +287,13 @@ describe('city data helpers', () => {
         description: undefined,
       },
     ]);
+  });
+
+  it('handles empty cities list from Sanity', async () => {
+    fixtures.isE2ERun.mockReturnValue(false);
+    cachedClient.fetch.mockResolvedValue([]);
+    const cities = await getCitiesList(1);
+    expect(cities).toEqual([]);
   });
 
   it('uses E2E city list fixtures when flagged', async () => {
