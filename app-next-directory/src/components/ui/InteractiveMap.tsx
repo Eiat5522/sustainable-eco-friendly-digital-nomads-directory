@@ -73,9 +73,21 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           });
         };
 
-        handleTileError = () => {
+        handleTileError = (e: Leaflet.TileErrorEvent) => {
           if (!isMounted) return;
           setTileLoadFailed(true);
+          if (process.env.NODE_ENV !== 'production') {
+            const detail =
+              (typeof e.error?.message === 'string' && e.error.message) ||
+              (typeof e.error?.code === 'string' && e.error.code) ||
+              (typeof e.error === 'string' && e.error) ||
+              (e.error instanceof Error ? e.error.message : undefined);
+            const tileSrc =
+              typeof (e.tile as HTMLImageElement | undefined)?.src === 'string'
+                ? (e.tile as HTMLImageElement).src
+                : undefined;
+            console.warn('[map] Leaflet tile error (non-fatal)', detail ?? tileSrc ?? 'unknown');
+          }
         };
 
         tileLayer = L.tileLayer(tileUrl, {
@@ -179,7 +191,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
 
   return (
     <div className={cn('h-64 rounded-lg overflow-hidden border-2 border-neo-border', className)}>
-      <div ref={mapRef} className="relative w-full h-full">
+      <div ref={mapRef} className="relative z-[10000] w-full h-full">
         {tileLoadFailed && (
           <div className="absolute inset-0 z-[500] flex flex-col items-center justify-center bg-gray-100/95 px-6 text-center text-xs text-gray-600">
             <p className="font-medium text-gray-700">Map tiles are unavailable right now.</p>

@@ -1,14 +1,35 @@
 "use client";
 
 import Link from 'next/link'
-import { signOut, useSession } from 'next-auth/react'
+import { signOut, SessionContext } from 'next-auth/react'
 import { DoorOpen, Heart, Menu, User, ChevronDown, LayoutDashboard } from 'lucide-react'
 import Image from 'next/image'
-import { useCallback, useState } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import type { Session } from 'next-auth'
+
+type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated'
+
+function useSafeSession(): { session: Session | null; status: SessionStatus } {
+  const context = useContext(SessionContext)
+  const hasLoggedMissingProviderRef = useRef(false)
+
+  useEffect(() => {
+    if (!context && process.env.NODE_ENV !== 'production' && !hasLoggedMissingProviderRef.current) {
+      console.warn('[auth] Header rendered without SessionProvider; defaulting to unauthenticated state')
+      hasLoggedMissingProviderRef.current = true
+    }
+  }, [context])
+
+  if (!context) {
+    return { session: null, status: 'unauthenticated' }
+  }
+
+  return { session: context.data ?? null, status: context.status as SessionStatus }
+}
 
 export function Header() {
-  const { data: session, status } = useSession()
+  const { session, status } = useSafeSession()
   const isAuthenticated = status === 'authenticated'
   const isAdmin = session?.user?.role === 'admin'
   const displayName = session?.user?.name ?? session?.user?.email ?? 'your account'
