@@ -2,53 +2,94 @@ import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { InteractiveMap } from '../InteractiveMap';
-import L from 'leaflet';
+import * as L from 'leaflet';
 
 // Mock Leaflet
-jest.mock('leaflet', () => {
-  const createMapInstance = () => {
-    const instance: any = {
-      setView: jest.fn().mockImplementation(() => instance),
-      remove: jest.fn(),
-      whenReady: jest.fn(callback => {
-        if (typeof callback === 'function') {
-          callback();
-        }
-        return instance;
-      }),
-      invalidateSize: jest.fn(),
+jest.mock(
+  'leaflet',
+  () => {
+    const createMapInstance = () => {
+      const instance: any = {
+        setView: jest.fn().mockImplementation(() => instance),
+        remove: jest.fn(),
+        whenReady: jest.fn((callback) => {
+          if (typeof callback === 'function') {
+            callback();
+          }
+          return instance;
+        }),
+        invalidateSize: jest.fn(),
+      };
+      return instance;
     };
-    return instance;
-  };
 
-  const createMarkerInstance = () => ({
-    addTo: jest.fn().mockReturnThis(),
-    bindPopup: jest.fn().mockReturnThis(),
-    getPopup: jest.fn(() => ({
-      setContent: jest.fn(),
-    })),
-  });
+    const createMarkerInstance = () => {
+      let popupInstance: { setContent: jest.Mock } | null = null;
+      return {
+        addTo: jest.fn().mockReturnThis(),
+        bindPopup: jest.fn(function (this: any, content) {
+          popupInstance = { setContent: jest.fn().mockReturnValue(this) };
+          if (content) {
+            popupInstance.setContent(content);
+          }
+          return this;
+        }),
+        getPopup: jest.fn(() => popupInstance),
+      };
+    };
 
-  const createTileLayerInstance = () => ({
-    addTo: jest.fn().mockReturnThis(),
-    on: jest.fn(),
-    off: jest.fn(),
-    remove: jest.fn(),
-  });
+    const createTileLayerInstance = () => ({
+      addTo: jest.fn().mockReturnThis(),
+      on: jest.fn(),
+      off: jest.fn(),
+      remove: jest.fn(),
+    });
 
-  return {
-    map: jest.fn(() => createMapInstance()),
-    marker: jest.fn(() => createMarkerInstance()),
-    divIcon: jest.fn(),
-    tileLayer: jest.fn(() => createTileLayerInstance()),
-  };
-});
+    const leafletMock = {
+      map: jest.fn(() => createMapInstance()),
+      marker: jest.fn(() => createMarkerInstance()),
+      divIcon: jest.fn(),
+      tileLayer: jest.fn(() => createTileLayerInstance()),
+    };
+
+    return {
+      __esModule: true,
+      default: leafletMock,
+      ...leafletMock,
+    };
+  },
+  { virtual: true },
+);
 
 describe('InteractiveMap', () => {
   const mockLocation = { lat: 51.505, lng: -0.09 };
+  let tileLayerInstance: {
+    addTo: jest.Mock;
+    on: jest.Mock;
+    off: jest.Mock;
+    remove: jest.Mock;
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    tileLayerInstance = {
+      addTo: jest.fn().mockReturnThis(),
+      on: jest.fn().mockReturnThis(),
+      off: jest.fn(),
+      remove: jest.fn(),
+    };
+    (L.default.tileLayer as jest.Mock).mockImplementation(() => tileLayerInstance);
+    // Restore map mock implementation in case a test overrides it
+    (L.default.map as jest.Mock).mockImplementation(() => ({
+      setView: jest.fn().mockReturnThis(),
+      remove: jest.fn(),
+      whenReady: jest.fn((cb) => cb()),
+      invalidateSize: jest.fn(),
+    }));
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
   });
 
   beforeAll(() => {
@@ -62,11 +103,9 @@ describe('InteractiveMap', () => {
 
   it('renders the map when a location is provided', async () => {
     render(<InteractiveMap location={mockLocation} name="Test Venue" />);
-    // The useEffect hook that initializes the map is async, so we wait for it to run
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
-    // When location is provided, the fallback message should not be present.
     expect(screen.queryByText('Location not available')).not.toBeInTheDocument();
   });
 
@@ -80,13 +119,165 @@ describe('InteractiveMap', () => {
     expect(screen.getByText('123 Test St')).toBeInTheDocument();
   });
 
-  it('renders the map with the correct initial view', async () => {
+  it('renders the map with the correct initial view and custom marker', async () => {
     render(<InteractiveMap location={mockLocation} name="Test Venue" />);
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
-    expect(L.map).toHaveBeenCalled();
-    const mapInstance = (L.map as jest.Mock).mock.results[0].value;
+    expect(L.default.map).toHaveBeenCalled();
+    const mapInstance = (L.default.map as jest.Mock).mock.results[0].value;
     expect(mapInstance.setView).toHaveBeenCalledWith([mockLocation.lat, mockLocation.lng], 15);
+    expect(L.default.divIcon).toHaveBeenCalled();
+  });
+
+  it('displays an error message when map tiles fail to load', async () => {
+    tileLayerInstance.on.mockImplementation(function (this: any, event, callback) {
+      if (event === 'tileerror') {
+        callback({
+          error: new Error('Failed to load'),
+          tile: document.createElement('img'),
+          coords: { x: 0, y: 0, z: 0 },
+        });
+      }
+      return this;
+    });
+
+    render(<InteractiveMap location={mockLocation} name="Test Venue" />);
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(screen.getByText('Map tiles are unavailable right now.')).toBeInTheDocument();
+  });
+
+  it('updates the marker popup when name or address props change', async () => {
+    const { rerender } = render(
+      <InteractiveMap location={mockLocation} name="Old Name" address="Old Address" />,
+    );
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    const markerInstance = (L.default.marker as jest.Mock).mock.results[0].value;
+    const popup = markerInstance.getPopup();
+    expect(popup).not.toBeNull();
+    expect(popup.setContent).toHaveBeenCalledTimes(1);
+
+    rerender(<InteractiveMap location={mockLocation} name="New Name" address="New Address" />);
+    expect(popup.setContent).toHaveBeenCalledTimes(2);
+    const newContent = (popup.setContent as jest.Mock).mock.calls[1][0];
+    expect(newContent.innerHTML).toContain('New Name');
+    expect(newContent.innerHTML).toContain('New Address');
+  });
+
+  it('cleans up the map instance and tile layer on unmount', async () => {
+    const { unmount } = render(<InteractiveMap location={mockLocation} name="Test Venue" />);
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    const mapInstance = (L.default.map as jest.Mock).mock.results[0].value;
+    unmount();
+
+    expect(mapInstance.remove).toHaveBeenCalled();
+    expect(tileLayerInstance.off).toHaveBeenCalledWith('load', expect.any(Function));
+    expect(tileLayerInstance.off).toHaveBeenCalledWith('tileerror', expect.any(Function));
+    expect(tileLayerInstance.remove).toHaveBeenCalled();
+  });
+
+  it('re-initializes the map when the location prop changes', async () => {
+    const { rerender } = render(<InteractiveMap location={mockLocation} name="Test Venue" />);
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    const oldMapInstance = (L.default.map as jest.Mock).mock.results[0].value;
+    const newLocation = { lat: 52.52, lng: 13.405 };
+    rerender(<InteractiveMap location={newLocation} name="Test Venue" />);
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(oldMapInstance.remove).toHaveBeenCalled();
+    expect(L.default.map).toHaveBeenCalledTimes(2);
+    const newMapInstance = (L.default.map as jest.Mock).mock.results[1].value;
+    expect(newMapInstance.setView).toHaveBeenCalledWith([newLocation.lat, newLocation.lng], 15);
+  });
+
+  it('shows an error if map initialization fails', async () => {
+    (L.default.map as jest.Mock).mockImplementation(() => {
+      throw new Error('Map init failed');
+    });
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(<InteractiveMap location={mockLocation} name="Test Venue" />);
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(screen.getByText('Map tiles are unavailable right now.')).toBeInTheDocument();
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load map:', expect.any(Error));
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('handles different tile error formats', async () => {
+    const errorCases = [
+      { error: { message: 'Network error' } },
+      { error: { code: 'ERR_CONNECTION_RESET' } },
+      { error: 'String error' },
+      { error: null },
+      { error: new Error('Instance of Error') },
+    ];
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    for (const errorCase of errorCases) {
+      tileLayerInstance.on.mockImplementation(function (this: any, event, callback) {
+        if (event === 'tileerror') {
+          callback({
+            ...errorCase,
+            tile: document.createElement('img'),
+            coords: { x: 0, y: 0, z: 0 },
+          });
+        }
+        return this;
+      });
+
+      const { unmount } = render(<InteractiveMap location={mockLocation} name="Test Venue" />);
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+
+      expect(screen.getByText('Map tiles are unavailable right now.')).toBeInTheDocument();
+      unmount();
+    }
+    consoleWarnSpy.mockRestore();
+  });
+
+  it('binds a new popup if one does not exist on update', async () => {
+    let popupInstance: any = null;
+    const markerInstance = {
+      addTo: jest.fn().mockReturnThis(),
+      bindPopup: jest.fn(function (this: any, content) {
+        popupInstance = { setContent: jest.fn().mockReturnValue(this) };
+        if (content) popupInstance.setContent(content);
+        return this;
+      }),
+      getPopup: jest.fn(() => popupInstance),
+    };
+    (L.default.marker as jest.Mock).mockImplementation(() => markerInstance);
+
+    const { rerender } = render(
+      <InteractiveMap location={mockLocation} name="Old Name" address="Old Address" />,
+    );
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    popupInstance = null; // Simulate no popup
+    rerender(<InteractiveMap location={mockLocation} name="New Name" address="New Address" />);
+
+    expect(markerInstance.bindPopup).toHaveBeenCalledTimes(2);
+    const newContent = (markerInstance.bindPopup as jest.Mock).mock.calls[1][0];
+    expect(newContent.innerHTML).toContain('New Name');
+    expect(newContent.innerHTML).toContain('New Address');
   });
 });
