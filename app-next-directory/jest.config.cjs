@@ -127,8 +127,8 @@ module.exports = {
 
 
 	transformIgnorePatterns: [
-		// Allow ESM libs through transform
-		'/node_modules/(?!(next-auth|@auth|jose|broadcast-channel|msw|@mswjs|until-async|strict-event-emitter|@open-draft)/)',
+		// Allow ESM libs through transform, accommodating pnpm's structure
+		'/node_modules/(?!.*(?:next-auth|@auth|jose|broadcast-channel|msw|@mswjs|until-async|strict-event-emitter|@open-draft))',
 	],
 
 	collectCoverageFrom: [
