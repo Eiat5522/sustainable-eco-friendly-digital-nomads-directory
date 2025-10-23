@@ -126,10 +126,10 @@ module.exports = {
 	moduleNameMapper,
 
 
-	transformIgnorePatterns: [
-		// Allow ESM libs through transform
-		'/node_modules/(?!(next-auth|@auth|jose|broadcast-channel|msw|@mswjs|until-async|strict-event-emitter|@open-draft)/)',
-	],
+        transformIgnorePatterns: [
+                // Allow specific ESM-first libraries (including pnpm's nested structure) through transform
+                '/node_modules/(?!.*(next-auth|@auth|jose|broadcast-channel|msw|@mswjs|until-async|strict-event-emitter|@open-draft)/)',
+        ],
 
 	collectCoverageFrom: [
 		'src/**/*.{ts,tsx,js,jsx}',
