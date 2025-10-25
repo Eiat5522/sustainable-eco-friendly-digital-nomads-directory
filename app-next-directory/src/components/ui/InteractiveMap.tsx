@@ -39,7 +39,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
 
     let tileLayer: Leaflet.TileLayer | null = null;
     let handleTileLoad: (() => void) | null = null;
-    let handleTileError: (() => void) | null = null;
+    let handleTileError: ((e: Leaflet.TileErrorEvent) => void) | null = null;
     let isMounted = true;
 
     const initMap = async () => {
@@ -78,8 +78,8 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           setTileLoadFailed(true);
           if (process.env.NODE_ENV !== 'production') {
             const detail =
-              (typeof e.error?.message === 'string' && e.error.message) ||
-              (typeof e.error?.code === 'string' && e.error.code) ||
+              (typeof (e.error as any)?.message === 'string' && (e.error as any).message) ||
+              (typeof (e.error as any)?.code === 'string' && (e.error as any).code) ||
               (typeof e.error === 'string' && e.error) ||
               (e.error instanceof Error ? e.error.message : undefined);
             const tileSrc =

@@ -1,6 +1,6 @@
 import { jest } from '@jest/globals';
 
-const mockRedisClient = {
+const mockRedisClient: Record<string, jest.Mock> = {
   set: jest.fn(),
   get: jest.fn(),
   del: jest.fn(),
@@ -9,4 +9,6 @@ const mockRedisClient = {
   expire: jest.fn(),
 };
 
-export const getRedisClient = jest.fn(() => mockRedisClient);
+export type MockRedisClient = typeof mockRedisClient;
+
+export const getRedisClient: jest.Mock<() => MockRedisClient> = jest.fn(() => mockRedisClient);

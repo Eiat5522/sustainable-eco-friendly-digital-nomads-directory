@@ -237,7 +237,7 @@ const nextAuthInstance = (() => {
   }
 })();
 
-export const { handlers: { GET, POST }, auth } = nextAuthInstance;
+export const { handlers: { GET, POST }, auth }: { handlers: { GET: any, POST: any }, auth: any } = nextAuthInstance;
 
 // Export getToken for middleware and tests
 export { getToken } from 'next-auth/jwt'

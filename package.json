@@ -58,28 +58,11 @@
             ]
         },
         "onlyBuiltDependencies": [
-            "@next/swc",
-            "@parcel/watcher",
-            "@playwright/test",
-            "@prisma/engines",
-            "@swc/core",
-            "@tailwindcss/oxide",
-            "bcrypt",
-            "better-sqlite3",
-            "canvas",
-            "esbuild",
-            "fsevents",
-            "msw",
-            "node-gyp",
-            "node-sass",
-            "playwright",
-            "prisma",
-            "sharp",
-            "sqlite3"
+            "mongodb-memory-server"
         ],
         "ignoredBuiltDependencies": [
+            "@percy/core",
             "bcrypt",
-            "core-js",
             "esbuild",
             "sharp",
             "unrs-resolver"
