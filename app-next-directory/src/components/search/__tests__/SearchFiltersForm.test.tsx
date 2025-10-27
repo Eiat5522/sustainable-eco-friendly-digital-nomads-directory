@@ -12,7 +12,7 @@ import userEvent from '@testing-library/user-event'
 import { SearchFiltersForm } from '../SearchFiltersForm'
 import { useRouter } from 'next/navigation'
 import { http, HttpResponse } from 'msw'
-import { server } from '@/__mocks__/server'
+import { server } from '@mocks/server'
 
 // Mock Next.js navigation
 const mockPush = jest.fn()

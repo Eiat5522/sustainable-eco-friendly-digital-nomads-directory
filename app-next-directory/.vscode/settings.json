@@ -1,10 +1,28 @@
 {
-  "jest.enable": true, 
+  "jest.enable": true,
+  "jest.debugMode": false,
+  "jest.jestCommandLine": "pnpm test:unit --",
   "jest.rootPath": ".",
-  "jest.runMode": "on-demand",
-  "jest.jestCommandLine": "node_modules/jest/bin/jest.js",
-  "jest.nodeEnv": {
-    "PATH": "${workspaceFolder}/app-next-directory/node_modules/.bin:~/.nvm/versions/node/v22.19.0/bin:/usr/local/bin:/usr/bin:/bin"
+  "jest.coverageFormatter": "GutterFormatter",
+  "jest.runMode": {
+    "type": "on-demand"
   },
-  "jest.monitorLongRun": 60000
+  "jest.useDashedArgs": true,
+  "jest.shell": "/usr/bin/bash",
+  "jest.nodeEnv": {
+    "PATH": "/home/eiat/.nvm/versions/node/v22.19.0/bin:/home/eiat/.local/share/pnpm:/home/eiat/.local/bin:/home/eiat/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/snap/bin:/home/eiat/.fzf/bin:/usr/local/go/bin:/home/eiat/go/bin",
+    "NODE_ENV": "test"
+  },
+  "jest.pathToJest": "~/.nvm/versions/node/v22.19.0/bin/pnpm",
+  "jest.pathToConfig": "jest.config.cjs",
+  "jest.disabledWorkspaceFolders": [],
+  "jest.showCoverageOnLoad": false,
+  "jest.monitorLongRun": 60000,
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.profiles.linux": {
+    "bash": {
+      "path": "/usr/bin/bash",
+      "args": ["-l"]
+    }
+  }
 }

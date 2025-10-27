@@ -1,4 +1,3 @@
-import { createTestData } from '@/tests/helpers/test-data';
 import { ApiResponseHandler } from '@/utils/api-response';
 
 type CreateTestDataFn = () => { listings: unknown };
@@ -21,7 +20,10 @@ export async function GET(): Promise<Response> {
   if ((nodeEnv ?? '').toLowerCase() === 'production') {
     return new Response(null, { status: 404 });
   }
-  const createData = testControl?.createTestDataOverride ?? createTestData;
+  // Load test helpers lazily to avoid bundlers trying to statically
+  // resolve test-only modules during a production build.
+  const testModule = await import('@/tests/helpers/test-data');
+  const createData = testControl?.createTestDataOverride ?? testModule.createTestData;
   const { listings } = createData();
   return ApiResponseHandler.success({ listings });
 }

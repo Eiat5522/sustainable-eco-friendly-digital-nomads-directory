@@ -2,10 +2,22 @@
     "folders": [
         {
             "path": "."
+        },
+        {
+            "name": "app-next-directory",
+            "path": "app-next-directory"
         }
     ],
     "settings": {
-        "typescript.enablePromptUseWorkspaceTsdk": true
+        "files.exclude": {
+            "**app-next-directory**": true // Hide app-next-directory from the Explorer
+        },
+        "typescript.enablePromptUseWorkspaceTsdk": true,
+        "jest.disabledWorkspaceFolders": [
+            "dist",
+            "types",
+            "sanity"
+        ]
     }
 
 }

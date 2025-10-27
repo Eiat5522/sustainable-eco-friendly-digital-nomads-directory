@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-// jest.config.cjs
-// Jest config for TypeScript + ESM + React 18/19 compatible unit tests
+/* eslint-disable @typescript-eslint/no-var-requires
+   jest.config.cjs
+   Jest config for TypeScript + ESM + React 18/19 compatible unit tests */
 
 // Convert to CommonJS-compatible synchronous config so Node can load this file
 const path = require('path');
@@ -47,6 +47,7 @@ const moduleNameMapper = {
   '^tailwind-merge$': '<rootDir>/__mocks__/tailwind-merge.js',
   '^embla-carousel-react$': '<rootDir>/__mocks__/embla-carousel-react.js',
   '^embla-carousel-autoplay$': '<rootDir>/__mocks__/embla-carousel-autoplay.js',
+  '^until-async$': '<rootDir>/__mocks__/until-async.ts',
   '^leaflet$': '<rootDir>/__mocks__/leaflet.ts',
   'leaflet/dist/leaflet.css$': '<rootDir>/__mocks__/leaflet/dist/leaflet.css.js',
   'leaflet.markercluster/dist/MarkerCluster.css$':
@@ -64,8 +65,9 @@ const moduleNameMapper = {
   '^@auth/core/providers/(.*)$': '<rootDir>/__mocks__/next-auth/providers/$1.js',
   '^@auth/mongodb-adapter$': '<rootDir>/__mocks__/@auth/mongodb-adapter.js',
 
+  '^@mocks/(.*)$': '<rootDir>/__mocks__/$1',
   '^@/(.*)$': '<rootDir>/src/$1',
-  '^@/__mocks__/(.*)$': '<rootDir>/__mocks__/$1',
+  '^@tests/(.*)$': '<rootDir>/tests/$1',
   '^@/lib/dbConnect(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/dbConnect.js',
   '^@/models/User$': '<rootDir>/__mocks__/@/models/User.js',
   // '^@/lib/redis(?:\\.(?:js|ts))?$': '<rootDir>/__mocks__/lib/redis.ts', // REMOVED: global Redis mock mapping for best practice
@@ -102,7 +104,7 @@ module.exports = {
     ],
   },
 
-  // Treat these as ESM inside Jest
+  // Treat these as ESM inside Jest to support ESM-only packages shipped as .js
   extensionsToTreatAsEsm: ['.ts', '.tsx', '.jsx'],
 
   testEnvironment: 'jsdom',
@@ -164,4 +166,3 @@ module.exports = {
       : []
   ),
 };
-

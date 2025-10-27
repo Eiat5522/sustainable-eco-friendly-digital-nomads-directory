@@ -5,7 +5,7 @@ import {
   TEST_SESSION_COOKIE_NAME,
   getSessionForRole,
   createTestData
-} from '@/tests/helpers/test-data'
+} from '@tests/helpers/test-data'
 
 const baseUrl = new URL(process.env.BASE_URL ?? process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000')
 

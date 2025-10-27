@@ -1,6 +1,6 @@
 import { test as base } from '@playwright/test'
 import type { Listing } from '@/types/listings'
-import { createTestData, listEcoTags } from '@/tests/helpers/test-data'
+import { createTestData, listEcoTags } from '@tests/helpers/test-data'
 
 type ListingsFixtures = {
   mockListings: Listing[]
