@@ -94,6 +94,59 @@ import { createTestData } from './src/tests/helpers/test-data';
 // Provide deterministic dataset for unit tests
 ;(global as any).__TEST_DATA__ = createTestData();
 
+// Ensure real mongoose never loads under jsdom/unit runs
+if (process.env.JEST_USE_REAL_MONGOOSE !== '1') {
+  jest.mock('mongoose');
+}
+
+// Integration: start a shared mongodb-memory-server once and set MONGODB_URI
+if (process.env.JEST_RUN_INTEGRATION === '1' && process.env.JEST_USE_REAL_MONGOOSE === '1') {
+  const g = global as any;
+  const ensureServer = async () => {
+    // If a test suite already set MONGODB_URI, respect it and don't start another server
+    if (process.env.MONGODB_URI) {
+      return;
+    }
+    if (!g.__GLOBAL_MONGO_SERVER__) {
+      try {
+        const mod = require('./src/test-helpers/createMongoMemoryServer');
+        const createMongoMemoryServer = mod.createMongoMemoryServer || mod.default?.createMongoMemoryServer || mod.default;
+        const server = await createMongoMemoryServer();
+        g.__GLOBAL_MONGO_SERVER__ = server;
+        process.env.MONGODB_URI = server.getUri();
+      } catch (e) {
+        // If helper not found, fallback to direct MongoMemoryServer
+        try {
+          const { MongoMemoryServer } = require('mongodb-memory-server');
+          const server = await MongoMemoryServer.create();
+          g.__GLOBAL_MONGO_SERVER__ = server;
+          process.env.MONGODB_URI = server.getUri();
+        } catch (err) {
+          console.error('Failed to start mongodb-memory-server for integration tests', err);
+          throw err;
+        }
+      }
+    } else {
+      try {
+        process.env.MONGODB_URI = g.__GLOBAL_MONGO_SERVER__.getUri();
+      } catch {}
+    }
+  };
+
+  beforeAll(async () => {
+    await ensureServer();
+  });
+
+  afterAll(async () => {
+    // Only stop if we started it here
+    if (g.__JEST_GLOBAL_MONGO_TEARDOWN_DONE__) return;
+    if (!g.__GLOBAL_MONGO_SERVER__) return;
+    g.__JEST_GLOBAL_MONGO_TEARDOWN_DONE__ = true;
+    try { await g.__GLOBAL_MONGO_SERVER__?.stop(); } catch {}
+    g.__GLOBAL_MONGO_SERVER__ = undefined;
+  });
+}
+
 // Ensure basic globals are available before any mocks that depend on them
 // Use `any` cast here to avoid TypeScript complaining about differences
 // between Node's util TextEncoder and the DOM/global TextEncoder types.
