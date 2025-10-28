@@ -1,6 +1,6 @@
 import { describe, it, expect, jest, beforeEach, afterEach, beforeAll } from '@jest/globals';
 import { http, HttpResponse } from 'msw';
-import { server } from '../../../__mocks__/server';
+import { server } from '@/mocks/server';
 import { fetchCityDetails, fetchCityListings } from '../api';
 
 const jsonResponse = (body: unknown, init?: ResponseInit) =>

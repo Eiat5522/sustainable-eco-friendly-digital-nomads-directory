@@ -38,11 +38,10 @@ const moduleNameMapper = {
   '^next/image$': '<rootDir>/__mocks__/next/image.js',
   '^next/font/google$': '<rootDir>/__mocks__/next/font/google.js',
   '^next/headers$': '<rootDir>/__mocks__/next/headers.js',
-  '^@/mocks/server$': '<rootDir>/__mocks__/server.ts',
-  '^mocks/server$': '<rootDir>/__mocks__/server.ts',
   '^@sanity/client$': '<rootDir>/__mocks__/@sanity/client.ts',
   '^next-sanity$': '<rootDir>/__mocks__/next-sanity.js',
-  'node-fetch': '<rootDir>/__mocks__/node-fetch.js',
+  '^@/mocks/server$': '<rootDir>/src/mocks/server.ts',
+  '^mocks/server$': '<rootDir>/src/mocks/server.ts',
   '^clsx$': '<rootDir>/__mocks__/clsx.js',
   '^tailwind-merge$': '<rootDir>/__mocks__/tailwind-merge.js',
   '^embla-carousel-react$': '<rootDir>/__mocks__/embla-carousel-react.js',
@@ -65,6 +64,8 @@ const moduleNameMapper = {
   '^@auth/core/providers/(.*)$': '<rootDir>/__mocks__/next-auth/providers/$1.js',
   '^@auth/mongodb-adapter$': '<rootDir>/__mocks__/@auth/mongodb-adapter.js',
 
+  '^@mocks/server$': '<rootDir>/src/mocks/server.ts',
+  '^@mocks/handlers$': '<rootDir>/src/mocks/handlers.ts',
   '^@mocks/(.*)$': '<rootDir>/__mocks__/$1',
   '^@/(.*)$': '<rootDir>/src/$1',
   '^@tests/(.*)$': '<rootDir>/tests/$1',
@@ -80,10 +81,12 @@ const moduleNameMapper = {
     compilerOptions && compilerOptions.paths ? compilerOptions.paths : {},
     { prefix: '<rootDir>/' }
   ),
+  '^@/utils/api-response$': '<rootDir>/src/mocks/api-response.ts',
 };
 
 if (useMockedMongoose) {
   moduleNameMapper['^mongoose$'] = '<rootDir>/__mocks__/mongoose.ts';
+  moduleNameMapper['^mongodb$'] = '<rootDir>/__mocks__/mongodb.js';
 }
 
 module.exports = {
@@ -107,13 +110,13 @@ module.exports = {
   // Treat these as ESM inside Jest to support ESM-only packages shipped as .js
   extensionsToTreatAsEsm: ['.ts', '.tsx', '.jsx'],
 
-  testEnvironment: 'jsdom',
+  testEnvironment: process.env.JEST_RUN_INTEGRATION === '1' ? 'node' : 'jsdom',
   testEnvironmentOptions: {
     customExportConditions: ['node', 'node-addons'],
   },
 
   setupFiles: ['<rootDir>/jest/setEnvVars.js'],
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts', '<rootDir>/__mocks__/node.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 
   // Optionally start an in-memory MongoDB for integration tests.
   globalSetup: '<rootDir>/jest/globalSetup.cjs',
@@ -134,7 +137,7 @@ module.exports = {
 
   transformIgnorePatterns: [
     // Allow ESM libs through transform, using a pnpm-compatible regex
-    '/node_modules/(?!.*(?:next-auth|@auth|jose|broadcast-channel|msw|@mswjs|until-async|strict-event-emitter|@open-draft))',
+    '/node_modules/(?!.*(?:next-auth|@auth|jose|broadcast-channel|msw|@mswjs|until-async|strict-event-emitter|@open-draft|mongodb|mongoose))',
   ],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx,js,jsx}',

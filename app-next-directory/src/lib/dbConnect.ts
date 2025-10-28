@@ -45,6 +45,11 @@ async function connectWithCaching(): Promise<Mongoose> {
 
 const isJestEnvironment = Boolean(process.env?.JEST_WORKER_ID);
 
+// Allow build-time or CI to opt-out of real MongoDB connections. Set
+// SKIP_DB_CONNECT=1 in the environment during Next builds or CI to
+// avoid accidental network connections and authentication noise.
+const skipDbConnect = process.env.SKIP_DB_CONNECT === '1';
+
 type DbConnectFn = (...args: []) => Promise<Mongoose>;
 
 type Awaitable<T> = T | Promise<T>;
@@ -147,6 +152,23 @@ const createMockableDbConnect = (): MockableDbConnect => {
   return mockFn;
 };
 
-const dbConnect: DbConnectFn = isJestEnvironment ? createMockableDbConnect() : connectWithCaching;
+// Choose the exported dbConnect implementation:
+// - In Jest environments use a mockable function so tests can override it.
+// - If SKIP_DB_CONNECT=1 (e.g., during Next build), provide a mock that
+//   resolves to a harmless empty object to avoid network connections.
+// - Otherwise use the real connectWithCaching implementation.
+let dbConnect: DbConnectFn;
+if (isJestEnvironment) {
+  dbConnect = createMockableDbConnect();
+} else if (skipDbConnect) {
+  const mock = createMockableDbConnect();
+  // Resolve to an empty object - callers that expect a Mongoose instance
+  // should still work for build-time static evaluation. Tests can replace
+  // this mock via mockImplementation when needed.
+  mock.mockResolvedValue(({} as unknown) as Mongoose);
+  dbConnect = mock;
+} else {
+  dbConnect = connectWithCaching;
+}
 
 export default dbConnect;

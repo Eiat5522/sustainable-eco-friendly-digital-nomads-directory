@@ -1,3 +1,4 @@
+/** @jest-environment node */
 import { describe, beforeAll, afterAll, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { createMongoMemoryServer } from '../../test-helpers/createMongoMemoryServer';

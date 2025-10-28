@@ -104,15 +104,19 @@ if (!(global as any).TextDecoder) (global as any).TextDecoder = TextDecoder;
 // Polyfill WHATWG Request/Response/Headers for Next.js 15 - MUST be imported early for MSW Response.clone support
 import 'whatwg-fetch';
 
-// Polyfill for Request, Response, Headers for Next.js API route tests (node-fetch fallback)
-try {
-  const nodeFetch = require('node-fetch');
-  global.Request = global.Request || nodeFetch.Request;
-  global.Response = global.Response || nodeFetch.Response;
-  global.Headers = global.Headers || nodeFetch.Headers;
-} catch (e) {
-  // If node-fetch is not available, warn
-  console.warn('node-fetch polyfill for Request/Response/Headers not applied:', e);
+// Only attempt a node-fetch fallback if WHATWG classes are missing (e.g., non-jsdom env)
+if (
+  process.env.JEST_RUN_INTEGRATION !== '1' &&
+  ((global as any).Request == null || (global as any).Response == null || (global as any).Headers == null)
+) {
+  try {
+    const nodeFetch = require('node-fetch');
+    global.Request = global.Request || nodeFetch.Request;
+    global.Response = global.Response || nodeFetch.Response;
+    global.Headers = global.Headers || nodeFetch.Headers;
+  } catch (e) {
+    // If node-fetch is not available or is ESM-only under CJS jest runtime, skip silently
+  }
 }
 
 // MSW setup for tests that rely on HTTP mocks
@@ -120,7 +124,7 @@ try {
 const skipMSW = process.env.JEST_USE_REAL_MONGOOSE === '1';
 if (!skipMSW) {
   try {
-    const { server } = require('./__mocks__/server');
+  const { server } = require('./src/mocks/server');
     beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
     afterEach(() => server.resetHandlers());
     afterAll(() => server.close());

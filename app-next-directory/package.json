@@ -111,7 +111,7 @@
     "leaflet.markercluster": "^1.5.3",
     "lodash": "^4.17.21",
     "lucide-react": "^0.523.0",
-    "mongodb": "^6.18.0",
+    "mongodb": "^4.17.2",
     "mongoose": "^8.16.5",
     "nanoid": "^5.1.5",
     "next": "15.5.0",

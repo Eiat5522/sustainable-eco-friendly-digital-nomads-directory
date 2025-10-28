@@ -1,5 +1,8 @@
 // jest/setEnvVars.js
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env.test') });
+// Force test env to ensure unit tests use mocks instead of real services
+process.env.NODE_ENV = 'test';
+process.env.SUPPRESS_JEST_WARNINGS = 'true';
 console.log('Loaded .env.test:', process.env.NEXT_PUBLIC_SANITY_PROJECT_ID, process.env.NODE_ENV); // DEBUG: Remove after troubleshooting
 
 // React 19 compatibility

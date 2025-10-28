@@ -134,6 +134,7 @@ describe('dbConnect helper', () => {
 
   it('uses real caching logic outside of Jest environments', async () => {
     delete process.env.JEST_WORKER_ID;
+    delete process.env.SKIP_DB_CONNECT;
     process.env.NODE_ENV = 'production';
     jest.resetModules();
     resetGlobalMongoose();
