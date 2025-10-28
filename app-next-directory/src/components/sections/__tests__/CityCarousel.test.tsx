@@ -122,4 +122,20 @@ describe('CityCarousel', () => {
 
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
+
+  it('falls back to the city id when slug data is missing so cards still render', async () => {
+    const fallbackCities = [
+      { id: 'city-101', name: 'Hoi An', slug: '', country: 'Vietnam', imageUrl: null },
+    ];
+    server.use(
+      http.get('/api/cities', () =>
+        HttpResponse.json({ cities: fallbackCities })
+      )
+    );
+
+    render(<CityCarousel />);
+
+    const link = await screen.findByRole('link', { name: /Explore Hoi An/i });
+    expect(link).toHaveAttribute('href', '/cities/city-101');
+  });
 });
