@@ -1,7 +1,7 @@
 import { test as setup } from '@playwright/test'
-import { createTestData, listCities, TEST_SESSION_COOKIE_NAME } from '@tests/helpers/test-data'
+import { TEST_SESSION_COOKIE_NAME, getTestData } from '../config/test-data'
 
-const seeded = createTestData()
+const seeded = getTestData()
 
 const json = (data: unknown, status = 200) => ({
   status,
@@ -179,7 +179,7 @@ export default setup('seed reusable test data', async ({ page }) => {
   })
 
   await page.route('**/api/cities', async (route) => {
-    const cityPayload = listCities().map((city) => ({
+    const cityPayload = seeded.cities.map((city) => ({
       id: city.id,
       name: city.name,
       slug: city.slug,

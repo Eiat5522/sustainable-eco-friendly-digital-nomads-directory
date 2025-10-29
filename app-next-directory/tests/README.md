@@ -127,6 +127,15 @@ Tests run against a local development server started automatically by Playwright
 - Simulated network conditions
 - Viewport sizes for desktop and mobile testing
 
+### Base URL & Server Control
+
+`tests/config/environment.ts` normalises the host so suites can run locally, in preview environments, or in CI.
+
+- `PLAYWRIGHT_BASE_URL` *(preferred)* — provide the full origin including protocol and port.
+- `BASE_URL` — used as a fallback when the Playwright-specific variable is not provided.
+
+If neither variable is defined, tests default to `http://localhost:3000`. When the resolved host is local the Playwright config will automatically boot `npm run dev` before executing suites.
+
 ### Required Environment Variables
 
 Security-oriented Playwright suites expect credentials to be provided via environment variables. Configure them in `.env.test`, `.env.local`, or your shell before running tests:
@@ -134,6 +143,30 @@ Security-oriented Playwright suites expect credentials to be provided via enviro
 - `TEST_USER_EMAIL` – email for the standard end-to-end test user
 - `TEST_USER_PASSWORD` – password for the standard end-to-end test user
 - `TEST_GENERIC_EMAIL` *(optional)* – fallback address used when a throwaway email is sufficient
+- `TEST_VENUE_OWNER_EMAIL` / `TEST_VENUE_OWNER_PASSWORD` *(optional)* – overrides used by venue-owner focused suites
+- `TEST_ADMIN_EMAIL` / `TEST_ADMIN_PASSWORD` *(optional)* – overrides for admin dashboards and management flows
+
+> ℹ️ **Tip:** When these variables are absent the shared Jest/Playwright setup injects defaults from the canonical dataset so suites can run with zero additional configuration.
+
+### Shared Test Fixtures
+
+The canonical dataset for listings, cities, users, favorites, and reviews is defined in `src/tests/helpers/test-data.ts`.
+
+- Jest integration suites can import ready-to-use fixtures from `src/tests/fixtures`.
+- Playwright suites reuse the same dataset through `tests/config/test-data.ts` and the API overrides in `tests/setup/mock-data.ts`.
+
+Call `getTestData()` when you need a fresh clone of the dataset, or read from the exported `TEST_DATASET` constant for immutable access.
+
+### Test Roles & Credentials
+
+`tests/config/test-users.ts` exposes typed credentials and metadata for each supported role. Fixtures persist storage state files in `tests/.auth` to speed up subsequent runs.
+
+| Role | Email | Password | Description |
+| --- | --- | --- | --- |
+| Customer | `user@example.com` | `password123` | Standard browsing account used for public flows |
+| Venue Owner | `venue@example.com` | `password123` | Business owner profile with listing management access |
+| Editor | `editor@example.com` | `password123` | Content editor responsible for publishing reviews |
+| Admin | `admin@example.com` | `password123` | Administrator with elevated management capabilities |
 
 ## Writing Tests
 
