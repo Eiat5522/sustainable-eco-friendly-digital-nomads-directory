@@ -8,6 +8,15 @@ jest.mock('next/headers', () => ({
   cookies: jest.fn(),
 }))
 
+type CookiesModule = typeof import('next/headers')
+type CookiesFn = CookiesModule['cookies']
+type CookiesValue = Awaited<ReturnType<CookiesFn>>
+
+const createCookiesStub = (theme?: string): CookiesValue =>
+  ({
+    get: jest.fn().mockReturnValue(theme ? { value: theme } : undefined),
+  } as unknown as CookiesValue)
+
 jest.mock('@/utils/theme', () => ({
   __esModule: true,
   normalizeTheme: jest.fn(),
@@ -33,12 +42,11 @@ describe('RootLayout', () => {
 
   it('should render with light theme when cookie is not set', async () => {
     // Arrange: Set up mocks for this specific test case
-    const mockedCookies = (await import('next/headers')).cookies as jest.Mock
+    const headersModule = await import('next/headers')
+    const mockedCookies = headersModule.cookies as jest.MockedFunction<CookiesFn>
     const { normalizeTheme, themeClass } = await import('@/utils/theme')
 
-    mockedCookies.mockResolvedValue({
-      get: jest.fn().mockReturnValue(undefined),
-    })
+    mockedCookies.mockResolvedValue(createCookiesStub())
     ;(normalizeTheme as jest.Mock).mockReturnValue('light')
     ;(themeClass as jest.Mock).mockReturnValue('')
 
@@ -58,12 +66,11 @@ describe('RootLayout', () => {
 
   it('should render with dark theme when cookie is set to "dark"', async () => {
     // Arrange
-    const mockedCookies = (await import('next/headers')).cookies as jest.Mock
+    const headersModule = await import('next/headers')
+    const mockedCookies = headersModule.cookies as jest.MockedFunction<CookiesFn>
     const { normalizeTheme, themeClass } = await import('@/utils/theme')
 
-    mockedCookies.mockResolvedValue({
-      get: jest.fn().mockReturnValue({ value: 'dark' }),
-    })
+    mockedCookies.mockResolvedValue(createCookiesStub('dark'))
     ;(normalizeTheme as jest.Mock).mockReturnValue('dark')
     ;(themeClass as jest.Mock).mockReturnValue('dark')
 
@@ -81,10 +88,11 @@ describe('RootLayout', () => {
 
   it('should include the theme initialization script in the head', async () => {
     // Arrange
-    const mockedCookies = (await import('next/headers')).cookies as jest.Mock
+    const headersModule = await import('next/headers')
+    const mockedCookies = headersModule.cookies as jest.MockedFunction<CookiesFn>
     const { normalizeTheme, themeClass, THEME_INIT_SCRIPT } = await import('@/utils/theme')
 
-    mockedCookies.mockResolvedValue({ get: jest.fn().mockReturnValue(undefined) })
+    mockedCookies.mockResolvedValue(createCookiesStub())
     ;(normalizeTheme as jest.Mock).mockReturnValue('light')
     ;(themeClass as jest.Mock).mockReturnValue('')
 
