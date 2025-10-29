@@ -85,50 +85,26 @@ With these steps, your project should be fully configured for native ESM testing
 
 --------------------------------------------------------------------------------
 
-
-3. Solution Pathway 2: Using Transpilation with Babel
+3. Advanced Troubleshooting: Mocking in an ESM Environment
 
 3.1. Strategic Context
 
-Transpilation is the traditional and most stable solution for resolving Jest's incompatibility with ESM. This method uses Babel to convert modern ESM syntax (import/export) back into CommonJS (require/module.exports) before the tests are run. This makes it a robust and reliable choice for projects with complex build chains or for teams that prefer to avoid experimental Node.js and Jest features.
-
-3.2. Step-by-Step Configuration
-
-Setting up Jest with Babel requires installing a few dependencies and creating configuration files.
-
-1. Install Dependencies
-2. Install babel-jest and the necessary Babel packages as development dependencies.
-3. Create babel.config.js
-4. Create a babel.config.js file in your project's root directory. This file tells Babel which presets to use for transpiling your code. @babel/preset-env is a smart preset that allows you to use the latest JavaScript features.
-5. Update jest.config.js
-6. Finally, configure Jest to use babel-jest to transform your JavaScript files.
-
-Once module resolution is fixed, either through native support or transpilation, the next major hurdle is correctly mocking modules in an ESM environment.
-
-
---------------------------------------------------------------------------------
-
-
-4. Advanced Troubleshooting: Mocking in an ESM Environment
-
-4.1. Strategic Context
-
 Mocking modules in an ESM context is a critical challenge. The standard jest.mock() function relies on a mechanism called "hoisting," which moves mock declarations to the top of the file before execution. This mechanism fails with ESM because import statements are static and are evaluated by the JavaScript engine before any of your test code—including jest.mock()—is executed. This section details the modern, albeit unstable, API designed specifically to solve this problem.
 
-4.2. The jest.unstable_mockModule Pattern
+3.2. The jest.unstable_mockModule Pattern
 
-4.2.1. Why jest.mock() Fails
+3.2.1. Why jest.mock() Fails
 
 In an ESM environment, the module graph is resolved and static import statements are processed before the test code runs. This means the module you intend to mock has already been loaded into memory before Jest has a chance to intercept it with a standard jest.mock() call.
 
-4.2.2. The Correct Implementation
+3.2.2. The Correct Implementation
 
 The correct pattern for mocking in ESM involves a two-step process that works around the static nature of imports.
 
 1. Call jest.unstable_mockModule: This function must be called before the module you want to mock is imported. It takes the module path and a factory function (which can be async) that returns the mocked implementation.
 2. Use Dynamic await import(): After the mock has been registered with jest.unstable_mockModule, the module (and any other modules that depend on it) must be loaded using a dynamic import(). This ensures the code execution waits for the mock to be in place before loading the module.
 
-4.2.3. Code Example: Mocking a Module
+3.2.3. Code Example: Mocking a Module
 
 This example demonstrates the complete pattern for mocking a module and then using it in a test, following best practices for test setup and isolation.
 
@@ -170,7 +146,7 @@ describe("MyClass", () => {
 });
 
 
-4.3. Unmocking Modules
+3.3. Unmocking Modules
 
 To restore the original implementation of a module after it has been mocked, use jest.unstable_unmockModule. This is useful for tests that need to switch between mocked and real implementations.
 
@@ -206,13 +182,13 @@ Beyond configuration and mocking, a few other common pitfalls can disrupt a smoo
 --------------------------------------------------------------------------------
 
 
-5. Common Pitfalls and Best Practices
+4. Common Pitfalls and Best Practices
 
-5.1. Strategic Context
+4.1. Strategic Context
 
 Beyond the primary challenges of ESM configuration and mocking, several other common issues can arise. These often relate to global variables, untranspiled dependencies, and import syntax conventions. This section serves as a checklist of essential practices and quick fixes to help you maintain a clean and efficient testing workflow.
 
-5.2. Essential Fixes and Practices
+4.2. Essential Fixes and Practices
 
 Importing the jest Global
 
@@ -250,6 +226,6 @@ Adhering to ESM conventions for file paths and import statements is crucial for 
 --------------------------------------------------------------------------------
 
 
-6. Conclusion: Key Takeaways
+5. Conclusion: Key Takeaways
 
 While integrating Jest with ES Modules presents a series of configuration hurdles, they are entirely solvable with the right approach. The core challenge stems from Jest's historical foundation in CommonJS, which requires deliberate action to align with the modern ESM standard. The path forward requires a clear choice: either commit to enabling Jest's native ESM support through Node flags and specific configurations, aligning your project with the future of the ecosystem, or implement a stable and battle-tested transpilation pipeline with Babel for maximum compatibility. Finally, mastering modern testing patterns with jest.unstable_mockModule is the key to unlocking the ability to test complex application logic in a modern ESM codebase, ensuring your tests remain robust, reliable, and effective.

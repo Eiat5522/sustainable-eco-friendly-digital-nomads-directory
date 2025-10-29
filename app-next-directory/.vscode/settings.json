@@ -16,7 +16,6 @@
   "jest.pathToJest": "~/.nvm/versions/node/v22.19.0/bin/pnpm",
   "jest.pathToConfig": "jest.config.cjs",
   "jest.disabledWorkspaceFolders": [],
-  "jest.showCoverageOnLoad": false,
   "jest.monitorLongRun": 60000,
   "terminal.integrated.defaultProfile.linux": "bash",
   "terminal.integrated.profiles.linux": {

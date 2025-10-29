@@ -381,19 +381,27 @@ describe('Contact API', () => {
           {
             RESEND_API_KEY: undefined,
             CONTACT_EMAIL: 'owner@example.com',
-            contactEmail: 'owner@example.com',
             SMTP_HOST: undefined,
-            SMTP_FROM: undefined,
-            smtpFrom: undefined,
+            SMTP_PORT: undefined,
+            SMTP_SECURE: undefined,
             SMTP_USER: undefined,
-            smtpUser: undefined,
+            SMTP_PASS: undefined,
+            SMTP_FROM: undefined,
             GMAIL_USER: fallbackUser,
-            gmailUser: fallbackUser,
             GMAIL_APP_PASSWORD: fallbackPassword,
+            // Ensure other required variables are set
+            NODE_ENV: 'test',
           },
           async ({ POST: isolatedPost }) => {
             const request = createPostRequest(validContactData);
             const response = await isolatedPost(request);
+
+            // Add debugging to see what's happening
+            if (response.status !== 200) {
+              const errorData = await response.json();
+              console.error('Test failed with response:', errorData);
+            }
+
             const data = await response.json();
 
             expect(response.status).toBe(200);
