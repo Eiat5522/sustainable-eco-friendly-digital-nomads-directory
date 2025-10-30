@@ -115,6 +115,18 @@ describe('app/listings/[slug]/page', () => {
     expect(mockNotFound).toHaveBeenCalled();
   });
 
+  it('invokes notFound when listing is not found', async () => {
+    const module = await importPageModule();
+    mockClientFetch.mockResolvedValue(null);
+
+    await expect(
+      module.default({ params: Promise.resolve({ slug: 'not-a-real-slug' }) })
+    ).rejects.toThrow('NOT_FOUND_TRIGGERED');
+
+    expect(mockClientFetch).toHaveBeenCalled();
+    expect(mockNotFound).toHaveBeenCalled();
+  });
+
   it('fetches listing data and renders detail view for standard requests', async () => {
     const module = await importPageModule();
     const listing = {

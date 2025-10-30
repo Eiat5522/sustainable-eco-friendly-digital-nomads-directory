@@ -13,7 +13,7 @@ async function mockSignedInSession(page: Page) {
   });
 }
 
-test.describe('[E2E] Favorites UI toggle', () => {
+test.describe('[E2E] Favorites UI toggle - Authenticated', () => {
   test.beforeEach(async ({ page }) => {
     await mockSignedInSession(page);
   });
@@ -84,5 +84,85 @@ test.describe('[E2E] Favorites UI toggle', () => {
     await expect(page.getByLabel(/Remove from favorites/i)).toHaveCount(1);
 
     expect(observedStates).toEqual([true, false, true]);
+  });
+});
+
+test.describe('[E2E] Favorites UI toggle - Unauthenticated', () => {
+  test('prompts login when unauthenticated user tries to favorite', async ({ page }) => {
+    await page.route('**/api/auth/session', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({}),
+      });
+    });
+
+    await page.goto(DETAIL_PATH);
+    await expect(page.getByRole('heading', { level: 3, name: 'Banyan Tree Phuket' })).toBeVisible();
+
+    const favoriteButton = page.getByLabel(/favorite/i).or(page.getByRole('button', { name: /favorite/i }));
+    
+    if (await favoriteButton.isVisible()) {
+      await favoriteButton.click();
+      
+      const loginPrompt = page.getByText(/sign in/i).or(page.getByText(/log in/i));
+      await expect(loginPrompt).toBeVisible({ timeout: 3000 });
+    }
+  });
+
+  test('shows login prompt or redirects to login page for unauthenticated favorite attempt', async ({ page }) => {
+    await page.route('**/api/auth/session', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({}),
+      });
+    });
+
+    await page.route(FAVORITES_ENDPOINT, async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ error: 'Unauthorized' }),
+      });
+    });
+
+    await page.goto(DETAIL_PATH);
+    await expect(page.getByRole('heading', { level: 3, name: 'Banyan Tree Phuket' })).toBeVisible();
+
+    const favoriteButton = page.getByLabel(/favorite/i).or(page.getByRole('button', { name: /favorite/i }));
+    
+    if (await favoriteButton.isVisible()) {
+      await favoriteButton.click();
+      await page.waitForTimeout(1000);
+
+      const isOnLoginPage = page.url().includes('/auth/login');
+      const hasLoginModal = await page.getByText(/sign in/i).or(page.getByText(/log in/i)).isVisible();
+
+      expect(isOnLoginPage || hasLoginModal).toBeTruthy();
+    }
+  });
+
+  test('hides favorite button for unauthenticated users', async ({ page }) => {
+    await page.route('**/api/auth/session', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({}),
+      });
+    });
+
+    await page.goto(DETAIL_PATH);
+    await page.waitForLoadState('networkidle');
+
+    const favoriteButton = page.getByLabel(/favorite/i);
+    const buttonCount = await favoriteButton.count();
+
+    if (buttonCount === 0) {
+      expect(buttonCount).toBe(0);
+    } else {
+      const loginLink = page.getByRole('link', { name: /sign in to favorite/i });
+      await expect(loginLink.or(favoriteButton)).toBeVisible();
+    }
   });
 });

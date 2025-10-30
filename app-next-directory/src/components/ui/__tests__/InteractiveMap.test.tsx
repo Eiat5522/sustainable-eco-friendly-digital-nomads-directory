@@ -280,4 +280,29 @@ describe('InteractiveMap', () => {
     expect(newContent.innerHTML).toContain('New Name');
     expect(newContent.innerHTML).toContain('New Address');
   });
+
+  it('creates a marker with the correct location and popup content', async () => {
+    render(
+      <InteractiveMap
+        location={mockLocation}
+        name="Cool Place"
+        address="123 Main St"
+      />
+    );
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    // Check if marker is created with the right location
+    expect(L.default.marker).toHaveBeenCalledWith(
+      [mockLocation.lat, mockLocation.lng],
+      expect.any(Object)
+    );
+
+    // Check the content of the popup
+    const markerInstance = (L.default.marker as jest.Mock).mock.results[0].value;
+    const popupContent = (markerInstance.bindPopup as jest.Mock).mock.calls[0][0];
+    expect(popupContent.innerHTML).toContain('Cool Place');
+    expect(popupContent.innerHTML).toContain('123 Main St');
+  });
 });

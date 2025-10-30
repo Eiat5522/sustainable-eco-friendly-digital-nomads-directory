@@ -266,6 +266,20 @@ describe('listing DTO transformers', () => {
     const listing = { ...baseListing, type: 'other' } as unknown as SanityListing;
     expect(() => transformToDetailDTO(listing)).toThrow('Unsupported listing type: other');
   });
+
+  it('handles missing optional fields gracefully', () => {
+    const listing = {
+      ...baseListing,
+      shortDescription: null,
+      website: null,
+      location: null,
+    } as unknown as SanityListing;
+
+    const dto = transformToSummaryDTO(listing);
+    expect(dto.shortDescription).toBeUndefined();
+    expect(dto.website).toBeUndefined();
+    expect(dto.location).toBeUndefined();
+  });
 });
 
 describe('blog DTO transformers', () => {

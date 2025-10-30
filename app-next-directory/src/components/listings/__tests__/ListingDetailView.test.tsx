@@ -468,4 +468,39 @@ describe('ListingDetailView', () => {
     process.env.NODE_ENV = originalNodeEnv
     if (originalJestWorkerId) process.env.JEST_WORKER_ID = originalJestWorkerId
   })
-})
+
+  it('renders with a full set of props', () => {
+    render(
+      <ListingDetailView
+        listing={baseListing}
+        reviews={baseReviews}
+        relatedListings={[{ id: 'related-1', name: 'Related', slug: 'related', imageUrl: '/related.jpg', city: mockCity, priceRange: 'budget', ecoFocusTags: [] }]}
+        isSignedIn
+        isFavorited
+      />
+    )
+
+    expect(screen.getByTestId('hero-section')).toBeInTheDocument()
+    expect(screen.getByTestId('listing-details-card')).toBeInTheDocument()
+    expect(screen.getByTestId('reviews-section')).toBeInTheDocument()
+    expect(screen.getByTestId('gallery-grid')).toBeInTheDocument()
+    expect(screen.getByTestId('related-listings')).toBeInTheDocument()
+    expect(screen.getByTestId('favorite-button')).toHaveTextContent('Remove from favorites')
+  })
+
+  it('excludes the current listing from the related listings', () => {
+    const relatedListingsWithCurrent = [
+      { id: 'related-1', name: 'Related', slug: 'related', imageUrl: '/related.jpg', city: mockCity, priceRange: 'budget', ecoFocusTags: [] },
+      { id: baseListing.id, name: baseListing.name, slug: baseListing.slug, imageUrl: baseListing.imageUrl, city: mockCity, priceRange: 'moderate', ecoFocusTags: [] },
+    ]
+
+    render(
+      <ListingDetailView
+        listing={baseListing}
+        relatedListings={relatedListingsWithCurrent}
+      />
+    )
+
+    expect(screen.getByTestId('related-listings')).toHaveAttribute('data-count', '1')
+  })
+});

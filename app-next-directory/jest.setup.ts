@@ -43,6 +43,14 @@ jest.mock('broadcast-channel', () => {
   return { __esModule: true, BroadcastChannel, default: BroadcastChannel };
 });
 
+// ============================================================================
+// STOP! Do not add `jest.mock('mongoose')` calls in this file.
+// The Jest config maps `mongoose` to a handcrafted manual mock that provides
+// schema metadata and constructor behaviour; auto-mocking erases that setup.
+// If you need to change mongoose test behaviour, update `__mocks__/mongoose.ts`
+// and the guard test at `src/models/__tests__/mongoose-mock.guard.test.ts`.
+// ============================================================================
+
 // React 19 compatibility fix for act function - must be before other imports
 import React from 'react';
 
@@ -94,10 +102,9 @@ import { createTestData } from './src/tests/helpers/test-data';
 // Provide deterministic dataset for unit tests
 ;(global as any).__TEST_DATA__ = createTestData();
 
-// Ensure real mongoose never loads under jsdom/unit runs
-if (process.env.JEST_USE_REAL_MONGOOSE !== '1') {
-  jest.mock('mongoose');
-}
+// Ensure real mongoose never loads under jsdom/unit runs.
+// The Jest config maps `mongoose` to our manual implementation, so avoid calling
+// `jest.mock` here - the automocking would erase the mock's runtime behavior.
 
 // Integration: start a shared mongodb-memory-server once and set MONGODB_URI
 if (process.env.JEST_RUN_INTEGRATION === '1' && process.env.JEST_USE_REAL_MONGOOSE === '1') {

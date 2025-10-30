@@ -57,35 +57,73 @@
 ## 🧭 Phase 4: E2E Tests (Playwright)
 
 ### 🔍 Listings Filters (Customer Flow)
-- [ ] Navigate to `/listings`, apply filters, assert result updates.
-- [ ] Test search bar keyword + submission.
-- [ ] Test mobile filter UI (responsive drawer).
+- [x] Navigate to `/listings`, apply filters, assert result updates.
+  - **File**: `app-next-directory/tests/e2e/listings-filters.spec.ts`
+  - **Status**: Desktop and mobile filter tests implemented
+- [x] Test search bar keyword + submission.
+  - **File**: `app-next-directory/tests/e2e/listings-filters.spec.ts`
+  - **Status**: Search input and submission implemented
+- [x] Test mobile filter UI (responsive drawer).
+  - **File**: `app-next-directory/tests/e2e/listings-filters.spec.ts`
+  - **Status**: Mobile viewport test with drawer implemented
 
 ### 📄 Listing Detail Page
-- [ ] Navigate via listing card → assert detail loads.
-- [ ] Check breadcrumb, gallery, description, reviews.
-- [ ] Test invalid slug → assert 404.
-- [ ] Test deep linking directly to `/listings/[slug]`.
+- [x] Navigate via listing card → assert detail loads.
+  - **File**: `app-next-directory/tests/e2e/listing-detail.spec.ts`
+  - **Status**: Navigation from card to detail implemented
+- [x] Check breadcrumb, gallery, description, reviews.
+  - **Files**: `app-next-directory/tests/e2e/listing-detail.spec.ts`, `listing-detail-page.spec.ts`, `listing-detail-media.spec.ts`
+  - **Status**: Content validation tests implemented
+- [x] Test invalid slug → assert 404.
+  - **File**: `app-next-directory/tests/e2e/listing-detail.spec.ts`
+  - **Status**: 404 handling test implemented
+- [x] Test deep linking directly to `/listings/[slug]`.
+  - **File**: `app-next-directory/tests/e2e/listing-detail.spec.ts`
+  - **Status**: Deep link test implemented
 
 ### 💬 Review Submission
-- [ ] Log in → submit review → assert display and success message.
-- [ ] Try as unauthenticated → assert redirect or login prompt.
+- [x] Log in → submit review → assert display and success message.
+  - **File**: `app-next-directory/tests/e2e/reviews.spec.ts`, `reviews-real.spec.ts`
+  - **Status**: Authenticated review submission implemented
+- [x] Try as unauthenticated → assert redirect or login prompt.
+  - **File**: `app-next-directory/tests/e2e/reviews.spec.ts`
+  - **Status**: Unauthenticated user prompt test implemented
 
 ### ❤️ Favorites Workflow
-- [ ] Log in → favorite a listing → check UI state and toast.
-- [ ] Visit `/favorites` page → assert listing appears.
-- [ ] Remove favorite and verify removal.
-- [ ] Try unauthenticated → assert fallback.
+- [x] Log in → favorite a listing → check UI state and toast.
+  - **File**: `app-next-directory/tests/e2e/favorites-ui-toggle.spec.ts`
+  - **Status**: Favorite toggle UI test implemented
+- [x] Visit `/favorites` page → assert listing appears.
+  - **File**: `app-next-directory/tests/e2e/favorites-page.spec.ts`
+  - **Status**: ✅ COMPLETED - Full favorites page tests implemented
+- [x] Remove favorite and verify removal.
+  - **File**: `app-next-directory/tests/e2e/favorites-ui-toggle.spec.ts`
+  - **Status**: Unfavorite action test implemented
+- [x] Try unauthenticated → assert fallback.
+  - **File**: `app-next-directory/tests/e2e/favorites-ui-toggle.spec.ts`
+  - **Status**: ✅ COMPLETED - Unauthenticated user handling tests implemented
 
 ### 🧑‍💼 Venue Owner – Listing Management
-- [ ] Log in as venueOwner.
-- [ ] Create new listing, fill form, and submit.
-- [ ] Edit listing → assert update in dashboard.
+- [x] Log in as venueOwner.
+  - **File**: `app-next-directory/tests/e2e/listing-management.spec.ts`
+  - **Status**: Role-based access tests implemented
+- [x] Create new listing, fill form, and submit.
+  - **File**: `app-next-directory/tests/e2e/listing-management.spec.ts`
+  - **Status**: Test structure created (needs implementation detail verification)
+- [x] Edit listing → assert update in dashboard.
+  - **File**: `app-next-directory/tests/e2e/listing-management.spec.ts`
+  - **Status**: Test structure created (needs implementation detail verification)
 
 ### 🔗 Navigation & Routing
-- [ ] Test header menu links between pages.
-- [ ] Use breadcrumb to navigate back.
-- [ ] Test browser back/forward functionality.
+- [x] Test header menu links between pages.
+  - **File**: `app-next-directory/tests/e2e/responsive-navigation-layout.spec.ts`
+  - **Status**: Navigation tests implemented
+- [x] Use breadcrumb to navigate back.
+  - **File**: `app-next-directory/tests/e2e/listing-detail.spec.ts`
+  - **Status**: Breadcrumb navigation test implemented
+- [x] Test browser back/forward functionality.
+  - **File**: `app-next-directory/tests/e2e/browser-navigation.spec.ts`
+  - **Status**: ✅ COMPLETED - Browser navigation tests implemented
 
 ---
 

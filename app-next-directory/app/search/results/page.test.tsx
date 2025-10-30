@@ -354,4 +354,19 @@ describe('Search results page module', () => {
     const retryLink = screen.getByRole('link', { name: /retry search/i })
     expect(retryLink).toHaveAttribute('href', '/search/results?retry=1')
   })
+
+  it('displays a message when no results are found', async () => {
+    const payload = {
+      data: {
+        results: [],
+        pagination: { page: 1, totalPages: 1, limit: 12, total: 0 },
+      },
+    }
+    mockSearchHandler.mockResolvedValueOnce(new Response(JSON.stringify(payload), { status: 200 }))
+
+    const ui = await ResultsPage({ searchParams: Promise.resolve({}) })
+    render(ui)
+
+    expect(screen.getByText('No results found.')).toBeInTheDocument()
+  })
 })

@@ -129,6 +129,8 @@ export function ListingDetailView({
     }
   }
 
+  const filteredRelatedListings = relatedListings.filter(related => related.id !== listing.id);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 pt-6 pb-8">
@@ -163,9 +165,9 @@ export function ListingDetailView({
           </div>
 
           {/* Related Listings */}
-          {relatedListings.length > 0 && (
+          {filteredRelatedListings.length > 0 && (
             <div className="mt-12">
-              <RelatedListings listings={relatedListings} />
+              <RelatedListings listings={filteredRelatedListings} />
             </div>
           )}
         </div>
