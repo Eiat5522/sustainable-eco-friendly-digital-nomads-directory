@@ -10,12 +10,12 @@ const searchFiltersFormMock = jest.fn((props: { initialParams: SearchParamRecord
 
 jest.mock('@/components/layout/Header', () => ({
   __esModule: true,
-  Header: (props: unknown) => headerRenderMock(props),
+  Header: headerRenderMock,
 }))
 
 jest.mock('@/components/layout/Footer', () => ({
   __esModule: true,
-  Footer: (props: unknown) => footerRenderMock(props),
+  Footer: footerRenderMock,
 }))
 
 jest.mock('@/components/search/SearchFiltersForm', () => ({

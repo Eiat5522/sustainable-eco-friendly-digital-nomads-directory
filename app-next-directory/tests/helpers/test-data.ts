@@ -1,93 +1,53 @@
-import { type AppListingCard } from '@/types/appView';
-import { ListingCategory } from '@/types/enums';
+import type { AppListingCard } from '@/types/appView';
+import type { TestCity, TestData, TestUser } from '@/tests/helpers/test-data';
+import { createTestData } from '@/tests/helpers/test-data';
 
-export const mockListings: AppListingCard[] = [
-  {
-    id: '1',
-    name: 'Eco-Friendly Coworking Space',
-        slug: 'eco-friendly-coworking-space',
-    shortDescription: 'A sustainable coworking space with solar panels and recycling',
-    type: 'coworking',
-    address: '123 Green Street, Bangkok',
-    ecoFocusTags: [], // Empty array for reference types
-    digitalNomadFeatures: ['high_speed_wifi', 'meeting_rooms'],
-    primaryImage: ({ 
-      _type: 'image',
-      asset: { 
-        _ref: 'image1-ref', 
-        _type: 'reference',
+export type PlaywrightTestData = TestData & {
+  listingCards: AppListingCard[];
+};
 
-      },
-      alt: 'Coworking space'
-    } as any),
-    city: {
-      id: 'bangkok-id',
-      name: 'Bangkok',
-      slug: 'bangkok',
-      country: 'Thailand',
-    },
-    
-    
-    galleryImages: []
-  },
-  {
-    id: '2',
-    name: 'Bamboo Eco Café',
-    slug: 'bamboo-eco-cafe',
-    shortDescription: 'Eco-conscious café serving local organic produce and using eco-friendly practices',
-    
-    type: 'cafe',
-    address: '456 Bamboo Lane, Chiang Mai',
-    ecoFocusTags: [],
-    
-    location: {
-      lat: 18.7883,
-      lng: 98.9853
-    },
-    
-    primaryImage: ({ 
-      _type: 'image',
-      asset: { 
-        _ref: 'image2-ref', 
-        _type: 'reference',
+const buildListingCards = (data: TestData): AppListingCard[] =>
+  data.listings.map((listing) => {
+    const slug = listing.slug?.current ?? listing._id;
+    const city: TestCity | undefined = data.cities.find((candidate) =>
+      candidate.slug === listing.city.slug.current
+    );
 
-      },
-      alt: 'Bamboo café'
-    } as any),
-    galleryImages: [
-      ({ 
-        _type: 'image',
-        _key: 'gallery-1',
-        asset: { 
-          _ref: 'image3-ref', 
-          _type: 'reference',
-  
-        },
-        alt: 'Café interior'
-      } as any),
-      ({ 
-        _type: 'image',
-        _key: 'gallery-2',
-        asset: { 
-          _ref: 'image4-ref', 
-          _type: 'reference',
-  
-        },
-        alt: 'Café exterior'
-      } as any)
-    ],
-    digitalNomadFeatures: ['wifi-available', 'power-outlets'],
-        city: {
-      id: 'chiangmai-id',
-      name: 'Chiang Mai',
-      slug: 'chiang-mai',
-      country: 'Thailand',
-    }
-  }
-];
+    return {
+      id: listing._id,
+      name: listing.name,
+      slug,
+      city: city
+        ? {
+            id: city.id,
+            name: city.name,
+            slug: city.slug,
+            country: city.country,
+            sustainabilityScore: city.sustainabilityScore,
+            highlights: city.highlights,
+          }
+        : null,
+      ecoFocusTags: listing.ecoFocusTags.map((tag) => tag.slug.current),
+      digitalNomadFeatures: listing.digitalNomadFeatures,
+      priceRange: listing.priceRange as AppListingCard['priceRange'],
+      website: listing.website ?? undefined,
+      imageUrl: listing.primaryImage ? `https://images.test/listings/${slug}.jpg` : undefined,
+      primaryImage: listing.primaryImage as AppListingCard['primaryImage'],
+      galleryImages: listing.galleryImages as AppListingCard['galleryImages'],
+      type: listing.type,
+      shortDescription: listing.shortDescription,
+      address: listing.address,
+      category: listing.category,
+      location: listing.location ?? listing.coordinates,
+    };
+  });
 
-export async function setupTestData() {
-  // This would be used to insert test data into a test database
-  // For now, we'll just use the mock data directly in tests
-  return mockListings;
-}
+export const getPlaywrightTestData = (overrides?: Partial<TestData>): PlaywrightTestData => {
+  const dataset = createTestData(overrides);
+  return {
+    ...dataset,
+    listingCards: buildListingCards(dataset),
+  };
+};
+
+export const getTestUsers = (): TestUser[] => getPlaywrightTestData().users;

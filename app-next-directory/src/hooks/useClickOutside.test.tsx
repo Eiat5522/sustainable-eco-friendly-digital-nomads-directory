@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 import { fireEvent, render } from '@testing-library/react'
-import { forwardRef, useImperativeHandle, useRef } from 'react'
+import { useRef } from 'react'
 import { useClickOutside } from './useClickOutside'
 
 type Handler = () => void
@@ -70,12 +70,11 @@ describe('useClickOutside', () => {
   it('cleans up document listeners on unmount', () => {
     const handler = jest.fn()
 
-    const Wrapper = forwardRef<HTMLDivElement | null, { handler: Handler }>((props, ref) => {
+    const Wrapper = ({ handler }: { handler: Handler }) => {
       const innerRef = useRef<HTMLDivElement | null>(null)
-      useClickOutside(innerRef, props.handler)
-      useImperativeHandle(ref, () => innerRef.current)
+      useClickOutside(innerRef, handler)
       return <div ref={innerRef} data-testid="inner" />
-    })
+    }
 
     const { unmount } = render(<Wrapper handler={handler} />)
     unmount()

@@ -1,141 +1,101 @@
-import { test as base, type Page } from '@playwright/test';
-import { existsSync } from 'fs';
+import { test as base, type Browser, type Page } from '@playwright/test'
+import { dirname } from 'path'
+import { existsSync, mkdirSync } from 'fs'
+import { resolveTestUser, type PlaywrightRole } from './config/test-users'
 
-// Define the fixture types
-type TestFixtures = {
-  authenticatedPage: Page;
-  adminPage: Page;
-  venueOwnerPage: Page;
-  editorPage: Page;
-};
-
-// Helper function to check if storage state exists
-function getStorageState(path: string) {
-  return existsSync(path) ? path : undefined;
+export type TestFixtures = {
+  authenticatedPage: Page
+  adminPage: Page
+  venueOwnerPage: Page
+  editorPage: Page
 }
 
-// Extend the base test to include custom fixtures
-export const test = base.extend<TestFixtures>({
-  // Custom fixture for authenticated regular user
-  authenticatedPage: async ({ browser }, use) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    
-    try {
-      // Always login manually for now until auth setup is working
-      await page.goto('/login');
-      
-      // Check if login page exists, if not, just use the page as-is
-      const loginForm = page.locator('form');
-      const hasLoginForm = await loginForm.count() > 0;
-      
-      if (hasLoginForm) {
-        await page.fill('input[name="email"]', 'test@example.com');
-        await page.fill('input[name="password"]', 'password123');
-        await page.click('button[type="submit"]');
-        
-        // Wait for either redirect or error
-        try {
-          await page.waitForURL('/', { timeout: 5000 });
-        } catch {
-          // Login might have failed, continue with test anyway
-          console.log('Login may have failed, continuing with test');
-        }
-      }
-      
-      await use(page);
-    } finally {
-      await context.close();
-    }
-  },
+const ensureStorageDirectory = (filePath?: string) => {
+  if (!filePath) return
+  const directory = dirname(filePath)
+  if (!existsSync(directory)) {
+    mkdirSync(directory, { recursive: true })
+  }
+}
 
-  // Custom fixture for admin user
-  adminPage: async ({ browser }, use) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    
-    try {
-      // Always login manually for now
-      await page.goto('/login');
-      
-      const loginForm = page.locator('form');
-      const hasLoginForm = await loginForm.count() > 0;
-      
-      if (hasLoginForm) {
-        await page.fill('input[name="email"]', 'admin@example.com');
-        await page.fill('input[name="password"]', 'password123');
-        await page.click('button[type="submit"]');
-        
-        try {
-          await page.waitForURL('/', { timeout: 5000 });
-        } catch {
-          console.log('Admin login may have failed, continuing with test');
-        }
-      }
-      
-      await use(page);
-    } finally {
-      await context.close();
-    }
-  },
+const performLogin = async (page: Page, email: string, password: string) => {
+  await page.goto('/login')
 
-  // Custom fixture for venue owner
-  venueOwnerPage: async ({ browser }, use) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    
-    try {
-      await page.goto('/login');
-      
-      const loginForm = page.locator('form');
-      const hasLoginForm = await loginForm.count() > 0;
-      
-      if (hasLoginForm) {
-        await page.fill('input[name="email"]', 'venueowner@example.com');
-        await page.fill('input[name="password"]', 'password123');
-        await page.click('button[type="submit"]');
-        
-        try {
-          await page.waitForURL('/', { timeout: 5000 });
-        } catch {
-          console.log('Venue owner login may have failed, continuing with test');
-        }
-      }
-      
-      await use(page);
-    } finally {
-      await context.close();
-    }
-  },
+  const loginForm = page.locator('form')
+  const hasLoginForm = (await loginForm.count()) > 0
+  if (!hasLoginForm) return
 
-  // Custom fixture for editor user
-  editorPage: async ({ browser }, use) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    
-    try {
-      await page.goto('/login');
-      
-      const loginForm = page.locator('form');
-      const hasLoginForm = await loginForm.count() > 0;
-      
-      if (hasLoginForm) {
-        await page.fill('input[name="email"]', 'editor@example.com');
-        await page.fill('input[name="password"]', 'password123');
-        await page.click('button[type="submit"]');
-        
-        try {
-          await page.waitForURL('/', { timeout: 5000 });
-        } catch {
-          console.log('Editor login may have failed, continuing with test');
-        }
-      }
-      
-      await use(page);
-    } finally {
-      await context.close();
+  await page.fill('input[name="email"]', email)
+  await page.fill('input[name="password"]', password)
+  await Promise.all([
+    page.waitForLoadState('networkidle'),
+    page.click('button[type="submit"]'),
+  ])
+
+  try {
+    await page.waitForTimeout(500)
+    await page.waitForURL('**', { waitUntil: 'networkidle', timeout: 5_000 })
+  } catch {
+    // ignore navigation timeouts – fixtures remain usable even if redirect fails
+  }
+}
+
+const createAuthenticatedContext = async (
+  browser: Browser,
+  role: PlaywrightRole,
+): Promise<{ context: Awaited<ReturnType<Browser['newContext']>>; page: Page }> => {
+  const user = resolveTestUser(role)
+  const storageState = user.storageStatePath && existsSync(user.storageStatePath)
+    ? user.storageStatePath
+    : undefined
+
+  const context = await browser.newContext({ storageState })
+  const page = await context.newPage()
+
+  if (!storageState) {
+    await performLogin(page, user.email, user.password)
+    if (user.storageStatePath) {
+      ensureStorageDirectory(user.storageStatePath)
+      await context.storageState({ path: user.storageStatePath })
     }
   }
-});
 
-export { expect } from '@playwright/test';
+  return { context, page }
+}
+
+export const test = base.extend<TestFixtures>({
+  authenticatedPage: async ({ browser }, use) => {
+    const { context, page } = await createAuthenticatedContext(browser, 'customer')
+    try {
+      await use(page)
+    } finally {
+      await context.close()
+    }
+  },
+  adminPage: async ({ browser }, use) => {
+    const { context, page } = await createAuthenticatedContext(browser, 'admin')
+    try {
+      await use(page)
+    } finally {
+      await context.close()
+    }
+  },
+  venueOwnerPage: async ({ browser }, use) => {
+    const { context, page } = await createAuthenticatedContext(browser, 'venueOwner')
+    try {
+      await use(page)
+    } finally {
+      await context.close()
+    }
+  },
+  editorPage: async ({ browser }, use) => {
+    const { context, page } = await createAuthenticatedContext(browser, 'editor')
+    try {
+      await use(page)
+    } finally {
+      await context.close()
+    }
+  },
+})
+
+export { expect } from '@playwright/test'
