@@ -48,8 +48,11 @@
 
 ### 🧾 DTO Validation
 - [x] Instantiate DTOs with mock Sanity data and validate transformation.
-- [ ] Use DTOs in integration test mocks (props, API responses).
-- [ ] Assert API route responses match DTO-transformed shape.
+- [x] Use DTOs in integration test mocks (props, API responses).
+- [x] Assert API route responses match DTO-transformed shape.
+- [x] Comprehensive integration tests covering all DTO types and edge cases.
+  - **File**: `app-next-directory/src/tests/integration/dto-transformation.integration.test.ts`
+  - **Status**: ✅ COMPLETED - 27 tests covering FeaturedListingDTO, ListingSummaryDTO, ListingDetailDTO, Blog DTOs, type safety, and edge cases
 - [ ] (Optional) Use zod/io-ts to validate raw GROQ → DTO mapping.
 
 ---
