@@ -1,8 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import CityCarouselWave from '../city-carousel-wave';
 import { CityDTO } from '@/types/dto';
+import { useRouter } from 'next/navigation';
 
 // Mock gsap
 jest.mock('gsap', () => ({
@@ -20,6 +22,32 @@ jest.mock('next/image', () => ({
   },
 }));
 
+jest.mock('next/navigation', () => ({
+  __esModule: true,
+  useRouter: jest.fn(),
+}));
+
+jest.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ href, children, ...props }: any) => {
+    const { useRouter } = require('next/navigation');
+    const router = useRouter();
+
+    return (
+      <a
+        href={href}
+        onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
+          event.preventDefault();
+          router?.push?.(href);
+        }}
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  },
+}));
+
 const mockCities: CityDTO[] = [
   { id: '1', name: 'City A', slug: 'city-a', country: 'Country A', imageUrl: '/city-a.jpg', sustainabilityScore: 85 },
   { id: '2', name: 'City B', slug: 'city-b', country: 'Country B', imageUrl: '/city-b.jpg', sustainabilityScore: 75 },
@@ -27,6 +55,22 @@ const mockCities: CityDTO[] = [
 ];
 
 describe('CityCarouselWave', () => {
+  const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>;
+  let routerPushMock: jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    routerPushMock = jest.fn();
+    mockUseRouter.mockReturnValue({
+      push: routerPushMock,
+      replace: jest.fn(),
+      prefetch: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      refresh: jest.fn(),
+    } as any);
+  });
+
   it('renders nothing when no cities are provided', () => {
     const { container } = render(<CityCarouselWave cities={[]} />);
     expect(container.firstChild).toBeNull();
@@ -61,6 +105,16 @@ describe('CityCarouselWave', () => {
     expect(screen.getByText('85%')).toHaveClass('bg-pink-600');
     expect(screen.getByText('75%')).toHaveClass('bg-indigo-600');
     expect(screen.getByText('55%')).toHaveClass('bg-orange-500');
+  });
+
+  it('routes via router.push when a city card is clicked', async () => {
+    const user = userEvent.setup();
+    render(<CityCarouselWave cities={mockCities} />);
+
+    const cityLink = screen.getByRole('link', { name: /City A/i });
+    await user.click(cityLink);
+
+    expect(routerPushMock).toHaveBeenCalledWith('/cities/city-a');
   });
 
   it('handles image error by showing a placeholder', () => {

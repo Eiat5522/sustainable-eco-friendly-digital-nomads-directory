@@ -2,6 +2,7 @@ import React from 'react'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Header } from '../Header'
+import { useRouter } from 'next/navigation'
 import * as nextAuth from 'next-auth/react'
 import type { Session } from 'next-auth'
 
@@ -18,11 +19,28 @@ jest.mock('next/image', () => ({
 // Mock next/link
 jest.mock('next/link', () => ({
   __esModule: true,
-  default: ({ children, href, ...props }: any) => (
-    <a href={href} {...props}>
-      {children}
-    </a>
-  ),
+  default: ({ children, href, ...props }: any) => {
+    const { useRouter } = require('next/navigation')
+    const router = useRouter()
+
+    return (
+      <a
+        href={href}
+        onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
+          event.preventDefault()
+          router?.push?.(href)
+        }}
+        {...props}
+      >
+        {children}
+      </a>
+    )
+  },
+}))
+
+jest.mock('next/navigation', () => ({
+  __esModule: true,
+  useRouter: jest.fn(),
 }))
 
 describe('Header', () => {
@@ -30,6 +48,8 @@ describe('Header', () => {
   const signOutSpy = jest.spyOn(nextAuth, 'signOut')
   const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
   const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+  const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
+  let routerPushMock: jest.Mock
 
   // Helper to mock SessionContext
   function mockSessionContext(session: Session | null, status: 'authenticated' | 'unauthenticated' | 'loading') {
@@ -56,6 +76,15 @@ describe('Header', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    routerPushMock = jest.fn()
+    mockUseRouter.mockReturnValue({
+      push: routerPushMock,
+      replace: jest.fn(),
+      prefetch: jest.fn(),
+      back: jest.fn(),
+      forward: jest.fn(),
+      refresh: jest.fn(),
+    } as any)
   })
 
   afterEach(() => {
@@ -195,6 +224,15 @@ describe('Header', () => {
     it('renders mobile menu button', () => {
       const mobileMenuButton = screen.getByRole('button', { name: /open navigation menu/i })
       expect(mobileMenuButton).toBeInTheDocument()
+    })
+
+    it('routes via router.push when navigation link is clicked', async () => {
+      const user = userEvent.setup()
+      const searchLink = screen.getByRole('link', { name: 'Search' })
+
+      await user.click(searchLink)
+
+      expect(routerPushMock).toHaveBeenCalledWith('/search')
     })
   })
 
