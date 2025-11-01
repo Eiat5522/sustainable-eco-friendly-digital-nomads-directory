@@ -1,639 +1,282 @@
-# 🧪 Testing Guide - Comprehensive Testing Strategy
+# Testing Guide - Shared Documentation
 
-**Status**: ✅ 120+ E2E TESTS IMPLEMENTED  
-**Coverage**: Authentication, RBAC, API Security, User Flows
+**Last Updated:** November 1, 2025  
+**Applies To:** All Workspaces
 
-> **Consolidated from**: `tests/TEST_STRATEGY.md`, `app-next-directory/TESTING_STRATEGY.md`, `docs/app-next-directory/TESTING.md`
-
----
-
-## 🎯 **Testing Philosophy**
-
-We employ a **comprehensive multi-layered testing approach** ensuring robust, reliable, and maintainable application quality:
-
-1. **End-to-End (E2E) Tests**: Primary focus - simulate real user scenarios across the entire application
-2. **Integration Tests**: Verify interactions between components, API services, and external dependencies  
-3. **Unit Tests**: Test individual functions, components, and modules in isolation
-4. **Security Tests**: Comprehensive authentication, authorization, and RBAC validation
-
-**Primary Testing Framework**: **Playwright** for E2E testing with **Jest** for unit tests
+> **Note:** This is the shared testing documentation for the entire monorepo. For workspace-specific testing documentation, see:
+> - [App Next Directory Testing](../../app-next-directory/docs/testing/README.md)
+> - [Testing Overview](./TESTING_OVERVIEW.md)
 
 ---
 
-## 🛠️ **Tools & Technologies**
+## Overview
 
-### **Primary Testing Stack**
-
-| Tool | Purpose | Coverage |
-|------|---------|----------|
-| **Playwright** | E2E browser automation | Cross-browser testing (Chromium, Firefox, WebKit) |
-| **Jest** | Unit & integration testing | React components, utility functions, API logic |
-| **React Testing Library** | Component testing | Component behavior and user interactions |
-| **NextAuth Test Utilities** | Authentication testing | Mock authentication flows and session management |
-| **ESLint & Prettier** | Code quality | Consistency and best practices enforcement |
-
-### **Testing Environment Setup**
-
-- **Test Database**: Isolated MongoDB instance for testing
-- **Mock Services**: Sanity CMS, external APIs, and third-party integrations
-- **Browser Automation**: Headless and headed testing modes
-- **CI/CD Integration**: Automated test execution on GitHub Actions
+This directory contains **shared testing documentation** that applies across the monorepo. Each workspace may have additional specific testing requirements documented in their respective `docs/testing/` folders.
 
 ---
 
-## 🧪 **Test Suites Overview**
+## Testing Philosophy
 
-### **Current Test Coverage: 120+ E2E Tests**
+We employ a **comprehensive multi-layered testing approach** across all workspaces:
 
-Our Playwright test suites are organized by feature and functionality:
-
-#### **1. Authentication Tests** (`tests/e2e/auth/`)
-**Coverage**: 25+ test cases
-
-- ✅ **User Registration**: Success and failure scenarios with validation
-- ✅ **Login Flows**: Valid/invalid credentials, session management
-- ✅ **Password Reset**: Email verification and password update
-- ✅ **Session Management**: Timeout, logout, concurrent sessions
-- ✅ **Role Assignment**: Default role assignment and validation
-
-```typescript
-// Example authentication test
-test('successful user login', async ({ page }) => {
-  await page.goto('/auth/signin')
-  await page.fill('[data-testid="email"]', 'user@example.com')
-  await page.fill('[data-testid="password"]', 'validPassword123')
-  await page.click('[data-testid="signin-button"]')
-  
-  await expect(page.locator('[data-testid="user-menu"]')).toBeVisible()
-  await expect(page).toHaveURL('/dashboard')
-})
-```
-
-#### **2. Role-Based Access Control (RBAC) Tests** (`tests/e2e/rbac/`)
-**Coverage**: 40+ test cases
-
-- ✅ **Role Hierarchy**: Comprehensive testing of 8-tier role system
-- ✅ **Page Access Control**: Route protection based on user roles
-- ✅ **Feature Permissions**: Component-level access restrictions
-- ✅ **API Endpoint Security**: Server-side authorization validation
-- ✅ **Admin Functions**: User management and role assignment
-
-```typescript
-// Example RBAC test
-test('admin dashboard access control', async ({ page }) => {
-  // Test unauthorized access
-  await loginAs(page, 'user') // Regular user role
-  await page.goto('/admin')
-  await expect(page.locator('[data-testid="unauthorized"]')).toBeVisible()
-  
-  // Test authorized access
-  await loginAs(page, 'admin')
-  await page.goto('/admin')
-  await expect(page.locator('[data-testid="admin-panel"]')).toBeVisible()
-})
-```
-
-#### **3. Listing Management Tests** (`tests/e2e/listings/`)
-**Coverage**: 25+ test cases
-
-- ✅ **Listing Creation**: Form validation, image upload, content management
-- ✅ **Search & Filtering**: Full-text search, category filters, location-based search
-- ✅ **Listing Details**: View functionality, gallery, reviews display
-- ✅ **Venue Owner Management**: Own listing management and analytics
-- ✅ **Content Moderation**: Admin review and approval workflows
-
-#### **4. User Interface Tests** (`tests/e2e/ui/`)
-**Coverage**: 20+ test cases
-
-- ✅ **Navigation**: Menu functionality, breadcrumbs, responsive design
-- ✅ **Forms**: Validation, error handling, success states
-- ✅ **Interactive Elements**: Carousels, maps, modals, dropdowns
-- ✅ **Accessibility**: Keyboard navigation, screen reader compatibility
-- ✅ **Performance**: Page load times, image optimization
-
-#### **5. API Security Tests** (`tests/e2e/api/`)
-**Coverage**: 15+ test cases
-
-- ✅ **Authentication Required**: Protected endpoints validation
-- ✅ **Input Validation**: Malformed requests and XSS prevention
-- ✅ **Rate Limiting**: API abuse prevention
-- ✅ **CORS Configuration**: Cross-origin request handling
-- ✅ **Error Handling**: Proper error responses and status codes
+1. **Unit Tests** - Fast, isolated tests of individual functions and components
+2. **Integration Tests** - Test interactions between components and services  
+3. **End-to-End (E2E) Tests** - Simulate real user scenarios in actual browsers
+4. **Security Tests** - Authentication, authorization, and security validation
 
 ---
 
-## 🎭 **E2E vs Unit Testing Strategy**
+## Shared Testing Tools
 
-### **E2E Testing Approach** (Primary Focus)
+### Primary Testing Stack
 
-**When to Use E2E Tests**:
-- ✅ **User Workflows**: Complete user journeys from start to finish
-- ✅ **Integration Validation**: Multiple system components working together
-- ✅ **Authentication Flows**: Login, registration, role-based access
-- ✅ **Business Critical Features**: Core functionality that must always work
-- ✅ **Cross-browser Compatibility**: Ensuring consistent behavior
-
-**E2E Best Practices**:
-```typescript
-// Mock external API responses for predictable testing
-test('search listings with controlled data', async ({ page }) => {
-  // Mock Sanity API response
-  await page.route('**/api/listings*', async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        listings: mockListingsData,
-        pagination: mockPaginationData
-      })
-    })
-  })
-  
-  await page.goto('/listings')
-  await page.fill('[data-testid="search-input"]', 'coworking')
-  await page.click('[data-testid="search-button"]')
-  
-  await expect(page.locator('[data-testid="listing-card"]')).toHaveCount(3)
-})
-```
-
-### **Unit Testing Approach** (Supporting Coverage)
-
-**When to Use Unit Tests**:
-- ✅ **Utility Functions**: Data transformation, validation, formatting
-- ✅ **Component Logic**: Isolated component behavior and state management
-- ✅ **API Helpers**: Request/response processing, error handling
-- ✅ **Business Logic**: Calculations, algorithms, data processing
-- ✅ **Hook Testing**: Custom React hooks and side effects
-
-**Unit Test Examples**:
-```typescript
-// Jest unit test example
-describe('formatPrice utility', () => {
-  test('formats price range correctly', () => {
-    expect(formatPrice('$')).toBe('Budget-friendly')
-    expect(formatPrice('$$')).toBe('Moderate')
-    expect(formatPrice('$$$')).toBe('Premium')
-  })
-  
-  test('handles invalid input gracefully', () => {
-    expect(formatPrice('')).toBe('Price not available')
-    expect(formatPrice(null)).toBe('Price not available')
-  })
-})
-
-// React component test
-describe('ListingCard component', () => {
-  test('renders listing information correctly', () => {
-    render(<ListingCard listing={mockListing} />)
-    
-    expect(screen.getByText('Eco Coworking Space')).toBeInTheDocument()
-    expect(screen.getByText('Barcelona, Spain')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: /eco coworking/i })).toBeInTheDocument()
-  })
-})
-```
+| Tool | Purpose | Workspaces |
+|------|---------|-----------|
+| **Playwright** | E2E browser automation | app-next-directory |
+| **Jest** | Unit & integration testing | app-next-directory, eslint-plugin |
+| **React Testing Library** | Component testing | app-next-directory |
+| **mongodb-memory-server** | Integration testing | app-next-directory |
+| **MSW** | API mocking | app-next-directory |
 
 ---
 
-## 🏗️ **Test Architecture & Organization**
+## Documentation Index
 
-### **Directory Structure**
+### Shared Documentation (This Folder)
 
-```
-app-next-directory/
-├── tests/e2e/                     # Playwright E2E tests
-│   ├── auth/                      # Authentication tests
-│   │   ├── login.spec.ts
-│   │   ├── registration.spec.ts
-│   │   └── password-reset.spec.ts
-│   ├── rbac/                      # Role-based access control
-│   │   ├── admin-access.spec.ts
-│   │   ├── role-hierarchy.spec.ts
-│   │   └── permissions.spec.ts
-│   ├── listings/                  # Listing management
-│   │   ├── create-listing.spec.ts
-│   │   ├── search-filter.spec.ts
-│   │   └── listing-details.spec.ts
-│   ├── ui/                        # User interface tests
-│   │   ├── navigation.spec.ts
-│   │   ├── forms.spec.ts
-│   │   └── responsive.spec.ts
-│   └── api/                       # API security tests
-│       ├── authentication.spec.ts
-│       ├── authorization.spec.ts
-│       └── validation.spec.ts
-├── src/__tests__/                 # Jest unit tests
-│   ├── components/                # Component tests
-│   ├── utils/                     # Utility function tests
-│   ├── hooks/                     # Custom hook tests
-│   └── api/                       # API helper tests
-├── __mocks__/                     # Mock files and test data
-│   ├── next-auth.js              # NextAuth mocks
-│   ├── sanity-client.js          # Sanity CMS mocks
-│   └── test-data/                # Shared test fixtures
-└── tests/utils/                   # Test utilities and helpers
-    ├── auth-helpers.ts           # Authentication test utilities
-    ├── mock-data.ts             # Test data generators
-    └── test-setup.ts            # Global test configuration
-```
+- **[TESTING_OVERVIEW.md](./TESTING_OVERVIEW.md)** - Monorepo-wide testing overview
+- **[test_refactoring/](./test_refactoring/)** - Historical test refactoring documentation
 
-### **Test Configuration Files**
+### Workspace-Specific Documentation
 
-#### **Playwright Configuration** (`playwright.config.ts`)
-```typescript
-import { defineConfig } from '@playwright/test'
+#### App Next Directory
 
-export default defineConfig({
-  testDir: './tests/e2e',
-  timeout: 30000,
-  expect: { timeout: 5000 },
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
-  
-  use: {
-    baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure'
-  },
-  
-  projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] } }
-  ],
-  
-  webServer: {
-    command: 'npm run dev',
-    port: 3000,
-    reuseExistingServer: !process.env.CI
-  }
-})
-```
+Located in: `app-next-directory/docs/testing/`
 
-#### **Jest Configuration** (`jest.config.cjs`)
-```javascript
-module.exports = {
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/tests/utils/test-setup.ts'],
-  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/'],
-  moduleNameMapping: {
-    '^@/(.*)$': '<rootDir>/src/$1'
-  },
-  transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['@swc/jest']
-  },
-  collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/*.stories.{js,jsx,ts,tsx}'
-  ]
-}
-```
+- **[README.md](../../app-next-directory/docs/testing/README.md)** - Complete testing guide
+- **[TEST_ARCHITECTURE.md](../../app-next-directory/docs/testing/TEST_ARCHITECTURE.md)** - Architecture and configuration
+
+Also see workspace test docs:
+- **[tests/README.md](../../app-next-directory/tests/README.md)** - Test suite overview
+- **[tests/WRITING_GUIDE.md](../../app-next-directory/tests/WRITING_GUIDE.md)** - Writing tests
+- **[tests/API-MOCKING.md](../../app-next-directory/tests/API-MOCKING.md)** - API mocking guide
+
+#### Sanity CMS
+
+See: `sanity/README.md`
 
 ---
 
-## 🔧 **Test Data Management**
+## Quick Start by Workspace
 
-### **Mock Data Strategy**
-
-#### **Controlled Test Data**
-```typescript
-// tests/utils/mock-data.ts
-export const mockListingData = {
-  id: 'test-listing-1',
-  title: 'Test Eco Coworking Space',
-  slug: 'test-eco-coworking-space',
-  listingType: 'Coworking Space',
-  city: {
-    name: 'Barcelona',
-    slug: 'barcelona',
-    country: 'Spain'
-  },
-  amenities: ['WiFi', 'Coffee', 'Solar Power'],
-  sustainabilityFeatures: ['100% Renewable Energy'],
-  rating: 4.5,
-  priceRange: '$$'
-}
-
-export const mockUserData = {
-  user: { id: 'user1', email: 'user@test.com', role: 'user' },
-  editor: { id: 'editor1', email: 'editor@test.com', role: 'editor' },
-  admin: { id: 'admin1', email: 'admin@test.com', role: 'admin' }
-}
-```
-
-#### **API Mocking Patterns**
-```typescript
-// Mock Sanity CMS responses
-await page.route('**/api/listings', async (route) => {
-  const url = new URL(route.request().url())
-  const searchQuery = url.searchParams.get('search')
-  
-  if (searchQuery === 'coworking') {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({
-        listings: [mockListingData],
-        pagination: { totalItems: 1, currentPage: 1 }
-      })
-    })
-  } else {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify({ listings: [], pagination: { totalItems: 0 } })
-    })
-  }
-})
-```
-
----
-
-## 🚀 **Running Tests**
-
-### **E2E Tests (Playwright)**
+### App Next Directory (Next.js Application)
 
 ```bash
-# Run all E2E tests
-npm run test:e2e
+cd app-next-directory
 
-# Run specific test suite
-npm run test:e2e -- tests/e2e/auth/
-
-# Run with UI (interactive mode)
-npm run test:e2e -- --ui
-
-# Run in headed mode (see browser)
-npm run test:e2e -- --headed
-
-# Run specific test file
-npm run test:e2e -- tests/e2e/auth/login.spec.ts
-
-# Debug mode
-npm run test:e2e -- --debug
-```
-
-### **Unit Tests (Jest)**
-
-```bash
-# Run all unit tests
-npm run test:jest
-
-# Run with coverage report
-npm run test:jest -- --coverage
-
-# Run in watch mode
-npm run test:jest -- --watch
-
-# Run specific test suite
-npm run test:jest -- src/__tests__/components/
-
-# Update snapshots
-npm run test:jest -- --updateSnapshot
-```
-
-### **Combined Test Commands**
-
-```bash
 # Run all tests
-npm run test
+npm test
 
-# CI test suite (used in GitHub Actions)
-npm run test:ci
-
-# Test coverage report
-npm run test:coverage
+# Run specific test type
+npm run test:unit           # Unit tests (Jest)
+npm run test:integration    # Integration tests (Jest + MongoDB)
+npm run test:e2e           # E2E tests (Playwright)
 ```
 
----
+### From Monorepo Root
 
-## 🎯 **Test Writing Guidelines**
-
-### **E2E Test Best Practices**
-
-1. **Use Data Test IDs**: Reliable element selection
-```typescript
-// Good
-await page.click('[data-testid="submit-button"]')
-
-// Avoid
-await page.click('button:has-text("Submit")')
-```
-
-2. **Mock External Dependencies**: Predictable test behavior
-```typescript
-// Mock API responses for controlled testing
-await page.route('**/api/**', mockApiHandler)
-```
-
-3. **Test User Journeys**: Complete workflows, not just individual actions
-```typescript
-test('complete listing creation workflow', async ({ page }) => {
-  await loginAs(page, 'editor')
-  await navigateToCreateListing(page)
-  await fillListingForm(page, mockListingData)
-  await submitForm(page)
-  await verifyListingCreated(page)
-})
-```
-
-4. **Use Page Object Model**: Reusable page interactions
-```typescript
-// tests/utils/pages/listing-page.ts
-export class ListingPage {
-  constructor(private page: Page) {}
-  
-  async fillTitle(title: string) {
-    await this.page.fill('[data-testid="listing-title"]', title)
-  }
-  
-  async selectListingType(type: string) {
-    await this.page.selectOption('[data-testid="listing-type"]', type)
-  }
-}
-```
-
-### **Unit Test Best Practices**
-
-1. **Test Behavior, Not Implementation**: Focus on what the function does
-```typescript
-// Good - tests behavior
-test('should format user name correctly', () => {
-  expect(formatUserName('john', 'doe')).toBe('John Doe')
-})
-
-// Avoid - tests implementation
-test('should call toLowerCase and capitalize', () => {
-  const spy = jest.spyOn(String.prototype, 'toLowerCase')
-  formatUserName('john', 'doe')
-  expect(spy).toHaveBeenCalled()
-})
-```
-
-2. **Isolate Dependencies**: Use mocks for external dependencies
-```typescript
-jest.mock('@/lib/sanity-client', () => ({
-  getListings: jest.fn().mockResolvedValue(mockListings)
-}))
-```
-
-3. **Test Edge Cases**: Handle error conditions and boundary values
-```typescript
-describe('calculateRating', () => {
-  test('handles empty reviews array', () => {
-    expect(calculateRating([])).toBe(0)
-  })
-  
-  test('handles single review', () => {
-    expect(calculateRating([{ rating: 5 }])).toBe(5)
-  })
-})
-```
-
----
-
-## 🎪 **Authentication Testing Utilities**
-
-### **Test Authentication Helpers**
-
-```typescript
-// tests/utils/auth-helpers.ts
-export async function loginAs(page: Page, role: string) {
-  const userData = mockUserData[role]
-  
-  // Mock the session
-  await page.addInitScript((user) => {
-    window.__NEXT_AUTH_SESSION__ = {
-      user: user,
-      expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-    }
-  }, userData)
-  
-  // Set authentication cookies
-  await page.context().addCookies([
-    {
-      name: 'next-auth.session-token',
-      value: 'mock-jwt-token',
-      domain: 'localhost',
-      path: '/'
-    }
-  ])
-}
-
-export async function logoutUser(page: Page) {
-  await page.context().clearCookies()
-  await page.evaluate(() => {
-    delete window.__NEXT_AUTH_SESSION__
-  })
-}
-```
-
-### **RBAC Testing Pattern**
-
-```typescript
-// Comprehensive role-based access testing
-const roleAccessMatrix = [
-  { role: 'user', canAccess: ['/profile', '/listings'], cannotAccess: ['/admin', '/dashboard/venue'] },
-  { role: 'venueOwner', canAccess: ['/profile', '/listings', '/dashboard/venue'], cannotAccess: ['/admin'] },
-  { role: 'admin', canAccess: ['/profile', '/listings', '/admin'], cannotAccess: [] }
-]
-
-roleAccessMatrix.forEach(({ role, canAccess, cannotAccess }) => {
-  test(`${role} access permissions`, async ({ page }) => {
-    await loginAs(page, role)
-    
-    // Test allowed access
-    for (const path of canAccess) {
-      await page.goto(path)
-      await expect(page.locator('[data-testid="unauthorized"]')).not.toBeVisible()
-    }
-    
-    // Test restricted access
-    for (const path of cannotAccess) {
-      await page.goto(path)
-      await expect(page.locator('[data-testid="unauthorized"]')).toBeVisible()
-    }
-  })
-})
-```
-
----
-
-## 📊 **Test Coverage & Reporting**
-
-### **Coverage Targets**
-- **E2E Tests**: 100% critical user journeys covered
-- **Unit Tests**: 80%+ code coverage for utilities and business logic
-- **Security Tests**: 100% authentication and authorization flows
-- **Integration Tests**: All API endpoints and external service integration
-
-### **Reporting & Monitoring**
-
-#### **Playwright Reports**
 ```bash
-# Generate HTML report
-npm run test:e2e -- --reporter=html
+# Run tests for specific workspace
+pnpm --filter app-next-directory test
+pnpm --filter app-next-directory test:e2e
 
-# Open report in browser
-npx playwright show-report
+# Run tests for all workspaces
+pnpm test
 ```
 
-#### **Jest Coverage Reports**
-```bash
-# Generate coverage report
-npm run test:jest -- --coverage
+---
 
-# Coverage files generated in coverage/ directory
-# - coverage/lcov-report/index.html (detailed HTML report)
-# - coverage/coverage-final.json (machine-readable data)
+## Testing Standards
+
+### Naming Conventions
+
+**Unit Tests:**
+- Pattern: `*.test.ts` or `*.test.tsx`
+- Location: Co-located with source in `__tests__/` directories
+
+**Integration Tests:**
+- Pattern: `*.integration.test.ts` or `*.int.test.ts`
+- Location: Co-located with source or workspace `tests/integration/`
+
+**E2E Tests:**
+- Pattern: `*.spec.ts`
+- Location: Workspace `tests/e2e/` directory
+
+### Test Organization
+
+```
+workspace/
+├── src/
+│   └── components/
+│       └── Component/
+│           ├── Component.tsx
+│           └── __tests__/
+│               ├── Component.test.tsx          # Unit test
+│               └── Component.integration.test.tsx  # Integration test
+└── tests/
+    └── e2e/
+        └── feature.spec.ts                     # E2E test
 ```
 
-#### **CI Integration**
+---
+
+## Best Practices (All Workspaces)
+
+### General Principles
+
+1. ✅ **Test behavior, not implementation**
+2. ✅ **Keep tests isolated and independent**
+3. ✅ **Use descriptive test names**
+4. ✅ **Mock external dependencies**
+5. ✅ **Follow AAA pattern**: Arrange, Act, Assert
+6. ✅ **Clean up after tests**
+7. ❌ **Don't share state between tests**
+8. ❌ **Don't test third-party libraries**
+
+### Unit Testing
+
+- Fast execution (< 50ms per test)
+- Mock all external dependencies
+- Test edge cases and error conditions
+- High code coverage for business logic
+
+### Integration Testing
+
+- Use in-memory databases when possible
+- Test interactions between real components
+- Clean up data between tests
+- Extended timeouts for I/O operations
+
+### E2E Testing
+
+- Test critical user workflows
+- Mock external APIs for consistency
+- Use data-testid attributes for element selection
+- Test across multiple browsers and devices
+- Handle loading states and animations properly
+
+---
+
+## CI/CD Integration
+
+All tests run automatically on:
+- Pull request creation/updates
+- Push to main branch
+- Manual workflow triggers
+
+### GitHub Actions Workflow
+
 ```yaml
 # .github/workflows/test.yml
-- name: Run E2E Tests
-  run: npm run test:e2e
-  
-- name: Upload Test Results
-  uses: actions/upload-artifact@v3
-  if: always()
-  with:
-    name: playwright-report
-    path: playwright-report/
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: pnpm install
+      - run: pnpm test
 ```
 
 ---
 
-## 🔗 **Related Documentation**
+## Test Coverage Goals
 
-- **[Authentication & Security](../authentication-security/README.md)** - Security testing implementation
-- **[API Documentation](../api/README.md)** - API testing endpoints and examples
-- **[Development Guide](../development/README.md)** - Local testing setup and configuration
-- **[Deployment Guide](../deployment/README.md)** - Production testing and monitoring
+### Across All Workspaces
+
+- **Unit Tests:** 80%+ code coverage
+- **Integration Tests:** All critical API endpoints and integrations
+- **E2E Tests:** All critical user workflows
+
+### Current Status
+
+**App Next Directory:**
+- Unit Tests: ✅ 82% coverage
+- Integration Tests: ✅ All models and API routes
+- E2E Tests: ✅ 120+ tests, all critical paths
+
+**Sanity:**
+- Schema Tests: ✅ All schemas validated
+- Manual Testing: ⚠️ Primarily manual
 
 ---
 
-## 📞 **Troubleshooting**
+## Troubleshooting
 
-### **Common Test Issues**
+### Common Issues Across Workspaces
 
-1. **Flaky Tests**: Use proper waits and stable selectors
-2. **Authentication Issues**: Verify mock session setup
-3. **API Timeouts**: Increase timeout values for slow operations
-4. **Browser Compatibility**: Test across different browsers and devices
+#### Tests Not Found
 
-### **Debug Strategies**
+**Issue:** Test runner can't find tests
 
-- **Playwright Debug Mode**: `--debug` flag for step-by-step execution
-- **Screenshots on Failure**: Automatic capture for failed tests
-- **Video Recording**: Full test execution recording
-- **Trace Viewer**: Detailed timeline analysis of test execution
+**Solution:** Check test pattern in configuration:
+```json
+{
+  "scripts": {
+    "test": "jest",
+    "test:unit": "jest --config=jest.config.js"
+  }
+}
+```
 
-**Testing Status**: ✅ Production Ready  
-**Last Updated**: December 26, 2024  
-**Next Review**: March 2025
+#### Module Resolution Errors
+
+**Issue:** Cannot resolve module paths
+
+**Solution:** Configure path aliases in `jest.config.js` and `tsconfig.json`:
+```javascript
+moduleNameMapper: {
+  '^@/(.*)$': '<rootDir>/src/$1'
+}
+```
+
+#### Port Conflicts
+
+**Issue:** Multiple tests trying to use same port
+
+**Solution:** Configure unique ports per workspace or use dynamic port allocation
+
+---
+
+## Related Documentation
+
+### Project Documentation
+
+- [Development Guide](../development/README.md)
+- [Deployment Guide](../deployment/README.md)
+- [Monorepo Workspace Guide](../monorepo/WORKSPACE_GUIDE.md)
+
+### External Resources
+
+- [Jest Documentation](https://jestjs.io/)
+- [Playwright Documentation](https://playwright.dev/)
+- [Testing Library](https://testing-library.com/)
+- [MSW Documentation](https://mswjs.io/)
+
+---
+
+## Getting Help
+
+1. Check workspace-specific testing documentation
+2. Review test examples in the codebase
+3. Search for similar issues in test files
+4. Create an issue or ask in team chat
+
+---
+
+**Maintainer:** Development Team  
+**Last Review:** November 1, 2025  
+**Next Review:** February 2026
