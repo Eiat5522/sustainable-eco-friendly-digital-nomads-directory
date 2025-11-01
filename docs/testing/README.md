@@ -42,8 +42,11 @@ We employ a **comprehensive multi-layered testing approach** across all workspac
 
 ## Documentation Index
 
+> 💡 **Need help finding something?** See [NAVIGATION.md](./NAVIGATION.md) for a quick reference guide.
+
 ### Shared Documentation (This Folder)
 
+- **[NAVIGATION.md](./NAVIGATION.md)** - 🗺️ Quick navigation guide to find any testing documentation
 - **[TESTING_OVERVIEW.md](./TESTING_OVERVIEW.md)** - Monorepo-wide testing overview
 - **[test_refactoring/](./test_refactoring/)** - Historical test refactoring documentation
 - **[archive/](./archive/)** - Archived historical reports and outdated guides
