@@ -46,6 +46,7 @@ We employ a **comprehensive multi-layered testing approach** across all workspac
 
 - **[TESTING_OVERVIEW.md](./TESTING_OVERVIEW.md)** - Monorepo-wide testing overview
 - **[test_refactoring/](./test_refactoring/)** - Historical test refactoring documentation
+- **[archive/](./archive/)** - Archived historical reports and outdated guides
 
 ### Workspace-Specific Documentation
 
@@ -55,6 +56,9 @@ Located in: `app-next-directory/docs/testing/`
 
 - **[README.md](../../app-next-directory/docs/testing/README.md)** - Complete testing guide
 - **[TEST_ARCHITECTURE.md](../../app-next-directory/docs/testing/TEST_ARCHITECTURE.md)** - Architecture and configuration
+- **[TEST_SETUP_GUIDE.md](../../app-next-directory/docs/testing/TEST_SETUP_GUIDE.md)** - Setup instructions
+- **[TESTING_STRATEGY.md](../../app-next-directory/docs/testing/TESTING_STRATEGY.md)** - E2E vs Unit testing strategy
+- **[archive/](../../app-next-directory/docs/testing/archive/)** - Workspace-specific archived docs
 
 Also see workspace test docs:
 - **[tests/README.md](../../app-next-directory/tests/README.md)** - Test suite overview

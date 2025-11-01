@@ -18,6 +18,7 @@ These documents describe issues that were fixed during test infrastructure devel
 - **TEST_FIX_REPORT.md** - Search component test infrastructure fixes (Oct 2024)
 - **TEST_FIX_SUMMARY.md** - React 19 compatibility fixes
 - **TEST_SEPARATION_FIX_SUMMARY.md** - Jest vs Playwright test separation fixes
+- **JEST_PLAYWRIGHT_SEPARATION_FIX.md** - VS Code Jest extension and test directory conflicts
 - **API_TEST_SUMMARY.md** - API test coverage additions
 
 ### Historical Guides
