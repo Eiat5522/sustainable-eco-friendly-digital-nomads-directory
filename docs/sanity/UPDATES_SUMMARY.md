@@ -40,6 +40,7 @@ Successfully updated the Sanity package configuration to address Node.js compati
 2. Test Sanity Studio functionality
 3. Verify all Sanity-related features work correctly
 4. Update any remaining references to old CLI usage patterns
+5. Run `pnpm lint` to confirm schemas compile
 
 ## Verification Checklist
 
