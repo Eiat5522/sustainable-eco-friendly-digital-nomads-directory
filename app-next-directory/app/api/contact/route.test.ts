@@ -154,7 +154,7 @@ describe('Contact API', () => {
 
     const withIsolatedRoute = async (
       envOverrides: Record<string, string | undefined>,
-      testFn: (module: typeof import('./route')) => Promise<void>
+      testFn: (routeModule: typeof import('./route')) => Promise<void>
     ) => {
       const snapshotEnv = { ...process.env };
 
@@ -170,8 +170,8 @@ describe('Contact API', () => {
 
         process.env = testEnv;
         try {
-          const module = await import('./route');
-          await testFn(module);
+          const routeModule = await import('./route');
+          await testFn(routeModule);
         } finally {
           process.env = { ...snapshotEnv };
         }

@@ -16,8 +16,8 @@ describe('Mock Environment API - GET /api/mock-env', () => {
     jest.clearAllMocks();
     
     // Dynamically import the route handler
-    const module = await import('../route');
-    GET = module.GET;
+    const routeModule = await import('../route');
+    GET = routeModule.GET;
   });
 
   describe('Successful Requests', () => {

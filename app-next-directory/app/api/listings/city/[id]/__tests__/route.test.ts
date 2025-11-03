@@ -28,8 +28,8 @@ describe('City Listings API - GET /api/listings/city/[id]', () => {
     jest.clearAllMocks();
     
     // Dynamically import the route handler
-    const module = await import('../route');
-    GET = module.GET;
+    const routeModule = await import('../route');
+    GET = routeModule.GET;
   });
 
   describe('Successful Requests', () => {

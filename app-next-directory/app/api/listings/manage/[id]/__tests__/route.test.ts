@@ -50,10 +50,10 @@ describe('Manage Listings API', () => {
     mockSet.mockReturnValue({ commit: mockCommit });
     
     // Dynamically import the route handler
-    const module = await import('../route');
-    GET = module.GET;
-    PUT = module.PUT;
-    DELETE = module.DELETE;
+    const routeModule = await import('../route');
+    GET = routeModule.GET;
+    PUT = routeModule.PUT;
+    DELETE = routeModule.DELETE;
   });
 
   describe('GET /api/listings/manage/[id]', () => {

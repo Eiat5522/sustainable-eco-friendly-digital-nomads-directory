@@ -27,9 +27,9 @@ let SearchPage: typeof import('./page').default
 let dynamicExport: string
 
 beforeAll(async () => {
-  const module = await import('./page')
-  SearchPage = module.default
-  dynamicExport = module.dynamic
+  const pageModule = await import('./page')
+  SearchPage = pageModule.default
+  dynamicExport = pageModule.dynamic
 })
 
 describe('SearchPage', () => {

@@ -25,9 +25,9 @@ describe('Cities API - GET /api/cities', () => {
   beforeEach(async () => {
     jest.resetModules();
     mockGetCitiesList.mockReset();
-    const module = await import('../route');
-    GET = module.GET;
-    routeTestControl = module.testControl;
+    const routeModule = await import('../route');
+    GET = routeModule.GET;
+    routeTestControl = routeModule.testControl;
   });
 
   afterEach(() => {

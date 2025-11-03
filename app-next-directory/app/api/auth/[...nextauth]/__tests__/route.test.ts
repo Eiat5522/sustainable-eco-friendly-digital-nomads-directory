@@ -30,9 +30,9 @@ describe('NextAuth Route Handler', () => {
 
     // Import handlers with isolated modules
     await jest.isolateModulesAsync(async () => {
-      const module = await import('../route');
-      GET = module.GET;
-      POST = module.POST;
+      const routeModule = await import('../route');
+      GET = routeModule.GET;
+      POST = routeModule.POST;
     });
   });
 

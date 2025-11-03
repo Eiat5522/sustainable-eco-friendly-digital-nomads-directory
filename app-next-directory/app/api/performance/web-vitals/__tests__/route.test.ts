@@ -41,8 +41,8 @@ describe('Web Vitals Performance API - POST /api/performance/web-vitals', () => 
     mockProcessMetricForAlert.mockResolvedValue(undefined);
     
     // Dynamically import the route handler
-    const module = await import('../route');
-    POST = module.POST;
+    const routeModule = await import('../route');
+    POST = routeModule.POST;
   });
 
   afterEach(() => {

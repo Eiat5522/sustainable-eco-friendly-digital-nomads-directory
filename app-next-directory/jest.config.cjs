@@ -1,6 +1,8 @@
-/* eslint-disable @typescript-eslint/no-var-requires
-   jest.config.cjs
-   Jest config for TypeScript + ESM + React 18/19 compatible unit tests */
+/* eslint-disable @typescript-eslint/no-var-requires */
+/**
+ * jest.config.cjs
+ * Jest config for TypeScript + ESM + React 18/19 compatible unit tests
+ */
 
 // Convert to CommonJS-compatible synchronous config so Node can load this file
 const path = require('path');

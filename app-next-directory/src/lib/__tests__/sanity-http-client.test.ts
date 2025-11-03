@@ -67,18 +67,18 @@ describe('SanityHTTPClient', () => {
   });
 
   const loadModule = async () => {
-    let module: typeof import('../sanity-http-client');
+    let clientModule: typeof import('../sanity-http-client');
     await jest.isolateModulesAsync(async () => {
-      module = await import('../sanity-http-client');
+      clientModule = await import('../sanity-http-client');
     });
-    return module!;
+    return clientModule!;
   };
 
   it('initializes read and write clients with expected configuration', async () => {
     const mockModule = await import('../sanity/client');
-    const module = await loadModule();
+    const clientModule = await loadModule();
 
-    new module.SanityHTTPClient();
+    new clientModule.SanityHTTPClient();
 
     expect(mockModule.createClient).toHaveBeenCalledTimes(2);
     expect(mockModule.createClient).toHaveBeenNthCalledWith(
@@ -100,17 +100,17 @@ describe('SanityHTTPClient', () => {
 
   it('throws a SanityAPIError when required environment variables are missing', async () => {
     delete process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-    const module = await loadModule();
+    const clientModule = await loadModule();
 
-    expect(() => new module.SanityHTTPClient()).toThrow(module.SanityAPIError);
+    expect(() => new clientModule.SanityHTTPClient()).toThrow(clientModule.SanityAPIError);
   });
 
   it('warns about missing optional environment variables', async () => {
     delete process.env.SANITY_API_TOKEN;
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    const module = await loadModule();
+    const clientModule = await loadModule();
 
-    new module.SanityHTTPClient();
+    new clientModule.SanityHTTPClient();
 
     expect(warnSpy).toHaveBeenCalledWith(
       'Warning: Missing optional environment variable: SANITY_API_TOKEN'
@@ -120,8 +120,8 @@ describe('SanityHTTPClient', () => {
 
   describe('query', () => {
     it('uses preview client when preview option is enabled', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       const previewFetch = jest.fn().mockResolvedValue(['preview']);
       mockReadClient.withConfig.mockReturnValue({ fetch: previewFetch });
 
@@ -137,8 +137,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('falls back to the base client when preview configuration is unavailable', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       const originalWithConfig = mockReadClient.withConfig;
       (mockReadClient as unknown as { withConfig?: typeof originalWithConfig }).withConfig = undefined;
       mockReadClient.fetch.mockResolvedValueOnce(['default']);
@@ -152,16 +152,16 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws SanityAPIError when the underlying fetch returns an error payload', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockReadClient.fetch.mockResolvedValue({ error: 'Nope', statusCode: 401 });
 
-      await expect(client.query('*')).rejects.toThrow(module.SanityAPIError);
+      await expect(client.query('*')).rejects.toThrow(clientModule.SanityAPIError);
     });
 
     it('throws SanityAPIError when the query resolves to undefined', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockReadClient.fetch.mockResolvedValue(undefined);
 
       await expect(client.query('*')).rejects.toThrow('Query failed: Query error');
@@ -171,16 +171,16 @@ describe('SanityHTTPClient', () => {
   describe('testAuthentication', () => {
     it('returns false when no API token is present', async () => {
       delete process.env.SANITY_API_TOKEN;
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
 
       await expect(client.testAuthentication()).resolves.toBe(false);
       expect(mockWriteClient.create).not.toHaveBeenCalled();
     });
 
     it('returns true when a document can be created and cleaned up', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockResolvedValue({ _id: 'auth-1' });
       mockWriteClient.delete.mockResolvedValue({});
 
@@ -195,8 +195,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('still resolves true when cleanup fails', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockResolvedValue({ _id: 'auth-cleanup' });
       mockWriteClient.delete.mockRejectedValue(new Error('cleanup failed'));
 
@@ -205,8 +205,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('returns false when write access is denied', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockRejectedValue(new Error('permission denied'));
 
       await expect(client.testAuthentication()).resolves.toBe(false);
@@ -214,8 +214,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('returns false when the created document is missing an id', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockResolvedValue({ _type: 'authTest' });
 
       await expect(client.testAuthentication()).resolves.toBe(false);
@@ -223,8 +223,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('returns false when the created document reports an error', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockResolvedValue({ error: 'denied' });
 
       await expect(client.testAuthentication()).resolves.toBe(false);
@@ -232,8 +232,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('returns false when the write client resolves without a document', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockResolvedValue(undefined as unknown as { _id: string });
 
       await expect(client.testAuthentication()).resolves.toBe(false);
@@ -244,8 +244,8 @@ describe('SanityHTTPClient', () => {
   describe('create', () => {
     it('throws when no API token is configured', async () => {
       delete process.env.SANITY_API_TOKEN;
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
 
       await expect(client.create({ _type: 'test' })).rejects.toThrow(
         'Cannot create document: No API token provided'
@@ -254,8 +254,8 @@ describe('SanityHTTPClient', () => {
 
     it('returns created document and logs in debug mode', async () => {
       process.env.SANITY_HTTP_DEBUG = '1';
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       const doc = { _id: 'doc-1', _type: 'test' };
       const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
       mockWriteClient.create.mockResolvedValue(doc);
@@ -271,8 +271,8 @@ describe('SanityHTTPClient', () => {
 
     it('logs an alternate message when a document is created without an id', async () => {
       process.env.SANITY_HTTP_DEBUG = '1';
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
       mockWriteClient.create.mockResolvedValue({ _type: 'test', title: 'no-id' });
 
@@ -287,8 +287,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws a SanityAPIError when the create result contains an error payload', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockResolvedValue({ error: 'broken', statusCode: 500 });
 
       await expect(client.create({ _type: 'test' })).rejects.toThrow(
@@ -297,8 +297,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws a SanityAPIError when create resolves to undefined', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockResolvedValue(undefined);
 
       await expect(client.create({ _type: 'test' })).rejects.toThrow(
@@ -307,8 +307,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when create resolves to a falsy value', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockResolvedValue(null as unknown as Record<string, unknown>);
 
       await expect(client.create({ _type: 'test' })).rejects.toThrow(
@@ -317,8 +317,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('wraps unexpected create errors', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.create.mockRejectedValue(new Error('explode'));
 
       await expect(client.create({ _type: 'test' })).rejects.toThrow(
@@ -329,8 +329,8 @@ describe('SanityHTTPClient', () => {
 
   describe('update', () => {
     it('patches document and returns commit result', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockCommit.mockResolvedValue({ _id: 'doc-1', _type: 'test' });
 
       const result = await client.update('doc-1', { title: 'new' });
@@ -343,8 +343,8 @@ describe('SanityHTTPClient', () => {
 
     it('logs debug information when SANITY_HTTP_DEBUG is enabled', async () => {
       process.env.SANITY_HTTP_DEBUG = '1';
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
       mockCommit.mockResolvedValue({ _id: 'doc-2', _type: 'test' });
 
@@ -356,16 +356,16 @@ describe('SanityHTTPClient', () => {
     });
 
     it('wraps unexpected errors into SanityAPIError', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockCommit.mockRejectedValue(new Error('commit broke'));
 
-      await expect(client.update('doc-1', {})).rejects.toThrow(module.SanityAPIError);
+      await expect(client.update('doc-1', {})).rejects.toThrow(clientModule.SanityAPIError);
     });
 
     it('throws when no API token is configured', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       delete process.env.SANITY_API_TOKEN;
 
       await expect(client.update('doc-1', {})).rejects.toThrow(
@@ -374,8 +374,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when commit is not a function', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockPatch.mockImplementationOnce(() => ({
         set: () => ({} as { commit(): Promise<unknown> }),
       }));
@@ -386,8 +386,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when commit returns an error payload', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockCommit.mockResolvedValue({ error: 'nope', statusCode: 409 });
 
       await expect(client.update('doc-1', {})).rejects.toThrow(
@@ -396,8 +396,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when commit resolves to undefined', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockCommit.mockResolvedValue(undefined);
 
       await expect(client.update('doc-1', {})).rejects.toThrow(
@@ -406,8 +406,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when commit resolves to a falsy value', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockCommit.mockResolvedValue(null as unknown as Record<string, unknown>);
 
       await expect(client.update('doc-1', {})).rejects.toThrow(
@@ -418,8 +418,8 @@ describe('SanityHTTPClient', () => {
 
   describe('delete', () => {
     it('delegates to write client delete method', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.delete.mockResolvedValue({ success: true });
 
       await client.delete('doc-1');
@@ -429,8 +429,8 @@ describe('SanityHTTPClient', () => {
 
     it('logs debug information when deleting documents', async () => {
       process.env.SANITY_HTTP_DEBUG = '1';
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
       mockWriteClient.delete.mockResolvedValue({ success: true });
 
@@ -442,16 +442,16 @@ describe('SanityHTTPClient', () => {
     });
 
     it('wraps write client errors', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.delete.mockRejectedValue(new Error('boom'));
 
-      await expect(client.delete('doc-1')).rejects.toThrow(module.SanityAPIError);
+      await expect(client.delete('doc-1')).rejects.toThrow(clientModule.SanityAPIError);
     });
 
     it('throws when no API token is configured', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       delete process.env.SANITY_API_TOKEN;
 
       await expect(client.delete('doc-1')).rejects.toThrow(
@@ -460,16 +460,16 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when delete returns an error payload', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.delete.mockResolvedValue({ error: 'nope', statusCode: 500 });
 
       await expect(client.delete('doc-1')).rejects.toThrow('Delete failed: nope');
     });
 
     it('throws when delete resolves to undefined', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.delete.mockResolvedValue(undefined);
 
       await expect(client.delete('doc-1')).rejects.toThrow(
@@ -480,8 +480,8 @@ describe('SanityHTTPClient', () => {
 
   describe('uploadAsset', () => {
     it('rejects non-image uploads', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
 
       await expect(
         client.uploadAsset(Buffer.from('data'), { contentType: 'application/json' })
@@ -489,8 +489,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('uploads image assets and returns sanity image object', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.assets.upload.mockResolvedValue({ _id: 'image-1' });
 
       const image = await client.uploadAsset(Buffer.from('file'), {
@@ -512,8 +512,8 @@ describe('SanityHTTPClient', () => {
 
     it('throws when no API token is available', async () => {
       delete process.env.SANITY_API_TOKEN;
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
 
       await expect(
         client.uploadAsset(Buffer.from('file'), { contentType: 'image/png' })
@@ -521,8 +521,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when the client does not expose an upload helper', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       const originalAssets = mockWriteClient.assets;
       (mockWriteClient as unknown as { assets?: unknown }).assets = {};
 
@@ -534,8 +534,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('wraps upload errors from the Sanity client', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.assets.upload.mockRejectedValue(new Error('network down'));
 
       await expect(
@@ -544,8 +544,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when upload returns an error payload', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.assets.upload.mockResolvedValue({ error: 'bad', statusCode: 400 });
 
       await expect(
@@ -554,8 +554,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when upload resolves to undefined', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.assets.upload.mockResolvedValue(undefined);
 
       await expect(
@@ -564,8 +564,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when upload resolves to a falsy value', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.assets.upload.mockResolvedValue(null as unknown as Record<string, unknown>);
 
       await expect(
@@ -574,8 +574,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when the asset id is invalid', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockWriteClient.assets.upload.mockResolvedValue({ _id: '   ' });
 
       await expect(
@@ -586,8 +586,8 @@ describe('SanityHTTPClient', () => {
 
   describe('createMany', () => {
     it('creates documents in a transaction and returns committed docs', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       const docs = [
         { _id: 'doc-1', _type: 'item' },
         { _id: 'doc-2', _type: 'item' },
@@ -609,8 +609,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('supports transactions that return documents directly', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       const docs = [
         { _id: 'direct-1', _type: 'item' },
         { _id: 'direct-2', _type: 'item' },
@@ -626,20 +626,20 @@ describe('SanityHTTPClient', () => {
     });
 
     it('wraps transaction errors into SanityAPIError', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       const txCommit = jest.fn().mockRejectedValue(new Error('tx failed'));
       mockTransaction.mockReturnValue({ create: jest.fn(), commit: txCommit });
 
       await expect(client.createMany([{ _id: 'doc-1', _type: 'item' }])).rejects.toThrow(
-        module.SanityAPIError
+        clientModule.SanityAPIError
       );
     });
 
     it('throws when no API token is configured', async () => {
       delete process.env.SANITY_API_TOKEN;
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
 
       await expect(client.createMany([])).rejects.toThrow(
         'Cannot create documents: No API token provided'
@@ -647,8 +647,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when the transaction does not return an array', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockTransaction.mockReturnValue({
         create: jest.fn(),
         commit: jest.fn().mockResolvedValue({ error: 'no docs', statusCode: 500 }),
@@ -660,8 +660,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('throws when the transaction returns no documents', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockTransaction.mockReturnValue({
         create: jest.fn(),
         commit: jest.fn().mockResolvedValue({ results: [] }),
@@ -673,8 +673,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('wraps unexpected transaction factory errors', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockTransaction.mockImplementationOnce(() => {
         throw new Error('transaction unavailable');
       });
@@ -687,8 +687,8 @@ describe('SanityHTTPClient', () => {
 
   describe('healthCheck', () => {
     it('reports ok when read and write checks succeed', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockReadClient.fetch.mockResolvedValue({});
       mockWriteClient.create.mockResolvedValue({ _id: 'tmp', _type: 'authTest' });
       mockWriteClient.delete.mockResolvedValue({});
@@ -704,8 +704,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('returns error status when query throws', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockReadClient.fetch.mockRejectedValue(new Error('fetch failed'));
 
       const result = await client.healthCheck();
@@ -715,8 +715,8 @@ describe('SanityHTTPClient', () => {
     });
 
     it('returns error status when write authentication fails', async () => {
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockReadClient.fetch.mockResolvedValue({});
       jest.spyOn(client, 'testAuthentication').mockResolvedValue(false);
 
@@ -728,8 +728,8 @@ describe('SanityHTTPClient', () => {
 
     it('reports read-only access details when no API token is configured', async () => {
       delete process.env.SANITY_API_TOKEN;
-      const module = await loadModule();
-      const client = new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      const client = new clientModule.SanityHTTPClient();
       mockReadClient.fetch.mockResolvedValue({});
 
       const result = await client.healthCheck();
@@ -744,15 +744,15 @@ describe('SanityHTTPClient', () => {
 
   it('throws when requesting write client without token', async () => {
     delete process.env.SANITY_API_TOKEN;
-    const module = await loadModule();
-    const client = new module.SanityHTTPClient();
+    const clientModule = await loadModule();
+    const client = new clientModule.SanityHTTPClient();
 
     expect(() => client.getWriteClient()).toThrow('Cannot get write client: No API token provided');
   });
 
   it('returns the write client when a token is available', async () => {
-    const module = await loadModule();
-    const client = new module.SanityHTTPClient();
+    const clientModule = await loadModule();
+    const client = new clientModule.SanityHTTPClient();
 
     expect(client.getWriteClient()).toBe(mockWriteClient);
   });
@@ -760,16 +760,16 @@ describe('SanityHTTPClient', () => {
   describe('singleton accessors', () => {
     it('returns a singleton instance that backs the proxy accessors', async () => {
       const mockModule = await import('../sanity/client');
-      const module = await loadModule();
+      const clientModule = await loadModule();
 
-      const first = module.getSanityHTTPClient();
-      const second = module.getSanityHTTPClient();
+      const first = clientModule.getSanityHTTPClient();
+      const second = clientModule.getSanityHTTPClient();
 
       expect(second).toBe(first);
       expect(mockModule.createClient).toHaveBeenCalledTimes(2);
 
       mockReadClient.fetch.mockResolvedValue(['proxied']);
-      await expect(module.sanityHTTPClient.query('*')).resolves.toEqual(['proxied']);
+      await expect(clientModule.sanityHTTPClient.query('*')).resolves.toEqual(['proxied']);
       expect(mockReadClient.fetch).toHaveBeenCalledWith('*', undefined);
       expect(mockModule.createClient).toHaveBeenCalledTimes(2);
     });
@@ -777,20 +777,20 @@ describe('SanityHTTPClient', () => {
 
   describe('getClient', () => {
     it('returns the read client by default', async () => {
-      const module = await loadModule();
-      const client = module.getClient();
+      const clientModule = await loadModule();
+      const client = clientModule.getClient();
 
       expect(client).toBe(mockReadClient);
     });
 
     it('creates a preview client when requested', async () => {
       const mockModule = await import('../sanity/client');
-      const module = await loadModule();
-      new module.SanityHTTPClient();
+      const clientModule = await loadModule();
+      new clientModule.SanityHTTPClient();
       const previewClient = { kind: 'preview' } as unknown as typeof mockReadClient;
       (mockModule.createClient as jest.Mock).mockReturnValueOnce(previewClient);
 
-      const client = module.getClient(true);
+      const client = clientModule.getClient(true);
 
       expect(client).toBe(previewClient);
       expect(mockModule.createClient).toHaveBeenLastCalledWith(

@@ -42,13 +42,13 @@ describe('redis module', () => {
     let redisCtor: jest.Mock;
 
     const mod = await (async () => {
-      let module: typeof import('../redis');
+      let redisModule: typeof import('../redis');
       await jest.isolateModulesAsync(async () => {
         redisCtor = jest.fn(() => redisInstance);
         jest.doMock('@upstash/redis', () => ({ Redis: redisCtor }));
-        module = await import('../redis');
+        redisModule = await import('../redis');
       });
-      return module!;
+      return redisModule!;
     })();
 
     const client = mod.createRedisClient();
@@ -58,8 +58,8 @@ describe('redis module', () => {
   });
 
   it('exposes mock helpers for getRedisClient in test environments', async () => {
-    const module = await loadModule();
-    const getter = module.getRedisClient as unknown as jest.Mock;
+    const redisModule = await loadModule();
+    const getter = redisModule.getRedisClient as unknown as jest.Mock;
 
     expect(getter()).toBeUndefined();
 
@@ -77,8 +77,8 @@ describe('redis module', () => {
   });
 
   it('allows manually setting and subscribing to redis client updates', async () => {
-    const module = await loadModule();
-    const unsubscribeCalls: Array<ReturnType<typeof module.setRedisClient>> = [];
+    const redisModule = await loadModule();
+    const unsubscribeCalls: Array<ReturnType<typeof redisModule.setRedisClient>> = [];
     const listener = jest.fn();
     const otherListener = jest
       .fn()
@@ -89,14 +89,14 @@ describe('redis module', () => {
 
     const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    const unsubscribe = module.onRedisClientChange(listener);
-    module.onRedisClientChange(otherListener);
+    const unsubscribe = redisModule.onRedisClientChange(listener);
+    redisModule.onRedisClientChange(otherListener);
     unsubscribeCalls.push(unsubscribe);
 
     expect(listener).toHaveBeenCalledWith(undefined);
 
     const clientA = { id: 'client-a' } as unknown as import('@upstash/redis').Redis;
-    module.setRedisClient(clientA);
+    redisModule.setRedisClient(clientA);
 
     expect(listener).toHaveBeenLastCalledWith(clientA);
     expect(warnSpy).toHaveBeenCalledWith('[redis] listener threw error', expect.any(Error));
@@ -104,7 +104,7 @@ describe('redis module', () => {
     unsubscribe();
 
     const clientB = { id: 'client-b' } as unknown as import('@upstash/redis').Redis;
-    module.setRedisClient(clientB);
+    redisModule.setRedisClient(clientB);
 
     expect(listener).not.toHaveBeenLastCalledWith(clientB);
 
@@ -120,27 +120,27 @@ describe('redis module', () => {
 
     const redisInstance = { id: 'prod-client' } as unknown as import('@upstash/redis').Redis;
 
-    let module: typeof import('../redis');
+    let redisModule: typeof import('../redis');
     let ctor: jest.Mock;
 
     await jest.isolateModulesAsync(async () => {
       ctor = jest.fn(() => redisInstance);
       jest.doMock('@upstash/redis', () => ({ Redis: ctor }));
-      module = await import('../redis');
+      redisModule = await import('../redis');
     });
 
-    const first = module!.getRedisClient();
-    const second = module!.getRedisClient();
+    const first = redisModule!.getRedisClient();
+    const second = redisModule!.getRedisClient();
 
     expect(first).toBe(redisInstance);
     expect(second).toBe(redisInstance);
     expect(ctor!).toHaveBeenCalledTimes(1);
-    expect((module!.getRedisClient as Record<string, unknown>).mockReturnValue).toBeUndefined();
+    expect((redisModule!.getRedisClient as Record<string, unknown>).mockReturnValue).toBeUndefined();
   });
 
   it('provides a default mock redis client in tests', async () => {
-    const module = await loadModule();
-    const mockClient = module.mockRedisClient;
+    const redisModule = await loadModule();
+    const mockClient = redisModule.mockRedisClient;
 
     expect(mockClient).toBeDefined();
     await expect(mockClient?.get?.('key')).resolves.toBeNull();

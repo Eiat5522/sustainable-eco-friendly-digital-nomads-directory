@@ -113,15 +113,15 @@ const loadRoute = async (envOverrides: Record<string, string | undefined>): Prom
 };
 
 describe('POST /api/newsletter/subscribe (Jest worker mode)', () => {
-  let module: RouteModule;
+  let routeModule: RouteModule;
   let POST: RouteModule['POST'];
   let testControl: RouteModule['testControl'];
   let clearStore: RouteModule['_clearMemoryStore'];
   let memoryIncr: RouteModule['memoryIncr'];
 
   beforeEach(async () => {
-    module = await loadRoute({ JEST_WORKER_ID: '1', NODE_ENV: 'test' });
-    ({ POST, testControl, _clearMemoryStore: clearStore, memoryIncr } = module);
+    routeModule = await loadRoute({ JEST_WORKER_ID: '1', NODE_ENV: 'test' });
+    ({ POST, testControl, _clearMemoryStore: clearStore, memoryIncr } = routeModule);
     clearStore();
     testControl.memoryGetOverride = undefined;
     testControl.memoryIncrOverride = undefined;
@@ -176,7 +176,7 @@ describe('POST /api/newsletter/subscribe (Jest worker mode)', () => {
 
   it('ignores malformed cached payloads and continues processing', async () => {
     const headers = { 'Idempotency-Key': 'malformed-cache' };
-    module.testControl.memoryGetOverride = jest
+    routeModule.testControl.memoryGetOverride = jest
       .fn()
       .mockResolvedValueOnce('not-json')
       .mockResolvedValue(null);
@@ -199,8 +199,8 @@ describe('POST /api/newsletter/subscribe (Jest worker mode)', () => {
       return null;
     });
     const incrOverride = jest.fn(async () => 1);
-    module.testControl.memoryGetOverride = getOverride;
-    module.testControl.memoryIncrOverride = incrOverride;
+    routeModule.testControl.memoryGetOverride = getOverride;
+    routeModule.testControl.memoryIncrOverride = incrOverride;
 
     const res = await POST(createRequest({ email: 'override@example.com' }, { 'Idempotency-Key': 'override' }));
     const body = await res.json();
@@ -228,13 +228,13 @@ describe('POST /api/newsletter/subscribe (Jest worker mode)', () => {
 });
 
 describe('POST /api/newsletter/subscribe (standard mode)', () => {
-  let module: RouteModule;
+  let routeModule: RouteModule;
   let POST: RouteModule['POST'];
   let clearStore: RouteModule['_clearMemoryStore'];
 
   beforeEach(async () => {
-    module = await loadRoute({ NODE_ENV: 'production', MONGODB_URI: 'mongodb://localhost/test', JEST_WORKER_ID: undefined });
-    ({ POST, _clearMemoryStore: clearStore } = module);
+    routeModule = await loadRoute({ NODE_ENV: 'production', MONGODB_URI: 'mongodb://localhost/test', JEST_WORKER_ID: undefined });
+    ({ POST, _clearMemoryStore: clearStore } = routeModule);
     clearStore();
   });
 
@@ -335,8 +335,8 @@ describe('POST /api/newsletter/subscribe (standard mode)', () => {
   });
 
   it('falls back to default flow when MONGODB_URI is not configured', async () => {
-    module = await loadRoute({ NODE_ENV: 'production', MONGODB_URI: undefined, JEST_WORKER_ID: undefined });
-    ({ POST, _clearMemoryStore: clearStore } = module);
+    routeModule = await loadRoute({ NODE_ENV: 'production', MONGODB_URI: undefined, JEST_WORKER_ID: undefined });
+    ({ POST, _clearMemoryStore: clearStore } = routeModule);
     clearStore();
 
     const res = await POST(createRequest({ email: 'no-db@example.com' }));

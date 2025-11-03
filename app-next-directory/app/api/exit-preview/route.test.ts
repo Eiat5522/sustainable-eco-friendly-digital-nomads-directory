@@ -29,8 +29,8 @@ describe('Exit Preview API - GET /api/exit-preview', () => {
 
   beforeAll(async () => {
     // Import after mocks are set up
-    const module = await import('./route');
-    GET = module.GET;
+    const routeModule = await import('./route');
+    GET = routeModule.GET;
   });
 
   beforeEach(() => {

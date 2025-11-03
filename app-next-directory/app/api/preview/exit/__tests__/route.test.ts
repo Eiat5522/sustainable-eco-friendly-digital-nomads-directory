@@ -23,8 +23,8 @@ describe('Preview Exit API - GET /api/preview/exit', () => {
     jest.clearAllMocks();
     
     // Dynamically import the route handler
-    const module = await import('../route');
-    GET = module.GET;
+    const routeModule = await import('../route');
+    GET = routeModule.GET;
   });
 
   describe('Successful Preview Exit', () => {

@@ -116,10 +116,10 @@ const setupModule = async (options: SetupOptions = {}) => {
 
   jest.doMock('validator', () => validatorExport);
 
-  const module = await import('./rateLimit');
+  const rateLimitModule = await import('./rateLimit');
 
   return {
-    module,
+    module: rateLimitModule,
     mocks: {
       ratelimitCtor: (ratelimitExport as { Ratelimit?: jest.Mock }).Ratelimit ?? ratelimitCtor,
       defaultCtor: (ratelimitExport as { default?: jest.Mock }).default,
@@ -241,10 +241,10 @@ describe('rateLimit module', () => {
       overrideLimiter;
 
     const redisClient = { evalSha: jest.fn() } as unknown as Record<string, unknown>;
-    const { module, mocks } = await setupModule({ initialRedis: redisClient });
+    const { module: rateLimitModule, mocks } = await setupModule({ initialRedis: redisClient });
 
     expect(mocks.getRedisClient).toHaveBeenCalled();
-    const config = module.__getLastRateLimiterConfigForTests();
+    const config = rateLimitModule.__getLastRateLimiterConfigForTests();
     expect(config?.redis).toEqual(
       expect.objectContaining({
         evalSha: expect.any(Function),
@@ -252,11 +252,11 @@ describe('rateLimit module', () => {
       })
     );
 
-    const result = await module.enforceLoginRateLimit('identifier');
+    const result = await rateLimitModule.enforceLoginRateLimit('identifier');
     expect(overrideLimiter.limit).toHaveBeenCalledWith('identifier');
     expect(result).toEqual({ success: true, limit: 5, remaining: 4, reset: 123 });
 
-    module.__resetLoginRateLimiterForTests();
+    rateLimitModule.__resetLoginRateLimiterForTests();
     expect(mocks.getRedisClient).toHaveBeenCalledTimes(2);
   });
 
@@ -264,29 +264,29 @@ describe('rateLimit module', () => {
     process.env.NODE_ENV = 'development';
     process.env.JEST_WORKER_ID = '99';
 
-    const { module, mocks } = await setupModule({ initialRedis: { evalsha: jest.fn() } });
+    const { module: rateLimitModule, mocks } = await setupModule({ initialRedis: { evalsha: jest.fn() } });
 
     mocks.limit.mockResolvedValue({ success: true, limit: 5, remaining: 5, reset: Date.now() });
-    await module.enforceLoginRateLimit('user@example.com');
+    await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
-    expect(module.__getLastRateLimiterConfigForTests()).toBeDefined();
+    expect(rateLimitModule.__getLastRateLimiterConfigForTests()).toBeDefined();
   });
 
   it('handles test overrides when no redis client is supplied', async () => {
     const overrideLimiter = { limit: jest.fn().mockResolvedValue({ success: true }) };
     (globalThis as { __TEST_LOGIN_RATE_LIMITER__?: unknown }).__TEST_LOGIN_RATE_LIMITER__ = overrideLimiter;
 
-    const { module } = await setupModule({ initialRedis: undefined });
+    const { module: rateLimitModule } = await setupModule({ initialRedis: undefined });
 
-    const result = await module.enforceLoginRateLimit('user@example.com');
+    const result = await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
     expect(result).toEqual({ success: true });
-    expect(module.__getLastRateLimiterConfigForTests()).toBeUndefined();
+    expect(rateLimitModule.__getLastRateLimiterConfigForTests()).toBeUndefined();
   });
 
   it('creates a sliding window limiter when redis is available', async () => {
     const redisClient = { evalsha: jest.fn() } as unknown as Record<string, unknown>;
-    const { module, mocks } = await setupModule({ initialRedis: redisClient });
+    const { module: rateLimitModule, mocks } = await setupModule({ initialRedis: redisClient });
     mocks.limit.mockResolvedValue({
       success: false,
       limit: 5,
@@ -294,7 +294,7 @@ describe('rateLimit module', () => {
       reset: 123,
     });
 
-    const result = await module.enforceLoginRateLimit('user@example.com');
+    const result = await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
     expect(result).toEqual({ success: false, limit: 5, remaining: 1, reset: 123 });
     expect(mocks.ratelimitCtor).toHaveBeenCalledWith(
@@ -303,7 +303,7 @@ describe('rateLimit module', () => {
         prefix: 'auth:login',
       })
     );
-    expect(module.__getLastRateLimiterConfigForTests()?.redis).toEqual(
+    expect(rateLimitModule.__getLastRateLimiterConfigForTests()?.redis).toEqual(
       expect.objectContaining({ evalsha: expect.any(Function), evalSha: expect.any(Function) })
     );
   });
@@ -311,12 +311,12 @@ describe('rateLimit module', () => {
   it('normalizes redis clients when binding throws', async () => {
     const evalSha = function () {};
     Object.defineProperty(evalSha, 'bind', { value: () => { throw new Error('bind failed'); } });
-    const { module, mocks } = await setupModule({ initialRedis: { evalSha } as unknown as Record<string, unknown> });
+    const { module: rateLimitModule, mocks } = await setupModule({ initialRedis: { evalSha } as unknown as Record<string, unknown> });
 
     mocks.limit.mockResolvedValue({ success: true, limit: 5, remaining: 5, reset: Date.now() });
-    await module.enforceLoginRateLimit('user@example.com');
+    await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
-    const config = module.__getLastRateLimiterConfigForTests();
+    const config = rateLimitModule.__getLastRateLimiterConfigForTests();
     const normalized = config?.redis as { evalsha?: unknown };
     expect(normalized?.evalsha).toBe(evalSha);
   });
@@ -324,34 +324,34 @@ describe('rateLimit module', () => {
   it('covers legacy evalsha normalization when binding fails', async () => {
     const evalsha = function () {};
     Object.defineProperty(evalsha, 'bind', { value: () => { throw new Error('bind failure'); } });
-    const { module, redisChangeHandler, mocks } = await setupModule({ initialRedis: { evalSha: jest.fn() } });
+    const { module: rateLimitModule, redisChangeHandler, mocks } = await setupModule({ initialRedis: { evalSha: jest.fn() } });
 
     redisChangeHandler?.({ evalsha } as unknown as Record<string, unknown>);
 
     mocks.limit.mockResolvedValue({ success: true, limit: 5, remaining: 5, reset: Date.now() });
-    await module.enforceLoginRateLimit('user@example.com');
+    await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
-    const config = module.__getLastRateLimiterConfigForTests();
+    const config = rateLimitModule.__getLastRateLimiterConfigForTests();
     const normalized = config?.redis as { evalSha?: unknown };
     expect(normalized?.evalSha).toBe(evalsha);
   });
 
   it('falls back to default limiter shape when static slidingWindow helper is missing', async () => {
     const redisClient = { evalsha: jest.fn() } as unknown as Record<string, unknown>;
-    const { module, mocks } = await setupModule({ initialRedis: redisClient, disableSlidingWindow: true });
+    const { module: rateLimitModule, mocks } = await setupModule({ initialRedis: redisClient, disableSlidingWindow: true });
 
     mocks.limit.mockResolvedValue({ success: true, limit: 5, remaining: 5, reset: Date.now() });
 
-    await module.enforceLoginRateLimit('user@example.com');
+    await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
-    expect(module.__getLastRateLimiterConfigForTests()?.limiter).toEqual(
+    expect(rateLimitModule.__getLastRateLimiterConfigForTests()?.limiter).toEqual(
       expect.objectContaining({ limit: 5, window: '1 m' })
     );
   });
 
   it('initializes the limiter using default export constructors when available', async () => {
     const defaultCtor = jest.fn();
-    const { module, mocks } = await setupModule({
+    const { module: rateLimitModule, mocks } = await setupModule({
       initialRedis: { evalsha: jest.fn() } as unknown as Record<string, unknown>,
       ratelimitExportFactory: (_instance, limitMock) => {
         defaultCtor.mockImplementation(() => ({ limit: limitMock }));
@@ -360,7 +360,7 @@ describe('rateLimit module', () => {
     });
 
     mocks.limit.mockResolvedValue({ success: true, limit: 5, remaining: 4, reset: Date.now() });
-    await module.enforceLoginRateLimit('user@example.com');
+    await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
     expect(mocks.defaultCtor).toBe(defaultCtor);
     expect(defaultCtor).toHaveBeenCalledWith(
@@ -370,7 +370,7 @@ describe('rateLimit module', () => {
 
   it('initializes the limiter when only a default export is provided', async () => {
     const defaultCtor = jest.fn();
-    const { module, mocks } = await setupModule({
+    const { module: rateLimitModule, mocks } = await setupModule({
       initialRedis: { evalsha: jest.fn() } as unknown as Record<string, unknown>,
       preserveRatelimitShape: true,
       ratelimitExportFactory: (_instance, limitMock) => {
@@ -380,14 +380,14 @@ describe('rateLimit module', () => {
     });
 
     mocks.limit.mockResolvedValue({ success: true, limit: 5, remaining: 5, reset: Date.now() });
-    await module.enforceLoginRateLimit('user@example.com');
+    await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
     expect(defaultCtor).toHaveBeenCalled();
   });
 
   it('initializes the limiter when the module itself is the constructor', async () => {
     const directCtor = jest.fn(function () {});
-    const { module, mocks } = await setupModule({
+    const { module: rateLimitModule, mocks } = await setupModule({
       initialRedis: { evalsha: jest.fn() } as unknown as Record<string, unknown>,
       preserveRatelimitShape: true,
       ratelimitExportFactory: (_instance, limitMock) => {
@@ -397,13 +397,13 @@ describe('rateLimit module', () => {
     });
 
     mocks.limit.mockResolvedValue({ success: true, limit: 5, remaining: 4, reset: Date.now() });
-    await module.enforceLoginRateLimit('user@example.com');
+    await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
     expect(directCtor).toHaveBeenCalled();
   });
 
   it('disables the limiter when exports provide no constructors', async () => {
-    const { module, mocks } = await setupModule({
+    const { module: rateLimitModule, mocks } = await setupModule({
       initialRedis: { evalsha: jest.fn() } as unknown as Record<string, unknown>,
       ratelimitExportFactory: () => ({
         __esModule: true,
@@ -411,7 +411,7 @@ describe('rateLimit module', () => {
       }),
     });
 
-    const result = await module.enforceLoginRateLimit('user@example.com');
+    const result = await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
     expect(result).toEqual({ success: true });
     expect(mocks.limit).not.toHaveBeenCalled();
@@ -421,21 +421,21 @@ describe('rateLimit module', () => {
     process.env.NODE_ENV = 'production';
     delete process.env.JEST_WORKER_ID;
 
-    const { module, mocks } = await setupModule({ initialRedis: { evalsha: jest.fn() } });
+    const { module: rateLimitModule, mocks } = await setupModule({ initialRedis: { evalsha: jest.fn() } });
 
     mocks.limit.mockResolvedValue({ success: true, limit: 5, remaining: 5, reset: Date.now() });
-    await module.enforceLoginRateLimit('user@example.com');
+    await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
-    expect(module.__getLastRateLimiterConfigForTests()).toBeUndefined();
+    expect(rateLimitModule.__getLastRateLimiterConfigForTests()).toBeUndefined();
 
-    module.__resetLoginRateLimiterForTests();
+    rateLimitModule.__resetLoginRateLimiterForTests();
     expect(mocks.getRedisClient).toHaveBeenCalledTimes(1);
   });
 
   it('allows login attempts when no limiter is available or when errors occur', async () => {
-    const { module } = await setupModule({ initialRedis: undefined });
+    const { module: rateLimitModule } = await setupModule({ initialRedis: undefined });
 
-    const allowed = await module.enforceLoginRateLimit('user@example.com');
+    const allowed = await rateLimitModule.enforceLoginRateLimit('user@example.com');
     expect(allowed).toEqual({ success: true });
 
     const redisClient = { evalsha: jest.fn() } as unknown as Record<string, unknown>;
@@ -509,15 +509,15 @@ describe('rateLimit module', () => {
       throw ctorError;
     });
 
-    const { module } = await setupModule({
+    const { module: rateLimitModule } = await setupModule({
       initialRedis: { evalsha: jest.fn() } as unknown as Record<string, unknown>,
       ratelimitExportFactory: () => ({ __esModule: true, Ratelimit: failingCtor }),
     });
 
-    const result = await module.enforceLoginRateLimit('user@example.com');
+    const result = await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
     expect(result).toEqual({ success: true });
-    expect(module.__getLastRateLimiterConfigForTests()).toBeUndefined();
+    expect(rateLimitModule.__getLastRateLimiterConfigForTests()).toBeUndefined();
     expect(warnSpy).toHaveBeenCalledWith('[auth] Failed to initialize login rate limiter', ctorError);
 
     warnSpy.mockRestore();
@@ -536,12 +536,12 @@ describe('rateLimit module', () => {
       throw ctorError;
     });
 
-    const { module } = await setupModule({
+    const { module: rateLimitModule } = await setupModule({
       initialRedis: { evalsha: jest.fn() } as unknown as Record<string, unknown>,
       ratelimitExportFactory: () => ({ __esModule: true, Ratelimit: failingCtor }),
     });
 
-    const result = await module.enforceLoginRateLimit('user@example.com');
+    const result = await rateLimitModule.enforceLoginRateLimit('user@example.com');
 
     expect(result).toEqual({ success: true });
     expect(warnSpy).toHaveBeenCalledWith(
@@ -568,17 +568,17 @@ describe('rateLimit module', () => {
 
     it('skips logging when MongoDB is disabled', async () => {
       delete process.env.MONGODB_URI;
-      const { module, mocks } = await loadRecorder();
-      await module.recordLoginAttempt(baseParams);
+      const { module: rateLimitModule, mocks } = await loadRecorder();
+      await rateLimitModule.recordLoginAttempt(baseParams);
       expect(mocks.dbConnect).not.toHaveBeenCalled();
     });
 
     it('skips invalid email addresses', async () => {
-      const { module, mocks } = await loadRecorder();
+      const { module: rateLimitModule, mocks } = await loadRecorder();
       mocks.validatorIsEmail.mockReturnValue(false);
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-      await module.recordLoginAttempt({ ...baseParams, email: 'not-an-email' });
+      await rateLimitModule.recordLoginAttempt({ ...baseParams, email: 'not-an-email' });
 
       expect(mocks.dbConnect).not.toHaveBeenCalled();
       expect(warnSpy).toHaveBeenCalledWith(
@@ -590,10 +590,10 @@ describe('rateLimit module', () => {
     });
 
     it('skips records when email parameter is not a string', async () => {
-      const { module, mocks } = await loadRecorder();
+      const { module: rateLimitModule, mocks } = await loadRecorder();
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-      await module.recordLoginAttempt({ ...baseParams, email: null as unknown as string });
+      await rateLimitModule.recordLoginAttempt({ ...baseParams, email: null as unknown as string });
 
       expect(mocks.dbConnect).not.toHaveBeenCalled();
       expect(warnSpy).toHaveBeenCalledWith(
@@ -605,33 +605,33 @@ describe('rateLimit module', () => {
     });
 
     it('uses the named validator export when no default export exists', async () => {
-      const { module, mocks } = await loadRecorder({
+      const { module: rateLimitModule, mocks } = await loadRecorder({
         validatorExportFactory: (validatorIsEmail) => ({
           __esModule: true,
           isEmail: validatorIsEmail,
         }),
       });
 
-      await module.recordLoginAttempt(baseParams);
+      await rateLimitModule.recordLoginAttempt(baseParams);
 
       expect(mocks.validatorIsEmail).toHaveBeenCalledWith('example@test.dev');
     });
 
     it('logs attempts using collection insert and falls back to model create on failure', async () => {
-      const { module, mocks } = await loadRecorder();
+      const { module: rateLimitModule, mocks } = await loadRecorder();
       const insertError = new Error('insert failed');
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
       mocks.collection.mockReturnValueOnce({ insertOne: mocks.insertOne });
       mocks.collection.mockReturnValueOnce({ insertOne: jest.fn().mockRejectedValue(insertError) });
 
-      await module.recordLoginAttempt(baseParams);
+      await rateLimitModule.recordLoginAttempt(baseParams);
       expect(mocks.dbConnect).toHaveBeenCalled();
       expect(mocks.insertOne).toHaveBeenCalledWith(
         expect.objectContaining({ email: 'example@test.dev', ip: '127.0.0.1' })
       );
 
-      await module.recordLoginAttempt(baseParams);
+      await rateLimitModule.recordLoginAttempt(baseParams);
       expect(warnSpy).toHaveBeenCalledWith('[auth] Failed to record login attempt', insertError);
       expect(mocks.loginAttemptCreate).toHaveBeenCalled();
 
@@ -639,9 +639,9 @@ describe('rateLimit module', () => {
     });
 
     it('records login attempts with null ip addresses when undefined', async () => {
-      const { module, mocks } = await loadRecorder();
+      const { module: rateLimitModule, mocks } = await loadRecorder();
 
-      await module.recordLoginAttempt({ ...baseParams, ip: undefined });
+      await rateLimitModule.recordLoginAttempt({ ...baseParams, ip: undefined });
 
       expect(mocks.insertOne).toHaveBeenCalledWith(
         expect.objectContaining({ ip: null })
@@ -649,7 +649,7 @@ describe('rateLimit module', () => {
     });
 
     it('warns when both collection insert and model fallback fail', async () => {
-      const { module, mocks } = await loadRecorder();
+      const { module: rateLimitModule, mocks } = await loadRecorder();
       const insertError = new Error('insert failed');
       const modelError = new Error('model failed');
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
@@ -657,7 +657,7 @@ describe('rateLimit module', () => {
       mocks.collection.mockReturnValueOnce({ insertOne: jest.fn().mockRejectedValue(insertError) });
       mocks.loginAttemptCreate.mockRejectedValue(modelError);
 
-      await module.recordLoginAttempt(baseParams);
+      await rateLimitModule.recordLoginAttempt(baseParams);
 
       expect(warnSpy).toHaveBeenCalledWith('[auth] Failed to record login attempt', modelError);
 
@@ -665,26 +665,26 @@ describe('rateLimit module', () => {
     });
 
     it('handles database connection failures gracefully', async () => {
-      const { module, mocks } = await loadRecorder();
+      const { module: rateLimitModule, mocks } = await loadRecorder();
       const error = new Error('connection failed');
       mocks.dbConnect.mockRejectedValue(error);
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-      await module.recordLoginAttempt(baseParams);
+      await rateLimitModule.recordLoginAttempt(baseParams);
 
       expect(warnSpy).toHaveBeenCalledWith('[auth] Failed to record login attempt', error);
       warnSpy.mockRestore();
     });
 
     it('logs collection errors when the model rejection lacks details', async () => {
-      const { module, mocks } = await loadRecorder();
+      const { module: rateLimitModule, mocks } = await loadRecorder();
       const insertError = new Error('insert failed');
       const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
       mocks.collection.mockReturnValueOnce({ insertOne: jest.fn().mockRejectedValue(insertError) });
       mocks.loginAttemptCreate.mockRejectedValue(undefined);
 
-      await module.recordLoginAttempt(baseParams);
+      await rateLimitModule.recordLoginAttempt(baseParams);
 
       expect(warnSpy).toHaveBeenCalledWith('[auth] Failed to record login attempt', insertError);
 
