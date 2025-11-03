@@ -2,6 +2,15 @@
 
 This workspace hosts the Next.js 15 App Router frontend for the Sustainable Eco-Friendly Digital Nomads Directory. It consumes Sanity content, MongoDB collections, and Redis-backed services to power listings, search, and authenticated dashboards.
 
+## Current Status (Q1 2025)
+
+- ✅ **Core experience online** – Home, search, listing detail, and dashboard shells are implemented with live data hooks and loading states.
+- ✅ **Auth-first routing** – NextAuth.js v5 flows guard dashboards, while role-aware layouts power editor/admin surfaces.
+- ✅ **Design system stabilized** – Component library in `src/components/` now drives all new UI work with Tailwind v4 tokens.
+- 🔄 **In progress** – Advanced search facets and result ranking are being tuned alongside analytics instrumentation.
+
+Track upcoming milestones in [`docs/reference/CHANGELOG.md`](../docs/reference/CHANGELOG.md).
+
 ## Getting Started
 ```bash
 pnpm install
@@ -18,12 +27,11 @@ Key directories:
 - `src/models/` – Mongoose models with comprehensive Jest coverage. 【F:app-next-directory/src/models/User.ts†L1-L43】
 
 ## Documentation
-All workspace documentation now lives under [`docs/app-next-directory/`](../docs/app-next-directory/):
-- [`ARCHITECTURE.md`](../docs/app-next-directory/ARCHITECTURE.md) – Module map and runtime overview
-- [`ROUTING.md`](../docs/app-next-directory/ROUTING.md) – Page and API route reference
-- [`DATA-INFRASTRUCTURE.md`](../docs/app-next-directory/DATA-INFRASTRUCTURE.md) – MongoDB + Redis configuration
-- [`AUTHENTICATION.md`](../docs/app-next-directory/AUTHENTICATION.md) – NextAuth and account flows
-- [`API_DOCUMENTATION.md`](../docs/app-next-directory/API_DOCUMENTATION.md) – Endpoint catalog
 
-## Testing Status
-The latest testing phase completed with `pnpm lint`, `pnpm check-types`, `pnpm test:unit`, and `pnpm test:e2e`. Refer to [`docs/app-next-directory/TESTING.md`](../docs/app-next-directory/TESTING.md) for tooling details.
+- Workspace documentation lives under [`docs/app-next-directory/`](../docs/app-next-directory/).
+- Cross-workspace references (changelog, workspace setup, troubleshooting) are available in [`docs/reference/`](../docs/reference/).
+- See [`docs/app-next-directory/README.md`](../docs/app-next-directory/README.md) for navigation, roadmap highlights, and design guidelines.
+
+## Testing & Quality
+
+Latest verification: `pnpm lint`, `pnpm check-types`, `pnpm test:unit`, and `pnpm test:e2e` (Q1 2025 cycle). For tooling details and test matrices, read [`docs/app-next-directory/TESTING.md`](../docs/app-next-directory/TESTING.md).

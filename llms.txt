@@ -9,7 +9,7 @@ Key technical features include role-based authentication with NextAuth.js, advan
 ## Documentation
 
 - [Main README](README.md): Project overview, architecture, features, and quick start guide
-- [Contributing Guide](CONTRIBUTING.md): Git workflow, development process, and code standards
+- [Contributing Guide](docs/reference/CONTRIBUTING.md): Git workflow, development process, and code standards
 - [Documentation Structure](docs/README.md): Complete documentation organization and navigation
 - [API Documentation](docs/API_DOCUMENTATION.md): Comprehensive API endpoints, authentication, and usage examples
 - [Deployment Guide](docs/monorepo/DEPLOYMENT_GUIDE.md): Production deployment instructions for Vercel, Sanity, and MongoDB
@@ -31,7 +31,7 @@ Key technical features include role-based authentication with NextAuth.js, advan
 
 ## Architecture & Setup
 
-- [Workspace Setup](WORKSPACE_SETUP.md): Monorepo configuration with pnpm workspaces
+- [Workspace Setup](docs/reference/WORKSPACE_SETUP.md): Monorepo configuration with pnpm workspaces
 - [Package Configuration](package.json): Root package dependencies and workspace scripts
 - [TypeScript Configuration](tsconfig.json): Shared TypeScript configuration across workspaces
 
@@ -43,5 +43,5 @@ Key technical features include role-based authentication with NextAuth.js, advan
 
 - [Current Task Status](docs/currentTask.md): Development progress and active workstreams
 - [Codebase Summary](docs/codebaseSummary.md): High-level technical architecture overview
-- [Change Log](CHANGELOG.md): Version history and feature releases
+- [Change Log](docs/reference/CHANGELOG.md): Version history and feature releases
 - [Project Roadmap](docs/projectRoadmap.md): Future development plans and milestones

@@ -92,7 +92,7 @@
 ## 🗂️ **SUPPORTING DOCUMENTATION** (Archive or Relocate)
 
 ### **Historical/Status Files** (Move to /archive or /status)
-- `CHANGELOG.md` ✅ **KEEP AT ROOT** (77 lines) - Version history  
+- `CHANGELOG.md` ✅ **Moved to docs/reference** (77 lines) - Version history
 - `SANITY_UPDATES_SUMMARY.md` (75 lines) - Implementation status
 - `TEST_FIX_SUMMARY.md` (108 lines) - Bug fix documentation
 - `JEST_PLAYWRIGHT_SEPARATION_FIX.md` (102 lines) - Technical fix details

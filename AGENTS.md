@@ -27,9 +27,9 @@
 
 ## Commit & Pull Request Guidelines
 - Branch from `develop` using `feature/<kebab-case>` or `fix/<kebab-case>` naming.
-- Commit messages follow `type: concise summary` (`feat`, `fix`, `docs`, `chore`, etc.) as described in `CONTRIBUTING.md`.
+- Commit messages follow `type: concise summary` (`feat`, `fix`, `docs`, `chore`, etc.) as described in `docs/reference/CONTRIBUTING.md`.
 - Pull requests target `develop`, summarize scope, list validation commands, link issues, and include UI screenshots when layouts shift.
-- Update `CHANGELOG.md` for user-facing work and ensure lint, type, and relevant tests pass before requesting review.
+- Update `docs/reference/CHANGELOG.md` for user-facing work and ensure lint, type, and relevant tests pass before requesting review.
 
 ## Sanity & Configuration Tips
 - Regenerate schema types with `pnpm typegen`, then run `pnpm types:postprocess` to sync DTOs.

@@ -83,9 +83,9 @@
 
 ### **Core Project Documentation** (Keep in /docs)
 - `README.md` - Project overview ✅ **KEEP AT ROOT**
-- `CONTRIBUTING.md` - Contributor guidelines ✅ **KEEP AT ROOT**  
-- `CHANGELOG.md` - Version history ✅ **KEEP AT ROOT**
-- `WORKSPACE_SETUP.md` - Monorepo setup ✅ **KEEP AT ROOT**
+- `CONTRIBUTING.md` - Contributor guidelines ✅ **Now in docs/reference**
+- `CHANGELOG.md` - Version history ✅ **Now in docs/reference**
+- `WORKSPACE_SETUP.md` - Monorepo setup ✅ **Now in docs/reference**
 
 ### **Technical Implementation Docs** (Consolidate to /docs)
 - Authentication guides (3 files) 🔄 **CONSOLIDATE**

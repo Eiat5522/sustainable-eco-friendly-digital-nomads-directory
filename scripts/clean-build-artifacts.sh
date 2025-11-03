@@ -109,7 +109,7 @@ if [ $CLEANED_COUNT -gt 0 ]; then
     echo -e "${YELLOW}Next steps:${NC}"
     echo "  1. Start the dev server: npm run dev (or pnpm dev)"
     echo "  2. Monitor for worker module errors"
-    echo "  3. If issues persist, try alternative solutions in WSL_DISCONNECTION_FIX_GUIDE.md"
+    echo "  3. If issues persist, try alternative solutions in docs/reference/WSL_DISCONNECTION_FIX_GUIDE.md"
 else
     echo -e "${GREEN}✓ No artifacts to clean - environment is already clean${NC}"
 fi

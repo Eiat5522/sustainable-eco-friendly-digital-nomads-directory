@@ -16,8 +16,9 @@ This is the **central documentation hub** for the **Sustainable Eco-Friendly Dig
 
 ### **📚 Complete Documentation**
 - **[🔌 API Reference](api/README.md)** - Comprehensive API documentation with security details
-- **[🧪 Testing Guide](testing/README.md)** - 120+ E2E tests, unit tests, and testing strategies  
+- **[🧪 Testing Guide](testing/README.md)** - 120+ E2E tests, unit tests, and testing strategies
 - **[🚀 Deployment Guide](deployment/README.md)** - Production deployment and operations
+- **[🗂️ Reference Library](reference/README.md)** - Changelog, contribution workflow, and historical consolidation reports
 
 ---
 
@@ -49,6 +50,11 @@ docs/
 ├── 🚀 deployment/                     # 🆕 CONSOLIDATED  
 │   └── README.md                      # Production deployment guide (530+ lines)
 │       ← FROM: monorepo/DEPLOYMENT_GUIDE.md + deployment sections
+│
+├── 🗂️ reference/                     # 📦 Root-level docs migrated here
+│   ├── CHANGELOG.md                  # Version history and release notes
+│   ├── CONTRIBUTING.md               # Contribution workflow
+│   └── ...                           # Troubleshooting and consolidation reports
 │
 ├── 📄 Legacy Structure (Preserved)    # Original organization maintained
 │   ├── app-next-directory/            # Next.js specific documentation
@@ -282,7 +288,7 @@ Each workspace has its own dedicated documentation section while shared concerns
 
 ## 🤝 Contributing to Documentation
 
-See [`../CONTRIBUTING.md`](../CONTRIBUTING.md) for guidelines on:
+See [`reference/CONTRIBUTING.md`](reference/CONTRIBUTING.md) for guidelines on:
 
 - Documentation style and formatting
 - Adding new documentation sections
