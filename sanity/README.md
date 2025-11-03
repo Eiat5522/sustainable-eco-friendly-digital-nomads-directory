@@ -2,6 +2,15 @@
 
 This is the **Sanity Content Studio** configuration for the Sustainable Eco-Friendly Digital Nomads Directory. It powers content management for listings, cities, blog posts, site configuration, and user-generated content.
 
+## Current Status (Q1 2025)
+
+- ✅ **Schema alignment complete** – Listings, cities, articles, and configuration documents are synchronized with the Next.js DTO layer.
+- ✅ **Studio UX refinements** – Custom desk structure, preview panes, and role-aware actions implemented.
+- ✅ **Content pipelines validated** – Import/export scripts in `listings/` and `sanity/scripts/` tested against production datasets.
+- 🔄 **Upcoming** – Editorial workflow automation and scheduled publishing webhooks.
+
+Track workspace milestones in [`docs/reference/CHANGELOG.md`](../docs/reference/CHANGELOG.md).
+
 ---
 
 ## 🎯 Purpose
@@ -66,6 +75,7 @@ sustainable-eco-friendly-digital-nomads-directory/
 ## 🗂️ Documentation
 
 - All Sanity documentation is in [`docs/sanity/`](../docs/sanity/).
+- Cross-cutting references (workspace setup, troubleshooting, contribution workflow) now live in [`docs/reference/`](../docs/reference/).
 - See [`docs/README.md`](../docs/README.md) for project-wide navigation.
 
 ### Core Content Types
@@ -149,4 +159,4 @@ For access requests, contact the project administrator.
 
 ---
 
-_Last updated: July 30, 2025_
+_Last updated: Q1 2025_

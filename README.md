@@ -45,42 +45,40 @@ sustainable-eco-friendly-digital-nomads-directory/
 - **[🔑 Authentication System](docs/app-next-directory/AUTHENTICATION.md)** - NextAuth.js v5 setup with comprehensive role management
 - **[📖 Documentation Index](docs/INDEX.md)** - Complete table of contents and quick navigation
 - **[🔌 API Documentation](docs/API_DOCUMENTATION.md)** - Comprehensive API reference with security details
-- All documentation is in [`docs/`](docs/), with subfolders for [`sanity/`](docs/sanity/), [`app-next-directory/`](docs/app-next-directory/), and [`shared/`](docs/shared/).
-- Six key context files are retained in [`memory-bank/`](memory-bank/).
+- **[🗂️ Reference Library](docs/reference/)** - Changelog, contribution guide, workspace setup notes, troubleshooting playbooks, and consolidation reports
+- All documentation now lives in [`docs/`](docs/), with workspace-specific guides in [`docs/sanity/`](docs/sanity/) and [`docs/app-next-directory/`](docs/app-next-directory/).
+- Context files remain in [`memory-bank/`](memory-bank/) for knowledge continuity.
 - See [`docs/README.md`](docs/README.md) for navigation and structure.
 
 ### 🔧 Troubleshooting
 
-- **[WSL Disconnection Fix Guide](WSL_DISCONNECTION_FIX_GUIDE.md)** - Comprehensive guide for resolving Next.js worker module errors and WSL disconnection issues
+- **[WSL Disconnection Fix Guide](docs/reference/WSL_DISCONNECTION_FIX_GUIDE.md)** - Comprehensive guide for resolving Next.js worker module errors and WSL disconnection issues
 - **WSL Turborepo helper**: `scripts/turbo-wsl-safe-run.sh` keeps Turborepo tasks lightweight to avoid Remote-WSL disconnects when running multiple commands.
 - **[Scripts Documentation](scripts/README.md)** - Utility scripts for maintenance and troubleshooting
 
 ---
 
-## 🚦 Project Status (July 2025)
+## 🚦 Project Status (Q1 2025)
 
-- Monorepo and documentation reorganization complete
-- Next.js app, Sanity Studio, and admin dashboard fully integrated
-- Sanity schemas updated and aligned with frontend requirements
-- Sanity codegen integrated for TypeScript type generation
-- DTOs adopted for consistent data handling in the Next.js app
-- Playwright test automation and reporting configured
-- Workstreams A–F and pre-integration testing completed
-- Integration/testing phase ready
+- **Core platform stable**: The Next.js frontend, Sanity Studio, and shared DTO layer are fully integrated and operating against the latest schema set.
+- **Documentation unified**: All root-level guides now live under [`docs/`](docs/), including the changelog, contribution workflow, and troubleshooting playbooks.
+- **Testing automation active**: Linting, type-checking, Jest unit coverage, and Playwright regression suites execute cleanly across workspaces.
+- **Content workflows ready**: Sanity content types, data migrations, and preview integrations are validated and prepared for production content seeding.
+- **Deployment pipeline verified**: Vercel deployment scripts, environment promotion steps, and monitoring hooks are documented and in use.
 
 ---
 
 ## 🔜 Next Steps
 
-- Finalize workspace README and context file updates
-- Complete reference updates to new doc locations
-- Begin next roadmap phase: user onboarding, analytics, and performance optimization
+- Launch curated pilot content set and publish beta marketing page.
+- Implement analytics dashboards for sustainability metrics and traveler engagement.
+- Continue performance profiling and accessibility audits ahead of public launch.
 
 ---
 
 ## 🤝 Contributing
 
-See [`docs/README.md`](docs/README.md) and [`CONTRIBUTING.md`](CONTRIBUTING.md) for guidelines on documentation, coding standards, and review process.
+See [`docs/README.md`](docs/README.md) and [`docs/reference/CONTRIBUTING.md`](docs/reference/CONTRIBUTING.md) for guidelines on documentation, coding standards, and review process.
 
 ---
 

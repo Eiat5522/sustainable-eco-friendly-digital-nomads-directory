@@ -132,8 +132,10 @@ cd app-next-directory && npm run clean
 
 ```
 sustainable-eco-friendly-digital-nomads-directory/
-├── WSL_DISCONNECTION_FIX_GUIDE.md          # Main troubleshooting guide (NEW)
-├── IMPLEMENTATION_SUMMARY.md                # This file (NEW)
+├── docs/
+│   └── reference/
+│       ├── WSL_DISCONNECTION_FIX_GUIDE.md   # Main troubleshooting guide
+│       └── IMPLEMENTATION_SUMMARY.md        # This file
 ├── README.md                                # Updated with troubleshooting section
 ├── package.json                             # Added clean and dev:clean scripts
 ├── scripts/

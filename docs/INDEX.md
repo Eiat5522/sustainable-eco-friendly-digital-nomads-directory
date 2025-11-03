@@ -135,7 +135,7 @@ This index provides **complete navigation** to all consolidated documentation fo
 |----------|-------|--------|
 | **Security Reference** | `SECURITY_QUICK_REFERENCE.md` | ✅ **Keep** - Quick reference |
 | **Schema Documentation** | `Sanity_Schema_and_TypeScript_Types_Definition.md` | ✅ **Keep** - Technical reference |
-| **Project Status** | `CHANGELOG.md`, `CONTRIBUTING.md` | ✅ **Keep at root** |
+| **Project Status** | `reference/CHANGELOG.md`, `reference/CONTRIBUTING.md` | ✅ **Stored in docs/reference** |
 | **Task Management** | `tasks/*.md`, `memory-bank/*.md` | ✅ **Keep** - Project management |
 
 ---
