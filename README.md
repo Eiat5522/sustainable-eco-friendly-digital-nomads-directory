@@ -85,38 +85,3 @@ See [`docs/README.md`](docs/README.md) and [`docs/reference/CONTRIBUTING.md`](do
 ## 📬 Contact
 
 For access requests or questions, contact the project administrator.
-<!-- TASKMASTER_EXPORT_START -->
-> 🎯 **Taskmaster Export** - 2025-09-11 10:21:08 UTC
-> 📋 Export: without subtasks • Status filter: none
-> 🔗 Powered by [Task Master](https://task-master.dev?utm_source=github-readme&utm_medium=readme-export&utm_campaign=sustainable-eco-friendly-digital-nomads-directory&utm_content=task-export-link)
-
-| Project Dashboard |  |
-| :-                |:-|
-| Task Progress     | ██████████████░░░░░░ 70% |
-| Done | 7 |
-| In Progress | 1 |
-| Pending | 2 |
-| Deferred | 0 |
-| Cancelled | 0 |
-|-|-|
-| Subtask Progress | ███████████████░░░░░ 73% |
-| Completed | 22 |
-| In Progress | 0 |
-| Pending | 6 |
-
-
-| ID | Title | Status | Priority | Dependencies | Complexity |
-| :- | :-    | :-     | :-       | :-           | :-         |
-| 1 | Set up Tailwind v4 Global Styles | ✓&nbsp;done | high | None | ● 3 |
-| 2 | Create Root Layout with Header and Footer | ✓&nbsp;done | high | 1 | ● 4 |
-| 3 | Implement Home Page | ✓&nbsp;done | high | 2 | ● 5 |
-| 4 | Enhanced Listing Detail Page Shell with Data Fetching Simulation | ✓&nbsp;done | medium | 2 | ● 6 |
-| 5 | Implement City Detail Page Shell | ✓&nbsp;done | high | 2 | ● 6 |
-| 6 | Implement Advanced Search Page with Auto-Redirect | ►&nbsp;in-progress | high | 2 | ● 8 |
-| 7 | Implement Featured Listings Section | ✓&nbsp;done | medium | 3 | ● 6 |
-| 8 | Implement City Carousel Section | ✓&nbsp;done | medium | 3 | ● 7 |
-| 9 | Update ListingCard to use Slug for Navigation | ○&nbsp;pending | medium | 4 | ● 5 |
-| 10 | Create Search Wrapper Components | ○&nbsp;pending | medium | 6 | ● 6 |
-
-> 📋 **End of Taskmaster Export** - Tasks are synced from your project using the `sync-readme` command.
-<!-- TASKMASTER_EXPORT_END -->
