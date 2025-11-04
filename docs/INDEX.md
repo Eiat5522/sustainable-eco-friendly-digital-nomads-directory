@@ -135,6 +135,7 @@ This index provides **complete navigation** to all consolidated documentation fo
 |----------|-------|--------|
 | **Security Reference** | `SECURITY_QUICK_REFERENCE.md` | ✅ **Keep** - Quick reference |
 | **Schema Documentation** | `Sanity_Schema_and_TypeScript_Types_Definition.md` | ✅ **Keep** - Technical reference |
+| **Error Tracking** | `CONSOLE_ERRORS_CLASSIFICATION.md`, `CONSOLE_ERRORS_QUICK_REFERENCE.md` | ✅ **New** - Error documentation |
 | **Project Status** | `reference/CHANGELOG.md`, `reference/CONTRIBUTING.md` | ✅ **Stored in docs/reference** |
 | **Task Management** | `tasks/*.md`, `memory-bank/*.md` | ✅ **Keep** - Project management |
 
@@ -148,6 +149,7 @@ This index provides **complete navigation** to all consolidated documentation fo
 - **Testing**: [Testing Guide](testing/README.md)
 - **Local Development**: [Development Guide](development/README.md)
 - **Production Deployment**: [Deployment Guide](deployment/README.md)
+- **Error Troubleshooting**: [Console Errors Classification](CONSOLE_ERRORS_CLASSIFICATION.md) | [Quick Reference](CONSOLE_ERRORS_QUICK_REFERENCE.md)
 
 ### **By Role**
 - **Frontend Developer**: [Development](development/README.md) → [API](api/README.md) → [Testing](testing/README.md)

@@ -20,6 +20,10 @@ This is the **central documentation hub** for the **Sustainable Eco-Friendly Dig
 - **[🚀 Deployment Guide](deployment/README.md)** - Production deployment and operations
 - **[🗂️ Reference Library](reference/README.md)** - Changelog, contribution workflow, and historical consolidation reports
 
+### **🐛 Troubleshooting & Error Tracking**
+- **[📋 Console Errors Classification](CONSOLE_ERRORS_CLASSIFICATION.md)** - Comprehensive error classification and prioritization
+- **[⚡ Quick Error Reference](CONSOLE_ERRORS_QUICK_REFERENCE.md)** - Quick access guide for common errors and fixes
+
 ---
 
 ## 🗂️ **New Consolidated Structure** 
