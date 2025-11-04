@@ -25,7 +25,7 @@ const runner = UA && UA.includes('pnpm') ? 'pnpm exec'
 // Check if browsers are already installed using Playwright CLI
 let browsersInstalled = false;
 try {
-  // Use playwright CLI to check if browsers are installed
+  // Use playwright CLI to list browser files and verify chromium availability
   const checkCmd = `${runner} playwright list-files chromium`;
   execSync(checkCmd, { 
     stdio: 'pipe',
@@ -49,8 +49,8 @@ if (!shouldInstall) {
 console.log('[postinstall-playwright] Installing Playwright browsers...');
 
 try {
-  // Use exec without --with-deps to avoid the system dependency installation that causes issues
-  // Users can run with --with-deps manually if needed
+  // Install browsers without --with-deps to avoid system dependency issues during postinstall
+  // Note: CI workflows use --with-deps separately with better error handling and caching
   const installCmd = `${runner} playwright install chromium`;
   execSync(installCmd, { 
     stdio: 'inherit',
@@ -58,19 +58,23 @@ try {
   });
   console.log('[postinstall-playwright] Browser installation complete');
 } catch (err) {
+  // Get workspace name dynamically from package.json for better portability
+  const packageJson = require('../package.json');
+  const workspaceName = packageJson.name || 'app-next-directory';
+  
   console.warn('');
   console.warn('⚠️  [postinstall-playwright] Browser installation failed (non-fatal)');
   console.warn('   This is a known issue with Playwright installation progress reporting.');
   console.warn('');
   console.warn('   To install browsers manually, run:');
   if (runner.includes('pnpm')) {
-    console.warn('   pnpm --filter app-next-directory exec playwright install chromium');
+    console.warn(`   pnpm --filter ${workspaceName} exec playwright install chromium`);
     console.warn('   OR with system dependencies:');
-    console.warn('   pnpm --filter app-next-directory exec playwright install --with-deps');
+    console.warn(`   pnpm --filter ${workspaceName} exec playwright install --with-deps`);
   } else if (runner.includes('yarn')) {
-    console.warn('   yarn workspace app-next-directory exec playwright install chromium');
+    console.warn(`   yarn workspace ${workspaceName} exec playwright install chromium`);
     console.warn('   OR with system dependencies:');
-    console.warn('   yarn workspace app-next-directory exec playwright install --with-deps');
+    console.warn(`   yarn workspace ${workspaceName} exec playwright install --with-deps`);
   } else {
     console.warn('   npx playwright install chromium');
     console.warn('   OR with system dependencies:');
