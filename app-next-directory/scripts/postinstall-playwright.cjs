@@ -1,14 +1,14 @@
 const { execSync } = require('child_process');
-const { existsSync } = require('fs');
-const path = require('path');
 
 const { CI, SKIP_PLAYWRIGHT_INSTALL, NODE_ENV } = process.env;
 
+// Helper to check if environment variable is truthy
+const isEnvTrue = (value) => value === '1' || value === 'true';
+
 // Skip installation in CI (handled separately with caching) or if explicitly disabled
 const shouldSkip = 
-  SKIP_PLAYWRIGHT_INSTALL === '1' || 
-  SKIP_PLAYWRIGHT_INSTALL === 'true' ||
-  (CI === '1' || CI === 'true') ||
+  isEnvTrue(SKIP_PLAYWRIGHT_INSTALL) ||
+  isEnvTrue(CI) ||
   NODE_ENV === 'production';
 
 if (shouldSkip) {
