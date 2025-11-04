@@ -1,5 +1,9 @@
 import type { AppListingCard } from '@/types/appView';
-import type { TestCity, TestData, TestUser } from '@/tests/helpers/test-data';
+import type {
+  TestCity,
+  TestData,
+  TestUser,
+} from '@/tests/helpers/test-data';
 import { createTestData } from '@/tests/helpers/test-data';
 
 export type PlaywrightTestData = TestData & {
@@ -51,3 +55,12 @@ export const getPlaywrightTestData = (overrides?: Partial<TestData>): Playwright
 };
 
 export const getTestUsers = (): TestUser[] => getPlaywrightTestData().users;
+
+export {
+  TEST_SESSION_COOKIE_NAME,
+  createTestData,
+  getSessionForRole,
+  getTestUser,
+  listCities,
+  mockListings,
+} from '@/tests/helpers/test-data';

@@ -1,5 +1,5 @@
 import { test as setup } from '@playwright/test'
-import { TEST_SESSION_COOKIE_NAME, getTestData } from '../config/test-data'
+import { TEST_SESSION_COOKIE_NAME, createTestData, getTestData } from '../config/test-data'
 
 const seeded = getTestData()
 

@@ -21,10 +21,10 @@
 
 | # | Issue | Component | Status |
 |---|-------|-----------|--------|
-| 4 | Auth Session Parse Error | NextAuth | ❌ Not Fixed |
-| 5 | Google Fonts Loading Fail | Global typography | ❌ Not Fixed |
-| 6 | Blog Post Fetch Failures | `/blog` | ❌ Not Fixed |
-| 7 | Sanity API Network Error | Categories API | ❌ Not Fixed |
+| 4 | Auth Session Parse Error | NextAuth | ✅ Fixed |
+| 5 | Google Fonts Loading Fail | Global typography |✅ Fixed |
+| 6 | Blog Post Fetch Failures | `/blog` | ✅ Fixed |
+| 7 | Sanity API Network Error | Categories API | ✅ Fixed |
 
 **Impact:** Major features broken, poor user experience.
 
@@ -34,11 +34,11 @@
 
 | # | Issue | Count | Status |
 |---|-------|-------|--------|
-| 8 | Next.js Workspace Warning | 1 warning | ❌ Not Fixed |
-| 9 | Featured Listings Error | 1 component | ❌ Not Fixed |
-| 10 | TypeScript Implicit Any | ~20 files | ❌ Not Fixed |
-| 11 | Missing @types/node | 5 files | ❌ Not Fixed |
-| 12 | Playwright Install Error | Dev tools | ❌ Not Fixed |
+| 8 | Next.js Workspace Warning | 1 warning | ✅ Completed |
+| 9 | Featured Listings Error | 1 component | Needs verification |
+| 10 | TypeScript Implicit Any | ~20 files | In progress |
+| 11 | Missing @types/node | 5 files | Blocked (decision) |
+| 12 | Playwright Install Error | Dev tools | Blocked (CI pipeline) |
 
 **Impact:** Code quality, development experience, testing capability.
 
@@ -61,33 +61,40 @@
 
 ---
 
-## 🎯 Quick Fix Checklist
+# 🎯 Quick Fix Checklist
 
-### ✅ Phase 1: Critical (30-60 min)
-- [ ] Create `.env.development` file
-- [ ] Add `MONGODB_URI` to env file
-- [ ] Add `NEXT_PUBLIC_SANITY_PROJECT_ID` to env file
-- [ ] Add `NEXT_PUBLIC_SANITY_DATASET` to env file
-- [ ] Add `SANITY_API_TOKEN` to env file
-- [ ] Run `pnpm install --recursive`
-- [ ] Test build: `pnpm build`
+## ✅ Phase 1: Critical (30-60 min)
+- [✅] Create `.env.development` file
+- [✅] Add `MONGODB_URI` to env file
+- [✅] Add `NEXT_PUBLIC_SANITY_PROJECT_ID` to env file
+- [✅] Add `NEXT_PUBLIC_SANITY_DATASET` to env file
+- [✅] Add `SANITY_API_TOKEN` to env file
+- [✅] Run `pnpm install --recursive`
+- [✅] Test build: `pnpm build`
 
-### ✅ Phase 2: High Priority (1-2 hours)
-- [ ] Verify authentication works after Phase 1
-- [ ] Configure Google Fonts or use self-hosted
-- [ ] Test blog page loads
-- [ ] Verify Sanity API connectivity
-- [ ] Test all critical pages load
+## ✅ Phase 2: High Priority (1-2 hours)
+- [✅] Verify authentication works after Phase 1
+- [✅] Configure Google Fonts or use self-hosted
+- [✅] Test blog page loads
+- [✅] Verify Sanity API connectivity
+- [✅] Test all critical pages load
 
-### ✅ Phase 3: Medium Priority (3-4 hours)
-- [ ] Set `outputFileTracingRoot` in next.config.js
-- [ ] Remove unnecessary package-lock.json
-- [ ] Add explicit types to ~20 files
-- [ ] Install `@types/node` if missing
-- [ ] Fix Playwright installation
-- [ ] Test E2E tests run
+## ❌ Phase 3: Medium Priority (3-4 hours)
+- [✅] Clean lockfiles and document pnpm-only workflow (Issue 8)
+- [ ] Verify Featured Listings happy-path and add empty state handling (Issue 9)
+- [ ] Remove implicit `any` usages in shared utilities and components (Issue 10)
+- [ ] Decide on Node ambient types strategy (`@types/node` vs env helper) (Issue 11)
+- [ ] Upgrade Playwright and reinstall browsers in GitHub Actions (Issue 12)
+- [ ] Run `pnpm test:e2e --project=chromium --grep @smoke`
 
-### ✅ Phase 4: Low Priority (6-8 hours)
+### Medium Priority Task Notes
+- **Issue 8:** After removing extraneous lockfiles, set `outputFileTracingRoot` in `app-next-directory/next.config.js` to stabilise builds.
+- **Issue 9:** With Sanity credentials restored, add loading/error states inside `src/components/home/FeaturedListings.tsx` and cover with a Jest test.
+- **Issue 10:** Use `pnpm lint --filter @app-next-directory --rule @typescript-eslint/no-implicit-any` to capture remaining offenders before tightening types.
+- **Issue 11:** Choose between installing `@types/node` or creating a typed env accessor (`src/lib/env.ts`) and update the TypeScript config accordingly.
+- **Issue 12:** Ensure GitHub Actions uses the upgraded Playwright CLI, reinstall browsers (or cache them), and add guard logic to prevent redundant downloads that trigger the RangeError.
+
+## ❌ Phase 4: Low Priority (6-8 hours)
 - [ ] Clean up unused variables
 - [ ] Replace `any` types with proper types
 - [ ] Fix React hooks dependencies
@@ -100,12 +107,12 @@
 
 ```
 Total Issues: 20
-├── Critical:  3 [ ] [ ] [ ]
-├── High:      4 [ ] [ ] [ ] [ ]
+├── Critical:  3 [#] [#] [#]
+├── High:      4 [#] [#] [#] [#]
 ├── Medium:    5 [ ] [ ] [ ] [ ] [ ]
 └── Low:       8 [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ]
 
-Completion: 0/20 (0%)
+Completion: 8/20 (40%)
 ```
 
 ---

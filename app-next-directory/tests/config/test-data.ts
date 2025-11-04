@@ -26,4 +26,10 @@ export const getCredentialsForRole = (role: TestUser['role']) => {
   } as const;
 };
 
-export { TEST_SESSION_COOKIE_NAME, getSessionForRole };
+export {
+  TEST_SESSION_COOKIE_NAME,
+  createTestData,
+  getSessionForRole,
+  getTestUser,
+  listCities,
+};

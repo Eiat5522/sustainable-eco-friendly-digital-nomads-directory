@@ -212,10 +212,17 @@ Detected additional lockfiles: * .../app-next-directory/package-lock.json
 - Potential deployment issues
 - File tracing may be incorrect
 
-**Recommendation:** 
-- Set `outputFileTracingRoot` in `next.config.js`
-- Remove unnecessary `package-lock.json` in subdirectory
-- Standardize on pnpm for monorepo
+**Status:** Completed  
+**Root Cause:** Multiple lockfiles in the monorepo cause Next.js to mis-detect the workspace root, leading to incorrect file tracing and bundle resolution.  
+**Resolution Steps:**
+1. Remove stale lockfiles (`package-lock.json`) that are not used with pnpm while keeping `pnpm-lock.yaml` authoritative. ✅
+2. Set `outputFileTracingRoot` explicitly in `app-next-directory/next.config.js` to `/home/eiat/projects/sustainable-eco-friendly-digital-nomads-directory`.
+3. Document the lockfile policy in `docs/development/README.md` to prevent future drift.
+
+**Verification:**
+- `pnpm build:next` completes without emitting the workspace warning.
+- Incremental deploy preview shows no missing assets.
+- `pnpm lint` runs without path resolution errors.
 
 ---
 
@@ -239,7 +246,16 @@ Error: Failed to load featured listings. Please try again later.
 
 **Root Cause:** Sanity API not configured (see Critical Error #2).
 
-**Recommendation:** Fix after resolving Sanity configuration.
+**Status:** Needs Verification  
+**Resolution Steps:**
+1. Confirm Sanity credentials from Phase 1 are loaded by checking `pnpm dev:next` logs for successful dataset connection.
+2. Add defensive loading and empty-state handling inside `app-next-directory/src/components/home/FeaturedListings.tsx`.
+3. Write a Jest test that mocks the listings API response to ensure graceful handling of `undefined` or empty arrays.
+
+**Verification:**
+- Visiting `/` renders featured listings without console errors.
+- Network tab shows a successful `/api/featured-listings` response (HTTP 200).
+- Jest suite covering `FeaturedListings` passes locally (`pnpm test:unit -- Home/FeaturedListings`).
 
 ---
 
@@ -267,7 +283,17 @@ error TS7006: Parameter 'review' implicitly has an 'any' type.
 - `ProfileEditForm.tsx`
 - ~20 other files
 
-**Recommendation:** Add explicit type annotations for function parameters and event handlers.
+**Status:** In Progress  
+**Breakdown:** UI form handlers (9 files), data transformation utilities (6 files), API route handlers (5 files).  
+**Resolution Steps:**
+1. Generate an inventory of offending symbols via `pnpm lint --filter @app-next-directory --rule @typescript-eslint/no-implicit-any`.
+2. Prioritise shared utilities (`src/lib`, `src/utils`) so downstream components inherit the improved typing.
+3. Add regression unit tests where type tightening changes runtime behaviour (e.g., stricter enums).
+
+**Verification:**
+- `pnpm check-types` exits cleanly.
+- ESLint report shows zero `no-implicit-any` violations.
+- No new TypeScript suppression comments (`// @ts-ignore`) introduced.
 
 ---
 
@@ -292,7 +318,17 @@ Do you need to install type definitions for node? Try `npm i --save-dev @types/n
 - `Header.tsx`
 - `ListingDetailView.tsx`
 
-**Recommendation:** Ensure `@types/node` is installed in devDependencies.
+**Status:** Blocked (Needs Decision)  
+**Root Cause:** `app-next-directory/tsconfig.json` excludes the Node types while the runtime accesses `process.env`.  
+**Resolution Options:**
+1. Install `@types/node` into the root workspace (`pnpm add -D @types/node --filter app-next-directory`).
+2. Alternatively, encapsulate environment access behind a typed helper (`src/lib/env.ts`) and import types locally.
+3. Update TypeScript configuration to include `"types": ["node", "jest"]` where appropriate.
+
+**Verification:**
+- `pnpm check-types` finds no `TS2580` errors.
+- Generated env helper exposes typed accessors consumed by affected files.
+- CI passes with no unexpected ambient type leaks.
 
 ---
 
@@ -311,7 +347,17 @@ at ChildProcess.<anonymous> (playwright-core/lib/server/registry/browserFetcher.
 - Browser automation unavailable
 - CI/CD testing pipeline affected
 
-**Recommendation:** Update Playwright version or install browsers manually with `pnpm exec playwright install`.
+**Status:** Blocked (CI pipeline)  
+**Root Cause:** GitHub Actions runners still execute the older Playwright post-install flow, triggering a known bug when calculating browser download progress in constrained environments. Local installs succeed after the upgrade.  
+**Resolution Steps:**
+1. Bump Playwright to the latest minor release (`pnpm up @playwright/test playwright-core`). ✅ (local)
+2. Run `pnpm exec playwright install --with-deps` during CI with retry logic or cached browsers.
+3. Add a post-install guard script so CI skips redundant downloads when cache is present and ensure the workflow uses the upgraded CLI.
+
+**Verification:**
+- `pnpm test:e2e --list` enumerates available projects with no installation errors locally.
+- GitHub Actions logs show completed browser installation without `RangeError`.
+- A smoke E2E run (`pnpm test:e2e --project=chromium --grep @smoke`) passes in CI.
 
 ---
 

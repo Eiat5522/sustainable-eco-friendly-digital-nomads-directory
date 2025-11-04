@@ -28,6 +28,12 @@ dist/
 .env.production.local
 .venv
 
+# keep sample env templates in git
+!.env.sample
+!.env.test.sample
+!app-next-directory/.env.sample
+!app-next-directory/.env.test.sample
+
 # debug
 npm-debug.log*
 yarn-debug.log*
@@ -37,6 +43,10 @@ yarn-error.log*
 .env*.local
 .env.example
 .env
+!.env.sample
+!.env.test.sample
+!app-next-directory/.env.sample
+!app-next-directory/.env.test.sample
 
 # vercel
 .vercel
