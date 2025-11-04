@@ -1,14 +1,21 @@
-import { SearchFilters, SortOption } from '@/types/search';
+import type { SearchFilters, SearchResult, SearchResults, SortOption } from '@/types/search';
 import { client } from './sanity/client';
 
-interface SearchResults {
-  results: any[];
-  pagination: {
-    total: number;
-    page: number;
-    totalPages: number;
-    hasMore: boolean;
-  };
+interface SuggestionDocument {
+  name?: string;
+  keywords?: string[];
+}
+
+export interface SimilarListingResult {
+  _id: string;
+  name: string;
+  slug: string;
+  descriptionShort?: string;
+  category?: string;
+  city?: string;
+  primaryImage?: unknown;
+  ecoTags?: string[];
+  _score?: number;
 }
 
 /**
@@ -27,7 +34,7 @@ export async function searchListings(
 
   // Base query building - only include published listings
   let groqQuery = `*[_type == "listing" && moderation.status == "published"`;
-  const params: Record<string, any> = {};
+  const params: Record<string, unknown> = {};
 
   // Text search across multiple fields with field-specific boosts
   if (query) {
@@ -125,11 +132,11 @@ export async function searchListings(
   } [${start}...${start + limit}]`;
 
   // Execute query
-  const results = await sanityClient.fetch(groqQuery, params);
+  const results = await sanityClient.fetch<SearchResult[]>(groqQuery, params);
 
   // Get total count
   const countQuery = groqQuery.replace(/\{[^}]*\} \[\d+\.\.\.\d+\]$/, '').replace('*[', 'count(*[');
-  const total = await sanityClient.fetch(countQuery, params);
+  const total = await sanityClient.fetch<number>(countQuery, params);
 
   return {
     results,
@@ -153,24 +160,24 @@ export async function getSearchSuggestions(
   const sanityClient = client;
 
   const groqQuery = `*[_type == "listing" && moderation.status == "published" && (
-    name match $query + "*" ||
-    searchMetadata.keywords[]->name match $query + "*"
+    name match $searchTerm + "*" ||
+    searchMetadata.keywords[]->name match $searchTerm + "*"
   )][0...${limit}] {
     name,
     "keywords": searchMetadata.keywords[]->name
   }`;
 
-  const results = await sanityClient.fetch(groqQuery, { query } as Record<string, any>);
+  const results = await sanityClient.fetch<SuggestionDocument[]>(groqQuery, { searchTerm: query });
 
   // Extract and flatten unique suggestions
   const suggestions = new Set<string>();
-  results.forEach((result: any) => {
-    if (result.name.toLowerCase().includes(query.toLowerCase())) {
+  results.forEach((result) => {
+    if (typeof result.name === 'string' && result.name.toLowerCase().includes(query.toLowerCase())) {
       suggestions.add(result.name);
     }
-    if (result.keywords) {
-      result.keywords.forEach((keyword: string) => {
-        if (keyword.toLowerCase().includes(query.toLowerCase())) {
+    if (Array.isArray(result.keywords)) {
+      result.keywords.forEach((keyword) => {
+        if (typeof keyword === 'string' && keyword.toLowerCase().includes(query.toLowerCase())) {
           suggestions.add(keyword);
         }
       });
@@ -187,7 +194,7 @@ export async function getSimilarListings(
   listingId: string,
   limit = 3,
   preview = false
-): Promise<any[]> {
+): Promise<SimilarListingResult[]> {
   const sanityClient = client;
 
   const query = `*[_type == "listing" && _id == $listingId][0] {
@@ -209,5 +216,5 @@ export async function getSimilarListings(
     }
   }.similar`;
 
-  return sanityClient.fetch(query, { listingId });
+  return sanityClient.fetch<SimilarListingResult[]>(query, { listingId });
 }

@@ -9,6 +9,63 @@ import { NeoButton } from '@/components/ui/neo-button'
 import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
 
+type FeaturedListingResponse = {
+  listings?: unknown
+  data?: {
+    listings?: unknown
+  }
+}
+
+const isNonEmptyString = (value: unknown): value is string =>
+  typeof value === 'string' && value.trim().length > 0
+
+const toStringArray = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return []
+  return value.filter(isNonEmptyString)
+}
+
+const toFeaturedListing = (listing: unknown): FeaturedListingDTO | null => {
+  if (!listing || typeof listing !== 'object') {
+    return null
+  }
+
+  const candidate = listing as Record<string, unknown>
+
+  const id = candidate.id
+  const name = candidate.name
+  const slug = candidate.slug
+  const imageUrl = candidate.imageUrl
+  const city = candidate.city
+  const amenityNames = candidate.amenityNames
+  const ecoFocusTags = candidate.ecoFocusTags
+  const featured = candidate.featured
+
+  if (!isNonEmptyString(id) || !isNonEmptyString(name) || !isNonEmptyString(slug)) {
+    return null
+  }
+
+  let cityName = ''
+  if (isNonEmptyString(city)) {
+    cityName = city
+  } else if (city && typeof city === 'object') {
+    const possibleName = (city as { name?: unknown }).name
+    if (isNonEmptyString(possibleName)) {
+      cityName = possibleName
+    }
+  }
+
+  return {
+    id,
+    name,
+    slug,
+    imageUrl: isNonEmptyString(imageUrl) ? imageUrl : undefined,
+    city: cityName,
+    amenityNames: toStringArray(amenityNames),
+    ecoFocusTags: toStringArray(ecoFocusTags),
+    featured: typeof featured === 'boolean' ? featured : undefined,
+  }
+}
+
 export function FeaturedListings() {
   const [listings, setListings] = useState<FeaturedListingDTO[]>([])
   const [loading, setLoading] = useState(true)
@@ -66,16 +123,16 @@ export function FeaturedListings() {
     try {
       const res = await fetch('/api/featured-listings', { signal: controller.signal })
       if (!res.ok) throw new Error(DEFAULT_ERROR_MESSAGE)
-      const data = await res.json()
-      const list: FeaturedListingDTO[] = Array.isArray(data?.listings)
+      const data = (await res.json()) as FeaturedListingResponse
+      const rawListings = Array.isArray(data.listings)
         ? data.listings
-        : Array.isArray(data?.data?.listings)
-          ? data.data.listings
+        : Array.isArray(data.data?.listings)
+          ? data.data?.listings
           : []
-      const normalized = list.map((l: any) => ({
-        ...l,
-        city: typeof l?.city === 'object' ? (l?.city?.name ?? '') : (l?.city ?? ''),
-      })) as FeaturedListingDTO[]
+
+      const normalized = (rawListings as unknown[])
+        .map(toFeaturedListing)
+        .filter((listing): listing is FeaturedListingDTO => listing !== null)
 
       if (controller.signal.aborted || activeRequest.current !== requestId) return
       setListings(normalized)

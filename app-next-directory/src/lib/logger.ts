@@ -13,7 +13,7 @@ const isServer = typeof window === 'undefined';
 // Redact sensitive fields to prevent information leakage
 const redactPaths = [
   'password',
-  'token', 
+  'token',
   'apiKey',
   'secret',
   'authorization',
@@ -27,6 +27,78 @@ const redactPaths = [
   'err.config.headers.authorization',
   'error.config.headers.authorization'
 ];
+
+type HeaderGetter = (name: string) => string | null | undefined;
+type HeaderValue = string | string[] | undefined;
+type HeaderCollection = Headers | (Record<string, HeaderValue> & { get?: HeaderGetter });
+
+interface RequestLike {
+  method?: string;
+  url?: string;
+  path?: string;
+  nextUrl?: { pathname?: string };
+  headers?: HeaderCollection;
+  ip?: string;
+}
+
+interface ResponseLike {
+  statusCode?: number;
+  headers?: HeaderCollection;
+}
+
+interface UserLike {
+  id?: string;
+  role?: string;
+  email?: string;
+}
+
+type LogPrimitive = string | number | boolean | null | undefined;
+type LogValue = LogPrimitive | LogValue[] | { [key: string]: LogValue };
+
+interface LogContext extends Record<string, LogValue> {
+  userId?: string;
+  requestId?: string;
+  userAgent?: string;
+  ip?: string;
+  path?: string;
+  method?: string;
+  component?: string;
+}
+
+type SanitizedError = Record<string, unknown> | undefined;
+
+const toRedacted = (value: string | undefined): string | undefined =>
+  value ? '[REDACTED]' : undefined;
+
+const getHeaderValue = (headers: HeaderCollection | undefined, name: string): string | undefined => {
+  if (!headers) return undefined;
+
+  const lower = name.toLowerCase();
+  const getter = (headers as { get?: HeaderGetter }).get;
+  if (typeof getter === 'function') {
+    const viaGetter = getter.call(headers, name) ?? getter.call(headers, lower);
+    if (typeof viaGetter === 'string') {
+      return viaGetter;
+    }
+  }
+
+  const record = headers as Record<string, HeaderValue>;
+  const direct = record[name] ?? record[lower];
+  if (typeof direct === 'string') {
+    return direct;
+  }
+  if (Array.isArray(direct)) {
+    const first = direct.find((entry): entry is string => typeof entry === 'string');
+    if (first) {
+      return first;
+    }
+  }
+
+  return undefined;
+};
+
+const shouldRedactKey = (key: string): boolean =>
+  redactPaths.some(path => key.toLowerCase().includes(path.toLowerCase()));
 
 // Create base logger configuration
 const loggerConfig: pino.LoggerOptions = {
@@ -42,31 +114,48 @@ const loggerConfig: pino.LoggerOptions = {
   serializers: {
     err: pino.stdSerializers.err,
     error: pino.stdSerializers.err,
-    req: (req: any) => ({
-      method: req?.method,
-      url: req?.url,
-      path: req?.path,
-      userAgent: req?.headers?.['user-agent'],
-      // Redact sensitive headers
-      headers: req?.headers ? {
-        ...req.headers,
-        authorization: req.headers.authorization ? '[REDACTED]' : undefined,
-        cookie: req.headers.cookie ? '[REDACTED]' : undefined
-      } : undefined
-    }),
-    res: (res: any) => ({
-      statusCode: res?.statusCode,
-      headers: res?.headers ? {
-        ...res.headers,
-        'set-cookie': res.headers['set-cookie'] ? '[REDACTED]' : undefined
-      } : undefined
-    }),
-    user: (user: any) => ({
-      id: user?.id,
-      role: user?.role,
-      // Redact sensitive user information
-      email: user?.email ? `${user.email.substring(0, 3)}***@${user.email.split('@')[1]}` : undefined
-    })
+    req: (req: RequestLike | undefined) => {
+      const headers = req?.headers;
+      const authorization = getHeaderValue(headers, 'authorization');
+      const cookie = getHeaderValue(headers, 'cookie');
+      const userAgent = getHeaderValue(headers, 'user-agent');
+
+      return {
+        method: req?.method,
+        url: req?.url,
+        path: req?.path ?? req?.nextUrl?.pathname,
+        userAgent,
+        headers: headers
+          ? {
+              authorization: toRedacted(authorization),
+              cookie: toRedacted(cookie),
+            }
+          : undefined,
+      };
+    },
+    res: (res: ResponseLike | undefined) => {
+      const headers = res?.headers;
+      return {
+        statusCode: res?.statusCode,
+        headers: headers
+          ? {
+              'set-cookie': toRedacted(getHeaderValue(headers, 'set-cookie')),
+            }
+          : undefined,
+      };
+    },
+    user: (user: UserLike | undefined) => {
+      const email = typeof user?.email === 'string' ? user.email : undefined;
+      const maskedEmail = email && email.includes('@')
+        ? `${email.substring(0, 3)}***@${email.split('@')[1] ?? ''}`
+        : undefined;
+
+      return {
+        id: user?.id,
+        role: user?.role,
+        email: maskedEmail,
+      };
+    },
   },
 
   // Base fields for all logs
@@ -107,37 +196,46 @@ if (isDevelopment && !isE2E && isServer) {
 }
 
 // Enhanced logging interface with context support
-interface LogContext {
-  [key: string]: any;
-  userId?: string;
-  requestId?: string;
-  userAgent?: string;
-  ip?: string;
-  path?: string;
-  method?: string;
-}
-
 // Helper function to sanitize error objects
-function sanitizeError(error: any): any {
-  if (!error) return error;
-  
-  // Create a sanitized copy of the error
-  const sanitized: any = {
-    message: error.message,
-    name: error.name,
-    stack: isProduction ? undefined : error.stack, // Hide stack traces in production
-    code: error.code,
-    status: error.status || error.statusCode
-  };
+function sanitizeError(error: unknown): SanitizedError {
+  if (!error) return undefined;
 
-  // Remove any potentially sensitive properties
-  Object.keys(error).forEach(key => {
-    if (!redactPaths.some(path => key.toLowerCase().includes(path.toLowerCase()))) {
-      sanitized[key] = error[key];
+  if (error instanceof Error) {
+    const sanitized: Record<string, unknown> = {
+      message: error.message,
+      name: error.name,
+      stack: isProduction ? undefined : error.stack,
+    };
+
+    const record = error as unknown as Record<string, unknown>;
+    if (record.code !== undefined) {
+      sanitized.code = record.code;
     }
-  });
+    const status = record.status ?? record.statusCode;
+    if (status !== undefined) {
+      sanitized.status = status;
+    }
 
-  return sanitized;
+    Object.entries(record).forEach(([key, value]) => {
+      if (!shouldRedactKey(key) && value !== undefined) {
+        sanitized[key] = value;
+      }
+    });
+
+    return sanitized;
+  }
+
+  if (typeof error === 'object') {
+    const sanitized: Record<string, unknown> = {};
+    Object.entries(error as unknown as Record<string, unknown>).forEach(([key, value]) => {
+      if (!shouldRedactKey(key) && value !== undefined) {
+        sanitized[key] = value;
+      }
+    });
+    return sanitized;
+  }
+
+  return { message: String(error) };
 }
 
 // Enhanced logger with structured logging methods
@@ -155,17 +253,17 @@ export const structuredLogger = {
     logger.warn(context, msg);
   },
   
-  error: (msg: string, error?: any, context?: LogContext) => {
+  error: (msg: string, error?: unknown, context?: LogContext) => {
     const sanitizedError = sanitizeError(error);
-    logger.error({ 
-      ...context, 
-      err: sanitizedError,
-      ...(error && { error: sanitizedError })
-    }, msg);
+    const logContext = {
+      ...context,
+      ...(sanitizedError ? { err: sanitizedError, error: sanitizedError } : {}),
+    };
+    logger.error(logContext, msg);
   },
 
   // Specialized logging methods for common use cases
-  apiError: (endpoint: string, error: any, context?: Omit<LogContext, 'path'>) => {
+  apiError: (endpoint: string, error: unknown, context?: Omit<LogContext, 'path'>) => {
     structuredLogger.error(`API Error in ${endpoint}`, error, {
       ...context,
       path: endpoint,
@@ -173,21 +271,21 @@ export const structuredLogger = {
     });
   },
 
-  authError: (action: string, error: any, context?: LogContext) => {
+  authError: (action: string, error: unknown, context?: LogContext) => {
     structuredLogger.error(`Auth Error: ${action}`, error, {
       ...context,
       component: 'auth'
     });
   },
 
-  emailError: (action: string, error: any, context?: LogContext) => {
+  emailError: (action: string, error: unknown, context?: LogContext) => {
     structuredLogger.error(`Email Error: ${action}`, error, {
       ...context,
       component: 'email'
     });
   },
 
-  middlewareError: (middleware: string, error: any, context?: LogContext) => {
+  middlewareError: (middleware: string, error: unknown, context?: LogContext) => {
     structuredLogger.error(`Middleware Error: ${middleware}`, error, {
       ...context,
       component: 'middleware'
@@ -216,18 +314,19 @@ export const structuredLogger = {
 export { logger };
 
 // Backward compatibility - maps console.error to structured logging
-export const logError = (message: string, error?: any, context?: LogContext) => {
+export const logError = (message: string, error?: unknown, context?: LogContext) => {
   structuredLogger.error(message, error, context);
 };
 
 // Helper to extract request context from Next.js request objects
-export const getRequestContext = (req: any): LogContext => {
+export const getRequestContext = (req: RequestLike | undefined): LogContext => {
+  const headers = req?.headers;
   return {
     method: req?.method,
-    path: req?.url || req?.nextUrl?.pathname,
-    userAgent: req?.headers?.get?.('user-agent') || req?.headers?.['user-agent'],
-    ip: req?.ip || req?.headers?.get?.('x-forwarded-for') || req?.headers?.['x-forwarded-for'],
-    requestId: req?.headers?.get?.('x-request-id') || req?.headers?.['x-request-id']
+    path: req?.url ?? req?.nextUrl?.pathname,
+    userAgent: getHeaderValue(headers, 'user-agent'),
+    ip: req?.ip ?? getHeaderValue(headers, 'x-forwarded-for'),
+    requestId: getHeaderValue(headers, 'x-request-id'),
   };
 };
 
