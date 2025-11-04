@@ -4,7 +4,8 @@ import dbConnect from '@/lib/dbConnect'
 import NewsletterSubscriber from '@/models/NewsletterSubscriber'
 import { signNewsletterConfirmToken } from '@/lib/newsletterTokens'
 import { buildNewsletterConfirmEmail, sendMail } from '@/lib/email'
-import { getRedisClient } from '@/lib/redis'
+import { getRedisClient, mockRedisClient } from '@/lib/redis'
+import type { RedisLike } from '@/lib/redis'
 
 const newsletterSubscriptionSchema = z
   .object({
@@ -95,15 +96,12 @@ export function _clearMemoryStore() {
 const upstash = getRedisClient()
 startMemoryCleanup()
 
-let mockRedisClient: any
-if (process.env.JEST_WORKER_ID) {
-  try {
-    mockRedisClient = require('@/lib/redis').mockRedisClient
-  } catch {}
-}
+const resolvedMockRedisClient: RedisLike | undefined = process.env.JEST_WORKER_ID
+  ? mockRedisClient
+  : undefined
 
 async function storeGet(key: string) {
-  if (upstash && upstash !== mockRedisClient) {
+  if (upstash && upstash !== resolvedMockRedisClient) {
     try {
       const v = await upstash.get<string>(key)
       return v ?? null
@@ -115,7 +113,7 @@ async function storeGet(key: string) {
 }
 
 async function storeSet(key: string, value: string, ttlSeconds: number) {
-  if (upstash && upstash !== mockRedisClient) {
+  if (upstash && upstash !== resolvedMockRedisClient) {
     try {
       await upstash.set(key, value, { ex: ttlSeconds })
       return
@@ -128,7 +126,7 @@ async function storeSet(key: string, value: string, ttlSeconds: number) {
 }
 
 async function storeIncr(key: string, ttlSeconds: number) {
-  if (upstash && upstash !== mockRedisClient) {
+  if (upstash && upstash !== resolvedMockRedisClient) {
     try {
       const val = await upstash.incr(key)
       if (val === 1) {

@@ -394,12 +394,18 @@ warning 'transform' is assigned a value but never used.
 ---
 
 ### 14. ESLint Warnings - Explicit Any Types
-**Error Type:** Code Quality / Type Safety  
-**Location:** Multiple files  
+**Error Type:** Code Quality / Type Safety
+**Location:** Multiple files
 **Examples:**
 ```
 warning Unexpected any. Specify a different type @typescript-eslint/no-explicit-any
 ```
+
+**Status:** In Progress (last updated 2025-11-04)
+
+**Recent Changes:**
+- `src/utils/db-helpers.ts` refactored to use generics for mock collections and cursors, eliminating 40+ `any` usages.
+- `src/utils/api-response.ts` and `src/utils/auth-helpers.ts` now return typed payloads without falling back to `any`.
 
 **Impact:**
 - Reduced type safety
@@ -411,23 +417,32 @@ warning Unexpected any. Specify a different type @typescript-eslint/no-explicit-
 - `/api/blog/[slug]/route.ts`
 - `/api/comments/route.ts`
 - `/api/listings/route.ts`
-- `db-helpers.ts` (40+ instances)
-- 20+ other files
+- `src/lib/performance/baseline-testing.ts`
+- `src/lib/performance/__tests__/budgets.test.ts`
+- `src/models/User.ts`
+- `src/types/{appView,auth,filters}.ts`
+- 20+ other files (lint still reports ~560 warnings across tests and legacy scripts)
 
-**Total Instances:** ~100+ warnings
+**Total Instances:** ~560 warnings (many concentrated in test harnesses and legacy scripts)
 
 **Recommendation:** Replace `any` types with proper type definitions, unions, or generics.
 
 ---
 
 ### 15. ESLint Warnings - React Hooks Dependencies
-**Error Type:** React Best Practices  
-**Location:** Component files  
+**Error Type:** React Best Practices
+**Location:** Component files
 **Example:**
 ```
-warning React Hook useEffect has a missing dependency: 'loadUsers'. 
+warning React Hook useEffect has a missing dependency: 'loadUsers'.
 Either include it or remove the dependency array react-hooks/exhaustive-deps
 ```
+
+**Status:** Completed (2025-11-04)
+
+**Recent Changes:**
+- `app/admin/users/UserManagementTable.tsx` now memoizes the `loadUsers` callback so the effect dependency list is satisfied without re-fetch storms.
+- Linting no longer reports missing dependencies for this component, and no additional offenders were discovered.
 
 **Impact:**
 - Potential stale closures
@@ -443,19 +458,30 @@ Either include it or remove the dependency array react-hooks/exhaustive-deps
 ---
 
 ### 16. ESLint Warnings - Forbidden require() Imports
-**Error Type:** Code Style / Best Practices  
-**Location:** `db-helpers.ts`  
+**Error Type:** Code Style / Best Practices
+**Location:** Legacy config files, Jest setup utilities, performance budget tests
 **Example:**
 ```
 warning A `require()` style import is forbidden @typescript-eslint/no-require-imports
 ```
+
+**Status:** In Progress (last updated 2025-11-04)
+
+**Recent Changes:**
+- `src/utils/db-helpers.ts` now uses static ESM imports; the mocked Mongo helpers no longer rely on `require`.
+- Newsletter subscribe API switched from dynamic `require` to typed imports while keeping test fallbacks intact.
 
 **Impact:**
 - Inconsistent import style
 - May affect tree-shaking
 - Code style violation
 
-**Instances:** ~10 occurrences in `db-helpers.ts`
+**Remaining Hotspots:**
+- `tailwind.config.{js,cjs}`
+- `app-next-directory/jest.setup.ts` (test-time module patching)
+- `src/lib/performance/__tests__/budgets.test.ts`
+- Legacy integration scripts in `app-next-directory/test-*.js`
+- Multiple Jest mocks under `app-next-directory/__mocks__/`
 
 **Recommendation:** Convert `require()` to ES6 `import` statements.
 
@@ -578,9 +604,9 @@ Failed to load resource: the server responded with a status of 404 (Not Found)
 
 ### Phase 4: Polish (Low Priority)
 13. Clean up unused variables (~20 files)
-14. Replace explicit any types (~100 instances)
-15. Fix React hooks dependencies
-16. Convert require() to import statements
+14. Replace explicit any types (~560 lint warnings remain)
+15. Fix React hooks dependencies ✅
+16. Convert require() to import statements (focus on Jest setup + tooling)
 17. Handle informational messages
 
 **Estimated Time:** 6-8 hours  

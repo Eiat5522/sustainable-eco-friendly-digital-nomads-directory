@@ -1,36 +1,51 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 
-type MockCursor<T = unknown> = {
-  sort: (fields?: Record<string, 1 | -1>) => MockCursor;
-  skip: (amount: number) => MockCursor;
-  limit: (amount: number) => MockCursor;
-  project: (fields: Record<string, number>) => MockCursor;
-  toArray: () => Promise<T[]>;
-  [Symbol.asyncIterator]: () => AsyncGenerator<T, void, unknown>;
+type DocumentLike = Record<string, unknown>;
+type SortDescriptor = Record<string, 1 | -1>;
+type ProjectionDescriptor = Record<string, number>;
+type UpdateDescriptor = {
+  $set?: Record<string, unknown>;
+  $inc?: Record<string, number | string | null>;
+  $setOnInsert?: Record<string, unknown>;
 };
 
-export type MockCollection = {
-  find: (query?: Record<string, unknown>) => MockCursor;
-  findOne: <T = unknown>(query?: Record<string, unknown>) => Promise<T | null>;
-  insertOne: (doc: unknown) => Promise<{ acknowledged: boolean; insertedId: string }>;
-  insertMany: (docs: any[]) => Promise<{ acknowledged: boolean; insertedCount: number; insertedIds: Record<number, string> }>;
+export type MockCursor<TDocument extends DocumentLike = DocumentLike> = {
+  sort: (fields?: SortDescriptor) => MockCursor<TDocument>;
+  skip: (amount: number) => MockCursor<TDocument>;
+  limit: (amount: number) => MockCursor<TDocument>;
+  project: (fields: ProjectionDescriptor) => MockCursor<TDocument>;
+  toArray: () => Promise<TDocument[]>;
+  [Symbol.asyncIterator]: () => AsyncGenerator<TDocument, void, unknown>;
+};
+
+export type MockCollection<TDocument extends DocumentLike = DocumentLike> = {
+  find: (query?: Record<string, unknown>) => MockCursor<TDocument>;
+  findOne: (query?: Record<string, unknown>) => Promise<TDocument | null>;
+  insertOne: (doc: TDocument) => Promise<{ acknowledged: boolean; insertedId: string }>;
+  insertMany: (docs: TDocument[]) => Promise<{
+    acknowledged: boolean;
+    insertedCount: number;
+    insertedIds: Record<number, string>;
+  }>;
   updateOne: (
     filter: Record<string, unknown>,
-    update: Record<string, any>,
+    update: UpdateDescriptor,
     options?: { upsert?: boolean }
   ) => Promise<{ acknowledged: boolean; matchedCount: number; modifiedCount: number; upsertedId?: { _id: string } }>;
   countDocuments: (query?: Record<string, unknown>) => Promise<number>;
-  aggregate: <T = unknown>(pipeline?: Record<string, unknown>[]) => { toArray: () => Promise<T[]> };
+  aggregate: <TResult = TDocument>(pipeline?: Record<string, unknown>[]) => {
+    toArray: () => Promise<TResult[]>;
+  };
   deleteOne: (query?: Record<string, unknown>) => Promise<{ acknowledged: boolean; deletedCount: number }>;
   createIndex: (fields: Record<string, unknown>, options?: Record<string, unknown>) => Promise<string>;
   createIndexes: (indexes?: Record<string, unknown>[]) => Promise<string[]>;
-  __documents: any[];
-  __setDocuments: (docs: any[]) => void;
+  __documents: TDocument[];
+  __setDocuments: (docs: TDocument[]) => void;
 };
 
 export type MockDb = {
-  collection: (name: string) => MockCollection;
-  collections: Map<string, MockCollection>;
+  collection: <TDocument extends DocumentLike = DocumentLike>(name: string) => MockCollection<TDocument>;
+  collections: Map<string, MockCollection<DocumentLike>>;
 };
 
 type GlobalWithMongo = typeof globalThis & {
@@ -75,13 +90,13 @@ function initializeClientPromise(): Promise<MongoClient> | undefined {
   return clientPromise;
 }
 
-function createMockCursor(items: any[] = []): MockCursor {
-  let projectedFields: Record<string, number> | null = null;
-  let sortFields: Record<string, unknown> | null = null;
+function createMockCursor<TDocument extends DocumentLike>(items: TDocument[] = []): MockCursor<TDocument> {
+  let projectedFields: ProjectionDescriptor | null = null;
+  let sortFields: SortDescriptor | null = null;
   let skipAmount: number = 0;
   let limitAmount: number | null = null;
 
-  const cursor: MockCursor = {
+  const cursor: MockCursor<TDocument> = {
     sort: (fields) => {
       sortFields = fields || null;
       return cursor;
@@ -135,7 +150,7 @@ function createMockCursor(items: any[] = []): MockCursor {
           .map(([key]) => key);
         if (includeKeys.length) {
           results = results.map((item) => {
-            const projected: Record<string, unknown> = {};
+            const projected: DocumentLike = {};
             for (const key of includeKeys) {
               projected[key] = getValueByPath(item, key);
             }
@@ -206,19 +221,19 @@ function createMockId(): string {
   return `mock_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function getValueByPath(source: any, path: string): any {
+function getValueByPath<TValue = unknown>(source: DocumentLike | undefined, path: string): TValue | undefined {
   if (!source || typeof source !== 'object') {
     return undefined;
   }
-  return path.split('.').reduce((acc: any, key: string) => {
-    if (acc && typeof acc === 'object') {
-      return acc[key];
+  return path.split('.').reduce<unknown>((acc, key) => {
+    if (acc && typeof acc === 'object' && key in (acc as DocumentLike)) {
+      return (acc as DocumentLike)[key];
     }
     return undefined;
-  }, source);
+  }, source) as TValue | undefined;
 }
 
-function setValueByPath(target: any, path: string, value: any) {
+function setValueByPath(target: DocumentLike, path: string, value: unknown) {
   const parts = path.split('.');
   const last = parts.pop();
   if (!last) return;
@@ -229,17 +244,17 @@ function setValueByPath(target: any, path: string, value: any) {
     } else if (typeof cursor[part] !== 'object') {
       throw new Error(`Cannot set nested path: ${part} is not an object`);
     }
-    cursor = cursor[part];
+    cursor = cursor[part] as DocumentLike;
   }
   cursor[last] = value;
 }
 
-function incrementValueByPath(target: any, path: string, amount: number) {
+function incrementValueByPath(target: DocumentLike, path: string, amount: number) {
   const current = Number(getValueByPath(target, path)) || 0;
   setValueByPath(target, path, current + amount);
 }
 
-function matchesQuery(doc: any, query: Record<string, unknown> = {}): boolean {
+function matchesQuery(doc: DocumentLike, query: Record<string, unknown> = {}): boolean {
   const entries = Object.entries(query);
   if (!entries.length) return true;
 
@@ -261,18 +276,20 @@ function matchesQuery(doc: any, query: Record<string, unknown> = {}): boolean {
 
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       if ('$in' in value) {
-        const allowed = Array.isArray((value as any).$in) ? (value as any).$in : [];
-        if (!allowed.some((candidate: any) => candidate === actual)) {
+        const allowed = Array.isArray((value as { $in?: unknown[] }).$in)
+          ? (value as { $in: unknown[] }).$in
+          : [];
+        if (!allowed.some((candidate) => candidate === actual)) {
           return false;
         }
         continue;
       }
       if ('$eq' in value) {
-        if (actual !== (value as any).$eq) return false;
+        if (actual !== (value as { $eq?: unknown }).$eq) return false;
         continue;
       }
       if ('$ne' in value) {
-        if (actual === (value as any).$ne) return false;
+        if (actual === (value as { $ne?: unknown }).$ne) return false;
         continue;
       }
     }
@@ -285,18 +302,21 @@ function matchesQuery(doc: any, query: Record<string, unknown> = {}): boolean {
   return true;
 }
 
-function runAggregatePipeline(pipeline: Record<string, unknown>[] = [], documents: any[]): any[] {
-  return pipeline.reduce((acc, stage) => {
+function runAggregatePipeline(
+  pipeline: Record<string, unknown>[] = [],
+  documents: DocumentLike[]
+): DocumentLike[] {
+  return pipeline.reduce<DocumentLike[]>((acc, stage) => {
     if (stage.$match && typeof stage.$match === 'object') {
       return acc.filter((doc) => matchesQuery(doc, stage.$match as Record<string, unknown>));
     }
 
     if (stage.$group && typeof stage.$group === 'object') {
-      const groupStage = stage.$group as Record<string, any>;
+      const groupStage = stage.$group as Record<string, unknown>;
       const idDescriptor = groupStage._id;
-      const groups = new Map<any, Record<string, any>>();
+      const groups = new Map<unknown, DocumentLike>();
 
-      const getGroupId = (doc: any) => {
+      const getGroupId = (doc: DocumentLike) => {
         if (typeof idDescriptor === 'string' && idDescriptor.startsWith('$')) {
           return getValueByPath(doc, idDescriptor.slice(1));
         }
@@ -313,8 +333,8 @@ function runAggregatePipeline(pipeline: Record<string, unknown>[] = [], document
 
         for (const [field, expression] of Object.entries(groupStage)) {
           if (field === '_id') continue;
-          if (expression && typeof expression === 'object' && '$sum' in expression) {
-            const sumDescriptor = expression.$sum;
+          if (expression && typeof expression === 'object' && '$sum' in (expression as Record<string, unknown>)) {
+            const sumDescriptor = (expression as { $sum?: unknown }).$sum;
             let value = 0;
             if (typeof sumDescriptor === 'string' && sumDescriptor.startsWith('$')) {
               value = Number(getValueByPath(doc, sumDescriptor.slice(1))) || 0;
@@ -333,8 +353,8 @@ function runAggregatePipeline(pipeline: Record<string, unknown>[] = [], document
   }, documents.slice());
 }
 
-function createMockCollection(name: string): MockCollection {
-  let documents: any[] = [];
+function createMockCollection<TDocument extends DocumentLike = DocumentLike>(name: string): MockCollection<TDocument> {
+  let documents: TDocument[] = [];
 
   return {
     find: (query = {}) => {
@@ -345,35 +365,41 @@ function createMockCollection(name: string): MockCollection {
       const result = documents.find((doc) => matchesQuery(doc, query));
       return result ? { ...result } : null;
     },
-    insertOne: async (doc: any) => {
-      const payload = { ...doc };
-      if (!payload._id) {
-        payload._id = createMockId();
-      } else if (documents.some(d => d._id === payload._id)) {
-        throw new Error(`E11000 duplicate key error: _id: ${payload._id}`);
+    insertOne: async (doc) => {
+      const payload = { ...doc } as TDocument & { _id?: unknown };
+      const currentId = typeof payload._id === 'string' ? payload._id : undefined;
+      const insertedId = currentId ?? createMockId();
+      if (currentId && documents.some((d) => typeof d._id === 'string' && d._id === currentId)) {
+        throw new Error(`E11000 duplicate key error: _id: ${currentId}`);
       }
-      documents.push(payload);
-      return { acknowledged: true, insertedId: payload._id };
+      payload._id = insertedId;
+      documents.push(payload as TDocument);
+      return { acknowledged: true, insertedId };
     },
-    insertMany: async (docs: any[]) => {
+    insertMany: async (docs) => {
       const insertedIds: Record<number, string> = {};
-      const existingIds = new Set(documents.map(d => d._id));
+      const existingIds = new Set(
+        documents
+          .map((document) => (typeof document._id === 'string' ? document._id : undefined))
+          .filter((value): value is string => typeof value === 'string')
+      );
 
       docs.forEach((doc, index) => {
-        const payload = { ...doc };
-        if (!payload._id) {
-          payload._id = createMockId();
-        } else if (existingIds.has(payload._id)) {
-          throw new Error(`E11000 duplicate key error: _id: ${payload._id}`);
+        const payload = { ...doc } as TDocument & { _id?: unknown };
+        const currentId = typeof payload._id === 'string' ? payload._id : undefined;
+        const assignedId = currentId ?? createMockId();
+        if (currentId && existingIds.has(currentId)) {
+          throw new Error(`E11000 duplicate key error: _id: ${currentId}`);
         }
-        existingIds.add(payload._id);
-        documents.push(payload);
-        insertedIds[index] = payload._id;
+        existingIds.add(assignedId);
+        payload._id = assignedId;
+        documents.push(payload as TDocument);
+        insertedIds[index] = assignedId;
       });
 
       return { acknowledged: true, insertedCount: docs.length, insertedIds };
     },
-    updateOne: async (filter: Record<string, unknown>, update: Record<string, any>, options?: { upsert?: boolean }) => {
+    updateOne: async (filter: Record<string, unknown>, update: UpdateDescriptor, options?: { upsert?: boolean }) => {
       const target = documents.find((doc) => matchesQuery(doc, filter));
       if (target) {
         if (update.$set && typeof update.$set === 'object') {
@@ -390,7 +416,7 @@ function createMockCollection(name: string): MockCollection {
       }
 
       if (options?.upsert) {
-        const payload: Record<string, any> = {};
+        const payload: DocumentLike = {};
         if (filter && typeof filter === 'object') {
           for (const [key, value] of Object.entries(filter)) {
             if (typeof key === 'string' && !key.startsWith('$')) {
@@ -408,17 +434,24 @@ function createMockCollection(name: string): MockCollection {
             setValueByPath(payload, path, value);
           }
         }
-        if (!payload._id) {
+        if (typeof payload._id !== 'string') {
           payload._id = createMockId();
         }
-        documents.push(payload);
-        return { acknowledged: true, matchedCount: 0, modifiedCount: 0, upsertedId: { _id: payload._id } };
+        documents.push(payload as TDocument);
+        return {
+          acknowledged: true,
+          matchedCount: 0,
+          modifiedCount: 0,
+          upsertedId: { _id: String(payload._id) },
+        };
       }
 
       return { acknowledged: true, matchedCount: 0, modifiedCount: 0 };
     },
     countDocuments: async (query = {}) => documents.filter((doc) => matchesQuery(doc, query)).length,
-    aggregate: (pipeline = []) => ({ toArray: async () => runAggregatePipeline(pipeline, documents) }),
+    aggregate: (pipeline = []) => ({
+      toArray: async () => runAggregatePipeline(pipeline, documents) as unknown as TResult[],
+    }),
     deleteOne: async (query = {}) => {
       const index = documents.findIndex((doc) => matchesQuery(doc, query));
       if (index === -1) {
@@ -430,20 +463,20 @@ function createMockCollection(name: string): MockCollection {
     createIndex: async () => `${name}_mock_index`,
     createIndexes: async (indexes = []) => indexes.map((_, idx) => `${name}_mock_index_${idx}`),
     __documents: documents,
-    __setDocuments: (docs: any[]) => {
+    __setDocuments: (docs: TDocument[]) => {
       documents = Array.isArray(docs) ? docs.slice() : [];
     },
   };
 }
 
 function createMockDb(): MockDb {
-  const collections = new Map<string, MockCollection>();
+  const collections = new Map<string, MockCollection<DocumentLike>>();
   return {
     collection: (name: string) => {
       if (!collections.has(name)) {
         collections.set(name, createMockCollection(name));
       }
-      return collections.get(name)!;
+      return collections.get(name)! as MockCollection<DocumentLike>;
     },
     collections,
   };
@@ -535,7 +568,7 @@ export async function getDatabase(): Promise<Db | MockDb> {
   }
 
   const database = client.db('sustainable-nomads');
-  if (!database || typeof (database as any).collection !== 'function') {
+  if (!database || typeof database.collection !== 'function') {
     if (process.env.NODE_ENV === 'test' && !allowRealMongoInTests) {
       return createMockDb();
     }
@@ -551,7 +584,7 @@ export async function getCollection(name: string): Promise<Collection | MockColl
   }
 
   const db = await getDatabase();
-  if (!db || typeof db.collection !== 'function') {
+  if (!db || typeof (db as { collection?: unknown }).collection !== 'function') {
     throw new Error('Database instance is invalid');
   }
 

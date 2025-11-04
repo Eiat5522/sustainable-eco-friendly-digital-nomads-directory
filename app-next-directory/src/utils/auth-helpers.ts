@@ -1,5 +1,4 @@
 import type { Session } from 'next-auth';
-import { authOptions } from '@/lib/auth';
 import { auth } from '@/lib/auth';
 import { ApiResponseHandler } from './api-response';
 
@@ -31,9 +30,13 @@ export async function requireRole(allowedRoles: string[]): Promise<Session> {
 }
 
 export function handleAuthError(error: unknown) {
-  const message = (error && typeof error === 'object' && 'message' in error && typeof (error as any).message === 'string')
-    ? (error as any).message
-    : '';
+  const message =
+    error &&
+    typeof error === 'object' &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+      ? (error as { message?: string }).message ?? ''
+      : '';
 
   if (message === 'UNAUTHORIZED') {
     return ApiResponseHandler.unauthorized();

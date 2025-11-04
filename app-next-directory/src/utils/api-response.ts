@@ -9,11 +9,19 @@ type JsonBody =
   | null
   | undefined;
 
+type ResponseConstructorWithJson = typeof Response & {
+  json?: (data: unknown, init?: ResponseInit) => Response;
+};
+
 const hasStaticResponseJson =
-  typeof Response !== 'undefined' && typeof (Response as any).json === 'function';
+  typeof Response !== 'undefined' &&
+  typeof (Response as ResponseConstructorWithJson).json === 'function';
 
 const canUseNextResponseJson =
-  typeof NextResponse !== 'undefined' && 'json' in NextResponse && typeof NextResponse.json === 'function' && hasStaticResponseJson;
+  typeof NextResponse !== 'undefined' &&
+  'json' in NextResponse &&
+  typeof NextResponse.json === 'function' &&
+  hasStaticResponseJson;
 
 function createJsonResponse(body: JsonBody, init: ResponseInit = {}): Response {
   const headers = new Headers(init.headers ?? {});
@@ -36,17 +44,20 @@ function createJsonResponse(body: JsonBody, init: ResponseInit = {}): Response {
   });
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
   message?: string;
-  details?: any;
+  details?: unknown;
 }
 
 export const ApiResponseHandler = {
-  success: (data: any, message?: string) => {
-    const payload = message === undefined ? { success: true, data } : { success: true, data, message };
+  success: <T>(data: T, message?: string) => {
+    const payload: ApiResponse<T> =
+      message === undefined
+        ? { success: true, data }
+        : { success: true, data, message };
     return createJsonResponse(payload);
   },
 
@@ -55,8 +66,10 @@ export const ApiResponseHandler = {
     status: number = 400,
     details?: unknown
   ) => {
-    const payload: any = { success: false, error };
-    if (details !== undefined) payload.details = details;
+    const payload: ApiResponse<never> & { details?: unknown } = { success: false, error };
+    if (details !== undefined) {
+      payload.details = details;
+    }
     return createJsonResponse(payload, { status });
   },
 
