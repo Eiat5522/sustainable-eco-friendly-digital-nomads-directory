@@ -10,10 +10,14 @@ type JsonBody =
   | undefined;
 
 const hasStaticResponseJson =
-  typeof Response !== 'undefined' && typeof (Response as any).json === 'function';
+  typeof Response !== 'undefined' &&
+  typeof (Response as typeof Response & { json?: unknown }).json === 'function';
 
 const canUseNextResponseJson =
-  typeof NextResponse !== 'undefined' && 'json' in NextResponse && typeof NextResponse.json === 'function' && hasStaticResponseJson;
+  typeof NextResponse !== 'undefined' &&
+  'json' in NextResponse &&
+  typeof NextResponse.json === 'function' &&
+  hasStaticResponseJson;
 
 function createJsonResponse(body: JsonBody, init: ResponseInit = {}): Response {
   const headers = new Headers(init.headers ?? {});
@@ -36,40 +40,39 @@ function createJsonResponse(body: JsonBody, init: ResponseInit = {}): Response {
   });
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> extends Record<string, unknown> {
   success: boolean;
   data?: T;
   error?: string;
   message?: string;
-  details?: any;
+  details?: unknown;
 }
 
 export const ApiResponseHandler = {
-  success: (data: any, message?: string) => {
-    const payload = message === undefined ? { success: true, data } : { success: true, data, message };
+  success<T>(data: T, message?: string) {
+    const payload: ApiResponse<T> =
+      message === undefined ? { success: true, data } : { success: true, data, message };
     return createJsonResponse(payload);
   },
 
-  error: (
-    error: string,
-    status: number = 400,
-    details?: unknown
-  ) => {
-    const payload: any = { success: false, error };
-    if (details !== undefined) payload.details = details;
+  error(error: string, status: number = 400, details?: unknown) {
+    const payload: ApiResponse<never> = { success: false, error };
+    if (details !== undefined) {
+      payload.details = details;
+    }
     return createJsonResponse(payload, { status });
   },
 
-  notFound: (resource?: string) => {
+  notFound(resource?: string) {
     const msg = resource ? `${resource} not found` : 'Resource not found';
     return createJsonResponse({ success: false, error: msg }, { status: 404 });
   },
 
-  unauthorized: () => {
+  unauthorized() {
     return createJsonResponse({ success: false, error: 'Unauthorized access' }, { status: 401 });
   },
 
-  forbidden: () => {
+  forbidden() {
     return createJsonResponse({ success: false, error: 'Forbidden' }, { status: 403 });
   },
 };
