@@ -79,9 +79,9 @@
 - [✅] Verify Sanity API connectivity
 - [✅] Test all critical pages load
 
-## ❌ Phase 3: Medium Priority (3-4 hours)
+## 🔄 Phase 3: Medium Priority (3-4 hours)
 - [✅] Clean lockfiles and document pnpm-only workflow (Issue 8)
-- [ ] Verify Featured Listings happy-path and add empty state handling (Issue 9)
+- [✅] Verify Featured Listings happy-path and add empty state handling (Issue 9)
 - [ ] Remove implicit `any` usages in shared utilities and components (Issue 10)
 - [ ] Decide on Node ambient types strategy (`@types/node` vs env helper) (Issue 11)
 - [ ] Upgrade Playwright and reinstall browsers in GitHub Actions (Issue 12)
@@ -196,3 +196,4 @@ pnpm check-types            # Should be clean
 - ℹ️ Informational Only
 
 - 🔍 Needs Investigation
+
