@@ -1,9 +1,14 @@
+import {
+  ReadableStream as PolyfillReadableStream,
+  TransformStream as PolyfillTransformStream,
+} from 'web-streams-polyfill';
+
 if (typeof globalThis.ReadableStream === 'undefined') {
-  globalThis.ReadableStream = require('web-streams-polyfill').ReadableStream;
+  globalThis.ReadableStream = PolyfillReadableStream as typeof globalThis.ReadableStream;
 }
 
 if (typeof globalThis.TransformStream === 'undefined') {
-  globalThis.TransformStream = require('web-streams-polyfill').TransformStream;
+  globalThis.TransformStream = PolyfillTransformStream as typeof globalThis.TransformStream;
 }
 
 if (typeof globalThis.BroadcastChannel === 'undefined') {

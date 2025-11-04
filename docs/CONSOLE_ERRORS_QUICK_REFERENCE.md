@@ -51,7 +51,7 @@
 | 13 | Unused Variables | 20+ files | ❌ Not Fixed |
 | 14 | Explicit Any Types | ~560 warnings | 🔄 In Progress |
 | 15 | React Hooks Deps | 1+ components | ✅ Completed |
-| 16 | require() Imports | 30+ scripts/tests | 🔄 In Progress |
+| 16 | require() Imports | 30+ scripts/tests | 🔄 In Progress (Jest env + logger converted to ESM) |
 | 17 | Next.js Telemetry Notice | Informational | ℹ️ Ignore |
 | 18 | React DevTools Message | Informational | ℹ️ Ignore |
 | 19 | Dev Tools Overlay | Development only | ℹ️ Normal |
