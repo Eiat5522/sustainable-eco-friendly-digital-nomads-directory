@@ -16,17 +16,18 @@ if (shouldSkip) {
   process.exit(0);
 }
 
-// Check if browsers are already installed by looking for the Chromium binary
-const playwrightCache = process.env.PLAYWRIGHT_BROWSERS_PATH || 
-  path.join(require('os').homedir(), '.cache', 'ms-playwright');
+// Detect package manager from npm_config_user_agent for consistent usage throughout
+const { npm_config_user_agent: UA } = process.env;
+const runner = UA && UA.includes('pnpm') ? 'pnpm exec'
+  : UA && UA.includes('yarn') ? 'yarn exec'
+  : 'npx';
 
-// Check if Chromium executable exists (more robust than just checking cache dir)
-const chromiumPath = path.join(playwrightCache, 'chromium-*');
-const { execSync: execSyncCheck } = require('child_process');
+// Check if browsers are already installed using Playwright CLI
 let browsersInstalled = false;
 try {
   // Use playwright CLI to check if browsers are installed
-  execSyncCheck('pnpm exec playwright list-files chromium', { 
+  const checkCmd = `${runner} playwright list-files chromium`;
+  execSync(checkCmd, { 
     stdio: 'pipe',
     timeout: 5000 
   });
@@ -46,12 +47,6 @@ if (!shouldInstall) {
 }
 
 console.log('[postinstall-playwright] Installing Playwright browsers...');
-
-// Detect package manager from npm_config_user_agent or fallback to npx
-const { npm_config_user_agent: UA } = process.env;
-const runner = UA && UA.includes('pnpm') ? 'pnpm exec'
-  : UA && UA.includes('yarn') ? 'yarn exec'
-  : 'npx';
 
 try {
   // Use exec without --with-deps to avoid the system dependency installation that causes issues
