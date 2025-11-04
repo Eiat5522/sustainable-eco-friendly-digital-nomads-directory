@@ -1,5 +1,12 @@
 // jest/setEnvVars.js
-require('dotenv').config({ path: require('path').resolve(__dirname, '../.env.test') });
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import dotenv from 'dotenv';
+
+const moduleFilename = fileURLToPath(import.meta.url);
+const moduleDirname = path.dirname(moduleFilename);
+
+dotenv.config({ path: path.resolve(moduleDirname, '../.env.test') });
 // Force test env to ensure unit tests use mocks instead of real services
 process.env.NODE_ENV = 'test';
 console.log('Loaded .env.test:', process.env.NEXT_PUBLIC_SANITY_PROJECT_ID, process.env.NODE_ENV); // DEBUG: Remove after troubleshooting

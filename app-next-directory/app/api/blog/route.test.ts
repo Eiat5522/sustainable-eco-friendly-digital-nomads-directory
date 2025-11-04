@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const fetchMock = jest.fn<any, any[]>();
 const transformMock = jest.fn((post: any) => ({ id: post._id, title: post.title }));
@@ -6,8 +6,11 @@ const transformMock = jest.fn((post: any) => ({ id: post._id, title: post.title 
 jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => fetchMock(...args) } }));
 jest.mock('@/lib/dto-transformer', () => ({ transformToBlogSummaryDTO: (...args: any[]) => transformMock(...args) }));
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { GET } = require('./route') as { GET: typeof import('./route').GET };
+let GET: typeof import('./route').GET;
+
+beforeAll(async () => {
+  ({ GET } = await import('./route'));
+});
 
 describe('Blog API - GET /api/blog', () => {
   beforeEach(() => {

@@ -171,28 +171,33 @@ const loggerConfig: pino.LoggerOptions = {
 // IMPORTANT: We avoid using pino's transport mechanism with pino-pretty because it spawns
 // worker threads that fail to resolve paths correctly in Next.js with custom distDir.
 // Instead, we use pino-pretty as a direct stream destination without worker threads.
-let logger: pino.Logger;
+let logger: pino.Logger = pino(loggerConfig);
 
 if (isDevelopment && !isE2E && isServer) {
-  // In development server-side, use pino-pretty but without worker threads
-  // This avoids MODULE_NOT_FOUND errors with Next.js custom distDir
-  try {
-    const pinoPretty = require('pino-pretty');
-    const prettyStream = pinoPretty({
-      colorize: true,
-      translateTime: 'yyyy-mm-dd HH:MM:ss',
-      ignore: 'pid,hostname,service,version',
-      sync: true, // Force synchronous mode to avoid worker threads
-    });
-    logger = pino(loggerConfig, prettyStream);
-  } catch (error) {
-    // Fallback to basic logger if pino-pretty fails to load
-    console.warn('Failed to initialize pino-pretty, using basic logger:', error);
-    logger = pino(loggerConfig);
-  }
-} else {
-  // In production, test, or client-side: use basic logger without pretty printing
-  logger = pino(loggerConfig);
+  // In development server-side, try to hydrate pino-pretty via dynamic import.
+  // We default to the base logger immediately so logging works even if the
+  // pretty printer fails to load or is still resolving asynchronously.
+  void (async () => {
+    try {
+      const pinoPrettyModule = await import('pino-pretty');
+      const pinoPretty =
+        (pinoPrettyModule.default ?? (pinoPrettyModule as unknown)) as (typeof import('pino-pretty'))['default'];
+      if (typeof pinoPretty !== 'function') {
+        console.warn('Failed to initialize pino-pretty, using basic logger: module did not export a function');
+        return;
+      }
+      const prettyStream = pinoPretty({
+        colorize: true,
+        translateTime: 'yyyy-mm-dd HH:MM:ss',
+        ignore: 'pid,hostname,service,version',
+        sync: true // Force synchronous mode to avoid worker threads
+      });
+      logger = pino(loggerConfig, prettyStream);
+    } catch (error) {
+      // Fallback to basic logger if pino-pretty fails to load
+      console.warn('Failed to initialize pino-pretty, using basic logger:', error);
+    }
+  })();
 }
 
 // Enhanced logging interface with context support
