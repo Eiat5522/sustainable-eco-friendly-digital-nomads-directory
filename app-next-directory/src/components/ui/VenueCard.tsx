@@ -14,14 +14,7 @@ interface VenueCardProps {
 
 export function VenueCard({ venue, className, priority = false }: Readonly<VenueCardProps>) {
   const [imgErr, setImgErr] = React.useState(false);
-  // Guard against unexpected shapes from API by safely deriving a city label
-  const cityLabel = (() => {
-    const v: any = venue as any;
-    const c = v?.city;
-    if (typeof c === 'string') return c;
-    if (c && typeof c === 'object' && typeof c.name === 'string') return c.name;
-    return '';
-  })();
+  const cityLabel = venue.city.trim().length > 0 ? venue.city : '';
 
   // Truncate long titles to prevent card height variation
   const truncatedTitle = venue.name.length > 60 ? `${venue.name.substring(0, 60)}...` : venue.name;

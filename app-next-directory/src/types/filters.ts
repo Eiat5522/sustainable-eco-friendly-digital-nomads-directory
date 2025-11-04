@@ -6,7 +6,7 @@ export type FilterOperator = 'AND' | 'OR';
 // Single filter condition
 export interface FilterCondition {
   field: keyof ListingFilters;
-  value: any;
+  value: unknown;
   operator?: FilterOperator;
 }
 

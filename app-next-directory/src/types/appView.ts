@@ -1,5 +1,8 @@
 import type { PortableTextBlock } from './external/portabletext';
 import type { SanityImageObject } from './external/sanity-image';
+import type { FilterGroup, FilterOperator } from '@/types/components';
+import type { SortOption } from '@/types/search';
+import type { Amenity } from '@/types/sanity';
 
 export type AppCity = { id: string; name: string; slug: string; country?: string; sustainabilityScore?: number; highlights?: string[]; primaryImage?: SanityImage; description?: string; };
 
@@ -26,8 +29,6 @@ export type AppListingCard = {
   category?: string;
   location?: { lat: number; lng: number };
 };
-import type { Amenity } from '@/types/sanity';
-
 export type AppListingDetail = AppListingCard & {
   contactPhone?: string | null;
   contactEmail?: string | null;
@@ -147,7 +148,7 @@ export type AppFilterState = {
   digitalNomadFeatures: string[];
   priceRanges: string[];
   searchQuery: string;
-  sort?: any;
-  combinations?: any[];
-  combinationOperator?: any;
+  sort?: SortOption;
+  combinations?: FilterGroup[];
+  combinationOperator?: FilterOperator;
 };

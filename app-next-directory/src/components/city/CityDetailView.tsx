@@ -5,7 +5,7 @@ import type { LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import { NeoBadge } from '@/components/ui/neo-badge';
 import { RelatedListings } from '@/components/listings/RelatedListings';
-import type { CityDTO, CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
+import type { CityDTO, CityDetailDTO, InternetSpeedDTO, ListingSummaryDTO } from '@/types/dto';
 
 interface CityDetailViewProps {
   city: CityDTO | CityDetailDTO;
@@ -27,17 +27,28 @@ export function CityDetailView({ city, listings }: CityDetailViewProps) {
     formatter: (value: unknown) => string | null;
   }>;
 
+  const isInternetSpeedDTO = (value: unknown): value is InternetSpeedDTO => {
+    if (!value || typeof value !== 'object') {
+      return false;
+    }
+
+    const candidate = value as Partial<InternetSpeedDTO>;
+    const hasDownload = typeof candidate.download === 'number' && Number.isFinite(candidate.download);
+    const hasUpload = typeof candidate.upload === 'number' && Number.isFinite(candidate.upload);
+    const hasLastTested = typeof candidate.lastTested === 'string' && candidate.lastTested.trim().length > 0;
+
+    return hasDownload || hasUpload || hasLastTested;
+  };
+
   const formatInternetSpeed = (value: unknown): string | null => {
     if (typeof value === 'number' && Number.isFinite(value)) return `${value} Mbps avg`;
-    if (value && typeof value === 'object') {
-      const v: any = value;
-      const d = Number(v.download);
-      const u = Number(v.upload);
-      const hasD = Number.isFinite(d);
-      const hasU = Number.isFinite(u);
-      if (hasD && hasU) return `${d}↓ / ${u}↑ Mbps`;
-      if (hasD) return `${d} Mbps down`;
-      if (hasU) return `${u} Mbps up`;
+    if (isInternetSpeedDTO(value)) {
+      const download = typeof value.download === 'number' && Number.isFinite(value.download) ? value.download : undefined;
+      const upload = typeof value.upload === 'number' && Number.isFinite(value.upload) ? value.upload : undefined;
+
+      if (download !== undefined && upload !== undefined) return `${download}↓ / ${upload}↑ Mbps`;
+      if (download !== undefined) return `${download} Mbps down`;
+      if (upload !== undefined) return `${upload} Mbps up`;
     }
     return null;
   };

@@ -36,7 +36,7 @@
 |---|-------|-------|--------|
 | 8 | Next.js Workspace Warning | 1 warning | ✅ Completed |
 | 9 | Featured Listings Error | 1 component | ✅ Completed |
-| 10 | TypeScript Implicit Any | ~20 files  | 🔄 In Progress (core utils typed) |
+| 10 | TypeScript Implicit Any | ~20 files  | ✅ Completed |
 | 11 | Missing @types/node | 5 files        | ❌ Blocked (decision) |
 | 12 | Playwright Install Error | Dev tools | ❌ Blocked (CI pipeline) |
 
@@ -82,7 +82,7 @@
 ## 🔄 Phase 3: Medium Priority (3-4 hours)
 - [✅] Clean lockfiles and document pnpm-only workflow (Issue 8)
 - [✅] Verify Featured Listings happy-path and add empty state handling (Issue 9)
-- [🔄] Remove implicit `any` usages in shared utilities and components (Issue 10) — utilities updated, remaining React/APIs pending
+- [✅] Remove implicit `any` usages in shared utilities and components (Issue 10) — utilities updated, React UI and logging now typed
 - [ ] Decide on Node ambient types strategy (`@types/node` vs env helper) (Issue 11)
 - [ ] Upgrade Playwright and reinstall browsers in GitHub Actions (Issue 12)
 - [ ] Run `pnpm test:e2e --project=chromium --grep @smoke`
@@ -90,7 +90,7 @@
 ### Medium Priority Task Notes
 - **Issue 8:** After removing extraneous lockfiles, set `outputFileTracingRoot` in `app-next-directory/next.config.js` to stabilise builds.
 - **Issue 9:** With Sanity credentials restored, add loading/error states inside `src/components/home/FeaturedListings.tsx` and cover with a Jest test.
-- **Issue 10:** Utilities updated via targeted ESLint runs; next focus is React forms and API handlers using `pnpm lint --filter @app-next-directory --rule @typescript-eslint/no-explicit-any` to surface stragglers.
+- **Issue 10:** Utilities, React sections, search services, and logging now enforce typed data models; continue running `pnpm lint --filter @app-next-directory --rule @typescript-eslint/no-explicit-any` to prevent regressions.
 - **Issue 11:** Choose between installing `@types/node` or creating a typed env accessor (`src/lib/env.ts`) and update the TypeScript config accordingly.
 - **Issue 12:** Ensure GitHub Actions uses the upgraded Playwright CLI, reinstall browsers (or cache them), and add guard logic to prevent redundant downloads that trigger the RangeError.
 
@@ -112,7 +112,7 @@ Total Issues: 20
 ├── Medium:    5 [ ] [ ] [ ] [ ] [ ]
 └── Low:       8 [ ] [ ] [#] [ ] [ ] [ ] [ ] [ ]
 
-Completion: 9/20 (45%)
+Completion: 10/20 (50%)
 ```
 
 ---

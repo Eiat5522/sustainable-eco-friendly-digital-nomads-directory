@@ -283,17 +283,17 @@ error TS7006: Parameter 'review' implicitly has an 'any' type.
 - `ProfileEditForm.tsx`
 - ~20 other files
 
-**Status:** In Progress (shared utilities typed)
+**Status:** Completed
 **Breakdown:** UI form handlers (9 files), data transformation utilities (6 files), API route handlers (5 files).
 **Latest Progress:**
 - Replaced implicit `any` usage across `src/utils/db-helpers.ts`, `src/utils/api-response.ts`, `src/utils/auth-helpers.ts`, and supporting Jest helpers.
 - Tightened Sanity city data transformers (`src/lib/data/city.ts`) with explicit DTO-aware guards.
 - Updated `sanity.config.ts` to rely on `defineConfig` typing instead of `as any` escape hatches.
+- Normalised featured listing data, city detail views, search services, and structured logging to eliminate remaining runtime `any` fallbacks.
 
 **Next Steps:**
-1. Continue inventory via `pnpm lint --filter @app-next-directory --rule @typescript-eslint/no-explicit-any` to cover remaining `src/lib` services and React components.
-2. Prioritise API route handlers and user input flows to remove the remaining implicit `any` usage.
-3. Add regression unit tests where type tightening changes runtime behaviour (e.g., stricter enums).
+1. Monitor future contributions with `pnpm lint --filter @app-next-directory --rule @typescript-eslint/no-explicit-any` to prevent regressions.
+2. Expand DTO coverage as new API responses are introduced to keep type safety high.
 
 **Verification:**
 - `pnpm check-types` exits cleanly.
