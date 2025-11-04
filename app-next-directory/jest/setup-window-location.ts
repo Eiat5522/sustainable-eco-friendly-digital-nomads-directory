@@ -30,6 +30,7 @@ afterAll(() => {
     Object.defineProperty(window, 'location', originalLocationDescriptor);
   } else {
     // If there was no original descriptor, delete the property
-    delete (window as any).location;
+    const windowWithMutableLocation = window as typeof window & { location?: unknown };
+    delete windowWithMutableLocation.location;
   }
 });

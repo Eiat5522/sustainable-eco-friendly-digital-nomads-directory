@@ -283,17 +283,22 @@ error TS7006: Parameter 'review' implicitly has an 'any' type.
 - `ProfileEditForm.tsx`
 - ~20 other files
 
-**Status:** In Progress  
-**Breakdown:** UI form handlers (9 files), data transformation utilities (6 files), API route handlers (5 files).  
-**Resolution Steps:**
-1. Generate an inventory of offending symbols via `pnpm lint --filter @app-next-directory --rule @typescript-eslint/no-implicit-any`.
-2. Prioritise shared utilities (`src/lib`, `src/utils`) so downstream components inherit the improved typing.
+**Status:** In Progress (shared utilities typed)
+**Breakdown:** UI form handlers (9 files), data transformation utilities (6 files), API route handlers (5 files).
+**Latest Progress:**
+- Replaced implicit `any` usage across `src/utils/db-helpers.ts`, `src/utils/api-response.ts`, `src/utils/auth-helpers.ts`, and supporting Jest helpers.
+- Tightened Sanity city data transformers (`src/lib/data/city.ts`) with explicit DTO-aware guards.
+- Updated `sanity.config.ts` to rely on `defineConfig` typing instead of `as any` escape hatches.
+
+**Next Steps:**
+1. Continue inventory via `pnpm lint --filter @app-next-directory --rule @typescript-eslint/no-explicit-any` to cover remaining `src/lib` services and React components.
+2. Prioritise API route handlers and user input flows to remove the remaining implicit `any` usage.
 3. Add regression unit tests where type tightening changes runtime behaviour (e.g., stricter enums).
 
 **Verification:**
 - `pnpm check-types` exits cleanly.
-- ESLint report shows zero `no-implicit-any` violations.
-- No new TypeScript suppression comments (`// @ts-ignore`) introduced.
+- Targeted ESLint runs succeed: `pnpm --filter app-next-directory exec eslint src/utils/api-response.ts src/utils/auth-helpers.ts src/utils/db-helpers.ts jest/integration.setup.ts jest/setup-window-location.ts sanity.config.ts --max-warnings=0`.
+- `pnpm --filter app-next-directory exec eslint src/lib/data/city.ts --max-warnings=0`.
 
 ---
 

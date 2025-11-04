@@ -1,4 +1,3 @@
-import { client } from '@/lib/sanity/client';
 import { cachedClient } from '@/lib/sanity/cached-client';
 import { groq } from 'next-sanity';
 import { transformToSummaryDTO } from '@/lib/dto-transformer';
@@ -70,46 +69,104 @@ interface ListingSummarySource {
   };
 }
 
+type StringOrNamedValue = string | { name?: string | null } | null | undefined;
+
+type SanityCitySummary = {
+  _id?: string;
+  name?: string;
+  slug?: string;
+  country?: string;
+  sustainabilityScore?: number;
+  highlights?: unknown;
+  primaryImage?: SanityImageRef;
+  description?: string;
+};
+
+type SanityCityDetail = SanityCitySummary & {
+  shortDescription?: string;
+  airQuality?: string;
+  internetSpeed?: number;
+  costOfLiving?: string;
+  climate?: string;
+  safety?: string;
+  walkability?: string;
+  sustainabilityInitiatives?: StringOrNamedValue[];
+  digitalNomadFeatures?: StringOrNamedValue[];
+  galleryImages?: SanityImageRef[];
+};
+
+const normaliseNamedValues = (values?: StringOrNamedValue[]): string[] =>
+  Array.isArray(values)
+    ? values
+        .map((value) => {
+          if (typeof value === 'string') {
+            return value;
+          }
+          return typeof value?.name === 'string' ? value.name : undefined;
+        })
+        .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+    : [];
+
+const resolveImageDimensions = (dimensions?: SanityImageDimensions | null) => {
+  if (!dimensions) {
+    return undefined;
+  }
+
+  const width = typeof dimensions.width === 'number' && Number.isFinite(dimensions.width)
+    ? dimensions.width
+    : undefined;
+  const height = typeof dimensions.height === 'number' && Number.isFinite(dimensions.height)
+    ? dimensions.height
+    : undefined;
+
+  if (width === undefined && height === undefined) {
+    return undefined;
+  }
+
+  return { width, height };
+};
+
 // Map raw Sanity city to CityDTO
-function toCityDTO(raw: any): CityDTO | null {
+function toCityDTO(raw: SanityCitySummary | null | undefined): CityDTO | null {
   if (!raw || typeof raw !== 'object') return null;
   const sustainability = typeof raw.sustainabilityScore === 'number'
     ? Math.max(0, Math.min(100, raw.sustainabilityScore))
     : undefined;
 
-  const dim: unknown = raw.primaryImage?.asset?.metadata?.dimensions;
+  const dimensions = resolveImageDimensions(raw.primaryImage?.asset?.metadata?.dimensions ?? null);
+
+  const highlights = Array.isArray(raw.highlights)
+    ? (raw.highlights.filter((item): item is string => typeof item === 'string') as string[])
+    : [];
+
+  if (!raw._id || !raw.name || !raw.slug) {
+    return null;
+  }
+
   return {
     id: raw._id,
     name: raw.name,
     slug: raw.slug,
     country: raw.country ?? '',
     sustainabilityScore: sustainability as CityDTO['sustainabilityScore'],
-    highlights: Array.isArray(raw.highlights) ? raw.highlights : [],
+    highlights,
     imageUrl: raw.primaryImage?.asset?.url ?? undefined,
-    imageDimensions: dim && typeof dim === 'object' && !Array.isArray(dim)
-      && (Number.isFinite((dim as any).width) || Number.isFinite((dim as any).height))
-      ? {
-          width: Number.isFinite((dim as any).width) ? (dim as any).width : undefined,
-          height: Number.isFinite((dim as any).height) ? (dim as any).height : undefined
-        }
-      : undefined,
+    imageDimensions: dimensions,
     description: raw.description ?? undefined,
   };
 }
 
 // Map raw Sanity city to CityDetailDTO (extends CityDTO with additional fields)
-function toCityDetailDTO(raw: any): CityDetailDTO | null {
+function toCityDetailDTO(raw: SanityCityDetail | null | undefined): CityDetailDTO | null {
   if (!raw || typeof raw !== 'object') return null;
 
-  // Get base CityDTO fields
   const baseCity = toCityDTO(raw);
   if (!baseCity) return null;
 
-  // Add additional detail fields
   const galleryUrls: string[] = Array.isArray(raw.galleryImages)
     ? raw.galleryImages
-        .map((img: SanityImageRef) => (typeof img?.asset?.url === 'string' ? img.asset.url : undefined))
-        .filter((u: unknown): u is string => typeof u === 'string' && u.trim().length > 0)
+        .map((img) => (typeof img?.asset?.url === 'string' ? img.asset.url : undefined))
+        .filter((url): url is string => typeof url === 'string' && url.trim().length > 0)
     : [];
 
   return {
@@ -121,12 +178,8 @@ function toCityDetailDTO(raw: any): CityDetailDTO | null {
     climate: raw.climate ?? undefined,
     safety: raw.safety ?? undefined,
     walkability: raw.walkability ?? undefined,
-    sustainabilityInitiatives: Array.isArray(raw.sustainabilityInitiatives)
-      ? raw.sustainabilityInitiatives.map((v: any) => (typeof v === 'string' ? v : v?.name)).filter(Boolean)
-      : [],
-    digitalNomadFeatures: Array.isArray(raw.digitalNomadFeatures)
-      ? raw.digitalNomadFeatures.map((v: any) => (typeof v === 'string' ? v : v?.name)).filter(Boolean)
-      : [],
+    sustainabilityInitiatives: normaliseNamedValues(raw.sustainabilityInitiatives),
+    digitalNomadFeatures: normaliseNamedValues(raw.digitalNomadFeatures),
     galleryImages: galleryUrls,
   };
 }
