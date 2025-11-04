@@ -1,4 +1,5 @@
 import React from 'react'
+import '@testing-library/jest-dom'
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Header } from '../Header'
@@ -102,8 +103,8 @@ describe('Header', () => {
 
   describe('useSafeSession hook', () => {
     it('warns in development when rendered without SessionProvider', () => {
-      const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'development'
+        const originalEnv = process.env.NODE_ENV
+        ;(process.env as any).NODE_ENV = 'development'
       
       clearSessionContext()
       render(<Header />)
@@ -112,24 +113,24 @@ describe('Header', () => {
         '[auth] Header rendered without SessionProvider; defaulting to unauthenticated state'
       )
       
-      process.env.NODE_ENV = originalEnv
+  ;(process.env as any).NODE_ENV = originalEnv
     })
 
     it('does not warn in production when rendered without SessionProvider', () => {
       const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'production'
+      ;(process.env as any).NODE_ENV = 'production'
       
       clearSessionContext()
       render(<Header />)
 
       expect(consoleWarnSpy).not.toHaveBeenCalled()
       
-      process.env.NODE_ENV = originalEnv
+  ;(process.env as any).NODE_ENV = originalEnv
     })
 
-  it('only warns once even when re-rendered without SessionProvider', async () => {
+    it('only warns once even when re-rendered without SessionProvider', async () => {
       const originalEnv = process.env.NODE_ENV
-      process.env.NODE_ENV = 'development'
+      ;(process.env as any).NODE_ENV = 'development'
       // Create a stable mock that persists across renders
       const useContextMock = jest.fn((context) => {
         if (context === nextAuth.SessionContext) {
@@ -155,7 +156,7 @@ describe('Header', () => {
         )
       })
       
-      process.env.NODE_ENV = originalEnv
+  ;(process.env as any).NODE_ENV = originalEnv
     })
 
     it('returns unauthenticated status when context is missing', () => {
@@ -168,8 +169,8 @@ describe('Header', () => {
     it('uses session data from context when available', () => {
       mockSessionContext(
         {
-          user: { id: '1', name: 'Test User', email: 'test@example.com' }
-        } as Session,
+            user: { id: '1', name: 'Test User', email: 'test@example.com' }
+          } as unknown as Session,
         'authenticated'
       )
 
@@ -201,7 +202,7 @@ describe('Header', () => {
       mockSessionContext(
         {
           user: { id: '1', name: 'Test User', email: 'test@example.com' }
-        } as Session,
+        } as unknown as Session,
         'authenticated'
       )
 
@@ -249,8 +250,8 @@ describe('Header', () => {
     it('displays full name when user has name', () => {
       mockSessionContext(
         {
-          user: { id: '1', name: 'John Doe', email: 'john@example.com' }
-        } as Session,
+            user: { id: '1', name: 'John Doe', email: 'john@example.com' }
+          } as unknown as Session,
         'authenticated'
       )
 
@@ -262,8 +263,8 @@ describe('Header', () => {
     it('displays email when user has no name', () => {
       mockSessionContext(
         {
-          user: { id: '1', email: 'test@example.com' }
-        } as Session,
+            user: { id: '1', email: 'test@example.com' }
+          } as unknown as Session,
         'authenticated'
       )
 
@@ -275,8 +276,8 @@ describe('Header', () => {
     it('extracts first name for multi-word names', () => {
       mockSessionContext(
         {
-          user: { id: '1', name: 'Mary Jane Watson', email: 'mary@example.com' }
-        } as Session,
+            user: { id: '1', name: 'Mary Jane Watson', email: 'mary@example.com' }
+          } as unknown as Session,
         'authenticated'
       )
 
@@ -288,8 +289,8 @@ describe('Header', () => {
     it('handles single-word names correctly', () => {
       mockSessionContext(
         {
-          user: { id: '1', name: 'Madonna', email: 'madonna@example.com' }
-        } as Session,
+            user: { id: '1', name: 'Madonna', email: 'madonna@example.com' }
+          } as unknown as Session,
         'authenticated'
       )
 
@@ -303,8 +304,8 @@ describe('Header', () => {
     it('generates initials from multi-word name', () => {
       mockSessionContext(
         {
-          user: { id: '1', name: 'John Doe', email: 'john@example.com' }
-        } as Session,
+            user: { id: '1', name: 'John Doe', email: 'john@example.com' }
+          } as unknown as Session,
         'authenticated'
       )
 
@@ -316,8 +317,8 @@ describe('Header', () => {
     it('generates initial from single-word name', () => {
       mockSessionContext(
         {
-          user: { id: '1', name: 'Alice', email: 'alice@example.com' }
-        } as Session,
+            user: { id: '1', name: 'Alice', email: 'alice@example.com' }
+          } as unknown as Session,
         'authenticated'
       )
 
@@ -329,8 +330,8 @@ describe('Header', () => {
     it('generates initials from email when no name', () => {
       mockSessionContext(
         {
-          user: { id: '1', email: 'bob smith@example.com' }
-        } as Session,
+            user: { id: '1', email: 'bob smith@example.com' }
+          } as unknown as Session,
         'authenticated'
       )
 
@@ -342,8 +343,8 @@ describe('Header', () => {
     it('defaults to "U" when no name or email', () => {
       mockSessionContext(
         {
-          user: { id: '1' }
-        } as Session,
+            user: { id: '1' }
+          } as unknown as Session,
         'authenticated'
       )
 
@@ -356,7 +357,7 @@ describe('Header', () => {
       mockSessionContext(
         {
           user: { id: '1', name: 'John Paul George Ringo', email: 'jpgr@example.com' }
-        } as Session,
+        } as unknown as Session,
         'authenticated'
       )
 
@@ -376,7 +377,7 @@ describe('Header', () => {
             email: 'test@example.com',
             image: 'https://example.com/avatar.jpg'
           }
-        } as Session,
+        } as unknown as Session,
         'authenticated'
       )
 
@@ -391,7 +392,7 @@ describe('Header', () => {
       mockSessionContext(
         {
           user: { id: '1', name: 'Test User', email: 'test@example.com' }
-        } as Session,
+        } as unknown as Session,
         'authenticated'
       )
 
@@ -410,7 +411,7 @@ describe('Header', () => {
             email: 'test@example.com',
             image: null as any
           }
-        } as Session,
+        } as unknown as Session,
         'authenticated'
       )
 
@@ -425,7 +426,7 @@ describe('Header', () => {
       mockSessionContext(
         {
           user: { id: '1', name: 'Test User', email: 'test@example.com' }
-        } as Session,
+        } as unknown as Session,
         'authenticated'
       )
 
@@ -463,7 +464,7 @@ describe('Header', () => {
       mockSessionContext(
         {
           user: { id: '1', name: 'Regular User', email: 'user@example.com', role: 'member' }
-        } as Session,
+        } as unknown as Session,
         'authenticated'
       )
 
@@ -488,7 +489,7 @@ describe('Header', () => {
             email: 'admin@example.com', 
             role: 'admin' 
           }
-        } as Session,
+        } as unknown as Session,
         'authenticated'
       )
 
@@ -508,7 +509,7 @@ describe('Header', () => {
       mockSessionContext(
         {
           user: { id: '1', name: 'Regular User', email: 'user@example.com', role: 'member' }
-        } as Session,
+        } as unknown as Session,
         'authenticated'
       )
 

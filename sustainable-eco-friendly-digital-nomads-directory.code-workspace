@@ -10,14 +10,12 @@
     ],
     "settings": {
         "files.exclude": {
-            "**app-next-directory**": true // Hide app-next-directory from the Explorer
+            "**app-next-directory**": false // Hide app-next-directory from the Explorer
         },
-        "typescript.enablePromptUseWorkspaceTsdk": true,
-        "jest.disabledWorkspaceFolders": [
-            "dist",
-            "types",
-            "sanity"
-        ]
+        "typescript.enablePromptUseWorkspaceTsdk": true,        
+       // "jest.disabledWorkspaceFolders": [
+       //     "app-next-directory"
+       // ]
     }
 
 }
