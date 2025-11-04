@@ -81,7 +81,7 @@ cd sustainable-eco-friendly-digital-nomads-directory
 pnpm install
 
 # 3. Environment setup (copy and configure)
-cp app-next-directory/.env.example app-next-directory/.env.local
+cp app-next-directory/.env.sample app-next-directory/.env.local
 
 # 4. Generate Sanity types
 cd sanity
@@ -190,6 +190,7 @@ npm run export                   # Export content data
 # Sanity CMS Configuration
 NEXT_PUBLIC_SANITY_PROJECT_ID=your_project_id
 NEXT_PUBLIC_SANITY_DATASET=production
+# SANITY_STUDIO_DATASET=production  # Optional: set if the Studio should use a different dataset
 SANITY_API_TOKEN=your_api_token_with_write_permissions
 
 # MongoDB Database
