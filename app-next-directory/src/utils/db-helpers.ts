@@ -585,7 +585,7 @@ export async function getCollection(name: string): Promise<Collection | MockColl
   }
 
   const db = await getDatabase();
-  if (!db || typeof (db as { collection?: unknown }).collection !== 'function') {
+  if (!db || typeof db.collection !== 'function') {
     throw new Error('Database instance is invalid');
   }
 
