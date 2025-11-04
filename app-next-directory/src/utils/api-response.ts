@@ -66,7 +66,7 @@ export const ApiResponseHandler = {
     details?: unknown
   ) => {
     
-    const payload: ApiResponse<never> & { details?: unknown } = { success: false, error };
+    const payload: ApiResponse<undefined> & { details?: unknown } = { success: false, error };
     
     if (details !== undefined) {
       payload.details = details;

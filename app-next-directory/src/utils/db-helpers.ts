@@ -299,11 +299,11 @@ function matchesQuery(doc: DocumentLike, query: Record<string, unknown> = {}): b
   return true;
 }
 
-function runAggregatePipeline(
+function runAggregatePipeline<TResult extends DocumentLike = DocumentLike>(
   pipeline: Record<string, unknown>[] = [],
   documents: DocumentLike[]
-): DocumentLike[] {
-  return pipeline.reduce<DocumentLike[]>((acc, stage) => {
+): TResult[] {
+  return pipeline.reduce<TResult[]>((acc, stage) => {
     if (stage.$match && typeof stage.$match === 'object') {
       return acc.filter((doc) => matchesQuery(doc, stage.$match as Record<string, unknown>));
     }
@@ -351,7 +351,7 @@ function runAggregatePipeline(
     }
 
     return acc;
-  }, documents.slice());
+  }, documents.slice() as TResult[]);
 }
 
 function createMockCollection<TDocument extends DocumentLike = DocumentLike>(name: string): MockCollection<TDocument> {
@@ -451,7 +451,7 @@ function createMockCollection<TDocument extends DocumentLike = DocumentLike>(nam
     },
     countDocuments: async (query = {}) => documents.filter((doc) => matchesQuery(doc, query)).length,
     aggregate: (pipeline = []) => ({
-      toArray: async () => runAggregatePipeline(pipeline, documents) as unknown as TResult[],
+      toArray: async () => runAggregatePipeline<TResult>(pipeline, documents),
     }),
     deleteOne: async (query = {}) => {
       const index = documents.findIndex((doc) => matchesQuery(doc, query));
@@ -585,7 +585,7 @@ export async function getCollection(name: string): Promise<Collection | MockColl
   }
 
   const db = await getDatabase();
-  if (!db || typeof (db as { collection?: unknown }).collection !== 'function') {
+  if (!db || typeof db.collection !== 'function') {
     throw new Error('Database instance is invalid');
   }
 
