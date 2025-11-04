@@ -1,0 +1,18 @@
+{
+  "sandbox": {
+    "network": "limited",
+    "allowedDomains": [
+      "registry.npmjs.org",
+      "github.com",
+      "raw.githubusercontent.com",
+      "
+    ],
+    "allowedMethods": ["GET", "HEAD"],
+    "workspaceWrite": true
+  },
+  "security": {
+    "promptInjectionProtection": true,
+    "secretsScanning": true
+  }
+}
+
