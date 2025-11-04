@@ -53,7 +53,7 @@ type GlobalWithMongo = typeof globalThis & {
   __TEST_MONGO_DB__?: MockDb;
 };
 
-const globalWithMongo = global as GlobalWithMongo;
+const globalWithMongo = globalThis as GlobalWithMongo;
 
 const allowRealMongoInTests =
   process.env.ALLOW_REAL_MONGO_IN_TESTS === 'true' ||
@@ -123,9 +123,7 @@ function createMockCursor<TDocument extends DocumentLike>(items: TDocument[] = [
           for (const [key, direction] of sortEntries) {
             const aVal = getValueByPath(a, key);
             const bVal = getValueByPath(b, key);
-            let comparison = 0;
-            if (aVal < bVal) comparison = -1;
-            if (aVal > bVal) comparison = 1;
+            let comparison = compareValues(aVal, bVal);
             if (direction === -1) comparison = -comparison;
             if (comparison !== 0) return comparison;
           }
@@ -171,9 +169,7 @@ function createMockCursor<TDocument extends DocumentLike>(items: TDocument[] = [
           for (const [key, direction] of sortEntries) {
             const aVal = getValueByPath(a, key);
             const bVal = getValueByPath(b, key);
-            let comparison = 0;
-            if (aVal < bVal) comparison = -1;
-            if (aVal > bVal) comparison = 1;
+            let comparison = compareValues(aVal, bVal);
             if (direction === -1) comparison = -comparison;
             if (comparison !== 0) return comparison;
           }
@@ -237,11 +233,12 @@ function setValueByPath(target: DocumentLike, path: string, value: unknown) {
   const parts = path.split('.');
   const last = parts.pop();
   if (!last) return;
-  let cursor = target;
+  let cursor: DocumentRecord | Record<string, unknown> = target;
   for (const part of parts) {
-    if (cursor[part] === null || cursor[part] === undefined) {
+    const current = cursor[part];
+    if (current === null || current === undefined) {
       cursor[part] = {};
-    } else if (typeof cursor[part] !== 'object') {
+    } else if (!isRecord(current)) {
       throw new Error(`Cannot set nested path: ${part} is not an object`);
     }
     cursor = cursor[part] as DocumentLike;
@@ -274,7 +271,7 @@ function matchesQuery(doc: DocumentLike, query: Record<string, unknown> = {}): b
 
     const actual = getValueByPath(doc, key);
 
-    if (value && typeof value === 'object' && !Array.isArray(value)) {
+    if (isRecord(value)) {
       if ('$in' in value) {
         const allowed = Array.isArray((value as { $in?: unknown[] }).$in)
           ? (value as { $in: unknown[] }).$in
@@ -327,7 +324,10 @@ function runAggregatePipeline(
         const groupId = getGroupId(doc);
         if (groupId === undefined) continue;
         if (!groups.has(groupId)) {
-          groups.set(groupId, { _id: groupId });
+          const bucket: DocumentRecord = {
+            _id: typeof groupId === 'string' ? groupId : String(groupId),
+          };
+          groups.set(groupId, bucket);
         }
         const bucket = groups.get(groupId)!;
 
@@ -341,7 +341,8 @@ function runAggregatePipeline(
             } else if (typeof sumDescriptor === 'number') {
               value = sumDescriptor;
             }
-            bucket[field] = (bucket[field] ?? 0) + value;
+            const current = Number(bucket[field] ?? 0);
+            bucket[field] = current + value;
           }
         }
       }
@@ -361,9 +362,9 @@ function createMockCollection<TDocument extends DocumentLike = DocumentLike>(nam
       const results = documents.filter((doc) => matchesQuery(doc, query));
       return createMockCursor(results);
     },
-    findOne: async (query = {}) => {
+    findOne: async <T = DocumentRecord>(query = {}) => {
       const result = documents.find((doc) => matchesQuery(doc, query));
-      return result ? { ...result } : null;
+      return result ? ({ ...result } as T) : null;
     },
     insertOne: async (doc) => {
       const payload = { ...doc } as TDocument & { _id?: unknown };
@@ -402,12 +403,12 @@ function createMockCollection<TDocument extends DocumentLike = DocumentLike>(nam
     updateOne: async (filter: Record<string, unknown>, update: UpdateDescriptor, options?: { upsert?: boolean }) => {
       const target = documents.find((doc) => matchesQuery(doc, filter));
       if (target) {
-        if (update.$set && typeof update.$set === 'object') {
+        if (update.$set && isRecord(update.$set)) {
           for (const [path, value] of Object.entries(update.$set)) {
             setValueByPath(target, path, value);
           }
         }
-        if (update.$inc && typeof update.$inc === 'object') {
+        if (update.$inc && isRecord(update.$inc)) {
           for (const [path, amount] of Object.entries(update.$inc)) {
             incrementValueByPath(target, path, Number(amount));
           }
@@ -424,12 +425,12 @@ function createMockCollection<TDocument extends DocumentLike = DocumentLike>(nam
             }
           }
         }
-        if (update.$setOnInsert && typeof update.$setOnInsert === 'object') {
+        if (update.$setOnInsert && isRecord(update.$setOnInsert)) {
           for (const [path, value] of Object.entries(update.$setOnInsert)) {
             setValueByPath(payload, path, value);
           }
         }
-        if (update.$set && typeof update.$set === 'object') {
+        if (update.$set && isRecord(update.$set)) {
           for (const [path, value] of Object.entries(update.$set)) {
             setValueByPath(payload, path, value);
           }

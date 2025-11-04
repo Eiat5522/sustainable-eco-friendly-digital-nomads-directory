@@ -6,9 +6,14 @@ const ensureEnv = (key: string, value: string | undefined) => {
   process.env[key] = value;
 };
 
+type TestDataset = ReturnType<typeof createTestData>;
+type GlobalWithTestData = typeof globalThis & { __TEST_DATA__?: TestDataset };
+
+const globalWithTestData = globalThis as GlobalWithTestData;
+
 beforeAll(() => {
   const dataset = createTestData();
-  (global as any).__TEST_DATA__ = dataset;
+  globalWithTestData.__TEST_DATA__ = dataset;
 
   const defaultUser = getTestUser('user');
   ensureEnv('TEST_USER_EMAIL', defaultUser?.email);

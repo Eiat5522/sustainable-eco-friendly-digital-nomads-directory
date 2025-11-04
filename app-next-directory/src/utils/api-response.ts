@@ -60,29 +60,31 @@ export const ApiResponseHandler = {
         : { success: true, data, message };
     return createJsonResponse(payload);
   },
-
   error: (
     error: string,
     status: number = 400,
     details?: unknown
   ) => {
+    
     const payload: ApiResponse<never> & { details?: unknown } = { success: false, error };
+    
     if (details !== undefined) {
       payload.details = details;
     }
+    
     return createJsonResponse(payload, { status });
   },
-
-  notFound: (resource?: string) => {
+    
+    notFound(resource?: string) {
     const msg = resource ? `${resource} not found` : 'Resource not found';
     return createJsonResponse({ success: false, error: msg }, { status: 404 });
   },
 
-  unauthorized: () => {
+  unauthorized() {
     return createJsonResponse({ success: false, error: 'Unauthorized access' }, { status: 401 });
   },
 
-  forbidden: () => {
+  forbidden() {
     return createJsonResponse({ success: false, error: 'Forbidden' }, { status: 403 });
   },
 };

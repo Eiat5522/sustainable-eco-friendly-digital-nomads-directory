@@ -83,7 +83,7 @@ export async function POST(
     if (existingVote) {
       const voteId = existingVote._id;
       // Update existing vote if different
-      if (existingVote.helpful !== helpful && voteId instanceof ObjectId) {
+      if (existingVote.helpful !== helpful && voteId) {
         await reviewVotes.updateOne(
           { _id: voteId },
           {

@@ -4,12 +4,12 @@ import { deskTool } from 'sanity/desk'
 const config = defineConfig({
   name: 'econmads',
   title: 'EcoNomads',
-  
+
   projectId: 'sc70w3cr',
   dataset: 'production',
-  
+
   plugins: [deskTool()],
-  
+
   schema: {
     types: [],
   },
@@ -17,4 +17,4 @@ const config = defineConfig({
   basePath: '/studio',
 })
 
-export default config
+export default defineConfig(config)
