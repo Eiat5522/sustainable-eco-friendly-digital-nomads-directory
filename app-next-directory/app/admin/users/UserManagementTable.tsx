@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useTransition, useCallback } from 'react';
 import type { UserRole } from '@/types/auth';
 
 type UserListItem = {
@@ -158,23 +158,26 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
 
   const canChangeRoles = currentUserRole === 'superAdmin';
 
-  const loadUsers = async (page = 1) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await fetchUsers(page, search, roleFilter || null);
-      setUsers(response.users);
-      setPagination(response.pagination);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load users');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loadUsers = useCallback(
+    async (page = 1) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetchUsers(page, search, roleFilter || null);
+        setUsers(response.users);
+        setPagination(response.pagination);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load users');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [roleFilter, search]
+  );
 
   useEffect(() => {
     loadUsers(1);
-  }, [search, roleFilter]);
+  }, [loadUsers]);
 
   const handleRoleChange = (userId: string, newRole: UserRole) => {
     if (!canChangeRoles) {

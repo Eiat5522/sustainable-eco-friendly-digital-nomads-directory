@@ -1,7 +1,7 @@
 import { defineConfig } from 'sanity'
 import { deskTool } from 'sanity/desk'
 
-const config = {
+const config = defineConfig({
   name: 'econmads',
   title: 'EcoNomads',
 
@@ -15,6 +15,6 @@ const config = {
   },
 
   basePath: '/studio',
-} satisfies Parameters<typeof defineConfig>[0]
+})
 
 export default defineConfig(config)

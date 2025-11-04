@@ -9,9 +9,13 @@ type JsonBody =
   | null
   | undefined;
 
+type ResponseConstructorWithJson = typeof Response & {
+  json?: (data: unknown, init?: ResponseInit) => Response;
+};
+
 const hasStaticResponseJson =
   typeof Response !== 'undefined' &&
-  typeof (Response as typeof Response & { json?: unknown }).json === 'function';
+  typeof (Response as ResponseConstructorWithJson).json === 'function';
 
 const canUseNextResponseJson =
   typeof NextResponse !== 'undefined' &&
@@ -40,7 +44,7 @@ function createJsonResponse(body: JsonBody, init: ResponseInit = {}): Response {
   });
 }
 
-export interface ApiResponse<T = unknown> extends Record<string, unknown> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -49,21 +53,29 @@ export interface ApiResponse<T = unknown> extends Record<string, unknown> {
 }
 
 export const ApiResponseHandler = {
-  success<T>(data: T, message?: string) {
+  success: <T>(data: T, message?: string) => {
     const payload: ApiResponse<T> =
-      message === undefined ? { success: true, data } : { success: true, data, message };
+      message === undefined
+        ? { success: true, data }
+        : { success: true, data, message };
     return createJsonResponse(payload);
   },
-
-  error(error: string, status: number = 400, details?: unknown) {
-    const payload: ApiResponse<never> = { success: false, error };
+  error: (
+    error: string,
+    status: number = 400,
+    details?: unknown
+  ) => {
+    
+    const payload: ApiResponse<never> & { details?: unknown } = { success: false, error };
+    
     if (details !== undefined) {
       payload.details = details;
     }
+    
     return createJsonResponse(payload, { status });
   },
-
-  notFound(resource?: string) {
+    
+    notFound(resource?: string) {
     const msg = resource ? `${resource} not found` : 'Resource not found';
     return createJsonResponse({ success: false, error: msg }, { status: 404 });
   },
