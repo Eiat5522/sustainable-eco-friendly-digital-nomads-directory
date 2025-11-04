@@ -46,8 +46,8 @@ jest.mock('next/navigation', () => ({
 describe('Header', () => {
   const originalUseContext = React.useContext
   const signOutSpy = jest.spyOn(nextAuth, 'signOut')
-  const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
-  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+  let consoleWarnSpy: jest.SpyInstance
+  let consoleErrorSpy: jest.SpyInstance
   const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
   let routerPushMock: jest.Mock
 
@@ -76,6 +76,10 @@ describe('Header', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    // Create fresh console spies per-test so restoreAllMocks in afterEach doesn't
+    // permanently remove them for subsequent tests.
+    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
     routerPushMock = jest.fn()
     mockUseRouter.mockReturnValue({
       push: routerPushMock,
@@ -123,7 +127,7 @@ describe('Header', () => {
       process.env.NODE_ENV = originalEnv
     })
 
-    it('only warns once even when re-rendered without SessionProvider', () => {
+  it('only warns once even when re-rendered without SessionProvider', async () => {
       const originalEnv = process.env.NODE_ENV
       process.env.NODE_ENV = 'development'
       // Create a stable mock that persists across renders
@@ -140,12 +144,16 @@ describe('Header', () => {
       rerender(<Header />)
 
       // In React 18 StrictMode test environments a component may mount twice.
-      // We assert the warning was emitted at least once and contains the expected message
-      // rather than asserting an exact call count which can be flaky.
-      expect(consoleWarnSpy).toHaveBeenCalled()
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        '[auth] Header rendered without SessionProvider; defaulting to unauthenticated state'
-      )
+      // The warning may be emitted asynchronously (inside effects), so wait for it.
+      await waitFor(() => {
+        expect(consoleWarnSpy).toHaveBeenCalled()
+      })
+
+      await waitFor(() => {
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+          '[auth] Header rendered without SessionProvider; defaulting to unauthenticated state'
+        )
+      })
       
       process.env.NODE_ENV = originalEnv
     })
