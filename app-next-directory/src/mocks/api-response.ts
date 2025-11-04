@@ -16,7 +16,19 @@ type PaginatedResponse<T = any> = {
   };
 };
 
-export const ApiResponseHandler = {
+type SimpleMock<F extends (...args: any[]) => any> = F & {
+  mock: {
+    calls: unknown[];
+  };
+};
+
+type ApiResponseHandlerMocks = {
+  success: SimpleMock<(data: any, message?: string) => SuccessResponse<any>>;
+  error: SimpleMock<(message: string, code?: number) => ErrorResponse>;
+  paginated: SimpleMock<(items: any[], page?: number, limit?: number) => PaginatedResponse<any>>;
+};
+
+export const ApiResponseHandler: ApiResponseHandlerMocks = {
   success: jest.fn<(data: any, message?: string) => SuccessResponse<any>>((data, message) => {
     return message === undefined ? { success: true, data } : { success: true, data, message };
   }),
@@ -40,4 +52,4 @@ export const ApiResponseHandler = {
   ),
 };
 
-export default ApiResponseHandler
+export default ApiResponseHandler;
