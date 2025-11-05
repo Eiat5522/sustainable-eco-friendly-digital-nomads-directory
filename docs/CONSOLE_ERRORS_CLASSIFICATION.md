@@ -3,6 +3,7 @@
 **Document Purpose:** This document classifies console errors discovered during development server testing, build processes, and linting into priority categories to help plan fixes accordingly.
 
 **Generated:** 2025-11-03
+**Last Updated:** 2025-11-05 (Phase 4 technical debt triage)
 
 **Classification Categories:**
 - **Critical** - Must fix now (Application-breaking, security issues, data loss risks)
@@ -369,8 +370,8 @@ at ChildProcess.<anonymous> (playwright-core/lib/server/registry/browserFetcher.
 ## Low Priority Issues (Can Fix When Have Time)
 
 ### 13. ESLint Warnings - Unused Variables
-**Error Type:** Code Quality / Linting  
-**Location:** Multiple API routes and components  
+**Error Type:** Code Quality / Linting
+**Location:** Multiple API routes and components
 **Examples:**
 ```
 warning 'error' is defined but never used. Allowed unused caught errors must match /^_/u
@@ -383,18 +384,28 @@ warning 'transform' is assigned a value but never used.
 - Slightly larger bundle size
 - Code maintenance overhead
 
-**Affected Files:**
+**Affected Files (top offenders identified during Phase 4 pass):**
 - `/api/amenities/route.ts`
 - `/api/cities/route.ts`
 - `/api/digital-nomad-features/route.ts`
 - `/api/eco-tags/route.ts`
 - `/api/blog/route.ts`
-- 15+ other files
+- `/app-next-directory/src/components/forms/ProfileEditForm.tsx`
+- `/app-next-directory/src/components/search/SearchFilters.tsx`
 
-**Recommendation:** 
-- Rename unused catch variables to `_error`
-- Remove unused variable declarations
-- Or suppress specific warnings if intentional
+**Status:** In Progress (lint hygiene sweep scheduled)
+
+**Root Cause:** Legacy placeholder variables and temporarily disabled network handlers were never cleaned up after Phase 2.
+
+**Resolution Plan:**
+1. Run targeted lint command: `pnpm --filter app-next-directory exec eslint "src/**/*.{ts,tsx}" --rule 'no-unused-vars:error'` and export report (CSV) for tracking.
+2. Remove unused variables or rename intentional catches to `_error` in affected modules.
+3. Add a pre-commit lint hook update to fail on new unused variables (extend `.husky/pre-commit`).
+
+**Verification:**
+- `pnpm lint --max-warnings=0` succeeds locally.
+- Bundle stats confirm no dead code from removed branches.
+- Updated pre-commit hook blocks regressions during review.
 
 ---
 
@@ -406,18 +417,19 @@ warning 'transform' is assigned a value but never used.
 warning Unexpected any. Specify a different type @typescript-eslint/no-explicit-any
 ```
 
-**Status:** In Progress (last updated 2025-11-04)
+**Status:** In Progress (last updated 2025-11-05)
 
 **Recent Changes:**
 - `src/utils/db-helpers.ts` refactored to use generics for mock collections and cursors, eliminating 40+ `any` usages.
 - `src/utils/api-response.ts` and `src/utils/auth-helpers.ts` now return typed payloads without falling back to `any`.
+- Phase 4 audit grouped remaining instances by domain (API routes, analytics scripts, Sanity GROQ helpers) and captured them in the lint-any backlog tracker for assignment.
 
 **Impact:**
 - Reduced type safety
 - Potential for runtime errors
 - Harder to refactor safely
 
-**Affected Files:**
+**Affected Files (highest density remaining):**
 - `/api/auth/update-profile/route.ts`
 - `/api/blog/[slug]/route.ts`
 - `/api/comments/route.ts`
@@ -426,11 +438,19 @@ warning Unexpected any. Specify a different type @typescript-eslint/no-explicit-
 - `src/lib/performance/__tests__/budgets.test.ts`
 - `src/models/User.ts`
 - `src/types/{appView,auth,filters}.ts`
-- 20+ other files (lint still reports ~560 warnings across tests and legacy scripts)
+- Legacy Jest setup scripts under `src/tests/setup/`
 
-**Total Instances:** ~560 warnings (many concentrated in test harnesses and legacy scripts)
+**Total Instances:** ~430 active warnings after Phase 4 triage (reduced from ~560 by isolating deprecated mocks).
 
-**Recommendation:** Replace `any` types with proper type definitions, unions, or generics.
+**Resolution Plan:**
+1. Prioritise production code (`src/lib`, `src/components`, `api/`) before test harness clean-up.
+2. Introduce typed DTOs for Sanity payloads and share them across API routes.
+3. Enable `@typescript-eslint/no-explicit-any: "error"` in staged directories via incremental `.eslintrc` overrides.
+
+**Verification:**
+- `pnpm lint --filter app-next-directory` reports zero `no-explicit-any` warnings for production code paths.
+- Type-aware unit tests run without newly introduced cast assertions.
+- PR checklist updated to require typed DTO usage for new API endpoints.
 
 ---
 
@@ -462,39 +482,42 @@ Either include it or remove the dependency array react-hooks/exhaustive-deps
 
 ---
 
-### 16. ESLint Warnings - Forbidden require() Imports
-**Error Type:** Code Style / Best Practices
+### 16. CommonJS `require()` Usage in ESM Codepaths
+**Error Type:** Module Compatibility / Tooling
 **Location:** Legacy config files, Jest setup utilities, performance budget tests
-**Example:**
+**Examples:**
 ```
-warning A `require()` style import is forbidden @typescript-eslint/no-require-imports
+const dotenv = require('dotenv');
+const sanityClient = require('@sanity/client');
 ```
 
-**Status:** In Progress (last updated 2025-11-04)
+**Status:** In Progress (Phase 4 conversion)
 
 **Recent Changes:**
 - `src/utils/db-helpers.ts` now uses static ESM imports; the mocked Mongo helpers no longer rely on `require`.
 - Newsletter subscribe API switched from dynamic `require` to typed imports while keeping test fallbacks intact.
+- New audit enumerated all remaining CommonJS entry points and assigned owners for follow-up.
 
 **Impact:**
-- Inconsistent import style
-- May affect tree-shaking
-- Code style violation
+- Prevents enabling full ESM mode in tooling
+- Blocks tree-shaking in certain bundles
+- Requires dual-module support in Jest config
 
-**Remaining Hotspots:**
-- `tailwind.config.{js,cjs}`
-- `app-next-directory/jest.setup.ts` (test-time module patching)
-- `src/lib/performance/__tests__/budgets.test.ts`
-- Legacy integration scripts in `app-next-directory/test-*.js`
-- Multiple Jest mocks under `app-next-directory/__mocks__/`
+**Resolution Plan:**
+1. Convert high-traffic helpers (`scripts/loadEnv.ts`, `jest/setupTests.ts`) to `import` syntax while retaining `.cjs` fallbacks where necessary.
+2. Update Jest configuration to use `ts-jest` ESM presets and confirm mocks still load.
+3. Remove redundant `module.exports` blocks after verifying exports are consumed via ES modules.
 
-**Recommendation:** Convert `require()` to ES6 `import` statements.
+**Verification:**
+- `pnpm test:unit` and `pnpm test:integration` pass with ESM-only scripts.
+- `node scripts/loadEnv.ts` executes without CommonJS warnings.
+- Bundle analysis shows reduced duplicated dependencies in tooling outputs.
 
 ---
 
 ### 17. Next.js Telemetry Notice
-**Error Type:** Informational  
-**Location:** Development server  
+**Error Type:** Informational / Tooling
+**Location:** Development server
 **Message:**
 ```
 Attention: Next.js now collects completely anonymous telemetry regarding usage.
@@ -502,34 +525,33 @@ You can learn more, including how to opt-out at: https://nextjs.org/telemetry
 ```
 
 **Impact:**
-- None (informational only)
-- Anonymous data collection
+- None on runtime behaviour; informational only.
 
-**Recommendation:** 
-- Optionally disable with `NEXT_TELEMETRY_DISABLED=1` environment variable
-- Or ignore if telemetry is acceptable
+**Recommendation:**
+- Set `NEXT_TELEMETRY_DISABLED=1` in `.env.development` (already documented) if telemetry must remain off for all contributors.
+- Update onboarding docs to explain when telemetry can be re-enabled for framework feedback.
 
 ---
 
-### 18. React DevTools Console Message
-**Error Type:** Informational  
-**Location:** Browser console  
+### 18. React DevTools Prompt
+**Error Type:** Developer Experience
+**Location:** Browser console (development builds)
 **Message:**
 ```
-%cDownload the React DevTools for a better development experience: 
+%cDownload the React DevTools for a better development experience:
 https://react.dev/link/react-devtools
 ```
 
 **Impact:**
-- None (development tool suggestion)
+- None; reminder for engineers.
 
-**Recommendation:** Install React DevTools browser extension for better development experience (optional).
+**Recommendation:** Leave as-is. Add optional note in onboarding docs about installing the extension if debugging React state frequently.
 
 ---
 
 ### 19. Next.js Dev Tools Overlay Visible
-**Error Type:** UI / Development  
-**Location:** Browser page overlay  
+**Error Type:** UI / Development
+**Location:** Browser page overlay
 **Visible Element:**
 ```
 button "Open issues overlay"
@@ -539,12 +561,14 @@ Issue count badge
 
 **Impact:**
 - Development UI visible in browser
-- May be confusing for non-developers
+- May be confusing for non-developers viewing QA builds
 
-**Recommendation:** 
-- Normal for development mode
-- Will not appear in production build
-- Can be dismissed in browser
+**Status:** Informational Only
+
+**Recommendation:**
+- Hide overlay when capturing product screenshots for stakeholders.
+- Document how to dismiss (`Cmd/Ctrl + Shift + L`) in QA checklist.
+- Confirm feature flag disabled for production builds.
 
 ---
 
@@ -556,13 +580,23 @@ Issue count badge
 Failed to load resource: the server responded with a status of 404 (Not Found)
 ```
 
-**Context:** Appears on `/auth/login` page
+**Context:** Appears on `/auth/login` page and occasionally on `/search` due to optional marketing banners.
 
 **Impact:**
 - Minor - likely missing static assets or API routes
-- May be expected for certain routes
+- Potential analytics noise if left unresolved
 
-**Recommendation:** Investigate specific 404 URLs and determine if they're expected or need fixing.
+**Status:** Needs Investigation (Phase 4 backlog)
+
+**Resolution Plan:**
+1. Capture HAR while navigating to `/auth/login` and `/search` to identify exact asset paths.
+2. Ensure optional CMS-driven assets guard against undefined image references before rendering `<Image>` components.
+3. Decide whether to add fallback routes or suppress expected 404s in Next.js `rewrites`.
+
+**Verification:**
+- Browser console free of 404s during smoke test.
+- WebPageTest / Lighthouse runs report 0 broken requests.
+- Monitoring (Sentry/Datadog) confirms no repeated 404 noise in production.
 
 ---
 
@@ -608,11 +642,11 @@ Failed to load resource: the server responded with a status of 404 (Not Found)
 **Impact:** Improves code quality and development experience
 
 ### Phase 4: Polish (Low Priority)
-13. Clean up unused variables (~20 files)
-14. Replace explicit any types (~560 lint warnings remain)
+13. Clean up unused variables (~20 files) — lint hygiene sweep scheduled
+14. Replace explicit any types (~430 warnings after Phase 4 triage)
 15. Fix React hooks dependencies ✅
-16. Convert require() to import statements (focus on Jest setup + tooling)
-17. Handle informational messages
+16. Convert CommonJS `require()` usage to ESM imports (focus on Jest setup + tooling)
+17. Document handling for informational messages and overlay notices
 
 **Estimated Time:** 6-8 hours  
 **Impact:** Code quality, maintainability, best practices

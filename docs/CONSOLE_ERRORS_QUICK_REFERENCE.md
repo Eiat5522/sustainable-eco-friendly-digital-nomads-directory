@@ -48,14 +48,14 @@
 
 | # | Issue | Count | Status |
 |---|-------|-------|--------|
-| 13 | Unused Variables | 20+ files | ❌ Not Fixed |
-| 14 | Explicit Any Types | ~560 warnings | 🔄 In Progress |
+| 13 | Unused Variables | 20+ files | 🔄 In Progress (lint sweep scheduled) |
+| 14 | Explicit Any Types | ~430 warnings | 🔄 In Progress (post-triage backlog) |
 | 15 | React Hooks Deps | 1+ components | ✅ Completed |
-| 16 | require() Imports | 30+ scripts/tests | 🔄 In Progress (Jest env + logger converted to ESM) |
-| 17 | Next.js Telemetry Notice | Informational | ℹ️ Ignore |
-| 18 | React DevTools Message | Informational | ℹ️ Ignore |
-| 19 | Dev Tools Overlay | Development only | ℹ️ Normal |
-| 20 | 404 Not Found | Various | 🔍 Investigate |
+| 16 | require() Imports | 30+ scripts/tests | 🔄 In Progress (ESM migration underway) |
+| 17 | Next.js Telemetry Notice | Informational | ℹ️ Documented opt-out |
+| 18 | React DevTools Message | Informational | ℹ️ Reminder only |
+| 19 | Dev Tools Overlay | Development only | ℹ️ Document dismissal shortcut |
+| 20 | 404 Not Found | Various | 🔍 Investigation queued |
 
 **Impact:** Code quality, maintainability, best practices.
 
@@ -95,11 +95,11 @@
 - **Issue 12:** Ensure GitHub Actions uses the upgraded Playwright CLI, reinstall browsers (or cache them), and add guard logic to prevent redundant downloads that trigger the RangeError.
 
 ## ❌ Phase 4: Low Priority (6-8 hours)
-- [ ] Clean up unused variables
-- [ ] Replace `any` types with proper types
+- [ ] Clean up unused variables *(lint hygiene sweep planned; add pre-commit guard)*
+- [ ] Replace `any` types with proper types *(focus on production code first)*
 - [x] Fix React hooks dependencies
-- [ ] Convert `require()` to `import`
-- [ ] Review and document 404 errors
+- [ ] Convert `require()` to `import` *(scripts/loadEnv.ts, jest/setupTests.ts next)*
+- [ ] Review and document 404 errors *(capture HAR for `/auth/login` + `/search`)*
 
 ---
 
@@ -183,9 +183,9 @@ pnpm check-types            # Should be clean
 
 ## 📅 Last Updated
 
-- **Date:** 2025-11-03
-- **Status:** Initial classification complete
-- **Next Review:** After Phase 1 fixes are applied
+- **Date:** 2025-11-05
+- **Status:** Phase 4 technical debt triage in progress
+- **Next Review:** After lint hygiene sweep and ESM migration checkpoints
 
 ---
 
