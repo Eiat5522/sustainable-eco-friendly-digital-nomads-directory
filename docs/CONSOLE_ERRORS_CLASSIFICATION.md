@@ -398,7 +398,7 @@ warning 'transform' is assigned a value but never used.
 **Root Cause:** Legacy placeholder variables and temporarily disabled network handlers were never cleaned up after Phase 2.
 
 **Resolution Plan:**
-1. Run targeted lint command: `pnpm --filter app-next-directory exec eslint "src/**/*.{ts,tsx}" --rule 'no-unused-vars:error'` and export report (CSV) for tracking.
+1. Run targeted lint command: `pnpm --filter app-next-directory exec eslint "src/**/*.{ts,tsx}" --format csv > unused-vars-report.csv` and export report (CSV) for tracking.
 2. Remove unused variables or rename intentional catches to `_error` in affected modules.
 3. Add a pre-commit lint hook update to fail on new unused variables (extend `.husky/pre-commit`).
 
