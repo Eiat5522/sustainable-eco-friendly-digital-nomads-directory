@@ -8,7 +8,7 @@ export async function GET() {
       name
     }`);
     return NextResponse.json({ amenities });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to fetch amenities' }, { status: 500 });
   }
 }

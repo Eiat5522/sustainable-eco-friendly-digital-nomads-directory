@@ -9,7 +9,7 @@ export async function GET() {
       name
     }`);
     return NextResponse.json({ digitalNomadFeatures });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to fetch digital nomad features' }, { status: 500 });
   }
 }

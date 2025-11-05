@@ -93,11 +93,6 @@ export async function GET(request: NextRequest) {
     if (tag) params.tag = tag;
     if (search) params.search = search;
 
-    const fetchFn =
-      testControl?.sanityFetchOverride ??
-      ((query: string, queryParams?: QueryParams) => sanityClient.fetch(query, queryParams));
-    const transform = testControl?.transformOverride ?? transformToBlogSummaryDTO;
-
     const [postsRaw, totalCount] = await Promise.all([
       sanityClient.fetch(finalQuery, params as QueryParams),
       sanityClient.fetch(finalCountQuery, params as QueryParams),

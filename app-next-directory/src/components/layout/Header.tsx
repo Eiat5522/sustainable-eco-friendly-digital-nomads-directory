@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { signOut, SessionContext } from 'next-auth/react'
-import { DoorOpen, Heart, Menu, User, ChevronDown, LayoutDashboard } from 'lucide-react'
+import { DoorOpen, Menu, User, ChevronDown, LayoutDashboard } from 'lucide-react'
 import Image from 'next/image'
 import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
@@ -36,7 +36,6 @@ export function Header() {
   const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? ''
   const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in'
   const [signingOut, setSigningOut] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const userImage = typeof session?.user?.image === 'string' ? session.user.image : null
   const accountInitials = (() => {
     const source = session?.user?.name ?? session?.user?.email ?? ''

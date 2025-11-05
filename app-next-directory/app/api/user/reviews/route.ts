@@ -89,7 +89,7 @@ export function normaliseReview(doc: ReviewDoc): NormalisedReview | null {
       : typeof doc.createdAt === 'string' && doc.createdAt.trim().length > 0
         ? new Date(doc.createdAt).toISOString()
         : new Date().toISOString();
-  } catch (e) {
+  } catch (_e) {
     createdAt = new Date().toISOString();
   }
 

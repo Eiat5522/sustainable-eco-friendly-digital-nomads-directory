@@ -66,7 +66,7 @@ requiredModels.forEach(model => {
       console.log(`  ❌ ${model} - MISSING`);
       modelsExist = false;
     }
-  } catch (err) {
+  } catch (_err) {
     console.log(`  ⚠️  ${model} - UNSAFE PATH`);
     modelsExist = false;
   }
@@ -87,7 +87,7 @@ const checkApiImplementation = (filePath, requiredMethods) => {
       return { method, implemented: hasMethod };
     });
     return results;
-  } catch (error) {
+  } catch (_error) {
     return requiredMethods.map(method => ({ method, implemented: false }));
   }
 };
@@ -155,10 +155,10 @@ try {
       console.log(`  ❌ ${feature} - MISSING`);
     }
   });
-  } catch (error) {
+  } catch (_error) {
     console.log('  ❌ Could not analyze dashboard structure');
   }
-} catch (error) {
+} catch (_error) {
   console.log('  ❌ Could not analyze dashboard structure');
 }
 
