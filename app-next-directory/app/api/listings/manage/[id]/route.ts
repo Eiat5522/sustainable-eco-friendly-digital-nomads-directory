@@ -58,7 +58,7 @@ export async function PUT(request: Request, context: RouteContext) {
     }
 
     // Build an explicit whitelist to avoid persisting unexpected fields from `data`
-    const patchPayload: any = {};
+    const patchPayload: Record<string, unknown> = {};
 
     // Basic scalar/string fields (whitelist explicitly)
     const allowedScalars = [

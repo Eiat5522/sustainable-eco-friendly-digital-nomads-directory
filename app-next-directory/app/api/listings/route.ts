@@ -36,6 +36,20 @@ type ValidationResult = {
   payload?: ListingPayload;
 };
 
+// MongoDB Collection interface with common methods
+interface MongoCollection {
+  find: (query: object) => {
+    skip: (n: number) => {
+      limit: (n: number) => {
+        toArray: () => Promise<unknown[]>;
+      };
+    };
+  };
+  findOne: (query: object) => Promise<unknown>;
+  insertOne: (doc: object) => Promise<{ insertedId?: unknown; _id?: unknown; id?: unknown }>;
+  countDocuments: (query: object) => Promise<number>;
+}
+
 const DEFAULT_DEPENDENCIES: ListingsDependencies = {
   ApiResponseHandler,
   handleAuthError,
@@ -181,14 +195,14 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
 
     try {
       const collection = await resolveCollection('listings');
-      if (!collection || typeof (collection as any).find !== 'function') {
+      if (!collection || typeof (collection as MongoCollection).find !== 'function') {
         return ResponseBuilder.error('Listings collection not available', 500);
       }
 
-      const cursor = (collection as any).find({});
+      const cursor = (collection as MongoCollection).find({});
       const listings = await cursor.skip(skip).limit(limit).toArray();
-      const total = typeof (collection as any).countDocuments === 'function'
-        ? await (collection as any).countDocuments({})
+      const total = typeof (collection as MongoCollection).countDocuments === 'function'
+        ? await (collection as MongoCollection).countDocuments({})
         : listings.length;
 
       return ResponseBuilder.success({
@@ -236,11 +250,11 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
 
     try {
       const collection = await resolveCollection('listings');
-      if (!collection || typeof (collection as any).findOne !== 'function') {
+      if (!collection || typeof (collection as MongoCollection).findOne !== 'function') {
         return ResponseBuilder.error('Listings collection not available', 500);
       }
 
-      const existing = await (collection as any).findOne({ slug: validation.payload.slug });
+      const existing = await (collection as MongoCollection).findOne({ slug: validation.payload.slug });
       if (existing) {
         return ResponseBuilder.error('Listing with this slug already exists', 409);
       }
@@ -251,7 +265,7 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
         createdAt: new Date(),
       };
 
-      const insertResult = await (collection as any).insertOne(document);
+      const insertResult = await (collection as MongoCollection).insertOne(document);
       const insertedId = insertResult?.insertedId ?? insertResult?._id ?? insertResult?.id;
 
       return ResponseBuilder.success(

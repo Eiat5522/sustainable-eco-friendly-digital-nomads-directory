@@ -144,7 +144,7 @@ export async function GET(request: NextRequest) {
     return ApiResponseHandler.error('Failed to fetch blog posts', 500);
   }
 }
-type FetchFn = (query: string, params?: QueryParams) => Promise<any>;
+type FetchFn = (query: string, params?: QueryParams) => Promise<unknown>;
 type TransformFn = typeof transformToBlogSummaryDTO;
 
 const isTestEnv = process.env.NODE_ENV === 'test';

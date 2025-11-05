@@ -4,7 +4,7 @@ import { groq } from 'next-sanity';
 import { NextRequest } from 'next/server';
 import { transformToBlogDetailDTO } from '@/lib/dto-transformer';
 
-type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<any>;
+type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 type TransformFn = typeof transformToBlogDetailDTO;
 
 const viewCounts = new Map<string, number>();
