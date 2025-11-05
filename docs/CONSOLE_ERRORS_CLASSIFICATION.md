@@ -504,7 +504,7 @@ const sanityClient = require('@sanity/client');
 - Requires dual-module support in Jest config
 
 **Resolution Plan:**
-1. Convert high-traffic helpers (`scripts/loadEnv.ts`, `jest/setupTests.ts`) to `import` syntax while retaining `.cjs` fallbacks where necessary.
+1. Convert high-traffic helpers (`app-next-directory/scripts/loadEnv.ts`, `app-next-directory/jest/setupTests.ts`) to `import` syntax while retaining `.cjs` fallbacks where necessary.
 2. Update Jest configuration to use `ts-jest` ESM presets and confirm mocks still load.
 3. Remove redundant `module.exports` blocks after verifying exports are consumed via ES modules.
 
