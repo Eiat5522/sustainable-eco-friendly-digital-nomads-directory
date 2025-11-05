@@ -56,7 +56,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd app-next-directory
-          pnpm install --no-frozen-lockfile
+          SKIP_PLAYWRIGHT_INSTALL=1 pnpm install --no-frozen-lockfile
 
       - name: Type check
         run: |
@@ -123,5 +123,10 @@ jobs:
       - name: Install dependencies
         run: |
           cd app-next-directory
-          pnpm install --no-frozen-lockfile
+          SKIP_PLAYWRIGHT_INSTALL=1 pnpm install --no-frozen-lockfile
+        
+      - name: Install Playwright browsers (with cache)
+        run: |
+          cd app-next-directory
+          pnpm exec playwright install chromium --with-deps
           

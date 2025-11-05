@@ -38,7 +38,12 @@ jobs:
           echo "export PNPM_HOME=$HOME/.pnpm-global" >> $GITHUB_ENV
           
       - name: Install project dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: SKIP_PLAYWRIGHT_INSTALL=1 pnpm install --no-frozen-lockfile
+      
+      - name: Install Playwright browsers
+        run: |
+          cd app-next-directory
+          pnpm exec playwright install chromium --with-deps
 
       - name: Preinstall Copilot Agent tools
         run: |
