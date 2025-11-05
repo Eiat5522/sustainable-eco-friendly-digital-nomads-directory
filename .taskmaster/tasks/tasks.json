@@ -2,478 +2,1182 @@
   "master": {
     "tasks": [
       {
-        "dependencies": [],
-        "description": "Create and configure the global styles for the application using Tailwind CSS.",
-        "details": "Create or replace `app/globals.css` with the provided Tailwind v4 configuration. This includes importing Tailwind, setting up basic resets, and defining a container class for consistent layout. Ensure the file is correctly imported into the root layout.",
         "id": 1,
+        "title": "Remove Redundant Navigation Components",
+        "description": "Remove the unused MainNav stub component.",
+        "details": "1. Identify the MainNav stub (app-next-directory/src/components/MainNav.tsx). 2. Confirm it's not used anywhere. 3. Delete the stub component. 4. Ensure the fully featured MainNav (app-next-directory/src/components/layout/MainNav.tsx) is correctly used throughout the application.",
+        "testStrategy": "Manually navigate the application to verify the navigation bar functions correctly after the removal.",
         "priority": "high",
-        "status": "done",
-        "testStrategy": "Verify that the global styles are applied correctly by inspecting the rendered HTML and checking for the presence of Tailwind classes and the correct font and container styles.",
-        "title": "Set up Tailwind v4 Global Styles",
+        "dependencies": [],
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Install Tailwind and Configure Basic Setup",
-            "description": "Install Tailwind CSS and configure the basic setup in `app/globals.css`. This includes importing Tailwind and setting up basic resets.",
+            "title": "Locate MainNav stub component",
+            "description": "Identify the MainNav stub component in the specified directory.",
             "dependencies": [],
-            "details": "Create or replace `app/globals.css` with the Tailwind v4 configuration, including importing Tailwind directives (e.g., `@tailwind base`, `@tailwind components`, `@tailwind utilities`) and setting up basic CSS resets for consistent styling across browsers.",
-            "status": "done",
-            "testStrategy": ""
+            "details": "Navigate to app-next-directory/src/components/MainNav.tsx to locate the stub component.",
+            "status": "pending",
+            "testStrategy": null
           },
           {
             "id": 2,
-            "title": "Define and Verify Container Class and Font Styles",
-            "description": "Define a container class for consistent layout and verify font styles.",
-            "dependencies": [],
-            "details": "Define a container class (e.g., `.container`) in `app/globals.css` for consistent layout. Verify that the font styles are applied correctly by inspecting the rendered HTML and checking for the presence of Tailwind classes and the correct font.",
-            "status": "done",
-            "testStrategy": ""
+            "title": "Verify MainNav stub usage",
+            "description": "Confirm that the MainNav stub component is not used anywhere in the application.",
+            "dependencies": [
+              1
+            ],
+            "details": "Perform a code search or analyze imports to ensure no other components or files import or use the MainNav stub.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Delete MainNav stub component",
+            "description": "Remove the MainNav stub component file.",
+            "dependencies": [
+              2
+            ],
+            "details": "Delete the file app-next-directory/src/components/MainNav.tsx after confirming it's unused.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Verify MainNav usage",
+            "description": "Ensure the fully featured MainNav is correctly used throughout the application.",
+            "dependencies": [
+              3
+            ],
+            "details": "Review the application's layout and components to confirm that the correct MainNav (app-next-directory/src/components/layout/MainNav.tsx) is being used.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Test Navigation Functionality",
+            "description": "Manually test the application's navigation after removing the stub.",
+            "dependencies": [
+              4
+            ],
+            "details": "Navigate through different sections of the application and verify that the navigation bar functions correctly, including all links and interactive elements.",
+            "status": "pending",
+            "testStrategy": "Manually navigate the application to verify the navigation bar functions correctly after the removal."
           }
         ]
       },
       {
+        "id": 2,
+        "title": "Unify Layout Definitions",
+        "description": "Consolidate layout logic and remove redundant layout files.",
+        "details": "1. Analyze app/layout.tsx and app/layout.jsx. 2. Migrate any relevant logic from layout.jsx (e.g., reportWebVitals integration) into layout.tsx. 3. Remove layout.jsx. 4. Evaluate and consolidate the logic from SearchWrapper.tsx into ClientRootLayout.tsx. 5. Remove SearchWrapper.tsx.",
+        "testStrategy": "Verify the application's overall layout and functionality, including search, after the changes. Check for any broken components or layout issues.",
+        "priority": "high",
         "dependencies": [
           1
         ],
-        "description": "Create the root layout for the application, including header and footer components.",
-        "details": "Create `app/layout.tsx` and import `globals.css`. Implement the basic structure with `<Header />`, `<main>`, and `<Footer />` components. Ensure the `children` prop is correctly rendered within the `<main>` element.",
-        "id": 2,
-        "priority": "high",
-        "status": "done",
-        "testStrategy": "Check that the header and footer are displayed on all pages and that the global styles are applied. Verify the correct rendering of the layout structure by inspecting the DOM.",
-        "title": "Create Root Layout with Header and Footer",
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create Basic Layout Structure",
-            "description": "Create the basic layout structure in `app/layout.tsx`. Import `globals.css` and implement the basic structure with `<Header />`, `<main>`, and `<Footer />` components. Ensure the `children` prop is correctly rendered within the `<main>` element.",
+            "title": "Analyze layout files",
+            "description": "Analyze app/layout.tsx and app/layout.jsx to understand their respective functionalities.",
             "dependencies": [],
-            "details": "Create `app/layout.tsx`, import `globals.css`, and implement the basic structure with `<Header />`, `<main>`, and `<Footer />` components. Ensure the `children` prop is correctly rendered within the `<main>` element.",
-            "status": "done",
-            "testStrategy": ""
+            "details": "Examine the code in both files to identify the components, logic, and any integrations (e.g., reportWebVitals).",
+            "status": "pending",
+            "testStrategy": null
           },
           {
             "id": 2,
-            "title": "Implement Header Component",
-            "description": "Implement the Header component.",
-            "dependencies": [],
-            "details": "Create the Header component.",
-            "status": "done",
-            "testStrategy": ""
+            "title": "Migrate logic from layout.jsx to layout.tsx",
+            "description": "Migrate relevant logic from app/layout.jsx into app/layout.tsx.",
+            "dependencies": [
+              1
+            ],
+            "details": "Move any shared components, integrations (like reportWebVitals), and layout-related code from layout.jsx to layout.tsx. Ensure all dependencies are correctly imported.",
+            "status": "pending",
+            "testStrategy": null
           },
           {
             "id": 3,
-            "title": "Implement Footer Component",
-            "description": "Implement the Footer component.",
-            "dependencies": [],
-            "details": "Create the Footer component.",
-            "status": "done",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "dependencies": [
-          2
-        ],
-        "description": "Implement the home page using the new Next.js App Router structure.",
-        "details": "Create `app/page.tsx`. Import and render `FeaturedListingsSection` and `CityCarouselSection`. Pass empty arrays or mock data to these sections initially. Ensure the page structure includes a container for layout consistency.",
-        "id": 3,
-        "priority": "high",
-        "status": "done",
-        "testStrategy": "Verify that the home page renders without errors and that the `FeaturedListingsSection` and `CityCarouselSection` are displayed. Check for correct layout and spacing.",
-        "title": "Implement Home Page",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Create app/page.tsx and Basic Structure",
-            "description": "Create the `app/page.tsx` file and implement the basic page structure, including a container for layout consistency. Import and render `FeaturedListingsSection` and `CityCarouselSection` with initial mock data.",
-            "dependencies": [],
-            "details": "Create `app/page.tsx`. Implement the basic structure with a container. Import and render `FeaturedListingsSection` and `CityCarouselSection`. Pass empty arrays or mock data to these sections initially.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Implement Featured Listings Section",
-            "description": "Implement the Featured Listings section component.",
+            "title": "Remove layout.jsx",
+            "description": "Delete the app/layout.jsx file after migrating its logic.",
             "dependencies": [
-              "3.1"
+              2
             ],
-            "details": "Create `src/components/sections/FeaturedListingsSection.tsx`. Render a heading and the `ListingGrid` component, passing the `listings` prop. Use existing types from `src/types/appView.ts`.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Implement City Carousel Section",
-            "description": "Implement the City Carousel section component.",
-            "dependencies": [
-              "3.1"
-            ],
-            "details": "Create `src/components/sections/CityCarouselSection.tsx`. Display a horizontal scroll of city cards, each linking to `/city/[slug]`. Use the existing `CityCarousel` component as a reference. Use existing types from `src/types/appView.ts`.",
-            "status": "done",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "dependencies": [
-          2
-        ],
-        "description": "Create the listing detail page shell using the new Next.js App Router structure, including basic error handling and loading state. This task expands on the initial implementation by incorporating placeholder content and basic data fetching simulation.",
-        "details": "Create `app/listings/[slug]/page.tsx`. Import and render the `ListingDetailView` component. Implement the `generateMetadata` function to set the page title, using the listing's title (if available) or a default title. Simulate data fetching using `useEffect` and `useState` to represent loading, success, and error states. Initially, set `detail` to `null` and display a loading indicator. After a simulated delay (e.g., 1 second), simulate a successful fetch by setting `detail` to a mock `AppListingDetail` object, or simulate an error by setting an error state. Implement basic error handling to display an error message if the data fetching fails. Consider edge cases such as a missing or invalid slug.",
-        "id": 4,
-        "priority": "medium",
-        "status": "done",
-        "testStrategy": "Verify that the listing detail page renders without errors. Check that the page title is set correctly, using both a valid listing slug and an invalid slug. Confirm that the loading indicator is displayed initially. After the simulated delay, verify that the placeholder content (or the mock data) is displayed if the fetch is successful. If an error is simulated, verify that the error message is displayed correctly. Test with different slug values to ensure proper routing and data handling. Use browser developer tools to inspect the page and confirm the correct rendering of components and data.",
-        "title": "Enhanced Listing Detail Page Shell with Data Fetching Simulation",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Create ListingDetailView Component Shell",
-            "description": "Implement the basic structure of the `ListingDetailView` component, including placeholders for all listing details (title, description, images, price, etc.). Use semantic HTML elements for better structure and accessibility.",
-            "dependencies": [],
-            "details": "Create the `ListingDetailView` component. Use placeholder text or skeleton UI components to represent the data that will be fetched. Ensure the layout is responsive and adapts to different screen sizes. Consider using a CSS framework like Tailwind CSS or a component library for styling.",
-            "status": "done",
-            "testStrategy": "Verify that the basic layout of the `ListingDetailView` component renders correctly. Check for responsiveness across different screen sizes. Ensure all placeholder elements are present."
-          },
-          {
-            "id": 2,
-            "title": "Implement Dynamic Metadata",
-            "description": "Implement the `generateMetadata` function to dynamically set the page title and meta description. Handle cases where the listing data is not yet available (e.g., during loading).",
-            "dependencies": [
-              "1"
-            ],
-            "details": "Inside `app/listings/[slug]/page.tsx`, implement `generateMetadata`. Use the listing's title for the page title, and a brief description for the meta description. If the listing data is not yet available (e.g., `detail` is null), use a default title and description. Consider using a library for SEO optimization.",
-            "status": "done",
-            "testStrategy": "Verify that the page title and meta description are correctly set for both valid and invalid listing slugs. Use browser developer tools to inspect the `<head>` section of the page."
-          },
-          {
-            "id": 3,
-            "title": "Simulate Data Fetching with Loading, Success, and Error States",
-            "description": "Simulate data fetching using `useEffect` and `useState`. Implement loading, success, and error states. Simulate a network delay using `setTimeout` to mimic real-world data fetching.",
-            "dependencies": [
-              "1"
-            ],
-            "details": "Use `useState` to manage the loading, error, and detail states. In `useEffect`, simulate a data fetch by using `setTimeout`. In the success case, update the `detail` state with a mock `AppListingDetail` object. In the error case, update the error state with an appropriate error message. Consider using a utility function to generate mock data.",
-            "status": "done",
-            "testStrategy": "Verify that the loading indicator is displayed initially. After the simulated delay, verify that the placeholder content (or the mock data) is displayed if the fetch is successful. If an error is simulated, verify that the error message is displayed correctly."
+            "details": "After confirming the migration is complete and layout.tsx functions correctly, delete layout.jsx.",
+            "status": "pending",
+            "testStrategy": null
           },
           {
             "id": 4,
-            "title": "Implement Basic Error Handling",
-            "description": "Implement basic error handling to display an error message if the data fetching fails. Provide a user-friendly error message and consider options for retrying the fetch.",
+            "title": "Consolidate SearchWrapper logic",
+            "description": "Evaluate and consolidate the logic from SearchWrapper.tsx into ClientRootLayout.tsx.",
             "dependencies": [
-              "3"
+              1
             ],
-            "details": "Check for errors in the `useEffect` hook. If an error occurs, display an error message within the `ListingDetailView` component. Consider adding a 'Retry' button that re-triggers the data fetching. Log the error to the console for debugging purposes.",
-            "status": "done",
-            "testStrategy": "Verify that the error message is displayed correctly when a data fetching error is simulated. Test the 'Retry' functionality (if implemented). Check the console for any logged errors."
+            "details": "Analyze SearchWrapper.tsx and integrate its functionality (e.g., search-related UI or logic) into ClientRootLayout.tsx. Consider how search functionality is used across the application.",
+            "status": "pending",
+            "testStrategy": null
           },
           {
             "id": 5,
-            "title": "Handle Invalid Slug Input",
-            "description": "Handle edge cases such as a missing or invalid slug. Redirect to a 404 page or display an appropriate error message if the slug is invalid.",
+            "title": "Remove SearchWrapper.tsx",
+            "description": "Remove SearchWrapper.tsx after consolidating its logic.",
             "dependencies": [
-              "3"
+              4
             ],
-            "details": "In `app/listings/[slug]/page.tsx`, check if the slug is valid before attempting to fetch data. If the slug is invalid, redirect to a 404 page or display an error message. Consider using a regular expression to validate the slug format.",
-            "status": "done",
-            "testStrategy": "Test with both valid and invalid slugs. Verify that the correct page (listing detail or 404) is displayed for each case. Check the URL in the browser to ensure proper routing."
-          },
-          {
-            "id": 6,
-            "title": "Comprehensive Testing and Validation",
-            "description": "Conduct thorough testing of the listing detail page, including different scenarios and edge cases. Use browser developer tools to inspect the page and confirm the correct rendering of components and data.",
-            "dependencies": [
-              "1",
-              "2",
-              "3",
-              "4",
-              "5"
-            ],
-            "details": "Test with valid and invalid slugs. Simulate both successful and failed data fetching scenarios. Verify that the loading indicator, placeholder content, and error messages are displayed correctly in each scenario. Check the page title and meta description. Use browser developer tools to inspect the network requests and the rendered HTML.",
-            "status": "done",
-            "testStrategy": "Create a comprehensive test plan that covers all the scenarios. Use browser developer tools to inspect the page and confirm the correct rendering of components and data. Check the console for any errors or warnings."
+            "details": "After confirming the consolidation is complete and ClientRootLayout.tsx functions correctly, delete SearchWrapper.tsx.",
+            "status": "pending",
+            "testStrategy": null
           }
         ]
       },
       {
+        "id": 3,
+        "title": "Replace Legacy Database Utilities",
+        "description": "Replace the old mongodb.js with the TypeScript implementation.",
+        "details": "1. Identify all instances where mongodb.js is imported. 2. Replace these imports with the equivalent from mongodb.ts. 3. Ensure the database initialization and connection are working correctly. 4. Remove mongodb.js.",
+        "testStrategy": "Test database connections and operations across different parts of the application to ensure data is correctly read and written.",
+        "priority": "high",
         "dependencies": [
           2
         ],
-        "description": "Create the city detail page shell using the new Next.js App Router structure.",
-        "details": "Create `app/city/[slug]/page.tsx`. Render the `CityDetailView` component. Pass mock data for `city` and `listings`. Ensure the page structure includes the city name and a `ListingGrid` component.",
-        "id": 5,
-        "priority": "high",
-        "status": "done",
-        "testStrategy": "Verify that the city detail page renders without errors and that the city name and listing grid are displayed. Check for correct layout and spacing.",
-        "title": "Implement City Detail Page Shell",
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create `app/city/[slug]/page.tsx` file",
-            "description": "Create the file structure for the city detail page.",
+            "title": "Identify mongodb.js Imports",
+            "description": "Locate all files importing the legacy mongodb.js module.",
             "dependencies": [],
-            "details": "Create the file `app/city/[slug]/page.tsx`.",
-            "status": "done",
-            "testStrategy": ""
+            "details": "Use a code search tool (e.g., grep, VS Code search) to find all instances of 'require('mongodb.js')' or 'import ... from 'mongodb.js''. Document the file paths and import statements.",
+            "status": "pending",
+            "testStrategy": null
           },
           {
             "id": 2,
-            "title": "Implement page structure",
-            "description": "Implement the basic structure of the city detail page.",
+            "title": "Replace Imports with mongodb.ts",
+            "description": "Replace the identified imports of mongodb.js with the equivalent imports from mongodb.ts.",
             "dependencies": [
-              "5.1"
+              1
             ],
-            "details": "Render the `CityDetailView` component. Ensure the page structure includes the city name and a `ListingGrid` component.",
-            "status": "done",
-            "testStrategy": ""
+            "details": "Modify the import statements to point to the new TypeScript module. Ensure that the imported functions and classes are correctly referenced.",
+            "status": "pending",
+            "testStrategy": null
           },
           {
             "id": 3,
-            "title": "Pass mock data to components",
-            "description": "Pass mock data to the `CityDetailView` and `ListingGrid` components.",
+            "title": "Verify Database Connection",
+            "description": "Ensure the database connection is established and functional after the import replacements.",
             "dependencies": [
-              "5.2"
+              2
             ],
-            "details": "Pass mock data for `city` and `listings` to the components.",
-            "status": "done",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "dependencies": [
-          2
-        ],
-        "description": "Implement the advanced search page with auto-redirect functionality.",
-        "details": "Create `app/search/page.tsx`. Implement the search page with a search bar, filter sidebar, and listing grid. Use `useRouter` and `useSearchParams` to handle query parameters and auto-redirect to the listing detail page if only one result is found. Wrap the existing `DigitalNomadSearch` and `DigitalNomadSearchFilter` components.",
-        "id": 6,
-        "priority": "high",
-        "status": "done",
-        "testStrategy": "Verify that the search page renders without errors. Test the search functionality, filter application, and auto-redirect behavior. Ensure the listing grid displays search results correctly.",
-        "title": "Implement Advanced Search Page with Auto-Redirect",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Create `app/search/page.tsx` and basic structure",
-            "description": "Create the `app/search/page.tsx` file and set up the basic structure for the search page.",
-            "dependencies": [],
-            "details": "Create the file and add basic HTML structure, including placeholders for the search bar, filter sidebar, and listing grid.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Implement the search bar and filter sidebar",
-            "description": "Implement the search bar and filter sidebar components within the search page.",
-            "dependencies": [
-              "6.1"
-            ],
-            "details": "Integrate the `DigitalNomadSearch` and `DigitalNomadSearchFilter` components. Handle user input and filter selections.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Implement the listing grid",
-            "description": "Implement the listing grid to display search results.",
-            "dependencies": [
-              "6.2"
-            ],
-            "details": "Integrate the listing grid component and display search results based on the search query and filter selections.",
-            "status": "done",
-            "testStrategy": ""
+            "details": "Test the database connection by running the application and verifying that it can connect to the database. Check for any errors in the console or logs related to database initialization.",
+            "status": "pending",
+            "testStrategy": "Manually test database connections and operations."
           },
           {
             "id": 4,
-            "title": "Implement the auto-redirect functionality",
-            "description": "Implement the auto-redirect functionality to redirect to the listing detail page if only one result is found.",
+            "title": "Test Database Operations",
+            "description": "Test database read and write operations to ensure data integrity.",
             "dependencies": [
-              "6.3"
+              3
             ],
-            "details": "Use `useRouter` and `useSearchParams` to check the number of search results and redirect to the detail page if only one result exists.",
-            "status": "done",
-            "testStrategy": ""
+            "details": "Execute various database operations (e.g., create, read, update, delete) across different parts of the application. Verify that data is correctly read and written to the database.",
+            "status": "pending",
+            "testStrategy": "Test database operations across different parts of the application."
+          },
+          {
+            "id": 5,
+            "title": "Remove mongodb.js",
+            "description": "Remove the legacy mongodb.js file from the project.",
+            "dependencies": [
+              4
+            ],
+            "details": "Delete the mongodb.js file from the project directory. Ensure that the application still functions correctly after the removal.",
+            "status": "pending",
+            "testStrategy": "Verify that the application functions correctly after removing the file."
           }
         ]
       },
       {
+        "id": 4,
+        "title": "Remove Commented-Out Code and Stubs",
+        "description": "Clean up commented-out code and unnecessary stubs.",
+        "details": "1. Review the codebase for commented-out code, especially in MainNav.tsx and API routes. 2. Remove any commented-out code that is no longer relevant. 3. Remove or refactor components that simply wrap others without adding any value (e.g., app/admin/page.tsx).",
+        "testStrategy": "Review the application's functionality to ensure no features are broken after removing the commented-out code. Check for any unexpected behavior.",
+        "priority": "medium",
         "dependencies": [
+          1,
+          2,
           3
         ],
-        "description": "Implement the Featured Listings section component.",
-        "details": "Create `src/components/sections/FeaturedListingsSection.tsx`. Render a heading and the `ListingGrid` component, passing the `listings` prop. Use existing types from `src/types/appView.ts`.",
-        "id": 7,
-        "priority": "medium",
-        "status": "done",
-        "testStrategy": "Verify that the featured listings section renders correctly on the home page and displays the listing grid. Check for correct layout and spacing.",
-        "title": "Implement Featured Listings Section",
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create FeaturedListingsSection.tsx and basic structure",
-            "description": "Create the `src/components/sections/FeaturedListingsSection.tsx` file and set up the basic component structure, including a heading.",
+            "title": "Locate Commented-Out Code in MainNav.tsx",
+            "description": "Identify and review commented-out code within the MainNav.tsx file.",
             "dependencies": [],
-            "details": "Create the file and add a basic heading element.  This sets up the foundation for the component.",
-            "status": "done",
-            "testStrategy": ""
+            "details": "Use search functionality within the IDE to find all instances of commented-out code (e.g., //, /* */) within MainNav.tsx. Examine each instance to determine its relevance.",
+            "status": "pending",
+            "testStrategy": null
           },
           {
             "id": 2,
-            "title": "Integrate ListingGrid and pass listings prop",
-            "description": "Integrate the `ListingGrid` component within `FeaturedListingsSection.tsx` and pass the `listings` prop.",
+            "title": "Locate Commented-Out Code in API Routes",
+            "description": "Identify and review commented-out code within the API routes.",
+            "dependencies": [],
+            "details": "Use search functionality to find commented-out code within all API route files. Examine each instance to determine its relevance. API routes are typically located in the 'app/api' directory.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Remove Irrelevant Commented-Out Code",
+            "description": "Remove any commented-out code that is no longer needed or relevant to the current codebase.",
             "dependencies": [
-              "7.1"
+              1,
+              2
             ],
-            "details": "Import `ListingGrid` and render it within `FeaturedListingsSection.tsx`. Pass the `listings` prop, using existing types from `src/types/appView.ts`.",
-            "status": "done",
-            "testStrategy": ""
+            "details": "After reviewing the commented-out code, delete any code that is clearly outdated, unused, or no longer applicable to the current functionality. Ensure that the removal doesn't break any existing functionality.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Identify and Refactor Wrapping Components",
+            "description": "Identify components that simply wrap other components without adding significant value.",
+            "dependencies": [],
+            "details": "Review the codebase, particularly the app/admin/page.tsx file, and identify components that act as wrappers without providing substantial new functionality or styling. Consider if these components can be removed or refactored.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Remove or Refactor Wrapping Components",
+            "description": "Remove or refactor identified wrapping components.",
+            "dependencies": [
+              4
+            ],
+            "details": "Remove the identified wrapping components if they are unnecessary. If the wrapping components provide minimal value, refactor them to directly use the wrapped components or merge the functionality. Ensure the application's functionality remains intact.",
+            "status": "pending",
+            "testStrategy": null
           }
         ]
       },
       {
-        "dependencies": [
-          3
-        ],
-        "description": "Implement the City Carousel section component.",
-        "details": "Create `src/components/sections/CityCarouselSection.tsx`. Display a horizontal scroll of city cards, each linking to `/city/[slug]`. Use the existing `CityCarousel` component as a reference. Use existing types from `src/types/appView.ts`.",
-        "id": 8,
-        "priority": "medium",
-        "status": "done",
-        "testStrategy": "Verify that the city carousel section renders correctly on the home page and displays city cards. Check for correct layout, spacing, and navigation to city detail pages.",
-        "title": "Implement City Carousel Section",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Create CityCarouselSection.tsx and Basic Structure",
-            "description": "Create the `src/components/sections/CityCarouselSection.tsx` file and implement the basic structure.",
-            "dependencies": [],
-            "details": "Create the file and set up the basic component structure, including necessary imports and initial layout elements. Refer to the `CityCarousel` component for guidance.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Integrate CityCarousel and Link to City Detail Pages",
-            "description": "Integrate the `CityCarousel` component within `CityCarouselSection.tsx` and implement links to city detail pages.",
-            "dependencies": [
-              "8.1"
-            ],
-            "details": "Import and render the `CityCarousel` component. Pass the necessary data (e.g., city data) as props. Ensure each city card links to the correct `/city/[slug]` page.",
-            "status": "done",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
+        "id": 5,
+        "title": "Implement Admin Users Page API Integration",
+        "description": "Integrate the Admin Users page with actual API calls.",
+        "details": "1. Implement the necessary API endpoints for fetching user data and statistics. 2. Replace the hardcoded user data in app/admin/users/page.tsx with calls to the new API endpoints. 3. Implement the handleUserAction functions to interact with the backend.",
+        "testStrategy": "Verify that the Admin Users page correctly displays user data fetched from the API. Test the functionality of user actions (e.g., suspend, delete) by checking the backend.",
+        "priority": "high",
         "dependencies": [
           4
         ],
-        "description": "Ensure ListingCard links to the detail page via slug.",
-        "details": "In `src/components/listings/ListingCard.tsx`, update the link to use the listing slug to build the path: `/listings/${listing.slug}`. Verify that the `getListingUrl` function is correctly implemented.",
-        "id": 9,
-        "priority": "medium",
-        "status": "done",
-        "testStrategy": "Verify that clicking on a listing card navigates to the correct detail page. Test this functionality across all sections (Featured, City Detail, Search).",
-        "title": "Update ListingCard to use Slug for Navigation",
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Modify ListingCard to use slug for the link",
-            "description": "Update the `ListingCard` component in `src/components/listings/ListingCard.tsx` to use the listing slug for building the detail page link: `/listings/${listing.slug}`. Ensure the `getListingUrl` function is correctly implemented.",
+            "title": "Implement API Endpoint for Fetching User Data",
+            "description": "Create an API endpoint to fetch user data from the backend.",
             "dependencies": [],
-            "details": "In `src/components/listings/ListingCard.tsx`, modify the link to use the listing slug. Verify the implementation of `getListingUrl`.",
-            "status": "done",
-            "testStrategy": ""
+            "details": "Implement a GET endpoint (e.g., /api/admin/users) that retrieves user data. The endpoint should handle pagination, filtering, and sorting. Consider the data format and response codes.",
+            "status": "pending",
+            "testStrategy": "Test the API endpoint directly using tools like Postman or curl to ensure it returns the correct user data and handles pagination/filtering/sorting correctly."
           },
           {
             "id": 2,
-            "title": "Verify navigation across different sections",
-            "description": "Test the navigation from `ListingCard` to the detail page across different sections of the application (Featured, City Detail, Search) to ensure the correct detail page is displayed.",
-            "dependencies": [
-              "9.1"
-            ],
-            "details": "Test the navigation from the `ListingCard` component in the Featured Listings section, City Detail pages, and Search results to ensure the correct listing detail page is displayed for each card.",
-            "status": "done",
-            "testStrategy": ""
+            "title": "Implement API Endpoint for User Statistics",
+            "description": "Create an API endpoint to fetch user statistics.",
+            "dependencies": [],
+            "details": "Implement a GET endpoint (e.g., /api/admin/users/stats) that retrieves user statistics (e.g., total users, active users, etc.). Consider the data format and response codes.",
+            "status": "pending",
+            "testStrategy": "Test the API endpoint directly to ensure it returns the correct statistics."
           },
           {
             "id": 3,
-            "title": "Locate ListingCard.tsx",
-            "description": "Find the ListingCard.tsx file in the project.",
-            "dependencies": [],
-            "details": "Navigate to the src/components/listings/ListingCard.tsx file.",
-            "status": "done",
-            "testStrategy": ""
+            "title": "Replace Hardcoded Data with API Calls",
+            "description": "Replace the hardcoded user data in app/admin/users/page.tsx with calls to the new API endpoints.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Modify the app/admin/users/page.tsx file to fetch user data and statistics from the API endpoints created in the previous steps. Handle loading states and error handling.",
+            "status": "pending",
+            "testStrategy": "Verify that the Admin Users page correctly displays user data fetched from the API. Check for proper loading states and error handling."
           },
           {
             "id": 4,
-            "title": "Update link to use listing slug",
-            "description": "Modify the link in ListingCard to use the listing slug for navigation.",
-            "dependencies": [],
-            "details": "Update the link's `href` attribute to use the listing slug: `/listings/${listing.slug}`.",
-            "status": "done",
-            "testStrategy": ""
+            "title": "Implement handleUserAction Functions",
+            "description": "Implement the handleUserAction functions to interact with the backend.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement the handleUserAction functions (e.g., suspend, delete) to interact with the backend. These functions should make API calls to update user data. Handle success and error responses.",
+            "status": "pending",
+            "testStrategy": "Test the functionality of user actions (e.g., suspend, delete) by checking the backend and verifying the user data is updated correctly."
           },
           {
             "id": 5,
-            "title": "Verify the navigation",
-            "description": "Test that clicking the ListingCard navigates to the correct detail page.",
-            "dependencies": [],
-            "details": "Click on a ListingCard and verify that the browser navigates to the correct detail page using the slug in the URL.",
-            "status": "done",
-            "testStrategy": ""
+            "title": "Integrate API calls with UI components",
+            "description": "Connect the API calls with the UI components.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Ensure that the UI components correctly display the data fetched from the API and that user actions trigger the appropriate API calls. Handle loading states and error messages.",
+            "status": "pending",
+            "testStrategy": "Verify that the Admin Users page correctly displays user data fetched from the API. Test the functionality of user actions (e.g., suspend, delete) by checking the backend and UI updates."
           }
         ]
       },
       {
+        "id": 6,
+        "title": "Implement Admin Listings Page API Integration",
+        "description": "Integrate the Admin Listings page with actual API calls.",
+        "details": "1. Implement the necessary API endpoints for fetching listing data and statistics. 2. Replace the mock listings array in app/admin/listings/page.tsx with calls to the new API endpoints. 3. Implement the handleListingAction functions to interact with the backend.",
+        "testStrategy": "Verify that the Admin Listings page correctly displays listing data fetched from the API. Test the functionality of listing actions (e.g., suspend, delete) by checking the backend.",
+        "priority": "high",
         "dependencies": [
-          6
+          4,
+          5
         ],
-        "description": "Create wrapper components for search functionality.",
-        "details": "Create `src/components/search/SearchBox.tsx` as a wrapper around `DigitalNomadSearch.tsx` and `src/components/search/FiltersSidebar.tsx` as a wrapper around `DigitalNomadSearchFilter.tsx`. Ensure the wrappers handle props correctly.",
-        "id": 10,
-        "priority": "medium",
-        "status": "done",
-        "testStrategy": "Verify that the search bar and filter sidebar render correctly on the search page. Test the functionality of the search bar and filters.",
-        "title": "Create Search Wrapper Components",
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Adopt Direct Search Integration",
-            "description": "Adopt direct usage of DigitalNomadSearch and DigitalNomadSearchFilter in app/search/page.tsx; remove wrapper components.",
-            "details": "Use these components directly. Ensure correct prop wiring and state flow. Remove/ignore prior wrappers (SearchBox.tsx, FiltersSidebar.tsx).",
+            "title": "Implement API Endpoints for Listing Data",
+            "description": "Implement the API endpoints required for fetching listing data and statistics for the admin listings page.",
             "dependencies": [],
-            "status": "done",
-            "testStrategy": ""
+            "details": "Implement GET /api/admin/listings to fetch listing data. Implement GET /api/admin/listings/stats to fetch listing statistics. Ensure proper data formatting and error handling.",
+            "status": "pending",
+            "testStrategy": "Test the API endpoints directly using tools like Postman to ensure they return the correct data and handle errors appropriately."
           },
           {
             "id": 2,
-            "title": "Create FiltersSidebar.tsx Wrapper",
-            "description": "Create `src/components/search/FiltersSidebar.tsx` as a wrapper around `DigitalNomadSearchFilter.tsx`.",
-            "dependencies": [],
-            "details": "Implement the wrapper component, ensuring it correctly passes props to `DigitalNomadSearchFilter.tsx`.",
-            "status": "done",
-            "testStrategy": ""
+            "title": "Replace Mock Data with API Calls",
+            "description": "Replace the mock listings array in app/admin/listings/page.tsx with calls to the newly implemented API endpoints.",
+            "dependencies": [
+              1
+            ],
+            "details": "Modify app/admin/listings/page.tsx to fetch data from the /api/admin/listings endpoint. Display the fetched data in the listings table. Handle loading and error states.",
+            "status": "pending",
+            "testStrategy": "Verify that the Admin Listings page correctly displays listing data fetched from the API. Check for proper loading and error handling."
           },
           {
             "id": 3,
-            "title": "Validate Direct Search Integration (No Wrappers)",
-            "description": "Verify prop wiring and rendering for direct usage of DigitalNomadSearch and DigitalNomadSearchFilter in app/search/page.tsx (no wrappers).",
+            "title": "Implement Listing Action Handlers",
+            "description": "Implement the handleListingAction functions to interact with the backend for actions like suspending or deleting listings.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement the necessary API calls (e.g., PUT /api/admin/listings/:id/suspend, DELETE /api/admin/listings/:id) to handle listing actions. Implement the handleListingAction functions in app/admin/listings/page.tsx to call these APIs.",
+            "status": "pending",
+            "testStrategy": "Test the functionality of listing actions (e.g., suspend, delete) by checking the backend to ensure the actions are performed correctly."
+          },
+          {
+            "id": 4,
+            "title": "Implement Listing Statistics Display",
+            "description": "Integrate the listing statistics API endpoint to display statistics on the admin listings page.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Fetch listing statistics from the /api/admin/listings/stats endpoint. Display the statistics on the admin listings page (e.g., total listings, active listings, etc.).",
+            "status": "pending",
+            "testStrategy": "Verify that the listing statistics are correctly displayed on the admin listings page."
+          },
+          {
+            "id": 5,
+            "title": "Error Handling and UI Updates",
+            "description": "Implement robust error handling and UI updates for API interactions.",
+            "dependencies": [
+              2,
+              3,
+              4
+            ],
+            "details": "Implement error handling for API calls (e.g., display error messages to the user). Update the UI to reflect the status of listing actions (e.g., loading indicators, success messages).",
+            "status": "pending",
+            "testStrategy": "Test error scenarios by simulating API failures and verifying that appropriate error messages are displayed. Verify that the UI updates correctly during API calls."
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Implement Admin Settings API Integration",
+        "description": "Implement the Admin Settings page with actual API calls.",
+        "details": "1. Implement the necessary API endpoints for saving and retrieving settings. 2. Replace the local state management in app/admin/settings/page.tsx with calls to the new API endpoints. 3. Implement the settings save API call.",
+        "testStrategy": "Verify that settings are correctly saved and retrieved from the backend. Test the functionality of the backup feature.",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          6
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement GET API endpoint for Admin Settings",
+            "description": "Create an API endpoint to retrieve admin settings.",
             "dependencies": [],
-            "details": "Ensure the search bar and filter sidebar render correctly when used directly. Validate end-to-end state flow (query params → filters → results).",
-            "status": "done",
-            "testStrategy": ""
+            "details": "Implement the GET /api/admin/settings endpoint. This endpoint should retrieve the current settings from the database and return them as a JSON object. Handle potential errors and return appropriate error responses.",
+            "status": "pending",
+            "testStrategy": "Test the API endpoint directly using tools like Postman or curl to ensure it returns the correct settings data."
+          },
+          {
+            "id": 2,
+            "title": "Implement POST API endpoint for saving Admin Settings",
+            "description": "Create an API endpoint to save admin settings.",
+            "dependencies": [],
+            "details": "Implement the POST /api/admin/settings endpoint. This endpoint should accept a JSON payload containing the settings to be saved. Validate the input data, save the settings to the database, and return a success response. Handle potential errors and return appropriate error responses.",
+            "status": "pending",
+            "testStrategy": "Test the API endpoint using tools like Postman or curl to ensure settings are saved correctly. Verify data persistence in the database."
+          },
+          {
+            "id": 3,
+            "title": "Replace local state with API calls in settings page",
+            "description": "Replace the local state management in app/admin/settings/page.tsx with API calls.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Modify the app/admin/settings/page.tsx component to fetch settings from the GET /api/admin/settings endpoint on component mount. Update the component to use the POST /api/admin/settings endpoint to save settings when the user submits the form. Handle loading states and error messages appropriately.",
+            "status": "pending",
+            "testStrategy": "Manually test the Admin Settings page to ensure settings are correctly displayed, saved, and retrieved after the changes. Verify the UI updates correctly based on API responses."
+          },
+          {
+            "id": 4,
+            "title": "Implement settings save API call",
+            "description": "Implement the settings save API call.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement the client-side function to call the POST /api/admin/settings endpoint. This function should serialize the settings data, make the API request, and handle the response (success or error).",
+            "status": "pending",
+            "testStrategy": "Test the settings save API call by triggering it from the Admin Settings page. Verify that the API call is made correctly and that the settings are saved to the backend."
+          },
+          {
+            "id": 5,
+            "title": "Integrate settings save API call with UI",
+            "description": "Connect the settings save API call to the UI.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Connect the settings save API call to the form submission in the Admin Settings page. Handle the loading state during the API call and display appropriate feedback to the user (e.g., success message, error message).",
+            "status": "pending",
+            "testStrategy": "Test the entire Admin Settings workflow: modify settings, save them, and verify that the changes are reflected in the UI and persisted in the backend."
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Implement View Count Persistence",
+        "description": "Persist blog post view counts to a database.",
+        "details": "1. Choose a persistent storage solution (e.g., database field, Redis). 2. Modify the trackViewCount function in the blog post API route (app-next-directory/src/app/api/blog/[slug]/route.ts) to update the persistent store. 3. Ensure the view count is incremented correctly and persists across server restarts.",
+        "testStrategy": "Verify that view counts are correctly incremented and persisted in the database. Test the functionality by viewing a blog post and checking the database.",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4,
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Choose Persistent Storage Solution",
+            "description": "Select a database or other persistent storage mechanism for view counts.",
+            "dependencies": [],
+            "details": "Evaluate options like a database field (e.g., in MongoDB), Redis, or other suitable solutions. Consider factors like performance, scalability, and ease of integration with the existing infrastructure. Document the chosen solution.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Modify trackViewCount Function",
+            "description": "Update the trackViewCount function to interact with the chosen storage solution.",
+            "dependencies": [
+              1
+            ],
+            "details": "Modify the `trackViewCount` function in `app-next-directory/src/app/api/blog/[slug]/route.ts` to increment the view count in the selected persistent store. Implement the necessary database queries or API calls to update the view count. Handle potential errors during the update process.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Implement View Count Increment Logic",
+            "description": "Ensure view counts are correctly incremented for each blog post view.",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement the logic to increment the view count every time a blog post is viewed. Consider potential issues like concurrent requests and ensure the increment operation is atomic or properly synchronized to prevent data corruption. Handle edge cases such as bot traffic.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Ensure Persistence Across Server Restarts",
+            "description": "Verify that view counts are not lost when the server restarts.",
+            "dependencies": [
+              2,
+              3
+            ],
+            "details": "Test the persistence of view counts by restarting the server and verifying that the counts are retained in the persistent storage. Implement any necessary mechanisms to ensure data durability, such as database transactions or periodic backups.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Test View Count Persistence",
+            "description": "Thoroughly test the view count persistence functionality.",
+            "dependencies": [
+              2,
+              3,
+              4
+            ],
+            "details": "View several blog posts and check the database to verify that the view counts are correctly incremented. Test the functionality by viewing a blog post, checking the database, restarting the server, and then checking the database again to ensure the view count persists. Test with different browsers and devices.",
+            "status": "pending",
+            "testStrategy": "Verify that view counts are correctly incremented and persisted in the database. Test the functionality by viewing a blog post and checking the database. Test persistence across server restarts."
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Integrate Image Optimization Script",
+        "description": "Integrate the image optimization script into the application workflow.",
+        "details": "1. Review the batch_optimize_images.py script. 2. Integrate the script with the Sanity upload process. 3. Automate the image optimization process after upload.",
+        "testStrategy": "Upload an image and verify that it is automatically optimized. Check the image size and quality after optimization.",
+        "priority": "medium",
+        "dependencies": [
+          6,
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Implement Admin API Endpoints",
+        "description": "Implement the missing admin API endpoints.",
+        "details": "1. Implement the GET /api/admin/analytics and GET /api/admin/moderation endpoints. 2. Ensure the endpoints return the correct data in the expected format. 3. Handle potential errors and return appropriate error responses.",
+        "testStrategy": "Test the API endpoints directly to ensure they return the correct data. Verify that the Admin Dashboard correctly displays the data fetched from the API.",
+        "priority": "high",
+        "dependencies": [
+          5,
+          6,
+          7
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement GET /api/admin/analytics endpoint",
+            "description": "Implement the GET /api/admin/analytics endpoint to retrieve analytics data.",
+            "dependencies": [],
+            "details": "Implement the API endpoint to fetch and return analytics data. This includes data aggregation and formatting. Ensure data is retrieved from the correct data sources.",
+            "status": "pending",
+            "testStrategy": "Test the endpoint directly to ensure it returns the correct analytics data in the expected format."
+          },
+          {
+            "id": 2,
+            "title": "Implement GET /api/admin/moderation endpoint",
+            "description": "Implement the GET /api/admin/moderation endpoint to retrieve moderation data.",
+            "dependencies": [],
+            "details": "Implement the API endpoint to fetch and return moderation data. This includes data retrieval and formatting. Ensure data is retrieved from the correct data sources.",
+            "status": "pending",
+            "testStrategy": "Test the endpoint directly to ensure it returns the correct moderation data in the expected format."
+          },
+          {
+            "id": 3,
+            "title": "Define data models for analytics and moderation",
+            "description": "Define the data models for the analytics and moderation data returned by the API endpoints.",
+            "dependencies": [],
+            "details": "Define TypeScript interfaces or classes to represent the structure of the data returned by the /api/admin/analytics and /api/admin/moderation endpoints. This will ensure type safety and consistency.",
+            "status": "pending",
+            "testStrategy": "Ensure the data models accurately reflect the structure of the data returned by the API endpoints."
+          },
+          {
+            "id": 4,
+            "title": "Implement error handling",
+            "description": "Implement error handling for the admin API endpoints.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Implement error handling to catch potential errors during data retrieval or processing. Return appropriate HTTP status codes and error messages in the response.",
+            "status": "pending",
+            "testStrategy": "Test the error handling by simulating different error scenarios and verifying that the correct error responses are returned."
+          },
+          {
+            "id": 5,
+            "title": "Integrate with Admin Dashboard",
+            "description": "Integrate the new API endpoints with the Admin Dashboard.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Update the Admin Dashboard components to fetch and display the data from the new API endpoints. Ensure the data is displayed correctly and the UI is updated accordingly.",
+            "status": "pending",
+            "testStrategy": "Verify that the Admin Dashboard correctly displays the data fetched from the API endpoints."
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Address TypeScript Ignore Flags",
+        "description": "Address TypeScript ignore flags and improve type safety.",
+        "details": "1. Analyze the use of // @ts-ignore in the FilterSidebar component. 2. Provide proper TypeScript definitions for the webkitSpeechRecognition API or check for the feature's existence in a type-safe way. 3. Remove the // @ts-ignore flags.",
+        "testStrategy": "Ensure that the FilterSidebar component functions correctly after removing the // @ts-ignore flags. Check for any type errors or unexpected behavior.",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Review and Refactor React Types",
+        "description": "Review and refactor custom React type definitions.",
+        "details": "1. Review the custom declaration file for React (react.d.ts). 2. Evaluate the impact of redefining React’s FunctionComponent types. 3. Consider alternative approaches to enforce no implicit any in component props without global monkey-patching.",
+        "testStrategy": "Ensure that the application continues to function correctly after any changes to the React type definitions. Check for any type errors or unexpected behavior.",
+        "priority": "low",
+        "dependencies": [
+          4,
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Remove or Replace Console Logging",
+        "description": "Remove or replace excessive console logging.",
+        "details": "1. Review the codebase for console.log/console.error statements. 2. Remove unnecessary console logging. 3. Replace console logging with proper user feedback or logging to a monitoring system where appropriate.",
+        "testStrategy": "Verify that the application functions correctly after removing or replacing console logging. Check for any missing information or unexpected behavior.",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Identify Console Logging Statements",
+            "description": "Review the codebase to identify all instances of `console.log` and `console.error` statements.",
+            "dependencies": [],
+            "details": "Use a code search tool or IDE features to locate all occurrences of `console.log` and `console.error` within the project files. Note the file paths and line numbers.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Assess Logging Necessity",
+            "description": "Determine which console logging statements are essential for debugging and which are redundant.",
+            "dependencies": [
+              1
+            ],
+            "details": "Evaluate each logging statement. Determine if it provides critical information for debugging or if it's excessive and can be removed or replaced. Consider the context and purpose of each log.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Remove Unnecessary Console Logging",
+            "description": "Remove the console logging statements identified as redundant.",
+            "dependencies": [
+              2
+            ],
+            "details": "Delete or comment out the unnecessary `console.log` and `console.error` statements. Ensure that the code still functions correctly after removal.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Replace with User Feedback",
+            "description": "Replace console logging with user-facing feedback where appropriate.",
+            "dependencies": [
+              2
+            ],
+            "details": "Identify instances where console logs could be replaced with user-friendly messages, such as success or error notifications displayed on the UI. Implement appropriate feedback mechanisms.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Implement Logging to Monitoring System",
+            "description": "Replace console logging with logging to a monitoring system where appropriate.",
+            "dependencies": [
+              2
+            ],
+            "details": "Integrate a monitoring system (e.g., Sentry, Datadog) to capture important errors and events. Replace relevant console logs with calls to the monitoring system's logging functions.",
+            "status": "pending",
+            "testStrategy": null
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "title": "Clean Up Commented & Dead Code",
+        "description": "Clean up commented and dead code.",
+        "details": "1. Review the codebase for commented-out code, especially in API routes. 2. Remove any commented-out code that is no longer relevant. 3. Turn comments into GitHub issues/TODO notes tracked elsewhere.",
+        "testStrategy": "Verify that the application functions correctly after removing the commented-out code. Check for any unexpected behavior.",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Locate Commented Code",
+            "description": "Identify all instances of commented-out code within the codebase, focusing on API routes and other critical areas.",
+            "dependencies": [],
+            "details": "Use search tools (e.g., grep, IDE search) to find comments (//, /* */) in the project. Pay close attention to API route files and any files modified recently.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Review Commented Code for Relevance",
+            "description": "Analyze each commented-out code block to determine if it's still relevant or if it can be safely removed.",
+            "dependencies": [
+              1
+            ],
+            "details": "Examine the context of each comment. Check if the code was related to a previous feature, a temporary fix, or debugging. If the code is no longer needed, it should be removed.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Remove Irrelevant Commented Code",
+            "description": "Delete all commented-out code that is deemed irrelevant or no longer needed.",
+            "dependencies": [
+              2
+            ],
+            "details": "Carefully remove the identified code blocks. Ensure that the removal does not introduce any syntax errors or break any functionality. Use version control to revert if necessary.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Convert Comments to Issues/TODOs",
+            "description": "Transform any remaining comments that describe future work or potential issues into GitHub issues or TODO notes.",
+            "dependencies": [
+              2
+            ],
+            "details": "For comments that describe future work, create a GitHub issue with a descriptive title and details. For TODO notes, add them to a tracking system (e.g., a TODO list file) with a clear description.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Verify Application Functionality",
+            "description": "Test the application to ensure that removing commented-out code has not introduced any regressions or broken functionality.",
+            "dependencies": [
+              3,
+              4
+            ],
+            "details": "Manually test key features of the application, especially those related to the areas where commented-out code was removed. Check API routes and any related functionality. Look for unexpected behavior or errors.",
+            "status": "pending",
+            "testStrategy": "Manually test the application's functionality after removing the commented-out code. Check for any unexpected behavior or errors."
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Tighten Broad 'any' Types and Schema Definitions",
+        "description": "Tighten broad 'any' types and schema definitions.",
+        "details": "1. Review the BulkOperationResult interface and the admin analytics fetching function. 2. Replace any types with more specific types or generated types from the backend schemas. 3. Improve type safety and compile-time checks.",
+        "testStrategy": "Ensure that the application continues to function correctly after tightening the types. Check for any type errors or unexpected behavior.",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Review BulkOperationResult and admin analytics function",
+            "description": "Analyze the BulkOperationResult interface and the admin analytics fetching function to identify 'any' types.",
+            "dependencies": [],
+            "details": "Examine the code for BulkOperationResult and the admin analytics function to pinpoint instances of 'any' usage.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Identify Backend Schemas",
+            "description": "Locate and understand the relevant backend schemas that define the data structures used in the identified areas.",
+            "dependencies": [
+              1
+            ],
+            "details": "Identify the schemas that define the data structures for BulkOperationResult and the admin analytics data. This may involve looking at API documentation or backend code.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Replace 'any' types with specific types",
+            "description": "Replace the identified 'any' types with more specific types or generated types based on the backend schemas.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Modify the code to use the correct types. This may involve creating new types or using existing ones from the backend schemas.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Implement Type Safety Checks",
+            "description": "Add type safety checks to ensure the code is robust and less prone to errors.",
+            "dependencies": [
+              3
+            ],
+            "details": "Use TypeScript features like type annotations, interfaces, and type guards to improve type safety. Consider using tools like ESLint with TypeScript rules.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Verify Functionality and Type Safety",
+            "description": "Test the application to ensure it functions correctly after the type tightening and that no type errors are present.",
+            "dependencies": [
+              4
+            ],
+            "details": "Run unit tests, integration tests, and manual tests to verify the changes. Check for any type errors in the IDE or during compilation.",
+            "status": "pending",
+            "testStrategy": "Ensure the application continues to function correctly. Check for type errors and unexpected behavior."
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "title": "Reconcile Data Definitions",
+        "description": "Reconcile duplicate data definitions.",
+        "details": "1. Compare the Listing interface/type used in the admin Listing management page with the global Listing interface/type. 2. If necessary, reconcile these types or derive one from the other to avoid mismatches.",
+        "testStrategy": "Ensure that the application functions correctly after reconciling the data definitions. Check for any data inconsistencies or unexpected behavior.",
+        "priority": "medium",
+        "dependencies": [
+          4,
+          15
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Compare Listing Interface Definitions",
+            "description": "Compare the Listing interface/type used in the admin Listing management page with the global Listing interface/type.",
+            "dependencies": [],
+            "details": "Examine the Listing interface/type definitions in both the admin Listing management page code and the global codebase. Identify all fields and their data types.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Identify Differences in Listing Definitions",
+            "description": "Identify discrepancies between the two Listing interface/type definitions.",
+            "dependencies": [
+              1
+            ],
+            "details": "Document the differences in field names, data types, and any other relevant attributes between the two Listing definitions. Note any missing or conflicting information.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 3,
+            "title": "Determine Reconciliation Strategy",
+            "description": "Decide on the best approach to reconcile the Listing definitions.",
+            "dependencies": [
+              2
+            ],
+            "details": "Based on the identified differences, determine whether to reconcile by merging, deriving one from the other, or creating a new unified definition. Consider the impact on existing code.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 4,
+            "title": "Implement Reconciliation",
+            "description": "Implement the chosen reconciliation strategy.",
+            "dependencies": [
+              3
+            ],
+            "details": "Modify the Listing interface/type definitions according to the chosen strategy. Update any code that uses these definitions to ensure compatibility.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 5,
+            "title": "Verify Data Definition Consistency",
+            "description": "Ensure the application functions correctly after reconciling the data definitions.",
+            "dependencies": [
+              4
+            ],
+            "details": "Test the admin Listing management page and any other parts of the application that use the Listing interface/type. Check for data inconsistencies, type errors, or unexpected behavior. Verify data integrity.",
+            "status": "pending",
+            "testStrategy": "Ensure that the application functions correctly after reconciling the data definitions. Check for any data inconsistencies or unexpected behavior."
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "title": "Optimize Bulk Operations for Scale",
+        "description": "Optimize bulk admin operations for scale.",
+        "details": "1. Evaluate the performance of the sequential loop in bulk admin operations. 2. Consider implementing parallel operations or backend-side batching for improved performance. 3. Monitor the in-memory map for view counts and address scaling concerns.",
+        "testStrategy": "Test the performance of bulk operations with a large number of items. Verify that the operations complete within an acceptable timeframe.",
+        "priority": "low",
+        "dependencies": [
+          6,
+          8,
+          10,
+          16
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Profile Bulk Operation Performance",
+            "description": "Profile the performance of existing bulk admin operations.",
+            "dependencies": [],
+            "details": "Use profiling tools to identify performance bottlenecks in the sequential loop used in bulk admin operations. Analyze the time taken for different operations and identify areas for optimization.",
+            "status": "pending",
+            "testStrategy": "Run bulk operations with a small and medium number of items and measure the execution time. Use profiling tools to identify bottlenecks."
+          },
+          {
+            "id": 2,
+            "title": "Evaluate Parallel Processing",
+            "description": "Investigate the feasibility of parallelizing bulk operations.",
+            "dependencies": [
+              1
+            ],
+            "details": "Explore the possibility of using parallel processing techniques (e.g., multithreading, multiprocessing, or asynchronous tasks) to execute bulk operations concurrently. Consider the overhead of parallelization and potential race conditions.",
+            "status": "pending",
+            "testStrategy": "Implement a parallel version of a bulk operation and compare its performance with the sequential version using a large dataset. Measure the execution time and resource utilization."
+          },
+          {
+            "id": 3,
+            "title": "Implement Backend-Side Batching",
+            "description": "Implement backend-side batching for database operations.",
+            "dependencies": [
+              1
+            ],
+            "details": "Modify the backend code to batch database operations. Instead of performing individual database calls for each item in a bulk operation, group them into larger batches to reduce overhead. Consider using database-specific batching features.",
+            "status": "pending",
+            "testStrategy": "Test the performance of bulk operations with and without batching. Measure the execution time and database query count for different batch sizes."
+          },
+          {
+            "id": 4,
+            "title": "Monitor View Count Map",
+            "description": "Monitor the in-memory map for view counts and address scaling concerns.",
+            "dependencies": [],
+            "details": "Implement monitoring for the in-memory map used to store view counts. Track memory usage and access patterns. Implement strategies to handle potential scaling issues, such as sharding or caching.",
+            "status": "pending",
+            "testStrategy": "Simulate a high-volume scenario and monitor the memory usage of the view count map. Verify that the system can handle the load without performance degradation or memory issues."
+          },
+          {
+            "id": 5,
+            "title": "Optimize Data Structures",
+            "description": "Optimize data structures used in bulk operations.",
+            "dependencies": [
+              1
+            ],
+            "details": "Review the data structures used in bulk operations. Identify any potential inefficiencies and optimize them for performance. Consider using more efficient data structures or algorithms.",
+            "status": "pending",
+            "testStrategy": "Compare the performance of bulk operations with the original and optimized data structures. Measure the execution time and memory usage."
+          }
+        ]
+      },
+      {
+        "id": 18,
+        "title": "Improve Error Handling and Resilience",
+        "description": "Improve error handling and resilience.",
+        "details": "1. Ensure that each component and API has fallback behavior or timeouts. 2. Handle missing analytics responses gracefully in the AdminDashboard. 3. Implement robust error handling throughout the application.",
+        "testStrategy": "Test the application under various error conditions (e.g., API failures, network issues). Verify that the application handles errors gracefully and provides appropriate feedback to the user.",
+        "priority": "medium",
+        "dependencies": [
+          10
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement API Timeouts",
+            "description": "Implement timeouts for all API calls to prevent indefinite blocking.",
+            "dependencies": [],
+            "details": "Set a reasonable timeout duration (e.g., 5-10 seconds) for all API requests using the fetch API or a similar mechanism. Consider using libraries like axios that provide timeout options. Ensure that the application handles timeout errors gracefully.",
+            "status": "pending",
+            "testStrategy": "Verify that API calls timeout as expected under simulated network latency or API unavailability. Check that the application displays an appropriate error message to the user."
+          },
+          {
+            "id": 2,
+            "title": "Implement Fallback Behavior for Components",
+            "description": "Implement fallback mechanisms for critical components to handle potential failures.",
+            "dependencies": [],
+            "details": "For components that rely on external data or services, implement fallback UI or alternative data sources. For example, if the analytics API fails, display a default message or cached data. Consider using error boundaries in React to catch and handle errors within component trees.",
+            "status": "pending",
+            "testStrategy": "Simulate API failures or data unavailability and verify that the fallback mechanisms are triggered correctly. Check that the fallback UI or data is displayed as expected."
+          },
+          {
+            "id": 3,
+            "title": "Gracefully Handle Missing Analytics Data",
+            "description": "Handle missing analytics responses gracefully in the AdminDashboard.",
+            "dependencies": [
+              2
+            ],
+            "details": "Modify the AdminDashboard to handle cases where analytics data is missing or incomplete. Display a user-friendly message or a placeholder instead of crashing or displaying broken UI elements. Consider logging the error for debugging purposes.",
+            "status": "pending",
+            "testStrategy": "Simulate missing or incomplete analytics data and verify that the AdminDashboard handles it gracefully. Check that the UI displays the expected placeholder or message."
+          },
+          {
+            "id": 4,
+            "title": "Implement Centralized Error Handling",
+            "description": "Implement a centralized error handling mechanism to catch and handle errors throughout the application.",
+            "dependencies": [],
+            "details": "Create a global error handler (e.g., using try-catch blocks, error boundaries, or a dedicated error handling service). Log errors to a server-side logging service (e.g., Sentry, Rollbar) for monitoring and debugging. Display user-friendly error messages to the user, avoiding technical jargon.",
+            "status": "pending",
+            "testStrategy": "Trigger various types of errors (e.g., API errors, JavaScript errors) and verify that they are caught by the centralized error handler. Check that the errors are logged correctly and that the user receives appropriate feedback."
+          },
+          {
+            "id": 5,
+            "title": "Add Retry Mechanism for Failed API Calls",
+            "description": "Implement a retry mechanism for failed API calls.",
+            "dependencies": [
+              1
+            ],
+            "details": "Implement a retry mechanism with exponential backoff for API calls that fail due to transient issues (e.g., network problems). Limit the number of retries to prevent infinite loops. Consider using a library like 'p-retry' for this purpose.",
+            "status": "pending",
+            "testStrategy": "Simulate API failures and verify that the retry mechanism attempts to retry the calls. Check that the calls eventually succeed (if the issue is transient) or that the application handles the failure gracefully after exhausting the retries."
+          }
+        ]
+      },
+      {
+        "id": 19,
+        "title": "Clean Up Development Artifacts",
+        "description": "Clean up development artifacts.",
+        "details": "1. Review the repository for development and testing files (e.g., test-dashboard-completion.js, memory-bank/ logs, AI assistant context files). 2. Remove or archive these files once they have served their purpose.",
+        "testStrategy": "Verify that the application functions correctly after removing the development artifacts. Check for any missing functionality or unexpected behavior.",
+        "priority": "low",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 20,
+        "title": "Final Code Review and Testing",
+        "description": "Perform a final code review and testing.",
+        "details": "1. Review all changes made in the previous tasks. 2. Perform comprehensive testing of the application to ensure all features are working correctly. 3. Address any remaining issues or bugs.",
+        "testStrategy": "Perform thorough testing of all features and functionalities. Ensure that all tests pass and that the application meets the required standards.",
+        "priority": "high",
+        "dependencies": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Review Code Changes",
+            "description": "Review all code changes made in previous tasks.",
+            "dependencies": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19
+            ],
+            "details": "Examine code diffs, focusing on changes related to functionality, performance, and code style. Ensure adherence to coding standards and best practices.",
+            "status": "pending",
+            "testStrategy": null
+          },
+          {
+            "id": 2,
+            "title": "Perform Functional Testing",
+            "description": "Test all application features to ensure they function correctly.",
+            "dependencies": [
+              1
+            ],
+            "details": "Test core functionalities, including user authentication, data display, form submissions, and navigation. Verify expected behavior and data integrity.",
+            "status": "pending",
+            "testStrategy": "Execute test cases covering all features. Verify expected behavior and data integrity. Document test results."
+          },
+          {
+            "id": 3,
+            "title": "Conduct UI/UX Testing",
+            "description": "Test the user interface and user experience.",
+            "dependencies": [
+              1
+            ],
+            "details": "Verify the layout, responsiveness, and visual elements of the application. Ensure a smooth and intuitive user experience across different devices and browsers.",
+            "status": "pending",
+            "testStrategy": "Test on different devices and browsers. Check for responsiveness and visual consistency. Ensure a smooth and intuitive user experience."
+          },
+          {
+            "id": 4,
+            "title": "Perform Performance Testing",
+            "description": "Test the application's performance under various conditions.",
+            "dependencies": [
+              1
+            ],
+            "details": "Measure page load times, response times, and resource usage. Identify and address any performance bottlenecks.",
+            "status": "pending",
+            "testStrategy": "Use performance testing tools to measure page load times, response times, and resource usage. Identify and address any performance bottlenecks."
+          },
+          {
+            "id": 5,
+            "title": "Address Remaining Issues and Bugs",
+            "description": "Fix any remaining issues or bugs identified during testing.",
+            "dependencies": [
+              2,
+              3,
+              4
+            ],
+            "details": "Prioritize and fix bugs based on severity. Ensure all issues are resolved and verified through retesting.",
+            "status": "pending",
+            "testStrategy": "Retest all fixed issues to ensure they are resolved. Verify that no new issues were introduced during the fix."
           }
         ]
       }
     ],
     "metadata": {
-      "created": "2025-08-22T06:52:17.901Z",
-      "updated": "2025-09-11T11:18:30.657Z",
+      "created": "2025-11-05T17:33:51.675Z",
+      "updated": "2025-11-05T17:33:51.675Z",
       "description": "Tasks for master context"
     }
   }

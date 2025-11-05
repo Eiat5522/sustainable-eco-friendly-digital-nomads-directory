@@ -212,9 +212,6 @@ app-next-directory/src/utils/db-helpers.ts
 
 .vscode
 
-# Task files
-# tasks.json
-# tasks/ 
 docs/chat-history/**
 .bashrc.zip
 app-next-directory/testCoverage/*/**
@@ -222,3 +219,9 @@ app-next-directory/testCoverage/lcov-report/*/**
 app-next-directory/testCoverage/
 app-next-directory/testCoverage/lcov-report/
 changes_need.patch
+
+# Task files
+tasks.json
+tasks/ 
+.taskmaster/config.json
+app-next-directory/.gemini/settings.json
