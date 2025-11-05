@@ -440,6 +440,8 @@ warning Unexpected any. Specify a different type @typescript-eslint/no-explicit-
 - `src/types/{appView,auth,filters}.ts`
 - Legacy Jest setup scripts under `src/tests/setup/`
 
+**Note:** Legacy Jest setup scripts under `src/tests/setup/` and other deprecated mocks were excluded from the active warning count.
+
 **Total Instances:** ~430 active warnings after Phase 4 triage (reduced from ~560 by isolating deprecated mocks).
 
 **Resolution Plan:**
@@ -448,7 +450,7 @@ warning Unexpected any. Specify a different type @typescript-eslint/no-explicit-
 3. Enable `@typescript-eslint/no-explicit-any: "error"` in staged directories via incremental `.eslintrc` overrides.
 
 **Verification:**
-- `pnpm lint --filter app-next-directory` reports zero `no-explicit-any` warnings for production code paths.
+- `pnpm --filter app-next-directory lint` reports zero `no-explicit-any` warnings for production code paths.
 - Type-aware unit tests run without newly introduced cast assertions.
 - PR checklist updated to require typed DTO usage for new API endpoints.
 
