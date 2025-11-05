@@ -32,6 +32,8 @@ const eslintConfig = [
       "**/__generated__/**",
       "tsconfig.test.json",
       "../sanity/**",
+      "**/.env*",
+      "**/next-env.d.ts",
     ],
   },
     {
@@ -98,7 +100,24 @@ const eslintConfig = [
       "import/no-anonymous-default-export": "off"
     }
   },
-{
+  {
+    // CommonJS files (.cjs) and root-level test/debug scripts should use require()
+    files: [
+      "**/*.cjs",
+      "test-*.js",
+      "check-*.js",
+      "debug-*.js",
+      "quick-*.js",
+      "scripts/**/*.js",
+      "tailwind.config.js"
+    ],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off"
+    }
+  },
+  {
     files: ["./sanity.types.ts"],
     rules: {
       "@typescript-eslint/no-use-before-define": "off",

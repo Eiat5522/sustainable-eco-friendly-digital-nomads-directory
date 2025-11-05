@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
       return ApiResponseHandler.error(firstError, 422, result.error.format());
     }
     parsed = result.data;
-  } catch (error) {
+  } catch (_error) {
     return ApiResponseHandler.error('Invalid review data', 422);
   }
 

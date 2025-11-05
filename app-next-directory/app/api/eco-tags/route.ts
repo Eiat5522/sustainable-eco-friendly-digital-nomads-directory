@@ -8,7 +8,7 @@ export async function GET() {
       name
     }`);
     return NextResponse.json({ ecoTags });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to fetch eco tags' }, { status: 500 });
   }
 }

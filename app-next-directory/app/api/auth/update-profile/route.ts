@@ -23,14 +23,23 @@ const serviceUnavailable = () =>
     { status: 503, headers: { 'Retry-After': '60' } }
   );
 
-const sanitizeUser = (user: any) => {
-  if (!user) return null;
+interface UserRecord {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  role?: string;
+}
+
+const sanitizeUser = (user: unknown) => {
+  if (!user || typeof user !== 'object') return null;
+  const u = user as Partial<UserRecord>;
   return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    image: user.image ?? null,
-    role: user.role,
+    id: u.id ?? '',
+    name: u.name ?? null,
+    email: u.email ?? null,
+    image: u.image ?? null,
+    role: u.role,
   };
 };
 

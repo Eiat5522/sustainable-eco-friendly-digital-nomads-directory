@@ -3,8 +3,6 @@
  * Day 1 Sprint: Session 2 - Testing Image Pipeline
  */
 
-const fs = require('fs');
-const path = require('path');
 const { createClient } = require('@sanity/client');
 
 // Test configuration

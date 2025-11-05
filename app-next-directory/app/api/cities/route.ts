@@ -17,7 +17,7 @@ export async function GET() {
     const fetchCities = testControl?.fetchCitiesOverride ?? getCitiesList;
     const cities = await fetchCities(8);
     return NextResponse.json({ cities });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to fetch cities' }, { status: 500 });
   }
 }

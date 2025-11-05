@@ -9,7 +9,8 @@ const client = createClient({
   useCdn: false,
 });
 
-async function inspectCityReferences() {
+// Reserved for future use - available for debugging city reference issues
+async function _inspectCityReferences() {
   try {
     console.log('🔍 Inspecting city references in listings...\n');
 

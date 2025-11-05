@@ -130,6 +130,11 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     }
     return acc
   }, [])
+  
+  if (skippedCount > 0) {
+    console.warn(`Skipped ${skippedCount} invalid search result(s)`)
+  }
+  
   const paginationData = parsedResponse.success ? parsedResponse.data.data?.pagination ?? {} : {}
   const pagination = {
     page: paginationData?.page ?? 1,

@@ -21,7 +21,7 @@ type PaginationParams = {
   end: number;
 };
 
-function successResponse(data: any, status = 200, message?: string) {
+function successResponse<T>(data: T, status = 200, message?: string) {
   const payload = message === undefined ? { success: true, data } : { success: true, data, message };
   if (typeof NextResponse?.json === 'function') {
     const response = NextResponse.json(payload, { status });
@@ -172,7 +172,7 @@ export async function POST(request: Request | MaybeRequest) {
     return errorResponse('Invalid or missing fields', 422);
   }
 
-  let payload: any;
+  let payload: unknown;
   try {
     payload = await request.json();
   } catch {
