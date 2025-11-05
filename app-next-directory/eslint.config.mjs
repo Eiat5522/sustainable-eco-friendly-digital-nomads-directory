@@ -32,6 +32,8 @@ const eslintConfig = [
       "**/__generated__/**",
       "tsconfig.test.json",
       "../sanity/**",
+      "**/.env*",
+      "**/next-env.d.ts",
     ],
   },
     {
