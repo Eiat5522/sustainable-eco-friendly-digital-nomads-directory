@@ -4,16 +4,91 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { NeoButton } from '@/components/ui/neo-button';
+import type { ListingManagementSummary } from '@/types/listings';
 
-interface Listing {
-  _id: string;
-  name: string;
-  city: string;
-  status: string;
+type ListingsApiPayload = {
+  listings?: unknown;
+  success?: boolean;
+  data?: {
+    listings?: unknown;
+  };
+};
+
+function extractListings(payload: ListingsApiPayload | null | undefined): unknown[] {
+  if (payload?.data && Array.isArray(payload.data.listings)) {
+    return payload.data.listings;
+  }
+
+  if (Array.isArray(payload?.listings)) {
+    return payload.listings;
+  }
+
+  return [];
+}
+
+function toListingManagementSummary(value: unknown): ListingManagementSummary | null {
+  if (!value || typeof value !== 'object') {
+    return null;
+  }
+
+  const record = value as Record<string, unknown>;
+  const id = typeof record._id === 'string'
+    ? record._id
+    : typeof record.id === 'string'
+      ? record.id
+      : null;
+  const name = typeof record.name === 'string'
+    ? record.name
+    : typeof record.title === 'string'
+      ? record.title
+      : null;
+
+  if (!id || !name) {
+    return null;
+  }
+
+  const cityValue = record.city;
+  let city: string | null = null;
+  if (typeof cityValue === 'string') {
+    city = cityValue;
+  } else if (
+    cityValue &&
+    typeof cityValue === 'object' &&
+    typeof (cityValue as { name?: unknown }).name === 'string'
+  ) {
+    city = (cityValue as { name: string }).name;
+  }
+
+  const moderation = record.moderation;
+  let status: string | null = null;
+  if (typeof record.status === 'string') {
+    status = record.status;
+  } else if (typeof record.moderationStatus === 'string') {
+    status = record.moderationStatus;
+  } else if (
+    moderation &&
+    typeof moderation === 'object' &&
+    typeof (moderation as { status?: unknown }).status === 'string'
+  ) {
+    status = (moderation as { status: string }).status;
+  } else if (typeof record.verificationStatus === 'string') {
+    status = record.verificationStatus;
+  }
+
+  if (!city || city.trim().length === 0 || !status || status.trim().length === 0) {
+    return null;
+  }
+
+  return {
+    _id: id,
+    name,
+    city,
+    status,
+  } satisfies ListingManagementSummary;
 }
 
 export function VenueListingManagement() {
-  const [listings, setListings] = useState<Listing[]>([]);
+  const [listings, setListings] = useState<ListingManagementSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,19 +99,10 @@ export function VenueListingManagement() {
         if (!response.ok) {
           throw new Error('Failed to fetch listings');
         }
-        const data = (await response.json()) as { listings?: unknown };
-        const parsed = Array.isArray(data?.listings)
-          ? data.listings.filter((listing): listing is Listing =>
-              Boolean(
-                listing &&
-                typeof listing === 'object' &&
-                typeof (listing as Listing)._id === 'string' &&
-                typeof (listing as Listing).name === 'string' &&
-                typeof (listing as Listing).city === 'string' &&
-                typeof (listing as Listing).status === 'string'
-              )
-            )
-          : [];
+        const payload = (await response.json()) as ListingsApiPayload;
+        const parsed = extractListings(payload)
+          .map(toListingManagementSummary)
+          .filter((listing): listing is ListingManagementSummary => listing !== null);
         setListings(parsed);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch listings');

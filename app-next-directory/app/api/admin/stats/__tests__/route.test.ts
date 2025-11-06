@@ -10,6 +10,12 @@ jest.mock('@/lib/admin/analytics', () => ({
   fetchAdminAnalytics: jest.fn(),
 }));
 
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    error: jest.fn(),
+  },
+}));
+
 import { auth } from '@/lib/auth';
 import { fetchAdminAnalytics } from '@/lib/admin/analytics';
 
@@ -24,6 +30,9 @@ let POST: RouteModule['POST'];
 
 const mockAuth = authMockModule.auth;
 const mockFetchAnalytics = analyticsMockModule.fetchAdminAnalytics;
+const mockLogger = jest.requireMock('@/lib/logger').structuredLogger as {
+  error: jest.Mock;
+};
 
 beforeAll(async () => {
   ({ GET, POST } = await import('../route'));
@@ -33,6 +42,7 @@ describe('/api/admin/stats', () => {
   beforeEach(() => {
     mockAuth.mockReset();
     mockFetchAnalytics.mockReset();
+    mockLogger.error.mockReset();
   });
 
   it('requires admin access', async () => {
@@ -99,16 +109,16 @@ describe('/api/admin/stats', () => {
   it('handles analytics fetch failures', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
     mockFetchAnalytics.mockRejectedValue(new Error('analytics unavailable'));
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
     const response = await GET({} as any, { params: Promise.resolve({}) });
     const json = await response.json();
 
     expect(response.status).toBe(500);
     expect(json.error).toBe('Failed to fetch admin stats');
     expect(mockFetchAnalytics).toHaveBeenCalledTimes(1);
-
-    consoleSpy.mockRestore();
+    expect(mockLogger.error).toHaveBeenCalledWith('Admin stats error', expect.any(Error), {
+      method: 'GET',
+      route: '/api/admin/stats',
+    });
   });
 
   it('rejects POST requests', async () => {

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { client } from '@/lib/sanity/client';
+import { structuredLogger } from '@/lib/logger';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -122,7 +123,10 @@ export async function GET(request: NextRequest, _context: RouteContext) {
       },
     });
   } catch (error) {
-    console.error('Admin listings GET error:', error);
+    structuredLogger.error('Admin listings GET error', error, {
+      route: '/api/admin/listings',
+      method: 'GET',
+    });
     return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 });
   }
 }
@@ -181,7 +185,10 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
       action,
     });
   } catch (error) {
-    console.error('Admin listings PATCH error:', error);
+    structuredLogger.error('Admin listings PATCH error', error, {
+      route: '/api/admin/listings',
+      method: 'PATCH',
+    });
     return NextResponse.json({ error: 'Failed to update listing' }, { status: 500 });
   }
 }
@@ -209,7 +216,10 @@ export async function DELETE(request: NextRequest, _context: RouteContext) {
       listingId,
     });
   } catch (error) {
-    console.error('Admin listings DELETE error:', error);
+    structuredLogger.error('Admin listings DELETE error', error, {
+      route: '/api/admin/listings',
+      method: 'DELETE',
+    });
     return NextResponse.json({ error: 'Failed to delete listing' }, { status: 500 });
   }
 }

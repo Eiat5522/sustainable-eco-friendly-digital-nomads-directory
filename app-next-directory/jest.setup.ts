@@ -593,3 +593,27 @@ try {
 } catch (e) {
   // ignore
 }
+
+// Ensure mongodb mock collection has jest.fn() methods
+try {
+  const mongodb = require('@/lib/mongodb');
+  if (mongodb && mongodb.default) {
+    mongodb.default.then((client: any) => {
+      if (client && client._mockCollection) {
+        const mockCol = client._mockCollection;
+        // Replace all methods with jest.fn() versions that preserve behavior
+        const methods = ['createIndexes', 'createIndex', 'findOne', 'insertOne', 'updateOne', 'deleteOne', 'findOneAndUpdate', 'deleteMany'];
+        methods.forEach((method) => {
+          if (mockCol[method] && typeof mockCol[method] === 'function') {
+            const originalFn = mockCol[method];
+            mockCol[method] = jest.fn((...args: any[]) => originalFn.apply(mockCol, args));
+          }
+        });
+      }
+    }).catch(() => {
+      // ignore if client promise fails
+    });
+  }
+} catch (e) {
+  // ignore
+}

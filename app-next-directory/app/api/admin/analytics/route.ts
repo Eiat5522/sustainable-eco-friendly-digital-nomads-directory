@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { fetchAdminAnalytics } from '@/lib/admin/analytics';
+import { structuredLogger } from '@/lib/logger';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -26,7 +27,10 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
     const analytics = await fetchAdminAnalytics();
     return NextResponse.json({ analytics });
   } catch (error) {
-    console.error('Admin analytics error:', error);
+    structuredLogger.error('Admin analytics error', error, {
+      route: '/api/admin/analytics',
+      method: 'GET',
+    });
     return NextResponse.json({ error: 'Failed to fetch admin analytics' }, { status: 500 });
   }
 }

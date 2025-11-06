@@ -2,6 +2,7 @@ import 'server-only';
 import type { ModerationStatus } from '@sanity/sanity.types';
 import structuredLogger from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
+import { structuredLogger } from '@/lib/logger';
 
 export type AdminModerationEntry = {
   id: string;
@@ -376,13 +377,19 @@ export async function runBulkOperation({ operation, ids }: BulkOperationInput): 
     throw new Error(`Unsupported bulk operation: ${operation}`);
   }
 
-  if (uniqueIds.length !== ids.length) {
-    structuredLogger.info('Deduplicated ids for bulk operation', {
-      component: 'admin-bulk-operations',
+  const transaction = ids.reduce((trx, id) => {
+    return trx.patch(id, (patch) => patch.set(patchDataFactory(timestamp)));
+  }, client.transaction());
+
+  try {
+    await transaction.commit({ autoGenerateArrayKeys: true });
+    return { operation, total: ids.length, succeeded: ids.length, failed: [] };
+  } catch (error) {
+    structuredLogger.error('[admin] bulk operation failed', error, {
+      component: 'admin-analytics',
       operation,
-      requested: ids.length,
-      unique: uniqueIds.length,
     });
+    return { operation, total: ids.length, succeeded: 0, failed: [...ids] };
   }
 
   const start = now();

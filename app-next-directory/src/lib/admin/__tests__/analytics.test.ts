@@ -16,6 +16,12 @@ import type {
 import structuredLogger from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    error: jest.fn(),
+  },
+}));
+
 jest.mock('@/lib/sanity/client', () => {
   const fetch = jest.fn();
   const patch = jest.fn();
@@ -114,10 +120,7 @@ describe('admin analytics helpers', () => {
     fetchMock.mockReset();
     patchMock.mockReset();
     transactionMock.mockReset();
-    mockedLogger.info.mockReset();
-    mockedLogger.warn.mockReset();
-    mockedLogger.error.mockReset();
-    mockedLogger.performance.mockReset();
+    mockLogger.error.mockReset();
   });
 
   it('normalizes moderation queue entries', async () => {
@@ -409,8 +412,6 @@ describe('admin analytics helpers', () => {
       commitImplementation: () => Promise.reject(new Error('boom')),
     });
     transactionMock.mockReturnValue(transactionInstance as unknown as ReturnType<typeof client.transaction>);
-
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
     const result = await runBulkOperation({ operation: 'featureListings', ids: ['a'] });
 

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { runBulkOperation, type BulkOperationType } from '@/lib/admin/analytics';
+import { structuredLogger } from '@/lib/logger';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -34,7 +35,10 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
 
     return NextResponse.json({ operations });
   } catch (error) {
-    console.error('Admin bulk operations GET error:', error);
+    structuredLogger.error('Admin bulk operations GET error', error, {
+      route: '/api/admin/bulk-operations',
+      method: 'GET',
+    });
     return NextResponse.json({ error: 'Failed to load bulk operation metadata' }, { status: 500 });
   }
 }
@@ -84,7 +88,10 @@ export async function POST(request: NextRequest, _context: RouteContext) {
       result,
     });
   } catch (error) {
-    console.error('Admin bulk operations POST error:', error);
+    structuredLogger.error('Admin bulk operations POST error', error, {
+      route: '/api/admin/bulk-operations',
+      method: 'POST',
+    });
     return NextResponse.json({ error: 'Failed to run bulk operation' }, { status: 500 });
   }
 }
