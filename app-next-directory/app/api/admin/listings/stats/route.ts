@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { client } from '@/lib/sanity/client';
+import { withRequestTimeout, RequestTimeoutError, getDefaultTimeout } from '@/lib/http/request';
+import { createRouteError } from '@/lib/error-handler';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -39,22 +41,26 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
       draftCount,
       featuredCount,
       typesCounts,
-    ] = await Promise.all([
-      client.fetch<number>('count(*[_type == "listing"])'),
-      client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "published"])'),
-      client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "unpublished"])'),
-      client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "pending"])'),
-      client.fetch<number>('count(*[_type == "listing" && (!defined(adminWorkflow.status) || adminWorkflow.status == "draft")])'),
-      client.fetch<number>('count(*[_type == "listing" && adminWorkflow.isFeatured == true])'),
-      client.fetch<Array<{ type: string; count: number }>>(
-        `*[_type == "listing"] | order(type) {
-          type
-        } | {
-          "type": type,
-          "count": count(*[_type == "listing" && type == ^.type])
-        } | order(type)`
-      ),
-    ]);
+    ] = await withRequestTimeout(
+      Promise.all([
+        client.fetch<number>('count(*[_type == "listing"])'),
+        client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "published"])'),
+        client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "unpublished"])'),
+        client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "pending"])'),
+        client.fetch<number>('count(*[_type == "listing" && (!defined(adminWorkflow.status) || adminWorkflow.status == "draft")])'),
+        client.fetch<number>('count(*[_type == "listing" && adminWorkflow.isFeatured == true])'),
+        client.fetch<Array<{ type: string; count: number }>>(
+          `*[_type == "listing"] | order(type) {
+            type
+          } | {
+            "type": type,
+            "count": count(*[_type == "listing" && type == ^.type])
+          } | order(type)`
+        ),
+      ]),
+      getDefaultTimeout(),
+      'Fetching listing statistics timed out'
+    );
 
     // Deduplicate and aggregate type counts
     const listingsByType: Record<string, number> = {};
@@ -79,7 +85,7 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
 
     return NextResponse.json(stats);
   } catch (error) {
-    console.error('Admin listings stats GET error:', error);
-    return NextResponse.json({ error: 'Failed to fetch listing statistics' }, { status: 500 });
+    const status = error instanceof RequestTimeoutError ? 504 : 500;
+    return createRouteError(error, { scope: 'api:admin:listings:stats', action: 'GET' }, 'Failed to fetch listing statistics', status);
   }
 }

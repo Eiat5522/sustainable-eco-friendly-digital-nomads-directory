@@ -100,10 +100,19 @@ const resolvedMockRedisClient: RedisLike | undefined = process.env.JEST_WORKER_I
   ? mockRedisClient
   : undefined
 
+const shouldUseUpstashClient = Boolean(
+  upstash && !Object.is(upstash, resolvedMockRedisClient as unknown)
+)
+
+const upstashClient: RedisLike | undefined = shouldUseUpstashClient && upstash
+  ? ((upstash as unknown) as RedisLike)
+  : undefined
+
 async function storeGet(key: string) {
-  if (upstash && upstash !== resolvedMockRedisClient) {
+  const client = upstashClient
+  if (client) {
     try {
-      const v = await upstash.get<string>(key)
+      const v = await client.get<string>(key)
       return v ?? null
     } catch {
       return memoryGet(key)
@@ -113,9 +122,10 @@ async function storeGet(key: string) {
 }
 
 async function storeSet(key: string, value: string, ttlSeconds: number) {
-  if (upstash && upstash !== resolvedMockRedisClient) {
+  const client = upstashClient
+  if (client) {
     try {
-      await upstash.set(key, value, { ex: ttlSeconds })
+      await client.set(key, value, { ex: ttlSeconds })
       return
     } catch {
       memorySet(key, value, ttlSeconds)
@@ -126,12 +136,13 @@ async function storeSet(key: string, value: string, ttlSeconds: number) {
 }
 
 async function storeIncr(key: string, ttlSeconds: number) {
-  if (upstash && upstash !== resolvedMockRedisClient) {
+  const client = upstashClient
+  if (client) {
     try {
-      const val = await upstash.incr(key)
+      const val = await client.incr(key)
       if (val === 1) {
         // set expiry only on first creation
-        await upstash.expire(key, ttlSeconds)
+        await client.expire(key, ttlSeconds)
       }
       return Number(val)
     } catch {

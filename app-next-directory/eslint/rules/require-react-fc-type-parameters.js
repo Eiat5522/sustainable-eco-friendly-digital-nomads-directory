@@ -34,7 +34,8 @@ const rule = {
       },
       TSTypeReference(node) {
         const typeName = node.typeName;
-        const hasTypeArguments = Boolean(node.typeParameters && node.typeParameters.params.length > 0);
+        const typeParams = node.typeParameters ?? node.typeArguments;
+        const hasTypeArguments = Boolean(typeParams && Array.isArray(typeParams.params) && typeParams.params.length > 0);
 
         if (typeName.type === 'TSQualifiedName') {
           const { left, right } = typeName;

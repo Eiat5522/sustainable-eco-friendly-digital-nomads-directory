@@ -1,6 +1,7 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 
 type DocumentLike = Record<string, unknown>;
+type DocumentRecord = Record<string, unknown>;
 type SortDescriptor = Record<string, 1 | -1>;
 type ProjectionDescriptor = Record<string, number>;
 type UpdateDescriptor = {
@@ -20,7 +21,7 @@ export type MockCursor<TDocument extends DocumentLike = DocumentLike> = {
 
 export type MockCollection<TDocument extends DocumentLike = DocumentLike> = {
   find: (query?: Record<string, unknown>) => MockCursor<TDocument>;
-  findOne: (query?: Record<string, unknown>) => Promise<TDocument | null>;
+  findOne: (query?: Record<string, unknown>, options?: Record<string, unknown>) => Promise<TDocument | null>;
   insertOne: (doc: TDocument) => Promise<{ acknowledged: boolean; insertedId: string }>;
   insertMany: (docs: TDocument[]) => Promise<{
     acknowledged: boolean;
@@ -33,8 +34,8 @@ export type MockCollection<TDocument extends DocumentLike = DocumentLike> = {
     options?: { upsert?: boolean }
   ) => Promise<{ acknowledged: boolean; matchedCount: number; modifiedCount: number; upsertedId?: { _id: string } }>;
   countDocuments: (query?: Record<string, unknown>) => Promise<number>;
-  aggregate: <TResult = TDocument>(pipeline?: Record<string, unknown>[]) => {
-    toArray: () => Promise<TResult[]>;
+  aggregate: (pipeline?: Record<string, unknown>[]) => {
+    toArray: () => Promise<DocumentLike[]>;
   };
   deleteOne: (query?: Record<string, unknown>) => Promise<{ acknowledged: boolean; deletedCount: number }>;
   createIndex: (fields: Record<string, unknown>, options?: Record<string, unknown>) => Promise<string>;
@@ -54,6 +55,22 @@ type GlobalWithMongo = typeof globalThis & {
 };
 
 const globalWithMongo = globalThis as GlobalWithMongo;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function compareValues(a: unknown, b: unknown): number {
+  if (a === b) return 0;
+  if (a === undefined || a === null) return -1;
+  if (b === undefined || b === null) return 1;
+
+  if (typeof a === 'number' && typeof b === 'number') {
+    return a - b;
+  }
+
+  return String(a).localeCompare(String(b));
+}
 
 const allowRealMongoInTests =
   process.env.ALLOW_REAL_MONGO_IN_TESTS === 'true' ||
@@ -114,7 +131,7 @@ function createMockCursor<TDocument extends DocumentLike>(items: TDocument[] = [
       return cursor;
     },
     toArray: async () => {
-      let results = items.map((item) => ({ ...item }));
+      let results = items.map((item) => ({ ...(item as DocumentLike) })) as TDocument[];
 
       // Apply sort
       if (sortFields) {
@@ -150,9 +167,9 @@ function createMockCursor<TDocument extends DocumentLike>(items: TDocument[] = [
           results = results.map((item) => {
             const projected: DocumentLike = {};
             for (const key of includeKeys) {
-              projected[key] = getValueByPath(item, key);
+              projected[key] = getValueByPath(item as DocumentLike, key);
             }
-            return projected;
+            return projected as TDocument;
           });
         }
       }
@@ -160,7 +177,7 @@ function createMockCursor<TDocument extends DocumentLike>(items: TDocument[] = [
       return results;
     },
     [Symbol.asyncIterator]: async function* () {
-      let results = items.map((item) => ({ ...item }));
+      let results = items.map((item) => ({ ...(item as DocumentLike) })) as TDocument[];
 
       // Apply sort
       if (sortFields) {
@@ -194,11 +211,11 @@ function createMockCursor<TDocument extends DocumentLike>(items: TDocument[] = [
           .map(([key]) => key);
         if (includeKeys.length) {
           results = results.map((item) => {
-            const projected: Record<string, unknown> = {};
+            const projected: DocumentLike = {};
             for (const key of includeKeys) {
-              projected[key] = getValueByPath(item, key);
+              projected[key] = getValueByPath(item as DocumentLike, key);
             }
-            return projected;
+            return projected as TDocument;
           });
         }
       }
@@ -362,9 +379,9 @@ function createMockCollection<TDocument extends DocumentLike = DocumentLike>(nam
       const results = documents.filter((doc) => matchesQuery(doc, query));
       return createMockCursor(results);
     },
-    findOne: async <T = DocumentRecord>(query = {}) => {
+    findOne: async <T = TDocument>(query = {}, _options?: Record<string, unknown>) => {
       const result = documents.find((doc) => matchesQuery(doc, query));
-      return result ? ({ ...result } as T) : null;
+      return result ? ({ ...(result as DocumentLike) } as unknown as T) : null;
     },
     insertOne: async (doc) => {
       const payload = { ...doc } as TDocument & { _id?: unknown };
@@ -451,7 +468,7 @@ function createMockCollection<TDocument extends DocumentLike = DocumentLike>(nam
     },
     countDocuments: async (query = {}) => documents.filter((doc) => matchesQuery(doc, query)).length,
     aggregate: (pipeline = []) => ({
-      toArray: async () => runAggregatePipeline(pipeline, documents) as unknown as TResult[],
+      toArray: async () => runAggregatePipeline(pipeline, documents),
     }),
     deleteOne: async (query = {}) => {
       const index = documents.findIndex((doc) => matchesQuery(doc, query));
@@ -473,11 +490,11 @@ function createMockCollection<TDocument extends DocumentLike = DocumentLike>(nam
 function createMockDb(): MockDb {
   const collections = new Map<string, MockCollection<DocumentLike>>();
   return {
-    collection: (name: string) => {
+    collection: <TDocument extends DocumentLike = DocumentLike>(name: string) => {
       if (!collections.has(name)) {
         collections.set(name, createMockCollection(name));
       }
-      return collections.get(name)! as MockCollection<DocumentLike>;
+      return collections.get(name)! as MockCollection<TDocument>;
     },
     collections,
   };
@@ -589,6 +606,9 @@ export async function getCollection(name: string): Promise<Collection | MockColl
     throw new Error('Database instance is invalid');
   }
 
-  const collection = db.collection(name);
-  return collection;
+  if ('collections' in db) {
+    return (db as MockDb).collection(name);
+  }
+
+  return (db as Db).collection(name);
 }

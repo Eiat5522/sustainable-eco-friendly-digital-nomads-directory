@@ -1,23 +1,23 @@
 // Search client implementation
 import { Listing } from '@/types/listings';
+import { fetchJsonWithRetry, getDefaultTimeout } from '@/lib/http/request';
+import { logError } from '@/lib/error-handler';
 
 export async function searchListings(query: string): Promise<Listing[]> {
   try {
-    const response = await fetch('/api/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    return await fetchJsonWithRetry<Listing[]>(
+      '/api/search',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query }),
       },
-      body: JSON.stringify({ query }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Search request failed');
-    }
-
-    return await response.json();
+      { timeoutMs: getDefaultTimeout() }
+    );
   } catch (error) {
-    console.error('Search error:', error);
+    logError(error, { scope: 'lib:client', action: 'searchListings', details: { query } });
     return [];
   }
 }

@@ -1,6 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useTransition, useCallback } from 'react';
+import {
+  fetchJsonWithRetry,
+  getDefaultTimeout,
+  RequestTimeoutError,
+} from '@/lib/http/request';
+import { getUserFacingMessage } from '@/lib/error-handler';
 
 type ListingItem = {
   id: string;
@@ -47,69 +53,66 @@ type ListingStats = {
   listingsByType: Record<string, number>;
 };
 
-async function fetchListings(page: number, search: string, statusFilter: string | null, typeFilter: string | null): Promise<ListingsResponse> {
+async function fetchListings(
+  page: number,
+  search: string,
+  statusFilter: string | null,
+  typeFilter: string | null
+): Promise<ListingsResponse> {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: '20',
   });
-  
+
   if (search) params.append('search', search);
   if (statusFilter) params.append('status', statusFilter);
   if (typeFilter) params.append('type', typeFilter);
 
-  const response = await fetch(`/api/admin/listings?${params}`);
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || 'Failed to fetch listings');
-  }
-  
-  return response.json();
+  return fetchJsonWithRetry<ListingsResponse>(`/api/admin/listings?${params}`, undefined, {
+    timeoutMs: getDefaultTimeout(),
+    retries: 2,
+  });
 }
 
 async function fetchListingStats(): Promise<ListingStats> {
-  const response = await fetch('/api/admin/listings/stats');
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || 'Failed to fetch listing statistics');
-  }
-  
-  return response.json();
+  return fetchJsonWithRetry<ListingStats>('/api/admin/listings/stats', undefined, {
+    timeoutMs: getDefaultTimeout(),
+    retries: 2,
+  });
 }
 
 async function updateListing(listingId: string, action: 'suspend' | 'publish' | 'unpublish' | 'feature' | 'unfeature') {
-  const response = await fetch('/api/admin/listings', {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
+  return fetchJsonWithRetry<{ message: string }>(
+    '/api/admin/listings',
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ listingId, action }),
     },
-    body: JSON.stringify({ listingId, action }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || 'Failed to update listing');
-  }
-
-  return response.json();
+    {
+      timeoutMs: getDefaultTimeout(),
+      retries: 2,
+    }
+  );
 }
 
 async function deleteListing(listingId: string) {
-  const response = await fetch('/api/admin/listings', {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
+  return fetchJsonWithRetry<{ message: string }>(
+    '/api/admin/listings',
+    {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ listingId }),
     },
-    body: JSON.stringify({ listingId }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || 'Failed to delete listing');
-  }
-
-  return response.json();
+    {
+      timeoutMs: getDefaultTimeout(),
+      retries: 2,
+    }
+  );
 }
 
 function formatTimeAgo(dateString: string | null): string {
@@ -180,6 +183,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [actionStatus, setActionStatus] = useState<{ listingId: string; message: string } | null>(null);
+  const [statsError, setStatsError] = useState<string | null>(null);
 
   const loadListings = useCallback(async (page: number, search: string, status: string | null, type: string | null) => {
     try {
@@ -189,7 +193,10 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
       setListings(data.listings);
       setPagination(data.pagination);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load listings');
+      const timeoutMessage = err instanceof RequestTimeoutError
+        ? 'Loading listings is taking longer than expected. Please try again.'
+        : undefined;
+      setError(timeoutMessage ?? getUserFacingMessage(err, 'Failed to load listings'));
     } finally {
       setLoading(false);
     }
@@ -199,8 +206,10 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
     try {
       const statsData = await fetchListingStats();
       setStats(statsData);
+      setStatsError(null);
     } catch (err) {
-      console.error('Failed to load stats:', err);
+      setStats(null);
+      setStatsError(getUserFacingMessage(err, 'Listing statistics are temporarily unavailable.'));
     }
   }, []);
 
@@ -242,16 +251,16 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
       setActionStatus({ listingId, message: 'Processing...' });
       await updateListing(listingId, action);
       setActionStatus({ listingId, message: 'Success!' });
-      
+
       // Reload listings and stats
       await Promise.all([
         loadListings(pagination.page, filters.search, filters.status, filters.type),
         loadStats(),
       ]);
-      
+
       setTimeout(() => setActionStatus(null), 2000);
     } catch (err) {
-      setActionStatus({ listingId, message: err instanceof Error ? err.message : 'Failed' });
+      setActionStatus({ listingId, message: getUserFacingMessage(err, 'Failed to update listing') });
       setTimeout(() => setActionStatus(null), 3000);
     }
   };
@@ -265,16 +274,16 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
       setActionStatus({ listingId, message: 'Deleting...' });
       await deleteListing(listingId);
       setActionStatus({ listingId, message: 'Deleted!' });
-      
+
       // Reload listings and stats
       await Promise.all([
         loadListings(pagination.page, filters.search, filters.status, filters.type),
         loadStats(),
       ]);
-      
+
       setTimeout(() => setActionStatus(null), 2000);
     } catch (err) {
-      setActionStatus({ listingId, message: err instanceof Error ? err.message : 'Failed' });
+      setActionStatus({ listingId, message: getUserFacingMessage(err, 'Failed to delete listing') });
       setTimeout(() => setActionStatus(null), 3000);
     }
   };
@@ -307,7 +316,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
   return (
     <div className="p-6">
       {/* Stats Section */}
-      {stats && (
+      {stats ? (
         <div className="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" data-testid="listings-stats">
           <div className="bg-gray-50 p-4 rounded-lg">
             <p className="text-sm text-gray-600">Total</p>
@@ -333,6 +342,10 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
             <p className="text-sm text-purple-600">Featured</p>
             <p className="text-2xl font-bold text-purple-900">{stats.featuredListings}</p>
           </div>
+        </div>
+      ) : (
+        <div className="mb-6 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-sm text-gray-600">
+          {statsError ?? 'Listing statistics are currently unavailable.'}
         </div>
       )}
 

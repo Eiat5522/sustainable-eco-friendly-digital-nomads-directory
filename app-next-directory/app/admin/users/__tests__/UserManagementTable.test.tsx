@@ -148,14 +148,22 @@ describe('UserManagementTable', () => {
     fireEvent.change(searchInput, { target: { value: 'alice' } });
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenNthCalledWith(2, expect.stringContaining('search=alice'));
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        2,
+        expect.stringContaining('search=alice'),
+        expect.any(Object)
+      );
     });
 
     const roleFilter = screen.getByLabelText('Filter by role', { selector: 'select' }) as HTMLSelectElement;
     fireEvent.change(roleFilter, { target: { value: 'editor' } });
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenNthCalledWith(3, expect.stringContaining('role=editor'));
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        3,
+        expect.stringContaining('role=editor'),
+        expect.any(Object)
+      );
     });
   });
 
@@ -414,7 +422,11 @@ describe('UserManagementTable', () => {
     fireEvent.click(previousButtons[0]);
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenNthCalledWith(2, expect.stringContaining('page=1'));
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        2,
+        expect.stringContaining('page=1'),
+        expect.any(Object)
+      );
     });
     await screen.findByTestId('user-row-paged-user');
 
@@ -422,7 +434,11 @@ describe('UserManagementTable', () => {
     fireEvent.click(nextButtons[0]);
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenNthCalledWith(3, expect.stringContaining('page=2'));
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        3,
+        expect.stringContaining('page=2'),
+        expect.any(Object)
+      );
     });
     await screen.findByTestId('user-row-paged-user');
   });

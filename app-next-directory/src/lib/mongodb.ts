@@ -24,19 +24,7 @@ const shouldMockMongo = process.env.NODE_ENV === 'test' || process.env.E2E === '
 
 if (shouldMockMongo) {
   // In test environment, check if jest is available for enhanced mocking
-  const useJestMocks = typeof jest !== 'undefined';
-  
-  // Create a mock collection that can be accessed and modified by tests
-  const mockCollectionInstance = useJestMocks ? {
-    createIndexes: jest.fn().mockResolvedValue({}),
-    createIndex: jest.fn().mockResolvedValue({}),
-    findOne: jest.fn().mockResolvedValue(null),
-    insertOne: jest.fn().mockResolvedValue({ insertedId: 'mock' }),
-    updateOne: jest.fn().mockResolvedValue({ matchedCount: 0, modifiedCount: 0 }),
-    deleteOne: jest.fn().mockResolvedValue({ deletedCount: 0 }),
-    findOneAndUpdate: jest.fn().mockResolvedValue({ value: null }),
-    deleteMany: jest.fn().mockResolvedValue({ deletedCount: 0 }),
-  } : {
+  const mockCollectionInstance = {
     createIndexes: async () => ({}),
     createIndex: async () => ({}),
     findOne: async () => null,

@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { fetchAdminAnalytics } from '@/lib/admin/analytics';
+import { withRequestTimeout, RequestTimeoutError, getDefaultTimeout } from '@/lib/http/request';
+import { createRouteError } from '@/lib/error-handler';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -23,11 +25,15 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    const analytics = await fetchAdminAnalytics();
+    const analytics = await withRequestTimeout(
+      fetchAdminAnalytics(),
+      getDefaultTimeout(),
+      'Fetching admin analytics timed out'
+    );
     return NextResponse.json({ analytics });
   } catch (error) {
-    console.error('Admin analytics error:', error);
-    return NextResponse.json({ error: 'Failed to fetch admin analytics' }, { status: 500 });
+    const status = error instanceof RequestTimeoutError ? 504 : 500;
+    return createRouteError(error, { scope: 'api:admin:analytics', action: 'GET' }, 'Failed to fetch admin analytics', status);
   }
 }
 

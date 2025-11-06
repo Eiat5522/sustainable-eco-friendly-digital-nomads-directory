@@ -1,14 +1,5 @@
 import { NextResponse } from 'next/server';
 
-type JsonBody =
-  | Record<string, unknown>
-  | Array<unknown>
-  | string
-  | number
-  | boolean
-  | null
-  | undefined;
-
 type ResponseConstructorWithJson = typeof Response & {
   json?: (data: unknown, init?: ResponseInit) => Response;
 };
@@ -23,7 +14,7 @@ const canUseNextResponseJson =
   typeof NextResponse.json === 'function' &&
   hasStaticResponseJson;
 
-function createJsonResponse(body: JsonBody, init: ResponseInit = {}): Response {
+function createJsonResponse(body: unknown, init: ResponseInit = {}): Response {
   const headers = new Headers(init.headers ?? {});
   if (!headers.has('content-type')) {
     headers.set('content-type', 'application/json');

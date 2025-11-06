@@ -1,6 +1,7 @@
 import 'server-only';
 import type { ModerationStatus } from '@sanity/sanity.types';
 import { client } from '@/lib/sanity/client';
+import { withRequestTimeout, getDefaultTimeout } from '@/lib/http/request';
 
 export type AdminModerationEntry = {
   id: string;
@@ -40,7 +41,11 @@ const ROLE_QUERIES = [
 ] as const;
 
 async function fetchRoleCounts(): Promise<Record<string, number>> {
-  const counts = await Promise.all(ROLE_QUERIES.map(({ query }) => client.fetch<number>(query)));
+  const counts = await withRequestTimeout(
+    Promise.all(ROLE_QUERIES.map(({ query }) => client.fetch<number>(query))),
+    getDefaultTimeout(),
+    'Fetching admin role counts timed out'
+  );
   return ROLE_QUERIES.reduce<Record<string, number>>((acc, { role }, index) => {
     acc[role] = counts[index] ?? 0;
     return acc;
@@ -74,17 +79,21 @@ function normalizeReportCount(reports: ModerationQueueProjection['userReports'])
 }
 
 export async function fetchModerationQueue(limit = 10): Promise<AdminModerationEntry[]> {
-  const queue = await client.fetch<ModerationQueueProjection[]>(
-    `*[_type == "moderationStatus" && status == "pending"] | order(_createdAt desc)[0...$limit] {
-      _id,
-      _createdAt,
-      status,
-      "itemType": item->._type,
-      "itemName": coalesce(item->.name, item->.title, "Unnamed Item"),
-      "itemId": item->._id,
-      userReports
-    }`,
-    { limit }
+  const queue = await withRequestTimeout(
+    client.fetch<ModerationQueueProjection[]>(
+      `*[_type == "moderationStatus" && status == "pending"] | order(_createdAt desc)[0...$limit] {
+        _id,
+        _createdAt,
+        status,
+        "itemType": item->._type,
+        "itemName": coalesce(item->.name, item->.title, "Unnamed Item"),
+        "itemId": item->._id,
+        userReports
+      }`,
+      { limit }
+    ),
+    getDefaultTimeout(),
+    'Fetching moderation queue timed out'
   );
 
   return queue.map((item) => ({
@@ -106,20 +115,28 @@ export async function fetchAdminAnalytics(): Promise<AdminAnalyticsSnapshot> {
     pendingModerationCount,
     moderationQueue,
     roleCounts,
-  ] = await Promise.all([
-    client.fetch<number>('count(*[_type == "user"])'),
-    client.fetch<number>('count(*[_type == "listing"])'),
-    client.fetch<number>('count(*[_type == "review"])'),
-    client.fetch<number>('count(*[_type == "moderationStatus" && status == "pending"])'),
-    fetchModerationQueue(),
-    fetchRoleCounts(),
-  ]);
+  ] = await withRequestTimeout(
+    Promise.all([
+      client.fetch<number>('count(*[_type == "user"])'),
+      client.fetch<number>('count(*[_type == "listing"])'),
+      client.fetch<number>('count(*[_type == "review"])'),
+      client.fetch<number>('count(*[_type == "moderationStatus" && status == "pending"])'),
+      fetchModerationQueue(),
+      fetchRoleCounts(),
+    ]),
+    getDefaultTimeout(),
+    'Fetching admin analytics summary timed out'
+  );
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const weeklySignups = await client.fetch<number>(
-    'count(*[_type == "user" && _createdAt >= $sevenDaysAgo])',
-    { sevenDaysAgo: sevenDaysAgo.toISOString() }
+  const weeklySignups = await withRequestTimeout(
+    client.fetch<number>(
+      'count(*[_type == "user" && _createdAt >= $sevenDaysAgo])',
+      { sevenDaysAgo: sevenDaysAgo.toISOString() }
+    ),
+    getDefaultTimeout(),
+    'Fetching weekly signups timed out'
   );
 
   return {

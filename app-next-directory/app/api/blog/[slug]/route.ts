@@ -8,6 +8,20 @@ import { incrementViewCount as persistentIncrementViewCount } from '@/lib/viewCo
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 type TransformFn = typeof transformToBlogDetailDTO;
 
+type SanityBlogPost = {
+  _id: string;
+  _updatedAt?: string | null;
+};
+
+const isSanityBlogPost = (value: unknown): value is SanityBlogPost => {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const record = value as Record<string, unknown>;
+  return typeof record._id === 'string';
+};
+
 const viewCounts = new Map<string, number>();
 
 const isTestEnv = process.env.NODE_ENV === 'test';
@@ -79,7 +93,12 @@ export async function GET(
       ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
     const post = await fetchFn(postQuery, { slug });
 
-    if (!post) {
+    if (!isSanityBlogPost(post)) {
+      if (!post) {
+        return ApiResponseHandler.notFound('Blog post');
+      }
+
+      console.error('Error fetching blog post: unexpected payload shape');
       return ApiResponseHandler.notFound('Blog post');
     }
 
@@ -92,7 +111,7 @@ export async function GET(
       meta: {
         readingTime: dto.readingTime ?? null,
         publishedDate: dto.publishedAt ?? null,
-        lastModified: post._updatedAt,
+        lastModified: typeof post._updatedAt === 'string' ? post._updatedAt : null,
         wordCount: Array.isArray(dto.body) ? dto.body.length : 0,
       },
     };
@@ -154,7 +173,7 @@ export async function PUT(
         { slug }
       );
 
-      if (!post) {
+      if (!isSanityBlogPost(post)) {
         return ApiResponseHandler.notFound('Blog post');
       }
 

@@ -13,6 +13,7 @@ describe('require-react-fc-type-parameters rule', () => {
         },
       },
       baseConfig: {
+        plugins: ['local'],
         parser: '@typescript-eslint/parser',
         parserOptions: {
           ecmaVersion: 2022,

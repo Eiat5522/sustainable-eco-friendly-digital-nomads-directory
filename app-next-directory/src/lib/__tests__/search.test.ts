@@ -73,7 +73,10 @@ describe('search utilities', () => {
 
     const suggestions = await getSearchSuggestions('eco', 3);
 
-    expect(fetchMock).toHaveBeenCalledWith(expect.any(String), { query: 'eco' });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ searchTerm: 'eco' })
+    );
     expect(suggestions).toEqual(['Eco Space', 'Eco-Friendly Workspace', 'Eco Trails']);
   });
 

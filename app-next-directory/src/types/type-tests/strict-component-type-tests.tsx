@@ -14,15 +14,18 @@ export const ChildOnlyComponent: StrictComponent = ({ children }) => {
   return null;
 };
 
-// @ts-expect-error Explicit props are required when additional fields are accessed.
-export const MissingPropDeclaration: StrictComponent = ({ title }) => {
+export const MissingPropDeclaration: StrictComponent = (props) => {
+  // @ts-expect-error Explicit props are required when additional fields are accessed.
+  const { title }: { title: string } = props;
   void title;
   return null;
 };
 
-// @ts-expect-error Accessing props that are not declared surfaces an error.
-export const WrongPropName: StrictComponent<TitleProps> = ({ title, missing }) => {
+export const WrongPropName: StrictComponent<TitleProps> = (props) => {
+  const { title } = props;
   void title;
+  // @ts-expect-error Accessing props that are not declared surfaces an error.
+  const { missing }: { missing: string } = props;
   void missing;
   return null;
 };

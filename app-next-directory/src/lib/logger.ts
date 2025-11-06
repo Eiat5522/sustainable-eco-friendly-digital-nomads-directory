@@ -180,9 +180,15 @@ if (isDevelopment && !isE2E && isServer) {
   void (async () => {
     try {
       const pinoPrettyModule = await import('pino-pretty');
+      const maybePretty =
+        typeof pinoPrettyModule === 'function'
+          ? (pinoPrettyModule as unknown)
+          : (pinoPrettyModule as { default?: unknown }).default;
       const pinoPretty =
-        (pinoPrettyModule.default ?? (pinoPrettyModule as unknown)) as (typeof import('pino-pretty'))['default'];
-      if (typeof pinoPretty !== 'function') {
+        typeof maybePretty === 'function'
+          ? (maybePretty as typeof import('pino-pretty'))
+          : null;
+      if (!pinoPretty) {
         console.warn('Failed to initialize pino-pretty, using basic logger: module did not export a function');
         return;
       }
