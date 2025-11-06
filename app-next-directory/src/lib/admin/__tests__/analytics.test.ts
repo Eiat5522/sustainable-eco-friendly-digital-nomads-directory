@@ -23,7 +23,7 @@ jest.mock('@/lib/sanity/client', () => {
 
 type MockPatchChain = {
   set: jest.MockedFunction<(payload: Record<string, unknown>) => MockPatchChain>;
-  setIfMissing: jest.MockedFunction<(value: { moderationHistory: ModerationHistoryEntry[] }) => MockPatchChain>;
+  setIfMissing: jest.MockedFunction<(value: Record<string, unknown>) => MockPatchChain>;
   append: jest.MockedFunction<(field: string, value: ModerationHistoryEntry[]) => MockPatchChain>;
   commit: jest.MockedFunction<(options?: { autoGenerateArrayKeys?: boolean }) => Promise<void>>;
 };
@@ -31,7 +31,7 @@ type MockPatchChain = {
 const createMockPatchChain = (): MockPatchChain => {
   const chain: MockPatchChain = {
     set: jest.fn<MockPatchChain, [Record<string, unknown>]>(),
-    setIfMissing: jest.fn<MockPatchChain, [{ moderationHistory: ModerationHistoryEntry[] }]>(),
+    setIfMissing: jest.fn<MockPatchChain, [Record<string, unknown>]>(),
     append: jest.fn<MockPatchChain, [string, ModerationHistoryEntry[]]>(),
     commit: jest.fn<Promise<void>, [{ autoGenerateArrayKeys?: boolean }?]>(),
   };
