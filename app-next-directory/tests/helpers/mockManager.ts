@@ -23,15 +23,13 @@ export function resetAllMocks() {
 
 /**
  * Example: Registering a mock for Mongoose
+ * - registerMockReset(() => mongoose.connection?.close());
  */
-// import mongoose from 'mongoose';
-// registerMockReset(() => mongoose.connection?.close());
 
 /**
- * Example: Registering a mock for Sanity client
+ * Example: Registering a mock for the Sanity client
+ * - registerMockReset(() => sanityClient.resetMocks?.());
  */
-// import { sanityClient } from '../../src/lib/sanity';
-// registerMockReset(() => sanityClient.resetMocks?.());
 
 /**
  * Call in test setup:

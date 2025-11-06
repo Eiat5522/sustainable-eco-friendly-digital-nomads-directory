@@ -7,9 +7,8 @@ test.describe('City Page Visual Tests', () => {
     // and the base URL is configured in playwright.config.ts
     await page.goto('/city/koh-samui');
 
-    // Optional: Wait for a specific element to ensure the page is fully loaded
-    // For example, if you have a unique h1 for the city name:
-    // await expect(page.getByRole('heading', { name: /Koh Samui/i })).toBeVisible();
+    // Optional: Wait for a specific element (e.g., the city heading) to ensure the page
+    // is fully loaded before capturing the screenshot.
 
     // Take a screenshot and compare it to the snapshot.
     // The first time this test runs, it will create a snapshot named 'city-koh-samui-page.png'.
@@ -18,11 +17,6 @@ test.describe('City Page Visual Tests', () => {
     await expect(page).toHaveScreenshot('city-koh-samui-page.png');
   });
 
-  // You can add more visual tests for other cities or different states here.
-  // For example, a city page that is expected to show an error or a specific message:
-  // test('should display an error for a non-existent city', async ({ page }) => {
-  //   await page.goto('/city/non-existent-city-slug');
-  //   await expect(page.getByText('City not found')).toBeVisible();
-  //   await expect(page).toHaveScreenshot('city-not-found-page.png');
-  // });
+  // TODO(visual-tests): Add scenarios for error states (e.g., a missing city slug)
+  // once the UI for those flows has stabilized.
 });

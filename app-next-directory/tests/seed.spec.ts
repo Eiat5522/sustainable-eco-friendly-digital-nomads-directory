@@ -63,8 +63,7 @@ test.describe('Test group', () => {
     }
 
     // 3) Optionally create related resources (favorites, reviews)
-    // Example:
-    // await post('/api/test/favorites', { userEmail: 'test_customer@example.com', listingSlug: 'e2e-test-listing-1' });
+    // TODO(e2e): Add seeding for related resources (e.g., /api/test/favorites) once those endpoints exist.
 
     console.log('Seeding complete. Created users and listings with e2e: prefix.');
   });
