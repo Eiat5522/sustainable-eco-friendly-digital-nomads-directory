@@ -124,8 +124,7 @@ async function trackViewCount(postId: string): Promise<number> {
   const newCount = currentCount + 1;
   viewCounts.set(postId, newCount);
 
-  // TODO: In production, persist this to database
-  // await updateViewCount(postId, newCount);
+  // TODO: Persist view counts to a durable store (e.g., call updateViewCount).
 
   return newCount;
 }

@@ -89,13 +89,13 @@ export default function GalleryGrid({ images, fallback = "/placeholder_image.png
     const current = document.activeElement as HTMLElement | null;
     const idx = focusables.findIndex((el) => el === current);
     if (e.shiftKey) {
-      // backwards
+      // Move focus backward when cycling with Shift+Tab.
       if (idx <= 0) {
         e.preventDefault();
         focusables[focusables.length - 1]?.focus();
       }
     } else {
-      // forwards
+      // Move focus forward when cycling with Tab.
       if (idx === -1 || idx === focusables.length - 1) {
         e.preventDefault();
         focusables[0]?.focus();

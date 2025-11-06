@@ -1,4 +1,4 @@
-                    import type { CityDTO } from '@/types/dto'
+import type { CityDTO } from '@/types/dto';
 import type { Listing } from '@/types';
 
 // City details
@@ -24,9 +24,9 @@ export async function fetchCityDetails(slug: string): Promise<CityDTO> {
     // - { data: { city: <city> } }
     // The test uses { success: true, data: mockCityData }
     const city: unknown =
-      // if data.data is directly the city object
+      // Case: data.data is directly the city object
       data?.data ??
-      // if wrapper with city field
+      // Case: API wraps the city inside data.city
       data?.data?.city ??
       data?.city;
 
