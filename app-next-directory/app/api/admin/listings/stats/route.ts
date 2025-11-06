@@ -40,22 +40,26 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
       draftCount,
       featuredCount,
       typesCounts,
-    ] = await Promise.all([
-      client.fetch<number>('count(*[_type == "listing"])'),
-      client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "published"])'),
-      client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "unpublished"])'),
-      client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "pending"])'),
-      client.fetch<number>('count(*[_type == "listing" && (!defined(adminWorkflow.status) || adminWorkflow.status == "draft")])'),
-      client.fetch<number>('count(*[_type == "listing" && adminWorkflow.isFeatured == true])'),
-      client.fetch<Array<{ type: string; count: number }>>(
-        `*[_type == "listing"] | order(type) {
-          type
-        } | {
-          "type": type,
-          "count": count(*[_type == "listing" && type == ^.type])
-        } | order(type)`
-      ),
-    ]);
+    ] = await withRequestTimeout(
+      Promise.all([
+        client.fetch<number>('count(*[_type == "listing"])'),
+        client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "published"])'),
+        client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "unpublished"])'),
+        client.fetch<number>('count(*[_type == "listing" && adminWorkflow.status == "pending"])'),
+        client.fetch<number>('count(*[_type == "listing" && (!defined(adminWorkflow.status) || adminWorkflow.status == "draft")])'),
+        client.fetch<number>('count(*[_type == "listing" && adminWorkflow.isFeatured == true])'),
+        client.fetch<Array<{ type: string; count: number }>>(
+          `*[_type == "listing"] | order(type) {
+            type
+          } | {
+            "type": type,
+            "count": count(*[_type == "listing" && type == ^.type])
+          } | order(type)`
+        ),
+      ]),
+      getDefaultTimeout(),
+      'Fetching listing statistics timed out'
+    );
 
     // Deduplicate and aggregate type counts
     const listingsByType: Record<string, number> = {};

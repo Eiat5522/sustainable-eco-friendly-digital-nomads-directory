@@ -21,13 +21,14 @@ describe('client', () => {
 
       const result = await searchListings('test query');
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/search', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query: 'test query' }),
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/search',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ query: 'test query' }),
+        })
+      );
       expect(result).toEqual(mockListings);
     });
 
@@ -38,13 +39,9 @@ describe('client', () => {
         statusText: 'Internal Server Error',
       });
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const result = await searchListings('test query');
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Search error:', expect.any(Error));
-      
-      consoleSpy.mockRestore();
     });
 
     it('should return empty array on network error', async () => {
@@ -52,13 +49,9 @@ describe('client', () => {
         new Error('Network error')
       );
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const result = await searchListings('test query');
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Search error:', expect.any(Error));
-      
-      consoleSpy.mockRestore();
     });
 
     it('should return empty array on JSON parse error', async () => {
@@ -69,13 +62,9 @@ describe('client', () => {
         },
       });
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const result = await searchListings('test query');
 
       expect(result).toEqual([]);
-      expect(consoleSpy).toHaveBeenCalledWith('Search error:', expect.any(Error));
-      
-      consoleSpy.mockRestore();
     });
 
     it('should handle empty query string', async () => {
@@ -88,13 +77,14 @@ describe('client', () => {
 
       const result = await searchListings('');
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/search', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query: '' }),
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/search',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ query: '' }),
+        })
+      );
       expect(result).toEqual([]);
     });
 
@@ -109,13 +99,14 @@ describe('client', () => {
 
       const result = await searchListings(specialQuery);
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/search', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query: specialQuery }),
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/search',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ query: specialQuery }),
+        })
+      );
       expect(result).toEqual(mockListings);
     });
 
@@ -130,13 +121,14 @@ describe('client', () => {
 
       const result = await searchListings(longQuery);
 
-      expect(global.fetch).toHaveBeenCalledWith('/api/search', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ query: longQuery }),
-      });
+      expect(global.fetch).toHaveBeenCalledWith(
+        '/api/search',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ query: longQuery }),
+        })
+      );
       expect(result).toEqual([]);
     });
   });

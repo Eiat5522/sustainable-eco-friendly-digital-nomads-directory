@@ -178,8 +178,8 @@ export async function GET(
 
     // Get detailed vote breakdown
     const aggregation = (reviewVotes as {
-      aggregate: <T = unknown>(pipeline?: Record<string, unknown>[]) => { toArray: () => Promise<T[]> };
-    }).aggregate<VoteStat>([
+      aggregate: (pipeline?: Record<string, unknown>[]) => { toArray: () => Promise<unknown[]> };
+    }).aggregate([
       { $match: { reviewId: new ObjectId(reviewId) } },
       {
         $group: {
@@ -189,7 +189,7 @@ export async function GET(
         }
       }
     ]);
-    const voteStats = await aggregation.toArray();
+    const voteStats = (await aggregation.toArray()) as VoteStat[];
 
     const helpful = voteStats.find((v) => v._id === true)?.count ?? 0;
     const unhelpful = voteStats.find((v) => v._id === false)?.count ?? 0;

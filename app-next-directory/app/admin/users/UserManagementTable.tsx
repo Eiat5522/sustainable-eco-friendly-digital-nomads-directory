@@ -2,6 +2,12 @@
 
 import React, { useState, useEffect, useTransition, useCallback } from 'react';
 import type { UserRole } from '@/types/auth';
+import {
+  fetchJsonWithRetry,
+  getDefaultTimeout,
+  RequestTimeoutError,
+} from '@/lib/http/request';
+import { getUserFacingMessage } from '@/lib/error-handler';
 
 type UserListItem = {
   id: string;
@@ -49,35 +55,27 @@ async function fetchUsers(page: number, search: string, roleFilter: UserRole | n
     page: page.toString(),
     limit: '20',
   });
-  
+
   if (search) params.append('search', search);
   if (roleFilter) params.append('role', roleFilter);
 
-  const response = await fetch(`/api/admin/users?${params}`);
-  
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || 'Failed to fetch users');
-  }
-  
-  return response.json();
+  return fetchJsonWithRetry<UsersResponse>(`/api/admin/users?${params}`, undefined, {
+    timeoutMs: getDefaultTimeout(),
+    retries: 2,
+  });
 }
 
 async function updateUser(userId: string, updates: { role?: UserRole; status?: 'active' | 'inactive' }) {
-  const response = await fetch('/api/admin/users', {
+  return fetchJsonWithRetry<{ message: string }>('/api/admin/users', {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ userId, ...updates }),
+  }, {
+    timeoutMs: getDefaultTimeout(),
+    retries: 2,
   });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(error.error || 'Failed to update user');
-  }
-
-  return response.json();
 }
 
 function formatTimeAgo(dateString: string | null): string {
@@ -167,7 +165,10 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
         setUsers(response.users);
         setPagination(response.pagination);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load users');
+        const timeoutMessage = err instanceof RequestTimeoutError
+          ? 'Loading users is taking longer than expected. Please try again.'
+          : undefined;
+        setError(timeoutMessage ?? getUserFacingMessage(err, 'Failed to load users'));
       } finally {
         setLoading(false);
       }
@@ -199,7 +200,8 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
         // Clear feedback after 3 seconds
         setTimeout(() => setFeedback(null), 3000);
       } catch (err) {
-        setFeedback(err instanceof Error ? err.message : 'Failed to update user role');
+        setFeedback(getUserFacingMessage(err, 'Failed to update user role'));
+        setTimeout(() => setFeedback(null), 4000);
       }
     });
   };
@@ -214,7 +216,8 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
         // Clear feedback after 3 seconds
         setTimeout(() => setFeedback(null), 3000);
       } catch (err) {
-        setFeedback(err instanceof Error ? err.message : 'Failed to update user status');
+        setFeedback(getUserFacingMessage(err, 'Failed to update user status'));
+        setTimeout(() => setFeedback(null), 4000);
       }
     });
   };

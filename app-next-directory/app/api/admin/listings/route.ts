@@ -75,21 +75,25 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
     const countQuery = `count(*[_type == "listing" ${searchCondition} ${statusCondition} ${typeCondition}])`;
 
-    const [listings, totalCount] = await Promise.all([
-      client.fetch<Array<{
-        _id: string;
-        name?: string;
-        slug?: { current: string };
-        type?: string;
-        status?: 'published' | 'unpublished' | 'pending' | 'draft';
-        _createdAt?: string;
-        _updatedAt?: string;
-        city?: string | null;
-        moderationStatus?: 'pending' | 'approved' | 'rejected' | null;
-        isFeatured?: boolean;
-      }>>(query),
-      client.fetch<number>(countQuery)
-    ]);
+    const [listings, totalCount] = await withRequestTimeout(
+      Promise.all([
+        client.fetch<Array<{
+          _id: string;
+          name?: string;
+          slug?: { current: string };
+          type?: string;
+          status?: 'published' | 'unpublished' | 'pending' | 'draft';
+          _createdAt?: string;
+          _updatedAt?: string;
+          city?: string | null;
+          moderationStatus?: 'pending' | 'approved' | 'rejected' | null;
+          isFeatured?: boolean;
+        }>>(query),
+        client.fetch<number>(countQuery)
+      ]),
+      getDefaultTimeout(),
+      'Fetching admin listings timed out'
+    );
 
     const listingItems: ListingItem[] = listings.map(listing => ({
       id: listing._id,
@@ -132,6 +136,7 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 }
 
 export async function PATCH(request: NextRequest, _context: RouteContext) {
+  let listingIdValue: string | undefined;
   try {
     const session = await auth();
     const sessionUser = session?.user as SessionUser;
@@ -142,9 +147,10 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
 
     const body = await request.json().catch(() => null);
     const listingId = body?.listingId;
+    listingIdValue = typeof listingId === 'string' ? listingId : undefined;
     const action = body?.action as 'suspend' | 'publish' | 'unpublish' | 'feature' | 'unfeature' | undefined;
 
-    if (!listingId || typeof listingId !== 'string') {
+    if (!listingIdValue) {
       return NextResponse.json({ error: 'listingId is required' }, { status: 400 });
     }
 
@@ -177,11 +183,15 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
         break;
     }
 
-    await client.patch(listingId).set(updateData).commit();
+    await withRequestTimeout(
+      client.patch(listingIdValue).set(updateData).commit(),
+      getDefaultTimeout(),
+      'Updating listing timed out'
+    );
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Listing updated successfully',
-      listingId,
+      listingId: listingIdValue,
       action,
     });
   } catch (error) {
@@ -194,6 +204,7 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
 }
 
 export async function DELETE(request: NextRequest, _context: RouteContext) {
+  let listingIdValue: string | undefined;
   try {
     const session = await auth();
     const sessionUser = session?.user as SessionUser;
@@ -204,16 +215,21 @@ export async function DELETE(request: NextRequest, _context: RouteContext) {
 
     const body = await request.json().catch(() => null);
     const listingId = body?.listingId;
+    listingIdValue = typeof listingId === 'string' ? listingId : undefined;
 
-    if (!listingId || typeof listingId !== 'string') {
+    if (!listingIdValue) {
       return NextResponse.json({ error: 'listingId is required' }, { status: 400 });
     }
 
-    await client.delete(listingId);
+    await withRequestTimeout(
+      client.delete(listingIdValue),
+      getDefaultTimeout(),
+      'Deleting listing timed out'
+    );
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Listing deleted successfully',
-      listingId,
+      listingId: listingIdValue,
     });
   } catch (error) {
     structuredLogger.error('Admin listings DELETE error', error, {

@@ -235,7 +235,12 @@ export async function GET(
       ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
     const post = (await fetchFn(postQuery, { slug })) as RawSanityBlogPost | null;
 
-    if (!post) {
+    if (!isSanityBlogPost(post)) {
+      if (!post) {
+        return ApiResponseHandler.notFound('Blog post');
+      }
+
+      console.error('Error fetching blog post: unexpected payload shape');
       return ApiResponseHandler.notFound('Blog post');
     }
 
@@ -248,7 +253,7 @@ export async function GET(
       meta: {
         readingTime: dto.readingTime ?? null,
         publishedDate: dto.publishedAt ?? null,
-        lastModified: post._updatedAt,
+        lastModified: typeof post._updatedAt === 'string' ? post._updatedAt : null,
         wordCount: Array.isArray(dto.body) ? dto.body.length : 0,
       },
     };

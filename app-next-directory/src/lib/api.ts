@@ -1,69 +1,74 @@
 import type { CityDTO } from '@/types/dto';
 import type { Listing } from '@/types';
+import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
+import { logError } from '@/lib/error-handler';
+
+type CityApiResponse = {
+  data?: unknown;
+  city?: unknown;
+};
+
+type ListingsApiResponse = {
+  data?: unknown;
+  listings?: unknown;
+  success?: boolean;
+};
 
 // City details
 export async function fetchCityDetails(slug: string): Promise<CityDTO> {
   try {
-// Enable Next.js fetch cache with ISR (revalidate: 300s)
-    // Fetch city details from the dedicated cities endpoint (tests and API expect this path)
-    const response = await fetch(`/api/cities/${encodeURIComponent(slug)}`,
-      { next: { revalidate: 300 } }
+    const data = await fetchJsonWithRetry<CityApiResponse>(
+      `/api/cities/${encodeURIComponent(slug)}`,
+      { next: { revalidate: 300 } },
+      {
+        timeoutMs: getDefaultTimeout(),
+        retries: 2,
+      }
     );
+    const primaryData =
+      typeof data?.data === 'object' && data.data !== null
+        ? (data.data as Record<string, unknown>)
+        : undefined;
+    const cityCandidate = primaryData?.city ?? data?.city;
 
-    // If the response is not OK, throw the explicit error the tests expect
-    if (!response.ok) {
-      throw new Error('Failed to fetch city details');
-    }
-
-    // Parse JSON and be explicit about JSON/network errors
-    const data = await response.json();
-    // Support multiple API response shapes for compatibility:
-    // - { data: <city> }
-    // - { success: true, data: <city> }
-    // - { city: <city> }
-    // - { data: { city: <city> } }
-    // The test uses { success: true, data: mockCityData }
-    const city: unknown =
-      // Case: data.data is directly the city object
-      data?.data ??
-      // Case: API wraps the city inside data.city
-      data?.data?.city ??
-      data?.city;
-
-    if (!city || typeof city !== 'object' || Array.isArray(city)) {
+    if (!cityCandidate || typeof cityCandidate !== 'object' || Array.isArray(cityCandidate)) {
       throw new Error('City not found in API response');
     }
 
-    return city as CityDTO;
+    return cityCandidate as CityDTO;
   } catch (error) {
-    console.error('Error fetching city details:', error);    throw error;
+    logError(error, { scope: 'lib:api', action: 'fetchCityDetails', details: { slug } });
+    if (error instanceof RequestTimeoutError) {
+      throw new Error('Request timed out while fetching city details');
+    }
+    throw error;
   }
 }
 
 // City listings
 export async function fetchCityListings(slug: string): Promise<Listing[]> {
   try {
-    // Allow route-level ISR to cache this request (300s) instead of bypassing it
-    const response = await fetch(
+    const data = await fetchJsonWithRetry<ListingsApiResponse>(
       `/api/listings?citySlug=${encodeURIComponent(slug)}`,
-      { next: { revalidate: 300 } }
+      { next: { revalidate: 300 } },
+      {
+        timeoutMs: getDefaultTimeout(),
+        retries: 2,
+      }
     );
+    const nestedListings =
+      typeof data?.data === 'object' && data.data !== null
+        ? (data.data as Record<string, unknown>).listings
+        : undefined;
+    const listingsSource = Array.isArray(nestedListings)
+      ? nestedListings
+      : Array.isArray(data?.listings)
+        ? data.listings
+        : [];
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch city listings');
-    }
-
-    const data = await response.json();
-    // Handle shapes: { data: { listings } }, { success: true, listings }, { listings }
-    const listings: Listing[] =
-      Array.isArray(data?.data?.listings) ? data.data.listings :
-      (data?.success === true && Array.isArray(data?.listings)) ? data.listings :
-      (data?.success === undefined && Array.isArray(data?.listings)) ? data.listings :
-      [];
-
-    return listings;
+    return Array.isArray(listingsSource) ? (listingsSource as Listing[]) : [];
   } catch (error) {
-    console.error('Error fetching city listings:', error);
+    logError(error, { scope: 'lib:api', action: 'fetchCityListings', details: { slug } });
     return [];
   }
 }

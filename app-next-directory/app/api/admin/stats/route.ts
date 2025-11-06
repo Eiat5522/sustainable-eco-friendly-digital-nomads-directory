@@ -20,7 +20,11 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    const analytics = await fetchAdminAnalytics();
+    const analytics = await withRequestTimeout(
+      fetchAdminAnalytics(),
+      getDefaultTimeout(),
+      'Fetching admin statistics timed out'
+    );
     
     // Transform to match the expected stats API format
     const stats = {

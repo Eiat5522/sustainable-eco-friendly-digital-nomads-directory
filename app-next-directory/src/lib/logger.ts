@@ -180,6 +180,10 @@ if (isDevelopment && !isE2E && isServer) {
   void (async () => {
     try {
       const pinoPrettyModule = await import('pino-pretty');
+      const maybePretty =
+        typeof pinoPrettyModule === 'function'
+          ? (pinoPrettyModule as unknown)
+          : (pinoPrettyModule as { default?: unknown }).default;
       const pinoPretty =
         ((pinoPrettyModule as any).default ?? (pinoPrettyModule as unknown)) as (typeof import('pino-pretty'))['default'];
       if (typeof pinoPretty !== 'function') {

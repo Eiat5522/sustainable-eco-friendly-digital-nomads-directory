@@ -101,6 +101,41 @@ beforeEach(() => {
     });
   });
 
+  it('normalizes incomplete analytics data', async () => {
+    mockAuth.mockResolvedValueOnce({
+      user: { id: 'admin-3', role: 'admin' },
+    });
+
+    mockFetchAnalytics.mockResolvedValueOnce({
+      overview: {
+        totalUsers: undefined,
+        totalListings: undefined,
+        totalReviews: undefined,
+        weeklySignups: undefined,
+        pendingModeration: undefined,
+      },
+      userRoles: null,
+      moderationQueue: [
+        {
+          id: null,
+          itemName: null,
+        },
+      ],
+      generatedAt: null,
+    } as any);
+
+    const AdminDashboardPage = (await import('../page')).default;
+    const element = await AdminDashboardPage();
+    render(<>{element}</>);
+
+    const cards = await screen.findAllByTestId('analytics-card-value');
+    cards.forEach(card => {
+      expect(card).toHaveTextContent('0');
+    });
+
+    expect(screen.getByTestId('queue-summary')).toHaveTextContent('Queue is clear');
+  });
+
   it('redirects non-admin users to login', async () => {
     mockAuth.mockResolvedValueOnce({
       user: { id: 'user-1', role: 'user' },

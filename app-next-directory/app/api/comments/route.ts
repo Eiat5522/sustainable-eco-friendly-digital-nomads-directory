@@ -179,8 +179,12 @@ export async function POST(request: Request | MaybeRequest) {
     return errorResponse('Invalid or missing fields', 422);
   }
 
-  const postId = typeof payload?.postId === 'string' ? payload.postId : null;
-  const content = normaliseContent(payload?.content);
+  const isCommentPayload = (value: unknown): value is { postId?: unknown; content?: unknown } =>
+    typeof value === 'object' && value !== null;
+
+  const body = isCommentPayload(payload) ? payload : {};
+  const postId = typeof body.postId === 'string' ? body.postId : null;
+  const content = normaliseContent(body.content);
 
   if (!postId) {
     return errorResponse('Invalid or missing fields', 422);

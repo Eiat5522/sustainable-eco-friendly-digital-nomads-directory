@@ -20,9 +20,11 @@ export const MissingPropDeclaration: StrictComponent = ({ title }) => {
   return null;
 };
 
-// @ts-expect-error Accessing props that are not declared surfaces an error.
-export const WrongPropName: StrictComponent<TitleProps> = ({ title, missing }) => {
+export const WrongPropName: StrictComponent<TitleProps> = (props) => {
+  const { title } = props;
   void title;
+  // @ts-expect-error Accessing props that are not declared surfaces an error.
+  const { missing }: { missing: string } = props;
   void missing;
   return null;
 };

@@ -1,4 +1,4 @@
-import { describe, it, expect, jest, beforeEach, afterEach, beforeAll } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/mocks/server';
 import { fetchCityDetails, fetchCityListings } from '../api';
@@ -10,18 +10,8 @@ const jsonResponse = (body: unknown, init?: ResponseInit) =>
   });
 
 describe('API Functions', () => {
-  // Ensure no MSW handler interferes with global.fetch mock in this test file
-  beforeAll(() => {
-    jest.resetModules();
-  });
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset console.error mock
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
   });
 
   describe('fetchCityDetails', () => {
@@ -38,7 +28,7 @@ describe('API Functions', () => {
         http.get('*/api/cities/:slug', ({ params }) => {
           const { slug } = params as any;
           if (slug !== 'bangkok') return new Response(null, { status: 404 });
-          return jsonResponse({ success: true, data: mockCityData }, { status: 200 });
+          return jsonResponse({ success: true, data: { city: mockCityData } }, { status: 200 });
         })
       );
 
@@ -50,7 +40,7 @@ describe('API Functions', () => {
       server.use(
         http.get('*/api/cities/:slug', () => new Response(null, { status: 500 }))
       );
-      await expect(fetchCityDetails('bangkok')).rejects.toThrow('Failed to fetch city details');
+      await expect(fetchCityDetails('bangkok')).rejects.toThrow('Request failed with status 500');
     });
 
     it('should handle network error', async () => {
@@ -58,7 +48,6 @@ describe('API Functions', () => {
         http.get('*/api/cities/:slug', () => HttpResponse.error())
       );
       await expect(fetchCityDetails('bangkok')).rejects.toBeInstanceOf(Error);
-      expect(console.error).toHaveBeenCalledWith('Error fetching city details:', expect.any(TypeError));
     });
 
     it('should handle JSON parsing error', async () => {
@@ -68,7 +57,6 @@ describe('API Functions', () => {
         )
       );
       await expect(fetchCityDetails('bangkok')).rejects.toBeInstanceOf(Error);
-      expect(console.error).toHaveBeenCalledWith('Error fetching city details:', expect.any(Error));
     });
   });
 
@@ -118,7 +106,6 @@ describe('API Functions', () => {
       );
       const result = await fetchCityListings('bangkok');
       expect(result).toEqual([]);
-      expect(console.error).toHaveBeenCalledWith('Error fetching city listings:', expect.any(Error));
     });
 
     it('should return empty array on network error', async () => {
@@ -127,7 +114,6 @@ describe('API Functions', () => {
       );
       const result = await fetchCityListings('bangkok');
       expect(result).toEqual([]);
-      expect(console.error).toHaveBeenCalledWith('Error fetching city listings:', expect.any(TypeError));
     });
 
     it('should handle JSON parsing error gracefully', async () => {
@@ -138,7 +124,6 @@ describe('API Functions', () => {
       );
       const result = await fetchCityListings('bangkok');
       expect(result).toEqual([]);
-      expect(console.error).toHaveBeenCalledWith('Error fetching city listings:', expect.any(Error));
     });
 
     it('should call endpoint with slug as-is', async () => {

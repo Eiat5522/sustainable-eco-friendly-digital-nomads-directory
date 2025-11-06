@@ -27,7 +27,13 @@ describe('View Count Persistence', () => {
     const client = await clientPromise;
     const db = client.db();
     mockCollection = db.collection();
-    
+
+    // Wrap collection helpers with Jest mocks for fine-grained control
+    mockCollection.findOneAndUpdate = jest.fn();
+    mockCollection.findOne = jest.fn();
+    mockCollection.createIndex = jest.fn();
+    mockCollection.deleteMany = jest.fn();
+
     // Clear all mocks but preserve implementations
     jest.clearAllMocks();
   });

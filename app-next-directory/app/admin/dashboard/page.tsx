@@ -6,6 +6,7 @@ import type { UserRole } from '@/types/auth';
 import {
   fetchAdminAnalytics,
   type AdminAnalyticsSnapshot,
+  type AdminModerationEntry,
 } from '@/lib/admin/analytics';
 import { structuredLogger } from '@/lib/logger';
 import { ModerationActions } from './ModerationActions';
@@ -97,10 +98,74 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-async function loadAnalytics(): Promise<AdminAnalyticsSnapshot | null> {
+const EMPTY_ANALYTICS: AdminAnalyticsSnapshot = {
+  overview: {
+    totalUsers: 0,
+    totalListings: 0,
+    totalReviews: 0,
+    weeklySignups: 0,
+    pendingModeration: 0,
+  },
+  userRoles: {},
+  moderationQueue: [],
+  generatedAt: new Date(0).toISOString(),
+};
+
+type AnalyticsLoadResult = {
+  analytics: AdminAnalyticsSnapshot | null;
+  errorMessage?: string;
+};
+
+function isValidModerationEntry(entry: AdminModerationEntry | undefined): entry is AdminModerationEntry {
+  return Boolean(
+    entry &&
+    typeof entry.id === 'string' &&
+    typeof entry.itemType === 'string' &&
+    typeof entry.itemName === 'string' &&
+    typeof entry.itemId === 'string' &&
+    typeof entry.status === 'string'
+  );
+}
+
+function normalizeModerationQueue(queue: AdminModerationEntry[] | undefined): AdminModerationEntry[] {
+  if (!Array.isArray(queue)) {
+    return [];
+  }
+
+  return queue
+    .filter((entry): entry is AdminModerationEntry => isValidModerationEntry(entry))
+    .map((entry) => ({
+      ...entry,
+      reports: Number.isFinite(entry.reports) ? entry.reports : 0,
+      lastActivity: entry.lastActivity ?? new Date(0).toISOString(),
+    }));
+}
+
+function normalizeAnalyticsSnapshot(snapshot: AdminAnalyticsSnapshot | undefined | null): AdminAnalyticsSnapshot | null {
+  if (!snapshot) {
+    return null;
+  }
+
+  const overview = snapshot.overview ?? EMPTY_ANALYTICS.overview;
+
+  return {
+    overview: {
+      totalUsers: Number.isFinite(overview.totalUsers) ? overview.totalUsers : 0,
+      totalListings: Number.isFinite(overview.totalListings) ? overview.totalListings : 0,
+      totalReviews: Number.isFinite(overview.totalReviews) ? overview.totalReviews : 0,
+      weeklySignups: Number.isFinite(overview.weeklySignups) ? overview.weeklySignups : 0,
+      pendingModeration: Number.isFinite(overview.pendingModeration) ? overview.pendingModeration : 0,
+    },
+    userRoles: snapshot.userRoles ?? {},
+    moderationQueue: normalizeModerationQueue(snapshot.moderationQueue),
+    generatedAt: new Date(snapshot.generatedAt ?? Date.now()).toISOString(),
+  };
+}
+
+async function loadAnalytics(): Promise<AnalyticsLoadResult> {
   try {
     const analytics = await fetchAdminAnalytics();
-    return analytics;
+    return { analytics: normalizeAnalyticsSnapshot(analytics) };
   } catch (error) {
     structuredLogger.error('Failed to fetch admin analytics', error, {
       route: '/admin/dashboard',
@@ -122,14 +187,15 @@ export default async function AdminDashboardPage() {
     redirect('/auth/login?callbackUrl=/admin/dashboard');
   }
 
-  const analytics = await loadAnalytics();
+  const { analytics, errorMessage } = await loadAnalytics();
 
   if (!analytics) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="p-8 bg-white shadow-md rounded-lg text-center">
           <h1 className="text-2xl font-semibold text-gray-800 mb-4">Admin Dashboard</h1>
-          <p className="text-gray-600">Unable to load dashboard data. Please try again later.</p>
+          <p className="text-gray-600">{errorMessage ?? 'Unable to load dashboard data. Please try again later.'}</p>
+          <p className="mt-4 text-sm text-gray-500">If the issue persists, please check your network connection or try again later.</p>
         </div>
       </div>
     );
