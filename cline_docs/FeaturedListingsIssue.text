@@ -1,0 +1,148 @@
+Developer Guide: Debugging and Fixing the Home Page Featured Listings
+Here’s a breakdown of the bug that was preventing Featured Listings from displaying, the steps to fix it, and a bonus improvement for page performance.
+
+The Problem: Why were the listings not showing?
+The featured listings section was showing empty placeholders due to two core issues:
+
+Incorrect Data Fetching: The frontend was not specifically asking Sanity for "featured" listings. It was using a generic query that pulled all listings, without filtering for the ones marked as featured.
+Data Structure Mismatch: The React component (FeaturedListings.tsx) was trying to access data fields (like price.amount or ecoFeatures) that did not match the names or structure of the data being sent from the Sanity backend (like priceRange or ecoTags).
+The Solution: A Three-Step Fix
+We'll fix this by creating the correct query, updating the component to use it, and ensuring our reusable ListingCard can display the data correctly.
+
+Step 1: Create a Correct Query for Featured Listings
+First, we need to create a specific function that only fetches listings where the featured flag is set to true in Sanity.
+
+Action: Add the following function to app-next-directory/src/lib/sanity/queries.ts.
+
+This query specifically filters for _type == "listing" and moderation.featured == true.
+It also renames some fields using quotes (e.g., "slug": slug.current) to provide a clean data structure to the frontend.
+TypeScript
+
+// File: app-next-directory/src/lib/sanity/queries.ts
+
+// ... (keep existing code)
+
+// ADD THIS NEW FUNCTION
+export async function getFeaturedListings(preview = false) {
+  const sanityClient = getClient(preview);
+
+  const query = `*[_type == "listing" && moderation.featured == true] {
+    _id,
+    name,
+    "slug": slug.current,
+    "description": description_short,
+    category,
+    "city": city->name,
+    mainImage,
+    "ecoTags": eco_focus_tags[]->name,
+    priceRange,
+    rating,
+    reviews
+  }`;
+
+  return await sanityClient.fetch(query);
+}
+
+// AND ADD THE NEW FUNCTION TO THE EXPORT LIST AT THE BOTTOM
+export {
+  getAllCities,
+  getAllEcoTags,
+  getAllListings,
+  getLatestBlogPosts,
+  getListingBySlug,
+  getListingsByCategory,
+  getListingsByCity,
+  searchListings,
+  getFeaturedListings // Add this here
+};
+Step 2: Refactor the FeaturedListings Component
+Next, we need to update the FeaturedListings component to use our new getFeaturedListings function and delegate the rendering of each item to the ListingCard component. This reduces code duplication and makes maintenance easier.
+
+Action: Replace the entire contents of app-next-directory/src/components/home/FeaturedListings.tsx with the code below.
+
+It now uses the ListingCard component, promoting reusability.
+It removes its own data fetching logic (useEffect) because, in our final implementation, the data will be passed in as a prop from the main page component.
+TypeScript
+
+// File: app-next-directory/src/components/home/FeaturedListings.tsx
+
+'use client';
+
+import { SanityListing } from '@/types/sanity';
+import { ListingCard } from '@/components/listings/ListingCard';
+
+interface FeaturedListingsProps {
+  listings: SanityListing[];
+}
+
+export default function FeaturedListings({ listings }: FeaturedListingsProps) {
+  if (!listings || listings.length === 0) {
+    return (
+      <div className="text-center text-gray-500 py-8">
+        No featured listings available at the moment.
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {listings.map((listing) => (
+        <ListingCard key={listing._id} listing={listing} />
+      ))}
+    </div>
+  );
+}
+Step 3: Update the ListingCard for Correct Data Handling
+Finally, let's ensure the ListingCard component can correctly interpret the data fields from our new Sanity query.
+
+Action: Update the helper functions within app-next-directory/src/components/listings/ListingCard.tsx.
+
+These changes align the component's data accessors with the fields provided by our getFeaturedListings query (e.g., using listing.description which we aliased from description_short).
+TypeScript
+
+// File: app-next-directory/src/components/listings/ListingCard.tsx
+
+// ... (imports and component definition)
+
+// ENSURE THESE HELPER FUNCTIONS ARE UPDATED
+const getCategory = () => {
+  // ... (this function is likely okay, but double-check it handles 'category')
+  if (typeof listing === 'object' && listing !== null && 'category' in listing) {
+    return (listing as any).category || 'Other';
+  }
+  return 'Other';
+};
+
+const getImageUrl = () => {
+  // This function now correctly accesses `mainImage`
+  if (isSanityListing(listing) && listing.mainImage) {
+    try {
+      return urlFor(listing.mainImage).width(800).height(480).fit('crop').auto('format').url();
+    } catch (error) {
+      console.error('Error building image URL:', error);
+      return '';
+    }
+  }
+  // ...
+  return '';
+};
+
+const getDescription = () => {
+  // This now uses `description`, which we mapped from `description_short` in the query
+  if (isSanityListing(listing)) {
+    return listing.description || '';
+  }
+  // ...
+  return '';
+};
+
+const getEcoTags = (): string[] => {
+  // This now uses `ecoTags`, which we mapped from `eco_focus_tags`
+  if (isSanityListing(listing)) {
+    return Array.isArray(listing.ecoTags) ? listing.ecoTags : [];
+  }
+  // ...
+  return [];
+};
+
+// ... (rest of the component) @
