@@ -7,7 +7,7 @@
  * Coverage Target: 85%+
  */
 
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { FiltersSidebar } from '../FiltersSidebar'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -238,9 +238,9 @@ describe('FiltersSidebar', () => {
     it('should update URL when filters change', async () => {
       const user = userEvent.setup()
       render(<FiltersSidebar />)
-      
+
       await user.click(screen.getByText('Apply Filter'))
-      
+
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalled()
         const callArg = mockPush.mock.calls[0][0]
@@ -302,6 +302,201 @@ describe('FiltersSidebar', () => {
           expect(callArg).not.toContain('category=')
         }
       })
+    })
+  })
+
+  describe('Voice recognition integration', () => {
+    class MockSpeechRecognition {
+      public lang = 'en-US'
+      public interimResults = false
+      public maxAlternatives = 1
+      public onaudioend: ((this: SpeechRecognition, ev: Event) => any) | null = null
+      public onaudiostart: ((this: SpeechRecognition, ev: Event) => any) | null = null
+      public onend: (() => void) | null = null
+      public onerror: ((event: SpeechRecognitionErrorEvent) => void) | null = null
+      public onnomatch: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null = null
+      public onresult: ((event: SpeechRecognitionEvent) => void) | null = null
+      public onsoundend: ((this: SpeechRecognition, ev: Event) => any) | null = null
+      public onsoundstart: ((this: SpeechRecognition, ev: Event) => any) | null = null
+      public onspeechend: ((this: SpeechRecognition, ev: Event) => any) | null = null
+      public onspeechstart: ((this: SpeechRecognition, ev: Event) => any) | null = null
+      public onstart: ((this: SpeechRecognition, ev: Event) => any) | null = null
+      public start = jest.fn()
+      public stop = jest.fn(() => {
+        this.onend?.()
+      })
+      public abort = jest.fn()
+    }
+
+    let recognitionInstances: MockSpeechRecognition[]
+    const originalWebkit = (window as any).webkitSpeechRecognition
+
+    beforeEach(() => {
+      recognitionInstances = []
+      Object.defineProperty(window, 'webkitSpeechRecognition', {
+        configurable: true,
+        writable: true,
+        value: jest.fn(() => {
+          const instance = new MockSpeechRecognition()
+          recognitionInstances.push(instance)
+          return instance
+        }),
+      })
+    })
+
+    afterEach(() => {
+      if (originalWebkit === undefined) {
+        delete (window as any).webkitSpeechRecognition
+      } else {
+        (window as any).webkitSpeechRecognition = originalWebkit
+      }
+    })
+
+    it('should not render voice controls when speech recognition is unavailable', () => {
+      delete (window as any).webkitSpeechRecognition
+
+      render(<FiltersSidebar />)
+
+      expect(screen.queryByTestId('voice-filter-section')).not.toBeInTheDocument()
+    })
+
+    it('should render voice controls when supported', () => {
+      render(<FiltersSidebar />)
+
+      expect(screen.getByTestId('voice-filter-section')).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: /use voice filters/i })).toBeInTheDocument()
+    })
+
+    it('should start and stop listening when toggled', async () => {
+      const user = userEvent.setup()
+      render(<FiltersSidebar />)
+
+      const toggleButton = screen.getByRole('button', { name: /use voice filters/i })
+      await user.click(toggleButton)
+
+      expect(recognitionInstances[0].start).toHaveBeenCalled()
+      expect(screen.getByRole('button', { name: /stop voice input/i })).toBeInTheDocument()
+
+      await user.click(screen.getByRole('button', { name: /stop voice input/i }))
+      expect(recognitionInstances[0].stop).toHaveBeenCalled()
+    })
+
+    it('should update filters based on recognized transcript', async () => {
+      const user = userEvent.setup()
+      render(<FiltersSidebar />)
+
+      await user.click(screen.getByRole('button', { name: /use voice filters/i }))
+
+      const instance = recognitionInstances[0]
+      const transcript = 'category coworking amenities wifi'
+      const mockResult = {
+        isFinal: true,
+        length: 1,
+        item: () => ({ transcript, confidence: 0.9 }),
+        0: { transcript, confidence: 0.9 },
+      }
+      const mockEvent = {
+        resultIndex: 0,
+        results: {
+          length: 1,
+          item: () => mockResult,
+          0: mockResult,
+        },
+      } as unknown as SpeechRecognitionEvent
+
+      await act(async () => {
+        instance.onresult?.(mockEvent)
+        instance.onend?.()
+      })
+
+      await waitFor(() => {
+        expect(mockPush).toHaveBeenCalled()
+      })
+
+      const callArg = mockPush.mock.calls.at(-1)?.[0]
+      expect(callArg).toContain('category=coworking')
+      expect(callArg).toContain('amenities=wifi')
+
+      const lastCall = digitalNomadSearchFilterMock.mock.calls.at(-1)?.[0]
+      expect(lastCall.initialFilters).toEqual({ category: ['coworking'], amenities: ['wifi'] })
+    })
+
+    it('should clear filters when command is recognized', async () => {
+      mockSearchParams.getAll = jest.fn((key) => (key === 'category' ? ['coworking'] : []))
+
+      const user = userEvent.setup()
+      render(<FiltersSidebar />)
+
+      await user.click(screen.getByRole('button', { name: /use voice filters/i }))
+
+      const instance = recognitionInstances[0]
+      const mockResult = {
+        isFinal: true,
+        length: 1,
+        item: () => ({ transcript: 'clear filters', confidence: 0.9 }),
+        0: { transcript: 'clear filters', confidence: 0.9 },
+      }
+      const mockEvent = {
+        resultIndex: 0,
+        results: {
+          length: 1,
+          item: () => mockResult,
+          0: mockResult,
+        },
+      } as unknown as SpeechRecognitionEvent
+
+      await act(async () => {
+        instance.onresult?.(mockEvent)
+        instance.onend?.()
+      })
+
+      await waitFor(() => {
+        const callArg = mockPush.mock.calls.at(-1)?.[0]
+        expect(callArg).toBe('/search')
+      })
+    })
+
+    it('should surface an error when no filters are matched', async () => {
+      const user = userEvent.setup()
+      render(<FiltersSidebar />)
+
+      await user.click(screen.getByRole('button', { name: /use voice filters/i }))
+
+      const instance = recognitionInstances[0]
+      const mockResult = {
+        isFinal: true,
+        length: 1,
+        item: () => ({ transcript: 'unknown words only', confidence: 0.9 }),
+        0: { transcript: 'unknown words only', confidence: 0.9 },
+      }
+      const mockEvent = {
+        resultIndex: 0,
+        results: {
+          length: 1,
+          item: () => mockResult,
+          0: mockResult,
+        },
+      } as unknown as SpeechRecognitionEvent
+
+      await act(async () => {
+        instance.onresult?.(mockEvent)
+      })
+
+      expect(await screen.findByTestId('voice-error')).toHaveTextContent('No matching filters detected')
+    })
+
+    it('should show permission error when microphone access is denied', async () => {
+      const user = userEvent.setup()
+      render(<FiltersSidebar />)
+
+      await user.click(screen.getByRole('button', { name: /use voice filters/i }))
+
+      const instance = recognitionInstances[0]
+      await act(async () => {
+        instance.onerror?.({ error: 'not-allowed' } as SpeechRecognitionErrorEvent)
+      })
+
+      expect(await screen.findByTestId('voice-error')).toHaveTextContent('Microphone access was denied')
     })
   })
 
