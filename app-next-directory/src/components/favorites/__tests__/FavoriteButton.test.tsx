@@ -1,11 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FavoriteButton } from '../FavoriteButton';
-import { useSession } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
 
 // Mock next-auth
 jest.mock('next-auth/react');
 const mockUseSession = useSession as jest.MockedFunction<typeof useSession>;
+const mockSignIn = signIn as jest.MockedFunction<typeof signIn>;
 
 // Mock fetch using jest.spyOn
 const mockFetch = jest.fn();
@@ -29,6 +30,7 @@ describe('FavoriteButton', () => {
     jest.clearAllMocks();
     mockFetch.mockReset();
     (global.alert as jest.Mock).mockClear();
+    mockSignIn.mockReset();
     // Reset the useSession mock to unauthenticated state
     mockUseSession.mockReturnValue({
       data: null,
@@ -157,19 +159,23 @@ describe('FavoriteButton', () => {
       expect(button).not.toBeDisabled();
     });
 
-    it('shows alert when unauthenticated user clicks button', async () => {
+    it('redirects unauthenticated users to sign in when clicking button', async () => {
       mockUseSession.mockReturnValue({
         data: null,
         status: 'unauthenticated',
         update: jest.fn(),
       });
+      mockSignIn.mockResolvedValue(undefined);
 
       render(<FavoriteButton slug="test-listing" />);
       const button = screen.getByRole('button');
       
       await userEvent.click(button);
       
-      expect(global.alert).toHaveBeenCalledWith('Please sign in to save favorites');
+      await waitFor(() => {
+        expect(mockSignIn).toHaveBeenCalledWith(undefined, { callbackUrl: window.location.href });
+      });
+      expect(global.alert).not.toHaveBeenCalled();
     });
 
     it('checks favorite status when authenticated', async () => {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { Heart } from 'lucide-react';
 
@@ -88,8 +88,11 @@ export function FavoriteButton({
     e.stopPropagation();
     
     if (!session) {
-      // TODO: Could show a sign-in modal or redirect to sign-in
-      alert('Please sign in to save favorites');
+      const callbackUrl =
+        typeof window !== 'undefined' && typeof window.location?.href === 'string' && window.location.href.length > 0
+          ? window.location.href
+          : '/';
+      void signIn(undefined, { callbackUrl });
       return;
     }
 
