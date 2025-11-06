@@ -154,7 +154,12 @@ export async function performModerationAction({
         ? { status, lastActionAt: timestamp }
         : { lastActionAt: timestamp }
     )
-    .setIfMissing({ moderationHistory: [] as any[] })
+    .setIfMissing({ moderationHistory: [] as Array<{
+      action: ModerationAction;
+      actor: string;
+      notes: string | null;
+      at: string;
+    }> })
     .append('moderationHistory', [
       {
         action,
