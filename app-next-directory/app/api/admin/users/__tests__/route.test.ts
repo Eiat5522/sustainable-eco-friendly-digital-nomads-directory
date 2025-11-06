@@ -21,6 +21,12 @@ jest.mock('@/lib/sanity/client', () => {
   };
 });
 
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    error: jest.fn(),
+  },
+}));
+
 import { auth } from '@/lib/auth';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
@@ -38,6 +44,9 @@ const mockFetch = clientMockModule.__mock.fetchMock;
 const mockPatch = clientMockModule.__mock.patchMock;
 const mockSet = clientMockModule.__mock.setMock;
 const mockCommit = clientMockModule.__mock.commitMock;
+const mockLogger = jest.requireMock('@/lib/logger').structuredLogger as {
+  error: jest.Mock;
+};
 
 beforeAll(async () => {
   ({ GET, PATCH } = await import('../route'));
@@ -53,6 +62,7 @@ describe('/api/admin/users', () => {
     mockSet.mockImplementation(() => ({ commit: mockCommit }));
     mockPatch.mockImplementation(() => ({ set: mockSet }));
     mockCommit.mockResolvedValue(undefined);
+    mockLogger.error.mockReset();
   });
 
   it('requires admin access for GET', async () => {
@@ -175,7 +185,6 @@ describe('/api/admin/users', () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
     mockFetch.mockRejectedValueOnce(new Error('sanity unavailable'));
     mockFetch.mockResolvedValueOnce(0);
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const request = { url: 'https://example.com/api/admin/users' } as any;
     const response = await GET(request, { params: Promise.resolve({}) });
@@ -183,8 +192,10 @@ describe('/api/admin/users', () => {
 
     expect(response.status).toBe(500);
     expect(json.error).toBe('Failed to fetch users');
-
-    consoleSpy.mockRestore();
+    expect(mockLogger.error).toHaveBeenCalledWith('Admin users GET error', expect.any(Error), {
+      method: 'GET',
+      route: '/api/admin/users',
+    });
   });
 
   it('requires admin access for PATCH', async () => {
@@ -309,7 +320,6 @@ describe('/api/admin/users', () => {
   it('handles errors when updating users', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
     mockCommit.mockRejectedValueOnce(new Error('commit failed'));
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const request = {
       json: () => Promise.resolve({ userId: 'user-1', status: 'inactive' }),
@@ -320,7 +330,10 @@ describe('/api/admin/users', () => {
 
     expect(response.status).toBe(500);
     expect(json.error).toBe('Failed to update user');
-    consoleSpy.mockRestore();
+    expect(mockLogger.error).toHaveBeenCalledWith('Admin users PATCH error', expect.any(Error), {
+      method: 'PATCH',
+      route: '/api/admin/users',
+    });
   });
 
   it('allows superAdmin to access GET endpoint', async () => {

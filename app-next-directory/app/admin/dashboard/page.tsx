@@ -7,6 +7,7 @@ import {
   fetchAdminAnalytics,
   type AdminAnalyticsSnapshot,
 } from '@/lib/admin/analytics';
+import { structuredLogger } from '@/lib/logger';
 import { ModerationActions } from './ModerationActions';
 
 export const dynamic = 'force-dynamic';
@@ -101,7 +102,10 @@ async function loadAnalytics(): Promise<AdminAnalyticsSnapshot | null> {
     const analytics = await fetchAdminAnalytics();
     return analytics;
   } catch (error) {
-    console.error('Failed to fetch admin analytics:', error);
+    structuredLogger.error('Failed to fetch admin analytics', error, {
+      route: '/admin/dashboard',
+      component: 'AdminDashboardPage',
+    });
     return null;
   }
 }

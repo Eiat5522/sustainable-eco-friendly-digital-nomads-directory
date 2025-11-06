@@ -200,7 +200,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
       const statsData = await fetchListingStats();
       setStats(statsData);
     } catch (err) {
-      console.error('Failed to load stats:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load listing statistics');
     }
   }, []);
 

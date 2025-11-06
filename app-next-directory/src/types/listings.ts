@@ -66,3 +66,23 @@ export interface Listing {
     specificAmenitiesAccommodation: string[];
   };
 }
+
+type ListingCityName = Listing['city'] extends { name: infer Name }
+  ? Name
+  : string;
+
+type ListingModerationStatus = Extract<Listing['moderationStatus'], string>;
+type ListingVerificationStatus = Extract<Listing['verificationStatus'], string>;
+
+/**
+ * Minimal listing projection used by venue owners when managing their venues.
+ *
+ * Derives from the primary {@link Listing} interface to guarantee that shared
+ * fields such as `_id` and `name` stay in sync with the source-of-truth data
+ * model. Additional properties reflect the flattened shape returned by the
+ * listings management API.
+ */
+export type ListingManagementSummary = Pick<Listing, '_id' | 'name'> & {
+  city: ListingCityName;
+  status: ListingModerationStatus | ListingVerificationStatus | string;
+};

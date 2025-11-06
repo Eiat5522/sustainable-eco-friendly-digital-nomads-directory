@@ -202,6 +202,16 @@ tmp/
 desktop.ini
 **/desktop.ini
 
+# Development and testing artifacts (not part of test suite)
+test-*.js
+!app-next-directory/src/__tests__/**
+**/test-*.js
+!app-next-directory/src/__tests__/**
+**/quick-*.js
+*.bak
+*_backup.*
+tmp_*
+
 # Ignore generated Playwright reports
 app-next-directory/playwright-report/**
 !app-next-directory/playwright-report/README.md

@@ -7,6 +7,7 @@ import {
   summarizeModerationQueue,
   type ModerationAction,
 } from '@/lib/admin/analytics';
+import { structuredLogger } from '@/lib/logger';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -41,7 +42,10 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
     return NextResponse.json({ items, ...(summary ? { summary } : {}) });
   } catch (error) {
-    console.error('Admin moderation GET error:', error);
+    structuredLogger.error('Admin moderation GET error', error, {
+      route: '/api/admin/moderation',
+      method: 'GET',
+    });
     return NextResponse.json({ error: 'Failed to load moderation queue' }, { status: 500 });
   }
 }
@@ -81,7 +85,10 @@ export async function POST(request: NextRequest, _context: RouteContext) {
       moderation: result,
     });
   } catch (error) {
-    console.error('Admin moderation POST error:', error);
+    structuredLogger.error('Admin moderation POST error', error, {
+      route: '/api/admin/moderation',
+      method: 'POST',
+    });
     return NextResponse.json({ error: 'Failed to process moderation action' }, { status: 500 });
   }
 }

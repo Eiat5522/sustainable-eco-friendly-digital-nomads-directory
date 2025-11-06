@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { analyzeContent } from '@/lib/admin/analytics';
+import { structuredLogger } from '@/lib/logger';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -38,7 +39,10 @@ if (windowDaysParam) {
 
     return NextResponse.json({ analysis });
   } catch (error) {
-    console.error('Admin content analysis GET error:', error);
+    structuredLogger.error('Admin content analysis GET error', error, {
+      route: '/api/admin/analyze-content',
+      method: 'GET',
+    });
     return NextResponse.json({ error: 'Failed to analyze content' }, { status: 500 });
   }
 }
@@ -94,7 +98,10 @@ export async function POST(request: NextRequest, _context: RouteContext) {
       insights,
     });
   } catch (error) {
-    console.error('Admin content analysis POST error:', error);
+    structuredLogger.error('Admin content analysis POST error', error, {
+      route: '/api/admin/analyze-content',
+      method: 'POST',
+    });
     return NextResponse.json({ error: 'Failed to analyze content samples' }, { status: 500 });
   }
 }

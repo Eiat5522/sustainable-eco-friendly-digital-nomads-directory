@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { client } from '@/lib/sanity/client';
+import { structuredLogger } from '@/lib/logger';
 import type {
   AdminSettings,
   AdminSettingsResponse,
@@ -52,7 +53,10 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error fetching admin settings:', error);
+    structuredLogger.error('Error fetching admin settings', error, {
+      route: '/api/admin/settings',
+      method: 'GET',
+    });
     return NextResponse.json<AdminSettingsError>(
       {
         error: 'Failed to fetch admin settings',
@@ -123,7 +127,10 @@ export async function POST(request: NextRequest, _context: RouteContext) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error saving admin settings:', error);
+    structuredLogger.error('Error saving admin settings', error, {
+      route: '/api/admin/settings',
+      method: 'POST',
+    });
     return NextResponse.json<AdminSettingsError>(
       {
         error: 'Failed to save admin settings',
