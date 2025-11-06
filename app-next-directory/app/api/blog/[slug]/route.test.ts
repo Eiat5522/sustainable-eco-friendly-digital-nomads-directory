@@ -341,20 +341,20 @@ describe('Blog [slug] API', () => {
         expect(data.error).toBe('Failed to update blog post');
       });
 
-      it('should use persistent database storage when no override is provided', async () => {
+      it('should fallback to in-memory when database returns invalid result', async () => {
         routeTestControl.trackViewCountOverride = undefined;
         routeTestControl.resetViewCounts();
 
         fetchMock.mockResolvedValue({
-          _id: 'post-persistent',
-          slug: 'persistent',
+          _id: 'post-fallback',
+          slug: 'fallback',
         });
 
-        const params = Promise.resolve({ slug: 'persistent' });
+        const params = Promise.resolve({ slug: 'fallback' });
 
-        // First increment - database mock returns count 1
-        // The default mock in mongodb.ts returns { value: null } which becomes count 1
-        const request1 = new Request('http://localhost/api/blog/persistent', {
+        // First increment - database mock returns { value: null } which is invalid
+        // This triggers the error handler and falls back to in-memory tracking
+        const request1 = new Request('http://localhost/api/blog/fallback', {
           method: 'PUT',
           body: JSON.stringify({ action: 'increment_view' }),
         });
@@ -362,17 +362,16 @@ describe('Blog [slug] API', () => {
         const data1 = await response1.json();
         expect(data1.data.viewCount).toBe(1);
 
-        // Second increment - database mock returns count 1 again (mock doesn't maintain state)
-        // In real usage, MongoDB would maintain state and return incrementing counts
-        const request2 = new Request('http://localhost/api/blog/persistent', {
+        // Second increment - continues using in-memory fallback
+        // In-memory tracking maintains state, so count increments correctly
+        const request2 = new Request('http://localhost/api/blog/fallback', {
           method: 'PUT',
           body: JSON.stringify({ action: 'increment_view' }),
         });
         const response2 = await PUT(request2, { params });
         const data2 = await response2.json();
-        // With the default mock, this will be 1, not 2, because the mock doesn't maintain state
-        // This is acceptable for unit tests - integration tests would verify actual persistence
-        expect(data2.data.viewCount).toBe(1);
+        // In-memory fallback maintains state correctly
+        expect(data2.data.viewCount).toBe(2);
       });
     });
   });

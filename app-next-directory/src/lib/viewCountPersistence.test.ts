@@ -195,14 +195,18 @@ describe('View Count Persistence', () => {
 
     it('should throw error in non-test environment', async () => {
       const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      
+      try {
+        process.env.NODE_ENV = 'production';
 
-      await expect(resetViewCounts()).rejects.toThrow(
-        'resetViewCounts can only be called in test environment'
-      );
+        await expect(resetViewCounts()).rejects.toThrow(
+          'resetViewCounts can only be called in test environment'
+        );
 
-      process.env.NODE_ENV = originalEnv;
-      expect(mockCollection.deleteMany).not.toHaveBeenCalled();
+        expect(mockCollection.deleteMany).not.toHaveBeenCalled();
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
     });
 
     it('should propagate database errors', async () => {

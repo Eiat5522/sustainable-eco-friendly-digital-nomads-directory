@@ -49,7 +49,13 @@ export async function incrementViewCount(postId: string): Promise<number> {
 
     // Handle the result based on MongoDB driver version
     const updatedDoc = result.value || result;
-    return updatedDoc?.count ?? 1;
+    
+    if (!updatedDoc || typeof updatedDoc.count !== 'number') {
+      // This should not happen with upsert: true, indicates a database error
+      throw new Error('Database operation completed but returned invalid result');
+    }
+    
+    return updatedDoc.count;
   } catch (error) {
     console.error('Error incrementing view count:', error);
     throw new Error('Failed to update view count in database');
