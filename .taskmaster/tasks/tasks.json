@@ -2,14 +2,14 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
+        "id": "1",
         "title": "Remove Redundant Navigation Components",
         "description": "Remove the unused MainNav stub component.",
         "details": "1. Identify the MainNav stub (app-next-directory/src/components/MainNav.tsx). 2. Confirm it's not used anywhere. 3. Delete the stub component. 4. Ensure the fully featured MainNav (app-next-directory/src/components/layout/MainNav.tsx) is correctly used throughout the application.",
         "testStrategy": "Manually navigate the application to verify the navigation bar functions correctly after the removal.",
         "priority": "high",
         "dependencies": [],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -18,7 +18,8 @@
             "dependencies": [],
             "details": "Navigate to app-next-directory/src/components/MainNav.tsx to locate the stub component.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -29,7 +30,8 @@
             ],
             "details": "Perform a code search or analyze imports to ensure no other components or files import or use the MainNav stub.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -40,7 +42,8 @@
             ],
             "details": "Delete the file app-next-directory/src/components/MainNav.tsx after confirming it's unused.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -51,7 +54,8 @@
             ],
             "details": "Review the application's layout and components to confirm that the correct MainNav (app-next-directory/src/components/layout/MainNav.tsx) is being used.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -62,21 +66,23 @@
             ],
             "details": "Navigate through different sections of the application and verify that the navigation bar functions correctly, including all links and interactive elements.",
             "status": "pending",
-            "testStrategy": "Manually navigate the application to verify the navigation bar functions correctly after the removal."
+            "testStrategy": "Manually navigate the application to verify the navigation bar functions correctly after the removal.",
+            "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2025-11-06T07:11:07.441Z"
       },
       {
-        "id": 2,
+        "id": "2",
         "title": "Unify Layout Definitions",
         "description": "Consolidate layout logic and remove redundant layout files.",
         "details": "1. Analyze app/layout.tsx and app/layout.jsx. 2. Migrate any relevant logic from layout.jsx (e.g., reportWebVitals integration) into layout.tsx. 3. Remove layout.jsx. 4. Evaluate and consolidate the logic from SearchWrapper.tsx into ClientRootLayout.tsx. 5. Remove SearchWrapper.tsx.",
         "testStrategy": "Verify the application's overall layout and functionality, including search, after the changes. Check for any broken components or layout issues.",
         "priority": "high",
         "dependencies": [
-          1
+          "1"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -85,7 +91,8 @@
             "dependencies": [],
             "details": "Examine the code in both files to identify the components, logic, and any integrations (e.g., reportWebVitals).",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -96,7 +103,8 @@
             ],
             "details": "Move any shared components, integrations (like reportWebVitals), and layout-related code from layout.jsx to layout.tsx. Ensure all dependencies are correctly imported.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -107,7 +115,8 @@
             ],
             "details": "After confirming the migration is complete and layout.tsx functions correctly, delete layout.jsx.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -118,7 +127,8 @@
             ],
             "details": "Analyze SearchWrapper.tsx and integrate its functionality (e.g., search-related UI or logic) into ClientRootLayout.tsx. Consider how search functionality is used across the application.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -129,19 +139,21 @@
             ],
             "details": "After confirming the consolidation is complete and ClientRootLayout.tsx functions correctly, delete SearchWrapper.tsx.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2025-11-06T07:11:07.471Z"
       },
       {
-        "id": 3,
+        "id": "3",
         "title": "Replace Legacy Database Utilities",
         "description": "Replace the old mongodb.js with the TypeScript implementation.",
         "details": "1. Identify all instances where mongodb.js is imported. 2. Replace these imports with the equivalent from mongodb.ts. 3. Ensure the database initialization and connection are working correctly. 4. Remove mongodb.js.",
         "testStrategy": "Test database connections and operations across different parts of the application to ensure data is correctly read and written.",
         "priority": "high",
         "dependencies": [
-          2
+          "2"
         ],
         "status": "pending",
         "subtasks": [
@@ -152,7 +164,8 @@
             "dependencies": [],
             "details": "Use a code search tool (e.g., grep, VS Code search) to find all instances of 'require('mongodb.js')' or 'import ... from 'mongodb.js''. Document the file paths and import statements.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -163,7 +176,8 @@
             ],
             "details": "Modify the import statements to point to the new TypeScript module. Ensure that the imported functions and classes are correctly referenced.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -174,7 +188,8 @@
             ],
             "details": "Test the database connection by running the application and verifying that it can connect to the database. Check for any errors in the console or logs related to database initialization.",
             "status": "pending",
-            "testStrategy": "Manually test database connections and operations."
+            "testStrategy": "Manually test database connections and operations.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -185,7 +200,8 @@
             ],
             "details": "Execute various database operations (e.g., create, read, update, delete) across different parts of the application. Verify that data is correctly read and written to the database.",
             "status": "pending",
-            "testStrategy": "Test database operations across different parts of the application."
+            "testStrategy": "Test database operations across different parts of the application.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -196,21 +212,22 @@
             ],
             "details": "Delete the mongodb.js file from the project directory. Ensure that the application still functions correctly after the removal.",
             "status": "pending",
-            "testStrategy": "Verify that the application functions correctly after removing the file."
+            "testStrategy": "Verify that the application functions correctly after removing the file.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 4,
+        "id": "4",
         "title": "Remove Commented-Out Code and Stubs",
         "description": "Clean up commented-out code and unnecessary stubs.",
         "details": "1. Review the codebase for commented-out code, especially in MainNav.tsx and API routes. 2. Remove any commented-out code that is no longer relevant. 3. Remove or refactor components that simply wrap others without adding any value (e.g., app/admin/page.tsx).",
         "testStrategy": "Review the application's functionality to ensure no features are broken after removing the commented-out code. Check for any unexpected behavior.",
         "priority": "medium",
         "dependencies": [
-          1,
-          2,
-          3
+          "1",
+          "2",
+          "3"
         ],
         "status": "pending",
         "subtasks": [
@@ -221,7 +238,8 @@
             "dependencies": [],
             "details": "Use search functionality within the IDE to find all instances of commented-out code (e.g., //, /* */) within MainNav.tsx. Examine each instance to determine its relevance.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -230,7 +248,8 @@
             "dependencies": [],
             "details": "Use search functionality to find commented-out code within all API route files. Examine each instance to determine its relevance. API routes are typically located in the 'app/api' directory.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -242,7 +261,8 @@
             ],
             "details": "After reviewing the commented-out code, delete any code that is clearly outdated, unused, or no longer applicable to the current functionality. Ensure that the removal doesn't break any existing functionality.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -251,7 +271,8 @@
             "dependencies": [],
             "details": "Review the codebase, particularly the app/admin/page.tsx file, and identify components that act as wrappers without providing substantial new functionality or styling. Consider if these components can be removed or refactored.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -262,19 +283,20 @@
             ],
             "details": "Remove the identified wrapping components if they are unnecessary. If the wrapping components provide minimal value, refactor them to directly use the wrapped components or merge the functionality. Ensure the application's functionality remains intact.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 5,
+        "id": "5",
         "title": "Implement Admin Users Page API Integration",
         "description": "Integrate the Admin Users page with actual API calls.",
         "details": "1. Implement the necessary API endpoints for fetching user data and statistics. 2. Replace the hardcoded user data in app/admin/users/page.tsx with calls to the new API endpoints. 3. Implement the handleUserAction functions to interact with the backend.",
         "testStrategy": "Verify that the Admin Users page correctly displays user data fetched from the API. Test the functionality of user actions (e.g., suspend, delete) by checking the backend.",
         "priority": "high",
         "dependencies": [
-          4
+          "4"
         ],
         "status": "pending",
         "subtasks": [
@@ -285,7 +307,8 @@
             "dependencies": [],
             "details": "Implement a GET endpoint (e.g., /api/admin/users) that retrieves user data. The endpoint should handle pagination, filtering, and sorting. Consider the data format and response codes.",
             "status": "pending",
-            "testStrategy": "Test the API endpoint directly using tools like Postman or curl to ensure it returns the correct user data and handles pagination/filtering/sorting correctly."
+            "testStrategy": "Test the API endpoint directly using tools like Postman or curl to ensure it returns the correct user data and handles pagination/filtering/sorting correctly.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -294,7 +317,8 @@
             "dependencies": [],
             "details": "Implement a GET endpoint (e.g., /api/admin/users/stats) that retrieves user statistics (e.g., total users, active users, etc.). Consider the data format and response codes.",
             "status": "pending",
-            "testStrategy": "Test the API endpoint directly to ensure it returns the correct statistics."
+            "testStrategy": "Test the API endpoint directly to ensure it returns the correct statistics.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -306,7 +330,8 @@
             ],
             "details": "Modify the app/admin/users/page.tsx file to fetch user data and statistics from the API endpoints created in the previous steps. Handle loading states and error handling.",
             "status": "pending",
-            "testStrategy": "Verify that the Admin Users page correctly displays user data fetched from the API. Check for proper loading states and error handling."
+            "testStrategy": "Verify that the Admin Users page correctly displays user data fetched from the API. Check for proper loading states and error handling.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -317,7 +342,8 @@
             ],
             "details": "Implement the handleUserAction functions (e.g., suspend, delete) to interact with the backend. These functions should make API calls to update user data. Handle success and error responses.",
             "status": "pending",
-            "testStrategy": "Test the functionality of user actions (e.g., suspend, delete) by checking the backend and verifying the user data is updated correctly."
+            "testStrategy": "Test the functionality of user actions (e.g., suspend, delete) by checking the backend and verifying the user data is updated correctly.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -329,20 +355,21 @@
             ],
             "details": "Ensure that the UI components correctly display the data fetched from the API and that user actions trigger the appropriate API calls. Handle loading states and error messages.",
             "status": "pending",
-            "testStrategy": "Verify that the Admin Users page correctly displays user data fetched from the API. Test the functionality of user actions (e.g., suspend, delete) by checking the backend and UI updates."
+            "testStrategy": "Verify that the Admin Users page correctly displays user data fetched from the API. Test the functionality of user actions (e.g., suspend, delete) by checking the backend and UI updates.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 6,
+        "id": "6",
         "title": "Implement Admin Listings Page API Integration",
         "description": "Integrate the Admin Listings page with actual API calls.",
         "details": "1. Implement the necessary API endpoints for fetching listing data and statistics. 2. Replace the mock listings array in app/admin/listings/page.tsx with calls to the new API endpoints. 3. Implement the handleListingAction functions to interact with the backend.",
         "testStrategy": "Verify that the Admin Listings page correctly displays listing data fetched from the API. Test the functionality of listing actions (e.g., suspend, delete) by checking the backend.",
         "priority": "high",
         "dependencies": [
-          4,
-          5
+          "4",
+          "5"
         ],
         "status": "pending",
         "subtasks": [
@@ -353,7 +380,8 @@
             "dependencies": [],
             "details": "Implement GET /api/admin/listings to fetch listing data. Implement GET /api/admin/listings/stats to fetch listing statistics. Ensure proper data formatting and error handling.",
             "status": "pending",
-            "testStrategy": "Test the API endpoints directly using tools like Postman to ensure they return the correct data and handle errors appropriately."
+            "testStrategy": "Test the API endpoints directly using tools like Postman to ensure they return the correct data and handle errors appropriately.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -364,7 +392,8 @@
             ],
             "details": "Modify app/admin/listings/page.tsx to fetch data from the /api/admin/listings endpoint. Display the fetched data in the listings table. Handle loading and error states.",
             "status": "pending",
-            "testStrategy": "Verify that the Admin Listings page correctly displays listing data fetched from the API. Check for proper loading and error handling."
+            "testStrategy": "Verify that the Admin Listings page correctly displays listing data fetched from the API. Check for proper loading and error handling.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -375,7 +404,8 @@
             ],
             "details": "Implement the necessary API calls (e.g., PUT /api/admin/listings/:id/suspend, DELETE /api/admin/listings/:id) to handle listing actions. Implement the handleListingAction functions in app/admin/listings/page.tsx to call these APIs.",
             "status": "pending",
-            "testStrategy": "Test the functionality of listing actions (e.g., suspend, delete) by checking the backend to ensure the actions are performed correctly."
+            "testStrategy": "Test the functionality of listing actions (e.g., suspend, delete) by checking the backend to ensure the actions are performed correctly.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -387,7 +417,8 @@
             ],
             "details": "Fetch listing statistics from the /api/admin/listings/stats endpoint. Display the statistics on the admin listings page (e.g., total listings, active listings, etc.).",
             "status": "pending",
-            "testStrategy": "Verify that the listing statistics are correctly displayed on the admin listings page."
+            "testStrategy": "Verify that the listing statistics are correctly displayed on the admin listings page.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -400,22 +431,23 @@
             ],
             "details": "Implement error handling for API calls (e.g., display error messages to the user). Update the UI to reflect the status of listing actions (e.g., loading indicators, success messages).",
             "status": "pending",
-            "testStrategy": "Test error scenarios by simulating API failures and verifying that appropriate error messages are displayed. Verify that the UI updates correctly during API calls."
+            "testStrategy": "Test error scenarios by simulating API failures and verifying that appropriate error messages are displayed. Verify that the UI updates correctly during API calls.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 7,
+        "id": "7",
         "title": "Implement Admin Settings API Integration",
         "description": "Implement the Admin Settings page with actual API calls.",
         "details": "1. Implement the necessary API endpoints for saving and retrieving settings. 2. Replace the local state management in app/admin/settings/page.tsx with calls to the new API endpoints. 3. Implement the settings save API call.",
         "testStrategy": "Verify that settings are correctly saved and retrieved from the backend. Test the functionality of the backup feature.",
         "priority": "medium",
         "dependencies": [
-          4,
-          6
+          "4",
+          "6"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -424,7 +456,8 @@
             "dependencies": [],
             "details": "Implement the GET /api/admin/settings endpoint. This endpoint should retrieve the current settings from the database and return them as a JSON object. Handle potential errors and return appropriate error responses.",
             "status": "pending",
-            "testStrategy": "Test the API endpoint directly using tools like Postman or curl to ensure it returns the correct settings data."
+            "testStrategy": "Test the API endpoint directly using tools like Postman or curl to ensure it returns the correct settings data.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -433,7 +466,8 @@
             "dependencies": [],
             "details": "Implement the POST /api/admin/settings endpoint. This endpoint should accept a JSON payload containing the settings to be saved. Validate the input data, save the settings to the database, and return a success response. Handle potential errors and return appropriate error responses.",
             "status": "pending",
-            "testStrategy": "Test the API endpoint using tools like Postman or curl to ensure settings are saved correctly. Verify data persistence in the database."
+            "testStrategy": "Test the API endpoint using tools like Postman or curl to ensure settings are saved correctly. Verify data persistence in the database.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -445,7 +479,8 @@
             ],
             "details": "Modify the app/admin/settings/page.tsx component to fetch settings from the GET /api/admin/settings endpoint on component mount. Update the component to use the POST /api/admin/settings endpoint to save settings when the user submits the form. Handle loading states and error messages appropriately.",
             "status": "pending",
-            "testStrategy": "Manually test the Admin Settings page to ensure settings are correctly displayed, saved, and retrieved after the changes. Verify the UI updates correctly based on API responses."
+            "testStrategy": "Manually test the Admin Settings page to ensure settings are correctly displayed, saved, and retrieved after the changes. Verify the UI updates correctly based on API responses.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -456,7 +491,8 @@
             ],
             "details": "Implement the client-side function to call the POST /api/admin/settings endpoint. This function should serialize the settings data, make the API request, and handle the response (success or error).",
             "status": "pending",
-            "testStrategy": "Test the settings save API call by triggering it from the Admin Settings page. Verify that the API call is made correctly and that the settings are saved to the backend."
+            "testStrategy": "Test the settings save API call by triggering it from the Admin Settings page. Verify that the API call is made correctly and that the settings are saved to the backend.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -468,23 +504,25 @@
             ],
             "details": "Connect the settings save API call to the form submission in the Admin Settings page. Handle the loading state during the API call and display appropriate feedback to the user (e.g., success message, error message).",
             "status": "pending",
-            "testStrategy": "Test the entire Admin Settings workflow: modify settings, save them, and verify that the changes are reflected in the UI and persisted in the backend."
+            "testStrategy": "Test the entire Admin Settings workflow: modify settings, save them, and verify that the changes are reflected in the UI and persisted in the backend.",
+            "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2025-11-06T07:11:07.479Z"
       },
       {
-        "id": 8,
+        "id": "8",
         "title": "Implement View Count Persistence",
         "description": "Persist blog post view counts to a database.",
         "details": "1. Choose a persistent storage solution (e.g., database field, Redis). 2. Modify the trackViewCount function in the blog post API route (app-next-directory/src/app/api/blog/[slug]/route.ts) to update the persistent store. 3. Ensure the view count is incremented correctly and persists across server restarts.",
         "testStrategy": "Verify that view counts are correctly incremented and persisted in the database. Test the functionality by viewing a blog post and checking the database.",
         "priority": "high",
         "dependencies": [
-          3,
-          4,
-          7
+          "3",
+          "4",
+          "7"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -493,7 +531,8 @@
             "dependencies": [],
             "details": "Evaluate options like a database field (e.g., in MongoDB), Redis, or other suitable solutions. Consider factors like performance, scalability, and ease of integration with the existing infrastructure. Document the chosen solution.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -504,7 +543,8 @@
             ],
             "details": "Modify the `trackViewCount` function in `app-next-directory/src/app/api/blog/[slug]/route.ts` to increment the view count in the selected persistent store. Implement the necessary database queries or API calls to update the view count. Handle potential errors during the update process.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -515,7 +555,8 @@
             ],
             "details": "Implement the logic to increment the view count every time a blog post is viewed. Consider potential issues like concurrent requests and ensure the increment operation is atomic or properly synchronized to prevent data corruption. Handle edge cases such as bot traffic.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -527,7 +568,8 @@
             ],
             "details": "Test the persistence of view counts by restarting the server and verifying that the counts are retained in the persistent storage. Implement any necessary mechanisms to ensure data durability, such as database transactions or periodic backups.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -540,37 +582,40 @@
             ],
             "details": "View several blog posts and check the database to verify that the view counts are correctly incremented. Test the functionality by viewing a blog post, checking the database, restarting the server, and then checking the database again to ensure the view count persists. Test with different browsers and devices.",
             "status": "pending",
-            "testStrategy": "Verify that view counts are correctly incremented and persisted in the database. Test the functionality by viewing a blog post and checking the database. Test persistence across server restarts."
+            "testStrategy": "Verify that view counts are correctly incremented and persisted in the database. Test the functionality by viewing a blog post and checking the database. Test persistence across server restarts.",
+            "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2025-11-06T07:11:07.486Z"
       },
       {
-        "id": 9,
+        "id": "9",
         "title": "Integrate Image Optimization Script",
         "description": "Integrate the image optimization script into the application workflow.",
         "details": "1. Review the batch_optimize_images.py script. 2. Integrate the script with the Sanity upload process. 3. Automate the image optimization process after upload.",
         "testStrategy": "Upload an image and verify that it is automatically optimized. Check the image size and quality after optimization.",
         "priority": "medium",
         "dependencies": [
-          6,
-          8
+          "6",
+          "8"
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [],
+        "updatedAt": "2025-11-06T07:11:07.494Z"
       },
       {
-        "id": 10,
+        "id": "10",
         "title": "Implement Admin API Endpoints",
         "description": "Implement the missing admin API endpoints.",
         "details": "1. Implement the GET /api/admin/analytics and GET /api/admin/moderation endpoints. 2. Ensure the endpoints return the correct data in the expected format. 3. Handle potential errors and return appropriate error responses.",
         "testStrategy": "Test the API endpoints directly to ensure they return the correct data. Verify that the Admin Dashboard correctly displays the data fetched from the API.",
         "priority": "high",
         "dependencies": [
-          5,
-          6,
-          7
+          "5",
+          "6",
+          "7"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -579,7 +624,8 @@
             "dependencies": [],
             "details": "Implement the API endpoint to fetch and return analytics data. This includes data aggregation and formatting. Ensure data is retrieved from the correct data sources.",
             "status": "pending",
-            "testStrategy": "Test the endpoint directly to ensure it returns the correct analytics data in the expected format."
+            "testStrategy": "Test the endpoint directly to ensure it returns the correct analytics data in the expected format.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -588,7 +634,8 @@
             "dependencies": [],
             "details": "Implement the API endpoint to fetch and return moderation data. This includes data retrieval and formatting. Ensure data is retrieved from the correct data sources.",
             "status": "pending",
-            "testStrategy": "Test the endpoint directly to ensure it returns the correct moderation data in the expected format."
+            "testStrategy": "Test the endpoint directly to ensure it returns the correct moderation data in the expected format.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -597,7 +644,8 @@
             "dependencies": [],
             "details": "Define TypeScript interfaces or classes to represent the structure of the data returned by the /api/admin/analytics and /api/admin/moderation endpoints. This will ensure type safety and consistency.",
             "status": "pending",
-            "testStrategy": "Ensure the data models accurately reflect the structure of the data returned by the API endpoints."
+            "testStrategy": "Ensure the data models accurately reflect the structure of the data returned by the API endpoints.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -609,7 +657,8 @@
             ],
             "details": "Implement error handling to catch potential errors during data retrieval or processing. Return appropriate HTTP status codes and error messages in the response.",
             "status": "pending",
-            "testStrategy": "Test the error handling by simulating different error scenarios and verifying that the correct error responses are returned."
+            "testStrategy": "Test the error handling by simulating different error scenarios and verifying that the correct error responses are returned.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -621,46 +670,48 @@
             ],
             "details": "Update the Admin Dashboard components to fetch and display the data from the new API endpoints. Ensure the data is displayed correctly and the UI is updated accordingly.",
             "status": "pending",
-            "testStrategy": "Verify that the Admin Dashboard correctly displays the data fetched from the API endpoints."
+            "testStrategy": "Verify that the Admin Dashboard correctly displays the data fetched from the API endpoints.",
+            "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2025-11-06T07:11:07.502Z"
       },
       {
-        "id": 11,
+        "id": "11",
         "title": "Address TypeScript Ignore Flags",
         "description": "Address TypeScript ignore flags and improve type safety.",
         "details": "1. Analyze the use of // @ts-ignore in the FilterSidebar component. 2. Provide proper TypeScript definitions for the webkitSpeechRecognition API or check for the feature's existence in a type-safe way. 3. Remove the // @ts-ignore flags.",
         "testStrategy": "Ensure that the FilterSidebar component functions correctly after removing the // @ts-ignore flags. Check for any type errors or unexpected behavior.",
         "priority": "medium",
         "dependencies": [
-          4
+          "4"
         ],
         "status": "pending",
         "subtasks": []
       },
       {
-        "id": 12,
+        "id": "12",
         "title": "Review and Refactor React Types",
         "description": "Review and refactor custom React type definitions.",
         "details": "1. Review the custom declaration file for React (react.d.ts). 2. Evaluate the impact of redefining React’s FunctionComponent types. 3. Consider alternative approaches to enforce no implicit any in component props without global monkey-patching.",
         "testStrategy": "Ensure that the application continues to function correctly after any changes to the React type definitions. Check for any type errors or unexpected behavior.",
         "priority": "low",
         "dependencies": [
-          4,
-          11
+          "4",
+          "11"
         ],
         "status": "pending",
         "subtasks": []
       },
       {
-        "id": 13,
+        "id": "13",
         "title": "Remove or Replace Console Logging",
         "description": "Remove or replace excessive console logging.",
         "details": "1. Review the codebase for console.log/console.error statements. 2. Remove unnecessary console logging. 3. Replace console logging with proper user feedback or logging to a monitoring system where appropriate.",
         "testStrategy": "Verify that the application functions correctly after removing or replacing console logging. Check for any missing information or unexpected behavior.",
         "priority": "medium",
         "dependencies": [
-          4
+          "4"
         ],
         "status": "pending",
         "subtasks": [
@@ -671,7 +722,8 @@
             "dependencies": [],
             "details": "Use a code search tool or IDE features to locate all occurrences of `console.log` and `console.error` within the project files. Note the file paths and line numbers.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -682,7 +734,8 @@
             ],
             "details": "Evaluate each logging statement. Determine if it provides critical information for debugging or if it's excessive and can be removed or replaced. Consider the context and purpose of each log.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -693,7 +746,8 @@
             ],
             "details": "Delete or comment out the unnecessary `console.log` and `console.error` statements. Ensure that the code still functions correctly after removal.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -704,7 +758,8 @@
             ],
             "details": "Identify instances where console logs could be replaced with user-friendly messages, such as success or error notifications displayed on the UI. Implement appropriate feedback mechanisms.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -715,19 +770,20 @@
             ],
             "details": "Integrate a monitoring system (e.g., Sentry, Datadog) to capture important errors and events. Replace relevant console logs with calls to the monitoring system's logging functions.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 14,
+        "id": "14",
         "title": "Clean Up Commented & Dead Code",
         "description": "Clean up commented and dead code.",
         "details": "1. Review the codebase for commented-out code, especially in API routes. 2. Remove any commented-out code that is no longer relevant. 3. Turn comments into GitHub issues/TODO notes tracked elsewhere.",
         "testStrategy": "Verify that the application functions correctly after removing the commented-out code. Check for any unexpected behavior.",
         "priority": "medium",
         "dependencies": [
-          4
+          "4"
         ],
         "status": "pending",
         "subtasks": [
@@ -738,7 +794,8 @@
             "dependencies": [],
             "details": "Use search tools (e.g., grep, IDE search) to find comments (//, /* */) in the project. Pay close attention to API route files and any files modified recently.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -749,7 +806,8 @@
             ],
             "details": "Examine the context of each comment. Check if the code was related to a previous feature, a temporary fix, or debugging. If the code is no longer needed, it should be removed.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -760,7 +818,8 @@
             ],
             "details": "Carefully remove the identified code blocks. Ensure that the removal does not introduce any syntax errors or break any functionality. Use version control to revert if necessary.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -771,7 +830,8 @@
             ],
             "details": "For comments that describe future work, create a GitHub issue with a descriptive title and details. For TODO notes, add them to a tracking system (e.g., a TODO list file) with a clear description.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -783,19 +843,20 @@
             ],
             "details": "Manually test key features of the application, especially those related to the areas where commented-out code was removed. Check API routes and any related functionality. Look for unexpected behavior or errors.",
             "status": "pending",
-            "testStrategy": "Manually test the application's functionality after removing the commented-out code. Check for any unexpected behavior or errors."
+            "testStrategy": "Manually test the application's functionality after removing the commented-out code. Check for any unexpected behavior or errors.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 15,
+        "id": "15",
         "title": "Tighten Broad 'any' Types and Schema Definitions",
         "description": "Tighten broad 'any' types and schema definitions.",
         "details": "1. Review the BulkOperationResult interface and the admin analytics fetching function. 2. Replace any types with more specific types or generated types from the backend schemas. 3. Improve type safety and compile-time checks.",
         "testStrategy": "Ensure that the application continues to function correctly after tightening the types. Check for any type errors or unexpected behavior.",
         "priority": "medium",
         "dependencies": [
-          4
+          "4"
         ],
         "status": "pending",
         "subtasks": [
@@ -806,7 +867,8 @@
             "dependencies": [],
             "details": "Examine the code for BulkOperationResult and the admin analytics function to pinpoint instances of 'any' usage.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -817,7 +879,8 @@
             ],
             "details": "Identify the schemas that define the data structures for BulkOperationResult and the admin analytics data. This may involve looking at API documentation or backend code.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -829,7 +892,8 @@
             ],
             "details": "Modify the code to use the correct types. This may involve creating new types or using existing ones from the backend schemas.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -840,7 +904,8 @@
             ],
             "details": "Use TypeScript features like type annotations, interfaces, and type guards to improve type safety. Consider using tools like ESLint with TypeScript rules.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -851,20 +916,21 @@
             ],
             "details": "Run unit tests, integration tests, and manual tests to verify the changes. Check for any type errors in the IDE or during compilation.",
             "status": "pending",
-            "testStrategy": "Ensure the application continues to function correctly. Check for type errors and unexpected behavior."
+            "testStrategy": "Ensure the application continues to function correctly. Check for type errors and unexpected behavior.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 16,
+        "id": "16",
         "title": "Reconcile Data Definitions",
         "description": "Reconcile duplicate data definitions.",
         "details": "1. Compare the Listing interface/type used in the admin Listing management page with the global Listing interface/type. 2. If necessary, reconcile these types or derive one from the other to avoid mismatches.",
         "testStrategy": "Ensure that the application functions correctly after reconciling the data definitions. Check for any data inconsistencies or unexpected behavior.",
         "priority": "medium",
         "dependencies": [
-          4,
-          15
+          "4",
+          "15"
         ],
         "status": "pending",
         "subtasks": [
@@ -875,7 +941,8 @@
             "dependencies": [],
             "details": "Examine the Listing interface/type definitions in both the admin Listing management page code and the global codebase. Identify all fields and their data types.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -886,7 +953,8 @@
             ],
             "details": "Document the differences in field names, data types, and any other relevant attributes between the two Listing definitions. Note any missing or conflicting information.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -897,7 +965,8 @@
             ],
             "details": "Based on the identified differences, determine whether to reconcile by merging, deriving one from the other, or creating a new unified definition. Consider the impact on existing code.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -908,7 +977,8 @@
             ],
             "details": "Modify the Listing interface/type definitions according to the chosen strategy. Update any code that uses these definitions to ensure compatibility.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -919,24 +989,25 @@
             ],
             "details": "Test the admin Listing management page and any other parts of the application that use the Listing interface/type. Check for data inconsistencies, type errors, or unexpected behavior. Verify data integrity.",
             "status": "pending",
-            "testStrategy": "Ensure that the application functions correctly after reconciling the data definitions. Check for any data inconsistencies or unexpected behavior."
+            "testStrategy": "Ensure that the application functions correctly after reconciling the data definitions. Check for any data inconsistencies or unexpected behavior.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 17,
+        "id": "17",
         "title": "Optimize Bulk Operations for Scale",
         "description": "Optimize bulk admin operations for scale.",
         "details": "1. Evaluate the performance of the sequential loop in bulk admin operations. 2. Consider implementing parallel operations or backend-side batching for improved performance. 3. Monitor the in-memory map for view counts and address scaling concerns.",
         "testStrategy": "Test the performance of bulk operations with a large number of items. Verify that the operations complete within an acceptable timeframe.",
         "priority": "low",
         "dependencies": [
-          6,
-          8,
-          10,
-          16
+          "6",
+          "8",
+          "10",
+          "16"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -945,7 +1016,8 @@
             "dependencies": [],
             "details": "Use profiling tools to identify performance bottlenecks in the sequential loop used in bulk admin operations. Analyze the time taken for different operations and identify areas for optimization.",
             "status": "pending",
-            "testStrategy": "Run bulk operations with a small and medium number of items and measure the execution time. Use profiling tools to identify bottlenecks."
+            "testStrategy": "Run bulk operations with a small and medium number of items and measure the execution time. Use profiling tools to identify bottlenecks.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -956,7 +1028,8 @@
             ],
             "details": "Explore the possibility of using parallel processing techniques (e.g., multithreading, multiprocessing, or asynchronous tasks) to execute bulk operations concurrently. Consider the overhead of parallelization and potential race conditions.",
             "status": "pending",
-            "testStrategy": "Implement a parallel version of a bulk operation and compare its performance with the sequential version using a large dataset. Measure the execution time and resource utilization."
+            "testStrategy": "Implement a parallel version of a bulk operation and compare its performance with the sequential version using a large dataset. Measure the execution time and resource utilization.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -967,7 +1040,8 @@
             ],
             "details": "Modify the backend code to batch database operations. Instead of performing individual database calls for each item in a bulk operation, group them into larger batches to reduce overhead. Consider using database-specific batching features.",
             "status": "pending",
-            "testStrategy": "Test the performance of bulk operations with and without batching. Measure the execution time and database query count for different batch sizes."
+            "testStrategy": "Test the performance of bulk operations with and without batching. Measure the execution time and database query count for different batch sizes.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -976,7 +1050,8 @@
             "dependencies": [],
             "details": "Implement monitoring for the in-memory map used to store view counts. Track memory usage and access patterns. Implement strategies to handle potential scaling issues, such as sharding or caching.",
             "status": "pending",
-            "testStrategy": "Simulate a high-volume scenario and monitor the memory usage of the view count map. Verify that the system can handle the load without performance degradation or memory issues."
+            "testStrategy": "Simulate a high-volume scenario and monitor the memory usage of the view count map. Verify that the system can handle the load without performance degradation or memory issues.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -987,19 +1062,21 @@
             ],
             "details": "Review the data structures used in bulk operations. Identify any potential inefficiencies and optimize them for performance. Consider using more efficient data structures or algorithms.",
             "status": "pending",
-            "testStrategy": "Compare the performance of bulk operations with the original and optimized data structures. Measure the execution time and memory usage."
+            "testStrategy": "Compare the performance of bulk operations with the original and optimized data structures. Measure the execution time and memory usage.",
+            "parentId": "undefined"
           }
-        ]
+        ],
+        "updatedAt": "2025-11-06T07:11:07.510Z"
       },
       {
-        "id": 18,
+        "id": "18",
         "title": "Improve Error Handling and Resilience",
         "description": "Improve error handling and resilience.",
         "details": "1. Ensure that each component and API has fallback behavior or timeouts. 2. Handle missing analytics responses gracefully in the AdminDashboard. 3. Implement robust error handling throughout the application.",
         "testStrategy": "Test the application under various error conditions (e.g., API failures, network issues). Verify that the application handles errors gracefully and provides appropriate feedback to the user.",
         "priority": "medium",
         "dependencies": [
-          10
+          "10"
         ],
         "status": "pending",
         "subtasks": [
@@ -1010,7 +1087,8 @@
             "dependencies": [],
             "details": "Set a reasonable timeout duration (e.g., 5-10 seconds) for all API requests using the fetch API or a similar mechanism. Consider using libraries like axios that provide timeout options. Ensure that the application handles timeout errors gracefully.",
             "status": "pending",
-            "testStrategy": "Verify that API calls timeout as expected under simulated network latency or API unavailability. Check that the application displays an appropriate error message to the user."
+            "testStrategy": "Verify that API calls timeout as expected under simulated network latency or API unavailability. Check that the application displays an appropriate error message to the user.",
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1019,7 +1097,8 @@
             "dependencies": [],
             "details": "For components that rely on external data or services, implement fallback UI or alternative data sources. For example, if the analytics API fails, display a default message or cached data. Consider using error boundaries in React to catch and handle errors within component trees.",
             "status": "pending",
-            "testStrategy": "Simulate API failures or data unavailability and verify that the fallback mechanisms are triggered correctly. Check that the fallback UI or data is displayed as expected."
+            "testStrategy": "Simulate API failures or data unavailability and verify that the fallback mechanisms are triggered correctly. Check that the fallback UI or data is displayed as expected.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1030,7 +1109,8 @@
             ],
             "details": "Modify the AdminDashboard to handle cases where analytics data is missing or incomplete. Display a user-friendly message or a placeholder instead of crashing or displaying broken UI elements. Consider logging the error for debugging purposes.",
             "status": "pending",
-            "testStrategy": "Simulate missing or incomplete analytics data and verify that the AdminDashboard handles it gracefully. Check that the UI displays the expected placeholder or message."
+            "testStrategy": "Simulate missing or incomplete analytics data and verify that the AdminDashboard handles it gracefully. Check that the UI displays the expected placeholder or message.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1039,7 +1119,8 @@
             "dependencies": [],
             "details": "Create a global error handler (e.g., using try-catch blocks, error boundaries, or a dedicated error handling service). Log errors to a server-side logging service (e.g., Sentry, Rollbar) for monitoring and debugging. Display user-friendly error messages to the user, avoiding technical jargon.",
             "status": "pending",
-            "testStrategy": "Trigger various types of errors (e.g., API errors, JavaScript errors) and verify that they are caught by the centralized error handler. Check that the errors are logged correctly and that the user receives appropriate feedback."
+            "testStrategy": "Trigger various types of errors (e.g., API errors, JavaScript errors) and verify that they are caught by the centralized error handler. Check that the errors are logged correctly and that the user receives appropriate feedback.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1050,50 +1131,51 @@
             ],
             "details": "Implement a retry mechanism with exponential backoff for API calls that fail due to transient issues (e.g., network problems). Limit the number of retries to prevent infinite loops. Consider using a library like 'p-retry' for this purpose.",
             "status": "pending",
-            "testStrategy": "Simulate API failures and verify that the retry mechanism attempts to retry the calls. Check that the calls eventually succeed (if the issue is transient) or that the application handles the failure gracefully after exhausting the retries."
+            "testStrategy": "Simulate API failures and verify that the retry mechanism attempts to retry the calls. Check that the calls eventually succeed (if the issue is transient) or that the application handles the failure gracefully after exhausting the retries.",
+            "parentId": "undefined"
           }
         ]
       },
       {
-        "id": 19,
+        "id": "19",
         "title": "Clean Up Development Artifacts",
         "description": "Clean up development artifacts.",
         "details": "1. Review the repository for development and testing files (e.g., test-dashboard-completion.js, memory-bank/ logs, AI assistant context files). 2. Remove or archive these files once they have served their purpose.",
         "testStrategy": "Verify that the application functions correctly after removing the development artifacts. Check for any missing functionality or unexpected behavior.",
         "priority": "low",
         "dependencies": [
-          4
+          "4"
         ],
         "status": "pending",
         "subtasks": []
       },
       {
-        "id": 20,
+        "id": "20",
         "title": "Final Code Review and Testing",
         "description": "Perform a final code review and testing.",
         "details": "1. Review all changes made in the previous tasks. 2. Perform comprehensive testing of the application to ensure all features are working correctly. 3. Address any remaining issues or bugs.",
         "testStrategy": "Perform thorough testing of all features and functionalities. Ensure that all tests pass and that the application meets the required standards.",
         "priority": "high",
         "dependencies": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17,
-          18,
-          19
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19"
         ],
         "status": "pending",
         "subtasks": [
@@ -1124,7 +1206,8 @@
             ],
             "details": "Examine code diffs, focusing on changes related to functionality, performance, and code style. Ensure adherence to coding standards and best practices.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": null,
+            "parentId": "undefined"
           },
           {
             "id": 2,
@@ -1135,7 +1218,8 @@
             ],
             "details": "Test core functionalities, including user authentication, data display, form submissions, and navigation. Verify expected behavior and data integrity.",
             "status": "pending",
-            "testStrategy": "Execute test cases covering all features. Verify expected behavior and data integrity. Document test results."
+            "testStrategy": "Execute test cases covering all features. Verify expected behavior and data integrity. Document test results.",
+            "parentId": "undefined"
           },
           {
             "id": 3,
@@ -1146,7 +1230,8 @@
             ],
             "details": "Verify the layout, responsiveness, and visual elements of the application. Ensure a smooth and intuitive user experience across different devices and browsers.",
             "status": "pending",
-            "testStrategy": "Test on different devices and browsers. Check for responsiveness and visual consistency. Ensure a smooth and intuitive user experience."
+            "testStrategy": "Test on different devices and browsers. Check for responsiveness and visual consistency. Ensure a smooth and intuitive user experience.",
+            "parentId": "undefined"
           },
           {
             "id": 4,
@@ -1157,7 +1242,8 @@
             ],
             "details": "Measure page load times, response times, and resource usage. Identify and address any performance bottlenecks.",
             "status": "pending",
-            "testStrategy": "Use performance testing tools to measure page load times, response times, and resource usage. Identify and address any performance bottlenecks."
+            "testStrategy": "Use performance testing tools to measure page load times, response times, and resource usage. Identify and address any performance bottlenecks.",
+            "parentId": "undefined"
           },
           {
             "id": 5,
@@ -1170,15 +1256,20 @@
             ],
             "details": "Prioritize and fix bugs based on severity. Ensure all issues are resolved and verified through retesting.",
             "status": "pending",
-            "testStrategy": "Retest all fixed issues to ensure they are resolved. Verify that no new issues were introduced during the fix."
+            "testStrategy": "Retest all fixed issues to ensure they are resolved. Verify that no new issues were introduced during the fix.",
+            "parentId": "undefined"
           }
         ]
       }
     ],
     "metadata": {
-      "created": "2025-11-05T17:33:51.675Z",
-      "updated": "2025-11-05T17:33:51.675Z",
-      "description": "Tasks for master context"
+      "version": "1.0.0",
+      "lastModified": "2025-11-06T07:11:07.512Z",
+      "taskCount": 20,
+      "completedCount": 7,
+      "tags": [
+        "master"
+      ]
     }
   }
 }
