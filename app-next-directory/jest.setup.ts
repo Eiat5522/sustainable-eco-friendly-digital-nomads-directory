@@ -225,7 +225,7 @@ if (!global.fetch) {
 
 // Ensure a safe default `window` and `window.plausible` exists to avoid
 // module-load time errors in modules that access `window.plausible` during
-// import. Individual tests may still delete or override `global.window`.
+// Individual tests may still delete or override `global.window`.
 if (!(global as any).window) {
   (global as any).window = { plausible: jest.fn() };
 } else if (typeof (global as any).window.plausible !== 'function') {
@@ -379,10 +379,9 @@ jest.mock('next/server', () => {
 // helpers are attached only in test environments. Use per-test mocks when
 // specific behavior is required.
 
-// Ensure the rate-limit utilities are mocked for all tests.
-// Ensure the rate-limit utilities are mocked for all tests. Some test files
-// import the module early; mock it explicitly here with a factory so the
-// exported functions are guaranteed to be `jest.fn()` and support
+// Ensure the rate-limit utilities are mocked for all tests. Some suites import
+// the module early; mock it explicitly here with a factory so the
+// resulting exports are guaranteed to be `jest.fn()` and support
 // `.mockReturnValue` / `.mockResolvedValue` regardless of CJS/ESM interop.
 jest.mock('@/lib/rate-limit', () => {
   // Using the module-level `jest` import instead of requiring it.

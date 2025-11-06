@@ -66,7 +66,7 @@ const loadValidator = async (): Promise<Validator> => {
 // rely on standard `jest.mock('@upstash/ratelimit')` patterns (already used in
 // rate-limiting tests) or import a dedicated test utility if deeper behavior
 // control is required. This production module now focuses solely on runtime
-// functionality; no test-only mutation occurs here.
+// behaviour; no test-only mutation occurs here.
 
 const createSlidingWindowLimiter = (ctor: typeof UpstashRatelimit) => {
   const maybeStatic = (ctor as unknown as { slidingWindow?: (limit: number, window: string) => RatelimitConfig['limiter'] }).slidingWindow;

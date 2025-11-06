@@ -2,10 +2,7 @@ import 'server-only'
 import NextAuth, { type NextAuthConfig } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 // Use CommonJS-friendly deep imports to avoid ESM parsing issues in Jest
-// import Google from 'next-auth/providers/google'
-// import Facebook from 'next-auth/providers/facebook'
-// import Twitter from 'next-auth/providers/twitter'
-// import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id'
+// TODO(auth): Re-introduce OAuth providers once their credentials are configured.
 import { createAuthAdapter } from '@/lib/auth/adapter'
 import { authenticateUser, getUserById } from '@/lib/auth/serverAuth'
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit'
@@ -70,44 +67,8 @@ const providers: NextAuthConfig['providers'] = [
   }),
 ]
 
-// Temporarily disable OAuth providers until their credentials are configured.
-// if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-//   providers.push(
-//     Google({
-//       clientId: process.env.GOOGLE_CLIENT_ID,
-//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//     })
-//   )
-// }
-
-// if (process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET) {
-//   providers.push(
-//     Facebook({
-//       clientId: process.env.FACEBOOK_CLIENT_ID,
-//       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-//     })
-//   )
-// }
-
-// if (process.env.X_CLIENT_ID && process.env.X_CLIENT_SECRET) {
-//   providers.push(
-//     Twitter({
-//       clientId: process.env.X_CLIENT_ID,
-//       clientSecret: process.env.X_CLIENT_SECRET,
-//     })
-//   )
-// }
-
-// if (process.env.AUTH_MICROSOFT_ENTRA_ID_ID && process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET) {
-//   providers.push(
-//     MicrosoftEntraID({
-//       name: 'Microsoft',
-//       clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID,
-//       clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET,
-//        // tenantId removed to satisfy NextAuth v5 typings; default 'common' used by provider internally if needed
-//     })
-//   )
-// }
+// TODO(auth): When OAuth credentials are available, extend `providers` with the
+// relevant NextAuth providers (Google, Facebook, X/Twitter, Microsoft Entra ID).
 
 const adapter = createAuthAdapter();
 
@@ -116,11 +77,8 @@ const callbacks = {
       try {
         // Only apply to OAuth providers; credentials flow already enforces verification.
         if (account?.provider && account.provider !== 'credentials' && user?.email) {
-        // Rate limit check (implement based on your rate limiting strategy)
-        // if (await isRateLimited(user.email)) {
-        //   console.warn('[auth] Rate limit hit for email verification', user.email);
-        //   return true;
-        // }
+        // TODO(auth): Reinstate rate-limit enforcement for OAuth verification
+        // callbacks once the shared rate limiter is ready for this flow.
 
           // Heuristics across providers
           const p = (profile ?? {}) as Record<string, unknown>;
