@@ -32,13 +32,6 @@ async function storePerformanceData(_metricData: EnhancedMetricData): Promise<bo
     }
 
     // In production, we would store in a database
-    // Example using MongoDB (we would import the client first)
-    // const { db } = await connectToDatabase();
-    // await db.collection('performance_metrics').insertOne({
-    //   ...metricData,
-    //   createdAt: new Date()
-    // });
-
     return true;
   } catch (error) {
     console.error('[Performance Storage] Error storing metric:', error);

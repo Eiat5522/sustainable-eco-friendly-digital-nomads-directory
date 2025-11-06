@@ -23,7 +23,3 @@ export async function GET(
     return ApiResponseHandler.error('Failed to fetch city', 500);
   }
 }
-// You can add other HTTP method handlers here as needed:
-// export async function POST(request: NextRequest, context: RouteContext) { ... }
-// export async function PUT(request: NextRequest, context: RouteContext) { ... }
-// export async function DELETE(request: NextRequest, context: RouteContext) { ... }
