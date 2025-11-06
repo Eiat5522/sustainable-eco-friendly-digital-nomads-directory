@@ -6,6 +6,12 @@ import {
   analyzeContent,
   summarizeModerationQueue,
 } from '../analytics';
+import type {
+  BulkOperationType,
+  ListingWorkflowPatch,
+  ModerationAction,
+  ModerationHistoryEntry,
+} from '../analytics';
 import { client } from '@/lib/sanity/client';
 
 jest.mock('@/lib/sanity/client', () => {
@@ -15,14 +21,86 @@ jest.mock('@/lib/sanity/client', () => {
   return { client: { fetch, patch, transaction } };
 });
 
+type MockPatchChain = {
+  set: jest.MockedFunction<(payload: Record<string, unknown>) => MockPatchChain>;
+  setIfMissing: jest.MockedFunction<(value: Record<string, unknown>) => MockPatchChain>;
+  append: jest.MockedFunction<(field: string, value: ModerationHistoryEntry[]) => MockPatchChain>;
+  commit: jest.MockedFunction<(options?: { autoGenerateArrayKeys?: boolean }) => Promise<void>>;
+};
+
+const createMockPatchChain = (): MockPatchChain => {
+  const chain: MockPatchChain = {
+    set: jest.fn<MockPatchChain, [Record<string, unknown>]>(),
+    setIfMissing: jest.fn<MockPatchChain, [Record<string, unknown>]>(),
+    append: jest.fn<MockPatchChain, [string, ModerationHistoryEntry[]]>(),
+    commit: jest.fn<Promise<void>, [{ autoGenerateArrayKeys?: boolean }?]>(),
+  };
+
+  chain.set.mockImplementation(() => chain);
+  chain.setIfMissing.mockImplementation(() => chain);
+  chain.append.mockImplementation(() => chain);
+  chain.commit.mockResolvedValue(undefined);
+
+  return chain;
+};
+
+type MockPatchApi = {
+  set: jest.MockedFunction<(payload: ListingWorkflowPatch) => MockPatchApi>;
+};
+
+type PatchUpdater = (patch: MockPatchApi) => unknown;
+
+type MockTransaction = {
+  patch: jest.MockedFunction<(id: string, updater: PatchUpdater) => MockTransaction>;
+  commit: jest.MockedFunction<() => Promise<void>>;
+};
+
+const createMockTransaction = ({
+  onSet,
+  commitImplementation,
+}: {
+  onSet?: (payload: ListingWorkflowPatch) => void;
+  commitImplementation?: () => Promise<void>;
+} = {}): MockTransaction => {
+  const transaction: MockTransaction = {
+    patch: jest.fn<MockTransaction, [string, PatchUpdater]>(),
+    commit: jest.fn<Promise<void>, []>(),
+  };
+
+  transaction.patch.mockImplementation((_id, updater) => {
+    const patchApi: MockPatchApi = {
+      set: jest.fn<MockPatchApi, [ListingWorkflowPatch]>(),
+    };
+
+    patchApi.set.mockImplementation((payload) => {
+      onSet?.(payload);
+      return patchApi;
+    });
+
+    updater(patchApi);
+    return transaction;
+  });
+
+  if (commitImplementation) {
+    transaction.commit.mockImplementation(commitImplementation);
+  } else {
+    transaction.commit.mockResolvedValue(undefined);
+  }
+
+  return transaction;
+};
+
 describe('admin analytics helpers', () => {
-  const fetchMock = client.fetch as jest.Mock;
-  const patchMock = client.patch as jest.Mock;
-  const transactionMock = client.transaction as jest.Mock;
+  const mockedClient = jest.mocked(client);
+  const fetchMock = mockedClient.fetch;
+  const patchMock = mockedClient.patch;
+  const transactionMock = mockedClient.transaction;
 
   beforeEach(() => {
     jest.clearAllMocks();
     fetchMock.mockReset();
+    patchMock.mockReset();
+    transactionMock.mockReset();
   });
 
   it('normalizes moderation queue entries', async () => {
@@ -34,7 +112,10 @@ describe('admin analytics helpers', () => {
         itemType: 'listing',
         itemName: 'Eco Hub',
         itemId: 'listing-1',
-        userReports: [{}, {}],
+        userReports: [
+          { _key: 'report-1' },
+          { _key: 'report-2' },
+        ],
       },
       {
         _id: 'mod-2',
@@ -70,7 +151,7 @@ describe('admin analytics helpers', () => {
   });
 
   it('returns aggregated analytics snapshot', async () => {
-    const fetchSequence: Array<any> = [
+    const fetchSequence: unknown[] = [
       10,
       undefined,
       2,
@@ -83,7 +164,7 @@ describe('admin analytics helpers', () => {
           itemType: 'listing',
           itemName: 'Eco',
           itemId: '1',
-          userReports: [{}],
+          userReports: [{ _key: 'report-3' }],
         },
       ],
       1,
@@ -117,8 +198,8 @@ describe('admin analytics helpers', () => {
   });
 
   it('handles missing analytics values gracefully', async () => {
-    const emptyQueue: any[] = [];
-    const fetchSequence: Array<any> = [
+    const emptyQueue: unknown[] = [];
+    const fetchSequence: unknown[] = [
       undefined,
       undefined,
       undefined,
@@ -151,7 +232,11 @@ describe('admin analytics helpers', () => {
 
   it('throws on unsupported moderation action', async () => {
     await expect(
-      performModerationAction({ moderationId: 'mod-1', actorId: 'user-1', action: 'invalid' as any })
+      performModerationAction({
+        moderationId: 'mod-1',
+        actorId: 'user-1',
+        action: 'invalid' as unknown as ModerationAction,
+      })
     ).rejects.toThrow('Unsupported moderation action');
   });
 
@@ -168,13 +253,8 @@ describe('admin analytics helpers', () => {
       },
     ]);
 
-    const patchChain = {
-      set: jest.fn().mockReturnThis(),
-      setIfMissing: jest.fn().mockReturnThis(),
-      append: jest.fn().mockReturnThis(),
-      commit: jest.fn().mockResolvedValue(undefined),
-    };
-    patchMock.mockReturnValue(patchChain);
+    const patchChain = createMockPatchChain();
+    patchMock.mockReturnValue(patchChain as unknown as ReturnType<typeof client.patch>);
 
     const result = await performModerationAction({
       moderationId: 'mod-1',
@@ -209,13 +289,8 @@ describe('admin analytics helpers', () => {
       },
     ]);
 
-    const patchChain = {
-      set: jest.fn().mockReturnThis(),
-      setIfMissing: jest.fn().mockReturnThis(),
-      append: jest.fn().mockReturnThis(),
-      commit: jest.fn().mockResolvedValue(undefined),
-    };
-    patchMock.mockReturnValue(patchChain);
+    const patchChain = createMockPatchChain();
+    patchMock.mockReturnValue(patchChain as unknown as ReturnType<typeof client.patch>);
 
     await performModerationAction({
       moderationId: 'mod-1',
@@ -242,13 +317,8 @@ describe('admin analytics helpers', () => {
       },
     ]);
 
-    const patchChain = {
-      set: jest.fn().mockReturnThis(),
-      setIfMissing: jest.fn().mockReturnThis(),
-      append: jest.fn().mockReturnThis(),
-      commit: jest.fn().mockResolvedValue(undefined),
-    };
-    patchMock.mockReturnValue(patchChain);
+    const patchChain = createMockPatchChain();
+    patchMock.mockReturnValue(patchChain as unknown as ReturnType<typeof client.patch>);
 
     await performModerationAction({ moderationId: 'mod-1', actorId: 'admin-1', action: 'approve' });
 
@@ -260,13 +330,8 @@ describe('admin analytics helpers', () => {
   it('returns null moderation entry when queue is empty after action', async () => {
     fetchMock.mockResolvedValueOnce([]);
 
-    const patchChain = {
-      set: jest.fn().mockReturnThis(),
-      setIfMissing: jest.fn().mockReturnThis(),
-      append: jest.fn().mockReturnThis(),
-      commit: jest.fn().mockResolvedValue(undefined),
-    };
-    patchMock.mockReturnValue(patchChain);
+    const patchChain = createMockPatchChain();
+    patchMock.mockReturnValue(patchChain as unknown as ReturnType<typeof client.patch>);
 
     const result = await performModerationAction({ moderationId: 'mod-1', actorId: 'admin-1', action: 'approve' });
 
@@ -274,22 +339,9 @@ describe('admin analytics helpers', () => {
   });
 
   it('runs bulk operations across all ids', async () => {
-    const commit = jest.fn().mockResolvedValue(undefined);
-    const setCalls: Record<string, unknown>[] = [];
-    const transactionInstance = {
-      patch: jest.fn().mockImplementation((_id: string, updater: (patch: any) => any) => {
-        const patchApi = {
-          set: jest.fn().mockImplementation((data) => {
-            setCalls.push(data);
-            return patchApi;
-          }),
-        };
-        updater(patchApi);
-        return transactionInstance;
-      }),
-      commit,
-    };
-    transactionMock.mockReturnValue(transactionInstance);
+    const setCalls: ListingWorkflowPatch[] = [];
+    const transactionInstance = createMockTransaction({ onSet: (payload) => setCalls.push(payload) });
+    transactionMock.mockReturnValue(transactionInstance as unknown as ReturnType<typeof client.transaction>);
 
     const result = await runBulkOperation({ operation: 'publishListings', ids: ['a', 'b'] });
 
@@ -299,22 +351,9 @@ describe('admin analytics helpers', () => {
   });
 
   it('applies unpublish patches when requested', async () => {
-    const commit = jest.fn().mockResolvedValue(undefined);
-    const patchSets: Record<string, unknown>[] = [];
-    const transactionInstance = {
-      patch: jest.fn().mockImplementation((_id: string, updater: (patch: any) => any) => {
-        const patchApi = {
-          set: jest.fn().mockImplementation((payload) => {
-            patchSets.push(payload);
-            return patchApi;
-          }),
-        };
-        updater(patchApi);
-        return transactionInstance;
-      }),
-      commit,
-    };
-    transactionMock.mockReturnValue(transactionInstance);
+    const patchSets: ListingWorkflowPatch[] = [];
+    const transactionInstance = createMockTransaction({ onSet: (payload) => patchSets.push(payload) });
+    transactionMock.mockReturnValue(transactionInstance as unknown as ReturnType<typeof client.transaction>);
 
     await runBulkOperation({ operation: 'unpublishListings', ids: ['listing-1'] });
 
@@ -325,22 +364,9 @@ describe('admin analytics helpers', () => {
   });
 
   it('marks listings as featured during feature bulk operations', async () => {
-    const commit = jest.fn().mockResolvedValue(undefined);
-    const featurePayloads: Record<string, unknown>[] = [];
-    const transactionInstance = {
-      patch: jest.fn().mockImplementation((_id: string, updater: (patch: any) => any) => {
-        const patchApi = {
-          set: jest.fn().mockImplementation((payload) => {
-            featurePayloads.push(payload);
-            return patchApi;
-          }),
-        };
-        updater(patchApi);
-        return transactionInstance;
-      }),
-      commit,
-    };
-    transactionMock.mockReturnValue(transactionInstance);
+    const featurePayloads: ListingWorkflowPatch[] = [];
+    const transactionInstance = createMockTransaction({ onSet: (payload) => featurePayloads.push(payload) });
+    transactionMock.mockReturnValue(transactionInstance as unknown as ReturnType<typeof client.transaction>);
 
     await runBulkOperation({ operation: 'featureListings', ids: ['listing-2'] });
 
@@ -348,16 +374,14 @@ describe('admin analytics helpers', () => {
       'adminWorkflow.isFeatured': true,
       'adminWorkflow.lastChangedAt': expect.any(String),
     });
-    expect(commit).toHaveBeenCalled();
+    expect(transactionInstance.commit).toHaveBeenCalled();
   });
 
   it('returns failure details when bulk operations fail', async () => {
-    const commit = jest.fn().mockRejectedValue(new Error('boom'));
-    const transactionInstance = {
-      patch: jest.fn().mockReturnThis(),
-      commit,
-    };
-    transactionMock.mockReturnValue(transactionInstance);
+    const transactionInstance = createMockTransaction({
+      commitImplementation: () => Promise.reject(new Error('boom')),
+    });
+    transactionMock.mockReturnValue(transactionInstance as unknown as ReturnType<typeof client.transaction>);
 
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
 
@@ -377,7 +401,7 @@ describe('admin analytics helpers', () => {
     });
 
     await expect(
-      runBulkOperation({ operation: 'not-supported' as any, ids: ['1'] })
+      runBulkOperation({ operation: 'not-supported' as unknown as BulkOperationType, ids: ['1'] })
     ).rejects.toThrow('Unsupported bulk operation');
   });
 

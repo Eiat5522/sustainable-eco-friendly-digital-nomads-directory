@@ -1,4 +1,5 @@
 import 'server-only';
+import type { ModerationStatus } from '@sanity/sanity.types';
 import { client } from '@/lib/sanity/client';
 
 export type AdminModerationEntry = {
@@ -39,22 +40,38 @@ const ROLE_QUERIES = [
 ] as const;
 
 async function fetchRoleCounts(): Promise<Record<string, number>> {
-  const counts = await Promise.all(ROLE_QUERIES.map(({ query }) => client.fetch(query)));
+  const counts = await Promise.all(ROLE_QUERIES.map(({ query }) => client.fetch<number>(query)));
   return ROLE_QUERIES.reduce<Record<string, number>>((acc, { role }, index) => {
     acc[role] = counts[index] ?? 0;
     return acc;
   }, {});
 }
 
-type ModerationQueueProjection = {
-  _id: string;
-  _createdAt: string;
-  status: string;
+type ModerationReport = NonNullable<ModerationStatus['userReports']>[number];
+
+type ModerationQueueProjection = Pick<ModerationStatus, '_id' | '_createdAt' | 'status'> & {
   itemType?: string;
   itemName?: string;
   itemId?: string;
-  userReports?: Array<unknown> | null;
+  userReports?: ModerationReport[] | null;
 };
+
+function isModerationReport(value: unknown): value is ModerationReport {
+  if (value === null || typeof value !== 'object') {
+    return false;
+  }
+
+  const report = value as Partial<ModerationReport>;
+  return typeof report._key === 'string';
+}
+
+function normalizeReportCount(reports: ModerationQueueProjection['userReports']): number {
+  if (!Array.isArray(reports)) {
+    return 0;
+  }
+
+  return reports.filter(isModerationReport).length;
+}
 
 export async function fetchModerationQueue(limit = 10): Promise<AdminModerationEntry[]> {
   const queue = await client.fetch<ModerationQueueProjection[]>(
@@ -75,7 +92,7 @@ export async function fetchModerationQueue(limit = 10): Promise<AdminModerationE
     itemType: item.itemType ?? 'unknown',
     itemName: item.itemName ?? 'Unnamed Item',
     itemId: item.itemId ?? 'unknown',
-    reports: Array.isArray(item.userReports) ? item.userReports.length : 0,
+    reports: normalizeReportCount(item.userReports),
     lastActivity: item._createdAt,
     status: item.status ?? 'pending',
   }));
@@ -135,6 +152,29 @@ type ModerationActionInput = {
   notes?: string;
 };
 
+export type ModerationHistoryEntry = {
+  action: ModerationAction;
+  actor: string;
+  notes: string | null;
+  at: string;
+};
+
+const createEmptyModerationHistory = (): { moderationHistory: ModerationHistoryEntry[] } => ({
+  moderationHistory: [],
+});
+
+const createModerationHistoryEntry = (
+  action: ModerationAction,
+  actorId: string,
+  notes: string | undefined,
+  timestamp: string
+): ModerationHistoryEntry => ({
+  action,
+  actor: actorId,
+  notes: notes ?? null,
+  at: timestamp,
+});
+
 export async function performModerationAction({
   moderationId,
   actorId,
@@ -154,20 +194,8 @@ export async function performModerationAction({
         ? { status, lastActionAt: timestamp }
         : { lastActionAt: timestamp }
     )
-    .setIfMissing({ moderationHistory: [] as Array<{
-      action: ModerationAction;
-      actor: string;
-      notes: string | null;
-      at: string;
-    }> })
-    .append('moderationHistory', [
-      {
-        action,
-        actor: actorId,
-        notes: notes ?? null,
-        at: timestamp,
-      },
-    ]);
+    .setIfMissing(createEmptyModerationHistory())
+    .append('moderationHistory', [createModerationHistoryEntry(action, actorId, notes, timestamp)]);
 
   if (notes) {
     patch.set({ resolutionNotes: notes });
@@ -181,7 +209,19 @@ export async function performModerationAction({
 
 export type BulkOperationType = 'publishListings' | 'unpublishListings' | 'featureListings';
 
-const BULK_OPERATION_PATCH: Record<BulkOperationType, (timestamp: string) => Record<string, unknown>> = {
+type PublishWorkflowPatch = {
+  'adminWorkflow.status': 'published' | 'unpublished';
+  'adminWorkflow.lastChangedAt': string;
+};
+
+type FeatureWorkflowPatch = {
+  'adminWorkflow.isFeatured': boolean;
+  'adminWorkflow.lastChangedAt': string;
+};
+
+export type ListingWorkflowPatch = PublishWorkflowPatch | FeatureWorkflowPatch;
+
+const BULK_OPERATION_PATCH: Record<BulkOperationType, (timestamp: string) => ListingWorkflowPatch> = {
   publishListings: (timestamp) => ({
     'adminWorkflow.status': 'published',
     'adminWorkflow.lastChangedAt': timestamp,
