@@ -620,6 +620,12 @@ export async function getCollection(name: string): Promise<Collection | MockColl
     throw new Error('Database instance is invalid');
   }
 
-  const collection = db.collection(name);
-  return collection;
+  // Type assertion needed because db can be either Db or MockDb
+  if ('collections' in db) {
+    // It's a MockDb
+    return (db as MockDb).collection(name) as MockCollection;
+  } else {
+    // It's a MongoDB Db
+    return (db as Db).collection(name) as Collection;
+  }
 }
