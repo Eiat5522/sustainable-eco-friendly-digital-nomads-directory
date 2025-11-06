@@ -68,6 +68,32 @@ describe('VenueListingManagement', () => {
     expect(await screen.findByText('Error: Failed to fetch listings')).toBeInTheDocument();
   });
 
+  it('normalises ApiResponse payloads and nested listing fields', async () => {
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        success: true,
+        data: {
+          listings: [
+            { _id: '1', name: 'Eco Hub', city: { name: 'Lisbon' }, moderationStatus: 'pending' },
+            { id: '2', title: 'Solar Workspace', city: 'Porto', moderation: { status: 'draft' } },
+            { _id: '3', name: 'Incomplete', city: { label: 'Unknown' }, status: '' },
+          ],
+        },
+      }),
+    } as Response);
+
+    render(<VenueListingManagement />);
+
+    expect(await screen.findByText('Eco Hub')).toBeInTheDocument();
+    expect(screen.getByText('Lisbon')).toBeInTheDocument();
+    expect(screen.getByText('pending')).toBeInTheDocument();
+    expect(screen.getByText('Solar Workspace')).toBeInTheDocument();
+    expect(screen.getByText('Porto')).toBeInTheDocument();
+    expect(screen.getByText('draft')).toBeInTheDocument();
+    expect(screen.queryByText('Incomplete')).not.toBeInTheDocument();
+  });
+
   it('shows an error message when the initial fetch response is not ok', async () => {
     fetchMock.mockResolvedValueOnce({
       ok: false,

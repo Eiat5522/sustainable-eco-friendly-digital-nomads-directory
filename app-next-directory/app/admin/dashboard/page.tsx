@@ -8,8 +8,7 @@ import {
   type AdminAnalyticsSnapshot,
   type AdminModerationEntry,
 } from '@/lib/admin/analytics';
-import { RequestTimeoutError } from '@/lib/http/request';
-import { logError, getUserFacingMessage } from '@/lib/error-handler';
+import { structuredLogger } from '@/lib/logger';
 import { ModerationActions } from './ModerationActions';
 
 export const dynamic = 'force-dynamic';
@@ -168,14 +167,11 @@ async function loadAnalytics(): Promise<AnalyticsLoadResult> {
     const analytics = await fetchAdminAnalytics();
     return { analytics: normalizeAnalyticsSnapshot(analytics) };
   } catch (error) {
-    logError(error, { scope: 'admin-dashboard', action: 'loadAnalytics' });
-    const timeoutMessage = error instanceof RequestTimeoutError
-      ? 'Analytics request timed out. Please retry shortly.'
-      : undefined;
-    return {
-      analytics: null,
-      errorMessage: timeoutMessage ?? getUserFacingMessage(error, 'Unable to load dashboard data. Please try again later.'),
-    };
+    structuredLogger.error('Failed to fetch admin analytics', error, {
+      route: '/admin/dashboard',
+      component: 'AdminDashboardPage',
+    });
+    return null;
   }
 }
 

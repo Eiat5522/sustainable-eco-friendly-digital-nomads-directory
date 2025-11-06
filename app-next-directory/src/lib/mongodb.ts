@@ -23,8 +23,9 @@ let clientPromise: Promise<any>;
 const shouldMockMongo = process.env.NODE_ENV === 'test' || process.env.E2E === '1';
 
 if (shouldMockMongo) {
-  // In test environment, check if jest is available for enhanced mocking
-  const mockCollectionInstance = {
+  // Create a mock collection that tests can override
+  // Use simple async functions that can be replaced by jest.fn() in tests
+  const mockCollectionInstance: MockCollection = {
     createIndexes: async () => ({}),
     createIndex: async () => ({}),
     findOne: async () => null,
@@ -41,7 +42,7 @@ if (shouldMockMongo) {
       collection: () => mockCollectionInstance,
     }),
     _mockCollection: mockCollectionInstance, // Expose for testing
-  } as { db: () => MockDb; _mockCollection?: typeof mockCollectionInstance };
+  } as { db: () => MockDb; _mockCollection?: MockCollection };
 
   clientPromise = Promise.resolve(mockClient);
 } else {

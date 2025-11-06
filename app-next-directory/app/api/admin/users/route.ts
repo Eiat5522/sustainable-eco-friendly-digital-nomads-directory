@@ -2,8 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { client } from '@/lib/sanity/client';
-import { withRequestTimeout, RequestTimeoutError, getDefaultTimeout } from '@/lib/http/request';
-import { createRouteError } from '@/lib/error-handler';
+import { structuredLogger } from '@/lib/logger';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -113,8 +112,11 @@ export async function GET(request: NextRequest, _context: RouteContext) {
       },
     });
   } catch (error) {
-    const status = error instanceof RequestTimeoutError ? 504 : 500;
-    return createRouteError(error, { scope: 'api:admin:users', action: 'GET' }, 'Failed to fetch users', status);
+    structuredLogger.error('Admin users GET error', error, {
+      route: '/api/admin/users',
+      method: 'GET',
+    });
+    return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
   }
 }
 
@@ -178,12 +180,10 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
       updates: updateData,
     });
   } catch (error) {
-    const status = error instanceof RequestTimeoutError ? 504 : 500;
-    return createRouteError(
-      error,
-      { scope: 'api:admin:users', action: 'PATCH', details: { userId: userIdValue } },
-      'Failed to update user',
-      status
-    );
+    structuredLogger.error('Admin users PATCH error', error, {
+      route: '/api/admin/users',
+      method: 'PATCH',
+    });
+    return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
   }
 }

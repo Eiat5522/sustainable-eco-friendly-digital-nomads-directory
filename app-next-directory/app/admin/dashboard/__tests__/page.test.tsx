@@ -9,6 +9,12 @@ jest.mock('@/lib/admin/analytics', () => ({
   fetchAdminAnalytics: jest.fn(),
 }));
 
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    error: jest.fn(),
+  },
+}));
+
 const redirectMock = jest.fn();
 
 jest.mock('next/navigation', () => ({
@@ -24,6 +30,9 @@ jest.mock('../ModerationActions', () => ({
 const mockAuth = jest.requireMock('@/lib/auth').auth as jest.Mock;
 const mockFetchAnalytics = jest.requireMock('@/lib/admin/analytics')
   .fetchAdminAnalytics as jest.Mock;
+const mockLogger = jest.requireMock('@/lib/logger').structuredLogger as {
+  error: jest.Mock;
+};
 
 const buildSnapshot = () => ({
   overview: {
@@ -51,6 +60,7 @@ const buildSnapshot = () => ({
 describe('AdminDashboardPage', () => {
 beforeEach(() => {
   jest.clearAllMocks();
+  mockLogger.error.mockReset();
 });
 
   it('renders analytics overview for admin users', async () => {
@@ -78,14 +88,17 @@ beforeEach(() => {
       user: { id: 'admin-2', role: 'admin' },
     });
     mockFetchAnalytics.mockRejectedValueOnce(new Error('boom'));
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
     const AdminDashboardPage = (await import('../page')).default;
     const element = await AdminDashboardPage();
     render(<>{element}</>);
 
-    expect(screen.getByText('boom')).toBeInTheDocument();
-    consoleErrorSpy.mockRestore();
+    expect(
+      screen.getByText(/Unable to load dashboard data/i),
+    ).toBeInTheDocument();
+    expect(mockLogger.error).toHaveBeenCalledWith('Failed to fetch admin analytics', expect.any(Error), {
+      component: 'AdminDashboardPage',
+      route: '/admin/dashboard',
+    });
   });
 
   it('normalizes incomplete analytics data', async () => {

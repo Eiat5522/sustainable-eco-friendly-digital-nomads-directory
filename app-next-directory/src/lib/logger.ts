@@ -185,10 +185,8 @@ if (isDevelopment && !isE2E && isServer) {
           ? (pinoPrettyModule as unknown)
           : (pinoPrettyModule as { default?: unknown }).default;
       const pinoPretty =
-        typeof maybePretty === 'function'
-          ? (maybePretty as typeof import('pino-pretty'))
-          : null;
-      if (!pinoPretty) {
+        ((pinoPrettyModule as any).default ?? (pinoPrettyModule as unknown)) as (typeof import('pino-pretty'))['default'];
+      if (typeof pinoPretty !== 'function') {
         console.warn('Failed to initialize pino-pretty, using basic logger: module did not export a function');
         return;
       }

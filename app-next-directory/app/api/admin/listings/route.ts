@@ -2,8 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { client } from '@/lib/sanity/client';
-import { withRequestTimeout, RequestTimeoutError, getDefaultTimeout } from '@/lib/http/request';
-import { createRouteError } from '@/lib/error-handler';
+import { structuredLogger } from '@/lib/logger';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -128,8 +127,11 @@ export async function GET(request: NextRequest, _context: RouteContext) {
       },
     });
   } catch (error) {
-    const status = error instanceof RequestTimeoutError ? 504 : 500;
-    return createRouteError(error, { scope: 'api:admin:listings', action: 'GET' }, 'Failed to fetch listings', status);
+    structuredLogger.error('Admin listings GET error', error, {
+      route: '/api/admin/listings',
+      method: 'GET',
+    });
+    return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 });
   }
 }
 
@@ -193,13 +195,11 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
       action,
     });
   } catch (error) {
-    const status = error instanceof RequestTimeoutError ? 504 : 500;
-    return createRouteError(
-      error,
-      { scope: 'api:admin:listings', action: 'PATCH', details: { listingId: listingIdValue } },
-      'Failed to update listing',
-      status
-    );
+    structuredLogger.error('Admin listings PATCH error', error, {
+      route: '/api/admin/listings',
+      method: 'PATCH',
+    });
+    return NextResponse.json({ error: 'Failed to update listing' }, { status: 500 });
   }
 }
 
@@ -232,12 +232,10 @@ export async function DELETE(request: NextRequest, _context: RouteContext) {
       listingId: listingIdValue,
     });
   } catch (error) {
-    const status = error instanceof RequestTimeoutError ? 504 : 500;
-    return createRouteError(
-      error,
-      { scope: 'api:admin:listings', action: 'DELETE', details: { listingId: listingIdValue } },
-      'Failed to delete listing',
-      status
-    );
+    structuredLogger.error('Admin listings DELETE error', error, {
+      route: '/api/admin/listings',
+      method: 'DELETE',
+    });
+    return NextResponse.json({ error: 'Failed to delete listing' }, { status: 500 });
   }
 }

@@ -1,3 +1,4 @@
+import structuredLogger from '@/lib/logger';
 import { client as sanityClient } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { groq } from 'next-sanity';
@@ -8,21 +9,156 @@ import { incrementViewCount as persistentIncrementViewCount } from '@/lib/viewCo
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 type TransformFn = typeof transformToBlogDetailDTO;
 
-type SanityBlogPost = {
+type RawSanityBlogPost = {
   _id: string;
-  _updatedAt?: string | null;
+  _updatedAt?: string;
+} & Record<string, unknown>;
+
+type FallbackCacheEntry = {
+  count: number;
+  lastAccessed: number;
 };
 
-const isSanityBlogPost = (value: unknown): value is SanityBlogPost => {
-  if (!value || typeof value !== 'object') {
-    return false;
+const FALLBACK_CACHE_SHARDS = 4;
+const FALLBACK_CACHE_MAX_SIZE = 500;
+const FALLBACK_CACHE_REPORT_INTERVAL_MS = 60_000;
+const FALLBACK_CACHE_ESTIMATE_PER_ENTRY_BYTES = 128;
+
+const fallbackCacheShards: Array<Map<string, FallbackCacheEntry>> = Array.from(
+  { length: FALLBACK_CACHE_SHARDS },
+  () => new Map<string, FallbackCacheEntry>()
+);
+const fallbackAccessQueue: string[] = [];
+
+type FallbackMetricsState = {
+  totalFallbacks: number;
+  cacheHits: number;
+  cacheMisses: number;
+  evictions: number;
+  peakSize: number;
+  lastReportedAt: number;
+};
+
+const fallbackMetrics: FallbackMetricsState = {
+  totalFallbacks: 0,
+  cacheHits: 0,
+  cacheMisses: 0,
+  evictions: 0,
+  peakSize: 0,
+  lastReportedAt: 0,
+};
+
+const getFallbackShardIndex = (postId: string): number => {
+  let hash = 0;
+  for (let index = 0; index < postId.length; index += 1) {
+    hash = (hash * 31 + postId.charCodeAt(index)) >>> 0;
+  }
+  return hash % FALLBACK_CACHE_SHARDS;
+};
+
+const getFallbackShard = (postId: string): Map<string, FallbackCacheEntry> => {
+  return fallbackCacheShards[getFallbackShardIndex(postId)];
+};
+
+const getFallbackCacheSize = (): number => {
+  return fallbackCacheShards.reduce((size, shard) => size + shard.size, 0);
+};
+
+const maybeReportFallbackStats = (currentSize: number) => {
+  const now = Date.now();
+  if (now - fallbackMetrics.lastReportedAt < FALLBACK_CACHE_REPORT_INTERVAL_MS) {
+    return;
   }
 
-  const record = value as Record<string, unknown>;
-  return typeof record._id === 'string';
+  fallbackMetrics.lastReportedAt = now;
+  structuredLogger.info('Blog view count fallback cache metrics', {
+    component: 'blog-view-count-fallback',
+    totalFallbacks: fallbackMetrics.totalFallbacks,
+    cacheHits: fallbackMetrics.cacheHits,
+    cacheMisses: fallbackMetrics.cacheMisses,
+    currentSize,
+    peakSize: fallbackMetrics.peakSize,
+    evictions: fallbackMetrics.evictions,
+    approxMemoryBytes: currentSize * FALLBACK_CACHE_ESTIMATE_PER_ENTRY_BYTES,
+  });
 };
 
-const viewCounts = new Map<string, number>();
+const pruneFallbackCache = (currentSize: number): number => {
+  let size = currentSize;
+  let evicted = 0;
+
+  while (size > FALLBACK_CACHE_MAX_SIZE) {
+    const candidate = fallbackAccessQueue.shift();
+    if (candidate === undefined) {
+      break;
+    }
+
+    const shard = getFallbackShard(candidate);
+    if (shard.delete(candidate)) {
+      size -= 1;
+      evicted += 1;
+      fallbackMetrics.evictions += 1;
+    }
+  }
+
+  if (evicted > 0) {
+    structuredLogger.warn('Blog view count fallback cache eviction', {
+      component: 'blog-view-count-fallback',
+      evicted,
+      remaining: size,
+      maxSize: FALLBACK_CACHE_MAX_SIZE,
+    });
+  }
+
+  return size;
+};
+
+const recordFallbackView = (postId: string): number => {
+  const shard = getFallbackShard(postId);
+  const existing = shard.get(postId);
+  const newCount = (existing?.count ?? 0) + 1;
+  const now = Date.now();
+
+  shard.set(postId, { count: newCount, lastAccessed: now });
+  fallbackAccessQueue.push(postId);
+
+  fallbackMetrics.totalFallbacks += 1;
+  if (existing) {
+    fallbackMetrics.cacheHits += 1;
+  } else {
+    fallbackMetrics.cacheMisses += 1;
+  }
+
+  let currentSize = getFallbackCacheSize();
+  currentSize = pruneFallbackCache(currentSize);
+  fallbackMetrics.peakSize = Math.max(fallbackMetrics.peakSize, currentSize);
+  maybeReportFallbackStats(currentSize);
+
+  return newCount;
+};
+
+const resetFallbackCache = () => {
+  for (const shard of fallbackCacheShards) {
+    shard.clear();
+  }
+  fallbackAccessQueue.length = 0;
+  fallbackMetrics.totalFallbacks = 0;
+  fallbackMetrics.cacheHits = 0;
+  fallbackMetrics.cacheMisses = 0;
+  fallbackMetrics.evictions = 0;
+  fallbackMetrics.peakSize = 0;
+  fallbackMetrics.lastReportedAt = 0;
+};
+
+const getFallbackMetricsSnapshot = () => ({
+  totalFallbacks: fallbackMetrics.totalFallbacks,
+  cacheHits: fallbackMetrics.cacheHits,
+  cacheMisses: fallbackMetrics.cacheMisses,
+  evictions: fallbackMetrics.evictions,
+  peakSize: fallbackMetrics.peakSize,
+  currentSize: getFallbackCacheSize(),
+  maxSize: FALLBACK_CACHE_MAX_SIZE,
+});
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
@@ -31,6 +167,8 @@ type TestControl = {
   transformOverride: TransformFn | undefined;
   trackViewCountOverride: ((postId: string) => Promise<number>) | undefined;
   resetViewCounts: () => void;
+  resetFallbackMetrics: () => void;
+  getFallbackMetrics: () => ReturnType<typeof getFallbackMetricsSnapshot>;
 };
 
 export const testControl: TestControl | undefined = isTestEnv
@@ -39,8 +177,12 @@ export const testControl: TestControl | undefined = isTestEnv
       transformOverride: undefined,
       trackViewCountOverride: undefined,
       resetViewCounts: () => {
-        viewCounts.clear();
+        resetFallbackCache();
       },
+      resetFallbackMetrics: () => {
+        resetFallbackCache();
+      },
+      getFallbackMetrics: () => getFallbackMetricsSnapshot(),
     }
   : undefined;
 
@@ -91,7 +233,7 @@ export async function GET(
     const fetchFn =
       testControl?.sanityFetchOverride ??
       ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
-    const post = await fetchFn(postQuery, { slug });
+    const post = (await fetchFn(postQuery, { slug })) as RawSanityBlogPost | null;
 
     if (!isSanityBlogPost(post)) {
       if (!post) {
@@ -147,10 +289,11 @@ async function trackViewCount(postId: string): Promise<number> {
   } catch (error) {
     // Fallback to in-memory tracking if database fails
     console.error('Failed to persist view count, using in-memory fallback:', error);
-    const currentCount = viewCounts.get(postId) || 0;
-    const newCount = currentCount + 1;
-    viewCounts.set(postId, newCount);
-    return newCount;
+    structuredLogger.error('Blog view count persistence failed', error, {
+      component: 'blog-view-count-fallback',
+      postId,
+    });
+    return recordFallbackView(postId);
   }
 }
 
@@ -168,12 +311,12 @@ export async function PUT(
       const fetchFn =
         testControl?.sanityFetchOverride ??
         ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
-      const post = await fetchFn(
+      const post = (await fetchFn(
         groq`*[_type == "blogPost" && slug.current == $slug][0]{ _id, "slug": slug.current }`,
         { slug }
-      );
+      )) as RawSanityBlogPost | null;
 
-      if (!isSanityBlogPost(post)) {
+      if (!post || typeof post._id !== 'string') {
         return ApiResponseHandler.notFound('Blog post');
       }
 

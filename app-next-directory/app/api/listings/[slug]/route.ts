@@ -41,7 +41,7 @@ export async function PUT(
       ownerId?: string | null;
     };
 
-    const listing = (await listings.findOne({ slug })) as ListingDocument | null;
+    const listing = await listings.findOne({ slug }) as ListingDocument | null;
 
     if (!listing) {
       return ApiResponseHandler.notFound('Listing');
@@ -83,7 +83,7 @@ export async function DELETE(
       ownerId?: string | null;
     };
 
-    const listing = (await listings.findOne({ slug })) as ListingDocument | null;
+    const listing = await listings.findOne({ slug }) as ListingDocument | null;
 
     if (!listing) {
       return ApiResponseHandler.notFound('Listing');

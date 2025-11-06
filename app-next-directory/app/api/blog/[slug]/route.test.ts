@@ -9,9 +9,23 @@ import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals
 const fetchMock = jest.fn() as jest.MockedFunction<(...args: any[]) => Promise<any>>;
 const transformMock = jest.fn() as jest.MockedFunction<(p: any) => any>;
 const trackViewCountMock = jest.fn() as jest.MockedFunction<(id: string) => Promise<number>>;
+const persistentIncrementMock = jest.fn() as jest.MockedFunction<(id: string) => Promise<number>>;
+
+jest.mock('@/lib/logger', () => ({
+  __esModule: true,
+  default: {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    performance: jest.fn(),
+  },
+}));
 
 jest.mock('@/lib/sanity/client', () => ({ client: { fetch: (...args: any[]) => fetchMock(...args) } }));
 jest.mock('@/lib/dto-transformer', () => ({ transformToBlogDetailDTO: (...args: any[]) => transformMock(...args) }));
+jest.mock('@/lib/viewCountPersistence', () => ({
+  incrementViewCount: (...args: any[]) => persistentIncrementMock(...args),
+}));
 
 let GET: any;
 let PUT: any;
@@ -45,6 +59,8 @@ describe('Blog [slug] API', () => {
     fetchMock.mockReset();
     transformMock.mockReset();
     trackViewCountMock.mockReset();
+    persistentIncrementMock.mockReset();
+    persistentIncrementMock.mockRejectedValue(new Error('db unavailable'));
 
     // Load the route after mocks are in place so it picks up the mocked client and transformer
     // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -56,12 +72,14 @@ describe('Blog [slug] API', () => {
     // trackViewCount is internal; set the override on the required module's testControl
     routeTestControl.trackViewCountOverride = trackViewCountMock as any;
     routeTestControl.resetViewCounts();
+    routeTestControl.resetFallbackMetrics();
   });
 
   afterEach(() => {
     if (routeTestControl) {
       routeTestControl.trackViewCountOverride = undefined;
       routeTestControl.resetViewCounts();
+      routeTestControl.resetFallbackMetrics();
     }
   });
 
@@ -344,6 +362,7 @@ describe('Blog [slug] API', () => {
       it('should fallback to in-memory when database returns invalid result', async () => {
         routeTestControl.trackViewCountOverride = undefined;
         routeTestControl.resetViewCounts();
+        routeTestControl.resetFallbackMetrics();
 
         fetchMock.mockResolvedValue({
           _id: 'post-fallback',
@@ -372,6 +391,45 @@ describe('Blog [slug] API', () => {
         const data2 = await response2.json();
         // In-memory fallback maintains state correctly
         expect(data2.data.viewCount).toBe(2);
+      });
+
+      it('tracks fallback cache metrics and enforces eviction policy', async () => {
+        routeTestControl.trackViewCountOverride = undefined;
+        routeTestControl.resetViewCounts();
+        routeTestControl.resetFallbackMetrics();
+
+        fetchMock.mockImplementation(async (_query: string, params?: Record<string, any>) => {
+          const slug = (params?.slug ?? 'unknown') as string;
+          return { _id: `post-${slug}`, slug };
+        });
+
+        const { maxSize } = routeTestControl.getFallbackMetrics();
+
+        const createRequest = (slug: string) =>
+          new Request(`http://localhost/api/blog/${slug}`, {
+            method: 'PUT',
+            body: JSON.stringify({ action: 'increment_view' }),
+          });
+
+        const createParams = (slug: string) => Promise.resolve({ slug });
+
+        for (let index = 0; index < maxSize + 5; index += 1) {
+          const slug = `slug-${index}`;
+          await PUT(createRequest(slug), { params: createParams(slug) });
+          if (index < 3) {
+            await PUT(createRequest(slug), { params: createParams(slug) });
+          }
+        }
+
+        const recentSlug = `slug-${maxSize + 4}`;
+        await PUT(createRequest(recentSlug), { params: createParams(recentSlug) });
+
+        const metrics = routeTestControl.getFallbackMetrics();
+
+        expect(metrics.totalFallbacks).toBeGreaterThanOrEqual(maxSize + 7);
+        expect(metrics.currentSize).toBeLessThanOrEqual(metrics.maxSize);
+        expect(metrics.evictions).toBeGreaterThan(0);
+        expect(metrics.cacheHits).toBeGreaterThan(0);
       });
     });
   });

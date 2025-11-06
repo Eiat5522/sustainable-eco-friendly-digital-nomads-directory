@@ -62,10 +62,10 @@ export async function POST(
     const reviewVotes = await getCollection('reviewVotes');
 
     // Check if review exists
-    const review = (await reviews.findOne({
+    const review = await reviews.findOne({
       _id: new ObjectId(reviewId),
       status: 'approved'
-    })) as ReviewDocument | null;
+    }) as ReviewDocument | null;
 
     if (!review) {
       return ApiResponseHandler.notFound('Review');
@@ -75,10 +75,10 @@ export async function POST(
     const voterIdentifier = userId || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'anonymous';
 
     // Check for existing vote
-    const existingVote = (await reviewVotes.findOne({
+    const existingVote = await reviewVotes.findOne({
       reviewId: new ObjectId(reviewId),
       voterIdentifier,
-    })) as ReviewVoteDocument | null;
+    }) as ReviewVoteDocument | null;
 
     if (existingVote) {
       const voteId = existingVote._id;
@@ -167,10 +167,10 @@ export async function GET(
     const reviewVotes = await getCollection('reviewVotes');
 
     // Get review with vote counts
-    const review = (await reviews.findOne(
+    const review = await reviews.findOne(
       { _id: new ObjectId(reviewId) },
       { projection: { helpfulCount: 1, unhelpfulCount: 1 } }
-    )) as ReviewDocument | null;
+    ) as ReviewDocument | null;
 
     if (!review) {
       return ApiResponseHandler.notFound('Review');

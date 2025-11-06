@@ -49,7 +49,7 @@ export const ApiResponseHandler = {
       message === undefined
         ? { success: true, data }
         : { success: true, data, message };
-    return createJsonResponse(payload);
+    return createJsonResponse(payload as unknown as JsonBody);
   },
   error: (
     error: string,
@@ -63,7 +63,7 @@ export const ApiResponseHandler = {
       payload.details = details;
     }
     
-    return createJsonResponse(payload, { status });
+    return createJsonResponse(payload as unknown as JsonBody, { status });
   },
     
     notFound(resource?: string) {

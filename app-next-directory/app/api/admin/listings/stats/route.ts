@@ -2,8 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { client } from '@/lib/sanity/client';
-import { withRequestTimeout, RequestTimeoutError, getDefaultTimeout } from '@/lib/http/request';
-import { createRouteError } from '@/lib/error-handler';
+import { structuredLogger } from '@/lib/logger';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -85,7 +84,10 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
 
     return NextResponse.json(stats);
   } catch (error) {
-    const status = error instanceof RequestTimeoutError ? 504 : 500;
-    return createRouteError(error, { scope: 'api:admin:listings:stats', action: 'GET' }, 'Failed to fetch listing statistics', status);
+    structuredLogger.error('Admin listings stats GET error', error, {
+      route: '/api/admin/listings/stats',
+      method: 'GET',
+    });
+    return NextResponse.json({ error: 'Failed to fetch listing statistics' }, { status: 500 });
   }
 }

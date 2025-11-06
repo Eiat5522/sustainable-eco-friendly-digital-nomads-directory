@@ -208,8 +208,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
       setStats(statsData);
       setStatsError(null);
     } catch (err) {
-      setStats(null);
-      setStatsError(getUserFacingMessage(err, 'Listing statistics are temporarily unavailable.'));
+      setError(err instanceof Error ? err.message : 'Failed to load listing statistics');
     }
   }, []);
 
