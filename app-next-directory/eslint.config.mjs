@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { Linter } from 'eslint';
+import requireReactFcTypeParametersRule from './eslint/rules/require-react-fc-type-parameters.js';
 
 // Robust import with CJS fallback for @eslint/eslintrc
 let eslintrc;
@@ -47,6 +48,13 @@ const eslintConfig = [
   },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
+    plugins: {
+      'local-react-strictness': {
+        rules: {
+          'require-react-fc-type-parameters': requireReactFcTypeParametersRule,
+        },
+      },
+    },
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-unused-vars": [
@@ -69,7 +77,8 @@ const eslintConfig = [
       "no-var": "warn",
       "prefer-const": "warn",
       "react/jsx-key": "warn",
-      "react/jsx-no-comment-textnodes": "warn"
+      "react/jsx-no-comment-textnodes": "warn",
+      'local-react-strictness/require-react-fc-type-parameters': 'warn',
     }
   },
   {
