@@ -101,7 +101,7 @@ const resolvedMockRedisClient: RedisLike | undefined = process.env.JEST_WORKER_I
   : undefined
 
 const shouldUseUpstashClient = Boolean(
-  upstash && !Object.is(upstash, resolvedMockRedisClient as unknown)
+  upstash && upstash !== resolvedMockRedisClient
 )
 
 const upstashClient: RedisLike | undefined = shouldUseUpstashClient && upstash
