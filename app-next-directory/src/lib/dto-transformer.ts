@@ -3,8 +3,8 @@ import type { SanityListing, SanityImage } from '@/types/sanity.types';
 import type { BlogSummaryDTO, BlogDetailDTO } from '@/types/dto';
 import { isImageAssetId } from '@sanity/asset-utils';
 import { ALLOWED_CATEGORIES } from './constants/categories';
-// Ensure we have a consistent image union for dto mapping
-// type SanityGalleryImage = SanityImage // If separate type exists in future, import it accordingly
+// Ensure we have a consistent image union for DTO mapping; add a dedicated type if
+// Sanity introduces a distinct gallery image schema in the future.
 import type { ListingDetailDTO, ListingSummaryDTO, FeaturedListingDTO, Money, OpeningHour, Percentage0To100 } from '@/types/dto';
 
 // Input shape for dereferenced Sanity data from GROQ queries

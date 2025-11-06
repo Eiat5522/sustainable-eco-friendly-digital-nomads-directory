@@ -5,13 +5,11 @@ import { Phone, Mail, Globe, MapPin } from 'lucide-react';
 import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
 import { NeoButton } from '@/components/ui/neo-button';
 import { Separator } from '@/components/ui/separator';
-// Removed static import to avoid conflict with dynamic import
-// import { InteractiveMap } from '@/components/ui/InteractiveMap';
+// Use a dynamic import to avoid SSR conflicts with map dependencies.
 import type { ListingDetailDTO } from '@/types/dto';
 import { formatPrice } from '../listings/listingDetailMockData';
 
 import dynamic from 'next/dynamic';
-// replace existing InteractiveMap import with:
 const InteractiveMap = dynamic(
   () => import('@/components/ui/InteractiveMap').then(m => m.InteractiveMap),
   { ssr: false }
