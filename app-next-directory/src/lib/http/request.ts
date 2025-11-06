@@ -30,6 +30,10 @@ export interface RetryOptions {
   retryOnStatuses?: number[];
 }
 
+/**
+ * Creates a promise that resolves after the specified delay in milliseconds.
+ * Used in the retry mechanism to implement exponential backoff between attempts.
+ */
 function delay(ms: number): Promise<void> {
   return new Promise(resolve => {
     setTimeout(resolve, ms);

@@ -34,6 +34,10 @@ const rule = {
       },
       TSTypeReference(node) {
         const typeName = node.typeName;
+        // Both `typeParameters` and `typeArguments` are checked here because
+        // different versions of TypeScript and ESLint may use either property
+        // for type arguments in the AST. This ensures compatibility across
+        // parser versions.
         const typeParams = node.typeParameters ?? node.typeArguments;
         const hasTypeArguments = Boolean(typeParams && Array.isArray(typeParams.params) && typeParams.params.length > 0);
 

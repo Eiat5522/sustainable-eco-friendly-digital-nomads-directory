@@ -123,7 +123,9 @@ function isValidModerationEntry(entry: AdminModerationEntry | undefined): entry 
     typeof entry.itemType === 'string' &&
     typeof entry.itemName === 'string' &&
     typeof entry.itemId === 'string' &&
-    typeof entry.status === 'string'
+    typeof entry.status === 'string' &&
+    typeof entry.reports === 'number' && Number.isFinite(entry.reports) &&
+    typeof entry.lastActivity === 'string'
   );
 }
 
