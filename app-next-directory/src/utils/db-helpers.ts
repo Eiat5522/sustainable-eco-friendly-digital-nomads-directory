@@ -1,6 +1,7 @@
 import { MongoClient, Db, Collection } from 'mongodb';
 
 type DocumentLike = Record<string, unknown>;
+type DocumentRecord = Record<string, unknown>;
 type SortDescriptor = Record<string, 1 | -1>;
 type ProjectionDescriptor = Record<string, number>;
 type UpdateDescriptor = {
@@ -153,7 +154,7 @@ function createMockCursor<TDocument extends DocumentLike>(items: TDocument[] = [
               projected[key] = getValueByPath(item, key);
             }
             return projected;
-          });
+          }) as TDocument[];
         }
       }
 
@@ -199,7 +200,7 @@ function createMockCursor<TDocument extends DocumentLike>(items: TDocument[] = [
               projected[key] = getValueByPath(item, key);
             }
             return projected;
-          });
+          }) as TDocument[];
         }
       }
 
@@ -227,6 +228,36 @@ function getValueByPath<TValue = unknown>(source: DocumentLike | undefined, path
     }
     return undefined;
   }, source) as TValue | undefined;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function compareValues(a: unknown, b: unknown): number {
+  if (a === b) return 0;
+  if (a === null || a === undefined) return -1;
+  if (b === null || b === undefined) return 1;
+  
+  if (typeof a === 'string' && typeof b === 'string') {
+    return a.localeCompare(b);
+  }
+  
+  if (typeof a === 'number' && typeof b === 'number') {
+    return a - b;
+  }
+  
+  if (typeof a === 'boolean' && typeof b === 'boolean') {
+    return a === b ? 0 : a ? 1 : -1;
+  }
+  
+  // For dates
+  if (a instanceof Date && b instanceof Date) {
+    return a.getTime() - b.getTime();
+  }
+  
+  // Fallback: convert to string and compare
+  return String(a).localeCompare(String(b));
 }
 
 function setValueByPath(target: DocumentLike, path: string, value: unknown) {
@@ -364,7 +395,7 @@ function createMockCollection<TDocument extends DocumentLike = DocumentLike>(nam
     },
     findOne: async <T = DocumentRecord>(query = {}) => {
       const result = documents.find((doc) => matchesQuery(doc, query));
-      return result ? ({ ...result } as T) : null;
+      return result ? ({ ...result } as unknown as T) : null;
     },
     insertOne: async (doc) => {
       const payload = { ...doc } as TDocument & { _id?: unknown };
@@ -450,7 +481,7 @@ function createMockCollection<TDocument extends DocumentLike = DocumentLike>(nam
       return { acknowledged: true, matchedCount: 0, modifiedCount: 0 };
     },
     countDocuments: async (query = {}) => documents.filter((doc) => matchesQuery(doc, query)).length,
-    aggregate: (pipeline = []) => ({
+    aggregate: <TResult = TDocument>(pipeline = []) => ({
       toArray: async () => runAggregatePipeline(pipeline, documents) as unknown as TResult[],
     }),
     deleteOne: async (query = {}) => {
@@ -473,11 +504,11 @@ function createMockCollection<TDocument extends DocumentLike = DocumentLike>(nam
 function createMockDb(): MockDb {
   const collections = new Map<string, MockCollection<DocumentLike>>();
   return {
-    collection: (name: string) => {
+    collection: <TDocument extends DocumentLike = DocumentLike>(name: string): MockCollection<TDocument> => {
       if (!collections.has(name)) {
         collections.set(name, createMockCollection(name));
       }
-      return collections.get(name)! as MockCollection<DocumentLike>;
+      return collections.get(name)! as MockCollection<TDocument>;
     },
     collections,
   };
