@@ -341,18 +341,20 @@ describe('Blog [slug] API', () => {
         expect(data.error).toBe('Failed to update blog post');
       });
 
-      it('should fallback to in-memory view count tracking when no override is provided', async () => {
+      it('should fallback to in-memory when database returns invalid result', async () => {
         routeTestControl.trackViewCountOverride = undefined;
         routeTestControl.resetViewCounts();
 
         fetchMock.mockResolvedValue({
-          _id: 'post-in-memory',
-          slug: 'in-memory',
+          _id: 'post-fallback',
+          slug: 'fallback',
         });
 
-        const params = Promise.resolve({ slug: 'in-memory' });
+        const params = Promise.resolve({ slug: 'fallback' });
 
-        const request1 = new Request('http://localhost/api/blog/in-memory', {
+        // First increment - database mock returns { value: null } which is invalid
+        // This triggers the error handler and falls back to in-memory tracking
+        const request1 = new Request('http://localhost/api/blog/fallback', {
           method: 'PUT',
           body: JSON.stringify({ action: 'increment_view' }),
         });
@@ -360,12 +362,15 @@ describe('Blog [slug] API', () => {
         const data1 = await response1.json();
         expect(data1.data.viewCount).toBe(1);
 
-        const request2 = new Request('http://localhost/api/blog/in-memory', {
+        // Second increment - continues using in-memory fallback
+        // In-memory tracking maintains state, so count increments correctly
+        const request2 = new Request('http://localhost/api/blog/fallback', {
           method: 'PUT',
           body: JSON.stringify({ action: 'increment_view' }),
         });
         const response2 = await PUT(request2, { params });
         const data2 = await response2.json();
+        // In-memory fallback maintains state correctly
         expect(data2.data.viewCount).toBe(2);
       });
     });
