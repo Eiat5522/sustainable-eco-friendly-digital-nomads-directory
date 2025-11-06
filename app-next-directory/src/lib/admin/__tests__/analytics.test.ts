@@ -5,6 +5,7 @@ import {
   runBulkOperation,
   analyzeContent,
   summarizeModerationQueue,
+  BULK_OPERATION_BATCH_SIZE,
 } from '../analytics';
 import type {
   BulkOperationType,
@@ -12,6 +13,7 @@ import type {
   ModerationAction,
   ModerationHistoryEntry,
 } from '../analytics';
+import structuredLogger from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 
 jest.mock('@/lib/sanity/client', () => {
@@ -20,6 +22,16 @@ jest.mock('@/lib/sanity/client', () => {
   const transaction = jest.fn();
   return { client: { fetch, patch, transaction } };
 });
+
+jest.mock('@/lib/logger', () => ({
+  __esModule: true,
+  default: {
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    performance: jest.fn(),
+  },
+}));
 
 type MockPatchChain = {
   set: jest.MockedFunction<(payload: Record<string, unknown>) => MockPatchChain>;
@@ -95,12 +107,17 @@ describe('admin analytics helpers', () => {
   const fetchMock = mockedClient.fetch;
   const patchMock = mockedClient.patch;
   const transactionMock = mockedClient.transaction;
+  const mockedLogger = jest.mocked(structuredLogger);
 
   beforeEach(() => {
     jest.clearAllMocks();
     fetchMock.mockReset();
     patchMock.mockReset();
     transactionMock.mockReset();
+    mockedLogger.info.mockReset();
+    mockedLogger.warn.mockReset();
+    mockedLogger.error.mockReset();
+    mockedLogger.performance.mockReset();
   });
 
   it('normalizes moderation queue entries', async () => {
@@ -348,6 +365,16 @@ describe('admin analytics helpers', () => {
     expect(transactionInstance.patch).toHaveBeenCalledTimes(2);
     expect(setCalls).toHaveLength(2);
     expect(result).toEqual({ operation: 'publishListings', total: 2, succeeded: 2, failed: [] });
+    expect(mockedLogger.performance).toHaveBeenCalledWith(
+      'admin.bulk.batch',
+      expect.any(Number),
+      expect.objectContaining({ batchSize: 2, totalBatches: 1 })
+    );
+    expect(mockedLogger.performance).toHaveBeenCalledWith(
+      'admin.bulk.publishListings',
+      expect.any(Number),
+      expect.objectContaining({ totalIds: 2, failed: 0 })
+    );
   });
 
   it('applies unpublish patches when requested', async () => {
@@ -388,8 +415,58 @@ describe('admin analytics helpers', () => {
     const result = await runBulkOperation({ operation: 'featureListings', ids: ['a'] });
 
     expect(result).toEqual({ operation: 'featureListings', total: 1, succeeded: 0, failed: ['a'] });
+    expect(mockedLogger.error).toHaveBeenCalledWith(
+      'Admin bulk operation batch failed',
+      expect.any(Error),
+      expect.objectContaining({ batchSize: 1, totalBatches: 1 })
+    );
+    expect(mockedLogger.performance).toHaveBeenCalledWith(
+      'admin.bulk.featureListings',
+      expect.any(Number),
+      expect.objectContaining({ failed: 1, totalIds: 1 })
+    );
 
     consoleSpy.mockRestore();
+  });
+
+  it('deduplicates ids before running bulk operations', async () => {
+    const transactionInstance = createMockTransaction();
+    transactionMock.mockReturnValue(transactionInstance as unknown as ReturnType<typeof client.transaction>);
+
+    const result = await runBulkOperation({ operation: 'publishListings', ids: ['a', 'a', 'b', 'b'] });
+
+    expect(transactionInstance.patch).toHaveBeenCalledTimes(2);
+    expect(result).toEqual({ operation: 'publishListings', total: 2, succeeded: 2, failed: [] });
+    expect(mockedLogger.info).toHaveBeenCalledWith('Deduplicated ids for bulk operation', {
+      component: 'admin-bulk-operations',
+      operation: 'publishListings',
+      requested: 4,
+      unique: 2,
+    });
+  });
+
+  it('splits large operations into batches', async () => {
+    const transactions: MockTransaction[] = [];
+    transactionMock.mockImplementation(() => {
+      const instance = createMockTransaction();
+      transactions.push(instance);
+      return instance as unknown as ReturnType<typeof client.transaction>;
+    });
+
+    const totalIds = BULK_OPERATION_BATCH_SIZE + 5;
+    const ids = Array.from({ length: totalIds }, (_, index) => `listing-${index}`);
+
+    const result = await runBulkOperation({ operation: 'publishListings', ids });
+
+    expect(transactions).toHaveLength(2);
+    expect(transactions[0].patch).toHaveBeenCalledTimes(BULK_OPERATION_BATCH_SIZE);
+    expect(transactions[1].patch).toHaveBeenCalledTimes(totalIds - BULK_OPERATION_BATCH_SIZE);
+    expect(result).toEqual({ operation: 'publishListings', total: totalIds, succeeded: totalIds, failed: [] });
+    expect(mockedLogger.performance).toHaveBeenCalledWith(
+      'admin.bulk.publishListings',
+      expect.any(Number),
+      expect.objectContaining({ batches: 2, totalIds })
+    );
   });
 
   it('gracefully handles empty bulk operation requests and unsupported operations', async () => {

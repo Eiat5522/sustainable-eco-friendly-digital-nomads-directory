@@ -1,5 +1,6 @@
 import 'server-only';
 import type { ModerationStatus } from '@sanity/sanity.types';
+import structuredLogger from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 
 export type AdminModerationEntry = {
@@ -209,6 +210,121 @@ export async function performModerationAction({
 
 export type BulkOperationType = 'publishListings' | 'unpublishListings' | 'featureListings';
 
+type HighResolutionTimeFn = () => number;
+
+const now: HighResolutionTimeFn = () => {
+  const performanceNow = globalThis?.performance?.now;
+  if (typeof performanceNow === 'function') {
+    return performanceNow.call(globalThis.performance);
+  }
+  return Date.now();
+};
+
+const dedupeIds = (ids: string[]): string[] => {
+  const unique = new Set<string>();
+  for (const id of ids) {
+    if (typeof id === 'string' && id.trim().length > 0) {
+      unique.add(id);
+    }
+  }
+  return Array.from(unique);
+};
+
+type IdChunk = string[];
+
+const chunkIds = (ids: string[], size: number): IdChunk[] => {
+  if (size <= 0) {
+    return [ids];
+  }
+
+  const chunks: IdChunk[] = [];
+  for (let index = 0; index < ids.length; index += size) {
+    chunks.push(ids.slice(index, index + size));
+  }
+  return chunks;
+};
+
+export const BULK_OPERATION_BATCH_SIZE = 50;
+export const BULK_OPERATION_MAX_CONCURRENCY = 3;
+
+type BulkBatchResult = {
+  succeeded: string[];
+  failed: string[];
+};
+
+type PatchFactory = (timestamp: string) => ListingWorkflowPatch;
+
+const commitBatch = async (
+  batchIds: string[],
+  patchFactory: PatchFactory,
+  timestamp: string,
+  batchIndex: number,
+  totalBatches: number
+): Promise<BulkBatchResult> => {
+  const transaction = client.transaction();
+
+  for (const id of batchIds) {
+    transaction.patch(id, (patch) => patch.set(patchFactory(timestamp)));
+  }
+
+  const batchStart = now();
+
+  try {
+    await transaction.commit({ autoGenerateArrayKeys: true });
+    structuredLogger.performance('admin.bulk.batch', now() - batchStart, {
+      batchSize: batchIds.length,
+      batchIndex,
+      totalBatches,
+    });
+    return { succeeded: [...batchIds], failed: [] };
+  } catch (error) {
+    console.error('[admin] bulk operation batch failed', error);
+    structuredLogger.error('Admin bulk operation batch failed', error, {
+      component: 'admin-bulk-operations',
+      batchSize: batchIds.length,
+      batchIndex,
+      totalBatches,
+    });
+    return { succeeded: [], failed: [...batchIds] };
+  }
+};
+
+const processBatches = async (
+  batches: IdChunk[],
+  patchFactory: PatchFactory,
+  timestamp: string
+): Promise<BulkBatchResult[]> => {
+  if (batches.length === 0) {
+    return [];
+  }
+
+  const results: BulkBatchResult[] = new Array(batches.length);
+  const concurrency = Math.min(BULK_OPERATION_MAX_CONCURRENCY, batches.length);
+  let pointer = 0;
+
+  const worker = async () => {
+    while (true) {
+      const currentIndex = pointer;
+      pointer += 1;
+      if (currentIndex >= batches.length) {
+        break;
+      }
+
+      const batchIds = batches[currentIndex];
+      results[currentIndex] = await commitBatch(
+        batchIds,
+        patchFactory,
+        timestamp,
+        currentIndex,
+        batches.length
+      );
+    }
+  };
+
+  await Promise.all(Array.from({ length: concurrency }, () => worker()));
+  return results;
+};
+
 type PublishWorkflowPatch = {
   'adminWorkflow.status': 'published' | 'unpublished';
   'adminWorkflow.lastChangedAt': string;
@@ -249,7 +365,8 @@ type BulkOperationInput = {
 };
 
 export async function runBulkOperation({ operation, ids }: BulkOperationInput): Promise<BulkOperationResult> {
-  if (!ids.length) {
+  const uniqueIds = dedupeIds(ids);
+  if (!uniqueIds.length) {
     return { operation, total: 0, succeeded: 0, failed: [] };
   }
 
@@ -259,17 +376,38 @@ export async function runBulkOperation({ operation, ids }: BulkOperationInput): 
     throw new Error(`Unsupported bulk operation: ${operation}`);
   }
 
-  const transaction = ids.reduce((trx, id) => {
-    return trx.patch(id, (patch) => patch.set(patchDataFactory(timestamp)));
-  }, client.transaction());
-
-  try {
-    await transaction.commit({ autoGenerateArrayKeys: true });
-    return { operation, total: ids.length, succeeded: ids.length, failed: [] };
-  } catch (error) {
-    console.error('[admin] bulk operation failed', error);
-    return { operation, total: ids.length, succeeded: 0, failed: [...ids] };
+  if (uniqueIds.length !== ids.length) {
+    structuredLogger.info('Deduplicated ids for bulk operation', {
+      component: 'admin-bulk-operations',
+      operation,
+      requested: ids.length,
+      unique: uniqueIds.length,
+    });
   }
+
+  const start = now();
+
+  const batches = chunkIds(uniqueIds, BULK_OPERATION_BATCH_SIZE);
+  const results = await processBatches(batches, patchDataFactory, timestamp);
+
+  const succeeded = results.reduce((acc, result) => acc + result.succeeded.length, 0);
+  const failed = results.flatMap((result) => result.failed);
+
+  const duration = now() - start;
+  structuredLogger.performance(`admin.bulk.${operation}`, duration, {
+    component: 'admin-bulk-operations',
+    batches: batches.length,
+    totalIds: uniqueIds.length,
+    failed: failed.length,
+    concurrency: Math.min(BULK_OPERATION_MAX_CONCURRENCY, batches.length),
+  });
+
+  return {
+    operation,
+    total: uniqueIds.length,
+    succeeded,
+    failed,
+  };
 }
 
 type ContentAnalysisInput = {
