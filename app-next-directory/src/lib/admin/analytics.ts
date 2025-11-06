@@ -1,6 +1,7 @@
 import 'server-only';
 import type { ModerationStatus } from '@sanity/sanity.types';
 import { client } from '@/lib/sanity/client';
+import { structuredLogger } from '@/lib/logger';
 
 export type AdminModerationEntry = {
   id: string;
@@ -267,7 +268,10 @@ export async function runBulkOperation({ operation, ids }: BulkOperationInput): 
     await transaction.commit({ autoGenerateArrayKeys: true });
     return { operation, total: ids.length, succeeded: ids.length, failed: [] };
   } catch (error) {
-    console.error('[admin] bulk operation failed', error);
+    structuredLogger.error('[admin] bulk operation failed', error, {
+      component: 'admin-analytics',
+      operation,
+    });
     return { operation, total: ids.length, succeeded: 0, failed: [...ids] };
   }
 }
