@@ -155,7 +155,7 @@ export async function performModerationAction({
         : { lastActionAt: timestamp }
     )
     .setIfMissing({ moderationHistory: [] as Array<{
-      action: string;
+      action: ModerationAction;
       actor: string;
       notes: string | null;
       at: string;
