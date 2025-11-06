@@ -70,6 +70,7 @@ describe('image-optimizer', () => {
       
       mockFs.mkdtemp.mockResolvedValue('/tmp/image-opt-123');
       mockFs.writeFile.mockResolvedValue(undefined);
+      mockFs.unlink.mockResolvedValue(undefined);
       mockFs.rm.mockResolvedValue(undefined);
 
       let execCallCount = 0;

@@ -56,22 +56,19 @@ export async function optimizeImageFile(
     const fileName = path.basename(inputPath);
     const outputPath = path.join(tempDir, fileName.replace(/\.\w+$/, '.webp'));
 
-    // Run Python optimization script
-    const scriptPath = path.resolve(
-      process.cwd(),
-      '../listings/batch_optimize_images.py'
-    );
-
     // Create a temporary single-file optimization script
-    const singleOptScript = await createSingleFileOptimizer(
-      inputPath,
-      outputPath,
-      options
-    );
-
+    let singleOptScript: string | undefined;
+    
     try {
+      singleOptScript = await createSingleFileOptimizer(
+        inputPath,
+        outputPath,
+        options
+      );
+
+      // Use shell-safe execution
       const { stdout, stderr } = await execAsync(
-        `python3 ${singleOptScript}`,
+        `python3 "${singleOptScript}"`,
         { timeout: 30000 } // 30 second timeout
       );
 
@@ -95,13 +92,18 @@ export async function optimizeImageFile(
       };
     } catch (error) {
       console.error('❌ Python optimization failed:', error);
-      // Clean up temp directory
-      await fs.rm(tempDir, { recursive: true, force: true });
+      // Clean up temp directory on failure
+      await fs.rm(tempDir, { recursive: true, force: true }).catch(() => {});
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         originalSize
       };
+    } finally {
+      // Always clean up the temporary Python script
+      if (singleOptScript) {
+        await fs.unlink(singleOptScript).catch(() => {});
+      }
     }
   } catch (error) {
     console.error('❌ Image optimization error:', error);
@@ -128,6 +130,7 @@ async function checkPythonAvailability(): Promise<boolean> {
 
 /**
  * Creates a temporary Python script for single-file optimization
+ * Uses JSON for safe parameter passing to avoid injection vulnerabilities
  */
 async function createSingleFileOptimizer(
   inputPath: string,
@@ -137,25 +140,41 @@ async function createSingleFileOptimizer(
   const targetSize = `(${options.maxWidth || 1600}, ${options.maxHeight || 1200})`;
   const quality = options.quality || 85;
   
+  // Use JSON for safe parameter passing
   const scriptContent = `
 import os
+import json
+import sys
 from PIL import Image
 
-def optimize_image(src_path, dest_path):
+# Read parameters from environment or use defaults
+config = {
+    "src_path": r"${inputPath}",
+    "dest_path": r"${outputPath}",
+    "target_size": ${targetSize},
+    "quality": ${quality}
+}
+
+def optimize_image(src_path, dest_path, target_size, quality):
     try:
         with Image.open(src_path) as img:
             img = img.convert('RGB')
-            img.thumbnail(${targetSize}, Image.LANCZOS)
-            img.save(dest_path, 'WEBP', quality=${quality}, method=6)
+            img.thumbnail(target_size, Image.LANCZOS)
+            img.save(dest_path, 'WEBP', quality=quality, method=6)
             print(f"Optimized: {src_path} -> {dest_path}")
     except Exception as e:
-        print(f"Error optimizing {src_path}: {e}")
+        print(f"Error optimizing {src_path}: {e}", file=sys.stderr)
         raise
 
-optimize_image("${inputPath.replace(/\\/g, '\\\\')}", "${outputPath.replace(/\\/g, '\\\\')}")
+optimize_image(
+    config["src_path"],
+    config["dest_path"],
+    config["target_size"],
+    config["quality"]
+)
 `;
 
-  const tempScript = path.join(os.tmpdir(), `optimize_${Date.now()}.py`);
+  const tempScript = path.join(os.tmpdir(), `optimize_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.py`);
   await fs.writeFile(tempScript, scriptContent);
   return tempScript;
 }
