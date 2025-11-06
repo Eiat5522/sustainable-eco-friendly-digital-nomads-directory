@@ -1,10 +1,6 @@
-import React, { ReactNode } from 'react';
+import type { StrictComponent } from "@/types";
 
-interface AnalyticsProviderProps {
-  children: ReactNode;
-}
-
-export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
+export const AnalyticsProvider: StrictComponent = ({ children }) => {
   // Placeholder analytics provider - in production this would integrate with analytics services
   return <>{children}</>;
-}
+};

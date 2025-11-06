@@ -1,3 +1,5 @@
+export type { StrictComponent, StrictProps } from './react';
+
 export interface EcoTag {
   id: string;
   label: string;
