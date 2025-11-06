@@ -1,6 +1,7 @@
 import { revalidatePath } from 'next/cache';
 import { NextRequest } from 'next/server';
 import { ApiResponseHandler } from '@/utils/api-response';
+import { structuredLogger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -34,7 +35,11 @@ export async function GET(request: NextRequest) {
       now: Date.now()
     });
   } catch (error) {
-    console.error('Error revalidating path:', { path: pathParam, error });
+    structuredLogger.error('Error revalidating path', error, {
+      route: '/api/revalidate',
+      method: request.method,
+      path: pathParam ?? undefined,
+    });
 
     return ApiResponseHandler.error('Error revalidating', 500);
   }

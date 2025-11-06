@@ -14,12 +14,22 @@ import type {
 } from '../analytics';
 import { client } from '@/lib/sanity/client';
 
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    error: jest.fn(),
+  },
+}));
+
 jest.mock('@/lib/sanity/client', () => {
   const fetch = jest.fn();
   const patch = jest.fn();
   const transaction = jest.fn();
   return { client: { fetch, patch, transaction } };
 });
+
+const mockLogger = jest.requireMock('@/lib/logger').structuredLogger as {
+  error: jest.Mock;
+};
 
 type MockPatchChain = {
   set: jest.MockedFunction<(payload: Record<string, unknown>) => MockPatchChain>;
@@ -101,6 +111,7 @@ describe('admin analytics helpers', () => {
     fetchMock.mockReset();
     patchMock.mockReset();
     transactionMock.mockReset();
+    mockLogger.error.mockReset();
   });
 
   it('normalizes moderation queue entries', async () => {
@@ -383,13 +394,13 @@ describe('admin analytics helpers', () => {
     });
     transactionMock.mockReturnValue(transactionInstance as unknown as ReturnType<typeof client.transaction>);
 
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-
     const result = await runBulkOperation({ operation: 'featureListings', ids: ['a'] });
 
     expect(result).toEqual({ operation: 'featureListings', total: 1, succeeded: 0, failed: ['a'] });
-
-    consoleSpy.mockRestore();
+    expect(mockLogger.error).toHaveBeenCalledWith('[admin] bulk operation failed', expect.any(Error), {
+      component: 'admin-analytics',
+      operation: 'featureListings',
+    });
   });
 
   it('gracefully handles empty bulk operation requests and unsupported operations', async () => {
