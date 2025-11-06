@@ -1,10 +1,11 @@
 interface Window {
-  webkitSpeechRecognition: typeof SpeechRecognition;
+  SpeechRecognition?: typeof SpeechRecognition
+  webkitSpeechRecognition?: typeof SpeechRecognition
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-  message: string;
+  error: 'no-speech' | 'audio-capture' | 'not-allowed' | 'aborted' | string
+  message?: string
 }
 
 interface SpeechRecognitionEvent extends Event {
@@ -13,19 +14,34 @@ interface SpeechRecognitionEvent extends Event {
 }
 
 interface SpeechRecognitionResult {
-  isFinal: boolean;
-  [index: number]: SpeechRecognitionAlternative;
+  isFinal: boolean
+  length: number
+  item(index: number): SpeechRecognitionAlternative
+  [index: number]: SpeechRecognitionAlternative
 }
 
 interface SpeechRecognitionAlternative {
-  transcript: string;
-  confidence: number;
+  transcript: string
+  confidence: number
 }
 
 interface SpeechRecognitionResultList {
-  length: number;
-  item(index: number): SpeechRecognitionResult;
-  [index: number]: SpeechRecognitionResult;
+  length: number
+  item(index: number): SpeechRecognitionResult
+  [index: number]: SpeechRecognitionResult
+}
+
+interface SpeechGrammar {
+  src: string
+  weight: number
+}
+
+interface SpeechGrammarList {
+  length: number
+  item(index: number): SpeechGrammar
+  addFromString(grammar: string, weight?: number): void
+  addFromURI(src: string, weight?: number): void
+  addFromUri?(src: string, weight?: number): void
 }
 
 interface SpeechRecognition extends EventTarget {
