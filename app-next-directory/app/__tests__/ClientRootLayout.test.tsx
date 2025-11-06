@@ -13,14 +13,9 @@ jest.mock('next-themes', () => ({
   ThemeProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="theme-provider">{children}</div>,
 }));
 
-// Mock AnalyticsProvider
-jest.mock('@/components/AnalyticsProvider', () => ({
-  AnalyticsProvider: ({ children }: { children: React.ReactNode }) => <div data-testid="analytics-provider">{children}</div>,
-}));
-
 describe('ClientRootLayout', () => {
   it('renders children within provider hierarchy', () => {
-    const { getByText, getByTestId } = render(
+    const { getByText, getByTestId, queryByTestId } = render(
       <ClientRootLayout>
         <div>Test Content</div>
       </ClientRootLayout>
@@ -28,8 +23,8 @@ describe('ClientRootLayout', () => {
 
     expect(getByText('Test Content')).toBeInTheDocument();
     expect(getByTestId('session-provider')).toBeInTheDocument();
-    expect(getByTestId('analytics-provider')).toBeInTheDocument();
     expect(getByTestId('theme-provider')).toBeInTheDocument();
+    expect(queryByTestId('analytics-provider')).not.toBeInTheDocument();
   });
 
   it('renders with light theme', () => {

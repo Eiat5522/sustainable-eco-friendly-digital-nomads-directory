@@ -41,6 +41,9 @@ type RouteModule = typeof import('../route');
 let GET: RouteModule['GET'];
 let POST: RouteModule['POST'];
 
+type BackupRouteModule = typeof import('../backup/route');
+let BACKUP_POST: BackupRouteModule['POST'];
+
 const mockAuth = authMockModule.auth;
 const mockFetch = clientMockModule.__mock.fetchMock;
 const mockCreate = clientMockModule.__mock.createMock;
@@ -50,6 +53,7 @@ const mockCommit = clientMockModule.__mock.commitMock;
 
 beforeAll(async () => {
   ({ GET, POST } = await import('../route'));
+  ({ POST: BACKUP_POST } = await import('../backup/route'));
 });
 
 describe('/api/admin/settings', () => {
@@ -271,6 +275,76 @@ describe('/api/admin/settings', () => {
       expect(response.status).toBe(500);
       expect(json.error).toBe('Failed to save admin settings');
       expect(json.message).toBe('Database error');
+    });
+  });
+
+  describe('POST /backup', () => {
+    it('requires admin access', async () => {
+      mockAuth.mockResolvedValue({ user: { role: 'user' } } as any);
+
+      const request = { url: 'https://example.com/api/admin/settings/backup' } as any;
+      const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
+      const json = await response.json();
+
+      expect(response.status).toBe(403);
+      expect(json.error).toBe('Admin access required');
+    });
+
+    it('updates lastBackupDate when settings exist', async () => {
+      mockAuth.mockResolvedValue({ user: { role: 'admin', id: 'admin-1' } } as any);
+      mockFetch.mockResolvedValue({ _id: 'settings-1' });
+      mockCommit.mockResolvedValue({ _id: 'settings-1', lastBackupDate: '2024-01-01T00:00:00.000Z' });
+
+      const request = { url: 'https://example.com/api/admin/settings/backup' } as any;
+      const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json.success).toBe(true);
+      expect(json.backupId).toMatch(/^backup-/);
+      expect(json.settingsId).toBe('settings-1');
+      expect(mockFetch).toHaveBeenCalled();
+      expect(mockPatch).toHaveBeenCalledWith('settings-1');
+      expect(mockSet).toHaveBeenCalledWith(
+        expect.objectContaining({
+          lastBackupDate: expect.any(String),
+          _type: 'adminSettings',
+        }),
+      );
+      expect(mockCommit).toHaveBeenCalled();
+    });
+
+    it('creates settings document when missing', async () => {
+      mockAuth.mockResolvedValue({ user: { role: 'superAdmin', id: 'super-1' } } as any);
+      mockFetch.mockResolvedValue(null);
+      mockCreate.mockResolvedValue({ _id: 'settings-2', _type: 'adminSettings', lastBackupDate: '2024-01-01T00:00:00.000Z' });
+
+      const request = { url: 'https://example.com/api/admin/settings/backup' } as any;
+      const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
+      const json = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(json.success).toBe(true);
+      expect(json.settingsId).toBe('settings-2');
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          _type: 'adminSettings',
+          lastBackupDate: expect.any(String),
+        }),
+      );
+    });
+
+    it('handles errors when backup fails', async () => {
+      mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+      mockFetch.mockResolvedValue({ _id: 'settings-1' });
+      mockCommit.mockRejectedValue(new Error('commit failed'));
+
+      const request = { url: 'https://example.com/api/admin/settings/backup' } as any;
+      const response = await BACKUP_POST(request, { params: Promise.resolve({}) });
+      const json = await response.json();
+
+      expect(response.status).toBe(500);
+      expect(json.error).toBe('Failed to run admin settings backup');
     });
   });
 });

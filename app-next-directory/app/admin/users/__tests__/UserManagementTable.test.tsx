@@ -4,14 +4,17 @@ import { UserManagementTable } from '../UserManagementTable';
 
 describe('UserManagementTable', () => {
   const originalFetch = global.fetch;
+  const originalConfirm = global.confirm;
 
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch = jest.fn();
+    global.confirm = jest.fn().mockReturnValue(true);
   });
 
   afterEach(() => {
     global.fetch = originalFetch;
+    global.confirm = originalConfirm;
     jest.useRealTimers();
   });
 
@@ -441,5 +444,90 @@ describe('UserManagementTable', () => {
       );
     });
     await screen.findByTestId('user-row-paged-user');
+  });
+
+  it('allows a super admin to delete users after confirmation', async () => {
+    jest.useFakeTimers();
+    const fetchMock = global.fetch as jest.Mock;
+    const initialResponse = createUsersResponse([
+      {
+        id: 'removable-user',
+        name: 'Removable User',
+        email: 'remove@example.com',
+        role: 'user',
+        createdAt: new Date().toISOString(),
+        lastActiveAt: null,
+        status: 'active',
+      },
+    ]);
+    const reloadResponse = createUsersResponse([]);
+
+    fetchMock
+      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue(initialResponse) })
+      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue({ message: 'User deleted successfully' }) })
+      .mockResolvedValueOnce({ ok: true, json: jest.fn().mockResolvedValue(reloadResponse) });
+
+    const confirmSpy = global.confirm as jest.Mock;
+
+    render(<UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />);
+
+    const row = await screen.findByTestId('user-row-removable-user');
+    const deleteButton = within(row).getByRole('button', { name: 'Delete' });
+
+    fireEvent.click(deleteButton);
+
+    expect(confirmSpy).toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenNthCalledWith(
+        2,
+        '/api/admin/users',
+        expect.objectContaining({
+          method: 'DELETE',
+          body: JSON.stringify({ userId: 'removable-user' }),
+        })
+      );
+    });
+
+    await screen.findByRole('status');
+    expect(screen.getByRole('status')).toHaveTextContent('User deleted successfully');
+
+    await act(async () => {
+      jest.advanceTimersByTime(3000);
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    });
+  });
+
+  it('does not attempt deletion when confirmation is cancelled', async () => {
+    const fetchMock = global.fetch as jest.Mock;
+    const confirmSpy = global.confirm as jest.Mock;
+    confirmSpy.mockReturnValueOnce(false);
+
+    const response = createUsersResponse([
+      {
+        id: 'cancel-user',
+        name: 'Cancel User',
+        email: 'cancel@example.com',
+        role: 'user',
+        createdAt: new Date().toISOString(),
+        lastActiveAt: null,
+        status: 'active',
+      },
+    ]);
+
+    fetchMock.mockResolvedValue({ ok: true, json: jest.fn().mockResolvedValue(response) });
+
+    render(<UserManagementTable currentUserRole="superAdmin" currentUserId="super-1" />);
+
+    const row = await screen.findByTestId('user-row-cancel-user');
+    const deleteButton = within(row).getByRole('button', { name: 'Delete' });
+
+    fireEvent.click(deleteButton);
+
+    expect(confirmSpy).toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

@@ -11,7 +11,7 @@ The component library balances reusable UI primitives with domain-specific modul
 | `search/` | Filters, multi-select inputs, and search orchestration logic | [`src/components/search/SearchFiltersForm.tsx`](../../app-next-directory/src/components/search/SearchFiltersForm.tsx) |
 | `profile/` | Authenticated profile management and edit forms | [`src/components/profile/ProfileEditForm.tsx`](../../app-next-directory/src/components/profile/ProfileEditForm.tsx) |
 | `ui/` | Design system primitives (Neo buttons, inputs, cards, carousel helpers) | [`src/components/ui/neo-button.tsx`](../../app-next-directory/src/components/ui/neo-button.tsx) |
-| root files | Cross-cutting utilities (analytics provider, MSW bootstrapping) | [`src/components/AnalyticsProvider.tsx`](../../app-next-directory/src/components/AnalyticsProvider.tsx) |
+| root files | Cross-cutting utilities (providers, MSW bootstrapping) | [`src/components/Providers.tsx`](../../app-next-directory/src/components/Providers.tsx) |
 
 Each folder groups React components, hooks, styles, and tests to mirror business domains. Shared utilities (like `cn`, DTO types, and Sanity helpers) are imported via the `@/` alias for consistency across the codebase. 【F:app-next-directory/tsconfig.json†L1-L20】
 
@@ -26,6 +26,6 @@ Each folder groups React components, hooks, styles, and tests to mirror business
 - **Profile**: `ProfileEditForm` handles optimistic updates and integrates with user-profile APIs. 【F:app-next-directory/src/components/profile/ProfileEditForm.tsx†L1-L20】
 
 ## Testing Coverage (✅ Completed)
-Component suites live under `src/components/__tests__/` and run with `pnpm test:unit`. Snapshot-free assertions exercise interactive logic without relying on the DOM outside of Jest + Testing Library. 【F:app-next-directory/src/components/__tests__/AnalyticsProvider.test.tsx†L1-L24】【F:app-next-directory/src/components/__tests__/CommentForm.test.tsx†L1-L30】
+Component suites live under `src/components/__tests__/` and run with `pnpm test:unit`. Snapshot-free assertions exercise interactive logic without relying on the DOM outside of Jest + Testing Library. 【F:app-next-directory/src/components/__tests__/Providers.test.tsx†L1-L26】【F:app-next-directory/src/components/__tests__/CommentForm.test.tsx†L1-L30】
 
 Playwright smoke tests render key pages (home, city, listing detail) to ensure component composition holds up in full-browser environments. Combined with unit suites, this satisfied the component testing exit criteria for the latest release.

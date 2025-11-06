@@ -219,7 +219,7 @@ This section audits the test coverage of components within `app-next-directory/s
 
 ### 2.2 Components WITH Tests (21 components)
 
-1. `src/components/AnalyticsProvider.tsx`
+1. `src/components/Providers.tsx`
 2. `src/components/AnimatedNumber.tsx`
 3. `src/components/CommentForm.tsx`
 4. `src/components/CommentList.tsx`

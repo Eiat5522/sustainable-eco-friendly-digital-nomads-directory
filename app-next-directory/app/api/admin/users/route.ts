@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { client } from '@/lib/sanity/client';
 import { structuredLogger } from '@/lib/logger';
+import { getDefaultTimeout, withRequestTimeout } from '@/lib/http/request';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
@@ -135,6 +136,7 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
     userIdValue = typeof userId === 'string' ? userId : undefined;
     const newRole = body?.role as UserRole | undefined;
     const newStatus = body?.status as 'active' | 'inactive' | undefined;
+    const action = typeof body?.action === 'string' ? body.action : undefined;
 
     if (!userIdValue) {
       return NextResponse.json({ error: 'userId is required' }, { status: 400 });
@@ -155,6 +157,17 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
 
+    let derivedStatus: 'active' | 'inactive' | undefined = newStatus;
+    if (action) {
+      if (action === 'suspend') {
+        derivedStatus = 'inactive';
+      } else if (action === 'activate') {
+        derivedStatus = 'active';
+      } else {
+        return NextResponse.json({ error: `Unsupported action: ${action}` }, { status: 400 });
+      }
+    }
+
     // Prevent self-demotion for superAdmin
     if (newRole && sessionUser?.id === userIdValue && sessionUser?.role === 'superAdmin' && newRole !== 'superAdmin') {
       return NextResponse.json({
@@ -164,7 +177,7 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
 
     const updateData: Record<string, unknown> = {};
     if (newRole) updateData.role = newRole;
-    if (newStatus) updateData.status = newStatus;
+    if (derivedStatus) updateData.status = derivedStatus;
     updateData.updatedAt = new Date().toISOString();
     updateData.updatedBy = sessionUser?.id;
 
@@ -185,5 +198,46 @@ export async function PATCH(request: NextRequest, _context: RouteContext) {
       method: 'PATCH',
     });
     return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest, _context: RouteContext) {
+  let userIdValue: string | undefined;
+  try {
+    const session = await auth();
+    const sessionUser = session?.user as SessionUser;
+
+    if (!ensureSuperAdmin(sessionUser)) {
+      return NextResponse.json({ error: 'SuperAdmin access required for user deletion' }, { status: 403 });
+    }
+
+    const body = await request.json().catch(() => null);
+    const userId = body?.userId;
+    userIdValue = typeof userId === 'string' ? userId : undefined;
+
+    if (!userIdValue) {
+      return NextResponse.json({ error: 'userId is required' }, { status: 400 });
+    }
+
+    if (sessionUser?.id === userIdValue) {
+      return NextResponse.json({ error: 'You cannot delete your own account' }, { status: 400 });
+    }
+
+    await withRequestTimeout(
+      client.delete(userIdValue),
+      getDefaultTimeout(),
+      'Deleting user timed out'
+    );
+
+    return NextResponse.json({
+      message: 'User deleted successfully',
+      userId: userIdValue,
+    });
+  } catch (error) {
+    structuredLogger.error('Admin users DELETE error', error, {
+      route: '/api/admin/users',
+      method: 'DELETE',
+    });
+    return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 });
   }
 }

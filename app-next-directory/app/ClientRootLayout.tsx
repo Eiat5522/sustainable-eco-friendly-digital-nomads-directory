@@ -3,7 +3,6 @@
 import { ReactNode } from 'react';
 import { SessionProvider } from 'next-auth/react';
 import { ThemeProvider as NextThemeProvider } from 'next-themes';
-import { AnalyticsProvider } from '@/components/AnalyticsProvider';
 
 type ThemeProviderProps = Readonly<{
   children: ReactNode;
@@ -32,11 +31,9 @@ interface ClientRootLayoutProps {
 export default function ClientRootLayout({ children, theme }: Readonly<ClientRootLayoutProps>) {
   return (
     <SessionProvider>
-      <AnalyticsProvider>
-        <ThemeProvider theme={theme}>
-          {children}
-        </ThemeProvider>
-      </AnalyticsProvider>
+      <ThemeProvider theme={theme}>
+        {children}
+      </ThemeProvider>
     </SessionProvider>
   );
 }

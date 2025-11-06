@@ -8,6 +8,7 @@ jest.mock('@/lib/auth', () => ({
 jest.mock('@/lib/sanity/client', () => {
   const fetchMock = jest.fn();
   const commitMock = jest.fn();
+  const deleteMock = jest.fn();
   const setMock = jest.fn().mockImplementation(() => ({ commit: commitMock }));
   const patchMock = jest.fn().mockImplementation(() => ({ set: setMock }));
 
@@ -16,8 +17,9 @@ jest.mock('@/lib/sanity/client', () => {
     client: {
       fetch: fetchMock,
       patch: patchMock,
+      delete: deleteMock,
     },
-    __mock: { fetchMock, patchMock, setMock, commitMock },
+    __mock: { fetchMock, patchMock, setMock, commitMock, deleteMock },
   };
 });
 
@@ -31,25 +33,33 @@ import { auth } from '@/lib/auth';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const clientMockModule = jest.requireMock('@/lib/sanity/client') as {
-  client: { fetch: jest.Mock; patch: jest.Mock };
-  __mock: { fetchMock: jest.Mock; patchMock: jest.Mock; setMock: jest.Mock; commitMock: jest.Mock };
+  client: { fetch: jest.Mock; patch: jest.Mock; delete: jest.Mock };
+  __mock: {
+    fetchMock: jest.Mock;
+    patchMock: jest.Mock;
+    setMock: jest.Mock;
+    commitMock: jest.Mock;
+    deleteMock: jest.Mock;
+  };
 };
 
 type RouteModule = typeof import('../route');
 let GET: RouteModule['GET'];
 let PATCH: RouteModule['PATCH'];
+let DELETE: RouteModule['DELETE'];
 
 const mockAuth = authMockModule.auth;
 const mockFetch = clientMockModule.__mock.fetchMock;
 const mockPatch = clientMockModule.__mock.patchMock;
 const mockSet = clientMockModule.__mock.setMock;
 const mockCommit = clientMockModule.__mock.commitMock;
+const mockDelete = clientMockModule.__mock.deleteMock;
 const mockLogger = jest.requireMock('@/lib/logger').structuredLogger as {
   error: jest.Mock;
 };
 
 beforeAll(async () => {
-  ({ GET, PATCH } = await import('../route'));
+  ({ GET, PATCH, DELETE } = await import('../route'));
 });
 
 describe('/api/admin/users', () => {
@@ -59,6 +69,7 @@ describe('/api/admin/users', () => {
     mockPatch.mockReset();
     mockSet.mockReset();
     mockCommit.mockReset();
+    mockDelete.mockReset();
     mockSet.mockImplementation(() => ({ commit: mockCommit }));
     mockPatch.mockImplementation(() => ({ set: mockSet }));
     mockCommit.mockResolvedValue(undefined);
@@ -394,6 +405,38 @@ describe('/api/admin/users', () => {
     expect(json.pagination.page).toBe(1);
   });
 
+  it('maps suspend action to inactive status', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin', id: 'admin-1' } } as any);
+    const request = {
+      json: () => Promise.resolve({ userId: 'user-42', action: 'suspend' }),
+    } as any;
+
+    const response = await PATCH(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.message).toBe('User updated successfully');
+    expect(mockSet).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'inactive',
+      }),
+    );
+  });
+
+  it('rejects unsupported PATCH actions', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin', id: 'admin-1' } } as any);
+    const request = {
+      json: () => Promise.resolve({ userId: 'user-42', action: 'freeze' }),
+    } as any;
+
+    const response = await PATCH(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(json.error).toBe('Unsupported action: freeze');
+    expect(mockPatch).not.toHaveBeenCalled();
+  });
+
   it('allows an admin to update only status', async () => {
     mockAuth.mockResolvedValue({ user: { role: 'admin', id: 'admin-1' } } as any);
     const request = {
@@ -445,5 +488,80 @@ describe('/api/admin/users', () => {
     } as any;
     const response = await PATCH(request, { params: Promise.resolve({}) });
     expect(response.status).toBe(403);
+  });
+
+  it('requires super admin to delete users', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    const request = {
+      json: () => Promise.resolve({ userId: 'user-1' }),
+    } as any;
+
+    const response = await DELETE(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+    expect(response.status).toBe(403);
+    expect(json.error).toBe('SuperAdmin access required for user deletion');
+    expect(mockDelete).not.toHaveBeenCalled();
+  });
+
+  it('validates userId in DELETE requests', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'superAdmin' } } as any);
+    const request = {
+      json: () => Promise.resolve({}),
+    } as any;
+
+    const response = await DELETE(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+    expect(response.status).toBe(400);
+    expect(json.error).toBe('userId is required');
+    expect(mockDelete).not.toHaveBeenCalled();
+  });
+
+  it('prevents super admins from deleting themselves', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'superAdmin', id: 'super-1' } } as any);
+    const request = {
+      json: () => Promise.resolve({ userId: 'super-1' }),
+    } as any;
+
+    const response = await DELETE(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+    expect(response.status).toBe(400);
+    expect(json.error).toBe('You cannot delete your own account');
+    expect(mockDelete).not.toHaveBeenCalled();
+  });
+
+  it('deletes users successfully', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'superAdmin', id: 'super-1' } } as any);
+    mockDelete.mockResolvedValueOnce(undefined);
+
+    const request = {
+      json: () => Promise.resolve({ userId: 'user-7' }),
+    } as any;
+
+    const response = await DELETE(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+    expect(response.status).toBe(200);
+    expect(json).toEqual({
+      message: 'User deleted successfully',
+      userId: 'user-7',
+    });
+    expect(mockDelete).toHaveBeenCalledWith('user-7');
+  });
+
+  it('handles errors when deleting users', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'superAdmin', id: 'super-1' } } as any);
+    mockDelete.mockRejectedValueOnce(new Error('delete failed'));
+
+    const request = {
+      json: () => Promise.resolve({ userId: 'user-9' }),
+    } as any;
+
+    const response = await DELETE(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+    expect(response.status).toBe(500);
+    expect(json.error).toBe('Failed to delete user');
+    expect(mockLogger.error).toHaveBeenCalledWith('Admin users DELETE error', expect.any(Error), {
+      method: 'DELETE',
+      route: '/api/admin/users',
+    });
   });
 });

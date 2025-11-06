@@ -12,10 +12,18 @@
         "files.exclude": {
             "**app-next-directory**": false // Hide app-next-directory from the Explorer
         },
+        "terminal.integrated.shellIntegration.enabled": true,
+        "github.copilot.chat.newWorkspace.useContext7": true,
+        "terminal.integrated.profiles.linux": {
+            "bash": {
+            "path": "/usr/bin/bash",
+            "args": ["-l"],
+              }
+        },    
         "typescript.enablePromptUseWorkspaceTsdk": true,        
-       // "jest.disabledWorkspaceFolders": [
-       //     "app-next-directory"
-       // ]
+        "jest.disabledWorkspaceFolders": [
+            "app-next-directory"
+        ]
     }
 
 }

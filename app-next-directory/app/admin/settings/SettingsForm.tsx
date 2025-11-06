@@ -16,6 +16,8 @@ export function SettingsForm() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [backupStatus, setBackupStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [backupRunning, setBackupRunning] = useState(false);
 
   // Fetch settings on component mount
   useEffect(() => {
@@ -116,6 +118,52 @@ export function SettingsForm() {
         [name]: newValue,
       };
     });
+  };
+
+  const handleBackup = async () => {
+    if (!settings) {
+      return;
+    }
+
+    try {
+      setBackupRunning(true);
+      setBackupStatus(null);
+
+      const response = await fetch('/api/admin/settings/backup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok || !data.success) {
+        const reason = data?.error ?? 'Failed to run backup';
+        throw new Error(reason);
+      }
+
+      if (typeof data.lastBackupDate === 'string') {
+        setSettings(prev => {
+          if (!prev) return prev;
+          return { ...prev, lastBackupDate: data.lastBackupDate };
+        });
+      }
+
+      setBackupStatus({
+        type: 'success',
+        message: data.message ?? 'Backup completed successfully',
+      });
+      setTimeout(() => setBackupStatus(null), 4000);
+    } catch (err) {
+      setBackupStatus({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Failed to run backup',
+      });
+      setTimeout(() => setBackupStatus(null), 5000);
+    } finally {
+      setBackupRunning(false);
+    }
   };
 
   if (loading) {
@@ -418,6 +466,27 @@ export function SettingsForm() {
               Last backup: {new Date(settings.lastBackupDate).toLocaleString()}
             </div>
           )}
+
+          {backupStatus && (
+            <div
+              className={`text-sm ${backupStatus.type === 'success' ? 'text-emerald-600' : 'text-red-600'}`}
+              data-testid="backup-status-message"
+            >
+              {backupStatus.message}
+            </div>
+          )}
+
+          <div>
+            <button
+              type="button"
+              onClick={handleBackup}
+              disabled={backupRunning}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-emerald-600 border border-transparent rounded-md shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              data-testid="run-backup-button"
+            >
+              {backupRunning ? 'Running Backup...' : 'Run Backup'}
+            </button>
+          </div>
         </div>
       </section>
 

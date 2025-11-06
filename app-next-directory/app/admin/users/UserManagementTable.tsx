@@ -78,6 +78,19 @@ async function updateUser(userId: string, updates: { role?: UserRole; status?: '
   });
 }
 
+async function deleteUser(userId: string) {
+  return fetchJsonWithRetry<{ message: string }>('/api/admin/users', {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ userId }),
+  }, {
+    timeoutMs: getDefaultTimeout(),
+    retries: 2,
+  });
+}
+
 function formatTimeAgo(dateString: string | null): string {
   if (!dateString) return 'Never';
   
@@ -222,6 +235,37 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
     });
   };
 
+  const handleDeleteUser = (userId: string, userName: string | null) => {
+    if (!canChangeRoles) {
+      setFeedback('Only Super Admins can delete users');
+      setTimeout(() => setFeedback(null), 4000);
+      return;
+    }
+
+    if (userId === currentUserId) {
+      setFeedback('You cannot delete your own account');
+      setTimeout(() => setFeedback(null), 4000);
+      return;
+    }
+
+    const displayName = userName || 'this user';
+    if (!window.confirm(`Are you sure you want to permanently delete ${displayName}? This action cannot be undone.`)) {
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        await deleteUser(userId);
+        setFeedback('User deleted successfully');
+        await loadUsers(pagination.page);
+        setTimeout(() => setFeedback(null), 3000);
+      } catch (err) {
+        setFeedback(getUserFacingMessage(err, 'Failed to delete user'));
+        setTimeout(() => setFeedback(null), 4000);
+      }
+    });
+  };
+
   return (
     <div className="space-y-6 p-6">
       {/* Feedback Message */}
@@ -352,17 +396,28 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
                         {formatTimeAgo(user.lastActiveAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
-                          onClick={() => handleStatusChange(user.id, user.status === 'active' ? 'inactive' : 'active')}
-                          disabled={isPending || user.id === currentUserId}
-                          className={`mr-2 text-sm ${
-                            user.status === 'active'
-                              ? 'text-red-600 hover:text-red-700 disabled:text-red-300'
-                              : 'text-green-600 hover:text-green-700 disabled:text-green-300'
-                          }`}
-                        >
-                          {user.status === 'active' ? 'Deactivate' : 'Activate'}
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => handleStatusChange(user.id, user.status === 'active' ? 'inactive' : 'active')}
+                            disabled={isPending || user.id === currentUserId}
+                            className={`text-sm ${
+                              user.status === 'active'
+                                ? 'text-red-600 hover:text-red-700 disabled:text-red-300'
+                                : 'text-green-600 hover:text-green-700 disabled:text-green-300'
+                            }`}
+                          >
+                            {user.status === 'active' ? 'Deactivate' : 'Activate'}
+                          </button>
+                          {canChangeRoles && (
+                            <button
+                              onClick={() => handleDeleteUser(user.id, user.name)}
+                              disabled={isPending || user.id === currentUserId}
+                              className="text-sm text-rose-600 hover:text-rose-700 disabled:text-rose-300"
+                            >
+                              Delete
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
