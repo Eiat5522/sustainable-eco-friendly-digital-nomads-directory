@@ -4,10 +4,13 @@ import { MongoClient } from 'mongodb';
 
 type MockCollection = {
   createIndexes?: (...args: any[]) => Promise<any>;
+  createIndex?: (...args: any[]) => Promise<any>;
   findOne?: (...args: any[]) => Promise<any>;
   insertOne?: (...args: any[]) => Promise<any>;
   updateOne?: (...args: any[]) => Promise<any>;
   deleteOne?: (...args: any[]) => Promise<any>;
+  findOneAndUpdate?: (...args: any[]) => Promise<any>;
+  deleteMany?: (...args: any[]) => Promise<any>;
 };
 
 type MockDb = {
@@ -20,18 +23,37 @@ let clientPromise: Promise<any>;
 const shouldMockMongo = process.env.NODE_ENV === 'test' || process.env.E2E === '1';
 
 if (shouldMockMongo) {
+  // In test environment, check if jest is available for enhanced mocking
+  const useJestMocks = typeof jest !== 'undefined';
+  
+  // Create a mock collection that can be accessed and modified by tests
+  const mockCollectionInstance = useJestMocks ? {
+    createIndexes: jest.fn().mockResolvedValue({}),
+    createIndex: jest.fn().mockResolvedValue({}),
+    findOne: jest.fn().mockResolvedValue(null),
+    insertOne: jest.fn().mockResolvedValue({ insertedId: 'mock' }),
+    updateOne: jest.fn().mockResolvedValue({ matchedCount: 0, modifiedCount: 0 }),
+    deleteOne: jest.fn().mockResolvedValue({ deletedCount: 0 }),
+    findOneAndUpdate: jest.fn().mockResolvedValue({ value: null }),
+    deleteMany: jest.fn().mockResolvedValue({ deletedCount: 0 }),
+  } : {
+    createIndexes: async () => ({}),
+    createIndex: async () => ({}),
+    findOne: async () => null,
+    insertOne: async () => ({ insertedId: 'mock' }),
+    updateOne: async () => ({ matchedCount: 0, modifiedCount: 0 }),
+    deleteOne: async () => ({ deletedCount: 0 }),
+    findOneAndUpdate: async () => ({ value: null }),
+    deleteMany: async () => ({ deletedCount: 0 }),
+  };
+
   const mockClient = {
     db: () => ({
       createCollection: async () => ({}),
-      collection: () => ({
-        createIndexes: async () => ({}),
-        findOne: async () => null,
-        insertOne: async () => ({ insertedId: 'mock' }),
-        updateOne: async () => ({ matchedCount: 0, modifiedCount: 0 }),
-        deleteOne: async () => ({ deletedCount: 0 }),
-      }),
+      collection: () => mockCollectionInstance,
     }),
-  } as { db: () => MockDb };
+    _mockCollection: mockCollectionInstance, // Expose for testing
+  } as { db: () => MockDb; _mockCollection?: typeof mockCollectionInstance };
 
   clientPromise = Promise.resolve(mockClient);
 } else {

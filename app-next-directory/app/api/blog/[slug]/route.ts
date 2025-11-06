@@ -3,6 +3,7 @@ import { ApiResponseHandler } from '@/utils/api-response';
 import { groq } from 'next-sanity';
 import { NextRequest } from 'next/server';
 import { transformToBlogDetailDTO } from '@/lib/dto-transformer';
+import { incrementViewCount as persistentIncrementViewCount } from '@/lib/viewCountPersistence';
 
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 type TransformFn = typeof transformToBlogDetailDTO;
@@ -115,19 +116,23 @@ export async function GET(
   }
 }
 
-// Simple view count tracking (in-memory for demo - consider Redis for production)
+// View count tracking with MongoDB persistence
 async function trackViewCount(postId: string): Promise<number> {
   if (testControl?.trackViewCountOverride) {
     return testControl.trackViewCountOverride(postId);
   }
-  const currentCount = viewCounts.get(postId) || 0;
-  const newCount = currentCount + 1;
-  viewCounts.set(postId, newCount);
 
-  // TODO: In production, persist this to database
-  // await updateViewCount(postId, newCount);
-
-  return newCount;
+  try {
+    // Use persistent storage in production
+    return await persistentIncrementViewCount(postId);
+  } catch (error) {
+    // Fallback to in-memory tracking if database fails
+    console.error('Failed to persist view count, using in-memory fallback:', error);
+    const currentCount = viewCounts.get(postId) || 0;
+    const newCount = currentCount + 1;
+    viewCounts.set(postId, newCount);
+    return newCount;
+  }
 }
 
 // PUT endpoint for updating view count (optional)
