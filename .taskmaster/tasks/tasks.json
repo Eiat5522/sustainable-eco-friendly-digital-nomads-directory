@@ -2,7 +2,7 @@
   "master": {
     "tasks": [
       {
-        "id": "1",
+        "id": 1,
         "title": "Remove Redundant Navigation Components",
         "description": "Remove the unused MainNav stub component.",
         "details": "1. Identify the MainNav stub (app-next-directory/src/components/MainNav.tsx). 2. Confirm it's not used anywhere. 3. Delete the stub component. 4. Ensure the fully featured MainNav (app-next-directory/src/components/layout/MainNav.tsx) is correctly used throughout the application.",
@@ -73,7 +73,7 @@
         "updatedAt": "2025-11-06T07:11:07.441Z"
       },
       {
-        "id": "2",
+        "id": 2,
         "title": "Unify Layout Definitions",
         "description": "Consolidate layout logic and remove redundant layout files.",
         "details": "1. Analyze app/layout.tsx and app/layout.jsx. 2. Migrate any relevant logic from layout.jsx (e.g., reportWebVitals integration) into layout.tsx. 3. Remove layout.jsx. 4. Evaluate and consolidate the logic from SearchWrapper.tsx into ClientRootLayout.tsx. 5. Remove SearchWrapper.tsx.",
@@ -146,7 +146,7 @@
         "updatedAt": "2025-11-06T07:11:07.471Z"
       },
       {
-        "id": "3",
+        "id": 3,
         "title": "Replace Legacy Database Utilities",
         "description": "Replace the old mongodb.js with the TypeScript implementation.",
         "details": "1. Identify all instances where mongodb.js is imported. 2. Replace these imports with the equivalent from mongodb.ts. 3. Ensure the database initialization and connection are working correctly. 4. Remove mongodb.js.",
@@ -218,7 +218,7 @@
         ]
       },
       {
-        "id": "4",
+        "id": 4,
         "title": "Remove Commented-Out Code and Stubs",
         "description": "Clean up commented-out code and unnecessary stubs.",
         "details": "1. Review the codebase for commented-out code, especially in MainNav.tsx and API routes. 2. Remove any commented-out code that is no longer relevant. 3. Remove or refactor components that simply wrap others without adding any value (e.g., app/admin/page.tsx).",
@@ -289,7 +289,7 @@
         ]
       },
       {
-        "id": "5",
+        "id": 5,
         "title": "Implement Admin Users Page API Integration",
         "description": "Integrate the Admin Users page with actual API calls.",
         "details": "1. Implement the necessary API endpoints for fetching user data and statistics. 2. Replace the hardcoded user data in app/admin/users/page.tsx with calls to the new API endpoints. 3. Implement the handleUserAction functions to interact with the backend.",
@@ -361,7 +361,7 @@
         ]
       },
       {
-        "id": "6",
+        "id": 6,
         "title": "Implement Admin Listings Page API Integration",
         "description": "Integrate the Admin Listings page with actual API calls.",
         "details": "1. Implement the necessary API endpoints for fetching listing data and statistics. 2. Replace the mock listings array in app/admin/listings/page.tsx with calls to the new API endpoints. 3. Implement the handleListingAction functions to interact with the backend.",
@@ -437,7 +437,7 @@
         ]
       },
       {
-        "id": "7",
+        "id": 7,
         "title": "Implement Admin Settings API Integration",
         "description": "Implement the Admin Settings page with actual API calls.",
         "details": "1. Implement the necessary API endpoints for saving and retrieving settings. 2. Replace the local state management in app/admin/settings/page.tsx with calls to the new API endpoints. 3. Implement the settings save API call.",
@@ -511,7 +511,7 @@
         "updatedAt": "2025-11-06T07:11:07.479Z"
       },
       {
-        "id": "8",
+        "id": 8,
         "title": "Implement View Count Persistence",
         "description": "Persist blog post view counts to a database.",
         "details": "1. Choose a persistent storage solution (e.g., database field, Redis). 2. Modify the trackViewCount function in the blog post API route (app-next-directory/src/app/api/blog/[slug]/route.ts) to update the persistent store. 3. Ensure the view count is incremented correctly and persists across server restarts.",
@@ -589,7 +589,7 @@
         "updatedAt": "2025-11-06T07:11:07.486Z"
       },
       {
-        "id": "9",
+        "id": 9,
         "title": "Integrate Image Optimization Script",
         "description": "Integrate the image optimization script into the application workflow.",
         "details": "1. Review the batch_optimize_images.py script. 2. Integrate the script with the Sanity upload process. 3. Automate the image optimization process after upload.",
@@ -604,7 +604,7 @@
         "updatedAt": "2025-11-06T07:11:07.494Z"
       },
       {
-        "id": "10",
+        "id": 10,
         "title": "Implement Admin API Endpoints",
         "description": "Implement the missing admin API endpoints.",
         "details": "1. Implement the GET /api/admin/analytics and GET /api/admin/moderation endpoints. 2. Ensure the endpoints return the correct data in the expected format. 3. Handle potential errors and return appropriate error responses.",
@@ -677,7 +677,7 @@
         "updatedAt": "2025-11-06T07:11:07.502Z"
       },
       {
-        "id": "11",
+        "id": 11,
         "title": "Address TypeScript Ignore Flags",
         "description": "Address TypeScript ignore flags and improve type safety.",
         "details": "1. Analyze the use of // @ts-ignore in the FilterSidebar component. 2. Provide proper TypeScript definitions for the webkitSpeechRecognition API or check for the feature's existence in a type-safe way. 3. Remove the // @ts-ignore flags.",
@@ -690,7 +690,7 @@
         "subtasks": []
       },
       {
-        "id": "12",
+        "id": 12,
         "title": "Review and Refactor React Types",
         "description": "Review and refactor custom React type definitions.",
         "details": "1. Review the custom declaration file for React (react.d.ts). 2. Evaluate the impact of redefining React's FunctionComponent types. 3. Consider alternative approaches to enforce no implicit any in component props without global monkey-patching.",
@@ -704,7 +704,7 @@
         "subtasks": []
       },
       {
-        "id": "13",
+        "id": 13,
         "title": "Remove or Replace Console Logging",
         "description": "Remove or replace excessive console logging.",
         "details": "1. Review the codebase for console.log/console.error statements. 2. Remove unnecessary console logging. 3. Replace console logging with proper user feedback or logging to a monitoring system where appropriate.",
@@ -776,7 +776,7 @@
         ]
       },
       {
-        "id": "14",
+        "id": 14,
         "title": "Clean Up Commented & Dead Code",
         "description": "Clean up commented and dead code.",
         "details": "1. Review the codebase for commented-out code, especially in API routes. 2. Remove any commented-out code that is no longer relevant. 3. Turn comments into GitHub issues/TODO notes tracked elsewhere.",
@@ -849,7 +849,7 @@
         ]
       },
       {
-        "id": "15",
+        "id": 15,
         "title": "Tighten Broad 'any' Types and Schema Definitions",
         "description": "Tighten broad 'any' types and schema definitions.",
         "details": "1. Review the BulkOperationResult interface and the admin analytics fetching function. 2. Replace any types with more specific types or generated types from the backend schemas. 3. Improve type safety and compile-time checks.",
@@ -922,7 +922,7 @@
         ]
       },
       {
-        "id": "16",
+        "id": 16,
         "title": "Reconcile Data Definitions",
         "description": "Reconcile duplicate data definitions.",
         "details": "1. Compare the Listing interface/type used in the admin Listing management page with the global Listing interface/type. 2. If necessary, reconcile these types or derive one from the other to avoid mismatches.",
@@ -995,7 +995,7 @@
         ]
       },
       {
-        "id": "17",
+        "id": 17,
         "title": "Optimize Bulk Operations for Scale",
         "description": "Optimize bulk admin operations for scale.",
         "details": "1. Evaluate the performance of the sequential loop in bulk admin operations. 2. Consider implementing parallel operations or backend-side batching for improved performance. 3. Monitor the in-memory map for view counts and address scaling concerns.",
@@ -1069,7 +1069,7 @@
         "updatedAt": "2025-11-06T07:11:07.510Z"
       },
       {
-        "id": "18",
+        "id": 18,
         "title": "Improve Error Handling and Resilience",
         "description": "Improve error handling and resilience.",
         "details": "1. Ensure that each component and API has fallback behavior or timeouts. 2. Handle missing analytics responses gracefully in the AdminDashboard. 3. Implement robust error handling throughout the application.",
@@ -1137,7 +1137,7 @@
         ]
       },
       {
-        "id": "19",
+        "id": 19,
         "title": "Clean Up Development Artifacts",
         "description": "Clean up development artifacts.",
         "details": "1. Review the repository for development and testing files (e.g., test-dashboard-completion.js, memory-bank/ logs, AI assistant context files). 2. Remove or archive these files once they have served their purpose.",
@@ -1150,7 +1150,7 @@
         "subtasks": []
       },
       {
-        "id": "20",
+        "id": 20,
         "title": "Final Code Review and Testing",
         "description": "Perform a final code review and testing.",
         "details": "1. Review all changes made in the previous tasks. 2. Perform comprehensive testing of the application to ensure all features are working correctly. 3. Address any remaining issues or bugs.",
@@ -1184,25 +1184,10 @@
             "title": "Review Code Changes",
             "description": "Review all code changes made in previous tasks.",
             "dependencies": [
-              1,
               2,
               3,
               4,
-              5,
-              6,
-              7,
-              8,
-              9,
-              10,
-              11,
-              12,
-              13,
-              14,
-              15,
-              16,
-              17,
-              18,
-              19
+              5
             ],
             "details": "Examine code diffs, focusing on changes related to functionality, performance, and code style. Ensure adherence to coding standards and best practices.",
             "status": "pending",
@@ -1213,9 +1198,7 @@
             "id": 2,
             "title": "Perform Functional Testing",
             "description": "Test all application features to ensure they function correctly.",
-            "dependencies": [
-              1
-            ],
+            "dependencies": [],
             "details": "Test core functionalities, including user authentication, data display, form submissions, and navigation. Verify expected behavior and data integrity.",
             "status": "pending",
             "testStrategy": "Execute test cases covering all features. Verify expected behavior and data integrity. Document test results.",
@@ -1225,9 +1208,7 @@
             "id": 3,
             "title": "Conduct UI/UX Testing",
             "description": "Test the user interface and user experience.",
-            "dependencies": [
-              1
-            ],
+            "dependencies": [],
             "details": "Verify the layout, responsiveness, and visual elements of the application. Ensure a smooth and intuitive user experience across different devices and browsers.",
             "status": "pending",
             "testStrategy": "Test on different devices and browsers. Check for responsiveness and visual consistency. Ensure a smooth and intuitive user experience.",
@@ -1237,9 +1218,7 @@
             "id": 4,
             "title": "Perform Performance Testing",
             "description": "Test the application's performance under various conditions.",
-            "dependencies": [
-              1
-            ],
+            "dependencies": [],
             "details": "Measure page load times, response times, and resource usage. Identify and address any performance bottlenecks.",
             "status": "pending",
             "testStrategy": "Use performance testing tools to measure page load times, response times, and resource usage. Identify and address any performance bottlenecks.",
@@ -1250,7 +1229,6 @@
             "title": "Address Remaining Issues and Bugs",
             "description": "Fix any remaining issues or bugs identified during testing.",
             "dependencies": [
-              2,
               3,
               4
             ],
@@ -1269,7 +1247,9 @@
       "completedCount": 7,
       "tags": [
         "master"
-      ]
+      ],
+      "created": "2025-11-06T14:04:14.885Z",
+      "description": "Tasks for master context"
     }
   }
 }
