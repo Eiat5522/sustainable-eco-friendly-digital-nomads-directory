@@ -6,6 +6,17 @@ const mockUpload = jest.fn();
 
 jest.mock('@/lib/auth', () => ({ auth: (...args: any[]) => mockedAuth(...args) }));
 
+// Mock fs/promises for readFile
+jest.mock('fs/promises', () => ({
+  readFile: jest.fn().mockResolvedValue(Buffer.from('optimized image data'))
+}));
+
+// Mock image-optimizer cleanup
+jest.mock('@/lib/image-optimizer', () => ({
+  optimizeFileBuffer: jest.fn(),
+  cleanupOptimizedFile: jest.fn().mockResolvedValue(undefined)
+}));
+
 let POST: any;
 let routeTestControl: any;
 
@@ -32,6 +43,8 @@ describe('/api/upload', () => {
       routeTestControl.authOverride = undefined;
       routeTestControl.uploadOverride = undefined;
       routeTestControl.formDataOverride = undefined;
+      routeTestControl.optimizeOverride = undefined;
+      routeTestControl.skipOptimization = false;
     }
   });
 
@@ -103,7 +116,10 @@ describe('/api/upload', () => {
     mockUpload.mockResolvedValue(mockAsset as any);
     
     const file = new File(['test content'], 'test.jpg', { type: 'image/jpeg' });
-  routeTestControl.formDataOverride = async () => createMockFormData(file);
+    routeTestControl.formDataOverride = async () => createMockFormData(file);
+    
+    // Skip optimization for this test
+    routeTestControl.skipOptimization = true;
 
     const request = new Request('http://localhost:3000/api/upload', {
       method: 'POST',
@@ -112,9 +128,14 @@ describe('/api/upload', () => {
     const response = await POST(request);
     const json = await response.json();
 
+    if (response.status !== 200) {
+      console.error('Test failed with response:', json);
+    }
+
     expect(response.status).toBe(200);
     expect(json.asset).toEqual(mockAsset);
-    expect(mockUpload).toHaveBeenCalledWith('image', file);
+    expect(json.optimization).toBeDefined();
+    expect(mockUpload).toHaveBeenCalledWith('image', expect.any(File));
   });
 
   it('handles upload errors', async () => {
@@ -125,7 +146,10 @@ describe('/api/upload', () => {
     mockUpload.mockRejectedValue(new Error('Upload failed'));
     
     const file = new File(['test content'], 'test.jpg', { type: 'image/jpeg' });
-  routeTestControl.formDataOverride = async () => createMockFormData(file);
+    routeTestControl.formDataOverride = async () => createMockFormData(file);
+    
+    // Skip optimization for this test
+    routeTestControl.skipOptimization = true;
 
     const request = new Request('http://localhost:3000/api/upload', {
       method: 'POST',
@@ -136,5 +160,49 @@ describe('/api/upload', () => {
 
     expect(response.status).toBe(500);
     expect(json.error).toBe('Failed to upload image');
+  });
+
+  it('uses optimized image when optimization succeeds', async () => {
+    mockedAuth.mockResolvedValue({
+      user: { id: 'user-1', role: 'venueOwner' },
+    } as any);
+    
+    const mockAsset = {
+      _id: 'image-asset-2',
+      url: 'https://cdn.sanity.io/images/test-optimized.webp',
+    };
+    mockUpload.mockResolvedValue(mockAsset as any);
+    
+    // Create a file with arrayBuffer method
+    const fileContent = Buffer.from('test content');
+    const file = new File([fileContent], 'test.jpg', { type: 'image/jpeg' });
+    
+    // Add arrayBuffer method to File prototype for this test
+    Object.defineProperty(file, 'arrayBuffer', {
+      value: jest.fn().mockResolvedValue(fileContent.buffer)
+    });
+    
+    routeTestControl.formDataOverride = async () => createMockFormData(file);
+    
+    // Mock successful optimization
+    routeTestControl.optimizeOverride = jest.fn().mockResolvedValue({
+      success: true,
+      optimizedPath: '/tmp/test-optimized.webp',
+      originalSize: 10000,
+      optimizedSize: 5000
+    });
+
+    const request = new Request('http://localhost:3000/api/upload', {
+      method: 'POST',
+    });
+    
+    const response = await POST(request);
+    const json = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(json.asset).toEqual(mockAsset);
+    expect(json.optimization.applied).toBe(true);
+    expect(json.optimization.originalSize).toBe(10000);
+    expect(json.optimization.optimizedSize).toBe(5000);
   });
 });
