@@ -58,7 +58,7 @@ test('leaflet map debug', async ({ page }) => {
     const panes = Array.from(document.querySelectorAll('.leaflet-pane')).map(p => ({ className: p.className, style: window.getComputedStyle(p).cssText }));
 
     // Check if Leaflet JS exists
-    // @ts-ignore
+    
     const L = (window as any).L;
     const leafletVersion = L?.version || null;
 

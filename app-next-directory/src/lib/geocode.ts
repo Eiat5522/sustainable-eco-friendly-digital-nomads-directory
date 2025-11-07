@@ -18,8 +18,7 @@ export const findLandmarkCoordinates = (query: string | null | undefined): Coord
 
 export const fetchCoordinates = async (text: string | null | undefined): Promise<Coordinates> => {
   if (!text) return { latitude: null, longitude: null };
-  // @ts-ignore: fetch is mocked in tests
-  const resp = typeof fetch === "function" ? await fetch(
+const resp = typeof fetch === "function" ? await fetch(
     `https://api.example.com/geocode?address=${encodeURIComponent(text)}`
   ) : undefined;
   if (!resp) throw new Error('Geocode fetch failed');

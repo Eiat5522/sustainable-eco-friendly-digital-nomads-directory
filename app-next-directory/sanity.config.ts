@@ -15,6 +15,6 @@ const config = defineConfig({
   },
 
   basePath: '/studio',
-})
+}) as unknown as Record<string, unknown>
 
-export default defineConfig(config)
+export default config

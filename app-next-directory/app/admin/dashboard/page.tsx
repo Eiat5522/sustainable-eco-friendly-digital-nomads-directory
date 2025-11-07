@@ -111,6 +111,8 @@ const EMPTY_ANALYTICS: AdminAnalyticsSnapshot = {
   generatedAt: new Date(0).toISOString(),
 };
 
+const DASHBOARD_ERROR_MESSAGE = 'Unable to load dashboard data. Please try again later.';
+
 type AnalyticsLoadResult = {
   analytics: AdminAnalyticsSnapshot | null;
   errorMessage?: string;
@@ -165,13 +167,19 @@ function normalizeAnalyticsSnapshot(snapshot: AdminAnalyticsSnapshot | undefined
 async function loadAnalytics(): Promise<AnalyticsLoadResult> {
   try {
     const analytics = await fetchAdminAnalytics();
-    return { analytics: normalizeAnalyticsSnapshot(analytics) };
+    const normalized = normalizeAnalyticsSnapshot(analytics);
+
+    if (!normalized) {
+      return { analytics: null, errorMessage: DASHBOARD_ERROR_MESSAGE };
+    }
+
+    return { analytics: normalized };
   } catch (error) {
     structuredLogger.error('Failed to fetch admin analytics', error, {
       route: '/admin/dashboard',
       component: 'AdminDashboardPage',
     });
-    return null;
+    return { analytics: null, errorMessage: DASHBOARD_ERROR_MESSAGE };
   }
 }
 
@@ -194,7 +202,7 @@ export default async function AdminDashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="p-8 bg-white shadow-md rounded-lg text-center">
           <h1 className="text-2xl font-semibold text-gray-800 mb-4">Admin Dashboard</h1>
-          <p className="text-gray-600">{errorMessage ?? 'Unable to load dashboard data. Please try again later.'}</p>
+          <p className="text-gray-600">{errorMessage ?? DASHBOARD_ERROR_MESSAGE}</p>
           <p className="mt-4 text-sm text-gray-500">If the issue persists, please check your network connection or try again later.</p>
         </div>
       </div>

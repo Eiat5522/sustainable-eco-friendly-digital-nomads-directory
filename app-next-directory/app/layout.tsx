@@ -1,15 +1,14 @@
 import './globals.css'
-import { Inter } from 'next/font/google'
 import { cookies } from 'next/headers'
 import React from 'react'
-
-const inter = Inter({ subsets: ['latin'] })
 
 import { rootLayoutMetadata } from './layout.metadata'
 export { rootLayoutMetadata as metadata }
 
 import ClientRootLayout from './ClientRootLayout'
 import { normalizeTheme, themeClass, THEME_INIT_SCRIPT } from '@/utils/theme'
+
+const BODY_FONT_CLASS = 'font-sans antialiased'
 
 export default async function RootLayout({
   children,
@@ -26,7 +25,7 @@ export default async function RootLayout({
         {/* SSR-safe, no-FOUC theme init: sets `dark` before hydration */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
-      <body className={inter.className}>
+      <body className={BODY_FONT_CLASS}>
         <ClientRootLayout theme={theme}>
           {children}
         </ClientRootLayout>

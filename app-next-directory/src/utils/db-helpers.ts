@@ -62,11 +62,23 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function compareValues(a: unknown, b: unknown): number {
   if (a === b) return 0;
-  if (a === undefined || a === null) return -1;
-  if (b === undefined || b === null) return 1;
+  if (a === null || a === undefined) return -1;
+  if (b === null || b === undefined) return 1;
+
+  if (typeof a === 'string' && typeof b === 'string') {
+    return a.localeCompare(b);
+  }
 
   if (typeof a === 'number' && typeof b === 'number') {
     return a - b;
+  }
+
+  if (typeof a === 'boolean' && typeof b === 'boolean') {
+    return a === b ? 0 : a ? 1 : -1;
+  }
+
+  if (a instanceof Date && b instanceof Date) {
+    return a.getTime() - b.getTime();
   }
 
   return String(a).localeCompare(String(b));
@@ -244,36 +256,6 @@ function getValueByPath<TValue = unknown>(source: DocumentLike | undefined, path
     }
     return undefined;
   }, source) as TValue | undefined;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function compareValues(a: unknown, b: unknown): number {
-  if (a === b) return 0;
-  if (a === null || a === undefined) return -1;
-  if (b === null || b === undefined) return 1;
-  
-  if (typeof a === 'string' && typeof b === 'string') {
-    return a.localeCompare(b);
-  }
-  
-  if (typeof a === 'number' && typeof b === 'number') {
-    return a - b;
-  }
-  
-  if (typeof a === 'boolean' && typeof b === 'boolean') {
-    return a === b ? 0 : a ? 1 : -1;
-  }
-  
-  // For dates
-  if (a instanceof Date && b instanceof Date) {
-    return a.getTime() - b.getTime();
-  }
-  
-  // Fallback: convert to string and compare
-  return String(a).localeCompare(String(b));
 }
 
 function setValueByPath(target: DocumentLike, path: string, value: unknown) {
@@ -497,8 +479,8 @@ function createMockCollection<TDocument extends DocumentLike = DocumentLike>(nam
       return { acknowledged: true, matchedCount: 0, modifiedCount: 0 };
     },
     countDocuments: async (query = {}) => documents.filter((doc) => matchesQuery(doc, query)).length,
-    aggregate: <TResult = TDocument>(pipeline = []) => ({
-      toArray: async () => runAggregatePipeline(pipeline, documents) as unknown as TResult[],
+    aggregate: (pipeline = []) => ({
+      toArray: async () => runAggregatePipeline(pipeline, documents),
     }),
     deleteOne: async (query = {}) => {
       const index = documents.findIndex((doc) => matchesQuery(doc, query));

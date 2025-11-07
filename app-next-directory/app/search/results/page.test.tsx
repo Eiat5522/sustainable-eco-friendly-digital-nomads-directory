@@ -115,7 +115,7 @@ describe('Search results page module', () => {
     )
 
     const previousEnv = process.env.NODE_ENV
-    // @ts-ignore
+    
     process.env.NODE_ENV = 'development'
 
     const ui = await ResultsPage({ searchParams: Promise.resolve({ retry: '2' }) })
@@ -127,7 +127,7 @@ describe('Search results page module', () => {
     expect(retryLink).toHaveAttribute('href', '/search/results?retry=3')
     expect(screen.getByText(/Error: 500 Server Error/)).toBeInTheDocument()
 
-    // @ts-ignore
+    
     process.env.NODE_ENV = previousEnv
   })
 
@@ -135,7 +135,7 @@ describe('Search results page module', () => {
     mockSearchHandler.mockRejectedValueOnce(new Error('network down'))
 
     const previousEnv = process.env.NODE_ENV
-    // @ts-ignore
+    
     process.env.NODE_ENV = 'development'
 
     const ui = await ResultsPage({ searchParams: Promise.resolve({}) })
@@ -145,7 +145,7 @@ describe('Search results page module', () => {
     expect(within(errorState).getByText(/Failed to load search results/i)).toBeInTheDocument()
     expect(screen.getByText(/Unexpected error occurred/i)).toBeInTheDocument()
 
-    // @ts-ignore
+    
     process.env.NODE_ENV = previousEnv
   })
 

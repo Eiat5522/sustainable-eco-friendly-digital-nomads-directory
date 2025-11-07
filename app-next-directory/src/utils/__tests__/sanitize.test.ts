@@ -41,13 +41,13 @@ describe('sanitize', () => {
     });
 
     it('should return empty string for non-string input', () => {
-      // @ts-ignore - testing runtime behavior
+       - testing runtime behavior
       expect(sanitizeBasic(null)).toBe('');
-      // @ts-ignore - testing runtime behavior
+       - testing runtime behavior
       expect(sanitizeBasic(undefined)).toBe('');
-      // @ts-ignore - testing runtime behavior
+       - testing runtime behavior
       expect(sanitizeBasic(123)).toBe('');
-      // @ts-ignore - testing runtime behavior
+       - testing runtime behavior
       expect(sanitizeBasic({})).toBe('');
     });
 
@@ -82,9 +82,9 @@ describe('sanitize', () => {
     });
 
     it('should return empty string for non-string input', () => {
-      // @ts-ignore - testing runtime behavior
+       - testing runtime behavior
       expect(escapeGroqLiteral(null)).toBe('');
-      // @ts-ignore - testing runtime behavior
+       - testing runtime behavior
       expect(escapeGroqLiteral(undefined)).toBe('');
     });
 
@@ -134,9 +134,9 @@ describe('sanitize', () => {
     });
 
     it('should return empty string for non-string input', () => {
-      // @ts-ignore - testing runtime behavior
+       - testing runtime behavior
       expect(escapeGroqMatch(null)).toBe('');
-      // @ts-ignore - testing runtime behavior
+       - testing runtime behavior
       expect(escapeGroqMatch(undefined)).toBe('');
     });
 
@@ -201,7 +201,7 @@ describe('sanitize', () => {
     });
 
     it('should convert non-string values to strings', () => {
-      // @ts-ignore - testing runtime behavior
+       - testing runtime behavior
       expect(sanitizeStringArray([123, 'test'])).toEqual(['123', 'test']);
     });
 

@@ -23,12 +23,15 @@
       }
     ],
     "paths": {
-      "@mocks/*": [
-        "./__mocks__/*"
-      ],
       "@/*": [
         "./src/*",
         "./app/*"
+      ],
+      "@mocks/*": [
+        "./__mocks__/*"
+      ],
+      "@sanity/sanity.types": [
+        "./sanity.types"
       ],
       "@tests/*": [
         "./tests/*"

@@ -1,6 +1,5 @@
-// @ts-ignore
+
 import Analytics from 'analytics';
-// @ts-ignore
 import googleAnalytics from '@analytics/google-analytics';
 import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
 import posthog from 'posthog-js';

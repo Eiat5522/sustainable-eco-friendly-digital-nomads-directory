@@ -72,21 +72,20 @@ if (existing && (existing as any).schema) {
   // Remove any incomplete model before compiling a new one
   if (existing) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - mutating mongoose.models for test environment
-    delete mongoose.models.NewsletterSubscriber;
+        delete mongoose.models.NewsletterSubscriber;
   }
   NewsletterSubscriberModel = mongoose.model<INewsletterSubscriber>('NewsletterSubscriber', NewsletterSubscriberSchema);
 }
 
   // Ensure the compiled model exposes the schema (some test mocks expect this)
   try {
-    // @ts-ignore
+    
     NewsletterSubscriberModel.schema = NewsletterSubscriberSchema;
-    // @ts-ignore
+    
     NewsletterSubscriberModel.modelName = 'NewsletterSubscriber';
     // Try to ensure mongoose.models references the compiled model
     try {
-      // @ts-ignore
+      
       mongoose.models.NewsletterSubscriber = NewsletterSubscriberModel;
     } catch (e) {
       // ignore if mongoose.models is a Proxy that disallows assignment in the mock

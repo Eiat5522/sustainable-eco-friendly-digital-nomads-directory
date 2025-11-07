@@ -1,8 +1,7 @@
 import 'server-only';
-import type { ModerationStatus } from '@sanity/sanity.types';
-import structuredLogger from '@/lib/logger';
-import { client } from '@/lib/sanity/client';
+import { getDefaultTimeout, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
+import { client } from '@/lib/sanity/client';
 
 export type AdminModerationEntry = {
   id: string;
@@ -27,6 +26,31 @@ export type AdminAnalyticsSnapshot = {
   generatedAt: string;
 };
 
+type AdminAnalyticsTuple = [
+  number,
+  number,
+  number,
+  number,
+  AdminModerationEntry[],
+  Record<string, number>
+];
+
+type ModerationReport = {
+  _key?: string;
+  reportedBy?: {
+    _ref?: string;
+  };
+  reason?: string;
+  details?: string;
+};
+
+type ModerationStatusDocument = {
+  _id: string;
+  _createdAt: string;
+  status?: string;
+  userReports?: ModerationReport[] | null;
+};
+
 const ROLE_QUERIES = [
   { role: 'admin', query: 'count(*[_type == "user" && role == "admin"])' },
   {
@@ -42,8 +66,12 @@ const ROLE_QUERIES = [
 ] as const;
 
 async function fetchRoleCounts(): Promise<Record<string, number>> {
-  const counts = await withRequestTimeout(
-    Promise.all(ROLE_QUERIES.map(({ query }) => client.fetch<number>(query))),
+  const counts = await withRequestTimeout<number[]>(
+    Promise.all(
+      ROLE_QUERIES.map(({ query }) =>
+        client.fetch<number>(query) as Promise<number>
+      )
+    ),
     getDefaultTimeout(),
     'Fetching admin role counts timed out'
   );
@@ -53,9 +81,7 @@ async function fetchRoleCounts(): Promise<Record<string, number>> {
   }, {});
 }
 
-type ModerationReport = NonNullable<ModerationStatus['userReports']>[number];
-
-type ModerationQueueProjection = Pick<ModerationStatus, '_id' | '_createdAt' | 'status'> & {
+type ModerationQueueProjection = Pick<ModerationStatusDocument, '_id' | '_createdAt' | 'status'> & {
   itemType?: string;
   itemName?: string;
   itemId?: string;
@@ -80,7 +106,7 @@ function normalizeReportCount(reports: ModerationQueueProjection['userReports'])
 }
 
 export async function fetchModerationQueue(limit = 10): Promise<AdminModerationEntry[]> {
-  const queue = await withRequestTimeout(
+  const queue = await withRequestTimeout<ModerationQueueProjection[]>(
     client.fetch<ModerationQueueProjection[]>(
       `*[_type == "moderationStatus" && status == "pending"] | order(_createdAt desc)[0...$limit] {
         _id,
@@ -92,7 +118,7 @@ export async function fetchModerationQueue(limit = 10): Promise<AdminModerationE
         userReports
       }`,
       { limit }
-    ),
+    ) as Promise<ModerationQueueProjection[]>,
     getDefaultTimeout(),
     'Fetching moderation queue timed out'
   );
@@ -116,26 +142,26 @@ export async function fetchAdminAnalytics(): Promise<AdminAnalyticsSnapshot> {
     pendingModerationCount,
     moderationQueue,
     roleCounts,
-  ] = await withRequestTimeout(
+  ] = await withRequestTimeout<AdminAnalyticsTuple>(
     Promise.all([
-      client.fetch<number>('count(*[_type == "user"])'),
-      client.fetch<number>('count(*[_type == "listing"])'),
-      client.fetch<number>('count(*[_type == "review"])'),
-      client.fetch<number>('count(*[_type == "moderationStatus" && status == "pending"])'),
+      client.fetch<number>('count(*[_type == "user"])') as Promise<number>,
+      client.fetch<number>('count(*[_type == "listing"])') as Promise<number>,
+      client.fetch<number>('count(*[_type == "review"])') as Promise<number>,
+      client.fetch<number>('count(*[_type == "moderationStatus" && status == "pending"])') as Promise<number>,
       fetchModerationQueue(),
       fetchRoleCounts(),
-    ]),
+    ]) as Promise<AdminAnalyticsTuple>,
     getDefaultTimeout(),
     'Fetching admin analytics summary timed out'
   );
 
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  const weeklySignups = await withRequestTimeout(
+  const weeklySignups = await withRequestTimeout<number>(
     client.fetch<number>(
       'count(*[_type == "user" && _createdAt >= $sevenDaysAgo])',
       { sevenDaysAgo: sevenDaysAgo.toISOString() }
-    ),
+    ) as Promise<number>,
     getDefaultTimeout(),
     'Fetching weekly signups timed out'
   );
@@ -276,7 +302,8 @@ const commitBatch = async (
   patchFactory: PatchFactory,
   timestamp: string,
   batchIndex: number,
-  totalBatches: number
+  totalBatches: number,
+  operation: BulkOperationType
 ): Promise<BulkBatchResult> => {
   const transaction = client.transaction();
 
@@ -287,17 +314,22 @@ const commitBatch = async (
   const batchStart = now();
 
   try {
-    await transaction.commit({ autoGenerateArrayKeys: true });
+    await withRequestTimeout(
+      transaction.commit({ autoGenerateArrayKeys: true }) as Promise<unknown>,
+      getDefaultTimeout(),
+      'Committing admin bulk operation batch timed out'
+    );
     structuredLogger.performance('admin.bulk.batch', now() - batchStart, {
+      operation,
       batchSize: batchIds.length,
       batchIndex,
       totalBatches,
     });
     return { succeeded: [...batchIds], failed: [] };
   } catch (error) {
-    console.error('[admin] bulk operation batch failed', error);
     structuredLogger.error('Admin bulk operation batch failed', error, {
       component: 'admin-bulk-operations',
+      operation,
       batchSize: batchIds.length,
       batchIndex,
       totalBatches,
@@ -309,7 +341,8 @@ const commitBatch = async (
 const processBatches = async (
   batches: IdChunk[],
   patchFactory: PatchFactory,
-  timestamp: string
+  timestamp: string,
+  operation: BulkOperationType
 ): Promise<BulkBatchResult[]> => {
   if (batches.length === 0) {
     return [];
@@ -333,7 +366,8 @@ const processBatches = async (
         patchFactory,
         timestamp,
         currentIndex,
-        batches.length
+        batches.length,
+        operation
       );
     }
   };
@@ -387,31 +421,25 @@ export async function runBulkOperation({ operation, ids }: BulkOperationInput): 
     return { operation, total: 0, succeeded: 0, failed: [] };
   }
 
-  const timestamp = new Date().toISOString();
   const patchDataFactory = BULK_OPERATION_PATCH[operation];
   if (!patchDataFactory) {
     throw new Error(`Unsupported bulk operation: ${operation}`);
   }
 
-  const transaction = ids.reduce((trx, id) => {
-    return trx.patch(id, (patch) => patch.set(patchDataFactory(timestamp)));
-  }, client.transaction());
-
-  try {
-    await transaction.commit({ autoGenerateArrayKeys: true });
-    return { operation, total: ids.length, succeeded: ids.length, failed: [] };
-  } catch (error) {
-    structuredLogger.error('[admin] bulk operation failed', error, {
-      component: 'admin-analytics',
+  if (uniqueIds.length !== ids.length) {
+    structuredLogger.info('Deduplicated ids for bulk operation', {
+      component: 'admin-bulk-operations',
       operation,
+      requested: ids.length,
+      unique: uniqueIds.length,
     });
-    return { operation, total: ids.length, succeeded: 0, failed: [...ids] };
   }
 
   const start = now();
+  const timestamp = new Date().toISOString();
 
   const batches = chunkIds(uniqueIds, BULK_OPERATION_BATCH_SIZE);
-  const results = await processBatches(batches, patchDataFactory, timestamp);
+  const results = await processBatches(batches, patchDataFactory, timestamp, operation);
 
   const succeeded = results.reduce((acc, result) => acc + result.succeeded.length, 0);
   const failed = results.flatMap((result) => result.failed);
@@ -419,6 +447,7 @@ export async function runBulkOperation({ operation, ids }: BulkOperationInput): 
   const duration = now() - start;
   structuredLogger.performance(`admin.bulk.${operation}`, duration, {
     component: 'admin-bulk-operations',
+    operation,
     batches: batches.length,
     totalIds: uniqueIds.length,
     failed: failed.length,

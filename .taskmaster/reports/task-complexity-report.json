@@ -94,7 +94,7 @@
 			"taskTitle": "Address TypeScript Ignore Flags",
 			"complexityScore": 5,
 			"recommendedSubtasks": 2,
-			"expansionPrompt": "Detail the process of identifying @ts-ignore flags, providing TypeScript definitions for the webkitSpeechRecognition API, and removing the flags. Include specific examples.",
+			"expansionPrompt": "Detail the process of identifying  flags, providing TypeScript definitions for the webkitSpeechRecognition API, and removing the flags. Include specific examples.",
 			"reasoning": "This task involves addressing TypeScript issues, which requires understanding the code and providing appropriate type definitions. Requires careful review and testing."
 		},
 		{

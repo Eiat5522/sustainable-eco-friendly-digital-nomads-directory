@@ -12,7 +12,7 @@ describe('highlightText', () => {
     const result = highlightText('Hello World', 'world');
     // Should return an array with "Hello ", <mark>World</mark>
     expect(Array.isArray(result)).toBe(true);
-    // @ts-ignore
+    
     const mark = result.find((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(mark).toBeTruthy();
     if (mark && typeof mark === 'object' && 'props' in mark) {
@@ -26,7 +26,7 @@ describe('highlightText', () => {
   it('highlights all occurrences (case-insensitive)', () => {
     const result = highlightText('foo bar foo', 'foo');
     // Should have two <mark>foo</mark>
-    // @ts-ignore
+    
     const marks = result.filter((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(marks.length).toBe(2);
     marks.forEach((mark: React.ReactElement) => {
@@ -39,7 +39,7 @@ describe('highlightText', () => {
   it('respects caseSensitive option', () => {
     const result = highlightText('Foo foo', 'foo', { caseSensitive: true });
     // Only the lowercase 'foo' should be highlighted
-    // @ts-ignore
+    
     const marks = result.filter((el: unknown) => React.isValidElement(el));
     expect(marks.length).toBe(1);
     expect(marks[0].props.children).toBe('foo');
@@ -47,7 +47,7 @@ describe('highlightText', () => {
 
   it('applies custom className', () => {
     const result = highlightText('foo bar', 'foo', { className: 'custom-class' });
-    // @ts-ignore
+    
     const mark = result.find((el: unknown): el is React.ReactElement => React.isValidElement(el));
     if (mark && typeof mark === 'object' && 'props' in mark) {
       if (mark && typeof mark === 'object' && 'props' in mark) {
@@ -65,7 +65,7 @@ describe('highlightText', () => {
   it('handles special regex characters in searchQuery', () => {
     const result = highlightText('foo.bar*foo?', 'foo.bar*foo?', {});
     // Should highlight the entire string
-    // @ts-ignore
+    
     const mark = result.find((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(mark).toBeTruthy();
     if (mark && typeof mark === 'object' && 'props' in mark) {
@@ -94,7 +94,7 @@ describe('highlightText', () => {
   it('handles text with multiple consecutive matches', () => {
     const result = highlightText('foofoofoo', 'foo');
     // Should have three <mark>foo</mark>
-    // @ts-ignore
+    
     const marks = result.filter((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(marks.length).toBe(3);
     marks.forEach((mark: React.ReactElement) => {
@@ -106,9 +106,9 @@ describe('highlightText', () => {
 
   it('handles text with no string input (null/undefined)', () => {
     // Skipped: Implementation returns "" instead of null/undefined for null/undefined input.
-    // @ts-ignore
+    
     expect(highlightText(null, 'foo')).toBe(null);
-    // @ts-ignore
+    
     expect(highlightText(undefined, 'foo')).toBe(undefined);
   });
 
@@ -120,7 +120,7 @@ describe('highlightText', () => {
 
   it('handles empty options object', () => {
     const result = highlightText('foo bar', 'foo', {});
-    // @ts-ignore
+    
     const mark = result.find((el: unknown) => React.isValidElement(el)) as React.ReactElement;
     expect(mark).toBeTruthy();
   });
@@ -128,7 +128,7 @@ describe('highlightText', () => {
   it('handles undefined options', () => {
     // Should use default options
     const result = highlightText('foo bar', 'foo');
-    // @ts-ignore
+    
     const mark = result.find((el: unknown) => React.isValidElement(el)) as React.ReactElement;
     expect(mark).toBeTruthy();
   });
@@ -140,7 +140,7 @@ describe('highlightText', () => {
 
   it('handles text with numbers and searchQuery as number string', () => {
     const result = highlightText('abc123abc', '123');
-    // @ts-ignore
+    
     const mark = result.find((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(mark).toBeTruthy();
     if (mark && typeof mark === 'object' && 'props' in mark) {
@@ -152,7 +152,7 @@ describe('highlightText', () => {
 
   it('handles text with unicode characters', () => {
     const result = highlightText('café café', 'café');
-    // @ts-ignore
+    
     const marks = result.filter((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(marks.length).toBe(2);
     marks.forEach((mark: React.ReactElement) => {
@@ -164,7 +164,7 @@ describe('highlightText', () => {
 
   it('handles searchQuery with unicode characters', () => {
     const result = highlightText('café', 'é');
-    // @ts-ignore
+    
     const mark = result.find((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(mark).toBeTruthy();
     if (mark && typeof mark === 'object' && 'props' in mark) {
@@ -175,12 +175,12 @@ describe('highlightText', () => {
   });
 
   it('returns original text if searchQuery is undefined', () => {
-    // @ts-ignore
+    
     expect(highlightText('foo bar', undefined)).toBe('foo bar');
   });
 
   it('returns original text if options is null', () => {
-    // @ts-ignore
+    
     expect(highlightText('foo bar', 'foo', null)).not.toBeNull();
   });
 
@@ -196,16 +196,16 @@ describe('highlightText', () => {
 
     it('returns original text if text is null or undefined', () => {
       // Skipped: Implementation returns "" instead of null/undefined for null/undefined input.
-      // @ts-ignore
+      
       expect(getHighlightedText(null, 'foo')).toBe(null);
-      // @ts-ignore
+      
       expect(getHighlightedText(undefined, 'foo')).toBe(undefined);
     });
 
     it('returns original text if searchQuery is null or undefined', () => {
-      // @ts-ignore
+      
       expect(getHighlightedText('foo', null)).toBe('foo');
-      // @ts-ignore
+      
       expect(getHighlightedText('foo', undefined)).toBe('foo');
     });
   });

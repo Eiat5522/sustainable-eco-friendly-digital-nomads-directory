@@ -16,12 +16,6 @@ import type {
 import structuredLogger from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 
-jest.mock('@/lib/logger', () => ({
-  structuredLogger: {
-    error: jest.fn(),
-  },
-}));
-
 jest.mock('@/lib/sanity/client', () => {
   const fetch = jest.fn();
   const patch = jest.fn();
@@ -29,15 +23,20 @@ jest.mock('@/lib/sanity/client', () => {
   return { client: { fetch, patch, transaction } };
 });
 
-jest.mock('@/lib/logger', () => ({
-  __esModule: true,
-  default: {
+jest.mock('@/lib/logger', () => {
+  const logger = {
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn(),
     performance: jest.fn(),
-  },
-}));
+  };
+
+  return {
+    __esModule: true,
+    structuredLogger: logger,
+    default: logger,
+  };
+});
 
 type MockPatchChain = {
   set: jest.MockedFunction<(payload: Record<string, unknown>) => MockPatchChain>;
@@ -120,7 +119,7 @@ describe('admin analytics helpers', () => {
     fetchMock.mockReset();
     patchMock.mockReset();
     transactionMock.mockReset();
-    mockLogger.error.mockReset();
+    mockedLogger.error.mockReset();
   });
 
   it('normalizes moderation queue entries', async () => {
@@ -426,8 +425,6 @@ describe('admin analytics helpers', () => {
       expect.any(Number),
       expect.objectContaining({ failed: 1, totalIds: 1 })
     );
-
-    consoleSpy.mockRestore();
   });
 
   it('deduplicates ids before running bulk operations', async () => {

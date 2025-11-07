@@ -173,36 +173,8 @@ const loggerConfig: pino.LoggerOptions = {
 // Instead, we use pino-pretty as a direct stream destination without worker threads.
 let logger: pino.Logger = pino(loggerConfig);
 
-if (isDevelopment && !isE2E && isServer) {
-  // In development server-side, try to hydrate pino-pretty via dynamic import.
-  // We default to the base logger immediately so logging works even if the
-  // pretty printer fails to load or is still resolving asynchronously.
-  void (async () => {
-    try {
-      const pinoPrettyModule = await import('pino-pretty');
-      const maybePretty =
-        typeof pinoPrettyModule === 'function'
-          ? (pinoPrettyModule as unknown)
-          : (pinoPrettyModule as { default?: unknown }).default;
-      const pinoPretty =
-        ((pinoPrettyModule as any).default ?? (pinoPrettyModule as unknown)) as (typeof import('pino-pretty'))['default'];
-      if (typeof pinoPretty !== 'function') {
-        console.warn('Failed to initialize pino-pretty, using basic logger: module did not export a function');
-        return;
-      }
-      const prettyStream = pinoPretty({
-        colorize: true,
-        translateTime: 'yyyy-mm-dd HH:MM:ss',
-        ignore: 'pid,hostname,service,version',
-        sync: true // Force synchronous mode to avoid worker threads
-      });
-      logger = pino(loggerConfig, prettyStream);
-    } catch (error) {
-      // Fallback to basic logger if pino-pretty fails to load
-      console.warn('Failed to initialize pino-pretty, using basic logger:', error);
-    }
-  })();
-}
+// Pretty-printing is disabled in this environment to avoid bundling `pino-pretty`,
+// which depends on Node-specific modules (worker threads) that break Next.js client builds.
 
 // Enhanced logging interface with context support
 // Helper function to sanitize error objects

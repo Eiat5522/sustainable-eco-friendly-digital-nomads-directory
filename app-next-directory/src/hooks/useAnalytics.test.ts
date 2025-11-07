@@ -21,7 +21,7 @@ describe('useAnalytics', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Provide a minimal mock for document and document.head.appendChild
-    // @ts-ignore
+    
     let _title = 'Test Title';
     let _referrer = 'https://referrer.com';
     global.document = Object.assign({}, global.document, {
