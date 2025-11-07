@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { fetchAdminAnalytics } from '@/lib/admin/analytics';
+import { RequestTimeoutError, getDefaultTimeout, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
 
 type RouteContext = { params: Promise<Record<string, never>> };
@@ -31,10 +32,15 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
     );
     return NextResponse.json({ analytics });
   } catch (error) {
+    const isTimeout = error instanceof RequestTimeoutError;
     structuredLogger.error('Admin analytics error', error, {
       route: '/api/admin/analytics',
       method: 'GET',
+      errorType: error instanceof Error ? error.name : 'UnknownError',
     });
+    if (isTimeout) {
+      return NextResponse.json({ error: 'Analytics request timed out' }, { status: 504 });
+    }
     return NextResponse.json({ error: 'Failed to fetch admin analytics' }, { status: 500 });
   }
 }

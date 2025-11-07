@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { RequestTimeoutError } from '@/lib/http/request';
 import { ModerationActions } from '../ModerationActions';
 
 describe('ModerationActions', () => {
@@ -92,5 +93,21 @@ describe('ModerationActions', () => {
     await user.click(approveButton);
 
     expect(await screen.findByTestId('moderation-feedback-mod-4')).toHaveTextContent('network down');
+  });
+
+  it('surfaces timeout feedback when moderation request times out', async () => {
+    (global.fetch as jest.Mock).mockRejectedValueOnce(
+      new RequestTimeoutError('Request to /api/admin/moderation timed out')
+    );
+
+    render(<ModerationActions moderationId="mod-5" itemName="Listing E" />);
+    const user = userEvent.setup();
+
+    const approveButton = await screen.findByRole('button', { name: /approve listing e/i });
+    await user.click(approveButton);
+
+    expect(await screen.findByTestId('moderation-feedback-mod-5')).toHaveTextContent(
+      'Moderation action timed out. Please try again.'
+    );
   });
 });

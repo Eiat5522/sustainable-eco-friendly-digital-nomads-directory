@@ -8,6 +8,7 @@ import {
   type AdminAnalyticsSnapshot,
   type AdminModerationEntry,
 } from '@/lib/admin/analytics';
+import { RequestTimeoutError } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
 import { ModerationActions } from './ModerationActions';
 
@@ -175,11 +176,17 @@ async function loadAnalytics(): Promise<AnalyticsLoadResult> {
 
     return { analytics: normalized };
   } catch (error) {
+    const isTimeout = error instanceof RequestTimeoutError;
+    const errorMessage = isTimeout
+      ? 'Dashboard data request timed out. Please try again.'
+      : DASHBOARD_ERROR_MESSAGE;
+
     structuredLogger.error('Failed to fetch admin analytics', error, {
       route: '/admin/dashboard',
       component: 'AdminDashboardPage',
+      errorType: error instanceof Error ? error.name : 'UnknownError',
     });
-    return { analytics: null, errorMessage: DASHBOARD_ERROR_MESSAGE };
+    return { analytics: null, errorMessage };
   }
 }
 

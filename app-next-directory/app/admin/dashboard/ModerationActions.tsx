@@ -2,6 +2,12 @@
 
 import { useState, useTransition, FormEvent } from 'react';
 import type { ModerationAction } from '@/lib/admin/analytics';
+import {
+  RequestTimeoutError,
+  extractErrorMessage,
+  fetchWithTimeout,
+  getDefaultTimeout,
+} from '@/lib/http/request';
 
 type ModerationActionsProps = {
   moderationId: string;
@@ -19,13 +25,17 @@ async function postModerationAction({
   action: ActionType;
   notes?: string;
 }) {
-  const response = await fetch('/api/admin/moderation', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+  const response = await fetchWithTimeout(
+    '/api/admin/moderation',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ moderationId, action, notes }),
     },
-    body: JSON.stringify({ moderationId, action, notes }),
-  });
+    getDefaultTimeout()
+  );
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
@@ -56,7 +66,10 @@ export function ModerationActions({ moderationId, itemName }: ModerationActionsP
           setNotesOpen(false);
         }
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Action failed';
+        const message =
+          error instanceof RequestTimeoutError
+            ? 'Moderation action timed out. Please try again.'
+            : extractErrorMessage(error, 'Action failed');
         setFeedback(message);
       }
     });

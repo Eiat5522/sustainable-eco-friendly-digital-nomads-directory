@@ -220,7 +220,7 @@ npx tsc --noEmit tests/e2e/*.spec.ts
 ## 📚 Related Documentation
 
 - **Full Progress Report**: `/E2E_PHASE4_PROGRESS_REPORT.md`
-- **Completion Summary**: `/PHASE4_COMPLETION_SUMMARY.md`
+- **Completion Summary**: `../../archive/development-artifacts/PHASE4_COMPLETION_SUMMARY.md`
 - **Test Plan**: `/tests/PLAYWRIGHT-E2E-TEST-PLAN.md`
 - **Task List**: `/Initial_Findings_Report_Integration_&_E2E_&_Test.md`
 

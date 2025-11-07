@@ -2,6 +2,11 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { auth } from '@/lib/auth';
 import type { UserRole } from '@/types/auth';
 import { client } from '@/lib/sanity/client';
+import {
+  RequestTimeoutError,
+  getDefaultTimeout,
+  withRequestTimeout,
+} from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
 
 type RouteContext = { params: Promise<Record<string, never>> };
@@ -84,10 +89,15 @@ export async function GET(_request: NextRequest, _context: RouteContext) {
 
     return NextResponse.json(stats);
   } catch (error) {
+    const isTimeout = error instanceof RequestTimeoutError;
     structuredLogger.error('Admin listings stats GET error', error, {
       route: '/api/admin/listings/stats',
       method: 'GET',
+      errorType: error instanceof Error ? error.name : 'UnknownError',
     });
+    if (isTimeout) {
+      return NextResponse.json({ error: 'Listing statistics request timed out' }, { status: 504 });
+    }
     return NextResponse.json({ error: 'Failed to fetch listing statistics' }, { status: 500 });
   }
 }

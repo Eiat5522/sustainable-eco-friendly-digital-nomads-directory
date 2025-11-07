@@ -17,12 +17,22 @@ jest.mock('@/lib/sanity/client', () => {
   };
 });
 
+jest.mock('@/lib/logger', () => ({
+  structuredLogger: {
+    error: jest.fn(),
+  },
+}));
+
 import { auth } from '@/lib/auth';
+import { RequestTimeoutError } from '@/lib/http/request';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const clientMockModule = jest.requireMock('@/lib/sanity/client') as {
   client: { fetch: jest.Mock };
   __mock: { fetchMock: jest.Mock };
+};
+const mockLogger = jest.requireMock('@/lib/logger').structuredLogger as {
+  error: jest.Mock;
 };
 
 type RouteModule = typeof import('../route');
@@ -39,6 +49,7 @@ describe('/api/admin/listings/stats', () => {
   beforeEach(() => {
     mockAuth.mockReset();
     mockFetch.mockReset();
+    mockLogger.error.mockReset();
   });
 
   it('requires admin access', async () => {
@@ -99,5 +110,31 @@ describe('/api/admin/listings/stats', () => {
 
     expect(response.status).toBe(500);
     expect(json.error).toBe('Failed to fetch listing statistics');
+    expect(mockLogger.error).toHaveBeenCalledWith('Admin listings stats GET error', expect.any(Error), {
+      method: 'GET',
+      route: '/api/admin/listings/stats',
+      errorType: 'Error',
+    });
+  });
+
+  it('returns 504 when listing analytics time out', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockFetch.mockRejectedValue(new RequestTimeoutError('Fetching listing statistics timed out'));
+
+    const request = { url: 'https://example.com/api/admin/listings/stats' } as any;
+    const response = await GET(request, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(504);
+    expect(json.error).toBe('Listing statistics request timed out');
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'Admin listings stats GET error',
+      expect.any(RequestTimeoutError),
+      {
+        method: 'GET',
+        route: '/api/admin/listings/stats',
+        errorType: 'RequestTimeoutError',
+      }
+    );
   });
 });
