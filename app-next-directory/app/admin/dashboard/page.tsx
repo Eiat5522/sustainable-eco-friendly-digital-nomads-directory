@@ -7,6 +7,7 @@ import {
   fetchAdminAnalytics,
   type AdminAnalyticsSnapshot,
   type AdminModerationEntry,
+  createEmptyRoleCounts,
 } from '@/lib/admin/analytics';
 import { structuredLogger } from '@/lib/logger';
 import { ModerationActions } from './ModerationActions';
@@ -106,7 +107,7 @@ const EMPTY_ANALYTICS: AdminAnalyticsSnapshot = {
     weeklySignups: 0,
     pendingModeration: 0,
   },
-  userRoles: {},
+  userRoles: createEmptyRoleCounts(),
   moderationQueue: [],
   generatedAt: new Date(0).toISOString(),
 };
@@ -158,7 +159,7 @@ function normalizeAnalyticsSnapshot(snapshot: AdminAnalyticsSnapshot | undefined
       weeklySignups: Number.isFinite(overview.weeklySignups) ? overview.weeklySignups : 0,
       pendingModeration: Number.isFinite(overview.pendingModeration) ? overview.pendingModeration : 0,
     },
-    userRoles: snapshot.userRoles ?? {},
+    userRoles: snapshot.userRoles ?? createEmptyRoleCounts(),
     moderationQueue: normalizeModerationQueue(snapshot.moderationQueue),
     generatedAt: new Date(snapshot.generatedAt ?? Date.now()).toISOString(),
   };

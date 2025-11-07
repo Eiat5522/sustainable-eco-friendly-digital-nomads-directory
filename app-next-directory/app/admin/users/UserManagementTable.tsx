@@ -268,14 +268,12 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
 
   return (
     <div className="space-y-6 p-6">
-      {/* Feedback Message */}
       {feedback && (
         <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded" role="status">
           {feedback}
         </div>
       )}
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex flex-col sm:flex-row gap-4">
           <div>
@@ -315,21 +313,18 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
         </div>
       </div>
 
-      {/* Error State */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
           {error}
         </div>
       )}
 
-      {/* Loading State */}
       {loading && (
         <div className="text-center py-8">
           <div className="text-gray-500">Loading users...</div>
         </div>
       )}
 
-      {/* Users Table */}
       {!loading && !error && (
         <>
           <div className="overflow-x-auto">
@@ -426,7 +421,6 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
             </table>
           </div>
 
-          {/* Pagination */}
           {pagination.totalPages > 1 && (
             <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
               <div className="flex flex-1 justify-between sm:hidden">

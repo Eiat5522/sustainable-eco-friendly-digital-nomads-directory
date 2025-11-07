@@ -13,28 +13,6 @@ export type AdminModerationEntry = {
   status: string;
 };
 
-export type AdminAnalyticsSnapshot = {
-  overview: {
-    totalUsers: number;
-    totalListings: number;
-    totalReviews: number;
-    weeklySignups: number;
-    pendingModeration: number;
-  };
-  userRoles: Record<string, number>;
-  moderationQueue: AdminModerationEntry[];
-  generatedAt: string;
-};
-
-type AdminAnalyticsTuple = [
-  number,
-  number,
-  number,
-  number,
-  AdminModerationEntry[],
-  Record<string, number>
-];
-
 type ModerationReport = {
   _key?: string;
   reportedBy?: {
@@ -65,7 +43,36 @@ const ROLE_QUERIES = [
   { role: 'unidentifiedUser', query: 'count(*[_type == "user" && role == "unidentifiedUser"])' },
 ] as const;
 
-async function fetchRoleCounts(): Promise<Record<string, number>> {
+type RoleKey = (typeof ROLE_QUERIES)[number]['role'];
+
+export type AdminRoleCounts = Record<RoleKey, number>;
+
+export const createEmptyRoleCounts = (): AdminRoleCounts =>
+  Object.fromEntries(ROLE_QUERIES.map(({ role }) => [role, 0] as const)) as AdminRoleCounts;
+
+export type AdminAnalyticsSnapshot = {
+  overview: {
+    totalUsers: number;
+    totalListings: number;
+    totalReviews: number;
+    weeklySignups: number;
+    pendingModeration: number;
+  };
+  userRoles: AdminRoleCounts;
+  moderationQueue: AdminModerationEntry[];
+  generatedAt: string;
+};
+
+type AdminAnalyticsTuple = [
+  number,
+  number,
+  number,
+  number,
+  AdminModerationEntry[],
+  AdminRoleCounts
+];
+
+async function fetchRoleCounts(): Promise<AdminRoleCounts> {
   const counts = await withRequestTimeout<number[]>(
     Promise.all(
       ROLE_QUERIES.map(({ query }) =>
@@ -75,10 +82,11 @@ async function fetchRoleCounts(): Promise<Record<string, number>> {
     getDefaultTimeout(),
     'Fetching admin role counts timed out'
   );
-  return ROLE_QUERIES.reduce<Record<string, number>>((acc, { role }, index) => {
-    acc[role] = counts[index] ?? 0;
-    return acc;
-  }, {});
+  const baseCounts = createEmptyRoleCounts();
+  ROLE_QUERIES.forEach(({ role }, index) => {
+    baseCounts[role] = counts[index] ?? 0;
+  });
+  return baseCounts;
 }
 
 type ModerationQueueProjection = Pick<ModerationStatusDocument, '_id' | '_createdAt' | 'status'> & {
@@ -290,9 +298,17 @@ const chunkIds = (ids: string[], size: number): IdChunk[] => {
 export const BULK_OPERATION_BATCH_SIZE = 50;
 export const BULK_OPERATION_MAX_CONCURRENCY = 3;
 
+type BulkOperationFailureReason = 'commitFailed';
+
+export type BulkOperationFailure = {
+  id: string;
+  reason: BulkOperationFailureReason;
+  errorMessage?: string;
+};
+
 type BulkBatchResult = {
   succeeded: string[];
-  failed: string[];
+  failed: BulkOperationFailure[];
 };
 
 type PatchFactory = (timestamp: string) => ListingWorkflowPatch;
@@ -334,7 +350,11 @@ const commitBatch = async (
       batchIndex,
       totalBatches,
     });
-    return { succeeded: [], failed: [...batchIds] };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return {
+      succeeded: [],
+      failed: batchIds.map((id) => ({ id, reason: 'commitFailed', errorMessage })),
+    };
   }
 };
 
@@ -407,7 +427,7 @@ type BulkOperationResult = {
   operation: BulkOperationType;
   total: number;
   succeeded: number;
-  failed: string[];
+  failed: BulkOperationFailure[];
 };
 
 type BulkOperationInput = {

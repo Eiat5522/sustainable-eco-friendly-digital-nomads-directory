@@ -314,7 +314,6 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
 
   return (
     <div className="p-6">
-      {/* Stats Section */}
       {stats ? (
         <div className="mb-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" data-testid="listings-stats">
           <div className="bg-gray-50 p-4 rounded-lg">
@@ -348,7 +347,6 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
         </div>
       )}
 
-      {/* Filters */}
       <div className="mb-6 flex flex-col sm:flex-row gap-4">
         <input
           type="text"
@@ -383,7 +381,6 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
         </select>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200" data-testid="listings-table">
           <thead className="bg-gray-50">
@@ -510,7 +507,6 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
         </table>
       </div>
 
-      {/* Pagination */}
       {pagination.totalPages > 1 && (
         <div className="mt-6 flex items-center justify-between">
           <div className="text-sm text-gray-700">
