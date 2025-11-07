@@ -86,3 +86,58 @@ export type ListingManagementSummary = Pick<Listing, '_id' | 'name'> & {
   city: ListingCityName;
   status: ListingModerationStatus | ListingVerificationStatus | string;
 };
+
+export const LISTING_WORKFLOW_STATUSES = ['published', 'unpublished', 'pending', 'draft'] as const;
+export type ListingWorkflowStatus = (typeof LISTING_WORKFLOW_STATUSES)[number];
+
+export const LISTING_MODERATION_STATES = ['pending', 'approved', 'rejected'] as const;
+export type ListingModerationState = (typeof LISTING_MODERATION_STATES)[number];
+
+export type ListingTypeValue = Listing['type'];
+export const LISTING_TYPE_VALUES = ['coworking', 'cafe', 'accommodation', 'restaurant', 'activities'] as const satisfies readonly ListingTypeValue[];
+
+export function isListingWorkflowStatus(value: unknown): value is ListingWorkflowStatus {
+  return typeof value === 'string' && LISTING_WORKFLOW_STATUSES.includes(value as ListingWorkflowStatus);
+}
+
+export function isListingModerationState(value: unknown): value is ListingModerationState {
+  return typeof value === 'string' && LISTING_MODERATION_STATES.includes(value as ListingModerationState);
+}
+
+export function isListingTypeValue(value: unknown): value is ListingTypeValue {
+  return typeof value === 'string' && LISTING_TYPE_VALUES.includes(value as ListingTypeValue);
+}
+
+export interface ListingManagementItem {
+  id: Listing['_id'];
+  name: Listing['name'];
+  slug: string;
+  type: ListingTypeValue | 'unknown';
+  status: ListingWorkflowStatus;
+  createdAt: string;
+  updatedAt: string | null;
+  city: ListingCityName | null;
+  moderationStatus: ListingModerationState | null;
+  isFeatured: boolean;
+}
+
+export type ListingManagementFilters = {
+  search: string;
+  status: ListingWorkflowStatus | null;
+  type: ListingManagementItem['type'] | null;
+};
+
+export type ListingManagementPagination = {
+  page: number;
+  limit: number;
+  totalCount: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+};
+
+export interface ListingManagementResponse {
+  listings: ListingManagementItem[];
+  pagination: ListingManagementPagination;
+  filters: ListingManagementFilters;
+}

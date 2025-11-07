@@ -6,6 +6,7 @@ import {
   analyzeContent,
   summarizeModerationQueue,
   BULK_OPERATION_BATCH_SIZE,
+  BULK_OPERATION_MAX_CONCURRENCY,
 } from '../analytics';
 import type {
   BulkOperationType,
@@ -375,7 +376,7 @@ describe('admin analytics helpers', () => {
     expect(mockedLogger.performance).toHaveBeenCalledWith(
       'admin.bulk.publishListings',
       expect.any(Number),
-      expect.objectContaining({ totalIds: 2, failed: 0 })
+      expect.objectContaining({ totalIds: 2, failed: 0, concurrency: 1 })
     );
   });
 
@@ -460,10 +461,11 @@ describe('admin analytics helpers', () => {
     expect(transactions[0].patch).toHaveBeenCalledTimes(BULK_OPERATION_BATCH_SIZE);
     expect(transactions[1].patch).toHaveBeenCalledTimes(totalIds - BULK_OPERATION_BATCH_SIZE);
     expect(result).toEqual({ operation: 'publishListings', total: totalIds, succeeded: totalIds, failed: [] });
+    const expectedConcurrency = Math.min(BULK_OPERATION_MAX_CONCURRENCY, 2);
     expect(mockedLogger.performance).toHaveBeenCalledWith(
       'admin.bulk.publishListings',
       expect.any(Number),
-      expect.objectContaining({ batches: 2, totalIds })
+      expect.objectContaining({ batches: 2, totalIds, concurrency: expectedConcurrency })
     );
   });
 

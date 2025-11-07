@@ -716,7 +716,7 @@
         "dependencies": [
           "15"
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -724,9 +724,10 @@
             "description": "Compare the Listing interface/type used in the admin Listing management page with the global Listing interface/type.",
             "dependencies": [],
             "details": "1. Locate the Listing interface/type definition used in the admin Listing management page. 2. Locate the global Listing interface/type definition. 3. Compare the fields, data types, and any other relevant attributes of both definitions. 4. Document the differences found.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": null,
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-11-07T15:51:02Z"
           },
           {
             "id": 2,
@@ -736,14 +737,16 @@
               1
             ],
             "details": "1. Analyze the differences identified in the previous subtask. 2. Determine the best approach to reconcile the definitions (e.g., update the admin page definition to match the global definition, or derive a new definition). 3. Implement the chosen reconciliation strategy. 4. Update all usages of the Listing interface/type to use the reconciled definition.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Verify that the admin Listing management page functions correctly after the changes. 2. Ensure that there are no data-related errors or warnings in the application.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-11-07T15:51:02Z"
           }
         ],
         "complexity": 5,
         "recommendedSubtasks": 2,
-        "expansionPrompt": "Detail the process of comparing the Listing interface/type used in the admin Listing management page with the global Listing interface/type, and reconciling them or deriving one from the other."
+        "expansionPrompt": "Detail the process of comparing the Listing interface/type used in the admin Listing management page with the global Listing interface/type, and reconciling them or deriving one from the other.",
+        "updatedAt": "2025-11-07T15:51:02Z"
       },
       {
         "id": "17",
@@ -765,15 +768,16 @@
               6
             ],
             "details": "1. Identify and profile the performance bottlenecks in the existing bulk admin operations. 2. Implement parallel processing using techniques like multi-threading or asynchronous tasks, if applicable. 3. Implement backend-side batching to reduce database load. 4. Test the optimized operations with a large dataset to measure performance improvements. 5. Document the changes and performance metrics.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "1. Test with a large number of items. 2. Compare performance before and after optimization. 3. Verify data integrity after bulk operations.",
-            "parentId": "undefined"
+            "parentId": "undefined",
+            "updatedAt": "2025-11-07T15:51:02Z"
           }
         ],
         "complexity": 3,
         "recommendedSubtasks": 1,
         "expansionPrompt": "Detail the process of evaluating the performance of the bulk admin operations and, if necessary, optimizing these operations via parallel operations or backend-side batching.",
-        "updatedAt": "2025-11-07T09:10:28.380Z"
+        "updatedAt": "2025-11-07T15:51:02Z"
       },
       {
         "id": "18",
@@ -940,9 +944,9 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-11-07T10:03:55.547Z",
+      "lastModified": "2025-11-07T15:51:15Z",
       "taskCount": 20,
-      "completedCount": 15,
+      "completedCount": 16,
       "tags": [
         "master"
       ]

@@ -338,42 +338,57 @@ const commitBatch = async (
   }
 };
 
+type BulkProcessingSummary = {
+  succeeded: number;
+  failed: string[];
+  concurrency: number;
+};
+
 const processBatches = async (
   batches: IdChunk[],
   patchFactory: PatchFactory,
   timestamp: string,
   operation: BulkOperationType
-): Promise<BulkBatchResult[]> => {
-  if (batches.length === 0) {
-    return [];
+): Promise<BulkProcessingSummary> => {
+  const totalBatches = batches.length;
+  if (totalBatches === 0) {
+    return { succeeded: 0, failed: [], concurrency: 0 };
   }
 
-  const results: BulkBatchResult[] = new Array(batches.length);
-  const concurrency = Math.min(BULK_OPERATION_MAX_CONCURRENCY, batches.length);
+  const failed: string[] = [];
+  let succeeded = 0;
+  const concurrency = Math.min(BULK_OPERATION_MAX_CONCURRENCY, totalBatches);
   let pointer = 0;
 
   const worker = async () => {
     while (true) {
       const currentIndex = pointer;
       pointer += 1;
-      if (currentIndex >= batches.length) {
+      if (currentIndex >= totalBatches) {
         break;
       }
 
       const batchIds = batches[currentIndex];
-      results[currentIndex] = await commitBatch(
+      const result = await commitBatch(
         batchIds,
         patchFactory,
         timestamp,
         currentIndex,
-        batches.length,
+        totalBatches,
         operation
       );
+
+      if (result.succeeded.length) {
+        succeeded += result.succeeded.length;
+      }
+      if (result.failed.length) {
+        failed.push(...result.failed);
+      }
     }
   };
 
   await Promise.all(Array.from({ length: concurrency }, () => worker()));
-  return results;
+  return { succeeded, failed, concurrency };
 };
 
 type PublishWorkflowPatch = {
@@ -439,10 +454,12 @@ export async function runBulkOperation({ operation, ids }: BulkOperationInput): 
   const timestamp = new Date().toISOString();
 
   const batches = chunkIds(uniqueIds, BULK_OPERATION_BATCH_SIZE);
-  const results = await processBatches(batches, patchDataFactory, timestamp, operation);
-
-  const succeeded = results.reduce((acc, result) => acc + result.succeeded.length, 0);
-  const failed = results.flatMap((result) => result.failed);
+  const { succeeded, failed, concurrency } = await processBatches(
+    batches,
+    patchDataFactory,
+    timestamp,
+    operation
+  );
 
   const duration = now() - start;
   structuredLogger.performance(`admin.bulk.${operation}`, duration, {
@@ -451,7 +468,7 @@ export async function runBulkOperation({ operation, ids }: BulkOperationInput): 
     batches: batches.length,
     totalIds: uniqueIds.length,
     failed: failed.length,
-    concurrency: Math.min(BULK_OPERATION_MAX_CONCURRENCY, batches.length),
+    concurrency,
   });
 
   return {
