@@ -7,40 +7,19 @@ import {
   RequestTimeoutError,
 } from '@/lib/http/request';
 import { getUserFacingMessage } from '@/lib/error-handler';
-
-type ListingItem = {
-  id: string;
-  name: string;
-  slug: string;
-  type: string;
-  status: 'published' | 'unpublished' | 'pending' | 'draft';
-  createdAt: string;
-  updatedAt: string | null;
-  city: string | null;
-  moderationStatus: 'pending' | 'approved' | 'rejected' | null;
-  isFeatured: boolean;
-};
+import {
+  isListingTypeValue,
+  isListingWorkflowStatus,
+  type ListingManagementFilters,
+  type ListingManagementItem,
+  type ListingManagementPagination,
+  type ListingManagementResponse,
+  type ListingWorkflowStatus,
+} from '@/types/listings';
 
 type ListingsManagementTableProps = {
   currentUserRole?: 'admin' | 'superAdmin';
   currentUserId?: string;
-};
-
-type ListingsResponse = {
-  listings: ListingItem[];
-  pagination: {
-    page: number;
-    limit: number;
-    totalCount: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-  };
-  filters: {
-    search: string | null;
-    status: string | null;
-    type: string | null;
-  };
 };
 
 type ListingStats = {
@@ -56,9 +35,9 @@ type ListingStats = {
 async function fetchListings(
   page: number,
   search: string,
-  statusFilter: string | null,
-  typeFilter: string | null
-): Promise<ListingsResponse> {
+  statusFilter: ListingWorkflowStatus | null,
+  typeFilter: ListingManagementItem['type'] | null
+): Promise<ListingManagementResponse> {
   const params = new URLSearchParams({
     page: page.toString(),
     limit: '20',
@@ -68,7 +47,7 @@ async function fetchListings(
   if (statusFilter) params.append('status', statusFilter);
   if (typeFilter) params.append('type', typeFilter);
 
-  return fetchJsonWithRetry<ListingsResponse>(`/api/admin/listings?${params}`, undefined, {
+  return fetchJsonWithRetry<ListingManagementResponse>(`/api/admin/listings?${params}`, undefined, {
     timeoutMs: getDefaultTimeout(),
     retries: 2,
   });
@@ -164,9 +143,9 @@ function ModerationBadge({ status }: { status: 'pending' | 'approved' | 'rejecte
 }
 
 export function ListingsManagementTable(_props: ListingsManagementTableProps) {
-  const [listings, setListings] = useState<ListingItem[]>([]);
+  const [listings, setListings] = useState<ListingManagementItem[]>([]);
   const [stats, setStats] = useState<ListingStats | null>(null);
-  const [pagination, setPagination] = useState({
+  const [pagination, setPagination] = useState<ListingManagementPagination>({
     page: 1,
     limit: 20,
     totalCount: 0,
@@ -174,10 +153,10 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
     hasNextPage: false,
     hasPrevPage: false,
   });
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<ListingManagementFilters>({
     search: '',
-    status: null as string | null,
-    type: null as string | null,
+    status: null,
+    type: null,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -185,22 +164,35 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
   const [actionStatus, setActionStatus] = useState<{ listingId: string; message: string } | null>(null);
   const [statsError, setStatsError] = useState<string | null>(null);
 
-  const loadListings = useCallback(async (page: number, search: string, status: string | null, type: string | null) => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await fetchListings(page, search, status, type);
-      setListings(data.listings);
-      setPagination(data.pagination);
-    } catch (err) {
-      const timeoutMessage = err instanceof RequestTimeoutError
-        ? 'Loading listings is taking longer than expected. Please try again.'
-        : undefined;
-      setError(timeoutMessage ?? getUserFacingMessage(err, 'Failed to load listings'));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const loadListings = useCallback(
+    async (
+      page: number,
+      search: string,
+      status: ListingWorkflowStatus | null,
+      type: ListingManagementItem['type'] | null
+    ) => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await fetchListings(page, search, status, type);
+        setListings(data.listings);
+        setPagination(data.pagination);
+        setFilters(prev => ({
+          search: prev.search === search ? data.filters.search : prev.search,
+          status: data.filters.status,
+          type: data.filters.type,
+        }));
+      } catch (err) {
+        const timeoutMessage = err instanceof RequestTimeoutError
+          ? 'Loading listings is taking longer than expected. Please try again.'
+          : undefined;
+        setError(timeoutMessage ?? getUserFacingMessage(err, 'Failed to load listings'));
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
   const loadStats = useCallback(async () => {
     try {
@@ -226,16 +218,18 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
   };
 
   const handleStatusFilter = (status: string | null) => {
-    setFilters(prev => ({ ...prev, status }));
+    const normalizedStatus = status && isListingWorkflowStatus(status) ? status : null;
+    setFilters(prev => ({ ...prev, status: normalizedStatus }));
     startTransition(() => {
-      void loadListings(1, filters.search, status, filters.type);
+      void loadListings(1, filters.search, normalizedStatus, filters.type);
     });
   };
 
   const handleTypeFilter = (type: string | null) => {
-    setFilters(prev => ({ ...prev, type }));
+    const normalizedType = type && isListingTypeValue(type) ? type : null;
+    setFilters(prev => ({ ...prev, type: normalizedType }));
     startTransition(() => {
-      void loadListings(1, filters.search, filters.status, type);
+      void loadListings(1, filters.search, filters.status, normalizedType);
     });
   };
 

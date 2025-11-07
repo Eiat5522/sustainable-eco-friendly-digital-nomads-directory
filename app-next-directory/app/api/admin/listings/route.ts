@@ -4,23 +4,50 @@ import type { UserRole } from '@/types/auth';
 import { client } from '@/lib/sanity/client';
 import { getDefaultTimeout, withRequestTimeout } from '@/lib/http/request';
 import { structuredLogger } from '@/lib/logger';
+import {
+  isListingModerationState,
+  isListingTypeValue,
+  isListingWorkflowStatus,
+  type ListingManagementItem,
+  type ListingManagementResponse,
+  type ListingWorkflowStatus,
+} from '@/types/listings';
 
 type RouteContext = { params: Promise<Record<string, never>> };
 
 type SessionUser = { id?: string; role?: UserRole } | undefined;
 
-type ListingItem = {
-  id: string;
-  name: string;
-  slug: string;
-  type: string;
-  status: 'published' | 'unpublished' | 'pending' | 'draft';
-  createdAt: string;
-  updatedAt: string | null;
-  city: string | null;
-  moderationStatus: 'pending' | 'approved' | 'rejected' | null;
-  isFeatured: boolean;
+type AdminListingProjection = {
+  _id: string;
+  name?: string;
+  slug?: { current: string };
+  type?: string;
+  status?: string;
+  _createdAt?: string;
+  _updatedAt?: string;
+  city?: string | null;
+  moderationStatus?: string | null;
+  isFeatured?: boolean;
 };
+
+function toListingManagementItem(listing: AdminListingProjection): ListingManagementItem {
+  const status = isListingWorkflowStatus(listing.status) ? listing.status : ('draft' as ListingWorkflowStatus);
+  const moderationStatus = isListingModerationState(listing.moderationStatus) ? listing.moderationStatus : null;
+  const type = isListingTypeValue(listing.type) ? listing.type : 'unknown';
+
+  return {
+    id: listing._id,
+    name: listing.name ?? 'Unnamed Listing',
+    slug: listing.slug?.current ?? '',
+    type,
+    status,
+    createdAt: listing._createdAt ?? new Date().toISOString(),
+    updatedAt: listing._updatedAt ?? null,
+    city: listing.city ?? null,
+    moderationStatus,
+    isFeatured: listing.isFeatured ?? false,
+  };
+}
 
 function ensureAdmin(sessionUser: SessionUser): boolean {
   const role = sessionUser?.role;
@@ -40,8 +67,10 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     const page = Math.max(1, parseInt(url.searchParams.get('page') as string, 10) || 1);
     const limit = Math.min(100, Math.max(10, parseInt(url.searchParams.get('limit') as string, 10) || 20));
     const search = url.searchParams.get('search')?.trim() || '';
-    const statusFilter = url.searchParams.get('status') || null;
-    const typeFilter = url.searchParams.get('type') || null;
+    const statusParam = url.searchParams.get('status');
+    const statusFilter = isListingWorkflowStatus(statusParam) ? statusParam : null;
+    const typeParam = url.searchParams.get('type');
+    const typeFilter = isListingTypeValue(typeParam) ? typeParam : null;
 
     const offset = (page - 1) * limit;
 
@@ -52,7 +81,15 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     }
 
     let statusCondition = '';
-    if (statusFilter && ['published', 'unpublished', 'pending', 'draft'].includes(statusFilter)) {
+    // Defensive: Explicitly check statusFilter against allowed values to prevent injection
+    const allowedStatusValues: ListingWorkflowStatus[] = [
+      'draft',
+      'pending',
+      'approved',
+      'rejected',
+      'archived'
+    ];
+    if (statusFilter && allowedStatusValues.includes(statusFilter as ListingWorkflowStatus)) {
       statusCondition = `&& adminWorkflow.status == "${statusFilter}"`;
     }
 
@@ -78,40 +115,18 @@ export async function GET(request: NextRequest, _context: RouteContext) {
 
     const [listings, totalCount] = await withRequestTimeout(
       Promise.all([
-        client.fetch<Array<{
-          _id: string;
-          name?: string;
-          slug?: { current: string };
-          type?: string;
-          status?: 'published' | 'unpublished' | 'pending' | 'draft';
-          _createdAt?: string;
-          _updatedAt?: string;
-          city?: string | null;
-          moderationStatus?: 'pending' | 'approved' | 'rejected' | null;
-          isFeatured?: boolean;
-        }>>(query),
+        client.fetch<AdminListingProjection[]>(query),
         client.fetch<number>(countQuery)
       ]),
       getDefaultTimeout(),
       'Fetching admin listings timed out'
     );
 
-    const listingItems: ListingItem[] = listings.map(listing => ({
-      id: listing._id,
-      name: listing.name ?? 'Unnamed Listing',
-      slug: listing.slug?.current ?? '',
-      type: listing.type ?? 'unknown',
-      status: listing.status ?? 'draft',
-      createdAt: listing._createdAt ?? new Date().toISOString(),
-      updatedAt: listing._updatedAt ?? null,
-      city: listing.city ?? null,
-      moderationStatus: listing.moderationStatus ?? null,
-      isFeatured: listing.isFeatured ?? false,
-    }));
+    const listingItems = listings.map(toListingManagementItem);
 
     const totalPages = Math.ceil(totalCount / limit);
 
-    return NextResponse.json({
+    return NextResponse.json<ListingManagementResponse>({
       listings: listingItems,
       pagination: {
         page,
@@ -122,7 +137,7 @@ export async function GET(request: NextRequest, _context: RouteContext) {
         hasPrevPage: page > 1,
       },
       filters: {
-        search: search || null,
+        search,
         status: statusFilter,
         type: typeFilter,
       },
