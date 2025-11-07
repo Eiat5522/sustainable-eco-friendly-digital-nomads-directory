@@ -414,7 +414,18 @@ describe('admin analytics helpers', () => {
 
     const result = await runBulkOperation({ operation: 'featureListings', ids: ['a'] });
 
-    expect(result).toEqual({ operation: 'featureListings', total: 1, succeeded: 0, failed: ['a'] });
+    expect(result).toEqual({
+      operation: 'featureListings',
+      total: 1,
+      succeeded: 0,
+      failed: [
+        {
+          id: 'a',
+          reason: 'commitFailed',
+          errorMessage: 'boom',
+        },
+      ],
+    });
     expect(mockedLogger.error).toHaveBeenCalledWith(
       'Admin bulk operation batch failed',
       expect.any(Error),
