@@ -35,13 +35,20 @@ function toListingManagementItem(listing: AdminListingProjection): ListingManage
   const moderationStatus = isListingModerationState(listing.moderationStatus) ? listing.moderationStatus : null;
   const type = isListingTypeValue(listing.type) ? listing.type : 'unknown';
 
+  // Warn if _createdAt is missing
+  let createdAt = listing._createdAt;
+  if (!createdAt) {
+    structuredLogger.warn('Missing _createdAt for listing', { listingId: listing._id });
+    createdAt = new Date(0).toISOString(); // Use epoch as sentinel
+  }
+
   return {
     id: listing._id,
     name: listing.name ?? 'Unnamed Listing',
     slug: listing.slug?.current ?? '',
     type,
     status,
-    createdAt: listing._createdAt ?? new Date().toISOString(),
+    createdAt,
     updatedAt: listing._updatedAt ?? null,
     city: listing.city ?? null,
     moderationStatus,
@@ -81,6 +88,7 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     }
 
     let statusCondition = '';
+    // statusFilter is already validated by isListingWorkflowStatus at line 71
     if (statusFilter) {
       statusCondition = `&& adminWorkflow.status == "${statusFilter}"`;
     }

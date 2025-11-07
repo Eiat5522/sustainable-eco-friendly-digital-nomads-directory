@@ -177,11 +177,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
         const data = await fetchListings(page, search, status, type);
         setListings(data.listings);
         setPagination(data.pagination);
-        setFilters(prev => ({
-          search: prev.search === search ? data.filters.search : prev.search,
-          status: data.filters.status,
-          type: data.filters.type,
-        }));
+        setFilters(data.filters);
       } catch (err) {
         const timeoutMessage = err instanceof RequestTimeoutError
           ? 'Loading listings is taking longer than expected. Please try again.'

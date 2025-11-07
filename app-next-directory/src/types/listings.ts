@@ -97,15 +97,15 @@ export type ListingTypeValue = Listing['type'];
 export const LISTING_TYPE_VALUES = ['coworking', 'cafe', 'accommodation', 'restaurant', 'activities'] as const satisfies readonly ListingTypeValue[];
 
 export function isListingWorkflowStatus(value: unknown): value is ListingWorkflowStatus {
-  return typeof value === 'string' && LISTING_WORKFLOW_STATUSES.includes(value as ListingWorkflowStatus);
+  return typeof value === 'string' && (LISTING_WORKFLOW_STATUSES as unknown as string[]).includes(value);
 }
 
 export function isListingModerationState(value: unknown): value is ListingModerationState {
-  return typeof value === 'string' && LISTING_MODERATION_STATES.includes(value as ListingModerationState);
+  return typeof value === 'string' && (LISTING_MODERATION_STATES as unknown as string[]).includes(value);
 }
 
 export function isListingTypeValue(value: unknown): value is ListingTypeValue {
-  return typeof value === 'string' && LISTING_TYPE_VALUES.includes(value as ListingTypeValue);
+  return typeof value === 'string' && (LISTING_TYPE_VALUES as unknown as string[]).includes(value);
 }
 
 export interface ListingManagementItem {
@@ -124,7 +124,7 @@ export interface ListingManagementItem {
 export type ListingManagementFilters = {
   search: string;
   status: ListingWorkflowStatus | null;
-  type: ListingManagementItem['type'] | null;
+  type: ListingManagementItem['type'] | null; // 'unknown' is only used in response data, not for filtering
 };
 
 export type ListingManagementPagination = {

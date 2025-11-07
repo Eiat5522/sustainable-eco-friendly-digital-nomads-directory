@@ -355,15 +355,15 @@ const processBatches = async (
     return { succeeded: 0, failed: [], concurrency: 0 };
   }
 
-  const failed: string[] = [];
-  let succeeded = 0;
   const concurrency = Math.min(BULK_OPERATION_MAX_CONCURRENCY, totalBatches);
   let pointer = 0;
 
   const worker = async () => {
+    let localSucceeded = 0;
+    const localFailed: string[] = [];
+
     while (true) {
-      const currentIndex = pointer;
-      pointer += 1;
+      const currentIndex = pointer++;
       if (currentIndex >= totalBatches) {
         break;
       }
@@ -378,16 +378,17 @@ const processBatches = async (
         operation
       );
 
-      if (result.succeeded.length) {
-        succeeded += result.succeeded.length;
-      }
-      if (result.failed.length) {
-        failed.push(...result.failed);
-      }
+      localSucceeded += result.succeeded.length;
+      localFailed.push(...result.failed);
     }
+
+    return { succeeded: localSucceeded, failed: localFailed };
   };
 
-  await Promise.all(Array.from({ length: concurrency }, () => worker()));
+  const results = await Promise.all(Array.from({ length: concurrency }, () => worker()));
+  const succeeded = results.reduce((acc, r) => acc + r.succeeded, 0);
+  const failed = results.flatMap(r => r.failed);
+
   return { succeeded, failed, concurrency };
 };
 
