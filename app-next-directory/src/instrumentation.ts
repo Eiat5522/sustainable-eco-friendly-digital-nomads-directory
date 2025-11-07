@@ -8,45 +8,75 @@
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
+    const { redirectConsoleToStructuredLogger, structuredLogger } = await import('@/lib/logger');
+
+    redirectConsoleToStructuredLogger();
+
+    const logInTest = <T extends (...args: unknown[]) => void>(fn: T, ...args: Parameters<T>) => {
+      if (process.env.NODE_ENV === 'test') {
+        fn(...args);
+      }
+    };
+
     // Handle unhandled promise rejections
-    process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
-      console.error('Unhandled Promise Rejection at:', promise);
-      console.error('Reason:', reason);
-      
-      // Log but don't crash the server
+    process.on('unhandledRejection', (reason: unknown) => {
+      structuredLogger.error('Unhandled Promise Rejection', undefined, {
+        component: 'instrumentation',
+        details: {
+          event: 'unhandledRejection',
+        },
+      });
+      logInTest(console.error, 'Unhandled Promise Rejection', reason);
+
       if (reason instanceof Error) {
-        console.error('Error stack:', reason.stack);
-        
-        // Special handling for MongoDB errors
-        if (reason.message?.includes('MongoServerSelectionError') || 
-            reason.message?.includes('Server selection timed out')) {
-          console.error('MongoDB connection issue detected. The server will continue running and retry on next request.');
+        structuredLogger.error('Unhandled Promise Rejection reason', reason, {
+          component: 'instrumentation',
+        });
+        logInTest(console.error, 'Unhandled Promise Rejection reason', reason);
+
+        if (
+          reason.message?.includes('MongoServerSelectionError') ||
+          reason.message?.includes('Server selection timed out')
+        ) {
+          structuredLogger.warn('MongoDB connection issue detected. The server will continue running and retry on next request.', {
+            component: 'instrumentation',
+          });
+          logInTest(
+            console.warn,
+            'MongoDB connection issue detected. The server will continue running and retry on next request.'
+          );
         }
       }
     });
 
     // Handle uncaught exceptions
     process.on('uncaughtException', (error: Error) => {
-      console.error('Uncaught Exception:', error);
-      console.error('Stack:', error.stack);
-      
-      // For MongoDB errors, log but don't exit
-      if (error.message?.includes('MongoServerSelectionError') || 
-          error.message?.includes('Server selection timed out')) {
-        console.error('MongoDB connection issue detected. Continuing...');
+      structuredLogger.error('Uncaught Exception', error, {
+        component: 'instrumentation',
+      });
+      logInTest(console.error, 'Uncaught Exception:', error);
+
+      if (error.message?.includes('MongoServerSelectionError') || error.message?.includes('Server selection timed out')) {
+        structuredLogger.warn('MongoDB connection issue detected. Continuing...', {
+          component: 'instrumentation',
+        });
+        logInTest(console.warn, 'MongoDB connection issue detected. Continuing...');
         return;
       }
-      
-      // For other critical errors, we may want to exit
-      // but in development, we'll just log
+
       if (process.env.NODE_ENV === 'development') {
-        console.error('Development mode: Server will continue running');
+        structuredLogger.warn('Development mode: Server will continue running after uncaught exception', {
+          component: 'instrumentation',
+        });
+        logInTest(console.error, 'Development mode: Server will continue running');
       } else {
-        // In production, critical errors should exit
         process.exit(1);
       }
     });
 
-    console.log('Server instrumentation registered: Error handlers active');
+    structuredLogger.info('Server instrumentation registered: Error handlers active', {
+      component: 'instrumentation',
+    });
+    logInTest(console.log, 'Server instrumentation registered: Error handlers active');
   }
 }

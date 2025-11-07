@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connect from '@/lib/dbConnect';
 import User from '@/models/User';
+import structuredLogger from '@/lib/logger';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
@@ -9,7 +10,10 @@ export async function POST(request: NextRequest) {
     try {
       body = await request.json();
     } catch (error) {
-      console.warn('[register] Failed to parse request body', error);
+      structuredLogger.warn('[register] Failed to parse request body', {
+        component: 'auth',
+        error: error instanceof Error ? error.message : String(error),
+      });
       return NextResponse.json(
         { success: false, error: { message: 'Invalid request body', code: 'INVALID_INPUT' } },
         { status: 400 }
@@ -41,7 +45,9 @@ export async function POST(request: NextRequest) {
 
     // If MONGODB_URI is not configured during non-test runs, return a clear 503
     if (!process.env.MONGODB_URI) {
-      console.warn('MONGODB_URI is not set; responding 503 from /api/auth/register');
+      structuredLogger.warn('MONGODB_URI is not set; responding 503 from /api/auth/register', {
+        component: 'auth',
+      });
       return NextResponse.json(
         {
           success: false,
@@ -93,7 +99,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     // Handle errors (e.g., DB connection, hashing, creation)
-    console.error('[register] Registration failed', error);
+    structuredLogger.authError('registration', error, { component: 'auth' });
     const message = error instanceof Error ? error.message : 'Internal Server Error';
     return NextResponse.json(
       { success: false, error: { message, code: 'SERVER_ERROR' } },
