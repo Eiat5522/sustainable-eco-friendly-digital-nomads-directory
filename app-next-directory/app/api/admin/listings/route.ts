@@ -81,7 +81,15 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     }
 
     let statusCondition = '';
-    if (statusFilter) {
+    // Defensive: Explicitly check statusFilter against allowed values to prevent injection
+    const allowedStatusValues: ListingWorkflowStatus[] = [
+      'draft',
+      'pending',
+      'approved',
+      'rejected',
+      'archived'
+    ];
+    if (statusFilter && allowedStatusValues.includes(statusFilter as ListingWorkflowStatus)) {
       statusCondition = `&& adminWorkflow.status == "${statusFilter}"`;
     }
 
