@@ -119,8 +119,8 @@ describe('/api/admin/analytics', () => {
     expect(json.error).toBe('Failed to fetch admin analytics');
   });
 
-  it('rejects unsupported methods via POST handler', async () => {
-    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+  it('returns 405 for POST requests (unsupported method)', async () => {
+    // Note: No auth mocking needed since POST handler doesn't perform authentication
 
     const response = await POST({} as any, { params: Promise.resolve({}) });
     const json = await response.json();
