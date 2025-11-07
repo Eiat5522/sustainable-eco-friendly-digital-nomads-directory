@@ -1,14 +1,27 @@
+import { structuredLogger } from '@/lib/logger';
 import { GET as authGET, POST as authPOST } from "@/lib/auth";
 
-console.log('[auth route] module loaded');
+structuredLogger.info('[auth route] module loaded');
+if (process.env.NODE_ENV === 'test') {
+  console.log('[auth route] module loaded');
+}
 
 export async function GET(request: Request) {
   try {
     const { pathname } = new URL(request.url);
-    console.log('[auth route] incoming GET', pathname);
+    structuredLogger.info('[auth route] incoming GET', { path: pathname });
+    if (process.env.NODE_ENV === 'test') {
+      console.log('[auth route] incoming GET', pathname);
+    }
   } catch (error) {
-    console.error('[auth route] GET error:', error);
-    console.log('[auth route] incoming GET');
+    structuredLogger.warn('[auth route] failed to parse GET request URL', {
+      component: 'auth',
+      error: error instanceof Error ? error.message : String(error),
+    });
+    structuredLogger.info('[auth route] incoming GET');
+    if (process.env.NODE_ENV === 'test') {
+      console.log('[auth route] incoming GET');
+    }
   }
   return authGET(request as Parameters<typeof authGET>[0]);
 }
@@ -16,9 +29,19 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const { pathname } = new URL(request.url);
-    console.log('[auth route] incoming POST', pathname);
-  } catch (_error) {
-    console.log('[auth route] incoming POST');
+    structuredLogger.info('[auth route] incoming POST', { path: pathname });
+    if (process.env.NODE_ENV === 'test') {
+      console.log('[auth route] incoming POST', pathname);
+    }
+  } catch (error) {
+    structuredLogger.warn('[auth route] failed to parse POST request URL', {
+      component: 'auth',
+      error: error instanceof Error ? error.message : String(error),
+    });
+    structuredLogger.info('[auth route] incoming POST');
+    if (process.env.NODE_ENV === 'test') {
+      console.log('[auth route] incoming POST');
+    }
   }
   return authPOST(request as Parameters<typeof authPOST>[0]);
 }

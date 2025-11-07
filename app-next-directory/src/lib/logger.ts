@@ -1,4 +1,5 @@
 import pino from 'pino';
+import util from 'util';
 
 // Environment check for safe logging configuration
 const isProduction = process.env.NODE_ENV === 'production';
@@ -312,3 +313,95 @@ export const getRequestContext = (req: RequestLike | undefined): LogContext => {
 };
 
 export default structuredLogger;
+
+type ConsoleLevel = 'info' | 'warn' | 'error' | 'debug';
+
+const sanitizeConsoleArg = (arg: unknown): string =>
+  typeof arg === 'string' ? arg : util.inspect(arg, { depth: 4, breakLength: 120 });
+
+const formatConsoleInvocation = (level: ConsoleLevel, args: unknown[]): {
+  message: string;
+  error?: unknown;
+  context: LogContext;
+} => {
+  const errorArg = args.find((arg): arg is Error => arg instanceof Error);
+  const argsWithoutError = errorArg
+    ? args.filter((arg, index) => !(arg instanceof Error) || index !== args.indexOf(errorArg))
+    : args;
+
+  let message: string;
+  let remainingArgs: unknown[] = [];
+
+  if (argsWithoutError.length > 0 && typeof argsWithoutError[0] === 'string') {
+    const [template, ...rest] = argsWithoutError as [string, ...unknown[]];
+    message = util.formatWithOptions({ colors: false }, template, ...rest);
+    remainingArgs = rest;
+  } else if (argsWithoutError.length > 0) {
+    message = argsWithoutError.map(sanitizeConsoleArg).join(' ');
+    remainingArgs = argsWithoutError;
+  } else {
+    message = errorArg?.message ?? 'Console output';
+  }
+
+  const context: LogContext = {
+    component: 'console',
+    level,
+    ...(remainingArgs.length > 0
+      ? {
+          consoleArgs: remainingArgs.map(sanitizeConsoleArg),
+        }
+      : {}),
+  };
+
+  return { message, error: errorArg, context };
+};
+
+let consoleRedirectInstalled = false;
+
+export const redirectConsoleToStructuredLogger = () => {
+  if (consoleRedirectInstalled || !isServer) {
+    return;
+  }
+
+  consoleRedirectInstalled = true;
+
+  const levelMap: Record<'log' | 'info' | 'warn' | 'error' | 'debug', ConsoleLevel> = {
+    log: 'info',
+    info: 'info',
+    warn: 'warn',
+    error: 'error',
+    debug: 'debug',
+  };
+
+  (Object.keys(levelMap) as Array<keyof typeof levelMap>).forEach(method => {
+    const level = levelMap[method];
+    const original = console[method].bind(console);
+
+    console[method] = (...args: unknown[]) => {
+      const { message, error, context } = formatConsoleInvocation(level, args);
+
+      switch (level) {
+        case 'info':
+          structuredLogger.info(message, context);
+          break;
+        case 'warn':
+          structuredLogger.warn(message, context);
+          break;
+        case 'debug':
+          structuredLogger.debug(message, context);
+          break;
+        case 'error':
+          structuredLogger.error(message, error, context);
+          break;
+      }
+
+      if (isDevelopment) {
+        original(...args);
+      }
+    };
+  });
+};
+
+if (isServer && !isTest) {
+  redirectConsoleToStructuredLogger();
+}
