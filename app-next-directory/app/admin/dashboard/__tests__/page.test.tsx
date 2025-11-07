@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { RequestTimeoutError } from '@/lib/http/request';
 
 jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
@@ -97,8 +98,35 @@ beforeEach(() => {
     ).toBeInTheDocument();
     expect(mockLogger.error).toHaveBeenCalledWith('Failed to fetch admin analytics', expect.any(Error), {
       component: 'AdminDashboardPage',
+      errorType: 'Error',
       route: '/admin/dashboard',
     });
+  });
+
+  it('shows timeout specific messaging when analytics request times out', async () => {
+    mockAuth.mockResolvedValueOnce({
+      user: { id: 'admin-4', role: 'admin' },
+    });
+    mockFetchAnalytics.mockRejectedValueOnce(
+      new RequestTimeoutError('Fetching admin analytics timed out')
+    );
+
+    const AdminDashboardPage = (await import('../page')).default;
+    const element = await AdminDashboardPage();
+    render(<>{element}</>);
+
+    expect(
+      screen.getByText(/dashboard data request timed out/i),
+    ).toBeInTheDocument();
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'Failed to fetch admin analytics',
+      expect.any(RequestTimeoutError),
+      {
+        component: 'AdminDashboardPage',
+        errorType: 'RequestTimeoutError',
+        route: '/admin/dashboard',
+      }
+    );
   });
 
   it('normalizes incomplete analytics data', async () => {

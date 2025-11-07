@@ -12,6 +12,7 @@ jest.mock('@/lib/admin/analytics', () => ({
 
 import { auth } from '@/lib/auth';
 import { fetchAdminAnalytics } from '@/lib/admin/analytics';
+import { RequestTimeoutError } from '@/lib/http/request';
 
 const authMockModule = jest.requireMock('@/lib/auth') as { auth: jest.Mock };
 const analyticsMockModule = jest.requireMock('@/lib/admin/analytics') as {
@@ -98,6 +99,19 @@ describe('/api/admin/analytics', () => {
 
     expect(response.status).toBe(500);
     expect(json.error).toBe('Failed to fetch admin analytics');
+  });
+
+  it('returns 504 when analytics fetching times out', async () => {
+    mockAuth.mockResolvedValue({ user: { role: 'admin' } } as any);
+    mockFetchAnalytics.mockRejectedValue(
+      new RequestTimeoutError('Fetching admin analytics timed out')
+    );
+
+    const response = await GET({} as any, { params: Promise.resolve({}) });
+    const json = await response.json();
+
+    expect(response.status).toBe(504);
+    expect(json.error).toBe('Analytics request timed out');
   });
 
   it('returns 403 when the session has no role information', async () => {
