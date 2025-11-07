@@ -49,6 +49,21 @@ describe('listings library', () => {
           digitalNomadFeatures: [{ name: 'Focus rooms' }, 'Phone booths', null],
         },
         {
+          _id: 'legacy-4',
+          name: 'Legacy Keeps Ref',
+          city: {
+            _id: 'city-99',
+            name: 'Bangkok',
+            slug: { current: 'bangkok-ref' },
+          },
+          slug: { _type: 'slug', current: 'legacy-keeps-ref' },
+          category: 'activities',
+          primaryImage: {
+            _type: 'image',
+            asset: { _ref: 'image-legacy-kept', url: 'https://images.example/keep-ref.jpg' },
+          },
+        },
+        {
           _id: 'legacy-3',
           name: 'Legacy Outside City',
           city: 'Chiang Mai',
@@ -63,9 +78,15 @@ describe('listings library', () => {
       const { getListingsByCity } = loadListingsLib();
 
       const results = getListingsByCity('Bangkok');
-      expect(results).toHaveLength(2);
+      expect(results).toHaveLength(3);
 
-      const [alpha, beta] = results;
+      const alpha = results.find((listing) => listing._id === 'legacy-1');
+      const beta = results.find((listing) => listing._id === 'legacy-2');
+      const keepRef = results.find((listing) => listing._id === 'legacy-4');
+      if (!alpha || !beta || !keepRef) {
+        throw new Error('Expected normalized listings to be present');
+      }
+
       expect(alpha.slug).toEqual({ _type: 'slug', current: 'legacy-alpha' });
       expect(alpha.city?.name).toBe('Bangkok');
       expect(alpha.city?.slug.current).toBe('bangkok');
@@ -113,6 +134,9 @@ describe('listings library', () => {
       ]);
       expect(beta.digitalNomadFeatures).toEqual(['Focus rooms', 'Phone booths']);
       expect(beta.location).toEqual({ lat: 0, lng: 0 });
+
+      expect(keepRef.primaryImage?.asset._ref).toBe('image-legacy-kept');
+      expect(keepRef.primaryImage?.asset.url).toBe('https://images.example/keep-ref.jpg');
     });
 
     it('filterListings applies city, category, eco tag, and digital nomad filters together', () => {
@@ -192,6 +216,22 @@ describe('listings library', () => {
       const combined = filterListings({ city: 'Bangkok', hasEcoTags: true, hasDnFeatures: true });
       expect(combined).toHaveLength(1);
       expect(combined[0].name).toBe('Alpha Activities');
+    });
+  });
+
+  describe('city filtering safety', () => {
+    it('skips listings without a city when filtering by city name', () => {
+      const mockListings = [
+        { id: 'with-city', name: 'Has City', city: 'Lisbon', slug: 'has-city' },
+        { id: 'missing-city', name: 'Missing City', slug: 'missing-city' },
+      ];
+
+      jest.doMock('../../data/listings.json', () => mockListings);
+      const { filterListings } = loadListingsLib();
+
+      expect(() => filterListings({ city: 'lisbon' })).not.toThrow();
+      const matches = filterListings({ city: 'lisbon' });
+      expect(matches.map((listing) => listing._id)).toEqual(['with-city']);
     });
   });
 

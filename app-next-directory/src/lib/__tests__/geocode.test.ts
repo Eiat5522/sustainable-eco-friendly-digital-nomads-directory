@@ -199,6 +199,14 @@ describe('geocodeAddress', () => {
     const result = await geocodeModule.geocodeAddress('Address', 'City');
     expect(result).toEqual({ latitude: null, longitude: null });
   });
+
+  it('falls back to city fetch when direct object response lacks coordinates', async () => {
+    const geocodeModule = getGeocodeModuleWithMockedLandmark(jest.fn().mockReturnValue(null));
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => ({ latitude: undefined, longitude: undefined }) });
+    (global.fetch as any).mockResolvedValueOnce({ json: async () => [{ lat: '42.1', lon: '7.1' }] });
+    const result = await geocodeModule.geocodeAddress('Unknown Address', 'Bangkok');
+    expect(result).toEqual({ latitude: 42.1, longitude: 7.1 });
+  });
 });
 
 /**
@@ -339,5 +347,38 @@ describe('updateListingsWithCoordinates', () => {
       expect.anything()
     );
     consoleSpy.mockRestore();
+  });
+
+  it('allows overriding the listings path explicitly', async () => {
+    jest.resetModules();
+    const customPath = '/tmp/custom/listings.json';
+    const fsMock = {
+      readFile: jest.fn(async (requestedPath: string) => {
+        if (requestedPath === customPath) {
+          return JSON.stringify([
+            { name: 'Override Listing', address: 'Landmark A', city: 'Bangkok', coordinates: { latitude: null, longitude: null } },
+          ]);
+        }
+        throw new Error('Unexpected path');
+      }),
+      writeFile: jest.fn().mockResolvedValue(undefined),
+    };
+    jest.doMock('fs/promises', () => fsMock);
+    jest.doMock('path', () => ({
+      join: jest.fn(() => 'unused-default-path'),
+    }));
+
+    const geocodeModule = require('../geocode');
+    const mockGeocodeAddress = jest.fn().mockResolvedValue({ latitude: 4, longitude: 5 });
+
+    await geocodeModule.updateListingsWithCoordinates({
+      fs: fsMock,
+      path: require('path'),
+      geocodeAddress: mockGeocodeAddress,
+      listingsPath: customPath,
+    });
+
+    expect(fsMock.readFile).toHaveBeenCalledWith(customPath, 'utf-8');
+    expect(fsMock.writeFile).toHaveBeenCalledWith(customPath, expect.stringContaining('"latitude": 4'));
   });
 });

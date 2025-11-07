@@ -16,25 +16,36 @@ export const findLandmarkCoordinates = (query: string | null | undefined): Coord
   return LANDMARKS[key] ?? null;
 }
 
+const normalizeCoordinate = (value: unknown): number | null => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+};
+
 export const fetchCoordinates = async (text: string | null | undefined): Promise<Coordinates> => {
   if (!text) return { latitude: null, longitude: null };
-const resp = typeof fetch === "function" ? await fetch(
-    `https://api.example.com/geocode?address=${encodeURIComponent(text)}`
-  ) : undefined;
+
+  const resp = typeof fetch === 'function'
+    ? await fetch(`https://api.example.com/geocode?address=${encodeURIComponent(text)}`)
+    : undefined;
   if (!resp) throw new Error('Geocode fetch failed');
   const data = await resp.json();
-  
+
   // Handle both array and object responses
   if (Array.isArray(data)) {
     if (data.length === 0) {
       return { latitude: null, longitude: null };
     }
     const firstResult = data[0];
-    let lat = typeof firstResult.lat === 'string' ? parseFloat(firstResult.lat) : firstResult.lat;
-    let lon = typeof firstResult.lon === 'string' ? parseFloat(firstResult.lon) : firstResult.lon;
-    if (lat === undefined || lat === null) lat = null;
-    if (lon === undefined || lon === null) lon = null;
-    return { latitude: lat, longitude: lon };
+    return {
+      latitude: normalizeCoordinate(firstResult?.lat),
+      longitude: normalizeCoordinate(firstResult?.lon),
+    };
   }
 
   // If not an object, return nulls
@@ -43,9 +54,10 @@ const resp = typeof fetch === "function" ? await fetch(
   }
 
   // Handle direct object response
-  const lat = typeof data.latitude === 'string' ? parseFloat(data.latitude) : data.latitude;
-  const lon = typeof data.longitude === 'string' ? parseFloat(data.longitude) : data.longitude;
-  return { latitude: lat, longitude: lon };
+  return {
+    latitude: normalizeCoordinate((data as { latitude?: unknown }).latitude),
+    longitude: normalizeCoordinate((data as { longitude?: unknown }).longitude),
+  };
 }
 
 interface GeocodeAddressDependencies {
@@ -105,7 +117,8 @@ export async function updateListingsWithCoordinates(
   options?: {
     fs?: typeof import('fs/promises'),
     path?: typeof import('path'),
-    geocodeAddress?: typeof geocodeAddress
+    geocodeAddress?: typeof geocodeAddress,
+    listingsPath?: string,
   }
 ) {
   const injectedFs = options?.fs ?? (await import('fs/promises'));
@@ -113,7 +126,7 @@ export async function updateListingsWithCoordinates(
   const injectedGeocodeAddress = options?.geocodeAddress ?? geocodeAddress;
 
   try {
-    const listingsPath = injectedPath.join('/mocked/path', 'listings.json');
+    const listingsPath = options?.listingsPath ?? injectedPath.join(process.cwd(), 'src', 'data', 'listings.json');
     const data = await injectedFs.readFile(listingsPath, 'utf-8');
     const listings = JSON.parse(data);
 

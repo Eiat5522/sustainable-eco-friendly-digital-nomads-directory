@@ -8,6 +8,25 @@ import { DEFAULT_CATEGORIES, ALLOWED_CATEGORIES, type Category } from './constan
  * TEMP legacy JSON -> Listing mapper (to be deprecated once all data served via Sanity DTO layer)
  */
 type CanonicalCategory = Category;
+type LegacyImage = {
+  _type?: string;
+  asset?: {
+    _ref?: string;
+    _type?: string;
+    url?: string;
+  };
+  url?: string;
+};
+
+const createImageFromUrl = (url: string): LegacyImage => ({
+  _type: 'image',
+  asset: {
+    _ref: 'placeholder-ref',
+    _type: 'reference',
+    url,
+  },
+});
+
 const normalizeCategory = (input: string | undefined): CanonicalCategory => {
   const lc = String(input ?? '').trim().toLowerCase();
   // Common synonyms/plurals/hyphenation
@@ -35,8 +54,31 @@ const normalizeCategory = (input: string | undefined): CanonicalCategory => {
 };
 
 function mapRawToListing(rawListing: any): Listing {
+  const normalizePrimaryImage = (): LegacyImage | undefined => {
+    const primary = rawListing.primaryImage as LegacyImage | string | undefined;
+    if (primary && typeof primary === 'object') {
+      if (primary._type === 'image' || primary.asset?._ref) {
+        return primary;
+      }
+      const derivedUrl = primary.asset?.url ?? primary.url;
+      if (typeof derivedUrl === 'string' && derivedUrl.trim().length > 0) {
+        return createImageFromUrl(derivedUrl);
+      }
+    }
 
-// drop empty _id – let the backend supply a stable id
+    if (typeof primary === 'string' && primary.trim().length > 0) {
+      return createImageFromUrl(primary);
+    }
+
+    const legacyUrl = rawListing.primary_image_url;
+    if (typeof legacyUrl === 'string' && legacyUrl.trim().length > 0) {
+      return createImageFromUrl(legacyUrl);
+    }
+
+    return undefined;
+  };
+
+  // drop empty _id – let the backend supply a stable id
   const ecoTagsRaw = rawListing.ecoFocusTags || rawListing.ecoTags || [];
   const ecoFocusTags = Array.isArray(ecoTagsRaw)
     ? ecoTagsRaw.map((t: any) => {
@@ -64,16 +106,7 @@ function mapRawToListing(rawListing: any): Listing {
     address: rawListing.address || '',
     shortDescription: rawListing.shortDescription || '',
     longDescription: rawListing.longDescription || '',
-    primaryImage: rawListing.primaryImage || rawListing.primary_image_url ? {
-      _type: 'image', // Add _type
-      asset: {
-        _ref: 'placeholder-ref', // Placeholder ref, as we don't have actual Sanity asset refs here
-        _type: 'reference', // Add _type
-        url: typeof rawListing.primaryImage === 'string'
-          ? rawListing.primaryImage
-          : rawListing.primaryImage?.asset?.url || rawListing.primary_image_url
-      }
-    } : undefined,
+    primaryImage: normalizePrimaryImage(),
     galleryImages: Array.isArray(rawListing.galleryImages)
       ? rawListing.galleryImages.map((img: any) => {
           if (typeof img === 'string') {
@@ -131,7 +164,10 @@ export function filterListings(options: FilterOptions): Listing[] {
   // Apply city filter if provided
   if (options.city) {
     const cityLower = options.city.trim().toLowerCase();
-    result = result.filter((l) => l.city?.name.toLowerCase() === cityLower);
+    result = result.filter((l) => {
+      const listingCity = typeof l.city?.name === 'string' ? l.city.name.toLowerCase() : null;
+      return listingCity === cityLower;
+    });
   }
 
   // Apply category filter if provided

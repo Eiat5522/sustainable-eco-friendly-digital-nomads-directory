@@ -96,6 +96,16 @@ type ModerationQueueProjection = Pick<ModerationStatusDocument, '_id' | '_create
   userReports?: ModerationReport[] | null;
 };
 
+const MODERATION_QUEUE_PROJECTION = `
+  _id,
+  _createdAt,
+  status,
+  "itemType": item->._type,
+  "itemName": coalesce(item->.name, item->.title, "Unnamed Item"),
+  "itemId": item->._id,
+  userReports
+`;
+
 function isModerationReport(value: unknown): value is ModerationReport {
   if (value === null || typeof value !== 'object') {
     return false;
@@ -113,33 +123,36 @@ function normalizeReportCount(reports: ModerationQueueProjection['userReports'])
   return reports.filter(isModerationReport).length;
 }
 
+const mapModerationProjectionToEntry = (item: ModerationQueueProjection): AdminModerationEntry => ({
+  id: item._id,
+  itemType: item.itemType ?? 'unknown',
+  itemName: item.itemName ?? 'Unnamed Item',
+  itemId: item.itemId ?? 'unknown',
+  reports: normalizeReportCount(item.userReports),
+  lastActivity: item._createdAt,
+  status: item.status ?? 'pending',
+});
+
+async function fetchModerationEntryById(id: string): Promise<AdminModerationEntry | null> {
+  const result = await client.fetch<ModerationQueueProjection | ModerationQueueProjection[] | null>(
+    `*[_type == "moderationStatus" && _id == $id][0] {${MODERATION_QUEUE_PROJECTION}}`,
+    { id }
+  );
+  const projection = Array.isArray(result) ? result[0] : result;
+  return projection ? mapModerationProjectionToEntry(projection) : null;
+}
+
 export async function fetchModerationQueue(limit = 10): Promise<AdminModerationEntry[]> {
   const queue = await withRequestTimeout<ModerationQueueProjection[]>(
     client.fetch<ModerationQueueProjection[]>(
-      `*[_type == "moderationStatus" && status == "pending"] | order(_createdAt desc)[0...$limit] {
-        _id,
-        _createdAt,
-        status,
-        "itemType": item->._type,
-        "itemName": coalesce(item->.name, item->.title, "Unnamed Item"),
-        "itemId": item->._id,
-        userReports
-      }`,
+      `*[_type == "moderationStatus" && status == "pending"] | order(_createdAt desc)[0...$limit] {${MODERATION_QUEUE_PROJECTION}}`,
       { limit }
     ) as Promise<ModerationQueueProjection[]>,
     getDefaultTimeout(),
     'Fetching moderation queue timed out'
   );
 
-  return queue.map((item) => ({
-    id: item._id,
-    itemType: item.itemType ?? 'unknown',
-    itemName: item.itemName ?? 'Unnamed Item',
-    itemId: item.itemId ?? 'unknown',
-    reports: normalizeReportCount(item.userReports),
-    lastActivity: item._createdAt,
-    status: item.status ?? 'pending',
-  }));
+  return queue.map(mapModerationProjectionToEntry);
 }
 
 export async function fetchAdminAnalytics(): Promise<AdminAnalyticsSnapshot> {
@@ -255,8 +268,7 @@ export async function performModerationAction({
 
   await patch.commit({ autoGenerateArrayKeys: true });
 
-  const [updatedEntry] = await fetchModerationQueue(1);
-  return updatedEntry ?? null;
+  return fetchModerationEntryById(moderationId);
 }
 
 export type BulkOperationType = 'publishListings' | 'unpublishListings' | 'featureListings';
@@ -360,7 +372,7 @@ const commitBatch = async (
 
 type BulkProcessingSummary = {
   succeeded: number;
-  failed: string[];
+  failed: BulkOperationFailure[];
   concurrency: number;
 };
 
@@ -375,7 +387,7 @@ const processBatches = async (
     return { succeeded: 0, failed: [], concurrency: 0 };
   }
 
-  const failed: string[] = [];
+  const failed: BulkOperationFailure[] = [];
   let succeeded = 0;
   const concurrency = Math.min(BULK_OPERATION_MAX_CONCURRENCY, totalBatches);
   let pointer = 0;
