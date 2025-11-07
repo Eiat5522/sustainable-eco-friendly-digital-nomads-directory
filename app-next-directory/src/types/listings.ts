@@ -97,15 +97,15 @@ export type ListingTypeValue = Listing['type'];
 export const LISTING_TYPE_VALUES = ['coworking', 'cafe', 'accommodation', 'restaurant', 'activities'] as const satisfies readonly ListingTypeValue[];
 
 export function isListingWorkflowStatus(value: unknown): value is ListingWorkflowStatus {
-  return typeof value === 'string' && (LISTING_WORKFLOW_STATUSES as unknown as string[]).includes(value);
+  return typeof value === 'string' && LISTING_WORKFLOW_STATUSES.some(status => status === value);
 }
 
 export function isListingModerationState(value: unknown): value is ListingModerationState {
-  return typeof value === 'string' && (LISTING_MODERATION_STATES as unknown as string[]).includes(value);
+  return typeof value === 'string' && LISTING_MODERATION_STATES.some(state => state === value);
 }
 
 export function isListingTypeValue(value: unknown): value is ListingTypeValue {
-  return typeof value === 'string' && (LISTING_TYPE_VALUES as unknown as string[]).includes(value);
+  return typeof value === 'string' && LISTING_TYPE_VALUES.some(type => type === value);
 }
 
 export interface ListingManagementItem {
