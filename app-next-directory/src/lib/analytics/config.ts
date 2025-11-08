@@ -1,8 +1,14 @@
 
 // Dynamic imports to avoid missing package errors at compile time
 // These packages are mocked in tests and would need to be installed for production use
-let Analytics: any;
-let googleAnalytics: any;
+type AnalyticsType = {
+  page: (options?: unknown) => Promise<void>;
+  track: (name: string, properties?: unknown) => Promise<void>;
+  identify: (userId: string, traits?: unknown) => Promise<void>;
+} | null;
+
+let Analytics: AnalyticsType = null;
+let googleAnalytics: unknown = null;
 
 try {
   // Try to load analytics packages if available (mocked in tests)
@@ -50,9 +56,9 @@ const analytics = Analytics && googleAnalytics ? Analytics({
   ]
 }) : {
   // Fallback when packages are not installed
-  page: async (_options: any) => { /* noop */ },
-  track: async (_name: string, _properties?: any) => { /* noop */ },
-  identify: async (_userId: string, _traits?: any) => { /* noop */ },
+  page: async (_options?: unknown) => { /* noop */ },
+  track: async (_name: string, _properties?: unknown) => { /* noop */ },
+  identify: async (_userId: string, _traits?: unknown) => { /* noop */ },
 };
 
 // Initialize Vercel Analytics
@@ -82,7 +88,7 @@ export interface PageViewEvent {
 
 export interface CustomEvent {
   name: string;
-  properties?: Record<string, any>;
+  properties?: Record<string, unknown>;
 }
 
 // Analytics wrapper functions
@@ -113,7 +119,7 @@ export const trackEvent = async ({ name, properties }: CustomEvent) => {
   }
 };
 
-export const identifyUser = async (userId: string, traits?: Record<string, any>) => {
+export const identifyUser = async (userId: string, traits?: Record<string, unknown>) => {
   try {
     // Identify in GA4
     await analytics.identify(userId, traits);

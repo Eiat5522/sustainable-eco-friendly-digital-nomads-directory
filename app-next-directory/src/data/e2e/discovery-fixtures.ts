@@ -41,7 +41,19 @@ type SearchComputationParams = {
 }
 
 type SearchComputationResult = {
-  results: any[]
+  results: Array<{
+    _id: string;
+    name: string;
+    slug: string;
+    category: string;
+    city: {
+      _id: string;
+      name: string;
+      slug: string;
+      country: string;
+    };
+    [key: string]: unknown;
+  }>;
   pagination: {
     page: number
     limit: number

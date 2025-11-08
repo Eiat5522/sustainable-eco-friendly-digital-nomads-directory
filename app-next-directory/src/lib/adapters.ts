@@ -14,7 +14,7 @@ import { ListingCategory, PriceRange } from '@/types/enums';
 export function jsonToSanityListing(json: JsonListing): SanityListing {
   const now = new Date().toISOString();
   // Generate _id if missing, using name or fallback
-  const _id = (json as any)._id || (json.name ? `listing-${json.name.toLowerCase().replace(/\s+/g, '-')}` : undefined);
+  const _id = (json as { _id?: string })._id || (json.name ? `listing-${json.name.toLowerCase().replace(/\s+/g, '-')}` : undefined);
 
   // Generate slug if missing, using name
   const slug = json.slug && typeof json.slug === 'object' && 'current' in json.slug
@@ -24,20 +24,20 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
   // Map city to new structure
   const city = json.city
     ? {
-        _id: (json.city as any)._id || '',
+        _id: (json.city as { _id?: string })._id || '',
         name: json.city.name || '',
         slug: typeof json.city.slug === 'object' && 'current' in json.city.slug
           ? json.city.slug
           : { current: typeof json.city.slug === 'string' ? json.city.slug : '' },
-        listingCount: (json.city as any).listingCount || 0,
-        country: (json.city as any).country || ''
+        listingCount: (json.city as { listingCount?: number }).listingCount || 0,
+        country: (json.city as { country?: string }).country || ''
       }
     : undefined;
 
   // Map ecoTags to new structure
   const ecoTags = Array.isArray(json.ecoTags)
     ? json.ecoTags.map(tag => ({
-        _id: (tag as any)._id || '',
+        _id: (tag as { _id?: string })._id || '',
         name: tag.name || '',
         _type: 'reference' as const,
         slug: { current: tag.name ? tag.name.toLowerCase().replace(/\s+/g, '-') : '' },
