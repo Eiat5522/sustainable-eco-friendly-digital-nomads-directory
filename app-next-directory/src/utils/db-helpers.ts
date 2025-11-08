@@ -125,6 +125,51 @@ function createMockCursor<TDocument extends DocumentLike>(items: TDocument[] = [
   let skipAmount: number = 0;
   let limitAmount: number | null = null;
 
+  const cloneItems = () => items.map((item) => ({ ...(item as DocumentLike) }));
+
+  const applyTransformations = (): TDocument[] => {
+    let results = cloneItems();
+
+    if (sortFields) {
+      const sortEntries = Object.entries(sortFields);
+      results.sort((a, b) => {
+        for (const [key, direction] of sortEntries) {
+          const aVal = getValueByPath(a, key);
+          const bVal = getValueByPath(b, key);
+          let comparison = compareValues(aVal, bVal);
+          if (direction === -1) comparison = -comparison;
+          if (comparison !== 0) return comparison;
+        }
+        return 0;
+      });
+    }
+
+    if (skipAmount > 0) {
+      results = results.slice(skipAmount);
+    }
+
+    if (limitAmount !== null) {
+      results = results.slice(0, limitAmount);
+    }
+
+    if (projectedFields) {
+      const includeKeys = Object.entries(projectedFields)
+        .filter(([, flag]) => Boolean(flag))
+        .map(([key]) => key);
+      if (includeKeys.length) {
+        results = results.map((item) => {
+          const projected: DocumentLike = {};
+          for (const key of includeKeys) {
+            projected[key] = getValueByPath(item, key);
+          }
+          return projected;
+        });
+      }
+    }
+
+    return results as TDocument[];
+  };
+
   const cursor: MockCursor<TDocument> = {
     sort: (fields) => {
       sortFields = fields || null;
@@ -142,98 +187,9 @@ function createMockCursor<TDocument extends DocumentLike>(items: TDocument[] = [
       projectedFields = fields;
       return cursor;
     },
-    toArray: async () => {
-      let results = items.map((item) => ({ ...(item as DocumentLike) })) as TDocument[];
-
-      // Apply sort
-      if (sortFields) {
-        const sortEntries = Object.entries(sortFields);
-        results.sort((a, b) => {
-          for (const [key, direction] of sortEntries) {
-            const aVal = getValueByPath(a, key);
-            const bVal = getValueByPath(b, key);
-            let comparison = compareValues(aVal, bVal);
-            if (direction === -1) comparison = -comparison;
-            if (comparison !== 0) return comparison;
-          }
-          return 0;
-        });
-      }
-
-      // Apply skip
-      if (skipAmount > 0) {
-        results = results.slice(skipAmount);
-      }
-
-      // Apply limit
-      if (limitAmount !== null) {
-        results = results.slice(0, limitAmount);
-      }
-
-      // Apply projection
-      if (projectedFields) {
-        const includeKeys = Object.entries(projectedFields)
-          .filter(([, flag]) => Boolean(flag))
-          .map(([key]) => key);
-        if (includeKeys.length) {
-          results = results.map((item) => {
-            const projected: DocumentLike = {};
-            for (const key of includeKeys) {
-              projected[key] = getValueByPath(item as DocumentLike, key);
-            }
-            return projected;
-          }) as TDocument[];
-        }
-      }
-
-      return results;
-    },
+    toArray: async () => applyTransformations(),
     [Symbol.asyncIterator]: async function* () {
-      let results = items.map((item) => ({ ...(item as DocumentLike) })) as TDocument[];
-
-      // Apply sort
-      if (sortFields) {
-        const sortEntries = Object.entries(sortFields);
-        results.sort((a, b) => {
-          for (const [key, direction] of sortEntries) {
-            const aVal = getValueByPath(a, key);
-            const bVal = getValueByPath(b, key);
-            let comparison = compareValues(aVal, bVal);
-            if (direction === -1) comparison = -comparison;
-            if (comparison !== 0) return comparison;
-          }
-          return 0;
-        });
-      }
-
-      // Apply skip
-      if (skipAmount > 0) {
-        results = results.slice(skipAmount);
-      }
-
-      // Apply limit
-      if (limitAmount !== null) {
-        results = results.slice(0, limitAmount);
-      }
-
-      // Apply projection
-      if (projectedFields) {
-        const includeKeys = Object.entries(projectedFields)
-          .filter(([, flag]) => Boolean(flag))
-          .map(([key]) => key);
-        if (includeKeys.length) {
-          results = results.map((item) => {
-            const projected: DocumentLike = {};
-            for (const key of includeKeys) {
-              projected[key] = getValueByPath(item as DocumentLike, key);
-            }
-            return projected;
-          }) as TDocument[];
-        }
-      }
-
-      // Yield results one by one
-      for (const item of results) {
+      for (const item of applyTransformations()) {
         yield item;
       }
     },
