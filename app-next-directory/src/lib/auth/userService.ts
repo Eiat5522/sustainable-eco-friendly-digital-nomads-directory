@@ -155,7 +155,7 @@ export async function updateSanityUserWithAuthDetails(
  * Create a local credentials user with hashed password in MongoDB
  */
 export async function createLocalUser(
-  db: any,
+  db: { collection: (name: string) => { findOne: (query: unknown) => Promise<unknown>; insertOne: (doc: unknown) => Promise<unknown> } },
   { name, email, password }: { name: string; email: string; password: string }
 ) {
   // Normalize email for consistent lookups and writes

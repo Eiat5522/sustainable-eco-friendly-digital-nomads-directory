@@ -85,8 +85,8 @@ function normalizeRedisClient<T extends Redis | undefined>(client: T): T {
   if (!client || typeof client !== 'object') return client;
 
   type RedisEval = {
-    evalsha?: (...args: any[]) => any;
-    evalSha?: (...args: any[]) => any;
+    evalsha?: (...args: unknown[]) => unknown;
+    evalSha?: (...args: unknown[]) => unknown;
   };
 
   const candidate = client as Redis & RedisEval;
@@ -95,7 +95,7 @@ function normalizeRedisClient<T extends Redis | undefined>(client: T): T {
     try {
       candidate.evalsha = candidate.evalSha.bind(candidate);
     } catch {
-      candidate.evalsha = candidate.evalSha as (...args: any[]) => any;
+      candidate.evalsha = candidate.evalSha as (...args: unknown[]) => unknown;
     }
   }
 
@@ -103,7 +103,7 @@ function normalizeRedisClient<T extends Redis | undefined>(client: T): T {
     try {
       candidate.evalSha = candidate.evalsha.bind(candidate);
     } catch {
-      candidate.evalSha = candidate.evalsha as (...args: any[]) => any;
+      candidate.evalSha = candidate.evalsha as (...args: unknown[]) => unknown;
     }
   }
 

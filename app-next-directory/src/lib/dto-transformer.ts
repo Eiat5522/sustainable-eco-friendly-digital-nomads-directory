@@ -183,25 +183,42 @@ export function transformToSummaryDTO(
 ): ListingSummaryDTO {
   const imageUrl = imageOrFallback(sanityListing.primaryImage, 500, 300);
 
+  // Type assertion for accessing fields that may exist on either type
+  type ListingWithSlug = typeof sanityListing & { slug?: string | { current: string } };
+  type ListingWithFields = typeof sanityListing & {
+    shortDescription?: string;
+    address?: string;
+    type?: string;
+    website?: string;
+    city?: {
+      _id: string;
+      name: string;
+      slug?: { current: string };
+      country: string;
+      sustainabilityScore?: number;
+      highlights?: string[];
+    };
+  };
+
   // Ensure slug is always a string
-  const slug = typeof (sanityListing as any).slug === 'string'
-    ? (sanityListing as any).slug
-    : (sanityListing as any).slug?.current ?? '';
+  const slug = typeof (sanityListing as ListingWithSlug).slug === 'string'
+    ? (sanityListing as ListingWithSlug).slug
+    : (sanityListing as ListingWithSlug).slug?.current ?? '';
 
   // Coerce optional strings to undefined when null/invalid
-  const shortDescription = typeof (sanityListing as any).shortDescription === 'string'
-    ? (sanityListing as any).shortDescription
+  const shortDescription = typeof (sanityListing as ListingWithFields).shortDescription === 'string'
+    ? (sanityListing as ListingWithFields).shortDescription
     : undefined;
-  const address = typeof (sanityListing as any).address === 'string'
-    ? (sanityListing as any).address
+  const address = typeof (sanityListing as ListingWithFields).address === 'string'
+    ? (sanityListing as ListingWithFields).address
     : undefined;
 
   // Validate listing type or fallback to a safe default to satisfy schema
-  const rawType = (sanityListing as any).type;
+  const rawType = (sanityListing as ListingWithFields).type;
   const type = ALLOWED_CATEGORIES.has(rawType) ? rawType : 'activities';
 
   // Only include website when it looks like a valid URL
-  const websiteRaw = (sanityListing as any).website;
+  const websiteRaw = (sanityListing as ListingWithFields).website;
   let website: string | undefined;
   if (typeof websiteRaw === 'string') {
     try {
@@ -213,14 +230,14 @@ export function transformToSummaryDTO(
   }
 
   // Normalize nested city
-  const city = (sanityListing as any).city
+  const city = (sanityListing as ListingWithFields).city
     ? {
-        id: (sanityListing as any).city._id,
-        name: (sanityListing as any).city.name,
-        slug: (sanityListing as any).city.slug?.current ?? '',
-        country: (sanityListing as any).city.country,
-        sustainabilityScore: toPercentage0To100((sanityListing as any).city.sustainabilityScore) as Percentage0To100 | undefined,
-        highlights: (sanityListing as any).city.highlights,
+        id: (sanityListing as ListingWithFields).city!._id,
+        name: (sanityListing as ListingWithFields).city!.name,
+        slug: (sanityListing as ListingWithFields).city!.slug?.current ?? '',
+        country: (sanityListing as ListingWithFields).city!.country,
+        sustainabilityScore: toPercentage0To100((sanityListing as ListingWithFields).city!.sustainabilityScore) as Percentage0To100 | undefined,
+        highlights: (sanityListing as ListingWithFields).city!.highlights,
       }
     : null;
 
