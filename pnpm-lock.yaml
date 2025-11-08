@@ -316,8 +316,8 @@ importers:
         specifier: ^4.17.2
         version: 4.17.2
       mongoose:
-        specifier: ^8.16.5
-        version: 8.19.2(@aws-sdk/credential-providers@3.918.0)(socks@2.8.7)
+        specifier: ^8.19.3
+        version: 8.19.3(@aws-sdk/credential-providers@3.918.0)(socks@2.8.7)
       nanoid:
         specifier: ^5.1.5
         version: 5.1.6
@@ -9180,8 +9180,8 @@ packages:
       socks:
         optional: true
 
-  mongoose@8.19.2:
-    resolution: {integrity: sha512-ww2T4dBV+suCbOfG5YPwj9pLCfUVyj8FEA1D3Ux1HHqutpLxGyOYEPU06iPRBW4cKr3PJfOSYsIpHWPTkz5zig==}
+  mongoose@8.19.3:
+    resolution: {integrity: sha512-fTAGaIohkk8wCggMuBuqTVD4YrM1/J8cBr1ekqzFqtz65qkLjtX2dcy3NH1e+2rk2365dyrrsPAnt4YTxBhEiQ==}
     engines: {node: '>=16.20.1'}
 
   motion-dom@12.23.23:
@@ -24396,7 +24396,7 @@ snapshots:
       '@aws-sdk/credential-providers': 3.918.0
       socks: 2.8.7
 
-  mongoose@8.19.2(@aws-sdk/credential-providers@3.918.0)(socks@2.8.7):
+  mongoose@8.19.3(@aws-sdk/credential-providers@3.918.0)(socks@2.8.7):
     dependencies:
       bson: 6.10.4
       kareem: 2.6.3
