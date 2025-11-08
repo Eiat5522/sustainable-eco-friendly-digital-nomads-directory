@@ -1,7 +1,5 @@
 // Auth types
-import { DefaultSession } from "next-auth";
-import { JWT as NextAuthJWT } from "next-auth/jwt";
-
+// Type augmentation for next-auth modules
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;

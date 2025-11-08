@@ -52,7 +52,7 @@ const setupModule = async (options: SetupOptions = {}) => {
   const loginAttemptCreate = jest.fn().mockResolvedValue(undefined);
   const validatorIsEmail = jest.fn().mockReturnValue(true);
 
-  let ratelimitExport = options.ratelimitExportFactory
+  const ratelimitExport = options.ratelimitExportFactory
     ? options.ratelimitExportFactory(limiterInstance as Record<string, unknown>, limit)
     : { __esModule: true, Ratelimit: ratelimitCtor };
 

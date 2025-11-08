@@ -17,7 +17,7 @@ type PasswordResetAudit = {
     | 'user_not_found'
     | 'invalid_request_data'
     | 'exception';
-  ip?: string | null;
+  ip?: string;
   requestId?: string;
   at: string;
   userId?: string;

@@ -1,5 +1,4 @@
 // Common types for Sanity schemas
-import { ListingCategory } from './enums';
 
 // Base Sanity document interface
 export interface SanityDocument {

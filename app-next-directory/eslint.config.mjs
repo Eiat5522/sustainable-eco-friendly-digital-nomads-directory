@@ -1,12 +1,11 @@
 import { fileURLToPath } from "node:url";
-import { Linter } from 'eslint';
 import requireReactFcTypeParametersRule from './eslint/rules/require-react-fc-type-parameters.js';
 
 // Robust import with CJS fallback for @eslint/eslintrc
 let eslintrc;
 try {
   eslintrc = await import('@eslint/eslintrc');
-} catch (err) {
+} catch (_err) {
   eslintrc = await import('@eslint/eslintrc/dist/eslintrc.cjs');
 }
 
@@ -97,7 +96,8 @@ const eslintConfig = [
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-empty-object-type": "off",
-      "@typescript-eslint/no-unused-vars": "off"
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-var": "off"
     }
   },
   {

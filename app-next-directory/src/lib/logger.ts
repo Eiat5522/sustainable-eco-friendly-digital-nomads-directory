@@ -172,7 +172,7 @@ const loggerConfig: pino.LoggerOptions = {
 // IMPORTANT: We avoid using pino's transport mechanism with pino-pretty because it spawns
 // worker threads that fail to resolve paths correctly in Next.js with custom distDir.
 // Instead, we use pino-pretty as a direct stream destination without worker threads.
-let logger: pino.Logger = pino(loggerConfig);
+const logger: pino.Logger = pino(loggerConfig);
 
 // Pretty-printing is disabled in this environment to avoid bundling `pino-pretty`,
 // which depends on Node-specific modules (worker threads) that break Next.js client builds.

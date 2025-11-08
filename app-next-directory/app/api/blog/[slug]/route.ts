@@ -14,6 +14,18 @@ type RawSanityBlogPost = {
   _updatedAt?: string;
 } & Record<string, unknown>;
 
+/**
+ * Type guard to check if a value is a valid Sanity blog post
+ */
+function isSanityBlogPost(value: unknown): value is RawSanityBlogPost {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    '_id' in value &&
+    typeof (value as RawSanityBlogPost)._id === 'string'
+  );
+}
+
 type FallbackCacheEntry = {
   count: number;
   lastAccessed: number;
