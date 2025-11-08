@@ -36,8 +36,8 @@ async function getPost(slug: string): Promise<PostResponse> {
   const json = await res.json();
   // Prefer DTO-wrapped API shape
   if (json && typeof json === 'object' && 'success' in json) {
-    const data = (json as any).data;
-    const post = data?.post as PostResponse['post'] | undefined;
+    const data = (json as { data?: { post?: PostResponse['post'] } }).data;
+    const post = data?.post;
     if (!post?.id) {
       notFound();
     }
@@ -55,15 +55,15 @@ async function getPost(slug: string): Promise<PostResponse> {
   type Json = Record<string, unknown>;
   const data = (json ?? {}) as Json;
   const id =
-    typeof (data as any).id === 'string' && (data as any).id.trim()
-      ? (data as any).id
-      : (typeof (data as any)._id === 'string' && (data as any)._id.trim() ? (data as any)._id : '');
-  const title = typeof (data as any).title === 'string' ? (data as any).title : '';
-  const body = Array.isArray((data as any).body) ? ((data as any).body as PortableTextBlock[]) : [];
+    typeof (data as { id?: unknown }).id === 'string' && (data as { id: string }).id.trim()
+      ? (data as { id: string }).id
+      : (typeof (data as { _id?: unknown })._id === 'string' && (data as { _id: string })._id.trim() ? (data as { _id: string })._id : '');
+  const title = typeof (data as { title?: unknown }).title === 'string' ? (data as { title: string }).title : '';
+  const body = Array.isArray((data as { body?: unknown }).body) ? ((data as { body: PortableTextBlock[] }).body) : [];
   const imageUrl =
-    typeof (data as any).imageUrl === 'string'
-      ? (data as any).imageUrl
-      : ((data as any)?.primaryImage?.asset?.url ?? null);
+    typeof (data as { imageUrl?: unknown }).imageUrl === 'string'
+      ? (data as { imageUrl: string }).imageUrl
+      : ((data as { primaryImage?: { asset?: { url?: string } } })?.primaryImage?.asset?.url ?? null);
   const post: PostDTO = { id, title, body, imageUrl };
   if (!post.id) {
     notFound();
@@ -141,13 +141,13 @@ export async function generateMetadata(
     let imageUrl: string | undefined;
 
     if (json && typeof json === 'object' && 'success' in json) {
-      const data = (json as any).data;
-      const post = data?.post as { title?: string; excerpt?: string; imageUrl?: string } | undefined;
+      const data = (json as { data?: { post?: { title?: string; excerpt?: string; imageUrl?: string } } }).data;
+      const post = data?.post;
       title = post?.title;
       description = post?.excerpt ?? undefined;
       imageUrl = post?.imageUrl ?? undefined;
     } else if (json && typeof json === 'object' && 'post' in json) {
-      const post = (json as any).post as { title?: string; excerpt?: string; imageUrl?: string };
+      const post = (json as { post: { title?: string; excerpt?: string; imageUrl?: string } }).post;
       title = post?.title;
       description = post?.excerpt ?? undefined;
       imageUrl = post?.imageUrl ?? undefined;

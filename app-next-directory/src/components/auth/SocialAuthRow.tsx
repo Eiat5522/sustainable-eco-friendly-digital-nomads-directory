@@ -48,23 +48,15 @@ const PROVIDERS: Provider[] = [
 export function SocialAuthRow({
   providers = PROVIDERS,
 }: Readonly<{ providers?: Provider[] }>) {
+  const [pending, setPending] = React.useState<string | null>(null);
+  const [availableProviderIds, setAvailableProviderIds] = React.useState<string[] | null>(null);
+  const [loadError, setLoadError] = React.useState(false);
   // Allow temporarily disabling all social sign-in buttons via env flag
   // Usage: set NEXT_PUBLIC_AUTH_DISABLE_OAUTH=true in app-next-directory/.env.local
   const OAUTH_DISABLED = process.env.NEXT_PUBLIC_AUTH_DISABLE_OAUTH === 'true';
 
-  if (OAUTH_DISABLED) {
-    return (
-      <div className="text-sm text-neo-text-secondary text-center py-2">
-        Social sign-in is temporarily unavailable. Please use email sign-in.
-      </div>
-    );
-  }
-
-  const [pending, setPending] = React.useState<string | null>(null);
-  const [availableProviderIds, setAvailableProviderIds] = React.useState<string[] | null>(null);
-  const [loadError, setLoadError] = React.useState(false);
-
   React.useEffect(() => {
+    if (OAUTH_DISABLED) return;
     let cancelled = false;
 
     async function loadProviders() {
@@ -95,7 +87,15 @@ export function SocialAuthRow({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [OAUTH_DISABLED]);
+
+  if (OAUTH_DISABLED) {
+    return (
+      <div className="text-sm text-neo-text-secondary text-center py-2">
+        Social sign-in is temporarily unavailable. Please use email sign-in.
+      </div>
+    );
+  }
 
   if (availableProviderIds === null && !loadError) {
     return (

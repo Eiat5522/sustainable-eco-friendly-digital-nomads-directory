@@ -142,7 +142,7 @@ export async function GET() {
   const authFn = testControl?.authOverride ?? auth;
   const session = await authFn();
   // session may be untyped in tests; cast to any to access user
-  const user = (session as any)?.user as SessionUser | undefined;
+  const user = (session as { user?: SessionUser })?.user;
   const userId = user?.id ?? null;
   const role = user?.role ?? null;
 

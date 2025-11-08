@@ -302,7 +302,7 @@ export default async function ListingPage({ params }: Props) {
           <ListingDetailView
             listing={listing}
             reviews={reviews}
-            relatedListings={relatedListings as any}
+            relatedListings={relatedListings}
             isSignedIn={isSignedIn}
             isFavorited={isFavorited}
             userId={userId}

@@ -3,7 +3,7 @@ import { CityDetailView } from '@/components/city/CityDetailView'
 import type { CityDetailDTO, ListingSummaryDTO } from '@/types/dto'
 
 jest.mock('next/image', () => {
-  return function MockNextImage({ alt, src, priority, fill, onError, ...props }: any) {
+  return function MockNextImage({ alt, src, priority, fill, onError, ...props }: { alt: string, src: string | { src: string }, priority?: boolean, fill?: boolean, onError?: () => void }) {
     const resolvedSrc = typeof src === 'string' ? src : src?.src ?? ''
     return (
       <img

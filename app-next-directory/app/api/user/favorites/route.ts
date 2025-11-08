@@ -11,11 +11,11 @@ type EnsureUserFn = (args: {
   email: string | null;
   role: UserRole | null;
 }) => Promise<{ _id?: string } | null>;
-type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<any>;
+type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 // createOrReplace typically expects an object with at least an _id for Sanity; allow that shape in tests
-type CreateOrReplaceFn = (doc: { _id: string } & Record<string, unknown>) => Promise<any>;
+type CreateOrReplaceFn = (doc: { _id: string } & Record<string, unknown>) => Promise<unknown>;
 type DeleteFn = (id: string) => Promise<unknown>;
-type ParseBodyFn = (request: NextRequest) => Promise<any>;
+type ParseBodyFn = (request: NextRequest) => Promise<unknown>;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
@@ -36,12 +36,12 @@ export async function GET() {
   const ensureUser = testControl?.ensureSanityUserOverride ?? ensureSanityUser;
   const fetchFn =
     testControl?.clientFetchOverride ??
-    ((query: string, params?: Record<string, unknown>) => client.fetch(query, params as any));
+    ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
 
   const session = await authFn();
 
-  // session may be untyped in tests; cast to any before accessing .user
-  const user = (session as any)?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
+  // session may be untyped in tests; cast to unknown before accessing .user
+  const user = (session as { user?: { id?: string; role?: UserRole; email?: string | null; name?: string | null } })?.user;
   const userId: string | undefined = user?.id;
   const userRole: UserRole | undefined = user?.role;
 
@@ -125,13 +125,13 @@ export async function POST(request: NextRequest) {
   const ensureUser = testControl?.ensureSanityUserOverride ?? ensureSanityUser;
   const fetchFn =
     testControl?.clientFetchOverride ??
-    ((query: string, params?: Record<string, unknown>) => client.fetch(query, params as any));
+    ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
   const createOrReplaceFn =
-    testControl?.clientCreateOrReplaceOverride ?? ((doc: Record<string, unknown>) => client.createOrReplace(doc as any));
+    testControl?.clientCreateOrReplaceOverride ?? ((doc: Record<string, unknown>) => client.createOrReplace(doc));
 
   const session = await authFn();
 
-  const user = (session as any)?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
+  const user = (session as { user?: { id?: string; role?: UserRole; email?: string | null; name?: string | null } })?.user;
   const userId: string | undefined = user?.id;
   const userRole: UserRole = user?.role || 'unidentifiedUser';
 
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
   try {
     const parseBody = testControl?.parseBodyOverride ?? ((req: NextRequest) => req.json());
     const body = await parseBody(request);
-    const { slug } = body;
+    const { slug } = body as { slug?: string };
 
     if (!slug || typeof slug !== 'string') {
       return NextResponse.json({ error: 'Listing slug is required' }, { status: 400 });
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Resolve listing by slug to get its Sanity ID
-    const listing = await fetchFn(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug });
+    const listing = await fetchFn(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug }) as { _id: string } | null;
     if (!listing?._id) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
@@ -173,12 +173,12 @@ export async function POST(request: NextRequest) {
       user: { _type: 'reference', _ref: sanityUser._id },
       listing: { _type: 'reference', _ref: listingId },
       createdAt: new Date().toISOString(),
-    } as any);
+    });
 
     return NextResponse.json({ 
       favorited: true, 
       message: 'Added to favorites', 
-      favoriteId: favorite._id 
+      favoriteId: (favorite as { _id: string })._id 
     });
   } catch (error) {
     console.error('Failed to add favorite:', error);
@@ -196,7 +196,7 @@ export async function DELETE(request: NextRequest) {
 
   const session = await authFn();
 
-  const user = (session as any)?.user as { id?: string; role?: UserRole; email?: string | null; name?: string | null } | undefined;
+  const user = (session as { user?: { id?: string; role?: UserRole; email?: string | null; name?: string | null } })?.user;
   const userId: string | undefined = user?.id;
   const userRole: UserRole | undefined = user?.role;
 
@@ -207,14 +207,14 @@ export async function DELETE(request: NextRequest) {
   try {
     const parseBody = testControl?.parseBodyOverride ?? ((req: NextRequest) => req.json());
     const body = await parseBody(request);
-    const { slug } = body;
+    const { slug } = body as { slug?: string };
 
     if (!slug || typeof slug !== 'string') {
       return NextResponse.json({ error: 'Listing slug is required' }, { status: 400 });
     }
 
     // Resolve listing by slug to get its Sanity ID
-    const listing = await fetchFn(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug });
+    const listing = await fetchFn(`*[_type == "listing" && slug.current == $slug][0]{ _id }`, { slug }) as { _id: string } | null;
     if (!listing?._id) {
       return NextResponse.json({ error: 'Listing not found' }, { status: 404 });
     }
@@ -224,7 +224,7 @@ export async function DELETE(request: NextRequest) {
     const existingFavorite = await fetchFn(
       `*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]`,
       { userId, listingId }
-    );
+    ) as { _id: string } | null;
 
     if (existingFavorite) {
       await deleteFn(existingFavorite._id);

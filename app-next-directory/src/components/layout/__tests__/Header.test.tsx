@@ -8,14 +8,22 @@ import * as nextAuth from 'next-auth/react'
 import type { Session } from 'next-auth'
 
 // Mock next/image used inside Header - strip props that aren't valid DOM attributes (like priority)
-jest.mock('next/image', () => ({
-  __esModule: true,
-  default: (props: any) => {
-    const { priority, ...rest } = props
-    // eslint-disable-next-line jsx-a11y/alt-text
-    return <img {...rest} />
+jest.mock('next/image', () => {
+  return function MockNextImage({ alt, src, priority, fill, onError, ...props }: { alt: string, src: string | { src: string }, priority?: boolean, fill?: boolean, onError?: () => void }) {
+    const resolvedSrc = typeof src === 'string' ? src : src?.src ?? ''
+    return (
+      <img
+        alt={alt}
+        src={resolvedSrc}
+        onError={onError}
+        data-testid="next-image"
+        data-fill={fill ? 'true' : 'false'}
+        data-priority={priority ? 'true' : 'false'}
+        {...props}
+      />
+    )
   }
-}))
+})
 
 // Mock next/link
 jest.mock('next/link', () => ({
@@ -47,10 +55,10 @@ jest.mock('next/navigation', () => ({
 describe('Header', () => {
   const originalUseContext = React.useContext
   const signOutSpy = jest.spyOn(nextAuth, 'signOut')
-  let consoleWarnSpy: jest.SpyInstance
-  let consoleErrorSpy: jest.SpyInstance
-  const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
-  let routerPushMock: jest.Mock
+    let ignoredConsoleWarnSpy: jest.SpyInstance = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    let ignoredConsoleErrorSpy: jest.SpyInstance = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
+    let routerPushMock: jest.Mock
 
   // Helper to mock SessionContext
   function mockSessionContext(session: Session | null, status: 'authenticated' | 'unauthenticated' | 'loading') {

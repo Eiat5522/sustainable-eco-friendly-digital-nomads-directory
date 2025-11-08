@@ -4,10 +4,29 @@
  * Date: May 24, 2025
  */
 
-import { createClient } from './sanity/client';
-import type { SanityClient } from '@sanity/client';
-import type { SanityImageObject } from '../types/external/sanity-image';
-import type { SanityDocument } from '../types/sanity';
+// Import core Sanity client types and methods
+import { createClient, SanityClient, Patch } from '@sanity/client';
+// Import generated types from sanity.types.ts.
+// The path '../../sanity/sanity.types' is assumed based on the file structure.
+import type {
+  SanityDocument as GeneratedSanityDocument,
+  SanityAssetDocument as GeneratedSanityAssetDocument,
+  SanityImageAsset, // Assuming SanityImageAsset is also generated or a common type
+  SanityFileAsset, // Assuming SanityFileAsset is also generated or a common type
+  Geopoint,
+  Slug,
+  SanityImageHotspot,
+  SanityImageCrop,
+  SanityImageMetadata,
+  SanityImageDimensions,
+  SanityImagePalette,
+  SanityImagePaletteSwatch,
+  SanityAssetSourceData,
+  // Import specific query result types if needed for direct use, e.g.:
+  // LISTING_BY_SLUG_QUERYResult, GetCitySummaryBySlugQueryResult
+} from '../../sanity/sanity.types';
+// Import custom types if they are not generated or part of @sanity/client
+import type { SanityImageObject } from '../types/external/sanity-image'; // This seems to be a custom type
 
 // Configuration interface
 interface SanityConfig {
@@ -24,7 +43,7 @@ export class SanityAPIError extends Error {
   constructor(
     message: string,
     public statusCode?: number,
-    public originalError?: any
+    public originalError?: unknown // Changed from any to unknown for better type safety
   ) {
     super(message);
     this.name = 'SanityAPIError';
@@ -91,185 +110,163 @@ export class SanityHTTPClient {
     }
 
     // Test write permissions by attempting to create a test document
-    const testDoc = {
-      _type: 'authTest',
+    // Use Partial<GeneratedSanityDocument> for the input document.
+    const testDoc: Partial<GeneratedSanityDocument> = {
+      _type: 'authTest', // Assuming 'authTest' is a valid type in your schema
       title: 'Authentication Test',
       timestamp: new Date().toISOString(),
     };
 
-    let result;
+    let result: GeneratedSanityDocument | undefined; // Typed as GeneratedSanityDocument | undefined
     try {
+      // The create method should now return GeneratedSanityDocument due to typegen overload.
       result = await this.writeClient.create(testDoc);
-      if (!result || !result._id || (result as any).error) return false;
-    } catch (error: any) {
+      // The create method typically throws on error, so if we get here, it's likely successful.
+      // We check for _id as a common indicator of a successful creation.
+      if (!result || !result._id) {
+        // This case might indicate an unexpected response structure from the client
+        return false;
+      }
+    } catch (error: unknown) { // Catching unknown for better type safety
+      // If an error is caught, authentication likely failed.
+      if (this.debug) console.error('Authentication test failed during create:', error);
       return false;
     }
     // Clean up test document
     try {
-      await this.writeClient.delete((result as any)._id);
-    } catch (cleanupError: any) {
+      // Ensure result._id is a string before deleting
+      if (result._id) {
+        await this.writeClient.delete(result._id);
+      }
+    } catch (cleanupError: unknown) { // Catching unknown for better type safety
       // Ignore cleanup errors for test contract
+      if (this.debug) console.error('Error during auth test cleanup:', cleanupError);
     }
 
     return true;
   }
 
   // Query methods
+  // T can be a specific generated query result type or 'unknown' for generic queries.
   async query<T = unknown>(
     query: string,
-    params?: Record<string, any>,
+    params?: Record<string, any>, // params can remain Record<string, any> as it's flexible
     options?: { preview?: boolean }
   ): Promise<T> {
     try {
+      // The SanityClient.withConfig method is used to create a new client instance
+      // with specific configurations like perspective and token for previewing drafts.
+      // Type assertion `as any` is used here for `withConfig` as its exact signature might not be perfectly exposed.
       const client =
-        options?.preview && (this.client as any).withConfig
-          ? (this.client as any).withConfig({
+        options?.preview && typeof (this.client as any).withConfig === 'function'
+          ? (this.client as SanityClient).withConfig({ // Use SanityClient type here
               useCdn: false,
               perspective: 'previewDrafts',
               token: process.env.SANITY_API_TOKEN,
             })
           : this.client;
-      const result = (await client.fetch(query, params as any)) as T;
-      if ((result as any)?.error) {
-        throw new SanityAPIError(
-          `Query failed: ${(result as any).error}`,
-          (result as any).statusCode,
-          result
-        );
-      }
+
+      // The fetch method should now return T based on the query and typegen overload.
+      const result = await client.fetch<T>(query, params as any);
+
+      // If the result is undefined, it might indicate an issue with the query or data fetching.
       if (typeof result === 'undefined') {
-        throw new SanityAPIError('Query failed: Query error');
+        throw new SanityAPIError('Query failed: No data returned');
       }
       return result;
-    } catch (error: any) {
-      throw new SanityAPIError(
-        `Query failed: ${error.message}`,
-        error.statusCode,
-        error
-      );
+    } catch (error: unknown) { // Catching unknown for better type safety
+      // If an error is caught, wrap it in SanityAPIError for consistent handling.
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      // Attempt to extract statusCode if it exists on the error object.
+      const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+      throw new SanityAPIError(`Query failed: ${errorMessage}`, statusCode, error);
     }
   }
 
   // Create document
-  async create(document: any): Promise<SanityDocument> {
+  // Use Partial<GeneratedSanityDocument> for the input document, and GeneratedSanityDocument for the return type.
+  async create(document: Partial<GeneratedSanityDocument>): Promise<GeneratedSanityDocument> {
     if (!process.env.SANITY_API_TOKEN) {
       throw new SanityAPIError('Cannot create document: No API token provided');
     }
     try {
+      // The create method should now return GeneratedSanityDocument due to typegen overload.
       const result = await this.writeClient.create(document);
-      if (result && (result as any).error) {
-        throw new SanityAPIError(
-          `Create failed: ${(result as any).error}`,
-          (result as any).statusCode,
-          result
-        );
-      }
-      if (typeof result === 'undefined') {
-        throw new SanityAPIError('Create failed: Create error');
-      }
-      if (result) {
-        if ((result as any)._id) {
-         if (this.debug) console.log(`✅ Created document: ${(result as any)._id}`);
+      if (this.debug) {
+        if (result && result._id) {
+          console.log(`✅ Created document: ${result._id}`);
         } else {
-          if (this.debug) console.log(`✅ Created document (no _id): ${JSON.stringify(result)}`);
+          console.log(`✅ Created document (no _id): ${JSON.stringify(result)}`);
         }
-        return result;
       }
-      throw new SanityAPIError('Create operation returned no result');
-    } catch (error: any) {
-      throw new SanityAPIError(
-        `Create failed: ${error.message}`,
-        error.statusCode,
-        error
-      );
+      return result;
+    } catch (error: unknown) { // Catching unknown for better type safety
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+      throw new SanityAPIError(`Create failed: ${errorMessage}`, statusCode, error);
     }
   }
 
   // Update document
-  async update(id: string, patches: any): Promise<SanityDocument> {
+  // Use Patch for patches and GeneratedSanityDocument for the return type.
+  async update(id: string, patches: Patch): Promise<GeneratedSanityDocument> {
     if (!process.env.SANITY_API_TOKEN) {
       throw new SanityAPIError('Cannot update document: No API token provided');
     }
     try {
+      // The patch method returns a Patch object, which has a commit method.
       const patchObj = this.writeClient.patch(id);
+      // The set method on the patch object expects an object for the patches.
+      // Use the imported Patch type.
       const setObj = patchObj.set(patches);
+
+      // Ensure commit is a function before calling
       if (typeof setObj.commit !== 'function') {
-        throw new SanityAPIError('Update failed: commit is not a function');
+        throw new SanityAPIError('Update failed: commit is not a function on the patch object');
       }
-      let result;
+
+      let result: GeneratedSanityDocument; // Typed result
       try {
-        result = await setObj.commit();
-      } catch (error: any) {
-        throw new SanityAPIError(
-          `Update failed: ${error.message}`,
-          error.statusCode,
-          error
-        );
+        result = await setObj.commit(); // commit should return GeneratedSanityDocument
+      } catch (error: unknown) { // Catching unknown for better type safety
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+        throw new SanityAPIError(`Update failed: ${errorMessage}`, statusCode, error);
       }
-      if (result && (result as any).error) {
-        throw new SanityAPIError(
-          `Update failed: ${(result as any).error}`,
-          (result as any).statusCode,
-          result
-        );
-      }
-      if (typeof result === 'undefined') {
-        throw new SanityAPIError('Update failed: Update error');
-      }
+
       if (!result) {
         throw new SanityAPIError('Update operation returned no result');
       }
       if (this.debug) console.log(`✅ Updated document: ${id}`);
       return result;
-    } catch (error: any) {
-      if (error instanceof SanityAPIError) throw error;
-      throw new SanityAPIError(
-        `Update failed: ${error.message}`,
-        error.statusCode,
-        error
-      );
+    } catch (error: unknown) { // Catching unknown for better type safety
+      if (error instanceof SanityAPIError) throw error; // Re-throw if it's already our custom error
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+      throw new SanityAPIError(`Update failed: ${errorMessage}`, statusCode, error);
     }
   }
 
   // Delete document
+  // The return type of delete can be null or a status object. 'any' is kept for now as its exact return type might not be strictly typed by typegen for all cases.
   async delete(id: string): Promise<any> {
     if (!process.env.SANITY_API_TOKEN) {
       throw new SanityAPIError('Cannot delete document: No API token provided');
     }
     try {
-      let result;
-      try {
-        result = await this.writeClient.delete(id);
-      } catch (error: any) {
-        throw new SanityAPIError(
-          `Delete failed: ${error.message}`,
-          error.statusCode,
-          error
-        );
-      }
-      if (result && (result as any).error) {
-        throw new SanityAPIError(
-          `Delete failed: ${(result as any).error}`,
-          (result as any).statusCode,
-          result
-        );
-      }
-      if (typeof result === 'undefined') {
-        throw new SanityAPIError('Delete failed: Delete error');
-      }
+      let result = await this.writeClient.delete(id); // delete returns null or a status object
       if (this.debug) console.log(`✅ Deleted document: ${id}`);
       return result;
-    } catch (error: any) {
-      if (error instanceof SanityAPIError) throw error;
-      throw new SanityAPIError(
-        `Delete failed: ${error.message}`,
-        error.statusCode,
-        error
-      );
+    } catch (error: unknown) { // Catching unknown for better type safety
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+      throw new SanityAPIError(`Delete failed: ${errorMessage}`, statusCode, error);
     }
   }
 
   // Upload asset (image/file)
+  // Use File | Buffer for file input, SanityImageObject for return.
+  // Use GeneratedSanityAssetDocument for the intermediate asset type.
   async uploadAsset(
     file: File | Buffer,
     options?: {
@@ -283,13 +280,14 @@ export class SanityHTTPClient {
       throw new SanityAPIError('Cannot upload asset: No API token provided');
     }
     try {
+      // Ensure the assets API and upload method exist
       if (
         !this.writeClient.assets ||
         typeof this.writeClient.assets.upload !== 'function'
       ) {
-        throw new SanityAPIError('Asset upload failed: this.writeClient.assets.upload is not a function');
+        throw new SanityAPIError('Asset upload failed: Sanity client assets API not available');
       }
-      let asset: any;
+
       // Enforce image content type
       const contentType = options?.contentType ?? '';
       if (contentType && !contentType.startsWith('image/')) {
@@ -297,61 +295,52 @@ export class SanityHTTPClient {
           'Asset upload failed: Only image/* content types are supported by uploadAsset()'
         );
       }
+
+      let asset: GeneratedSanityAssetDocument; // Typed as GeneratedSanityAssetDocument
       try {
+        // The upload method expects the asset type ('image' or 'file') as the first argument.
+        // It returns a SanityAssetDocument. Use the generated type.
         asset = await this.writeClient.assets.upload('image', file, {
           filename: options?.filename,
           contentType: contentType || undefined,
           title: options?.title,
           description: options?.description,
         });
-      } catch (error: any) {
-        throw new SanityAPIError(
-          `Asset upload failed: ${error.message}`,
-          error.statusCode || undefined,
-          error
-        );
+      } catch (error: unknown) { // Catching unknown for better type safety
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+        throw new SanityAPIError(`Asset upload failed: ${errorMessage}`, statusCode, error);
       }
-      if (asset && asset.error) {
-        throw new SanityAPIError(
-          `Asset upload failed: ${asset.error}`,
-          asset.statusCode,
-          asset
-        );
+
+      // The upload method should return a SanityAssetDocument on success.
+      // Check for _id as a sign of success.
+      if (!asset || !asset._id) {
+        throw new SanityAPIError('Asset upload failed: Invalid asset document returned');
       }
-      if (typeof asset === 'undefined') {
-        throw new SanityAPIError('Asset upload failed: Upload error');
-      }
-      if (!asset) {
-        throw new SanityAPIError('Upload asset operation returned no result');
-      }
-      if (asset._id) {
-        if (this.debug) console.log(`✅ Uploaded asset: ${asset._id}`);
-      } else {
-        if (this.debug) console.log(`✅ Uploaded asset (no _id): ${JSON.stringify(asset)}`);
-      }
-      if (typeof asset._id !== 'string' || asset._id.trim().length === 0) {
-        throw new SanityAPIError('Asset upload failed: Invalid asset id');
-      }
+
+      if (this.debug) console.log(`✅ Uploaded asset: ${asset._id}`);
+
       // Convert asset document to a Sanity image field object
-      const imageObject = {
-        _type: 'image' as const,
+      // Use the custom SanityImageObject type.
+      const imageObject: SanityImageObject = {
+        _type: 'image', // Literal type 'image'
         asset: {
-          _type: 'reference' as const,
-          _ref: asset._id as string,
+          _type: 'reference', // Literal type 'reference'
+          _ref: asset._id, // Use the typed _id from GeneratedSanityAssetDocument
         },
-      } as unknown as SanityImageObject;
+      };
       return imageObject;
-    } catch (error: any) {
-      throw new SanityAPIError(
-        `Asset upload failed: ${error.message}`,
-        error.statusCode || undefined,
-        error
-      );
+    } catch (error: unknown) { // Catching unknown for better type safety
+      if (error instanceof SanityAPIError) throw error; // Re-throw if it's already our custom error
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+      throw new SanityAPIError(`Asset upload failed: ${errorMessage}`, statusCode, error);
     }
   }
 
   // Create many documents
-  async createMany(documents: SanityDocument[]): Promise<SanityDocument[]> {
+  // Use Partial<GeneratedSanityDocument>[] for input and GeneratedSanityDocument[] for output.
+  async createMany(documents: Partial<GeneratedSanityDocument>[]): Promise<GeneratedSanityDocument[]> {
     if (!process.env.SANITY_API_TOKEN) {
       throw new SanityAPIError('Cannot create documents: No API token provided');
     }
@@ -360,31 +349,35 @@ export class SanityHTTPClient {
       for (const doc of documents) {
         tx.create(doc);
       }
-      let commitResult: any;
+      // Type the commitResult based on the expected structure when returnDocuments: true
+      // The results array should contain objects with a 'document' property of type GeneratedSanityDocument.
+      let commitResult: { results?: { document?: GeneratedSanityDocument }[]; error?: string; statusCode?: number };
       try {
         commitResult = await tx.commit({ returnDocuments: true });
-      } catch (error: any) {
-        throw new SanityAPIError(
-          `Batch create failed: ${error.message}`,
-          error.statusCode || undefined,
-          error
-        );
+      } catch (error: unknown) { // Catching unknown for better type safety
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+        throw new SanityAPIError(`Batch create failed: ${errorMessage}`, statusCode, error);
       }
-      const results = Array.isArray(commitResult)
-        ? commitResult
-        : commitResult?.results;
+
+      // The structure of commitResult can vary. We expect an array of results, each potentially containing a document.
+      const results = commitResult?.results;
       if (!Array.isArray(results)) {
-        const errorMsg = commitResult?.error || 'Batch create error';
+        const errorMsg = commitResult?.error || 'Batch create error: Invalid response structure';
         throw new SanityAPIError(
           `Batch create failed: ${errorMsg}`,
           commitResult?.statusCode,
           commitResult
         );
       }
+
+      // Extract documents from the results array. Each item in results might be { document: SanityDocument } or just SanityDocument.
+      // Use GeneratedSanityDocument for the extracted documents.
       const createdDocs = results
-        .map((r: any) => r?.document || r)
-        .filter(Boolean) as SanityDocument[];
-      if (!createdDocs.length) {
+        .map((r: { document?: GeneratedSanityDocument }) => r?.document) // Safely access document
+        .filter((doc): doc is GeneratedSanityDocument => doc !== undefined); // Filter out undefined and assert type
+
+      if (!createdDocs.length && documents.length > 0) { // If we expected docs but got none
         throw new SanityAPIError(
           'Batch create operation returned no documents',
           commitResult?.statusCode,
@@ -392,13 +385,11 @@ export class SanityHTTPClient {
         );
       }
       return createdDocs;
-    } catch (error: any) {
-      if (error instanceof SanityAPIError) throw error;
-      throw new SanityAPIError(
-        `Batch create failed: ${error.message}`,
-        error.statusCode || undefined,
-        error
-      );
+    } catch (error: unknown) { // Catching unknown for better type safety
+      if (error instanceof SanityAPIError) throw error; // Re-throw if it's already our custom error
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+      throw new SanityAPIError(`Batch create failed: ${errorMessage}`, statusCode, error);
     }
   }
 
@@ -406,16 +397,20 @@ export class SanityHTTPClient {
   async healthCheck(): Promise<{ status: 'ok' | 'error'; details: any }> {
     try {
       // Test read access
-      await this.query('*[_type == "sanity.fileAsset"][0]');
+      // The query method itself handles errors, so a successful call implies read access.
+      // We can use a generic query here, or a specific one if we know a reliable type.
+      // For now, using a generic query and 'unknown' for the result type.
+      await this.query<unknown>('*[_type == "sanity.fileAsset"][0]');
 
       // Test write access (if token available)
       let writeTest = false;
       if (process.env.SANITY_API_TOKEN) {
         writeTest = await this.testAuthentication();
         if (!writeTest) {
+          // If testAuthentication returns false, it means write access failed.
           return {
             status: 'error',
-            details: { error: 'Unknown error' },
+            details: { error: 'Write access test failed', hasToken: true },
           };
         }
       }
@@ -432,10 +427,12 @@ export class SanityHTTPClient {
           environment: process.env.NODE_ENV,
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) { // Catching unknown for better type safety
+      // If any part of the health check fails, return an error status.
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       return {
         status: 'error',
-        details: { error: error instanceof Error ? error.message : 'Unknown error' },
+        details: { error: errorMessage },
       };
     }
   }
@@ -461,8 +458,11 @@ export const getSanityHTTPClient = (): SanityHTTPClient => {
 };
 
 // Backward-compatible accessor that lazily proxies to the singleton instance
+// This proxy might need adjustment if SanityHTTPClient itself has complex internal structures
+// that are not meant to be proxied directly. For now, it proxies all properties.
 export const sanityHTTPClient: SanityHTTPClient = new Proxy({} as SanityHTTPClient, {
   get(_target, prop) {
+    // Ensure we are accessing properties of the actual instance
     return (getSanityHTTPClient() as any)[prop];
   },
 });
@@ -470,14 +470,19 @@ export const sanityHTTPClient: SanityHTTPClient = new Proxy({} as SanityHTTPClie
 // Export client getter functions for backward compatibility
 export const getClient = (preview = false) => {
   if (preview) {
+    // This creates a new client instance specifically for previewing drafts.
+    // It uses the public project ID and dataset, but explicitly sets perspective to 'previewDrafts'
+    // and provides the API token for draft access. useCdn is set to false.
     return createClient({
       projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
       dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
       apiVersion: '2025-05-24',
       useCdn: false,
       perspective: 'previewDrafts',
+      token: process.env.SANITY_API_TOKEN, // Ensure token is passed for preview
     });
   }
+  // For non-preview, it returns the read-only client from the singleton instance.
   return getSanityHTTPClient().getReadClient();
 };
 

@@ -10,7 +10,7 @@ export const resolveCallbackUrl = (loc?: { href?: string | null }) => {
     if (typeof href === 'string' && href.length > 0) {
       return href
     }
-  } catch (error) {
+  } catch (_error) {
     // Ignore environment navigation issues and fall back to login route
   }
 

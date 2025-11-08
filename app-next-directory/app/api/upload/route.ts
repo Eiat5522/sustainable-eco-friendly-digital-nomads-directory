@@ -8,7 +8,7 @@ import fs from 'fs/promises';
 type AuthFn = () => Promise<unknown>;
 type UploadFn = (assetType: string, file: File) => Promise<unknown>;
 type FormDataFn = (request: Request) => Promise<FormData>;
-type OptimizeFn = (buffer: Buffer, fileName: string, options: any) => Promise<any>;
+type OptimizeFn = (buffer: Buffer, fileName: string, options: Record<string, unknown>) => Promise<Record<string, unknown>>;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
@@ -25,11 +25,8 @@ export const testControl = isTestEnv
 export async function POST(request: Request) {
   const authFn = testControl?.authOverride ?? auth;
   const session = await authFn();
-  // session.user can be a loose object in tests; cast to any to avoid typing issues
-  const sessionUser = (session as any)?.user as {
-    id?: string;
-    role?: string;
-  } | undefined;
+  // session.user can be a loose object in tests; cast to unknown to avoid typing issues
+  const sessionUser = (session as { user?: { id?: string; role?: string } })?.user;
 
   if (sessionUser?.role !== 'venueOwner') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -88,15 +85,15 @@ export async function POST(request: Request) {
         } else {
           console.warn(`⚠️  Optimization skipped, using original file: ${optimizationResult.error || 'Unknown reason'}`);
         }
-      } catch (error) {
-        console.error('❌ Optimization failed:', error);
-        optimizationResult.error = error instanceof Error ? error.message : 'Unknown error';
+      } catch (_error) {
+        console.error('❌ Optimization failed:', _error);
+        optimizationResult.error = _error instanceof Error ? _error.message : 'Unknown error';
       }
     }
 
     const uploadFn =
       testControl?.uploadOverride ??
-      ((assetType: string, uploadFile: File) => client.assets.upload(assetType as any, uploadFile as any));
+      ((assetType: string, uploadFile: File) => client.assets.upload(assetType, uploadFile));
     const imageAsset = await uploadFn('image', fileToUpload);
 
     // Cleanup optimized file

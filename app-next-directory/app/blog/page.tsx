@@ -67,9 +67,9 @@ async function getPosts(params: { page?: string; limit?: string; tag?: string; s
     return data;
   }
   // Fallback to legacy array-only response
-  if (Array.isArray((json as any)?.posts)) {
+  if (Array.isArray((json as { posts?: unknown })?.posts)) {
     // Support backwards-compat top-level posts field
-    const posts = (json as any).posts as Post[];
+    const posts = (json as { posts: Post[] }).posts;
     const pagination = {
       page: 1,
       limit: posts.length,
@@ -92,8 +92,8 @@ export const metadata: Metadata = {
 
 export default async function BlogPage({ searchParams }: Readonly<{ searchParams?: { page?: string; limit?: string; tag?: string; search?: string } }>) {
   // Support Next 14 (sync) and Next 15 (async) searchParams
-  const sp = await Promise.resolve((searchParams ?? {}) as any);
-  const { page, limit, tag, search } = sp as { page?: string; limit?: string; tag?: string; search?: string };
+  const sp = await Promise.resolve((searchParams ?? {}) as Record<string, string>);
+  const { page, limit, tag, search } = sp;
   const { posts, pagination } = await getPosts({ page, limit, tag, search });
 
   const uniqueTags = Array.from(

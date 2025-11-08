@@ -211,11 +211,11 @@ export async function POST(request: NextRequest) {
     }
 
     const responsePayload = {
-      id: typeof (newReview as any)?._id === 'string' ? (newReview as any)._id : undefined,
+      id: typeof (newReview as { _id?: unknown })?._id === 'string' ? (newReview as { _id: string })._id : undefined,
       rating,
       comment,
-      approved: Boolean((newReview as any)?.approved),
-      createdAt: typeof (newReview as any)?.createdAt === 'string' ? (newReview as any).createdAt : now,
+      approved: Boolean((newReview as { approved?: unknown })?.approved),
+      createdAt: typeof (newReview as { createdAt?: unknown })?.createdAt === 'string' ? (newReview as { createdAt: string }).createdAt : now,
       ...(typeof ecoRating === 'number' ? { ecoRating } : {}),
       ...(typeof nomadRating === 'number' ? { nomadRating } : {}),
     };

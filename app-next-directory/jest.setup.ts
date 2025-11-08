@@ -55,7 +55,7 @@ jest.mock('broadcast-channel', () => {
 import React from 'react';
 
 // Set React 19 act environment
-(global as any).IS_REACT_ACT_ENVIRONMENT = true;
+(global as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
 
 // Create a working React.act polyfill for React 19
 if (typeof React.act === 'undefined') {
@@ -80,7 +80,7 @@ if (typeof React.act === 'undefined') {
 
 // Suppress the deprecation warning about ReactDOMTestUtils.act
 const originalConsoleError = console.error;
-console.error = (...args: any[]) => {
+console.error = (...args: unknown[]) => {
   if (
     typeof args[0] === 'string' &&
     args[0].includes('ReactDOMTestUtils.act') &&
@@ -100,7 +100,7 @@ import '@testing-library/jest-dom';
 import { createTestData } from './src/tests/helpers/test-data';
 
 // Provide deterministic dataset for unit tests
-;(global as any).__TEST_DATA__ = createTestData();
+(global as Record<string, unknown>).__TEST_DATA__ = createTestData();
 
 // Ensure real mongoose never loads under jsdom/unit runs.
 // The Jest config maps `mongoose` to our manual implementation, so avoid calling
@@ -108,7 +108,7 @@ import { createTestData } from './src/tests/helpers/test-data';
 
 // Integration: start a shared mongodb-memory-server once and set MONGODB_URI
 if (process.env.JEST_RUN_INTEGRATION === '1' && process.env.JEST_USE_REAL_MONGOOSE === '1') {
-  const g = global as any;
+  const g = global as Record<string, unknown>;
   const ensureServer = async () => {
     // If a test suite already set MONGODB_URI, respect it and don't start another server
     if (process.env.MONGODB_URI) {
@@ -116,15 +116,15 @@ if (process.env.JEST_RUN_INTEGRATION === '1' && process.env.JEST_USE_REAL_MONGOO
     }
     if (!g.__GLOBAL_MONGO_SERVER__) {
       try {
-        const mod = require('./src/test-helpers/createMongoMemoryServer');
+        const mod = await import('./src/test-helpers/createMongoMemoryServer');
         const createMongoMemoryServer = mod.createMongoMemoryServer || mod.default?.createMongoMemoryServer || mod.default;
         const server = await createMongoMemoryServer();
         g.__GLOBAL_MONGO_SERVER__ = server;
-        process.env.MONGODB_URI = server.getUri();
+        process.env.MONGODB_URI = (server as { getUri: () => string }).getUri();
       } catch (e) {
         // If helper not found, fallback to direct MongoMemoryServer
         try {
-          const { MongoMemoryServer } = require('mongodb-memory-server');
+          const { MongoMemoryServer } = await import('mongodb-memory-server');
           const server = await MongoMemoryServer.create();
           g.__GLOBAL_MONGO_SERVER__ = server;
           process.env.MONGODB_URI = server.getUri();
@@ -135,8 +135,10 @@ if (process.env.JEST_RUN_INTEGRATION === '1' && process.env.JEST_USE_REAL_MONGOO
       }
     } else {
       try {
-        process.env.MONGODB_URI = g.__GLOBAL_MONGO_SERVER__.getUri();
-      } catch {}
+        process.env.MONGODB_URI = (g.__GLOBAL_MONGO_SERVER__ as { getUri: () => string }).getUri();
+      } catch {
+        // ignore
+      }
     }
   };
 
@@ -149,17 +151,19 @@ if (process.env.JEST_RUN_INTEGRATION === '1' && process.env.JEST_USE_REAL_MONGOO
     if (g.__JEST_GLOBAL_MONGO_TEARDOWN_DONE__) return;
     if (!g.__GLOBAL_MONGO_SERVER__) return;
     g.__JEST_GLOBAL_MONGO_TEARDOWN_DONE__ = true;
-    try { await g.__GLOBAL_MONGO_SERVER__?.stop(); } catch {}
+    try { await (g.__GLOBAL_MONGO_SERVER__ as { stop: () => Promise<void> })?.stop(); } catch {
+      // ignore
+    }
     g.__GLOBAL_MONGO_SERVER__ = undefined;
   });
 }
 
 // Ensure basic globals are available before any mocks that depend on them
-// Use `any` cast here to avoid TypeScript complaining about differences
+// Use `Record<string, unknown>` cast here to avoid TypeScript complaining about differences
 // between Node's util TextEncoder and the DOM/global TextEncoder types.
 // This is acceptable for test setup polyfills.
-if (!(global as any).TextEncoder) (global as any).TextEncoder = TextEncoder;
-if (!(global as any).TextDecoder) (global as any).TextDecoder = TextDecoder;
+if (!(global as Record<string, unknown>).TextEncoder) (global as Record<string, unknown>).TextEncoder = TextEncoder;
+if (!(global as Record<string, unknown>).TextDecoder) (global as Record<string, unknown>).TextDecoder = TextDecoder;
 
 // Polyfill WHATWG Request/Response/Headers for Next.js 15 - MUST be imported early for MSW Response.clone support
 import 'whatwg-fetch';
@@ -167,10 +171,10 @@ import 'whatwg-fetch';
 // Only attempt a node-fetch fallback if WHATWG classes are missing (e.g., non-jsdom env)
 if (
   process.env.JEST_RUN_INTEGRATION !== '1' &&
-  ((global as any).Request == null || (global as any).Response == null || (global as any).Headers == null)
+  ((global as Record<string, unknown>).Request == null || (global as Record<string, unknown>).Response == null || (global as Record<string, unknown>).Headers == null)
 ) {
   try {
-    const nodeFetch = require('node-fetch');
+    const nodeFetch = await import('node-fetch');
     global.Request = global.Request || nodeFetch.Request;
     global.Response = global.Response || nodeFetch.Response;
     global.Headers = global.Headers || nodeFetch.Headers;
@@ -184,12 +188,12 @@ if (
 const skipMSW = process.env.JEST_USE_REAL_MONGOOSE === '1';
 if (!skipMSW) {
   try {
-  const { server } = require('./src/mocks/server');
+  const { server } = await import('./src/mocks/server');
     beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
     afterEach(() => server.resetHandlers());
     afterAll(() => server.close());
   } catch (e) {
-    const code = (e as any)?.code;
+    const code = (e as { code?: string })?.code;
     const msg = (e as Error)?.message ?? '';
     const isModuleNotFound =
       code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND';
@@ -226,10 +230,10 @@ if (!global.fetch) {
 // Ensure a safe default `window` and `window.plausible` exists to avoid
 // module-load time errors in modules that access `window.plausible` during
 // Individual tests may still delete or override `global.window`.
-if (!(global as any).window) {
-  (global as any).window = { plausible: jest.fn() };
-} else if (typeof (global as any).window.plausible !== 'function') {
-  (global as any).window.plausible = jest.fn();
+if (!(global as Record<string, unknown>).window) {
+  (global as Record<string, unknown>).window = { plausible: jest.fn() };
+} else if (typeof (global as { window?: { plausible?: unknown } }).window?.plausible !== 'function') {
+  (global as { window: { plausible?: unknown } }).window.plausible = jest.fn();
 }
 
 // Mock next/navigation globally for all tests using jest.fn
@@ -256,8 +260,8 @@ jest.mock('next/navigation', () => ({
 
 // Mock next/server globally for all tests
 jest.mock('next/server', () => {
-  const createHeaders = (init?: any) => {
-    const HeadersCtor = (globalThis as any).Headers;
+  const createHeaders = (init?: HeadersInit) => {
+    const HeadersCtor = (globalThis as unknown as { Headers: typeof Headers }).Headers;
     if (typeof HeadersCtor === 'function') {
       return new HeadersCtor(init ?? {});
     }
@@ -283,16 +287,16 @@ jest.mock('next/server', () => {
       delete: (key: string) => map.delete(key),
       entries: () => map.entries(),
       [Symbol.iterator]: map[Symbol.iterator].bind(map),
-    } as any;
+    } as unknown as Headers;
   };
 
   class MockNextResponse {
     public status: number;
-    public headers: any;
+    public headers: Headers;
     public ok: boolean;
     #body: unknown;
 
-    constructor(body?: unknown, init?: { status?: number; headers?: any }) {
+    constructor(body?: unknown, init?: { status?: number; headers?: HeadersInit }) {
       this.#body = body;
       this.status = init?.status ?? 200;
       this.headers = createHeaders(init?.headers);
@@ -311,7 +315,7 @@ jest.mock('next/server', () => {
       });
     }
 
-    static json(data: unknown, init: { status?: number; headers?: any } = {}): MockNextResponse {
+    static json(data: unknown, init: { status?: number; headers?: HeadersInit } = {}): MockNextResponse {
       const headers = createHeaders({ 'Content-Type': 'application/json', ...(init.headers ?? {}) });
       return new MockNextResponse(data, { status: init.status, headers });
     }
@@ -344,10 +348,10 @@ jest.mock('next/server', () => {
     public nextUrl: URL;
     public url: string;
     public method: string;
-    public headers: any;
+    public headers: Headers;
     #json: unknown;
 
-    constructor(input: string | { url: string; method?: string; headers?: any; json?: unknown }) {
+    constructor(input: string | { url: string; method?: string; headers?: HeadersInit; json?: unknown }) {
       if (typeof input === 'string') {
         this.url = input;
         this.method = 'GET';
@@ -399,16 +403,16 @@ jest.mock('@/lib/rate-limit', () => {
 try {
   // Use require to avoid static ESM resolution issues in the test environment
    
-  const rl = require('@/lib/rate-limit');
-  if (!rl || typeof rl.getClientIp !== 'function' || typeof rl.getClientIp?.mockReturnValue !== 'function') {
+  const rl = await import('@/lib/rate-limit');
+  if (!rl || typeof rl.getClientIp !== 'function' || typeof (rl.getClientIp as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
     // Replace with jest.fn implementations
-    rl.getClientIp = jest.fn(() => '127.0.0.1');
+    (rl as { getClientIp: unknown }).getClientIp = jest.fn(() => '127.0.0.1');
   }
-  if (typeof rl.isRateLimited !== 'function' || typeof rl.isRateLimited?.mockReturnValue !== 'function') {
-    rl.isRateLimited = jest.fn(() => false);
+  if (typeof rl.isRateLimited !== 'function' || typeof (rl.isRateLimited as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
+    (rl as { isRateLimited: unknown }).isRateLimited = jest.fn(() => false);
   }
-  if (typeof rl.getRetryAfterMs !== 'function' || typeof rl.getRetryAfterMs?.mockReturnValue !== 'function') {
-    rl.getRetryAfterMs = jest.fn(() => 60_000);
+  if (typeof rl.getRetryAfterMs !== 'function' || typeof (rl.getRetryAfterMs as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
+    (rl as { getRetryAfterMs: unknown }).getRetryAfterMs = jest.fn(() => 60_000);
   }
 } catch (e) {
   // If require fails (module not found), swallow — some suites don't import rate-limit at all
@@ -419,7 +423,7 @@ try {
 jest.mock('@/lib/auth/config', () => {
   const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
 
-  const wrap = <T extends (...args: any[]) => any>(key: string) => {
+  const wrap = <T extends (...args: unknown[]) => unknown>(key: string) => {
     const impl = actual[key] as T | undefined;
     if (typeof impl !== 'function') {
       return jest.fn();
@@ -475,11 +479,11 @@ jest.mock('@/lib/email', () => {
 // guarantees tests can call `.mockReturnValue` / `.mockResolvedValue` safely.
 try {
    
-  const ac = require('@/lib/auth/config');
+  const ac = await import('@/lib/auth/config');
   // Coerce both named and default exports to jest.fn compatible functions
-  const ensureMock = (obj: any, key: string, fallback: any) => {
+  const ensureMock = (obj: Record<string, unknown>, key: string, fallback: unknown) => {
     if (!obj) return;
-    if (typeof obj[key] !== 'function' || typeof obj[key]?.mockReturnValue !== 'function') {
+    if (typeof obj[key] !== 'function' || typeof (obj[key] as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
       obj[key] = jest.fn(fallback);
     }
   };
@@ -491,18 +495,18 @@ try {
   ensureMock(ac, 'isAdminEmail', (...args: unknown[]) => (actual.isAdminEmail as (...fnArgs: unknown[]) => unknown)(...args));
 
   if (ac.default) {
-    ensureMock(ac.default, 'isEmailVerificationRequired', (...args: unknown[]) => (actual.isEmailVerificationRequired as (...fnArgs: unknown[]) => unknown)(...args));
-    ensureMock(ac.default, 'getAdminEmails', (...args: unknown[]) => (actual.getAdminEmails as (...fnArgs: unknown[]) => unknown)(...args));
-    ensureMock(ac.default, 'isAdminEmail', (...args: unknown[]) => (actual.isAdminEmail as (...fnArgs: unknown[]) => unknown)(...args));
+    ensureMock(ac.default as Record<string, unknown>, 'isEmailVerificationRequired', (...args: unknown[]) => (actual.isEmailVerificationRequired as (...fnArgs: unknown[]) => unknown)(...args));
+    ensureMock(ac.default as Record<string, unknown>, 'getAdminEmails', (...args: unknown[]) => (actual.getAdminEmails as (...fnArgs: unknown[]) => unknown)(...args));
+    ensureMock(ac.default as Record<string, unknown>, 'isAdminEmail', (...args: unknown[]) => (actual.isAdminEmail as (...fnArgs: unknown[]) => unknown)(...args));
   }
 
   // Expose the actual jest.fn instances from the mocked module on global
   try {
-    (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.isEmailVerificationRequired;
-    (global as any).__AUTH_GET_ADMIN_EMAILS = ac.getAdminEmails;
-    (global as any).__AUTH_IS_ADMIN_EMAIL = ac.isAdminEmail;
+    (global as Record<string, unknown>).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.isEmailVerificationRequired;
+    (global as Record<string, unknown>).__AUTH_GET_ADMIN_EMAILS = ac.getAdminEmails;
+    (global as Record<string, unknown>).__AUTH_IS_ADMIN_EMAIL = ac.isAdminEmail;
     if (ac.default) {
-      (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.default.isEmailVerificationRequired || (global as any).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED;
+      (global as Record<string, unknown>).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = (ac.default as { isEmailVerificationRequired: unknown }).isEmailVerificationRequired || (global as Record<string, unknown>).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED;
     }
   } catch (e) {
     // ignore
@@ -516,7 +520,7 @@ try {
 // the same mocked jest.fn instance is available on all module instances.
 try {
    
-  const srcAuth = require('./src/lib/auth/config');
+  const srcAuth = await import('./src/lib/auth/config');
   if (srcAuth) {
     const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
     const wrap = (key: string) => {
@@ -524,8 +528,8 @@ try {
       if (typeof impl !== 'function') {
         return jest.fn();
       }
-      const spy = jest.fn((...args: any[]) => (impl as (...fnArgs: any[]) => unknown)(...args));
-      spy.mockImplementation((...args: any[]) => (impl as (...fnArgs: any[]) => unknown)(...args));
+      const spy = jest.fn((...args: unknown[]) => (impl as (...fnArgs: unknown[]) => unknown)(...args));
+      spy.mockImplementation((...args: unknown[]) => (impl as (...fnArgs: unknown[]) => unknown)(...args));
       return spy;
     };
 
@@ -533,14 +537,14 @@ try {
     const getAdminEmails = wrap('getAdminEmails');
     const isAdminEmail = wrap('isAdminEmail');
 
-    srcAuth.isEmailVerificationRequired = isEmailVerificationRequired;
-    srcAuth.getAdminEmails = getAdminEmails;
-    srcAuth.isAdminEmail = isAdminEmail;
+    (srcAuth as { isEmailVerificationRequired: unknown }).isEmailVerificationRequired = isEmailVerificationRequired;
+    (srcAuth as { getAdminEmails: unknown }).getAdminEmails = getAdminEmails;
+    (srcAuth as { isAdminEmail: unknown }).isAdminEmail = isAdminEmail;
 
     if (srcAuth.default) {
-      srcAuth.default.isEmailVerificationRequired = isEmailVerificationRequired;
-      srcAuth.default.getAdminEmails = getAdminEmails;
-      srcAuth.default.isAdminEmail = isAdminEmail;
+      (srcAuth.default as { isEmailVerificationRequired: unknown }).isEmailVerificationRequired = isEmailVerificationRequired;
+      (srcAuth.default as { getAdminEmails: unknown }).getAdminEmails = getAdminEmails;
+      (srcAuth.default as { isAdminEmail: unknown }).isAdminEmail = isAdminEmail;
     }
 
      
@@ -552,22 +556,24 @@ try {
 
 // Defensive runtime patch for tokens/email modules in case of alternate import paths
 try {
-  const tk = require('@/lib/tokens');
+  const tk = await import('@/lib/tokens');
   if (tk) {
-    const ensureJestFn = (key: string, impl: () => any) => {
-      const current = tk[key];
-      if (typeof current !== 'function' || typeof current?.mock === 'undefined') {
-        tk[key] = jest.fn(impl);
+    const ensureJestFn = (key: string, impl: () => unknown) => {
+      const current = (tk as Record<string, unknown>)[key];
+      if (typeof current !== 'function' || typeof (current as { mock?: unknown })?.mock === 'undefined') {
+        (tk as Record<string, unknown>)[key] = jest.fn(impl);
       }
     };
     ensureJestFn('generateToken', () => ({ raw: 'test-token-raw', hash: 'test-token-hash' }));
     ensureJestFn('hashToken', () => 'test-hash');
     ensureJestFn('minutesFromNow', () => new Date(Date.now() + 60 * 60 * 1000));
     try {
-      (global as any).__TOKENS_generateToken = tk.generateToken;
-      (global as any).__TOKENS_hashToken = tk.hashToken;
-      (global as any).__TOKENS_minutesFromNow = tk.minutesFromNow;
-    } catch (e) {}
+      (global as Record<string, unknown>).__TOKENS_generateToken = tk.generateToken;
+      (global as Record<string, unknown>).__TOKENS_hashToken = tk.hashToken;
+      (global as Record<string, unknown>).__TOKENS_minutesFromNow = tk.minutesFromNow;
+    } catch (e) {
+      //ignore
+    }
   }
 } catch (e) {
   // ignore
@@ -575,20 +581,22 @@ try {
 
 
 try {
-  const em = require('@/lib/email');
+  const em = await import('@/lib/email');
   if (em) {
-    const ensureJestFn = (key: string, impl: () => any) => {
-      const current = em[key];
-      if (typeof current !== 'function' || typeof current?.mock === 'undefined') {
-        em[key] = jest.fn(impl);
+    const ensureJestFn = (key: string, impl: () => unknown) => {
+      const current = (em as Record<string, unknown>)[key];
+      if (typeof current !== 'function' || typeof (current as { mock?: unknown })?.mock === 'undefined') {
+        (em as Record<string, unknown>)[key] = jest.fn(impl);
       }
     };
     ensureJestFn('buildVerifyEmail', () => Promise.resolve({ to: 'test@example.com' }));
     ensureJestFn('sendMail', () => Promise.resolve({ messageId: 'test-message-id' }));
     try {
-      (global as any).__EMAIL_buildVerifyEmail = em.buildVerifyEmail;
-      (global as any).__EMAIL_sendMail = em.sendMail;
-    } catch (e) {}
+      (global as Record<string, unknown>).__EMAIL_buildVerifyEmail = em.buildVerifyEmail;
+      (global as Record<string, unknown>).__EMAIL_sendMail = em.sendMail;
+    } catch (e) {
+      //ignore
+    }
   }
 } catch (e) {
   // ignore
@@ -596,9 +604,9 @@ try {
 
 // Ensure mongodb mock collection has jest.fn() methods
 try {
-  const mongodb = require('@/lib/mongodb');
+  const mongodb = await import('@/lib/mongodb');
   if (mongodb && mongodb.default) {
-    mongodb.default.then((client: any) => {
+    mongodb.default.then((client: { _mockCollection: Record<string, (...args: unknown[]) => unknown> }) => {
       if (client && client._mockCollection) {
         const mockCol = client._mockCollection;
         // Replace all methods with jest.fn() versions that preserve behavior
@@ -606,7 +614,7 @@ try {
         methods.forEach((method) => {
           if (mockCol[method] && typeof mockCol[method] === 'function') {
             const originalFn = mockCol[method];
-            mockCol[method] = jest.fn((...args: any[]) => originalFn.apply(mockCol, args));
+            mockCol[method] = jest.fn((...args: unknown[]) => originalFn.apply(mockCol, args));
           }
         });
       }
