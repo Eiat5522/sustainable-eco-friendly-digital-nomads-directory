@@ -55,13 +55,60 @@ We follow a simplified version of Git Flow with these main branches:
    - Create PR against `develop` branch
    - Fill in the PR template
    - Request review from team members
+   - Ensure all automated checks pass
+
+## Code Review Process
+
+### For Authors
+1. **Before Creating PR**
+   - Run `pnpm lint` and fix all warnings/errors
+   - Run `pnpm check-types` and resolve TypeScript errors
+   - Run `pnpm test:unit` and ensure tests pass
+   - Review your own code changes
+   - Write clear PR description explaining what and why
+
+2. **During Review**
+   - Respond to feedback promptly and professionally
+   - Make requested changes in new commits (don't force push)
+   - Re-request review after addressing feedback
+   - Keep discussions focused on the code
+
+### For Reviewers
+1. **Review Checklist**
+   - [ ] Code follows [CODING_STANDARDS.md](./CODING_STANDARDS.md)
+   - [ ] No TypeScript errors or ESLint warnings
+   - [ ] Tests are included for new features
+   - [ ] Documentation is updated if needed
+   - [ ] No security vulnerabilities introduced
+   - [ ] No performance regressions
+   - [ ] Error handling is appropriate
+   - [ ] Naming is clear and follows conventions
+
+2. **Review Guidelines**
+   - Be constructive and respectful in feedback
+   - Explain the "why" behind suggestions
+   - Approve minor changes, request changes for significant issues
+   - Test the changes locally if needed
+   - Focus on code quality, not personal preferences
+
+### PR Size Guidelines
+- **Keep PRs small**: Aim for < 400 lines of changes
+- **Single purpose**: One feature or fix per PR
+- **Break down large changes**: Create multiple related PRs
+- **Draft PRs**: Use draft PRs for work-in-progress feedback
 
 ## Code Style
 
-- Follow Prettier configuration
-- Use TypeScript for type safety
-- Follow ESLint rules
-- Write meaningful commit messages
+For detailed coding standards and best practices, see [CODING_STANDARDS.md](./CODING_STANDARDS.md).
+
+**Quick reference:**
+- Follow Prettier configuration for code formatting
+- Use TypeScript for all new code with proper type safety
+- Follow ESLint rules - address all warnings and errors
+- Write meaningful, conventional commit messages
+- Avoid `any` type - use specific types or `unknown`
+- Follow naming conventions: PascalCase for components, camelCase for functions
+- Document complex logic with clear comments
 
 ## Pre-commit Checks
 
