@@ -1,5 +1,4 @@
-import mongoose, { Document, Schema, models } from 'mongoose';
-import { isIP } from 'net';
+import mongoose, { Document, Schema } from 'mongoose';
 
 export const CONTACT_TYPES = ['general', 'listing', 'partnership', 'support', 'feedback'] as const;
 export type ContactType = (typeof CONTACT_TYPES)[number];

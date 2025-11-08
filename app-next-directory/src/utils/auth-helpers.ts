@@ -29,19 +29,6 @@ export async function requireRole(allowedRoles: string[]): Promise<Session> {
   return session;
 }
 
-const extractErrorMessage = (error: unknown): string | undefined => {
-  if (typeof error === 'string') {
-    return error;
-  }
-  if (error && typeof error === 'object' && 'message' in error) {
-    const message = (error as { message?: unknown }).message;
-    if (typeof message === 'string') {
-      return message;
-    }
-  }
-  return undefined;
-};
-
 export function handleAuthError(error: unknown) {
   
   const message =
