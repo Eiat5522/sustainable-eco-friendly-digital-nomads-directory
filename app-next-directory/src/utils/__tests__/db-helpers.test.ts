@@ -138,6 +138,37 @@ describe('db-helpers mock database behaviour', () => {
     expect(aggregated).toEqual([{ _id: 'active', totalViews: 15 }]);
   });
 
+  it('applies the same transformations for toArray and async iteration', async () => {
+    const { getCollection } = require('../db-helpers');
+    const collection = (await getCollection('experiences')) as MockCollection;
+
+    collection.__setDocuments([
+      { _id: 'one', name: 'One', status: 'active', stats: { views: 15 } },
+      { _id: 'two', name: 'Two', status: 'active', stats: { views: 7 } },
+      { _id: 'three', name: 'Three', status: 'inactive', stats: { views: 100 } },
+      { _id: 'four', name: 'Four', status: 'active', stats: { views: 7 } },
+    ]);
+
+    const cursor = collection
+      .find({ status: 'active' })
+      .sort({ 'stats.views': -1, name: 1 })
+      .project({ name: 1, 'stats.views': 1 })
+      .limit(2);
+
+    const arrayResults = await cursor.toArray();
+    expect(arrayResults).toEqual([
+      { name: 'One', 'stats.views': 15 },
+      { name: 'Four', 'stats.views': 7 },
+    ]);
+
+    const iterated: Array<Record<string, unknown>> = [];
+    for await (const doc of cursor) {
+      iterated.push(doc as Record<string, unknown>);
+    }
+
+    expect(iterated).toEqual(arrayResults);
+  });
+
   it('handles mutations, duplicate detection, and index creation in the mock collection', async () => {
     const { getCollection } = require('../db-helpers');
     const collection = (await getCollection('listings')) as MockCollection;
