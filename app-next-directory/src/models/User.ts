@@ -83,7 +83,7 @@ const UserSchema: Schema<IUser> = new Schema(
 // Hash password automatically when it is created/modified
 UserSchema.pre('save', async function (next) {
   try {
-    const user = this as any;
+    const user = this as IUser & { isModified: (field: string) => boolean };
     if (!user.isModified('password')) return next();
     if (!user.password) return next();
     // If already a bcrypt hash (e.g., provided by API route), skip re-hashing
@@ -93,7 +93,7 @@ UserSchema.pre('save', async function (next) {
     user.password = await bcrypt.hash(user.password, BCRYPT_COST);
     return next();
   } catch (err) {
-    return next(err as any);
+    return next(err as Error);
   }
 });
 
