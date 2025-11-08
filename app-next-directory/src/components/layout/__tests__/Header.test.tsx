@@ -55,8 +55,8 @@ jest.mock('next/navigation', () => ({
 describe('Header', () => {
   const originalUseContext = React.useContext
   const signOutSpy = jest.spyOn(nextAuth, 'signOut')
-    let ignoredConsoleWarnSpy: jest.SpyInstance = jest.spyOn(console, 'warn').mockImplementation(() => {})
-    let ignoredConsoleErrorSpy: jest.SpyInstance = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const ignoredConsoleWarnSpy: jest.SpyInstance = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    const ignoredConsoleErrorSpy: jest.SpyInstance = jest.spyOn(console, 'error').mockImplementation(() => {})
     const mockUseRouter = useRouter as jest.MockedFunction<typeof useRouter>
     let routerPushMock: jest.Mock
 

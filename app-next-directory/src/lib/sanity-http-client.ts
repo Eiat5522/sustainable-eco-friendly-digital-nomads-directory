@@ -254,7 +254,7 @@ export class SanityHTTPClient {
       throw new SanityAPIError('Cannot delete document: No API token provided');
     }
     try {
-      let result = await this.writeClient.delete(id); // delete returns null or a status object
+      const result = await this.writeClient.delete(id); // delete returns null or a status object
       if (this.debug) console.log(`✅ Deleted document: ${id}`);
       return result;
     } catch (error: unknown) { // Catching unknown for better type safety
