@@ -1,3 +1,14 @@
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+import { config as loadEnv } from 'dotenv';
+
+const envFilePath = process.env.PLAYWRIGHT_DOTENV_PATH ?? resolve(process.cwd(), '.env.test');
+
+if (!process.env.SKIP_PLAYWRIGHT_DOTENV && existsSync(envFilePath)) {
+  loadEnv({ path: envFilePath, override: false });
+}
+
 const rawBaseURL =
   process.env.PLAYWRIGHT_BASE_URL ?? process.env.BASE_URL ?? 'http://localhost:3000';
 
