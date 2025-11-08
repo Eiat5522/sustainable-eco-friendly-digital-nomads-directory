@@ -85,9 +85,8 @@ export async function GET(request: NextRequest, _context: RouteContext) {
     const allowedStatusValues: ListingWorkflowStatus[] = [
       'draft',
       'pending',
-      'approved',
-      'rejected',
-      'archived'
+      'published',
+      'unpublished'
     ];
     if (statusFilter && allowedStatusValues.includes(statusFilter as ListingWorkflowStatus)) {
       statusCondition = `&& adminWorkflow.status == "${statusFilter}"`;

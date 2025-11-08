@@ -1,6 +1,7 @@
 
-import Analytics from 'analytics';
-import googleAnalytics from '@analytics/google-analytics';
+// TODO: Install 'analytics' and '@analytics/google-analytics' packages if GA4 integration is needed
+// import Analytics from 'analytics';
+// import googleAnalytics from '@analytics/google-analytics';
 import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
 import posthog from 'posthog-js';
 
@@ -21,17 +22,25 @@ if (typeof window !== 'undefined' && POSTHOG_TOKEN) {
 }
 
 // Initialize analytics instance with GA4, Vercel, and PostHog
-const analytics = Analytics({
-  app: 'sustainable-eco-nomads',
-  plugins: [
-    googleAnalytics({
-      measurementIds: [GA_MEASUREMENT_ID || ''],
-      config: {
-        debug: process.env.NODE_ENV === 'development'
-      }
-    })
-  ]
-});
+// TODO: Uncomment when 'analytics' and '@analytics/google-analytics' packages are installed
+// const analytics = Analytics({
+//   app: 'sustainable-eco-nomads',
+//   plugins: [
+//     googleAnalytics({
+//       measurementIds: [GA_MEASUREMENT_ID || ''],
+//       config: {
+//         debug: process.env.NODE_ENV === 'development'
+//       }
+//     })
+//   ]
+// });
+
+// Placeholder analytics object until proper analytics is set up
+const analytics = {
+  page: async (_options: any) => { /* noop */ },
+  track: async (_name: string, _properties?: any) => { /* noop */ },
+  identify: async (_userId: string, _traits?: any) => { /* noop */ },
+};
 
 // Initialize Vercel Analytics
 // VercelAnalytics is a React component, not an analytics instance with .track/.identify methods.
