@@ -152,7 +152,7 @@ export function InteractiveMap({ location, address, name, className }: Interacti
       }
       markerRef.current = null;
     };
-  }, [location?.lat, location?.lng]);
+  }, [location, name, address]);
 
   useEffect(() => {
     const marker = markerRef.current;

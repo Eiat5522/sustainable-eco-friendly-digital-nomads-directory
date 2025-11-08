@@ -109,7 +109,7 @@ export default async function BlogPage({ searchParams }: Readonly<{ searchParams
     <>
     <Header />
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-5xl font-extrabold text-center mb-6 text-gray-900">The Nomad's Chronicle</h1>
+      <h1 className="text-5xl font-extrabold text-center mb-6 text-gray-900">The Nomad&apos;s Chronicle</h1>
 
       {/* Filters */}
       <form className="mb-10 flex flex-col md:flex-row items-stretch md:items-center gap-3" action="/blog" method="get">

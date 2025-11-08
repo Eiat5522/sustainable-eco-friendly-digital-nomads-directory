@@ -12,6 +12,7 @@ jest.mock('next/image', () => {
   return function MockNextImage({ alt, src, priority, fill, onError, ...props }: { alt: string, src: string | { src: string }, priority?: boolean, fill?: boolean, onError?: () => void }) {
     const resolvedSrc = typeof src === 'string' ? src : src?.src ?? ''
     return (
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         alt={alt}
         src={resolvedSrc}

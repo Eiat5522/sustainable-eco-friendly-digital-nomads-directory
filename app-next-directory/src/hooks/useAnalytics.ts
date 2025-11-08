@@ -21,7 +21,7 @@ export function useAnalytics(options?: { referrer?: string }) {
       search: search ? `?${search}` : undefined,
       referrer: options?.referrer ?? document.referrer
     });
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, options?.referrer]);
 
   // Typed event tracking
   const track = useCallback(<T extends keyof EventProperties>(
