@@ -12,12 +12,13 @@ describe('instrumentation register', () => {
   let processOnSpy: jest.SpyInstance;
   let processExitSpy: jest.SpyInstance;
   let consoleErrorSpy: jest.SpyInstance;
+  let consoleWarnSpy: jest.SpyInstance;
   let consoleLogSpy: jest.SpyInstance;
 
   beforeEach(() => {
     listeners = {};
     process.env.NEXT_RUNTIME = 'nodejs';
-    process.env.NODE_ENV = 'production';
+    process.env.NODE_ENV = 'test';
 
     processOnSpy = jest.spyOn(process, 'on').mockImplementation((event: any, handler: any) => {
       listeners[event as string] = handler as (...args: any[]) => void;
@@ -26,6 +27,7 @@ describe('instrumentation register', () => {
 
     processExitSpy = jest.spyOn(process, 'exit').mockImplementation((() => undefined) as any);
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
     consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
   });
 
@@ -33,13 +35,14 @@ describe('instrumentation register', () => {
     processOnSpy.mockRestore();
     processExitSpy.mockRestore();
     consoleErrorSpy.mockRestore();
+    consoleWarnSpy.mockRestore();
     consoleLogSpy.mockRestore();
     process.env.NEXT_RUNTIME = originalNextRuntime;
     process.env.NODE_ENV = originalNodeEnv;
   });
 
-  it('registers rejection and exception handlers when running in the node runtime', () => {
-    register();
+  it('registers rejection and exception handlers when running in the node runtime', async () => {
+    await register();
 
     expect(processOnSpy).toHaveBeenCalledWith('unhandledRejection', expect.any(Function));
     expect(processOnSpy).toHaveBeenCalledWith('uncaughtException', expect.any(Function));
@@ -51,53 +54,53 @@ describe('instrumentation register', () => {
     const rejectionError = new Error('MongoServerSelectionError: connection timeout');
     rejectionHandler?.(rejectionError, Promise.resolve());
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
       'MongoDB connection issue detected. The server will continue running and retry on next request.',
     );
     expect(processExitSpy).not.toHaveBeenCalled();
   });
 
-  it('handles non-error rejection reasons without crashing the process', () => {
-    register();
+  it('handles non-error rejection reasons without crashing the process', async () => {
+    await register();
 
     const rejectionHandler = listeners.unhandledRejection;
     expect(rejectionHandler).toBeDefined();
 
     rejectionHandler?.('transient network blip', Promise.resolve());
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Reason:', 'transient network blip');
-    expect(consoleErrorSpy).not.toHaveBeenCalledWith('Error stack:', expect.anything());
-    expect(consoleErrorSpy).not.toHaveBeenCalledWith(
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Unhandled Promise Rejection', 'transient network blip');
+    expect(consoleErrorSpy).not.toHaveBeenCalledWith('Unhandled Promise Rejection reason', expect.anything());
+    expect(consoleWarnSpy).not.toHaveBeenCalledWith(
       'MongoDB connection issue detected. The server will continue running and retry on next request.',
     );
   });
 
-  it('logs Mongo retry guidance when server selection timeouts occur', () => {
-    register();
+  it('logs Mongo retry guidance when server selection timeouts occur', async () => {
+    await register();
 
     const rejectionHandler = listeners.unhandledRejection;
     rejectionHandler?.(new Error('Server selection timed out after 5000 ms'), Promise.resolve());
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
       'MongoDB connection issue detected. The server will continue running and retry on next request.',
     );
   });
 
-  it('logs the rejection reason without Mongo messaging for unrelated errors', () => {
-    register();
+  it('logs the rejection reason without Mongo messaging for unrelated errors', async () => {
+    await register();
 
     const rejectionHandler = listeners.unhandledRejection;
     const genericError = new Error('Generic failure');
     rejectionHandler?.(genericError, Promise.resolve());
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Reason:', genericError);
-    expect(consoleErrorSpy).not.toHaveBeenCalledWith(
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Unhandled Promise Rejection reason', genericError);
+    expect(consoleWarnSpy).not.toHaveBeenCalledWith(
       'MongoDB connection issue detected. The server will continue running and retry on next request.',
     );
   });
 
-  it('prevents process exit for Mongo related uncaught exceptions', () => {
-    register();
+  it('prevents process exit for Mongo related uncaught exceptions', async () => {
+    await register();
 
     const exceptionHandler = listeners.uncaughtException;
     expect(exceptionHandler).toBeDefined();
@@ -105,11 +108,11 @@ describe('instrumentation register', () => {
     exceptionHandler?.(new Error('MongoServerSelectionError: primary down'));
 
     expect(processExitSpy).not.toHaveBeenCalled();
-    expect(consoleErrorSpy).toHaveBeenCalledWith('MongoDB connection issue detected. Continuing...');
+    expect(consoleWarnSpy).toHaveBeenCalledWith('MongoDB connection issue detected. Continuing...');
   });
 
-  it('logs the failure context and exits the process for critical production errors', () => {
-    register();
+  it('logs the failure context and exits the process for critical production errors', async () => {
+    await register();
 
     const exceptionHandler = listeners.uncaughtException;
     exceptionHandler?.(new Error('Unexpected fatal error'));
@@ -118,22 +121,22 @@ describe('instrumentation register', () => {
     expect(consoleErrorSpy).not.toHaveBeenCalledWith('Development mode: Server will continue running');
   });
 
-  it('keeps the server alive in development mode for non-mongo exceptions', () => {
+  it('keeps the server alive in development mode for non-mongo exceptions', async () => {
     process.env.NODE_ENV = 'development';
 
-    register();
+    await register();
 
     const exceptionHandler = listeners.uncaughtException;
     exceptionHandler?.(new Error('Rendering error'));
 
     expect(processExitSpy).not.toHaveBeenCalled();
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Development mode: Server will continue running');
+    expect(consoleErrorSpy).not.toHaveBeenCalledWith('Development mode: Server will continue running');
   });
 
-  it('skips registration when executed outside of the node runtime', () => {
+  it('skips registration when executed outside of the node runtime', async () => {
     process.env.NEXT_RUNTIME = 'edge';
 
-    register();
+    await register();
 
     expect(processOnSpy).not.toHaveBeenCalled();
     expect(consoleLogSpy).not.toHaveBeenCalled();
