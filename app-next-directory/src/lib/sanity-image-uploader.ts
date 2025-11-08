@@ -126,7 +126,7 @@ export class SanityImageUploader {
     // Process files in batches
     for (let i = 0; i < files.length; i += concurrency) {
       const batch = files.slice(i, i + concurrency)
-      const promises = batch.map(async (file, index) => {
+      const promises = batch.map(async (file, _index) => {
         try {
           const uploadResult = await this.uploadImage(file, {
             title: file.name.replace(/\.[^/.]+$/, ''),
@@ -230,7 +230,7 @@ export class SanityImageUploader {
   private async generateBlurHash(file: File): Promise<string> {
     // Simplified blur hash generation
     // In production, use blurhash library
-    const hash = btoa(file.name + file.size).substring(0, 16)
+    const ignoredHash = btoa(file.name + file.size).substring(0, 16)
     return `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#f0f0f0"/></svg>`)}`
   }
 

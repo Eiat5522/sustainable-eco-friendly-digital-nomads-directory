@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { NeoCard, NeoCardContent } from '@/components/ui/neo-card'
-import { NeoButton } from '@/components/ui/neo-button'
 import Link from 'next/link'
 import { Leaf, Users, Globe, Heart, LucideIcon } from 'lucide-react'
 

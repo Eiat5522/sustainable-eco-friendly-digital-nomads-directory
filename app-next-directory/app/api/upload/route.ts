@@ -109,7 +109,7 @@ export async function POST(request: Request) {
         optimizedSize: optimizationResult.optimizedSize
       }
     });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });
   }
 }

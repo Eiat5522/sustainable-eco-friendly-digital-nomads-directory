@@ -178,7 +178,7 @@ export const submitReview = async ({ review, listingId, fetcher }: SubmitReviewO
 
       }
 
-    } catch (error) {
+    } catch (_error) {
 
       // Ignore JSON parsing issues and treat as success without payload
 
@@ -206,7 +206,7 @@ export const submitReview = async ({ review, listingId, fetcher }: SubmitReviewO
 
     }
 
-  } catch (error) {
+  } catch (_error) {
 
     // Ignore JSON parsing issues and fall back to the generic message
 
@@ -220,7 +220,7 @@ export const submitReview = async ({ review, listingId, fetcher }: SubmitReviewO
 
 
 
-export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId }: ReviewsSectionProps) {
+export function ReviewsSection({ reviews, listingId, isSignedIn = false, userId: _userId }: ReviewsSectionProps) {
 
 
   const [newReview, setNewReview] = useState({ rating: 0, comment: '' });

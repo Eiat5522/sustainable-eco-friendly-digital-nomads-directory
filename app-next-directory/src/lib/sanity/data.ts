@@ -72,7 +72,7 @@ import type { AppListingDetail } from '@/types/appView';
 
 export async function getListingData(
   slug: string,
-  usePreview = false
+  _usePreview = false
 ): Promise<AppListingDetail | null> {
   try {
     const listing = await client.fetch(

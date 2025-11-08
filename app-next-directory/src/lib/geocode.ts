@@ -103,8 +103,6 @@ export const geocodeAddress = async (
   }
 }
 // Adds updateListingsWithCoordinates for test compatibility
-import fs from 'fs/promises';
-import path from 'path';
 
 /**
  * Reads listings, updates missing coordinates, and writes back.

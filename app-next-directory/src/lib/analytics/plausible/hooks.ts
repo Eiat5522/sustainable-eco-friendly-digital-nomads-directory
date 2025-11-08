@@ -5,7 +5,7 @@
  * @date May 18, 2025
  */
 
-import { ANALYTICS_EVENTS, type ListingEvent, type MapEvent, type SearchEvent } from './config'
+import { type ListingEvent, type MapEvent, type SearchEvent } from './config'
 
 export function usePlausibleAnalytics() {
   const noop = (...args: unknown[]) => {

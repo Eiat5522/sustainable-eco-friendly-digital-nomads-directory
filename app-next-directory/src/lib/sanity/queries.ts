@@ -1,6 +1,6 @@
 import { client } from './client';
 
-async function getListingBySlug(slug: string, preview = false) {
+async function getListingBySlug(slug: string, _preview = false) {
   const sanityClient = client;
 
   const query = `*[_type=="listing" && slug.current==$slug][0]{
@@ -38,7 +38,7 @@ async function getListingBySlug(slug: string, preview = false) {
 }
 
 // Get all available cities for filtering
-async function getAllCities(preview = false) {
+async function getAllCities(_preview = false) {
   const sanityClient = client;
 
   const query = `*[_type == "city"] {
@@ -68,7 +68,7 @@ async function getAllCities(preview = false) {
 }
 
 // Get all eco focus tags for filtering
-async function getAllEcoTags(preview = false) {
+async function getAllEcoTags(_preview = false) {
   const sanityClient = client;
 
   const query = `*[_type == "ecoTag"] {
@@ -82,7 +82,7 @@ async function getAllEcoTags(preview = false) {
 }
 
 // Get latest blog posts
-async function getLatestBlogPosts(limit = 3, preview = false) {
+async function getLatestBlogPosts(limit = 3, _preview = false) {
   const sanityClient = client;
 
   const query = `*[_type == "blogPost"] | order(_createdAt desc)[0...$limit] {
@@ -98,7 +98,7 @@ async function getLatestBlogPosts(limit = 3, preview = false) {
   return await sanityClient.fetch(query, { limit: limit - 1 });
 }
 
-async function getFeaturedListings(limit = 10, preview = false) {
+async function getFeaturedListings(limit = 10, _preview = false) {
   const sanityClient = client;
 
   const query = `*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...$limit] {

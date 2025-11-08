@@ -1,5 +1,4 @@
 
-import { createClient, groq } from 'next-sanity';
 import { getRedisClient } from '../redis';
 import { client } from './client';
 

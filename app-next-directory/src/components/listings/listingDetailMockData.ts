@@ -1,5 +1,5 @@
 // Mock data for listing detail page using existing DTO structure
-import type { ListingDetailDTO, AmenityDTO, Percentage0To100 } from '@/types/dto';
+import type { ListingDetailDTO, Percentage0To100 } from '@/types/dto';
 
 export const mockListingDetail: ListingDetailDTO = {
   id: "banyan-tree-phuket",

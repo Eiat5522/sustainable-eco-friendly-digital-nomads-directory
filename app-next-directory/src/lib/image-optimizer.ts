@@ -67,7 +67,7 @@ export async function optimizeImageFile(
       );
 
       // Use shell-safe execution
-      const { stdout, stderr } = await execAsync(
+      const { stdout: ignoredStdout, stderr } = await execAsync(
         `python3 "${singleOptScript}"`,
         { timeout: 30000 } // 30 second timeout
       );
