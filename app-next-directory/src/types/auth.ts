@@ -529,7 +529,7 @@ export const ACCESS_CONTROL_MATRIX: Record<UserRole, {
 };
 
 // Utility functions for permission checking
-export function getUserPermissions(role: UserRole): { pages: any; features: FeaturePermissions } {
+export function getUserPermissions(role: UserRole): { pages: typeof ACCESS_CONTROL_MATRIX[UserRole]['pages']; features: FeaturePermissions } {
   return ACCESS_CONTROL_MATRIX[role];
 }
 

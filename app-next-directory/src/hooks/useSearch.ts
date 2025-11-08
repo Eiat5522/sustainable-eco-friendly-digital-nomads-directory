@@ -1,8 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SearchFilters, SortOption } from '@/types/search';
 
+interface SearchResult {
+  _id: string;
+  name: string;
+  slug: { current: string };
+  [key: string]: unknown;
+}
+
 interface UseSearchResults {
-  results: any[];
+  results: SearchResult[];
   error: Error | null;
   pagination: {
     total: number;

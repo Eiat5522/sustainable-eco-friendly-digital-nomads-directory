@@ -1,24 +1,24 @@
 // Consolidated MongoDB client for the app
 // Combines the richer TS implementation and test mock shapes from previous JS/TS duplicates.
-import { MongoClient } from 'mongodb';
+import { MongoClient, type MongoClientOptions } from 'mongodb';
 
 type MockCollection = {
-  createIndexes?: (...args: any[]) => Promise<any>;
-  createIndex?: (...args: any[]) => Promise<any>;
-  findOne?: (...args: any[]) => Promise<any>;
-  insertOne?: (...args: any[]) => Promise<any>;
-  updateOne?: (...args: any[]) => Promise<any>;
-  deleteOne?: (...args: any[]) => Promise<any>;
-  findOneAndUpdate?: (...args: any[]) => Promise<any>;
-  deleteMany?: (...args: any[]) => Promise<any>;
+  createIndexes?: (...args: unknown[]) => Promise<unknown>;
+  createIndex?: (...args: unknown[]) => Promise<unknown>;
+  findOne?: (...args: unknown[]) => Promise<unknown>;
+  insertOne?: (...args: unknown[]) => Promise<unknown>;
+  updateOne?: (...args: unknown[]) => Promise<unknown>;
+  deleteOne?: (...args: unknown[]) => Promise<unknown>;
+  findOneAndUpdate?: (...args: unknown[]) => Promise<unknown>;
+  deleteMany?: (...args: unknown[]) => Promise<unknown>;
 };
 
 type MockDb = {
-  createCollection?: (...args: any[]) => Promise<any>;
+  createCollection?: (...args: unknown[]) => Promise<unknown>;
   collection: (name?: string) => MockCollection;
 };
 
-let clientPromise: Promise<any>;
+let clientPromise: Promise<MongoClient>;
 
 const shouldMockMongo = process.env.NODE_ENV === 'test' || process.env.E2E === '1';
 
@@ -62,7 +62,7 @@ if (shouldMockMongo) {
     minPoolSize: 2,
     retryWrites: true,
     retryReads: true,
-  } as any;
+  } as MongoClientOptions;
 
   if (process.env.NODE_ENV === 'development') {
     const globalWithMongo = global as typeof globalThis & {

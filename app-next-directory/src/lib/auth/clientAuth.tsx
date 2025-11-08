@@ -50,10 +50,10 @@ export function AuthProvider({
     user,
     userRole,
     hasPagePermission: (page: string, action: string) => {
-      return hasPagePermissionProp(userRole, page as any, action as any);
+      return hasPagePermissionProp(userRole, page as keyof typeof ACCESS_CONTROL_MATRIX[UserRole]['pages'], action as keyof PagePermissions);
     },
     hasFeaturePermission: (feature: string) => {
-      return hasFeaturePermissionProp(userRole, feature as any);
+      return hasFeaturePermissionProp(userRole, feature as keyof FeaturePermissions);
     },
     signIn,
     signOut,

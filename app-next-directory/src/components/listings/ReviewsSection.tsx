@@ -164,9 +164,9 @@ export const submitReview = async ({ review, listingId, fetcher }: SubmitReviewO
 
       if (data && typeof data === 'object') {
 
-        const maybePayload = (data as any).data && typeof (data as any).data === 'object'
+        const maybePayload = (data as { data?: unknown }).data && typeof (data as { data?: unknown }).data === 'object'
 
-          ? (data as any).data
+          ? (data as { data: unknown }).data
 
           : data;
 

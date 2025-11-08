@@ -42,7 +42,7 @@ export function useAnalytics(options?: { referrer?: string }) {
   // User identification
   const identify = useCallback((
     userId: string,
-    traits?: Record<string, any>
+    traits?: Record<string, unknown>
   ) => {
     return identifyUser(userId, traits);
   }, []);

@@ -1,5 +1,5 @@
 // Mock data for listing detail page using existing DTO structure
-import type { ListingDetailDTO, AmenityDTO } from '@/types/dto';
+import type { ListingDetailDTO, AmenityDTO, Percentage0To100 } from '@/types/dto';
 
 export const mockListingDetail: ListingDetailDTO = {
   id: "banyan-tree-phuket",
@@ -11,7 +11,7 @@ export const mockListingDetail: ListingDetailDTO = {
     name: "Phuket",
     slug: "phuket",
     country: "Thailand",
-    sustainabilityScore: 85 as any,
+    sustainabilityScore: 85 as Percentage0To100,
     highlights: ["Beach Access", "Eco Resort", "Renewable Energy"],
     description: "A tropical paradise committed to sustainability"
   },

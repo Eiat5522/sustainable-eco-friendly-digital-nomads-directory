@@ -63,9 +63,9 @@ async function analyzeContent(): Promise<ContentAnalysisResult> {
   };
 
   // Check each listing
-  listings.forEach((listing: any) => {
+  listings.forEach((listing: { _id: string; name: string; shortDescription?: string; longDescription?: string; [key: string]: unknown }) => {
     // Check for thin content
-    const description = `${listing.shortDescription} ${listing.longDescription}`;
+    const description = `${listing.shortDescription || ''} ${listing.longDescription || ''}`;
     const wordCount = description.split(/\s+/).length;
 
     if (wordCount < MINIMUM_DESCRIPTION_WORDS) {

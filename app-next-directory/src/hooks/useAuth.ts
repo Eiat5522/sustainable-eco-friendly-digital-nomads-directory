@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from "next-auth/react";
-import { UserRole, hasPagePermission, hasFeaturePermission } from "../types/auth";
+import { UserRole, hasPagePermission, hasFeaturePermission, PagePermissions, FeaturePermissions, ACCESS_CONTROL_MATRIX } from "../types/auth";
 
 /**
  * Custom hook to access authentication state and user information
@@ -11,7 +11,7 @@ export function useAuth() {
   const { data: session, status } = useSession();
 
   const user = session?.user;
-  const userRole = (user as any)?.role as UserRole || 'unidentifiedUser';
+  const userRole = (user as { role?: UserRole })?.role || 'unidentifiedUser';
 
   return {
     // Authentication state
@@ -24,11 +24,11 @@ export function useAuth() {
     
     // Utility functions
     hasPagePermission: (page: string, action: string) => {
-      return hasPagePermission(userRole, page as any, action as any);
+      return hasPagePermission(userRole, page as keyof typeof ACCESS_CONTROL_MATRIX[UserRole]['pages'], action as keyof PagePermissions);
     },
     
     hasFeaturePermission: (feature: string) => {
-      return hasFeaturePermission(userRole, feature as any);
+      return hasFeaturePermission(userRole, feature as keyof FeaturePermissions);
     },
     
     // Session status

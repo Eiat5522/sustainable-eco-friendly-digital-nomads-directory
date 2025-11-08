@@ -7,7 +7,7 @@ export function urlFor(source: SanityImageSource) {
     !source ||
     typeof source !== 'object' ||
     !('asset' in source) ||
-    !(source as any).asset._ref
+    !(source as { asset?: { _ref?: string } }).asset?._ref
   ) {
     return undefined;
   }

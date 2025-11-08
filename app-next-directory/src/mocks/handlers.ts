@@ -3,21 +3,32 @@ import {
   createTestData,
   getFavoritesForUser,
   getReviewsForListing,
-  listCities
+  listCities,
+  type TestCity,
+  type TestFavorite
 } from '@/tests/helpers/test-data'
 import { mockFeaturedVenues } from '@/components/sections/featuredVenuesMockData'
+import type { AppReview } from '@/types/appView'
 
 const data = createTestData()
 
-const ok = <Body>(body: Body, status = 200) => HttpResponse.json(body as any, { status })
+const ok = <Body>(body: Body, status = 200) => HttpResponse.json(body as Record<string, unknown>, { status })
+
+interface ListingItem {
+  _id: string;
+  name: string;
+  city: { name: string };
+  slug?: { current: string };
+  [key: string]: unknown;
+}
 
 export const handlers = [
   http.get('/api/search', ({ request }) => {
     const url = new URL(request.url)
     const query = url.searchParams.get('q') ?? ''
     const results = data.listings
-      .filter((listing: any) => listing.name.toLowerCase().includes(query.toLowerCase()))
-      .map((listing: any) => ({
+      .filter((listing: ListingItem) => listing.name.toLowerCase().includes(query.toLowerCase()))
+      .map((listing: ListingItem) => ({
         id: listing._id,
         name: listing.name,
         city: listing.city.name,
@@ -38,16 +49,16 @@ export const handlers = [
   }),
 
   http.post('/api/search', async ({ request }) => {
-    let body: any = {}
+    let body: Record<string, unknown> = {}
     try {
-      body = await request.json()
+      body = await request.json() as Record<string, unknown>
     } catch {
       body = {}
     }
     const query = typeof body?.query === 'string' ? body.query.trim().toLowerCase() : ''
     const results = data.listings
-      .filter((listing: any) => listing.name.toLowerCase().includes(query))
-      .map((listing: any) => ({
+      .filter((listing: ListingItem) => listing.name.toLowerCase().includes(query))
+      .map((listing: ListingItem) => ({
         id: listing._id,
         name: listing.name,
         city: listing.city.name,
@@ -70,7 +81,7 @@ export const handlers = [
   http.get('/api/featured-listings', () => ok({ listings: mockFeaturedVenues })),
 
   http.get('/api/categories', () => {
-    const categories = Array.from(new Set(data.listings.map((listing: any) => listing.type)))
+    const categories = Array.from(new Set(data.listings.map((listing: ListingItem) => listing.type)))
     return ok({ categories })
   }),
 
@@ -85,7 +96,7 @@ export const handlers = [
   })),
 
   http.get('/api/cities', () => {
-    const cities = listCities().map((city: any) => ({
+    const cities = listCities().map((city: TestCity) => ({
       id: city.id,
       name: city.name,
       slug: city.slug,
@@ -116,7 +127,7 @@ export const handlers = [
     const url = new URL(request.url)
     const citySlug = url.searchParams.get('citySlug')
     const listings = citySlug
-      ? data.listings.filter((listing: any) => listing.city.slug?.current === citySlug)
+      ? data.listings.filter((listing: ListingItem) => listing.city.slug?.current === citySlug)
       : data.listings
 
     return ok({
@@ -135,9 +146,9 @@ export const handlers = [
   }),
 
   http.post('/api/reviews', async ({ request }) => {
-    let body: any = {}
+    let body: Record<string, unknown> = {}
     try {
-      body = await request.json()
+      body = await request.json() as Record<string, unknown>
     } catch {
       body = {}
     }
@@ -160,7 +171,7 @@ export const handlers = [
     const average =
       reviews.length === 0
         ? 0
-        : reviews.reduce((sum: number, review: any) => sum + review.rating, 0) / reviews.length
+        : reviews.reduce((sum: number, review: AppReview) => sum + review.rating, 0) / reviews.length
 
     return ok({
       success: true,
@@ -173,9 +184,9 @@ export const handlers = [
   }),
 
   http.post('/api/contact', async ({ request }) => {
-    let body: any = {}
+    let body: Record<string, unknown> = {}
     try {
-      body = await request.json()
+      body = await request.json() as Record<string, unknown>
     } catch {
       body = {}
     }
@@ -194,8 +205,8 @@ export const handlers = [
 
   http.get('/api/user/favorites', () => {
     const user = data.users[0]
-    const favorites = getFavoritesForUser(user.id).map((favorite: any) => {
-      const listing = data.listings.find((item: any) => item._id === favorite.listingId)
+    const favorites = getFavoritesForUser(user.id).map((favorite: TestFavorite) => {
+      const listing = data.listings.find((item: ListingItem) => item._id === favorite.listingId)
       return {
         _id: favorite.id,
         createdAt: favorite.createdAt,
@@ -234,9 +245,9 @@ export const handlers = [
   }),
 
   http.post('/api/auth/register', async ({ request }) => {
-    let body: any = {}
+    let body: Record<string, unknown> = {}
     try {
-      body = await request.json()
+      body = await request.json() as Record<string, unknown>
     } catch {
       body = {}
     }
@@ -256,9 +267,9 @@ export const handlers = [
 
 export const setReviewsResponse = (mode: 'success' | 'unauthorized' | 'forbidden' | 'conflict' | 'error') => {
   const reviewsHandler = http.post('/api/reviews', async ({ request }) => {
-    let body: any = {}
+    let body: Record<string, unknown> = {}
     try {
-      body = await request.json()
+      body = await request.json() as Record<string, unknown>
     } catch {
       body = {}
     }

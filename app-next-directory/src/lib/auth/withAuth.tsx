@@ -32,7 +32,7 @@ export function withAuth<P extends object>(
     const router = useRouter();
     
     const user = session?.user;
-    const userRole = (user as any)?.role as UserRole || 'unidentifiedUser';
+    const userRole = (user as { role?: UserRole })?.role || 'unidentifiedUser';
 
     useEffect(() => {
       if (status === 'loading') return; // Still loading

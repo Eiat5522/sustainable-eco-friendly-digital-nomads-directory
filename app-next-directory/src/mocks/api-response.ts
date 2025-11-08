@@ -1,12 +1,12 @@
 import { jest } from '@jest/globals';
 
-type SuccessResponse<T = any> =
+type SuccessResponse<T = unknown> =
   | { success: true; data: T }
   | { success: true; data: T; message: string };
 
 type ErrorResponse = { success: false; error: string; code: number };
 
-type PaginatedResponse<T = any> = {
+type PaginatedResponse<T = unknown> = {
   data: T[];
   pagination: {
     page: number;
@@ -16,20 +16,20 @@ type PaginatedResponse<T = any> = {
   };
 };
 
-type SimpleMock<F extends (...args: any[]) => any> = F & {
+type SimpleMock<F extends (...args: unknown[]) => unknown> = F & {
   mock: {
     calls: unknown[];
   };
 };
 
 type ApiResponseHandlerMocks = {
-  success: SimpleMock<(data: any, message?: string) => SuccessResponse<any>>;
+  success: SimpleMock<(data: unknown, message?: string) => SuccessResponse<unknown>>;
   error: SimpleMock<(message: string, code?: number) => ErrorResponse>;
-  paginated: SimpleMock<(items: any[], page?: number, limit?: number) => PaginatedResponse<any>>;
+  paginated: SimpleMock<(items: unknown[], page?: number, limit?: number) => PaginatedResponse<unknown>>;
 };
 
 export const ApiResponseHandler: ApiResponseHandlerMocks = {
-  success: jest.fn<(data: any, message?: string) => SuccessResponse<any>>((data, message) => {
+  success: jest.fn<(data: unknown, message?: string) => SuccessResponse<unknown>>((data, message) => {
     return message === undefined ? { success: true, data } : { success: true, data, message };
   }),
 
@@ -39,7 +39,7 @@ export const ApiResponseHandler: ApiResponseHandlerMocks = {
     code,
   })),
 
-  paginated: jest.fn<(items: any[], page?: number, limit?: number) => PaginatedResponse<any>>(
+  paginated: jest.fn<(items: unknown[], page?: number, limit?: number) => PaginatedResponse<unknown>>(
     (items, page = 1, limit = 10) => ({
       data: items,
       pagination: {
