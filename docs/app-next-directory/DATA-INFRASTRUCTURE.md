@@ -13,7 +13,7 @@ Add `MONGODB_URI` to the workspace environment (`.env.local`, `.env.development`
 ### Models & Schema Coverage
 All collections live in `src/models/` and ship with Jest suites (`src/models/__tests__`) to lock down schema contracts and indexes. Highlights include:
 - **Users & auth tokens**: `User`, `LoginAttempt`, `PasswordResetToken`, `EmailVerificationToken`. 【F:app-next-directory/src/models/User.ts†L1-L43】【F:app-next-directory/src/models/LoginAttempt.ts†L1-L40】
-- **Engagement data**: `NewsletterSubscriber`, `ContactSubmission`, `UserFavorite`, `AnalyticsEvent`. 【F:app-next-directory/src/models/NewsletterSubscriber.ts†L1-L38】【F:app-next-directory/src/models/ContactSubmission.ts†L1-L36】
+- **Engagement data**: `NewsletterSubscriber`, `ContactSubmission`, `UserFavorite`, `AnalyticsEvent`. `NewsletterSubscriber` now centralises email normalisation in schema utilities and pre-save/update hooks so every persistence path stores lowercase, trimmed addresses even when mocks bypass native setters. 【F:app-next-directory/src/models/NewsletterSubscriber.ts†L1-L118】【F:app-next-directory/src/models/ContactSubmission.ts†L1-L36】
 - **Testing coverage**: `ContactSubmission.integration.test.ts` exercises real connection logic, and every model has unit tests verifying schema defaults. 【F:app-next-directory/src/models/__tests__/ContactSubmission.integration.test.ts†L1-L36】【F:app-next-directory/src/models/__tests__/User.test.ts†L1-L38】
 
 ### Verification Scripts

@@ -76,9 +76,12 @@ describe('NewsletterSubscriber model', () => {
 
     const update = { email: '  UPDATED@Example.COM  ' };
     const context = { getUpdate: () => update };
-    hook.call(context);
+    const next = jest.fn();
+
+    hook.call(context, next);
 
     expect(update.email).toBe('updated@example.com');
+    expect(next).toHaveBeenCalledTimes(1);
   });
 
   it('skips normalization when update payload does not include email', async () => {
@@ -91,6 +94,21 @@ describe('NewsletterSubscriber model', () => {
     hook.call(context);
 
     expect(update.$set.confirmedAt).toBeInstanceOf(Date);
+  });
+
+  it('normalises email values nested inside $set payloads', async () => {
+    const NewsletterSubscriber = await loadModel();
+    const schema = NewsletterSubscriber.schema as any;
+    const hook = schema.preHooks.get('updateOne')?.[0] as (this: { getUpdate: () => any }, next: () => void) => void;
+
+    const update = { $set: { email: '  nested@example.COM  ' } };
+    const context = { getUpdate: () => update };
+    const next = jest.fn();
+
+    hook.call(context, next);
+
+    expect(update.$set.email).toBe('nested@example.com');
+    expect(next).toHaveBeenCalledTimes(1);
   });
 
   it('recompiles the model when an incomplete cached model exists', async () => {

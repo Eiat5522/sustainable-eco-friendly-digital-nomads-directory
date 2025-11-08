@@ -1,4 +1,11 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, {
+  Schema,
+  Document,
+  type CallbackWithoutResultAndOptionalError,
+  type HydratedDocument,
+  type UpdateQuery,
+  type UpdateWithAggregationPipeline,
+} from 'mongoose';
 
 export interface INewsletterSubscriber extends Document {
   email: string;
@@ -6,6 +13,16 @@ export interface INewsletterSubscriber extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+const normalizeEmail = (value: unknown): string => String(value).toLowerCase().trim();
+
+const normalizeEmailIfPresent = <T>(value: T): T => {
+  if (value === undefined || value === null) {
+    return value;
+  }
+
+  return normalizeEmail(value) as T;
+};
 
 const NewsletterSubscriberSchema = new Schema<INewsletterSubscriber>(
   {
@@ -16,7 +33,7 @@ const NewsletterSubscriberSchema = new Schema<INewsletterSubscriber>(
       trim: true,
       // enforce normalization via a setter so mocks that call setters or the real mongoose
       // will always store a trimmed, lower-cased value
-      set: (v: any) => (v === undefined || v === null ? v : String(v).toLowerCase().trim()),
+      set: (value: unknown) => normalizeEmailIfPresent(value),
       match: [/^\S+@\S+\.\S+$/, 'Invalid email address'],
     },
     confirmedAt: { type: Date, default: null },
@@ -27,71 +44,90 @@ const NewsletterSubscriberSchema = new Schema<INewsletterSubscriber>(
 NewsletterSubscriberSchema.index({ email: 1 }, { unique: true });
 
 // Normalize email on update operations
-NewsletterSubscriberSchema.pre(['findOneAndUpdate', 'updateOne'], function () {
-  const update = this.getUpdate() as any;
-  if (update?.email) update.email = String(update.email).toLowerCase().trim();
-});
+type NewsletterSubscriberQuery = mongoose.Query<unknown, INewsletterSubscriber> & {
+  getUpdate(): UpdateQuery<INewsletterSubscriber>;
+};
+
+const normalizeUpdateEmail = (
+  update: UpdateQuery<INewsletterSubscriber> | UpdateWithAggregationPipeline | null | undefined
+) => {
+  if (!update || Array.isArray(update)) {
+    return;
+  }
+
+  if (typeof update.email !== 'undefined' && update.email !== null) {
+    update.email = normalizeEmail(update.email);
+  }
+
+  if (update.$set && typeof update.$set.email !== 'undefined' && update.$set.email !== null) {
+    update.$set.email = normalizeEmail(update.$set.email);
+  }
+};
+
+NewsletterSubscriberSchema.pre(
+  ['findOneAndUpdate', 'updateOne'],
+  function (this: NewsletterSubscriberQuery, next?: CallbackWithoutResultAndOptionalError) {
+    const update = this.getUpdate();
+
+    normalizeUpdateEmail(update);
+
+    next?.();
+  }
+);
 
 // Ensure instance-level defaults and normalization for environments using lightweight mocks.
 // This runs on validate so newly constructed documents get the expected shape in tests.
-NewsletterSubscriberSchema.pre('validate', function (this: any, next: any) {
-  try {
-    // Normalize email using the schema setter if available
-    if (this.email !== undefined && this.email !== null) {
-      // Trigger setter normalization if Mongoose would call it; otherwise normalize here
-      const normalized = typeof (NewsletterSubscriberSchema.path('email') as any)?.options?.set === 'function'
-        ? (NewsletterSubscriberSchema.path('email') as any).options.set(this.email)
-        : String(this.email).toLowerCase().trim();
-      this.email = normalized;
+NewsletterSubscriberSchema.pre(
+  'validate',
+  function (this: HydratedDocument<INewsletterSubscriber> & { createdAt?: Date; updatedAt?: Date }, next) {
+    if (typeof this.email !== 'undefined' && this.email !== null) {
+      this.email = normalizeEmail(this.email);
     }
 
-    // Ensure confirmedAt is explicitly null when not provided (tests expect null)
-    if (this.confirmedAt === undefined) {
+    if (typeof this.confirmedAt === 'undefined') {
       this.confirmedAt = null;
     }
 
-    // If timestamps are enabled, ensure createdAt/updatedAt are Date instances for new docs
-    if (this.isNew && NewsletterSubscriberSchema.options && NewsletterSubscriberSchema.options.timestamps) {
+    if (this.isNew && NewsletterSubscriberSchema.options?.timestamps) {
       const now = new Date();
-      if (!this.createdAt) this.createdAt = now;
-      if (!this.updatedAt) this.updatedAt = now;
+      if (!this.createdAt) {
+        this.createdAt = now;
+      }
+      if (!this.updatedAt) {
+        this.updatedAt = now;
+      }
     }
-  } catch (e) {
-    // ignore normalization errors in test mocks
+
+    next();
   }
-  next();
-});
+);
 
 // If a model already exists but doesn't have a schema (test mocks), replace it.
-const existing = mongoose.models.NewsletterSubscriber as mongoose.Model<INewsletterSubscriber> | undefined;
+const modelName = 'NewsletterSubscriber';
+const existing = mongoose.models[modelName] as mongoose.Model<INewsletterSubscriber> | undefined;
 let NewsletterSubscriberModel: mongoose.Model<INewsletterSubscriber>;
 
-if (existing && (existing as any).schema) {
+if (existing?.schema) {
   NewsletterSubscriberModel = existing;
 } else {
-  // Remove any incomplete model before compiling a new one
   if (existing) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        delete mongoose.models.NewsletterSubscriber;
+    delete mongoose.models[modelName];
   }
-  NewsletterSubscriberModel = mongoose.model<INewsletterSubscriber>('NewsletterSubscriber', NewsletterSubscriberSchema);
+
+  NewsletterSubscriberModel = mongoose.model<INewsletterSubscriber>(modelName, NewsletterSubscriberSchema);
 }
 
-  // Ensure the compiled model exposes the schema (some test mocks expect this)
-  try {
-    
-    NewsletterSubscriberModel.schema = NewsletterSubscriberSchema;
-    
-    NewsletterSubscriberModel.modelName = 'NewsletterSubscriber';
-    // Try to ensure mongoose.models references the compiled model
-    try {
-      
-      mongoose.models.NewsletterSubscriber = NewsletterSubscriberModel;
-    } catch (e) {
-      // ignore if mongoose.models is a Proxy that disallows assignment in the mock
-    }
-  } catch (e) {
-    // ignore
-  }
+try {
+  NewsletterSubscriberModel.schema = NewsletterSubscriberSchema;
+  NewsletterSubscriberModel.modelName = modelName;
 
-  export default NewsletterSubscriberModel;
+  try {
+    mongoose.models[modelName] = NewsletterSubscriberModel;
+  } catch {
+    // ignore assignment failures when mongoose.models is proxied in lightweight mocks
+  }
+} catch {
+  // ignore mutation failures when mocks block property reassignment
+}
+
+export default NewsletterSubscriberModel;
