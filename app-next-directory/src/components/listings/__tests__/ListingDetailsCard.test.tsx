@@ -79,6 +79,27 @@ describe('ListingDetailsCard', () => {
     },
   };
 
+  const restaurantListing: ListingDetailDTO = {
+    ...baseListing,
+    type: 'restaurant',
+    restaurantDetails: {
+      cuisineType: ['Thai', 'Vegan'],
+      dietaryOptions: ['Gluten-Free'],
+      averageMealPrice: { amount: 250, currency: 'THB', unit: 'meal' },
+    },
+  };
+
+  const activitiesListing: ListingDetailDTO = {
+    ...baseListing,
+    type: 'activities',
+    activityDetails: {
+      activityType: 'Guided Hike',
+      duration: '4 hours',
+      skillLevel: 'Intermediate',
+      languages: ['English', 'Thai'],
+    },
+  };
+
   describe('Basic Rendering', () => {
     it('renders the component', () => {
       const { container } = render(<ListingDetailsCard listing={accommodationListing} />);
@@ -446,7 +467,7 @@ describe('ListingDetailsCard', () => {
   describe('Cafe Details', () => {
     it('renders cafe details section', () => {
       render(<ListingDetailsCard listing={cafeListing} />);
-      
+
       expect(screen.getByText('Cafe Details')).toBeInTheDocument();
     });
 
@@ -494,8 +515,52 @@ describe('ListingDetailsCard', () => {
       };
 
       render(<ListingDetailsCard listing={listing as any} />);
-      
+
       expect(screen.queryByText('Cafe Details')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Restaurant Details', () => {
+    it('renders restaurant details when present', () => {
+      render(<ListingDetailsCard listing={restaurantListing} />);
+
+      expect(screen.getByText('Restaurant Details')).toBeInTheDocument();
+      expect(screen.getByText('Cuisine Types:')).toBeInTheDocument();
+      expect(screen.getByText('Thai')).toBeInTheDocument();
+      expect(screen.getByText('Gluten-Free')).toBeInTheDocument();
+    });
+
+    it('does not render restaurant details when missing', () => {
+      const listing = {
+        ...restaurantListing,
+        restaurantDetails: undefined,
+      };
+
+      render(<ListingDetailsCard listing={listing as any} />);
+
+      expect(screen.queryByText('Restaurant Details')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Activity Details', () => {
+    it('renders activity details when present', () => {
+      render(<ListingDetailsCard listing={activitiesListing} />);
+
+      expect(screen.getByText('Activity Details')).toBeInTheDocument();
+      expect(screen.getByText('Activity Type:')).toBeInTheDocument();
+      expect(screen.getByText('Guided Hike')).toBeInTheDocument();
+      expect(screen.getByText('4 hours')).toBeInTheDocument();
+    });
+
+    it('does not render activity details when missing', () => {
+      const listing = {
+        ...activitiesListing,
+        activityDetails: undefined,
+      };
+
+      render(<ListingDetailsCard listing={listing as any} />);
+
+      expect(screen.queryByText('Activity Details')).not.toBeInTheDocument();
     });
   });
 
