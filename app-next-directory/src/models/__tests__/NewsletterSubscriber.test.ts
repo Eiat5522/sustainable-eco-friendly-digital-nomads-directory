@@ -96,7 +96,7 @@ describe('NewsletterSubscriber model', () => {
     expect(update.$set.confirmedAt).toBeInstanceOf(Date);
   });
 
-  it('normalises email values nested inside $set payloads', async () => {
+  it('normalizes email values nested inside $set payloads', async () => {
     const NewsletterSubscriber = await loadModel();
     const schema = NewsletterSubscriber.schema as any;
     const hook = schema.preHooks.get('updateOne')?.[0] as (this: { getUpdate: () => any }, next: () => void) => void;
