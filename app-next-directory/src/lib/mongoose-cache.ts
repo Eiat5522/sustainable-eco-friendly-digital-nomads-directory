@@ -3,13 +3,13 @@ import { getRedisClient } from './redis';
 
 const CACHE_TTL_SECONDS = 60 * 60; // 1 hour
 
-export async function withMongooseCache(
-  model: any,
+export async function withMongooseCache<T>(
+  model: { modelName: string },
   queryName: string,
-  queryFn: () => Promise<any>,
+  queryFn: () => Promise<T>,
   ttl: number = CACHE_TTL_SECONDS,
-  queryParams: Record<string, any> = {}
-) {
+  queryParams: Record<string, unknown> = {}
+): Promise<T> {
   const key = `mongoose:${model.modelName}:${queryName}:${JSON.stringify(queryParams)}`;
   
   const client = getRedisClient();
