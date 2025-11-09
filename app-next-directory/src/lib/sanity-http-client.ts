@@ -10,8 +10,6 @@ import type { SanityClient, QueryParams } from '@sanity/client';
 import type { SanityDocument as GeneratedSanityDocument } from '@/types/sanity';
 // Import generated types from sanity.types.ts.
 import type {
-  SanityImageAsset as ignoredSanityImageAsset,
-  SanityFileAsset as ignoredSanityFileAsset,
   Geopoint as ignoredGeopoint,
   Slug as ignoredSlug,
   SanityImageHotspot as ignoredSanityImageHotspot,
