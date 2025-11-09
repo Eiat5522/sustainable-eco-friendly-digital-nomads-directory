@@ -92,6 +92,10 @@ function normalizeRedisClient<T extends Redis | undefined>(client: T): T {
   const candidate = client as Redis & RedisEval;
   const evalShaFn = candidate.evalSha;
 
+  // Normalize evalSha -> evalsha for compatibility with Upstash Redis client.
+  // The bind() call can throw in edge cases (e.g., frozen objects, proxies with
+  // specific traps, or when bind is explicitly configured to throw). This is tested
+  // in rateLimit.test.ts to ensure we handle such scenarios gracefully.
   if (!candidate.evalsha && typeof evalShaFn === 'function') {
     try {
       candidate.evalsha = evalShaFn.bind(candidate) as unknown as typeof candidate.evalsha;
@@ -102,6 +106,8 @@ function normalizeRedisClient<T extends Redis | undefined>(client: T): T {
   }
 
   const evalshaFn = candidate.evalsha;
+  // Normalize evalsha -> evalSha for compatibility with standard Redis clients.
+  // Same defensive handling as above for bind() potentially throwing.
   if (!candidate.evalSha && typeof evalshaFn === 'function') {
     try {
       candidate.evalSha = evalshaFn.bind(candidate) as unknown as typeof candidate.evalSha;
