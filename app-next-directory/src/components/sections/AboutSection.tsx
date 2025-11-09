@@ -55,7 +55,7 @@ export function AboutSection() {
         <div className="text-center mb-16">
           <h2 id="about-heading" className="heading-lg mb-6">Who We Are</h2>
           <p className="body-lg max-w-3xl mx-auto text-neo-text-secondary">
-            We're on a mission to make sustainable travel accessible to every digital nomad. 
+            We&apos;re on a mission to make sustainable travel accessible to every digital nomad. 
             Our platform connects conscious travelers with eco-friendly venues that care about 
             their environmental impact and local communities.
           </p>
@@ -83,7 +83,7 @@ export function AboutSection() {
             <NeoCardContent>
               <h3 className="heading-md mb-4">Join Our Mission</h3>
               <p className="body-lg mb-6 max-w-2xl">
-                Help us build the world's largest directory of sustainable venues. 
+                Help us build the world&apos;s largest directory of sustainable venues. 
                 Add your favorite eco-friendly spots and help fellow nomads travel responsibly.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

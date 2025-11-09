@@ -46,7 +46,7 @@ export function withAuth<P extends object>(
         router.push('/unauthorized');
         return;
       }
-    }, [session, status, router]);
+    }, [session, status, router, userRole]);
 
     // Show loading state while checking authentication
     if (status === 'loading') {
