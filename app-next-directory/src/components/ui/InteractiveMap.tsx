@@ -77,11 +77,20 @@ export function InteractiveMap({ location, address, name, className }: Interacti
           if (!isMounted) return;
           setTileLoadFailed(true);
           if (process.env.NODE_ENV !== 'production') {
-            const detail =
-              (typeof (e.error as { message?: string })?.message === 'string' && (e.error as { message: string }).message) ||
-              (typeof (e.error as { code?: string })?.code === 'string' && (e.error as { code: string }).code) ||
-              (typeof e.error === 'string' && e.error) ||
-              (e.error instanceof Error ? e.error.message : undefined);
+          const detail = (() => {
+            const errorDetail = e.error;
+            if (errorDetail && typeof errorDetail === 'object') {
+              if ('message' in errorDetail && typeof (errorDetail as { message?: unknown }).message === 'string') {
+                return (errorDetail as { message: string }).message;
+              }
+              if ('code' in errorDetail && typeof (errorDetail as { code?: unknown }).code === 'string') {
+                return (errorDetail as { code: string }).code;
+              }
+            }
+            if (typeof errorDetail === 'string') return errorDetail;
+            if (errorDetail instanceof Error) return errorDetail.message;
+            return undefined;
+          })();
             const tileSrc =
               typeof (e.tile as HTMLImageElement | undefined)?.src === 'string'
                 ? (e.tile as HTMLImageElement).src

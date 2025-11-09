@@ -107,6 +107,18 @@ function extractTagNames(
   return names;
 }
 
+function mapCityRecordToDTO(city?: RelatedListingRecord['city']): CityDTO | null {
+  if (!city || !city._id || !city.name || !city.country || !city.slug) {
+    return null;
+  }
+  return {
+    id: city._id,
+    name: city.name,
+    slug: city.slug,
+    country: city.country,
+  };
+}
+
 const LISTING_QUERY = groq`*[_type == "listing" && moderation.status == "published" && slug.current == $slug][0]{
   _id,
   name,
@@ -173,7 +185,7 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
         name: record.name ?? '',
         slug: record.slug ?? '',
         imageUrl: record.imageUrl ?? '',
-        city: record.city ?? null,
+        city: mapCityRecordToDTO(record.city),
         priceRange,
         ecoFocusTags: extractTagNames(record.ecoFocusTags),
       };

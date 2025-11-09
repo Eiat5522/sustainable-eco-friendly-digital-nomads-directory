@@ -1,6 +1,7 @@
 import { cachedClient } from '@/lib/sanity/cached-client';
 import { groq } from 'next-sanity';
 import { transformToSummaryDTO } from '@/lib/dto-transformer';
+import type { DereferencedSanityListing } from '@/lib/dto-transformer';
 import type { CityDTO, CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
 import {
   getE2ECityDetail,
@@ -9,33 +10,6 @@ import {
   getE2EListingsForCity,
   isE2ERun,
 } from '@/data/e2e/discovery-fixtures';
-
-// Import the DereferencedSanityListing type for type conversion
-type DereferencedSanityListing = {
-  _id: string;
-  name: string;
-  slug: { current: string };
-  type: 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities';
-  shortDescription?: string;
-  longDescription?: string;
-  address?: string;
-  location?: { lat: number; lng: number };
-  priceRange?: 'budget' | 'moderate' | 'premium';
-  website?: string;
-  primaryImage?: SanityImageRef;
-  galleryImages?: SanityImageRef[];
-  ecoFocusTags?: Array<{ name?: string }>;
-  digitalNomadFeatures?: Array<{ name?: string }>;
-  amenities?: Array<{ name?: string }>;
-  city?: {
-    _id: string;
-    name: string;
-    country: string;
-    sustainabilityScore?: number;
-    highlights?: string[];
-    slug: { current: string };
-  };
-};
 
 type SanityImageDimensions = { width?: number; height?: number };
 type SanityImageAsset = { url?: string; metadata?: { dimensions?: SanityImageDimensions } };
@@ -204,7 +178,7 @@ export async function getCityBySlug(slug: string): Promise<CityDTO | null> {
     }
   }`;
 
-  const raw = await cachedClient.fetch(getCitySummaryBySlugQuery, { slug });
+  const raw = await cachedClient.fetch<SanityCitySummary | null>(getCitySummaryBySlugQuery, { slug });
   return toCityDTO(raw);
 }
 
@@ -242,7 +216,7 @@ export async function getCityDetailBySlug(slug: string): Promise<CityDetailDTO |
     }
   }`;
 
-  const raw = await cachedClient.fetch(getCityFullDetailsBySlugQuery, { slug });
+  const raw = await cachedClient.fetch<SanityCityDetail | null>(getCityFullDetailsBySlugQuery, { slug });
   return toCityDetailDTO(raw);
 }
 

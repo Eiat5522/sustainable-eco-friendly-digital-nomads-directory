@@ -13,13 +13,17 @@ import { ListingCategory, PriceRange } from '@/types/enums';
  */
 export function jsonToSanityListing(json: JsonListing): SanityListing {
   const now = new Date().toISOString();
+  const normalizedName = typeof json.name === 'string' ? json.name.trim() : '';
+  const listingName = normalizedName || 'listing';
   // Generate _id if missing, using name or fallback
-  const _id = (json as { _id?: string })._id || (json.name ? `listing-${json.name.toLowerCase().replace(/\s+/g, '-')}` : undefined);
+  const _id =
+    (json as { _id?: string })._id ||
+    `listing-${listingName.toLowerCase().replace(/\s+/g, '-')}`;
 
   // Generate slug if missing, using name
   const slug = json.slug && typeof json.slug === 'object' && 'current' in json.slug
     ? json.slug
-    : { current: (json.name ? json.name.toLowerCase().replace(/\s+/g, '-') : '') };
+    : { current: listingName.toLowerCase().replace(/\s+/g, '-') };
 
   // Map city to new structure
   const city = json.city
@@ -59,7 +63,7 @@ export function jsonToSanityListing(json: JsonListing): SanityListing {
 
   return {
     _id,
-    name: json.name,
+    name: listingName,
     slug,
 
     city,
@@ -114,4 +118,3 @@ export function calculateEcoRating(json: JsonListing): number {
   }
   return Math.min(score, 100);
 }
-

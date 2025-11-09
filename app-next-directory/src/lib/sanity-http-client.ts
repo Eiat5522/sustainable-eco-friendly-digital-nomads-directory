@@ -6,14 +6,12 @@
 
 // Import core Sanity client types and methods
 import { createClient as sanityCreateClient } from './sanity/client';
-import type { SanityClient, Patch } from '@sanity/client';
+import type { SanityClient, QueryParams } from '@sanity/client';
+import type { SanityDocument as GeneratedSanityDocument } from '@/types/sanity';
 // Import generated types from sanity.types.ts.
-// The path '../../sanity/sanity.types' is assumed based on the file structure.
 import type {
-  SanityDocument as GeneratedSanityDocument,
-  SanityAssetDocument as GeneratedSanityAssetDocument,
-  SanityImageAsset as ignoredSanityImageAsset, // Assuming SanityImageAsset is also generated or a common type
-  SanityFileAsset as ignoredSanityFileAsset, // Assuming SanityFileAsset is also generated or a common type
+  SanityImageAsset,
+  SanityFileAsset,
   Geopoint as ignoredGeopoint,
   Slug as ignoredSlug,
   SanityImageHotspot as ignoredSanityImageHotspot,
@@ -25,7 +23,9 @@ import type {
   SanityAssetSourceData as ignoredSanityAssetSourceData,
   // Import specific query result types if needed for direct use, e.g.:
   // LISTING_BY_SLUG_QUERYResult, GetCitySummaryBySlugQueryResult
-} from '../../sanity/sanity.types';
+} from '@sanity/sanity.types';
+type GeneratedSanityAssetDocument = Record<string, unknown> & { _id: string };
+type SanityDocumentInput = { _type: string } & Record<string, unknown>;
 // Import custom types if they are not generated or part of @sanity/client
 import type { SanityImageObject } from '../types/external/sanity-image'; // This seems to be a custom type
 
@@ -139,8 +139,8 @@ export class SanityHTTPClient {
     }
 
     // Test write permissions by attempting to create a test document
-    // Use Partial<GeneratedSanityDocument> for the input document.
-    const testDoc: Partial<GeneratedSanityDocument> = {
+    // Use SanityDocumentInput for the input document.
+    const testDoc: SanityDocumentInput = {
       _type: 'authTest', // Assuming 'authTest' is a valid type in your schema
       title: 'Authentication Test',
       timestamp: new Date().toISOString(),
@@ -179,7 +179,7 @@ export class SanityHTTPClient {
   // T can be a specific generated query result type or 'unknown' for generic queries.
   async query<T = unknown>(
     query: string,
-    params?: Record<string, unknown>,
+    params?: QueryParams,
     options?: { preview?: boolean }
   ): Promise<T> {
     try {
@@ -196,7 +196,7 @@ export class SanityHTTPClient {
           : this.client;
 
       // The fetch method should now return T based on the query and typegen overload.
-      const result = await client.fetch<T>(query, params);
+      const result = params ? await client.fetch<T>(query, params) : await client.fetch<T>(query);
       const errorPayload = getErrorPayload(result);
       if (errorPayload && errorPayload.error) {
         const message = formatErrorMessage(errorPayload.error, 'Query error');
@@ -219,8 +219,8 @@ export class SanityHTTPClient {
   }
 
   // Create document
-  // Use Partial<GeneratedSanityDocument> for the input document, and GeneratedSanityDocument for the return type.
-  async create(document: Partial<GeneratedSanityDocument>): Promise<GeneratedSanityDocument> {
+  // Use SanityDocumentInput for the input document, and GeneratedSanityDocument for the return type.
+  async create(document: SanityDocumentInput): Promise<GeneratedSanityDocument> {
     if (!process.env.SANITY_API_TOKEN) {
       throw new SanityAPIError('Cannot create document: No API token provided');
     }
@@ -258,16 +258,15 @@ export class SanityHTTPClient {
   }
 
   // Update document
-  // Use Patch for patches and GeneratedSanityDocument for the return type.
-  async update(id: string, patches: Patch): Promise<GeneratedSanityDocument> {
+  // Use a partial record for patches and GeneratedSanityDocument for the return type.
+  async update(id: string, patches: Record<string, unknown>): Promise<GeneratedSanityDocument> {
     if (!process.env.SANITY_API_TOKEN) {
       throw new SanityAPIError('Cannot update document: No API token provided');
     }
     try {
-      // The patch method returns a Patch object, which has a commit method.
+      // The patch method returns a Patch object, which exposes the set() helper.
       const patchObj = this.writeClient.patch(id);
-      // The set method on the patch object expects an object for the patches.
-      // Use the imported Patch type.
+      // The set method accepts a plain record of fields to update.
       const setObj = patchObj.set(patches);
 
       // Ensure commit is a function before calling
@@ -412,13 +411,13 @@ export class SanityHTTPClient {
 
       // Convert asset document to a Sanity image field object
       // Use the custom SanityImageObject type.
-      const imageObject: SanityImageObject = {
-        _type: 'image', // Literal type 'image'
+      const imageObject = {
+        _type: 'image',
         asset: {
-          _type: 'reference', // Literal type 'reference'
-          _ref: asset._id, // Use the typed _id from GeneratedSanityAssetDocument
+          _type: 'reference',
+          _ref: asset._id,
         },
-      };
+      } as SanityImageObject;
       return imageObject;
     } catch (error: unknown) { // Catching unknown for better type safety
       if (error instanceof SanityAPIError) throw error; // Re-throw if it's already our custom error
@@ -429,8 +428,8 @@ export class SanityHTTPClient {
   }
 
   // Create many documents
-  // Use Partial<GeneratedSanityDocument>[] for input and GeneratedSanityDocument[] for output.
-  async createMany(documents: Partial<GeneratedSanityDocument>[]): Promise<GeneratedSanityDocument[]> {
+  // Use SanityDocumentInput[] for input and GeneratedSanityDocument[] for output.
+  async createMany(documents: SanityDocumentInput[]): Promise<GeneratedSanityDocument[]> {
     if (!process.env.SANITY_API_TOKEN) {
       throw new SanityAPIError('Cannot create documents: No API token provided');
     }
@@ -560,9 +559,8 @@ export const getSanityHTTPClient = (): SanityHTTPClient => {
 // that are not meant to be proxied directly. For now, it proxies all properties.
 export const sanityHTTPClient: SanityHTTPClient = new Proxy({} as SanityHTTPClient, {
   get(_target, prop) {
-    // Ensure we are accessing properties of the actual instance
     const instance = getSanityHTTPClient();
-    return (instance as Record<PropertyKey, unknown>)[prop as PropertyKey];
+    return Reflect.get(instance, prop as keyof SanityHTTPClient);
   },
 });
 
@@ -585,4 +583,6 @@ export const getClient = (preview = false) => {
   return getSanityHTTPClient().getReadClient();
 };
 
+export type { SanityDocumentInput };
+// Do not use export default for ESM/CJS compatibility
 // Do not use export default for ESM/CJS compatibility

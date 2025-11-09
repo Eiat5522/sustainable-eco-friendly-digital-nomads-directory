@@ -4,8 +4,6 @@ import {
   getFavoritesForUser,
   getReviewsForListing,
   listCities,
-  type TestCity,
-  type TestFavorite
 } from '@/tests/helpers/test-data'
 import { mockFeaturedVenues } from '@/components/sections/featuredVenuesMockData'
 import type { AppReview } from '@/types/appView'
@@ -17,7 +15,7 @@ const ok = <Body>(body: Body, status = 200) => HttpResponse.json(body as Record<
 interface ListingItem {
   _id: string;
   name: string;
-  city: { name: string };
+  city: { name: string; slug?: { current: string } };
   slug?: { current: string };
   [key: string]: unknown;
 }
@@ -96,7 +94,7 @@ export const handlers = [
   })),
 
   http.get('/api/cities', () => {
-    const cities = listCities().map((city: TestCity) => ({
+    const cities = listCities().map((city) => ({
       id: city.id,
       name: city.name,
       slug: city.slug,
@@ -205,7 +203,7 @@ export const handlers = [
 
   http.get('/api/user/favorites', () => {
     const user = data.users[0]
-    const favorites = getFavoritesForUser(user.id).map((favorite: TestFavorite) => {
+    const favorites = getFavoritesForUser(user.id).map((favorite) => {
       const listing = data.listings.find((item: ListingItem) => item._id === favorite.listingId)
       return {
         _id: favorite.id,

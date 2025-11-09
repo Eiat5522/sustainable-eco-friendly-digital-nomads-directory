@@ -12,8 +12,8 @@ type EnsureUserFn = (args: {
   role: UserRole | null;
 }) => Promise<{ _id?: string } | null>;
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
-// createOrReplace typically expects an object with at least an _id for Sanity; allow that shape in tests
-type CreateOrReplaceFn = (doc: { _id: string } & Record<string, unknown>) => Promise<unknown>;
+type CreateOrReplaceDocument = Parameters<typeof client.createOrReplace>[0];
+type CreateOrReplaceFn = (doc: CreateOrReplaceDocument) => ReturnType<typeof client.createOrReplace>;
 type DeleteFn = (id: string) => Promise<unknown>;
 type ParseBodyFn = (request: NextRequest) => Promise<unknown>;
 
@@ -127,7 +127,8 @@ export async function POST(request: NextRequest) {
     testControl?.clientFetchOverride ??
     ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
   const createOrReplaceFn =
-    testControl?.clientCreateOrReplaceOverride ?? ((doc: Record<string, unknown>) => client.createOrReplace(doc));
+    testControl?.clientCreateOrReplaceOverride ??
+    ((doc: CreateOrReplaceDocument) => client.createOrReplace(doc));
 
   const session = await authFn();
 

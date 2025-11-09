@@ -44,7 +44,7 @@ if (shouldMockMongo) {
     _mockCollection: mockCollectionInstance, // Expose for testing
   } as { db: () => MockDb; _mockCollection?: MockCollection };
 
-  clientPromise = Promise.resolve(mockClient);
+  clientPromise = Promise.resolve(mockClient as unknown as MongoClient);
 } else {
   if (!process.env.MONGODB_URI) {
     const envFile = process.env.NODE_ENV === 'development' ? '.env.development' : '.env.local';

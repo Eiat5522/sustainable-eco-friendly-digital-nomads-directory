@@ -90,21 +90,15 @@ function normalizeRedisClient<T extends Redis | undefined>(client: T): T {
   };
 
   const candidate = client as Redis & RedisEval;
+  const evalShaFn = candidate.evalSha;
 
-  if (!candidate.evalsha && typeof candidate.evalSha === 'function') {
-    try {
-      candidate.evalsha = candidate.evalSha.bind(candidate);
-    } catch {
-      candidate.evalsha = candidate.evalSha as (...args: unknown[]) => unknown;
-    }
+  if (!candidate.evalsha && typeof evalShaFn === 'function') {
+    candidate.evalsha = evalShaFn.bind(candidate) as unknown as typeof candidate.evalsha;
   }
 
-  if (!candidate.evalSha && typeof candidate.evalsha === 'function') {
-    try {
-      candidate.evalSha = candidate.evalsha.bind(candidate);
-    } catch {
-      candidate.evalSha = candidate.evalsha as (...args: unknown[]) => unknown;
-    }
+  const evalshaFn = candidate.evalsha;
+  if (!candidate.evalSha && typeof evalshaFn === 'function') {
+    candidate.evalSha = evalshaFn.bind(candidate) as unknown as typeof candidate.evalSha;
   }
 
   return candidate as unknown as T;

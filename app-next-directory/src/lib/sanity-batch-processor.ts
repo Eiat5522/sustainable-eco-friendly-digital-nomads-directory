@@ -4,6 +4,8 @@
  * Date: May 24, 2025
  */
 
+import type { SanityDocument } from '@/types/sanity'
+import type { SanityDocumentInput } from './sanity-http-client'
 import { sanityHTTPClient } from './sanity-http-client'
 import { imageUploader } from './sanity-image-uploader'
 
@@ -38,7 +40,7 @@ export interface BatchProcessResult<TSuccess, TFailure = TSuccess> {
 // Progress callback type
 export type ProgressCallback = (completed: number, total: number, stage: string) => void
 
-type SanityDocumentResult = Record<string, unknown> & { _id: string }
+type SanityDocumentResult = SanityDocument & Record<string, unknown>
 
 type UpdatePayload = { id: string; data: Record<string, unknown> }
 
@@ -332,7 +334,7 @@ export class SanityBatchProcessor {
     }
 
     // Create listing in Sanity
-    const result = await sanityHTTPClient.create(payload as unknown as Record<string, unknown>)
+    const result = await sanityHTTPClient.create(payload as SanityDocumentInput)
     console.log(`✅ Created listing: ${listing.name} (${result._id})`)
 
     return result as SanityDocumentResult
@@ -347,13 +349,13 @@ export class SanityBatchProcessor {
       concurrency?: number
       onProgress?: ProgressCallback
     } = {}
-  ): Promise<BatchProcessResult<Record<string, unknown>, UpdatePayload>> {
+  ): Promise<BatchProcessResult<SanityDocumentResult, UpdatePayload>> {
     const startTime = Date.now()
     const { concurrency = this.defaultConcurrency, onProgress } = options
 
     console.log(`🔄 Starting batch update of ${updates.length} listings`)
 
-    const result: BatchProcessResult<Record<string, unknown>, UpdatePayload> = {
+    const result: BatchProcessResult<SanityDocumentResult, UpdatePayload> = {
       successful: [],
       failed: [],
       total: updates.length,
@@ -379,7 +381,7 @@ export class SanityBatchProcessor {
 
           result.successful.push({
             id: update.id,
-            data: updated
+            data: updated as SanityDocumentResult
           })
           result.successCount++
 

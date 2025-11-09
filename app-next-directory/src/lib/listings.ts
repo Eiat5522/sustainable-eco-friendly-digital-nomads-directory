@@ -169,33 +169,33 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
       ? raw.reviews
           .filter(isSanityReviewRaw)
           .map((review) => ({
-            id: review?._id ?? '',
-            listingId: raw._id,
-            userId: review?.user?._id ?? '',
-            rating: review?.rating ?? null,
-            comment: review?.comment ?? '',
-            user:
-              review?.user && typeof review.user === 'object'
-                ? {
-                    name: String(review.user?.name ?? '').trim() || 'Anonymous',
-                    image: typeof review.user?.image === 'string'
-                      ? (review.user.image.trim() || undefined)
-                      : undefined
+        id: review?._id ?? '',
+        listingId: raw._id,
+        userId: review?.user?._id ?? '',
+        rating: typeof review?.rating === 'number' ? review.rating : 0,
+        comment: review?.comment ?? '',
+        user:
+          review?.user && typeof review.user === 'object'
+            ? {
+                name: String(review.user?.name ?? '').trim() || 'Anonymous',
+                image: typeof review.user?.image === 'string'
+                  ? (review.user.image.trim() || undefined)
+                  : undefined
 
-                  }
-                : { name: 'Anonymous' },
-            createdAt: review?.createdAt ?? null
-          }))
+              }
+            : { name: 'Anonymous' },
+        createdAt: review?.createdAt ?? new Date().toISOString()
+      }))
       : [],
     amenities: Array.isArray(raw.amenities)
       ? raw.amenities
           .filter(isSanityAmenityRaw)
-          .map((amenity) => ({
-            _id: amenity?._id ?? undefined,
-            name: amenity?.name ?? undefined,
-            description: amenity?.description ?? undefined,
-            badge: amenity?.badge ?? undefined
-          }))
+        .map((amenity) => ({
+          _id: amenity?._id ?? '',
+          name: amenity?.name ?? '',
+          description: amenity?.description ?? undefined,
+          badge: amenity?.badge ?? undefined
+        }))
       : [],
     coworkingDetails: raw.coworkingDetails,
     accommodationDetails: raw.accommodationDetails,

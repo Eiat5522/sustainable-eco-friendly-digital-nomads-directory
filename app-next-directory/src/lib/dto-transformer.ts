@@ -1,16 +1,33 @@
 import { urlFor } from '@/lib/sanity/client';
-import type { SanityListing, SanityImage } from '@/types/sanity.types';
+import type {
+  SanityListing,
+  SanityImage,
+  SanityCoworkingDetails,
+  SanityCafeDetails,
+  SanityRestaurantDetails,
+  SanityActivitiesDetails,
+  SanityAccommodationDetails,
+} from '@/types/sanity.types';
+import { asISODateString, isISODateString } from '@/types/dto';
 import type { BlogSummaryDTO, BlogDetailDTO } from '@/types/dto';
 import { isImageAssetId } from '@sanity/asset-utils';
 import { ALLOWED_CATEGORIES } from './constants/categories';
 // Ensure we have a consistent image union for DTO mapping; add a dedicated type if
 // Sanity introduces a distinct gallery image schema in the future.
-import type { ListingDetailDTO, ListingSummaryDTO, FeaturedListingDTO, Money, OpeningHour, Percentage0To100 } from '@/types/dto';
+import type {
+  ListingDetailDTO,
+  ListingSummaryDTO,
+  FeaturedListingDTO,
+  Money,
+  OpeningHour,
+  Percentage0To100,
+} from '@/types/dto';
+import type { PortableTextBlock } from '@portabletext/types';
 
 // --- Interfaces for Sanity Data Structures ---
 
 // Input shape for dereferenced Sanity data from GROQ queries
-interface DereferencedSanityListing {
+export interface DereferencedSanityListing {
   _id: string;
   name: string;
   slug: { current: string };
@@ -43,39 +60,6 @@ interface DereferencedSanityListing {
 }
 
 // Specific Sanity detail interfaces
-interface SanityCoworkingDetails {
-  pricingPlans?: Array<CoworkingPlanIn & { type: string; price: number; period: string }>;
-  openingHours?: Array<{ day: string; opens: string; closes: string }>;
-  internetSpeed?: string;
-}
-
-interface SanityCafeDetails {
-  openingHours?: Array<{ day: string; opens: string; closes: string }>;
-  priceIndication?: string;
-  menuHighlights?: string[];
-  noiseLevel?: string;
-  workPolicy?: string;
-}
-
-interface SanityRestaurantDetails {
-  cuisineType?: string;
-  operatingHours?: string;
-  dietaryOptions?: string[];
-  averageMealPriceThb?: number;
-}
-
-interface SanityActivitiesDetails {
-  activityType?: string;
-  duration?: { value: number; unit: string };
-  skillLevel?: string;
-}
-
-interface SanityAccommodationDetails {
-  accommodationType?: string;
-  pricePerNightThb?: { min?: number };
-  roomTypesAvailable?: Array<{ type: string }>;
-  minimumStay?: number;
-}
 
 // Raw blog document type for transformations
 interface RawBlogDocument {
@@ -318,12 +302,12 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
   const baseDTO = transformToSummaryDTO(sanityListing as DereferencedSanityListing);
 
   const galleryImages = (sanityListing.galleryImages ?? [])
-    .map(img => imageOrFallback(img, 800, 600))
+    .map((img: unknown) => imageOrFallback(img, 800, 600))
     .filter((u: unknown): u is string => typeof u === 'string' && u.length > 0 && u !== FALLBACK_IMAGE);
 
   // Build discriminated union by type
   if (sanityListing.type === 'coworking' && sanityListing.coworkingDetails) {
-    const s = sanityListing.coworkingDetails as SanityCoworkingDetails; // Use defined interface
+    const s = sanityListing.coworkingDetails;
     const detailDTO: ListingDetailDTO = {
       ...baseDTO,
       type: 'coworking',
@@ -352,7 +336,7 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
   }
 
   if (sanityListing.type === 'cafe' && sanityListing.cafeDetails) {
-    const s = sanityListing.cafeDetails as SanityCafeDetails; // Use defined interface
+    const s = sanityListing.cafeDetails;
     const detailDTO: ListingDetailDTO = {
       ...baseDTO,
       type: 'cafe',
@@ -373,7 +357,7 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
   }
 
   if (sanityListing.type === 'restaurant' && sanityListing.restaurantDetails) {
-    const s = sanityListing.restaurantDetails as SanityRestaurantDetails; // Use defined interface
+    const s = sanityListing.restaurantDetails;
     const avg = typeof s.averageMealPriceThb === 'number' ? s.averageMealPriceThb : undefined;
     const detailDTO: ListingDetailDTO = {
       ...baseDTO,
@@ -385,7 +369,7 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
       contactEmail: sanityListing.contactEmail,
       restaurantDetails: {
         cuisineType: s.cuisineType,
-        operatingHours: s.operatingHours, // Keep as string for now, needs structured source
+        operatingHours: undefined,
         dietaryOptions: s.dietaryOptions,
         averageMealPrice: toMoney(avg, 'THB', 'meal')
       }
@@ -394,7 +378,7 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
   }
 
   if (sanityListing.type === 'activities' && sanityListing.activitiesDetails) {
-    const s = sanityListing.activitiesDetails as SanityActivitiesDetails; // Use defined interface
+    const s = sanityListing.activitiesDetails;
     const duration =
       typeof s.duration?.value === 'number' && s.duration.value > 0
         ? `${s.duration.value} ${s.duration.unit ?? ''}`.trim()
@@ -417,7 +401,7 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
   }
 
   if (sanityListing.type === 'accommodation' && sanityListing.accommodationDetails) {
-    const s = sanityListing.accommodationDetails as SanityAccommodationDetails; // Use defined interface
+    const s = sanityListing.accommodationDetails;
     const detailDTO: ListingDetailDTO = {
       ...baseDTO,
       type: 'accommodation',
@@ -429,7 +413,9 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
       accommodationDetails: {
         accommodationType: s.accommodationType,
         pricePerNight: toMoney(s.pricePerNightThb?.min, 'THB', 'night'),
-        roomTypes: s.roomTypesAvailable?.map(r => r.type),
+        roomTypes: s.roomTypesAvailable
+          ?.map((r: { type?: string }) => r.type)
+          .filter((type): type is string => typeof type === 'string'),
         minimumStay: s.minimumStay
       }
     };
@@ -443,11 +429,16 @@ export function transformToDetailDTO(sanityListing: SanityListing): ListingDetai
 export function transformToBlogSummaryDTO(doc: RawBlogDocument, w = 800, h = 450): BlogSummaryDTO {
   const rt = Number.isFinite(Number(doc?.readingTime)) ? Number(doc.readingTime) : undefined;
   const slug = typeof doc?.slug === 'string' ? doc.slug : (doc?.slug?.current ?? '');
+  const excerpt = typeof doc?.excerpt === 'string' ? doc.excerpt : undefined;
+  const publishedAt =
+    typeof doc?.publishedAt === 'string' && isISODateString(doc.publishedAt)
+      ? asISODateString(doc.publishedAt)
+      : undefined;
   return {
     id: doc?._id ?? '',
     title: typeof doc?.title === 'string' ? doc.title : '',
     slug,
-    excerpt: typeof doc?.excerpt === 'string' ? doc.excerpt : null,
+    excerpt,
     imageUrl: imageOrFallback(doc?.primaryImage, w, h),
     tags: Array.isArray(doc?.tags)
       ? (doc.tags as unknown[])
@@ -456,7 +447,7 @@ export function transformToBlogSummaryDTO(doc: RawBlogDocument, w = 800, h = 450
           .filter(Boolean)
       : undefined,
     authorName: typeof doc?.authorName === 'string' ? doc.authorName : undefined,
-    publishedAt: typeof doc?.publishedAt === 'string' ? doc.publishedAt : undefined,
+    publishedAt,
     readingTime: rt,
   };
 }
@@ -469,7 +460,7 @@ export function transformToBlogDetailDTO(doc: RawBlogDocument): BlogDetailDTO {
   const authorImageUrl = imageOrFallback(doc?.authorImage, 96, 96);
   return {
     ...summary,
-    body: Array.isArray(doc?.body) ? doc.body : [],
+    body: Array.isArray(doc?.body) ? (doc.body as PortableTextBlock[]) : [],
     authorImageUrl,
     relatedPosts: related,
   };

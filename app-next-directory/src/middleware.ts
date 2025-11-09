@@ -35,9 +35,11 @@ function withSecurityHeaders<T extends NextResponseLike>(response: T): T {
   if (!response.headers) {
     response.headers = headers;
   }
-  headers.set('X-Frame-Options', 'DENY');
-  headers.set('X-Content-Type-Options', 'nosniff');
-  headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  if (headers) {
+    headers.set('X-Frame-Options', 'DENY');
+    headers.set('X-Content-Type-Options', 'nosniff');
+    headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  }
   return response;
 }
 
@@ -168,14 +170,12 @@ export function createMiddleware({
         // Role-based access control
         if (!hasAccess(userRole, pathname)) {
           if (pathname.startsWith('/api/')) {
-            const res = NextResponse.json(
-              { error: 'Access denied' },
-              { status: 403 }
+            return withSecurityHeaders(
+              NextResponse.json(
+                { error: 'Access denied' },
+                { status: 403 }
+              )
             );
-            res.headers.set('X-Frame-Options', 'DENY');
-            res.headers.set('X-Content-Type-Options', 'nosniff');
-            res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-            return res;
           }
           const homeUrl = new URL('/', request.nextUrl.origin || request.url);
           homeUrl.searchParams.set('error', 'unauthorized_access');
@@ -200,25 +200,21 @@ export function createMiddleware({
         const isProtectedApi = protectedApiPaths.some(path => pathname.startsWith(path));
 
         if (isProtectedApi && !isAuthenticated) {
-          const res = NextResponse.json(
-            { error: 'Authentication required' },
-            { status: 401 }
+          return withSecurityHeaders(
+            NextResponse.json(
+              { error: 'Authentication required' },
+              { status: 401 }
+            )
           );
-          res.headers.set('X-Frame-Options', 'DENY');
-          res.headers.set('X-Content-Type-Options', 'nosniff');
-          res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-          return res;
         }
 
         if (isProtectedApi && userRole && !hasAccess(userRole, pathname)) {
-          const res = NextResponse.json(
-            { error: 'Access denied' },
-            { status: 403 }
+          return withSecurityHeaders(
+            NextResponse.json(
+              { error: 'Access denied' },
+              { status: 403 }
+            )
           );
-          res.headers.set('X-Frame-Options', 'DENY');
-          res.headers.set('X-Content-Type-Options', 'nosniff');
-          res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-          return res;
         }
         // Everything else (other APIs) are allowed
         return withSecurityHeaders(NextResponse.next());

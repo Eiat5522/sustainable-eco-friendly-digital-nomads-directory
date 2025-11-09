@@ -3,7 +3,14 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import type { DefaultSession } from "next-auth";
 import { createContext, useContext, ReactNode } from "react";
-import { UserRole, hasPagePermission, hasFeaturePermission } from "../../types/auth";
+import {
+  UserRole,
+  hasPagePermission,
+  hasFeaturePermission,
+  PagePermissions,
+  FeaturePermissions,
+  ACCESS_CONTROL_MATRIX
+} from "@/types/auth";
 
 // Narrow the user shape from next-auth, adding optional role
 type AppUser = (DefaultSession["user"] & { role?: UserRole }) | null;

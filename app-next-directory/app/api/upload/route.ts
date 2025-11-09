@@ -1,14 +1,20 @@
 
 import { NextResponse } from 'next/server';
+import type { Session } from 'next-auth';
 import { client } from '@/lib/sanity';
 import { auth } from '@/lib/auth';
-import { optimizeFileBuffer, cleanupOptimizedFile } from '@/lib/image-optimizer';
+import {
+  optimizeFileBuffer,
+  cleanupOptimizedFile,
+  type OptimizationOptions,
+  type OptimizationResult,
+} from '@/lib/image-optimizer';
 import fs from 'fs/promises';
 
-type AuthFn = () => Promise<unknown>;
-type UploadFn = (assetType: string, file: File) => Promise<unknown>;
+type AuthFn = () => Promise<Session | null>;
+type UploadFn = (assetType: 'image' | 'file', uploadFile: File) => Promise<unknown>;
 type FormDataFn = (request: Request) => Promise<FormData>;
-type OptimizeFn = (buffer: Buffer, fileName: string, options: Record<string, unknown>) => Promise<Record<string, unknown>>;
+type OptimizeFn = (buffer: Buffer, fileName: string, options: OptimizationOptions) => Promise<OptimizationResult>;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
@@ -44,13 +50,7 @@ export async function POST(request: Request) {
 
     let fileToUpload: File = file;
     let optimizedPath: string | undefined;
-    let optimizationResult: {
-      success: boolean;
-      error?: string;
-      originalSize?: number;
-      optimizedSize?: number;
-      optimizedPath?: string;
-    } = {
+    let optimizationResult: OptimizationResult = {
       success: false,
       error: 'Optimization skipped',
       originalSize: 0,
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
 
     const uploadFn =
       testControl?.uploadOverride ??
-      ((assetType: string, uploadFile: File) => client.assets.upload(assetType, uploadFile));
+      ((assetType: 'image' | 'file', uploadFile: File) => client.assets.upload(assetType, uploadFile));
     const imageAsset = await uploadFn('image', fileToUpload);
 
     // Cleanup optimized file

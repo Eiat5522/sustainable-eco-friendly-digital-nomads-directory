@@ -47,6 +47,9 @@ export async function incrementViewCount(postId: string): Promise<number> {
       }
     );
 
+    if (!result) {
+      throw new Error('Database operation returned no result');
+    }
     // Handle the result based on MongoDB driver version
     const updatedDoc = result.value || result;
     

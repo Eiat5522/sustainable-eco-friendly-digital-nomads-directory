@@ -1,14 +1,19 @@
 
 // Dynamic imports to avoid missing package errors at compile time
 // These packages are mocked in tests and would need to be installed for production use
-type AnalyticsType = {
+type AnalyticsInstance = {
   page: (options?: unknown) => Promise<void>;
   track: (name: string, properties?: unknown) => Promise<void>;
   identify: (userId: string, traits?: unknown) => Promise<void>;
-} | null;
+};
+type AnalyticsFactory = ((options: { app: string; plugins?: unknown[] }) => AnalyticsInstance) | null;
+type GoogleAnalyticsPlugin = (options: {
+  measurementIds: string[];
+  config?: { debug?: boolean };
+}) => unknown;
 
-let Analytics: AnalyticsType = null;
-let googleAnalytics: unknown = null;
+let Analytics: AnalyticsFactory = null;
+let googleAnalytics: GoogleAnalyticsPlugin | null = null;
 
 try {
   // Try to load analytics packages if available (mocked in tests)

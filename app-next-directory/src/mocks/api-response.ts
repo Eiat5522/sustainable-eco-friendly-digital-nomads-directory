@@ -16,16 +16,10 @@ type PaginatedResponse<T = unknown> = {
   };
 };
 
-type SimpleMock<F extends (...args: unknown[]) => unknown> = F & {
-  mock: {
-    calls: unknown[];
-  };
-};
-
 type ApiResponseHandlerMocks = {
-  success: SimpleMock<(data: unknown, message?: string) => SuccessResponse<unknown>>;
-  error: SimpleMock<(message: string, code?: number) => ErrorResponse>;
-  paginated: SimpleMock<(items: unknown[], page?: number, limit?: number) => PaginatedResponse<unknown>>;
+  success: jest.MockedFunction<(data: unknown, message?: string) => SuccessResponse<unknown>>;
+  error: jest.MockedFunction<(message: string, code?: number) => ErrorResponse>;
+  paginated: jest.MockedFunction<(items: unknown[], page?: number, limit?: number) => PaginatedResponse<unknown>>;
 };
 
 export const ApiResponseHandler: ApiResponseHandlerMocks = {

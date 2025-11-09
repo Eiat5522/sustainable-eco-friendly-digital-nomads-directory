@@ -73,7 +73,7 @@ export let getRetryAfterMs = (key: string): number => {
 // toHaveBeenCalledWith. This preserves the original implementation for
 // non-test runtimes.
 if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
-  type AnyFunction = (...args: unknown[]) => unknown;
+  type AnyFunction = (...args: any[]) => any;
   type JestLike = {
     fn: <T extends AnyFunction>(implementation: T) => T & {
       mockImplementation?: (...args: Parameters<T>) => ReturnType<T>;
@@ -83,14 +83,13 @@ if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
   const maybeJest = (globalThis as { jest?: JestLike }).jest;
 
   if (maybeJest) {
-    const wrap = maybeJest.fn.bind(maybeJest) as JestLike['fn'];
     const originalGetClientIp = getClientIp;
     const originalIsRateLimited = isRateLimited;
     const originalGetRetryAfterMs = getRetryAfterMs;
 
-    getClientIp = wrap(originalGetClientIp) as typeof getClientIp;
-    isRateLimited = wrap(originalIsRateLimited) as typeof isRateLimited;
-    getRetryAfterMs = wrap(originalGetRetryAfterMs) as typeof getRetryAfterMs;
+    getClientIp = maybeJest.fn(originalGetClientIp) as typeof getClientIp;
+    isRateLimited = maybeJest.fn(originalIsRateLimited) as typeof isRateLimited;
+    getRetryAfterMs = maybeJest.fn(originalGetRetryAfterMs) as typeof getRetryAfterMs;
   } else {
     console.warn('Jest not available for mocking in rate-limit module');
   }
