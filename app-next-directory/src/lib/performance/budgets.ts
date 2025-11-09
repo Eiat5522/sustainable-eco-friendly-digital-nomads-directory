@@ -60,7 +60,7 @@ export interface PerformanceAlert {
   threshold: number
   severity: AlertSeverity
   timestamp: number
-  context?: Record<string, any>
+  context?: Record<string, unknown>
 }
 
 interface BaseChannelConfig {

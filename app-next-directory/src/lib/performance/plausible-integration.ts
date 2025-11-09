@@ -10,7 +10,7 @@
 
 import { shouldAlert, type PerformanceAlert } from './budgets'
 
-type PlausibleClient = (event: string, options?: { props?: Record<string, any> }) => void
+type PlausibleClient = (event: string, options?: { props?: Record<string, unknown> }) => void
 type WindowLike = Partial<Window> & Record<string, unknown>
 
 const getWindowLike = (): WindowLike | undefined => {
@@ -58,7 +58,7 @@ interface PerformanceEvent {
   name: string
   value: number
   category: keyof typeof PERFORMANCE_EVENTS
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 // For testability, we inject dependencies.

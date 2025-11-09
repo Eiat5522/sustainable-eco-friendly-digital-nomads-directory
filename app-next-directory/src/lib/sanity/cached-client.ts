@@ -3,10 +3,11 @@ import { getRedisClient } from '../redis';
 import { client } from './client';
 
 const CACHE_TTL_SECONDS = 60 * 60; // 1 hour
-const inflightRequests = new Map<string, Promise<any>>();
+const inflightRequests = new Map<string, Promise<unknown>>();
 
-async function fetchAndCache(query: string, params: any, ttl: number) {
-  const key = `sanity:${query}:${JSON.stringify(params, Object.keys(params).sort())}`;
+async function fetchAndCache<T>(query: string, params: Record<string, unknown>, ttl: number): Promise<T> {
+  const sortedKeys = Object.keys(params).sort();
+  const key = `sanity:${query}:${JSON.stringify(params, sortedKeys)}`;
   
   const redis = getRedisClient();
 
@@ -23,12 +24,12 @@ async function fetchAndCache(query: string, params: any, ttl: number) {
 
   // Check if request is already in-flight to prevent stampede
   if (inflightRequests.has(key)) {
-    return inflightRequests.get(key);
+    return inflightRequests.get(key) as Promise<T>;
   }
 
   const fetchPromise = (async () => {
     try {
-      const data = await client.fetch(query, params);
+      const data = await client.fetch<T>(query, params);
 
       if (redis) {
         try {
@@ -48,7 +49,11 @@ async function fetchAndCache(query: string, params: any, ttl: number) {
 }
 
 export const cachedClient = {
-  fetch: async <T = any>(query: string, params: Record<string, any> = {}, ttl: number = CACHE_TTL_SECONDS): Promise<T> => {
-    return fetchAndCache(query, params, ttl);
+  fetch: async <T = unknown>(
+    query: string,
+    params: Record<string, unknown> = {},
+    ttl: number = CACHE_TTL_SECONDS
+  ): Promise<T> => {
+    return fetchAndCache<T>(query, params, ttl);
   },
 };

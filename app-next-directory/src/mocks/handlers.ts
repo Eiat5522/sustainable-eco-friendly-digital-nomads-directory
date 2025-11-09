@@ -301,12 +301,15 @@ export const setReviewsResponse = (mode: 'success' | 'unauthorized' | 'forbidden
 
 export const setRegisterResponse = (mode: 'success' | 'error') => {
   const registerHandler = http.post('/api/auth/register', async ({ request }) => {
-    let body: any = {}
+    let body: Record<string, unknown> = {}
     try {
-      body = await request.json()
+      body = await request.json() as Record<string, unknown>
     } catch {
       body = {}
     }
+
+    const name = typeof body.name === 'string' ? body.name : undefined
+    const email = typeof body.email === 'string' ? body.email : undefined
 
     switch (mode) {
       case 'error':
@@ -317,8 +320,8 @@ export const setRegisterResponse = (mode: 'success' | 'error') => {
           emailVerificationRequired: false,
           data: {
             id: 'user-123',
-            name: body.name ?? 'Test User',
-            email: body.email ?? 'test@example.com'
+            name: name ?? 'Test User',
+            email: email ?? 'test@example.com'
           }
         }, 201)
     }

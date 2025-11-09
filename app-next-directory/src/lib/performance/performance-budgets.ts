@@ -62,13 +62,21 @@ export const PERFORMANCE_BUDGETS: PerformanceBudgets = {
   },
 };
 
+const getBudget = (category: string, metric: string): Budget | undefined => {
+  const categoryBudgets = PERFORMANCE_BUDGETS[category as keyof PerformanceBudgets];
+  if (!categoryBudgets) {
+    return undefined;
+  }
+  const typedBudgets = categoryBudgets as Record<string, Budget>;
+  return typedBudgets[metric];
+};
+
 export function evaluatePerformanceMetric(category: string, metric: string, value: number): 'good' | 'needs-improvement' | 'poor' | 'unknown' {
-  if (!PERFORMANCE_BUDGETS[category as keyof typeof PERFORMANCE_BUDGETS] || !(PERFORMANCE_BUDGETS as any)[category][metric]) {
+  const budget = getBudget(category, metric);
+  if (!budget) {
     console.warn(`Unknown performance metric: ${category}.${metric}`);
     return 'unknown';
   }
-
-  const budget: any = (PERFORMANCE_BUDGETS as any)[category][metric];
 
   if (metric === 'CLS') {
     if (value <= budget.target) return 'good';
@@ -82,9 +90,10 @@ export function evaluatePerformanceMetric(category: string, metric: string, valu
 }
 
 export function getMetricThresholds(category: string, metric: string) {
-  if (!PERFORMANCE_BUDGETS[category as keyof typeof PERFORMANCE_BUDGETS] || !(PERFORMANCE_BUDGETS as any)[category][metric]) {
+  const budget = getBudget(category, metric);
+  if (!budget) {
     console.warn(`Unknown performance metric: ${category}.${metric}`);
     return null;
   }
-  return (PERFORMANCE_BUDGETS as any)[category][metric];
+  return budget;
 }

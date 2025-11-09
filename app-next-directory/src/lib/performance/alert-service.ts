@@ -202,7 +202,9 @@ async function sendWebhookAlert(alert: Alert): Promise<boolean> {
   }
 }
 
-export default { processMetricForAlert };
+const alertService = { processMetricForAlert };
+
+export default alertService;
 
 export const __TEST_ONLY__ = {
   resetAlertHistory: () => alertHistory.clear(),

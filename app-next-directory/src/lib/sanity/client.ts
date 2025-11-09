@@ -8,11 +8,26 @@
 
 import * as SanityClient from '@sanity/client';
 import SanityImageUrl from '@sanity/image-url';
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
+
+type SanityClientModule = typeof SanityClient & {
+  default?: {
+    createClient?: typeof SanityClient.createClient;
+  };
+};
+
+const sanityClientModule = SanityClient as SanityClientModule;
+const resolvedCreateClient =
+  sanityClientModule.createClient ?? sanityClientModule.default?.createClient;
+
+if (!resolvedCreateClient) {
+  throw new Error('Unable to resolve Sanity createClient factory');
+}
 
 // This robustly handles CJS/ESM module interop issues, which is the cause of the Jest error.
 // It attempts to use the named export from the namespace, which works in ESM,
 // and falls back to the `default` property if it's wrapped by a CJS environment like Jest.
-export const createClient = SanityClient.createClient || (SanityClient as any).default?.createClient;
+export const createClient = resolvedCreateClient;
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'projectId';
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'dataset';
@@ -30,21 +45,24 @@ const clientConfig = {
 
 export const client = createClient(clientConfig);
 
-// This robustly handles CJS/ESM module interop issues, which is the cause of the Jest error.
-// It attempts to use the 'default' export, falling back to the root module object.
-// When using a direct default import, we need to check if the imported value is the function
-// itself or an object with a `default` property (which can happen with some bundlers/transpilers).
-const imageUrlBuilder = (SanityImageUrl as any).default || SanityImageUrl;
+type ImageUrlBuilderModule = typeof SanityImageUrl & {
+  default?: typeof SanityImageUrl;
+};
 
-export const builder = imageUrlBuilder(client);
+const imageUrlModule = SanityImageUrl as ImageUrlBuilderModule;
+const imageUrlBuilderFactory = imageUrlModule.default ?? imageUrlModule;
+
+export const builder = imageUrlBuilderFactory(client);
 
 // Create a urlFor function for easier usage - supports centralized image model
-export const urlFor = (source: any) => builder.image(source);
+export const urlFor = (source: SanityImageSource) => builder.image(source);
 
 // Default export for broader compatibility
-export default {
+const sanityClientExports = {
   createClient,
   client,
   builder,
   urlFor
 };
+
+export default sanityClientExports;

@@ -12,7 +12,9 @@ let googleAnalytics: unknown = null;
 
 try {
   // Try to load analytics packages if available (mocked in tests)
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const analyticsModule = require('analytics');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const googleAnalyticsModule = require('@analytics/google-analytics');
   
   // Handle both default exports and direct exports
@@ -178,7 +180,7 @@ export type EventProperties = {
   [EventNames.SEARCH_QUERY]: {
     query: string;
     resultsCount: number;
-    filters?: Record<string, any>;
+    filters?: Record<string, unknown>;
   };
   // Add more event property types as needed
 };

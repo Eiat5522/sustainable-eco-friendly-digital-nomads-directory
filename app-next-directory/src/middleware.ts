@@ -1,5 +1,6 @@
 import { ACCESS_CONTROL_MATRIX, PagePermissions, UserRole } from '@/types/auth';
 import { structuredLogger, getRequestContext } from '@/lib/logger';
+import type { NextRequest } from 'next/server';
 
 const secret = process.env.NEXTAUTH_SECRET;
 
@@ -8,19 +9,35 @@ const secret = process.env.NEXTAUTH_SECRET;
  */
 type NextResponseLike = {
   headers?: {
-    set?: (key: string, val: string) => void;
-    // You may add get(), append(), etc if picked up by other code
+    set: (key: string, val: string) => void;
+    append?: (key: string, val: string) => void;
+  };
+};
+
+const ensureHeaderController = (
+  headers?: NextResponseLike['headers']
+): NextResponseLike['headers'] => {
+  if (headers && typeof headers.set === 'function') {
+    if (typeof headers.append !== 'function') {
+      headers.append = () => undefined;
+    }
+    return headers;
+  }
+
+  return {
+    set: () => undefined,
+    append: () => undefined,
   };
 };
 
 function withSecurityHeaders<T extends NextResponseLike>(response: T): T {
-  if (!response.headers) response.headers = {} as any;
-  if (response.headers && typeof response.headers.set !== 'function') response.headers.set = () => {};
-  if (response.headers && typeof response.headers.set === 'function') {
-    response.headers.set('X-Frame-Options', 'DENY');
-    response.headers.set('X-Content-Type-Options', 'nosniff');
-    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  const headers = ensureHeaderController(response.headers);
+  if (!response.headers) {
+    response.headers = headers;
   }
+  headers.set('X-Frame-Options', 'DENY');
+  headers.set('X-Content-Type-Options', 'nosniff');
+  headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   return response;
 }
 
@@ -90,14 +107,20 @@ function hasAccess(userRole: UserRole, path: string): boolean {
   return pagePermission?.canView ?? false;
 }
 
+type TokenPayload = { role?: UserRole } & Record<string, unknown>;
+
+type GetTokenFn = (params: { req: NextRequest; secret?: string }) => Promise<TokenPayload | null>;
+
+type NextResponseFactory = Pick<typeof import('next/server').NextResponse, 'next' | 'redirect' | 'json'>;
+
 export function createMiddleware({
   getToken,
   NextResponse
 }: {
-  getToken: any,
-  NextResponse: any
+  getToken: GetTokenFn,
+  NextResponse: NextResponseFactory
 }) {
-  return async function middleware(request: any) {
+  return async function middleware(request: NextRequest) {
     try {
       const token = await getToken({ req: request, secret });
       const { pathname } = request.nextUrl;
@@ -220,8 +243,9 @@ export function createMiddleware({
 
 // Default export for Next.js (uses real dependencies)
 // Dynamically require NextResponse for runtime compatibility
-let ignoredNextResponseReal: any;
+let ignoredNextResponseReal: unknown;
 try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   ignoredNextResponseReal = require('next/server').NextResponse;
 } catch {
   ignoredNextResponseReal = undefined;
@@ -260,5 +284,6 @@ export const config = {
 
 // CJS/ESM compatibility for Jest
 if (typeof module !== "undefined" && module.exports) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   module.exports = { middleware: require('@/lib/auth').auth, config, createMiddleware };
 }

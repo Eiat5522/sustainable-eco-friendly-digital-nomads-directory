@@ -13,9 +13,16 @@ jest.mock('gsap', () => ({
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: any) => {
-    const { fill, priority, ...rest } = props;
-    // eslint-disable-next-line @next/next/no-img-element
-    return <img {...rest} fill={fill?.toString()} priority={priority?.toString()} />;
+    const { fill, priority, alt = '', ...rest } = props;
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        {...rest}
+        alt={alt}
+        fill={fill?.toString()}
+        priority={priority?.toString()}
+      />
+    );
   },
 }));
 

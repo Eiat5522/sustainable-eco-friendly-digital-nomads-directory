@@ -171,42 +171,53 @@ import 'whatwg-fetch';
 // Only attempt a node-fetch fallback if WHATWG classes are missing (e.g., non-jsdom env)
 if (
   process.env.JEST_RUN_INTEGRATION !== '1' &&
-  ((global as Record<string, unknown>).Request == null || (global as Record<string, unknown>).Response == null || (global as Record<string, unknown>).Headers == null)
+  ((global as Record<string, unknown>).Request == null ||
+    (global as Record<string, unknown>).Response == null ||
+    (global as Record<string, unknown>).Headers == null)
 ) {
-  try {
-    const nodeFetch = await import('node-fetch');
-    global.Request = global.Request || nodeFetch.Request;
-    global.Response = global.Response || nodeFetch.Response;
-    global.Headers = global.Headers || nodeFetch.Headers;
-  } catch (_e) {
-    // If node-fetch is not available or is ESM-only under CJS jest runtime, skip silently
-  }
+  import('node-fetch')
+    .then((nodeFetch) => {
+      global.Request = global.Request || nodeFetch.Request;
+      global.Response = global.Response || nodeFetch.Response;
+      global.Headers = global.Headers || nodeFetch.Headers;
+    })
+    .catch(() => {
+      // If node-fetch is not available or is ESM-only under CJS jest runtime, skip silently
+    });
 }
 
 // MSW setup for tests that rely on HTTP mocks
 // Skip MSW setup for model/database tests that use real mongoose
 const skipMSW = process.env.JEST_USE_REAL_MONGOOSE === '1';
 if (!skipMSW) {
-  try {
-  const { server } = await import('./src/mocks/server');
-    beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
-    afterEach(() => server.resetHandlers());
-    afterAll(() => server.close());
-  } catch (e) {
-    const code = (e as { code?: string })?.code;
-    const msg = (e as Error)?.message ?? '';
-    const isModuleNotFound =
-      code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND';
-      // Swallow only if the unresolved module is the MSW server shim itself
-    if (
-      isModuleNotFound &&
-      (msg.includes('__mocks__/server') || msg.includes('./__mocks__/server'))
-    ) {
-      // MSW not used in some test suites
-    } else {
+  const serverPromise = import('./src/mocks/server')
+    .then(({ server }) => server)
+    .catch((e) => {
+      const code = (e as { code?: string })?.code;
+      const msg = (e as Error)?.message ?? '';
+      const isModuleNotFound = code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND';
+      if (isModuleNotFound && (msg.includes('__mocks__/server') || msg.includes('./__mocks__/server'))) {
+        return null;
+      }
       throw e;
+    });
+
+  beforeAll(async () => {
+    const server = await serverPromise;
+    if (server) {
+      server.listen({ onUnhandledRequest: 'bypass' });
     }
-  }
+  });
+
+  afterEach(async () => {
+    const server = await serverPromise;
+    if (server) server.resetHandlers();
+  });
+
+  afterAll(async () => {
+    const server = await serverPromise;
+    if (server) server.close();
+  });
 }
 
 // Polyfill NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET for tests
@@ -400,23 +411,24 @@ jest.mock('@/lib/rate-limit', () => {
 // Defensive runtime patch: some module resolution paths (Bun/ts-jest/ESM interop)
 // still end up with non-jest.fn exports. Ensure the exported helpers are jest.fn
 // compatible so tests can call mockReturnValue / mockResolvedValue reliably.
-try {
-  // Use require to avoid static ESM resolution issues in the test environment
-   
-  const rl = await import('@/lib/rate-limit');
-  if (!rl || typeof rl.getClientIp !== 'function' || typeof (rl.getClientIp as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
-    // Replace with jest.fn implementations
-    (rl as { getClientIp: unknown }).getClientIp = jest.fn(() => '127.0.0.1');
-  }
-  if (typeof rl.isRateLimited !== 'function' || typeof (rl.isRateLimited as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
-    (rl as { isRateLimited: unknown }).isRateLimited = jest.fn(() => false);
-  }
-  if (typeof rl.getRetryAfterMs !== 'function' || typeof (rl.getRetryAfterMs as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
-    (rl as { getRetryAfterMs: unknown }).getRetryAfterMs = jest.fn(() => 60_000);
-  }
-} catch (_e) {
-  // If require fails (module not found), swallow — some suites don't import rate-limit at all
-}
+(function () {
+  import('@/lib/rate-limit')
+    .then((rl) => {
+      if (!rl || typeof rl.getClientIp !== 'function' || typeof (rl.getClientIp as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
+        // Replace with jest.fn implementations
+        (rl as { getClientIp: unknown }).getClientIp = jest.fn(() => '127.0.0.1');
+      }
+      if (typeof rl.isRateLimited !== 'function' || typeof (rl.isRateLimited as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
+        (rl as { isRateLimited: unknown }).isRateLimited = jest.fn(() => false);
+      }
+      if (typeof rl.getRetryAfterMs !== 'function' || typeof (rl.getRetryAfterMs as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
+        (rl as { getRetryAfterMs: unknown }).getRetryAfterMs = jest.fn(() => 60_000);
+      }
+    })
+    .catch(() => {
+      // If require fails (module not found), swallow — some suites don't import rate-limit at all
+    });
+})();
 
 // Ensure auth config is mocked early so tests can spy on helpers while keeping
 // the production implementation as the default behaviour.
@@ -477,151 +489,176 @@ jest.mock('@/lib/email', () => {
 // Defensive runtime patch: ensure the auth config exports are jest.fn compatible
 // Some module resolution/interop paths may produce non-mock functions; this
 // guarantees tests can call `.mockReturnValue` / `.mockResolvedValue` safely.
-try {
-   
-  const ac = await import('@/lib/auth/config');
-  // Coerce both named and default exports to jest.fn compatible functions
-  const ensureMock = (obj: Record<string, unknown>, key: string, fallback: unknown) => {
-    if (!obj) return;
-    if (typeof obj[key] !== 'function' || typeof (obj[key] as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
-      obj[key] = jest.fn(fallback);
-    }
-  };
+(function () {
+  import('@/lib/auth/config')
+    .then((ac) => {
+      // Coerce both named and default exports to jest.fn compatible functions
+      const ensureMock = (obj: Record<string, unknown>, key: string, fallback: unknown) => {
+        if (!obj) return;
+        if (typeof obj[key] !== 'function' || typeof (obj[key] as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
+          obj[key] = jest.fn(fallback);
+        }
+      };
 
-  const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
+      const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
 
-  ensureMock(ac, 'isEmailVerificationRequired', (...args: unknown[]) => (actual.isEmailVerificationRequired as (...fnArgs: unknown[]) => unknown)(...args));
-  ensureMock(ac, 'getAdminEmails', (...args: unknown[]) => (actual.getAdminEmails as (...fnArgs: unknown[]) => unknown)(...args));
-  ensureMock(ac, 'isAdminEmail', (...args: unknown[]) => (actual.isAdminEmail as (...fnArgs: unknown[]) => unknown)(...args));
+      ensureMock(ac, 'isEmailVerificationRequired', (...args: unknown[]) => (actual.isEmailVerificationRequired as (...fnArgs: unknown[]) => unknown)(...args));
+      ensureMock(ac, 'getAdminEmails', (...args: unknown[]) => (actual.getAdminEmails as (...fnArgs: unknown[]) => unknown)(...args));
+      ensureMock(ac, 'isAdminEmail', (...args: unknown[]) => (actual.isAdminEmail as (...fnArgs: unknown[]) => unknown)(...args));
 
-  if (ac.default) {
-    ensureMock(ac.default as Record<string, unknown>, 'isEmailVerificationRequired', (...args: unknown[]) => (actual.isEmailVerificationRequired as (...fnArgs: unknown[]) => unknown)(...args));
-    ensureMock(ac.default as Record<string, unknown>, 'getAdminEmails', (...args: unknown[]) => (actual.getAdminEmails as (...fnArgs: unknown[]) => unknown)(...args));
-    ensureMock(ac.default as Record<string, unknown>, 'isAdminEmail', (...args: unknown[]) => (actual.isAdminEmail as (...fnArgs: unknown[]) => unknown)(...args));
-  }
+      if (ac.default) {
+        ensureMock(ac.default as Record<string, unknown>, 'isEmailVerificationRequired', (...args: unknown[]) => (actual.isEmailVerificationRequired as (...fnArgs: unknown[]) => unknown)(...args));
+        ensureMock(ac.default as Record<string, unknown>, 'getAdminEmails', (...args: unknown[]) => (actual.getAdminEmails as (...fnArgs: unknown[]) => unknown)(...args));
+        ensureMock(ac.default as Record<string, unknown>, 'isAdminEmail', (...args: unknown[]) => (actual.isAdminEmail as (...fnArgs: unknown[]) => unknown)(...args));
+      }
 
-  // Expose the actual jest.fn instances from the mocked module on global
-  try {
-    (global as Record<string, unknown>).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.isEmailVerificationRequired;
-    (global as Record<string, unknown>).__AUTH_GET_ADMIN_EMAILS = ac.getAdminEmails;
-    (global as Record<string, unknown>).__AUTH_IS_ADMIN_EMAIL = ac.isAdminEmail;
-    if (ac.default) {
-      (global as Record<string, unknown>).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = (ac.default as { isEmailVerificationRequired: unknown }).isEmailVerificationRequired || (global as Record<string, unknown>).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED;
-    }
-  } catch (_e) {
-    // ignore
-  }
-} catch (_e) {
-  // Ignore - some test suites may not resolve this module during setup
-}
+      // Expose the actual jest.fn instances from the mocked module on global
+      try {
+        (global as Record<string, unknown>).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = ac.isEmailVerificationRequired;
+        (global as Record<string, unknown>).__AUTH_GET_ADMIN_EMAILS = ac.getAdminEmails;
+        (global as Record<string, unknown>).__AUTH_IS_ADMIN_EMAIL = ac.isAdminEmail;
+        if (ac.default) {
+          (global as Record<string, unknown>).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED =
+            (ac.default as { isEmailVerificationRequired: unknown }).isEmailVerificationRequired ||
+            (global as Record<string, unknown>).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED;
+        }
+      } catch (_e) {
+        // ignore
+      }
+    })
+    .catch(() => {
+      // Ignore - some test suites may not resolve this module during setup
+    });
+})();
 
 // Also defensively patch the source file path in case some tests import
 // the module by resolved path rather than the mapped alias. This ensures
 // the same mocked jest.fn instance is available on all module instances.
-try {
-   
-  const srcAuth = await import('./src/lib/auth/config');
-  if (srcAuth) {
-    const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
-    const wrap = (key: string) => {
-      const impl = actual[key];
-      if (typeof impl !== 'function') {
-        return jest.fn();
+(function () {
+  import('./src/lib/auth/config')
+    .then((srcAuth) => {
+      if (srcAuth) {
+        const actual = jest.requireActual('@/lib/auth/config') as Record<string, unknown>;
+        const wrap = (key: string) => {
+          const impl = actual[key];
+          if (typeof impl !== 'function') {
+            return jest.fn();
+          }
+          const spy = jest.fn((...args: unknown[]) => (impl as (...fnArgs: unknown[]) => unknown)(...args));
+          spy.mockImplementation((...args: unknown[]) => (impl as (...fnArgs: unknown[]) => unknown)(...args));
+          return spy;
+        };
+
+        const isEmailVerificationRequired = wrap('isEmailVerificationRequired');
+        const getAdminEmails = wrap('getAdminEmails');
+        const isAdminEmail = wrap('isAdminEmail');
+
+        (srcAuth as { isEmailVerificationRequired: unknown }).isEmailVerificationRequired = isEmailVerificationRequired;
+        (srcAuth as { getAdminEmails: unknown }).getAdminEmails = getAdminEmails;
+        (srcAuth as { isAdminEmail: unknown }).isAdminEmail = isAdminEmail;
+
+        if (srcAuth.default) {
+          (srcAuth.default as { isEmailVerificationRequired: unknown }).isEmailVerificationRequired = isEmailVerificationRequired;
+          (srcAuth.default as { getAdminEmails: unknown }).getAdminEmails = getAdminEmails;
+          (srcAuth.default as { isAdminEmail: unknown }).isAdminEmail = isAdminEmail;
+        }
+
+        console.log('DEBUG jest.setup: patched ./src/lib/auth/config exports');
       }
-      const spy = jest.fn((...args: unknown[]) => (impl as (...fnArgs: unknown[]) => unknown)(...args));
-      spy.mockImplementation((...args: unknown[]) => (impl as (...fnArgs: unknown[]) => unknown)(...args));
-      return spy;
-    };
-
-    const isEmailVerificationRequired = wrap('isEmailVerificationRequired');
-    const getAdminEmails = wrap('getAdminEmails');
-    const isAdminEmail = wrap('isAdminEmail');
-
-    (srcAuth as { isEmailVerificationRequired: unknown }).isEmailVerificationRequired = isEmailVerificationRequired;
-    (srcAuth as { getAdminEmails: unknown }).getAdminEmails = getAdminEmails;
-    (srcAuth as { isAdminEmail: unknown }).isAdminEmail = isAdminEmail;
-
-    if (srcAuth.default) {
-      (srcAuth.default as { isEmailVerificationRequired: unknown }).isEmailVerificationRequired = isEmailVerificationRequired;
-      (srcAuth.default as { getAdminEmails: unknown }).getAdminEmails = getAdminEmails;
-      (srcAuth.default as { isAdminEmail: unknown }).isAdminEmail = isAdminEmail;
-    }
-
-     
-    console.log('DEBUG jest.setup: patched ./src/lib/auth/config exports');
-  }
-} catch (_e) {
-  // ignore if file not present or require fails
-}
+    })
+    .catch(() => {
+      // ignore if file not present or require fails
+    });
+})();
 
 // Defensive runtime patch for tokens/email modules in case of alternate import paths
-try {
-  const tk = await import('@/lib/tokens');
-  if (tk) {
-    const ensureJestFn = (key: string, impl: () => unknown) => {
-      const current = (tk as Record<string, unknown>)[key];
-      if (typeof current !== 'function' || typeof (current as { mock?: unknown })?.mock === 'undefined') {
-        (tk as Record<string, unknown>)[key] = jest.fn(impl);
+(function () {
+  import('@/lib/tokens')
+    .then((tk) => {
+      if (tk) {
+        const ensureJestFn = (key: string, impl: () => unknown) => {
+          const current = (tk as Record<string, unknown>)[key];
+          if (typeof current !== 'function' || typeof (current as { mock?: unknown })?.mock === 'undefined') {
+            (tk as Record<string, unknown>)[key] = jest.fn(impl);
+          }
+        };
+        ensureJestFn('generateToken', () => ({ raw: 'test-token-raw', hash: 'test-token-hash' }));
+        ensureJestFn('hashToken', () => 'test-hash');
+        ensureJestFn('minutesFromNow', () => new Date(Date.now() + 60 * 60 * 1000));
+        try {
+          (global as Record<string, unknown>).__TOKENS_generateToken = tk.generateToken;
+          (global as Record<string, unknown>).__TOKENS_hashToken = tk.hashToken;
+          (global as Record<string, unknown>).__TOKENS_minutesFromNow = tk.minutesFromNow;
+        } catch (_e) {
+          //ignore
+        }
       }
-    };
-    ensureJestFn('generateToken', () => ({ raw: 'test-token-raw', hash: 'test-token-hash' }));
-    ensureJestFn('hashToken', () => 'test-hash');
-    ensureJestFn('minutesFromNow', () => new Date(Date.now() + 60 * 60 * 1000));
-    try {
-      (global as Record<string, unknown>).__TOKENS_generateToken = tk.generateToken;
-      (global as Record<string, unknown>).__TOKENS_hashToken = tk.hashToken;
-      (global as Record<string, unknown>).__TOKENS_minutesFromNow = tk.minutesFromNow;
-    } catch (_e) {
-      //ignore
-    }
-  }
-} catch (_e) {
-  // ignore
-}
+    })
+    .catch(() => {
+      // ignore
+    });
+})();
 
 
-try {
-  const em = await import('@/lib/email');
-  if (em) {
-    const ensureJestFn = (key: string, impl: () => unknown) => {
-      const current = (em as Record<string, unknown>)[key];
-      if (typeof current !== 'function' || typeof (current as { mock?: unknown })?.mock === 'undefined') {
-        (em as Record<string, unknown>)[key] = jest.fn(impl);
+;(function () {
+  import('@/lib/email')
+    .then((em) => {
+      if (em) {
+        const ensureJestFn = (key: string, impl: () => unknown) => {
+          const current = (em as Record<string, unknown>)[key];
+          if (typeof current !== 'function' || typeof (current as { mock?: unknown })?.mock === 'undefined') {
+            (em as Record<string, unknown>)[key] = jest.fn(impl);
+          }
+        };
+        ensureJestFn('buildVerifyEmail', () => Promise.resolve({ to: 'test@example.com' }));
+        ensureJestFn('sendMail', () => Promise.resolve({ messageId: 'test-message-id' }));
+        try {
+          (global as Record<string, unknown>).__EMAIL_buildVerifyEmail = em.buildVerifyEmail;
+          (global as Record<string, unknown>).__EMAIL_sendMail = em.sendMail;
+        } catch (_e) {
+          //ignore
+        }
       }
-    };
-    ensureJestFn('buildVerifyEmail', () => Promise.resolve({ to: 'test@example.com' }));
-    ensureJestFn('sendMail', () => Promise.resolve({ messageId: 'test-message-id' }));
-    try {
-      (global as Record<string, unknown>).__EMAIL_buildVerifyEmail = em.buildVerifyEmail;
-      (global as Record<string, unknown>).__EMAIL_sendMail = em.sendMail;
-    } catch (_e) {
-      //ignore
-    }
-  }
-} catch (_e) {
-  // ignore
-}
+    })
+    .catch(() => {
+      // ignore
+    });
+})();
 
 // Ensure mongodb mock collection has jest.fn() methods
-try {
-  const mongodb = await import('@/lib/mongodb');
-  if (mongodb && mongodb.default) {
-    mongodb.default.then((client: { _mockCollection: Record<string, (...args: unknown[]) => unknown> }) => {
-      if (client && client._mockCollection) {
-        const mockCol = client._mockCollection;
-        // Replace all methods with jest.fn() versions that preserve behavior
-        const methods = ['createIndexes', 'createIndex', 'findOne', 'insertOne', 'updateOne', 'deleteOne', 'findOneAndUpdate', 'deleteMany'];
-        methods.forEach((method) => {
-          if (mockCol[method] && typeof mockCol[method] === 'function') {
-            const originalFn = mockCol[method];
-            mockCol[method] = jest.fn((...args: unknown[]) => originalFn.apply(mockCol, args));
-          }
-        });
+;(function () {
+  import('@/lib/mongodb')
+    .then((mongodb) => {
+      if (mongodb && mongodb.default) {
+        mongodb.default
+          .then((client: { _mockCollection: Record<string, (...args: unknown[]) => unknown> }) => {
+            if (client && client._mockCollection) {
+              const mockCol = client._mockCollection;
+              // Replace all methods with jest.fn() versions that preserve behavior
+              const methods = [
+                'createIndexes',
+                'createIndex',
+                'findOne',
+                'insertOne',
+                'updateOne',
+                'deleteOne',
+                'findOneAndUpdate',
+                'deleteMany',
+              ];
+              methods.forEach((method) => {
+                if (mockCol[method] && typeof mockCol[method] === 'function') {
+                  const originalFn = mockCol[method];
+                  mockCol[method] = jest.fn((...args: unknown[]) => originalFn.apply(mockCol, args));
+                }
+              });
+            }
+          })
+          .catch(() => {
+            // ignore if client promise fails
+          });
       }
-    }).catch(() => {
-      // ignore if client promise fails
+    })
+    .catch(() => {
+      // ignore
     });
-  }
-} catch (_e) {
-  // ignore
-}
+})();

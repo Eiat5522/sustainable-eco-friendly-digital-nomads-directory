@@ -5,10 +5,47 @@ import { AppListingDetail, AppListingCard } from '@/types/appView';
 // Narrow unknown raw to Sanity listing-shaped object (not AppListingCard) with required fields
 import type { SanityImage, SanityGalleryImage } from '@/types/appView';
 
-const normalizeTags = (tags: Array<string | { name?: string }> | undefined) =>
-  Array.isArray(tags)
-    ? tags.map((tag: any) => (typeof tag === 'string' ? tag : tag?.name)).filter(Boolean)
-    : [];
+type TagValue = string | { name?: string | null };
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
+
+const isNonEmptyString = (value: string | null | undefined): value is string =>
+  typeof value === 'string' && value.trim().length > 0;
+
+const normalizeTags = (tags?: TagValue[]) => {
+  if (!Array.isArray(tags)) return [];
+
+  return tags
+    .map(tag => (typeof tag === 'string' ? tag : tag?.name ?? ''))
+    .filter(isNonEmptyString)
+    .map(tag => tag.trim());
+};
+
+type SanityReviewUser = {
+  _id?: string;
+  name?: string | null;
+  image?: string | null;
+};
+
+type SanityReviewRaw = {
+  _id?: string;
+  user?: SanityReviewUser;
+  rating?: number | null;
+  comment?: string | null;
+  createdAt?: string | null;
+};
+
+type SanityAmenityRaw = {
+  _id?: string;
+  name?: string;
+  description?: string;
+  badge?: {
+    asset?: {
+      url?: string;
+    };
+  };
+};
 
 export type SanityListingRaw = {
   _id: string;
@@ -32,25 +69,34 @@ export type SanityListingRaw = {
   location?: { lat: number; lng: number };
   type?: string;
   longDescription?: string;
-  reviews?: any[];
-  amenities?: any[];
+  reviews?: SanityReviewRaw[];
+  amenities?: SanityAmenityRaw[];
   contactPhone?: string;
   contactEmail?: string;
   lastVerifiedDate?: string;
-  coworkingDetails?: any;
-  accommodationDetails?: any;
-  cafeDetails?: any;
-  restaurantDetails?: any;
-  activitiesDetails?: any;
+  coworkingDetails?: AppListingDetail['coworkingDetails'];
+  accommodationDetails?: AppListingDetail['accommodationDetails'];
+  cafeDetails?: AppListingDetail['cafeDetails'];
+  restaurantDetails?: AppListingDetail['restaurantDetails'];
+  activitiesDetails?: AppListingDetail['activitiesDetails'];
 };
 
-export function isSanityListing(raw: any): raw is SanityListingRaw {
-  const hasId = (typeof raw?._id === 'string' && raw._id.trim().length > 0);
+const isSanityReviewRaw = (value: unknown): value is SanityReviewRaw => {
+  if (!isRecord(value)) return false;
+  if ('user' in value && value.user !== undefined && !isRecord(value.user)) return false;
+  return true;
+};
+
+const isSanityAmenityRaw = (value: unknown): value is SanityAmenityRaw => isRecord(value);
+
+export function isSanityListing(raw: unknown): raw is SanityListingRaw {
+  if (!isRecord(raw)) return false;
+
+  const hasId = typeof raw._id === 'string' && raw._id.trim().length > 0;
   const hasName =
-    typeof raw?.name === 'string' && raw.name.trim().length > 0;
+    typeof raw.name === 'string' && raw.name.trim().length > 0;
   const hasSlug =
-    raw?.slug &&
-    typeof raw.slug === 'object' &&
+    isRecord(raw.slug) &&
     raw.slug._type === 'slug' &&
     typeof raw.slug.current === 'string' &&
     raw.slug.current.trim().length > 0;
@@ -121,8 +167,8 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
     lastVerifiedDate: raw.lastVerifiedDate,
     reviews: Array.isArray(raw.reviews)
       ? raw.reviews
-          .filter((review: any) => review && typeof review === 'object')
-          .map((review: any) => ({
+          .filter(isSanityReviewRaw)
+          .map((review) => ({
             id: review?._id ?? '',
             listingId: raw._id,
             userId: review?.user?._id ?? '',
@@ -143,8 +189,8 @@ export function mapSanityListingToAppListingDetail(raw: SanityListingRaw): AppLi
       : [],
     amenities: Array.isArray(raw.amenities)
       ? raw.amenities
-          .filter((amenity: any) => amenity && typeof amenity === 'object')
-          .map((amenity: any) => ({
+          .filter(isSanityAmenityRaw)
+          .map((amenity) => ({
             _id: amenity?._id ?? undefined,
             name: amenity?.name ?? undefined,
             description: amenity?.description ?? undefined,

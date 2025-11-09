@@ -24,20 +24,20 @@ type ReportCallback = (metric: Metric) => void;
 // Declare plausible on window
 declare global {
   interface Window {
-    plausible?: (event: string, options?: { props?: Record<string, any> }) => void;
+    plausible?: (event: string, options?: { props?: Record<string, unknown> }) => void;
   }
 }
 
-type PlausibleClient = (event: string, options?: { props?: Record<string, any> }) => void;
+type PlausibleClient = (event: string, options?: { props?: Record<string, unknown> }) => void;
 
-type WindowLike = Record<string, any> | undefined;
+type WindowLike = Record<string, unknown> | undefined;
 
-const getGlobalScope = (): Record<string, any> | undefined => {
-  return dependencies.global ?? (globalThis as unknown as Record<string, any>);
+const getGlobalScope = (): Record<string, unknown> | undefined => {
+  return dependencies.global ?? (globalThis as unknown as Record<string, unknown>);
 };
 
-const getWindowScope = (): Record<string, any> | undefined => {
-  return (dependencies.window as Record<string, any> | undefined) ?? getGlobalScope();
+const getWindowScope = (): Record<string, unknown> | undefined => {
+  return (dependencies.window as Record<string, unknown> | undefined) ?? getGlobalScope();
 };
 
 const getPerformanceApi = (): Performance | undefined => {
@@ -141,7 +141,7 @@ const onTTFB = (callback: ReportCallback) => {
 
 interface CollectorDependencies {
   window?: WindowLike;
-  global?: Record<string, any>;
+  global?: Record<string, unknown>;
   onCLS: (callback: ReportCallback) => void;
   onFCP: (callback: ReportCallback) => void;
   onFID: (callback: ReportCallback) => void;
@@ -152,7 +152,7 @@ interface CollectorDependencies {
 
 export const dependencies: CollectorDependencies = {
   window: typeof window !== 'undefined' ? (window as unknown as WindowLike) : undefined,
-  global: typeof globalThis !== 'undefined' ? (globalThis as unknown as Record<string, any>) : undefined,
+  global: typeof globalThis !== 'undefined' ? (globalThis as unknown as Record<string, unknown>) : undefined,
   onCLS,
   onFCP,
   onFID,

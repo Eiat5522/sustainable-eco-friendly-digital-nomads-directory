@@ -5,7 +5,8 @@
  */
 
 // Import core Sanity client types and methods
-import { createClient, SanityClient, Patch } from '@sanity/client';
+import { createClient as sanityCreateClient } from './sanity/client';
+import type { SanityClient, Patch } from '@sanity/client';
 // Import generated types from sanity.types.ts.
 // The path '../../sanity/sanity.types' is assumed based on the file structure.
 import type {
@@ -38,6 +39,18 @@ interface SanityConfig {
   perspective?: 'published' | 'previewDrafts';
 }
 
+type ConfigurableSanityClient = SanityClient & {
+  withConfig?: (config: Partial<SanityConfig>) => SanityClient;
+};
+
+const extractStatusCode = (error: unknown): number | undefined => {
+  if (error && typeof error === 'object' && 'statusCode' in error) {
+    const value = (error as { statusCode?: unknown }).statusCode;
+    return typeof value === 'number' ? value : undefined;
+  }
+  return undefined;
+};
+
 // Error types for better error handling
 export class SanityAPIError extends Error {
   constructor(
@@ -69,10 +82,10 @@ export class SanityHTTPClient {
     };
 
     // Read-only client (public)
-    this.client = createClient(this.config);
+    this.client = sanityCreateClient(this.config);
 
     // Write client with authentication
-    this.writeClient = createClient({
+    this.writeClient = sanityCreateClient({
       ...this.config,
       token: process.env.SANITY_API_TOKEN,
       useCdn: false, // Never use CDN for write operations
@@ -150,16 +163,16 @@ export class SanityHTTPClient {
   // T can be a specific generated query result type or 'unknown' for generic queries.
   async query<T = unknown>(
     query: string,
-    params?: Record<string, any>, // params can remain Record<string, any> as it's flexible
+    params?: Record<string, unknown>,
     options?: { preview?: boolean }
   ): Promise<T> {
     try {
       // The SanityClient.withConfig method is used to create a new client instance
       // with specific configurations like perspective and token for previewing drafts.
-      // Type assertion `as any` is used here for `withConfig` as its exact signature might not be perfectly exposed.
+      const configurableClient = this.client as ConfigurableSanityClient;
       const client =
-        options?.preview && typeof (this.client as any).withConfig === 'function'
-          ? (this.client as SanityClient).withConfig({ // Use SanityClient type here
+        options?.preview && typeof configurableClient.withConfig === 'function'
+          ? configurableClient.withConfig({
               useCdn: false,
               perspective: 'previewDrafts',
               token: process.env.SANITY_API_TOKEN,
@@ -167,7 +180,7 @@ export class SanityHTTPClient {
           : this.client;
 
       // The fetch method should now return T based on the query and typegen overload.
-      const result = await client.fetch<T>(query, params as any);
+      const result = await client.fetch<T>(query, params);
 
       // If the result is undefined, it might indicate an issue with the query or data fetching.
       if (typeof result === 'undefined') {
@@ -178,7 +191,7 @@ export class SanityHTTPClient {
       // If an error is caught, wrap it in SanityAPIError for consistent handling.
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
       // Attempt to extract statusCode if it exists on the error object.
-      const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+      const statusCode = extractStatusCode(error);
       throw new SanityAPIError(`Query failed: ${errorMessage}`, statusCode, error);
     }
   }
@@ -202,7 +215,7 @@ export class SanityHTTPClient {
       return result;
     } catch (error: unknown) { // Catching unknown for better type safety
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+      const statusCode = extractStatusCode(error);
       throw new SanityAPIError(`Create failed: ${errorMessage}`, statusCode, error);
     }
   }
@@ -230,7 +243,7 @@ export class SanityHTTPClient {
         result = await setObj.commit(); // commit should return GeneratedSanityDocument
       } catch (error: unknown) { // Catching unknown for better type safety
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+        const statusCode = extractStatusCode(error);
         throw new SanityAPIError(`Update failed: ${errorMessage}`, statusCode, error);
       }
 
@@ -242,14 +255,14 @@ export class SanityHTTPClient {
     } catch (error: unknown) { // Catching unknown for better type safety
       if (error instanceof SanityAPIError) throw error; // Re-throw if it's already our custom error
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+      const statusCode = extractStatusCode(error);
       throw new SanityAPIError(`Update failed: ${errorMessage}`, statusCode, error);
     }
   }
 
   // Delete document
-  // The return type of delete can be null or a status object. 'any' is kept for now as its exact return type might not be strictly typed by typegen for all cases.
-  async delete(id: string): Promise<any> {
+  // The return type of delete can be null or a status object. We expose it as unknown for flexibility.
+  async delete(id: string): Promise<unknown> {
     if (!process.env.SANITY_API_TOKEN) {
       throw new SanityAPIError('Cannot delete document: No API token provided');
     }
@@ -259,7 +272,7 @@ export class SanityHTTPClient {
       return result;
     } catch (error: unknown) { // Catching unknown for better type safety
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+      const statusCode = extractStatusCode(error);
       throw new SanityAPIError(`Delete failed: ${errorMessage}`, statusCode, error);
     }
   }
@@ -308,7 +321,7 @@ export class SanityHTTPClient {
         });
       } catch (error: unknown) { // Catching unknown for better type safety
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+        const statusCode = extractStatusCode(error);
         throw new SanityAPIError(`Asset upload failed: ${errorMessage}`, statusCode, error);
       }
 
@@ -333,7 +346,7 @@ export class SanityHTTPClient {
     } catch (error: unknown) { // Catching unknown for better type safety
       if (error instanceof SanityAPIError) throw error; // Re-throw if it's already our custom error
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+      const statusCode = extractStatusCode(error);
       throw new SanityAPIError(`Asset upload failed: ${errorMessage}`, statusCode, error);
     }
   }
@@ -356,7 +369,7 @@ export class SanityHTTPClient {
         commitResult = await tx.commit({ returnDocuments: true });
       } catch (error: unknown) { // Catching unknown for better type safety
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+        const statusCode = extractStatusCode(error);
         throw new SanityAPIError(`Batch create failed: ${errorMessage}`, statusCode, error);
       }
 
@@ -388,13 +401,13 @@ export class SanityHTTPClient {
     } catch (error: unknown) { // Catching unknown for better type safety
       if (error instanceof SanityAPIError) throw error; // Re-throw if it's already our custom error
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      const statusCode = error instanceof Error && 'statusCode' in error ? (error as any).statusCode : undefined;
+      const statusCode = extractStatusCode(error);
       throw new SanityAPIError(`Batch create failed: ${errorMessage}`, statusCode, error);
     }
   }
 
   // Health check method
-  async healthCheck(): Promise<{ status: 'ok' | 'error'; details: any }> {
+  async healthCheck(): Promise<{ status: 'ok' | 'error'; details: Record<string, unknown> }> {
     try {
       // Test read access
       // The query method itself handles errors, so a successful call implies read access.
@@ -463,7 +476,8 @@ export const getSanityHTTPClient = (): SanityHTTPClient => {
 export const sanityHTTPClient: SanityHTTPClient = new Proxy({} as SanityHTTPClient, {
   get(_target, prop) {
     // Ensure we are accessing properties of the actual instance
-    return (getSanityHTTPClient() as any)[prop];
+    const instance = getSanityHTTPClient();
+    return (instance as Record<PropertyKey, unknown>)[prop as PropertyKey];
   },
 });
 
@@ -473,7 +487,7 @@ export const getClient = (preview = false) => {
     // This creates a new client instance specifically for previewing drafts.
     // It uses the public project ID and dataset, but explicitly sets perspective to 'previewDrafts'
     // and provides the API token for draft access. useCdn is set to false.
-    return createClient({
+    return sanityCreateClient({
       projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
       dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
       apiVersion: '2025-05-24',

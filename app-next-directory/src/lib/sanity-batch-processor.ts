@@ -25,9 +25,9 @@ export interface ListingValidationSchema {
 }
 
 // Batch operation result
-export interface BatchProcessResult<T> {
-  successful: Array<{ id: string; data: T }>
-  failed: Array<{ data: any; error: string; index: number }>
+export interface BatchProcessResult<TSuccess, TFailure = TSuccess> {
+  successful: Array<{ id: string; data: TSuccess }>
+  failed: Array<{ data: TFailure; error: string; index: number }>
   total: number
   successCount: number
   failureCount: number
@@ -37,6 +37,37 @@ export interface BatchProcessResult<T> {
 
 // Progress callback type
 export type ProgressCallback = (completed: number, total: number, stage: string) => void
+
+type SanityDocumentResult = Record<string, unknown> & { _id: string }
+
+type UpdatePayload = { id: string; data: Record<string, unknown> }
+
+type ProcessedListingPayload = {
+  _type: 'listing'
+  name: string
+  type: string
+  city: string
+  country: string
+  description?: string
+  website?: string
+  address?: string
+  ecoTags: string[]
+  createdAt: string
+  status: string
+  coordinates?: {
+    lat: number
+    lng: number
+    _type: 'geopoint'
+  }
+  images?: Array<{
+    _type: 'image'
+    asset: {
+      _type: 'reference'
+      _ref: string
+    }
+    alt: string
+  }>
+}
 
 export class SanityBatchProcessor {
   private defaultConcurrency = 5
@@ -54,13 +85,13 @@ export class SanityBatchProcessor {
       validateOnly?: boolean
       skipImages?: boolean
     } = {}
-  ): Promise<BatchProcessResult<any>> {
+  ): Promise<BatchProcessResult<SanityDocumentResult, ListingValidationSchema>> {
     const startTime = Date.now()
     const { concurrency = this.defaultConcurrency, onProgress, validateOnly = false, skipImages = false } = options
 
     console.log(`🚀 Starting batch processing of ${listings.length} listings`)
 
-    const result: BatchProcessResult<any> = {
+    const result: BatchProcessResult<SanityDocumentResult, ListingValidationSchema> = {
       successful: [],
       failed: [],
       total: listings.length,
@@ -223,8 +254,8 @@ export class SanityBatchProcessor {
    */
   private async processListingWithRetry(
     listing: ListingValidationSchema,
-    skipImages: boolean = false
-  ): Promise<any> {
+    skipImages = false
+  ): Promise<SanityDocumentResult> {
     for (let attempt = 1; attempt <= this.retryAttempts; attempt++) {
       try {
         return await this.processSingleListing(listing, skipImages)
@@ -248,9 +279,9 @@ export class SanityBatchProcessor {
    */
   private async processSingleListing(
     listing: ListingValidationSchema,
-    skipImages: boolean = false
-  ): Promise<any> {
-    const processedListing: any = {
+    skipImages = false
+  ): Promise<SanityDocumentResult> {
+    const payload: ProcessedListingPayload = {
       _type: 'listing',
       name: listing.name.trim(),
       type: listing.type,
@@ -266,7 +297,7 @@ export class SanityBatchProcessor {
 
     // Add coordinates if provided
     if (listing.coordinates) {
-      processedListing.coordinates = {
+      payload.coordinates = {
         lat: listing.coordinates.lat,
         lng: listing.coordinates.lng,
         _type: 'geopoint'
@@ -285,7 +316,7 @@ export class SanityBatchProcessor {
       })
 
       if (imageResults.successful.length > 0) {
-        processedListing.images = imageResults.successful.map(result => ({
+        payload.images = imageResults.successful.map(result => ({
           _type: 'image',
           asset: {
             _type: 'reference',
@@ -301,28 +332,28 @@ export class SanityBatchProcessor {
     }
 
     // Create listing in Sanity
-    const result = await sanityHTTPClient.create(processedListing)
+    const result = await sanityHTTPClient.create(payload as unknown as Record<string, unknown>)
     console.log(`✅ Created listing: ${listing.name} (${result._id})`)
 
-    return result
+    return result as SanityDocumentResult
   }
 
   /**
    * Update existing listings in batch
    */
   async updateListingsBatch(
-    updates: Array<{ id: string; data: Partial<any> }>,
+    updates: Array<UpdatePayload>,
     options: {
       concurrency?: number
       onProgress?: ProgressCallback
     } = {}
-  ): Promise<BatchProcessResult<any>> {
+  ): Promise<BatchProcessResult<Record<string, unknown>, UpdatePayload>> {
     const startTime = Date.now()
     const { concurrency = this.defaultConcurrency, onProgress } = options
 
     console.log(`🔄 Starting batch update of ${updates.length} listings`)
 
-    const result: BatchProcessResult<any> = {
+    const result: BatchProcessResult<Record<string, unknown>, UpdatePayload> = {
       successful: [],
       failed: [],
       total: updates.length,

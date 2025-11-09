@@ -5,6 +5,7 @@
  * the established performance budgets.
  */
 import { PERFORMANCE_BUDGETS } from './performance-budgets';
+import type { Budget, PerformanceBudgets } from './performance-budgets';
 
 export type MetricStatus = 'pass' | 'warn' | 'fail' | 'unknown';
 
@@ -176,8 +177,15 @@ export function createEmptyTestResults(): BaselineTestResults {
   };
 }
 
+const resolveBudget = (category: string, name: string): Budget | null => {
+  const budgetCategory = PERFORMANCE_BUDGETS[category as keyof PerformanceBudgets];
+  if (!budgetCategory) return null;
+  const typedCategory = budgetCategory as Record<string, Budget>;
+  return typedCategory[name] ?? null;
+};
+
 export function evaluateMetric(category: string, name: string, value: number): MetricEvaluation {
-  const budget = (PERFORMANCE_BUDGETS as any)[category]?.[name];
+  const budget = resolveBudget(category, name);
 
   if (!budget) {
     return {
@@ -227,7 +235,7 @@ export function generateMarkdownReport(results: BaselineTestResults): string {
       markdown += `|--------|-------|--------|------------|---------|\n`;
 
       for (const metric of pageTest.metrics) {
-        const budget = (PERFORMANCE_BUDGETS as any)[metric.category]?.[metric.name];
+        const budget = resolveBudget(metric.category, metric.name);
         const statusEmoji =
           metric.result.status === 'pass'
             ? '✅'
@@ -315,10 +323,12 @@ function getRecommendation(metricName: string): string {
   return recommendations[metricName] || 'Review the implementation and optimise resource usage and response times.';
 }
 
-export default {
+const baselineTesting = {
   BASELINE_TEST_CONFIG,
   generateLighthouseConfig,
   createEmptyTestResults,
   evaluateMetric,
   generateMarkdownReport,
 };
+
+export default baselineTesting;

@@ -17,10 +17,27 @@ interface CacheConfig {
   isPrivate?: boolean;
 }
 
+type RequestCookies = {
+  has: (key: string) => boolean;
+};
+
+type CacheRequest = {
+  cookies: RequestCookies;
+  method: string;
+  nextUrl: { pathname: string };
+};
+
+type CacheResponse = {
+  headers: {
+    set: (key: string, value: string) => void;
+    append: (key: string, value: string) => void;
+  };
+};
+
 /**
  * Determines if a request should be cached based on various conditions
  */
-function shouldCache(request: { cookies: any; method: string; nextUrl: { pathname: string } }): boolean {
+function shouldCache(request: CacheRequest): boolean {
   // Don't cache if it's a preview request
   if (request.cookies.has('__previewMode')) {
     return false;
@@ -97,9 +114,9 @@ export function getCacheControlValue(config: CacheConfig): string {
  * Cache middleware for non-preview content
  */
 export async function cacheMiddleware(
-  request: { cookies: any; method: string; nextUrl: { pathname: string } },
-  response: any
-): Promise<any> {
+  request: CacheRequest,
+  response: CacheResponse
+): Promise<CacheResponse> {
   // Check if request should be cached
   if (!shouldCache(request)) {
     response.headers.set('Cache-Control', 'no-store');
