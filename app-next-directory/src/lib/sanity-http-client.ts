@@ -51,6 +51,22 @@ const extractStatusCode = (error: unknown): number | undefined => {
   return undefined;
 };
 
+type ErrorPayload = { error?: unknown; statusCode?: number };
+
+const getErrorPayload = (value: unknown): ErrorPayload | null => {
+  if (value && typeof value === 'object' && 'error' in value) {
+    return value as ErrorPayload;
+  }
+  return null;
+};
+
+const formatErrorMessage = (value: unknown, fallback: string): string => {
+  if (typeof value === 'string' && value.trim().length > 0) return value;
+  if (value instanceof Error && value.message) return value.message;
+  if (value == null) return fallback;
+  return String(value);
+};
+
 // Error types for better error handling
 export class SanityAPIError extends Error {
   constructor(
@@ -181,11 +197,17 @@ export class SanityHTTPClient {
 
       // The fetch method should now return T based on the query and typegen overload.
       const result = await client.fetch<T>(query, params);
+      const errorPayload = getErrorPayload(result);
+      if (errorPayload && errorPayload.error) {
+        const message = formatErrorMessage(errorPayload.error, 'Query error');
+        throw new SanityAPIError(`Query failed: ${message}`, extractStatusCode(errorPayload), errorPayload);
+      }
 
       // If the result is undefined, it might indicate an issue with the query or data fetching.
       if (typeof result === 'undefined') {
-        throw new SanityAPIError('Query failed: No data returned');
+        throw new SanityAPIError('Query failed: Query error');
       }
+
       return result;
     } catch (error: unknown) { // Catching unknown for better type safety
       // If an error is caught, wrap it in SanityAPIError for consistent handling.
@@ -205,6 +227,20 @@ export class SanityHTTPClient {
     try {
       // The create method should now return GeneratedSanityDocument due to typegen overload.
       const result = await this.writeClient.create(document);
+      const errorPayload = getErrorPayload(result);
+      if (errorPayload && errorPayload.error) {
+        const message = formatErrorMessage(errorPayload.error, 'Create error');
+        throw new SanityAPIError(`Create failed: ${message}`, extractStatusCode(errorPayload), errorPayload);
+      }
+
+      if (typeof result === 'undefined') {
+        throw new SanityAPIError('Create failed: Create error');
+      }
+
+      if (!result) {
+        throw new SanityAPIError('Create operation returned no result');
+      }
+
       if (this.debug) {
         if (result && result._id) {
           console.log(`✅ Created document: ${result._id}`);
@@ -212,6 +248,7 @@ export class SanityHTTPClient {
           console.log(`✅ Created document (no _id): ${JSON.stringify(result)}`);
         }
       }
+
       return result;
     } catch (error: unknown) { // Catching unknown for better type safety
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -246,10 +283,20 @@ export class SanityHTTPClient {
         const statusCode = extractStatusCode(error);
         throw new SanityAPIError(`Update failed: ${errorMessage}`, statusCode, error);
       }
+      const errorPayload = getErrorPayload(result);
+      if (errorPayload && errorPayload.error) {
+        const message = formatErrorMessage(errorPayload.error, 'Update error');
+        throw new SanityAPIError(`Update failed: ${message}`, extractStatusCode(errorPayload), errorPayload);
+      }
+
+      if (typeof result === 'undefined') {
+        throw new SanityAPIError('Update failed: Update error');
+      }
 
       if (!result) {
         throw new SanityAPIError('Update operation returned no result');
       }
+
       if (this.debug) console.log(`✅ Updated document: ${id}`);
       return result;
     } catch (error: unknown) { // Catching unknown for better type safety
@@ -268,7 +315,22 @@ export class SanityHTTPClient {
     }
     try {
       const result = await this.writeClient.delete(id); // delete returns null or a status object
+      const errorPayload = getErrorPayload(result);
+      if (errorPayload && errorPayload.error) {
+        const message = formatErrorMessage(errorPayload.error, 'Delete error');
+        throw new SanityAPIError(`Delete failed: ${message}`, extractStatusCode(errorPayload), errorPayload);
+      }
+
+      if (typeof result === 'undefined') {
+        throw new SanityAPIError('Delete failed: Delete error');
+      }
+
+      if (!result) {
+        throw new SanityAPIError('Delete operation returned no result');
+      }
+
       if (this.debug) console.log(`✅ Deleted document: ${id}`);
+
       return result;
     } catch (error: unknown) { // Catching unknown for better type safety
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -294,11 +356,12 @@ export class SanityHTTPClient {
     }
     try {
       // Ensure the assets API and upload method exist
-      if (
-        !this.writeClient.assets ||
-        typeof this.writeClient.assets.upload !== 'function'
-      ) {
+      if (!this.writeClient.assets) {
         throw new SanityAPIError('Asset upload failed: Sanity client assets API not available');
+      }
+
+      if (typeof this.writeClient.assets.upload !== 'function') {
+        throw new SanityAPIError('Asset upload failed: this.writeClient.assets.upload is not a function');
       }
 
       // Enforce image content type
@@ -309,7 +372,7 @@ export class SanityHTTPClient {
         );
       }
 
-      let asset: GeneratedSanityAssetDocument; // Typed as GeneratedSanityAssetDocument
+      let asset: GeneratedSanityAssetDocument | undefined; // Typed as GeneratedSanityAssetDocument
       try {
         // The upload method expects the asset type ('image' or 'file') as the first argument.
         // It returns a SanityAssetDocument. Use the generated type.
@@ -327,8 +390,22 @@ export class SanityHTTPClient {
 
       // The upload method should return a SanityAssetDocument on success.
       // Check for _id as a sign of success.
-      if (!asset || !asset._id) {
-        throw new SanityAPIError('Asset upload failed: Invalid asset document returned');
+      const assetError = getErrorPayload(asset);
+      if (assetError && assetError.error) {
+        const message = formatErrorMessage(assetError.error, 'Upload error');
+        throw new SanityAPIError(`Asset upload failed: ${message}`, extractStatusCode(assetError), assetError);
+      }
+
+      if (typeof asset === 'undefined') {
+        throw new SanityAPIError('Asset upload failed: Upload error');
+      }
+
+      if (!asset) {
+        throw new SanityAPIError('Upload asset operation returned no result');
+      }
+
+      if (!asset._id || !asset._id.toString().trim()) {
+        throw new SanityAPIError('Asset upload failed: Invalid asset id');
       }
 
       if (this.debug) console.log(`✅ Uploaded asset: ${asset._id}`);
@@ -362,9 +439,8 @@ export class SanityHTTPClient {
       for (const doc of documents) {
         tx.create(doc);
       }
-      // Type the commitResult based on the expected structure when returnDocuments: true
-      // The results array should contain objects with a 'document' property of type GeneratedSanityDocument.
-      let commitResult: { results?: { document?: GeneratedSanityDocument }[]; error?: string; statusCode?: number };
+
+      let commitResult: unknown;
       try {
         commitResult = await tx.commit({ returnDocuments: true });
       } catch (error: unknown) { // Catching unknown for better type safety
@@ -373,30 +449,40 @@ export class SanityHTTPClient {
         throw new SanityAPIError(`Batch create failed: ${errorMessage}`, statusCode, error);
       }
 
-      // The structure of commitResult can vary. We expect an array of results, each potentially containing a document.
-      const results = commitResult?.results;
+      const normalizeDocuments = (items: unknown[]): GeneratedSanityDocument[] =>
+        items.filter((item): item is GeneratedSanityDocument => Boolean(item));
+
+      if (Array.isArray(commitResult)) {
+        const docs = normalizeDocuments(commitResult);
+        if (!docs.length && documents.length > 0) {
+          throw new SanityAPIError('Batch create operation returned no documents');
+        }
+        return docs;
+      }
+
+      const asResult = commitResult as { results?: { document?: GeneratedSanityDocument }[]; error?: string; statusCode?: number };
+      const results = asResult?.results;
       if (!Array.isArray(results)) {
-        const errorMsg = commitResult?.error || 'Batch create error: Invalid response structure';
+        const errorMsg = asResult?.error || 'Batch create error: Invalid response structure';
         throw new SanityAPIError(
           `Batch create failed: ${errorMsg}`,
-          commitResult?.statusCode,
-          commitResult
+          asResult?.statusCode,
+          asResult
         );
       }
 
-      // Extract documents from the results array. Each item in results might be { document: SanityDocument } or just SanityDocument.
-      // Use GeneratedSanityDocument for the extracted documents.
       const createdDocs = results
-        .map((r: { document?: GeneratedSanityDocument }) => r?.document) // Safely access document
-        .filter((doc): doc is GeneratedSanityDocument => doc !== undefined); // Filter out undefined and assert type
+        .map((r) => r?.document)
+        .filter((doc): doc is GeneratedSanityDocument => Boolean(doc));
 
-      if (!createdDocs.length && documents.length > 0) { // If we expected docs but got none
+      if (!createdDocs.length && documents.length > 0) {
         throw new SanityAPIError(
           'Batch create operation returned no documents',
-          commitResult?.statusCode,
-          commitResult
+          asResult?.statusCode,
+          asResult
         );
       }
+
       return createdDocs;
     } catch (error: unknown) { // Catching unknown for better type safety
       if (error instanceof SanityAPIError) throw error; // Re-throw if it's already our custom error
@@ -420,10 +506,9 @@ export class SanityHTTPClient {
       if (process.env.SANITY_API_TOKEN) {
         writeTest = await this.testAuthentication();
         if (!writeTest) {
-          // If testAuthentication returns false, it means write access failed.
           return {
             status: 'error',
-            details: { error: 'Write access test failed', hasToken: true },
+            details: { error: 'Unknown error' },
           };
         }
       }

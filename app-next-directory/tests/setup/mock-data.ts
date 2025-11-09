@@ -144,10 +144,7 @@ export default setup('seed reusable test data', async ({ page }) => {
     sessionCookie: TEST_SESSION_COOKIE_NAME
   })
 
-  // Primary listings feed
-  await page.route('**/api/legacy-listings', async (route) => {
-    await route.fulfill(json({ status: 'success', data: seeded.listings }))
-  })
+  // Primary listings feed (legacy route removed - now uses /api/listings)
 
   await page.route('**/api/listings', async (route) => {
     const url = new URL(route.request().url())

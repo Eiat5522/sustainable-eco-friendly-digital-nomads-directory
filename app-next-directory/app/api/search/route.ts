@@ -30,8 +30,6 @@ const LISTING_FIELDS = `
   category,
   "primaryImage": primaryImage{..., asset->},
   "galleryImages": galleryImages[]{..., asset->},
-  // Keep legacy location alias for compatibility, but also include city
-  "location": city->{ _id, name, "slug": slug.current, country },
   "city": city->{ _id, name, "slug": slug.current, country },
   priceRange,
   moderation,
@@ -72,10 +70,9 @@ export function buildWhereClause({
     throw new Error('Search query too long');
   }
 
-  // Only include published listings. Support legacy root-level `status` by coalescing.
   const filters: string[] = [
     '_type == "listing"',
-    'coalesce(moderation.status, status) == "published"'
+    'moderation.status == "published"'
   ];
 
   if (q) {
@@ -107,18 +104,13 @@ export function buildWhereClause({
   }
 
   if (amenities.length) {
-    // Support both legacy string comparison and name membership for referenced amenities
-    const legacyEq = amenities
-      .map((a) => `amenities[] == "${escapeGroqLiteral(a)}"`)
-      .join(' || ');
     const amenityNameIn = amenities
-      .map((a) => `("${escapeGroqLiteral(a)}" in amenities[]->name)`) // membership check in array of names
+      .map((a) => `("${escapeGroqLiteral(a)}" in amenities[]->name)`)
       .join(' || ');
-    // Also match digital nomad feature names by the same terms for broader compatibility
     const dnFeatureNameIn = amenities
       .map((a) => `array::contains(digitalNomadFeatures[]->name, "${escapeGroqLiteral(a)}")`)
       .join(' || ');
-    filters.push(`((${legacyEq}) || (${amenityNameIn}) || (${dnFeatureNameIn}))`);
+    filters.push(`((${amenityNameIn}) || (${dnFeatureNameIn}))`);
   }
   if (nomadFeatures.length) {
     const nfs = nomadFeatures
