@@ -93,12 +93,22 @@ function normalizeRedisClient<T extends Redis | undefined>(client: T): T {
   const evalShaFn = candidate.evalSha;
 
   if (!candidate.evalsha && typeof evalShaFn === 'function') {
-    candidate.evalsha = evalShaFn.bind(candidate) as unknown as typeof candidate.evalsha;
+    try {
+      candidate.evalsha = evalShaFn.bind(candidate) as unknown as typeof candidate.evalsha;
+    } catch {
+      // If bind throws, use the function without binding
+      candidate.evalsha = evalShaFn as unknown as typeof candidate.evalsha;
+    }
   }
 
   const evalshaFn = candidate.evalsha;
   if (!candidate.evalSha && typeof evalshaFn === 'function') {
-    candidate.evalSha = evalshaFn.bind(candidate) as unknown as typeof candidate.evalSha;
+    try {
+      candidate.evalSha = evalshaFn.bind(candidate) as unknown as typeof candidate.evalSha;
+    } catch {
+      // If bind throws, use the function without binding
+      candidate.evalSha = evalshaFn as unknown as typeof candidate.evalSha;
+    }
   }
 
   return candidate as unknown as T;
