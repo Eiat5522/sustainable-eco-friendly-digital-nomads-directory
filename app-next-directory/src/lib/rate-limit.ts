@@ -73,7 +73,7 @@ export let getRetryAfterMs = (key: string): number => {
 // toHaveBeenCalledWith. This preserves the original implementation for
 // non-test runtimes.
 if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
-  type AnyFunction = (...args: any[]) => any;
+  type AnyFunction = (...args: unknown[]) => unknown;
   type JestLike = {
     fn: <T extends AnyFunction>(implementation: T) => T & {
       mockImplementation?: (...args: Parameters<T>) => ReturnType<T>;

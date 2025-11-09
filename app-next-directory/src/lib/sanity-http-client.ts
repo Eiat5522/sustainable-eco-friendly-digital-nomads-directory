@@ -10,8 +10,6 @@ import type { SanityClient, QueryParams } from '@sanity/client';
 import type { SanityDocument as GeneratedSanityDocument } from '@/types/sanity';
 // Import generated types from sanity.types.ts.
 import type {
-  SanityImageAsset,
-  SanityFileAsset,
   Geopoint as ignoredGeopoint,
   Slug as ignoredSlug,
   SanityImageHotspot as ignoredSanityImageHotspot,
@@ -196,7 +194,7 @@ export class SanityHTTPClient {
           : this.client;
 
       // The fetch method should now return T based on the query and typegen overload.
-      const result = params ? await client.fetch<T>(query, params) : await client.fetch<T>(query);
+      const result = await client.fetch<T>(query, params);
       const errorPayload = getErrorPayload(result);
       if (errorPayload && errorPayload.error) {
         const message = formatErrorMessage(errorPayload.error, 'Query error');
