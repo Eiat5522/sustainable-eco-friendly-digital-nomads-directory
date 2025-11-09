@@ -311,7 +311,7 @@ export function FiltersSidebar({ definitions = defaultDefinitions }: FiltersSide
       setVoiceError(null)
       setLastTranscript(null)
       setIsListening(true)
-    } catch (error) {
+    } catch (_error) {
       setVoiceError('Voice recognition is already running.')
     }
   }, [allowedByGroup, applyFilters, definitions, speechRecognitionCtor])

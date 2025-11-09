@@ -121,7 +121,7 @@ if (process.env.JEST_RUN_INTEGRATION === '1' && process.env.JEST_USE_REAL_MONGOO
         const server = await createMongoMemoryServer();
         g.__GLOBAL_MONGO_SERVER__ = server;
         process.env.MONGODB_URI = (server as { getUri: () => string }).getUri();
-      } catch (e) {
+      } catch (_e) {
         // If helper not found, fallback to direct MongoMemoryServer
         try {
           const { MongoMemoryServer } = await import('mongodb-memory-server');
@@ -178,7 +178,7 @@ if (
     global.Request = global.Request || nodeFetch.Request;
     global.Response = global.Response || nodeFetch.Response;
     global.Headers = global.Headers || nodeFetch.Headers;
-  } catch (e) {
+  } catch (_e) {
     // If node-fetch is not available or is ESM-only under CJS jest runtime, skip silently
   }
 }
@@ -414,7 +414,7 @@ try {
   if (typeof rl.getRetryAfterMs !== 'function' || typeof (rl.getRetryAfterMs as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
     (rl as { getRetryAfterMs: unknown }).getRetryAfterMs = jest.fn(() => 60_000);
   }
-} catch (e) {
+} catch (_e) {
   // If require fails (module not found), swallow — some suites don't import rate-limit at all
 }
 
@@ -508,10 +508,10 @@ try {
     if (ac.default) {
       (global as Record<string, unknown>).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED = (ac.default as { isEmailVerificationRequired: unknown }).isEmailVerificationRequired || (global as Record<string, unknown>).__AUTH_IS_EMAIL_VERIFICATION_REQUIRED;
     }
-  } catch (e) {
+  } catch (_e) {
     // ignore
   }
-} catch (e) {
+} catch (_e) {
   // Ignore - some test suites may not resolve this module during setup
 }
 
@@ -550,7 +550,7 @@ try {
      
     console.log('DEBUG jest.setup: patched ./src/lib/auth/config exports');
   }
-} catch (e) {
+} catch (_e) {
   // ignore if file not present or require fails
 }
 
@@ -571,11 +571,11 @@ try {
       (global as Record<string, unknown>).__TOKENS_generateToken = tk.generateToken;
       (global as Record<string, unknown>).__TOKENS_hashToken = tk.hashToken;
       (global as Record<string, unknown>).__TOKENS_minutesFromNow = tk.minutesFromNow;
-    } catch (e) {
+    } catch (_e) {
       //ignore
     }
   }
-} catch (e) {
+} catch (_e) {
   // ignore
 }
 
@@ -594,11 +594,11 @@ try {
     try {
       (global as Record<string, unknown>).__EMAIL_buildVerifyEmail = em.buildVerifyEmail;
       (global as Record<string, unknown>).__EMAIL_sendMail = em.sendMail;
-    } catch (e) {
+    } catch (_e) {
       //ignore
     }
   }
-} catch (e) {
+} catch (_e) {
   // ignore
 }
 
@@ -622,6 +622,6 @@ try {
       // ignore if client promise fails
     });
   }
-} catch (e) {
+} catch (_e) {
   // ignore
 }

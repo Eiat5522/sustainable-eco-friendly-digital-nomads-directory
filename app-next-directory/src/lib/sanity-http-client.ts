@@ -11,17 +11,17 @@ import { createClient, SanityClient, Patch } from '@sanity/client';
 import type {
   SanityDocument as GeneratedSanityDocument,
   SanityAssetDocument as GeneratedSanityAssetDocument,
-  SanityImageAsset, // Assuming SanityImageAsset is also generated or a common type
-  SanityFileAsset, // Assuming SanityFileAsset is also generated or a common type
-  Geopoint,
-  Slug,
-  SanityImageHotspot,
-  SanityImageCrop,
-  SanityImageMetadata,
-  SanityImageDimensions,
-  SanityImagePalette,
-  SanityImagePaletteSwatch,
-  SanityAssetSourceData,
+  SanityImageAsset as ignoredSanityImageAsset, // Assuming SanityImageAsset is also generated or a common type
+  SanityFileAsset as ignoredSanityFileAsset, // Assuming SanityFileAsset is also generated or a common type
+  Geopoint as ignoredGeopoint,
+  Slug as ignoredSlug,
+  SanityImageHotspot as ignoredSanityImageHotspot,
+  SanityImageCrop as ignoredSanityImageCrop,
+  SanityImageMetadata as ignoredSanityImageMetadata,
+  SanityImageDimensions as ignoredSanityImageDimensions,
+  SanityImagePalette as ignoredSanityImagePalette,
+  SanityImagePaletteSwatch as ignoredSanityImagePaletteSwatch,
+  SanityAssetSourceData as ignoredSanityAssetSourceData,
   // Import specific query result types if needed for direct use, e.g.:
   // LISTING_BY_SLUG_QUERYResult, GetCitySummaryBySlugQueryResult
 } from '../../sanity/sanity.types';

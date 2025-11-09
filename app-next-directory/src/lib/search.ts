@@ -27,7 +27,7 @@ export async function searchListings(
   page = 1,
   limit = 12,
   sort?: SortOption,
-  preview = false
+  _preview = false
 ): Promise<SearchResults> {
   const sanityClient = client;
   const start = (page - 1) * limit;
@@ -155,7 +155,7 @@ export async function searchListings(
 export async function getSearchSuggestions(
   query: string,
   limit = 5,
-  preview = false
+  _preview = false
 ): Promise<string[]> {
   const sanityClient = client;
 
@@ -193,7 +193,7 @@ export async function getSearchSuggestions(
 export async function getSimilarListings(
   listingId: string,
   limit = 3,
-  preview = false
+  _preview = false
 ): Promise<SimilarListingResult[]> {
   const sanityClient = client;
 

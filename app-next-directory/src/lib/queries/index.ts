@@ -67,7 +67,7 @@ export async function getListingStats(): Promise<ListingStats> {
 
 export async function getNearbyListings(
   coords: { lat: number; lng: number },
-  maxDistanceKm: number
+  _maxDistanceKm: number
 ): Promise<NearbyVenue[]> {
   return [
     {
@@ -81,7 +81,7 @@ export async function getNearbyListings(
   ]
 }
 
-export async function searchListings(query: string): Promise<SearchResult[]> {
+export async function searchListings(_query: string): Promise<SearchResult[]> {
   return [
     {
       _id: '1',

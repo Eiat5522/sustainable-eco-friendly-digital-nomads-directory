@@ -212,7 +212,7 @@ const toAmenities = (
     }));
 
 // Shared helpers for simple name extraction and string validation
-const isNonEmptyString = (x: unknown): x is string => typeof x === 'string' && x.length > 0;
+const ignoredIsNonEmptyString = (x: unknown): x is string => typeof x === 'string' && x.length > 0;
 
 const toNames = (
   arr?: ReadonlyArray<{ name?: string } | null | undefined>
@@ -279,7 +279,7 @@ export function transformToSummaryDTO(sanityListing: DereferencedSanityListing |
   if (typeof websiteRaw === 'string') {
     try {
       // new URL will throw for invalid URLs
-      const u = new URL(websiteRaw, 'https://example.com');
+      const ignoredU = new URL(websiteRaw, 'https://example.com');
       // If provided string already absolute, keep it; if it was relative, drop it
       if (/^https?:\/\//i.test(websiteRaw)) website = websiteRaw;
     } catch { /* ignore invalid */ }

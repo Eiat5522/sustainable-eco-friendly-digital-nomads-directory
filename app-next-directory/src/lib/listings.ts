@@ -1,5 +1,4 @@
 // src/lib/listings.ts
-import { toSlug } from './utils/slug';
 // Maps a raw Sanity listing result to AppListingDetail DTO
 import { AppListingDetail, AppListingCard } from '@/types/appView';
 

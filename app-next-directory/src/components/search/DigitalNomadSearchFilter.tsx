@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useFilters, type FilterDefinition } from '@/hooks/useFilters'
 import { NeoButton } from '@/components/ui/neo-button'
 import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card'

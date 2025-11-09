@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { ComponentType, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { UserRole, hasPagePermission } from "../../types/auth";
+import { UserRole } from "../../types/auth";
 
 interface WithAuthOptions {
   requiredRole?: UserRole;

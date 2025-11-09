@@ -412,7 +412,7 @@ export function buildE2ESearchResponse({
 export function getE2ECitySummary(slug: string): CityDTO | null {
   const detail = discoveryCities.find((city) => city.slug === slug)
   if (!detail) return null
-  const { galleryImages: _gallery, digitalNomadFeatures: _dn, sustainabilityInitiatives: _si, shortDescription: _sd, airQuality: _aq, internetSpeed: _is, costOfLiving: _cl, climate: _climate, safety: _safety, walkability: _walk, ...rest } = detail
+  const { galleryImages: ignored_gallery, digitalNomadFeatures: ignored_dn, sustainabilityInitiatives: ignored_si, shortDescription: ignored_sd, airQuality: ignored_aq, internetSpeed: ignored_is, costOfLiving: ignored_cl, climate: ignored_climate, safety: ignored_safety, walkability: ignored_walk, ...rest } = detail
   return { ...rest }
 }
 

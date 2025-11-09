@@ -1,5 +1,4 @@
 import { ACCESS_CONTROL_MATRIX, PagePermissions, UserRole } from '@/types/auth';
-import { auth } from '@/lib/auth';
 import { structuredLogger, getRequestContext } from '@/lib/logger';
 
 const secret = process.env.NEXTAUTH_SECRET;
@@ -221,11 +220,11 @@ export function createMiddleware({
 
 // Default export for Next.js (uses real dependencies)
 // Dynamically require NextResponse for runtime compatibility
-let NextResponseReal: any;
+let ignoredNextResponseReal: any;
 try {
-  NextResponseReal = require('next/server').NextResponse;
+  ignoredNextResponseReal = require('next/server').NextResponse;
 } catch {
-  NextResponseReal = undefined;
+  ignoredNextResponseReal = undefined;
 }
 // Refined matcher configuration
 export const config = {
