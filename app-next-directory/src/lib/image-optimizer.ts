@@ -11,8 +11,6 @@
  * Python dependency entirely.
  */
 
-import { stat } from 'fs/promises';
-
 export interface OptimizationResult {
   success: boolean;
   optimizedPath?: string;
@@ -33,28 +31,17 @@ const LEGACY_OPTIMIZER_MESSAGE =
 
 /**
  * Previously invoked the Python optimiser for files on disk. Now it simply
- * reports the original size (when available) and returns a skip marker so the
- * calling code can continue without attempting to use an optimised asset.
+ * returns a skip marker so the calling code can continue without attempting
+ * to use an optimised asset. No file system operations are performed.
  */
 export async function optimizeImageFile(
-  inputPath: string,
+  _inputPath: string,
   _options: OptimizationOptions = {}
 ): Promise<OptimizationResult> {
-  try {
-    const stats = await stat(inputPath);
-
-    return {
-      success: false,
-      originalSize: stats.size,
-      optimizedSize: stats.size,
-      error: LEGACY_OPTIMIZER_MESSAGE
-    };
-  } catch (_error) {
-    return {
-      success: false,
-      error: LEGACY_OPTIMIZER_MESSAGE
-    };
-  }
+  return {
+    success: false,
+    error: LEGACY_OPTIMIZER_MESSAGE
+  };
 }
 
 /**

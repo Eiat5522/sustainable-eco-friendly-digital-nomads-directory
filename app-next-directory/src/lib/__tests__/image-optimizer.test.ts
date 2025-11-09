@@ -26,7 +26,7 @@ describe('image-optimizer', () => {
       expect(result.error).toContain('Sanity CDN');
     });
 
-    it('reports the original file size when available', async () => {
+    it('returns a pass-through result without checking file existence', async () => {
       const filePath = path.join(tempDir, 'example.jpg');
       const buffer = Buffer.from('mock image data');
       await writeFile(filePath, buffer);
@@ -34,8 +34,8 @@ describe('image-optimizer', () => {
       const result = await optimizeImageFile(filePath);
 
       expect(result.success).toBe(false);
-      expect(result.originalSize).toBe(buffer.length);
-      expect(result.optimizedSize).toBe(buffer.length);
+      expect(result.originalSize).toBeUndefined();
+      expect(result.optimizedSize).toBeUndefined();
       expect(result.error).toContain('Sanity CDN');
     });
   });
