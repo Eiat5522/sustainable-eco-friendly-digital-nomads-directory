@@ -42,7 +42,7 @@ consider them historical notes rather than actionable instructions.
 Use the existing JavaScript tooling to validate the upload pipeline:
 
 ```bash
-pnpm test:unit -- src/lib/__tests__/image-optimizer
+pnpm test:unit -- src/lib/__tests__/image-optimizer.test.ts
 pnpm test:unit -- app/api/upload
 ```
 
