@@ -22,8 +22,8 @@ const DEFAULT_HEIGHT = 800;
 const getDimensions = (value?: PortableTextImageValue) => {
   const rawWidth = value?.asset?.metadata?.dimensions?.width ?? undefined;
   const rawHeight = value?.asset?.metadata?.dimensions?.height ?? undefined;
-  const width = Number.isFinite(rawWidth) && rawWidth ? Math.round(rawWidth) : DEFAULT_WIDTH;
-  const height = Number.isFinite(rawHeight) && rawHeight ? Math.round(rawHeight) : DEFAULT_HEIGHT;
+  const width = Number.isFinite(rawWidth) ? Math.round(rawWidth) : DEFAULT_WIDTH;
+  const height = Number.isFinite(rawHeight) ? Math.round(rawHeight) : DEFAULT_HEIGHT;
   return { width, height };
 };
 
