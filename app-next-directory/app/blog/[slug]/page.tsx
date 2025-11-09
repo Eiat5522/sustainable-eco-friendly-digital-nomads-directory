@@ -8,6 +8,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { blogPortableTextComponents } from '@/components/blog/portableTextComponents';
 
 // Subtle SVG gradient placeholder for hero image when missing
 function placeholderDataUri(width = 1200, height = 630) {
@@ -111,7 +112,7 @@ export default async function BlogPostPage({ params }: Readonly<{ params: { slug
             />
           </div>
           <div className="bg-white border-4 border-black rounded-lg shadow-lg p-8">
-            <PortableText value={post.body} />
+            <PortableText value={post.body} components={blogPortableTextComponents} />
           </div>
         </article>
         <div className="mt-16">
