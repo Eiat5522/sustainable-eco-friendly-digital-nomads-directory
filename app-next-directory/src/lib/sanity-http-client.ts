@@ -325,7 +325,7 @@ export class SanityHTTPClient {
         throw new SanityAPIError('Delete failed: Delete error');
       }
 
-      if (!result) {
+      if (result === null) {
         throw new SanityAPIError('Delete operation returned no result');
       }
 

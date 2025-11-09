@@ -10,10 +10,12 @@ export async function POST(request: NextRequest) {
     try {
       body = await request.json();
     } catch (error) {
+      const errorForLog = error instanceof Error ? error : new Error(String(error));
       structuredLogger.warn('[register] Failed to parse request body', {
         component: 'auth',
-        error: error instanceof Error ? error.message : String(error),
+        error: errorForLog.message,
       });
+      console.warn('[register] Failed to parse request body', errorForLog);
       return NextResponse.json(
         { success: false, error: { message: 'Invalid request body', code: 'INVALID_INPUT' } },
         { status: 400 }

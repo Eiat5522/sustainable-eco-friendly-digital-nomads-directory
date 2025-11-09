@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
       method: request.method,
       path: pathParam ?? undefined,
     });
+    console.error(`Error revalidating path: ${pathParam ?? 'unknown'}`, error instanceof Error ? error : new Error(String(error)));
 
     return ApiResponseHandler.error('Error revalidating', 500);
   }

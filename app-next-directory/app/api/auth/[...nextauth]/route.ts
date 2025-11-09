@@ -14,10 +14,12 @@ export async function GET(request: Request) {
       console.log('[auth route] incoming GET', pathname);
     }
   } catch (error) {
+    const errorForLog = error instanceof Error ? error : new Error(String(error));
     structuredLogger.warn('[auth route] failed to parse GET request URL', {
       component: 'auth',
-      error: error instanceof Error ? error.message : String(error),
+      error: errorForLog.message,
     });
+    console.error('[auth route] failed to parse GET request URL', errorForLog);
     structuredLogger.info('[auth route] incoming GET');
     if (process.env.NODE_ENV === 'test') {
       console.log('[auth route] incoming GET');
@@ -34,10 +36,12 @@ export async function POST(request: Request) {
       console.log('[auth route] incoming POST', pathname);
     }
   } catch (error) {
+    const errorForLog = error instanceof Error ? error : new Error(String(error));
     structuredLogger.warn('[auth route] failed to parse POST request URL', {
       component: 'auth',
-      error: error instanceof Error ? error.message : String(error),
+      error: errorForLog.message,
     });
+    console.error('[auth route] failed to parse POST request URL', errorForLog);
     structuredLogger.info('[auth route] incoming POST');
     if (process.env.NODE_ENV === 'test') {
       console.log('[auth route] incoming POST');
