@@ -1,5 +1,10 @@
 # Task 9: Image Optimization Integration - Completion Summary
 
+> [!NOTE]
+> Update 2025-02-15: The Python-based tooling described below has since been
+> removed in favour of Sanity's CDN and Next.js `next/image`. This document is
+> preserved for historical context only.
+
 ## Task Overview
 **Task ID:** 9  
 **Title:** Integrate Image Optimization Script  
