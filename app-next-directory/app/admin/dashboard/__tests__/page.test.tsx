@@ -8,6 +8,16 @@ jest.mock('@/lib/auth', () => ({
 
 jest.mock('@/lib/admin/analytics', () => ({
   fetchAdminAnalytics: jest.fn(),
+  createEmptyRoleCounts: jest.fn(() => ({
+    admin: 0,
+    user: 0,
+    moderator: 0,
+    editor: 0,
+    venueOwner: 0,
+    superAdmin: 0,
+    contentEditor: 0,
+    unidentifiedUser: 0,
+  })),
 }));
 
 jest.mock('@/lib/logger', () => ({
