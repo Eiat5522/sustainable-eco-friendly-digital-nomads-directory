@@ -8,11 +8,6 @@ const MAX_LIMIT = 50;
 const DEFAULT_LIMIT = 20;
 const DEFAULT_PAGE = 1;
 
-type MaybeRequest = {
-  url?: string;
-  json?: () => Promise<unknown>;
-};
-
 type PaginationParams = {
   postId: string;
   page: number;
