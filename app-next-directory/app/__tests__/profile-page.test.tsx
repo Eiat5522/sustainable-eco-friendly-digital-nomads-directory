@@ -292,6 +292,9 @@ describe('ProfilePage', () => {
 
     render(<ProfilePage />);
 
+    const listingsTab = await screen.findByRole('button', { name: /listings/i });
+    fireEvent.click(listingsTab);
+
     await screen.findByText('Reviews for your venues');
     await screen.findByText('Eco Stay');
     await screen.findByText('Wonderful stay');
