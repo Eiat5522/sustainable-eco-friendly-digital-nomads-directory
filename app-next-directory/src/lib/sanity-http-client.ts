@@ -194,7 +194,7 @@ export class SanityHTTPClient {
           : this.client;
 
       // The fetch method should now return T based on the query and typegen overload.
-      const result = await client.fetch<T>(query, (params ?? undefined) as QueryParams);
+      const result = await client.fetch<T>(query, params as QueryParams);
       const errorPayload = getErrorPayload(result);
       if (errorPayload && errorPayload.error) {
         const message = formatErrorMessage(errorPayload.error, 'Query error');
