@@ -21,9 +21,20 @@ const credentialsSpy = jest.fn((options: any) => ({
   authorize: options.authorize,
 }));
 
+const googleSpy = jest.fn((options: any) => ({
+  id: 'google',
+  type: 'oauth',
+  options,
+}));
+
 jest.mock('next-auth/providers/credentials', () => ({
   __esModule: true,
   default: credentialsSpy,
+}));
+
+jest.mock('next-auth/providers/google', () => ({
+  __esModule: true,
+  default: googleSpy,
 }));
 
 const mockAdapter = { type: 'adapter' } as const;
@@ -73,6 +84,10 @@ const importAuthModule = async () => {
     __esModule: true,
     default: credentialsSpy,
   }));
+  jest.doMock('next-auth/providers/google', () => ({
+    __esModule: true,
+    default: googleSpy,
+  }));
   jest.doMock('@/lib/auth/adapter', () => ({
     createAuthAdapter: jest.fn((...args: unknown[]) => createAuthAdapter(...args)),
   }));
@@ -111,8 +126,12 @@ describe('auth module', () => {
     jest.clearAllMocks();
     process.env = { ...originalEnv };
     process.env.MONGODB_URI = '';
+    delete process.env.GOOGLE_CLIENT_ID;
+    delete process.env.GOOGLE_CLIENT_SECRET;
     nextAuthSpy.mockReturnValue(mockNextAuthInstance);
     isAdminEmail.mockReturnValue(false);
+    credentialsSpy.mockClear();
+    googleSpy.mockClear();
   });
 
   afterAll(() => {
@@ -349,5 +368,18 @@ describe('auth module', () => {
     expect(GET).toBe(mockNextAuthInstance.handlers.GET);
     expect(POST).toBe(mockNextAuthInstance.handlers.POST);
     expect(auth).toBe(mockNextAuthInstance.auth);
+  });
+
+  it('includes Google provider when credentials are configured', async () => {
+    process.env.GOOGLE_CLIENT_ID = 'client-id';
+    process.env.GOOGLE_CLIENT_SECRET = 'client-secret';
+    const { authOptions } = await importAuthModule();
+
+    const providerIds = authOptions.providers?.map((p: any) => p.id) ?? [];
+    expect(providerIds).toContain('google');
+    expect(googleSpy).toHaveBeenCalledWith({
+      clientId: 'client-id',
+      clientSecret: 'client-secret',
+    });
   });
 });

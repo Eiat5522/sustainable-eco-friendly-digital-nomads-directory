@@ -75,6 +75,31 @@ export function validateEnvironment() {
     console.log(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}`);
   });
 
+  const oauthVars = [
+    {
+      name: 'GOOGLE_CLIENT_ID',
+      value: process.env.GOOGLE_CLIENT_ID,
+      description: 'Google OAuth client ID',
+      required: false,
+    },
+    {
+      name: 'GOOGLE_CLIENT_SECRET',
+      value: process.env.GOOGLE_CLIENT_SECRET,
+      description: 'Google OAuth client secret',
+      required: false,
+    },
+  ];
+
+  console.log('\n🌐 Social Sign-In Providers:');
+  oauthVars.forEach(variable => {
+    const isValid = variable.value && variable.value.length > 0;
+    const status = isValid ? '✅' : '○';
+    console.log(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}`);
+    if (!isValid) {
+      console.log(`      ${variable.description}`);
+    }
+  });
+
   console.log('\n📋 Summary:');
   if (allValid) {
     console.log('🎉 All required environment variables are configured!');

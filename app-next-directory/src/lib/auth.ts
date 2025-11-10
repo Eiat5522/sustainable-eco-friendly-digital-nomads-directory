@@ -1,8 +1,9 @@
 import 'server-only'
 import NextAuth, { type NextAuthConfig } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
+import Google from 'next-auth/providers/google'
 // Use CommonJS-friendly deep imports to avoid ESM parsing issues in Jest
-// TODO(auth): Re-introduce OAuth providers once their credentials are configured.
+// Additional OAuth providers can be added here when their credentials are available.
 import { createAuthAdapter } from '@/lib/auth/adapter'
 import { authenticateUser, getUserById } from '@/lib/auth/serverAuth'
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit'
@@ -67,8 +68,20 @@ const providers: NextAuthConfig['providers'] = [
   }),
 ]
 
-// TODO(auth): When OAuth credentials are available, extend `providers` with the
-// relevant NextAuth providers (Google, Facebook, X/Twitter, Microsoft Entra ID).
+const googleClientId = process.env.GOOGLE_CLIENT_ID
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
+
+if (googleClientId && googleClientSecret) {
+  providers.push(
+    Google({
+      clientId: googleClientId,
+      clientSecret: googleClientSecret,
+    })
+  )
+}
+
+// Extend `providers` with any other OAuth options (Facebook, X/Twitter, Microsoft Entra ID, etc.)
+// when their credentials are supplied in the environment.
 
 const adapter = createAuthAdapter();
 
