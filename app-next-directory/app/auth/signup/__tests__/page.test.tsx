@@ -1,138 +1,78 @@
-/** @jest-environment jsdom */
+import { render, screen } from '@testing-library/react';
 
-import '@testing-library/jest-dom';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+jest.mock('@/lib/auth', () => ({
+  auth: jest.fn(),
+}));
 
-const signInMock = jest.fn();
+jest.mock('@/lib/absolute-url', () => ({
+  getBaseUrl: jest.fn(),
+}));
 
-jest.mock('next-auth/react', () => ({
+jest.mock('@/lib/auth/callbackUrl', () => ({
+  sanitizeCallbackUrl: jest.fn((url: string | undefined) => url ?? null),
+}));
+
+jest.mock('../SignupPageContent', () => ({
   __esModule: true,
-  signIn: signInMock,
+  default: () => <div data-testid="signup-content" />,
 }));
 
-jest.mock('@/components/layout/Header', () => ({
-  Header: () => <div data-testid="mock-header">Header</div>,
+const redirectMock = jest.fn();
+
+jest.mock('next/navigation', () => ({
+  redirect: (...args: unknown[]) => redirectMock(...args),
 }));
 
-jest.mock('@/components/layout/Footer', () => ({
-  Footer: () => <div data-testid="mock-footer">Footer</div>,
-}));
+const authMock = jest.requireMock('@/lib/auth').auth as jest.Mock;
+const getBaseUrlMock = jest.requireMock('@/lib/absolute-url').getBaseUrl as jest.Mock;
+const sanitizeCallbackUrlMock = jest.requireMock('@/lib/auth/callbackUrl').sanitizeCallbackUrl as jest.Mock;
 
-jest.mock('@/components/auth/SocialAuthRow', () => ({
-  __esModule: true,
-  default: () => <div data-testid="social-auth-row">social-auth</div>,
-}));
-
-jest.mock('@/components/ui/neo-input', () => ({
-  NeoInput: ({ asChild, children, ...props }: any) => <input data-testid={props.id ?? props.name} {...props}>{children}</input>,
-}));
-
-jest.mock('@/components/ui/neo-button', () => ({
-  NeoButton: ({ children, asChild = false, ...props }: any) =>
-    asChild ? <>{children}</> : (
-      <button data-testid="neo-button" {...props}>
-        {children}
-      </button>
-    ),
-}));
-
-jest.mock('@/components/ui/neo-card', () => ({
-  NeoCard: ({ children }: any) => <div data-testid="neo-card">{children}</div>,
-  NeoCardContent: ({ children }: any) => <div data-testid="neo-card-content">{children}</div>,
-  NeoCardHeader: ({ children }: any) => <div data-testid="neo-card-header">{children}</div>,
-  NeoCardTitle: ({ children }: any) => <h1 data-testid="neo-card-title">{children}</h1>,
-}));
-
-describe('SignupPage', () => {
-  const originalEnv = process.env.NEXT_PUBLIC_AUTH_DISABLE_OAUTH;
-  const getPage = async () => (await import('../page')).default;
-
+describe('SignupPage (server)', () => {
   beforeEach(() => {
-    signInMock.mockReset();
-    (global as any).fetch = jest.fn();
-    process.env.NEXT_PUBLIC_AUTH_DISABLE_OAUTH = 'false';
+    jest.clearAllMocks();
   });
 
-  afterEach(() => {
-    process.env.NEXT_PUBLIC_AUTH_DISABLE_OAUTH = originalEnv;
-  });
-
-  it('submits credentials and signs the user in on success', async () => {
-    const Page = await getPage();
-    const user = userEvent.setup();
-
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      json: jest.fn().mockResolvedValue({}),
+  it('redirects authenticated users to sanitized callback urls', async () => {
+    authMock.mockResolvedValueOnce({ user: { id: 'user-1' } });
+    getBaseUrlMock.mockResolvedValueOnce('https://example.com');
+    sanitizeCallbackUrlMock.mockReturnValueOnce('/dashboard');
+    redirectMock.mockImplementation(() => {
+      throw new Error('redirect');
     });
 
-    render(<Page />);
+    const SignupPage = (await import('../page')).default;
 
-    await user.type(screen.getByPlaceholderText('Name'), 'Jane Doe');
-    await user.type(screen.getByPlaceholderText('Email'), 'jane@example.com');
-    await user.type(screen.getByPlaceholderText('Password'), 'secretpass');
+    await expect(SignupPage({ searchParams: { callbackUrl: '/dashboard' } })).rejects.toThrow('redirect');
 
-    await user.click(screen.getByRole('button', { name: /sign up/i }));
-
-    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
-
-    expect(global.fetch).toHaveBeenCalledWith('/api/auth/register', expect.objectContaining({
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'Jane Doe', email: 'jane@example.com', password: 'secretpass' }),
-    }));
-
-    expect(signInMock).toHaveBeenCalledWith('credentials', expect.objectContaining({
-      email: 'jane@example.com',
-      password: 'secretpass',
-      callbackUrl: '/',
-    }));
+    expect(getBaseUrlMock).toHaveBeenCalledTimes(1);
+    expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/dashboard', 'https://example.com');
+    expect(redirectMock).toHaveBeenCalledWith('/dashboard');
   });
 
-  it('surfaces API error messages returned from the register endpoint', async () => {
-    process.env.NEXT_PUBLIC_AUTH_DISABLE_OAUTH = 'true';
-    const Page = await getPage();
-    const user = userEvent.setup();
-
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-      json: jest.fn().mockResolvedValue({ error: { message: 'Email already registered' } }),
+  it('handles base url resolution failures gracefully', async () => {
+    authMock.mockResolvedValueOnce({ user: { id: 'user-2' } });
+    getBaseUrlMock.mockRejectedValueOnce(new Error('failed'));
+    sanitizeCallbackUrlMock.mockReturnValueOnce('/fallback');
+    redirectMock.mockImplementation(() => {
+      throw new Error('redirect');
     });
 
-    render(<Page />);
+    const SignupPage = (await import('../page')).default;
 
-    await user.type(screen.getByPlaceholderText('Name'), 'Sam Example');
-    await user.type(screen.getByPlaceholderText('Email'), 'sam@example.com');
-    await user.type(screen.getByPlaceholderText('Password'), 'password123');
+    await expect(SignupPage({ searchParams: { callbackUrl: '/account' } })).rejects.toThrow('redirect');
 
-    await user.click(screen.getByRole('button', { name: /sign up/i }));
-
-    await screen.findByRole('alert');
-
-    expect(screen.getByRole('alert')).toHaveTextContent('Email already registered');
-    expect(signInMock).not.toHaveBeenCalled();
-    expect(screen.getAllByText('Social sign-in is temporarily disabled.')).toHaveLength(2);
+    expect(sanitizeCallbackUrlMock).toHaveBeenCalledWith('/account', undefined);
+    expect(redirectMock).toHaveBeenCalledWith('/fallback');
   });
 
-  it('shows a generic error when the API response body cannot be parsed', async () => {
-    const Page = await getPage();
-    const user = userEvent.setup();
+  it('renders the signup page content for guests', async () => {
+    authMock.mockResolvedValueOnce(null);
 
-    (global.fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
-      json: jest.fn().mockRejectedValue(new Error('invalid json')),
-    });
+    const SignupPage = (await import('../page')).default;
+    const element = await SignupPage({});
+    render(<>{element}</>);
 
-    render(<Page />);
-
-    await user.type(screen.getByPlaceholderText('Name'), 'Jamie');
-    await user.type(screen.getByPlaceholderText('Email'), 'jamie@example.com');
-    await user.type(screen.getByPlaceholderText('Password'), '12345678');
-
-    await user.click(screen.getByRole('button', { name: /sign up/i }));
-
-    await screen.findByRole('alert');
-    expect(screen.getByRole('alert')).toHaveTextContent('Failed to sign up');
+    expect(screen.getByTestId('signup-content')).toBeInTheDocument();
+    expect(redirectMock).not.toHaveBeenCalled();
   });
 });
