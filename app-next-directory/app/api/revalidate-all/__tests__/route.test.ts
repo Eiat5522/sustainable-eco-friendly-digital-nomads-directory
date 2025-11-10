@@ -18,11 +18,11 @@ describe('/api/revalidate-all', () => {
     process.env.revalidationToken = validToken;
     mockedRevalidatePath.mockReset();
 
-    // Load the route after resetting modules so we can set overrides on its testControl
+    // Load the route after resetting modules so we can set overrides on its _testControl
     jest.resetModules();
-    ({ POST, testControl: routeTestControl } = require('../route'));
+    ({ POST, _testControl: routeTestControl } = require('../route'));
 
-    // Set overrides on the required module's testControl (if the route exposes them)
+    // Set overrides on the required module's _testControl (if the route exposes them)
     if (routeTestControl) {
       routeTestControl.revalidatePathOverride = mockedRevalidatePath;
     }

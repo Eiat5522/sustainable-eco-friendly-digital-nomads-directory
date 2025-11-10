@@ -2,14 +2,14 @@ import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals
 
 import {
   GET,
-  normaliseSlug,
+  _normaliseSlug as normaliseSlug,
   normaliseListing,
   normaliseReview,
   isDeletedStatus,
-  testControl,
+  _testControl,
 } from '../route';
 
-const testHarness = testControl!;
+const testHarness = _testControl!;
 
 let authMock: jest.Mock;
 let getCollectionMock: jest.Mock;

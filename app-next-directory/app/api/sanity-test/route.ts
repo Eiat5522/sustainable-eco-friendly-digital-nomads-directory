@@ -6,7 +6,7 @@ type NodeEnvFn = () => string | undefined;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const testControl = isTestEnv
+export const _testControl = isTestEnv
   ? {
       clientFetchOverride: undefined as FetchFn | undefined,
       nodeEnvOverride: undefined as NodeEnvFn | undefined,
@@ -15,11 +15,11 @@ export const testControl = isTestEnv
 
 export async function GET(): Promise<Response> {
   try {
-    const nodeEnvOverride = testControl?.nodeEnvOverride;
+    const nodeEnvOverride = _testControl?.nodeEnvOverride;
     const rawEnv = nodeEnvOverride ? nodeEnvOverride() : process.env.NODE_ENV;
     const nodeEnv = rawEnv?.toLowerCase();
     const fetchFn =
-      testControl?.clientFetchOverride ??
+      _testControl?.clientFetchOverride ??
       ((query: string, params?: Record<string, unknown>) => client.fetch(query, params));
 
     if (nodeEnv === 'production') {

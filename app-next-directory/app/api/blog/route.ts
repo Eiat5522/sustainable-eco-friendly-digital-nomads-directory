@@ -149,7 +149,7 @@ type TransformFn = typeof transformToBlogSummaryDTO;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const testControl = isTestEnv
+export const _testControl = isTestEnv
   ? {
       sanityFetchOverride: undefined as FetchFn | undefined,
       transformOverride: undefined as TransformFn | undefined,

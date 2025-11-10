@@ -4,7 +4,7 @@ type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unkn
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const testControl = isTestEnv
+export const _testControl = isTestEnv
   ? {
       clientFetchOverride: undefined as FetchFn | undefined,
     }
@@ -27,7 +27,7 @@ export async function GET(_request: Request) {
     }`;
 
     const fetchFn =
-      testControl?.clientFetchOverride ??
+      _testControl?.clientFetchOverride ??
       ((queryString: string, params?: Record<string, unknown>) => client.fetch(queryString, params));
     const events = await fetchFn(query, { now });
 

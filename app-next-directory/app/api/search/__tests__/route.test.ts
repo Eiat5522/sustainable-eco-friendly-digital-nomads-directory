@@ -25,7 +25,7 @@ describe('/api/search', () => {
 
     mockedIsE2ERun.mockReturnValue(false);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    ({ GET, POST, testControl: routeTestControl } = require('../route'));
+    ({ GET, POST, _testControl: routeTestControl } = require('../route'));
   });
 
   afterEach(() => {

@@ -17,7 +17,7 @@ describe('/api/revalidate-all (repair)', () => {
     mockedRevalidatePath.mockReset();
 
     jest.resetModules();
-    ({ POST, testControl: routeTestControl } = require('../route'));
+    ({ POST, _testControl: routeTestControl } = require('../route'));
     if (routeTestControl) routeTestControl.revalidatePathOverride = mockedRevalidatePath;
   });
 

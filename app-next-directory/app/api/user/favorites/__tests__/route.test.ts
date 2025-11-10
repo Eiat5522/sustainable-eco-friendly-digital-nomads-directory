@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import { NextRequest } from 'next/server';
 
-// We'll mock the modules the route imports so tests don't need to mutate exported testControl
+// We'll mock the modules the route imports so tests don't need to mutate exported _testControl
 const mockedAuth = jest.fn();
 const mockedFetch = jest.fn();
 const mockedCreateOrReplace = jest.fn();
@@ -28,7 +28,7 @@ describe('/api/user/favorites', () => {
 
     // require the route after mocks are registered
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    ({ GET, POST, DELETE, testControl: routeTestControl } = require('../route'));
+    ({ GET, POST, DELETE, _testControl: routeTestControl } = require('../route'));
 
     // ensure parseBody override starts undefined
     routeTestControl.parseBodyOverride = undefined;

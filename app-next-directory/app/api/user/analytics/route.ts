@@ -27,7 +27,7 @@ type AnalyticsDependencies = {
   logger?: Pick<typeof structuredLogger, 'error'>;
 };
 
-export function createAnalyticsHandler({ authFn, fetchDashboard, logger }: AnalyticsDependencies) {
+export function _createAnalyticsHandler({ authFn, fetchDashboard, logger }: AnalyticsDependencies) {
   return async function GET(request: NextRequest) {
     try {
       const session = await authFn();
@@ -109,7 +109,7 @@ export function createAnalyticsHandler({ authFn, fetchDashboard, logger }: Analy
   };
 }
 
-export const GET = createAnalyticsHandler({
+export const GET = _createAnalyticsHandler({
   authFn: auth,
   fetchDashboard: getUserDashboardData,
   logger: structuredLogger,

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { createProfileHandlers } from './route';
+import { _createProfileHandlers as createProfileHandlers } from './route';
 
 const baseSession = {
   user: {

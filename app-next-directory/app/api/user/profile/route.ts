@@ -9,7 +9,7 @@ type ProfileDependencies = {
   updateUserProfileFn: typeof updateUserProfile;
 };
 
-export function createProfileHandlers({
+export function _createProfileHandlers({
   authFn,
   getUserByIdFn,
   updateUserProfileFn,
@@ -112,7 +112,7 @@ export function createProfileHandlers({
  * API route to get current user profile
  * This runs in Node.js runtime (not Edge) to allow MongoDB operations
  */
-const { GET, PUT } = createProfileHandlers({
+const { GET, PUT } = _createProfileHandlers({
   authFn: auth,
   getUserByIdFn: getUserById,
   updateUserProfileFn: updateUserProfile,

@@ -18,7 +18,7 @@ type OptimizeFn = (buffer: Buffer, fileName: string, options: OptimizationOption
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const testControl = isTestEnv
+export const _testControl = isTestEnv
   ? {
       authOverride: undefined as AuthFn | undefined,
       uploadOverride: undefined as UploadFn | undefined,
@@ -29,7 +29,7 @@ export const testControl = isTestEnv
   : undefined;
 
 export async function POST(request: Request) {
-  const authFn = testControl?.authOverride ?? auth;
+  const authFn = _testControl?.authOverride ?? auth;
   const session = await authFn();
   // session.user can be a loose object in tests; cast to unknown to avoid typing issues
   const sessionUser = (session as { user?: { id?: string; role?: string } })?.user;
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
   try {
     const formDataGetter =
-      testControl?.formDataOverride ?? ((req: Request) => req.formData());
+      _testControl?.formDataOverride ?? ((req: Request) => req.formData());
     const formData = await formDataGetter(request);
     const file = formData.get('file') as File;
 
@@ -58,14 +58,14 @@ export async function POST(request: Request) {
     };
 
     // Perform optimization unless explicitly skipped in tests
-    if (!testControl?.skipOptimization) {
+    if (!_testControl?.skipOptimization) {
       try {
         // Convert File to Buffer for optimization
         const fileBuffer = Buffer.from(await file.arrayBuffer());
         optimizationResult.originalSize = fileBuffer.length;
         
         // Optimize image before upload (Task 9 integration)
-        const optimizeFn = testControl?.optimizeOverride ?? optimizeFileBuffer;
+        const optimizeFn = _testControl?.optimizeOverride ?? optimizeFileBuffer;
         optimizationResult = await optimizeFn(fileBuffer, file.name, {
           maxWidth: 1600,
           maxHeight: 1200,
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
     }
 
     const uploadFn =
-      testControl?.uploadOverride ??
+      _testControl?.uploadOverride ??
       ((assetType: 'image' | 'file', uploadFile: File) => client.assets.upload(assetType, uploadFile));
     const imageAsset = await uploadFn('image', fileToUpload);
 

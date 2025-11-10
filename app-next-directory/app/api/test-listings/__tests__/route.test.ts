@@ -1,5 +1,5 @@
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { GET, testControl } from '../route';
+import { GET, _testControl } from '../route';
 
 const mockCreateTestData = jest.fn();
 
@@ -9,9 +9,9 @@ describe('/api/test-listings', () => {
 
   beforeEach(async () => {
     mockCreateTestData.mockReset();
-    // require after reset so we can set overrides on the required module's testControl
+    // require after reset so we can set overrides on the required module's _testControl
     jest.resetModules();
-    const { GET: newGET, testControl: newTestControl } = require('../route');
+    const { GET: newGET, _testControl: newTestControl } = require('../route');
     routeTestControl = newTestControl;
     routeTestControl.createTestDataOverride = mockCreateTestData;
     delete process.env.NODE_ENV;

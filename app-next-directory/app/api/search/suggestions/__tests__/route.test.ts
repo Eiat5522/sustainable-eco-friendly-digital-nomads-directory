@@ -2,7 +2,7 @@ import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals
 
 const mockedGetSearchSuggestions = jest.fn();
 
-// Mock the search helper used by the route instead of mutating testControl
+// Mock the search helper used by the route instead of mutating _testControl
 jest.mock('@/lib/search', () => ({ getSearchSuggestions: mockedGetSearchSuggestions }));
 
 let GET: any;

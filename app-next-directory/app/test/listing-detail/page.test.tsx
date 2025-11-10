@@ -33,7 +33,11 @@ describe('ListingDetailTestPage', () => {
 
   it('renders the disabled message in production when test pages are not enabled', async () => {
     
-    process.env.NODE_ENV = 'production';
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: 'production',
+      writable: true,
+      configurable: true
+    })
     delete process.env.ENABLE_TEST_PAGES;
 
     const { default: ListingDetailTestPage } = await import('./page');
@@ -47,7 +51,11 @@ describe('ListingDetailTestPage', () => {
 
   it('renders the listing detail view when not in production', async () => {
     
-    process.env.NODE_ENV = 'development';
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: 'development',
+      writable: true,
+      configurable: true
+    })
     process.env.ENABLE_TEST_PAGES = 'false';
 
     const { default: ListingDetailTestPage } = await import('./page');
@@ -69,7 +77,11 @@ describe('ListingDetailTestPage', () => {
 
   it('allows enabling the page in production via the ENABLE_TEST_PAGES flag', async () => {
     
-    process.env.NODE_ENV = 'production';
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: 'production',
+      writable: true,
+      configurable: true
+    })
     process.env.ENABLE_TEST_PAGES = 'true';
 
     const { default: ListingDetailTestPage } = await import('./page');

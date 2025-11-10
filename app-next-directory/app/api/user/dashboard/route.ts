@@ -10,7 +10,7 @@ import type { UserRole } from '@/types/auth';
 const DEFAULT_MONTH_WINDOW = 3;
 const MAX_MONTH_WINDOW = 12;
 
-export function normaliseMonthWindow(monthsParam: string | null): number {
+export function _normaliseMonthWindow(monthsParam: string | null): number {
   if (!monthsParam) return DEFAULT_MONTH_WINDOW;
   const parsed = Number.parseInt(monthsParam, 10);
   if (Number.isNaN(parsed)) return DEFAULT_MONTH_WINDOW;
@@ -23,7 +23,7 @@ type DashboardDependencies = {
   logger?: Pick<typeof structuredLogger, 'error'>;
 };
 
-export function createDashboardHandler({ authFn, fetchDashboard, logger }: DashboardDependencies) {
+export function _createDashboardHandler({ authFn, fetchDashboard, logger }: DashboardDependencies) {
   return async function GET(request: NextRequest) {
     try {
       const session = await authFn();
@@ -39,7 +39,7 @@ export function createDashboardHandler({ authFn, fetchDashboard, logger }: Dashb
       }
 
       const { searchParams } = new URL(request.url);
-      const months = normaliseMonthWindow(searchParams.get('months'));
+      const months = _normaliseMonthWindow(searchParams.get('months'));
 
       const dashboard = await fetchDashboard(
         {
@@ -70,7 +70,7 @@ export function createDashboardHandler({ authFn, fetchDashboard, logger }: Dashb
   };
 }
 
-export const GET = createDashboardHandler({
+export const GET = _createDashboardHandler({
   authFn: auth,
   fetchDashboard: getUserDashboardData,
   logger: structuredLogger,

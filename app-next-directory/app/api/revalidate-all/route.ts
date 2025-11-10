@@ -7,7 +7,7 @@ type TokenFn = () => string | undefined;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const testControl = isTestEnv
+export const _testControl = isTestEnv
   ? {
       revalidatePathOverride: undefined as RevalidateFn | undefined,
       tokenOverride: undefined as TokenFn | undefined,
@@ -17,7 +17,7 @@ export const testControl = isTestEnv
 export async function POST(request: NextRequest) {
   try {
     const token = request.nextUrl.searchParams.get('token');
-    const tokenOverride = testControl?.tokenOverride;
+    const tokenOverride = _testControl?.tokenOverride;
     const expectedToken = tokenOverride ? tokenOverride() : process.env.revalidationToken;
 
     // Validate the revalidation token
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     ];
 
     // Revalidate each route
-    const revalidate = testControl?.revalidatePathOverride ?? revalidatePath;
+    const revalidate = _testControl?.revalidatePathOverride ?? revalidatePath;
     for (const route of routesToRevalidate) {
       revalidate(route);
     }

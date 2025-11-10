@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { GET, POST, DELETE, testControl } from '../../../app/api/user/favorites/route';
+import { GET, POST, DELETE, _testControl } from '../../../app/api/user/favorites/route';
 import { createTestData } from '@/tests/helpers/test-data';
 
-if (!testControl) {
-  throw new Error('testControl is unavailable. Ensure NODE_ENV is "test" when running integration tests.');
+if (!_testControl) {
+  throw new Error('_testControl is unavailable. Ensure NODE_ENV is "test" when running integration tests.');
 }
 
 type FavoriteDoc = {
@@ -20,12 +20,12 @@ const listing = data.listings[0];
 const favoritesStore: FavoriteDoc[] = [];
 
 const resetOverrides = () => {
-  testControl.authOverride = undefined;
-  testControl.ensureSanityUserOverride = undefined;
-  testControl.clientFetchOverride = undefined;
-  testControl.clientCreateOrReplaceOverride = undefined;
-  testControl.clientDeleteOverride = undefined;
-  testControl.parseBodyOverride = undefined;
+  _testControl.authOverride = undefined;
+  _testControl.ensureSanityUserOverride = undefined;
+  _testControl.clientFetchOverride = undefined;
+  _testControl.clientCreateOrReplaceOverride = undefined;
+  _testControl.clientDeleteOverride = undefined;
+  _testControl.parseBodyOverride = undefined;
 };
 
 const parseJson = async (response: Response) => ({
@@ -39,7 +39,7 @@ describe('API /api/user/favorites integration', () => {
 
     const sanityUserId = sessionUser.id;
 
-    testControl.authOverride = async () => ({
+    _testControl.authOverride = async () => ({
       user: {
         id: sessionUser.id,
         role: 'user',
@@ -48,11 +48,11 @@ describe('API /api/user/favorites integration', () => {
       },
     });
 
-    testControl.ensureSanityUserOverride = async () => ({
+    _testControl.ensureSanityUserOverride = async () => ({
       _id: sanityUserId,
     });
 
-    testControl.clientFetchOverride = jest.fn(async (query: string, params?: Record<string, any>) => {
+    _testControl.clientFetchOverride = jest.fn(async (query: string, params?: Record<string, any>) => {
       if (query.includes('_type == "listing"') && query.includes('slug.current')) {
         if (params?.slug === listing.slug?.current) {
           return { _id: listing._id };
@@ -100,7 +100,7 @@ describe('API /api/user/favorites integration', () => {
       return null;
     });
 
-    testControl.clientCreateOrReplaceOverride = jest.fn(async (doc: any) => {
+    _testControl.clientCreateOrReplaceOverride = jest.fn(async (doc: any) => {
       const entry: FavoriteDoc = {
         _id: doc._id,
         userId: doc.user._ref,
@@ -118,7 +118,7 @@ describe('API /api/user/favorites integration', () => {
       return { _id: doc._id };
     });
 
-    testControl.clientDeleteOverride = jest.fn(async (id: string) => {
+    _testControl.clientDeleteOverride = jest.fn(async (id: string) => {
       const index = favoritesStore.findIndex((favorite) => favorite._id === id);
       if (index >= 0) {
         favoritesStore.splice(index, 1);

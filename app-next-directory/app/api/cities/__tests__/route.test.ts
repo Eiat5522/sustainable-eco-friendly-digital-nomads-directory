@@ -27,7 +27,7 @@ describe('Cities API - GET /api/cities', () => {
     mockGetCitiesList.mockReset();
     const routeModule = await import('../route');
     GET = routeModule.GET;
-    routeTestControl = routeModule.testControl;
+    routeTestControl = routeModule._testControl;
   });
 
   afterEach(() => {

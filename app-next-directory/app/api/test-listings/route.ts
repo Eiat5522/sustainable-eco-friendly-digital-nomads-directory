@@ -5,7 +5,7 @@ type NodeEnvFn = () => string | undefined;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const testControl = isTestEnv
+export const _testControl = isTestEnv
   ? {
       createTestDataOverride: undefined as CreateTestDataFn | undefined,
       nodeEnvOverride: undefined as NodeEnvFn | undefined,
@@ -15,7 +15,7 @@ export const testControl = isTestEnv
 export const dynamic = 'force-static';
 
 export async function GET(): Promise<Response> {
-  const nodeEnvOverride = testControl?.nodeEnvOverride;
+  const nodeEnvOverride = _testControl?.nodeEnvOverride;
   const nodeEnv = nodeEnvOverride ? nodeEnvOverride() : process.env.NODE_ENV;
   if ((nodeEnv ?? '').toLowerCase() === 'production') {
     return new Response(null, { status: 404 });
@@ -23,7 +23,7 @@ export async function GET(): Promise<Response> {
   // Load test helpers lazily to avoid bundlers trying to statically
   // resolve test-only modules during a production build.
   const testModule = await import('@/tests/helpers/test-data');
-  const createData = testControl?.createTestDataOverride ?? testModule.createTestData;
+  const createData = _testControl?.createTestDataOverride ?? testModule.createTestData;
   const { listings } = createData();
   return ApiResponseHandler.success({ listings });
 }

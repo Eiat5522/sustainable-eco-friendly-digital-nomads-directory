@@ -20,7 +20,7 @@ const memoryStore = new Map<string, StoredValue>()
 
 async function memoryGet(key: string): Promise<string | null> {
   // Allow tests to override the behavior synchronously or asynchronously.
-  const override = testControl?.memoryGetOverride
+  const override = _testControl?.memoryGetOverride
   if (override) {
     return await override(key)
   }
@@ -41,7 +41,7 @@ function memorySet(key: string, value: string, ttlSeconds: number) {
 // Tests will assign functions to these properties to override in-memory operations.
 const isTestEnv = !!process.env.JEST_WORKER_ID
 
-export const testControl = isTestEnv
+export const _testControl = isTestEnv
   ? {
       // (key) => string|null | Promise<string|null>
       memoryGetOverride: undefined as
@@ -56,7 +56,7 @@ export const testControl = isTestEnv
 
 async function memoryIncr(key: string, ttlSeconds: number): Promise<number> {
   // Allow tests to override the behavior synchronously or asynchronously.
-  const override = testControl?.memoryIncrOverride
+  const override = _testControl?.memoryIncrOverride
   if (override) {
     return await override(key, ttlSeconds)
   }

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals';
-import { createDashboardHandler, normaliseMonthWindow } from './route';
+import { _createDashboardHandler as createDashboardHandler, _normaliseMonthWindow as normaliseMonthWindow } from './route';
 
 type RouteHandler = ReturnType<typeof createDashboardHandler>;
 

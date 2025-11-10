@@ -115,21 +115,21 @@ const loadRoute = async (envOverrides: Record<string, string | undefined>): Prom
 describe('POST /api/newsletter/subscribe (Jest worker mode)', () => {
   let routeModule: RouteModule;
   let POST: RouteModule['POST'];
-  let testControl: RouteModule['testControl'];
+  let _testControl: RouteModule['_testControl'];
   let clearStore: RouteModule['_clearMemoryStore'];
   let memoryIncr: RouteModule['memoryIncr'];
 
   beforeEach(async () => {
     routeModule = await loadRoute({ JEST_WORKER_ID: '1', NODE_ENV: 'test' });
-    ({ POST, testControl, _clearMemoryStore: clearStore, memoryIncr } = routeModule);
+    ({ POST, _testControl, _clearMemoryStore: clearStore, memoryIncr } = routeModule);
     clearStore();
-    testControl.memoryGetOverride = undefined;
-    testControl.memoryIncrOverride = undefined;
+    _testControl.memoryGetOverride = undefined;
+    _testControl.memoryIncrOverride = undefined;
   });
 
   afterEach(() => {
-    testControl.memoryGetOverride = undefined;
-    testControl.memoryIncrOverride = undefined;
+    _testControl.memoryGetOverride = undefined;
+    _testControl.memoryIncrOverride = undefined;
   });
 
   it('returns 422 for invalid email', async () => {
@@ -176,7 +176,7 @@ describe('POST /api/newsletter/subscribe (Jest worker mode)', () => {
 
   it('ignores malformed cached payloads and continues processing', async () => {
     const headers = { 'Idempotency-Key': 'malformed-cache' };
-    routeModule.testControl.memoryGetOverride = jest
+    routeModule._testControl.memoryGetOverride = jest
       .fn()
       .mockResolvedValueOnce('not-json')
       .mockResolvedValue(null);
@@ -199,8 +199,8 @@ describe('POST /api/newsletter/subscribe (Jest worker mode)', () => {
       return null;
     });
     const incrOverride = jest.fn(async () => 1);
-    routeModule.testControl.memoryGetOverride = getOverride;
-    routeModule.testControl.memoryIncrOverride = incrOverride;
+    routeModule._testControl.memoryGetOverride = getOverride;
+    routeModule._testControl.memoryIncrOverride = incrOverride;
 
     const res = await POST(createRequest({ email: 'override@example.com' }, { 'Idempotency-Key': 'override' }));
     const body = await res.json();

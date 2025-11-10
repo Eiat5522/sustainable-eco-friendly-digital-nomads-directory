@@ -13,26 +13,29 @@ describe('highlightText', () => {
     // Should return an array with "Hello ", <mark>World</mark>
     expect(Array.isArray(result)).toBe(true);
     
+    if (!Array.isArray(result)) return;
+    
     const mark = result.find((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(mark).toBeTruthy();
-    if (mark && typeof mark === 'object' && 'props' in mark) {
-      if (mark && typeof mark === 'object' && 'props' in mark) {
-        expect((mark as any).props.children).toBe('World');
-      }
+    if (mark) {
+      expect((mark.props as { children?: unknown; className?: string }).children).toBe('World');
+      expect(mark.type).toBe('mark');
     }
-    expect(mark.type).toBe('mark');
   });
 
   it('highlights all occurrences (case-insensitive)', () => {
     const result = highlightText('foo bar foo', 'foo');
     // Should have two <mark>foo</mark>
     
+    if (!Array.isArray(result)) {
+      fail('Expected result to be an array');
+      return;
+    }
+    
     const marks = result.filter((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(marks.length).toBe(2);
     marks.forEach((mark: React.ReactElement) => {
-      if (mark && typeof mark === 'object' && 'props' in mark) {
-        expect((mark as any).props.children).toBe('foo');
-      }
+      expect((mark.props as { children?: unknown; className?: string }).children).toBe('foo');
     });
   });
 
@@ -40,19 +43,27 @@ describe('highlightText', () => {
     const result = highlightText('Foo foo', 'foo', { caseSensitive: true });
     // Only the lowercase 'foo' should be highlighted
     
+    if (!Array.isArray(result)) {
+      fail('Expected result to be an array');
+      return;
+    }
+    
     const marks = result.filter((el: unknown) => React.isValidElement(el));
     expect(marks.length).toBe(1);
-    expect(marks[0].props.children).toBe('foo');
+    expect((marks[0].props as { children?: unknown }).children).toBe('foo');
   });
 
   it('applies custom className', () => {
     const result = highlightText('foo bar', 'foo', { className: 'custom-class' });
     
+    if (!Array.isArray(result)) {
+      fail('Expected result to be an array');
+      return;
+    }
+    
     const mark = result.find((el: unknown): el is React.ReactElement => React.isValidElement(el));
-    if (mark && typeof mark === 'object' && 'props' in mark) {
-      if (mark && typeof mark === 'object' && 'props' in mark) {
-        expect((mark as any).props.className).toBe('custom-class');
-      }
+    if (mark) {
+        expect((mark.props as { children?: unknown; className?: string }).className).toBe('custom-class');
     }
   });
 
@@ -66,12 +77,15 @@ describe('highlightText', () => {
     const result = highlightText('foo.bar*foo?', 'foo.bar*foo?', {});
     // Should highlight the entire string
     
+    if (!Array.isArray(result)) {
+      fail('Expected result to be an array');
+      return;
+    }
+    
     const mark = result.find((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(mark).toBeTruthy();
-    if (mark && typeof mark === 'object' && 'props' in mark) {
-      if (mark && typeof mark === 'object' && 'props' in mark) {
-        expect((mark as any).props.children).toBe('foo.bar*foo?');
-      }
+    if (mark) {
+        expect((mark.props as { children?: unknown; className?: string }).children).toBe('foo.bar*foo?');
     }
   });
 
@@ -95,11 +109,16 @@ describe('highlightText', () => {
     const result = highlightText('foofoofoo', 'foo');
     // Should have three <mark>foo</mark>
     
+    if (!Array.isArray(result)) {
+      fail('Expected result to be an array');
+      return;
+    }
+    
     const marks = result.filter((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(marks.length).toBe(3);
     marks.forEach((mark: React.ReactElement) => {
-      if (mark && typeof mark === 'object' && 'props' in mark) {
-        expect((mark as any).props.children).toBe('foo');
+      if (mark) {
+        expect((mark.props as { children?: unknown; className?: string }).children).toBe('foo');
       }
     });
   });
@@ -121,6 +140,11 @@ describe('highlightText', () => {
   it('handles empty options object', () => {
     const result = highlightText('foo bar', 'foo', {});
     
+    if (!Array.isArray(result)) {
+      fail('Expected result to be an array');
+      return;
+    }
+    
     const mark = result.find((el: unknown) => React.isValidElement(el)) as React.ReactElement;
     expect(mark).toBeTruthy();
   });
@@ -128,6 +152,11 @@ describe('highlightText', () => {
   it('handles undefined options', () => {
     // Should use default options
     const result = highlightText('foo bar', 'foo');
+    
+    if (!Array.isArray(result)) {
+      fail('Expected result to be an array');
+      return;
+    }
     
     const mark = result.find((el: unknown) => React.isValidElement(el)) as React.ReactElement;
     expect(mark).toBeTruthy();
@@ -141,23 +170,31 @@ describe('highlightText', () => {
   it('handles text with numbers and searchQuery as number string', () => {
     const result = highlightText('abc123abc', '123');
     
+    if (!Array.isArray(result)) {
+      fail('Expected result to be an array');
+      return;
+    }
+    
     const mark = result.find((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(mark).toBeTruthy();
-    if (mark && typeof mark === 'object' && 'props' in mark) {
-      if (mark && typeof mark === 'object' && 'props' in mark) {
-        expect((mark as any).props.children).toBe('123');
-      }
+    if (mark) {
+        expect((mark.props as { children?: unknown; className?: string }).children).toBe('123');
     }
   });
 
   it('handles text with unicode characters', () => {
     const result = highlightText('café café', 'café');
     
+    if (!Array.isArray(result)) {
+      fail('Expected result to be an array');
+      return;
+    }
+    
     const marks = result.filter((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(marks.length).toBe(2);
     marks.forEach((mark: React.ReactElement) => {
-      if (mark && typeof mark === 'object' && 'props' in mark) {
-        expect((mark as any).props.children).toBe('café');
+      if (mark) {
+        expect((mark.props as { children?: unknown; className?: string }).children).toBe('café');
       }
     });
   });
@@ -165,12 +202,15 @@ describe('highlightText', () => {
   it('handles searchQuery with unicode characters', () => {
     const result = highlightText('café', 'é');
     
+    if (!Array.isArray(result)) {
+      fail('Expected result to be an array');
+      return;
+    }
+    
     const mark = result.find((el: unknown): el is React.ReactElement => React.isValidElement(el));
     expect(mark).toBeTruthy();
-    if (mark && typeof mark === 'object' && 'props' in mark) {
-      if (mark && typeof mark === 'object' && 'props' in mark) {
-        expect((mark as any).props.children).toBe('é');
-      }
+    if (mark) {
+        expect((mark.props as { children?: unknown; className?: string }).children).toBe('é');
     }
   });
 

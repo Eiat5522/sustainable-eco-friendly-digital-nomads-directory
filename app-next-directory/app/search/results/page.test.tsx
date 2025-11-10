@@ -116,7 +116,11 @@ describe('Search results page module', () => {
 
     const previousEnv = process.env.NODE_ENV
     
-    process.env.NODE_ENV = 'development'
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: 'development',
+      writable: true,
+      configurable: true
+    })
 
     const ui = await ResultsPage({ searchParams: Promise.resolve({ retry: '2' }) })
     render(ui)
@@ -128,7 +132,11 @@ describe('Search results page module', () => {
     expect(screen.getByText(/Error: 500 Server Error/)).toBeInTheDocument()
 
     
-    process.env.NODE_ENV = previousEnv
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: previousEnv,
+      writable: true,
+      configurable: true
+    })
   })
 
   it('handles thrown errors from the API handler', async () => {
@@ -136,7 +144,11 @@ describe('Search results page module', () => {
 
     const previousEnv = process.env.NODE_ENV
     
-    process.env.NODE_ENV = 'development'
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: 'development',
+      writable: true,
+      configurable: true
+    })
 
     const ui = await ResultsPage({ searchParams: Promise.resolve({}) })
     render(ui)
@@ -146,7 +158,11 @@ describe('Search results page module', () => {
     expect(screen.getByText(/Unexpected error occurred/i)).toBeInTheDocument()
 
     
-    process.env.NODE_ENV = previousEnv
+    Object.defineProperty(process.env, 'NODE_ENV', {
+      value: previousEnv,
+      writable: true,
+      configurable: true
+    })
   })
 
   it('logs and recovers from unexpected payload shapes', async () => {

@@ -3,7 +3,7 @@ import clientPromise from '@/lib/mongodb';
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const testControl = isTestEnv
+export const _testControl = isTestEnv
   ? {
       clientOverride: undefined as Promise<typeof clientPromise extends Promise<infer C> ? C : never> | undefined,
     }
@@ -14,7 +14,7 @@ export const runtime = 'nodejs';
 export async function GET() {
   try {
     // Test the connection
-    const client = await (testControl?.clientOverride ?? clientPromise);
+    const client = await (_testControl?.clientOverride ?? clientPromise);
     await client.db().command({ ping: 1 });
 
     return ApiResponseHandler.success({ message: 'Successfully connected to MongoDB!' });

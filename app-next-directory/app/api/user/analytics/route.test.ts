@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import { createAnalyticsHandler } from './route';
+import { _createAnalyticsHandler as createAnalyticsHandler } from './route';
 
 type RouteHandler = ReturnType<typeof createAnalyticsHandler>;
 

@@ -5,7 +5,7 @@
 
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
 
-// We'll mock the modules the route imports so tests don't need to mutate exported testControl
+// We'll mock the modules the route imports so tests don't need to mutate exported _testControl
 const fetchMock = jest.fn() as jest.MockedFunction<(...args: any[]) => Promise<any>>;
 const transformMock = jest.fn() as jest.MockedFunction<(p: any) => any>;
 const trackViewCountMock = jest.fn() as jest.MockedFunction<(id: string) => Promise<number>>;
@@ -67,9 +67,9 @@ describe('Blog [slug] API', () => {
     const route = require('./route');
     GET = route.GET;
     PUT = route.PUT;
-    routeTestControl = route.testControl;
+    routeTestControl = route._testControl;
 
-    // trackViewCount is internal; set the override on the required module's testControl
+    // trackViewCount is internal; set the override on the required module's _testControl
     routeTestControl.trackViewCountOverride = trackViewCountMock as any;
     routeTestControl.resetViewCounts();
     routeTestControl.resetFallbackMetrics();

@@ -56,7 +56,7 @@ function errorResponse(message: string, status: number, details?: unknown) {
   } as Response;
 }
 
-function parsePagination(request: MaybeRequest):
+function parsePagination(request: Request):
   | { ok: true; params: PaginationParams }
   | { ok: false; response: Response } {
   if (!request || typeof request.url !== 'string') {
@@ -119,8 +119,8 @@ function normaliseContent(content: unknown): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-export async function GET(request: Request | MaybeRequest) {
-  const pagination = parsePagination(request as MaybeRequest);
+export async function GET(request: Request) {
+  const pagination = parsePagination(request);
   if (!pagination.ok) {
     return pagination.response;
   }
@@ -154,7 +154,7 @@ export async function GET(request: Request | MaybeRequest) {
   }
 }
 
-export async function POST(request: Request | MaybeRequest) {
+export async function POST(request: Request) {
   const session = await auth();
   const user = session?.user as { id?: string; role?: UserRole; name?: string | null; email?: string | null } | undefined;
   const userId = user?.id;

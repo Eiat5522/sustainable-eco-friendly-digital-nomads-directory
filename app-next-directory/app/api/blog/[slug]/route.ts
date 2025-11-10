@@ -183,7 +183,7 @@ type TestControl = {
   getFallbackMetrics: () => ReturnType<typeof getFallbackMetricsSnapshot>;
 };
 
-export const testControl: TestControl | undefined = isTestEnv
+export const _testControl: TestControl | undefined = isTestEnv
   ? {
       sanityFetchOverride: undefined,
       transformOverride: undefined,
@@ -243,7 +243,7 @@ export async function GET(
 
     // Fetch the blog post
     const fetchFn =
-      testControl?.sanityFetchOverride ??
+      _testControl?.sanityFetchOverride ??
       ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
     const post = (await fetchFn(postQuery, { slug })) as RawSanityBlogPost | null;
 
@@ -256,7 +256,7 @@ export async function GET(
       return ApiResponseHandler.notFound('Blog post');
     }
 
-    const transform = testControl?.transformOverride ?? transformToBlogDetailDTO;
+    const transform = _testControl?.transformOverride ?? transformToBlogDetailDTO;
     const dto = transform(post);
     // Ensure related posts in DTO format if present
     const response = {
@@ -291,8 +291,8 @@ export async function GET(
 
 // View count tracking with MongoDB persistence
 async function trackViewCount(postId: string): Promise<number> {
-  if (testControl?.trackViewCountOverride) {
-    return testControl.trackViewCountOverride(postId);
+  if (_testControl?.trackViewCountOverride) {
+    return _testControl?.trackViewCountOverride(postId);
   }
 
   try {
@@ -321,7 +321,7 @@ export async function PUT(
     if (body.action === 'increment_view') {
       // Find post ID by slug
       const fetchFn =
-        testControl?.sanityFetchOverride ??
+        _testControl?.sanityFetchOverride ??
         ((query: string, params?: Record<string, unknown>) => sanityClient.fetch(query, params));
       const post = (await fetchFn(
         groq`*[_type == "blogPost" && slug.current == $slug][0]{ _id, "slug": slug.current }`,

@@ -6,7 +6,7 @@ type CitiesFetcher = (limit?: number) => Promise<CityDTO[]>;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const testControl = isTestEnv
+export const _testControl = isTestEnv
   ? {
       fetchCitiesOverride: undefined as CitiesFetcher | undefined,
     }
@@ -14,7 +14,7 @@ export const testControl = isTestEnv
 
 export async function GET() {
   try {
-    const fetchCities = testControl?.fetchCitiesOverride ?? getCitiesList;
+    const fetchCities = _testControl?.fetchCitiesOverride ?? getCitiesList;
     const cities = await fetchCities(8);
     return NextResponse.json({ cities });
   } catch (_error) {

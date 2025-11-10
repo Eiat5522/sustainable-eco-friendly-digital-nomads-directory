@@ -46,7 +46,7 @@ type NormalisedReview = {
   reviewerImage?: string;
 };
 
-export function normaliseSlug(rawSlug: unknown): string | null {
+export function _normaliseSlug(rawSlug: unknown): string | null {
   if (typeof rawSlug === 'string' && rawSlug.trim().length > 0) {
     return rawSlug.trim();
   }
@@ -65,7 +65,7 @@ export function normaliseSlug(rawSlug: unknown): string | null {
 }
 
 export function normaliseListing(doc: ListingDoc): NormalisedListing | null {
-  const slug = normaliseSlug(doc.slug);
+  const slug = _normaliseSlug(doc.slug);
   if (!slug) {
     return null;
   }
@@ -131,7 +131,7 @@ export function isDeletedStatus(status: unknown): boolean {
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const testControl = isTestEnv
+export const _testControl = isTestEnv
   ? {
       authOverride: undefined as (() => Promise<unknown>) | undefined,
       getCollectionOverride: undefined as ((collection: string) => Promise<unknown>) | undefined,
@@ -139,7 +139,7 @@ export const testControl = isTestEnv
   : undefined;
 
 export async function GET() {
-  const authFn = testControl?.authOverride ?? auth;
+  const authFn = _testControl?.authOverride ?? auth;
   const session = await authFn();
   // session may be untyped in tests; cast to any to access user
   const user = (session as { user?: SessionUser })?.user;
@@ -155,7 +155,7 @@ export async function GET() {
   }
 
   try {
-    const collectionGetter = testControl?.getCollectionOverride ?? getCollection;
+    const collectionGetter = _testControl?.getCollectionOverride ?? getCollection;
     const listingsCollection = (await collectionGetter('listings')) as Collection<ListingDoc>;
     const rawListings = await listingsCollection
       .find({ ownerId: userId })

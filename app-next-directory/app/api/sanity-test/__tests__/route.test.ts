@@ -13,7 +13,7 @@ describe('/api/sanity-test', () => {
     mockedFetch.mockReset();
     // require after mocks
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    ({ GET, testControl: routeTestControl } = require('../route'));
+    ({ GET, _testControl: routeTestControl } = require('../route'));
     routeTestControl.clientFetchOverride = undefined;
     routeTestControl.nodeEnvOverride = undefined;
     delete process.env.NODE_ENV;
