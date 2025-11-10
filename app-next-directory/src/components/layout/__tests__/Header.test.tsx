@@ -469,7 +469,7 @@ describe('Header', () => {
       })
     })
 
-    it('shows dashboard link for all authenticated users', async () => {
+    it('does not show dashboard link for authenticated users', async () => {
       mockSessionContext(
         {
           user: { id: '1', name: 'Regular User', email: 'user@example.com', role: 'member' }
@@ -484,8 +484,9 @@ describe('Header', () => {
 
       await waitFor(() => {
         const dashboardLink = document.querySelector('a[href="/dashboard"]')
-        expect(dashboardLink).toBeInTheDocument()
-        expect(dashboardLink?.textContent).toMatch(/dashboard/i)
+        const profileLink = document.querySelector('a[href="/profile"]')
+        expect(profileLink).toBeInTheDocument()
+        expect(dashboardLink).not.toBeInTheDocument()
       })
     })
 
@@ -710,10 +711,11 @@ describe('Header', () => {
       await user.click(screen.getByRole('button', { name: /open account menu/i }))
 
       await waitFor(() => {
-        // Should have dashboard link but not admin dashboard
         const dashboardLink = document.querySelector('a[href="/dashboard"]')
         const adminLink = document.querySelector('a[href="/admin/dashboard"]')
-        expect(dashboardLink).toBeInTheDocument()
+        const profileLink = document.querySelector('a[href="/profile"]')
+        expect(profileLink).toBeInTheDocument()
+        expect(dashboardLink).not.toBeInTheDocument()
         expect(adminLink).not.toBeInTheDocument()
       })
     })
