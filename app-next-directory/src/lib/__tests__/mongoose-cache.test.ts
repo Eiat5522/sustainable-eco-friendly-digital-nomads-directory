@@ -38,6 +38,20 @@ describe('withMongooseCache', () => {
     expect(result).toEqual(cachedValue);
   });
 
+  it('returns cached object when redis client already deserializes the value', async () => {
+    const cachedValue = { id: 'cached-object' };
+    const queryFn = jest.fn();
+    getRedisClientMock.mockReturnValue({
+      get: jest.fn().mockResolvedValue(cachedValue),
+      set: jest.fn(),
+    });
+
+    const result = await withMongooseCache(model, 'findActive', queryFn);
+
+    expect(queryFn).not.toHaveBeenCalled();
+    expect(result).toEqual(cachedValue);
+  });
+
   it('logs a warning and falls back to executing the query when cache read fails', async () => {
     const queryResult = { id: 'fresh' };
     const queryFn = jest.fn().mockResolvedValue(queryResult);

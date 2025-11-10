@@ -19,9 +19,12 @@ export async function withMongooseCache<T>(
   }
 
   try {
-    const cachedData = await client.get<string>(key);
-    if (cachedData) {
-      return JSON.parse(cachedData);
+    const cachedData = await client.get<unknown>(key);
+    if (cachedData !== null && cachedData !== undefined) {
+      if (typeof cachedData === 'string') {
+        return JSON.parse(cachedData) as T;
+      }
+      return cachedData as T;
     }
   } catch (error) {
     console.warn('[mongoose-cache] Failed to read from Redis cache', error);

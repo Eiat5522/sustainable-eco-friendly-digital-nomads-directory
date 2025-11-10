@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 
 import { NeoCard, NeoCardContent, NeoCardHeader, NeoCardTitle } from '@/components/ui/neo-card';
 import { NeoButton } from '@/components/ui/neo-button';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { auth } from '@/lib/auth';
 import { getUserDashboardData } from '@/lib/dashboard/user-dashboard';
 import type {
@@ -141,6 +142,7 @@ function VenueOwnerView({ data, range }: { data: VenueOwnerDashboardDTO; range: 
       </div>
 
       <div className="space-y-4">
+        <div id="monthly-trend" />
         <h3 className="heading-md">Monthly trend</h3>
         <div className="overflow-x-auto rounded-lg border border-neo-border/60 bg-white shadow-sm">
           <table className="min-w-full divide-y divide-neo-border/60 text-left text-sm">
@@ -259,6 +261,7 @@ function RegularUserView({ data }: { data: RegularUserDashboardDTO }) {
       </div>
 
       <div className="space-y-4">
+        <div id="monthly-trend" />
         <h3 className="heading-md">Monthly trend</h3>
         <div className="overflow-x-auto rounded-lg border border-neo-border/60 bg-white shadow-sm">
           <table className="min-w-full divide-y divide-neo-border/60 text-left text-sm">
@@ -312,28 +315,63 @@ export default async function DashboardPage() {
 
   if (!dashboard) {
     return (
-      <main className="container mx-auto px-4 py-16">
-        <h1 className="heading-lg">Dashboard</h1>
-        <p className="mt-2 text-sm text-neo-text-secondary">We could not load your dashboard data right now. Please try again later.</p>
-      </main>
+      <PageLayout>
+        <section className="container mx-auto px-4 py-16">
+          <h1 className="heading-lg">Dashboard</h1>
+          <p className="mt-2 text-sm text-neo-text-secondary">
+            We could not load your dashboard data right now. Please try again later.
+          </p>
+        </section>
+      </PageLayout>
     );
   }
 
-  return (
-    <main className="container mx-auto space-y-12 px-4 py-12" data-testid="user-dashboard">
-      <header className="space-y-2">
-        <h1 className="heading-xl">Dashboard</h1>
-        <p className="text-sm text-neo-text-secondary">
-          Personalised workspace for tracking your activity inside Digital Nomads Directory.
-        </p>
-        <p className="text-xs text-neo-text-tertiary">Last generated {new Date(dashboard.generatedAt).toLocaleString()}</p>
-      </header>
+  const quickLinks = [
+    { label: 'Overview', href: '#dashboard-overview' },
+    { label: 'Favorites', href: '#favorites-section' },
+    { label: 'Listings', href: '/dashboard/listings' },
+    { label: 'Monthly trend', href: '#monthly-trend' },
+    { label: 'Profile', href: '/profile' },
+  ];
 
-      {dashboard.data.kind === 'venueOwner' ? (
-        <VenueOwnerView data={dashboard.data} range={dashboard.range} />
-      ) : (
-        <RegularUserView data={dashboard.data} />
-      )}
-    </main>
+  return (
+    <PageLayout>
+      <section className="container mx-auto space-y-12 px-4 py-12" data-testid="user-dashboard">
+        <header id="dashboard-overview" className="space-y-2">
+          <h1 className="heading-xl">Dashboard</h1>
+          <p className="text-sm text-neo-text-secondary">
+            Personalised workspace for tracking your activity inside Digital Nomads Directory.
+          </p>
+          <p className="text-xs text-neo-text-tertiary">Last generated {new Date(dashboard.generatedAt).toLocaleString()}</p>
+        </header>
+
+        <nav
+          aria-label="Dashboard quick links"
+          className="flex flex-wrap gap-3 rounded-full border border-neo-border/60 bg-white/80 px-4 py-3 text-sm shadow-sm shadow-neo-border/20"
+        >
+          {quickLinks.map((link) => (
+            <Link
+              key={link.label}
+              href={link.href}
+              className="px-3 py-1 rounded-full border border-transparent bg-neo-surface text-neo-text-primary transition hover:border-neo-primary hover:text-neo-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neo-primary"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        {dashboard.data.kind === 'venueOwner' ? (
+          <>
+            <div id="favorites-section" />
+            <VenueOwnerView data={dashboard.data} range={dashboard.range} />
+          </>
+        ) : (
+          <>
+            <div id="favorites-section" />
+            <RegularUserView data={dashboard.data} />
+          </>
+        )}
+      </section>
+    </PageLayout>
   );
 }
