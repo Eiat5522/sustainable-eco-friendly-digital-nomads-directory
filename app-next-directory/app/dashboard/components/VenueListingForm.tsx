@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
-import logger from '@/lib/logger';
+import { structuredLogger } from '@/lib/logger';
 
 const listingFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
