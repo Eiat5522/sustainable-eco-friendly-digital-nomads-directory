@@ -8,6 +8,7 @@
 
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import type { NextRequest } from 'next/server';
+import { getE2EListingsForCity } from '@/data/e2e/discovery-fixtures';
 
 // Mock the getListingsByCityId function
 const mockGetListingsByCityId = jest.fn();
@@ -231,6 +232,34 @@ describe('City Listings API - GET /api/listings/city/[id]', () => {
 
       expect(response.status).toBe(500);
       expect(data.success).toBe(false);
+    });
+  });
+
+  describe('Sanity configuration fallbacks', () => {
+    it('should return fixture listings when Sanity configuration is missing', async () => {
+      const originalProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+      const originalDataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
+      delete process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+      delete process.env.NEXT_PUBLIC_SANITY_DATASET;
+
+      try {
+        const fallbackListings = getE2EListingsForCity('city-bangkok');
+        expect(fallbackListings.length).toBeGreaterThan(0);
+
+        const request = {} as NextRequest;
+        const context: RouteContext = { params: Promise.resolve({ id: 'city-bangkok' }) };
+
+        const response = await GET(request, context);
+        const data = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(data.success).toBe(true);
+        expect(data.data?.listings).toEqual(fallbackListings);
+        expect(mockGetListingsByCityId).not.toHaveBeenCalled();
+      } finally {
+        process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = originalProjectId;
+        process.env.NEXT_PUBLIC_SANITY_DATASET = originalDataset;
+      }
     });
   });
 

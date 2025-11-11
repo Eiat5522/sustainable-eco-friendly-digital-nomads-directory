@@ -10,6 +10,7 @@
 import { jest } from '@jest/globals';
 import { GET } from './route';
 import { client } from '@/lib/sanity/client';
+import { mockFeaturedVenues } from '@/components/sections/featuredVenuesMockData';
 
 // Mock Sanity client
 jest.mock('@/lib/sanity/client', () => ({
@@ -178,27 +179,27 @@ describe('Featured Listings API - GET /api/featured-listings', () => {
       }
     });
 
-    it('should return error when Sanity project ID is missing', async () => {
+    it('should return mock featured venues when project ID is missing', async () => {
       delete process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
 
       const response = await GET();
       const data = await response.json();
 
-      expect(response.status).toBe(500);
-      expect(data.success).toBe(false);
-      expect(data.error).toBe('Server configuration error: Sanity credentials missing.');
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.data?.listings).toEqual(mockFeaturedVenues);
       expect(mockedFetch).not.toHaveBeenCalled();
     });
 
-    it('should return error when Sanity dataset is missing', async () => {
+    it('should return mock featured venues when dataset is missing', async () => {
       delete process.env.NEXT_PUBLIC_SANITY_DATASET;
 
       const response = await GET();
       const data = await response.json();
 
-      expect(response.status).toBe(500);
-      expect(data.success).toBe(false);
-      expect(data.error).toBe('Server configuration error: Sanity credentials missing.');
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+      expect(data.data?.listings).toEqual(mockFeaturedVenues);
       expect(mockedFetch).not.toHaveBeenCalled();
     });
   });

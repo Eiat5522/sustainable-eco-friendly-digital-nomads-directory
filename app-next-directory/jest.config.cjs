@@ -126,8 +126,11 @@ module.exports = {
 
   testMatch: [
     '<rootDir>/src/**/*.test.(ts|tsx|js|jsx)',
+    '<rootDir>/src/**/*.msw.test.(ts|tsx|js|jsx)',
     '<rootDir>/src/**/__tests__/**/*.(ts|tsx|js|jsx)',
+    '<rootDir>/src/**/__tests__/**/*.msw.test.(ts|tsx|js|jsx)',
     '<rootDir>/app/**/*.test.(ts|tsx|js|jsx)',
+    '<rootDir>/app/**/*.msw.test.(ts|tsx|js|jsx)',
     '<rootDir>/app/**/__tests__/**/*.(ts|tsx|js|jsx)',
   ],
 

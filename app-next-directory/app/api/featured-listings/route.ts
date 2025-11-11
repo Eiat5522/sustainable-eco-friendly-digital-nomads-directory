@@ -47,14 +47,16 @@ interface FeaturedListing {
 
 import { groq } from 'next-sanity';
 import { ApiResponseHandler } from '@/utils/api-response';
+import { mockFeaturedVenues } from '@/components/sections/featuredVenuesMockData';
+import { isSanityConfigured } from '@/lib/sanity/env';
 
 export async function GET() {
   const startTime = performance.now();
   console.log('[DEBUG] Featured Listings API: Request started at', new Date().toISOString());
 
-  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || !process.env.NEXT_PUBLIC_SANITY_DATASET) {
-    console.error('[ERROR] Featured Listings API: Sanity environment variables are not configured.');
-    return ApiResponseHandler.error('Server configuration error: Sanity credentials missing.', 500);
+  if (!isSanityConfigured()) {
+    console.info('[INFO] Featured Listings API: Sanity configuration missing, returning mock featured venues.');
+    return ApiResponseHandler.success({ listings: mockFeaturedVenues });
   }
   
   try {

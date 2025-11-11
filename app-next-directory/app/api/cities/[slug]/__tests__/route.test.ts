@@ -17,6 +17,7 @@ jest.mock('@/lib/data/city', () => ({
 }));
 
 import { getCityBySlug } from '@/lib/data/city';
+import { getE2ECityDetail } from '@/data/e2e/discovery-fixtures';
 
 const cityDataMockModule = jest.requireMock('@/lib/data/city') as { getCityBySlug: jest.Mock };
 
@@ -212,6 +213,33 @@ describe('Cities Slug API - GET /api/cities/[slug]', () => {
 
       expect(data).toHaveProperty('success');
       expect(data.success).toBe(true);
+    });
+  });
+
+  describe('Sanity configuration fallbacks', () => {
+    it('should return fixture city when Sanity configuration is missing', async () => {
+      const originalDataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
+      const originalProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+      delete process.env.NEXT_PUBLIC_SANITY_DATASET;
+      delete process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+
+      try {
+        const fallbackCity = getE2ECityDetail('bangkok');
+        expect(fallbackCity).not.toBeNull();
+
+        const request = {} as NextRequest;
+        const context = { params: Promise.resolve({ slug: 'bangkok' }) };
+        const response = await GET(request, context);
+        const data = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(data.success).toBe(true);
+        expect(data.data?.slug).toBe('bangkok');
+        expect(mockGetCityBySlug).not.toHaveBeenCalled();
+      } finally {
+        process.env.NEXT_PUBLIC_SANITY_DATASET = originalDataset;
+        process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = originalProjectId;
+      }
     });
   });
 

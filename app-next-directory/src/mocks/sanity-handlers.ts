@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import { createTestData } from '@/tests/helpers/test-data'
+import type { Listing } from '@/types/sanity'
 
 const data = createTestData()
 
@@ -9,7 +10,7 @@ const data = createTestData()
  */
 export const sanityHandlers = [
   // Sanity query endpoint - handles GROQ queries
-  http.get('https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset', ({ request, params }) => {
+  http.get('https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset', ({ request }) => {
     const url = new URL(request.url)
     const query = url.searchParams.get('query') || ''
     
@@ -27,7 +28,7 @@ export const sanityHandlers = [
       }
       
       // Return listing results
-      const results = data.listings.map((listing: any) => ({
+      const results = data.listings.map((listing: Listing) => ({
         _id: listing._id,
         name: listing.name,
         slug: { current: listing.slug?.current },
