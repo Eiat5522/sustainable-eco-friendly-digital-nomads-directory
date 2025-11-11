@@ -65,6 +65,7 @@ const moduleNameMapper = {
   '^next-auth/providers/(.*)$': '<rootDir>/__mocks__/next-auth/providers/$1.js',
   '^@auth/core/providers/(.*)$': '<rootDir>/__mocks__/next-auth/providers/$1.js',
   '^@auth/mongodb-adapter$': '<rootDir>/__mocks__/@auth/mongodb-adapter.js',
+  '^@playwright/test$': '<rootDir>/tests/helpers/playwright-jest-stub.ts',
 
   '^@mocks/server$': '<rootDir>/src/mocks/server.ts',
   '^@mocks/handlers$': '<rootDir>/src/mocks/handlers.ts',
