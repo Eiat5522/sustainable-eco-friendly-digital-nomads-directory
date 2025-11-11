@@ -6,7 +6,7 @@ import { signNewsletterConfirmToken } from '@/lib/newsletterTokens'
 import { buildNewsletterConfirmEmail, sendMail } from '@/lib/email'
 import { getRedisClient, mockRedisClient } from '@/lib/redis'
 import type { RedisLike } from '@/lib/redis'
-import logger from '@/lib/logger'
+import { structuredLogger } from '@/lib/logger'
 
 const newsletterSubscriptionSchema = z
   .object({
