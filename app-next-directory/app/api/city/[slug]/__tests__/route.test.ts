@@ -16,13 +16,26 @@ jest.mock('@/lib/data/city', () => ({
   getCityBySlug: jest.fn(),
 }));
 
+// Mock the logger module
+jest.mock('@/lib/logger', () => ({
+  __esModule: true,
+  structuredLogger: {
+    error: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+  },
+}));
+
 import { getCityBySlug } from '@/lib/data/city';
+import { structuredLogger } from '@/lib/logger';
 
 const cityDataMockModule = jest.requireMock('@/lib/data/city') as { getCityBySlug: jest.Mock };
+const loggerMockModule = jest.requireMock('@/lib/logger') as { structuredLogger: { error: jest.Mock; warn: jest.Mock; info: jest.Mock } };
 
 let GET: typeof import('../route').GET;
 
 const mockGetCityBySlug = cityDataMockModule.getCityBySlug;
+const mockLogger = loggerMockModule.structuredLogger;
 
 beforeAll(async () => {
   ({ GET } = await import('../route'));
@@ -31,6 +44,7 @@ beforeAll(async () => {
 describe('City Slug API - GET /api/city/[slug]', () => {
   beforeEach(() => {
     mockGetCityBySlug.mockReset();
+    mockLogger.error.mockClear();
   });
 
   describe('Successful Requests', () => {
@@ -217,7 +231,6 @@ describe('City Slug API - GET /api/city/[slug]', () => {
     });
 
     it('should log error details to console', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       mockGetCityBySlug.mockRejectedValue(new Error('Test error'));
 
       const request = {} as NextRequest;
@@ -225,14 +238,12 @@ describe('City Slug API - GET /api/city/[slug]', () => {
       
       await GET(request, context);
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
-      const callArgs = consoleErrorSpy.mock.calls[0];
+      expect(mockLogger.error).toHaveBeenCalled();
+      const callArgs = mockLogger.error.mock.calls[0];
       expect(callArgs[0]).toContain('GET /api/city/[slug] failed');
-      consoleErrorSpy.mockRestore();
     });
 
     it('should include slug in error log', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       mockGetCityBySlug.mockRejectedValue(new Error('Test error'));
 
       const request = {} as NextRequest;
@@ -240,10 +251,9 @@ describe('City Slug API - GET /api/city/[slug]', () => {
       
       await GET(request, context);
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
-      const callArgs = consoleErrorSpy.mock.calls[0];
-      expect(callArgs[1]).toHaveProperty('slug', 'error-city');
-      consoleErrorSpy.mockRestore();
+      expect(mockLogger.error).toHaveBeenCalled();
+      const callArgs = mockLogger.error.mock.calls[0];
+      expect(callArgs[2]).toHaveProperty('slug', 'error-city');
     });
   });
 

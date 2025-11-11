@@ -6,6 +6,7 @@ import { signNewsletterConfirmToken } from '@/lib/newsletterTokens'
 import { buildNewsletterConfirmEmail, sendMail } from '@/lib/email'
 import { getRedisClient, mockRedisClient } from '@/lib/redis'
 import type { RedisLike } from '@/lib/redis'
+import { structuredLogger } from '@/lib/logger'
 
 const newsletterSubscriptionSchema = z
   .object({
@@ -304,7 +305,7 @@ export async function POST(request: Request) {
 
     return json({ success: true, data: null, message: 'Thank you for subscribing to our newsletter!' })
   } catch (error) {
-    console.error('Newsletter subscription error:', error)
+    structuredLogger.error('Newsletter subscription error', error, { component: 'newsletter-api' })
     const storeType = process.env.JEST_WORKER_ID ? 'memory' : (getRedisClient() ? 'upstash' : 'memory')
     return new Response(JSON.stringify({ success: false, error: 'An internal server error occurred.' }), { status: 500, headers: { 'content-type': 'application/json', 'x-redis': storeType } })
   }

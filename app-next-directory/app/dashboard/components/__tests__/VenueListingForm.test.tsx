@@ -3,6 +3,17 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ListingFormValues } from '../VenueListingForm'
 import { within } from '@testing-library/react'
+import { structuredLogger } from '@/lib/logger'
+
+// Mock the logger
+jest.mock('@/lib/logger', () => ({
+  __esModule: true,
+  structuredLogger: {
+    error: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+  },
+}));
 
 jest.mock('@/components/ui/neo-button', () => ({
   __esModule: true,
@@ -539,7 +550,7 @@ describe('VenueListingForm', () => {
     })
     global.fetch = fetchMock as unknown as typeof fetch
 
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const loggerError = jest.spyOn(structuredLogger, 'error').mockImplementation(() => {})
     const onSave = jest.fn()
     const user = userEvent.setup()
 
@@ -562,10 +573,10 @@ describe('VenueListingForm', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Save Listing' }))
 
-    await waitFor(() => expect(consoleError).toHaveBeenCalledWith('Failed to save listing:', uploadError))
+    await waitFor(() => expect(loggerError).toHaveBeenCalledWith('Failed to save listing', uploadError, { component: 'VenueListingForm' }))
     expect(onSave).not.toHaveBeenCalled()
 
-    consoleError.mockRestore()
+    loggerError.mockRestore()
   })
 })
   
