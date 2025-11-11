@@ -7,6 +7,7 @@ import {
 } from '@/tests/helpers/test-data'
 import { mockFeaturedVenues } from '@/components/sections/featuredVenuesMockData'
 import type { AppReview } from '@/types/appView'
+import { sanityHandlers } from './sanity-handlers'
 
 const data = createTestData()
 
@@ -21,6 +22,9 @@ interface ListingItem {
 }
 
 export const handlers = [
+  // Include Sanity API handlers first for proper interception
+  ...sanityHandlers,
+  
   http.get('/api/search', ({ request }) => {
     const url = new URL(request.url)
     const query = url.searchParams.get('q') ?? ''

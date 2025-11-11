@@ -9,6 +9,9 @@ import {
 
 const data = createTestData()
 
+// Check if we should use MSW mode (real HTTP requests to be intercepted by MSW)
+const useMSWMode = process.env.SANITY_FETCH_MODE === 'msw'
+
 const mapListingToSanity = (slug: string | undefined) => {
   if (!slug) return null
   const listing = getListingBySlug(slug)
@@ -111,8 +114,38 @@ const fetch = jest.fn(async (query: string, params: Record<string, any> = {}) =>
   return []
 })
 
+// Real fetch function that makes HTTP requests (for MSW interception)
+const realFetch = async (query: string, params: Record<string, any> = {}) => {
+  const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'test-project'
+  const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'test-dataset'
+  const apiVersion = '2024-01-01'
+  
+  const url = new URL(`https://${projectId}.api.sanity.io/v${apiVersion}/data/query/${dataset}`)
+  url.searchParams.set('query', query)
+  
+  // Add params to the query string
+  if (Object.keys(params).length > 0) {
+    url.searchParams.set('params', JSON.stringify(params))
+  }
+  
+  // Use global.fetch which MSW intercepts
+  const response = await global.fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+  
+  if (!response.ok) {
+    throw new Error(`Sanity API error: ${response.status} ${response.statusText}`)
+  }
+  
+  const data = await response.json()
+  return data.result
+}
+
 export const createClient = jest.fn(() => ({
-  fetch,
+  fetch: useMSWMode ? realFetch : fetch,
   create: jest.fn().mockResolvedValue({ _id: 'mock-id' }),
   update: jest.fn().mockResolvedValue({}),
   delete: jest.fn().mockResolvedValue(''),

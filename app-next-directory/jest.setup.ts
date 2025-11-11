@@ -190,7 +190,7 @@ console.error = (...args: unknown[]) => {
     firstArgStr.includes('In HTML, <html> cannot be a child of <div>') ||
     firstArgStr.includes('React does not recognize the') ||
     firstArgStr.includes('Received `true` for a non-boolean attribute') ||
-    firstArgStr.includes('Invalid API response shape: ZodError')
+    firstArgStr.includes('Invalid API response shape')
   ) {
     return;
   }
