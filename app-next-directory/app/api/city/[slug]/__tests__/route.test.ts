@@ -19,7 +19,7 @@ jest.mock('@/lib/data/city', () => ({
 // Mock the logger module
 jest.mock('@/lib/logger', () => ({
   __esModule: true,
-  default: {
+  structuredLogger: {
     error: jest.fn(),
     warn: jest.fn(),
     info: jest.fn(),
@@ -27,15 +27,15 @@ jest.mock('@/lib/logger', () => ({
 }));
 
 import { getCityBySlug } from '@/lib/data/city';
-import logger from '@/lib/logger';
+import { structuredLogger } from '@/lib/logger';
 
 const cityDataMockModule = jest.requireMock('@/lib/data/city') as { getCityBySlug: jest.Mock };
-const loggerMockModule = jest.requireMock('@/lib/logger') as { default: { error: jest.Mock; warn: jest.Mock; info: jest.Mock } };
+const loggerMockModule = jest.requireMock('@/lib/logger') as { structuredLogger: { error: jest.Mock; warn: jest.Mock; info: jest.Mock } };
 
 let GET: typeof import('../route').GET;
 
 const mockGetCityBySlug = cityDataMockModule.getCityBySlug;
-const mockLogger = loggerMockModule.default;
+const mockLogger = loggerMockModule.structuredLogger;
 
 beforeAll(async () => {
   ({ GET } = await import('../route'));

@@ -3,7 +3,7 @@
 import { getCityBySlug } from '@/lib/data/city';
 import { ApiResponseHandler } from '@/utils/api-response';
 import type { NextRequest } from 'next/server';
-import logger from '@/lib/logger';
+import { structuredLogger } from '@/lib/logger';
 
 type RouteContext = { params: Promise<{ slug: string }> };
 
@@ -20,7 +20,7 @@ export async function GET(
     // Return a consistent response shape
     return ApiResponseHandler.success({ city });
   } catch (err) {
-    logger.error('GET /api/city/[slug] failed', err, { slug, component: 'city-api' });
+    structuredLogger.error('GET /api/city/[slug] failed', err, { slug, component: 'city-api' });
     return ApiResponseHandler.error('Failed to fetch city', 500);
   }
 }

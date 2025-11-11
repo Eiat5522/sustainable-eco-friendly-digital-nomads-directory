@@ -3,11 +3,12 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { ListingFormValues } from '../VenueListingForm'
 import { within } from '@testing-library/react'
+import { structuredLogger } from '@/lib/logger'
 
 // Mock the logger
 jest.mock('@/lib/logger', () => ({
   __esModule: true,
-  default: {
+  structuredLogger: {
     error: jest.fn(),
     warn: jest.fn(),
     info: jest.fn(),
@@ -527,7 +528,6 @@ describe('VenueListingForm', () => {
   })
 
   it('logs an error when an upload request fails', async () => {
-    const logger = (await import('@/lib/logger')).default;
     const uploadError = new Error('upload-failed')
     const fetchMock = jest.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === 'string' ? input : input.toString()
@@ -550,7 +550,7 @@ describe('VenueListingForm', () => {
     })
     global.fetch = fetchMock as unknown as typeof fetch
 
-    const loggerError = jest.spyOn(logger, 'error').mockImplementation(() => {})
+    const loggerError = jest.spyOn(structuredLogger, 'error').mockImplementation(() => {})
     const onSave = jest.fn()
     const user = userEvent.setup()
 
