@@ -1,4 +1,5 @@
 import { client } from '@/lib/sanity/client';
+import logger from '@/lib/logger';
 
 type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unknown>;
 
@@ -35,7 +36,7 @@ export async function GET(_request: Request) {
       headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Events API Error:', error);
+    logger.error('Events API Error', error, { component: 'events-api' });
     return new Response(
       JSON.stringify({ success: false, error: 'Failed to fetch events' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }

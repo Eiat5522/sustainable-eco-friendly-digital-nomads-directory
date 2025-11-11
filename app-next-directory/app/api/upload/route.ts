@@ -10,6 +10,7 @@ import {
   type OptimizationResult,
 } from '@/lib/image-optimizer';
 import fs from 'fs/promises';
+import logger from '@/lib/logger';
 
 type AuthFn = () => Promise<Session | null>;
 type UploadFn = (assetType: 'image' | 'file', uploadFile: File) => Promise<unknown>;
@@ -86,7 +87,7 @@ export async function POST(request: Request) {
           console.warn(`⚠️  Optimization skipped, using original file: ${optimizationResult.error || 'Unknown reason'}`);
         }
       } catch (_error) {
-        console.error('❌ Optimization failed:', _error);
+        logger.error('Optimization failed', _error, { component: 'upload-api', fileName: file.name });
         optimizationResult.error = _error instanceof Error ? _error.message : 'Unknown error';
       }
     }

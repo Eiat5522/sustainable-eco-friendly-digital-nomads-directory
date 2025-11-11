@@ -2,6 +2,7 @@ import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
+import logger from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -15,7 +16,7 @@ export async function GET() {
     }
     return ApiResponseHandler.success({ categories });
   } catch (error) {
-    console.error('Categories API error:', error);
+    logger.error('Categories API error', error, { component: 'categories-api' });
     const status =
       typeof error === 'object' && error !== null && typeof (error as { status?: unknown }).status === 'number'
         ? (error as { status: number }).status

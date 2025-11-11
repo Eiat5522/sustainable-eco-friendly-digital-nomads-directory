@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity';
+import logger from '@/lib/logger';
 
 type RouteContext = { params: { id: string } | Promise<{ id: string }> };
 
@@ -31,7 +32,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
     return NextResponse.json(listing);
   } catch (error) {
-    console.error('Failed to fetch listing:', error);
+    logger.error('Failed to fetch listing', error, { component: 'listings-manage-api', listingId: resolvedParams.id });
     return NextResponse.json({ error: 'Failed to fetch listing' }, { status: 500 });
   }
 }
@@ -133,7 +134,7 @@ export async function PUT(request: Request, context: RouteContext) {
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Failed to update listing:', error);
+    logger.error('Failed to update listing', error, { component: 'listings-manage-api', listingId: resolvedParams.id });
     return NextResponse.json({ error: 'Failed to update listing' }, { status: 500 });
   }
 }
@@ -162,7 +163,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
 
     return new Response(null, { status: 204 });
   } catch (error) {
-    console.error('Failed to delete listing:', error);
+    logger.error('Failed to delete listing', error, { component: 'listings-manage-api', listingId: resolvedParams.id });
     return NextResponse.json({ error: 'Failed to delete listing' }, { status: 500 });
   }
 }

@@ -4,6 +4,16 @@ import userEvent from '@testing-library/user-event'
 import type { ListingFormValues } from '../VenueListingForm'
 import { within } from '@testing-library/react'
 
+// Mock the logger
+jest.mock('@/lib/logger', () => ({
+  __esModule: true,
+  default: {
+    error: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+  },
+}));
+
 jest.mock('@/components/ui/neo-button', () => ({
   __esModule: true,
   NeoButton: ({ children, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
@@ -517,6 +527,7 @@ describe('VenueListingForm', () => {
   })
 
   it('logs an error when an upload request fails', async () => {
+    const logger = (await import('@/lib/logger')).default;
     const uploadError = new Error('upload-failed')
     const fetchMock = jest.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === 'string' ? input : input.toString()
@@ -539,7 +550,7 @@ describe('VenueListingForm', () => {
     })
     global.fetch = fetchMock as unknown as typeof fetch
 
-    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {})
+    const loggerError = jest.spyOn(logger, 'error').mockImplementation(() => {})
     const onSave = jest.fn()
     const user = userEvent.setup()
 
@@ -562,10 +573,10 @@ describe('VenueListingForm', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Save Listing' }))
 
-    await waitFor(() => expect(consoleError).toHaveBeenCalledWith('Failed to save listing:', uploadError))
+    await waitFor(() => expect(loggerError).toHaveBeenCalledWith('Failed to save listing', uploadError, { component: 'VenueListingForm' }))
     expect(onSave).not.toHaveBeenCalled()
 
-    consoleError.mockRestore()
+    loggerError.mockRestore()
   })
 })
   

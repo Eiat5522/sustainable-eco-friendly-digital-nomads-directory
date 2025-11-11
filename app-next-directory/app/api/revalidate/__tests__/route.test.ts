@@ -17,6 +17,15 @@ jest.mock('next/cache', () => ({
   revalidatePath: mockRevalidatePath,
 }));
 
+// Mock the logger
+const mockStructuredLogger = {
+  error: jest.fn(),
+};
+jest.mock('@/lib/logger', () => ({
+  __esModule: true,
+  structuredLogger: mockStructuredLogger,
+}));
+
 let GET: typeof import('../route').GET;
 
 describe('Revalidate API - GET /api/revalidate', () => {
@@ -341,7 +350,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
     });
 
     it('should log error when revalidation fails', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      mockStructuredLogger.error.mockClear();
       mockRevalidatePath.mockImplementationOnce(() => {
         throw new Error('Test error');
       });
@@ -360,9 +369,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
       await GET(request);
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
-      expect(consoleErrorSpy.mock.calls[0][0]).toContain('Error revalidating path:');
-      consoleErrorSpy.mockRestore();
+      expect(mockStructuredLogger.error).toHaveBeenCalled();
+      expect(mockStructuredLogger.error.mock.calls[0][0]).toContain('Error revalidating path');
     });
   });
 

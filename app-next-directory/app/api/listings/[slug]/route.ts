@@ -3,6 +3,7 @@ import { handleAuthError, requireAuth } from '@/utils/auth-helpers';
 import { getCollection } from '@/utils/db-helpers';
 import { getListingBySlug } from '@/lib/sanity/queries';
 import type { NextRequest } from 'next/server';
+import logger from '@/lib/logger';
 
 type RouteContext = { params: Promise<{ slug: string }> };
 
@@ -21,7 +22,7 @@ export async function GET(
 
     return ApiResponseHandler.success(listing);
   } catch (error) {
-    console.error('Failed to fetch listing from Sanity:', error);
+    logger.error('Failed to fetch listing from Sanity', error, { component: 'listings-api', slug: (await context.params).slug });
     return ApiResponseHandler.error('Failed to fetch listing');
   }
 }
