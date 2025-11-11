@@ -207,20 +207,6 @@ describe('City Listings API - GET /api/listings/city/[id]', () => {
       expect(data.error).toBe('Failed to fetch listings');
     });
 
-    it('should log error details to console', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      mockGetListingsByCityId.mockRejectedValueOnce(new Error('Test error'));
-
-      const request = {} as NextRequest;
-      const context: RouteContext = { params: Promise.resolve({ id: 'test-city' }) };
-
-      await GET(request, context);
-
-      expect(consoleErrorSpy).toHaveBeenCalled();
-      expect(consoleErrorSpy.mock.calls[0][0]).toContain('[ERROR] listings/city/[id] API:');
-      consoleErrorSpy.mockRestore();
-    });
-
     it('should handle network errors gracefully', async () => {
       mockGetListingsByCityId.mockRejectedValueOnce(new Error('Network timeout'));
 

@@ -65,7 +65,6 @@ describe('Featured Listings API (MSW)', () => {
   });
 
   it('handles Sanity fetch failures gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     server.use(
       http.get('https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset', () =>
         new Response(null, { status: 500 })
@@ -78,13 +77,9 @@ describe('Featured Listings API (MSW)', () => {
     expect(response.status).toBe(500);
     expect(json.success).toBe(false);
     expect(json.error).toBe('Failed to fetch listings');
-    expect(consoleErrorSpy).toHaveBeenCalled();
-
-    consoleErrorSpy.mockRestore();
   });
 
   it('handles network errors from Sanity', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     server.use(
       http.get('https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset', () =>
         HttpResponse.error('Network timeout')
@@ -97,8 +92,5 @@ describe('Featured Listings API (MSW)', () => {
     expect(response.status).toBe(500);
     expect(json.success).toBe(false);
     expect(json.error).toBe('Failed to fetch listings');
-    expect(consoleErrorSpy).toHaveBeenCalled();
-
-    consoleErrorSpy.mockRestore();
   });
 });

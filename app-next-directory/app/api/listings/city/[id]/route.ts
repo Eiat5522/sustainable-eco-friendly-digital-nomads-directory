@@ -30,7 +30,6 @@ export async function GET(
 
     return ApiResponseHandler.success({ listings });
   } catch (error) {
-    console.error('[ERROR] listings/city/[id] API:', error);
     return ApiResponseHandler.error('Failed to fetch listings', 500);
   }
 }

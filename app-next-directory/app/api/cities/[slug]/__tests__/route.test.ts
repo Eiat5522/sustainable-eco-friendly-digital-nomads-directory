@@ -163,19 +163,6 @@ describe('Cities Slug API - GET /api/cities/[slug]', () => {
       expect(response.status).toBe(500);
       expect(data.success).toBe(false);
     });
-
-    it('should log error details', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      mockGetCityBySlug.mockRejectedValue(new Error('Test error'));
-
-      const request = {} as NextRequest;
-      const context = { params: Promise.resolve({ slug: 'test-city' }) };
-      
-      await GET(request, context);
-
-      expect(consoleErrorSpy).toHaveBeenCalled();
-      consoleErrorSpy.mockRestore();
-    });
   });
 
   describe('Response Structure', () => {

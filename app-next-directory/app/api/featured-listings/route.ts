@@ -168,8 +168,6 @@ export async function GET() {
     return ApiResponseHandler.success({ listings: dtoListings });
   } catch (error) {
     const endTime = performance.now();
-    console.error('[ERROR] Featured Listings API: Request failed after', (endTime - startTime).toFixed(2), 'ms');
-    console.error('[ERROR] Featured Listings API:', error);
     
     return ApiResponseHandler.error('Failed to fetch listings', 500, {
       details: error instanceof Error ? error.message : 'Unknown error',
