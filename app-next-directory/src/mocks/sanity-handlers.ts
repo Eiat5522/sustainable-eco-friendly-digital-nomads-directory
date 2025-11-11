@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
 import { createTestData } from '@/tests/helpers/test-data'
-import type { Listing } from '@/types/sanity'
+import type { Listing } from '@/types/listings'
 
 const data = createTestData()
 
@@ -34,17 +34,17 @@ export const sanityHandlers = [
         slug: { current: listing.slug?.current },
         category: listing.category || listing.type,
         city: {
-          _id: listing.city._id,
+          _id: listing._id,
           name: listing.city.name,
           slug: { current: listing.city.slug?.current },
-          country: listing.city.country
+          country: 'Thailand'
         },
         priceRange: listing.priceRange || 'medium',
         moderation: { status: 'published' },
-        shortDescription: listing.description,
-        longDescription: listing.description,
-        ecoFeatures: listing.ecoFeatures || [],
-        amenityNames: listing.amenities || []
+        shortDescription: listing.shortDescription,
+        longDescription: listing.longDescription,
+        ecoFeatures: listing.ecoFocusTags?.map(tag => tag.name) || [],
+        amenityNames: listing.digitalNomadFeatures || []
       }))
       
       return HttpResponse.json({
