@@ -59,7 +59,6 @@ describe('Cities/[slug] API (MSW)', () => {
   });
 
   it('handles Sanity errors gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     server.use(
       http.get('https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset', () =>
         new Response(null, { status: 500 })
@@ -71,13 +70,9 @@ describe('Cities/[slug] API (MSW)', () => {
 
     expect(response.status).toBe(500);
     expect(json.success).toBe(false);
-    expect(consoleErrorSpy).toHaveBeenCalled();
-
-    consoleErrorSpy.mockRestore();
   });
 
   it('handles network errors from Sanity', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     server.use(
       http.get('https://:projectId.api.sanity.io/v:apiVersion/data/query/:dataset', () =>
         HttpResponse.error('Network timeout')
@@ -89,8 +84,5 @@ describe('Cities/[slug] API (MSW)', () => {
 
     expect(response.status).toBe(500);
     expect(json.success).toBe(false);
-    expect(consoleErrorSpy).toHaveBeenCalled();
-
-    consoleErrorSpy.mockRestore();
   });
 });

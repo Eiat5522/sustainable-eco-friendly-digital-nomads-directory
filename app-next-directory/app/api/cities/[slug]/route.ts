@@ -29,7 +29,13 @@ export async function GET(
     }
     return ApiResponseHandler.success(city);
   } catch (error) {
-    console.error('[ERROR] Cities/[slug] API:', error);
-    return ApiResponseHandler.error('Failed to fetch city details', 500);
+    return ApiResponseHandler.error(
+      'Failed to fetch city details',
+      500,
+      {
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString(),
+      }
+    );
   }
 }
