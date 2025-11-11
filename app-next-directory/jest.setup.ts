@@ -78,18 +78,143 @@ if (typeof React.act === 'undefined') {
   console.log('React 19: Installed act polyfill for testing compatibility');
 }
 
-// Suppress the deprecation warning about ReactDOMTestUtils.act
+// Suppress the deprecation warning about ReactDOMTestUtils.act and expected test errors
 const originalConsoleError = console.error;
 console.error = (...args: unknown[]) => {
-  if (
-    typeof args[0] === 'string' &&
-    args[0].includes('ReactDOMTestUtils.act') &&
-    args[0].includes('deprecated')
-  ) {
-    // Suppress this specific warning
+  const firstArg = args[0];
+  const firstArgStr = typeof firstArg === 'string' ? firstArg : '';
+  
+  // Suppress ReactDOMTestUtils.act deprecation warning
+  if (firstArgStr.includes('ReactDOMTestUtils.act') && firstArgStr.includes('deprecated')) {
     return;
   }
+  
+  // Suppress jsdom "not implemented" errors (expected in test environment)
+  if (
+    typeof firstArg === 'object' &&
+    firstArg !== null &&
+    'type' in firstArg &&
+    firstArg.type === 'not implemented'
+  ) {
+    return;
+  }
+  
+  // Suppress jsdom navigation errors (expected when testing redirects)
+  if (
+    firstArgStr.includes('Not implemented: navigation') ||
+    firstArgStr.includes('Not implemented: HTMLFormElement.prototype.submit')
+  ) {
+    return;
+  }
+  
+  // Suppress expected test errors (intentional error path testing)
+  const expectedTestErrors = [
+    // API route errors
+    'Search GET error:',
+    'Search POST error:',
+    'Search API failed:',
+    'Search API request failed',
+    'listing-view] Failed to parse',
+    'listing-view] POST failed',
+    'MongoDB Connection Error:',
+    'Failed to submit comment:',
+    'Error toggling favorite:',
+    'Failed to delete listing:',
+    'Error loading favorites:',
+    'Error removing favorite:',
+    'Failed to load listing:',
+    'Error loading listing:',
+    'Failed to load comments:',
+    'Error fetching reviews:',
+    'Failed to fetch reviews:',
+    'Error creating review:',
+    'Failed to create review:',
+    'Error updating review:',
+    'Failed to update review:',
+    'Error deleting review:',
+    'Failed to delete review:',
+    'FeaturedListings] failed to load',
+    'Error fetching blog post:',
+    'Error updating blog post:',
+    'Failed to persist view count',
+    'Categories API error:',
+    'Events API Error:',
+    'Authentication error:',
+    'Get user error:',
+    'Newsletter subscription error:',
+    'Sanity test error:',
+    'GET /api/city/[slug] failed',
+    
+    // Component errors
+    'Failed to check favorite status:',
+    'Failed to toggle favorite:',
+    'Failed to unfavorite listing:',
+    'Failed to fetch featured listings:',
+    'Failed to fetch listing from Sanity:',
+    'Failed to fetch listing:',
+    'Failed to update listing:',
+    'Error fetching suggestions:',
+    'Error fetching view count:',
+    'Error incrementing view count:',
+    'Error recording vote:',
+    'Error fetching vote stats:',
+    'Error resetting view counts:',
+    'Error initializing view counts collection:',
+    'Error revalidating path:',
+    'Error fetching blog posts:',
+    'Error fetching review analytics:',
+    
+    // Auth errors
+    'User creation error:',
+    'Update user role error:',
+    'Unfavorite listing error:',
+    'Update user profile error:',
+    
+    // Page errors
+    'listings/[slug]] failed to fetch',
+    'listings/[slug]] failed to check',
+    
+    // React test warnings
+    'An update to FeaturedListings inside a test was not wrapped in act',
+    'An update to',
+    'inside a test was not wrapped in act',
+  ];
+  
+  if (expectedTestErrors.some(pattern => firstArgStr.includes(pattern))) {
+    return;
+  }
+  
+  // Suppress React controlled/uncontrolled input warnings in tests
+  if (
+    firstArgStr.includes('A component is changing an uncontrolled input') ||
+    firstArgStr.includes('In HTML, <html> cannot be a child of <div>') ||
+    firstArgStr.includes('React does not recognize the') ||
+    firstArgStr.includes('Received `true` for a non-boolean attribute') ||
+    firstArgStr.includes('Invalid API response shape: ZodError')
+  ) {
+    return;
+  }
+  
   originalConsoleError.call(console, ...args);
+};
+
+// Suppress expected console.warn messages in tests
+const originalConsoleWarn = console.warn;
+console.warn = (...args: unknown[]) => {
+  const firstArg = args[0];
+  const firstArgStr = typeof firstArg === 'string' ? firstArg : '';
+  
+  // Suppress Sanity API token warnings in tests (tests intentionally delete the token)
+  if (firstArgStr.includes('Missing optional environment variable: SANITY_API_TOKEN')) {
+    return;
+  }
+  
+  // Suppress listing-view warnings (expected in error path tests)
+  if (firstArgStr.includes('[listing-view]')) {
+    return;
+  }
+  
+  originalConsoleWarn.call(console, ...args);
 };
 
 // jest.setup.ts

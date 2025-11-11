@@ -177,7 +177,7 @@
     "broadcast-channel": "^7.1.0",
     "comment-json": "^4.2.5",
     "cross-env": "^10.0.0",
-    "env-cmd": "^11.0.0",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.1.0",
     "jest": "^29.3.1",
