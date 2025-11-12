@@ -1,7 +1,7 @@
 export const revalidate = 300; // ISR: revalidate every 5 minutes
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
 import { mockListingDetail, mockRelatedListings, mockReviews } from '@/components/listings/listingDetailMockData';
-import { structuredLogger } from '@/lib/logger';
+import { structuredLogger as logger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import { transformToDetailDTO } from '@/lib/dto-transformer';

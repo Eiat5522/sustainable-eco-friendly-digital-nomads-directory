@@ -200,7 +200,7 @@ export function ListingsManagementTable(_props: ListingsManagementTableProps) {
       setStats(statsData);
       setStatsError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load listing statistics');
+      setStatsError(err instanceof Error ? err.message : 'Failed to load listing statistics');
     }
   }, []);
 
