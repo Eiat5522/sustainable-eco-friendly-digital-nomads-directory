@@ -1,5 +1,5 @@
 // PATCH: Align GROQ query and DTO mapping with appView.ts
-import logger from '@/lib/logger';
+import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import type { SanityImage } from '@/types/appView';
 interface FeaturedListing {
