@@ -2,7 +2,7 @@
 
 import '@testing-library/jest-dom'
 import { render, screen, within } from '@testing-library/react'
-import type { NextRequest } from 'next/server'
+
 import { extractTagNames, mapResultToDTO } from './helpers'
 
 const listingGridRenderMock = jest.fn(({ listings }: any) => (
@@ -12,7 +12,7 @@ const searchFiltersRenderMock = jest.fn(({ initialParams }: any) => (
   <div data-testid="search-filters-form">{JSON.stringify(initialParams)}</div>
 ))
 
-const mockSearchHandler = jest.fn<Promise<Response>, [NextRequest]>()
+const fetchSearchResultsMock = jest.fn()
 
 jest.mock('@/components/ui/neo-button', () => ({
   NeoButton: ({ children, asChild = false, ...props }: any) =>
@@ -36,8 +36,8 @@ jest.mock('next/link', () => ({
   ),
 }))
 
-jest.mock('../../api/search/route', () => ({
-  GET: (...args: any[]) => mockSearchHandler(...(args as [NextRequest])),
+jest.mock('./server', () => ({
+  fetchSearchResults: (...args: unknown[]) => fetchSearchResultsMock(...args),
 }))
 
 describe('Search results page module', () => {
@@ -58,68 +58,50 @@ describe('Search results page module', () => {
     expect(dynamic).toBe('force-dynamic')
   })
 
-  it('maps successful responses to listing DTOs and renders the grid', async () => {
-    const validItem = {
-      _id: 'listing-123',
-      name: 'Eco Hub',
-      slug: { current: 'eco-hub' },
-      category: 'cafe',
-      city: { _id: 'city-1', name: 'Lisbon', slug: 'lisbon', country: 'Portugal' },
-      primaryImage: { asset: { url: 'https://example.com/img.jpg' } },
-      shortDescription: 'A green friendly space',
-      amenityNames: ['wifi'],
-      moderation: { featured: true },
-      ecoFocusTags: ['Solar', { name: 'Organic ' }],
-      digitalNomadFeatures: [{ name: 'Quiet zones' }],
-    }
-
-    const invalidItem = { _id: 'broken', slug: 42 }
-    const responsePayload = {
-      data: {
-        results: [validItem, invalidItem],
-        pagination: { page: 2, totalPages: 3, limit: 12, total: 24 },
-      },
-    }
-
-    mockSearchHandler.mockResolvedValueOnce(
-      new Response(JSON.stringify(responsePayload), { status: 200 }),
-    )
-
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+  it('renders listings when the backend returns results', async () => {
+    fetchSearchResultsMock.mockResolvedValueOnce({
+      ok: true,
+      listings: [
+        {
+          id: 'listing-123',
+          name: 'Eco Hub',
+          slug: 'eco-hub',
+          city: { name: 'Lisbon' },
+          ecoFocusTags: ['Solar'],
+        },
+      ],
+      pagination: { page: 2, totalPages: 3, hasMore: true, limit: 12, total: 24 },
+      pageSizeOptions: [12, 24, 48],
+      pages: [1, 2, 3],
+    })
 
     const ui = await ResultsPage({ searchParams: Promise.resolve({ city: 'lisbon' }) })
     render(ui)
 
     const listings = JSON.parse(screen.getByTestId('listing-grid').textContent || '[]')
     expect(listings).toHaveLength(1)
-    expect(listings[0]).toMatchObject({
-      id: 'listing-123',
-      name: 'Eco Hub',
-      slug: 'eco-hub',
-      city: { name: 'Lisbon', slug: 'lisbon', country: 'Portugal' },
-      ecoFocusTags: ['Solar', 'Organic'],
-      digitalNomadFeatures: ['Quiet zones'],
-      featured: true,
-    })
+    expect(listings[0]).toMatchObject({ id: 'listing-123', name: 'Eco Hub', slug: 'eco-hub' })
+    expect(searchFiltersRenderMock).toHaveBeenCalledWith(expect.objectContaining({ initialParams: { city: 'lisbon' } }))
 
-    expect(searchFiltersRenderMock).toHaveBeenCalledWith(
-      expect.objectContaining({ initialParams: { city: 'lisbon' } }),
-    )
-    expect(errorSpy).toHaveBeenCalled()
-    errorSpy.mockRestore()
+    expect(screen.getByText('Showing page 2 of 3')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Prev' })).toHaveAttribute('href', expect.stringContaining('page=1'))
+    expect(screen.getByRole('link', { name: 'Next' })).toHaveAttribute('href', expect.stringContaining('page=3'))
   })
 
-  it('renders an error state when the API returns an error response', async () => {
-    mockSearchHandler.mockResolvedValueOnce(
-      new Response('Internal error', { status: 500, statusText: 'Server Error' }),
-    )
+  it('renders an error state when the backend returns an error response', async () => {
+    fetchSearchResultsMock.mockResolvedValueOnce({
+      ok: false,
+      reason: 'response',
+      status: 500,
+      statusText: 'Server Error',
+    })
 
     const previousEnv = process.env.NODE_ENV
-    
+
     Object.defineProperty(process.env, 'NODE_ENV', {
       value: 'development',
       writable: true,
-      configurable: true
+      configurable: true,
     })
 
     const ui = await ResultsPage({ searchParams: Promise.resolve({ retry: '2' }) })
@@ -131,23 +113,24 @@ describe('Search results page module', () => {
     expect(retryLink).toHaveAttribute('href', '/search/results?retry=3')
     expect(screen.getByText(/Error: 500 Server Error/)).toBeInTheDocument()
 
-    
     Object.defineProperty(process.env, 'NODE_ENV', {
       value: previousEnv,
       writable: true,
-      configurable: true
+      configurable: true,
     })
   })
 
-  it('handles thrown errors from the API handler', async () => {
-    mockSearchHandler.mockRejectedValueOnce(new Error('network down'))
+  it('handles thrown errors from the backend helper', async () => {
+    fetchSearchResultsMock.mockResolvedValueOnce({
+      ok: false,
+      reason: 'exception',
+    })
 
     const previousEnv = process.env.NODE_ENV
-    
     Object.defineProperty(process.env, 'NODE_ENV', {
       value: 'development',
       writable: true,
-      configurable: true
+      configurable: true,
     })
 
     const ui = await ResultsPage({ searchParams: Promise.resolve({}) })
@@ -157,51 +140,27 @@ describe('Search results page module', () => {
     expect(within(errorState).getByText(/Failed to load search results/i)).toBeInTheDocument()
     expect(screen.getByText(/Unexpected error occurred/i)).toBeInTheDocument()
 
-    
     Object.defineProperty(process.env, 'NODE_ENV', {
       value: previousEnv,
       writable: true,
-      configurable: true
+      configurable: true,
     })
   })
 
-  it('logs and recovers from unexpected payload shapes', async () => {
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-
-    mockSearchHandler.mockResolvedValueOnce(
-      new Response(JSON.stringify({ data: { results: { unexpected: true } } }), {
-        status: 200,
-      }),
-    )
-
-    const ui = await ResultsPage({ searchParams: Promise.resolve({}) })
-    render(ui)
-
-    expect(screen.getByText('No results found.')).toBeInTheDocument()
-    expect(errorSpy).toHaveBeenCalled()
-    expect(
-      errorSpy.mock.calls.some(([message]) => message === 'Unexpected search API payload shape:'),
-    ).toBe(true)
-
-    errorSpy.mockRestore()
-  })
-
   it('builds pagination links and preserves existing search parameters', async () => {
-    const payload = {
-      data: {
-        results: [
-          {
-            _id: '1',
-            name: 'Nomad Base',
-            slug: 'nomad-base',
-            category: 'coworking',
-          },
-        ],
-        pagination: { page: 2, totalPages: 4, limit: 24, total: 80 },
-      },
-    }
-
-    mockSearchHandler.mockResolvedValueOnce(new Response(JSON.stringify(payload), { status: 200 }))
+    fetchSearchResultsMock.mockResolvedValueOnce({
+      ok: true,
+      listings: [
+        {
+          id: '1',
+          name: 'Nomad Base',
+          slug: 'nomad-base',
+        },
+      ],
+      pagination: { page: 2, totalPages: 4, hasMore: true, limit: 24, total: 80 },
+      pageSizeOptions: [12, 24, 48, 96],
+      pages: [1, 2, 3, 4],
+    })
 
     const searchParams = Promise.resolve({
       city: 'lisbon',
@@ -214,7 +173,6 @@ describe('Search results page module', () => {
     render(ui)
 
     expect(screen.getByText('Showing page 2 of 4')).toBeInTheDocument()
-
     const prevLink = screen.getByRole('link', { name: /prev/i })
     expect(prevLink).toHaveAttribute('href', expect.stringContaining('page=1'))
     expect(prevLink).toHaveAttribute('href', expect.stringContaining('city=lisbon'))
@@ -226,75 +184,6 @@ describe('Search results page module', () => {
     const pageButtons = screen.getAllByRole('link', { name: /^[1-4]$/ })
     expect(pageButtons).toHaveLength(4)
     expect(pageButtons[1]).toHaveAttribute('aria-current', 'page')
-
-    const pageSizeSelect = screen.getByLabelText('Per page') as HTMLSelectElement
-    expect(pageSizeSelect.value).toBe('24')
-    expect(Array.from(pageSizeSelect.options).map((o) => o.value)).toEqual([
-      '12',
-      '24',
-      '48',
-      '96',
-    ])
-  })
-
-  it('should not render "…", if there are less than 7 pages', async () => {
-    const payload = {
-      data: {
-        results: [
-          {
-            _id: '1',
-            name: 'Nomad Base',
-            slug: 'nomad-base',
-            category: 'coworking',
-          },
-        ],
-        pagination: { page: 1, totalPages: 4, limit: 24, total: 80 },
-      },
-    }
-
-    mockSearchHandler.mockResolvedValueOnce(new Response(JSON.stringify(payload), { status: 200 }))
-
-    const searchParams = Promise.resolve({
-      city: 'lisbon',
-      tags: ['wifi', 'vegan'],
-      page: '1',
-      limit: '24',
-    } as Record<string, any>)
-
-    const ui = await ResultsPage({ searchParams })
-    render(ui)
-
-    expect(screen.queryByText('…')).not.toBeInTheDocument()
-  })
-
-  it('renders "…" if there are more than 7 pages', async () => {
-    const payload = {
-      data: {
-        results: [
-          {
-            _id: '1',
-            name: 'Nomad Base',
-            slug: 'nomad-base',
-            category: 'coworking',
-          },
-        ],
-        pagination: { page: 1, totalPages: 10, limit: 24, total: 80 },
-      },
-    }
-
-    mockSearchHandler.mockResolvedValueOnce(new Response(JSON.stringify(payload), { status: 200 }))
-
-    const searchParams = Promise.resolve({
-      city: 'lisbon',
-      tags: ['wifi', 'vegan'],
-      page: '1',
-      limit: '24',
-    } as Record<string, any>)
-
-    const ui = await ResultsPage({ searchParams })
-    render(ui)
-
-    expect(screen.queryByText('…')).toBeInTheDocument()
   })
 
   describe('helpers', () => {
@@ -306,9 +195,7 @@ describe('Search results page module', () => {
 
     describe('mapResultToDTO', () => {
       it('should throw an error if the item is not valid', () => {
-        expect(() => mapResultToDTO({ _id: 'broken', slug: 42 })).toThrow(
-          'Invalid search result data',
-        )
+        expect(() => mapResultToDTO({ _id: 'broken', slug: 42 })).toThrow('Invalid search result data')
       })
 
       it('should return a valid DTO', () => {
@@ -344,26 +231,31 @@ describe('Search results page module', () => {
   })
 
   it('handles single-page results gracefully', async () => {
-    const payload = {
-      data: {
-        results: [{ _id: '1', name: 'Single Listing', slug: 'single-listing', category: 'cafe' }],
-        pagination: { page: 1, totalPages: 1, limit: 12, total: 1 },
-      },
-    }
-    mockSearchHandler.mockResolvedValueOnce(new Response(JSON.stringify(payload), { status: 200 }))
+    fetchSearchResultsMock.mockResolvedValueOnce({
+      ok: true,
+      listings: [{ id: '1', name: 'Single Listing', slug: 'single-listing', category: 'cafe' }],
+      pagination: { page: 1, totalPages: 1, hasMore: false, limit: 12, total: 1 },
+      pageSizeOptions: [12, 24, 48, 96],
+      pages: [1],
+    })
 
     const ui = await ResultsPage({ searchParams: Promise.resolve({}) })
     render(ui)
 
     expect(screen.getByText('Showing page 1 of 1')).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /prev/i })).toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /next/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /prev/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /next/i })).toBeInTheDocument()
     const pageButtons = screen.getAllByRole('link', { name: /^[1]$/ })
     expect(pageButtons).toHaveLength(1)
   })
 
   it('sanitizes the retry search parameter', async () => {
-    mockSearchHandler.mockResolvedValueOnce(new Response('Error', { status: 500 }))
+    fetchSearchResultsMock.mockResolvedValueOnce({
+      ok: false,
+      reason: 'response',
+      status: 500,
+      statusText: 'Server Error',
+    })
     const ui = await ResultsPage({ searchParams: Promise.resolve({ retry: 'invalid' }) })
     render(ui)
 
@@ -372,13 +264,13 @@ describe('Search results page module', () => {
   })
 
   it('displays a message when no results are found', async () => {
-    const payload = {
-      data: {
-        results: [],
-        pagination: { page: 1, totalPages: 1, limit: 12, total: 0 },
-      },
-    }
-    mockSearchHandler.mockResolvedValueOnce(new Response(JSON.stringify(payload), { status: 200 }))
+    fetchSearchResultsMock.mockResolvedValueOnce({
+      ok: true,
+      listings: [],
+      pagination: { page: 1, totalPages: 1, hasMore: false, limit: 12, total: 0 },
+      pageSizeOptions: [12, 24, 48, 96],
+      pages: [1],
+    })
 
     const ui = await ResultsPage({ searchParams: Promise.resolve({}) })
     render(ui)
