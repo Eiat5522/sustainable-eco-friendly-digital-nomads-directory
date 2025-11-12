@@ -44,8 +44,7 @@ export function FilterSidebar({
     }
 
     setIsListening(true);
-    // @ts-ignore - webkitSpeechRecognition is not in lib.dom.d.ts
-    const recognition = new webkitSpeechRecognition();
+    const recognition = new window.webkitSpeechRecognition();
     recognition.continuous = false;
     recognition.interimResults = false;
 
