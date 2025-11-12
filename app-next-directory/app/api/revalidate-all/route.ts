@@ -1,6 +1,7 @@
 import { revalidatePath } from 'next/cache';
 import { NextRequest } from 'next/server';
 import { ApiResponseHandler } from '@/utils/api-response';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
 
 type RevalidateFn = (path: string) => void;
 type TokenFn = () => string | undefined;
@@ -45,7 +46,10 @@ export async function POST(request: NextRequest) {
       now: Date.now()
     });
   } catch (error) {
-    console.error('Error revalidating all paths:', error);
+    structuredLogger.error('Error revalidating all paths', error, {
+      ...getRequestContext(request),
+      component: 'api/revalidate-all',
+    });
     return ApiResponseHandler.error('Error revalidating', 500);
   }
 }

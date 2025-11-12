@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
 import { ensureSanityUser, unfavoriteListing } from '@/lib/sanity/user';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
 
 interface RouteContext {
   params: Promise<{ slug: string }>;
@@ -66,7 +67,10 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ favorited: true, message: 'Added to favorites', favoriteId: favorite._id });
     }
   } catch (error) {
-    console.error('Failed to toggle favorite:', error);
+    structuredLogger.error('Failed to toggle favorite', error, {
+      ...getRequestContext(request),
+      component: 'api/user/favorites/[slug]',
+    });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -86,7 +90,11 @@ export async function DELETE(request: NextRequest, { params }: RouteContext) {
     await unfavoriteListing(session.user.id, slug);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Failed to unfavorite listing:', error);
+    structuredLogger.error('Failed to unfavorite listing', error, {
+      ...getRequestContext(request),
+      component: 'api/user/favorites/[slug]',
+      slug,
+    });
     return NextResponse.json({ error: 'Failed to unfavorite listing' }, { status: 500 });
   }
 }
@@ -119,7 +127,10 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
 
     return NextResponse.json({ favorited: !!favorite });
   } catch (error) {
-    console.error('Failed to check favorite status:', error);
+    structuredLogger.error('Failed to check favorite status', error, {
+      ...getRequestContext(request),
+      component: 'api/user/favorites/[slug]',
+    });
     return NextResponse.json({ favorited: false });
   }
 }

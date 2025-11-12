@@ -25,7 +25,7 @@ type RouteContext = {
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { searchParams } = new URL(request.url);
-  const listingSlug = searchParams.get('listing');
+    const listingSlug = searchParams.get('listing');
     const page = Math.max(1, Number.parseInt(searchParams.get('page') || '1') || 1);
     const limit = Math.min(50, Math.max(1, Number.parseInt(searchParams.get('limit') || '10') || 10));
     const sortBy = searchParams.get('sortBy') || 'createdAt';
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     // Build filter
     const filter: Record<string, unknown> = {};
-  if (listingSlug) filter.listingSlug = listingSlug; // Filter by slug in DB
+    if (listingSlug) filter.listingSlug = listingSlug; // Filter by slug in DB
     if (filterRating) filter.rating = Number.parseInt(filterRating);
     if (verified) filter.verified = true;
 
@@ -92,7 +92,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
     return ApiResponseHandler.success(response);
   } catch (error) {
-    console.error('Error fetching reviews:', error);
+    structuredLogger.error('Failed to fetch reviews', error, {
+      ...getRequestContext(request),
+      component: 'api/reviews',
+    });
     return ApiResponseHandler.error('Failed to fetch reviews', 500);
   }
 }

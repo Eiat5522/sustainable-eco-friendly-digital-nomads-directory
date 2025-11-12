@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals';
+import { structuredLogger } from '@/lib/logger';
 import { _createDashboardHandler as createDashboardHandler, _normaliseMonthWindow as normaliseMonthWindow } from './route';
 
 type RouteHandler = ReturnType<typeof createDashboardHandler>;
@@ -43,12 +44,14 @@ describe('/api/user/dashboard GET', () => {
   let loggerMock: { error: jest.Mock };
   let GET: RouteHandler;
   let consoleErrorSpy: jest.SpyInstance;
+  let structuredLoggerSpy: jest.SpyInstance;
 
   beforeEach(() => {
     authMock = jest.fn().mockResolvedValue({ ...baseSession });
     fetchDashboardMock = jest.fn();
     loggerMock = { error: jest.fn() };
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    structuredLoggerSpy = jest.spyOn(structuredLogger, 'error').mockImplementation(() => undefined);
 
     GET = createDashboardHandler({
       authFn: authMock as any,
@@ -59,6 +62,7 @@ describe('/api/user/dashboard GET', () => {
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
+    structuredLoggerSpy.mockRestore();
   });
 
   it('returns 401 when no authenticated user is present', async () => {
@@ -137,7 +141,7 @@ describe('/api/user/dashboard GET', () => {
     await expect(response.json()).resolves.toEqual({ error: 'Unable to load dashboard data' });
   });
 
-  it('falls back to console.error logging when no logger is provided', async () => {
+  it('falls back to structuredLogger logging when no logger is provided', async () => {
     fetchDashboardMock.mockRejectedValueOnce(new Error('dashboard failure'));
 
     const handler = createDashboardHandler({
@@ -147,7 +151,11 @@ describe('/api/user/dashboard GET', () => {
 
     const response = await handler(createRequest('http://localhost/api/user/dashboard') as any);
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('[user-dashboard] GET failed', expect.any(Error));
+    expect(structuredLoggerSpy).toHaveBeenCalledWith(
+      '[user-dashboard] GET failed',
+      expect.any(Error),
+      { route: '/api/user/dashboard' }
+    );
     expect(response.status).toBe(500);
   });
 });

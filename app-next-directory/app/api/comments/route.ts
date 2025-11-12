@@ -3,6 +3,7 @@ import { client } from '@/lib/sanity/client';
 import { revalidateTag } from 'next/cache';
 import { hasFeaturePermission, type UserRole } from '@/types/auth';
 import { NextResponse } from 'next/server';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
 
 const MAX_LIMIT = 50;
 const DEFAULT_LIMIT = 20;
@@ -144,7 +145,11 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error('[comments] Failed to fetch comments', error);
+    structuredLogger.error('Failed to fetch comments', error, {
+      ...getRequestContext(request),
+      component: 'api/comments',
+      postId,
+    });
     return errorResponse('Failed to fetch comments', 500, error instanceof Error ? error.message : String(error));
   }
 }
@@ -223,13 +228,22 @@ export async function POST(request: Request) {
       try {
         revalidateTag(`post:${slug}`);
       } catch (error) {
-        console.warn('[comments] Failed to revalidate tag', error);
+        structuredLogger.warn('Failed to revalidate comment tag', {
+          component: 'api/comments',
+          slug,
+          postId,
+          revalidationError: error instanceof Error ? error.message : String(error),
+        });
       }
     }
 
     return successResponse(created, 201);
   } catch (error) {
-    console.error('[comments] Failed to create comment', error);
+    structuredLogger.error('Failed to create comment', error, {
+      ...getRequestContext(request),
+      component: 'api/comments',
+      postId,
+    });
     return errorResponse('Internal Server Error', 500);
   }
 }

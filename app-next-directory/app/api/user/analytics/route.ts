@@ -102,7 +102,7 @@ export function _createAnalyticsHandler({ authFn, fetchDashboard, logger }: Anal
       if (logger?.error) {
         logger.error(logMessage, error, { route: '/api/user/analytics' });
       } else {
-        console.error(logMessage, error);
+        structuredLogger.error(logMessage, error, { route: '/api/user/analytics' });
       }
       return NextResponse.json({ error: 'Unable to load analytics data' }, { status: 500 });
     }

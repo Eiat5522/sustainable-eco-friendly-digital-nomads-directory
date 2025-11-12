@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 
 import { getUserById, updateUserProfile } from '@/lib/auth/serverAuth';
 import { auth } from '@/lib/auth';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
 
 type ProfileDependencies = {
   authFn: typeof auth;
@@ -15,7 +16,7 @@ export function _createProfileHandlers({
   updateUserProfileFn,
 }: ProfileDependencies) {
   return {
-    async GET(_request: Request) {
+    async GET(request: Request) {
       try {
         const session = await authFn();
 
@@ -46,7 +47,10 @@ export function _createProfileHandlers({
           },
         });
       } catch (error) {
-        console.error('Get user profile error:', error);
+        structuredLogger.error('Failed to fetch user profile', error, {
+          ...getRequestContext(request),
+          component: 'api/user/profile',
+        });
         return NextResponse.json(
           { error: 'Internal server error' },
           { status: 500 },
@@ -98,7 +102,10 @@ export function _createProfileHandlers({
           },
         });
       } catch (error) {
-        console.error('Update user profile error:', error);
+        structuredLogger.error('Failed to update user profile', error, {
+          ...getRequestContext(request),
+          component: 'api/user/profile',
+        });
         return NextResponse.json(
           { error: 'Internal server error' },
           { status: 500 },

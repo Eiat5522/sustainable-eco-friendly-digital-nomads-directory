@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextResponse, type NextRequest } from 'next/server';
 
+import logger from '@/lib/logger';
 import { recordListingView } from '@/lib/metrics/listing-views';
 
 export async function POST(
@@ -25,7 +26,11 @@ export async function POST(
           }
         }
       } catch (error) {
-        console.warn('[listing-view] Failed to parse request body', error);
+        logger.warn('Failed to parse listing view request body', {
+          component: 'api/listings/[slug]/views',
+          slug,
+          parseError: error instanceof Error ? error.message : undefined,
+        });
       }
     }
 
@@ -33,7 +38,9 @@ export async function POST(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('[listing-view] POST failed', error);
+    logger.error('Failed to record listing view', error, {
+      component: 'api/listings/[slug]/views',
+    });
     return NextResponse.json({ error: 'Failed to record view' }, { status: 500 });
   }
 }

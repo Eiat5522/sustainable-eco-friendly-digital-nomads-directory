@@ -1,4 +1,5 @@
 // PATCH: Align GROQ query and DTO mapping with appView.ts
+import { structuredLogger } from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import type { SanityImage } from '@/types/appView';
 interface FeaturedListing {
@@ -52,13 +53,19 @@ import { isSanityConfigured } from '@/lib/sanity/env';
 
 export async function GET() {
   const startTime = performance.now();
-  console.log('[DEBUG] Featured Listings API: Request started at', new Date().toISOString());
+  const requestStartTimestamp = new Date().toISOString();
+  logger.info('Featured listings request started', {
+    component: 'api/featured-listings',
+    startedAt: requestStartTimestamp,
+  });
 
   if (!isSanityConfigured()) {
-    console.info('[INFO] Featured Listings API: Sanity configuration missing, returning mock featured venues.');
+    logger.warn('Sanity configuration missing, returning mock featured venues', {
+      component: 'api/featured-listings',
+    });
     return ApiResponseHandler.success({ listings: mockFeaturedVenues });
   }
-  
+
   try {
     // Corrected GROQ query to match your schema and DTO
     const FEATURED_LISTINGS_QUERY = groq`*[_type == "listing" && moderation.featured == true && moderation.status == "published"] | order(_createdAt desc)[0...10] {
@@ -130,15 +137,20 @@ export async function GET() {
         openingHours[] { day, opens, closes }
       }
     }`;
-    console.log('[DEBUG] Featured Listings API: Executing GROQ query');
+    logger.debug('Executing featured listings GROQ query', {
+      component: 'api/featured-listings',
+    });
     const queryStartTime = performance.now();
-    
+
     const listings = await client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY);
-    
+
     const queryEndTime = performance.now();
-    console.log('[DEBUG] Featured Listings API: GROQ query completed in', (queryEndTime - queryStartTime).toFixed(2), 'ms');
-    console.log('[DEBUG] Featured Listings API: Found', listings.length, 'listings');
-    
+    logger.info('Featured listings query completed', {
+      component: 'api/featured-listings',
+      durationMs: Number((queryEndTime - queryStartTime).toFixed(2)),
+      listingCount: listings.length,
+    });
+
     // Transform to FeaturedListingDTO shape expected by the frontend
     const dtoListings = (listings ?? []).map((listing) => {
       const amenityNames = Array.isArray(listing.amenities)
@@ -163,12 +175,22 @@ export async function GET() {
     });
 
     const endTime = performance.now();
-    console.log('[DEBUG] Featured Listings API: Total request time', (endTime - startTime).toFixed(2), 'ms');
+    logger.info('Featured listings request completed', {
+      component: 'api/featured-listings',
+      totalDurationMs: Number((endTime - startTime).toFixed(2)),
+      startedAt: requestStartTimestamp,
+    });
 
     return ApiResponseHandler.success({ listings: dtoListings });
   } catch (error) {
     const endTime = performance.now();
-    
+
+    logger.error('Failed to fetch featured listings', error, {
+      component: 'api/featured-listings',
+      totalDurationMs: Number((endTime - startTime).toFixed(2)),
+      startedAt: requestStartTimestamp,
+    });
+
     return ApiResponseHandler.error('Failed to fetch listings', 500, {
       details: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString(),

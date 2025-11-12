@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import logger from '@/lib/logger';
 import { getFeaturedListings } from '@/lib/sanity/queries';
 import { ApiResponseHandler } from '@/utils/api-response';
 
@@ -7,10 +8,12 @@ import { ApiResponseHandler } from '@/utils/api-response';
  * Returns featured listings from Sanity
  */
 export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const limitParam = searchParams.get('limit') || '4';
+
   try {
     // Get limit from query params (default to 4)
-    const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '4');
+    const limit = Number.parseInt(limitParam, 10);
 
     // Fetch featured listings from Sanity
     const listings = await getFeaturedListings();
@@ -20,7 +23,10 @@ export async function GET(request: NextRequest) {
 
     return ApiResponseHandler.success(limitedListings);
   } catch (error) {
-    console.error('Failed to fetch featured listings:', error);
+    logger.error('Failed to fetch featured listings', error, {
+      component: 'api/listings/featured',
+      limit: limitParam,
+    });
     return ApiResponseHandler.error('Failed to fetch featured listings');
   }
 }

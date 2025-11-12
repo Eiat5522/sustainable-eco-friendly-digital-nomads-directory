@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { auth } from '@/lib/auth';
 import { getCollection } from '@/utils/db-helpers';
+import { structuredLogger } from '@/lib/logger';
 
 type SessionUser = {
   id?: string | null;
@@ -200,7 +201,9 @@ export async function GET() {
 
     return NextResponse.json({ listings: results });
   } catch (error) {
-    console.error('[api/user/reviews] failed to load owner reviews', error);
+    structuredLogger.error('Failed to load owner reviews', error, {
+      component: 'api/user/reviews',
+    });
     return NextResponse.json({ error: 'Failed to load reviews' }, { status: 500 });
   }
 }
