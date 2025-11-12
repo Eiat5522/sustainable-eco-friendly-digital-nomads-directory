@@ -2,17 +2,23 @@
 // Add this file to your Jest config under `setupFilesAfterEnv` to enable global behavior:
 // "setupFilesAfterEnv": ["<rootDir>/tests/jest.setup.ts"]
 
-// TODO: Update the whitelist with real noisy messages observed in the test output.
+/**
+ * Whitelist of expected console messages that should not fail tests.
+ * Keep this list minimal to avoid masking real issues.
+ */
 const WHITELIST: RegExp[] = [
-  // Known/expected warnings (add entries below)
-  /\[auth\] Header rendered without SessionProvider/, // from Header test (expected)
-  /act\(.*\) warning/i, // React act warning (sometimes noisy)
-  /Failed to fetch/, // network stubs in tests
+  // Auth components rendered outside SessionProvider context (expected in isolated tests)
+  /\[auth\] Header rendered without SessionProvider/,
+  // React test utility warnings about state updates (can be noisy in async tests)
+  /act\(.*\) warning/i,
+  // Network errors from mocked fetch calls in geocoding/API tests
+  /Failed to fetch/,
+  // HTTP error responses from test API stubs
   /Request failed with status/,
 ];
 
-let _errorSpy: jest.SpyInstance<typeof console.error> | null = null;
-let _warnSpy: jest.SpyInstance<typeof console.warn> | null = null;
+let _errorSpy: jest.SpyInstance<void, Parameters<typeof console.error>> | null = null;
+let _warnSpy: jest.SpyInstance<void, Parameters<typeof console.warn>> | null = null;
 
 beforeEach(() => {
   // Spy and swallow real console output to keep test output clean; we re-run expectations in afterEach.
@@ -22,8 +28,8 @@ beforeEach(() => {
 
 afterEach(() => {
   try {
-    const errorCalls = _errorSpy?.mock.calls.map((c: any[]) => c.join(' ')) || [];
-    const warnCalls = _warnSpy?.mock.calls.map((c: any[]) => c.join(' ')) || [];
+    const errorCalls = _errorSpy?.mock.calls.map((c: Parameters<typeof console.error>) => c.join(' ')) || [];
+    const warnCalls = _warnSpy?.mock.calls.map((c: Parameters<typeof console.warn>) => c.join(' ')) || [];
 
     const unexpectedErrors = errorCalls.filter((msg: string) => !WHITELIST.some(rx => rx.test(msg)));
     const unexpectedWarns = warnCalls.filter((msg: string) => !WHITELIST.some(rx => rx.test(msg)));
