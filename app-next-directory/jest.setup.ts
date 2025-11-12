@@ -78,37 +78,46 @@ if (typeof React.act === 'undefined') {
   console.log('React 19: Installed act polyfill for testing compatibility');
 }
 
-// Suppress the deprecation warning about ReactDOMTestUtils.act and expected test errors
-const originalConsoleError = console.error;
-console.error = (...args: unknown[]) => {
-  const firstArg = args[0];
-  const firstArgStr = typeof firstArg === 'string' ? firstArg : '';
-  
-  // Suppress ReactDOMTestUtils.act deprecation warning
-  if (firstArgStr.includes('ReactDOMTestUtils.act') && firstArgStr.includes('deprecated')) {
-    return;
-  }
-  
-  // Suppress jsdom "not implemented" errors (expected in test environment)
-  if (
-    typeof firstArg === 'object' &&
-    firstArg !== null &&
-    'type' in firstArg &&
-    firstArg.type === 'not implemented'
-  ) {
-    return;
-  }
-  
-  // Suppress jsdom navigation errors (expected when testing redirects)
-  if (
-    firstArgStr.includes('Not implemented: navigation') ||
-    firstArgStr.includes('Not implemented: HTMLFormElement.prototype.submit')
-  ) {
-    return;
-  }
-  
-  // Suppress expected test errors (intentional error path testing)
-  const expectedTestErrors = [
+// Console filtering helpers --------------------------------------------------
+type ConsoleFilter = (args: unknown[]) => boolean;
+
+type ConsoleFilterConfig = {
+  error?: readonly ConsoleFilter[];
+  warn?: readonly ConsoleFilter[];
+};
+
+const getFirstArgString = (args: unknown[]): string => {
+  const [first] = args;
+  if (typeof first === 'string') return first;
+  if (first instanceof Error) return first.message;
+  return '';
+};
+
+const createIncludesEveryFilter = (needles: readonly string[]): ConsoleFilter => (args) => {
+  if (!needles.length) return false;
+  const message = getFirstArgString(args);
+  return needles.every(needle => message.includes(needle));
+};
+
+const createIncludesSomeFilter = (needles: readonly string[]): ConsoleFilter => (args) => {
+  if (!needles.length) return false;
+  const message = getFirstArgString(args);
+  return needles.some(needle => message.includes(needle));
+};
+
+const jsdomNotImplementedFilter: ConsoleFilter = (args) => {
+  const [first] = args;
+  return typeof first === 'object' && first !== null && 'type' in (first as { type?: unknown }) && (first as { type?: unknown }).type === 'not implemented';
+};
+
+const defaultErrorFilters: readonly ConsoleFilter[] = [
+  createIncludesEveryFilter(['ReactDOMTestUtils.act', 'deprecated']),
+  jsdomNotImplementedFilter,
+  createIncludesSomeFilter([
+    'Not implemented: navigation',
+    'Not implemented: HTMLFormElement.prototype.submit',
+  ]),
+  createIncludesSomeFilter([
     // API route errors
     'Search GET error:',
     'Search POST error:',
@@ -144,7 +153,7 @@ console.error = (...args: unknown[]) => {
     'Newsletter subscription error:',
     'Sanity test error:',
     'GET /api/city/[slug] failed',
-    
+
     // Component errors
     'Failed to check favorite status:',
     'Failed to toggle favorite:',
@@ -163,59 +172,120 @@ console.error = (...args: unknown[]) => {
     'Error revalidating path:',
     'Error fetching blog posts:',
     'Error fetching review analytics:',
-    
+
     // Auth errors
     'User creation error:',
     'Update user role error:',
     'Unfavorite listing error:',
     'Update user profile error:',
-    
+
     // Page errors
     'listings/[slug]] failed to fetch',
     'listings/[slug]] failed to check',
-    
+
     // React test warnings
     'An update to FeaturedListings inside a test was not wrapped in act',
     'An update to',
     'inside a test was not wrapped in act',
-  ];
-  
-  if (expectedTestErrors.some(pattern => firstArgStr.includes(pattern))) {
-    return;
+  ]),
+  createIncludesSomeFilter([
+    'A component is changing an uncontrolled input',
+    'In HTML, <html> cannot be a child of <div>',
+    'React does not recognize the',
+    'Received `true` for a non-boolean attribute',
+    'Invalid API response shape',
+  ]),
+];
+
+const defaultWarnFilters: readonly ConsoleFilter[] = [
+  createIncludesSomeFilter(['Missing optional environment variable: SANITY_API_TOKEN']),
+  createIncludesSomeFilter(['[listing-view]']),
+];
+
+const runWithConsoleFilters = <T>(
+  callback: () => T | Promise<T>,
+  filters: Required<ConsoleFilterConfig>
+): T | Promise<T> => {
+  const errorFilters = filters.error;
+  const warnFilters = filters.warn;
+
+  if (!errorFilters.length && !warnFilters.length) {
+    return callback();
   }
-  
-  // Suppress React controlled/uncontrolled input warnings in tests
-  if (
-    firstArgStr.includes('A component is changing an uncontrolled input') ||
-    firstArgStr.includes('In HTML, <html> cannot be a child of <div>') ||
-    firstArgStr.includes('React does not recognize the') ||
-    firstArgStr.includes('Received `true` for a non-boolean attribute') ||
-    firstArgStr.includes('Invalid API response shape')
-  ) {
-    return;
+
+  const originalConsoleError = console.error;
+  const originalConsoleWarn = console.warn;
+
+  const shouldFilter = (list: readonly ConsoleFilter[], args: unknown[]): boolean =>
+    list.some(filter => {
+      try {
+        return filter(args);
+      } catch {
+        return false;
+      }
+    });
+
+  console.error = ((...args: unknown[]) => {
+    if (shouldFilter(errorFilters, args)) {
+      return;
+    }
+    originalConsoleError(...args);
+  }) as typeof console.error;
+
+  console.warn = ((...args: unknown[]) => {
+    if (shouldFilter(warnFilters, args)) {
+      return;
+    }
+    originalConsoleWarn(...args);
+  }) as typeof console.warn;
+
+  const restore = () => {
+    console.error = originalConsoleError;
+    console.warn = originalConsoleWarn;
+  };
+
+  try {
+    const result = callback();
+    if (result && typeof (result as PromiseLike<unknown>).then === 'function') {
+      return (result as PromiseLike<T>).finally(restore);
+    }
+    restore();
+    return result as T;
+  } catch (error) {
+    restore();
+    throw error;
   }
-  
-  originalConsoleError.call(console, ...args);
 };
 
-// Suppress expected console.warn messages in tests
-const originalConsoleWarn = console.warn;
-console.warn = (...args: unknown[]) => {
-  const firstArg = args[0];
-  const firstArgStr = typeof firstArg === 'string' ? firstArg : '';
-  
-  // Suppress Sanity API token warnings in tests (tests intentionally delete the token)
-  if (firstArgStr.includes('Missing optional environment variable: SANITY_API_TOKEN')) {
-    return;
-  }
-  
-  // Suppress listing-view warnings (expected in error path tests)
-  if (firstArgStr.includes('[listing-view]')) {
-    return;
-  }
-  
-  originalConsoleWarn.call(console, ...args);
+export const withConsoleFilters = <T>(
+  callback: () => T | Promise<T>,
+  config: ConsoleFilterConfig = {}
+): T | Promise<T> => {
+  const filters: Required<ConsoleFilterConfig> = {
+    error: config.error ? [...config.error] : [...defaultErrorFilters],
+    warn: config.warn ? [...config.warn] : [...defaultWarnFilters],
+  };
+  return runWithConsoleFilters(callback, filters);
 };
+
+export const withDefaultConsoleFilters = <T>(callback: () => T | Promise<T>): T | Promise<T> =>
+  withConsoleFilters(callback);
+
+type GlobalConsoleFilterRegistry = typeof globalThis & {
+  withConsoleFilters?: typeof withConsoleFilters;
+  withDefaultConsoleFilters?: typeof withDefaultConsoleFilters;
+};
+
+(globalThis as GlobalConsoleFilterRegistry).withConsoleFilters = withConsoleFilters;
+(globalThis as GlobalConsoleFilterRegistry).withDefaultConsoleFilters = withDefaultConsoleFilters;
+
+declare global {
+  // eslint-disable-next-line no-var
+  var withConsoleFilters: typeof withConsoleFilters;
+  // eslint-disable-next-line no-var
+  var withDefaultConsoleFilters: typeof withDefaultConsoleFilters;
+}
+
 
 // jest.setup.ts
 import { jest } from '@jest/globals';
