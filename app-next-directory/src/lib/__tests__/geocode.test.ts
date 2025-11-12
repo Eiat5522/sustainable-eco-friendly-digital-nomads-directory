@@ -23,7 +23,7 @@ jest.mock('path', () => ({
 /**
  * Ensure global.fetch is a Jest mock function for all tests.
  */
-global.fetch = jest.fn() as any;
+global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
 
 const fs = require('fs/promises');
@@ -84,8 +84,7 @@ describe('geocodeAddress', () => {
   beforeEach(() => {
     jest.resetModules();
     jest.clearAllMocks();
-    // @ts-expect-error
-    global.fetch = jest.fn();
+    global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
   });
 
   function getGeocodeModuleWithMockedLandmark(mockImpl: any) {
@@ -268,8 +267,8 @@ describe('updateListingsWithCoordinates', () => {
     const geocodeModule = require('../geocode');
 
     // Use a local mock for geocodeAddress
-    // @ts-expect-error: mockResolvedValue type is safe for test
-    const mockGeocodeAddress = jest.fn().mockResolvedValue({ latitude: 1.23, longitude: 4.56 });
+    const mockGeocodeAddress = jest.fn<() => Promise<{ latitude: number; longitude: number }>>()
+      .mockResolvedValue({ latitude: 1.23, longitude: 4.56 });
 
     await geocodeModule.updateListingsWithCoordinates({
       fs: fsMock,
