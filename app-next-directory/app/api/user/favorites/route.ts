@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { client } from '@/lib/sanity/client';
 import type { UserRole } from '@/types/auth';
 import { ensureSanityUser } from '@/lib/sanity/user';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
 
 type AuthFn = () => Promise<unknown>;
 type EnsureUserFn = (args: {
@@ -114,7 +115,9 @@ export async function GET() {
 
     return NextResponse.json({ favorites });
   } catch (error) {
-    console.error('Failed to fetch favorites:', error);
+    structuredLogger.error('Failed to fetch favorites', error, {
+      component: 'api/user/favorites',
+    });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -176,13 +179,16 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(),
     });
 
-    return NextResponse.json({ 
-      favorited: true, 
-      message: 'Added to favorites', 
-      favoriteId: (favorite as { _id: string })._id 
+    return NextResponse.json({
+      favorited: true,
+      message: 'Added to favorites',
+      favoriteId: (favorite as { _id: string })._id
     });
   } catch (error) {
-    console.error('Failed to add favorite:', error);
+    structuredLogger.error('Failed to add favorite', error, {
+      ...getRequestContext(request),
+      component: 'api/user/favorites',
+    });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
@@ -240,7 +246,10 @@ export async function DELETE(request: NextRequest) {
       });
     }
   } catch (error) {
-    console.error('Failed to remove favorite:', error);
+    structuredLogger.error('Failed to remove favorite', error, {
+      ...getRequestContext(request),
+      component: 'api/user/favorites',
+    });
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

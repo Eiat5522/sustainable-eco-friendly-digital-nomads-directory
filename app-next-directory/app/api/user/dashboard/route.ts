@@ -63,7 +63,9 @@ export function _createDashboardHandler({ authFn, fetchDashboard, logger }: Dash
           route: '/api/user/dashboard',
         });
       } else {
-        console.error(logMessage, error);
+        structuredLogger.error(logMessage, error, {
+          route: '/api/user/dashboard',
+        });
       }
       return NextResponse.json({ error: 'Unable to load dashboard data' }, { status: 500 });
     }

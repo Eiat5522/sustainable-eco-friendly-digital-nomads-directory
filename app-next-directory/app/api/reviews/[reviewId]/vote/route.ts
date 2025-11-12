@@ -3,6 +3,7 @@ import { getCollection } from '@/utils/db-helpers';
 import { ObjectId } from 'mongodb';
 import { z } from 'zod';
 import type { NextRequest } from 'next/server';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
 
 const voteSchema = z.object({
   helpful: z.boolean(),
@@ -146,7 +147,10 @@ export async function POST(
     );
 
   } catch (error) {
-    console.error('Error recording vote:', error);
+    structuredLogger.error('Failed to record review vote', error, {
+      ...getRequestContext(request),
+      component: 'api/reviews/[reviewId]/vote',
+    });
     return ApiResponseHandler.error('Failed to record vote', 500);
   }
 }
@@ -210,7 +214,10 @@ export async function GET(
     return ApiResponseHandler.success(response);
 
   } catch (error) {
-    console.error('Error fetching vote stats:', error);
+    structuredLogger.error('Failed to fetch review vote statistics', error, {
+      ...getRequestContext(request),
+      component: 'api/reviews/[reviewId]/vote',
+    });
     return ApiResponseHandler.error('Failed to fetch vote statistics', 500);
   }
 }

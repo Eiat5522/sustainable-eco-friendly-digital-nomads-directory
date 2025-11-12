@@ -1,6 +1,7 @@
 export const revalidate = 300; // ISR: revalidate every 5 minutes
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
 import { mockListingDetail, mockRelatedListings, mockReviews } from '@/components/listings/listingDetailMockData';
+import logger from '@/lib/logger';
 import { client } from '@/lib/sanity/client';
 import { groq } from 'next-sanity';
 import { transformToDetailDTO } from '@/lib/dto-transformer';
@@ -164,7 +165,7 @@ async function fetchListingBySlug(slug: string): Promise<ListingDetailDTO | null
   try {
     return transformToDetailDTO(raw);
   } catch (e) {
-    console.error('[listings/[slug]] transform failed for', slug, e);
+    logger.error('Failed to transform listing payload', e, { slug, component: 'listings/[slug]' });
     return null;
   }
 }
@@ -191,7 +192,11 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
       };
     });
   } catch (error) {
-    console.error('[listings/[slug]] failed to fetch related listings', error);
+    logger.error('Failed to fetch related listings', error, {
+      component: 'listings/[slug]',
+      cityId,
+      excludeId,
+    });
     return [];
   }
 }
@@ -245,7 +250,11 @@ async function fetchReviews(listingId: string, userId?: string): Promise<Review[
     }
     return reviews;
   } catch (error) {
-    console.error('[listings/[slug]] failed to fetch reviews', error);
+    logger.error('Failed to fetch listing reviews', error, {
+      component: 'listings/[slug]',
+      listingId,
+      userId,
+    });
     return [];
   }
 }
@@ -256,7 +265,11 @@ async function checkIsFavorited(listingId: string, userId?: string): Promise<boo
     const favorite = await client.fetch<{ _id?: string | null } | null>(FAVORITE_QUERY, { userId, listingId });
     return Boolean(favorite?._id);
   } catch (error) {
-    console.error('[listings/[slug]] failed to check favorite status', error);
+    logger.error('Failed to check favorite status', error, {
+      component: 'listings/[slug]',
+      listingId,
+      userId,
+    });
     return false;
   }
 }

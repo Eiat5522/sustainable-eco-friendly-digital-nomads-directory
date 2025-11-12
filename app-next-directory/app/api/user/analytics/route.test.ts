@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { structuredLogger } from '@/lib/logger';
 import { _createAnalyticsHandler as createAnalyticsHandler } from './route';
 
 type RouteHandler = ReturnType<typeof createAnalyticsHandler>;
@@ -20,12 +21,14 @@ describe('/api/user/analytics GET', () => {
   let loggerMock: { error: jest.Mock };
   let GET: RouteHandler;
   let consoleErrorSpy: jest.SpyInstance;
+  let structuredLoggerSpy: jest.SpyInstance;
 
   beforeEach(() => {
     authMock = jest.fn().mockResolvedValue({ ...baseSession });
     fetchDashboardMock = jest.fn();
     loggerMock = { error: jest.fn() };
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    structuredLoggerSpy = jest.spyOn(structuredLogger, 'error').mockImplementation(() => undefined);
 
     GET = createAnalyticsHandler({
       authFn: authMock as any,
@@ -36,6 +39,7 @@ describe('/api/user/analytics GET', () => {
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
+    structuredLoggerSpy.mockRestore();
   });
 
   it('returns 401 for unauthenticated requests', async () => {
@@ -204,7 +208,7 @@ describe('/api/user/analytics GET', () => {
     await expect(response.json()).resolves.toEqual({ error: 'Unable to load analytics data' });
   });
 
-  it('falls back to console.error logging when no logger is provided', async () => {
+  it('falls back to structuredLogger logging when no logger is provided', async () => {
     fetchDashboardMock.mockRejectedValueOnce(new Error('analytics failure'));
 
     const handler = createAnalyticsHandler({
@@ -214,7 +218,11 @@ describe('/api/user/analytics GET', () => {
 
     const response = await handler(createRequest('http://localhost/api/user/analytics') as any);
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('[user-analytics] GET failed', expect.any(Error));
+    expect(structuredLoggerSpy).toHaveBeenCalledWith(
+      '[user-analytics] GET failed',
+      expect.any(Error),
+      { route: '/api/user/analytics' }
+    );
     expect(response.status).toBe(500);
   });
 

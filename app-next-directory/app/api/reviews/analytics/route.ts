@@ -1,6 +1,7 @@
 import { Collection, Document } from 'mongodb';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
+import { getRequestContext, structuredLogger } from '@/lib/logger';
 
 type ReviewFilter = {
   createdAt: { $gte: Date };
@@ -315,7 +316,10 @@ export async function GET(request: Request) {
       `Analytics data for ${timeRange} period`
     );
   } catch (error) {
-    console.error('Error fetching review analytics:', error);
+    structuredLogger.error('Failed to fetch review analytics', error, {
+      ...getRequestContext(request),
+      component: 'api/reviews/analytics',
+    });
     return ApiResponseHandler.error('Failed to fetch review analytics', 500);
   }
 }
