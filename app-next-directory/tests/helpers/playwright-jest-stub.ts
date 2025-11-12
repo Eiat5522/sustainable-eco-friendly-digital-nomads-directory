@@ -103,9 +103,11 @@ export const test = exportedTest
 export const expect = exportedExpect
 export const devices = exportedDevices
 export const request = exportedRequest
-export default {
+const playwrightJestStub = {
   test,
   expect,
   devices,
   request,
 }
+
+export default playwrightJestStub
