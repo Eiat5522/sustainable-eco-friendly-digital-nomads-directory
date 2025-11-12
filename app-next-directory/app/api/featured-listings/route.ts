@@ -54,13 +54,13 @@ import { isSanityConfigured } from '@/lib/sanity/env';
 export async function GET() {
   const startTime = performance.now();
   const requestStartTimestamp = new Date().toISOString();
-  logger.info('Featured listings request started', {
+  structuredLogger.info('Featured listings request started', {
     component: 'api/featured-listings',
     startedAt: requestStartTimestamp,
   });
 
   if (!isSanityConfigured()) {
-    logger.warn('Sanity configuration missing, returning mock featured venues', {
+    structuredLogger.warn('Sanity configuration missing, returning mock featured venues', {
       component: 'api/featured-listings',
     });
     return ApiResponseHandler.success({ listings: mockFeaturedVenues });
@@ -137,7 +137,7 @@ export async function GET() {
         openingHours[] { day, opens, closes }
       }
     }`;
-    logger.debug('Executing featured listings GROQ query', {
+    structuredLogger.debug('Executing featured listings GROQ query', {
       component: 'api/featured-listings',
     });
     const queryStartTime = performance.now();
@@ -145,7 +145,7 @@ export async function GET() {
     const listings = await client.fetch<FeaturedListing[]>(FEATURED_LISTINGS_QUERY);
 
     const queryEndTime = performance.now();
-    logger.info('Featured listings query completed', {
+    structuredLogger.info('Featured listings query completed', {
       component: 'api/featured-listings',
       durationMs: Number((queryEndTime - queryStartTime).toFixed(2)),
       listingCount: listings.length,
@@ -175,7 +175,7 @@ export async function GET() {
     });
 
     const endTime = performance.now();
-    logger.info('Featured listings request completed', {
+    structuredLogger.info('Featured listings request completed', {
       component: 'api/featured-listings',
       totalDurationMs: Number((endTime - startTime).toFixed(2)),
       startedAt: requestStartTimestamp,
@@ -185,7 +185,7 @@ export async function GET() {
   } catch (error) {
     const endTime = performance.now();
 
-    logger.error('Failed to fetch featured listings', error, {
+    structuredLogger.error('Failed to fetch featured listings', error, {
       component: 'api/featured-listings',
       totalDurationMs: Number((endTime - startTime).toFixed(2)),
       startedAt: requestStartTimestamp,
