@@ -15,8 +15,8 @@ export async function POST(req: Request) {
   try {
     const ip = getClientIp(req);
     const key = `auth:reset-request:${ip}`;
-    if (isRateLimited(key, 5, 60)) {
-      return NextResponse.json({ success: true, limited: true }, { status: 200, headers: { 'Retry-After': String(Math.ceil(getRetryAfterMs(key) / 1000)) } });
+    if (await isRateLimited(key, 5, 60)) {
+      return NextResponse.json({ success: true, limited: true }, { status: 200, headers: { 'Retry-After': String(Math.ceil(await getRetryAfterMs(key) / 1000)) } });
     }
     if (!process.env.MONGODB_URI) {
       return NextResponse.json({ success: true }); // soft success to avoid user enumeration
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     const userId = typeof user._id === 'string' ? user._id : user._id.toString();
     // Additional per-account limit (e.g., 3/hr). No "limited" flag to avoid enumeration.
     const userKey = `auth:reset-request:user:${userId}`;
-    if (isRateLimited(userKey, 3, 3600)) {
+    if (await isRateLimited(userKey, 3, 3600)) {
       const wait = 120 + Math.floor(Math.random() * 120);
       await new Promise((r) => setTimeout(r, wait));
       return NextResponse.json({ success: true });

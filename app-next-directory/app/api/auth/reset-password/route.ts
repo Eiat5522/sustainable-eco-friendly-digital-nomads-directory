@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     const ip = getClientIp(req);
     const requestId = getRequestId(req);
     const key = `auth:reset:${ip}`;
-    if (isRateLimited(key, 5, 60)) {
+    if (await isRateLimited(key, 5, 60)) {
       // Audit: rate limited
       logAuditEvent({
         outcome: 'failure',
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
         requestId,
         at: new Date().toISOString(),
       });
-      return NextResponse.json({ error: 'Too many requests' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(getRetryAfterMs(key) / 1000)) } });
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429, headers: { 'Retry-After': String(Math.ceil(await getRetryAfterMs(key) / 1000)) } });
     }
     if (!process.env.MONGODB_URI) {
       // Audit: server misconfiguration

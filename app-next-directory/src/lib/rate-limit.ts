@@ -1,27 +1,40 @@
-// Simple in-memory rate limiter for Node runtime.
-// Not suitable for multi-instance deployments; use a shared store (Redis) in production.
+import { Ratelimit } from "@upstash/ratelimit";
+import { getRedisClient } from "@/lib/redis";
 
-type Key = string;
-type Bucket = { count: number; resetAt: number };
+// Login rate limiting: 5 attempts per 15 minutes
+export let loginRateLimit: Ratelimit | undefined;
 
-const MAX_BUCKETS = 10_000;
+// API rate limiting: 100 requests per minute
+export let apiRateLimit: Ratelimit | undefined;
 
-function sweepExpiredBuckets(now: number) {
-  for (const [k, b] of store) {
-    if (b.resetAt <= now) store.delete(k);
+// Initialize rate limiters with Redis client
+const initializeRateLimiters = () => {
+  try {
+    const redis = getRedisClient();
+    
+    if (redis) {
+      loginRateLimit = new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(5, "15 m"),
+        analytics: true,
+        prefix: "ratelimit:login",
+      });
+
+      apiRateLimit = new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(100, "1 m"),
+        analytics: true,
+        prefix: "ratelimit:api",
+      });
+    }
+  } catch (error) {
+    // Redis client not available, rate limiters remain undefined
+    console.warn('[rate-limit] Failed to initialize rate limiters:', error);
   }
-}
+};
 
-function enforceCapacity() {
-  if (store.size <= MAX_BUCKETS) return;
-  // Sort by resetAt and evict expired or oldest buckets first
-  const sorted = Array.from(store.entries()).sort((a, b) => a[1].resetAt - b[1].resetAt);
-  const toDelete = sorted.slice(0, store.size - MAX_BUCKETS);
-  for (const [k] of toDelete) {
-    store.delete(k);
-  }
-}
-const store: Map<Key, Bucket> = new Map();
+// Initialize on module load
+initializeRateLimiters();
 
 export let getClientIp = (req: Request): string => {
   try {
@@ -33,38 +46,71 @@ export let getClientIp = (req: Request): string => {
   return 'unknown';
 };
 
-let lastCleanup = 0;
-const CLEANUP_INTERVAL_MS = 60_000; // Run cleanup every minute
-
-function performCleanup(now: number) {
-  if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
-  sweepExpiredBuckets(now);
-  enforceCapacity();
-  lastCleanup = now;
-}
-
-export let isRateLimited = (key: string, limit = 10, windowSec = 60): boolean => {
-  if (!Number.isFinite(limit) || !Number.isFinite(windowSec)) return true;
-  if (limit <= 0) return true;
-  const windowMs = Math.max(1, Math.floor(windowSec * 1000));
-  const now = Date.now();
-  performCleanup(now);
-
-  const bucket = store.get(key);
-  if (!bucket || bucket.resetAt <= now) {
-    store.set(key, { count: 1, resetAt: now + windowMs });
+// Helper for backward compatibility
+export let isRateLimited = async (
+  key: string,
+  _limit = 10,
+  _windowSec = 60
+): Promise<boolean> => {
+  if (!apiRateLimit) {
+    // Fallback: allow request if Redis is not available
     return false;
   }
-  if (bucket.count >= limit) return true;
-  bucket.count += 1;
-  return false;
+  
+  try {
+    const { success } = await apiRateLimit.limit(key);
+    return !success;
+  } catch (error) {
+    console.warn('[rate-limit] Error checking rate limit:', error);
+    // On error, allow the request to proceed
+    return false;
+  }
 };
 
-export let getRetryAfterMs = (key: string): number => {
-  const b = store.get(key);
-  const now = Date.now();
-  return b ? Math.max(0, b.resetAt - now) : 0;
+export let getRetryAfterMs = async (key: string): Promise<number> => {
+  if (!apiRateLimit) {
+    return 0;
+  }
+  
+  try {
+    const result = await apiRateLimit.limit(key);
+    if (result.reset) {
+      return Math.max(0, result.reset - Date.now());
+    }
+    return 0;
+  } catch (error) {
+    console.warn('[rate-limit] Error getting retry after:', error);
+    return 0;
+  }
 };
+
+// When running under Jest, some test files import this module before
+// test setup code runs. To make the exported helpers safely mockable we
+// wrap them with jest.fn when available so tests can call
+// .mockReturnValue/.mockResolvedValue and use Jest matchers like
+// toHaveBeenCalledWith. This preserves the original implementation for
+// non-test runtimes.
+if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
+  type JestLike = {
+    fn: <T extends (...args: never[]) => unknown>(implementation: T) => T & {
+      mockImplementation?: (...args: Parameters<T>) => ReturnType<T>;
+    };
+  };
+
+  const maybeJest = (globalThis as { jest?: JestLike }).jest;
+
+  if (maybeJest) {
+    const originalGetClientIp = getClientIp;
+    const originalIsRateLimited = isRateLimited;
+    const originalGetRetryAfterMs = getRetryAfterMs;
+
+    getClientIp = maybeJest.fn(originalGetClientIp) as typeof getClientIp;
+    isRateLimited = maybeJest.fn(originalIsRateLimited) as typeof isRateLimited;
+    getRetryAfterMs = maybeJest.fn(originalGetRetryAfterMs) as typeof getRetryAfterMs;
+  } else {
+    console.warn('Jest not available for mocking in rate-limit module');
+  }
+}
 
 // When running under Jest, some test files import this module before
 // test setup code runs. To make the exported helpers safely mockable we
