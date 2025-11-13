@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest } from 'next/server';
 import { client } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
@@ -13,12 +12,26 @@ import { buildE2ESearchResponse, isE2ERun } from '@/data/e2e/discovery-fixtures'
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
+// Type for search request body
+type SearchRequestBody = {
+  query?: string;
+  page?: number | string;
+  limit?: number | string;
+  facets?: boolean;
+  category?: string | string[];
+  destination?: string | string[];
+  amenities?: string | string[];
+  nomadFeatures?: string | string[];
+  e2eScenario?: string;
+  retry?: string;
+};
+
 export const _testControl = isTestEnv
   ? {
-      clientFetchOverride: undefined as ((query: string, params?: unknown) => Promise<any>) | undefined,
+      clientFetchOverride: undefined as ((query: string, params?: unknown) => Promise<unknown>) | undefined,
       isE2ERunOverride: undefined as (() => boolean) | undefined,
       buildE2ESearchResponseOverride: undefined as (typeof buildE2ESearchResponse) | undefined,
-      parseBodyOverride: undefined as ((request: NextRequest) => Promise<any>) | undefined,
+      parseBodyOverride: undefined as ((request: NextRequest) => Promise<SearchRequestBody>) | undefined,
     }
   : undefined;
 
@@ -256,14 +269,14 @@ export async function GET(request: NextRequest) {
 
     const fetchFn =
       _testControl?.clientFetchOverride ??
-      ((queryString: string, params?: unknown) => client.fetch(queryString, params as any));
+      ((queryString: string, params?: unknown) => client.fetch(queryString, params as Record<string, unknown> | undefined));
 
     // Fetch results and total concurrently; facets only if requested
-    const promises: Array<Promise<any>> = [fetchFn(query), fetchFn(countQuery)];
+    const promises: Array<Promise<unknown>> = [fetchFn(query), fetchFn(countQuery)];
     if (includeFacets) promises.push(fetchFn(facetQuery));
     const settled = await Promise.all(promises);
     const results = settled[0];
-    const total = settled[1];
+    const total = typeof settled[1] === 'number' ? settled[1] : 0;
     const facetSource: FacetSourceRecord[] = includeFacets && Array.isArray(settled[2]) ? settled[2] : [];
     const facets = includeFacets ? buildFacetBuckets(facetSource) : undefined;
 
@@ -294,7 +307,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    let body: any;
+    let body: SearchRequestBody;
     try {
       const parseBody =
         _testControl?.parseBodyOverride ?? ((req: NextRequest) => req.json());
@@ -348,14 +361,14 @@ export async function POST(request: NextRequest) {
     const { query, countQuery, facetQuery } = buildQuery({ q, categories, destinations, amenities, nomadFeatures, start, end });
     const fetchFn =
       _testControl?.clientFetchOverride ??
-      ((queryString: string, params?: unknown) => client.fetch(queryString, params as any));
+      ((queryString: string, params?: unknown) => client.fetch(queryString, params as Record<string, unknown> | undefined));
     // Fetch results and total concurrently; facets only if requested
-    const promises: Array<Promise<any>> = [fetchFn(query), fetchFn(countQuery)];
+    const promises: Array<Promise<unknown>> = [fetchFn(query), fetchFn(countQuery)];
     if (includeFacets) promises.push(fetchFn(facetQuery));
 
     const settled = await Promise.all(promises); 
     const results = settled[0];
-    const total = settled[1];
+    const total = typeof settled[1] === 'number' ? settled[1] : 0;
     const facetSource: FacetSourceRecord[] = includeFacets && Array.isArray(settled[2]) ? settled[2] : [];
     const facets = includeFacets ? buildFacetBuckets(facetSource) : undefined;
 
