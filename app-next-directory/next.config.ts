@@ -11,13 +11,13 @@ const isAnalyze = /^(1|true|yes)$/i.test(process.env.ANALYZE ?? '')
 const withAnalyzer = withBundleAnalyzer({ enabled: isAnalyze })
 
 const nextConfig: NextConfig = {
-  productionBrowserSourceMaps: true,
+  productionBrowserSourceMaps: process.env.ENABLE_SOURCE_MAPS === 'true',
   reactStrictMode: true,
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: process.env.NODE_ENV === 'development',
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: process.env.NODE_ENV === 'development',
   },
   async redirects() {
     return [
