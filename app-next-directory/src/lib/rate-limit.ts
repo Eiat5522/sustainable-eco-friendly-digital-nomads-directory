@@ -111,31 +111,3 @@ if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
     console.warn('Jest not available for mocking in rate-limit module');
   }
 }
-
-// When running under Jest, some test files import this module before
-// test setup code runs. To make the exported helpers safely mockable we
-// wrap them with jest.fn when available so tests can call
-// .mockReturnValue/.mockResolvedValue and use Jest matchers like
-// toHaveBeenCalledWith. This preserves the original implementation for
-// non-test runtimes.
-if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
-  type JestLike = {
-    fn: <T extends (...args: never[]) => unknown>(implementation: T) => T & {
-      mockImplementation?: (...args: Parameters<T>) => ReturnType<T>;
-    };
-  };
-
-  const maybeJest = (globalThis as { jest?: JestLike }).jest;
-
-  if (maybeJest) {
-    const originalGetClientIp = getClientIp;
-    const originalIsRateLimited = isRateLimited;
-    const originalGetRetryAfterMs = getRetryAfterMs;
-
-    getClientIp = maybeJest.fn(originalGetClientIp) as typeof getClientIp;
-    isRateLimited = maybeJest.fn(originalIsRateLimited) as typeof isRateLimited;
-    getRetryAfterMs = maybeJest.fn(originalGetRetryAfterMs) as typeof getRetryAfterMs;
-  } else {
-    console.warn('Jest not available for mocking in rate-limit module');
-  }
-}
