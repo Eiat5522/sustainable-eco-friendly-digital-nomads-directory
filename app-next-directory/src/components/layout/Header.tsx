@@ -31,7 +31,7 @@ function useSafeSession(): { session: Session | null; status: SessionStatus } {
 export function Header() {
   const { session, status } = useSafeSession()
   const isAuthenticated = status === 'authenticated'
-  const isAdmin = session?.user?.role === 'admin'
+  const isAdmin = ['admin', 'superAdmin'].includes(session?.user?.role ?? '')
   const displayName = session?.user?.name ?? session?.user?.email ?? 'your account'
   const shortName = session?.user?.name?.split(' ')[0] ?? session?.user?.name ?? ''
   const accountLabel = isAuthenticated ? `Signed in as ${displayName}` : 'Sign in'

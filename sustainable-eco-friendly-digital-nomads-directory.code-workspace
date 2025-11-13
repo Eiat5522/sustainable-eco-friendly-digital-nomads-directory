@@ -23,7 +23,8 @@
         "typescript.enablePromptUseWorkspaceTsdk": true,        
         "jest.disabledWorkspaceFolders": [
             "app-next-directory"
-        ]
+        ],
+        "terminal.integrated.suggest.enabled": true
     }
 
 }

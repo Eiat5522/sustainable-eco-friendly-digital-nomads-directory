@@ -23,5 +23,6 @@
       "path": "/usr/bin/bash",
       "args": ["-l"]
     }
-  }
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

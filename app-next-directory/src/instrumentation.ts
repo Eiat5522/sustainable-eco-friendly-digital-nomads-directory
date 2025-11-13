@@ -7,6 +7,27 @@
  */
 
 export async function register() {
+  if (process.env.NODE_ENV === 'production') {
+    const required = [
+      'NEXTAUTH_SECRET',
+      'MONGODB_URI',
+      'UPSTASH_REDIS_REST_URL',
+      'UPSTASH_REDIS_REST_TOKEN',
+      'NEXT_PUBLIC_SANITY_PROJECT_ID',
+    ];
+
+    const missing = required.filter((key) => !process.env[key]);
+
+    if (missing.length > 0) {
+      throw new Error(
+        `Missing critical environment variables: ${missing.join(', ')}\n` +
+          'Application cannot start without these variables in production.'
+      );
+    }
+
+    console.log('✅ All critical environment variables validated');
+  }
+
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     const { redirectConsoleToStructuredLogger, structuredLogger } = await import('@/lib/logger');
 
