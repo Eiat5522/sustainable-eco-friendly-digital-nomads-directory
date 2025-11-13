@@ -20,9 +20,9 @@ export async function GET(req: Request) {
     // Rate limit by client IP
     const ip = getClientIp(req);
     const key = `auth:verify:${ip}`;
-    if (isRateLimited(key, 10, 60)) {
+    if (await isRateLimited(key, 10, 60)) {
       const url = new URL('/auth/login?verified=0', req.url);
-      url.searchParams.set('limited', Math.ceil(getRetryAfterMs(key) / 1000).toString());
+      url.searchParams.set('limited', Math.ceil(await getRetryAfterMs(key) / 1000).toString());
       return NextResponse.redirect(url);
     }
 
