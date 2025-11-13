@@ -45,6 +45,14 @@ const LoginAttemptSchema = new Schema<ILoginAttempt>({
   },
 });
 
+// Compound indexes for common query patterns
+LoginAttemptSchema.index({ eventType: 1, timestamp: -1 });
+LoginAttemptSchema.index({ userId: 1, timestamp: -1 });
+LoginAttemptSchema.index({ sessionId: 1, timestamp: -1 });
+LoginAttemptSchema.index({ timestamp: -1, eventType: 1 });
+
+console.log('📊 LoginAttempt indexes configured');
+
 const invariantError = (path: 'success' | 'reason', message: string) => {
   const error = new mongoose.Error.ValidationError();
   error.addError(
