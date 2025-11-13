@@ -37,26 +37,26 @@ Create or update `app-next-directory/src/instrumentation.ts`:
 
 ```typescript
 export async function register() {
-  if (process.env.NODE_ENV === 'production') {
-    const required = [
-      'NEXTAUTH_SECRET',
-      'MONGODB_URI',
-      'UPSTASH_REDIS_REST_URL',
-      'UPSTASH_REDIS_REST_TOKEN',
-      'NEXT_PUBLIC_SANITY_PROJECT_ID'
-    ];
-    
-    const missing = required.filter(key => !process.env[key]);
-    
-    if (missing.length > 0) {
-      throw new Error(
-        `Missing critical environment variables: ${missing.join(', ')}\n` +
-        `Application cannot start without these variables in production.`
-      );
+    if (process.env.NODE_ENV === "production") {
+        const required = [
+            "NEXTAUTH_SECRET",
+            "MONGODB_URI",
+            "UPSTASH_REDIS_REST_URL",
+            "UPSTASH_REDIS_REST_TOKEN",
+            "NEXT_PUBLIC_SANITY_PROJECT_ID",
+        ];
+
+        const missing = required.filter((key) => !process.env[key]);
+
+        if (missing.length > 0) {
+            throw new Error(
+                `Missing critical environment variables: ${missing.join(", ")}\n` +
+                    `Application cannot start without these variables in production.`,
+            );
+        }
+
+        console.log("✅ All critical environment variables validated");
     }
-    
-    console.log('✅ All critical environment variables validated');
-  }
 }
 ```
 
@@ -98,10 +98,11 @@ AnalyticsEventSchema.index({ userId: 1, timestamp: -1 });
 AnalyticsEventSchema.index({ sessionId: 1, timestamp: -1 });
 AnalyticsEventSchema.index({ timestamp: -1, eventType: 1 });
 
-console.log('📊 AnalyticsEvent indexes configured');
+console.log("📊 AnalyticsEvent indexes configured");
 ```
 
 **Do the same for:**
+
 - `src/models/UserAnalytics.ts`
 - `src/models/LoginAttempt.ts`
 
@@ -139,12 +140,14 @@ pnpm test
 **Solution:**
 
 1. Install Upstash Rate Limit:
+
 ```bash
 cd app-next-directory
 pnpm add @upstash/ratelimit @upstash/redis
 ```
 
 2. Replace `src/lib/rate-limit.ts`:
+
 ```typescript
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
@@ -153,28 +156,28 @@ const redis = Redis.fromEnv();
 
 // Login rate limiting: 5 attempts per 15 minutes
 export const loginRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(5, "15 m"),
-  analytics: true,
-  prefix: "ratelimit:login",
+    redis,
+    limiter: Ratelimit.slidingWindow(5, "15 m"),
+    analytics: true,
+    prefix: "ratelimit:login",
 });
 
 // API rate limiting: 100 requests per minute
 export const apiRateLimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(100, "1 m"),
-  analytics: true,
-  prefix: "ratelimit:api",
+    redis,
+    limiter: Ratelimit.slidingWindow(100, "1 m"),
+    analytics: true,
+    prefix: "ratelimit:api",
 });
 
 // Helper for backward compatibility
 export async function isRateLimited(
-  key: string,
-  limit = 10,
-  windowSec = 60
+    key: string,
+    limit = 10,
+    windowSec = 60,
 ): Promise<boolean> {
-  const { success } = await apiRateLimit.limit(key);
-  return !success;
+    const { success } = await apiRateLimit.limit(key);
+    return !success;
 }
 ```
 
@@ -192,16 +195,18 @@ export async function isRateLimited(
 **Keep:** `app/api/preview/exit/route.ts`
 
 Add redirect for backward compatibility:
+
 ```typescript
 // app/api/exit-preview/route.ts
-import { redirect } from 'next/navigation';
+import { redirect } from "next/navigation";
 
 export async function GET() {
-  redirect('/api/preview/exit');
+    redirect("/api/preview/exit");
 }
 ```
 
 **Check for other duplicates:**
+
 ```bash
 cd app-next-directory
 find app/api -name "route.ts" | sort | uniq -c | grep -v "1 "
@@ -224,16 +229,17 @@ Edit `app-next-directory/tsconfig.json`:
 
 ```json
 {
-  "compilerOptions": {
-    // Add these:
-    "noUncheckedIndexedAccess": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
-  }
+    "compilerOptions": {
+        // Add these:
+        "noUncheckedIndexedAccess": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true
+    }
 }
 ```
 
 **Then fix the 21 instances of `any` usage:**
+
 ```bash
 # Find them:
 grep -rn ": any" src/ --include="*.ts" --include="*.tsx" | grep -v test | grep -v ".d.ts"
@@ -248,12 +254,14 @@ grep -rn ": any" src/ --include="*.ts" --include="*.tsx" | grep -v test | grep -
 ### 9. Migrate to Biome (Code Formatter + Linter)
 
 **Benefits:**
+
 - 97% faster than ESLint + Prettier
 - Single tool instead of two
 - Better CI/CD performance
 - Simpler configuration
 
 **Installation:**
+
 ```bash
 cd app-next-directory
 pnpm add -D @biomejs/biome
@@ -261,46 +269,49 @@ npx @biomejs/biome init
 ```
 
 **Configure `biome.json`:**
+
 ```json
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
-  "organizeImports": { "enabled": true },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "suspicious": {
-        "noExplicitAny": "error"
-      }
-    }
-  },
-  "formatter": {
-    "enabled": true,
-    "indentWidth": 2,
-    "lineWidth": 100
-  },
-  "javascript": {
+    "$schema": "https://biomejs.dev/schemas/1.9.0/schema.json",
+    "organizeImports": { "enabled": true },
+    "linter": {
+        "enabled": true,
+        "rules": {
+            "recommended": true,
+            "suspicious": {
+                "noExplicitAny": "error"
+            }
+        }
+    },
     "formatter": {
-      "quoteStyle": "single",
-      "semicolons": "always"
+        "enabled": true,
+        "indentWidth": 2,
+        "lineWidth": 100
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "single",
+            "semicolons": "always"
+        }
     }
-  }
 }
 ```
 
 **Update package.json:**
+
 ```json
 {
-  "scripts": {
-    "format": "biome format --write .",
-    "lint": "biome lint .",
-    "check": "biome check --write .",
-    "ci": "biome ci ."
-  }
+    "scripts": {
+        "format": "biome format --write .",
+        "lint": "biome lint .",
+        "check": "biome check --write .",
+        "ci": "biome ci ."
+    }
 }
 ```
 
 **Test before removing ESLint/Prettier:**
+
 ```bash
 pnpm check
 git diff  # Review changes
@@ -313,6 +324,7 @@ git diff  # Review changes
 Create these files:
 
 **`app/dashboard/error.tsx`:**
+
 ```typescript
 'use client';
 
@@ -332,7 +344,7 @@ export default function Error({
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h2 className="text-2xl font-bold mb-4">Something went wrong!</h2>
-      <button 
+      <button
         onClick={reset}
         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
       >
@@ -344,11 +356,13 @@ export default function Error({
 ```
 
 **Copy to:**
+
 - `app/admin/error.tsx`
 - `app/listings/error.tsx`
 - `app/profile/error.tsx`
 
 **Add 404 pages:**
+
 - `app/not-found.tsx`
 - `app/listings/[slug]/not-found.tsx`
 - `app/city/[slug]/not-found.tsx`
@@ -386,6 +400,7 @@ NODE_ENV=production node -e "require('./src/instrumentation').register()"
 ## 📈 Success Metrics
 
 **Before Fixes:**
+
 - Health Score: 7.5/10
 - Security Vulnerabilities: 4
 - Outdated Packages: 12
@@ -393,6 +408,7 @@ NODE_ENV=production node -e "require('./src/instrumentation').register()"
 - Test Coverage: 39%
 
 **After Critical + High Priority Fixes:**
+
 - Health Score: 8.5/10+ ⬆️
 - Security Vulnerabilities: 0 ⬇️
 - Production-Ready Rate Limiting: ✅
@@ -406,24 +422,26 @@ NODE_ENV=production node -e "require('./src/instrumentation').register()"
 **If you encounter issues:**
 
 1. **Dependency conflicts:**
-   ```bash
-   rm -rf node_modules pnpm-lock.yaml
-   pnpm install
-   ```
+
+    ```bash
+    rm -rf node_modules pnpm-lock.yaml
+    pnpm install
+    ```
 
 2. **Type errors after strictness changes:**
-   - Fix incrementally, one file at a time
-   - Use `// @ts-expect-error <reason>` temporarily if needed
+    - Fix incrementally, one file at a time
+    - Use `// @ts-expect-error <reason>` temporarily if needed
 
 3. **Build failures:**
-   - Check `next.config.ts` changes are correct
-   - Verify environment variables in `.env.local`
+    - Check `next.config.ts` changes are correct
+    - Verify environment variables in `.env.local`
 
 4. **Test failures after updates:**
-   - Update test snapshots: `pnpm test -- -u`
-   - Review breaking changes in package changelogs
+    - Update test snapshots: `pnpm test -- -u`
+    - Review breaking changes in package changelogs
 
 **Rollback if needed:**
+
 ```bash
 git checkout app-next-directory/package.json
 pnpm install
@@ -442,6 +460,7 @@ pnpm install
 **Questions?** Create an issue in the repository with the label `audit-followup`.
 
 **Timeline Estimate:**
+
 - Critical fixes: 1 day
 - High priority: 3-4 days
 - Medium priority: 1-2 weeks
