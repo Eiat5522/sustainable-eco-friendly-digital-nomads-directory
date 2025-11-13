@@ -220,44 +220,42 @@ export async function POST(request: NextRequest) {
       if (!transporter) {
         console.warn('No email service configured. Contact submission saved but emails not sent.');
         console.warn('Please configure either RESEND_API_KEY or SMTP/Gmail credentials.');
+        // Continue without sending email - this is not a failure if email wasn't configured
       } else {
         const adminRecipient = CONTACT_RECIPIENT;
         const fromAddress = MAIL_FROM ?? GMAIL_USER ?? undefined;
         
         if (!fromAddress) {
           console.warn('No from address configured for email. Please set SMTP_FROM, RESEND_FROM, or GMAIL_USER.');
+          // Continue without sending email
         } else {
-          try {
-            let adminResult: SentMessageInfo | undefined;
-            
-            if (adminRecipient) {
-              adminResult = await transporter.sendMail({
-                from: fromAddress,
-                to: adminRecipient,
-                subject: emailSubject,
-                html: emailBody,
-                replyTo: email,
-              });
-            } else {
-              console.warn('No CONTACT_EMAIL configured; skipping admin notification email');
-            }
-            
-            const autoReplyResult = await transporter.sendMail({
+          // Email is configured - any errors here should fail the request
+          let adminResult: SentMessageInfo | undefined;
+          
+          if (adminRecipient) {
+            adminResult = await transporter.sendMail({
               from: fromAddress,
-              to: email,
-              subject: autoReplySubject,
-              html: autoReplyBody,
+              to: adminRecipient,
+              subject: emailSubject,
+              html: emailBody,
+              replyTo: email,
             });
-            
-            emailSent = true;
-            messageInfo = {
-              adminId: typeof adminResult?.messageId === 'string' ? adminResult.messageId : undefined,
-              autoReplyId: typeof autoReplyResult?.messageId === 'string' ? autoReplyResult.messageId : undefined,
-            };
-          } catch (emailError) {
-            console.error('Failed to send email via nodemailer:', emailError);
-            // Don't throw - we still want to save the submission
+          } else {
+            console.warn('No CONTACT_EMAIL configured; skipping admin notification email');
           }
+          
+          const autoReplyResult = await transporter.sendMail({
+            from: fromAddress,
+            to: email,
+            subject: autoReplySubject,
+            html: autoReplyBody,
+          });
+          
+          emailSent = true;
+          messageInfo = {
+            adminId: typeof adminResult?.messageId === 'string' ? adminResult.messageId : undefined,
+            autoReplyId: typeof autoReplyResult?.messageId === 'string' ? autoReplyResult.messageId : undefined,
+          };
         }
       }
     }

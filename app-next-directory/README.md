@@ -31,6 +31,7 @@ Key directories:
 - Workspace documentation lives under [`docs/app-next-directory/`](../docs/app-next-directory/).
 - Cross-workspace references (changelog, workspace setup, troubleshooting) are available in [`docs/reference/`](../docs/reference/).
 - See [`docs/app-next-directory/README.md`](../docs/app-next-directory/README.md) for navigation, roadmap highlights, and design guidelines.
+- **Email Configuration**: See [`docs/EMAIL_CONFIGURATION.md`](docs/EMAIL_CONFIGURATION.md) for setting up contact form email notifications.
 
 ## Testing & Quality
 
