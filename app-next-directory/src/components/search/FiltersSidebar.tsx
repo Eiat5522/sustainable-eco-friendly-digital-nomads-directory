@@ -25,10 +25,15 @@ function tokenize(value: string): string[] {
   return normalizeText(value).split(' ').filter(Boolean)
 }
 
+type FiltersMapEntry = [groupId: string, values: string[]]
+
 function createFiltersKey(filters: FiltersMap): string {
-  const entries = Object.entries(filters)
-    .map(([groupId, values]) => [groupId, [...new Set(values)].sort()])
-    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+  const entries: FiltersMapEntry[] = Object.entries(filters)
+    .map(([groupId, values]): FiltersMapEntry => {
+      const uniqueValues = [...new Set(values ?? [])].filter(Boolean).sort()
+      return [groupId, uniqueValues]
+    })
+    .sort(([groupA], [groupB]) => groupA.localeCompare(groupB))
   return JSON.stringify(entries)
 }
 

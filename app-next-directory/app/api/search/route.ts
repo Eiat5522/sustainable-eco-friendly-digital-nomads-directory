@@ -10,7 +10,6 @@ import {
 } from '@/utils/sanitize';
 import { buildE2ESearchResponse, isE2ERun } from '@/data/e2e/discovery-fixtures';
 
-const isTestEnv = process.env.NODE_ENV === 'test';
 
 // Type for search request body
 type SearchRequestBody = {
@@ -26,14 +25,27 @@ type SearchRequestBody = {
   retry?: string;
 };
 
-export const _testControl = isTestEnv
+const isTestEnv = process.env.NODE_ENV === 'test';
+
+type SearchRouteTestControl = {
+  clientFetchOverride?: (query: string, params?: unknown) => Promise<unknown>;
+  isE2ERunOverride?: () => boolean;
+  buildE2ESearchResponseOverride?: typeof buildE2ESearchResponse;
+  parseBodyOverride?: (request: NextRequest) => Promise<SearchRequestBody>;
+};
+
+const _testControl: SearchRouteTestControl | undefined = isTestEnv
   ? {
-      clientFetchOverride: undefined as ((query: string, params?: unknown) => Promise<unknown>) | undefined,
-      isE2ERunOverride: undefined as (() => boolean) | undefined,
-      buildE2ESearchResponseOverride: undefined as (typeof buildE2ESearchResponse) | undefined,
-      parseBodyOverride: undefined as ((request: NextRequest) => Promise<SearchRequestBody>) | undefined,
+      clientFetchOverride: undefined,
+      isE2ERunOverride: undefined,
+      buildE2ESearchResponseOverride: undefined,
+      parseBodyOverride: undefined,
     }
   : undefined;
+
+if (process.env.NODE_ENV === 'test') {
+  (module.exports as Record<string, unknown>)._testControl = _testControl;
+}
 
 // Fields selected for listing documents in GROQ queries
 const LISTING_FIELDS = `

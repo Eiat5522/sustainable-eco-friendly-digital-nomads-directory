@@ -132,12 +132,21 @@ export function isDeletedStatus(status: unknown): boolean {
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const _testControl = isTestEnv
+type UserReviewsTestControl = {
+  authOverride?: () => Promise<unknown>;
+  getCollectionOverride?: (collection: string) => Promise<unknown>;
+};
+
+const _testControl: UserReviewsTestControl | undefined = isTestEnv
   ? {
-      authOverride: undefined as (() => Promise<unknown>) | undefined,
-      getCollectionOverride: undefined as ((collection: string) => Promise<unknown>) | undefined,
+      authOverride: undefined,
+      getCollectionOverride: undefined,
     }
   : undefined;
+
+if (process.env.NODE_ENV === 'test') {
+  (module.exports as Record<string, unknown>)._testControl = _testControl;
+}
 
 export async function GET() {
   const authFn = _testControl?.authOverride ?? auth;

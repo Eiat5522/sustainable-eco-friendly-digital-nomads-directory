@@ -26,6 +26,7 @@ type UserDoc = {
   image?: string;
   role: UserRole;
   emailVerified?: Date | null;
+  favorites?: Array<Types.ObjectId | string>;
 };
 // Narrowed fields used when authenticating a user
 type SelectedAuthDoc = Pick<
@@ -240,7 +241,7 @@ export async function unfavoriteListing(userId: string, listingId: string): Prom
       return;
     }
 
-    await User.updateOne({ _id: userId }, { $pull: { favorites: listingId } });
+    await UserModel.updateOne({ _id: userId }, { $pull: { favorites: listingId } });
   } catch (error) {
     console.error('Unfavorite listing error:', error);
     // Don't throw error, just log it

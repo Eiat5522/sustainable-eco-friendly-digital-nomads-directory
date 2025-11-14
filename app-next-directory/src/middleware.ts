@@ -55,7 +55,7 @@ function hasAccess(userRole: UserRole, path: string): boolean {
   }
 
   // Map paths to permission keys
-  let basePathKey: string;
+  let basePathKey = 'home';
   
   if (path.startsWith('/api/')) {
     // For API routes, map to corresponding page permissions
@@ -77,7 +77,7 @@ function hasAccess(userRole: UserRole, path: string): boolean {
     if (pathSegments.length === 0) {
       basePathKey = 'home';
     } else {
-      const firstSegment = pathSegments[0];
+      const firstSegment = pathSegments[0] ?? 'home';
       // Map common routes
       switch (firstSegment) {
         case 'dashboard':

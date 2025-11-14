@@ -147,11 +147,20 @@ export async function GET(request: NextRequest) {
 type FetchFn = (query: string, params?: QueryParams) => Promise<unknown>;
 type TransformFn = typeof transformToBlogSummaryDTO;
 
+type BlogRouteTestControl = {
+  sanityFetchOverride?: FetchFn;
+  transformOverride?: TransformFn;
+};
+
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const _testControl = isTestEnv
+const _testControl: BlogRouteTestControl | undefined = isTestEnv
   ? {
-      sanityFetchOverride: undefined as FetchFn | undefined,
-      transformOverride: undefined as TransformFn | undefined,
+      sanityFetchOverride: undefined,
+      transformOverride: undefined,
     }
   : undefined;
+
+if (process.env.NODE_ENV === 'test') {
+  (module.exports as Record<string, unknown>)._testControl = _testControl;
+}

@@ -36,12 +36,14 @@ function mergeTailwindFallback(value: string): string {
 
     let base = stripped;
     if (parts.length > 1) {
-      const lastPart = parts[parts.length - 1];
+      const lastPart = parts[parts.length - 1] ?? '';
+      const trimmedBase = parts.slice(0, -1).join('-');
       // Only strip the last part if it's a number, arbitrary value, or size
       // Keep named values like 'ring' in 'ring-ring' or 'blue' in 'bg-blue'
       if (/^\d+$/.test(lastPart) || /^\[.+\]$/.test(lastPart) || 
           ['xs', 'sm', 'md', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl', '7xl', '8xl', '9xl'].includes(lastPart)) {
-        base = parts.slice(0, -1).join('-') || parts[0];
+        const fallbackPart = parts[0] ?? stripped;
+        base = trimmedBase || fallbackPart;
       }
     }
 

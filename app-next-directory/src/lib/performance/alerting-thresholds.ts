@@ -4,7 +4,7 @@
  * This module centralises alert severity definitions, notification routing,
  * and the concrete metric thresholds derived from the performance budgets.
  */
-import { PERFORMANCE_BUDGETS } from './performance-budgets';
+import { PERFORMANCE_BUDGETS, type Budget } from './performance-budgets';
 
 export const ALERT_SEVERITY = {
   INFO: 'info',
@@ -65,113 +65,161 @@ export type AlertThresholdEntry = Partial<Record<AlertSeverity, number>> & {
 
 export type AlertingThresholds = Record<string, Record<string, AlertThresholdEntry>>;
 
+const requireBudget = (budget: Budget | undefined, context: string): Budget => {
+  if (!budget) {
+    throw new Error(`Missing performance budget for ${context}`);
+  }
+  return budget;
+};
+
+const PAGE_LOAD_FCP = requireBudget(PERFORMANCE_BUDGETS.pageLoad.FCP, 'pageLoad.FCP');
+const PAGE_LOAD_LCP = requireBudget(PERFORMANCE_BUDGETS.pageLoad.LCP, 'pageLoad.LCP');
+const PAGE_LOAD_TTI = requireBudget(PERFORMANCE_BUDGETS.pageLoad.TTI, 'pageLoad.TTI');
+const PAGE_LOAD_FID = requireBudget(PERFORMANCE_BUDGETS.pageLoad.FID, 'pageLoad.FID');
+const PAGE_LOAD_CLS = requireBudget(PERFORMANCE_BUDGETS.pageLoad.CLS, 'pageLoad.CLS');
+const PAGE_LOAD_TBT = requireBudget(PERFORMANCE_BUDGETS.pageLoad.TBT, 'pageLoad.TBT');
+
+const API_LISTINGS = requireBudget(PERFORMANCE_BUDGETS.apiResponses.listings, 'apiResponses.listings');
+const API_SEARCH = requireBudget(PERFORMANCE_BUDGETS.apiResponses.search, 'apiResponses.search');
+const API_MAP_DATA = requireBudget(PERFORMANCE_BUDGETS.apiResponses.mapData, 'apiResponses.mapData');
+const API_USER_PROFILE = requireBudget(
+  PERFORMANCE_BUDGETS.apiResponses.userProfile,
+  'apiResponses.userProfile',
+);
+
+const SERVER_CPU = requireBudget(
+  PERFORMANCE_BUDGETS.serverResources.cpuUtilization,
+  'serverResources.cpuUtilization',
+);
+const SERVER_MEMORY = requireBudget(
+  PERFORMANCE_BUDGETS.serverResources.memoryUtilization,
+  'serverResources.memoryUtilization',
+);
+const SERVER_DISK = requireBudget(
+  PERFORMANCE_BUDGETS.serverResources.diskIOUtilization,
+  'serverResources.diskIOUtilization',
+);
+
+const COMPONENT_MAP_INITIAL_LOAD = requireBudget(
+  PERFORMANCE_BUDGETS.components.mapRendering.initialLoad,
+  'components.mapRendering.initialLoad',
+);
+const COMPONENT_MAP_PAN_ZOOM = requireBudget(
+  PERFORMANCE_BUDGETS.components.mapRendering.panZoom,
+  'components.mapRendering.panZoom',
+);
+const COMPONENT_HERO_IMAGE = requireBudget(
+  PERFORMANCE_BUDGETS.components.imageLoading.heroImage,
+  'components.imageLoading.heroImage',
+);
+
 export const ALERTING_THRESHOLDS: AlertingThresholds = {
   pageLoad: {
     FCP: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.pageLoad.FCP.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.pageLoad.FCP.critical,
+      [ALERT_SEVERITY.WARNING]: PAGE_LOAD_FCP.acceptable,
+      [ALERT_SEVERITY.ERROR]: PAGE_LOAD_FCP.critical,
       cooldown: 15 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     LCP: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.pageLoad.LCP.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.pageLoad.LCP.critical,
+      [ALERT_SEVERITY.WARNING]: PAGE_LOAD_LCP.acceptable,
+      [ALERT_SEVERITY.ERROR]: PAGE_LOAD_LCP.critical,
       cooldown: 15 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     TTI: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.pageLoad.TTI.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.pageLoad.TTI.critical,
+      [ALERT_SEVERITY.WARNING]: PAGE_LOAD_TTI.acceptable,
+      [ALERT_SEVERITY.ERROR]: PAGE_LOAD_TTI.critical,
       cooldown: 15 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     FID: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.pageLoad.FID.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.pageLoad.FID.critical,
+      [ALERT_SEVERITY.WARNING]: PAGE_LOAD_FID.acceptable,
+      [ALERT_SEVERITY.ERROR]: PAGE_LOAD_FID.critical,
       cooldown: 15 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     CLS: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.pageLoad.CLS.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.pageLoad.CLS.critical,
+      [ALERT_SEVERITY.WARNING]: PAGE_LOAD_CLS.acceptable,
+      [ALERT_SEVERITY.ERROR]: PAGE_LOAD_CLS.critical,
       cooldown: 15 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     TBT: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.pageLoad.TBT.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.pageLoad.TBT.critical,
+      [ALERT_SEVERITY.WARNING]: PAGE_LOAD_TBT.acceptable,
+      [ALERT_SEVERITY.ERROR]: PAGE_LOAD_TBT.critical,
       cooldown: 15 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
   },
   apiResponses: {
     listings: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.apiResponses.listings.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.apiResponses.listings.critical,
-      [ALERT_SEVERITY.CRITICAL]: PERFORMANCE_BUDGETS.apiResponses.listings.critical * 1.5,
+      [ALERT_SEVERITY.WARNING]: API_LISTINGS.acceptable,
+      [ALERT_SEVERITY.ERROR]: API_LISTINGS.critical,
+      [ALERT_SEVERITY.CRITICAL]: API_LISTINGS.critical * 1.5,
       cooldown: 5 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     search: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.apiResponses.search.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.apiResponses.search.critical,
-      [ALERT_SEVERITY.CRITICAL]: PERFORMANCE_BUDGETS.apiResponses.search.critical * 1.5,
+      [ALERT_SEVERITY.WARNING]: API_SEARCH.acceptable,
+      [ALERT_SEVERITY.ERROR]: API_SEARCH.critical,
+      [ALERT_SEVERITY.CRITICAL]: API_SEARCH.critical * 1.5,
       cooldown: 5 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     mapData: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.apiResponses.mapData.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.apiResponses.mapData.critical,
-      [ALERT_SEVERITY.CRITICAL]: PERFORMANCE_BUDGETS.apiResponses.mapData.critical * 1.5,
+      [ALERT_SEVERITY.WARNING]: API_MAP_DATA.acceptable,
+      [ALERT_SEVERITY.ERROR]: API_MAP_DATA.critical,
+      [ALERT_SEVERITY.CRITICAL]: API_MAP_DATA.critical * 1.5,
       cooldown: 5 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     userProfile: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.apiResponses.userProfile.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.apiResponses.userProfile.critical,
-      [ALERT_SEVERITY.CRITICAL]: PERFORMANCE_BUDGETS.apiResponses.userProfile.critical * 1.5,
+      [ALERT_SEVERITY.WARNING]: API_USER_PROFILE.acceptable,
+      [ALERT_SEVERITY.ERROR]: API_USER_PROFILE.critical,
+      [ALERT_SEVERITY.CRITICAL]: API_USER_PROFILE.critical * 1.5,
       cooldown: 5 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
   },
   serverResources: {
     cpuUtilization: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.serverResources.cpuUtilization.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.serverResources.cpuUtilization.critical,
+      [ALERT_SEVERITY.WARNING]: SERVER_CPU.acceptable,
+      [ALERT_SEVERITY.ERROR]: SERVER_CPU.critical,
       [ALERT_SEVERITY.CRITICAL]: 95,
       cooldown: 5 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     memoryUtilization: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.serverResources.memoryUtilization.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.serverResources.memoryUtilization.critical,
+      [ALERT_SEVERITY.WARNING]: SERVER_MEMORY.acceptable,
+      [ALERT_SEVERITY.ERROR]: SERVER_MEMORY.critical,
       [ALERT_SEVERITY.CRITICAL]: 95,
       cooldown: 5 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     diskIOUtilization: {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.serverResources.diskIOUtilization.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.serverResources.diskIOUtilization.critical,
+      [ALERT_SEVERITY.WARNING]: SERVER_DISK.acceptable,
+      [ALERT_SEVERITY.ERROR]: SERVER_DISK.critical,
       cooldown: 10 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
   },
   components: {
     'mapRendering.initialLoad': {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.components.mapRendering.initialLoad.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.components.mapRendering.initialLoad.critical,
+      [ALERT_SEVERITY.WARNING]: COMPONENT_MAP_INITIAL_LOAD.acceptable,
+      [ALERT_SEVERITY.ERROR]: COMPONENT_MAP_INITIAL_LOAD.critical,
       cooldown: 15 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     'mapRendering.panZoom': {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.components.mapRendering.panZoom.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.components.mapRendering.panZoom.critical,
+      [ALERT_SEVERITY.WARNING]: COMPONENT_MAP_PAN_ZOOM.acceptable,
+      [ALERT_SEVERITY.ERROR]: COMPONENT_MAP_PAN_ZOOM.critical,
       cooldown: 15 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },
     'imageLoading.heroImage': {
-      [ALERT_SEVERITY.WARNING]: PERFORMANCE_BUDGETS.components.imageLoading.heroImage.acceptable,
-      [ALERT_SEVERITY.ERROR]: PERFORMANCE_BUDGETS.components.imageLoading.heroImage.critical,
+      [ALERT_SEVERITY.WARNING]: COMPONENT_HERO_IMAGE.acceptable,
+      [ALERT_SEVERITY.ERROR]: COMPONENT_HERO_IMAGE.critical,
       cooldown: 15 * 60,
       destinations: DEFAULT_ALERT_DESTINATIONS,
     },

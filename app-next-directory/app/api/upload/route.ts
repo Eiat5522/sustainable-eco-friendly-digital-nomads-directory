@@ -19,15 +19,27 @@ type OptimizeFn = (buffer: Buffer, fileName: string, options: OptimizationOption
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const _testControl = isTestEnv
+type UploadTestControl = {
+  authOverride?: AuthFn;
+  uploadOverride?: UploadFn;
+  formDataOverride?: FormDataFn;
+  optimizeOverride?: OptimizeFn;
+  skipOptimization?: boolean;
+};
+
+const _testControl: UploadTestControl | undefined = isTestEnv
   ? {
-      authOverride: undefined as AuthFn | undefined,
-      uploadOverride: undefined as UploadFn | undefined,
-      formDataOverride: undefined as FormDataFn | undefined,
-      optimizeOverride: undefined as OptimizeFn | undefined,
+      authOverride: undefined,
+      uploadOverride: undefined,
+      formDataOverride: undefined,
+      optimizeOverride: undefined,
       skipOptimization: false,
     }
   : undefined;
+
+if (process.env.NODE_ENV === 'test') {
+  (module.exports as Record<string, unknown>)._testControl = _testControl;
+}
 
 export async function POST(request: Request) {
   const authFn = _testControl?.authOverride ?? auth;

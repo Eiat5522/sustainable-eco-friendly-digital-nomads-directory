@@ -69,7 +69,13 @@ const getFallbackShardIndex = (postId: string): number => {
 };
 
 const getFallbackShard = (postId: string): Map<string, FallbackCacheEntry> => {
-  return fallbackCacheShards[getFallbackShardIndex(postId)];
+  const shard = fallbackCacheShards[getFallbackShardIndex(postId)];
+  if (!shard) {
+    // This should be logically impossible given the modulo arithmetic,
+    // but it satisfies the compiler and guards against future bugs.
+    throw new Error(`Could not find fallback cache shard for post ID: ${postId}`);
+  }
+  return shard;
 };
 
 const getFallbackCacheSize = (): number => {
@@ -183,7 +189,7 @@ type TestControl = {
   getFallbackMetrics: () => ReturnType<typeof getFallbackMetricsSnapshot>;
 };
 
-export const _testControl: TestControl | undefined = isTestEnv
+const _testControl: TestControl | undefined = isTestEnv
   ? {
       sanityFetchOverride: undefined,
       transformOverride: undefined,
@@ -197,6 +203,10 @@ export const _testControl: TestControl | undefined = isTestEnv
       getFallbackMetrics: () => getFallbackMetricsSnapshot(),
     }
   : undefined;
+
+if (process.env.NODE_ENV === 'test') {
+  (module.exports as Record<string, unknown>)._testControl = _testControl;
+}
 
 // GROQ query for fetching a single blog post by slug
 const postQuery = groq`

@@ -8,14 +8,17 @@ import { createAuthAdapter } from '@/lib/auth/adapter'
 import { authenticateUser, getUserById } from '@/lib/auth/serverAuth'
 import { enforceLoginRateLimit, recordLoginAttempt } from '@/lib/auth/rateLimit'
 import dbConnect from '@/lib/dbConnect'
-import User from '@/models/User'
+import User, { type IUser } from '@/models/User'
 import type { JWT } from 'next-auth/jwt'
 import type { UserRole } from '@/types/auth'
 import { isAdminEmail } from '@/lib/auth/config'
+import type { Model } from 'mongoose'
 
 // Central NextAuth configuration used by route handlers and auth() helper
 // Build providers conditionally to avoid requiring unused env vars
 type AppUser = { id: string; name?: string | null; email?: string | null; image?: string | null; role?: UserRole }
+
+const UserModel = User as unknown as Model<IUser>
 
 const providers: NextAuthConfig['providers'] = [
   Credentials({
@@ -120,8 +123,7 @@ const callbacks = {
           );
           if (shouldVerify && process.env.MONGODB_URI) {
             await dbConnect();
-            // Use proper typing if available
-            await User.updateOne(
+            await UserModel.updateOne(
               {
                 email: String(user.email).toLowerCase(),
                 emailVerified: null,

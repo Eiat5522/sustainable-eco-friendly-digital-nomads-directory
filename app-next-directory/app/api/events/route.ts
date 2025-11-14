@@ -5,11 +5,19 @@ type FetchFn = (query: string, params?: Record<string, unknown>) => Promise<unkn
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const _testControl = isTestEnv
+type EventsTestControl = {
+  clientFetchOverride?: FetchFn;
+};
+
+const _testControl: EventsTestControl | undefined = isTestEnv
   ? {
-      clientFetchOverride: undefined as FetchFn | undefined,
+      clientFetchOverride: undefined,
     }
   : undefined;
+
+if (process.env.NODE_ENV === 'test') {
+  (module.exports as Record<string, unknown>)._testControl = _testControl;
+}
 
 export async function GET(_request: Request) {
   try {

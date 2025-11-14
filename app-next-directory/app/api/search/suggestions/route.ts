@@ -3,11 +3,19 @@ import { ApiResponseHandler } from '@/utils/api-response';
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const _testControl = isTestEnv
+type SearchSuggestionsTestControl = {
+  getSearchSuggestionsOverride?: typeof getSearchSuggestions;
+};
+
+const _testControl: SearchSuggestionsTestControl | undefined = isTestEnv
   ? {
-      getSearchSuggestionsOverride: undefined as typeof getSearchSuggestions | undefined,
+      getSearchSuggestionsOverride: undefined,
     }
   : undefined;
+
+if (process.env.NODE_ENV === 'test') {
+  (module.exports as Record<string, unknown>)._testControl = _testControl;
+}
 
 export async function GET(request: Request) {
   try {

@@ -20,16 +20,29 @@ type ParseBodyFn = (request: NextRequest) => Promise<unknown>;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const _testControl = isTestEnv
+type FavoritesTestControl = {
+  authOverride?: AuthFn;
+  ensureSanityUserOverride?: EnsureUserFn;
+  clientFetchOverride?: FetchFn;
+  clientCreateOrReplaceOverride?: CreateOrReplaceFn;
+  clientDeleteOverride?: DeleteFn;
+  parseBodyOverride?: ParseBodyFn;
+};
+
+const _testControl: FavoritesTestControl | undefined = isTestEnv
   ? {
-      authOverride: undefined as AuthFn | undefined,
-      ensureSanityUserOverride: undefined as EnsureUserFn | undefined,
-      clientFetchOverride: undefined as FetchFn | undefined,
-      clientCreateOrReplaceOverride: undefined as CreateOrReplaceFn | undefined,
-      clientDeleteOverride: undefined as DeleteFn | undefined,
-      parseBodyOverride: undefined as ParseBodyFn | undefined,
+      authOverride: undefined,
+      ensureSanityUserOverride: undefined,
+      clientFetchOverride: undefined,
+      clientCreateOrReplaceOverride: undefined,
+      clientDeleteOverride: undefined,
+      parseBodyOverride: undefined,
     }
   : undefined;
+
+if (process.env.NODE_ENV === 'test') {
+  (module.exports as Record<string, unknown>)._testControl = _testControl;
+}
 
 // Get user's favorites
 export async function GET() {

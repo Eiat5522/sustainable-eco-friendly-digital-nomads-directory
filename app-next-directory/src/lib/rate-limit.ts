@@ -39,7 +39,12 @@ initializeRateLimiters();
 export let getClientIp = (req: Request): string => {
   try {
     const xf = req.headers.get('x-forwarded-for');
-    if (xf) return xf.split(',')[0].trim();
+    if (xf) {
+      const [first] = xf.split(',');
+      if (first) {
+        return first.trim();
+      }
+    }
     const xr = req.headers.get('x-real-ip');
     if (xr) return xr;
   } catch {}
@@ -52,13 +57,14 @@ export let isRateLimited = async (
   _limit = 10,
   _windowSec = 60
 ): Promise<boolean> => {
-  if (!apiRateLimit) {
+  const limiter = apiRateLimit;
+  if (!limiter) {
     // Fallback: allow request if Redis is not available
     return false;
   }
   
   try {
-    const { success } = await apiRateLimit.limit(key);
+    const { success } = await limiter.limit(key);
     return !success;
   } catch (error) {
     console.warn('[rate-limit] Error checking rate limit:', error);
@@ -68,12 +74,13 @@ export let isRateLimited = async (
 };
 
 export let getRetryAfterMs = async (key: string): Promise<number> => {
-  if (!apiRateLimit) {
+  const limiter = apiRateLimit;
+  if (!limiter) {
     return 0;
   }
   
   try {
-    const result = await apiRateLimit.limit(key);
+    const result = await limiter.limit(key);
     if (result.reset) {
       return Math.max(0, result.reset - Date.now());
     }

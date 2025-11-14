@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, jest, afterEach } from '@jest/globals';
 import { structuredLogger } from '@/lib/logger';
-import { _createDashboardHandler as createDashboardHandler, _normaliseMonthWindow as normaliseMonthWindow } from './route';
+import { createDashboardHandler, normalizeMonthWindow } from './route-helpers';
 
 type RouteHandler = ReturnType<typeof createDashboardHandler>;
 
@@ -15,26 +15,26 @@ const baseSession = {
   },
 };
 
-describe('normaliseMonthWindow', () => {
+describe('normalizeMonthWindow', () => {
   it('returns the default window when parameter is absent', () => {
-    expect(normaliseMonthWindow(null)).toBe(3);
+    expect(normalizeMonthWindow(null)).toBe(3);
   });
 
   it('returns the default window when parameter is not a number', () => {
-    expect(normaliseMonthWindow('not-a-number')).toBe(3);
+    expect(normalizeMonthWindow('not-a-number')).toBe(3);
   });
 
   it('clamps the window to the minimum value of 1', () => {
-    expect(normaliseMonthWindow('0')).toBe(1);
-    expect(normaliseMonthWindow('-5')).toBe(1);
+    expect(normalizeMonthWindow('0')).toBe(1);
+    expect(normalizeMonthWindow('-5')).toBe(1);
   });
 
   it('allows values within the permitted range', () => {
-    expect(normaliseMonthWindow('6')).toBe(6);
+    expect(normalizeMonthWindow('6')).toBe(6);
   });
 
   it('caps the window at the maximum allowed value', () => {
-    expect(normaliseMonthWindow('99')).toBe(12);
+    expect(normalizeMonthWindow('99')).toBe(12);
   });
 });
 

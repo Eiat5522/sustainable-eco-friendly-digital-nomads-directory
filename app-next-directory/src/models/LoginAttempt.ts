@@ -138,7 +138,11 @@ const extractField = <T>(update: UpdateQuery<ILoginAttempt>, field: UpdateField)
   }
 
   if (candidates.length > 0) {
-    const first = candidates[0].value as T;
+    const firstCandidate = candidates[0];
+    if (!firstCandidate) {
+      throw invariantError(field, `Unable to determine ${field} value from update clauses.`);
+    }
+    const first = firstCandidate.value as T;
     for (const candidate of candidates.slice(1)) {
       if (candidate.value !== first) {
         throw invariantError(
@@ -151,7 +155,11 @@ const extractField = <T>(update: UpdateQuery<ILoginAttempt>, field: UpdateField)
   }
 
   if (onInsertCandidates.length > 0) {
-    const firstOnInsert = onInsertCandidates[0].value as T;
+    const firstOnInsertCandidate = onInsertCandidates[0];
+    if (!firstOnInsertCandidate) {
+      throw invariantError(field, `Unable to determine ${field} $setOnInsert value.`);
+    }
+    const firstOnInsert = firstOnInsertCandidate.value as T;
     for (const candidate of onInsertCandidates.slice(1)) {
       if (candidate.value !== firstOnInsert) {
         throw invariantError(

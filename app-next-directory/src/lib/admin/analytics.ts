@@ -401,6 +401,9 @@ const processBatches = async (
       }
 
       const batchIds = batches[currentIndex];
+      if (!batchIds) {
+        continue;
+      }
       const result = await commitBatch(
         batchIds,
         patchFactory,

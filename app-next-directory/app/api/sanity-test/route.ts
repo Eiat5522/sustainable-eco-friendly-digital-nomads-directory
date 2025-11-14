@@ -6,12 +6,21 @@ type NodeEnvFn = () => string | undefined;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const _testControl = isTestEnv
+type SanityTestControl = {
+  clientFetchOverride?: FetchFn;
+  nodeEnvOverride?: NodeEnvFn;
+};
+
+const _testControl: SanityTestControl | undefined = isTestEnv
   ? {
-      clientFetchOverride: undefined as FetchFn | undefined,
-      nodeEnvOverride: undefined as NodeEnvFn | undefined,
+      clientFetchOverride: undefined,
+      nodeEnvOverride: undefined,
     }
   : undefined;
+
+if (process.env.NODE_ENV === 'test') {
+  (module.exports as Record<string, unknown>)._testControl = _testControl;
+}
 
 export async function GET(): Promise<Response> {
   try {

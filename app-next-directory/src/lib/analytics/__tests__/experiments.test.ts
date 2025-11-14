@@ -27,7 +27,7 @@ describe('analytics experiments', () => {
     const { getExperiment, getExperimentVariant } = await import('../experiments');
     const experiment = getExperiment('listing-cta-experiment');
     const variant = getExperimentVariant(experiment!);
-    expect(variant).toBe('variant-a');
+    expect(variant).toMatchObject({ id: 'variant-a' });
   });
 
   it('activates experiments and records events', async () => {

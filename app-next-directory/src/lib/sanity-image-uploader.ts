@@ -207,11 +207,12 @@ export class SanityImageUploader {
 
       img.onload = () => {
         URL.revokeObjectURL(url)
+        const [, format = ''] = file.type.split('/')
         resolve({
           width: img.naturalWidth,
           height: img.naturalHeight,
           size: file.size,
-          format: file.type.split('/')[1]
+          format
         })
       }
 
@@ -234,12 +235,20 @@ export class SanityImageUploader {
     return `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#f0f0f0"/></svg>`)}`
   }
 
+  private getRequiredSanityConfig(): { projectId: string; dataset: string } {
+    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+    const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
+    if (!projectId || !dataset) {
+      throw new Error('Sanity project configuration is missing. Please set NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET.')
+    }
+    return { projectId, dataset }
+  }
+
   /**
    * Generate optimized URL for Sanity image
    */
   private generateOptimizedUrl(assetId: string): string {
-    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
-    const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
+    const { projectId, dataset } = this.getRequiredSanityConfig()
 
     return `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}-800x600.webp?auto=format&fit=crop&q=85`
   }
@@ -254,8 +263,7 @@ export class SanityImageUploader {
     large: string
     original: string
   } {
-    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
-    const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
+    const { projectId, dataset } = this.getRequiredSanityConfig()
     const baseUrl = `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}`
 
     return {

@@ -5,12 +5,21 @@ type NodeEnvFn = () => string | undefined;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const _testControl = isTestEnv
+type TestListingsControl = {
+  createTestDataOverride?: CreateTestDataFn;
+  nodeEnvOverride?: NodeEnvFn;
+};
+
+const _testControl: TestListingsControl | undefined = isTestEnv
   ? {
-      createTestDataOverride: undefined as CreateTestDataFn | undefined,
-      nodeEnvOverride: undefined as NodeEnvFn | undefined,
+      createTestDataOverride: undefined,
+      nodeEnvOverride: undefined,
     }
   : undefined;
+
+if (process.env.NODE_ENV === 'test') {
+  (module.exports as Record<string, unknown>)._testControl = _testControl;
+}
 
 export const dynamic = 'force-static';
 

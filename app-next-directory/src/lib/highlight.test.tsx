@@ -50,7 +50,9 @@ describe('highlightText', () => {
     
     const marks = result.filter((el: unknown) => React.isValidElement(el));
     expect(marks.length).toBe(1);
-    expect((marks[0].props as { children?: unknown }).children).toBe('foo');
+    if (marks[0]) {
+      expect((marks[0].props as { children?: unknown }).children).toBe('foo');
+    }
   });
 
   it('applies custom className', () => {

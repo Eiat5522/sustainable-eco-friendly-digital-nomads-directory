@@ -16,7 +16,7 @@ export type PerformanceBudgets = {
   serverResources: BudgetCategory;
 };
 
-export const PERFORMANCE_BUDGETS: PerformanceBudgets = {
+export const PERFORMANCE_BUDGETS = {
   pageLoad: {
     FCP: { target: 1500, acceptable: 2500, critical: 3500 },
     LCP: { target: 2500, acceptable: 4000, critical: 6000 },
@@ -60,7 +60,7 @@ export const PERFORMANCE_BUDGETS: PerformanceBudgets = {
     memoryUtilization: { target: 50, acceptable: 70, critical: 85 },
     diskIOUtilization: { target: 30, acceptable: 50, critical: 75 },
   },
-};
+} as const satisfies PerformanceBudgets;
 
 const getBudget = (category: string, metric: string): Budget | undefined => {
   const categoryBudgets = PERFORMANCE_BUDGETS[category as keyof PerformanceBudgets];

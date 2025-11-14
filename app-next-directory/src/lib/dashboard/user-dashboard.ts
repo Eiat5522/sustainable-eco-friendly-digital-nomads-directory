@@ -378,6 +378,11 @@ export async function getUserDashboardData(
     }
 
     const monthlyStats = buckets.map((bucket, index) => {
+      const totalsEntry = monthlyTotalsBase[index];
+      const ratingAccumulator = monthlyRatingAccumulators[index];
+      if (!totalsEntry || !ratingAccumulator) {
+        throw new Error('Monthly aggregates are out of sync with bucket definitions');
+      }
       const monthReviews = listingReviews.filter((review) => {
         const createdAt = new Date(review.createdAt);
         return createdAt >= bucket.start && createdAt < bucket.end;
@@ -388,14 +393,14 @@ export async function getUserDashboardData(
       });
 
       const monthReviewSum = monthReviews.reduce((sum, review) => sum + (review.rating ?? 0), 0);
-      monthlyTotalsBase[index].reviewCount += monthReviews.length;
-      monthlyTotalsBase[index].favoritesCount += monthFavorites.length;
-      monthlyRatingAccumulators[index].sum += monthReviewSum;
-      monthlyRatingAccumulators[index].count += monthReviews.length;
+      totalsEntry.reviewCount += monthReviews.length;
+      totalsEntry.favoritesCount += monthFavorites.length;
+      ratingAccumulator.sum += monthReviewSum;
+      ratingAccumulator.count += monthReviews.length;
 
       const byListingViews = monthlyViewMetrics.get(listing.id);
       const monthViewCount = byListingViews?.get(bucket.key) ?? 0;
-      monthlyTotalsBase[index].monthlyViewCount += monthViewCount;
+      totalsEntry.monthlyViewCount += monthViewCount;
 
       return {
         month: bucket.key,
@@ -420,14 +425,17 @@ export async function getUserDashboardData(
     };
   });
 
-  const monthlyTotals = monthlyTotalsBase.map((entry, index) => ({
-    ...entry,
-    monthlyViewCount: hasMonthlyViewData ? entry.monthlyViewCount : null,
-    avgRating: normaliseAvg(
-      monthlyRatingAccumulators[index].sum,
-      monthlyRatingAccumulators[index].count,
-    ),
-  }));
+  const monthlyTotals = monthlyTotalsBase.map((entry, index) => {
+    const ratingAccumulator = monthlyRatingAccumulators[index];
+    if (!ratingAccumulator) {
+      throw new Error('Monthly rating accumulator missing during totals calculation');
+    }
+    return {
+      ...entry,
+      monthlyViewCount: hasMonthlyViewData ? entry.monthlyViewCount : null,
+      avgRating: normaliseAvg(ratingAccumulator.sum, ratingAccumulator.count),
+    };
+  });
 
   const notices: string[] = [];
   if (!hasViewData) {

@@ -33,6 +33,9 @@ export function calculateEcoRating(
   // Only include weights for input fields where value > 0 and weight > 0
   for (const key of Object.keys(input)) {
     const value = input[key];
+    if (typeof value !== 'number') {
+      continue;
+    }
     const weight = weights[key] ?? 0;
     if (value > 0 && weight > 0) {
       total += value * weight;

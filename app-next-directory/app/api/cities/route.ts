@@ -6,11 +6,15 @@ type CitiesFetcher = (limit?: number) => Promise<CityDTO[]>;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
-export const _testControl = isTestEnv
+const _testControl = isTestEnv
   ? {
       fetchCitiesOverride: undefined as CitiesFetcher | undefined,
     }
   : undefined;
+
+if (process.env.NODE_ENV === 'test') {
+  (module.exports as Record<string, unknown>)._testControl = _testControl;
+}
 
 export async function GET() {
   try {
