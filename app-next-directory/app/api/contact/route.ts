@@ -45,7 +45,7 @@ const limiter = rateLimit({
 });
 
 // Email configuration
-const createTransporter = (): Transporter<SentMessageInfo> => {
+const createTransporter = (): Transporter<SentMessageInfo> | null => {
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -58,13 +58,17 @@ const createTransporter = (): Transporter<SentMessageInfo> => {
     });
   }
   // Fallback to Gmail SMTP for development
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: GMAIL_USER ?? '',
-      pass: GMAIL_APP_PASSWORD ?? '', // Use app password for Gmail
-    },
-  });
+  if (GMAIL_USER && GMAIL_APP_PASSWORD) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: GMAIL_USER,
+        pass: GMAIL_APP_PASSWORD, // Use app password for Gmail
+      },
+    });
+  }
+  // No email configuration available
+  return null;
 };
 
 export async function POST(request: NextRequest) {
@@ -167,51 +171,93 @@ export async function POST(request: NextRequest) {
     `;
 
     let messageInfo: { adminId?: string; autoReplyId?: string } = {};
+    let emailSent = false;
+    
     if (process.env.RESEND_API_KEY) {
       // Prefer Resend when configured
       const adminRecipient = CONTACT_RECIPIENT;
       const resendJobs = [];
+      
       if (adminRecipient) {
-        resendJobs.push(sendMail({
-          to: adminRecipient,
-          subject: emailSubject,
-          html: emailBody,
-        }));
+        resendJobs.push(
+          sendMail({
+            to: adminRecipient,
+            subject: emailSubject,
+            html: emailBody,
+          }).then((result) => ({ type: 'admin', result }))
+        );
       } else {
         console.warn('No CONTACT_EMAIL configured; skipping admin notification email');
       }
-      resendJobs.push(sendMail({
-        to: email,
-        subject: autoReplySubject,
-        html: autoReplyBody,
-      }));
-      await Promise.all(resendJobs);
-      messageInfo = { adminId: adminRecipient ? 'resend' : undefined, autoReplyId: 'resend' };
+      
+      resendJobs.push(
+        sendMail({
+          to: email,
+          subject: autoReplySubject,
+          html: autoReplyBody,
+        }).then((result) => ({ type: 'autoReply', result }))
+      );
+      
+      const results = await Promise.all(resendJobs);
+      
+      // Check if emails were actually sent or skipped
+      const adminResult = results.find(r => r.type === 'admin');
+      const autoReplyResult = results.find(r => r.type === 'autoReply');
+      
+      if (adminResult?.result && 'skipped' in adminResult.result) {
+        console.warn('Email sending skipped - RESEND_API_KEY not properly configured');
+      } else {
+        emailSent = true;
+        messageInfo = { 
+          adminId: adminRecipient ? 'resend' : undefined, 
+          autoReplyId: 'resend' 
+        };
+      }
     } else {
       // Fallback to nodemailer
       const transporter = createTransporter();
-      const adminRecipient = CONTACT_RECIPIENT;
-      const fromAddress = MAIL_FROM ?? GMAIL_USER ?? undefined;
-      let adminResult: SentMessageInfo | undefined;
-      if (adminRecipient) {
-        adminResult = await transporter.sendMail({
-          from: fromAddress,
-          to: adminRecipient,
-          subject: emailSubject,
-          html: emailBody,
-          replyTo: email,
-        });
+      
+      if (!transporter) {
+        console.warn('No email service configured. Contact submission saved but emails not sent.');
+        console.warn('Please configure either RESEND_API_KEY or SMTP/Gmail credentials.');
+        // Continue without sending email - this is not a failure if email wasn't configured
+      } else {
+        const adminRecipient = CONTACT_RECIPIENT;
+        const fromAddress = MAIL_FROM ?? GMAIL_USER ?? undefined;
+        
+        if (!fromAddress) {
+          console.warn('No from address configured for email. Please set SMTP_FROM, RESEND_FROM, or GMAIL_USER.');
+          // Continue without sending email
+        } else {
+          // Email is configured - any errors here should fail the request
+          let adminResult: SentMessageInfo | undefined;
+          
+          if (adminRecipient) {
+            adminResult = await transporter.sendMail({
+              from: fromAddress,
+              to: adminRecipient,
+              subject: emailSubject,
+              html: emailBody,
+              replyTo: email,
+            });
+          } else {
+            console.warn('No CONTACT_EMAIL configured; skipping admin notification email');
+          }
+          
+          const autoReplyResult = await transporter.sendMail({
+            from: fromAddress,
+            to: email,
+            subject: autoReplySubject,
+            html: autoReplyBody,
+          });
+          
+          emailSent = true;
+          messageInfo = {
+            adminId: typeof adminResult?.messageId === 'string' ? adminResult.messageId : undefined,
+            autoReplyId: typeof autoReplyResult?.messageId === 'string' ? autoReplyResult.messageId : undefined,
+          };
+        }
       }
-      const autoReplyResult = await transporter.sendMail({
-        from: fromAddress,
-        to: email,
-        subject: autoReplySubject,
-        html: autoReplyBody,
-      });
-      messageInfo = {
-        adminId: typeof adminResult?.messageId === 'string' ? adminResult.messageId : undefined,
-        autoReplyId: typeof autoReplyResult?.messageId === 'string' ? autoReplyResult.messageId : undefined,
-      };
     }
 
     // Log successful submission
@@ -219,19 +265,25 @@ export async function POST(request: NextRequest) {
       submissionId: submission._id,
       messageId: messageInfo.adminId,
       autoReplyId: messageInfo.autoReplyId,
+      emailSent,
       type,
       from: email,
       ip,
     });
+
+    const successMessage = emailSent 
+      ? 'Your message has been sent successfully! You should receive a confirmation email shortly.'
+      : 'Your message has been received and saved. However, email notifications are currently unavailable. We will respond to your inquiry as soon as possible.';
 
     return ApiResponseHandler.success(
       {
         messageId: messageInfo.adminId ?? null,
         submissionId: submission._id,
         type,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        emailSent
       },
-      'Your message has been sent successfully!'
+      successMessage
     );
 
   } catch (error) {
