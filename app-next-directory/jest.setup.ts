@@ -43,6 +43,9 @@ jest.mock('broadcast-channel', () => {
   return { __esModule: true, BroadcastChannel, default: BroadcastChannel };
 });
 
+// Load polyfills FIRST before any other imports (after jest.mock calls which are hoisted)
+import './jest.polyfills';
+
 // ============================================================================
 // STOP! Do not add `jest.mock('mongoose')` calls in this file.
 // The Jest config maps `mongoose` to a handcrafted manual mock that provides
@@ -289,7 +292,6 @@ declare global {
 
 // jest.setup.ts
 import { jest } from '@jest/globals';
-import './jest.polyfills';
 import { TextEncoder, TextDecoder } from 'util';
 import '@testing-library/jest-dom';
 import { createTestData } from './src/tests/helpers/test-data';

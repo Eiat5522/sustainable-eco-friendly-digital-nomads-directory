@@ -77,7 +77,7 @@ const highlightText = (text: string, tokens: string[], context?: HighlightContex
       return <span key={`${part}-${index}`}>{part}</span>
     }
 
-    const matchedToken = normalizedTokens[matchedIndex]
+    const matchedToken = normalizedTokens[matchedIndex]!
 
     if (allowed && !allowed.delete(matchedToken)) {
       return <span key={`${part}-${index}`}>{part}</span>

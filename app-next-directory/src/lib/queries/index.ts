@@ -76,8 +76,7 @@ export async function getNearbyListings(
       distance: 500,
       location: { coordinates: { lat: coords.lat, lng: coords.lng } },
       type: 'coworking',
-      city: 'Bangkok',
-      wifiSpeed: 120
+      city: 'Bangkok'
     }
   ]
 }
@@ -91,7 +90,6 @@ export async function searchListings(_query: string): Promise<SearchResult[]> {
       type: 'coworking',
       description: 'A great coworking space',
       city: 'Bangkok',
-      wifiSpeed: 150,
       primaryImage: { asset: { url: 'https://example.com/image.jpg' } }
     }
   ]

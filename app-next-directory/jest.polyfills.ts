@@ -1,6 +1,7 @@
 import {
   ReadableStream as PolyfillReadableStream,
   TransformStream as PolyfillTransformStream,
+  WritableStream as PolyfillWritableStream,
 } from 'web-streams-polyfill';
 
 if (typeof globalThis.ReadableStream === 'undefined') {
@@ -9,6 +10,10 @@ if (typeof globalThis.ReadableStream === 'undefined') {
 
 if (typeof globalThis.TransformStream === 'undefined') {
   globalThis.TransformStream = PolyfillTransformStream as typeof globalThis.TransformStream;
+}
+
+if (typeof globalThis.WritableStream === 'undefined') {
+  globalThis.WritableStream = PolyfillWritableStream as typeof globalThis.WritableStream;
 }
 
 if (typeof globalThis.BroadcastChannel === 'undefined') {

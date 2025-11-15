@@ -28,7 +28,8 @@ export async function createTestListings(listings: TestListing[]) {
 }
 
 export async function cleanupTestListings(ids: string[]) {
-  ids.length
+  // Cleanup logic placeholder
+  void ids.length
 }
 
 export function validateListingResult(listing: any) {
