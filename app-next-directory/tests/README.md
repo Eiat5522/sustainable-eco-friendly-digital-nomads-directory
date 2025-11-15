@@ -2,6 +2,8 @@
 
 This document outlines the **comprehensive testing setup** for the Sustainable Digital Nomads Directory project, featuring military-grade authentication testing and full E2E coverage.
 
+> ⚠️ Playwright now runs only tests inside `tests/e2e` by default. Use `pnpm test:e2e` to run Playwright E2E suites.
+
 ## ✅ **Authentication Testing - COMPLETED**
 
 ### **Test Coverage Summary**

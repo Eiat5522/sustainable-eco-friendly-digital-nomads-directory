@@ -189,6 +189,12 @@ npm run test:e2e
 pnpm --filter app-next-directory test:e2e
 ```
 
+**Note:** The default `test:e2e` command now explicitly targets the `tests/e2e` folder to avoid Playwright scanning other directories under `tests/` that contain non-e2e or Jest-based tests. If you're debugging what Playwright discovers, run:
+
+```bash
+pnpm --filter app-next-directory run test:e2e:list
+```
+
 **Example:**
 ```typescript
 // tests/e2e/search/search-ux.spec.ts

@@ -17,9 +17,20 @@ const serverWaitURL = PLAYWRIGHT_ENV.serverWaitURL
 
 export default defineConfig({
   // Run Playwright tests from the project tests directory using .spec.ts extension only
-  testDir: './tests',
+  // Only run tests inside the `tests/e2e` directory. Integration tests are managed by Jest.
+  // This keeps Playwright focused on UI E2E only and prevents it from picking up other
+  // spec files that belong to different test runners.
+  testDir: './tests/e2e',
   testMatch: ['**/*.spec.ts'],
-  testIgnore: [],
+  // Ignore integration and unit-specs so Playwright does not pick them up when
+  // searching for `*.spec.ts` under `tests/`.
+  testIgnore: [
+    // ensure any explicit integration or jest-style tests that might be present are ignored
+    '**/*.integration.*',
+    '**/*.unit.*',
+    // ignore legacy jest e2e runner files
+    '**/jest.*.spec.ts',
+  ],
   timeout: 60_000,
   expect: {
     timeout: 5_000,

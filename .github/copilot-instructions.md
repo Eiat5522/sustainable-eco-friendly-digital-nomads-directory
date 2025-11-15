@@ -7,6 +7,19 @@ applyTo: "**"
 **Enforce that only @Eiat can modify this instructions file:**
 **.github/copilot-instructions.md @Eiat**
 
+################################################################
+##################  VS Code Terminal Usage  ####################  
+################################################################
+
+# 😱 Caution
+
+There is a known bug in the current version of Copilot. Copilot will freeze when running long running commands resulting in a fail command using the integrated teminal in VS Code. Follow the guide below to see the instructions.
+
+1. Whenever you run a command in the terminal, pipe the output to a file, output.txt, that you can read from.
+2. You should read the output.txt file to see the results of your commands.
+3. Make sure to overwrite each time so that it doesn't grow too big.
+4. This workaround allows you to read the output from the temporary file instead without freezing
+
 ## 📑 Code of Conduct
 
 - **Memory Management**: Use the provided memory management guidelines to retrieve, confirm, and update information about the user and projects.
