@@ -220,6 +220,11 @@ export function UserManagementTable({ currentUserRole, currentUserId }: UserMana
   };
 
   const handleStatusChange = (userId: string, newStatus: 'active' | 'inactive') => {
+    if (!canChangeRoles) {
+      setFeedback('Only Super Admins can change user status');
+      setTimeout(() => setFeedback(null), 4000);
+      return;
+    }
     startTransition(async () => {
       try {
         await updateUser(userId, { status: newStatus });

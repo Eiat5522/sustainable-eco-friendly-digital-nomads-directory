@@ -53,27 +53,48 @@ const mapListings = (raw: RawListing[]): DisplayListing[] =>
     ),
   }))
 
-const highlightText = (text: string, tokens: string[]) => {
+type HighlightContext = {
+  allowedTokens?: Set<string>
+}
+
+const highlightText = (text: string, tokens: string[], context?: HighlightContext) => {
   if (!tokens.length) return text
-  const pattern = tokens.map(escapeRegExp).join('|')
+  const allowed = context?.allowedTokens
+  const filteredTokens = allowed
+    ? tokens.filter((token) => allowed.has(token.toLowerCase()))
+    : tokens
+  if (!filteredTokens.length) return text
+
+  const normalizedTokens = filteredTokens.map((token) => token.toLowerCase())
+  const pattern = filteredTokens.map(escapeRegExp).join('|')
   const regex = new RegExp(`(${pattern})`, 'gi')
-  const parts = text.split(regex)
-  return parts.map((part, index) => {
-    const match = tokens.some((token) => part.toLowerCase() === token.toLowerCase())
-    return match ? (
+
+  return text.split(regex).map((part, index) => {
+    const normalizedPart = part.toLowerCase()
+    const matchedIndex = normalizedTokens.findIndex((token) => token === normalizedPart)
+
+    if (matchedIndex === -1) {
+      return <span key={`${part}-${index}`}>{part}</span>
+    }
+
+    const matchedToken = normalizedTokens[matchedIndex]
+
+    if (allowed && !allowed.delete(matchedToken)) {
+      return <span key={`${part}-${index}`}>{part}</span>
+    }
+
+    return (
       <mark className="bg-yellow-100" data-testid="highlight" key={`${part}-${index}`}>
         {part}
       </mark>
-    ) : (
-      <span key={`${part}-${index}`}>{part}</span>
     )
   })
 }
 
-const highlightList = (items: string[], tokens: string[], testId: string) =>
+const highlightList = (items: string[], tokens: string[], testId: string, context?: HighlightContext) =>
   items.map((item, index) => (
     <li data-testid={testId} key={`${item}-${index}`}>
-      {highlightText(item, tokens)}
+      {highlightText(item, tokens, context)}
     </li>
   ))
 
@@ -152,32 +173,68 @@ export default function TestSearchPage() {
       </label>
 
       <section className="space-y-4">
-        {visibleListings.map((listing) => (
-          <article
-            className="rounded border border-neutral-200 p-4 shadow-sm"
-            data-testid="listing-card"
-            key={listing.id}
-          >
-            <h2 className="text-lg font-semibold" data-testid="listing-title">
-              {highlightText(listing.name, tokens)}
-            </h2>
-            <p className="text-sm text-neutral-700" data-testid="listing-description">
-              {highlightText(listing.description, tokens)}
-            </p>
+        {visibleListings.map((listing) => {
+          const normalizedTokens = tokens.map((token) => token.toLowerCase())
+          const tokenAssignments = new Map<string, 'title' | 'description' | 'ecoTag' | 'feature'>()
 
-            {listing.ecoTags.length > 0 && (
-              <ul className="mt-3 flex flex-wrap gap-2 text-sm text-emerald-700">
-                {highlightList(listing.ecoTags, tokens, 'eco-tag')}
-              </ul>
-            )}
+          const findField = (token: string) => {
+            if (listing.ecoTags.some((tag) => tag.toLowerCase().includes(token))) return 'ecoTag'
+            if (listing.features.some((feature) => feature.toLowerCase().includes(token))) return 'feature'
+            if (listing.name.toLowerCase().includes(token)) return 'title'
+            if (listing.description.toLowerCase().includes(token)) return 'description'
+            return undefined
+          }
 
-            {listing.features.length > 0 && (
-              <ul className="mt-3 flex flex-wrap gap-2 text-sm text-sky-700">
-                {highlightList(listing.features, tokens, 'nomad-feature')}
-              </ul>
-            )}
-          </article>
-        ))}
+          normalizedTokens.forEach((token) => {
+            const field = findField(token)
+            if (field) {
+              tokenAssignments.set(token, field)
+            }
+          })
+
+          const tokensForField = {
+            title: new Set<string>(),
+            description: new Set<string>(),
+            ecoTag: new Set<string>(),
+            feature: new Set<string>(),
+          }
+
+          tokenAssignments.forEach((field, token) => {
+            tokensForField[field].add(token)
+          })
+
+          const titleContext: HighlightContext = { allowedTokens: tokensForField.title }
+          const descriptionContext: HighlightContext = { allowedTokens: tokensForField.description }
+          const ecoTagContext: HighlightContext = { allowedTokens: tokensForField.ecoTag }
+          const featureContext: HighlightContext = { allowedTokens: tokensForField.feature }
+
+          return (
+            <article
+              className="rounded border border-neutral-200 p-4 shadow-sm"
+              data-testid="listing-card"
+              key={listing.id}
+            >
+              <h2 className="text-lg font-semibold" data-testid="listing-title">
+                {highlightText(listing.name, tokens, titleContext)}
+              </h2>
+              <p className="text-sm text-neutral-700" data-testid="listing-description">
+                {highlightText(listing.description, tokens, descriptionContext)}
+              </p>
+
+              {listing.ecoTags.length > 0 && (
+                <ul className="mt-3 flex flex-wrap gap-2 text-sm text-emerald-700">
+                  {highlightList(listing.ecoTags, tokens, 'eco-tag', ecoTagContext)}
+                </ul>
+              )}
+
+              {listing.features.length > 0 && (
+                <ul className="mt-3 flex flex-wrap gap-2 text-sm text-sky-700">
+                  {highlightList(listing.features, tokens, 'nomad-feature', featureContext)}
+                </ul>
+              )}
+            </article>
+          )
+        })}
       </section>
     </main>
   )
