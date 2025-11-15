@@ -24,7 +24,26 @@
         "jest.disabledWorkspaceFolders": [
             "app-next-directory"
         ],
-        "terminal.integrated.suggest.enabled": true
+        "terminal.integrated.suggest.enabled": true,
+        "dbcode.connections": [
+            {
+                "connectionId": "B2HXRvv4td6NIeLL9GKB-",
+                "name": "Upstash/Redis",
+                "driver": "redis",
+                "color": "#F00019",
+                "connectionType": "host",
+                "host": "0.0.0.0",
+                "port": 6379,
+                "ssl": true,
+                "sslTrustCertificate": true,
+                "username": "default",
+                "savePassword": "secretStorage",
+                "database": "My Redis",
+                "readOnly": false,
+                "role": "development",
+                "connectionTimeout": 30
+            }
+        ]
     }
 
 }

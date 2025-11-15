@@ -22,7 +22,7 @@ npx playwright install --with-deps
 npm run test:e2e
 
 # Run specific test file
-npm run test:e2e tests/map-integration.spec.ts
+npm run test:e2e -- tests/map-integration.spec.ts
 
 # Run tests in debug mode
 npm run test:debug

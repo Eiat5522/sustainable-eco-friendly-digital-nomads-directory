@@ -4,8 +4,7 @@
     "allowedDomains": [
       "registry.npmjs.org",
       "github.com",
-      "raw.githubusercontent.com",
-      "mongo"
+      "raw.githubusercontent.com"
     ],
     "allowedMethods": ["GET", "HEAD"],
     "workspaceWrite": true

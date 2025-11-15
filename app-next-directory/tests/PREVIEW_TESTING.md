@@ -32,11 +32,11 @@ This guide explains how to test the preview mode functionality in the applicatio
 
 ```bash
 # Run all preview-related tests
-npm run test:e2e tests/preview-*.spec.ts
+npm run test:e2e -- tests/preview-*.spec.ts
 
 # Run specific test file
-npm run test:e2e tests/preview-mode.spec.ts
-npm run test:e2e tests/preview-api.spec.ts
+npm run test:e2e -- tests/preview-mode.spec.ts
+npm run test:e2e -- tests/preview-api.spec.ts
 ```
 
 ## Test Environment Setup
@@ -51,7 +51,7 @@ node sanity/scripts/create-preview-test-data.js
 
 2. Run performance tests:
 ```bash
-npm run test:e2e tests/preview-performance.spec.ts
+npm run test:e2e -- tests/preview-performance.spec.ts
 ```
 
 The tests will measure:
@@ -76,7 +76,7 @@ node sanity/scripts/create-preview-test-data.js
 
 3. For visual tests, run:
 ```bash
-npm run test:e2e tests/preview-visual.spec.ts
+npm run test:e2e -- tests/preview-visual.spec.ts
 ```
 
 Note: Visual tests will create baseline screenshots on first run. Subsequent runs will compare against these baselines.

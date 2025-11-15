@@ -62,6 +62,8 @@ app-next-directory/
 └── playwright.config.ts           # Playwright configuration
 ```
 
+> The Jest-managed integration suites live with the app sources and run via `npm run test:integration`. Playwright focuses solely on the files under `tests/e2e`; `playwright.config.ts` sets `testDir: './tests/e2e'` so `npm run test:e2e` cannot reach the integration fixtures under `tests/`.
+
 ---
 
 ## Test Types
@@ -189,7 +191,7 @@ npm run test:e2e
 pnpm --filter app-next-directory test:e2e
 ```
 
-**Note:** The default `test:e2e` command now explicitly targets the `tests/e2e` folder to avoid Playwright scanning other directories under `tests/` that contain non-e2e or Jest-based tests. If you're debugging what Playwright discovers, run:
+**Note:** Playwright now relies on `playwright.config.ts` (which sets `testDir: './tests/e2e'`), so the default `test:e2e` command already filters out the Jest-managed folders under `tests/`. If you're debugging what Playwright discovers, run:
 
 ```bash
 pnpm --filter app-next-directory run test:e2e:list
@@ -250,7 +252,7 @@ npm run test:integration
 npm run test:e2e
 
 # Run a specific test file
-npm run test:e2e tests/e2e/auth.spec.ts
+npm run test:e2e -- tests/e2e/auth.spec.ts
 ```
 
 ---
@@ -284,6 +286,7 @@ npm run test:integration src/models/__tests__/Listing.integration.test.ts
 ```
 
 ### E2E Tests
+`npm run test:e2e` reads `playwright.config.ts` and honors `testDir: './tests/e2e'`, so the Jest integration suites under `src/**/__tests__` remain untouched.
 
 ```bash
 # Run all E2E tests
@@ -299,7 +302,7 @@ npx playwright test --headed
 npx playwright test --project=chromium
 
 # Run specific test file
-npm run test:e2e tests/e2e/auth.spec.ts
+npm run test:e2e -- tests/e2e/auth.spec.ts
 
 # Debug mode
 npx playwright test --debug
