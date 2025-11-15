@@ -1,12 +1,5 @@
-import { createClient } from 'next-sanity'
-
-// Test client with read-only access
-const testClient = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '',
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
-  apiVersion: '2024-05-16',
-  useCdn: false,
-})
+import { expect } from '@playwright/test'
+import { randomUUID } from 'node:crypto'
 
 export interface TestListing {
   name: string
@@ -26,22 +19,16 @@ export interface TestListing {
 }
 
 export async function createTestListings(listings: TestListing[]) {
-  const createdDocs = []
-  for (const listing of listings) {
-    const doc = await testClient.create({
-      _type: 'listing',
-      ...listing,
-      createdAt: new Date().toISOString(),
-    })
-    createdDocs.push(doc)
-  }
-  return createdDocs
+  return listings.map((listing) => ({
+    _type: 'listing',
+    _id: randomUUID(),
+    createdAt: new Date().toISOString(),
+    ...listing,
+  }))
 }
 
 export async function cleanupTestListings(ids: string[]) {
-  for (const id of ids) {
-    await testClient.delete(id)
-  }
+  ids.length
 }
 
 export function validateListingResult(listing: any) {

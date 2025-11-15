@@ -62,5 +62,6 @@ export {
   getSessionForRole,
   getTestUser,
   listCities,
+  listEcoTags,
   mockListings,
 } from '@/tests/helpers/test-data';
