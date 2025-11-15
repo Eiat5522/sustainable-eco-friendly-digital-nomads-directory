@@ -3,46 +3,81 @@
 ## 📋 Overview
 This document provides a comprehensive guide to the Playwright testing setup for the Sustainable Eco-Friendly Digital Nomads Directory project. Our test suite focuses on ensuring the reliability and functionality of key features, with special emphasis on map integration and listing management.
 
-## 🛠️ Setup Instructions
+## 🧪 Test Organization
 
-### Prerequisites
-- Node.js 16+
-- npm or pnpm
+### Test Runners & Directory Structure
+This project uses **two different test runners** for different types of tests:
 
-### Installation
-```bash
-# Install Playwright and its dependencies
-npm install -D @playwright/test
-npx playwright install --with-deps
-```
+1. **Playwright** - For E2E (end-to-end) UI tests only
+   - Location: `tests/e2e/`
+   - File pattern: `*.spec.ts`
+   - Command: `pnpm test:e2e`
+   - Purpose: Full browser-based UI testing
 
-### Running Tests
-```bash
-# Run all tests
-npm run test:e2e
+2. **Jest** - For Unit and Integration tests
+   - Unit tests: `src/**/*.test.ts`
+   - Integration tests: `src/**/*.integration.test.ts`
+   - Commands: `pnpm test:unit`, `pnpm test:integration`
+   - Purpose: Fast, isolated unit and integration testing
 
-# Run specific test file
-npm run test:e2e -- tests/map-integration.spec.ts
+### ⚠️ Important: Spec File Location
+**CRITICAL**: Only `.spec.ts` files in the `tests/e2e/` directory should be run by Playwright. 
 
-# Run tests in debug mode
-npm run test:debug
-```
+Spec files in `tests/` root directory (like `tests/api-integration.spec.ts`, `tests/map-integration.spec.ts`) are **integration tests** that should eventually be migrated to use Jest's `.test.ts` naming convention. They are currently excluded from Playwright runs via the config.
 
 ## 📁 Folder Structure
 ```
 tests/
-├── map-integration.spec.ts     # Map component integration tests
-├── setup/
-│   └── mock-data.ts           # Test data and mock configurations
-└── utils/
-    ├── map-test-utils.ts      # Map-specific test helpers
-    ├── filter-test-utils.ts   # Filtering functionality helpers
-    ├── test-assertions.ts     # Common test assertions
-    ├── test-fixtures.ts       # Test fixtures and setup
-    └── test-setup.ts          # Global test setup utilities
+├── e2e/                          # ✅ Playwright E2E tests (UI testing)
+│   ├── auth.spec.ts              # Authentication flows
+│   ├── listing-detail.spec.ts    # Listing detail page
+│   ├── filters/                  # Filter functionality
+│   └── ...
+├── api-integration.spec.ts       # ⚠️  Integration test (NOT run by Playwright)
+├── map-integration.spec.ts       # ⚠️  Integration test (NOT run by Playwright)
+├── preview-*.spec.ts             # ⚠️  Integration tests (NOT run by Playwright)
+└── utils/                        # Shared test utilities
+    ├── map-test-utils.ts
+    └── ...
 ```
 
-## 🔑 Key Concepts
+## 🛠️ Setup Instructions
+
+### Prerequisites
+- Node.js 20+ (as specified in package.json)
+- pnpm (preferred package manager)
+
+### Installation
+```bash
+# Install Playwright and its dependencies
+pnpm install
+pnpm install:playwright
+
+# Or install manually
+pnpm exec playwright install --with-deps
+```
+
+### Running Tests
+```bash
+# Run all E2E tests (Playwright)
+pnpm test:e2e
+
+# List all E2E tests without running them
+pnpm test:e2e:list
+
+# Run specific test file
+pnpm test:e2e -- tests/e2e/auth.spec.ts
+
+# Run unit tests (Jest)
+pnpm test:unit
+
+# Run integration tests (Jest)
+pnpm test:integration
+
+# Legacy Jest-based E2E tests (deprecated)
+pnpm test:e2e:legacy
+```
+
 
 ### Test Fixtures
 We use custom fixtures to provide common test setup and teardown:

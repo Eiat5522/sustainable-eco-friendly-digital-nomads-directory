@@ -20,8 +20,9 @@ export default defineConfig({
   // Only run tests inside the `tests/e2e` directory. Integration tests are managed by Jest.
   // This keeps Playwright focused on UI E2E only and prevents it from picking up other
   // spec files that belong to different test runners.
-  testDir: './tests/e2e',
-  testMatch: ['**/*.spec.ts'],
+  testDir: './tests',
+  // Explicitly match only .spec.ts files within the e2e subdirectory
+  testMatch: '**/e2e/**/*.spec.ts',
   // Ignore integration and unit-specs so Playwright does not pick them up when
   // searching for `*.spec.ts` under `tests/`.
   testIgnore: [
@@ -30,6 +31,11 @@ export default defineConfig({
     '**/*.unit.*',
     // ignore legacy jest e2e runner files
     '**/jest.*.spec.ts',
+    // Explicitly ignore all spec files NOT in the e2e directory
+    '**/tests/*.spec.ts',
+    '**/tests/debug/**',
+    '**/tests/performance/**',
+    '**/tests/visual/**',
   ],
   timeout: 60_000,
   expect: {
