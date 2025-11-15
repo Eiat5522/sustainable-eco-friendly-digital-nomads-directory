@@ -2,7 +2,40 @@
 
 This document outlines the **comprehensive testing setup** for the Sustainable Digital Nomads Directory project, featuring military-grade authentication testing and full E2E coverage.
 
-> ⚠️ Playwright now runs only tests inside `tests/e2e` by default. Use `pnpm test:e2e` to run Playwright E2E suites.
+## 📂 **Test Structure & Organization**
+
+### **⚠️ IMPORTANT: Playwright Test Scope**
+
+**Playwright (`pnpm test:e2e`) ONLY runs tests in `tests/e2e/` directory.**
+
+The `tests/` directory contains two types of test files:
+
+1. **`tests/e2e/`** - E2E tests run by Playwright ✅
+   - File pattern: `*.spec.ts`
+   - Purpose: Browser-based UI end-to-end testing
+   - Count: ~29 spec files with ~128 test cases
+   - Examples: `auth.spec.ts`, `listing-detail.spec.ts`, `filters/filters-and-pagination.spec.ts`
+
+2. **`tests/` (root)** - Integration tests (NOT run by Playwright) ❌
+   - File pattern: `*.spec.ts`
+   - Purpose: API and component integration testing
+   - Count: ~21 spec files with ~199 test cases
+   - Examples: `api-integration.spec.ts`, `map-integration.spec.ts`, `preview-*.spec.ts`
+   - **Status**: These files use Playwright test API but are excluded from `pnpm test:e2e` runs
+   - **Future**: Consider migrating to Jest with `.test.ts` naming
+
+### **Test Commands**
+```bash
+# E2E tests (Playwright) - ONLY runs tests/e2e/
+pnpm test:e2e           # Run all E2E tests
+pnpm test:e2e:list      # List E2E tests without running
+
+# Unit & Integration tests (Jest)
+pnpm test:unit          # Run unit tests from src/
+pnpm test:integration   # Run integration tests from src/
+```
+
+---
 
 ## ✅ **Authentication Testing - COMPLETED**
 
