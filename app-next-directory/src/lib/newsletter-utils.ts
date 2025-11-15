@@ -1,6 +1,5 @@
 import { getRedisClient, mockRedisClient } from './redis';
 import type { RedisLike } from './redis';
-import { structuredLogger } from './logger';
 
 // Simple in-memory fallback store with TTL support
 type StoredValue = { value: string; expiresAt: number };

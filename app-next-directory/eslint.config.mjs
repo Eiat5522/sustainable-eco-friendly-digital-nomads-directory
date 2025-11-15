@@ -30,6 +30,8 @@ const eslintConfig = [
       "**/.turbo/**",
       "**/.vercel/**",
       "**/__generated__/**",
+      "**/playwright-report/**",
+      "**/test-results/**",
       "tsconfig.test.json",
       "../sanity/**",
       "**/.env*",

@@ -4,8 +4,6 @@ import dbConnect from '@/lib/dbConnect'
 import NewsletterSubscriber from '@/models/NewsletterSubscriber'
 import { signNewsletterConfirmToken } from '@/lib/newsletterTokens'
 import { buildNewsletterConfirmEmail, sendMail } from '@/lib/email'
-import type { RedisLike } from '@/lib/redis'
-import { structuredLogger } from '@/lib/logger'
 
 const newsletterSubscriptionSchema = z
   .object({
@@ -14,7 +12,7 @@ const newsletterSubscriptionSchema = z
   })
   .strict();
 
-import { _testControl, _clearMemoryStore, storeGet, storeSet, storeIncr, upstashClient } from '@/lib/newsletter-utils';
+import { storeGet, storeSet, storeIncr, upstashClient } from '@/lib/newsletter-utils';
 
 // Rate limit and idempotency settings
 const RATE_LIMIT_PER_IP = 10 // per hour

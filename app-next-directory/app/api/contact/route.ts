@@ -202,7 +202,6 @@ export async function POST(request: NextRequest) {
       
       // Check if emails were actually sent or skipped
       const adminResult = results.find(r => r.type === 'admin');
-      const autoReplyResult = results.find(r => r.type === 'autoReply');
       
       if (adminResult?.result && 'skipped' in adminResult.result) {
         console.warn('Email sending skipped - RESEND_API_KEY not properly configured');
