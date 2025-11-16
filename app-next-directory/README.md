@@ -36,3 +36,15 @@ Key directories:
 ## Testing & Quality
 
 Latest verification: `pnpm lint`, `pnpm check-types`, `pnpm test:unit`, and `pnpm test:e2e` (Q1 2025 cycle). For tooling details and test matrices, read [`docs/app-next-directory/TESTING.md`](../docs/app-next-directory/TESTING.md).
+
+## Dependencies & Compatibility
+
+### NextAuth.js v5 Beta
+This project uses **NextAuth.js v5.0.0-beta.30** to take advantage of the latest authentication features and improved App Router integration. The beta version is stable for production use, but be aware:
+- We're monitoring the [NextAuth.js v5 release roadmap](https://github.com/nextauthjs/next-auth/discussions) for the stable GA release
+- The current beta has been thoroughly tested with our authentication flows
+- Migration path to stable v5 will be minimal once released
+- Alternative: Consider NextAuth.js v4.x if you require only stable releases
+
+### Tailwind CSS
+Tailwind CSS v4.x is installed as a **devDependency only** (not in dependencies) as it's a build-time tool that processes styles during the build phase. This reduces install time and keeps the production bundle clean.

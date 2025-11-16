@@ -2,21 +2,19 @@ import { revalidatePath } from 'next/cache';
 import { NextRequest } from 'next/server';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
+import { validateRevalidationToken } from '@/utils/revalidation-token';
 
 type RevalidateFn = (path: string) => void;
-type TokenFn = () => string | undefined;
 
 const isTestEnv = process.env.NODE_ENV === 'test';
 
 type RevalidateAllTestControl = {
   revalidatePathOverride?: RevalidateFn;
-  tokenOverride?: TokenFn;
 };
 
 const _testControl: RevalidateAllTestControl | undefined = isTestEnv
   ? {
       revalidatePathOverride: undefined,
-      tokenOverride: undefined,
     }
   : undefined;
 
@@ -27,11 +25,9 @@ if (process.env.NODE_ENV === 'test') {
 export async function POST(request: NextRequest) {
   try {
     const token = request.nextUrl.searchParams.get('token');
-    const tokenOverride = _testControl?.tokenOverride;
-    const expectedToken = tokenOverride ? tokenOverride() : process.env.revalidationToken;
 
     // Validate the revalidation token
-    if (!token || token !== expectedToken) {
+    if (!validateRevalidationToken(token)) {
       return ApiResponseHandler.error('Invalid token', 401);
     }
 
