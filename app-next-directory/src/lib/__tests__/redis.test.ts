@@ -23,13 +23,11 @@ describe('redis module', () => {
     jest.restoreAllMocks();
   });
 
-  it('throws a helpful error when redis credentials are missing', async () => {
+  it('returns undefined when redis credentials are missing', async () => {
     await jest.isolateModulesAsync(async () => {
       jest.doMock('@upstash/redis', () => ({ Redis: jest.fn() }));
       const mod = await import('../redis');
-      expect(() => mod.createRedisClient()).toThrow(
-        'UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are not set'
-      );
+      expect(mod.createRedisClient()).toBeUndefined();
     });
   });
 
@@ -277,14 +275,12 @@ describe('redis helpers', () => {
     expect(redisConstructor).toHaveBeenCalledWith({ url: 'https://example.com', token: 'token' });
   });
 
-  it('throws a descriptive error when credentials are missing', async () => {
+  it('returns undefined when credentials are missing', async () => {
     delete process.env.UPSTASH_REDIS_REST_URL;
     delete process.env.UPSTASH_REDIS_REST_TOKEN;
 
     const { createRedisClient } = await import('../redis');
 
-    expect(() => createRedisClient()).toThrow(
-      'UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are not set'
-    );
+    expect(createRedisClient()).toBeUndefined();
   });
 });

@@ -13,6 +13,8 @@ import { notFound } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import type { UserRole } from '@/types/auth';
+import { getCollection } from '@/utils/db-helpers';
+import type { Collection, Filter } from 'mongodb';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -51,6 +53,28 @@ type Review = {
   };
   status: 'pending' | 'approved';
 };
+
+type ReviewDocument = {
+  _id?: string;
+  id?: string;
+  rating?: number | string;
+  comment?: string | null;
+  createdAt?: string | Date | null;
+  _createdAt?: string | Date | null;
+  status?: string | null;
+  listingSlug?: string | null;
+  user?:
+    | string
+    | {
+        id?: string | null;
+        _id?: string | null;
+        name?: string | null;
+        image?: string | null;
+      }
+    | null;
+};
+
+const DEFAULT_REVIEWS_LIMIT = 10;
 
 const isE2ETest = process.env.NEXT_PUBLIC_E2E === '1' || process.env.E2E === '1';
 const E2E_ERROR_SLUG = 'listing-error-simulated';
@@ -201,58 +225,91 @@ async function fetchRelatedListings(cityId?: string, excludeId?: string) {
   }
 }
 
-async function fetchReviews(listingId: string, userId?: string): Promise<Review[]> {
+async function fetchReviews(listingSlug: string, userId?: string): Promise<Review[]> {
   try {
-    const url = new URL('/api/reviews', process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000');
-    url.searchParams.set('listingId', listingId);
+    const collection = (await getCollection('reviews')) as Collection<ReviewDocument>;
+
+    const filter: Filter<ReviewDocument> = { listingSlug };
     if (userId) {
-      url.searchParams.set('userId', userId);
+      filter.$or = [
+        { status: 'approved' },
+        { status: 'pending', user: userId },
+      ];
+    } else {
+      filter.status = 'approved';
     }
-    const res = await fetch(url.toString(), { next: { tags: [`listing:${listingId}-reviews`] } });
-    if (!res.ok) {
-      throw new Error('Failed to fetch reviews');
-    }
-    const data = await res.json();
-    const source = Array.isArray(data?.reviews) ? data.reviews : [];
+
+    const documents = await collection
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .limit(DEFAULT_REVIEWS_LIMIT)
+      .toArray();
+
     const reviews: Review[] = [];
 
-    for (const review of source) {
-      const id = typeof review?.id === 'string' ? review.id : typeof review?._id === 'string' ? review._id : null;
-      const rating = Number(review?.rating);
+    for (const review of documents) {
+      const id =
+        typeof review?.id === 'string'
+          ? review.id
+          : typeof review?._id === 'string'
+            ? review._id
+            : null;
+
+      const rating = Number((review as ReviewDocument)?.rating);
       if (!id || !Number.isFinite(rating) || rating <= 0) {
         continue;
       }
 
       const status = review?.status === 'pending' ? 'pending' : 'approved';
       const comment = typeof review?.comment === 'string' ? review.comment : '';
-      const createdAt =
-        typeof review?.createdAt === 'string'
-          ? review.createdAt
-          : typeof review?._createdAt === 'string'
-            ? review._createdAt
-            : new Date().toISOString();
-      const rawName = typeof review?.user?.name === 'string' ? review.user.name : '';
-      const userName = rawName.trim().length > 0 ? rawName : 'Anonymous';
-      const userImage =
-        typeof review?.user?.image === 'string' && review.user.image.length > 0
-          ? review.user.image
-          : undefined;
-      const userIdValue = typeof review?.user?.id === 'string' ? review.user.id : typeof review?.user?._id === 'string' ? review.user._id : undefined;
+      const createdAtValue = (() => {
+        const createdAt = review?.createdAt;
+        const createdAtFallback = review?._createdAt;
+
+        if (createdAt instanceof Date) return createdAt.toISOString();
+        if (typeof createdAt === 'string') return createdAt;
+        if (createdAtFallback instanceof Date) return createdAtFallback.toISOString();
+        if (typeof createdAtFallback === 'string') return createdAtFallback;
+        return new Date().toISOString();
+      })();
+
+      const rawUser = review?.user;
+      let userName = 'Anonymous';
+      let userImage: string | undefined;
+      let mappedUserId: string | undefined;
+
+      if (typeof rawUser === 'string') {
+        mappedUserId = rawUser;
+      } else if (rawUser && typeof rawUser === 'object') {
+        const maybeName = typeof rawUser.name === 'string' ? rawUser.name.trim() : '';
+        if (maybeName) {
+          userName = maybeName;
+        }
+        const maybeImage = typeof rawUser.image === 'string' ? rawUser.image : undefined;
+        userImage = maybeImage && maybeImage.length > 0 ? maybeImage : undefined;
+        mappedUserId =
+          typeof rawUser.id === 'string'
+            ? rawUser.id
+            : typeof rawUser._id === 'string'
+              ? rawUser._id
+              : undefined;
+      }
 
       reviews.push({
         id,
         rating,
         comment,
-        createdAt,
+        createdAt: createdAtValue,
         status,
-        user: { name: userName, image: userImage, id: userIdValue },
+        user: { name: userName, image: userImage, id: mappedUserId },
       });
     }
+
     return reviews;
   } catch (error) {
     logger.error('Failed to fetch listing reviews', error, {
       component: 'listings/[slug]',
-      listingId,
+      listingSlug,
       userId,
     });
     return [];
@@ -316,7 +373,7 @@ export default async function ListingPage({ params }: Props) {
 
   const [relatedListings, reviews, isFavorited] = await Promise.all([
     fetchRelatedListings(listing.city?.id, listing.id),
-    fetchReviews(listing.id, userId),
+    fetchReviews(listing.slug, userId),
     checkIsFavorited(listing.id, userId),
   ]);
 
