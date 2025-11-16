@@ -31,14 +31,29 @@ const getRedisCredentials = () => {
   const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   if (!redisUrl || !redisToken) {
-    throw new Error('UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are not set');
+    return undefined;
   }
 
   return { redisUrl, redisToken };
 };
 
-export const createRedisClient = (): Redis => {
-  const { redisUrl, redisToken } = getRedisCredentials();
+let missingCredentialsLogged = false;
+
+export const createRedisClient = (): Redis | undefined => {
+  const credentials = getRedisCredentials();
+
+  if (!credentials) {
+    if (!missingCredentialsLogged && !isTestEnvironment()) {
+      missingCredentialsLogged = true;
+      console.warn(
+        '[redis] UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are not set. Falling back to uncached Mongo queries.'
+      );
+    }
+
+    return undefined;
+  }
+
+  const { redisUrl, redisToken } = credentials;
   return new Redis({ url: redisUrl, token: redisToken });
 };
 
@@ -52,7 +67,13 @@ const baseGetRedisClient = () => {
     if (isTestEnvironment()) {
       return undefined;
     }
-    setClient(createRedisClient());
+
+    const client = createRedisClient();
+    if (!client) {
+      return undefined;
+    }
+
+    setClient(client);
   }
 
   return currentClient;
