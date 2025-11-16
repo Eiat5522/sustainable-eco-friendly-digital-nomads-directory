@@ -133,7 +133,7 @@ describe('MSW Handlers', () => {
     it('should have http handlers with proper structure', () => {
       handlers.forEach((handler) => {
         expect(handler).toBeDefined();
-        expect(typeof handler).toBe('function');
+        expect(typeof handler).toBe('object');
       });
     });
 

@@ -9,6 +9,7 @@ const mockNotFound = jest.fn(() => {
   throw new Error('NOT_FOUND_TRIGGERED');
 });
 const renderListingDetailView = jest.fn();
+const mockGetCollection = jest.fn();
 
 jest.mock('@/lib/sanity/client', () => ({
   client: { fetch: mockClientFetch },
@@ -24,6 +25,10 @@ jest.mock('@/lib/auth', () => ({
 
 jest.mock('next/navigation', () => ({
   notFound: mockNotFound,
+}));
+
+jest.mock('@/utils/db-helpers', () => ({
+  getCollection: mockGetCollection,
 }));
 
 jest.mock('@/components/listings/ListingDetailView', () => ({
@@ -60,6 +65,7 @@ describe('app/listings/[slug]/page', () => {
     mockAuth.mockReset();
     renderListingDetailView.mockReset();
     mockNotFound.mockClear();
+    mockGetCollection.mockReset();
     global.fetch = jest.fn() as unknown as typeof fetch;
     if (typeof global.structuredClone !== 'function') {
       (global as any).structuredClone = structuredClonePolyfill as typeof structuredClone;
@@ -132,6 +138,7 @@ describe('app/listings/[slug]/page', () => {
     const listing = {
       id: 'listing-123',
       name: 'Eco Retreat',
+      slug: 'eco-retreat',
       city: { id: 'city-1', name: 'Chiang Mai', slug: 'chiang-mai' },
       galleryImages: ['/hero.jpg'],
     };
@@ -162,29 +169,29 @@ describe('app/listings/[slug]/page', () => {
     mockTransformToDetailDTO.mockReturnValue(listing);
     mockAuth.mockResolvedValue({ user: { id: 'user-1', role: 'member' } });
 
-    (global.fetch as unknown as jest.Mock).mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        reviews: [
-          {
-            id: 'review-1',
-            rating: 5,
-            comment: 'Amazing stay',
-            createdAt: '2024-03-01T00:00:00.000Z',
-            user: { name: 'Alice', image: 'https://cdn.test/alice.jpg', id: 'user-42' },
-          },
-        ],
-      }),
-    });
+    // Mock MongoDB collection for reviews
+    const mockCollection = {
+      find: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      toArray: jest.fn().mockResolvedValue([
+        {
+          id: 'review-1',
+          rating: 5,
+          comment: 'Amazing stay',
+          createdAt: '2024-03-01T00:00:00.000Z',
+          status: 'approved',
+          user: { name: 'Alice', image: 'https://cdn.test/alice.jpg', id: 'user-42' },
+        },
+      ]),
+    };
+    mockGetCollection.mockResolvedValue(mockCollection);
 
     const element = await pageModule.default({ params: Promise.resolve({ slug: 'eco-retreat' }) });
     render(element);
 
     expect(mockTransformToDetailDTO).toHaveBeenCalledWith({ _id: 'listing-raw' });
-    expect(global.fetch as jest.Mock).toHaveBeenCalledWith(
-      expect.stringContaining('listingId=listing-123&userId=user-1'),
-      expect.objectContaining({ next: { tags: [`listing:${listing.id}-reviews`] } })
-    );
+    expect(mockGetCollection).toHaveBeenCalledWith('reviews');
     expect(renderListingDetailView).toHaveBeenCalledWith(
       expect.objectContaining({
         listing,

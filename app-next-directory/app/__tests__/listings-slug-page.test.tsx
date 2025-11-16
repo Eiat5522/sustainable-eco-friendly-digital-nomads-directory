@@ -47,6 +47,10 @@ jest.mock('@/lib/auth', () => ({
   auth: jest.fn(),
 }));
 
+jest.mock('@/utils/db-helpers', () => ({
+  getCollection: jest.fn(),
+}));
+
 const originalFetch = global.fetch;
 const originalStructuredClone = global.structuredClone;
 const originalE2E = process.env.NEXT_PUBLIC_E2E;
@@ -109,17 +113,19 @@ describe('ListingPage', () => {
     process.env.E2E = '0';
     jest.resetModules();
 
-    const [{ default: ListingPage }, clientModule, transformerModule, authModule] = await Promise.all([
+    const [{ default: ListingPage }, clientModule, transformerModule, authModule, dbHelpersModule] = await Promise.all([
       import('../listings/[slug]/page'),
       import('@/lib/sanity/client'),
       import('@/lib/dto-transformer'),
       import('@/lib/auth'),
+      import('@/utils/db-helpers'),
     ]);
 
     const listingRaw = { _id: 'raw-listing' };
     const listingDto = {
       id: 'listing-1',
       name: 'Eco Stay Retreat',
+      slug: 'eco-stay-retreat',
       shortDescription: 'Eco stay short',
       longDescription: 'Eco stay long',
       imageUrl: null,
@@ -130,6 +136,7 @@ describe('ListingPage', () => {
     const sanityFetch = clientModule.client.fetch as jest.Mock;
     const transformToDetailDTO = transformerModule.transformToDetailDTO as jest.Mock;
     const auth = authModule.auth as jest.Mock;
+    const getCollection = dbHelpersModule.getCollection as jest.Mock;
 
     sanityFetch.mockResolvedValueOnce(listingRaw);
     sanityFetch.mockResolvedValueOnce([
@@ -147,21 +154,23 @@ describe('ListingPage', () => {
 
     transformToDetailDTO.mockReturnValue(listingDto);
 
-    global.fetch = jest.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        reviews: [
-          {
-            id: 'review-1',
-            rating: 4,
-            comment: 'Great stay',
-            createdAt: '2024-01-01T00:00:00.000Z',
-            user: { name: 'Avery', image: '/avatar.png', id: 'user-2' },
-            status: 'approved',
-          },
-        ],
-      }),
-    } as Response);
+    // Mock MongoDB collection for reviews
+    const mockCollection = {
+      find: jest.fn().mockReturnThis(),
+      sort: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      toArray: jest.fn().mockResolvedValue([
+        {
+          id: 'review-1',
+          rating: 4,
+          comment: 'Great stay',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          user: { name: 'Avery', image: '/avatar.png', id: 'user-2' },
+          status: 'approved',
+        },
+      ]),
+    };
+    getCollection.mockResolvedValue(mockCollection);
 
     auth.mockResolvedValue({ user: { id: 'user-1', role: 'user' } });
 

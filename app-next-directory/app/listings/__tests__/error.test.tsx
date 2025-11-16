@@ -63,29 +63,29 @@ describe('Listings Error Component', () => {
   });
 
   it('should handle error with digest property', () => {
-    const Error = require('../error').default;
+    const ErrorComponent = require('../error').default;
+    
     const errorWithDigest = Object.assign(new Error('Error with digest'), {
       digest: 'abc123',
     });
 
-    const consoleErrorSpy = jest.spyOn(console, 'error');
-    render(<Error error={errorWithDigest} reset={mockReset} />);
+    render(<ErrorComponent error={errorWithDigest} reset={mockReset} />);
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Dashboard error:', errorWithDigest);
+    expect(console.error).toHaveBeenCalledWith('Dashboard error:', errorWithDigest);
   });
 
   it('should re-log error when error prop changes', () => {
-    const Error = require('../error').default;
-    const consoleErrorSpy = jest.spyOn(console, 'error');
-    const { rerender } = render(<Error error={mockError} reset={mockReset} />);
+    const ErrorComponent = require('../error').default;
+    
+    const { rerender } = render(<ErrorComponent error={mockError} reset={mockReset} />);
 
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledTimes(1);
 
     const newError = new Error('New error');
-    rerender(<Error error={newError} reset={mockReset} />);
+    rerender(<ErrorComponent error={newError} reset={mockReset} />);
 
-    expect(consoleErrorSpy).toHaveBeenCalledTimes(2);
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Dashboard error:', newError);
+    expect(console.error).toHaveBeenCalledTimes(2);
+    expect(console.error).toHaveBeenCalledWith('Dashboard error:', newError);
   });
 
   it('should render button as clickable element', () => {
