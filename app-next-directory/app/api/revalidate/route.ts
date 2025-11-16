@@ -2,6 +2,7 @@ import { revalidatePath } from 'next/cache';
 import { NextRequest } from 'next/server';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { structuredLogger } from '@/lib/logger';
+import { validateRevalidationToken } from '@/utils/revalidation-token';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
     const token = request.nextUrl.searchParams.get('token');
     pathParam = request.nextUrl.searchParams.get('path');
     // Validate the revalidation token
-    if (!token || token !== process.env.revalidationToken) {
+    if (!validateRevalidationToken(token)) {
       return ApiResponseHandler.error('Invalid token', 401);
     }
 

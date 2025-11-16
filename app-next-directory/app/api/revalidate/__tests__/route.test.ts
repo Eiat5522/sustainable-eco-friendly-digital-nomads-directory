@@ -26,6 +26,13 @@ jest.mock('@/lib/logger', () => ({
   structuredLogger: mockStructuredLogger,
 }));
 
+// Mock the revalidation token helper
+const mockValidateRevalidationToken = jest.fn();
+jest.mock('@/utils/revalidation-token', () => ({
+  __esModule: true,
+  validateRevalidationToken: mockValidateRevalidationToken,
+}));
+
 let GET: typeof import('../route').GET;
 
 describe('Revalidate API - GET /api/revalidate', () => {
@@ -33,7 +40,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    process.env = { ...originalEnv, revalidationToken: 'test-secret-token' };
+    process.env = { ...originalEnv, REVALIDATION_TOKEN: 'test-secret-token' };
     mockRevalidatePath.mockImplementation(() => {});
     
     // Dynamically import the route handler
@@ -47,6 +54,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
   describe('Successful Revalidation', () => {
     it('should revalidate path with valid token', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -68,9 +77,12 @@ describe('Revalidate API - GET /api/revalidate', () => {
       expect(data.data.path).toBe('/listings/eco-workspace');
       expect(data.data).toHaveProperty('now');
       expect(mockRevalidatePath).toHaveBeenCalledWith('/listings/eco-workspace');
+      expect(mockValidateRevalidationToken).toHaveBeenCalledWith('test-secret-token');
     });
 
     it('should add leading slash if path does not have it', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -92,6 +104,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
     });
 
     it('should revalidate homepage', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -113,6 +127,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
     });
 
     it('should revalidate nested paths', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -134,6 +150,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
     });
 
     it('should revalidate paths with hyphens', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -156,6 +174,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
   describe('Token Validation', () => {
     it('should return 401 when token is invalid', async () => {
+      mockValidateRevalidationToken.mockReturnValue(false);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -175,9 +195,12 @@ describe('Revalidate API - GET /api/revalidate', () => {
       expect(data.success).toBe(false);
       expect(data.error).toBe('Invalid token');
       expect(mockRevalidatePath).not.toHaveBeenCalled();
+      expect(mockValidateRevalidationToken).toHaveBeenCalledWith('invalid-token');
     });
 
     it('should return 401 when token is missing', async () => {
+      mockValidateRevalidationToken.mockReturnValue(false);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -195,9 +218,12 @@ describe('Revalidate API - GET /api/revalidate', () => {
       expect(response.status).toBe(401);
       expect(data.error).toBe('Invalid token');
       expect(mockRevalidatePath).not.toHaveBeenCalled();
+      expect(mockValidateRevalidationToken).toHaveBeenCalledWith(null);
     });
 
     it('should return 401 for empty token', async () => {
+      mockValidateRevalidationToken.mockReturnValue(false);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -215,9 +241,12 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
       expect(response.status).toBe(401);
       expect(data.error).toBe('Invalid token');
+      expect(mockValidateRevalidationToken).toHaveBeenCalledWith('');
     });
 
     it('should compare token case-sensitively', async () => {
+      mockValidateRevalidationToken.mockReturnValue(false);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -235,11 +264,14 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
       expect(response.status).toBe(401);
       expect(data.error).toBe('Invalid token');
+      expect(mockValidateRevalidationToken).toHaveBeenCalledWith('TEST-SECRET-TOKEN');
     });
   });
 
   describe('Path Validation', () => {
     it('should return 400 when path is missing', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -261,6 +293,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
     });
 
     it('should return 400 for path with protocol', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -282,6 +316,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
     });
 
     it('should return 400 for path with directory traversal', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -303,6 +339,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
     });
 
     it('should return 400 for empty path', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -325,6 +363,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
   describe('Error Handling', () => {
     it('should return 500 when revalidation fails', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
       mockRevalidatePath.mockImplementationOnce(() => {
         throw new Error('Revalidation error');
       });
@@ -350,6 +389,7 @@ describe('Revalidate API - GET /api/revalidate', () => {
     });
 
     it('should log error when revalidation fails', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
       mockStructuredLogger.error.mockClear();
       mockRevalidatePath.mockImplementationOnce(() => {
         throw new Error('Test error');
@@ -376,6 +416,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
   describe('Response Structure', () => {
     it('should return content-type application/json', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -394,6 +436,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
     });
 
     it('should include success flag and data', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const request = {
         nextUrl: {
           searchParams: {
@@ -417,6 +461,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
     });
 
     it('should include timestamp in response', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const beforeTime = Date.now();
 
       const request = {
@@ -443,6 +489,8 @@ describe('Revalidate API - GET /api/revalidate', () => {
 
   describe('Multiple Revalidations', () => {
     it('should handle multiple revalidations in sequence', async () => {
+      mockValidateRevalidationToken.mockReturnValue(true);
+      
       const paths = ['/listings', '/blog', '/cities'];
 
       for (const path of paths) {

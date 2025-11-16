@@ -7,16 +7,24 @@ const mockedRevalidatePath = jest.fn();
 // Mock next/cache so tests never call the real revalidatePath implementation
 jest.mock('next/cache', () => ({ revalidatePath: mockedRevalidatePath }));
 
+// Mock the revalidation token helper
+const mockValidateRevalidationToken = jest.fn();
+jest.mock('@/utils/revalidation-token', () => ({
+  __esModule: true,
+  validateRevalidationToken: mockValidateRevalidationToken,
+}));
+
 let POST: any;
 let routeTestControl: any;
 
 describe('/api/revalidate-all', () => {
   const validToken = 'test-token-123';
-  const originalToken = process.env.revalidationToken;
+  const originalToken = process.env.REVALIDATION_TOKEN;
 
   beforeEach(() => {
-    process.env.revalidationToken = validToken;
+    process.env.REVALIDATION_TOKEN = validToken;
     mockedRevalidatePath.mockReset();
+    mockValidateRevalidationToken.mockReset();
 
     // Load the route after resetting modules so we can set overrides on its _testControl
     jest.resetModules();
@@ -29,14 +37,15 @@ describe('/api/revalidate-all', () => {
   });
 
   afterEach(() => {
-    process.env.revalidationToken = originalToken;
+    process.env.REVALIDATION_TOKEN = originalToken;
     if (routeTestControl) {
       routeTestControl.revalidatePathOverride = undefined;
-      routeTestControl.tokenOverride = undefined;
     }
   });
 
   it('returns 401 when token is missing', async () => {
+    mockValidateRevalidationToken.mockReturnValue(false);
+    
     const request = new NextRequest('http://localhost:3000/api/revalidate-all');
 
     const response = await POST(request);
@@ -45,9 +54,12 @@ describe('/api/revalidate-all', () => {
     expect(response.status).toBe(401);
     expect(json.error).toBe('Invalid token');
     expect(mockedRevalidatePath).not.toHaveBeenCalled();
+    expect(mockValidateRevalidationToken).toHaveBeenCalledWith(null);
   });
 
   it('returns 401 when token is invalid', async () => {
+    mockValidateRevalidationToken.mockReturnValue(false);
+    
     const request = new NextRequest('http://localhost:3000/api/revalidate-all?token=wrong-token');
 
     const response = await POST(request);
@@ -56,9 +68,12 @@ describe('/api/revalidate-all', () => {
     expect(response.status).toBe(401);
     expect(json.error).toBe('Invalid token');
     expect(mockedRevalidatePath).not.toHaveBeenCalled();
+    expect(mockValidateRevalidationToken).toHaveBeenCalledWith('wrong-token');
   });
 
     it('revalidates all routes with valid token', async () => {
+    mockValidateRevalidationToken.mockReturnValue(true);
+    
     const request = new NextRequest(`http://localhost:3000/api/revalidate-all?token=${validToken}`);
 
     const response = await POST(request);
@@ -73,6 +88,7 @@ describe('/api/revalidate-all', () => {
     expect(mockedRevalidatePath).toHaveBeenCalledWith('/listings');
     expect(mockedRevalidatePath).toHaveBeenCalledWith('/category');
     expect(mockedRevalidatePath).toHaveBeenCalledWith('/city');
+    expect(mockValidateRevalidationToken).toHaveBeenCalledWith(validToken);
   });
 
 });
