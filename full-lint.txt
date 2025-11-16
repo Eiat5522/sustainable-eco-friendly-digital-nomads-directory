@@ -1,0 +1,10 @@
+
+> app-next-directory@0.1.0 lint
+> eslint .
+
+
+> sustainable-nomads@1.0.0 lint
+> eslint . --ext .ts,.tsx,.js
+
+(node:8295) ESLintIgnoreWarning: The ".eslintignore" file is no longer supported. Switch to using the "ignores" property in "eslint.config.js": https://eslint.org/docs/latest/use/configure/migration-guide#ignoring-files
+(Use `node --trace-warnings ...` to show where the warning was created)

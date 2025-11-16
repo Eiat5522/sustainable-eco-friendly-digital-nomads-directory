@@ -1,5 +1,7 @@
 Summary
 
+Health score: 5/10. Critical flows (auth/session reads) depend on Redis credentials being present; without them, cache lookups throw and break user fetching, so the app cannot run in environments where Upstash is optional.
+
 The listing detail page calls its own API over HTTP with a localhost fallback, which will fail once deployed behind a production domain and incurs redundant serialization work.
 
 ISR revalidation endpoints look for a lowercase process.env.revalidationToken, leaving route invalidation unusable unless the environment variable is defined with the exact casing the code expects.
