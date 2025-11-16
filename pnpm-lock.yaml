@@ -481,7 +481,7 @@ importers:
         specifier: ^29.3.1
         version: 29.5.14
       '@types/node':
-        specifier: ^22
+        specifier: ^22.19.1
         version: 22.19.1
       '@types/react':
         specifier: ^19.1.13

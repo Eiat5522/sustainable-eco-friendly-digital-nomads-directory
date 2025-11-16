@@ -6,9 +6,6 @@
         {
             "name": "app-next-directory",
             "path": "app-next-directory"
-        },
-        {
-            "path": "../../.config/wezterm"
         }
     ],
     "settings": {

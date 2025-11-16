@@ -2,1396 +2,182 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
-        "title": "Update Vulnerable Dependencies",
-        "description": "Fix security vulnerabilities by updating vulnerable packages.",
-        "details": "Execute the provided `pnpm update` commands to update `prismjs`, `nodemailer`, and `validator`. Then, run `pnpm audit` to verify the fixes and `pnpm build` and `pnpm test` to ensure the application still functions correctly.",
-        "testStrategy": "Run `pnpm audit` to confirm zero vulnerabilities. Run `pnpm build` and `pnpm test` to ensure the application builds and all tests pass.",
+        "id": 21,
+        "title": "Implement getRevalidationToken helper",
+        "description": "Create a shared helper function to retrieve and normalize the revalidation token.",
+        "details": "1. Create a `getRevalidationToken()` function.\n2. Inside the function, read `process.env.REVALIDATION_TOKEN`.\n3. Normalize the casing to match the expected format.\n4. Throw an error if the token is missing.\n5. Use this helper in both `/api/revalidate` and `/api/revalidate-all` routes.",
+        "testStrategy": "1. Unit tests to verify the helper function correctly retrieves and normalizes the token.\n2. Test that an error is thrown when the token is missing.\n3. Integration tests to ensure the revalidation endpoints function correctly with the helper.",
         "priority": "high",
         "dependencies": [],
         "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Update prismjs, nodemailer, and validator",
-            "description": "Execute `pnpm update` for prismjs, nodemailer, and validator to address security vulnerabilities.",
+            "title": "Create getRevalidationToken function",
+            "description": "Implement the getRevalidationToken helper function to retrieve and normalize the revalidation token.",
             "dependencies": [],
-            "details": "Run the following commands: `pnpm update prismjs`, `pnpm update nodemailer`, and `pnpm update validator` in the project's root directory.",
+            "details": "Create a function that reads the token from process.env.REVALIDATION_TOKEN and normalizes its casing.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": "Unit tests to verify the function retrieves and normalizes the token correctly."
           },
           {
             "id": 2,
-            "title": "Verify Vulnerability Fixes with pnpm audit",
-            "description": "Run `pnpm audit` to confirm that the updates have resolved the identified security vulnerabilities.",
+            "title": "Implement missing token error handling",
+            "description": "Add error handling to the getRevalidationToken function.",
             "dependencies": [
               1
             ],
-            "details": "After updating the packages, execute `pnpm audit` in the project's root directory and verify that the output shows no vulnerabilities.",
+            "details": "Throw an error if process.env.REVALIDATION_TOKEN is not set.",
             "status": "pending",
-            "testStrategy": "Verify that `pnpm audit` reports zero vulnerabilities."
+            "testStrategy": "Unit tests to verify the function throws an error when the token is missing."
           },
           {
             "id": 3,
-            "title": "Build the Application",
-            "description": "Ensure the application builds successfully after updating the dependencies.",
-            "dependencies": [
-              1
-            ],
-            "details": "Run `pnpm build` in the project's root directory and confirm that the build process completes without errors.",
-            "status": "pending",
-            "testStrategy": "Check the output of `pnpm build` for any build errors."
-          },
-          {
-            "id": 4,
-            "title": "Run Application Tests",
-            "description": "Execute the test suite to confirm that all tests pass after updating the dependencies.",
+            "title": "Integrate helper into /api/revalidate endpoint",
+            "description": "Use the getRevalidationToken helper in the /api/revalidate endpoint.",
             "dependencies": [
               1,
-              3
-            ],
-            "details": "Run `pnpm test` in the project's root directory and verify that all tests pass without failures.",
-            "status": "pending",
-            "testStrategy": "Ensure all tests pass after running `pnpm test`."
-          },
-          {
-            "id": 5,
-            "title": "Update Test Snapshots if Necessary",
-            "description": "If tests fail after updates, update test snapshots.",
-            "dependencies": [
-              4
-            ],
-            "details": "If tests fail, update the test snapshots by running `pnpm test -- -u` and then re-run `pnpm test` to ensure all tests pass.",
-            "status": "pending",
-            "testStrategy": "Run `pnpm test` and verify that all tests pass after updating the snapshots."
-          }
-        ]
-      },
-      {
-        "id": 2,
-        "title": "Add Production Environment Validation",
-        "description": "Implement environment variable validation to prevent deployment with missing critical configuration.",
-        "details": "Create or update `app-next-directory/src/instrumentation.ts` with the provided code. This code checks for the presence of required environment variables in production and throws an error if any are missing.  Ensure the file is correctly placed within the project structure.",
-        "testStrategy": "In a production-like environment (or using a local environment with `NODE_ENV=production`), run the validation code directly (e.g., `node -e \"require('./src/instrumentation').register()\"`). Verify that an error is thrown if any required environment variables are missing.  Also, ensure that the application starts successfully when all variables are present.",
-        "priority": "high",
-        "dependencies": [
-          1
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Create instrumentation.ts file",
-            "description": "Create the instrumentation.ts file in the correct directory.",
-            "dependencies": [],
-            "details": "Create the file `app-next-directory/src/instrumentation.ts`. Ensure the file structure is correct within the Next.js application.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Implement Environment Variable Validation Logic",
-            "description": "Add code to instrumentation.ts to validate environment variables.",
-            "dependencies": [
-              1
-            ],
-            "details": "Implement the environment variable validation logic within `app-next-directory/src/instrumentation.ts`. This includes checking for the presence of required environment variables and throwing an error if any are missing.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Define Required Environment Variables",
-            "description": "Identify and list the critical environment variables that need to be validated.",
-            "dependencies": [
               2
             ],
-            "details": "Determine the list of environment variables that are essential for the application to function correctly in production. These should be hardcoded within the validation logic.",
+            "details": "Import and use the getRevalidationToken function in the /api/revalidate route to validate the token.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": "Integration tests to ensure the /api/revalidate endpoint functions correctly with the helper."
           },
           {
             "id": 4,
-            "title": "Add Error Handling and Reporting",
-            "description": "Implement error handling and reporting for missing environment variables.",
+            "title": "Integrate helper into /api/revalidate-all endpoint",
+            "description": "Use the getRevalidationToken helper in the /api/revalidate-all endpoint.",
             "dependencies": [
-              2,
-              3
+              1,
+              2
             ],
-            "details": "Implement error handling within the `instrumentation.ts` file. This should include clear error messages indicating which environment variables are missing and potentially logging the errors for debugging.",
+            "details": "Import and use the getRevalidationToken function in the /api/revalidate-all route to validate the token.",
             "status": "pending",
-            "testStrategy": null
+            "testStrategy": "Integration tests to ensure the /api/revalidate-all endpoint functions correctly with the helper."
           },
           {
             "id": 5,
-            "title": "Test Environment Variable Validation",
-            "description": "Test the environment variable validation in a production-like environment.",
-            "dependencies": [
-              2,
-              3,
-              4
-            ],
-            "details": "Run the validation code (e.g., `node -e \"require('./src/instrumentation').register()\"`) in a production-like environment (or a local environment with `NODE_ENV=production`). Verify that an error is thrown if any required environment variables are missing. Also, ensure that the application functions correctly when all required variables are present.",
-            "status": "pending",
-            "testStrategy": "In a production-like environment, run the validation code directly and verify error messages for missing variables."
-          }
-        ]
-      },
-      {
-        "id": 3,
-        "title": "Fix Next.js Build Configuration",
-        "description": "Adjust Next.js build configuration to prevent errors and warnings from reaching production.",
-        "details": "Modify `app-next-directory/next.config.ts` as specified in the PRD.  Specifically, change the `eslint`, `typescript`, and `productionBrowserSourceMaps` settings to align with the provided configuration. Ensure that the changes are correctly applied and that the build process behaves as expected.",
-        "testStrategy": "Run `pnpm build`. Verify that no type errors or lint warnings are present.  Also, confirm that source maps are generated correctly when `ENABLE_SOURCE_MAPS` is set to `true`.",
-        "priority": "high",
-        "dependencies": [
-          1,
-          2
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Locate and Open next.config.ts",
-            "description": "Find the `next.config.ts` file within the `app-next-directory` to prepare for configuration changes.",
-            "dependencies": [],
-            "details": "Navigate to the `app-next-directory` and open the `next.config.ts` file in a code editor.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Modify ESLint Configuration",
-            "description": "Adjust the ESLint configuration within `next.config.ts` according to the PRD specifications.",
-            "dependencies": [
-              1
-            ],
-            "details": "Update the `eslint` configuration in `next.config.ts` to match the settings provided in the PRD. This may involve enabling or disabling specific rules or configurations.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Modify TypeScript Configuration",
-            "description": "Adjust the TypeScript configuration within `next.config.ts` according to the PRD specifications.",
-            "dependencies": [
-              1
-            ],
-            "details": "Update the `typescript` configuration in `next.config.ts` to align with the PRD. This might involve changes to strictness or other type-checking related settings.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 4,
-            "title": "Configure Production Browser Source Maps",
-            "description": "Set the `productionBrowserSourceMaps` setting in `next.config.ts` as specified in the PRD.",
-            "dependencies": [
-              1
-            ],
-            "details": "Set the `productionBrowserSourceMaps` option in `next.config.ts` to the value specified in the PRD. This will control whether source maps are generated in production builds.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 5,
-            "title": "Verify Build and Source Maps",
-            "description": "Run the build process and verify the configuration changes, including source map generation.",
-            "dependencies": [
-              2,
-              3,
-              4
-            ],
-            "details": "Run `pnpm build`. Check for any errors or warnings. If `ENABLE_SOURCE_MAPS` is true, confirm that source maps are generated correctly. If false, confirm that source maps are not generated.",
-            "status": "pending",
-            "testStrategy": "Run `pnpm build`. Verify that no type errors or lint warnings are present. Also, confirm that source maps are generated correctly when `ENABLE_SOURCE_MAPS` is set to `true`."
-          }
-        ]
-      },
-      {
-        "id": 4,
-        "title": "Add MongoDB Compound Indexes",
-        "description": "Improve query performance by adding compound indexes to MongoDB collections.",
-        "details": "Edit `app-next-directory/src/models/AnalyticsEvent.ts`, `src/models/UserAnalytics.ts`, and `src/models/LoginAttempt.ts` and add the specified compound indexes to each schema. Ensure the indexes are correctly defined and that the schema files are properly updated.",
-        "testStrategy": "After deploying the changes, verify the indexes are created in the MongoDB database.  Use the MongoDB shell or a database management tool to confirm the presence of the indexes.  Monitor query performance for analytics-related queries to observe the performance improvements.",
-        "priority": "high",
-        "dependencies": [
-          1,
-          2,
-          3
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Define Compound Indexes for AnalyticsEvent Schema",
-            "description": "Define the required compound indexes within the AnalyticsEvent schema file.",
-            "dependencies": [],
-            "details": "Edit `app-next-directory/src/models/AnalyticsEvent.ts` and add the specified compound indexes. Ensure correct index field definitions and options.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Define Compound Indexes for UserAnalytics Schema",
-            "description": "Define the required compound indexes within the UserAnalytics schema file.",
-            "dependencies": [],
-            "details": "Edit `src/models/UserAnalytics.ts` and add the specified compound indexes. Ensure correct index field definitions and options.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Define Compound Indexes for LoginAttempt Schema",
-            "description": "Define the required compound indexes within the LoginAttempt schema file.",
-            "dependencies": [],
-            "details": "Edit `src/models/LoginAttempt.ts` and add the specified compound indexes. Ensure correct index field definitions and options.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 4,
-            "title": "Verify Schema Updates and Code Formatting",
-            "description": "Ensure all schema files are correctly updated and formatted.",
+            "title": "Update documentation",
+            "description": "Update any relevant documentation to reflect the changes.",
             "dependencies": [
               1,
               2,
-              3
-            ],
-            "details": "Review the changes in `AnalyticsEvent.ts`, `UserAnalytics.ts`, and `LoginAttempt.ts` for correctness and code style. Run a linter to ensure code formatting.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 5,
-            "title": "Test Index Creation and Query Performance",
-            "description": "Verify the compound indexes are created and measure query performance improvements.",
-            "dependencies": [
+              3,
               4
             ],
-            "details": "Deploy the changes. Use MongoDB shell or a database management tool to confirm index creation. Monitor query performance for analytics-related queries.",
+            "details": "Update any relevant documentation to reflect the changes made to the revalidation token handling.",
             "status": "pending",
-            "testStrategy": "After deploying the changes, verify the indexes are created in the MongoDB database. Use the MongoDB shell or a database management tool to confirm the presence of the indexes. Monitor query performance for analytics-related queries to observe the performance improvements."
+            "testStrategy": null
           }
         ]
       },
       {
-        "id": 5,
-        "title": "Upgrade Non-Breaking Dependencies",
-        "description": "Update non-breaking dependencies to include security patches and bug fixes.",
-        "details": "Execute the provided `pnpm update` commands to update `@auth/mongodb-adapter`, `@sanity/client`, `js-yaml`, `typescript`, and `react-hook-form`. Then, run `pnpm build` and `pnpm test` to ensure the application still functions correctly.",
-        "testStrategy": "Run `pnpm build` and `pnpm test` to ensure the application builds and all tests pass.  Review the changelogs of the updated packages for any potential breaking changes or deprecations, and address them if necessary.",
+        "id": 22,
+        "title": "Refactor /api/revalidate* endpoints",
+        "description": "Update the revalidation endpoints to use the new `getRevalidationToken` helper and add rate limiting.",
+        "details": "1.  Import and use `getRevalidationToken()` in `/api/revalidate` and `/api/revalidate-all`.\n2.  Implement basic rate limiting (e.g., using a library like `p-limit` or a simple in-memory counter).\n3.  Consider adding `Authorization` header validation.\n4.  Log denied attempts.",
+        "testStrategy": "1.  Unit tests for rate limiting logic.\n2.  Integration tests to verify revalidation endpoints with valid and invalid tokens, and rate limiting.",
         "priority": "high",
         "dependencies": [
-          1,
-          2,
-          3,
-          4
+          21
         ],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Update Dependencies with pnpm update",
-            "description": "Execute `pnpm update` for specified dependencies.",
-            "dependencies": [],
-            "details": "Run `pnpm update @auth/mongodb-adapter @sanity/client js-yaml typescript react-hook-form` in the project root.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Build the Application",
-            "description": "Run the build process to ensure the application compiles successfully.",
-            "dependencies": [
-              1
-            ],
-            "details": "Execute the command `pnpm build` in the project root and verify that the build completes without errors.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Run Unit and Integration Tests",
-            "description": "Execute the test suite to verify application functionality.",
-            "dependencies": [
-              2
-            ],
-            "details": "Execute the command `pnpm test` in the project root and ensure all tests pass.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 4,
-            "title": "Review Changelogs for Breaking Changes",
-            "description": "Review the changelogs of updated packages for potential breaking changes.",
-            "dependencies": [
-              1
-            ],
-            "details": "Examine the changelogs of `@auth/mongodb-adapter`, `@sanity/client`, `js-yaml`, `typescript`, and `react-hook-form` for any breaking changes or deprecations. Note any necessary code adjustments.",
-            "status": "pending",
-            "testStrategy": "Review the application after the changes and ensure it functions as expected."
-          },
-          {
-            "id": 5,
-            "title": "Address Breaking Changes and Retest",
-            "description": "Implement any necessary code changes to address breaking changes and re-run tests.",
-            "dependencies": [
-              3,
-              4
-            ],
-            "details": "If breaking changes were identified in the changelogs, implement the required code modifications. Then, re-run `pnpm build` and `pnpm test` to confirm the application still functions correctly.",
-            "status": "pending",
-            "testStrategy": "Run `pnpm build` and `pnpm test` to ensure the application builds and all tests pass after addressing any breaking changes."
-          }
-        ]
+        "subtasks": []
       },
       {
-        "id": 6,
-        "title": "Replace In-Memory Rate Limiting with Redis",
-        "description": "Implement a production-ready rate limiting solution using Redis.",
-        "details": "1.  Install Upstash Rate Limit: `pnpm add @upstash/ratelimit @upstash/redis`.\n2.  Replace `src/lib/rate-limit.ts` with the provided code.  This code uses Upstash Rate Limit and Redis.\n3.  Update `src/lib/auth/rateLimit.ts` to use the new implementation.  Adapt the existing code to utilize the new rate limiting functions.\n4.  Ensure the Redis connection details are correctly configured in the environment variables (e.g., `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`).",
-        "testStrategy": "Implement integration tests to verify the rate limiting functionality.  Test login attempts and API requests to ensure the limits are enforced correctly.  Manually test by attempting to log in multiple times rapidly to confirm the rate limiting is working as expected.  Verify that the rate limiting works across multiple server instances.",
+        "id": 23,
+        "title": "Address Redis Cache Hard Dependency",
+        "description": "Modify the Redis cache usage to gracefully handle missing credentials.",
+        "details": "1. Wrap the credential lookup in a guard that returns `undefined` when Upstash variables are missing.\n2. Have `withMongooseCache` bail out before touching Redis in that case.",
+        "testStrategy": "1. Unit tests to ensure the guard correctly handles missing credentials.\n2. Integration tests to verify authentication requests do not crash when Redis is unavailable.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 24,
+        "title": "Migrate Listing Reviews Data Fetching",
+        "description": "Move the fetching of listing reviews to the server data layer.",
+        "details": "1.  Modify the `app/listings/[slug]/page.tsx` file.\n2.  Replace the ad-hoc Promise wrapper in Params with the standard App Router signature.\n3.  Move `fetchReviews` onto the server data layer (e.g., reuse the Mongo aggregation in app/api/reviews).\n4.  Apply `cache()` or `revalidateTag` as appropriate.",
+        "testStrategy": "1.  Unit tests for the server data layer function.\n2.  Integration tests to verify reviews are fetched correctly and caching is working as expected.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 25,
+        "title": "Address Tailwind Dependency Issues",
+        "description": "Resolve the duplicate Tailwind dependency and pin its version.",
+        "details": "1. Remove the duplicate `tailwindcss` entry from `devDependencies`.\n2. Pin the `tailwindcss` version in `dependencies`.",
+        "testStrategy": "1. Verify the project builds and runs without errors after the changes.",
         "priority": "medium",
-        "dependencies": [
-          1,
-          2,
-          3,
-          4,
-          5
-        ],
+        "dependencies": [],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Install Upstash Rate Limit and Redis Client",
-            "description": "Install the necessary packages for rate limiting using Upstash and Redis.",
-            "dependencies": [],
-            "details": "Run `pnpm add @upstash/ratelimit @upstash/redis` in the project directory.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Replace In-Memory Rate Limiter Implementation",
-            "description": "Replace the existing in-memory rate limiting implementation with the Upstash Redis-based solution.",
-            "dependencies": [
-              1
-            ],
-            "details": "Replace the contents of `src/lib/rate-limit.ts` with the provided code that utilizes Upstash Rate Limit and Redis.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Update Authentication Rate Limit Integration",
-            "description": "Adapt the authentication rate limiting logic to use the new Redis-based implementation.",
-            "dependencies": [
-              2
-            ],
-            "details": "Modify `src/lib/auth/rateLimit.ts` to call the new rate limiting functions from `src/lib/rate-limit.ts`.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 4,
-            "title": "Configure Redis Connection Details",
-            "description": "Ensure the application can connect to the Redis instance.",
-            "dependencies": [],
-            "details": "Verify that `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` environment variables are correctly set in the deployment environment.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 5,
-            "title": "Implement Integration Tests for Rate Limiting",
-            "description": "Create integration tests to verify the rate limiting functionality.",
-            "dependencies": [
-              3,
-              4
-            ],
-            "details": "Write tests that simulate login attempts and API requests, verifying that rate limits are enforced as expected. Test both successful and blocked scenarios.",
-            "status": "pending",
-            "testStrategy": "Implement integration tests to verify the rate limiting functionality. Test login attempts and API requests to ensure the limits are enforced correctly."
-          }
-        ]
+        "subtasks": []
       },
       {
-        "id": 7,
-        "title": "Consolidate Duplicate API Routes",
-        "description": "Remove duplicate API routes and add redirects for backward compatibility.",
-        "details": "Remove `app/api/exit-preview/route.ts`.  Keep `app/api/preview/exit/route.ts`. Add a redirect in `app/api/exit-preview/route.ts` to `/api/preview/exit`.  Use the `find` command provided in the PRD to check for other duplicate routes and address them accordingly.",
-        "testStrategy": "Test the `/api/exit-preview` route to ensure it redirects correctly to `/api/preview/exit`.  Test the functionality of the `/api/preview/exit` route.  Verify that no errors occur after the changes.",
+        "id": 26,
+        "title": "Upgrade NextAuth",
+        "description": "Plan and execute an upgrade to a stable NextAuth 5.x release or fallback to 4.x.",
+        "details": "1. Research the upgrade path to NextAuth 5.x.\n2. Verify adapter and JWT callbacks.\n3. If 5.x is not stable, fallback to 4.x.",
+        "testStrategy": "1.  Test authentication flows after the upgrade.",
         "priority": "medium",
-        "dependencies": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
-        ],
+        "dependencies": [],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Remove Duplicate Route File",
-            "description": "Delete the file `app/api/exit-preview/route.ts` as specified in the parent task.",
-            "dependencies": [],
-            "details": "Locate and delete the file at the specified path. Ensure no other files are accidentally deleted.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Implement Redirect",
-            "description": "Add a redirect in `app/api/exit-preview/route.ts` to `/api/preview/exit`.",
-            "dependencies": [
-              1
-            ],
-            "details": "Implement the redirect logic within the `app/api/exit-preview/route.ts` file. This likely involves returning a redirect response.",
-            "status": "pending",
-            "testStrategy": "Test the `/api/exit-preview` route to ensure it redirects correctly to `/api/preview/exit`."
-          },
-          {
-            "id": 3,
-            "title": "Verify `/api/preview/exit` Functionality",
-            "description": "Test the functionality of the `/api/preview/exit` route after the redirect is implemented.",
-            "dependencies": [
-              2
-            ],
-            "details": "Send requests to `/api/preview/exit` and verify the expected behavior. Check for correct responses and data.",
-            "status": "pending",
-            "testStrategy": "Test the functionality of the `/api/preview/exit` route."
-          },
-          {
-            "id": 4,
-            "title": "Search for Other Duplicate Routes",
-            "description": "Use the `find` command (as specified in the PRD) to identify other potential duplicate API routes.",
-            "dependencies": [],
-            "details": "Execute the `find` command and analyze the results to identify any other routes that need consolidation.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 5,
-            "title": "Address Additional Duplicate Routes (If Found)",
-            "description": "Implement redirects or remove duplicate routes identified by the `find` command, similar to the initial task.",
-            "dependencies": [
-              4
-            ],
-            "details": "For each identified duplicate route, either implement a redirect or remove the duplicate and ensure backward compatibility. This may involve creating new redirect routes or modifying existing ones.",
-            "status": "pending",
-            "testStrategy": "Test each consolidated route to ensure correct redirection and functionality. Verify no errors occur after the changes."
-          }
-        ]
+        "subtasks": []
       },
       {
-        "id": 8,
-        "title": "Enhance TypeScript Strictness",
-        "description": "Improve code quality by enhancing TypeScript strictness.",
-        "details": "Edit `app-next-directory/eslint.config.mjs` and change `@typescript-eslint/no-explicit-any` to \"error\". Edit `app-next-directory/tsconfig.json` and add `noUncheckedIndexedAccess`, `noImplicitReturns`, and `noFallthroughCasesInSwitch`.  Find and replace all instances of `: any` with proper types or `unknown`.  Use `grep -rn \": any\" src/ --include=\"*.ts\" --include=\"*.tsx\" | grep -v test | grep -v \".d.ts\"` to locate them.",
-        "testStrategy": "Run the build process.  Address any type errors that arise from the increased strictness.  Ensure that all tests pass after the changes.",
+        "id": 27,
+        "title": "Implement Husky and Lint-staged Workflow",
+        "description": "Set up a pre-commit hook to run linting, type checking, and formatting.",
+        "details": "1.  Install Husky and lint-staged (or Biome).\n2.  Configure the pre-commit hook to run `pnpm lint`, `pnpm check-types`, and formatting commands.",
+        "testStrategy": "1.  Verify that the pre-commit hook runs successfully and prevents commits with linting or type errors.",
         "priority": "medium",
-        "dependencies": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7
-        ],
+        "dependencies": [],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Configure ESLint for stricter TypeScript rules",
-            "description": "Modify the ESLint configuration to enforce stricter TypeScript rules.",
-            "dependencies": [],
-            "details": "Edit `app-next-directory/eslint.config.mjs` and change `@typescript-eslint/no-explicit-any` to \"error\".",
-            "status": "pending",
-            "testStrategy": "Run the build process to ensure no new linting errors are introduced."
-          },
-          {
-            "id": 2,
-            "title": "Configure TypeScript compiler options",
-            "description": "Update the TypeScript configuration to enable stricter type checking.",
-            "dependencies": [],
-            "details": "Edit `app-next-directory/tsconfig.json` and add `noUncheckedIndexedAccess`, `noImplicitReturns`, and `noFallthroughCasesInSwitch` to the compiler options.",
-            "status": "pending",
-            "testStrategy": "Run the build process to ensure no new type errors are introduced."
-          },
-          {
-            "id": 3,
-            "title": "Identify and locate all instances of `: any`",
-            "description": "Use grep to find all occurrences of `: any` in the codebase.",
-            "dependencies": [],
-            "details": "Execute the following command in the project root: `grep -rn \": any\" src/ --include=\"*.ts\" --include=\"*.tsx\" | grep -v test | grep -v \".d.ts\"`",
-            "status": "pending",
-            "testStrategy": "Verify the grep command returns a list of files and line numbers containing `: any`."
-          },
-          {
-            "id": 4,
-            "title": "Replace `: any` with specific types or `unknown`",
-            "description": "Replace all instances of `: any` with more specific types or `unknown`.",
-            "dependencies": [
-              3
-            ],
-            "details": "For each instance of `: any` identified in the previous step, replace it with a more specific type or `unknown`. Consider the context and purpose of the variable or parameter to choose the most appropriate type. Use `unknown` as a fallback when a specific type cannot be determined.",
-            "status": "pending",
-            "testStrategy": "Run the build process. Address any type errors that arise from the changes. Ensure that all tests pass after the changes."
-          },
-          {
-            "id": 5,
-            "title": "Address type errors introduced by strictness changes",
-            "description": "Fix any type errors that arise from the increased TypeScript strictness.",
-            "dependencies": [
-              1,
-              2,
-              4
-            ],
-            "details": "Fix type errors incrementally, one file at a time. Use `// @ts-expect-error <reason>` temporarily if needed. Prioritize fixing errors that block the build process.",
-            "status": "pending",
-            "testStrategy": "Run the build process and address any type errors that arise. Ensure that all tests pass after the changes."
-          }
-        ]
+        "subtasks": []
       },
       {
-        "id": 9,
-        "title": "Migrate to Biome (Code Formatter + Linter)",
-        "description": "Replace ESLint and Prettier with Biome for faster and more efficient code formatting and linting.",
-        "details": "1.  Install Biome: `pnpm add -D @biomejs/biome`.\n2.  Initialize Biome: `npx @biomejs/biome init`.\n3.  Configure `biome.json` with the provided settings.\n4.  Update `package.json` with the Biome scripts: `format`, `lint`, `check`, and `ci`.\n5.  Test the changes before removing ESLint/Prettier: `pnpm check` and review the changes with `git diff`.",
-        "testStrategy": "Run `pnpm check` to ensure that Biome finds no errors.  Review the changes made by Biome using `git diff`.  Ensure that the code formatting and linting rules are applied correctly.  After verifying the changes, remove ESLint and Prettier configurations and dependencies.",
+        "id": 28,
+        "title": "Remove or Feature-Flag Test Routes",
+        "description": "Remove or conditionally include test routes in the production build.",
+        "details": "1.  For `/test-gallery` and `/test-reviews`, either:\n    a.  Move them to Storybook.\n    b.  Guard them with `if (process.env.NODE_ENV !== 'production')`.",
+        "testStrategy": "1.  Verify that the test routes are not included in the production sitemap and do not make external calls.",
+        "priority": "medium",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 29,
+        "title": "Remove Unused Sanity Code",
+        "description": "Remove unused Sanity code to reduce bundle size.",
+        "details": "1.  Remove the `findSanityUserByEmail` function and its companion CRUD helpers from `userService.ts`.",
+        "testStrategy": "1.  Verify that the application still functions correctly after removing the code.",
         "priority": "low",
-        "dependencies": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8
-        ],
+        "dependencies": [],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Install Biome and Initialize Configuration",
-            "description": "Install Biome as a dev dependency and initialize the configuration file.",
-            "dependencies": [],
-            "details": "Run `pnpm add -D @biomejs/biome` and then `npx @biomejs/biome init` in the project root.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Configure Biome Settings",
-            "description": "Configure Biome by modifying the `biome.json` file.",
-            "dependencies": [
-              1
-            ],
-            "details": "Configure `biome.json` with the settings appropriate for the project. This includes setting rules for formatting and linting.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Update Package.json with Biome Scripts",
-            "description": "Add scripts to `package.json` for formatting, linting, checking, and CI.",
-            "dependencies": [
-              1,
-              2
-            ],
-            "details": "Add scripts for `format`, `lint`, `check`, and `ci` to the `package.json` file. These scripts should use the Biome CLI.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 4,
-            "title": "Test Biome Formatting and Linting",
-            "description": "Run Biome and verify the formatting and linting changes.",
-            "dependencies": [
-              3
-            ],
-            "details": "Run `pnpm check` and review the changes with `git diff`. Ensure that Biome formats the code correctly and reports no linting errors.",
-            "status": "pending",
-            "testStrategy": "Run `pnpm check` and verify that no errors are reported. Review the changes made by Biome using `git diff` to ensure formatting and linting rules are applied correctly."
-          },
-          {
-            "id": 5,
-            "title": "Remove ESLint and Prettier",
-            "description": "Remove ESLint and Prettier configurations and dependencies.",
-            "dependencies": [
-              4
-            ],
-            "details": "Remove ESLint and Prettier configurations (e.g., `.eslintrc.js`, `.prettierrc.js`) and their associated dependencies from `package.json`.",
-            "status": "pending",
-            "testStrategy": "After removing ESLint and Prettier, ensure that the project still builds and runs without errors. Verify that Biome continues to format and lint the code correctly."
-          }
-        ]
+        "subtasks": []
       },
       {
-        "id": 10,
-        "title": "Add Missing Error Boundaries",
-        "description": "Implement error boundaries to gracefully handle errors in different parts of the application.",
-        "details": "Create the following files with the provided code:\n-   `app/dashboard/error.tsx`\n-   `app/admin/error.tsx` (copy of dashboard)\n-   `app/listings/error.tsx` (copy of dashboard)\n-   `app/profile/error.tsx` (copy of dashboard)\nAdd the following 404 pages:\n-   `app/not-found.tsx`\n-   `app/listings/[slug]/not-found.tsx`\n-   `app/city/[slug]/not-found.tsx`",
-        "testStrategy": "Manually test the application by intentionally causing errors in different components.  Verify that the error boundaries catch the errors and display the appropriate fallback UI.  Test the 404 pages by navigating to non-existent routes.",
-        "priority": "low",
-        "dependencies": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Create Error Boundary Files",
-            "description": "Create the error boundary files for dashboard, admin, listings, and profile.",
-            "dependencies": [],
-            "details": "Create the following files with the provided code:\n- app/dashboard/error.tsx\n- app/admin/error.tsx (copy of dashboard)\n- app/listings/error.tsx (copy of dashboard)\n- app/profile/error.tsx (copy of dashboard)",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Create 404 Page for Root",
-            "description": "Create the 404 page for the root path.",
-            "dependencies": [],
-            "details": "Create the file app/not-found.tsx.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Create 404 Page for Listings",
-            "description": "Create the 404 page for listings with slug.",
-            "dependencies": [],
-            "details": "Create the file app/listings/[slug]/not-found.tsx.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 4,
-            "title": "Create 404 Page for Cities",
-            "description": "Create the 404 page for cities with slug.",
-            "dependencies": [],
-            "details": "Create the file app/city/[slug]/not-found.tsx.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 5,
-            "title": "Test Error Boundaries and 404 Pages",
-            "description": "Test the error boundaries and 404 pages.",
-            "dependencies": [
-              1,
-              2,
-              3,
-              4
-            ],
-            "details": "Manually test the application by intentionally causing errors in different components. Verify that the error boundaries catch the errors and display the appropriate fallback UI. Test the 404 pages by navigating to non-existent routes.",
-            "status": "pending",
-            "testStrategy": "Manually test the application by intentionally causing errors in different components. Verify that the error boundaries catch the errors and display the appropriate fallback UI. Test the 404 pages by navigating to non-existent routes."
-          }
-        ]
-      },
-      {
-        "id": 11,
-        "title": "Implement Security Audit Verification",
-        "description": "Verify the security audit passes after implementing fixes.",
-        "details": "Run `pnpm audit` in the `app-next-directory` directory. The output should show 0 vulnerabilities.",
-        "testStrategy": "Verify that the `pnpm audit` command returns no vulnerabilities.",
+        "id": 30,
+        "title": "Address Listing Detail Page API Call",
+        "description": "Fix the listing detail page's API call to avoid redundant serialization and localhost fallback.",
+        "details": "1.  Invoke the reviews data layer directly (or a server action) so the page can share database access and Next.js caching without brittle environment assumptions.",
+        "testStrategy": "1.  Verify that the listing detail page loads reviews correctly in both development and production environments.",
         "priority": "high",
         "dependencies": [
-          1
+          24
         ],
         "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Navigate to the app-next-directory",
-            "description": "Change the current directory to the app-next-directory.",
-            "dependencies": [],
-            "details": "Use the `cd app-next-directory` command in the terminal.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Run pnpm audit",
-            "description": "Execute the pnpm audit command to check for vulnerabilities.",
-            "dependencies": [
-              1
-            ],
-            "details": "Run the command `pnpm audit` in the terminal within the app-next-directory.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Analyze pnpm audit output",
-            "description": "Examine the output of the pnpm audit command.",
-            "dependencies": [
-              2
-            ],
-            "details": "Carefully review the output to identify any reported vulnerabilities.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 4,
-            "title": "Verify zero vulnerabilities",
-            "description": "Confirm that the pnpm audit output shows zero vulnerabilities.",
-            "dependencies": [
-              3
-            ],
-            "details": "Check the output for any vulnerability reports. If any are found, the task fails.",
-            "status": "pending",
-            "testStrategy": "Manually inspect the output of `pnpm audit` and confirm that the vulnerability count is zero."
-          },
-          {
-            "id": 5,
-            "title": "Document the audit results",
-            "description": "Record the results of the security audit.",
-            "dependencies": [
-              4
-            ],
-            "details": "Document the date, time, and the output of the `pnpm audit` command (or a summary if no vulnerabilities are found).",
-            "status": "pending",
-            "testStrategy": null
-          }
-        ]
-      },
-      {
-        "id": 12,
-        "title": "Verify Build Success and Warnings",
-        "description": "Ensure the build process succeeds without warnings after implementing fixes.",
-        "details": "Run `pnpm build` in the `app-next-directory` directory. Check for type errors and lint warnings in the output.",
-        "testStrategy": "Verify that the `pnpm build` command completes successfully without any type errors or lint warnings.",
-        "priority": "high",
-        "dependencies": [
-          1,
-          3,
-          5
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Run Build Command and Capture Output",
-            "description": "Execute the `pnpm build` command within the `app-next-directory` and capture the complete output for analysis.",
-            "dependencies": [],
-            "details": "Navigate to the `app-next-directory` and execute `pnpm build`. Save the standard output and standard error streams to a file or variable for later inspection.",
-            "status": "pending",
-            "testStrategy": "Capture the complete output of the build process."
-          },
-          {
-            "id": 2,
-            "title": "Parse Build Output for Errors",
-            "description": "Analyze the captured build output to identify any type errors or build failures.",
-            "dependencies": [
-              1
-            ],
-            "details": "Examine the build output for any lines indicating type errors (e.g., TypeScript errors) or build failures.  Look for specific error codes or messages.",
-            "status": "pending",
-            "testStrategy": "Verify that the build output does not contain any type errors."
-          },
-          {
-            "id": 3,
-            "title": "Parse Build Output for Lint Warnings",
-            "description": "Analyze the captured build output to identify any lint warnings.",
-            "dependencies": [
-              1
-            ],
-            "details": "Examine the build output for any lines indicating lint warnings. Look for specific warning messages or patterns.",
-            "status": "pending",
-            "testStrategy": "Verify that the build output does not contain any lint warnings."
-          },
-          {
-            "id": 4,
-            "title": "Report Build Status",
-            "description": "Based on the analysis, report whether the build succeeded without errors or warnings.",
-            "dependencies": [
-              2,
-              3
-            ],
-            "details": "If no errors or warnings were found in the build output, report the build as successful. Otherwise, report the specific errors and warnings encountered.",
-            "status": "pending",
-            "testStrategy": "Confirm the build status report accurately reflects the presence or absence of errors and warnings."
-          },
-          {
-            "id": 5,
-            "title": "Automate Build Verification",
-            "description": "Create a script or integrate into existing CI/CD to automate the build verification process.",
-            "dependencies": [
-              1,
-              2,
-              3,
-              4
-            ],
-            "details": "Develop a script that runs `pnpm build`, captures the output, parses for errors and warnings, and reports the build status. Integrate this script into the CI/CD pipeline.",
-            "status": "pending",
-            "testStrategy": "Verify the automated script correctly identifies build failures and warnings."
-          }
-        ]
-      },
-      {
-        "id": 13,
-        "title": "Verify Test Pass",
-        "description": "Ensure all tests pass after implementing fixes.",
-        "details": "Run `pnpm test` in the `app-next-directory` directory.",
-        "testStrategy": "Verify that the `pnpm test` command completes successfully and all tests pass.",
-        "priority": "high",
-        "dependencies": [
-          1,
-          5
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Run tests in app-next-directory",
-            "description": "Execute the test suite within the specified directory to validate the implemented fixes.",
-            "dependencies": [],
-            "details": "Navigate to the 'app-next-directory' and execute the command 'pnpm test'. Capture the output for analysis.",
-            "status": "pending",
-            "testStrategy": "Verify that the 'pnpm test' command completes successfully and all tests pass."
-          },
-          {
-            "id": 2,
-            "title": "Analyze test results",
-            "description": "Examine the output of the test run to identify any failures or errors.",
-            "dependencies": [
-              1
-            ],
-            "details": "Carefully review the test results, paying close attention to any error messages or failed test cases. Note the number of tests passed and failed.",
-            "status": "pending",
-            "testStrategy": "Ensure that all tests pass. If any tests fail, investigate the cause and address the issues."
-          },
-          {
-            "id": 3,
-            "title": "Investigate and resolve test failures",
-            "description": "If any tests fail, identify the root cause and implement the necessary fixes.",
-            "dependencies": [
-              2
-            ],
-            "details": "Analyze the failed tests, examine the relevant code, and implement the necessary corrections. Re-run the tests after applying the fixes.",
-            "status": "pending",
-            "testStrategy": "Verify that the tests pass after implementing the fixes. If failures persist, repeat the investigation and resolution process."
-          },
-          {
-            "id": 4,
-            "title": "Verify test coverage",
-            "description": "Ensure that the test suite provides adequate code coverage.",
-            "dependencies": [
-              1
-            ],
-            "details": "Check the test coverage report generated by the testing framework. Ensure that the coverage meets the project's requirements.",
-            "status": "pending",
-            "testStrategy": "Verify that the test coverage meets the project's requirements. If coverage is insufficient, add more tests to cover the uncovered code."
-          },
-          {
-            "id": 5,
-            "title": "Document test results and findings",
-            "description": "Document the results of the test run, including any failures, resolutions, and coverage metrics.",
-            "dependencies": [
-              2,
-              3,
-              4
-            ],
-            "details": "Create a report summarizing the test results, including the number of tests run, the number of tests passed, the number of tests failed, and the coverage metrics. Document any issues encountered and the steps taken to resolve them.",
-            "status": "pending",
-            "testStrategy": "Ensure that the test results and findings are accurately documented for future reference."
-          }
-        ]
-      },
-      {
-        "id": 14,
-        "title": "Verify Environment Validation",
-        "description": "Test the environment variable validation.",
-        "details": "Run `NODE_ENV=production node -e \"require('./src/instrumentation').register()\"`. The command should throw an error if any required environment variables are missing.",
-        "testStrategy": "Verify that the command throws an error if any required environment variables are missing. Ensure the application starts successfully when all variables are present.",
-        "priority": "high",
-        "dependencies": [
-          2
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Define Required Environment Variables",
-            "description": "Identify all environment variables required by the application.",
-            "dependencies": [],
-            "details": "Review the application's codebase (specifically `src/instrumentation.ts` and related files) to determine all required environment variables. Document their names and expected values.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Create Test Script for Missing Variables",
-            "description": "Develop a script to simulate missing environment variables.",
-            "dependencies": [
-              1
-            ],
-            "details": "Create a script (e.g., a shell script or a Node.js script) that temporarily unsets or overrides the required environment variables. This script will then execute the command `NODE_ENV=production node -e \"require('./src/instrumentation').register()\"`.",
-            "status": "pending",
-            "testStrategy": "The script should execute the command and verify that it throws an error."
-          },
-          {
-            "id": 3,
-            "title": "Verify Error on Missing Variables",
-            "description": "Execute the test script and confirm the expected error.",
-            "dependencies": [
-              2
-            ],
-            "details": "Run the test script created in the previous step. Observe the output and confirm that the expected error (e.g., an error message indicating a missing environment variable) is thrown.",
-            "status": "pending",
-            "testStrategy": "Check the script's output for the expected error message or a non-zero exit code."
-          },
-          {
-            "id": 4,
-            "title": "Create Test Script for Present Variables",
-            "description": "Develop a script to simulate all environment variables being present.",
-            "dependencies": [
-              1
-            ],
-            "details": "Create a script that sets all required environment variables to valid (though potentially dummy) values. Then, execute the command `NODE_ENV=production node -e \"require('./src/instrumentation').register()\"`.",
-            "status": "pending",
-            "testStrategy": "The script should execute the command and verify that it does NOT throw an error."
-          },
-          {
-            "id": 5,
-            "title": "Verify Successful Startup with All Variables",
-            "description": "Execute the test script and confirm successful application startup.",
-            "dependencies": [
-              4
-            ],
-            "details": "Run the script from the previous step. Verify that the command executes without errors and that the application starts successfully (e.g., by checking for a specific log message or a successful exit code).",
-            "status": "pending",
-            "testStrategy": "Check the script's output for any error messages and verify the application's behavior."
-          }
-        ]
-      },
-      {
-        "id": 15,
-        "title": "Verify Rate Limiting Functionality",
-        "description": "Test the rate limiting functionality.",
-        "details": "Manually test the rate limiting by trying to log in 6 times rapidly. The application should block the user after 5 attempts.",
-        "testStrategy": "Manually test the rate limiting by attempting to log in multiple times rapidly. Verify that the user is blocked after the configured number of attempts.",
-        "priority": "medium",
-        "dependencies": [
-          6
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Prepare Test Environment for Rate Limiting",
-            "description": "Ensure the testing environment is set up correctly for rate limiting tests. This includes having a user account available for testing.",
-            "dependencies": [],
-            "details": "Create or identify a test user account. Ensure the application is running and accessible. Note the login endpoint URL.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Simulate Rapid Login Attempts",
-            "description": "Simulate rapid login attempts to trigger the rate limiting mechanism.",
-            "dependencies": [
-              1
-            ],
-            "details": "Use a tool like `curl` or a browser's developer tools to send multiple login requests in quick succession (e.g., 6 attempts within a short timeframe). Use the test user credentials.",
-            "status": "pending",
-            "testStrategy": "Manually attempt to log in multiple times rapidly."
-          },
-          {
-            "id": 3,
-            "title": "Verify User Block After Excessive Attempts",
-            "description": "Confirm that the user is blocked after exceeding the allowed login attempts.",
-            "dependencies": [
-              2
-            ],
-            "details": "After the rapid login attempts, verify that the user is blocked from logging in. Check for an appropriate error message or behavior (e.g., account lockout).",
-            "status": "pending",
-            "testStrategy": "Check for an error message or account lockout after exceeding the login attempt limit."
-          },
-          {
-            "id": 4,
-            "title": "Verify Rate Limiting Reset",
-            "description": "Confirm that the rate limiting resets after a certain period.",
-            "dependencies": [
-              3
-            ],
-            "details": "Wait for the configured reset period (e.g., 1 minute). Attempt to log in again after the reset period. Verify successful login.",
-            "status": "pending",
-            "testStrategy": "Attempt to log in after the reset period and verify successful login."
-          },
-          {
-            "id": 5,
-            "title": "Document Test Results",
-            "description": "Document the results of the rate limiting tests.",
-            "dependencies": [
-              3,
-              4
-            ],
-            "details": "Record the steps taken, the expected results, and the actual results. Include screenshots or logs if necessary. Indicate whether the tests passed or failed.",
-            "status": "pending",
-            "testStrategy": null
-          }
-        ]
-      },
-      {
-        "id": 16,
-        "title": "Review and Address Dependency Conflicts",
-        "description": "Resolve dependency conflicts if they arise during updates.",
-        "details": "If dependency conflicts occur, remove `node_modules` and `pnpm-lock.yaml` and then run `pnpm install`.",
-        "testStrategy": "After resolving conflicts, run `pnpm build` and `pnpm test` to ensure the application still functions correctly.",
-        "priority": "high",
-        "dependencies": [
-          1,
-          5
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Identify Dependency Conflicts",
-            "description": "Determine if dependency conflicts exist after updates.",
-            "dependencies": [],
-            "details": "Run the update process and observe for any error messages related to dependency conflicts. Check the output of the update command for conflict warnings.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Remove Node Modules and Lockfile",
-            "description": "Remove the node_modules directory and the lockfile to resolve conflicts.",
-            "dependencies": [
-              1
-            ],
-            "details": "Delete the `node_modules` directory and `pnpm-lock.yaml` file from the project root.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Reinstall Dependencies",
-            "description": "Reinstall project dependencies after removing conflicting files.",
-            "dependencies": [
-              2
-            ],
-            "details": "Run `pnpm install` to reinstall all dependencies.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 4,
-            "title": "Build the Application",
-            "description": "Ensure the application builds successfully after resolving conflicts.",
-            "dependencies": [
-              3
-            ],
-            "details": "Execute the `pnpm build` command and verify that the build process completes without errors.",
-            "status": "pending",
-            "testStrategy": "Check the build output for any errors or warnings."
-          },
-          {
-            "id": 5,
-            "title": "Run Tests",
-            "description": "Run all tests to confirm application functionality.",
-            "dependencies": [
-              4
-            ],
-            "details": "Execute the `pnpm test` command and verify that all tests pass.",
-            "status": "pending",
-            "testStrategy": "Ensure all tests pass and that there are no test failures."
-          }
-        ]
-      },
-      {
-        "id": 17,
-        "title": "Address Type Errors After Strictness Changes",
-        "description": "Fix type errors introduced by increased TypeScript strictness.",
-        "details": "Fix type errors incrementally, one file at a time. Use `// @ts-expect-error <reason>` temporarily if needed.",
-        "testStrategy": "Run the build process and address any type errors that arise. Ensure that all tests pass after the changes.",
-        "priority": "medium",
-        "dependencies": [
-          8
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Identify Type Errors in a Specific File",
-            "description": "Locate and list all type errors in a designated file.",
-            "dependencies": [],
-            "details": "Examine the TypeScript compiler output for a specific file, noting the line numbers and error messages.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Analyze and Understand the First Type Error",
-            "description": "Investigate the root cause of the first identified type error.",
-            "dependencies": [
-              1
-            ],
-            "details": "Analyze the code surrounding the first error, considering the types involved and the intended behavior. Determine the reason for the type mismatch.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Apply a Temporary Fix (if needed)",
-            "description": "Use // @ts-expect-error to temporarily suppress the error if a quick fix isn't immediately apparent.",
-            "dependencies": [
-              2
-            ],
-            "details": "If a straightforward fix is not immediately obvious, add a // @ts-expect-error comment with a brief explanation of the issue.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 4,
-            "title": "Implement a Permanent Fix",
-            "description": "Implement a permanent solution to resolve the type error.",
-            "dependencies": [
-              2
-            ],
-            "details": "Modify the code to correct the type mismatch. This may involve changing variable types, adjusting function signatures, or updating imports.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 5,
-            "title": "Verify the Fix and Repeat",
-            "description": "Run the build process and repeat the process for the next error.",
-            "dependencies": [
-              3,
-              4
-            ],
-            "details": "Run the TypeScript compiler to ensure the error is resolved. If the error persists, revisit the fix. If all errors are resolved in the file, move to the next file and repeat the process.",
-            "status": "pending",
-            "testStrategy": "Run the build process to ensure no new type errors are introduced and that all tests pass."
-          }
-        ]
-      },
-      {
-        "id": 18,
-        "title": "Update Test Snapshots After Updates",
-        "description": "Update test snapshots if tests fail after updates.",
-        "details": "If tests fail after updates, update test snapshots by running `pnpm test -- -u`.",
-        "testStrategy": "Run `pnpm test` and verify that all tests pass after updating the snapshots.",
-        "priority": "medium",
-        "dependencies": [
-          1,
-          5
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Run Tests After Updates",
-            "description": "Execute the test suite to identify failing tests after updates.",
-            "dependencies": [],
-            "details": "Run the command `pnpm test` to execute the test suite and identify any failing tests.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Identify Failing Tests",
-            "description": "Analyze the test results to determine which tests have failed.",
-            "dependencies": [
-              1
-            ],
-            "details": "Examine the output of `pnpm test` to identify the specific tests that have failed. Note the names or descriptions of the failing tests.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Update Test Snapshots",
-            "description": "Update the test snapshots for the failing tests.",
-            "dependencies": [
-              2
-            ],
-            "details": "Run the command `pnpm test -- -u` to update the test snapshots. This command will update the snapshots based on the current state of the application.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 4,
-            "title": "Re-run Tests After Snapshot Updates",
-            "description": "Execute the test suite again to verify the snapshot updates.",
-            "dependencies": [
-              3
-            ],
-            "details": "Run the command `pnpm test` again to ensure that all tests, including those that previously failed, now pass after the snapshot updates.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 5,
-            "title": "Verify Test Results",
-            "description": "Confirm that all tests pass after updating snapshots.",
-            "dependencies": [
-              4
-            ],
-            "details": "Check the output of `pnpm test` to confirm that all tests have passed. If any tests still fail, investigate the cause and repeat the snapshot update process if necessary.",
-            "status": "pending",
-            "testStrategy": "Run `pnpm test` and verify that all tests pass after updating the snapshots."
-          }
-        ]
-      },
-      {
-        "id": 19,
-        "title": "Review Breaking Changes in Package Changelogs",
-        "description": "Review breaking changes in package changelogs after updates.",
-        "details": "Review breaking changes in package changelogs after updating dependencies. Address any breaking changes or deprecations.",
-        "testStrategy": "After addressing breaking changes, run `pnpm build` and `pnpm test` to ensure the application still functions correctly.",
-        "priority": "medium",
-        "dependencies": [
-          1,
-          5
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Identify Updated Packages",
-            "description": "Determine which packages have been updated by reviewing the package manager's output or changelogs.",
-            "dependencies": [],
-            "details": "Examine the output of the update command (e.g., `pnpm update`) or the package manager's logs to identify the specific packages that have been updated. Note the version changes.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Locate Changelogs",
-            "description": "Find the changelog files or release notes for each updated package.",
-            "dependencies": [
-              1
-            ],
-            "details": "For each updated package, search for changelog files (e.g., CHANGELOG.md, Release Notes) or online release notes on the package's website or repository (e.g., GitHub, npm).",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Review Breaking Changes",
-            "description": "Carefully review the changelogs for any breaking changes, deprecations, or compatibility issues.",
-            "dependencies": [
-              2
-            ],
-            "details": "Read through the changelogs, paying close attention to sections labeled 'Breaking Changes', 'Deprecations', or similar. Note any changes that might affect the application's functionality or require code modifications.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 4,
-            "title": "Address Breaking Changes",
-            "description": "Implement necessary code changes to address any identified breaking changes or deprecations.",
-            "dependencies": [
-              3
-            ],
-            "details": "Based on the information in the changelogs, modify the application's code to accommodate the breaking changes. This may involve updating function calls, adjusting data structures, or replacing deprecated features.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 5,
-            "title": "Verify Functionality",
-            "description": "Test the application after addressing breaking changes to ensure it functions correctly.",
-            "dependencies": [
-              4
-            ],
-            "details": "Run `pnpm build` to ensure the application builds without errors. Then, run `pnpm test` to execute all tests and verify that they pass. Manually test critical functionality if necessary.",
-            "status": "pending",
-            "testStrategy": "Run `pnpm build` and `pnpm test` to ensure the application still functions correctly."
-          }
-        ]
-      },
-      {
-        "id": 20,
-        "title": "Rollback if Needed",
-        "description": "Rollback changes if issues arise.",
-        "details": "If needed, rollback changes by running `git checkout app-next-directory/package.json` and then `pnpm install`.",
-        "testStrategy": "After rolling back, ensure the application functions as expected.",
-        "priority": "high",
-        "dependencies": [
-          1,
-          5
-        ],
-        "status": "pending",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Verify Issue Occurrence",
-            "description": "Determine if a rollback is necessary by identifying the specific issue that triggered the need for rollback.",
-            "dependencies": [],
-            "details": "Analyze logs, error messages, and user reports to pinpoint the exact problem that necessitates a rollback. Document the issue.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 2,
-            "title": "Checkout package.json",
-            "description": "Execute the git checkout command to revert the package.json file to the previous state.",
-            "dependencies": [
-              1
-            ],
-            "details": "Run the command `git checkout app-next-directory/package.json` in the project's root directory. Ensure the command executes without errors.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 3,
-            "title": "Reinstall Dependencies",
-            "description": "Run pnpm install to reinstall dependencies based on the reverted package.json.",
-            "dependencies": [
-              2
-            ],
-            "details": "Execute the command `pnpm install` in the project's root directory. Monitor the installation process for any errors or warnings.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 4,
-            "title": "Build the Application",
-            "description": "Run the build process to ensure the application compiles successfully after the rollback.",
-            "dependencies": [
-              3
-            ],
-            "details": "Execute the build command, such as `pnpm build`. Check for any compilation errors or warnings.",
-            "status": "pending",
-            "testStrategy": null
-          },
-          {
-            "id": 5,
-            "title": "Verify Application Functionality",
-            "description": "Test the application's core functionality to confirm the rollback resolved the issue.",
-            "dependencies": [
-              4
-            ],
-            "details": "Manually test key features and functionalities of the application. Check for any regressions or unexpected behavior. If possible, run automated tests.",
-            "status": "pending",
-            "testStrategy": "Test the application's core functionality to confirm the rollback resolved the issue. Run automated tests if available."
-          }
-        ]
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-11-13T12:08:41.544Z",
-      "updated": "2025-11-13T12:08:41.544Z",
+      "updated": "2025-11-16T03:23:55.698Z",
       "description": "Tasks for master context"
     }
   }
