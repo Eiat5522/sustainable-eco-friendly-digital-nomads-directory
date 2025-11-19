@@ -8,6 +8,7 @@ import { NoListingsFound } from '@/components/listings/NoListingsFound';
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SyntheticEvent } from 'react';
+import { getTagColorClasses } from '@/utils/tag-styles';
 
 interface ListingGridProps {
   listings: ListingSummaryDTO[];
@@ -17,26 +18,6 @@ export function ListingGrid({ listings }: ListingGridProps) {
   if (!Array.isArray(listings) || listings.length === 0) {
     return <NoListingsFound />;
   }
-
-  const tagColor = (text: string, category: 'eco' | 'amenity') => {
-    const t = text.toLowerCase();
-    if (category === 'eco') {
-      if (/solar|renewable|energy/.test(t)) return 'bg-emerald-100 text-emerald-700';
-      if (/waste|zero|recycl/.test(t)) return 'bg-lime-100 text-lime-700';
-      if (/water|conserv/.test(t)) return 'bg-cyan-100 text-cyan-700';
-      if (/vegan|vegetarian|organic/.test(t)) return 'bg-teal-100 text-teal-700';
-      if (/garden|bike|walk|green/.test(t)) return 'bg-green-100 text-green-700';
-      return 'bg-emerald-100 text-emerald-700';
-    }
-    if (/wifi|internet/.test(t)) return 'bg-blue-100 text-blue-700';
-    if (/meeting|conference|room|call/.test(t)) return 'bg-indigo-100 text-indigo-700';
-    if (/24\/?7|24-7|24x7|access/.test(t)) return 'bg-purple-100 text-purple-700';
-    if (/kitchen|restaurant|bar|cafe/.test(t)) return 'bg-amber-100 text-amber-800';
-    if (/security|locker|safe/.test(t)) return 'bg-orange-100 text-orange-700';
-    if (/bike|parking/.test(t)) return 'bg-sky-100 text-sky-700';
-    if (/garden|terrace|rooftop/.test(t)) return 'bg-green-100 text-green-700';
-    return 'bg-blue-100 text-blue-700';
-  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -91,7 +72,7 @@ export function ListingGrid({ listings }: ListingGridProps) {
                     {listing.ecoFocusTags.slice(0, 3).map((tag, index) => (
                       <span
                         key={`eco-${index}`}
-                        className={cn('px-2 py-1 text-xs rounded-lg font-medium', tagColor(tag, 'eco'))}
+                        className={cn('px-2 py-1 text-xs rounded-lg font-medium', getTagColorClasses(tag, 'eco'))}
                       >
                         {tag}
                       </span>
@@ -108,7 +89,7 @@ export function ListingGrid({ listings }: ListingGridProps) {
                     {listing.amenityNames.slice(0, 3).map((name, index) => (
                       <span
                         key={`amenity-${index}`}
-                        className={cn('px-2 py-1 text-xs rounded-lg font-medium', tagColor(name, 'amenity'))}
+                        className={cn('px-2 py-1 text-xs rounded-lg font-medium', getTagColorClasses(name, 'amenity'))}
                       >
                         {name}
                       </span>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import { NeoButton } from '@/components/ui/neo-button';
 import { Heart } from 'lucide-react';
+import { jsonPostOptions, jsonDeleteOptions } from '@/lib/http/request';
 
 interface FavoriteButtonProps {
   // Accepts either listingId (legacy) or slug (preferred) - one is required
@@ -137,13 +138,7 @@ export function FavoriteButton({
     try {
       if (previousState) {
         // Remove from favorites
-        const response = await fetch('/api/user/favorites', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ slug: actualSlug }),
-        });
+        const response = await fetch('/api/user/favorites', jsonDeleteOptions({ slug: actualSlug }));
 
         if (!response.ok) {
           throw new Error('Failed to remove favorite');
@@ -155,13 +150,7 @@ export function FavoriteButton({
         }
       } else {
         // Add to favorites
-        const response = await fetch('/api/user/favorites', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ slug: actualSlug }),
-        });
+        const response = await fetch('/api/user/favorites', jsonPostOptions({ slug: actualSlug }));
 
         if (!response.ok) {
           const errorData = await response.json();

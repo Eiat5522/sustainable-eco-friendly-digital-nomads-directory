@@ -9,6 +9,7 @@ import { ReviewsSection } from './ReviewsSection';
 import { RelatedListings } from './RelatedListings';
 import type { ListingDetailDTO, CityDTO } from '@/types/dto';
 import { getCurrentHref, redirectTo } from '@/utils/navigation';
+import { jsonPostOptions } from '@/lib/http/request';
 
 interface Review {
   id: string;
@@ -102,10 +103,7 @@ export function ListingDetailView({
 
     try {
       // Use slug for favorite toggles to keep the dynamic path consistent
-      const res = await fetch(`/api/user/favorites/${listing.slug}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      })
+      const res = await fetch(`/api/user/favorites/${listing.slug}`, jsonPostOptions({}))
 
       if (!res.ok) {
         if (res.status === 401) {

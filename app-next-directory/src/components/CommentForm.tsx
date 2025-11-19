@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { jsonPostOptions } from '@/lib/http/request';
 
 export const resolveCallbackUrl = (loc?: { href?: string | null }) => {
   try {
@@ -46,11 +47,7 @@ export default function CommentForm({ postId }: Readonly<{ postId: string }>) {
       setIsSubmitting(true);
       setError(null);
       
-      const res = await fetch('/api/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: trimmed, postId }),
-      });
+      const res = await fetch('/api/comments', jsonPostOptions({ content: trimmed, postId }));
 
       if (res.status === 401) {
         handleSignIn();

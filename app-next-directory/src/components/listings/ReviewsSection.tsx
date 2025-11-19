@@ -10,6 +10,7 @@ import { StarRating } from '@/components/ui/StarRating';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { getCurrentHref } from '@/utils/navigation';
+import { jsonPostOptions } from '@/lib/http/request';
 
 interface Review {
   id: string;
@@ -116,15 +117,11 @@ export const submitReview = async ({ review, listingId, fetcher }: SubmitReviewO
 
 
 
-  const response = await fetcher('/api/reviews', {
-
-    method: 'POST',
-
-    headers: { 'Content-Type': 'application/json' },
-
-    body: JSON.stringify({ rating: review.rating, comment: trimmedComment, listingId }),
-
-  });
+  const response = await fetcher('/api/reviews', jsonPostOptions({
+    rating: review.rating,
+    comment: trimmedComment,
+    listingId
+  }));
 
 
 
