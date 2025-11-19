@@ -12,6 +12,7 @@ import {
   NeoCardDescription,
 } from '@/components/ui/neo-card';
 import { Loader2 } from 'lucide-react';
+import { jsonPatchOptions } from '@/lib/http/request';
 
 interface ProfileEditFormProps {
   currentName?: string;
@@ -38,15 +39,10 @@ export function ProfileEditForm({ currentName = '', onSuccess, onCancel }: Profi
     }, 10000);
 
     try {
-      const response = await fetch('/api/auth/update-profile', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: name.trim() }),
-        credentials: 'include',
-        signal: controller.signal,
-      });
+      const response = await fetch('/api/auth/update-profile', jsonPatchOptions(
+        { name: name.trim() },
+        { credentials: 'include', signal: controller.signal }
+      ));
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));

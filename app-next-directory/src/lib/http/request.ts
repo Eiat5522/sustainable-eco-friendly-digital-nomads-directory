@@ -200,3 +200,65 @@ export function extractErrorMessage(error: unknown, fallback = 'An unexpected er
 export function getDefaultTimeout(): number {
   return DEFAULT_TIMEOUT_MS;
 }
+
+/**
+ * Common request options for JSON API calls
+ */
+export const JSON_HEADERS = {
+  'Content-Type': 'application/json',
+} as const;
+
+/**
+ * Helper to create fetch options for JSON POST requests
+ * @param body - The request body to be JSON stringified
+ * @param init - Additional fetch options to merge
+ * @returns RequestInit object with JSON headers and stringified body
+ */
+export function jsonPostOptions<T = unknown>(body: T, init: RequestInit = {}): RequestInit {
+  return {
+    ...init,
+    method: 'POST',
+    headers: {
+      ...JSON_HEADERS,
+      ...init.headers,
+    },
+    body: JSON.stringify(body),
+  };
+}
+
+/**
+ * Helper to create fetch options for JSON PATCH requests
+ * @param body - The request body to be JSON stringified
+ * @param init - Additional fetch options to merge
+ * @returns RequestInit object with JSON headers and stringified body
+ */
+export function jsonPatchOptions<T = unknown>(body: T, init: RequestInit = {}): RequestInit {
+  return {
+    ...init,
+    method: 'PATCH',
+    headers: {
+      ...JSON_HEADERS,
+      ...init.headers,
+    },
+    body: JSON.stringify(body),
+  };
+}
+
+/**
+ * Helper to create fetch options for JSON DELETE requests
+ * @param body - The request body to be JSON stringified (optional)
+ * @param init - Additional fetch options to merge
+ * @returns RequestInit object with JSON headers and optionally stringified body
+ */
+export function jsonDeleteOptions<T = unknown>(body?: T, init: RequestInit = {}): RequestInit {
+  return {
+    ...init,
+    method: 'DELETE',
+    headers: {
+      ...JSON_HEADERS,
+      ...init.headers,
+    },
+    ...(body && { body: JSON.stringify(body) }),
+  };
+}
+
