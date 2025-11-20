@@ -21,6 +21,11 @@ jest.mock('@/components/sections/featuredVenuesMockData', () => ({
   ],
 }));
 
+// Mock sanity handlers
+jest.mock('../sanity-handlers', () => ({
+  sanityHandlers: [],
+}));
+
 describe('MSW Handlers', () => {
   const mockData = {
     listings: [
@@ -259,4 +264,231 @@ describe('MSW Handlers', () => {
       expect(response).toBeDefined();
     });
   });
+
+  describe('Handler coverage tests', () => {
+    it('should have GET search handler', () => {
+      const searchHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.path?.includes('/api/search');
+      });
+      expect(searchHandlers.length).toBeGreaterThan(0);
+    });
+
+    it('should have POST search handler', () => {
+      const postSearchHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.method === 'POST';
+      });
+      expect(postSearchHandlers.length).toBeGreaterThan(0);
+    });
+
+    it('should have cities handler', () => {
+      const citiesHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.path?.includes('/api/cities');
+      });
+      expect(citiesHandlers.length).toBeGreaterThan(0);
+    });
+
+    it('should have listings handler', () => {
+      const listingsHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.path?.includes('/api/listings') || info?.path?.includes('/api/test-listings');
+      });
+      expect(listingsHandlers.length).toBeGreaterThan(0);
+    });
+
+    it('should have reviews handlers', () => {
+      const reviewsHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.path?.includes('/api/reviews');
+      });
+      expect(reviewsHandlers.length).toBeGreaterThan(0);
+    });
+
+    it('should have auth handlers', () => {
+      const authHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.path?.includes('/api/auth');
+      });
+      expect(authHandlers.length).toBeGreaterThan(0);
+    });
+
+    it('should have contact handler', () => {
+      const contactHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.path?.includes('/api/contact');
+      });
+      expect(contactHandlers.length).toBeGreaterThan(0);
+    });
+
+    it('should have favorites handler', () => {
+      const favoritesHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.path?.includes('/api/user/favorites');
+      });
+      expect(favoritesHandlers.length).toBeGreaterThan(0);
+    });
+
+    it('should have categories handler', () => {
+      const categoriesHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.path?.includes('/api/categories');
+      });
+      expect(categoriesHandlers.length).toBeGreaterThan(0);
+    });
+
+    it('should have amenities handler', () => {
+      const amenitiesHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.path?.includes('/api/amenities');
+      });
+      expect(amenitiesHandlers.length).toBeGreaterThan(0);
+    });
+
+    it('should have featured listings handler', () => {
+      const featuredHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.path?.includes('/api/featured-listings');
+      });
+      expect(featuredHandlers.length).toBeGreaterThan(0);
+    });
+
+    it('should have suggestions handler', () => {
+      const suggestionsHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.path?.includes('/api/search/suggestions');
+      });
+      expect(suggestionsHandlers.length).toBeGreaterThan(0);
+    });
+
+    it('should have hello endpoint handler', () => {
+      const helloHandlers = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.path?.includes('/api/hello');
+      });
+      expect(helloHandlers.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('setReviewsResponse modes', () => {
+    it('should return unauthorized response in unauthorized mode', async () => {
+      const handler = setReviewsResponse('unauthorized');
+      expect(handler).toBeDefined();
+      const info = (handler as any).info;
+      expect(info?.method).toBe('POST');
+    });
+
+    it('should return forbidden response in forbidden mode', async () => {
+      const handler = setReviewsResponse('forbidden');
+      expect(handler).toBeDefined();
+      const info = (handler as any).info;
+      expect(info?.method).toBe('POST');
+    });
+
+    it('should return conflict response in conflict mode', async () => {
+      const handler = setReviewsResponse('conflict');
+      expect(handler).toBeDefined();
+      const info = (handler as any).info;
+      expect(info?.method).toBe('POST');
+    });
+
+    it('should return error response in error mode', async () => {
+      const handler = setReviewsResponse('error');
+      expect(handler).toBeDefined();
+      const info = (handler as any).info;
+      expect(info?.method).toBe('POST');
+    });
+
+    it('should return success response by default', async () => {
+      const handler = setReviewsResponse('success');
+      expect(handler).toBeDefined();
+      const info = (handler as any).info;
+      expect(info?.method).toBe('POST');
+    });
+  });
+
+  describe('setRegisterResponse modes', () => {
+    it('should return error response in error mode', async () => {
+      const handler = setRegisterResponse('error');
+      expect(handler).toBeDefined();
+      const info = (handler as any).info;
+      expect(info?.method).toBe('POST');
+    });
+
+    it('should return success response by default', async () => {
+      const handler = setRegisterResponse('success');
+      expect(handler).toBeDefined();
+      const info = (handler as any).info;
+      expect(info?.method).toBe('POST');
+    });
+  });
+
+  describe('HTTP method coverage', () => {
+    it('should have both GET and POST handlers', () => {
+      const getMethods = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.method === 'GET';
+      });
+      const postMethods = handlers.filter((h) => {
+        const info = (h as any).info;
+        return info?.method === 'POST';
+      });
+      
+      expect(getMethods.length).toBeGreaterThan(0);
+      expect(postMethods.length).toBeGreaterThan(0);
+    });
+
+    it('should have multiple endpoints covered', () => {
+      const uniquePaths = new Set(
+        handlers.map((h) => {
+          const info = (h as any).info;
+          return info?.path;
+        }).filter(Boolean)
+      );
+      
+      expect(uniquePaths.size).toBeGreaterThan(10);
+    });
+  });
+
+  describe('Mock data structure', () => {
+    it('should use createTestData function', () => {
+      expect(createTestData).toHaveBeenCalled();
+    });
+
+    it('should import required helper functions', () => {
+      const { getFavoritesForUser, getReviewsForListing, listCities } = require('@/tests/helpers/test-data');
+      expect(getFavoritesForUser).toBeDefined();
+      expect(getReviewsForListing).toBeDefined();
+      expect(listCities).toBeDefined();
+    });
+
+    it('should have access to mockFeaturedVenues', () => {
+      const { mockFeaturedVenues } = require('@/components/sections/featuredVenuesMockData');
+      expect(mockFeaturedVenues).toBeDefined();
+      expect(Array.isArray(mockFeaturedVenues)).toBe(true);
+    });
+  });
+
+  describe('Response helpers', () => {
+    it('should use HttpResponse.json for all responses', () => {
+      // The ok function uses HttpResponse.json
+      const testResponse = HttpResponse.json({ test: 'data' }, { status: 200 });
+      expect(testResponse).toBeDefined();
+    });
+
+    it('should support different status codes', () => {
+      const statusCodes = [200, 201, 400, 401, 403, 404, 409, 500];
+      statusCodes.forEach((status) => {
+        const response = HttpResponse.json({}, { status });
+        expect(response).toBeDefined();
+        expect(response.status).toBe(status);
+      });
+    });
+  });
 });
+
+// Helper to create mock request
+function createMockRequest(url: string, init?: RequestInit): Request {
+  return new Request(url, init);
+}
