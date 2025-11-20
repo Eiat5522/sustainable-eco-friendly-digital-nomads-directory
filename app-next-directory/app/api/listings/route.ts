@@ -228,11 +228,11 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
         : await fetchListingsData(page, limit);
 
       // Handle collection unavailable error
-      if ('error' in result) {
+      if ('error' in result && result.error) {
         return ResponseBuilder.error(result.error, 500);
       }
 
-      const { listings, total } = result;
+      const { listings, total } = result as { listings: unknown[]; total: number };
 
       return ResponseBuilder.success({
         listings,
