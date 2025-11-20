@@ -1,9 +1,24 @@
-// Sanity client with ESM/CJS interop helpers. Tests typically mock this module.
 /**
  * Sanity Client Configuration
  * 
+ * Provides a configured Sanity client for querying content and building image URLs.
+ * Handles ESM/CJS module interoperability for compatibility with both Jest (CommonJS)
+ * and modern ES modules.
+ * 
  * Updated for Schema & TypeScript Refactoring Plan R.3 (Codegen) and R.5 (Image Model)
- * Dual compatibility for Jest (CommonJS) and ES modules with error handling
+ * 
+ * @module sanity/client
+ * 
+ * @example
+ * ```typescript
+ * import { client, urlFor } from '@/lib/sanity/client';
+ * 
+ * // Query content
+ * const listings = await client.fetch('*[_type == "listing"][0...10]');
+ * 
+ * // Build image URLs
+ * const imageUrl = urlFor(listing.image).width(800).height(600).url();
+ * ```
  */
 
 import * as SanityClient from '@sanity/client';
@@ -24,9 +39,13 @@ if (!resolvedCreateClient) {
   throw new Error('Unable to resolve Sanity createClient factory');
 }
 
-// This robustly handles CJS/ESM module interop issues, which is the cause of the Jest error.
-// It attempts to use the named export from the namespace, which works in ESM,
-// and falls back to the `default` property if it's wrapped by a CJS environment like Jest.
+/**
+ * Sanity client factory function.
+ * 
+ * Robustly handles CJS/ESM module interop issues, which can cause Jest errors.
+ * Attempts to use the named export from the namespace (works in ESM),
+ * and falls back to the `default` property if wrapped by a CJS environment like Jest.
+ */
 export const createClient = resolvedCreateClient;
 
 const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'projectId';
@@ -43,6 +62,16 @@ const clientConfig = {
     : {}),
 };
 
+/**
+ * Configured Sanity client instance.
+ * 
+ * Connects to the Sanity project specified by environment variables:
+ * - NEXT_PUBLIC_SANITY_PROJECT_ID
+ * - NEXT_PUBLIC_SANITY_DATASET
+ * - SANITY_API_READ_TOKEN (optional, for accessing draft/private content)
+ * 
+ * Configured with `useCdn: false` to ensure fresh data for server-side logic.
+ */
 export const client = createClient(clientConfig);
 
 type ImageUrlBuilderModule = typeof SanityImageUrl & {
@@ -52,12 +81,45 @@ type ImageUrlBuilderModule = typeof SanityImageUrl & {
 const imageUrlModule = SanityImageUrl as ImageUrlBuilderModule;
 const imageUrlBuilderFactory = imageUrlModule.default ?? imageUrlModule;
 
+/**
+ * Image URL builder for Sanity images.
+ * 
+ * Provides a fluent API for building optimized image URLs from Sanity image references.
+ * 
+ * @see {@link urlFor} for a more convenient wrapper function
+ */
 export const builder = imageUrlBuilderFactory(client);
 
-// Create a urlFor function for easier usage - supports centralized image model
+/**
+ * Creates an image URL builder for a Sanity image source.
+ * 
+ * Supports the centralized image model and provides a fluent API for transforming images.
+ * 
+ * @param source - Sanity image reference (asset reference, image object, or asset ID)
+ * @returns Image URL builder with methods like .width(), .height(), .format(), .url()
+ * 
+ * @example
+ * ```typescript
+ * // Build a responsive image URL
+ * const imageUrl = urlFor(listing.primaryImage)
+ *   .width(800)
+ *   .height(600)
+ *   .format('webp')
+ *   .quality(80)
+ *   .url();
+ * 
+ * // Simple usage
+ * const thumbnail = urlFor(image).width(200).url();
+ * ```
+ */
 export const urlFor = (source: SanityImageSource) => builder.image(source);
 
-// Default export for broader compatibility
+/**
+ * Default export for broader compatibility.
+ * 
+ * Provides all exported members as a single object for environments
+ * that prefer default imports.
+ */
 const sanityClientExports = {
   createClient,
   client,

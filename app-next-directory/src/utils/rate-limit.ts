@@ -1,8 +1,23 @@
 /**
  * Rate Limiting Utility
- * Simple in-memory rate limiter for API routes
+ * 
+ * Provides in-memory rate limiting functionality for API routes.
+ * Tracks request counts per client (identified by IP address) and enforces
+ * configurable limits within specified time windows.
+ * 
+ * @example
+ * ```typescript
+ * const limiter = rateLimit({ max: 100, windowMs: 60 * 60 * 1000 });
+ * const result = limiter(request);
+ * if (!result.success) {
+ *   return Response.json({ error: 'Rate limit exceeded' }, { status: 429 });
+ * }
+ * ```
  */
 
+/**
+ * Information about a client's rate limit status
+ */
 interface RateLimitInfo {
   count: number;
   resetTime: number;
@@ -23,12 +38,18 @@ const cleanupInterval = setInterval(() => {
 
 cleanupInterval.unref?.();
 
+/**
+ * Configuration options for rate limiting
+ */
 export interface RateLimitOptions {
   max: number; // Maximum requests
   windowMs: number; // Time window in milliseconds
   keyGenerator?: (request: Request) => string; // Custom key generator
 }
 
+/**
+ * Result of a rate limit check
+ */
 export interface RateLimitResult {
   success: boolean;
   limit: number;
@@ -37,7 +58,40 @@ export interface RateLimitResult {
 }
 
 /**
- * Rate limiting function
+ * Creates a rate limiter function with the specified options.
+ * 
+ * The rate limiter tracks requests per client (identified by IP or custom key)
+ * and returns whether the request is allowed or has exceeded the limit.
+ * 
+ * @param options - Configuration for the rate limiter
+ * @param options.max - Maximum number of requests allowed in the time window
+ * @param options.windowMs - Time window in milliseconds
+ * @param options.keyGenerator - Optional function to generate custom client keys (defaults to IP-based)
+ * 
+ * @returns A function that checks if a request should be rate limited
+ * 
+ * @example
+ * ```typescript
+ * const limiter = rateLimit({ max: 100, windowMs: 60 * 60 * 1000 });
+ * 
+ * export async function POST(request: Request) {
+ *   const result = limiter(request);
+ *   if (!result.success) {
+ *     return Response.json(
+ *       { error: 'Too many requests' },
+ *       { 
+ *         status: 429,
+ *         headers: {
+ *           'X-RateLimit-Limit': result.limit.toString(),
+ *           'X-RateLimit-Remaining': result.remaining.toString(),
+ *           'X-RateLimit-Reset': new Date(result.resetTime).toISOString()
+ *         }
+ *       }
+ *     );
+ *   }
+ *   // Process request...
+ * }
+ * ```
  */
 export function rateLimit(options: RateLimitOptions) {
   const { max, windowMs, keyGenerator } = options;
@@ -59,7 +113,6 @@ export function rateLimit(options: RateLimitOptions) {
     }
 
     // Check if limit exceeded
-    console.log('Key:', key, 'Count:', info ? info.count : 0);
     if (info.count >= max) {
       return {
         success: false,
@@ -82,7 +135,15 @@ export function rateLimit(options: RateLimitOptions) {
 }
 
 /**
- * Get client IP address from request
+ * Extracts the client IP address from the request headers.
+ * 
+ * Checks multiple common headers used by proxies and load balancers:
+ * - x-forwarded-for (first IP in the list)
+ * - x-real-ip
+ * - cf-connecting-ip (Cloudflare)
+ * 
+ * @param request - The incoming HTTP request
+ * @returns The client IP address, or 'unknown' if none found
  */
 function getClientIP(request: Request): string {
   // Try various headers for IP address
