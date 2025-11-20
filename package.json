@@ -72,9 +72,9 @@
         },
         "onlyBuiltDependencies": [
             "@swc/core",
+            "core-js",
             "mongodb-memory-server",
-            "msw",
-            "core-js"
+            "msw"
         ],
         "ignoredBuiltDependencies": [
             "@percy/core",
