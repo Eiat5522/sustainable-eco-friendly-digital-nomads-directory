@@ -81,7 +81,6 @@ function initializeRedis() {
   return redis;
 }
 
->>>>>>> 92decb66 (feat: implement Redis rate limiting and input sanitization (#335))
 export interface RateLimitOptions {
   max: number; // Maximum requests
   windowMs: number; // Time window in milliseconds
