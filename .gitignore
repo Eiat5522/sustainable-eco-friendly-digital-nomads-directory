@@ -44,13 +44,10 @@ yarn-error.log*
 .env*.local
 .env.example
 .env
-<<<<<<< HEAD
-=======
 !.env.sample
 !.env.test.sample
 !app-next-directory/.env.sample
 !app-next-directory/.env.test.sample
->>>>>>> 60ec756b (feat: add workspace configuration for app-next-directory and Redis connection settings)
 
 # vercel
 .vercel
@@ -94,22 +91,6 @@ dev-debug.log
 *.sln
 *.sw?
 # OS specific
-<<<<<<< HEAD
-# Task files
-tasks.json
-tasks/
-
-# Copilot
-*.copilotignore
-*image_curation_helper.csv*
-*requirements.txt*
-*run_migration.py*
-*task_0*
-*clean-install.ps1*
-*tasks.json.bak*
-*.specstory*
-*WORKSTREAM*
-=======
 #.txt
 *requirement.txt
 
@@ -260,4 +241,3 @@ app-next-directory/.env.local.backup
 app-next-directory/.env.test
 app-next-directory/tests/.auth/admin.json
 app-next-directory/tests/.auth/venueOwner.json
->>>>>>> 60ec756b (feat: add workspace configuration for app-next-directory and Redis connection settings)
