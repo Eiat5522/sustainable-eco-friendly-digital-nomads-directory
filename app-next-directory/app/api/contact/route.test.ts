@@ -594,6 +594,124 @@ describe('Contact API', () => {
       });
     });
 
+    describe('Input Sanitization', () => {
+      it('should sanitize HTML/XSS attempts in subject field', async () => {
+        process.env.RESEND_API_KEY = 'test-key';
+        const xssData = {
+          ...validContactData,
+          subject: '<script>alert("XSS")</script>Test Subject',
+        };
+
+        const request = createPostRequest(xssData);
+        const response = await POST(request);
+        const data = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(data.success).toBe(true);
+        
+        // Verify sendMail was called
+        expect(sendMail).toHaveBeenCalled();
+        
+        // Check that the HTML in the email doesn't contain unescaped script tags
+        const emailCalls = (sendMail as jest.Mock).mock.calls;
+        const adminEmail = emailCalls.find((call: unknown[]) => 
+          typeof call[0] === 'object' && 
+          call[0] !== null &&
+          'html' in call[0] &&
+          typeof (call[0] as { html?: string }).html === 'string' &&
+          (call[0] as { html: string }).html.includes('New Contact Form Submission')
+        );
+        
+        expect(adminEmail).toBeDefined();
+        if (adminEmail && adminEmail[0] && typeof adminEmail[0] === 'object' && 'html' in adminEmail[0]) {
+          const htmlContent = (adminEmail[0] as { html: string }).html;
+          // Should contain escaped HTML entities, not raw script tags
+          expect(htmlContent).toContain('&lt;script&gt;');
+          expect(htmlContent).not.toContain('<script>alert');
+        }
+
+        delete process.env.RESEND_API_KEY;
+      });
+
+      it('should sanitize HTML/XSS attempts in message field', async () => {
+        process.env.RESEND_API_KEY = 'test-key';
+        const xssData = {
+          ...validContactData,
+          message: 'Hello <img src=x onerror=alert("XSS")> world! This is a test message.',
+        };
+
+        const request = createPostRequest(xssData);
+        const response = await POST(request);
+        const data = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(data.success).toBe(true);
+        
+        // Verify sendMail was called
+        expect(sendMail).toHaveBeenCalled();
+        
+        // Check that the HTML in the email doesn't contain unescaped img tags with onerror
+        const emailCalls = (sendMail as jest.Mock).mock.calls;
+        const adminEmail = emailCalls.find((call: unknown[]) => 
+          typeof call[0] === 'object' && 
+          call[0] !== null &&
+          'html' in call[0] &&
+          typeof (call[0] as { html?: string }).html === 'string' &&
+          (call[0] as { html: string }).html.includes('New Contact Form Submission')
+        );
+        
+        expect(adminEmail).toBeDefined();
+        if (adminEmail && adminEmail[0] && typeof adminEmail[0] === 'object' && 'html' in adminEmail[0]) {
+          const htmlContent = (adminEmail[0] as { html: string }).html;
+          // Should contain escaped HTML entities (< becomes &lt;)
+          expect(htmlContent).toContain('&lt;img');
+          // Should have escaped quotes (the dangerous part is neutralized)
+          expect(htmlContent).toContain('&quot;');
+          // Should not contain the raw unescaped script tag
+          expect(htmlContent).not.toContain('<img src=x onerror=alert("XSS")>');
+        }
+
+        delete process.env.RESEND_API_KEY;
+      });
+
+      it('should sanitize HTML in name field', async () => {
+        process.env.RESEND_API_KEY = 'test-key';
+        const xssData = {
+          ...validContactData,
+          name: 'John<script>alert(1)</script>Doe',
+        };
+
+        const request = createPostRequest(xssData);
+        const response = await POST(request);
+        const data = await response.json();
+
+        expect(response.status).toBe(200);
+        expect(data.success).toBe(true);
+        
+        // Verify sendMail was called
+        expect(sendMail).toHaveBeenCalled();
+        
+        const emailCalls = (sendMail as jest.Mock).mock.calls;
+        const autoReplyEmail = emailCalls.find((call: unknown[]) => 
+          typeof call[0] === 'object' && 
+          call[0] !== null &&
+          'html' in call[0] &&
+          typeof (call[0] as { html?: string }).html === 'string' &&
+          (call[0] as { html: string }).html.includes('Thank you for your message')
+        );
+        
+        expect(autoReplyEmail).toBeDefined();
+        if (autoReplyEmail && autoReplyEmail[0] && typeof autoReplyEmail[0] === 'object' && 'html' in autoReplyEmail[0]) {
+          const htmlContent = (autoReplyEmail[0] as { html: string }).html;
+          // Should contain escaped script tags
+          expect(htmlContent).toContain('&lt;script&gt;');
+          expect(htmlContent).not.toContain('<script>alert');
+        }
+
+        delete process.env.RESEND_API_KEY;
+      });
+    });
+
     describe('Error Handling', () => {
       it('should handle database connection errors', async () => {
         const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});

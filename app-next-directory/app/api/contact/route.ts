@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 import nodemailer from 'nodemailer';
 import type { SentMessageInfo, Transporter } from 'nodemailer';
 import { z } from 'zod';
+import validator from 'validator';
 import { sendMail } from '@/lib/email';
 import ContactSubmission from '@/models/ContactSubmission';
 import dbConnect from '@/lib/dbConnect';
@@ -95,6 +96,11 @@ export async function POST(request: NextRequest) {
 
     const { name, email, subject, message, type, listingSlug } = validationResult.data;
 
+    // Sanitize user inputs to prevent XSS/HTML injection in emails
+    const sanitizedName = validator.escape(name);
+    const sanitizedSubject = validator.escape(subject);
+    const sanitizedMessage = validator.escape(message);
+
     // Basic spam detection
     const spamKeywords = ['casino', 'viagra', 'loan', 'investment', 'crypto', 'bitcoin'];
     const messageText = `${subject} ${message}`.toLowerCase();
@@ -121,20 +127,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Email content
-    const emailSubject = `[Sustainable Nomads] ${type.charAt(0).toUpperCase() + type.slice(1)} Inquiry: ${subject}`;
+    // Email content (using sanitized inputs)
+    const emailSubject = `[Sustainable Nomads] ${type.charAt(0).toUpperCase() + type.slice(1)} Inquiry: ${sanitizedSubject}`;
     const emailBody = `
       <h2>New Contact Form Submission</h2>
 
       <p><strong>Type:</strong> ${type.charAt(0).toUpperCase() + type.slice(1)}</p>
-      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Name:</strong> ${sanitizedName}</p>
       <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Subject:</strong> ${subject}</p>
+      <p><strong>Subject:</strong> ${sanitizedSubject}</p>
       ${listingSlug ? `<p><strong>Related Listing:</strong> ${listingSlug}</p>` : ''}
 
       <h3>Message:</h3>
       <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0;">
-        ${message.replace(/\n/g, '<br>')}
+        ${sanitizedMessage.replace(/\n/g, '<br>')}
       </div>
 
       <hr>
@@ -145,18 +151,18 @@ export async function POST(request: NextRequest) {
       </p>
     `;
 
-    // Auto-reply content
+    // Auto-reply content (using sanitized inputs)
     const autoReplySubject = `Thank you for contacting Sustainable Digital Nomads Directory`;
     const autoReplyBody = `
       <h2>Thank you for your message!</h2>
 
-      <p>Hi ${name},</p>
+      <p>Hi ${sanitizedName},</p>
 
-      <p>Thank you for reaching out to the Sustainable Digital Nomads Directory. We have received your ${type} inquiry regarding "${subject}" and will get back to you within 24-48 hours.</p>
+      <p>Thank you for reaching out to the Sustainable Digital Nomads Directory. We have received your ${type} inquiry regarding "${sanitizedSubject}" and will get back to you within 24-48 hours.</p>
 
       <p>Here's a copy of your message:</p>
       <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0;">
-        ${message.replace(/\n/g, '<br>')}
+        ${sanitizedMessage.replace(/\n/g, '<br>')}
       </div>
 
       <p>In the meantime, feel free to explore our directory of eco-friendly spaces and sustainable travel resources.</p>
