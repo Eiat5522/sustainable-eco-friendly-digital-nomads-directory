@@ -1,4 +1,5 @@
 export const revalidate = 300; // ISR: revalidate every 5 minutes
+import { cache } from 'react';
 import { ListingDetailView } from '@/components/listings/ListingDetailView';
 import { mockListingDetail, mockRelatedListings, mockReviews } from '@/components/listings/listingDetailMockData';
 import { structuredLogger as logger } from '@/lib/logger';
@@ -183,7 +184,8 @@ const RELATED_QUERY = groq`*[_type == "listing" && moderation.status == "publish
 
 const FAVORITE_QUERY = groq`*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]{ _id }`;
 
-async function fetchListingBySlug(slug: string): Promise<ListingDetailDTO | null> {
+// Wrap in React cache() to deduplicate requests within the same render pass
+const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO | null> => {
   const raw = await client.fetch<SanityListing | null>(LISTING_QUERY, { slug });
   if (!raw) return null;
   try {
@@ -192,7 +194,7 @@ async function fetchListingBySlug(slug: string): Promise<ListingDetailDTO | null
     logger.error('Failed to transform listing payload', e, { slug, component: 'listings/[slug]' });
     return null;
   }
-}
+});
 
 async function fetchRelatedListings(cityId?: string, excludeId?: string) {
   if (!cityId) return [] as Array<{

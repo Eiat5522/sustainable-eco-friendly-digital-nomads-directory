@@ -139,7 +139,7 @@ const callbacks = {
       }
       return true;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       type AppToken = JWT & { id?: string; role?: UserRole; name?: string | null }
       const t = token as unknown as AppToken
       if (user) {
@@ -149,9 +149,9 @@ const callbacks = {
         if (u.role) {
           t.role = u.role
         }
-      } else if (t.id) {
-        // If user is not present (e.g., on session update without explicit user object),
-        // fetch the latest user data from the database to ensure name is up-to-date.
+      } else if (t.id && trigger === 'update') {
+        // Only fetch user data from DB when explicitly updating the session
+        // This avoids unnecessary DB queries on every request
         const dbUser = await getUserById(String(t.id));
         if (dbUser) {
           t.name = dbUser.name;
