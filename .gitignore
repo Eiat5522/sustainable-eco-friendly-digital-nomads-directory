@@ -1,3 +1,4 @@
+
 # dependencies
 node_modules/
 .pnp/
@@ -11,6 +12,12 @@ coverage/
 out/
 build/
 dist/
+!app-next-directory/__mocks__/leaflet/dist/
+!app-next-directory/__mocks__/leaflet/dist/leaflet.css.js
+
+# Allow the Jest Leaflet CSS mock to be committed
+!app-next-directory/__mocks__/leaflet/dist/
+!app-next-directory/__mocks__/leaflet/dist/leaflet.css.js
 
 # misc
 .DS_Store
@@ -20,6 +27,13 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
+.venv
+
+# keep sample env templates in git
+!.env.sample
+!.env.test.sample
+!app-next-directory/.env.sample
+!app-next-directory/.env.test.sample
 
 # debug
 npm-debug.log*
@@ -30,6 +44,13 @@ yarn-error.log*
 .env*.local
 .env.example
 .env
+<<<<<<< HEAD
+=======
+!.env.sample
+!.env.test.sample
+!app-next-directory/.env.sample
+!app-next-directory/.env.test.sample
+>>>>>>> 60ec756b (feat: add workspace configuration for app-next-directory and Redis connection settings)
 
 # vercel
 .vercel
@@ -73,6 +94,7 @@ dev-debug.log
 *.sln
 *.sw?
 # OS specific
+<<<<<<< HEAD
 # Task files
 tasks.json
 tasks/
@@ -87,3 +109,155 @@ tasks/
 *tasks.json.bak*
 *.specstory*
 *WORKSTREAM*
+=======
+#.txt
+*requirement.txt
+
+#sanity backup and image staging
+**/sanity-backup
+**/sanity_image_staging
+**/*mcp.json
+examples*/**
+script*/**
+!scripts/*.sh
+
+# Copilot
+
+image_curation_helper.csv
+run_migration.py
+*task_0
+clean-install.ps1
+*tasks.json.bak
+**/.specstory*
+*WORKSTREAM*
+/listings/**/*
+**/playwright-report
+
+#Github Copilot
+**/*.github/instructions*/**
+**/*.github/chatmodes*/**
+**/*.github/prompts*/**
+
+#Test Folders
+**/test-results
+
+
+#Cline & Roo
+**/.clinerules
+**/*.clinerules/**/*.md
+**/.roomodes    
+**/.roo
+**/cline_docs
+.clinerules/**/*.md
+.clinerules/mcp-server-config-guidelines.md
+
+
+# Code Index MCP cache directory
+.code_indexer/
+
+examples/vscode-conditional-usage.js
+utils/VSCodeDetector.ps1
+utils/README.md
+app-next-directory/docs/functional-specs/sso-onboarding-pseudocode.md
+app-next-directory/docs/functional-specs/sso-onboarding-spec.md
+**/*terminal_output
+**/*output.txt**
+**/*output2.txt**
+**/*results.txt
+**/*test-results**
+
+
+app-next-directory/docs/temp_gemini_session.txt
+schema and shape realignment plan 20250726.md
+app-next-directory/docs/TASK_PROGRESS.md
+sanity/TASK_PROGRESS.md
+app-next-directory/docs/temp/temp_gemini_session.txt
+
+
+.vscode*/**
+.vscode/memory.json
+**/*.vscode/chain-of-thought-mcp-data
+.vscode/mcp.json
+utils/vscode-detector.js
+
+
+# Task Mater MCP
+.taskmaster/state.json
+.taskmaster/config.json
+app-next-directory/.taskmaster/config.json
+sanity/.taskmaster/config.json
+
+# Memory bank artifacts (ignore entire directory to avoid committing chat transcripts)
+**/*memory-bank*/**
+app-next-directory/docs/temp/Advance search in the Search Dialog.jpeg
+app-next-directory/.gitignore
+**/app-next-directory/temp/**/*
+app-next-directory/app/head.tsx.bak
+
+# TestSprite MCP
+**/*testsprite_tests/*/**
+app-next-directory/testsprite_tests/tmp/**
+**/*testsprite*/**
+
+# Repomix
+repomix-output*.xml
+**/.secretlintrc.json
+
+# Allow Path
+!**/*/app-next-directory/**/listings
+!.repomix/config/schemaAndFrontendShape-repomix.config.json
+
+
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
+app-next-directory/app/listings/ListingsPageWrapper.tsx.bak
+app-next-directory/app/listings/ListingsPage.tsx.bak
+.gemini/settings.json
+/docs/assets/tmp/Pasted Image*.png
+app-next-directory/src/__tests__/api/search/FORTEST-route.copy.skip.ts
+**/*/search-route-test-run.txt
+tmp/
+*.debug.js
+desktop.ini
+**/desktop.ini
+
+# Development and testing artifacts (not part of test suite)
+test-*.js
+!app-next-directory/src/__tests__/**
+**/test-*.js
+!app-next-directory/src/__tests__/**
+**/quick-*.js
+*.bak
+*_backup.*
+tmp_*
+
+# Ignore generated Playwright reports
+app-next-directory/playwright-report/**
+!app-next-directory/playwright-report/README.md
+app-next-directory/.vscode/settings.backup.20250929012207.json
+.turbo/**
+app-next-directory/.turbo
+app-next-directory/src/utils/db-helpers.ts
+
+.vscode
+
+docs/chat-history/**
+.bashrc.zip
+app-next-directory/testCoverage/*/**
+app-next-directory/testCoverage/lcov-report/*/**
+app-next-directory/testCoverage/
+app-next-directory/testCoverage/lcov-report/
+changes_need.patch
+
+# Task files
+tasks.json
+tasks/ 
+.taskmaster/config.json
+app-next-directory/.gemini/settings.json
+app-next-directory/.env.development
+app-next-directory/.env.local.backup
+app-next-directory/.env.test
+app-next-directory/tests/.auth/admin.json
+app-next-directory/tests/.auth/venueOwner.json
+>>>>>>> 60ec756b (feat: add workspace configuration for app-next-directory and Redis connection settings)
