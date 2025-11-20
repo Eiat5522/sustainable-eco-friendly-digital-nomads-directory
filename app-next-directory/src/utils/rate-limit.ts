@@ -1,5 +1,6 @@
 /**
  * Rate Limiting Utility
+<<<<<<< HEAD
  * 
  * Provides in-memory rate limiting functionality for API routes.
  * Tracks request counts per client (identified by IP address) and enforces
@@ -18,15 +19,23 @@
 /**
  * Information about a client's rate limit status
  */
+=======
+ * Uses Redis-based rate limiting via @upstash/ratelimit with in-memory fallback
+ */
+
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
+>>>>>>> 92decb66 (feat: implement Redis rate limiting and input sanitization (#335))
 interface RateLimitInfo {
   count: number;
   resetTime: number;
 }
 
-// In-memory store for rate limiting
+// In-memory store for rate limiting (fallback when Redis is not available)
 const rateLimitStore = new Map<string, RateLimitInfo>();
 
-// Clean up expired entries every 10 minutes
+// Clean up expired entries every 10 minutes (only for in-memory fallback)
 const cleanupInterval = setInterval(() => {
   const now = Date.now();
   for (const [key, info] of rateLimitStore.entries()) {
@@ -38,9 +47,41 @@ const cleanupInterval = setInterval(() => {
 
 cleanupInterval.unref?.();
 
+<<<<<<< HEAD
 /**
  * Configuration options for rate limiting
  */
+=======
+// Initialize Redis client if credentials are available
+let redis: Redis | null = null;
+
+function initializeRedis() {
+  if (redis !== undefined) {
+    return redis;
+  }
+  
+  const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
+  const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (UPSTASH_REDIS_REST_URL && UPSTASH_REDIS_REST_TOKEN) {
+    try {
+      redis = new Redis({
+        url: UPSTASH_REDIS_REST_URL,
+        token: UPSTASH_REDIS_REST_TOKEN,
+      });
+    } catch (error) {
+      console.warn('[rate-limit] Failed to initialize Redis, falling back to in-memory:', error);
+      redis = null;
+    }
+  } else {
+    console.warn('[rate-limit] Redis credentials not configured (UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN). Using in-memory rate limiting.');
+    redis = null;
+  }
+  
+  return redis;
+}
+
+>>>>>>> 92decb66 (feat: implement Redis rate limiting and input sanitization (#335))
 export interface RateLimitOptions {
   max: number; // Maximum requests
   windowMs: number; // Time window in milliseconds
@@ -58,6 +99,7 @@ export interface RateLimitResult {
 }
 
 /**
+<<<<<<< HEAD
  * Creates a rate limiter function with the specified options.
  * 
  * The rate limiter tracks requests per client (identified by IP or custom key)
@@ -92,17 +134,64 @@ export interface RateLimitResult {
  *   // Process request...
  * }
  * ```
+=======
+ * In-memory rate limiting fallback
+ */
+function inMemoryRateLimit(key: string, max: number, windowMs: number): RateLimitResult {
+  const now = Date.now();
+  const resetTime = now + windowMs;
+
+  // Get or create rate limit info
+  let info = rateLimitStore.get(key);
+
+  if (!info || now > info.resetTime) {
+    // Create new or reset expired
+    info = { count: 0, resetTime };
+    rateLimitStore.set(key, info);
+  }
+
+  // Check if limit exceeded
+  console.log('Key:', key, 'Count:', info ? info.count : 0);
+  if (info.count >= max) {
+    return {
+      success: false,
+      limit: max,
+      remaining: 0,
+      resetTime: info.resetTime,
+    };
+  }
+
+  // Increment count
+  info.count++;
+
+  return {
+    success: true,
+    limit: max,
+    remaining: max - info.count,
+    resetTime: info.resetTime,
+  };
+}
+
+/**
+ * Rate limiting function
+ * Uses Redis when available, falls back to in-memory
+>>>>>>> 92decb66 (feat: implement Redis rate limiting and input sanitization (#335))
  */
 export function rateLimit(options: RateLimitOptions) {
   const { max, windowMs, keyGenerator } = options;
 
-  return (request: Request): RateLimitResult => {
-    // Generate key for rate limiting (default to IP)
-    const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+  // Lazy initialize Redis
+  const redisClient = initializeRedis();
 
-    const now = Date.now();
-    const resetTime = now + windowMs;
+  // If Redis is available, create a Redis-based rate limiter
+  if (redisClient) {
+    const limiter = new Ratelimit({
+      redis: redisClient,
+      limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
+      analytics: false, // Disable analytics for better performance
+    });
 
+<<<<<<< HEAD
     // Get or create rate limit info
     let info = rateLimitStore.get(key);
 
@@ -130,7 +219,34 @@ export function rateLimit(options: RateLimitOptions) {
       limit: max,
       remaining: max - info.count,
       resetTime: info.resetTime,
+=======
+    return async (request: Request): Promise<RateLimitResult> => {
+      try {
+        // Generate key for rate limiting (default to IP)
+        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+        
+        const { success, limit, remaining, reset } = await limiter.limit(key);
+        
+        return {
+          success,
+          limit,
+          remaining,
+          resetTime: reset,
+        };
+      } catch (error) {
+        console.warn('[rate-limit] Redis error, falling back to in-memory:', error);
+        // Fallback to in-memory on error
+        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+        return inMemoryRateLimit(key, max, windowMs);
+      }
+>>>>>>> 92decb66 (feat: implement Redis rate limiting and input sanitization (#335))
     };
+  }
+
+  // In-memory fallback
+  return async (request: Request): Promise<RateLimitResult> => {
+    const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
+    return inMemoryRateLimit(key, max, windowMs);
   };
 }
 

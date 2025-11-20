@@ -184,6 +184,7 @@ const RELATED_QUERY = groq`*[_type == "listing" && moderation.status == "publish
 
 const FAVORITE_QUERY = groq`*[_type == "userFavorite" && user._ref == $userId && listing._ref == $listingId][0]{ _id }`;
 
+// Wrap in React cache() to deduplicate requests within the same render pass
 const fetchListingBySlug = cache(async (slug: string): Promise<ListingDetailDTO | null> => {
   const raw = await client.fetch<SanityListing | null>(LISTING_QUERY, { slug });
   if (!raw) return null;
