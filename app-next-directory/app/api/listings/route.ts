@@ -1,4 +1,5 @@
 import type { NextRequest } from 'next/server';
+import { unstable_cache } from 'next/cache';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { handleAuthError, requireAuth } from '@/utils/auth-helpers';
 import { getCollection } from '@/utils/db-helpers';
@@ -178,6 +179,34 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
   const dependencies = { ...DEFAULT_DEPENDENCIES, ...overrides } satisfies ListingsDependencies;
   const { ApiResponseHandler: ResponseBuilder, handleAuthError: onAuthError, requireAuth: ensureAuth, getCollection: resolveCollection } = dependencies;
 
+  // Only use caching when dependencies are not overridden (i.e., in production, not in tests)
+  const useCache = !overrides.getCollection;
+
+  // Fetch listings from database with optional caching
+  const fetchListingsData = async (page: number, limit: number) => {
+    const skip = (page - 1) * limit;
+    const collection = await resolveCollection('listings');
+    if (!collection || typeof (collection as MongoCollection).find !== 'function') {
+      // Return a special error object that will be detected and properly handled
+      return { error: 'Listings collection not available' };
+    }
+
+    const cursor = (collection as MongoCollection).find({});
+    const listings = await cursor.skip(skip).limit(limit).toArray();
+    const total = typeof (collection as MongoCollection).countDocuments === 'function'
+      ? await (collection as MongoCollection).countDocuments({})
+      : listings.length;
+
+    return { listings, total };
+  };
+
+  // Cached version - cache for 1 hour (3600 seconds) to improve performance
+  const getCachedListings = unstable_cache(
+    fetchListingsData,
+    ['listings-query'],
+    { revalidate: 3600, tags: ['listings'] }
+  );
+
   const GET = async (request: MaybeRequest) => {
     try {
       await ensureAuth();
@@ -191,19 +220,19 @@ export function createListingsHandlers(overrides: Partial<ListingsDependencies> 
     }
 
     const { page, limit } = pagination;
-    const skip = (page - 1) * limit;
 
     try {
-      const collection = await resolveCollection('listings');
-      if (!collection || typeof (collection as MongoCollection).find !== 'function') {
-        return ResponseBuilder.error('Listings collection not available', 500);
+      // Use cached version in production, direct fetch in tests
+      const result = useCache 
+        ? await getCachedListings(page, limit)
+        : await fetchListingsData(page, limit);
+
+      // Handle collection unavailable error
+      if ('error' in result && result.error) {
+        return ResponseBuilder.error(result.error, 500);
       }
 
-      const cursor = (collection as MongoCollection).find({});
-      const listings = await cursor.skip(skip).limit(limit).toArray();
-      const total = typeof (collection as MongoCollection).countDocuments === 'function'
-        ? await (collection as MongoCollection).countDocuments({})
-        : listings.length;
+      const { listings, total } = result as { listings: unknown[]; total: number };
 
       return ResponseBuilder.success({
         listings,

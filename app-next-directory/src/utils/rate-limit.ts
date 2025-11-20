@@ -6,6 +6,13 @@
 import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 
+
+ * Uses Redis-based rate limiting via @upstash/ratelimit with in-memory fallback
+ */
+
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
 interface RateLimitInfo {
   count: number;
   resetTime: number;
@@ -26,6 +33,9 @@ const cleanupInterval = setInterval(() => {
 
 cleanupInterval.unref?.();
 
+/**
+ * Configuration options for rate limiting
+ */
 // Initialize Redis client if credentials are available
 let redis: Redis | null = null;
 
@@ -61,6 +71,9 @@ export interface RateLimitOptions {
   keyGenerator?: (request: Request) => string; // Custom key generator
 }
 
+/**
+ * Result of a rate limit check
+ */
 export interface RateLimitResult {
   success: boolean;
   limit: number;
@@ -69,6 +82,46 @@ export interface RateLimitResult {
 }
 
 /**
+ * In-memory rate limiting fallback
+ */
+function inMemoryRateLimit(key: string, max: number, windowMs: number): RateLimitResult {
+  const now = Date.now();
+  const resetTime = now + windowMs;
+
+  // Get or create rate limit info
+  let info = rateLimitStore.get(key);
+
+  if (!info || now > info.resetTime) {
+    // Create new or reset expired
+    info = { count: 0, resetTime };
+    rateLimitStore.set(key, info);
+  }
+
+  // Check if limit exceeded
+  console.log('Key:', key, 'Count:', info ? info.count : 0);
+  if (info.count >= max) {
+    return {
+      success: false,
+      limit: max,
+      remaining: 0,
+      resetTime: info.resetTime,
+    };
+  }
+
+  // Increment count
+  info.count++;
+
+  return {
+    success: true,
+    limit: max,
+    remaining: max - info.count,
+    resetTime: info.resetTime,
+  };
+}
+
+/**
+ * Rate limiting function
+ * Uses Redis when available, falls back to in-memory
  * In-memory rate limiting fallback
  */
 function inMemoryRateLimit(key: string, max: number, windowMs: number): RateLimitResult {
@@ -154,7 +207,15 @@ export function rateLimit(options: RateLimitOptions) {
 }
 
 /**
- * Get client IP address from request
+ * Extracts the client IP address from the request headers.
+ * 
+ * Checks multiple common headers used by proxies and load balancers:
+ * - x-forwarded-for (first IP in the list)
+ * - x-real-ip
+ * - cf-connecting-ip (Cloudflare)
+ * 
+ * @param request - The incoming HTTP request
+ * @returns The client IP address, or 'unknown' if none found
  */
 function getClientIP(request: Request): string {
   // Try various headers for IP address
