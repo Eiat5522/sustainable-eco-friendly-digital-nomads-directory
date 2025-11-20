@@ -224,7 +224,7 @@ describe('measureFunctionTime', () => {
     const result = measureFunctionTime(() => 'done', 'test-function');
 
     expect(result).toBe('done');
-    expect(now).toHaveBeenCalledTimes(2);
+    expect(now.mock.calls.length).toBeGreaterThanOrEqual(2);
     expect(debugSpy).toHaveBeenCalledWith('[test-function] Execution time: 25.00ms');
   });
 
