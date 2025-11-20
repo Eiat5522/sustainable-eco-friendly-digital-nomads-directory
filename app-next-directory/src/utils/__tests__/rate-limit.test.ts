@@ -2,22 +2,35 @@
  * @jest-environment node
  */
 
-import { describe, it, expect, beforeEach, afterEach, jest, beforeAll } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
+
+const mockRedisClient = {
+  incr: jest.fn(),
+  expire: jest.fn(),
+  del: jest.fn(),
+  get: jest.fn(),
+  ping: jest.fn(),
+  set: jest.fn(),
+};
+
+jest.mock('@/lib/redis', () => ({
+  __esModule: true,
+  getRedisClient: jest.fn(() => mockRedisClient),
+}));
+
+import { getRedisClient } from '@/lib/redis';
 import { rateLimit, rateLimiters, rateLimitStore } from '../rate-limit';
 
+const mockedGetRedisClient = getRedisClient as jest.Mock;
+
 describe('rate-limit', () => {
-  // Store original env vars
-  const originalEnv = { ...process.env };
-  
-  beforeAll(() => {
-    // Ensure Redis is not initialized during tests
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
-  });
-  
   beforeEach(() => {
     // Clear the rate limit store before each test
     rateLimitStore.clear();
+    jest.clearAllMocks();
+    mockedGetRedisClient.mockReturnValue(undefined);
+    mockRedisClient.incr.mockReset();
+    mockRedisClient.expire.mockReset();
     // Mock console.log to avoid noise in test output
     jest.spyOn(console, 'log').mockImplementation(() => {});
     // Mock console.warn to avoid noise from Redis initialization
@@ -26,11 +39,47 @@ describe('rate-limit', () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
-    // Restore env vars
-    process.env = { ...originalEnv };
   });
 
   describe('rateLimit', () => {
+    it('uses Redis to persist counters when available', async () => {
+      mockedGetRedisClient.mockReturnValue(mockRedisClient);
+      mockRedisClient.incr.mockResolvedValueOnce(1);
+      mockRedisClient.expire.mockResolvedValueOnce(1);
+
+      const limiter = rateLimit({ max: 2, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '203.0.113.1' },
+      });
+
+      const result1 = await limiter(request);
+      expect(result1.success).toBe(true);
+      expect(mockRedisClient.incr).toHaveBeenCalledWith('rate-limit:203.0.113.1:1000');
+      expect(mockRedisClient.expire).toHaveBeenCalledWith('rate-limit:203.0.113.1:1000', 1);
+
+      mockRedisClient.incr.mockResolvedValueOnce(3);
+
+      const blocked = await limiter(request);
+      expect(blocked.success).toBe(false);
+      expect(blocked.remaining).toBe(0);
+    });
+
+    it('falls back to in-memory when Redis throws', async () => {
+      mockedGetRedisClient.mockReturnValue(mockRedisClient);
+      mockRedisClient.incr.mockRejectedValueOnce(new Error('redis error'));
+
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '198.51.100.2' },
+      });
+
+      const result1 = await limiter(request);
+      expect(result1.success).toBe(true);
+
+      const result2 = await limiter(request);
+      expect(result2.success).toBe(false);
+    });
+
     it('should allow requests within the limit', async () => {
       const limiter = rateLimit({ max: 3, windowMs: 1000 });
       const request = new Request('http://localhost', {
