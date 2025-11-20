@@ -330,6 +330,7 @@ describe('auth module', () => {
       const jwtCallback = authOptions.callbacks?.jwt as Required<NextAuthConfig['callbacks']>['jwt'];
       const token = await jwtCallback?.({
         token: { id: 'user-2', email: 'fetched@example.com' } as JWT,
+        trigger: 'update',
       } as any);
 
       expect(getUserById).toHaveBeenCalledWith('user-2');
