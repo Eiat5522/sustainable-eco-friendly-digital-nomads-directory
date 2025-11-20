@@ -4,9 +4,9 @@
       {
         "id": "1",
         "title": "Upgrade Next.js and NextAuth",
-        "description": "Upgrade Next.js and NextAuth to the latest stable versions (Next.js 15 and NextAuth 5).",
-        "details": "1.  Update `package.json` dependencies: `next`, `next-auth`. 2.  Review and update Next.js configuration files (e.g., `next.config.js`) for compatibility with the new version. 3.  Review and update NextAuth configuration.  Pay close attention to breaking changes in NextAuth v5, especially related to the adapter and session strategies. 4.  Thoroughly test the application after the upgrade, including authentication flows, routing, and all core functionalities. 5.  Address any deprecation warnings or errors. 6.  Update any related libraries or dependencies.",
-        "testStrategy": "1.  Run existing E2E tests to ensure core functionality remains intact. 2.  Test authentication flows (login, logout, registration, password reset). 3.  Test all pages and routes to ensure they load correctly. 4.  Manually test all features that use authentication and authorization. 5.  Verify that the application is still secure.",
+        "description": "Confirm Next.js 15.5.0 and NextAuth 5.0.0-beta.30 are configured correctly and plan for NextAuth's eventual stable release.",
+        "details": "1.  Verify `package.json` dependencies for `next` (15.5.0) and `next-auth` (5.0.0-beta.30) stay pinned and compatible. 2.  Review and update Next.js configuration files (e.g., `next.config.js`) for any 15.x changes. 3.  Review and update NextAuth configuration while accounting for beta-breaking changes and future GA adjustments. 4.  Thoroughly test the application after the dependency review, including authentication flows, routing, and core features. 5.  Address any deprecation warnings or errors. 6.  Update related libraries or adapters if the beta release introduces breaking changes.",
+        "testStrategy": "1.  Run existing E2E tests to ensure core functionality remains intact. 2.  Test authentication flows (login, logout, registration, password reset). 3.  Test all pages and routes to ensure they load correctly. 4.  Manually test all features that use authentication and authorization. 5.  Verify that the application is still secure despite the NextAuth beta dependency.",
         "priority": "high",
         "dependencies": [],
         "status": "in-progress",
@@ -14,9 +14,9 @@
           {
             "id": 1,
             "title": "Update Next.js and NextAuth Dependencies",
-            "description": "Update `next` and `next-auth` dependencies in `package.json` to the latest stable versions (Next.js 15 and NextAuth 5).",
+            "description": "Confirm `next` (15.5.0) and `next-auth` (5.0.0-beta.30) dependencies stay aligned with the codebase and note the beta status.",
             "dependencies": [],
-            "details": "Modify the `package.json` file to specify the latest stable versions of `next` and `next-auth`. Run `npm install` or `yarn install` to update the packages.",
+            "details": "Review `package.json` to ensure `next` remains on 15.5.0 and `next-auth` on 5.0.0-beta.30. Document that NextAuth v5 is currently beta and track any GA migration steps as release notes evolve.",
             "status": "pending",
             "testStrategy": null,
             "parentId": "undefined"
@@ -51,8 +51,8 @@
             "description": "Thoroughly test the application after the upgrade, including authentication flows, routing, and all core functionalities.",
             "dependencies": [
               1,
-              3,
-              2
+              2,
+              3
             ],
             "details": "Run existing E2E tests. Manually test authentication flows (login, logout, registration, password reset). Test all pages and routes to ensure they load correctly. Manually test all features that use authentication and authorization. Verify that all core functionalities work as expected.",
             "status": "pending",
@@ -65,8 +65,8 @@
             "description": "Address any deprecation warnings or errors that arise during the upgrade process or during testing.",
             "dependencies": [
               1,
-              3,
               2,
+              3,
               4
             ],
             "details": "Carefully review the console output and any error logs for deprecation warnings or errors.  Identify the source of each warning or error and implement the necessary fixes.  This may involve updating code, adjusting configurations, or replacing deprecated features with their modern equivalents.",
@@ -75,7 +75,7 @@
             "parentId": "undefined"
           }
         ],
-        "updatedAt": "2025-11-20T11:53:39.857Z"
+        "updatedAt": "2025-11-21T00:00:00.000Z"
       },
       {
         "id": "3",
@@ -128,6 +128,7 @@
             "title": "Test Rate Limiter Functionality",
             "description": "Test the Redis-based rate limiter to verify it correctly limits requests from the same IP address.",
             "dependencies": [
+              2,
               3
             ],
             "details": "Send a series of requests from the same IP address to the contact API. Verify that the rate limiter correctly enforces the defined rate limits.  Test different scenarios, including exceeding the rate limit and waiting for the limit to reset. Also, test with different IP addresses to ensure they are not affected by each other.",
@@ -1127,7 +1128,7 @@
     ],
     "metadata": {
       "version": "1.0.0",
-      "lastModified": "2025-11-20T15:23:12.370639+00:00",
+      "lastModified": "2025-11-21T00:00:00.000Z",
       "taskCount": 16,
       "completedCount": 0,
       "tags": [

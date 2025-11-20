@@ -10,35 +10,35 @@
 ## Tasks
 
 ### 1. Upgrade Next.js and NextAuth (in-progress, priority: high)
-- **Description:** Upgrade Next.js and NextAuth to the latest stable versions (Next.js 15 and NextAuth 5).
-- **Details:** 1.  Update `package.json` dependencies: `next`, `next-auth`. 2.  Review and update Next.js configuration files (e.g., `next.config.js`) for compatibility with the new version. 3.  Review and update NextAuth configuration.  Pay close attention to breaking changes in NextAuth v5, especially related to the adapter and session strategies. 4.  Thoroughly test the application after the upgrade, including authentication flows, routing, and all core functionalities. 5.  Address any deprecation warnings or errors. 6.  Update any related libraries or dependencies.
+- **Description:** Confirm Next.js 15.5.0 and NextAuth 5.0.0-beta.30 are configured correctly and plan for NextAuth's eventual stable release.
+- **Details:** 1.  Verify `package.json` dependencies for `next` (15.5.0) and `next-auth` (5.0.0-beta.30) stay pinned and compatible. 2.  Review and update Next.js configuration files (e.g., `next.config.js`) for any 15.x changes. 3.  Review and update NextAuth configuration while accounting for beta-breaking changes and future GA adjustments. 4.  Thoroughly test the application after the dependency review, including authentication flows, routing, and core features. 5.  Address any deprecation warnings or errors. 6.  Update related libraries or adapters if the beta release introduces breaking changes.
 - **Dependencies:** None
-- **Testing Strategy:** 1.  Run existing E2E tests to ensure core functionality remains intact. 2.  Test authentication flows (login, logout, registration, password reset). 3.  Test all pages and routes to ensure they load correctly. 4.  Manually test all features that use authentication and authorization. 5.  Verify that the application is still secure.
+- **Testing Strategy:** 1.  Run existing E2E tests to ensure core functionality remains intact. 2.  Test authentication flows (login, logout, registration, password reset). 3.  Test all pages and routes to ensure they load correctly. 4.  Manually test all features that use authentication and authorization. 5.  Verify that the application is still secure despite the NextAuth beta dependency.
 - **Subtasks:**
   - Update Next.js and NextAuth Dependencies (pending)
-    - Description: Update `next` and `next-auth` dependencies in `package.json` to the latest stable versions (Next.js 15 and NextAuth 5).
-    - Details: Modify the `package.json` file to specify the latest stable versions of `next` and `next-auth`. Run `npm install` or `yarn install` to update the packages.
+    - Description: Confirm `next` (15.5.0) and `next-auth` (5.0.0-beta.30) dependencies stay aligned with the codebase and note the beta status.
+    - Details: Review `package.json` to ensure `next` remains on 15.5.0 and `next-auth` on 5.0.0-beta.30. Document that NextAuth v5 is currently beta and track any GA migration steps as release notes evolve.
     - Dependencies: None
     - Testing Strategy: Not specified
   - Review and Update Next.js Configuration (pending)
     - Description: Review and update `next.config.js` and any other relevant Next.js configuration files for compatibility with Next.js 15.
     - Details: Examine the `next.config.js` file for any deprecated configurations or breaking changes. Consult the Next.js 15 upgrade guide for necessary adjustments. Pay attention to image optimization, environment variables, and any custom configurations.
-    - Dependencies: Upgrade Next.js and NextAuth
+    - Dependencies: Update Next.js and NextAuth Dependencies
     - Testing Strategy: Not specified
   - Review and Update NextAuth Configuration (pending)
     - Description: Review and update NextAuth configuration, paying close attention to breaking changes in NextAuth v5, especially related to the adapter and session strategies.
-    - Details: Review the NextAuth configuration file (e.g., `auth.ts` or similar).  Identify and address any breaking changes introduced in NextAuth v5.  This includes changes to the adapter (e.g., database adapter) and session strategies.  Update the configuration to align with the new version's requirements.  Consider the impact on existing authentication flows and user data.
-    - Dependencies: Upgrade Next.js and NextAuth
+    - Details: Review the NextAuth configuration file (e.g., `auth.ts` or similar).  Identify and address any breaking changes introduced in NextAuth v5.  This includes changes to the adapter (e.g., database adapter) and session strategies.  Update the configuration to align with the new version's requirements and document the beta caveats while preparing for GA.
+    - Dependencies: Update Next.js and NextAuth Dependencies
     - Testing Strategy: Not specified
   - Thoroughly Test Application Functionality (pending)
     - Description: Thoroughly test the application after the upgrade, including authentication flows, routing, and all core functionalities.
     - Details: Run existing E2E tests. Manually test authentication flows (login, logout, registration, password reset). Test all pages and routes to ensure they load correctly. Manually test all features that use authentication and authorization. Verify that all core functionalities work as expected.
-    - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
+    - Dependencies: Update Next.js and NextAuth Dependencies, Review and Update Next.js Configuration, Review and Update NextAuth Configuration
     - Testing Strategy: Run existing E2E tests. Manually test authentication flows. Test all pages and routes. Manually test all features that use authentication and authorization.
   - Address Deprecation Warnings and Errors (pending)
     - Description: Address any deprecation warnings or errors that arise during the upgrade process or during testing.
     - Details: Carefully review the console output and any error logs for deprecation warnings or errors.  Identify the source of each warning or error and implement the necessary fixes.  This may involve updating code, adjusting configurations, or replacing deprecated features with their modern equivalents.
-    - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety, Consolidate Data Fetching
+    - Dependencies: Update Next.js and NextAuth Dependencies, Review and Update Next.js Configuration, Review and Update NextAuth Configuration, Thoroughly Test Application Functionality
     - Testing Strategy: Verify that the application runs without any deprecation warnings or errors after the fixes are implemented.
 
 ### 2. Implement Redis-based Rate Limiting (pending, priority: high)
@@ -55,22 +55,22 @@
   - Modify Rate Limiter to Use Redis (pending)
     - Description: Adapt the existing rate limiter utility to store and retrieve IP address counters from Redis.
     - Details: Refactor the rate limiter logic to interact with the Redis client.  Replace the current storage mechanism (e.g., in-memory) with Redis commands (e.g., `INCR`, `GET`, `EXPIRE`). Ensure all rate limiting logic correctly uses Redis for storing and retrieving IP address counters.
-    - Dependencies: Upgrade Next.js and NextAuth
+    - Dependencies: Choose and Configure Redis Provider
     - Testing Strategy: Not specified
   - Implement Key Expirations in Redis (pending)
     - Description: Set appropriate key expirations in Redis to prevent memory leaks and ensure rate limits reset.
     - Details: Determine the appropriate time-to-live (TTL) for the rate limit keys in Redis. Use the `EXPIRE` command to set the TTL for each key, ensuring that the rate limits reset after the specified time window. Consider the rate limit duration (e.g., per minute, per hour) when setting the TTL.
-    - Dependencies: Refactor Authentication for Type Safety
+    - Dependencies: Modify Rate Limiter to Use Redis
     - Testing Strategy: Not specified
   - Test Rate Limiter Functionality (pending)
     - Description: Test the Redis-based rate limiter to verify it correctly limits requests from the same IP address.
     - Details: Send a series of requests from the same IP address to the contact API. Verify that the rate limiter correctly enforces the defined rate limits.  Test different scenarios, including exceeding the rate limit and waiting for the limit to reset. Also, test with different IP addresses to ensure they are not affected by each other.
-    - Dependencies: Implement Redis-based Rate Limiting
+    - Dependencies: Modify Rate Limiter to Use Redis, Implement Key Expirations in Redis
     - Testing Strategy: Test the contact API with multiple requests from the same IP address to verify that the rate limit is enforced. Verify that the rate limit resets after the specified time window.
   - Document and Refactor Code (pending)
     - Description: Document the changes and refactor the code for better readability and maintainability.
     - Details: Add comments to the code explaining the Redis integration and rate limiting logic. Refactor the code to improve readability and maintainability. Ensure that the code adheres to the project's coding style guidelines.
-    - Dependencies: Consolidate Data Fetching
+    - Dependencies: Test Rate Limiter Functionality
     - Testing Strategy: Not specified
 
 ### 3. Refactor Authentication for Type Safety (pending, priority: high)
@@ -87,17 +87,17 @@
   - Extend JWT interface in next-auth/jwt (pending)
     - Description: Extend the JWT interface to include custom properties.
     - Details: Locate the `JWT` interface definition (likely within `next-auth/jwt` or a related file). Extend the `JWT` interface to include `id` and `role` properties. Ensure the types match the `User` and `Session` properties.
-    - Dependencies: Upgrade Next.js and NextAuth
+    - Dependencies: Create next-auth.d.ts file and extend User and Session interfaces
     - Testing Strategy: Not specified
   - Update code to use typed session.user.role and token.role (pending)
     - Description: Update all code using session and token data to use the newly defined types.
     - Details: Go through the codebase and find all instances where `session.user.role` or `token.role` are used. Update these to use the extended types. Ensure that the code compiles without type errors. Verify that the IDE correctly recognizes the types.
-    - Dependencies: Upgrade Next.js and NextAuth, Refactor Authentication for Type Safety
+    - Dependencies: Create next-auth.d.ts file and extend User and Session interfaces, Extend JWT interface in next-auth/jwt
     - Testing Strategy: Verify that `session.user.role` and `token.role` are correctly typed in the code using the IDE's intellisense and by building the project.
   - Review and update getServerSession() and middleware usage (pending)
     - Description: Ensure proper type handling in getServerSession() and middleware.
     - Details: Review any code that uses `getServerSession()` or middleware for authentication. Ensure that the extended types are correctly used and that the code handles the `id` and `role` properties appropriately. Check for any potential type-related issues.
-    - Dependencies: Implement Redis-based Rate Limiting
+    - Dependencies: Update code to use typed session.user.role and token.role
     - Testing Strategy: Test authentication flows to ensure roles are correctly assigned and used. Test authorization logic to ensure access control works as expected.
   - Consider password complexity and rate limiting (pending)
     - Description: Evaluate and implement password complexity and rate limiting.
