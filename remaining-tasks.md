@@ -4,12 +4,12 @@
 
 - Total tasks: 16
 - In progress: 0
-- Pending: 7
-- Completed: 9
+- Pending: 6
+- Completed: 10
 
 ## Tasks
 
-### 1. Upgrade Next.js and NextAuth Done, priority: high)
+### 1. Upgrade Next.js and NextAuth (done, priority: high)
 - **Description:** Confirm Next.js 15.5.0 and NextAuth 5.0.0-beta.30 are configured correctly and plan for NextAuth's eventual stable release.
 - **Details:** 1.  Verify `package.json` dependencies for `next` (15.5.0) and `next-auth` (5.0.0-beta.30) stay pinned and compatible. 2.  Review and update Next.js configuration files (e.g., `next.config.js`) for any 15.x changes. 3.  Review and update NextAuth configuration while accounting for beta-breaking changes and future GA adjustments. 4.  Thoroughly test the application after the dependency review, including authentication flows, routing, and core features. 5.  Address any deprecation warnings or errors. 6.  Update related libraries or adapters if the beta release introduces breaking changes.
 - **Dependencies:** None
