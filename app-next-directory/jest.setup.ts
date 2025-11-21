@@ -289,6 +289,44 @@ declare global {
   var withDefaultConsoleFilters: typeof withDefaultConsoleFilters;
 }
 
+// Apply console filters globally by default to suppress noisy test errors
+// Set JEST_CONSOLE_NO_FILTER=1 to disable filtering for debugging
+if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
+  const originalConsoleError = console.error;
+  const originalConsoleWarn = console.warn;
+
+  const shouldFilterError = (args: unknown[]): boolean => {
+    return defaultErrorFilters.some(filter => {
+      try {
+        return filter(args);
+      } catch {
+        return false;
+      }
+    });
+  };
+
+  const shouldFilterWarn = (args: unknown[]): boolean => {
+    return defaultWarnFilters.some(filter => {
+      try {
+        return filter(args);
+      } catch {
+        return false;
+      }
+    });
+  };
+
+  console.error = ((...args: unknown[]) => {
+    if (!shouldFilterError(args)) {
+      originalConsoleError(...args);
+    }
+  }) as typeof console.error;
+
+  console.warn = ((...args: unknown[]) => {
+    if (!shouldFilterWarn(args)) {
+      originalConsoleWarn(...args);
+    }
+  }) as typeof console.warn;
+}
 
 // jest.setup.ts
 import { jest } from '@jest/globals';

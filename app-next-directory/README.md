@@ -37,6 +37,16 @@ Key directories:
 
 Latest verification: `pnpm lint`, `pnpm check-types`, `pnpm test:unit`, and `pnpm test:e2e` (Q1 2025 cycle). For tooling details and test matrices, read [`docs/app-next-directory/TESTING.md`](../docs/app-next-directory/TESTING.md).
 
+### Console Noise Suppression
+
+By default, intentional test errors (simulated DB failures, validation errors, etc.) are filtered from console output to improve readability and reduce cognitive load during testing. To see all console output for debugging:
+
+```bash
+JEST_CONSOLE_NO_FILTER=1 pnpm test:unit
+```
+
+The filtering mechanism is configured in `jest.setup.ts` and can be customized by modifying the `defaultErrorFilters` and `defaultWarnFilters` arrays.
+
 ## Dependencies & Compatibility
 
 ### NextAuth.js v5 Beta
