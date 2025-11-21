@@ -120,6 +120,10 @@ const defaultErrorFilters: readonly ConsoleFilter[] = [
     'Not implemented: navigation',
     'Not implemented: HTMLFormElement.prototype.submit',
   ]),
+  // React testing environment warnings
+  createIncludesSomeFilter([
+    'The current testing environment is not configured to support act',
+  ]),
   createIncludesSomeFilter([
     // API route errors
     'Search GET error:',
@@ -186,13 +190,13 @@ const defaultErrorFilters: readonly ConsoleFilter[] = [
     'listings/[slug]] failed to fetch',
     'listings/[slug]] failed to check',
 
-    // React test warnings
-    'An update to FeaturedListings inside a test was not wrapped in act',
-    'An update to',
-    'inside a test was not wrapped in act',
+    // React test warnings - using complete pattern to avoid false positives
   ]),
+  // React act warnings - must match BOTH parts to avoid suppressing real errors
+  createIncludesEveryFilter(['An update to', 'inside a test was not wrapped in act']),
+  // Note: Controlled/uncontrolled input warnings and value prop warnings are NOT filtered
+  // as they indicate real code issues that should be visible and fixed
   createIncludesSomeFilter([
-    'A component is changing an uncontrolled input',
     'In HTML, <html> cannot be a child of <div>',
     'React does not recognize the',
     'Received `true` for a non-boolean attribute',

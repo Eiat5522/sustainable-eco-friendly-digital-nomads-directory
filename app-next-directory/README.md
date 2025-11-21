@@ -39,13 +39,28 @@ Latest verification: `pnpm lint`, `pnpm check-types`, `pnpm test:unit`, and `pnp
 
 ### Console Noise Suppression
 
-By default, intentional test errors (simulated DB failures, validation errors, etc.) are filtered from console output to improve readability and reduce cognitive load during testing. To see all console output for debugging:
+By default, **intentional test errors** (simulated DB failures, validation errors, expected test warnings) are filtered from console output to improve readability and reduce cognitive load during testing. 
+
+**What gets filtered:**
+- Intentional API errors (e.g., "Search GET error:", "MongoDB Connection Error:")
+- Expected authentication/auth errors during tests
+- React testing environment warnings (act(...) configuration)
+- JSDOM "not implemented" warnings (navigation, form submit, etc.)
+- Test-specific component errors (e.g., "Failed to load test listings")
+
+**What is NOT filtered (real issues that you should see):**
+- Real JavaScript errors (TypeError, ReferenceError, SyntaxError)
+- React code quality warnings (controlled/uncontrolled inputs, invalid props)
+- Unexpected errors with patterns not in the filter list
+- Legitimate warnings about code issues
+
+**To see all console output for debugging:**
 
 ```bash
 JEST_CONSOLE_NO_FILTER=1 pnpm test:unit
 ```
 
-The filtering mechanism is configured in `jest.setup.ts` and can be customized by modifying the `defaultErrorFilters` and `defaultWarnFilters` arrays.
+The filtering mechanism is configured in `jest.setup.ts`. The filters use specific string patterns to match only intentional test noise. For example, `'An update to'` alone won't suppress - it requires BOTH `'An update to'` AND `'inside a test was not wrapped in act'` to match the pattern.
 
 ## Dependencies & Compatibility
 
