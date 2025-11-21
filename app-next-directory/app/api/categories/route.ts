@@ -3,12 +3,19 @@ import { groq } from 'next-sanity';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { DEFAULT_CATEGORIES } from '@/lib/constants/categories';
 import { structuredLogger } from '@/lib/logger';
+import { cacheHelpers } from '@/lib/cache-strategy';
+
+// Cache for 24 hours - categories rarely change
+export const revalidate = 86400; // 24 hours
 
 export async function GET() {
   try {
-    const categories: string[] = await client.fetch(
-      groq`array::unique(*[_type == "listing" && defined(category)].category)`
-    );
+    const categories: string[] = await cacheHelpers.categories(async () => {
+      return await client.fetch(
+        groq`array::unique(*[_type == "listing" && defined(category)].category)`
+      );
+    });
+    
     // If CMS returns nothing, fall back to default list
     if (!Array.isArray(categories) || categories.length === 0) {
       const fallback = await getDefaultCategories();

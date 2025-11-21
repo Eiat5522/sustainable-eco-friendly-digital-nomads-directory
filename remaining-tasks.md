@@ -4,8 +4,8 @@
 
 - Total tasks: 16
 - In progress: 0
-- Pending: 6
-- Completed: 10
+- Pending: 5
+- Completed: 11
 
 ## Tasks
 
@@ -169,33 +169,33 @@
     - Dependencies: None
     - Testing Strategy: Review the documentation to ensure it accurately reflects the implemented naming conventions. Share the documentation with the team and solicit feedback.
 
-### 6. Implement Caching for Expensive Queries (pending, priority: medium)
+### 6. Implement Caching for Expensive Queries (done, priority: medium)
 - **Description:** Implement caching for the search/listings API and Sanity queries to improve performance.
 - **Details:** 1.  Implement caching for the search/listings API using ISR or Redis. 2.  Implement caching for Sanity queries using revalidate (ISR) for listing pages or cache frequent API query results in Redis (with an appropriate TTL). 3.  Ensure Sanity queries use projections to limit fields. 4.  Consider Sanity's query caching via CDN. 5.  For text search, evaluate indexing strategies (Sanity's built-in search or an external search service) if the dataset grows large.
 - **Dependencies:** Consolidate Data Fetching
 - **Testing Strategy:** 1.  Verify that the search/listings API and Sanity queries return the correct data. 2.  Use browser developer tools to monitor network requests and ensure that cached responses are served. 3.  Measure the performance improvement by comparing the response times before and after caching.
 - **Subtasks:**
-  - Implement Caching for Search/Listings API (pending)
+  - Implement Caching for Search/Listings API (done)
     - Description: Implement caching for the search/listings API to improve performance.
     - Details: Implement caching using ISR or Redis for the search/listings API. Consider factors like cache invalidation and TTL.
     - Dependencies: None
     - Testing Strategy: Verify API returns correct data. Monitor network requests to confirm cached responses. Measure performance improvement.
-  - Implement Caching for Sanity Queries (pending)
+  - Implement Caching for Sanity Queries (done)
     - Description: Implement caching for Sanity queries to improve performance.
     - Details: Implement caching for Sanity queries using ISR for listing pages or cache frequent API query results in Redis with an appropriate TTL. Ensure queries use projections.
     - Dependencies: None
     - Testing Strategy: Verify data accuracy. Monitor network requests. Measure performance improvements.
-  - Optimize Sanity Queries with Projections (pending)
+  - Optimize Sanity Queries with Projections (done)
     - Description: Ensure Sanity queries use projections to limit the fields returned.
     - Details: Review all Sanity queries and implement projections to fetch only the necessary fields. This reduces data transfer and improves performance.
     - Dependencies: None
     - Testing Strategy: Verify that only the required fields are fetched from Sanity. Measure performance improvements.
-  - Evaluate Sanity CDN Caching (pending)
+  - Evaluate Sanity CDN Caching (done)
     - Description: Consider Sanity's query caching via CDN.
     - Details: Investigate and configure Sanity's CDN caching capabilities. Evaluate its effectiveness for the project's needs.
     - Dependencies: None
     - Testing Strategy: Verify that content is served from the CDN. Measure performance improvements.
-  - Evaluate Text Search Indexing Strategies (pending)
+  - Evaluate Text Search Indexing Strategies (done)
     - Description: Evaluate indexing strategies for text search if the dataset grows large.
     - Details: If the dataset grows, evaluate Sanity's built-in search or an external search service (e.g., Algolia, ElasticSearch) for text search functionality.
     - Dependencies: None

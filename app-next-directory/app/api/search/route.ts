@@ -9,6 +9,10 @@ import {
   clampInt,
 } from '@/utils/sanitize';
 import { buildE2ESearchResponse, isE2ERun } from '@/data/e2e/discovery-fixtures';
+import { cacheHelpers } from '@/lib/cache-strategy';
+
+// Enable route segment caching for 10 minutes
+export const revalidate = 600; // 10 minutes
 
 
 // Type for search request body
@@ -279,37 +283,43 @@ export async function GET(request: NextRequest) {
       end,
     });
 
-    const fetchFn =
-      _testControl?.clientFetchOverride ??
-      ((queryString: string, params?: unknown) => client.fetch(queryString, params as Record<string, unknown> | undefined));
+    // Cache search results for 10 minutes
+    const searchCacheParams = { q, categories, destinations, amenities, nomadFeatures, page, limit, includeFacets };
+    const cachedResults = await cacheHelpers.searchResults(searchCacheParams, async () => {
+      const fetchFn =
+        _testControl?.clientFetchOverride ??
+        ((queryString: string, params?: unknown) => client.fetch(queryString, params as Record<string, unknown> | undefined));
 
-    // Fetch results and total concurrently; facets only if requested
-    const promises: Array<Promise<unknown>> = [fetchFn(query), fetchFn(countQuery)];
-    if (includeFacets) promises.push(fetchFn(facetQuery));
-    const settled = await Promise.all(promises);
-    const results = settled[0];
-    const total = typeof settled[1] === 'number' ? settled[1] : 0;
-    const facetSource: FacetSourceRecord[] = includeFacets && Array.isArray(settled[2]) ? settled[2] : [];
-    const facets = includeFacets ? buildFacetBuckets(facetSource) : undefined;
+      // Fetch results and total concurrently; facets only if requested
+      const promises: Array<Promise<unknown>> = [fetchFn(query), fetchFn(countQuery)];
+      if (includeFacets) promises.push(fetchFn(facetQuery));
+      const settled = await Promise.all(promises);
+      const results = settled[0];
+      const total = typeof settled[1] === 'number' ? settled[1] : 0;
+      const facetSource: FacetSourceRecord[] = includeFacets && Array.isArray(settled[2]) ? settled[2] : [];
+      const facets = includeFacets ? buildFacetBuckets(facetSource) : undefined;
 
-    return ApiResponseHandler.success({
-      results,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
-        hasMore: page * limit < total,
-      },
-      ...(includeFacets ? { facets } : {}),
-      filters: {
-        query: q,
-        category: categories,
-        destination: destinations,
-        amenities,
-        nomadFeatures,
-      },
+      return {
+        results,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
+          hasMore: page * limit < total,
+        },
+        ...(includeFacets ? { facets } : {}),
+        filters: {
+          query: q,
+          category: categories,
+          destination: destinations,
+          amenities,
+          nomadFeatures,
+        },
+      };
     });
+
+    return ApiResponseHandler.success(cachedResults);
   } catch (error) {
     console.error('Search GET error:', error);
     // Return an error response to signal upstream callers/tests that the CMS fetch failed.
@@ -371,37 +381,44 @@ export async function POST(request: NextRequest) {
     // GROQ '..' is inclusive; fetch exactly `limit` items
     const end = start + limit - 1;
     const { query, countQuery, facetQuery } = buildQuery({ q, categories, destinations, amenities, nomadFeatures, start, end });
-    const fetchFn =
-      _testControl?.clientFetchOverride ??
-      ((queryString: string, params?: unknown) => client.fetch(queryString, params as Record<string, unknown> | undefined));
-    // Fetch results and total concurrently; facets only if requested
-    const promises: Array<Promise<unknown>> = [fetchFn(query), fetchFn(countQuery)];
-    if (includeFacets) promises.push(fetchFn(facetQuery));
+    
+    // Cache search results for 10 minutes (same as GET)
+    const searchCacheParams = { q, categories, destinations, amenities, nomadFeatures, page, limit, includeFacets };
+    const cachedResults = await cacheHelpers.searchResults(searchCacheParams, async () => {
+      const fetchFn =
+        _testControl?.clientFetchOverride ??
+        ((queryString: string, params?: unknown) => client.fetch(queryString, params as Record<string, unknown> | undefined));
+      // Fetch results and total concurrently; facets only if requested
+      const promises: Array<Promise<unknown>> = [fetchFn(query), fetchFn(countQuery)];
+      if (includeFacets) promises.push(fetchFn(facetQuery));
 
-    const settled = await Promise.all(promises); 
-    const results = settled[0];
-    const total = typeof settled[1] === 'number' ? settled[1] : 0;
-    const facetSource: FacetSourceRecord[] = includeFacets && Array.isArray(settled[2]) ? settled[2] : [];
-    const facets = includeFacets ? buildFacetBuckets(facetSource) : undefined;
+      const settled = await Promise.all(promises); 
+      const results = settled[0];
+      const total = typeof settled[1] === 'number' ? settled[1] : 0;
+      const facetSource: FacetSourceRecord[] = includeFacets && Array.isArray(settled[2]) ? settled[2] : [];
+      const facets = includeFacets ? buildFacetBuckets(facetSource) : undefined;
 
-    return ApiResponseHandler.success({
-      results,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
-        hasMore: page * limit < total,
-      },
-      ...(includeFacets ? { facets } : {}),
-      filters: {
-        query: q,
-        category: categories,
-        destination: destinations,
-        amenities,
-        nomadFeatures,
-      },
+      return {
+        results,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
+          hasMore: page * limit < total,
+        },
+        ...(includeFacets ? { facets } : {}),
+        filters: {
+          query: q,
+          category: categories,
+          destination: destinations,
+          amenities,
+          nomadFeatures,
+        },
+      };
     });
+
+    return ApiResponseHandler.success(cachedResults);
   } catch (error) {
     console.error('Search POST error:', error);
     return ApiResponseHandler.error('Failed to perform search');
