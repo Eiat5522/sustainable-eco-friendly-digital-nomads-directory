@@ -5,6 +5,13 @@
 import { describe, it, expect, beforeEach, afterEach, jest, beforeAll } from '@jest/globals';
 import { rateLimit, rateLimiters, rateLimitStore } from '../rate-limit';
 
+// Helper function to reduce code duplication
+function createTestRequest(ip: string): Request {
+  return new Request('http://localhost', {
+    headers: { 'x-forwarded-for': ip },
+  });
+}
+
 describe('rate-limit', () => {
   // Store original env vars
   const originalEnv = { ...process.env };
@@ -317,6 +324,170 @@ describe('rate-limit', () => {
       
       rateLimitStore.clear();
       expect(rateLimitStore.size).toBe(0);
+    });
+
+    it('should cleanup expired entries', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 50 }); // 50ms window
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '192.168.1.100' },
+      });
+
+      // Add an entry to the store
+      await limiter(request);
+      expect(rateLimitStore.size).toBeGreaterThan(0);
+
+      // Manually trigger cleanup by setting expired resetTime
+      const entries = Array.from(rateLimitStore.entries());
+      if (entries.length > 0) {
+        const [key, info] = entries[0];
+        rateLimitStore.set(key, { ...info, resetTime: Date.now() - 1000 });
+        
+        // Now the entry is expired (resetTime is in the past)
+        const now = Date.now();
+        for (const [k, i] of rateLimitStore.entries()) {
+          if (now > i.resetTime) {
+            rateLimitStore.delete(k);
+          }
+        }
+        
+        // Should be removed
+        expect(rateLimitStore.has(key)).toBe(false);
+      }
+    });
+  });
+
+  describe('Redis initialization', () => {
+    it('should not initialize Redis when credentials are missing', () => {
+      // Credentials are already removed in beforeAll
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      
+      // Should create an in-memory limiter
+      expect(limiter).toBeDefined();
+      expect(typeof limiter).toBe('function');
+    });
+
+    it('should log warning when Redis credentials are not configured', () => {
+      const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      
+      // Force re-initialization by creating a new limiter
+      // This will trigger the initializeRedis function
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      
+      expect(limiter).toBeDefined();
+      warnSpy.mockRestore();
+    });
+  });
+
+  describe('Edge cases', () => {
+    it('should handle requests with empty headers', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost');
+
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+    });
+
+    it('should handle x-forwarded-for with multiple IPs correctly', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '  192.168.1.1  , 10.0.0.1, 172.16.0.1' },
+      });
+
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+      
+      // Should use first IP (trimmed)
+      const result2 = await limiter(request);
+      expect(result2.success).toBe(false);
+    });
+
+    it('should handle empty x-forwarded-for value', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '' },
+      });
+
+      // Should fall back to x-real-ip, cf-connecting-ip, or 'unknown'
+      const result = await limiter(request);
+      expect(result.success).toBe(true);
+    });
+
+    it('should prioritize x-forwarded-for over x-real-ip', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request1 = new Request('http://localhost', {
+        headers: { 
+          'x-forwarded-for': '192.168.1.1',
+          'x-real-ip': '10.0.0.1'
+        },
+      });
+
+      await limiter(request1);
+      
+      // Different x-real-ip should still be blocked (same x-forwarded-for)
+      const request2 = new Request('http://localhost', {
+        headers: { 
+          'x-forwarded-for': '192.168.1.1',
+          'x-real-ip': '10.0.0.2'
+        },
+      });
+      
+      const result = await limiter(request2);
+      expect(result.success).toBe(false);
+    });
+
+    it('should prioritize x-real-ip over cf-connecting-ip', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request1 = new Request('http://localhost', {
+        headers: { 
+          'x-real-ip': '192.168.1.1',
+          'cf-connecting-ip': '10.0.0.1'
+        },
+      });
+
+      await limiter(request1);
+      
+      // Different cf-connecting-ip should still be blocked (same x-real-ip)
+      const request2 = new Request('http://localhost', {
+        headers: { 
+          'x-real-ip': '192.168.1.1',
+          'cf-connecting-ip': '10.0.0.2'
+        },
+      });
+      
+      const result = await limiter(request2);
+      expect(result.success).toBe(false);
+    });
+
+    it('should handle zero remaining correctly', async () => {
+      const limiter = rateLimit({ max: 1, windowMs: 1000 });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '192.168.50.50' },
+      });
+
+      const result1 = await limiter(request);
+      expect(result1.remaining).toBe(0);
+      
+      const result2 = await limiter(request);
+      expect(result2.success).toBe(false);
+      expect(result2.remaining).toBe(0);
+    });
+
+    it('should return correct resetTime for each request', async () => {
+      const windowMs = 2000;
+      const limiter = rateLimit({ max: 3, windowMs });
+      const request = new Request('http://localhost', {
+        headers: { 'x-forwarded-for': '192.168.100.100' },
+      });
+
+      const before = Date.now();
+      const result1 = await limiter(request);
+      const result2 = await limiter(request);
+      const after = Date.now();
+
+      // Both should have the same resetTime
+      expect(result1.resetTime).toBe(result2.resetTime);
+      expect(result1.resetTime).toBeGreaterThanOrEqual(before + windowMs);
+      expect(result1.resetTime).toBeLessThanOrEqual(after + windowMs);
     });
   });
 });

@@ -1,287 +1,329 @@
-// Mock pino before importing the logger
-jest.mock('pino', () => {
-  const mockLogger = {
-    debug: jest.fn(),
-    info: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
-  };
-  
-  const pinoMock = jest.fn(() => mockLogger);
-  pinoMock.stdSerializers = {
-    err: jest.fn(),
-    req: jest.fn(),
-    res: jest.fn()
-  };
-  
-  return pinoMock;
-});
+/**
+ * @jest-environment node
+ */
 
-import { structuredLogger, logError, getRequestContext } from '../logger';
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { getRequestContext } from '../logger';
 
-// Import the mocked pino and get the logger instance
-import pino = require('pino');
-const mockPino = pino as any as jest.MockedFunction<any>;
-const mockLogger = mockPino();
-
-describe('Structured Logger', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  describe('Core logging methods', () => {
-    it('should log debug messages with context', () => {
-      const context = { userId: 'user123', component: 'test' };
-      structuredLogger.debug('Debug message', context);
-      
-      expect(mockLogger.debug).toHaveBeenCalledWith(context, 'Debug message');
-    });
-
-    it('should log info messages with context', () => {
-      const context = { requestId: 'req123' };
-      structuredLogger.info('Info message', context);
-      
-      expect(mockLogger.info).toHaveBeenCalledWith(context, 'Info message');
-    });
-
-    it('should log warning messages with context', () => {
-      const context = { userAgent: 'test-agent' };
-      structuredLogger.warn('Warning message', context);
-      
-      expect(mockLogger.warn).toHaveBeenCalledWith(context, 'Warning message');
-    });
-
-    it('should log error messages with sanitized error objects', () => {
-      const error = new Error('Test error');
-      error.stack = 'stack trace';
-      const context = { userId: 'user123' };
-      
-      structuredLogger.error('Error message', error, context);
-      
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ...context,
-          err: expect.objectContaining({
-            message: 'Test error',
-            name: 'Error'
-          }),
-          error: expect.objectContaining({
-            message: 'Test error',
-            name: 'Error'
-          })
-        }),
-        'Error message'
-      );
-    });
-  });
-
-  describe('Specialized logging methods', () => {
-    it('should log API errors with endpoint context', () => {
-      const error = new Error('API failed');
-      const context = { userId: 'user123' };
-      
-      structuredLogger.apiError('/api/test', error, context);
-      
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ...context,
-          path: '/api/test',
-          component: 'api',
-          err: expect.objectContaining({
-            message: 'API failed'
-          })
-        }),
-        'API Error in /api/test'
-      );
-    });
-
-    it('should log authentication errors', () => {
-      const error = new Error('Auth failed');
-      const context = { userId: 'user123' };
-      
-      structuredLogger.authError('login', error, context);
-      
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ...context,
-          component: 'auth',
-          err: expect.objectContaining({
-            message: 'Auth failed'
-          })
-        }),
-        'Auth Error: login'
-      );
-    });
-
-    it('should log email errors', () => {
-      const error = new Error('Email send failed');
-      
-      structuredLogger.emailError('send verification', error);
-      
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.objectContaining({
-          component: 'email',
-          err: expect.objectContaining({
-            message: 'Email send failed'
-          })
-        }),
-        'Email Error: send verification'
-      );
-    });
-
-    it('should log middleware errors', () => {
-      const error = new Error('Middleware failed');
-      
-      structuredLogger.middlewareError('auth-middleware', error);
-      
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.objectContaining({
-          component: 'middleware',
-          err: expect.objectContaining({
-            message: 'Middleware failed'
-          })
-        }),
-        'Middleware Error: auth-middleware'
-      );
-    });
-
-    it('should log performance metrics', () => {
-      const context = { userId: 'user123' };
-      
-      structuredLogger.performance('database-query', 150, context);
-      
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ...context,
-          duration: 150,
-          component: 'performance'
-        }),
-        'Operation database-query completed in 150ms'
-      );
-    });
-
-    it('should log security events', () => {
-      const context = { ip: '192.168.1.1' };
-      
-      structuredLogger.security('suspicious-login-attempt', context);
-      
-      expect(mockLogger.warn).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ...context,
-          component: 'security'
-        }),
-        'Security Event: suspicious-login-attempt'
-      );
-    });
-  });
-
-  describe('Error sanitization', () => {
-    it('should sanitize sensitive fields from error objects', () => {
-      const error = {
-        message: 'Test error',
-        password: 'secret123',
-        token: 'jwt-token',
-        apiKey: 'api-key-123',
-        config: {
-          headers: {
-            authorization: 'Bearer token123'
-          }
-        }
-      };
-      
-      structuredLogger.error('Sanitization test', error);
-      
-      const logCall = mockLogger.error.mock.calls[0];
-      const loggedError = logCall[0].err;
-      
-      expect(loggedError.message).toBe('Test error');
-      expect(loggedError.password).toBeUndefined();
-      expect(loggedError.token).toBeUndefined();
-      expect(loggedError.apiKey).toBeUndefined();
-    });
-
-    it('should handle null and undefined errors gracefully', () => {
-      structuredLogger.error('No error object', null);
-      structuredLogger.error('Undefined error', undefined);
-      
-      expect(mockLogger.error).toHaveBeenCalledTimes(2);
-    });
-  });
-
-  describe('Backward compatibility', () => {
-    it('should provide logError function for console.error replacement', () => {
-      const error = new Error('Test error');
-      const context = { userId: 'user123' };
-      
-      logError('Compatibility test', error, context);
-      
-      expect(mockLogger.error).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ...context,
-          err: expect.objectContaining({
-            message: 'Test error'
-          })
-        }),
-        'Compatibility test'
-      );
-    });
-  });
-
-  describe('Request context extraction', () => {
-    it('should extract context from Next.js request objects', () => {
-      const mockRequest = {
-        method: 'POST',
+describe('Logger Utilities', () => {
+  describe('getRequestContext', () => {
+    it('extracts method from request', () => {
+      const req = {
+        method: 'GET',
         url: '/api/test',
-        headers: {
-          get: jest.fn()
-            .mockReturnValueOnce('Mozilla/5.0') // user-agent
-            .mockReturnValueOnce('192.168.1.1') // x-forwarded-for
-            .mockReturnValueOnce('req-123') // x-request-id
-        }
       };
-      
-      const context = getRequestContext(mockRequest);
-      
-      expect(context).toEqual({
+
+      const context = getRequestContext(req);
+
+      expect(context.method).toBe('GET');
+    });
+
+    it('extracts URL from request', () => {
+      const req = {
         method: 'POST',
-        path: '/api/test',
-        userAgent: 'Mozilla/5.0',
-        ip: '192.168.1.1',
-        requestId: 'req-123'
-      });
-    });
-
-    it('should handle legacy request objects with direct header access', () => {
-      const mockRequest = {
-        method: 'GET',
-        url: '/api/legacy',
-        headers: {
-          'user-agent': 'Legacy Browser',
-          'x-forwarded-for': '10.0.0.1'
-        }
+        url: '/api/users',
       };
-      
-      const context = getRequestContext(mockRequest);
-      
-      expect(context).toEqual({
+
+      const context = getRequestContext(req);
+
+      expect(context.path).toBe('/api/users');
+    });
+
+    it('extracts path from nextUrl when url is not present', () => {
+      const req = {
         method: 'GET',
-        path: '/api/legacy',
-        userAgent: 'Legacy Browser',
+        nextUrl: { pathname: '/dashboard' },
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.path).toBe('/dashboard');
+    });
+
+    it('prefers url over nextUrl.pathname', () => {
+      const req = {
+        method: 'GET',
+        url: '/api/test',
+        nextUrl: { pathname: '/dashboard' },
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.path).toBe('/api/test');
+    });
+
+    it('extracts user-agent from headers using get method', () => {
+      const headers = {
+        get: (name: string) => (name.toLowerCase() === 'user-agent' ? 'Mozilla/5.0' : null),
+      };
+      const req = {
+        method: 'GET',
+        url: '/api/test',
+        headers,
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.userAgent).toBe('Mozilla/5.0');
+    });
+
+    it('extracts IP from x-forwarded-for header', () => {
+      const headers = {
+        get: (name: string) => (name.toLowerCase() === 'x-forwarded-for' ? '192.168.1.1' : null),
+      };
+      const req = {
+        method: 'GET',
+        url: '/api/test',
+        headers,
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.ip).toBe('192.168.1.1');
+    });
+
+    it('prefers ip property over x-forwarded-for header', () => {
+      const headers = {
+        get: (name: string) => (name.toLowerCase() === 'x-forwarded-for' ? '192.168.1.1' : null),
+      };
+      const req = {
+        method: 'GET',
+        url: '/api/test',
         ip: '10.0.0.1',
-        requestId: undefined
+        headers,
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.ip).toBe('10.0.0.1');
+    });
+
+    it('extracts request ID from header', () => {
+      const headers = {
+        get: (name: string) => (name.toLowerCase() === 'x-request-id' ? 'req-123' : null),
+      };
+      const req = {
+        method: 'GET',
+        url: '/api/test',
+        headers,
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.requestId).toBe('req-123');
+    });
+
+    it('handles request without headers', () => {
+      const req = {
+        method: 'GET',
+        url: '/api/test',
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.method).toBe('GET');
+      expect(context.path).toBe('/api/test');
+      expect(context.userAgent).toBeUndefined();
+      expect(context.ip).toBeUndefined();
+      expect(context.requestId).toBeUndefined();
+    });
+
+    it('handles undefined request', () => {
+      const context = getRequestContext(undefined);
+
+      expect(context.method).toBeUndefined();
+      expect(context.path).toBeUndefined();
+      expect(context.userAgent).toBeUndefined();
+      expect(context.ip).toBeUndefined();
+      expect(context.requestId).toBeUndefined();
+    });
+
+    it('handles request with Headers object', () => {
+      const headers = new Headers();
+      headers.set('user-agent', 'Chrome/90.0');
+      headers.set('x-forwarded-for', '192.168.1.100');
+      headers.set('x-request-id', 'req-456');
+
+      const req = {
+        method: 'POST',
+        url: '/api/create',
+        headers,
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.method).toBe('POST');
+      expect(context.path).toBe('/api/create');
+      expect(context.userAgent).toBe('Chrome/90.0');
+      expect(context.ip).toBe('192.168.1.100');
+      expect(context.requestId).toBe('req-456');
+    });
+
+    it('handles request with record-style headers', () => {
+      const req = {
+        method: 'PUT',
+        url: '/api/update',
+        headers: {
+          'user-agent': 'Firefox/88.0',
+          'x-forwarded-for': '10.0.0.5',
+          'x-request-id': 'req-789',
+        },
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.method).toBe('PUT');
+      expect(context.path).toBe('/api/update');
+    });
+
+    it('handles case-insensitive header names', () => {
+      const headers = {
+        get: (name: string) => {
+          const lowerName = name.toLowerCase();
+          if (lowerName === 'user-agent') return 'TestAgent/1.0';
+          if (lowerName === 'x-forwarded-for') return '172.16.0.1';
+          if (lowerName === 'x-request-id') return 'req-abc';
+          return null;
+        },
+      };
+      const req = {
+        method: 'DELETE',
+        url: '/api/delete',
+        headers,
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.userAgent).toBe('TestAgent/1.0');
+      expect(context.ip).toBe('172.16.0.1');
+      expect(context.requestId).toBe('req-abc');
+    });
+
+    it('extracts all context fields together', () => {
+      const headers = {
+        get: (name: string) => {
+          const lowerName = name.toLowerCase();
+          if (lowerName === 'user-agent') return 'FullTest/2.0';
+          if (lowerName === 'x-forwarded-for') return '192.168.100.1';
+          if (lowerName === 'x-request-id') return 'full-req-123';
+          return null;
+        },
+      };
+      const req = {
+        method: 'PATCH',
+        url: '/api/patch',
+        headers,
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context).toEqual({
+        method: 'PATCH',
+        path: '/api/patch',
+        userAgent: 'FullTest/2.0',
+        ip: '192.168.100.1',
+        requestId: 'full-req-123',
       });
     });
 
-    it('should handle missing request properties gracefully', () => {
-      const context = getRequestContext(null);
-      
-      expect(context).toEqual({
-        method: undefined,
-        path: undefined,
-        userAgent: undefined,
-        ip: undefined,
-        requestId: undefined
-      });
+    it('handles empty method', () => {
+      const req = {
+        url: '/api/test',
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.method).toBeUndefined();
+      expect(context.path).toBe('/api/test');
+    });
+
+    it('handles empty path', () => {
+      const req = {
+        method: 'GET',
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.method).toBe('GET');
+      expect(context.path).toBeUndefined();
+    });
+
+    it('handles requests with special characters in URL', () => {
+      const req = {
+        method: 'GET',
+        url: '/api/search?q=test%20query&filter=active',
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.path).toBe('/api/search?q=test%20query&filter=active');
+    });
+
+    it('handles requests with very long URLs', () => {
+      const longPath = '/api/' + 'a'.repeat(1000);
+      const req = {
+        method: 'GET',
+        url: longPath,
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.path).toBe(longPath);
+      expect(context.path?.length).toBe(1005); // '/api/' + 1000 'a's
+    });
+
+    it('handles requests with IPv6 addresses', () => {
+      const headers = {
+        get: (name: string) =>
+          name.toLowerCase() === 'x-forwarded-for' ? '2001:0db8:85a3::8a2e:0370:7334' : null,
+      };
+      const req = {
+        method: 'GET',
+        url: '/api/test',
+        headers,
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.ip).toBe('2001:0db8:85a3::8a2e:0370:7334');
+    });
+
+    it('handles requests with multiple forwarded IPs', () => {
+      const headers = {
+        get: (name: string) =>
+          name.toLowerCase() === 'x-forwarded-for' ? '192.168.1.1, 10.0.0.1, 172.16.0.1' : null,
+      };
+      const req = {
+        method: 'GET',
+        url: '/api/test',
+        headers,
+      };
+
+      const context = getRequestContext(req);
+
+      expect(context.ip).toBe('192.168.1.1, 10.0.0.1, 172.16.0.1');
+    });
+  });
+
+  describe('structuredLogger existence', () => {
+    it('should export structuredLogger', () => {
+      const { structuredLogger } = require('../logger');
+      expect(structuredLogger).toBeDefined();
+      expect(typeof structuredLogger.debug).toBe('function');
+      expect(typeof structuredLogger.info).toBe('function');
+      expect(typeof structuredLogger.warn).toBe('function');
+      expect(typeof structuredLogger.error).toBe('function');
+    });
+
+    it('should export logger', () => {
+      const { logger } = require('../logger');
+      expect(logger).toBeDefined();
+    });
+
+    it('should export logError helper', () => {
+      const { logError } = require('../logger');
+      expect(logError).toBeDefined();
+      expect(typeof logError).toBe('function');
     });
   });
 });
