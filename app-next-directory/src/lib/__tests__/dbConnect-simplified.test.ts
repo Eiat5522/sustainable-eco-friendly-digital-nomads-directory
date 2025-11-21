@@ -27,7 +27,12 @@ describe('dbConnect helper', () => {
     jest.resetModules();
     connectMock.mockReset();
     resetGlobalMongoose();
-    process.env = { ...ORIGINAL_ENV, MONGODB_URI: 'mongodb://localhost:27017/testdb', JEST_WORKER_ID: '1' };
+    process.env = {
+      ...ORIGINAL_ENV,
+      MONGODB_URI: 'mongodb://localhost:27017/testdb',
+      JEST_WORKER_ID: '1',
+      JEST_USE_REAL_MONGOOSE: '1',
+    };
   });
 
   afterEach(() => {

@@ -6,8 +6,8 @@ import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { isSanityConfigured, getSanityMissingEnvMessage } from '../env';
 
 // Test constants to reduce duplication
-const TEST_PROJECT_ID = TEST_PROJECT_ID;
-const TEST_DATASET = TEST_DATASET;
+const TEST_PROJECT_ID = 'test-project';
+const TEST_DATASET = 'test-dataset';
 const ENV_VAR_PROJECT_ID = 'NEXT_PUBLIC_SANITY_PROJECT_ID';
 const ENV_VAR_DATASET = 'NEXT_PUBLIC_SANITY_DATASET';
 

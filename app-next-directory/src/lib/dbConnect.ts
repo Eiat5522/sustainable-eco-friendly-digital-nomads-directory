@@ -1,8 +1,13 @@
 import mongoose, { type Mongoose } from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI;
+const skipDbConnect = process.env.SKIP_DB_CONNECT === '1';
+const isJestEnvironment = Boolean(process.env?.JEST_WORKER_ID);
+const shouldUseRealMongoDuringTests = isJestEnvironment && process.env.JEST_USE_REAL_MONGOOSE === '1';
 
-if (!MONGODB_URI) {
+const shouldRequireMongoUri = !skipDbConnect && (!isJestEnvironment || shouldUseRealMongoDuringTests);
+
+if (shouldRequireMongoUri && !MONGODB_URI) {
   throw new Error('MONGODB_URI environment variable is required');
 }
 
@@ -42,13 +47,6 @@ async function connectWithCaching(): Promise<Mongoose> {
 
   return cached.conn;
 }
-
-const isJestEnvironment = Boolean(process.env?.JEST_WORKER_ID);
-
-// Allow build-time or CI to opt-out of real MongoDB connections. Set
-// SKIP_DB_CONNECT=1 in the environment during Next builds or CI to
-// avoid accidental network connections and authentication noise.
-const skipDbConnect = process.env.SKIP_DB_CONNECT === '1';
 
 type DbConnectFn = (...args: []) => Promise<Mongoose>;
 
@@ -102,9 +100,13 @@ const createMockableDbConnect = (): MockableDbConnect => {
     return async () => Promise.resolve(impl()).then((value) => value as Mongoose);
   };
 
+  const defaultImplementation = shouldUseRealMongoDuringTests
+    ? connectWithCaching
+    : async () => ({} as Mongoose);
+
   const mockFn = (async function dbConnectMock(): Promise<Mongoose> {
     state.calls.push([]);
-    const impl = state.implementation ?? connectWithCaching;
+    const impl = state.implementation ?? defaultImplementation;
     return execute(impl);
   }) as MockableDbConnect;
 
