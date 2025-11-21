@@ -120,8 +120,8 @@ const defaultErrorFilters: readonly ConsoleFilter[] = [
     'Not implemented: navigation',
     'Not implemented: HTMLFormElement.prototype.submit',
   ]),
-  // React testing environment warnings
   createIncludesSomeFilter([
+    // React testing environment warnings
     'The current testing environment is not configured to support act',
   ]),
   createIncludesSomeFilter([
@@ -209,6 +209,16 @@ const defaultWarnFilters: readonly ConsoleFilter[] = [
   createIncludesSomeFilter(['[listing-view]']),
 ];
 
+// Shared helper to check if console output should be filtered
+const shouldFilterWithFilters = (filters: readonly ConsoleFilter[], args: unknown[]): boolean =>
+  filters.some(filter => {
+    try {
+      return filter(args);
+    } catch {
+      return false;
+    }
+  });
+
 const runWithConsoleFilters = <T>(
   callback: () => T | Promise<T>,
   filters: Required<ConsoleFilterConfig>
@@ -223,24 +233,15 @@ const runWithConsoleFilters = <T>(
   const originalConsoleError = console.error;
   const originalConsoleWarn = console.warn;
 
-  const shouldFilter = (list: readonly ConsoleFilter[], args: unknown[]): boolean =>
-    list.some(filter => {
-      try {
-        return filter(args);
-      } catch {
-        return false;
-      }
-    });
-
   console.error = ((...args: unknown[]) => {
-    if (shouldFilter(errorFilters, args)) {
+    if (shouldFilterWithFilters(errorFilters, args)) {
       return;
     }
     originalConsoleError(...args);
   }) as typeof console.error;
 
   console.warn = ((...args: unknown[]) => {
-    if (shouldFilter(warnFilters, args)) {
+    if (shouldFilterWithFilters(warnFilters, args)) {
       return;
     }
     originalConsoleWarn(...args);
@@ -299,34 +300,14 @@ if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   const originalConsoleError = console.error;
   const originalConsoleWarn = console.warn;
 
-  const shouldFilterError = (args: unknown[]): boolean => {
-    return defaultErrorFilters.some(filter => {
-      try {
-        return filter(args);
-      } catch {
-        return false;
-      }
-    });
-  };
-
-  const shouldFilterWarn = (args: unknown[]): boolean => {
-    return defaultWarnFilters.some(filter => {
-      try {
-        return filter(args);
-      } catch {
-        return false;
-      }
-    });
-  };
-
   console.error = ((...args: unknown[]) => {
-    if (!shouldFilterError(args)) {
+    if (!shouldFilterWithFilters(defaultErrorFilters, args)) {
       originalConsoleError(...args);
     }
   }) as typeof console.error;
 
   console.warn = ((...args: unknown[]) => {
-    if (!shouldFilterWarn(args)) {
+    if (!shouldFilterWithFilters(defaultWarnFilters, args)) {
       originalConsoleWarn(...args);
     }
   }) as typeof console.warn;
