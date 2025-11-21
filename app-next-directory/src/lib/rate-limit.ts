@@ -114,7 +114,5 @@ if (process.env.NODE_ENV === 'test' || process.env.JEST_WORKER_ID) {
     getClientIp = maybeJest.fn(originalGetClientIp) as typeof getClientIp;
     isRateLimited = maybeJest.fn(originalIsRateLimited) as typeof isRateLimited;
     getRetryAfterMs = maybeJest.fn(originalGetRetryAfterMs) as typeof getRetryAfterMs;
-  } else {
-    console.warn('Jest not available for mocking in rate-limit module');
   }
 }

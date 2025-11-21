@@ -760,7 +760,6 @@ jest.mock('@/lib/email', () => {
           (srcAuth.default as { isAdminEmail: unknown }).isAdminEmail = isAdminEmail;
         }
 
-        console.log('DEBUG jest.setup: patched ./src/lib/auth/config exports');
       }
     })
     .catch(() => {

@@ -9,7 +9,6 @@ const moduleDirname = path.dirname(moduleFilename);
 dotenv.config({ path: path.resolve(moduleDirname, '../.env.test') });
 // Force test env to ensure unit tests use mocks instead of real services
 process.env.NODE_ENV = 'test';
-console.log('Loaded .env.test:', process.env.NEXT_PUBLIC_SANITY_PROJECT_ID, process.env.NODE_ENV); // DEBUG: Remove after troubleshooting
 
 // React 19 compatibility
 process.env.IS_REACT_ACT_ENVIRONMENT = 'true';

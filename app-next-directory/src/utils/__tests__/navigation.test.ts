@@ -2,10 +2,28 @@
  * @jest-environment jsdom
  */
 
-import { describe, it, expect, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { getCurrentHref, redirectTo } from '../navigation';
 
 describe('navigation', () => {
+  let originalLocation: Location;
+
+  beforeEach(() => {
+    // Save original location
+    originalLocation = window.location;
+  });
+
+  afterEach(() => {
+    // Restore original location if it was modified
+    if (window.location !== originalLocation) {
+      Object.defineProperty(window, 'location', {
+        value: originalLocation,
+        writable: true,
+        configurable: true,
+      });
+    }
+  });
+
   describe('getCurrentHref', () => {
     it('should return current window.location.href in browser', () => {
       // window.location.href is already set by jsdom
@@ -23,19 +41,29 @@ describe('navigation', () => {
 
   describe('redirectTo', () => {
     it('should set window.location.href when window is defined', () => {
-      // In jsdom environment, window is always defined
-      // Test that the function attempts to set location.href
-      const originalHref = window.location.href;
+      // Mock location to avoid jsdom navigation error
+      const mockLocation = { href: '' };
+      Object.defineProperty(window, 'location', {
+        value: mockLocation,
+        writable: true,
+        configurable: true,
+      });
       
-      // redirectTo will attempt to set href, but jsdom may prevent it
-      // We just verify it doesn't throw and behaves correctly
-      expect(() => redirectTo('https://example.com/test')).not.toThrow();
+      redirectTo('https://example.com/test');
       
-      // Function should check window exists
+      expect(window.location.href).toBe('https://example.com/test');
       expect(typeof window).toBe('object');
     });
 
     it('should handle various URL formats without throwing', () => {
+      // Mock location to avoid jsdom navigation error
+      const mockLocation = { href: '' };
+      Object.defineProperty(window, 'location', {
+        value: mockLocation,
+        writable: true,
+        configurable: true,
+      });
+      
       const testUrls = [
         'https://example.com/new-page',
         '/relative-path',
@@ -50,6 +78,14 @@ describe('navigation', () => {
     });
 
     it('should handle empty string without throwing', () => {
+      // Mock location to avoid jsdom navigation error
+      const mockLocation = { href: '' };
+      Object.defineProperty(window, 'location', {
+        value: mockLocation,
+        writable: true,
+        configurable: true,
+      });
+      
       expect(() => redirectTo('')).not.toThrow();
     });
 
