@@ -6,16 +6,14 @@ import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals
 import { logError, createRouteError, getUserFacingMessage } from '../error-handler';
 import type { ErrorContext } from '../error-handler';
 
-// We'll spy on console to verify logger calls
-let consoleErrorSpy: jest.SpyInstance;
-
 describe('Error Handler', () => {
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    // Mock console.error to suppress error output during tests
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    consoleErrorSpy.mockRestore();
+    jest.restoreAllMocks();
   });
 
   describe('logError', () => {

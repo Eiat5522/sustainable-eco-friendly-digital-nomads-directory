@@ -5,6 +5,12 @@
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import { isSanityConfigured, getSanityMissingEnvMessage } from '../env';
 
+// Test constants to reduce duplication
+const TEST_PROJECT_ID = TEST_PROJECT_ID;
+const TEST_DATASET = TEST_DATASET;
+const ENV_VAR_PROJECT_ID = 'NEXT_PUBLIC_SANITY_PROJECT_ID';
+const ENV_VAR_DATASET = 'NEXT_PUBLIC_SANITY_DATASET';
+
 describe('Sanity Environment Utilities', () => {
   // Store original env vars
   const originalEnv = { ...process.env };
@@ -16,60 +22,60 @@ describe('Sanity Environment Utilities', () => {
 
   describe('isSanityConfigured', () => {
     it('returns true when both NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET are set', () => {
-      process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = 'test-project-id';
-      process.env.NEXT_PUBLIC_SANITY_DATASET = 'production';
+      process.env[ENV_VAR_PROJECT_ID] = TEST_PROJECT_ID;
+      process.env[ENV_VAR_DATASET] = TEST_DATASET;
 
       expect(isSanityConfigured()).toBe(true);
     });
 
     it('returns false when NEXT_PUBLIC_SANITY_PROJECT_ID is missing', () => {
-      delete process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-      process.env.NEXT_PUBLIC_SANITY_DATASET = 'production';
+      delete process.env[ENV_VAR_PROJECT_ID];
+      process.env[ENV_VAR_DATASET] = TEST_DATASET;
 
       expect(isSanityConfigured()).toBe(false);
     });
 
     it('returns false when NEXT_PUBLIC_SANITY_DATASET is missing', () => {
-      process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = 'test-project-id';
-      delete process.env.NEXT_PUBLIC_SANITY_DATASET;
+      process.env[ENV_VAR_PROJECT_ID] = TEST_PROJECT_ID;
+      delete process.env[ENV_VAR_DATASET];
 
       expect(isSanityConfigured()).toBe(false);
     });
 
     it('returns false when both variables are missing', () => {
-      delete process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-      delete process.env.NEXT_PUBLIC_SANITY_DATASET;
+      delete process.env[ENV_VAR_PROJECT_ID];
+      delete process.env[ENV_VAR_DATASET];
 
       expect(isSanityConfigured()).toBe(false);
     });
 
     it('returns false when NEXT_PUBLIC_SANITY_PROJECT_ID is empty string', () => {
-      process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = '';
-      process.env.NEXT_PUBLIC_SANITY_DATASET = 'production';
+      process.env[ENV_VAR_PROJECT_ID] = '';
+      process.env[ENV_VAR_DATASET] = TEST_DATASET;
 
       expect(isSanityConfigured()).toBe(false);
     });
 
     it('returns false when NEXT_PUBLIC_SANITY_DATASET is empty string', () => {
-      process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = 'test-project-id';
-      process.env.NEXT_PUBLIC_SANITY_DATASET = '';
+      process.env[ENV_VAR_PROJECT_ID] = TEST_PROJECT_ID;
+      process.env[ENV_VAR_DATASET] = '';
 
       expect(isSanityConfigured()).toBe(false);
     });
 
     it('returns false when both variables are empty strings', () => {
-      process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = '';
-      process.env.NEXT_PUBLIC_SANITY_DATASET = '';
+      process.env[ENV_VAR_PROJECT_ID] = '';
+      process.env[ENV_VAR_DATASET] = '';
 
       expect(isSanityConfigured()).toBe(false);
     });
 
     it('returns true with different valid dataset names', () => {
-      const datasets = ['production', 'staging', 'development', 'test'];
+      const datasets = [TEST_DATASET, 'staging', 'development', 'test'];
       
       datasets.forEach(dataset => {
-        process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = 'test-project';
-        process.env.NEXT_PUBLIC_SANITY_DATASET = dataset;
+        process.env[ENV_VAR_PROJECT_ID] = 'test-project';
+        process.env[ENV_VAR_DATASET] = dataset;
         expect(isSanityConfigured()).toBe(true);
       });
     });
@@ -78,8 +84,8 @@ describe('Sanity Environment Utilities', () => {
       const projectIds = ['abc123', 'project-123', 'test_project', 'p1'];
       
       projectIds.forEach(projectId => {
-        process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = projectId;
-        process.env.NEXT_PUBLIC_SANITY_DATASET = 'production';
+        process.env[ENV_VAR_PROJECT_ID] = projectId;
+        process.env[ENV_VAR_DATASET] = TEST_DATASET;
         expect(isSanityConfigured()).toBe(true);
       });
     });
@@ -107,8 +113,8 @@ describe('Sanity Environment Utilities', () => {
 
   describe('Integration scenarios', () => {
     it('should indicate unconfigured state with missing env vars', () => {
-      delete process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-      delete process.env.NEXT_PUBLIC_SANITY_DATASET;
+      delete process.env[ENV_VAR_PROJECT_ID];
+      delete process.env[ENV_VAR_DATASET];
 
       const isConfigured = isSanityConfigured();
       const message = getSanityMissingEnvMessage();
@@ -118,8 +124,8 @@ describe('Sanity Environment Utilities', () => {
     });
 
     it('should indicate configured state with valid env vars', () => {
-      process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = 'my-project';
-      process.env.NEXT_PUBLIC_SANITY_DATASET = 'production';
+      process.env[ENV_VAR_PROJECT_ID] = 'my-project';
+      process.env[ENV_VAR_DATASET] = TEST_DATASET;
 
       const isConfigured = isSanityConfigured();
 
@@ -128,16 +134,16 @@ describe('Sanity Environment Utilities', () => {
 
     it('should handle switching between configured and unconfigured states', () => {
       // Start configured
-      process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = 'project-1';
-      process.env.NEXT_PUBLIC_SANITY_DATASET = 'production';
+      process.env[ENV_VAR_PROJECT_ID] = 'project-1';
+      process.env[ENV_VAR_DATASET] = TEST_DATASET;
       expect(isSanityConfigured()).toBe(true);
 
       // Switch to unconfigured
-      delete process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+      delete process.env[ENV_VAR_PROJECT_ID];
       expect(isSanityConfigured()).toBe(false);
 
       // Switch back to configured
-      process.env.NEXT_PUBLIC_SANITY_PROJECT_ID = 'project-2';
+      process.env[ENV_VAR_PROJECT_ID] = 'project-2';
       expect(isSanityConfigured()).toBe(true);
     });
   });

@@ -5,6 +5,13 @@
 import { describe, it, expect, beforeEach, afterEach, jest, beforeAll } from '@jest/globals';
 import { rateLimit, rateLimiters, rateLimitStore } from '../rate-limit';
 
+// Helper function to reduce code duplication
+function createTestRequest(ip: string): Request {
+  return new Request('http://localhost', {
+    headers: { 'x-forwarded-for': ip },
+  });
+}
+
 describe('rate-limit', () => {
   // Store original env vars
   const originalEnv = { ...process.env };
