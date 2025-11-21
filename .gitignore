@@ -235,3 +235,4 @@ tasks.json
 tasks/ 
 .taskmaster/config.json
 app-next-directory/.gemini/settings.json
+unit_tests_results.txt
