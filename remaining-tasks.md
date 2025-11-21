@@ -3,135 +3,135 @@
 ## Overview
 
 - Total tasks: 16
-- In progress: 1
-- Pending: 15
-- Completed: 0
+- In progress: 0
+- Pending: 7
+- Completed: 9
 
 ## Tasks
 
-### 1. Upgrade Next.js and NextAuth (in-progress, priority: high)
+### 1. Upgrade Next.js and NextAuth Done, priority: high)
 - **Description:** Confirm Next.js 15.5.0 and NextAuth 5.0.0-beta.30 are configured correctly and plan for NextAuth's eventual stable release.
 - **Details:** 1.  Verify `package.json` dependencies for `next` (15.5.0) and `next-auth` (5.0.0-beta.30) stay pinned and compatible. 2.  Review and update Next.js configuration files (e.g., `next.config.js`) for any 15.x changes. 3.  Review and update NextAuth configuration while accounting for beta-breaking changes and future GA adjustments. 4.  Thoroughly test the application after the dependency review, including authentication flows, routing, and core features. 5.  Address any deprecation warnings or errors. 6.  Update related libraries or adapters if the beta release introduces breaking changes.
 - **Dependencies:** None
 - **Testing Strategy:** 1.  Run existing E2E tests to ensure core functionality remains intact. 2.  Test authentication flows (login, logout, registration, password reset). 3.  Test all pages and routes to ensure they load correctly. 4.  Manually test all features that use authentication and authorization. 5.  Verify that the application is still secure despite the NextAuth beta dependency.
 - **Subtasks:**
-  - Update Next.js and NextAuth Dependencies (pending)
+  - Update Next.js and NextAuth Dependencies (done)
     - Description: Confirm `next` (15.5.0) and `next-auth` (5.0.0-beta.30) dependencies stay aligned with the codebase and note the beta status.
     - Details: Review `package.json` to ensure `next` remains on 15.5.0 and `next-auth` on 5.0.0-beta.30. Document that NextAuth v5 is currently beta and track any GA migration steps as release notes evolve.
     - Dependencies: None
     - Testing Strategy: Not specified
-  - Review and Update Next.js Configuration (pending)
+  - Review and Update Next.js Configuration (done)
     - Description: Review and update `next.config.js` and any other relevant Next.js configuration files for compatibility with Next.js 15.
     - Details: Examine the `next.config.js` file for any deprecated configurations or breaking changes. Consult the Next.js 15 upgrade guide for necessary adjustments. Pay attention to image optimization, environment variables, and any custom configurations.
     - Dependencies: Update Next.js and NextAuth Dependencies
     - Testing Strategy: Not specified
-  - Review and Update NextAuth Configuration (pending)
+  - Review and Update NextAuth Configuration (done)
     - Description: Review and update NextAuth configuration, paying close attention to breaking changes in NextAuth v5, especially related to the adapter and session strategies.
     - Details: Review the NextAuth configuration file (e.g., `auth.ts` or similar).  Identify and address any breaking changes introduced in NextAuth v5.  This includes changes to the adapter (e.g., database adapter) and session strategies.  Update the configuration to align with the new version's requirements and document the beta caveats while preparing for GA.
     - Dependencies: Update Next.js and NextAuth Dependencies
     - Testing Strategy: Not specified
-  - Thoroughly Test Application Functionality (pending)
+  - Thoroughly Test Application Functionality (done)
     - Description: Thoroughly test the application after the upgrade, including authentication flows, routing, and all core functionalities.
     - Details: Run existing E2E tests. Manually test authentication flows (login, logout, registration, password reset). Test all pages and routes to ensure they load correctly. Manually test all features that use authentication and authorization. Verify that all core functionalities work as expected.
     - Dependencies: Update Next.js and NextAuth Dependencies, Review and Update Next.js Configuration, Review and Update NextAuth Configuration
     - Testing Strategy: Run existing E2E tests. Manually test authentication flows. Test all pages and routes. Manually test all features that use authentication and authorization.
-  - Address Deprecation Warnings and Errors (pending)
+  - Address Deprecation Warnings and Errors (done)
     - Description: Address any deprecation warnings or errors that arise during the upgrade process or during testing.
     - Details: Carefully review the console output and any error logs for deprecation warnings or errors.  Identify the source of each warning or error and implement the necessary fixes.  This may involve updating code, adjusting configurations, or replacing deprecated features with their modern equivalents.
     - Dependencies: Update Next.js and NextAuth Dependencies, Review and Update Next.js Configuration, Review and Update NextAuth Configuration, Thoroughly Test Application Functionality
     - Testing Strategy: Verify that the application runs without any deprecation warnings or errors after the fixes are implemented.
 
-### 2. Implement Redis-based Rate Limiting (pending, priority: high)
+### 2. Implement Redis-based Rate Limiting (done, priority: high)
 - **Description:** Integrate Redis into the rate limiter for the contact API to ensure rate limits persist across deployments.
 - **Details:** 1.  Choose a Redis provider (e.g., Upstash, or self-hosted). 2.  Install the necessary Redis client library (e.g., `ioredis`). 3.  Configure the Redis client with the appropriate connection details. 4.  Modify the rate limiter utility to use Redis for storing and retrieving IP address counters. 5.  Set appropriate key expirations in Redis to prevent memory leaks. 6.  Test the rate limiter to ensure it correctly limits requests from the same IP address.
 - **Dependencies:** Upgrade Next.js and NextAuth
 - **Testing Strategy:** 1.  Test the contact API with multiple requests from the same IP address to verify that the rate limit is enforced. 2.  Test the rate limiter with requests from different IP addresses to ensure they are not affected by each other. 3.  Verify that the rate limit resets after the specified time window. 4.  Monitor Redis usage to ensure it's functioning correctly.
 - **Subtasks:**
-  - Choose and Configure Redis Provider (pending)
+  - Choose and Configure Redis Provider (done)
     - Description: Select a Redis provider (e.g., Upstash, self-hosted) and configure the Redis client with the necessary connection details.
     - Details: Evaluate different Redis providers based on cost, performance, and ease of use. Install the appropriate Redis client library (e.g., ioredis) and configure the client with the provider's connection string, authentication details, and other relevant settings.
     - Dependencies: None
     - Testing Strategy: Not specified
-  - Modify Rate Limiter to Use Redis (pending)
+  - Modify Rate Limiter to Use Redis (done)
     - Description: Adapt the existing rate limiter utility to store and retrieve IP address counters from Redis.
     - Details: Refactor the rate limiter logic to interact with the Redis client.  Replace the current storage mechanism (e.g., in-memory) with Redis commands (e.g., `INCR`, `GET`, `EXPIRE`). Ensure all rate limiting logic correctly uses Redis for storing and retrieving IP address counters.
     - Dependencies: Choose and Configure Redis Provider
     - Testing Strategy: Not specified
-  - Implement Key Expirations in Redis (pending)
+  - Implement Key Expirations in Redis (done)
     - Description: Set appropriate key expirations in Redis to prevent memory leaks and ensure rate limits reset.
     - Details: Determine the appropriate time-to-live (TTL) for the rate limit keys in Redis. Use the `EXPIRE` command to set the TTL for each key, ensuring that the rate limits reset after the specified time window. Consider the rate limit duration (e.g., per minute, per hour) when setting the TTL.
     - Dependencies: Modify Rate Limiter to Use Redis
     - Testing Strategy: Not specified
-  - Test Rate Limiter Functionality (pending)
+  - Test Rate Limiter Functionality (done)
     - Description: Test the Redis-based rate limiter to verify it correctly limits requests from the same IP address.
     - Details: Send a series of requests from the same IP address to the contact API. Verify that the rate limiter correctly enforces the defined rate limits.  Test different scenarios, including exceeding the rate limit and waiting for the limit to reset. Also, test with different IP addresses to ensure they are not affected by each other.
     - Dependencies: Modify Rate Limiter to Use Redis, Implement Key Expirations in Redis
     - Testing Strategy: Test the contact API with multiple requests from the same IP address to verify that the rate limit is enforced. Verify that the rate limit resets after the specified time window.
-  - Document and Refactor Code (pending)
+  - Document and Refactor Code (done)
     - Description: Document the changes and refactor the code for better readability and maintainability.
     - Details: Add comments to the code explaining the Redis integration and rate limiting logic. Refactor the code to improve readability and maintainability. Ensure that the code adheres to the project's coding style guidelines.
     - Dependencies: Test Rate Limiter Functionality
     - Testing Strategy: Not specified
 
-### 3. Refactor Authentication for Type Safety (pending, priority: high)
+### 3. Refactor Authentication for Type Safety (done, priority: high)
 - **Description:** Improve type safety and consistency in authentication by extending NextAuth types.
 - **Details:** 1.  Create a `next-auth.d.ts` file in the project. 2.  Extend the `User` and `Session` interfaces in `next-auth.d.ts` to include `id` and `role` properties. 3.  Extend the `JWT` interface in `next-auth/jwt` to include `id` and `role` properties. 4.  Update the code to use the typed `session.user.role` and `token.role` properties. 5.  Review and update any code that uses `getServerSession()` or the middleware to ensure proper type handling. 6.  Consider adding password complexity and rate limiting to the authentication process.
 - **Dependencies:** Upgrade Next.js and NextAuth
 - **Testing Strategy:** 1.  Verify that `session.user.role` and `token.role` are correctly typed in the code. 2.  Test authentication flows to ensure roles are correctly assigned and used. 3.  Test authorization logic to ensure access control works as expected.
 - **Subtasks:**
-  - Create next-auth.d.ts file and extend User and Session interfaces (pending)
+  - Create next-auth.d.ts file and extend User and Session interfaces (done)
     - Description: Create a declaration file to extend NextAuth types for type safety.
     - Details: Create `next-auth.d.ts` in the project root. Extend `User` and `Session` interfaces to include `id` and `role` properties. Ensure correct type definitions for these properties (e.g., `string` for `id` and `string` for `role`).
     - Dependencies: None
     - Testing Strategy: Not specified
-  - Extend JWT interface in next-auth/jwt (pending)
+  - Extend JWT interface in next-auth/jwt (done)
     - Description: Extend the JWT interface to include custom properties.
     - Details: Locate the `JWT` interface definition (likely within `next-auth/jwt` or a related file). Extend the `JWT` interface to include `id` and `role` properties. Ensure the types match the `User` and `Session` properties.
     - Dependencies: Create next-auth.d.ts file and extend User and Session interfaces
     - Testing Strategy: Not specified
-  - Update code to use typed session.user.role and token.role (pending)
+  - Update code to use typed session.user.role and token.role (done)
     - Description: Update all code using session and token data to use the newly defined types.
     - Details: Go through the codebase and find all instances where `session.user.role` or `token.role` are used. Update these to use the extended types. Ensure that the code compiles without type errors. Verify that the IDE correctly recognizes the types.
     - Dependencies: Create next-auth.d.ts file and extend User and Session interfaces, Extend JWT interface in next-auth/jwt
     - Testing Strategy: Verify that `session.user.role` and `token.role` are correctly typed in the code using the IDE's intellisense and by building the project.
-  - Review and update getServerSession() and middleware usage (pending)
+  - Review and update getServerSession() and middleware usage (done)
     - Description: Ensure proper type handling in getServerSession() and middleware.
     - Details: Review any code that uses `getServerSession()` or middleware for authentication. Ensure that the extended types are correctly used and that the code handles the `id` and `role` properties appropriately. Check for any potential type-related issues.
     - Dependencies: Update code to use typed session.user.role and token.role
     - Testing Strategy: Test authentication flows to ensure roles are correctly assigned and used. Test authorization logic to ensure access control works as expected.
-  - Consider password complexity and rate limiting (pending)
+  - Consider password complexity and rate limiting (done)
     - Description: Evaluate and implement password complexity and rate limiting.
     - Details: Research and implement password complexity requirements (e.g., minimum length, special characters). Consider implementing rate limiting to prevent brute-force attacks. This may involve using a library or service for rate limiting.
     - Dependencies: None
     - Testing Strategy: Not specified
 
-### 4. Consolidate Data Fetching (pending, priority: medium)
+### 4. Consolidate Data Fetching (done, priority: medium)
 - **Description:** Consolidate data fetching to avoid redundant queries, especially on the listing detail page.
 - **Details:** 1.  Analyze the listing detail page to identify redundant data fetching. 2.  Consolidate the Sanity queries for SEO metadata and page content into a single query, if possible. 3.  If consolidation isn't feasible, consider using Next.js's `<Suspense>` and parallel data fetching patterns or the new generateMetadata caching features. 4.  Cache the results of expensive queries.
 - **Dependencies:** Upgrade Next.js and NextAuth
 - **Testing Strategy:** 1.  Verify that the listing detail page loads all necessary data correctly. 2.  Use browser developer tools to monitor network requests and ensure that redundant queries are eliminated. 3.  Compare the page load time before and after the changes to measure the performance improvement.
 - **Subtasks:**
-  - Analyze Listing Detail Page for Redundant Data Fetching (pending)
+  - Analyze Listing Detail Page for Redundant Data Fetching (done)
     - Description: Identify all data fetching operations on the listing detail page and analyze their purpose and frequency to find potential redundancies.
     - Details: Review the code for the listing detail page, including components, API calls, and data fetching logic. Use browser developer tools to monitor network requests and identify duplicate calls.
     - Dependencies: None
     - Testing Strategy: Use browser developer tools to monitor network requests and confirm the absence of redundant queries after changes.
-  - Consolidate Sanity Queries for SEO and Content (pending)
+  - Consolidate Sanity Queries for SEO and Content (done)
     - Description: Attempt to combine the Sanity queries for SEO metadata and page content into a single, optimized query.
     - Details: Examine the existing Sanity queries for SEO metadata and page content. If possible, refactor the queries to fetch all required data in a single request, using GROQ projections to select only necessary fields.
     - Dependencies: Upgrade Next.js and NextAuth
     - Testing Strategy: Verify that all necessary data is still retrieved correctly after query consolidation. Compare the response times before and after the changes.
-  - Implement Parallel Data Fetching or Metadata Caching (pending)
+  - Implement Parallel Data Fetching or Metadata Caching (done)
     - Description: If query consolidation is not feasible, explore parallel data fetching using Next.js features or metadata caching.
     - Details: If consolidation is not possible, investigate using Next.js's `<Suspense>` and parallel data fetching patterns or the new generateMetadata caching features to improve performance. Implement the chosen approach.
     - Dependencies: Upgrade Next.js and NextAuth, Refactor Authentication for Type Safety
     - Testing Strategy: Verify that the page loads all necessary data correctly and that the performance is improved. Measure the page load time before and after the changes.
-  - Cache Results of Expensive Queries (pending)
+  - Cache Results of Expensive Queries (done)
     - Description: Implement caching for expensive queries to reduce server load and improve response times.
     - Details: Identify the most expensive queries and implement caching mechanisms. Consider using ISR or other caching strategies based on the specific needs of the queries. Ensure proper cache invalidation.
     - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
     - Testing Strategy: Verify that the cached responses are served correctly. Use browser developer tools to monitor network requests and ensure that cached responses are being used. Measure the performance improvement by comparing the response times before and after caching.
-  - Refactor Data Fetching Logic (pending)
+  - Refactor Data Fetching Logic (done)
     - Description: Refactor data fetching logic to use the consolidated queries and caching mechanisms.
     - Details: Update the components on the listing detail page to use the consolidated queries and caching mechanisms. Ensure that the data is fetched and displayed correctly.
     - Dependencies: Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety, Consolidate Data Fetching
@@ -201,97 +201,97 @@
     - Dependencies: None
     - Testing Strategy: Test search performance with a large dataset. Compare performance of different indexing strategies.
 
-### 7. Implement Error Handling with error.js (pending, priority: medium)
+### 7. Implement Error Handling with error.js (done, priority: medium)
 - **Description:** Use Next.js error boundaries to handle unhandled exceptions.
 - **Details:** 1.  Create an `app/[...]/error.tsx` file to capture unhandled exceptions in the route segment. 2.  Create an `error.tsx` file in the `app/listings/[slug]` folder to handle errors in the listing detail page. 3.  Implement a user-friendly error message in the `error.tsx` component.
 - **Dependencies:** Upgrade Next.js and NextAuth
 - **Testing Strategy:** 1.  Test the error handling by intentionally causing an error in a page component. 2.  Verify that the error boundary correctly displays the error message.
 - **Subtasks:**
-  - Create Global Error Boundary (pending)
+  - Create Global Error Boundary (done)
     - Description: Create the `app/[...]/error.tsx` file to handle unhandled exceptions at the route segment level.
     - Details: Implement the basic structure of the error boundary component in `app/[...]/error.tsx`. This should include a user-friendly error message and potentially a way to report the error.
     - Dependencies: None
     - Testing Strategy: Test by intentionally causing an error in a component within the application and verifying that the global error boundary displays the error message.
-  - Implement Error Boundary for Listing Detail Page (pending)
+  - Implement Error Boundary for Listing Detail Page (done)
     - Description: Create the `app/listings/[slug]/error.tsx` file to handle errors specific to the listing detail page.
     - Details: Implement the error boundary component in `app/listings/[slug]/error.tsx`. This should include a user-friendly error message, potentially specific to the listing detail page.
     - Dependencies: None
     - Testing Strategy: Test by intentionally causing an error within a component on the listing detail page and verifying that the specific error boundary displays the error message.
-  - Design User-Friendly Error Messages (pending)
+  - Design User-Friendly Error Messages (done)
     - Description: Design and implement user-friendly error messages for both error boundaries.
     - Details: Craft clear and concise error messages that guide the user. Consider providing helpful information or actions, such as a link to refresh the page or contact support.  Ensure messages are accessible.
     - Dependencies: Upgrade Next.js and NextAuth, Refactor Authentication for Type Safety
     - Testing Strategy: Review the error messages for clarity and helpfulness. Ensure they are displayed correctly in both error boundary implementations.
-  - Integrate Error Reporting (Optional) (pending)
+  - Integrate Error Reporting (Optional) (done)
     - Description: Integrate error reporting to a service like Sentry or similar.
     - Details: Integrate a service like Sentry to capture and report errors. This will help in monitoring and debugging production issues.  Configure the error boundaries to send error reports.
     - Dependencies: Upgrade Next.js and NextAuth, Refactor Authentication for Type Safety
     - Testing Strategy: Verify that errors are correctly reported to the chosen service by intentionally causing an error and checking the error logs.
-  - Test Error Handling with Intentional Errors (pending)
+  - Test Error Handling with Intentional Errors (done)
     - Description: Test the error handling by intentionally causing errors in different components.
     - Details: Introduce errors in different components (e.g., data fetching, rendering) to trigger the error boundaries. Verify that the correct error messages are displayed and that error reporting (if implemented) functions correctly.
     - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
     - Testing Strategy: Intentionally introduce errors in various components and verify that the error boundaries catch them and display the expected messages. Check error reporting logs.
 
-### 8. Implement Loading States with Suspense or loading.tsx (pending, priority: medium)
+### 8. Implement Loading States with Suspense or loading.tsx (done, priority: medium)
 - **Description:** Implement loading states for pages that fetch data.
 - **Details:** 1.  Implement `app/(route)/loading.tsx` for pages that fetch data, such as the listing detail page. 2.  Use a skeleton or spinner to improve perceived performance while data is being fetched.
 - **Dependencies:** Upgrade Next.js and NextAuth
 - **Testing Strategy:** 1.  Test the loading state by simulating a slow network connection. 2.  Verify that the loading state is displayed correctly while data is being fetched.
 - **Subtasks:**
-  - Create loading.tsx file for the listing detail page (pending)
+  - Create loading.tsx file for the listing detail page (done)
     - Description: Create the `app/(route)/loading.tsx` file for the listing detail page to handle loading states.
     - Details: Create a new file named `loading.tsx` inside the appropriate route directory (e.g., `app/listings/[id]/loading.tsx`). This file will render the loading state.
     - Dependencies: None
     - Testing Strategy: Not specified
-  - Implement a skeleton UI in loading.tsx (pending)
+  - Implement a skeleton UI in loading.tsx (done)
     - Description: Implement a skeleton UI or a spinner within the `loading.tsx` file to provide visual feedback while data is loading.
     - Details: Use a library like `react-loading-skeleton` or create a custom skeleton component to display placeholder elements. Alternatively, use a spinner component.
     - Dependencies: Upgrade Next.js and NextAuth
     - Testing Strategy: Not specified
-  - Fetch data in the listing detail page (pending)
+  - Fetch data in the listing detail page (done)
     - Description: Ensure the listing detail page fetches data and triggers the loading state.
     - Details: Verify that the data fetching logic in the listing detail page is correctly implemented and that the page uses the `loading.tsx` file during data fetching.
     - Dependencies: None
     - Testing Strategy: Not specified
-  - Test loading state with a slow network (pending)
+  - Test loading state with a slow network (done)
     - Description: Test the loading state by simulating a slow network connection to verify the loading UI is displayed.
     - Details: Use browser developer tools to throttle the network speed (e.g., to 'Slow 3G') and navigate to the listing detail page. Observe the loading state.
     - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
     - Testing Strategy: Simulate slow network conditions and verify the loading state is displayed.
-  - Verify loading state display (pending)
+  - Verify loading state display (done)
     - Description: Verify that the loading state is displayed correctly while data is being fetched.
     - Details: Ensure the skeleton or spinner is visible during the data fetching process and disappears once the data is loaded.
     - Dependencies: Consolidate Data Fetching
     - Testing Strategy: Manually test the loading state on the listing detail page under slow network conditions.
 
-### 9. Implement Security Hardening for Contact Form (pending, priority: medium)
+### 9. Implement Security Hardening for Contact Form (done, priority: medium)
 - **Description:** Sanitize user input in the contact form to prevent XSS vulnerabilities.
 - **Details:** 1.  Sanitize the subject and message fields of the contact form before constructing the email body. 2.  Use a templating library that auto-escapes HTML tags, or replace HTML tags with HTML entities. 3.  Ensure all environment secrets (SMTP credentials, NextAuth secret, etc.) are loaded from `.env.local`.
 - **Dependencies:** Implement Redis-based Rate Limiting
 - **Testing Strategy:** 1.  Test the contact form with malicious input (e.g., HTML tags, JavaScript code) to verify that the input is sanitized correctly. 2.  Verify that the email body does not contain any unsanitized user input.
 - **Subtasks:**
-  - Sanitize Subject and Message Fields (pending)
+  - Sanitize Subject and Message Fields (done)
     - Description: Implement input sanitization for the subject and message fields of the contact form to prevent XSS attacks.
     - Details: Use a sanitization library (e.g., DOMPurify) or implement custom sanitization logic to remove or encode potentially harmful characters and HTML tags from the subject and message fields before constructing the email body.
     - Dependencies: None
     - Testing Strategy: Test with various payloads including HTML tags, JavaScript code, and special characters to ensure proper sanitization.
-  - Implement HTML Escaping (pending)
+  - Implement HTML Escaping (done)
     - Description: Ensure proper HTML escaping to prevent XSS vulnerabilities in the email body.
     - Details: Use a templating library that automatically escapes HTML tags, or replace HTML tags with HTML entities (e.g., `<` with `&lt;`). Ensure that the chosen method is applied to all user-provided content before it's included in the email body.
     - Dependencies: None
     - Testing Strategy: Verify that HTML tags in the subject and message fields are correctly escaped in the generated email body.
-  - Secure Environment Secrets (pending)
+  - Secure Environment Secrets (done)
     - Description: Verify that all sensitive environment variables are loaded securely.
     - Details: Confirm that all sensitive information, such as SMTP credentials and the NextAuth secret, are loaded from the `.env.local` file. Avoid hardcoding any secrets directly in the code.
     - Dependencies: None
     - Testing Strategy: Verify that the application functions correctly with the environment variables loaded from `.env.local`.
-  - Implement Content Security Policy (CSP) (pending)
+  - Implement Content Security Policy (CSP) (done)
     - Description: Implement a Content Security Policy (CSP) to mitigate XSS attacks.
     - Details: Configure a CSP in the application's headers to restrict the sources from which the browser can load resources, such as scripts, styles, and images. This helps prevent the execution of malicious scripts injected through XSS vulnerabilities.
     - Dependencies: None
     - Testing Strategy: Test the application with the CSP enabled to ensure that legitimate resources load correctly and that malicious scripts are blocked.
-  - Comprehensive Testing and Validation (pending)
+  - Comprehensive Testing and Validation (done)
     - Description: Thoroughly test the contact form to ensure security hardening is effective.
     - Details: Test the contact form with a variety of malicious inputs, including HTML tags, JavaScript code, and special characters, to verify that the input is sanitized correctly and that the email body does not contain any unsanitized user input. Also, test the form with valid inputs to ensure functionality.
     - Dependencies: None
@@ -393,71 +393,71 @@
     - Dependencies: Implement Redis-based Rate Limiting, Consolidate Data Fetching
     - Testing Strategy: Create a PR with linting errors and verify the CI fails. Fix the errors and verify the CI passes. Check pre-commit hook functionality.
 
-### 13. Optimize Image Handling with Next.js Image Component (pending, priority: medium)
+### 13. Optimize Image Handling with Next.js Image Component (done, priority: medium)
 - **Description:** Replace raw <img> tags with Next.js Image component for automatic lazy-loading and resizing.
 - **Details:** 1.  Import the `Image` component from `next/image`. 2.  Replace the `<img>` tags with the `<Image>` component. 3.  Set the `src`, `alt`, `width`, `height`, `placeholder`, and `loading` props. 4.  Define a `sizes` prop or use responsive layouts for mobile clients.
 - **Dependencies:** Upgrade Next.js and NextAuth
 - **Testing Strategy:** 1.  Verify that images are displayed correctly. 2.  Use browser developer tools to verify that images are lazy-loaded and resized correctly. 3.  Check the Lighthouse scores to measure the performance improvement.
 - **Subtasks:**
-  - Import Next.js Image Component (pending)
+  - Import Next.js Image Component (done)
     - Description: Import the `Image` component from `next/image` in the relevant files.
     - Details: Add the import statement `import Image from 'next/image'` at the top of the files where images are used.
     - Dependencies: None
     - Testing Strategy: Not specified
-  - Replace <img> tags with <Image> component (pending)
+  - Replace <img> tags with <Image> component (done)
     - Description: Replace all instances of standard `<img>` tags with the Next.js `<Image>` component.
     - Details: Find all occurrences of `<img>` tags in the codebase and replace them with `<Image>` components, ensuring correct attribute mapping.
     - Dependencies: Upgrade Next.js and NextAuth
     - Testing Strategy: Not specified
-  - Set Required Image Component Props (pending)
+  - Set Required Image Component Props (done)
     - Description: Set the required props for the `<Image>` component: `src`, `alt`, `width`, and `height`.
     - Details: For each `<Image>` component, ensure the `src` (image path), `alt` (alternative text), `width`, and `height` attributes are correctly set based on the original `<img>` tag or image data.
     - Dependencies: Refactor Authentication for Type Safety
     - Testing Strategy: Not specified
-  - Implement Placeholder and Loading Attributes (pending)
+  - Implement Placeholder and Loading Attributes (done)
     - Description: Implement the `placeholder` and `loading` attributes for improved user experience.
     - Details: Add the `placeholder` prop (e.g., 'blur' or 'empty') and the `loading` prop (e.g., 'lazy' or 'eager') to the `<Image>` components.
     - Dependencies: Implement Redis-based Rate Limiting
     - Testing Strategy: Not specified
-  - Verify Image Optimization and Performance (pending)
+  - Verify Image Optimization and Performance (done)
     - Description: Verify that images are lazy-loaded and resized correctly, and measure performance improvements.
     - Details: Use browser developer tools to inspect network requests and confirm lazy loading. Check Lighthouse scores to measure performance gains related to image optimization.
     - Dependencies: Consolidate Data Fetching
     - Testing Strategy: Verify images display correctly. Use browser dev tools to confirm lazy-loading and resizing. Check Lighthouse scores for performance improvements.
 
-### 14. Ensure Tailwind CSS Best Practices (pending, priority: low)
+### 14. Ensure Tailwind CSS Best Practices (done, priority: low)
 - **Description:** Ensure consistent Tailwind CSS usage and minimize custom CSS.
 - **Details:** 1.  Ensure Tailwind's purge (content scanning) is configured to include all src files. 2.  Avoid adding long lists of classes conditionally in components; use helper libraries like `clsx` or Tailwind's variant utilities. 3.  Prefer Tailwind's built-in features (animations, aspect-ratio, line-clamp, etc.) over custom CSS when possible. 4.  Ensure consistency (e.g., use the design tokens defined in `tailwind.config` if any).
 - **Dependencies:** None
 - **Testing Strategy:** 1.  Visually inspect the application to ensure that the styling is consistent. 2.  Verify that the Tailwind classes are applied correctly. 3.  Check the build size to ensure that Tailwind is not generating unnecessary CSS.
 - **Subtasks:**
-  - Configure Tailwind Purge for all source files (pending)
+  - Configure Tailwind Purge for all source files (done)
     - Description: Ensure Tailwind's purge configuration includes all source files to remove unused CSS.
     - Details: Modify the `tailwind.config.js` file to correctly configure the `purge` option to scan all relevant source files (e.g., `src/**/*.js`, `src/**/*.jsx`, `src/**/*.ts`, `src/**/*.tsx`, etc.).
     - Dependencies: None
     - Testing Strategy: Build the project and inspect the generated CSS file to confirm that only the necessary styles are included.
-  - Refactor Conditional Class Application (pending)
+  - Refactor Conditional Class Application (done)
     - Description: Replace long conditional class lists with helper libraries or Tailwind's variant utilities.
     - Details: Identify components with complex conditional class applications. Refactor these components to use `clsx` or similar libraries for cleaner class management. Alternatively, leverage Tailwind's variant utilities (e.g., `hover:`, `focus:`) for conditional styling.
     - Dependencies: None
     - Testing Strategy: Visually inspect the affected components to ensure the styling is correct under all conditions and states.
-  - Prioritize Tailwind Built-in Features (pending)
+  - Prioritize Tailwind Built-in Features (done)
     - Description: Replace custom CSS with Tailwind's built-in features where possible.
     - Details: Review the codebase for custom CSS that can be replaced by Tailwind's utilities (e.g., animations, aspect-ratio, line-clamp). Replace custom CSS with the corresponding Tailwind classes.
     - Dependencies: None
     - Testing Strategy: Visually inspect the application to ensure the styling remains consistent after replacing custom CSS with Tailwind classes.
-  - Enforce Design Token Consistency (pending)
+  - Enforce Design Token Consistency (done)
     - Description: Ensure consistent use of design tokens defined in `tailwind.config.js`.
     - Details: Review the codebase and identify areas where hardcoded values are used for spacing, colors, fonts, etc. Replace these hardcoded values with the corresponding design tokens defined in `tailwind.config.js` to maintain consistency.
     - Dependencies: None
     - Testing Strategy: Visually inspect the application to ensure the styling is consistent with the design tokens defined in `tailwind.config.js`.
-  - Audit and Refactor Tailwind Usage (pending)
+  - Audit and Refactor Tailwind Usage (done)
     - Description: Perform a comprehensive audit of Tailwind CSS usage and refactor as needed.
     - Details: Conduct a thorough review of the codebase to identify areas that can be improved regarding Tailwind CSS best practices. This includes checking for redundant classes, inefficient class combinations, and opportunities to refactor for better maintainability and performance. Apply the findings from the previous subtasks during this audit.
     - Dependencies: None
     - Testing Strategy: Perform a visual inspection of the entire application and verify that the build size has not increased significantly after the refactoring.
 
-### 15. Remove Legacy Route Files (pending, priority: low)
+### 15. Remove Legacy Route Files (done, priority: low)
 - **Description:** Remove the legacy route files (_city_bak and _id_bak directories) now that the slug-based routes are verified.
 - **Details:** 1.  Delete the `app/city/_city_bak` and `app/listings/_id_bak` directories. 2.  Ensure that the slug-based routes (`/city/[slug]` and `/listings/[slug]`) are still working correctly after the removal.
 - **Dependencies:** Upgrade Next.js and NextAuth
