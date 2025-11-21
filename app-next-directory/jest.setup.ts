@@ -121,6 +121,10 @@ const defaultErrorFilters: readonly ConsoleFilter[] = [
     'Not implemented: HTMLFormElement.prototype.submit',
   ]),
   createIncludesSomeFilter([
+    // React testing environment warnings
+    'The current testing environment is not configured to support act',
+  ]),
+  createIncludesSomeFilter([
     // API route errors
     'Search GET error:',
     'Search POST error:',
@@ -186,13 +190,13 @@ const defaultErrorFilters: readonly ConsoleFilter[] = [
     'listings/[slug]] failed to fetch',
     'listings/[slug]] failed to check',
 
-    // React test warnings
-    'An update to FeaturedListings inside a test was not wrapped in act',
-    'An update to',
-    'inside a test was not wrapped in act',
+    // React test warnings - using complete pattern to avoid false positives
   ]),
+  // React act warnings - must match BOTH parts to avoid suppressing real errors
+  createIncludesEveryFilter(['An update to', 'inside a test was not wrapped in act']),
+  // Note: Controlled/uncontrolled input warnings and value prop warnings are NOT filtered
+  // as they indicate real code issues that should be visible and fixed
   createIncludesSomeFilter([
-    'A component is changing an uncontrolled input',
     'In HTML, <html> cannot be a child of <div>',
     'React does not recognize the',
     'Received `true` for a non-boolean attribute',
@@ -204,6 +208,16 @@ const defaultWarnFilters: readonly ConsoleFilter[] = [
   createIncludesSomeFilter(['Missing optional environment variable: SANITY_API_TOKEN']),
   createIncludesSomeFilter(['[listing-view]']),
 ];
+
+// Shared helper to check if console output should be filtered
+const shouldFilterWithFilters = (filters: readonly ConsoleFilter[], args: unknown[]): boolean =>
+  filters.some(filter => {
+    try {
+      return filter(args);
+    } catch {
+      return false;
+    }
+  });
 
 const runWithConsoleFilters = <T>(
   callback: () => T | Promise<T>,
@@ -219,24 +233,15 @@ const runWithConsoleFilters = <T>(
   const originalConsoleError = console.error;
   const originalConsoleWarn = console.warn;
 
-  const shouldFilter = (list: readonly ConsoleFilter[], args: unknown[]): boolean =>
-    list.some(filter => {
-      try {
-        return filter(args);
-      } catch {
-        return false;
-      }
-    });
-
   console.error = ((...args: unknown[]) => {
-    if (shouldFilter(errorFilters, args)) {
+    if (shouldFilterWithFilters(errorFilters, args)) {
       return;
     }
     originalConsoleError(...args);
   }) as typeof console.error;
 
   console.warn = ((...args: unknown[]) => {
-    if (shouldFilter(warnFilters, args)) {
+    if (shouldFilterWithFilters(warnFilters, args)) {
       return;
     }
     originalConsoleWarn(...args);
@@ -289,6 +294,24 @@ declare global {
   var withDefaultConsoleFilters: typeof withDefaultConsoleFilters;
 }
 
+// Apply console filters globally by default to suppress noisy test errors
+// Set JEST_CONSOLE_NO_FILTER=1 to disable filtering for debugging
+if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
+  const originalConsoleError = console.error;
+  const originalConsoleWarn = console.warn;
+
+  console.error = ((...args: unknown[]) => {
+    if (!shouldFilterWithFilters(defaultErrorFilters, args)) {
+      originalConsoleError(...args);
+    }
+  }) as typeof console.error;
+
+  console.warn = ((...args: unknown[]) => {
+    if (!shouldFilterWithFilters(defaultWarnFilters, args)) {
+      originalConsoleWarn(...args);
+    }
+  }) as typeof console.warn;
+}
 
 // jest.setup.ts
 import { jest } from '@jest/globals';
