@@ -463,27 +463,27 @@
 - **Dependencies:** Upgrade Next.js and NextAuth
 - **Testing Strategy:** 1.  Test the `/city/[slug]` and `/listings/[slug]` routes to ensure they function as expected. 2.  Verify that no errors occur after removing the legacy route files.
 - **Subtasks:**
-  - Locate and Identify Legacy Route Directories (pending)
+  - Locate and Identify Legacy Route Directories (done)
     - Description: Identify the exact locations of the legacy route directories to be removed.
     - Details: Examine the project structure to pinpoint the `app/city/_city_bak` and `app/listings/_id_bak` directories.
     - Dependencies: None
     - Testing Strategy: Not specified
-  - Delete Legacy Route Directories (pending)
+  - Delete Legacy Route Directories (done)
     - Description: Remove the identified legacy route directories from the project.
     - Details: Use the appropriate file system commands (e.g., `rm -rf`) or IDE functionality to delete the specified directories.
     - Dependencies: Upgrade Next.js and NextAuth
     - Testing Strategy: Not specified
-  - Test City Slug-Based Route (pending)
+  - Test City Slug-Based Route (done)
     - Description: Verify the functionality of the `/city/[slug]` route after removing the legacy files.
     - Details: Navigate to a known city slug (e.g., `/city/london`) and confirm that the page loads correctly and displays the expected content.
     - Dependencies: Refactor Authentication for Type Safety
     - Testing Strategy: Manually test the route in a browser.
-  - Test Listing Slug-Based Route (pending)
+  - Test Listing Slug-Based Route (done)
     - Description: Verify the functionality of the `/listings/[slug]` route after removing the legacy files.
     - Details: Navigate to a known listing slug (e.g., `/listings/123`) and confirm that the page loads correctly and displays the expected content.
     - Dependencies: Refactor Authentication for Type Safety
     - Testing Strategy: Manually test the route in a browser.
-  - Verify No Errors After Removal (pending)
+  - Verify No Errors After Removal (done)
     - Description: Ensure that no errors are thrown in the browser console or server logs after the removal.
     - Details: Check the browser console and server logs for any errors or warnings related to the removed files or routes.
     - Dependencies: Implement Redis-based Rate Limiting, Consolidate Data Fetching
