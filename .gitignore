@@ -1,3 +1,4 @@
+
 # dependencies
 node_modules/
 .pnp/
@@ -235,4 +236,8 @@ tasks.json
 tasks/ 
 .taskmaster/config.json
 app-next-directory/.gemini/settings.json
-unit_tests_results.txt
+app-next-directory/.env.development
+app-next-directory/.env.local.backup
+app-next-directory/.env.test
+app-next-directory/tests/.auth/admin.json
+app-next-directory/tests/.auth/venueOwner.json

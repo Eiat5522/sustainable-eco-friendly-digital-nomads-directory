@@ -1,141 +1,82 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-import { http, HttpResponse } from 'msw';
-import { server } from '@/mocks/server';
 import { fetchCityDetails, fetchCityListings } from '../api';
 
-const jsonResponse = (body: unknown, init?: ResponseInit) =>
-  new Response(JSON.stringify(body), {
-    headers: { 'Content-Type': 'application/json' },
-    ...init,
-  });
+describe('fetchCityDetails', () => {
+  const mockCity = { _id: '1', name: 'Bangkok', slug: 'bangkok', listingCount: 10, country: 'Thailand' };
 
-describe('API Functions', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    global.fetch = jest.fn();
   });
 
-  describe('fetchCityDetails', () => {
-    it('should fetch city details successfully', async () => {
-      const mockCityData = {
-        id: '1',
-        name: 'Bangkok',
-        slug: 'bangkok',
-        description: 'Capital of Thailand',
-        coordinates: { lat: 13.7563, lng: 100.5018 },
-      };
-
-      server.use(
-        http.get('*/api/cities/:slug', ({ params }) => {
-          const { slug } = params as any;
-          if (slug !== 'bangkok') return new Response(null, { status: 404 });
-          return jsonResponse({ success: true, data: { city: mockCityData } }, { status: 200 });
-        })
-      );
-
-      const result = await fetchCityDetails('bangkok');
-      expect(result).toEqual(mockCityData);
-    });
-
-    it('should handle fetch error when response is not ok', async () => {
-      server.use(
-        http.get('*/api/cities/:slug', () => new Response(null, { status: 500 }))
-      );
-      await expect(fetchCityDetails('bangkok')).rejects.toThrow('Request failed with status 500');
-    });
-
-    it('should handle network error', async () => {
-      server.use(
-        http.get('*/api/cities/:slug', () => HttpResponse.error())
-      );
-      await expect(fetchCityDetails('bangkok')).rejects.toBeInstanceOf(Error);
-    });
-
-    it('should handle JSON parsing error', async () => {
-      server.use(
-        http.get('*/api/cities/:slug', () =>
-          new Response('not-json', { status: 200, headers: { 'Content-Type': 'application/json' } })
-        )
-      );
-      await expect(fetchCityDetails('bangkok')).rejects.toBeInstanceOf(Error);
-    });
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
-  describe('fetchCityListings', () => {
-    it('should fetch city listings successfully', async () => {
-      const mockListingsData = [
-        {
-          id: '1',
-          title: 'Green Cafe',
-          slug: 'green-cafe',
-          type: 'cafe',
-          city: 'Bangkok',
-        },
-        {
-          id: '2',
-          title: 'Eco Coworking',
-          slug: 'eco-coworking',
-          type: 'coworking',
-          city: 'Bangkok',
-        },
-      ];
-
-      server.use(
-        http.get('*/api/listings', ({ request }) => {
-          const url = new URL(request.url);
-          const slug = url.searchParams.get('citySlug');
-          if (slug !== 'bangkok') return new Response(null, { status: 404 });
-          return jsonResponse({ success: true, data: { listings: mockListingsData, total: 2 } }, { status: 200 });
-        })
-      );
-
-      const result = await fetchCityListings('bangkok');
-      expect(result).toEqual(mockListingsData);
+  it('returns city data on success', async () => {
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: mockCity }),
     });
+    const result = await fetchCityDetails('bangkok');
+    expect(result).toEqual(mockCity);
+    expect(fetch).toHaveBeenCalledWith('/api/cities/bangkok');
+  });
 
-    it('should handle missing listings data', async () => {
-      server.use(
-        http.get('*/api/listings', () => jsonResponse({ success: true, data: {} }, { status: 200 }))
-      );
-      const result = await fetchCityListings('bangkok');
-      expect(result).toEqual([]);
+  it('throws error on non-ok response', async () => {
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      json: async () => ({}),
     });
+    await expect(fetchCityDetails('bangkok')).rejects.toThrow('Failed to fetch city details');
+  });
 
-    it('should return empty array when response is not ok', async () => {
-      server.use(
-        http.get('*/api/listings', () => new Response(null, { status: 500 }))
-      );
-      const result = await fetchCityListings('bangkok');
-      expect(result).toEqual([]);
-    });
+  it('throws error on fetch failure', async () => {
+    (fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
+    await expect(fetchCityDetails('bangkok')).rejects.toThrow('Network error');
+  });
+});
 
-    it('should return empty array on network error', async () => {
-      server.use(
-        http.get('*/api/listings', () => HttpResponse.error())
-      );
-      const result = await fetchCityListings('bangkok');
-      expect(result).toEqual([]);
-    });
+describe('fetchCityListings', () => {
+  const mockListings = [
+    { _id: 'l1', name: 'Eco Space', slug: 'eco-space', description: '', type: 'coworking', priceRange: 'moderate', mainImage: { asset: { _ref: '', url: '' } }, city: { _id: '', name: '', slug: '', listingCount: 0, country: '' }, ecoTags: [], address: '', rating: 4.5, createdAt: '', updatedAt: '' },
+  ];
 
-    it('should handle JSON parsing error gracefully', async () => {
-      server.use(
-        http.get('*/api/listings', () =>
-          new Response('not-json', { status: 200, headers: { 'Content-Type': 'application/json' } })
-        )
-      );
-      const result = await fetchCityListings('bangkok');
-      expect(result).toEqual([]);
-    });
+  beforeEach(() => {
+    global.fetch = jest.fn();
+  });
 
-    it('should call endpoint with slug as-is', async () => {
-      let capturedUrl = '';
-      server.use(
-        http.get('*/api/listings', ({ request }) => {
-          capturedUrl = request.url;
-          return jsonResponse({ success: true, data: { listings: [] } }, { status: 200 });
-        })
-      );
-      await fetchCityListings('chiang-mai');
-      expect(capturedUrl).toContain('/api/listings?citySlug=chiang-mai');
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it('returns listings array on success', async () => {
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: { listings: mockListings } }),
     });
+    const result = await fetchCityListings('bangkok');
+    expect(result).toEqual(mockListings);
+    expect(fetch).toHaveBeenCalledWith('/api/listings?citySlug=bangkok');
+  });
+
+  it('returns empty array if listings missing', async () => {
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: {} }),
+    });
+    const result = await fetchCityListings('bangkok');
+    expect(result).toEqual([]);
+  });
+
+  it('returns empty array on non-ok response', async () => {
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      json: async () => ({}),
+    });
+    await expect(fetchCityListings('bangkok')).resolves.toEqual([]);
+  });
+
+  it('returns empty array on fetch failure', async () => {
+    (fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
+    await expect(fetchCityListings('bangkok')).resolves.toEqual([]);
   });
 });

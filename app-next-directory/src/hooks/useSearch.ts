@@ -1,15 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
 import { SearchFilters, SortOption } from '@/types/search';
-
-interface SearchResult {
-  _id: string;
-  name: string;
-  slug: { current: string };
-  [key: string]: unknown;
-}
+import debounce from 'lodash/debounce';
+import { useCallback, useEffect, useState } from 'react';
 
 interface UseSearchResults {
-  results: SearchResult[];
+  results: any[];
+  isLoading: boolean;
   error: Error | null;
   pagination: {
     total: number;
@@ -26,134 +21,123 @@ interface UseSearchProps {
   debounceMs?: number;
 }
 
-function useDebounce<T>(value: T, delay: number): T {
-  const [debounced, setDebounced] = useState(value);
-  useEffect(() => {
-    const h = setTimeout(() => {
-      setDebounced(value);
-    }, delay);
-    return () => clearTimeout(h);
-  }, [value, delay]);
-  return debounced;
-}
-
 export function useSearch({
   initialQuery = '',
-  initialFilters = { query: '', ecoTags: [], hasDigitalNomadFeatures: false },
+  initialFilters = {
+    query: '',
+    ecoTags: [],
+    hasDigitalNomadFeatures: false
+  },
   initialSort,
-  debounceMs = 300,
+  debounceMs = 300
 }: UseSearchProps = {}) {
   const [query, setQuery] = useState(initialQuery);
   const [filters, setFilters] = useState<SearchFilters>(initialFilters);
   const [sort, setSort] = useState<SortOption | undefined>(initialSort);
   const [page, setPage] = useState(1);
-
-  const [results, setResults] = useState<UseSearchResults>({
-    results: [], error: null,
-    pagination: { total: 0, page: 1, totalPages: 0, hasMore: false }
-  });
-  const [isLoading, setIsLoading] = useState(false);
-
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [results, setResults] = useState<UseSearchResults>({
+    results: [],
+    isLoading: false,
+    error: null,
+    pagination: {
+      total: 0,
+      page: 1,
+      totalPages: 0,
+      hasMore: false
+    }
+  });
 
-  const debouncedQuery = useDebounce(query, debounceMs);
-  const debouncedSuggest = useDebounce(query, 200);
-
-  useEffect(() => {
-    async function doSearch() {
+  // Debounced search function
+  const debouncedSearch = useCallback(
+    debounce(async (searchQuery: string, searchFilters: SearchFilters, currentPage: number, sortOption?: SortOption) => {
       try {
         setIsLoading(true);
-        // FORTEST: Debug log for query
-         
-        console.log('FORTEST: Query sent to API:', debouncedQuery);
-        const res = await fetch('/api/search', {
+        setError(null);
+
+        const response = await fetch('/api/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            query: debouncedQuery,
-            page,
-            limit: 12
-            ,filters
-            ,sort
+            query: searchQuery,
+            filters: searchFilters,
+            page: currentPage,
+            sort: sortOption
           })
         });
-        if (!res.ok) {
-          // Try to read error body for debugging
-          try {
-            const txt = await res.text();
-            if (process.env.NODE_ENV !== 'production') {
-              console.error('Search API error response:', txt);
-            }
-          } catch (parseError) {
-            console.error('Failed to parse error response:', parseError);
-          }
+
+        if (!response.ok) {
           throw new Error('Search request failed');
         }
-        const data = await res.json();
-        // FORTEST: Debug log for API response
-         
-        console.log('FORTEST: API response data:', JSON.stringify(data));
-        setResults(prev => ({
-          ...prev,
-          ...data,
-          results: Array.isArray(data.results) ? data.results : [],
-          pagination: data.pagination || prev.pagination,
-          error: data.error || null
-        }));
-        // Ensure results.results is always an array for test compatibility
-        if (!Array.isArray(data.results)) {
-          setResults(prev => ({ ...prev, results: [] }));
-        }
+
+        const data = await response.json();
+        setResults(data);
       } catch (err) {
-        // FORTEST: Debug log for error
-         
-        console.log('FORTEST: Caught error in search:', err);
-        setResults(r => ({ ...r, error: err instanceof Error ? err : new Error('Unknown') }));
+        setError(err instanceof Error ? err : new Error('Unknown error occurred'));
       } finally {
         setIsLoading(false);
       }
-    }
+    }, debounceMs),
+    []
+  );
 
-    doSearch();
-  }, [debouncedQuery, filters, page, sort]);
-
-  useEffect(() => {
-    if (debouncedSuggest.length < 2) {
-      setSuggestions([]);
-      return;
-    }
-    let canceled = false;
-    async function getSuggestions() {
-      setIsLoadingSuggestions(true);
-      try {
-        const res = await fetch(`/api/search/suggestions?q=${encodeURIComponent(debouncedSuggest)}`);
-        if (!res.ok) throw new Error();
-        const data = await res.json();
-        if (!canceled) setSuggestions(data);
-      } catch {
-        if (!canceled) setSuggestions([]);
-      } finally {
-        if (!canceled) setIsLoadingSuggestions(false);
+  // Debounced suggestions function
+  const debouncedGetSuggestions = useCallback(
+    debounce(async (searchQuery: string) => {
+      if (!searchQuery || searchQuery.length < 2) {
+        setSuggestions([]);
+        return;
       }
-    }
-    getSuggestions();
-    return () => { canceled = true; };
-  }, [debouncedSuggest]);
 
-  const handleQueryChange = useCallback((q: string) => {
-    setQuery(q);
-    setPage(1);
+      try {
+        setIsLoadingSuggestions(true);
+        const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(searchQuery)}`);
+        if (!response.ok) throw new Error('Failed to fetch suggestions');
+        const data = await response.json();
+        setSuggestions(data);
+      } catch (err) {
+        console.error('Error fetching suggestions:', err);
+        setSuggestions([]);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    }, 200),
+    []
+  );
+
+  // Update search when inputs change
+  useEffect(() => {
+    debouncedSearch(query, filters, page, sort);
+  }, [query, filters, page, sort, debouncedSearch]);
+
+  // Update suggestions when query changes
+  useEffect(() => {
+    debouncedGetSuggestions(query);
+  }, [query, debouncedGetSuggestions]);
+
+  // Handlers
+  const handleQueryChange = useCallback((newQuery: string) => {
+    setQuery(newQuery);
+    setPage(1); // Reset to first page on new search
   }, []);
 
-  const handleFiltersChange = useCallback((f: Partial<SearchFilters>) => {
-    setFilters(prev => ({ ...prev, ...f }));
-    setPage(1);
+  const handleFiltersChange = useCallback((newFilters: Partial<SearchFilters>) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+    setPage(1); // Reset to first page on filter change
   }, []);
 
-  const handleSortChange = useCallback((s: SortOption) => setSort(s), []);
-  const handlePageChange = useCallback((p: number) => setPage(p), []);
-  const clearFilters   = useCallback(() => {
+  const handleSortChange = useCallback((newSort: SortOption) => {
+    setSort(newSort);
+  }, []);
+
+  const handlePageChange = useCallback((newPage: number) => {
+    setPage(newPage);
+  }, []);
+
+  const clearFilters = useCallback(() => {
     setFilters(initialFilters);
     setSort(undefined);
   }, [initialFilters]);
@@ -166,7 +150,7 @@ export function useSearch({
     results: results.results,
     pagination: results.pagination,
     isLoading,
-    error: results.error,
+    error,
     suggestions,
     isLoadingSuggestions,
     handleQueryChange,

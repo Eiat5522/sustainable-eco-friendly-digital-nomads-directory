@@ -54,10 +54,13 @@ export interface IUserAnalytics extends Document {
  * Mongoose User Analytics Schema
  */
 const UserAnalyticsSchema: Schema<IUserAnalytics> = new Schema(
-  {    userId: {
+  {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+      unique: true,
+      index: true,
     },
     activity: {
       lastLogin: {
@@ -202,14 +205,6 @@ const UserAnalyticsSchema: Schema<IUserAnalytics> = new Schema(
     collection: 'useranalytics',
   }
 );
-
-// Compound indexes for common query patterns
-UserAnalyticsSchema.index({ eventType: 1, timestamp: -1 });
-UserAnalyticsSchema.index({ userId: 1, timestamp: -1 });
-UserAnalyticsSchema.index({ sessionId: 1, timestamp: -1 });
-UserAnalyticsSchema.index({ timestamp: -1, eventType: 1 });
-
-console.log('📊 UserAnalytics indexes configured');
 
 // Indexes for efficient querying
 UserAnalyticsSchema.index({ userId: 1 });

@@ -174,9 +174,9 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       expect(data.message).toContain('added to favorites');
     });
 
-  test('DELETE /api/user/favorites/[slug] - Remove from Favorites', async ({ request }) => {
-      const listingSlug = 'test-listing-slug';
-      const response = await request.delete(`${BASE_URL}/api/user/favorites/${listingSlug}`, {
+    test('DELETE /api/user/favorites/[listingId] - Remove from Favorites', async ({ request }) => {
+      const listingId = 'test-listing-id';
+      const response = await request.delete(`${BASE_URL}/api/user/favorites/${listingId}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           Cookie: 'next-auth.session-token=' + authToken,
@@ -532,7 +532,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       expect(data.review.rating).toBe(4.5);
     });
 
-  test('GET /api/reviews/listing/[slug] - Get Reviews for Listing', async ({ request }) => {
+    test('GET /api/reviews/listing/[listingId] - Get Reviews for Listing', async ({ request }) => {
       if (!testListingId) return;
 
       const response = await request.get(`${BASE_URL}/api/reviews/listing/${testListingId}`);
@@ -548,6 +548,7 @@ test.describe('API Integration Testing - Workstream E.1', () => {
       // This would need a review ID from a previous test or fixture
       const response = await request.put(`${BASE_URL}/api/reviews/test-review-id`, {
         data: {
+          rating: 5,
           title: 'Updated: Excellent workspace',
           content: 'Updated review content',
         },

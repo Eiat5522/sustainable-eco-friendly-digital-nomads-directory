@@ -1,72 +1,24 @@
-// <reference types="webpack" />
-import type { NextConfig } from 'next'
-import withBundleAnalyzer from '@next/bundle-analyzer';
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+/** @type {import('next').NextConfig} */
 
-const APP_DIR = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
-import type { Configuration } from 'webpack'
+import type { Configuration } from 'webpack';
 
-const isAnalyze = /^(1|true|yes)$/i.test(process.env.ANALYZE ?? '')
-const withAnalyzer = withBundleAnalyzer({ enabled: isAnalyze })
-
-const nextConfig: NextConfig = {
-  productionBrowserSourceMaps: process.env.ENABLE_SOURCE_MAPS === 'true',
-  reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: process.env.NODE_ENV === 'development',
-  },
-  typescript: {
-    ignoreBuildErrors: process.env.NODE_ENV === 'development',
-  },
-  async redirects() {
-    return [
-      { source: '/contact', destination: '/contact-us', permanent: true },
-      { source: '/city/:slug', destination: '/cities/:slug', permanent: true },
-    ]
-  },
+const nextConfig = {
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'cdn.sanity.io',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.pexels.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'i.pravatar.cc',
-      },
+    domains: [
+      'maps.googleapis.com', // For Google Static Maps
+      'unpkg.com', // For Leaflet marker icons
+      'cdn.sanity.io' // For Sanity images
     ],
   },
-  webpack(config: Configuration) {
-    // Ensure @ alias resolves to this app's src directory
-    config.resolve = config.resolve || {}
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
-      '@': path.resolve(APP_DIR, 'src'),
-    }
-
-    config.module.rules.push({
-      test: /\.svg$/i,
-      issuer: /\.[jt]sx?$/,
+  webpack: (config: Configuration) => {
+    // Add SVGR support
+    config.module?.rules?.push({
+      test: /\.svg$/,
       use: ['@svgr/webpack'],
-    })
+    });
 
-    return config
+    return config;
   },
 };
 
-export default (isAnalyze ? withAnalyzer(nextConfig) : nextConfig);
+export default nextConfig;

@@ -42,7 +42,7 @@ export interface SearchResult {
     lat: number;
     lng: number;
   };
-  primaryImage: {
+  mainImage: {
     asset: {
       _ref: string;
       url: string;
@@ -70,5 +70,3 @@ export interface SearchResults {
     hasMore: boolean;
   };
 }
-
-export type SearchParamRecord = Record<string, string | string[] | undefined>

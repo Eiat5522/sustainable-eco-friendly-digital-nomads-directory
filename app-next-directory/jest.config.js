@@ -1,18 +1,41 @@
-// Jest configuration for app-next-directory
-// This config ensures tests load tests/jest.setup.ts and run a global setup
-// that performs linting and type checking before the test suite runs.
+const nextJest = require('next/jest')
 
-module.exports = {
-  rootDir: __dirname,
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/tests/jest.setup.ts'],
-  globalSetup: '<rootDir>/tests/jest.global-setup.js',
-  transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
-  },
+const createJestConfig = nextJest({
+  // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
+  dir: './',
+})
+
+// Add any custom config to be passed to Jest
+const customJestConfig = {
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testEnvironment: 'jest-environment-jsdom',
+  moduleDirectories: ['node_modules', '<rootDir>/node_modules'],
   moduleNameMapper: {
-    // map next/image and next/link if needed by jest transforms; adjust if your monorepo shares configs
+    '^react$': '<rootDir>/node_modules/react',
+    '^react-dom$': '<rootDir>/node_modules/react-dom',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
-};
+  testMatch: [
+    '**/__tests__/**/*.[jt]s?(x)',
+    '**/?(*.)+(spec|test).[jt]s?(x)',
+  ],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/.next/',
+    '/tests/',
+    '\\.spec\\.(ts|tsx)$',
+  ],
+  transformIgnorePatterns: [
+    '/node_modules/',
+    '^.+\\.module\\.(css|sass|scss)$',
+  ],
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.stories.{js,jsx,ts,tsx}',
+    '!src/**/__tests__/**',
+  ],
+}
+
+// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
+module.exports = createJestConfig(customJestConfig)

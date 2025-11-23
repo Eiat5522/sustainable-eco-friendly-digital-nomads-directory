@@ -4,47 +4,29 @@
   "version": "1.0.0",
   "main": "package.json",
   "license": "UNLICENSED",
-  "engines": {
-    "node": ">=20.19.0"
-  },
   "scripts": {
     "dev": "sanity dev",
     "start": "sanity start",
     "build": "sanity build",
     "deploy": "sanity deploy",
-    "deploy-graphql": "sanity graphql deploy",
-    "extract-schema": "sanity schema extract",
-    "generate-types": "sanity typegen generate",
-    "update-types": "npm run extract-schema && npm run generate-types",
-    "test": "echo \"Error: no test specified\" >&2 && exit 1",
-    "lint": "eslint . --ext .ts,.tsx,.js"
+    "deploy-graphql": "sanity graphql deploy"
   },
   "keywords": [
     "sanity"
   ],
   "dependencies": {
-    "@auth/mongodb-adapter": "^3.10.0",
-    "@sanity/code-input": "^6.0.3",
-    "@sanity/vision": "^4.13.0",
-    "leaflet.markercluster": "^1.5.3",
-    "node-fetch": "^3.3.2",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "styled-components": "^6.1.19"
+    "@sanity/vision": "^3.89.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "sanity": "^3.89.0",
+    "styled-components": "^6.1.15"
   },
   "devDependencies": {
-    "@next/eslint-plugin-next": "^15.5.5",
-    "@sanity/codegen": "^4.1.1",
     "@sanity/eslint-config-studio": "^5.0.2",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@types/leaflet": "^1.9.18",
-    "@types/react": "^19.1.13",
-    "@types/supertest": "^6.0.3",
-    "dotenv": "^16.5.0",
-    "eslint": "^9.29.0",
-    "prettier": "^3.6.0",
-    "sanity": "^4.13.0",
-    "typescript": "^5.8.3"
+    "@types/react": "^18.0.25",
+    "eslint": "^8.56.0",
+    "prettier": "^3.0.2",
+    "typescript": "^5.1.6"
   },
   "prettier": {
     "semi": false,

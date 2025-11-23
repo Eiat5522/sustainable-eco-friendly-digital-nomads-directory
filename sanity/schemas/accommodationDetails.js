@@ -9,7 +9,6 @@ export default {
   type: 'object',
   validation: Rule => Rule.required().error('Accommodation details are required for accommodation listings'),
   fields: [
-    // Accommodation type (required, radio)
     {
       name: 'accommodationType',
       title: 'Accommodation Type',
@@ -26,27 +25,33 @@ export default {
           { title: '🌿 Eco Lodge', value: 'eco_lodge', description: 'Environmentally focused' }
         ],
         layout: 'radio'
-      },
-      validation: Rule => Rule.required()
+      }
     },
-    // Price per night (min/max)
     {
-      name: 'pricePerNightThb',
-      title: 'Price Per Night (THB)',
+      name: 'priceRangeThb',
+      title: 'Price Range (THB)',
       type: 'object',
       fields: [
-        { name: 'min', type: 'number', validation: Rule => Rule.required().min(0) },
-        { name: 'max', type: 'number', validation: Rule => Rule.required().min(0) },
-      ]
+        {
+          name: 'min',
+          title: 'Minimum Price',
+          type: 'number',
+          validation: Rule => Rule.required().min(0).error('Minimum price must be non-negative')
+        },
+        {
+          name: 'max',
+          title: 'Maximum Price',
+          type: 'number',
+          validation: Rule => Rule.required().min(0).error('Maximum price must be non-negative')
+        }
+      ],
+      validation: Rule => Rule.custom((priceRange, context) => {
+        if (priceRange?.max < priceRange?.min) {
+          return 'Maximum price must be greater than minimum price'
+        }
+        return true
+      })
     },
-    // Opening hours (optional)
-    {
-      name: 'openingHours',
-      title: 'Opening Hours',
-      type: 'array',
-      of: [{ type: 'openingHoursEntry' }]
-    },
-    // Room types available (at least one required)
     {
       name: 'roomTypesAvailable',
       title: 'Room Types Available',
@@ -99,14 +104,12 @@ export default {
       ],
       validation: Rule => Rule.required().min(1).error('At least one room type is required')
     },
-    // Minimum stay (nights)
     {
       name: 'minimumStay',
       title: 'Minimum Stay (nights)',
       type: 'number',
       validation: Rule => Rule.required().min(1).error('Please specify minimum stay duration')
     },
-    // Coworking partnership (optional)
     {
       name: 'coworkingPartnership',
       title: 'Coworking Partnership',
@@ -136,7 +139,6 @@ export default {
         }
       ]
     },
-    // Workspace quality (optional)
     {
       name: 'workspaceQuality',
       title: 'Workspace Quality',
@@ -178,7 +180,6 @@ export default {
         }
       ]
     },
-    // Stay duration (min/max/long-term)
     {
       name: 'stayDuration',
       title: 'Stay Duration',

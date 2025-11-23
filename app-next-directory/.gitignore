@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/playwright-report/*
+/test-results/*
 
 # next.js
 /.next/
@@ -32,8 +34,6 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-!.env.sample
-!.env.test.sample
 
 # vercel
 .vercel
@@ -41,13 +41,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-/dist
 
-# test files
-test-connection-resilience.cjs
-testConverage/**
-testConverage/lcov-report/*/**
-
+# Added by Claude Task Master
 # Logs
 logs
 *.log
@@ -65,7 +60,6 @@ node_modules/
 *.sln
 *.sw?
 # OS specific
-
 # Task files
-# tasks.json
-# tasks/ 
+tasks.json
+tasks/

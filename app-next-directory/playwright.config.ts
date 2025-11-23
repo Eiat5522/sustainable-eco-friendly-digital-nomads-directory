@@ -1,88 +1,132 @@
-/// <reference types="node" />
+import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
 
-import { defineConfig, devices } from '@playwright/test'
-import {
-  PLAYWRIGHT_BASE_URL,
-  PLAYWRIGHT_ENV,
-  PLAYWRIGHT_IS_LOCAL,
-  PLAYWRIGHT_PORT,
-} from './tests/config/environment'
-
-// NOTE: This config will start the Next dev server before running tests and stop it after.
-// If your dev server uses a different port, update `PLAYWRIGHT_BASE_URL` via env vars.
-const resolvedBaseURL = PLAYWRIGHT_BASE_URL
-const isLocal = PLAYWRIGHT_IS_LOCAL
-const resolvedPort = PLAYWRIGHT_PORT
-const serverWaitURL = PLAYWRIGHT_ENV.serverWaitURL
+// Load test environment variables
+dotenv.config({ path: '.env.test' });
 
 export default defineConfig({
-  // Run Playwright tests from the project tests directory using .spec.ts extension only
-  // Only run tests inside the `tests/e2e` directory. Integration tests are managed by Jest.
-  // This keeps Playwright focused on UI E2E only and prevents it from picking up other
-  // spec files that belong to different test runners.
   testDir: './tests',
-  // Explicitly match only .spec.ts files within the e2e subdirectory
-  testMatch: '**/e2e/**/*.spec.ts',
-  // Ignore integration and unit-specs so Playwright does not pick them up when
-  // searching for `*.spec.ts` under `tests/`.
-  testIgnore: [
-    // ensure any explicit integration or jest-style tests that might be present are ignored
-    '**/*.integration.*',
-    '**/*.unit.*',
-    // ignore legacy jest e2e runner files
-    '**/jest.*.spec.ts',
-    // Explicitly ignore all spec files NOT in the e2e directory
-    '**/tests/*.spec.ts',
-    '**/tests/debug/**',
-    '**/tests/performance/**',
-    '**/tests/visual/**',
-  ],
-  timeout: 60_000,
-  expect: {
-    timeout: 5_000,
-  },
-  fullyParallel: false,
+  fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  reporter: [
-    ['list'],
-    ['html', { outputFolder: 'playwright-report' }],
-    ['json', { outputFile: 'test-results/test-results.json' }],
-  ],
+  workers: process.env.CI ? 1 : undefined,
+  reporter: [['html'], ['list'], ['json', { outputFile: 'test-results/test-results.json' }]],
   use: {
-    baseURL: resolvedBaseURL,
-    headless: true,
-    actionTimeout: 15_000,
-    ignoreHTTPSErrors: Boolean(process.env.ALLOW_INSECURE_HTTPS),
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+    // Enable JavaScript in the browser for map functionality
+    javaScriptEnabled: true,
+    // Enable screenshot on failure
+    screenshot: 'only-on-failure',
+    // Enable video recording on failure
     video: 'retain-on-failure',
-    trace: 'retain-on-failure',
+    // Enable built-in test isolation
+    testIsolation: true,
   },
   projects: [
+    // Setup project
+    { name: 'setup', testMatch: /.*\.setup\.ts/ },
+
+    // Unit and Component Testing
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+      name: 'unit',
+      testDir: './tests/unit',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
+    },
+
+    // API Testing
+    {
+      name: 'api',
+      testDir: './tests/api',
+      use: {
+        ...devices['Desktop Chrome'],
+        extraHTTPHeaders: {
+          Accept: 'application/json',
+        },
+      },
+      dependencies: ['setup'],
+    },
+
+    // UX/UI Testing
+    {
+      name: 'ux-chrome',
+      testDir: './tests/ux',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
+    },
+    {
+      name: 'ux-firefox',
+      testDir: './tests/ux',
+      use: { ...devices['Desktop Firefox'] },
+      dependencies: ['setup'],
+    },
+    {
+      name: 'ux-safari',
+      testDir: './tests/ux',
+      use: { ...devices['Desktop Safari'] },
+      dependencies: ['setup'],
+    },
+    {
+      name: 'ux-mobile-chrome',
+      testDir: './tests/ux',
+      use: { ...devices['Pixel 5'] },
+      dependencies: ['setup'],
+    },
+    {
+      name: 'ux-mobile-safari',
+      testDir: './tests/ux',
+      use: { ...devices['iPhone 12'] },
+      dependencies: ['setup'],
+    },
+
+    // E2E Testing
+    {
+      name: 'e2e-chrome',
+      testDir: './tests/e2e',
+      use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup'],
+    },
+    {
+      name: 'e2e-firefox',
+      testDir: './tests/e2e',
+      use: { ...devices['Desktop Firefox'] },
+      dependencies: ['setup'],
+    },
+
+    // Authenticated test projects
+    {
+      name: 'logged-in-chrome',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'tests/.auth/user.json',
+      },
+      dependencies: ['setup'],
+    },
+    {
+      name: 'admin-chrome',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'tests/.auth/admin.json',
+      },
+      dependencies: ['setup'],
     },
   ],
-  webServer: isLocal
-    ? {
-        command: 'pnpm dev',
-        url: serverWaitURL.toString(),
-        timeout: 180_000,
-        reuseExistingServer: !process.env.CI,
-        env: {
-          PORT: String(resolvedPort),
-          // Keep Next in dev mode; use explicit toggles for test behavior.
-          E2E: '1',
-          NEXT_PUBLIC_E2E: '1',
-          NEXT_PUBLIC_SANITY_PROJECT_ID:
-            process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'test-project',
-          NEXT_PUBLIC_SANITY_DATASET:
-            process.env.NEXT_PUBLIC_SANITY_DATASET || 'test-dataset',
-          NEXT_TELEMETRY_DISABLED: '1',
-          MONGODB_URI: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/test',
-          NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'test-secret',
-          NEXTAUTH_URL: process.env.NEXTAUTH_URL || resolvedBaseURL.toString(),
-        },
-      }
-    : undefined,
-})
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120000, // 2 minutes
+    stderr: 'pipe',
+    stdout: 'pipe',
+  },
+  // Global timeout for all tests
+  timeout: 30000,
+  // Global expect timeout
+  expect: {
+    timeout: 5000,
+    toHaveScreenshot: {
+      maxDiffPixels: 100,
+    },
+  },
+});

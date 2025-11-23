@@ -1,246 +1,147 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-// Provides extended jest matchers like toHaveClass / toBeInTheDocument
-import '@testing-library/jest-dom';
 import { SkipLink } from '../skip-link';
 
-jest.mock('next/link', () => ({
-  __esModule: true,
-  default: ({ children, href, ...props }: any) => {
-    return <a href={href} {...props}>{children}</a>;
-  },
-}));
-
 describe('SkipLink', () => {
-  describe('Basic Rendering', () => {
-    it('renders with children text', () => {
-      render(<SkipLink href="#main">Skip to content</SkipLink>);
-      expect(screen.getByText('Skip to content')).toBeInTheDocument();
-    });
-
-    it('renders as a link element', () => {
-      render(<SkipLink href="#main">Skip</SkipLink>);
-      const link = screen.getByRole('link');
-      expect(link).toBeInTheDocument();
-    });
-
-    it('applies href attribute', () => {
-      render(<SkipLink href="#main-content">Skip to main</SkipLink>);
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', '#main-content');
-    });
-  });
-
-  describe('Default Styling', () => {
-    it('applies position and visibility classes', () => {
-      render(<SkipLink href="#main">Skip</SkipLink>);
-      const link = screen.getByRole('link');
+  describe('Styling and CSS Classes', () => {
+    it('should apply base CSS classes for accessibility', () => {
+      render(<SkipLink data-testid="skip-link" />);
+      const link = screen.getByTestId('skip-link');
       
+      expect(link).toHaveClass('sr-only');
+      expect(link).toHaveClass('focus:not-sr-only');
       expect(link).toHaveClass('absolute');
-      expect(link).toHaveClass('left-4');
-      expect(link).toHaveClass('top-4');
+      expect(link).toHaveClass('left-0');
+      expect(link).toHaveClass('top-0');
       expect(link).toHaveClass('z-50');
-      expect(link).toHaveClass('-translate-y-full');
     });
 
-    it('applies default appearance classes', () => {
-      // Render using the correct prop `href` (component expects href)
-      render(<SkipLink href="#main-content">Skip</SkipLink>);
-      const link = screen.getByRole('link');
+    it('should apply background and text color classes', () => {
+      render(<SkipLink data-testid="skip-link" />);
+      const link = screen.getByTestId('skip-link');
       
-      // Check for default classes (not focus classes)
-      expect(link).toHaveClass('bg-white');
-      expect(link).toHaveClass('text-white');
-      expect(link).toHaveClass('border-white');
+      expect(link).toHaveClass('bg-primary');
+      expect(link).toHaveClass('text-primary-foreground');
     });
 
-    it('applies focus appearance classes when focused', async () => {
-      const user = userEvent.setup();
-      // Use the correct prop `href` so the link is rendered properly
-      render(<SkipLink href="#main-content">Skip</SkipLink>);
-      const link = screen.getByRole('link');
+    it('should apply padding and typography classes', () => {
+      render(<SkipLink data-testid="skip-link" />);
+      const link = screen.getByTestId('skip-link');
       
-      // Focus the element
-      await user.tab();
-      
-      // Now check for focus classes
-      expect(link).toHaveClass('focus:bg-neo-primary');
-      expect(link).toHaveClass('focus:text-white');
-      expect(link).toHaveClass('focus:border-neo-primary');
+      expect(link).toHaveClass('px-4');
+      expect(link).toHaveClass('py-2');
+      expect(link).toHaveClass('text-sm');
+      expect(link).toHaveClass('font-medium');
     });
 
-    it('applies transition classes', () => {
-      render(<SkipLink href="#main">Skip</SkipLink>);
-      const link = screen.getByRole('link');
+    it('should apply focus ring styles', () => {
+      render(<SkipLink data-testid="skip-link" />);
+      const link = screen.getByTestId('skip-link');
       
-      expect(link).toHaveClass('transition-transform');
-      expect(link).toHaveClass('duration-150');
-      expect(link).toHaveClass('ease-in-out');
-    });
-
-    it('applies focus styles', () => {
-      render(<SkipLink href="#main">Skip</SkipLink>);
-      const link = screen.getByRole('link');
-      
-      expect(link).toHaveClass('focus:translate-y-0');
       expect(link).toHaveClass('focus:outline-none');
       expect(link).toHaveClass('focus:ring-2');
-      expect(link).toHaveClass('focus:ring-neo-primary');
+      expect(link).toHaveClass('focus:ring-ring');
       expect(link).toHaveClass('focus:ring-offset-2');
     });
-  });
 
-  describe('Custom Styling', () => {
-    it('applies custom className', () => {
-      render(
-        <SkipLink href="#main" className="custom-class">
-          Skip
-        </SkipLink>
-      );
-      const link = screen.getByRole('link');
+    it('should apply transition classes', () => {
+      render(<SkipLink data-testid="skip-link" />);
+      const link = screen.getByTestId('skip-link');
       
-      expect(link).toHaveClass('custom-class');
-      expect(link).toHaveClass('absolute'); // Still has default classes
+      expect(link).toHaveClass('transition-transform');
     });
 
-    it('merges custom className with default classes', () => {
-      render(
-        <SkipLink href="#main" className="bg-blue-600 text-lg">
-          Skip
-        </SkipLink>
-      );
-      const link = screen.getByRole('link');
+    it('should merge custom className with default classes', () => {
+      render(<SkipLink data-testid="skip-link" className="custom-skip-class" />);
+      const link = screen.getByTestId('skip-link');
       
-      expect(link).toHaveClass('bg-blue-600');
-      expect(link).toHaveClass('text-lg');
-      expect(link).toHaveClass('rounded-md');
+      expect(link).toHaveClass('custom-skip-class');
+      expect(link).toHaveClass('sr-only');
+      expect(link).toHaveClass('focus:not-sr-only');
     });
   });
 
-  describe('Different Href Targets', () => {
-    it('links to main content', () => {
-      render(<SkipLink href="#main">Skip to main content</SkipLink>);
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', '#main');
+  describe('Functionality', () => {
+    it('should render with default text', () => {
+      render(<SkipLink data-testid="skip-link" />);
+      const link = screen.getByTestId('skip-link');
+      
+      expect(link).toHaveTextContent('Skip to main content');
     });
 
-    it('links to navigation', () => {
-      render(<SkipLink href="#navigation">Skip to navigation</SkipLink>);
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', '#navigation');
+    it('should render with custom text', () => {
+      render(<SkipLink data-testid="skip-link">Skip to navigation</SkipLink>);
+      const link = screen.getByTestId('skip-link');
+      
+      expect(link).toHaveTextContent('Skip to navigation');
     });
 
-    it('links to footer', () => {
-      render(<SkipLink href="#footer">Skip to footer</SkipLink>);
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', '#footer');
+    it('should have correct href with default targetId', () => {
+      render(<SkipLink data-testid="skip-link" />);
+      const link = screen.getByTestId('skip-link');
+      
+      expect(link).toHaveAttribute('href', '#main-content');
     });
 
-    it('handles route paths', () => {
-      render(<SkipLink href="/about">Skip to about</SkipLink>);
-      const link = screen.getByRole('link');
-      expect(link).toHaveAttribute('href', '/about');
-    });
-  });
-
-  describe('Content Variations', () => {
-    it('renders with short text', () => {
-      render(<SkipLink href="#main">Skip</SkipLink>);
-      expect(screen.getByText('Skip')).toBeInTheDocument();
+    it('should have correct href with custom targetId', () => {
+      render(<SkipLink data-testid="skip-link" targetId="custom-section" />);
+      const link = screen.getByTestId('skip-link');
+      
+      expect(link).toHaveAttribute('href', '#custom-section');
     });
 
-    it('renders with longer descriptive text', () => {
-      const text = 'Skip to main content area';
-      render(<SkipLink href="#main">{text}</SkipLink>);
-      expect(screen.getByText(text)).toBeInTheDocument();
+    it('should support ref forwarding', () => {
+      const ref = React.createRef<HTMLAnchorElement>();
+      render(<SkipLink ref={ref} />);
+      
+      expect(ref.current).toBeInstanceOf(HTMLAnchorElement);
     });
 
-    it('renders with complex children', () => {
+    it('should render as an anchor tag', () => {
+      render(<SkipLink data-testid="skip-link" />);
+      const link = screen.getByTestId('skip-link');
+      
+      expect(link.tagName).toBe('A');
+    });
+
+    it('should pass through additional HTML attributes', () => {
       render(
-        <SkipLink href="#main">
-          <span>Skip to</span> <strong>main</strong>
-        </SkipLink>
+        <SkipLink 
+          data-testid="skip-link" 
+          aria-label="Skip to main content area"
+          title="Skip link"
+        />
       );
-      expect(screen.getByText('Skip to')).toBeInTheDocument();
-      expect(screen.getByText('main')).toBeInTheDocument();
+      const link = screen.getByTestId('skip-link');
+      
+      expect(link).toHaveAttribute('aria-label', 'Skip to main content area');
+      expect(link).toHaveAttribute('title', 'Skip link');
     });
   });
 
   describe('Accessibility', () => {
-    it('is keyboard accessible', () => {
-      render(<SkipLink href="#main">Skip to content</SkipLink>);
-      const link = screen.getByRole('link');
-      
-      // Skip link should be focusable
-      link.focus();
-      expect(document.activeElement).toBe(link);
-    });
-
-    it('has proper role', () => {
-      render(<SkipLink href="#main">Skip</SkipLink>);
-      const link = screen.getByRole('link');
-      expect(link).toBeInTheDocument();
-    });
-
-    it('provides clear link text for screen readers', () => {
-      render(<SkipLink href="#main">Skip to main content</SkipLink>);
-      const link = screen.getByRole('link', { name: 'Skip to main content' });
-      expect(link).toBeInTheDocument();
-    });
-  });
-
-  describe('WCAG Compliance', () => {
-    it('is hidden by default with -translate-y-full', () => {
-      render(<SkipLink href="#main">Skip</SkipLink>);
-      const link = screen.getByRole('link');
-      
-      // Should have class that moves it off-screen
-      expect(link).toHaveClass('-translate-y-full');
-    });
-
-    it('becomes visible on focus with focus:translate-y-0', () => {
-      render(<SkipLink href="#main">Skip</SkipLink>);
-      const link = screen.getByRole('link');
-      
-      // Should have focus class that brings it into view
-      expect(link).toHaveClass('focus:translate-y-0');
-    });
-
-    it('has high z-index for visibility', () => {
-      render(<SkipLink href="#main">Skip</SkipLink>);
-      const link = screen.getByRole('link');
-      
-      expect(link).toHaveClass('z-50');
-    });
-  });
-
-  describe('Multiple Skip Links', () => {
-    it('renders multiple skip links', () => {
+    it('should be keyboard accessible', async () => {
+      const user = userEvent.setup();
       render(
-        <>
-          <SkipLink href="#main">Skip to main</SkipLink>
-          <SkipLink href="#nav">Skip to navigation</SkipLink>
-          <SkipLink href="#footer">Skip to footer</SkipLink>
-        </>
+        <div>
+          <SkipLink data-testid="skip-link" />
+          <main id="main-content">Main content</main>
+        </div>
       );
+      const link = screen.getByTestId('skip-link');
       
-      expect(screen.getByText('Skip to main')).toBeInTheDocument();
-      expect(screen.getByText('Skip to navigation')).toBeInTheDocument();
-      expect(screen.getByText('Skip to footer')).toBeInTheDocument();
+      await user.tab();
+      expect(link).toHaveFocus();
     });
 
-    it('each skip link has unique href', () => {
-      render(
-        <>
-          <SkipLink href="#main">Skip to main</SkipLink>
-          <SkipLink href="#nav">Skip to navigation</SkipLink>
-        </>
-      );
+    it('should be screen reader friendly with sr-only class', () => {
+      render(<SkipLink data-testid="skip-link" />);
+      const link = screen.getByTestId('skip-link');
       
-      const links = screen.getAllByRole('link');
-      expect(links[0]).toHaveAttribute('href', '#main');
-      expect(links[1]).toHaveAttribute('href', '#nav');
+      // The sr-only class makes it invisible but accessible to screen readers
+      expect(link).toHaveClass('sr-only');
+      expect(link).toBeInTheDocument();
     });
   });
 });

@@ -8,7 +8,7 @@ import {
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 
-export function useAnalytics(options?: { referrer?: string }) {
+export function useAnalytics() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -17,11 +17,11 @@ export function useAnalytics(options?: { referrer?: string }) {
     const search = searchParams?.toString();
     trackPageView({
       title: document.title,
-      path: pathname ?? '',
+      path: pathname,
       search: search ? `?${search}` : undefined,
-      referrer: options?.referrer ?? document.referrer
+      referrer: document.referrer
     });
-  }, [pathname, searchParams, options?.referrer]);
+  }, [pathname, searchParams]);
 
   // Typed event tracking
   const track = useCallback(<T extends keyof EventProperties>(
@@ -42,7 +42,7 @@ export function useAnalytics(options?: { referrer?: string }) {
   // User identification
   const identify = useCallback((
     userId: string,
-    traits?: Record<string, unknown>
+    traits?: Record<string, any>
   ) => {
     return identifyUser(userId, traits);
   }, []);

@@ -10,39 +10,20 @@ const defaultOptions: HighlightOptions = {
   caseSensitive: false,
 };
 
-export function highlightText(
-  text: string | null | undefined,
-  searchQuery: string | null | undefined,
-  options?: HighlightOptions | null
-): string | React.ReactNode | null | undefined {
-  // Return null/undefined if input is null/undefined
-  if (text == null) return text;
-  if (text === '') return '';
-  // If searchQuery is null/undefined/empty, return text as string
-  if (searchQuery == null || searchQuery === '' || typeof searchQuery !== 'string' || !searchQuery.trim()) {
-    return String(text);
-  }
-  // Defensive: handle options null/undefined
-  const opts = options == null ? defaultOptions : options;
+export function highlightText(text: string, searchQuery: string, options: HighlightOptions = defaultOptions) {
+  if (!searchQuery.trim()) return text;
 
-  const flags = opts.caseSensitive ? 'g' : 'gi';
+  const flags = options.caseSensitive ? 'g' : 'gi';
   const escapedQuery = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const strText = String(text);
-  const parts = strText.split(new RegExp(`(${escapedQuery})`, flags));
+  const parts = text.split(new RegExp(`(${escapedQuery})`, flags));
 
-  // If no match, return array with original string
-  if (parts.length === 1) return [strText];
-
-  // Only return an array if highlighting is needed
   return parts.map((part, i) => {
-    const matches = opts.caseSensitive
-      ? part === searchQuery
-      : part.toLowerCase() === searchQuery.toLowerCase();
+    const matches = part.toLowerCase() === searchQuery.toLowerCase();
     if (!matches) return part;
     return (
       <mark
         key={`${part}-${i}`}
-        className={opts.className}
+        className={options.className}
       >
         {part}
       </mark>
@@ -50,13 +31,7 @@ export function highlightText(
   });
 }
 
-export function getHighlightedText(
-  text: string | null | undefined,
-  searchQuery: string | null | undefined,
-  options?: HighlightOptions | null
-) {
-  // Defensive: match highlightText signature
-  if (text == null) return text;
-  if (text === '') return '';
+export function getHighlightedText(text: string, searchQuery: string, options?: HighlightOptions) {
+  if (!text || !searchQuery) return text;
   return highlightText(text, searchQuery, options);
 }

@@ -4,7 +4,7 @@
  * Date: May 24, 2025
  */
 
-import type { SanityImageObject } from '../types/external/sanity-image'
+import { type SanityImageObject } from '@sanity/image-url/lib/types/types'
 import { sanityHTTPClient } from './sanity-http-client'
 
 // Image optimization settings
@@ -16,14 +16,9 @@ export interface ImageOptimizationOptions {
   progressive?: boolean
 }
 
-// Extended SanityImageObject to include _id property
-export interface ExtendedSanityImageObject extends SanityImageObject {
-  _id: string
-}
-
 // Upload result interface
 export interface ImageUploadResult {
-  asset: ExtendedSanityImageObject
+  asset: SanityImageObject
   url: string
   metadata: {
     width: number
@@ -83,12 +78,12 @@ export class SanityImageUploader {
       })
 
       // Generate optimized URL
-      const url = this.generateOptimizedUrl((asset as ExtendedSanityImageObject)._id)
+      const url = this.generateOptimizedUrl(asset._id)
 
-      console.log(`✅ Image uploaded successfully: ${(asset as ExtendedSanityImageObject)._id}`)
+      console.log(`✅ Image uploaded successfully: ${asset._id}`)
 
       return {
-        asset: asset as ExtendedSanityImageObject,
+        asset,
         url,
         metadata: {
           ...metadata,
@@ -126,7 +121,7 @@ export class SanityImageUploader {
     // Process files in batches
     for (let i = 0; i < files.length; i += concurrency) {
       const batch = files.slice(i, i + concurrency)
-      const promises = batch.map(async (file, _index) => {
+      const promises = batch.map(async (file, index) => {
         try {
           const uploadResult = await this.uploadImage(file, {
             title: file.name.replace(/\.[^/.]+$/, ''),
@@ -207,12 +202,11 @@ export class SanityImageUploader {
 
       img.onload = () => {
         URL.revokeObjectURL(url)
-        const [, format = ''] = file.type.split('/')
         resolve({
           width: img.naturalWidth,
           height: img.naturalHeight,
           size: file.size,
-          format
+          format: file.type.split('/')[1]
         })
       }
 
@@ -231,24 +225,16 @@ export class SanityImageUploader {
   private async generateBlurHash(file: File): Promise<string> {
     // Simplified blur hash generation
     // In production, use blurhash library
-    const ignoredHash = btoa(file.name + file.size).substring(0, 16)
+    const hash = btoa(file.name + file.size).substring(0, 16)
     return `data:image/svg+xml;base64,${btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#f0f0f0"/></svg>`)}`
-  }
-
-  private getRequiredSanityConfig(): { projectId: string; dataset: string } {
-    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
-    const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
-    if (!projectId || !dataset) {
-      throw new Error('Sanity project configuration is missing. Please set NEXT_PUBLIC_SANITY_PROJECT_ID and NEXT_PUBLIC_SANITY_DATASET.')
-    }
-    return { projectId, dataset }
   }
 
   /**
    * Generate optimized URL for Sanity image
    */
   private generateOptimizedUrl(assetId: string): string {
-    const { projectId, dataset } = this.getRequiredSanityConfig()
+    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+    const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
 
     return `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}-800x600.webp?auto=format&fit=crop&q=85`
   }
@@ -263,7 +249,8 @@ export class SanityImageUploader {
     large: string
     original: string
   } {
-    const { projectId, dataset } = this.getRequiredSanityConfig()
+    const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
+    const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
     const baseUrl = `https://cdn.sanity.io/images/${projectId}/${dataset}/${assetId}`
 
     return {

@@ -1,7 +1,6 @@
 // Sanity User Service - Manages user operations between NextAuth and Sanity
 import { createClient } from "next-sanity";
 import bcrypt from "bcryptjs";
-import { structuredLogger } from '@/lib/logger';
 
 const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
@@ -21,11 +20,7 @@ export async function findSanityUserByEmail(email: string) {
     const query = `*[_type == "user" && email == $email][0]`;
     return await client.fetch(query, { email });
   } catch (err) {
-    structuredLogger.error("Error finding Sanity user by email", err, {
-      email: email, // Will be redacted by logger
-      component: 'user-service',
-      operation: 'find_by_email'
-    });
+    console.error("Error finding Sanity user by email:", err);
     return null;
   }
 }
@@ -39,11 +34,7 @@ export async function findSanityUserById(id: string) {
   try {
     return await client.fetch(`*[_type == "user" && _id == $id][0]`, { id });
   } catch (err) {
-    structuredLogger.error("Error finding Sanity user by ID", err, {
-      userId: id,
-      component: 'user-service',
-      operation: 'find_by_id'
-    });
+    console.error("Error finding Sanity user by ID:", err);
     return null;
   }
 }
@@ -95,11 +86,7 @@ export async function createSanityUser({
     
     return newUser;
   } catch (err) {
-    structuredLogger.error("Error creating Sanity user", err, {
-      email: email, // Will be redacted by logger
-      component: 'user-service',
-      operation: 'create_user'
-    });
+    console.error("Error creating Sanity user:", err);
     throw err;
   }
 }
@@ -142,11 +129,7 @@ export async function updateSanityUserWithAuthDetails(
     
     return await patch.commit();
   } catch (err) {
-    structuredLogger.error("Error updating Sanity user", err, {
-      userId,
-      component: 'user-service',
-      operation: 'update_user'
-    });
+    console.error("Error updating Sanity user:", err);
     return null;
   }
 }
@@ -155,14 +138,11 @@ export async function updateSanityUserWithAuthDetails(
  * Create a local credentials user with hashed password in MongoDB
  */
 export async function createLocalUser(
-  db: { collection: (name: string) => { findOne: (query: unknown) => Promise<unknown>; insertOne: (doc: unknown) => Promise<unknown> } },
+  db: any,
   { name, email, password }: { name: string; email: string; password: string }
 ) {
-  // Normalize email for consistent lookups and writes
-  const normalizedEmail = String(email).trim().toLowerCase();
-
-  // Check if user exists (using normalized email)
-  const existingUser = await db.collection("users").findOne({ email: normalizedEmail });
+  // Check if user exists
+  const existingUser = await db.collection("users").findOne({ email });
   if (existingUser) {
     throw new Error("User already exists");
   }
@@ -173,14 +153,14 @@ export async function createLocalUser(
   // Create user in MongoDB
   const result = await db.collection("users").insertOne({
     name,
-    email: normalizedEmail,
+    email,
     password: hashedPassword,
     role: "user",
     createdAt: new Date(),
   });
 
   // Create user in Sanity
-  await createSanityUser({ name, email: normalizedEmail, role: "user" });
+  await createSanityUser({ name, email, role: "user" });
 
   return result;
 }
@@ -200,12 +180,7 @@ export async function updateUserRole(userId: string, newRole: string) {
     
     return true;
   } catch (err) {
-    structuredLogger.error("Error updating user role", err, {
-      userId: userId,
-      newRole: newRole,
-      component: 'user-service',
-      operation: 'update_role'
-    });
+    console.error("Error updating user role:", err);
     return null;
   }
 }

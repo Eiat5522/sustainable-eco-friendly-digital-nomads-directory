@@ -64,13 +64,6 @@ export default {
       readOnly: true // Managed through reviews, not directly
     },
     {
-      name: 'comments',
-      title: 'Comments',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'comment' }], weak: true }],
-      readOnly: true
-    },
-    {
       name: 'lastActive',
       title: 'Last Active',
       type: 'datetime',

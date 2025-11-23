@@ -1,28 +1,57 @@
-import { test as base } from '@playwright/test'
-import type { Listing } from '@/types/listings'
-import { createTestData, listEcoTags } from '@tests/helpers/test-data'
+import { test as base } from '@playwright/test';
+import { type Listing } from '@/types/listings';
 
 type ListingsFixtures = {
-  mockListings: Listing[]
+  mockListings: Listing[];
   defaultFilters: {
-    categories: string[]
-    ecoTags: string[]
-  }
-}
+    categories: string[];
+    ecoTags: string[];
+  };
+};
 
+// Extend base test with fixtures
 export const test = base.extend<ListingsFixtures>({
   mockListings: async ({}, use) => {
-    const { listings } = createTestData()
-    await use(listings)
+    // Provide mock listings data
+    const mockData: Listing[] = [
+      {
+        id: '1',
+        name: 'Test Coworking',
+        city: 'Bangkok',
+        category: 'coworking',
+        address_string: '123 Test St',
+        coordinates: {
+          latitude: 13.7563,
+          longitude: 100.5018
+        },
+        description_short: 'Test description',
+        description_long: 'Long description',
+        eco_focus_tags: ['zero-waste'],
+        eco_notes_detailed: 'Eco notes',
+        source_urls: [],
+        primary_image_url: '/test.jpg',
+        gallery_image_urls: [],
+        digital_nomad_features: ['wifi'],
+        last_verified_date: '2025-05-14'
+      }
+      // Add more mock listings as needed
+    ];
+
+    await use(mockData);
   },
 
   defaultFilters: async ({}, use) => {
-    const data = createTestData()
-    const categories = Array.from(new Set(data.listings.map((listing) => listing.type)))
-    const ecoTags = listEcoTags().map((tag) => tag.slug.current)
     await use({
-      categories,
-      ecoTags
-    })
+      categories: ['coworking', 'cafe', 'accommodation'],
+      ecoTags: [
+        'zero-waste',
+        'renewable-energy',
+        'plant-based',
+        'eco-construction',
+        'water-conservation',
+        'local-community',
+        'organic'
+      ]
+    });
   }
-})
+});

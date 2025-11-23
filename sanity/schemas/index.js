@@ -1,7 +1,7 @@
 import accommodationDetails from './accommodationDetails.js';
 import activitiesDetails from './activitiesDetails.js';
 import address from './address.js';
-import amenity from './amenity.js';
+import amenities from './amenities.js';
 import blogPost from './blogPost.js';
 import cafeDetails from './cafeDetails.js';
 import city from './city.js';
@@ -21,9 +21,7 @@ import richText from './richText.js';
 import searchBoost from './searchBoost.js';
 import searchConfig from './searchConfig.js';
 import user from './user.js';
-import userFavorite from './userFavorite.js';
-import coworkingPricingPlan from './objects/coworkingPricingPlan.js';
-import openingHoursEntry from './objects/openingHoursEntry.js';
+import userPreference from './userPreference.js';
 
 export const schemaTypes = [
   city,
@@ -32,11 +30,10 @@ export const schemaTypes = [
   review,
   blogPost,
   user,
-  userFavorite,
   accommodationDetails,
   activitiesDetails,
   address,
-  amenity,
+  amenities,
   cafeDetails,
   comment,
   coworkingDetails,
@@ -50,6 +47,5 @@ export const schemaTypes = [
   richText,
   searchBoost,
   searchConfig,
-  coworkingPricingPlan,
-  openingHoursEntry
+  userPreference
 ];

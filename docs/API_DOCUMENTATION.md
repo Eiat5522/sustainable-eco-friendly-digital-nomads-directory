@@ -2,64 +2,40 @@
 
 This document describes the API endpoints available in the Sustainable Eco-Friendly Digital Nomads Directory application.
 
-## 🔐 Authentication & Security
+## 🔐 Authentication
 
-All API endpoints use **NextAuth.js v5** for authentication with comprehensive security measures.
+All API endpoints use **NextAuth.js** for authentication with JWT tokens and role-based access control.
 
-### **Security Features: ✅ ENTERPRISE-GRADE**
+### Authentication Status: ✅ COMPLETED
 
-- ✅ **JWT Strategy**: Secure token-based authentication with Edge compatibility
-- ✅ **Role-Based Access Control**: 8-tier permission system (unidentifiedUser → superAdmin)
-- ✅ **Session Management**: MongoDB-backed user persistence with JWT sessions
-- ✅ **Security Headers**: X-Frame-Options, CSP, CSRF protection
-- ✅ **Middleware Protection**: Route and API endpoint security enforcement
-- ✅ **Multi-layer Validation**: Client-side + Server-side + Database validation
+- **JWT Strategy**: Secure token-based authentication
 
-### **Authentication Status: ✅ COMPLETE & SECURE**
+- **Role-Based Access**: 5-tier permission system
 
-Our API security implementation includes:
-- **Defense-in-depth**: Multiple security layers
-- **Comprehensive RBAC**: Full role hierarchy with granular permissions
-- **API Protection**: All protected endpoints validate authentication and authorization
-- **Security Testing**: 120+ E2E tests covering authentication flows and RBAC
+- **Session Management**: MongoDB-backed sessions
 
-### **Role Hierarchy & API Access**
+- **Security**: bcryptjs password hashing, rate limiting
 
-```
-API Access Levels:
-┌─────────────────┐  Level 5: superAdmin (All APIs + User Management)
-│   superAdmin    │  
-├─────────────────┤  Level 4: admin (All APIs except User Role Changes)
-│     admin       │  
-├─────────────────┤  Level 3: moderator (Content Moderation APIs)
-│   moderator     │  
-├─────────────────┤  Level 2: venueOwner (Own Listings + User APIs)
-│  venueOwner     │  
-├─────────────────┤  Level 1: editor/contentEditor (Content APIs)
-│ editor/content  │  
-├─────────────────┤  Level 0: user (User APIs + Reviews)
-│      user       │  
-└─────────────────┘  Public: Listings (read-only)
-```
+## 📋 API Endpoints
 
-## 📋 API Endpoints by Category
-
-### **🔐 Authentication Endpoints**
+### Authentication Endpoints
 
 #### `POST /api/auth/signin`
-**Purpose**: User authentication  
-**Access**: Public  
-**Security**: Rate limited, bcrypt password validation  
 
+**Purpose**: User authentication
+**Access**: Public
 **Body**:
+
 ```json
 {
   "email": "user@example.com",
   "password": "securePassword123"
 }
+
 ```
 
 **Response**:
+
 ```json
 {
   "user": {
@@ -70,117 +46,7 @@ API Access Levels:
   },
   "expires": "2025-06-26T12:00:00.000Z"
 }
-```
 
-### **👥 User Management APIs**
-
-#### `GET /api/user/dashboard`
-**Purpose**: Get user dashboard data  
-**Access**: Authenticated users only  
-**Security**: Server-side session validation, role-based data filtering  
-
-**Response**:
-```json
-{
-  "user": { "id": "user_id", "role": "user", "name": "User Name" },
-  "data": {
-    "kind": "user|venueOwner",
-    "favorites": [...],
-    "metrics": { "favoritesCount": 5, "reviewsWritten": 3 }
-  }
-}
-```
-
-#### `PATCH /api/user/profile`
-**Purpose**: Update user profile  
-**Access**: Authenticated users (own profile only)  
-**Security**: User ID validation, input sanitization  
-
-### **🏢 Admin Management APIs**
-
-#### `GET /api/admin/stats`
-**Purpose**: Platform statistics for admin dashboard  
-**Access**: admin, superAdmin only  
-**Security**: Role validation, comprehensive audit logging  
-
-**Response**:
-```json
-{
-  "totalUsers": 1275,
-  "totalListings": 412,
-  "totalReviews": 964,
-  "weeklySignups": 38,
-  "pendingModeration": 6,
-  "userRoles": { "admin": 5, "user": 1200 },
-  "generatedAt": "2024-01-10T10:00:00.000Z"
-}
-```
-
-#### `GET /api/admin/users`
-**Purpose**: User management (list, search, pagination)  
-**Access**: admin, superAdmin only  
-**Security**: Admin role validation, data filtering  
-
-**Query Parameters**:
-- `page`: Page number (default: 1)
-- `limit`: Results per page (max: 100, default: 20)
-- `search`: Search by name or email
-- `role`: Filter by user role
-
-**Response**:
-```json
-{
-  "users": [
-    {
-      "id": "user_id",
-      "name": "User Name",
-      "email": "user@example.com",
-      "role": "user",
-      "status": "active",
-      "createdAt": "2024-01-01T00:00:00.000Z"
-    }
-  ],
-  "pagination": {
-    "page": 1,
-    "totalPages": 10,
-    "totalCount": 200
-  }
-}
-```
-
-#### `PATCH /api/admin/users`
-**Purpose**: Update user role or status  
-**Access**: superAdmin only (for role changes), admin+ (for status changes)  
-**Security**: SuperAdmin role validation for role changes, prevents self-demotion  
-
-**Body**:
-```json
-{
-  "userId": "user_id",
-  "role": "editor",        // SuperAdmin only
-  "status": "inactive"     // Admin+ allowed
-}
-```
-
-### **📝 Content Moderation APIs**
-
-#### `GET /api/admin/moderation`
-**Purpose**: Get moderation queue  
-**Access**: admin, superAdmin only  
-**Security**: Admin role validation, item filtering  
-
-#### `POST /api/admin/moderation`
-**Purpose**: Perform moderation action  
-**Access**: admin, superAdmin only  
-**Security**: Action validation, audit trail  
-
-**Body**:
-```json
-{
-  "moderationId": "mod_id",
-  "action": "approve|restrict|dismiss|flag",
-  "notes": "Moderation notes"
-}
 ```
 
 #### `POST /api/auth/signup`
@@ -272,51 +138,21 @@ API Access Levels:
 
 ```json
 {
-  "slug": "listing-slug"
+  "listingId": "listing_id"
 }
+
 ```
 
-**Response**:
+#### `DELETE /api/user/favorites/[listingId]`
 
-```json
-{
-  "favorited": true,
-  "message": "Added to favorites",
-  "favoriteId": "favorite_document_id"
-}
-```
-
-#### `DELETE /api/user/favorites`
-
-**Purpose**: Remove listing from favorites (body-based)
-**Access**: Authenticated users
-**Body**:
-
-```json
-{
-  "slug": "listing-slug"
-}
-```
-
-**Response**:
-
-```json
-{
-  "favorited": false,
-  "message": "Removed from favorites"
-}
-```
-
-#### `DELETE /api/user/favorites/[slug]`
-
-**Purpose**: Remove listing from favorites (URL-based)  
+**Purpose**: Remove listing from favorites
 **Access**: Authenticated users
 **Response**:
 
 ```json
 {
-  "favorited": false,
-  "message": "Removed from favorites"
+  "success": true,
+  "message": "Favorite removed successfully"
 }
 
 ```
@@ -656,51 +492,53 @@ API Access Levels:
 
 #### `GET /api/listings/[slug]`
 
-**Purpose**: Get single listing by slug. This endpoint directly fetches data from Sanity using a predefined GROQ query.
+**Purpose**: Get single listing by slug
 **Access**: Public
 **Response**:
 
 ```json
 {
   "listing": {
-    "_id": "sanity_document_id",
-    "_type": "listing",
-    "_createdAt": "2025-01-15T10:00:00.000Z",
-    "_updatedAt": "2025-06-16T18:30:00.000Z",
-    "_rev": "sanity_revision_id",
-    "name": "Sustainable Coworking Space",
-    "slug": "sustainable-coworking-space-cityname",
-    "description_short": "A brief description of the listing.",
-    "description_long": "A more detailed and comprehensive description of the listing, including its features and eco-initiatives.",
+    "id": "listing_id",
+    "name": "Green Coworking Hub",
+    "slug": "green-coworking-hub-bangkok",
+    "description": "Detailed description...",
+    "fullDescription": "Extended content...",
     "category": "coworking",
-    "city": {
-      "_id": "city_document_id",
-      "title": "City Name",
-      "slug": "city-name"
+    "city": "Bangkok",
+    "address": "123 Sustainable Street",
+    "coordinates": {
+      "lat": 13.7563,
+      "lng": 100.5018
     },
-    "primaryImage": {
-      "_type": "image",
-      "asset": {
-        "_ref": "image-asset-id",
-        "_type": "reference",
-        "url": "https://cdn.sanity.io/images/projectid/dataset/image-asset-id.jpg"
-      },
-      "alt": "Primary image of the listing"
+    "ecoTags": ["solar-powered", "zero-waste", "organic-food"],
+    "nomadFeatures": ["fast-wifi", "standing-desks", "meeting-rooms"],
+    "rating": 4.5,
+    "reviewCount": 24,
+    "priceRange": "$$",
+    "hours": {
+      "monday": "08:00-22:00",
+      "tuesday": "08:00-22:00"
     },
-    "ecoTags": ["solar-powered", "plastic-free", "community-focused"],
-    "digital_nomad_features": ["high-speed-wifi", "meeting-rooms", "ergonomic-chairs"],
-    "last_verified_date": "2025-06-01",
-    "reviews": 42,
-    "addressString": "123 Eco Lane, Sustainable City, Country",
-    "website": "https://example.com/listing",
-    "contactInfo": "info@example.com / +1234567890",
-    "openingHours": "Mon-Fri: 9am - 6pm, Sat: 10am - 4pm",
-    "shortDescription": "Detailed notes about specific eco-friendly practices and sustainability efforts.",
-    "sourceUrls": ["https://source1.com", "https://source2.com"],
-    "rating": 4.7,
-    "priceRange": "$$"
+    "images": [
+      {
+        "url": "https://cdn.sanity.io/images/...",
+        "alt": "Main workspace area"
+      }
+    ],
+    "contact": {
+      "phone": "+66 2 123 4567",
+      "email": "info@greencoworking.com",
+      "website": "https://greencoworking.com"
+    },
+    "sustainability": {
+      "certifications": ["LEED Gold", "Green Building"],
+      "practices": ["Solar panels", "Rainwater harvesting"],
+      "score": 4.2
+    }
   }
 }
+
 ```
 
 #### `POST /api/listings` (Admin Only)
@@ -784,7 +622,7 @@ API Access Levels:
 
 ### Reviews Endpoints
 
-#### `GET /api/reviews/[slug]`
+#### `GET /api/reviews/[listingId]`
 
 **Purpose**: Get reviews for a listing
 **Access**: Public
@@ -1008,5 +846,3 @@ npm run test:rbac             # Role-based access tests
 - [MongoDB Documentation](https://docs.mongodb.com/)
 
 - [Sanity API Reference](https://www.sanity.io/docs/http-api)
-- [Project Sanity Client (`src/lib/sanity/client.ts`)](./app-next-directory/src/lib/sanity/client.ts)
-- [Project Sanity Data Fetching (`src/lib/sanity/data.ts`)](./app-next-directory/src/lib/sanity/data.ts)

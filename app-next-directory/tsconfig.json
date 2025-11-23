@@ -1,15 +1,18 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    "target": "es2022",
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "es2022",
+      "webworker"
     ],
-    "checkJs": false,
-    "allowJs": false,
+    "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -17,6 +20,12 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "types": [
+      "./src/types/jsx.d.ts",
+      "./src/types/next.d.ts",
+      "./src/types/react.d.ts",
+      "node"
+    ],
     "plugins": [
       {
         "name": "next"
@@ -25,44 +34,30 @@
     "paths": {
       "@/*": [
         "./src/*",
-        "./app/*"
-      ],
-      "@mocks/*": [
-        "./__mocks__/*"
-      ],
-      "@sanity/sanity.types": [
-        "./sanity.types"
-      ],
-      "@tests/*": [
         "./tests/*"
       ]
     },
-    "baseUrl": ".",
-    "noEmit": true,
-    "forceConsistentCasingInFileNames": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "baseUrl": "."
   },
   "include": [
-    "global.d.ts",
     "next-env.d.ts",
-    "sanity.config.ts",
-    "types/**/*.d.ts",
-    "src/**/*.d.ts",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "app/**/*.ts",
-    "app/**/*.tsx",
-    "dist/types/**/*.ts"
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
-    ".next",
     "node_modules",
     "tests",
-    "**/__tests__",
-    "**/*.test.js",
+    "src/tests",
     "**/*.test.ts",
-    "**/test-*.js"
-  ]
+    "**/*.test.tsx"
+  ],
+  "webServer": {
+    "command": "npm run dev",
+    "url": "http://localhost:3000",
+    "reuseExistingServer": "false",
+    "timeout": 120000,
+    "stderr": "pipe",
+    "stdout": "pipe"
+  }
 }

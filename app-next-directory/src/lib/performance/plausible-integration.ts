@@ -10,88 +10,42 @@
 
 import { shouldAlert, type PerformanceAlert } from './budgets'
 
-type PlausibleClient = (event: string, options?: { props?: Record<string, unknown> }) => void
-type WindowLike = Partial<Window> & Record<string, unknown>
-
-const getWindowLike = (): WindowLike | undefined => {
-  if (typeof dependencies.window !== 'undefined') {
-    return dependencies.window
-  }
-
-  if (typeof globalThis !== 'undefined') {
-    const maybeWindow = (globalThis as Record<string, unknown>).window as WindowLike | undefined
-    if (maybeWindow) return maybeWindow
-  }
-
-  if (typeof window !== 'undefined') {
-    return window as unknown as WindowLike
-  }
-
-  return undefined
-}
-
-const resolvePlausible = (win = getWindowLike()): PlausibleClient | null => {
-  const scope = (typeof globalThis !== 'undefined' ? globalThis : {}) as Record<string, unknown>
-
-  if (win && typeof (win as { plausible?: unknown }).plausible === 'function') {
-    return ((win as { plausible?: unknown }).plausible as PlausibleClient)
-  }
-
-  if (win && win !== scope) {
-    return null
-  }
-
-  const fromGlobal = scope.plausible
-  return typeof fromGlobal === 'function' ? (fromGlobal as PlausibleClient) : null
-}
-
 // Performance event categories in Plausible
-export const PERFORMANCE_EVENTS = Object.freeze({
+export const PERFORMANCE_EVENTS = {
   WEB_VITALS: 'web_vitals',
   SERVER_TIMING: 'server_timing',
   RESOURCE_TIMING: 'resource_timing',
   CUSTOM_MARK: 'custom_mark',
   ALERT: 'performance_alert'
-} as const)
+} as const
 
 interface PerformanceEvent {
   name: string
   value: number
   category: keyof typeof PERFORMANCE_EVENTS
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, any>
 }
-
-// For testability, we inject dependencies.
-// This is safe for production as it defaults to the real window object.
-export const dependencies: { window?: WindowLike } = {
-  window: typeof window !== 'undefined' ? (window as unknown as WindowLike) : undefined,
-}
-
 
 /**
  * Reports a performance event to Plausible Analytics
  */
 export function reportPerformanceEvent(event: PerformanceEvent) {
-  const win = getWindowLike()
-  const plausible = resolvePlausible(win)
+  if (typeof window === 'undefined') return
 
+  const plausible = window.plausible
   if (!plausible) {
-    if (!win) return
-
     console.warn('[Performance] Plausible Analytics not initialized')
     return
   }
 
-  const baseProps = {
-    metric: event.name,
-    value: Math.round(event.value)
-  }
-
-  const props = event.metadata ? { ...baseProps, ...event.metadata } : baseProps
-  const eventName = PERFORMANCE_EVENTS[event.category]
-
   // Send event to Plausible
-  plausible(eventName, { props })
+  plausible(PERFORMANCE_EVENTS[event.category], {
+    props: {
+      metric: event.name,
+      value: Math.round(event.value),
+      ...event.metadata
+    }
+  })
 
   // Check if this event should trigger an alert
   let alert: PerformanceAlert | null = null

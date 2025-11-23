@@ -1,7 +1,5 @@
-// NOTE: Do not import NextRequest/NextResponse from 'next/server' in utility files for Next.js 14+ middleware compatibility.
-// Use a compatible type or 'any' for request/response if needed, or define a minimal interface.
-
-import { structuredLogger } from '@/lib/logger';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 // Define cache duration options
 const CACHE_DURATIONS = {
@@ -17,27 +15,10 @@ interface CacheConfig {
   isPrivate?: boolean;
 }
 
-type RequestCookies = {
-  has: (key: string) => boolean;
-};
-
-type CacheRequest = {
-  cookies: RequestCookies;
-  method: string;
-  nextUrl: { pathname: string };
-};
-
-type CacheResponse = {
-  headers: {
-    set: (key: string, value: string) => void;
-    append: (key: string, value: string) => void;
-  };
-};
-
 /**
  * Determines if a request should be cached based on various conditions
  */
-function shouldCache(request: CacheRequest): boolean {
+function shouldCache(request: NextRequest): boolean {
   // Don't cache if it's a preview request
   if (request.cookies.has('__previewMode')) {
     return false;
@@ -60,7 +41,7 @@ function shouldCache(request: CacheRequest): boolean {
 /**
  * Gets cache configuration based on request path
  */
-export function getCacheConfig(request: { nextUrl: { pathname: string } }): CacheConfig {
+function getCacheConfig(request: NextRequest): CacheConfig {
   const path = request.nextUrl.pathname;
 
   // Listing pages
@@ -97,7 +78,7 @@ export function getCacheConfig(request: { nextUrl: { pathname: string } }): Cach
 /**
  * Generates cache control header value
  */
-export function getCacheControlValue(config: CacheConfig): string {
+function getCacheControlValue(config: CacheConfig): string {
   const directives = [
     config.isPrivate ? 'private' : 'public',
     `max-age=${config.maxAge}`,
@@ -114,9 +95,9 @@ export function getCacheControlValue(config: CacheConfig): string {
  * Cache middleware for non-preview content
  */
 export async function cacheMiddleware(
-  request: CacheRequest,
-  response: CacheResponse
-): Promise<CacheResponse> {
+  request: NextRequest,
+  response: NextResponse
+): Promise<NextResponse> {
   // Check if request should be cached
   if (!shouldCache(request)) {
     response.headers.set('Cache-Control', 'no-store');
@@ -152,11 +133,7 @@ export async function invalidateCache(path: string): Promise<void> {
     // Revalidate the path using Next.js revalidation
     await fetch(`/api/revalidate?path=${encodeURIComponent(path)}`);
   } catch (error) {
-    structuredLogger.middlewareError('cache invalidation', error, {
-      component: 'cache',
-      operation: 'invalidate',
-      path: path
-    });
+    console.error(`Failed to invalidate cache for path: ${path}`, error);
   }
 }
 
@@ -167,9 +144,6 @@ export async function purgeCache(): Promise<void> {
   try {
     await fetch('/api/revalidate-all');
   } catch (error) {
-    structuredLogger.middlewareError('cache purge', error, {
-      component: 'cache',
-      operation: 'purge_all'
-    });
+    console.error('Failed to purge cache', error);
   }
 }

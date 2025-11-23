@@ -1,5 +1,3 @@
-export type { StrictComponent, StrictProps } from './react';
-
 export interface EcoTag {
   id: string;
   label: string;
@@ -30,17 +28,15 @@ export interface FilterGroup {
   icon?: string;
 }
 
-// LocalCity type
-export interface LocalCity {
+// City type
+export interface City {
   id: string;
   name: string;
   country: string;
   slug: string;
   description: string;
-  shortDescription?: string;
+  description_short?: string;
   images?: string[];
-  primaryImage?: string;
-  galleryImages?: string[];
   coordinates?: {
     latitude: number;
     longitude: number;
@@ -52,7 +48,7 @@ export interface LocalCity {
   safety?: string;
   walkability?: string;
   sustainabilityInitiatives?: string[];
-  digitalNomadFeatures?: string[];
+  nomadFeatures?: string[];
 }
 
 // Listing type
@@ -62,8 +58,8 @@ export interface Listing {
   slug: string;
   cityId: string;
   category: string;
-  shortDescription: string;
-  longDescription: string;
+  description_short: string;
+  description_long: string;
   imageUrl: string;
   images?: string[];
   coordinates?: {
@@ -74,11 +70,11 @@ export interface Listing {
   amenities?: string[];
   price?: number;
   currency?: string;
-  
+  rating?: number;
   reviewCount?: number;
 }
 
-export interface LocalCityPageProps extends Record<string, unknown> {
+export interface CityPageProps extends Record<string, unknown> {
   city: string;
   listings: Listing[];
   // Add other properties as needed
@@ -89,9 +85,9 @@ export interface UnifiedListing {
   slug: string;
   title: string;
   city?: string;
-  address?: string;
-  ecoTags?: string[];
-  ecoNotesDetailed?: string;
+  address_string?: string;
+  eco_focus_tags?: string[];
+  eco_notes_detailed?: string;
   // Add common properties from both Listing and SanityListing
 }
 

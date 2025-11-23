@@ -1,181 +1,99 @@
 'use client';
 
-import React, { useCallback, useRef } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
-import { SectionHeader } from '@/components/ui/SectionHeader';
-import type { CityDTO } from '@/types/dto';
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { NeoButton } from '@/components/ui/neo-button';
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useMemo } from 'react'
 
-interface RelatedListing {
-  id: string;
-  name: string;
-  slug: string;
-  imageUrl: string;
-  city: string | CityDTO | null;
-  priceRange: 'budget' | 'moderate' | 'premium';
-  ecoFocusTags: string[];
+interface Listing {
+  _id: string
+  name: string
+  slug: { current: string }; // Changed from string to { current: string }
+  description_short: string
+  primary_image_url: string
+  category: string
+  city: {
+    name: string
+    country: string
+  }
+  eco_features: string[]
 }
 
 interface RelatedListingsProps {
-  listings: RelatedListing[];
+  currentListing: Listing
+  allListings: Listing[]
+  maxListings?: number
 }
 
-export function RelatedListings({ listings }: RelatedListingsProps) {
-  const autoplay = useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: true })
-  );
-  const [viewportRef, emblaApi] = useEmblaCarousel(
-    {
-      align: 'start',
-      containScroll: 'trimSnaps',
-      loop: true,
-      skipSnaps: false,
-    },
-    [autoplay.current]
-  );
+export function RelatedListings({ currentListing, allListings, maxListings = 3 }: RelatedListingsProps) {
+  const router = useRouter()
 
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+  const relatedListings = useMemo(() => {
+    // Filter out current listing
+    const otherListings = allListings.filter(listing => listing._id !== currentListing._id)
 
-  if (!listings || listings.length === 0) {
-    return null;
-  }
+    // Calculate relevance scores
+    const scoredListings = otherListings.map(listing => {
+      let score = 0
 
-  const getPriceRangeColor = (priceRange: string) => {
-    switch (priceRange) {
-      case 'budget':
-        return 'text-green-600 bg-green-100';
-      case 'moderate':
-        return 'text-yellow-600 bg-yellow-100';
-      case 'premium':
-        return 'text-purple-600 bg-purple-100';
-      default:
-        return 'text-gray-600 bg-gray-100';
-    }
-  };
+      // Same category
+      if (listing.category === currentListing.category) score += 3
+
+      // Same city
+      if (listing.city.name === currentListing.city.name) score += 2
+
+      // Shared eco features
+      const sharedFeatures = listing.eco_features.filter(feature =>
+        currentListing.eco_features.includes(feature)
+      )
+      score += sharedFeatures.length
+
+      return { listing, score }
+    })
+
+    // Sort by score and take top N
+    return scoredListings
+      .sort((a, b) => b.score - a.score)
+      .slice(0, maxListings)
+      .map(item => item.listing)
+  }, [currentListing, allListings, maxListings])
+
+  if (relatedListings.length === 0) return null
 
   return (
-    <section className="mb-8">
-      <SectionHeader 
-        title="Related Listings"
-        description="Discover similar sustainable venues you might love"
-        className="mb-8"
-      />
-
-      <div className="relative">
-        <NeoButton
-          variant="secondary"
-          size="sm"
-          className="hidden md:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
-          aria-label="Scroll related listings left"
-          onClick={scrollPrev}
-          onMouseEnter={() => autoplay.current?.stop()}
-          onMouseLeave={() => autoplay.current?.play()}
-        >
-          <ChevronLeft size={18} />
-        </NeoButton>
-
-        <div ref={viewportRef} className="overflow-hidden">
-          <div className="flex gap-6">
-            {listings.map((listing) => (
-              <div key={listing.id} className="shrink-0 basis-[85%] sm:basis-[60%] lg:basis-1/2">
-                <Link
-                  href={`/listings/${listing.slug}`}
-                  className="block h-full"
-                  data-testid="related-listing-card"
-                  data-has-image={Boolean(listing.imageUrl)}
-                >
-                  <NeoCard
-                    variant="elevated"
-                    className="group flex h-full flex-col cursor-pointer transition-all duration-300 hover:shadow-[16px_16px_0px_0px]"
-                  >
-                    <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
-                      <Image
-                        src="/placeholder_image.png"
-                        alt=""
-                        aria-hidden
-                        role="presentation"
-                        fill
-                        sizes="(min-width: 1024px) 50vw, (min-width: 640px) 60vw, 85vw"
-                        className="object-cover"
-                        data-testid="related-listing-fallback"
-                      />
-                      {listing.imageUrl && (
-                        <Image
-                          src={listing.imageUrl}
-                          alt={`${listing.name} in ${typeof listing.city === 'string' ? listing.city : (listing.city?.name ?? '')}`}
-                          fill
-                          sizes="(min-width: 1024px) 50vw, (min-width: 640px) 60vw, 85vw"
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.hidden = true; }}
-                        />
-                      )}
-                      {listing.priceRange && (
-                        <div className="absolute top-3 left-3">
-                          <span className={`px-2 py-1 rounded-lg text-xs font-medium ${getPriceRangeColor(listing.priceRange)}`}>
-                            {listing.priceRange.charAt(0).toUpperCase() + listing.priceRange.slice(1)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <NeoCardHeader>
-                      <NeoCardTitle className="group-hover:text-neo-primary transition-colors duration-200">
-                        {listing.name}
-                      </NeoCardTitle>
-                      {(() => {
-                        const cityText = typeof listing.city === 'string' 
-                          ? listing.city 
-                          : (listing.city?.name ?? '');
-                        return cityText ? (
-                          <p className="body-sm text-neo-text-secondary mt-1">{cityText}</p>
-                        ) : null;
-                      })()}
-                    </NeoCardHeader>
-
-                    <NeoCardContent className="mt-auto">
-                      {listing.ecoFocusTags && listing.ecoFocusTags.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {listing.ecoFocusTags.slice(0, 3).map((tag, index) => (
-                            <span 
-                              key={index}
-                              className="px-2 py-1 bg-neo-success/20 text-neo-success text-xs rounded-lg font-medium"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                          {listing.ecoFocusTags.length > 3 && (
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg font-medium">
-                              +{listing.ecoFocusTags.length - 3} more
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </NeoCardContent>
-                  </NeoCard>
-                </Link>
+    <section className="mt-12">
+      <h2 className="text-2xl font-bold mb-6">Similar Eco-Friendly Spaces</h2>
+      <div className="grid md:grid-cols-3 gap-6">
+        {relatedListings.map((listing) => (
+          <Link
+            key={listing._id}
+            href={`/listings/${listing.slug.current}`} // Updated to use listing.slug.current
+            className="group"
+          >
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-shadow hover:shadow-lg">
+              <div className="relative h-48">
+                <Image
+                  src={listing.primary_image_url}
+                  alt={listing.name}
+                  fill
+                  className="object-cover transition-transform group-hover:scale-105"
+                />
               </div>
-            ))}
-          </div>
-        </div>
-
-        <NeoButton
-          variant="secondary"
-          size="sm"
-          className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white"
-          aria-label="Scroll related listings right"
-          onClick={scrollNext}
-          onMouseEnter={() => autoplay.current?.stop()}
-          onMouseLeave={() => autoplay.current?.play()}
-        >
-          <ChevronRight size={18} />
-        </NeoButton>
+              <div className="p-4">
+                <h3 className="font-semibold text-lg mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                  {listing.name}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                  {listing.city.name}, {listing.category}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+                  {listing.description_short}
+                </p>
+              </div>
+            </div>
+          </Link>
+        ))}
       </div>
     </section>
-  );
+  )
 }

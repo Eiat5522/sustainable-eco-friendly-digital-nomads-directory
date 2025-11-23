@@ -1,196 +1,192 @@
+/**
+ * Client-side authentication utilities
+ * These are Edge Runtime compatible and work in client components
+ */
+
 'use client';
 
-import { useSession, signIn, signOut } from "next-auth/react";
-import type { DefaultSession } from "next-auth";
-import { createContext, useContext, ReactNode } from "react";
-import {
-  UserRole,
-  hasPagePermission,
-  hasFeaturePermission,
-  PagePermissions,
-  FeaturePermissions,
-  ACCESS_CONTROL_MATRIX
-} from "@/types/auth";
-
-// Narrow the user shape from next-auth, adding optional role
-type AppUser = (DefaultSession["user"] & { role?: UserRole }) | null;
-
-// Auth Context Type
-interface AuthContextType {
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  user: AppUser;
-  userRole: UserRole;
-  hasPagePermission: (page: string, action: string) => boolean;
-  hasFeaturePermission: (feature: string) => boolean;
-  // Forward exact next-auth types
-  signIn: typeof signIn;
-  signOut: typeof signOut;
-}
-
-// Create Auth Context
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-interface AuthProviderProps {
-  children: ReactNode;
-}
+import { UserRole } from '@/types/auth';
+import { signIn, signOut, useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 /**
- * Auth Provider Component - wraps app with authentication context
+ * Custom hook for authentication with role checking
  */
-export function AuthProvider({
-  children,
-  hasPagePermission: hasPagePermissionProp = hasPagePermission,
-  hasFeaturePermission: hasFeaturePermissionProp = hasFeaturePermission,
-}: AuthProviderProps & {
-  hasPagePermission?: typeof hasPagePermission;
-  hasFeaturePermission?: typeof hasFeaturePermission;
-}) {
+export function useAuth() {
   const { data: session, status } = useSession();
+  const router = useRouter();
 
-  const user: AppUser = session?.user ?? null;
-  const userRole: UserRole = user?.role ?? 'unidentifiedUser';
+  const user = session?.user;
+  const isAuthenticated = !!user;
+  const isLoading = status === 'loading';
 
-  const contextValue: AuthContextType = {
-    isAuthenticated: !!session,
-    isLoading: status === 'loading',
+  const hasRole = (requiredRole: UserRole): boolean => {
+    if (!user?.role) return false;
+      // Role hierarchy: superAdmin > admin > editor > venueOwner > user
+    const roleHierarchy: Record<UserRole, number> = {
+      user: 1,
+      venueOwner: 2,
+      editor: 3,
+      admin: 4,
+      superAdmin: 5,
+    };
+
+    const userLevel = roleHierarchy[user.role as UserRole] || 0;
+    const requiredLevel = roleHierarchy[requiredRole] || 0;
+
+    return userLevel >= requiredLevel;
+  };
+
+  const requireAuth = (callbackUrl?: string) => {
+    if (!isAuthenticated && !isLoading) {
+      signIn(undefined, { callbackUrl: callbackUrl || window.location.href });
+    }
+  };
+
+  const requireRole = (requiredRole: UserRole, fallbackUrl = '/') => {
+    if (isAuthenticated && !hasRole(requiredRole)) {
+      router.push(fallbackUrl);
+    }
+  };
+
+  return {
     user,
-    userRole,
-    hasPagePermission: (page: string, action: string) => {
-      return hasPagePermissionProp(userRole, page as keyof typeof ACCESS_CONTROL_MATRIX[UserRole]['pages'], action as keyof PagePermissions);
-    },
-    hasFeaturePermission: (feature: string) => {
-      return hasFeaturePermissionProp(userRole, feature as keyof FeaturePermissions);
-    },
+    isAuthenticated,
+    isLoading,
+    hasRole,
+    requireAuth,
+    requireRole,
     signIn,
     signOut,
   };
-
-  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
 
 /**
- * Hook to use authentication context
+ * Role-based access control hook
  */
-export function useAuthContext() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
-  }
-  return context;
+export function useRBAC() {
+  const { user, hasRole } = useAuth();
+
+  const canViewAdmin = () => hasRole('admin');
+  const canEditContent = () => hasRole('editor');  const canManageVenues = () => hasRole('venueOwner');
+  const canCreateListings = () => hasRole('venueOwner');
+
+  const permissions = {
+    canViewAdmin: canViewAdmin(),
+    canEditContent: canEditContent(),
+    canManageVenues: canManageVenues(),
+    canCreateListings: canCreateListings(),
+    userRole: user?.role as UserRole,
+  };
+
+  return permissions;
 }
 
 /**
- * Component that renders children only if user is authenticated
+ * Authentication status component
  */
-interface AuthenticatedProps {
-  children: ReactNode;
-  fallback?: ReactNode;
-}
-
-export function Authenticated({ children, fallback = null }: AuthenticatedProps) {
-  const { isAuthenticated, isLoading } = useAuthContext();
+export function AuthStatus() {
+  const { user, isAuthenticated, isLoading, signIn, signOut } = useAuth();
 
   if (isLoading) {
     return (
-      <div
-        data-testid="loading"
-        role="status"
-        aria-live="polite"
-        className="flex justify-center items-center h-64"
-      >
-        <div data-testid="spinner" className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
-        <span className="sr-only">Loading</span>
+      <div className="flex items-center space-x-2">
+        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+        <span>Loading...</span>
       </div>
     );
   }
 
-  return isAuthenticated ? <>{children}</> : <>{fallback}</>;
+  if (!isAuthenticated) {
+    return (
+      <button
+        onClick={() => signIn()}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+      >
+        Sign In
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2">
+        {user?.image && (
+          <img
+            src={user.image}
+            alt={user.name || 'User'}
+            className="w-8 h-8 rounded-full"
+          />
+        )}
+        <span className="text-sm font-medium">{user?.name}</span>
+        <span className="text-xs px-2 py-1 bg-gray-100 rounded-full">
+          {user?.role}
+        </span>
+      </div>
+      <button
+        onClick={() => signOut()}
+        className="text-sm text-gray-600 hover:text-gray-900"
+      >
+        Sign Out
+      </button>
+    </div>
+  );
 }
 
 /**
- * Component that renders children only if user has specific role
+ * Protected route wrapper component
  */
-interface RequireRoleProps {
-  role: UserRole;
-  children: ReactNode;
-  fallback?: ReactNode;
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredRole?: UserRole;
+  fallbackUrl?: string;
+  loadingComponent?: React.ReactNode;
+  unauthorizedComponent?: React.ReactNode;
 }
 
-export function RequireRole({ role, children, fallback = null }: RequireRoleProps) {
-  const { userRole, isLoading } = useAuthContext();
+export function ProtectedRoute({
+  children,
+  requiredRole,
+  fallbackUrl = '/',
+  loadingComponent,
+  unauthorizedComponent,
+}: ProtectedRouteProps) {
+  const { isAuthenticated, isLoading, hasRole, requireAuth } = useAuth();
 
+  // Show loading state
   if (isLoading) {
-    return (
-      <div
-        data-testid="loading"
-        role="status"
-        aria-live="polite"
-        className="flex justify-center items-center h-64"
-      >
-        <div data-testid="spinner" className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
-        <span className="sr-only">Loading</span>
+    return loadingComponent || (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </div>
     );
   }
 
-  return userRole === role ? <>{children}</> : <>{fallback}</>;
-}
+  // Require authentication
+  if (!isAuthenticated) {
+    requireAuth();
+    return null;
+  }
 
-/**
- * Component that renders children only if user has permission for specific feature
- */
-interface RequirePermissionProps {
-  feature: string;
-  children: ReactNode;
-  fallback?: ReactNode;
-}
-
-export function RequirePermission({ feature, children, fallback = null }: RequirePermissionProps) {
-  const { hasFeaturePermission, isLoading } = useAuthContext();
-
-  if (isLoading) {
-    return (
-      <div
-        data-testid="loading"
-        role="status"
-        aria-live="polite"
-        className="flex justify-center items-center h-64"
-      >
-        <div data-testid="spinner" className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
-        <span className="sr-only">Loading</span>
+  // Check role requirements
+  if (requiredRole && !hasRole(requiredRole)) {
+    return unauthorizedComponent || (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <p className="text-gray-600 mb-4">
+            You don't have permission to view this page.
+          </p>
+          <a
+            href={fallbackUrl}
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Go Back
+          </a>
+        </div>
       </div>
     );
   }
 
-  return hasFeaturePermission(feature) ? <>{children}</> : <>{fallback}</>;
-}
-
-/**
- * Component that renders children only for admin users
- */
-interface AdminOnlyProps {
-  children: ReactNode;
-  fallback?: ReactNode;
-}
-
-export function AdminOnly({ children, fallback = null }: AdminOnlyProps) {
-  const { userRole, isLoading } = useAuthContext();
-
-  if (isLoading) {
-    return (
-      <div
-        data-testid="loading"
-        role="status"
-        aria-live="polite"
-        className="flex justify-center items-center h-64"
-      >
-        <div data-testid="spinner" className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600" />
-        <span className="sr-only">Loading</span>
-      </div>
-    );
-  }
-
-  const isAdmin = userRole === 'admin' || userRole === 'superAdmin';
-  return isAdmin ? <>{children}</> : <>{fallback}</>;
+  return <>{children}</>;
 }

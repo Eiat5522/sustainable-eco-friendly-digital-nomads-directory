@@ -1,35 +1,11 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import isEmail from 'validator/lib/isEmail';
-import bcrypt from 'bcryptjs';
-
-/**
- * User Model - Index Management Notes:
- *
- * Email uniqueness is enforced via explicit database index in src/lib/mongodb/init.ts
- * to ensure consistent index management across all environments.
- *
- * IMPORTANT: If production uses mongoose autoIndex=false, ensure you:
- * 1. Run a migration to create indexes: Model.syncIndexes()
- * 2. Or call syncIndexes() at application startup
- * 3. Monitor index creation logs to verify successful application
- *
- * This approach avoids conflicts between path-level and schema-level index declarations.
- */
-
-// Role definitions - single source of truth
-export const ROLE_VALUES = ['user', 'editor', 'venueOwner', 'admin', 'superAdmin'] as const;
-export type Role = typeof ROLE_VALUES[number];
-
-// Bcrypt configuration
-export const BCRYPT_COST = parseInt(process.env.BCRYPT_COST || '12', 10);
 
 // Interface for the User document
 export interface IUser extends Document {
   name?: string;
   email: string;
-  // Hashed password for credentials-based auth (excluded by default)
-  password?: string;
-  role: Role;
+  password?: string; // Password will be handled by NextAuth.js and its adapter
+  role: 'user' | 'editor' | 'venueOwner' | 'admin' | 'superAdmin'; // Added 'superAdmin'
   emailVerified?: Date | null;
   image?: string;
   createdAt: Date;
@@ -48,22 +24,24 @@ const UserSchema: Schema<IUser> = new Schema(
     email: {
       type: String,
       required: [true, 'Email is required'],
+      unique: true,
       trim: true,
       lowercase: true,
-      validate: {
-        validator: (v: string) => isEmail(v),
-        message: 'Please fill a valid email address',
-      },
+      match: [/.+\@.+\..+/, 'Please fill a valid email address'],
+      index: true,
     },
-    // Store hashed password for credentials-based login.
-    // Excluded by default and only selected explicitly when needed.
-    password: {
-      type: String,
-      select: false,
-    },
+    // Password field is often not directly in the schema if using NextAuth.js Credentials provider,
+    // as the adapter and NextAuth.js handle password hashing and verification.
+    // If you need to store it for other reasons or are handling it manually (not recommended with NextAuth),
+    // you would define it here and ensure it's properly secured.
+    // For now, we assume NextAuth.js adapter handles it.
+    // password: {
+    //   type: String,
+    //   required: [true, 'Password is required'], // Only if not handled by adapter
+    // },
     role: {
       type: String,
-      enum: ROLE_VALUES,
+      enum: ['user', 'editor', 'venueOwner', 'admin', 'superAdmin'], // Added 'superAdmin'
       default: 'user',
     },
     emailVerified: {
@@ -80,30 +58,11 @@ const UserSchema: Schema<IUser> = new Schema(
   }
 );
 
-// Hash password automatically when it is created/modified
-UserSchema.pre('save', async function (next) {
-  try {
-    const user = this as IUser & { isModified: (field: string) => boolean };
-    if (!user.isModified('password')) return next();
-    if (!user.password) return next();
-    // If already a bcrypt hash (e.g., provided by API route), skip re-hashing
-    if (typeof user.password === 'string' && user.password.startsWith('$2')) {
-      return next();
-    }
-    user.password = await bcrypt.hash(user.password, BCRYPT_COST);
-    return next();
-  } catch (err) {
-    return next(err as Error);
-  }
-});
-
-// Email uniqueness is enforced via database index in src/lib/mongodb/init.ts
-// This ensures consistent index management across environments
+// Create a unique index on email if it doesn't exist
+UserSchema.index({ email: 1 }, { unique: true });
 
 // Export the model
 // The model will be compiled by Mongoose the first time it's required.
 // To prevent recompilation issues, especially in Next.js hot-reloading environments,
 // check if the model already exists.
-export default (mongoose.models.User as mongoose.Model<IUser>) || mongoose.model<IUser>('User', UserSchema);
-
-// Dummy comment to force TypeScript re-evaluation.
+export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

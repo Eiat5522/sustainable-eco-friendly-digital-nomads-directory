@@ -1,38 +1,17 @@
-import { MongoClient, MongoServerError } from 'mongodb';
-import { sessionSchema, sessionIndexes } from './schemas/session';
+import { MongoClient } from 'mongodb';
+import { sessionSchema } from './schemas/session';
 
 export async function initializeDatabase(client: MongoClient) {
   try {
     const db = client.db();
 
-    // Create collections with schemas when they don't already exist
-    try {
-      await db.createCollection('sessions', sessionSchema);
-    } catch (error) {
-      if (!(error instanceof MongoServerError && error.code === 48)) {
-        throw error;
-      }
-    }
-
-    // Ensure session indexes exist independently of collection creation
-    await db.collection('sessions').createIndexes(sessionIndexes);
+    // Create collections with schemas
+    await db.createCollection('sessions', sessionSchema);
     
-    // Create indexes - Single source of truth for all index definitions
+    // Create indexes
     await db.collection('users').createIndexes([
-      { 
-        key: { email: 1 }, 
-        unique: true, 
-        name: 'users_email_unique' // Explicit index name for better management
-      },
-      {
-        key: { 'accounts.providerId': 1, 'accounts.providerAccountId': 1 },
-        unique: true,
-        name: 'users_accounts_provider_unique',
-        partialFilterExpression: {
-          'accounts.providerId': { $type: 'string' },
-          'accounts.providerAccountId': { $type: 'string' },
-        },
-      },
+      { key: { email: 1 }, unique: true },
+      { key: { 'accounts.providerId': 1, 'accounts.providerAccountId': 1 }, unique: true },
     ]);
 
     await db.collection('loginAttempts').createIndexes([

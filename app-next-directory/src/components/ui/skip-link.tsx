@@ -1,36 +1,33 @@
-'use client'
+import { cn } from '@/lib/utils';
+import * as React from 'react';
 
-import Link from 'next/link'
-import { cn } from '@/lib/utils'
-
-interface SkipLinkProps {
-  href: string
-  children: React.ReactNode
-  className?: string
+export interface SkipLinkProps
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  targetId?: string;
 }
 
-/**
- * Skip Link Component for accessibility
- * Allows keyboard and screen reader users to skip past navigation to main content
- * Following WCAG 2.1 Guidelines: https://www.w3.org/WAI/WCAG21/Techniques/general/G1.html
- * 
- * Note: Styled with white background, border, and text to be completely invisible against white header when not focused
- */
-export function SkipLink({ href, children, className }: SkipLinkProps) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        // Hidden by default, visible on focus - completely white to blend with header
-        'absolute left-4 top-4 z-50 -translate-y-full transform',
-        'rounded-md bg-white border border-white px-4 py-2 text-sm font-semibold text-white',
-        'transition-transform duration-150 ease-in-out',
-        'focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-neo-primary focus:ring-offset-2',
-        'focus:bg-neo-primary focus:text-white focus:border-neo-primary', // Only becomes prominent when focused
-        className
-      )}
-    >
-      {children}
-    </Link>
-  )
-}
+const SkipLink = React.forwardRef<HTMLAnchorElement, SkipLinkProps>(
+  ({ className, targetId = 'main-content', children, ...props }, ref) => {
+    return (
+      <a
+        ref={ref}
+        href={`#${targetId}`}
+        className={cn(
+          'sr-only focus:not-sr-only',
+          'absolute left-0 top-0 z-50',
+          'bg-primary text-primary-foreground',
+          'px-4 py-2 text-sm font-medium',
+          'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+          'transition-transform',
+          className
+        )}
+        {...props}
+      >
+        {children || 'Skip to main content'}
+      </a>
+    );
+  }
+);
+SkipLink.displayName = 'SkipLink';
+
+export { SkipLink };

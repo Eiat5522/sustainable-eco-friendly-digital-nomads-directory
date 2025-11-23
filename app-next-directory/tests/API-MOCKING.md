@@ -5,7 +5,6 @@ This guide explains how to use API mocking in our Playwright tests for the Susta
 ## 📝 Overview
 
 We use Playwright's built-in request interception to mock API responses during testing. This allows us to:
-
 - Test UI behavior with controlled data
 - Test error scenarios
 - Make tests reliable and fast

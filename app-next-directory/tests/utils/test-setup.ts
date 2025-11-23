@@ -2,13 +2,13 @@ import { type Page } from '@playwright/test';
 import { type Listing } from '@/types/listings';
 
 export async function setupMockApi(page: Page, listings: Listing[]) {
-  await page.route('/api/listings', async (route) => {
+  await page.route('/api/legacy-listings', async (route) => {
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        success: true,
-        data: { listings, total: listings.length }
+        status: 'success',
+        data: listings
       })
     });
   });
@@ -38,9 +38,9 @@ export async function clearLocalStorage(page: Page) {
 
 export async function setupNetworkConditions(page: Page, condition: 'fast' | 'slow' | 'offline') {
   const conditions = {
-    fast: { offline: false, latency: 0, downloadThroughput: 1000000, uploadThroughput: 1000000 },
-    slow: { offline: false, latency: 200, downloadThroughput: 100000, uploadThroughput: 100000 },
-    offline: { offline: true, latency: 0, downloadThroughput: 0, uploadThroughput: 0 }
+    fast: { offline: false, latency: 0 },
+    slow: { offline: false, latency: 200 },
+    offline: { offline: true, latency: 0 }
   };
   
   const client = await page.context().newCDPSession(page);

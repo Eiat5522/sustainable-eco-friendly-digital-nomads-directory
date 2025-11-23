@@ -1,16 +1,12 @@
-// This file is now deprecated. Please use types from sanity/sanity.types.ts or src/types/appView.ts
-
 // Basic types
-import { ListingCategory, PriceRange } from './enums'
+export type ListingType = 'coworking' | 'cafe' | 'accommodation' | 'restaurant' | 'activities'
+export type PriceRange = 'budget' | 'moderate' | 'premium'
 
-export type ListingType = ListingCategory
-export type PriceRangeType = PriceRange
-
-// LocalCity type
-export interface LocalCity {
+// City type
+export interface City {
   _id: string
   name: string
-  slug: string | { current: string }
+  slug: string
   listingCount: number
   country: string
 }
@@ -19,28 +15,21 @@ export interface LocalCity {
 export interface EcoTag {
   _id: string
   name: string
-  slug: { current: string }
+  slug: string
   description: string
   listingCount: number
   icon?: string
 }
 
-
 // Base listing interface
 export interface Listing {
-  location?: {
-    lat: number;
-    lng: number;
-    coordinates: [number, number];
-  };
   _id: string
   name: string
-  slug: { current: string }
-  shortDescription?: string
-  longDescription?: string
+  slug: string
+  description: string
   type: ListingType
-  priceRange?: PriceRange;
-  primaryImage?: {
+  priceRange: PriceRange
+  mainImage: {
     asset: {
       _ref: string
       url: string
@@ -52,16 +41,14 @@ export interface Listing {
       url: string
     }
   }>
-  city?: LocalCity
+  city: City
   ecoTags: EcoTag[]
   ecoRating?: number
   address: string
-  
+  rating: number
   website?: string
   phone?: string
   email?: string
-  digitalNomadFeatures?: string[];
-  sourceUrls?: string[];
   socialLinks?: {
     facebook?: string
     instagram?: string
@@ -77,19 +64,13 @@ export interface Listing {
     sunday?: string
   }
   amenities?: string[]
-  createdAt?: string
-  updatedAt?: string
-  price?: number
-  priceIndication?: string;  // Changed from price_indication to camelCase
-  lastVerifiedDate?: string;
-  coordinates?: [number, number]
-  moderationStatus?: 'pending' | 'approved' | 'rejected';
-  verificationStatus?: 'unverified' | 'verified';
+  createdAt: string
+  updatedAt: string
 }
 
 // Specific listing type interfaces
 export interface CoworkingListing extends Listing {
-  type: ListingCategory.COWORKING
+  type: 'coworking'
   coworkingDetails: {
     deskTypes: Array<'hot' | 'dedicated' | 'private'>
     meetingRooms: boolean
@@ -108,7 +89,7 @@ export interface CoworkingListing extends Listing {
 }
 
 export interface CafeListing extends Listing {
-  type: ListingCategory.CAFE
+  type: 'cafe'
   cafeDetails: {
     wifi: boolean
     powerOutlets: boolean
@@ -121,7 +102,7 @@ export interface CafeListing extends Listing {
 }
 
 export interface AccommodationListing extends Listing {
-  type: ListingCategory.ACCOMMODATION
+  type: 'accommodation'
   accommodationDetails: {
     roomTypes: Array<'private' | 'shared' | 'dorm'>
     minStay: number
@@ -138,7 +119,7 @@ export interface AccommodationListing extends Listing {
 }
 
 export interface RestaurantListing extends Listing {
-  type: ListingCategory.RESTAURANT
+  type: 'restaurant'
   restaurantDetails: {
     cuisine: string[]
     dietaryOptions: Array<'vegan' | 'vegetarian' | 'glutenFree' | 'dairyFree'>
@@ -151,7 +132,7 @@ export interface RestaurantListing extends Listing {
 }
 
 export interface ActivitiesListing extends Listing {
-  type: ListingCategory.ACTIVITIES
+  type: 'activities'
   activitiesDetails: {
     category: Array<'outdoor' | 'wellness' | 'culture' | 'sports'>
     duration: string
@@ -172,7 +153,3 @@ export type AnyListing =
   | AccommodationListing
   | RestaurantListing
   | ActivitiesListing
-
-
-
-

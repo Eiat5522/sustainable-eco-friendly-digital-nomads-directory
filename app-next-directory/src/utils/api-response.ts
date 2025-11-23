@@ -1,81 +1,48 @@
 import { NextResponse } from 'next/server';
 
-type ResponseConstructorWithJson = typeof Response & {
-  json?: (data: unknown, init?: ResponseInit) => Response;
-};
-
-const hasStaticResponseJson =
-  typeof Response !== 'undefined' &&
-  typeof (Response as ResponseConstructorWithJson).json === 'function';
-
-const canUseNextResponseJson =
-  typeof NextResponse !== 'undefined' &&
-  'json' in NextResponse &&
-  typeof NextResponse.json === 'function' &&
-  hasStaticResponseJson;
-
-function createJsonResponse(body: unknown, init: ResponseInit = {}): Response {
-  const headers = new Headers(init.headers ?? {});
-  if (!headers.has('content-type')) {
-    headers.set('content-type', 'application/json');
-  }
-
-  if (canUseNextResponseJson) {
-    // NextResponse.json internally calls Response.json which is missing in the test
-    // environment. We guard the call so that unit tests fall back to the standard
-    // Response constructor while production still benefits from Next.js helpers.
-    return NextResponse.json(body, { ...init, headers });
-  }
-
-  const payload = JSON.stringify(body ?? null);
-
-  return new Response(payload, {
-    ...init,
-    headers,
-  });
-}
-
-export interface ApiResponse<T = unknown> {
+export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
   message?: string;
-  details?: unknown;
+  details?: any;
 }
 
-export const ApiResponseHandler = {
-  success: <T>(data: T, message?: string) => {
-    const payload: ApiResponse<T> =
-      message === undefined
-        ? { success: true, data }
-        : { success: true, data, message };
-    return createJsonResponse(payload);
-  },
-  error: (
-    error: string,
-    status: number = 400,
-    details?: unknown
-  ) => {
-    
-    const payload: ApiResponse<never> & { details?: unknown } = { success: false, error };
-    
-    if (details !== undefined) {
-      payload.details = details;
-    }
-    
-    return createJsonResponse(payload, { status });
-  },
-    
-    notFound(resource?: string) {
-    const msg = resource ? `${resource} not found` : 'Resource not found';
-    return createJsonResponse({ success: false, error: msg }, { status: 404 });
-  },
+export class ApiResponseHandler {
+  static success<T>(data: T, message?: string): NextResponse<ApiResponse<T>> {
+    return NextResponse.json({
+      success: true,
+      data,
+      message
+    });
+  }
 
-  unauthorized() {
-    return createJsonResponse({ success: false, error: 'Unauthorized access' }, { status: 401 });
-  },
+  static error(error: string, status: number = 400, details?: any): NextResponse<ApiResponse> {
+    return NextResponse.json({
+      success: false,
+      error,
+      ...(details && { details })
+    }, { status });
+  }
 
-  forbidden() {
-    return createJsonResponse({ success: false, error: 'Forbidden' }, { status: 403 });
-  },
-};
+  static notFound(resource: string = 'Resource'): NextResponse<ApiResponse> {
+    return NextResponse.json({
+      success: false,
+      error: `${resource} not found`
+    }, { status: 404 });
+  }
+
+  static unauthorized(): NextResponse<ApiResponse> {
+    return NextResponse.json({
+      success: false,
+      error: 'Unauthorized access'
+    }, { status: 401 });
+  }
+
+  static forbidden(): NextResponse<ApiResponse> {
+    return NextResponse.json({
+      success: false,
+      error: 'Forbidden'
+    }, { status: 403 });
+  }
+}

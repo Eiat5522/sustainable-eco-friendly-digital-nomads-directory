@@ -1,15 +1,11 @@
-import { builder } from './client';
-import type { SanityImageSource } from '../../types/external/sanity-image';
+import imageUrlBuilder from '@sanity/image-url'
+import type { SanityImageSource } from '@sanity/image-url/lib/types/types'
+import { client } from './client'
 
-export function urlFor(source: SanityImageSource) {
-  // Gracefully handle null or undefined sources
-  if (
-    !source ||
-    typeof source !== 'object' ||
-    !('asset' in source) ||
-    !(source as { asset?: { _ref?: string } }).asset?._ref
-  ) {
-    return undefined;
-  }
-  return builder.image(source);
+const builder = imageUrlBuilder(client)
+
+export const urlFor = (source: SanityImageSource) => {
+  return builder.image(source)
 }
+
+export default urlFor

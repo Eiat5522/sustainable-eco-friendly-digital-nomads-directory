@@ -50,18 +50,12 @@ setup('create test users', async ({ request }) => {
 // Authenticate regular user
 setup('authenticate user', async ({ page }) => {
   await page.goto('/login');
-  await page.waitForSelector('#email', { timeout: 5000 });
-  await page.fill('#email', 'test@example.com');
-  await page.fill('#password', 'password123');
+  await page.fill('input[name="email"]', 'test@example.com');
+  await page.fill('input[name="password"]', 'password123');
   await page.click('button[type="submit"]');
 
-  // Wait for navigation to dashboard or home
-  try {
-    await page.waitForURL('**/dashboard', { timeout: 10000 });
-  } catch {
-    // Fallback to home page
-    await page.waitForURL('/', { timeout: 5000 });
-  }
+  await page.waitForURL('/');
+  await expect(page.locator('[data-testid="user-menu"]')).toBeVisible();
 
   await page.context().storageState({ path: authFile });
 });
@@ -69,16 +63,12 @@ setup('authenticate user', async ({ page }) => {
 // Authenticate admin user
 setup('authenticate admin', async ({ page }) => {
   await page.goto('/login');
-  await page.waitForSelector('#email', { timeout: 5000 });
-  await page.fill('#email', 'admin@example.com');
-  await page.fill('#password', 'password123');
+  await page.fill('input[name="email"]', 'admin@example.com');
+  await page.fill('input[name="password"]', 'password123');
   await page.click('button[type="submit"]');
 
-  try {
-    await page.waitForURL('**/dashboard', { timeout: 10000 });
-  } catch {
-    await page.waitForURL('/', { timeout: 5000 });
-  }
+  await page.waitForURL('/');
+  await expect(page.locator('[data-testid="user-menu"]')).toBeVisible();
 
   await page.context().storageState({ path: adminAuthFile });
 });
@@ -86,16 +76,12 @@ setup('authenticate admin', async ({ page }) => {
 // Authenticate editor user
 setup('authenticate editor', async ({ page }) => {
   await page.goto('/login');
-  await page.waitForSelector('#email', { timeout: 5000 });
-  await page.fill('#email', 'editor@example.com');
-  await page.fill('#password', 'password123');
+  await page.fill('input[name="email"]', 'editor@example.com');
+  await page.fill('input[name="password"]', 'password123');
   await page.click('button[type="submit"]');
 
-  try {
-    await page.waitForURL('**/dashboard', { timeout: 10000 });
-  } catch {
-    await page.waitForURL('/', { timeout: 5000 });
-  }
+  await page.waitForURL('/');
+  await expect(page.locator('[data-testid="user-menu"]')).toBeVisible();
 
   await page.context().storageState({ path: editorAuthFile });
 });
@@ -103,16 +89,12 @@ setup('authenticate editor', async ({ page }) => {
 // Authenticate venue owner user
 setup('authenticate venue owner', async ({ page }) => {
   await page.goto('/login');
-  await page.waitForSelector('#email', { timeout: 5000 });
-  await page.fill('#email', 'venueowner@example.com');
-  await page.fill('#password', 'password123');
+  await page.fill('input[name="email"]', 'venueowner@example.com');
+  await page.fill('input[name="password"]', 'password123');
   await page.click('button[type="submit"]');
 
-  try {
-    await page.waitForURL('**/dashboard', { timeout: 10000 });
-  } catch {
-    await page.waitForURL('/', { timeout: 5000 });
-  }
+  await page.waitForURL('/');
+  await expect(page.locator('[data-testid="user-menu"]')).toBeVisible();
 
   await page.context().storageState({ path: venueOwnerAuthFile });
 });

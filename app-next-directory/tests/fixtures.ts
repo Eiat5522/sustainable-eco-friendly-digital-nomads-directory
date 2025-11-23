@@ -1,101 +1,48 @@
-import { test as base, type Browser, type Page } from '@playwright/test'
-import { dirname } from 'path'
-import { existsSync, mkdirSync } from 'fs'
-import { resolveTestUser, type PlaywrightRole } from './config/test-users'
+import { test as base } from '@playwright/test';
 
-export type TestFixtures = {
-  authenticatedPage: Page
-  adminPage: Page
-  venueOwnerPage: Page
-  editorPage: Page
-}
+// Extend the base test to include custom fixtures
+export const test = base.extend({
+  // Custom fixture for authenticated user
+  authenticatedPage: async ({ page }, use) => {
+    // Navigate to login page
+    await page.goto('/login');
 
-const ensureStorageDirectory = (filePath?: string) => {
-  if (!filePath) return
-  const directory = dirname(filePath)
-  if (!existsSync(directory)) {
-    mkdirSync(directory, { recursive: true })
+    // Login with test user
+    await page.fill('input[name="email"]', 'test@example.com');
+    await page.fill('input[name="password"]', 'password123');
+    await page.click('button[type="submit"]');
+
+    // Wait for successful login
+    await page.waitForURL('/');
+
+    await use(page);
+  },
+
+  // Custom fixture for admin user
+  adminPage: async ({ page }, use) => {
+    await page.goto('/login');
+
+    await page.fill('input[name="email"]', 'admin@example.com');
+    await page.fill('input[name="password"]', 'password123');
+    await page.click('button[type="submit"]');
+
+    await page.waitForURL('/');
+
+    await use(page);
+  },
+
+  // Custom fixture for venue owner
+  venueOwnerPage: async ({ page }, use) => {
+    await page.goto('/login');
+
+    await page.fill('input[name="email"]', 'venueowner@example.com');
+    await page.fill('input[name="password"]', 'password123');
+    await page.click('button[type="submit"]');
+
+    await page.waitForURL('/');
+
+    await use(page);
   }
-}
+});
 
-const performLogin = async (page: Page, email: string, password: string) => {
-  await page.goto('/login')
-
-  const loginForm = page.locator('form')
-  const hasLoginForm = (await loginForm.count()) > 0
-  if (!hasLoginForm) return
-
-  await page.fill('input[name="email"]', email)
-  await page.fill('input[name="password"]', password)
-  await Promise.all([
-    page.waitForLoadState('networkidle'),
-    page.click('button[type="submit"]'),
-  ])
-
-  try {
-    await page.waitForTimeout(500)
-    await page.waitForURL('**', { waitUntil: 'networkidle', timeout: 5_000 })
-  } catch {
-    // ignore navigation timeouts – fixtures remain usable even if redirect fails
-  }
-}
-
-const createAuthenticatedContext = async (
-  browser: Browser,
-  role: PlaywrightRole,
-): Promise<{ context: Awaited<ReturnType<Browser['newContext']>>; page: Page }> => {
-  const user = resolveTestUser(role)
-  const storageState = user.storageStatePath && existsSync(user.storageStatePath)
-    ? user.storageStatePath
-    : undefined
-
-  const context = await browser.newContext({ storageState })
-  const page = await context.newPage()
-
-  if (!storageState) {
-    await performLogin(page, user.email, user.password)
-    if (user.storageStatePath) {
-      ensureStorageDirectory(user.storageStatePath)
-      await context.storageState({ path: user.storageStatePath })
-    }
-  }
-
-  return { context, page }
-}
-
-export const test = base.extend<TestFixtures>({
-  authenticatedPage: async ({ browser }, use) => {
-    const { context, page } = await createAuthenticatedContext(browser, 'customer')
-    try {
-      await use(page)
-    } finally {
-      await context.close()
-    }
-  },
-  adminPage: async ({ browser }, use) => {
-    const { context, page } = await createAuthenticatedContext(browser, 'admin')
-    try {
-      await use(page)
-    } finally {
-      await context.close()
-    }
-  },
-  venueOwnerPage: async ({ browser }, use) => {
-    const { context, page } = await createAuthenticatedContext(browser, 'venueOwner')
-    try {
-      await use(page)
-    } finally {
-      await context.close()
-    }
-  },
-  editorPage: async ({ browser }, use) => {
-    const { context, page } = await createAuthenticatedContext(browser, 'editor')
-    try {
-      await use(page)
-    } finally {
-      await context.close()
-    }
-  },
-})
-
-export { expect } from '@playwright/test'
+export { expect } from '@playwright/test';

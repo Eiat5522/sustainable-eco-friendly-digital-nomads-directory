@@ -1,4 +1,4 @@
-import { ListingCategory } from './enums';
+import { CategoryType } from './sanity';
 
 // Filter combination operators
 export type FilterOperator = 'AND' | 'OR';
@@ -6,7 +6,7 @@ export type FilterOperator = 'AND' | 'OR';
 // Single filter condition
 export interface FilterCondition {
   field: keyof ListingFilters;
-  value: unknown;
+  value: any;
   operator?: FilterOperator;
 }
 
@@ -20,11 +20,11 @@ export interface FilterGroup {
 
 export interface ListingFilters {
   searchQuery?: string;
-  category?: ListingCategory;
+  category?: CategoryType;
   location?: string;
   ecoTags?: string[];
   nomadFeatures?: string[];
-  
+  minRating?: number;
   maxPriceRange?: number;
   // New fields for advanced search filters
   minPriceRange?: number; // Minimum price for dual range slider (budget filtering)

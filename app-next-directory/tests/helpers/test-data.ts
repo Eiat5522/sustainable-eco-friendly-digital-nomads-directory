@@ -1,67 +1,34 @@
-import type { AppListingCard } from '@/types/appView';
-import type {
-  TestCity,
-  TestData,
-  TestUser,
-} from '@/tests/helpers/test-data';
-import { createTestData } from '@/tests/helpers/test-data';
+import { type Listing } from '@/types/listings';
 
-export type PlaywrightTestData = TestData & {
-  listingCards: AppListingCard[];
-};
+export const mockListings: Listing[] = [
+  {
+    id: '1',
+    name: 'Eco-Friendly Coworking Space',
+    description_short: 'A sustainable coworking space with solar panels and recycling',
+    category: 'coworking',
+    address_string: '123 Green Street, Bangkok',
+    eco_focus_tags: ['solar_powered', 'zero_waste', 'recycling_program'],
+    digital_nomad_features: ['high_speed_wifi', 'meeting_rooms'],
+    primary_image_url: '/images/sample/coworking.jpg',
+    city: 'Bangkok',
+    country: 'Thailand'
+  },
+  {
+    id: '2',
+    name: 'Bamboo Eco Café',
+    description_short: 'Eco-conscious café serving local organic produce and using eco-friendly practices',
+    category: 'cafe',
+    address_string: '456 Bamboo Lane, Chiang Mai',
+    eco_focus_tags: ['organic_food', 'local_sourcing', 'plastic_free'],
+    digital_nomad_features: ['wifi_available', 'power_outlets'],
+    primary_image_url: '/images/sample/cafe.jpg',
+    city: 'Chiang Mai',
+    country: 'Thailand'
+  }
+];
 
-const buildListingCards = (data: TestData): AppListingCard[] =>
-  data.listings.map((listing) => {
-    const slug = listing.slug?.current ?? listing._id;
-    const city: TestCity | undefined = data.cities.find((candidate) =>
-      candidate.slug === listing.city.slug.current
-    );
-
-    return {
-      id: listing._id,
-      name: listing.name,
-      slug,
-      city: city
-        ? {
-            id: city.id,
-            name: city.name,
-            slug: city.slug,
-            country: city.country,
-            sustainabilityScore: city.sustainabilityScore,
-            highlights: city.highlights,
-          }
-        : null,
-      ecoFocusTags: listing.ecoFocusTags.map((tag) => tag.slug.current),
-      digitalNomadFeatures: listing.digitalNomadFeatures,
-      priceRange: listing.priceRange as AppListingCard['priceRange'],
-      website: listing.website ?? undefined,
-      imageUrl: listing.primaryImage ? `https://images.test/listings/${slug}.jpg` : undefined,
-      primaryImage: listing.primaryImage as AppListingCard['primaryImage'],
-      galleryImages: listing.galleryImages as AppListingCard['galleryImages'],
-      type: listing.type,
-      shortDescription: listing.shortDescription,
-      address: listing.address,
-      category: listing.category,
-      location: listing.location ?? listing.coordinates,
-    };
-  });
-
-export const getPlaywrightTestData = (overrides?: Partial<TestData>): PlaywrightTestData => {
-  const dataset = createTestData(overrides);
-  return {
-    ...dataset,
-    listingCards: buildListingCards(dataset),
-  };
-};
-
-export const getTestUsers = (): TestUser[] => getPlaywrightTestData().users;
-
-export {
-  TEST_SESSION_COOKIE_NAME,
-  createTestData,
-  getSessionForRole,
-  getTestUser,
-  listCities,
-  listEcoTags,
-  mockListings,
-} from '@/tests/helpers/test-data';
+export async function setupTestData() {
+  // This would be used to insert test data into a test database
+  // For now, we'll just use the mock data directly in tests
+  return mockListings;
+}

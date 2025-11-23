@@ -1,9 +1,4 @@
-// No Schema import needed for MongoDB JSON schema validation
-import type { IndexDescription, IndexDirection } from 'mongodb';
-
-type SessionIndex = Pick<IndexDescription, 'unique' | 'expireAfterSeconds'> & {
-  key: Record<string, IndexDirection>;
-};
+import { Schema } from 'mongodb';
 
 export const sessionSchema = {
   validator: {
@@ -37,11 +32,10 @@ export const sessionSchema = {
         }
       }
     }
-  }
+  },
+  indexes: [
+    { key: { sessionToken: 1 }, unique: true },
+    { key: { userId: 1 } },
+    { key: { expires: 1 }, expireAfterSeconds: 0 }
+  ]
 };
-
-export const sessionIndexes: SessionIndex[] = [
-  { key: { sessionToken: 1 }, unique: true },
-  { key: { userId: 1 } },
-  { key: { expires: 1 }, expireAfterSeconds: 0 }
-];

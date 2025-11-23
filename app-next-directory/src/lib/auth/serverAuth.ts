@@ -1,4 +1,5 @@
-/** Server-side authentication utilities
+/**
+ * Server-side authentication utilities
  * These functions are NOT Edge Runtime compatible and should only be used in:
  * - API routes (without Edge Runtime)
  * - Server Components
@@ -7,33 +8,9 @@
 
 import { UserRole } from '@/types/auth';
 import bcrypt from 'bcryptjs';
-import User from '@/models/User';
+import User from '../../models/User';
+import dbConnect from '../dbConnect';
 
-import { Types, isValidObjectId, type FilterQuery } from 'mongoose';
-import { isEmailVerificationRequired } from './config';
-import dbConnect from '@/lib/dbConnect';
-
-// Memoized database connection function
-const connectToDatabase = async () => {
-  await dbConnect();
-};
-
-type UserDoc = {
-  _id: Types.ObjectId;
-  name: string;
-  email: string;
-  password?: string;
-  image?: string;
-  role: UserRole;
-  emailVerified?: Date | null;
-  favorites?: Array<Types.ObjectId | string>;
-};
-// Narrowed fields used when authenticating a user
-type SelectedAuthDoc = Pick<
-  UserDoc,
-  '_id' | 'name' | 'email' | 'image' | 'role' | 'password' | 'emailVerified'
->;
-const UserModel = User as unknown as import('mongoose').Model<UserDoc>;
 export interface AuthenticatedUser {
   id: string;
   name: string;
@@ -41,8 +18,6 @@ export interface AuthenticatedUser {
   image?: string;
   role: UserRole;
 }
-
-
 
 /**
  * Authenticate user with email and password
@@ -55,32 +30,12 @@ export async function authenticateUser(
   password: string
 ): Promise<AuthenticatedUser | null> {
   try {
-    await connectToDatabase();
-
-    const requireVerification = isEmailVerificationRequired();
-
-    const query: FilterQuery<UserDoc> = {
-      email: email.trim().toLowerCase(),
-    };
-
-    if (requireVerification) {
-      query.emailVerified = {
-        $exists: true,
-        $ne: null,
-        $type: 'date',
-      } as FilterQuery<UserDoc>['emailVerified'];
-    }
+    await dbConnect();
 
     // Find user in MongoDB using Mongoose model
-    const user = await UserModel.findOne(query)
-      .select('_id name email image role +password +emailVerified')
-      .lean<SelectedAuthDoc>();
+    const user = await User.findOne({ email }).select('+password');
 
     if (!user || !user.password) {
-      return null;
-    }
-    // Defense in depth: verify again post-fetch when required
-    if (requireVerification && !user.emailVerified) {
       return null;
     }
 
@@ -116,11 +71,11 @@ export async function createUserAccount(userData: {
   image?: string;
 }): Promise<AuthenticatedUser | null> {
   try {
-    await connectToDatabase();
+    await dbConnect();
 
     // Check if user already exists
-    const exists = await UserModel.exists({ email: userData.email.trim().toLowerCase() });
-    if (exists) {
+    const existingUser = await User.findOne({ email: userData.email });
+    if (existingUser) {
       throw new Error('User already exists');
     }
 
@@ -128,9 +83,9 @@ export async function createUserAccount(userData: {
     const hashedPassword = await bcrypt.hash(userData.password, 12);
 
     // Create user
-    const user = await UserModel.create({
+    const user = await User.create({
       name: userData.name,
-      email: userData.email.trim().toLowerCase(),
+      email: userData.email,
       password: hashedPassword,
       image: userData.image,
       role: 'user' as UserRole,
@@ -149,50 +104,32 @@ export async function createUserAccount(userData: {
   }
 }
 
-import { withMongooseCache } from '../mongoose-cache';
-
 /**
-* Get user by ID
+ * Get user by ID
  * @param userId User ID
  * @returns User data or null
  */
 export async function getUserById(userId: string): Promise<AuthenticatedUser | null> {
-  const fetchUser = async (): Promise<AuthenticatedUser | null> => {
-    try {
-      await connectToDatabase();
+  try {
+    await dbConnect();
 
-      if (!isValidObjectId(userId)) {
-        return null;
-      }
-
-      const user = await UserModel.findById(userId)
-        .select('_id name email image role')
-        .lean();
-      if (!user) {
-        return null;
-      }
-
-      return {
-        id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        image: user.image,
-        role: user.role as UserRole,
-      };
-    } catch (error) {
-      console.error('Get user error:', error);
+    const user = await User.findById(userId);
+    if (!user) {
       return null;
     }
-  };
 
-  if (process.env.NODE_ENV === 'test') {
-    return fetchUser();
+    return {
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      role: user.role as UserRole,
+    };
+  } catch (error) {
+    console.error('Get user error:', error);
+    return null;
   }
-
-  return withMongooseCache(UserModel, `getUserById:${userId}`, fetchUser);
 }
-
-
 
 /**
  * Update user role (admin only)
@@ -205,93 +142,17 @@ export async function updateUserRole(
   newRole: UserRole
 ): Promise<boolean> {
   try {
-    await connectToDatabase();
+    await dbConnect();
 
-    if (!isValidObjectId(userId)) {
-      return false;
-    }
-    const res = await UserModel.updateOne(
-      { _id: userId },
-      { $set: { role: newRole } },
-      { runValidators: true }
+    const result = await User.findByIdAndUpdate(
+      userId,
+      { role: newRole },
+      { new: true }
     );
-    return res.matchedCount === 1;
+
+    return !!result;
   } catch (error) {
     console.error('Update user role error:', error);
     return false;
-  }
-}
-
-// Input type for profile updates
-export interface UpdateUserProfileInput {
-  name?: string;
-  image?: string | null;
-}
-
-/**
- * Remove a listing from a user's favorites
- * @param userId User ID
- * @param listingId Listing ID
- */
-export async function unfavoriteListing(userId: string, listingId: string): Promise<void> {
-  try {
-    await connectToDatabase();
-
-    if (!isValidObjectId(userId) || !isValidObjectId(listingId)) {
-      return;
-    }
-
-    await UserModel.updateOne({ _id: userId }, { $pull: { favorites: listingId } });
-  } catch (error) {
-    console.error('Unfavorite listing error:', error);
-    // Don't throw error, just log it
-  }
-}
-
-export async function updateUserProfile(
-  userId: string,
-  update: UpdateUserProfileInput
-): Promise<AuthenticatedUser | null> {
-  try {
-    await connectToDatabase();
-
-    if (!isValidObjectId(userId)) {
-      return null;
-    }
-
-  const $set: Record<string, unknown> = {};
-    if (typeof update.name === 'string') {
-      $set.name = update.name;
-    }
-    if (update.image === null) {
-      $set.image = null;
-    } else if (typeof update.image === 'string') {
-      $set.image = update.image;
-    }
-
-    if (Object.keys($set).length === 0) {
-      return null; // Nothing to update
-    }
-
-    const doc = await UserModel.findByIdAndUpdate(
-      userId,
-      { $set },
-      { new: true }
-    )
-      .select('_id name email image role')
-      .lean<UserDoc | null>();
-
-    if (!doc) return null;
-
-    return {
-      id: doc._id.toString(),
-      name: doc.name,
-      email: doc.email,
-      image: doc.image,
-      role: doc.role as UserRole,
-    };
-  } catch (error) {
-    console.error('Update user profile error:', error);
-    return null;
   }
 }

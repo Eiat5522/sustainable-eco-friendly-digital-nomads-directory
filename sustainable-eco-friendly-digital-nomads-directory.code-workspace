@@ -2,6 +2,12 @@
     "folders": [
         {
             "path": "."
+        }
+    ]
+{
+    "folders": [
+        {
+            "path": "."
         },
         {
             "name": "app-next-directory",

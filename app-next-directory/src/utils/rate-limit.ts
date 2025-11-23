@@ -1,21 +1,18 @@
 /**
  * Rate Limiting Utility
- * Uses Redis-based rate limiting via @upstash/ratelimit with in-memory fallback
+ * Simple in-memory rate limiter for API routes
  */
-
-import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
 
 interface RateLimitInfo {
   count: number;
   resetTime: number;
 }
 
-// In-memory store for rate limiting (fallback when Redis is not available)
+// In-memory store for rate limiting
 const rateLimitStore = new Map<string, RateLimitInfo>();
 
-// Clean up expired entries every 10 minutes (only for in-memory fallback)
-const cleanupInterval = setInterval(() => {
+// Clean up expired entries every 10 minutes
+setInterval(() => {
   const now = Date.now();
   for (const [key, info] of rateLimitStore.entries()) {
     if (now > info.resetTime) {
@@ -24,49 +21,12 @@ const cleanupInterval = setInterval(() => {
   }
 }, 10 * 60 * 1000);
 
-cleanupInterval.unref?.();
-
-// Initialize Redis client if credentials are available
-let redis: Redis | null = null;
-
-function initializeRedis() {
-  if (redis !== undefined) {
-    return redis;
-  }
-  
-  const UPSTASH_REDIS_REST_URL = process.env.UPSTASH_REDIS_REST_URL;
-  const UPSTASH_REDIS_REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
-
-  if (UPSTASH_REDIS_REST_URL && UPSTASH_REDIS_REST_TOKEN) {
-    try {
-      redis = new Redis({
-        url: UPSTASH_REDIS_REST_URL,
-        token: UPSTASH_REDIS_REST_TOKEN,
-      });
-    } catch (error) {
-      console.warn('[rate-limit] Failed to initialize Redis, falling back to in-memory:', error);
-      redis = null;
-    }
-  } else {
-    console.warn('[rate-limit] Redis credentials not configured (UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN). Using in-memory rate limiting.');
-    redis = null;
-  }
-  
-  return redis;
-}
-
-/**
- * Configuration options for rate limiting
- */
 export interface RateLimitOptions {
   max: number; // Maximum requests
   windowMs: number; // Time window in milliseconds
   keyGenerator?: (request: Request) => string; // Custom key generator
 }
 
-/**
- * Result of a rate limit check
- */
 export interface RateLimitResult {
   success: boolean;
   limit: number;
@@ -75,109 +35,57 @@ export interface RateLimitResult {
 }
 
 /**
- * In-memory rate limiting fallback
- */
-function inMemoryRateLimit(key: string, max: number, windowMs: number): RateLimitResult {
-  const now = Date.now();
-  const resetTime = now + windowMs;
-
-  // Get or create rate limit info
-  let info = rateLimitStore.get(key);
-
-  if (!info || now > info.resetTime) {
-    // Create new or reset expired
-    info = { count: 0, resetTime };
-    rateLimitStore.set(key, info);
-  }
-
-  // Check if limit exceeded
-  console.log('Key:', key, 'Count:', info ? info.count : 0);
-  if (info.count >= max) {
-    return {
-      success: false,
-      limit: max,
-      remaining: 0,
-      resetTime: info.resetTime,
-    };
-  }
-
-  // Increment count
-  info.count++;
-
-  return {
-    success: true,
-    limit: max,
-    remaining: max - info.count,
-    resetTime: info.resetTime,
-  };
-}
-
-/**
  * Rate limiting function
- * Uses Redis when available, falls back to in-memory
  */
 export function rateLimit(options: RateLimitOptions) {
   const { max, windowMs, keyGenerator } = options;
 
-  // Lazy initialize Redis
-  const redisClient = initializeRedis();
-
-  // If Redis is available, create a Redis-based rate limiter
-  if (redisClient) {
-    const limiter = new Ratelimit({
-      redis: redisClient,
-      limiter: Ratelimit.slidingWindow(max, `${windowMs} ms`),
-      analytics: false, // Disable analytics for better performance
-    });
-
-    return async (request: Request): Promise<RateLimitResult> => {
-      try {
-        // Generate key for rate limiting (default to IP)
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
-        
-        const { success, limit, remaining, reset } = await limiter.limit(key);
-        
-        return {
-          success,
-          limit,
-          remaining,
-          resetTime: reset,
-        };
-      } catch (error) {
-        console.warn('[rate-limit] Redis error, falling back to in-memory:', error);
-        // Fallback to in-memory on error
-        const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
-        return inMemoryRateLimit(key, max, windowMs);
-      }
-    };
-  }
-
-  // In-memory fallback
-  return async (request: Request): Promise<RateLimitResult> => {
+  return (request: Request): RateLimitResult => {
+    // Generate key for rate limiting (default to IP)
     const key = keyGenerator ? keyGenerator(request) : getClientIP(request);
-    return inMemoryRateLimit(key, max, windowMs);
+
+    const now = Date.now();
+    const resetTime = now + windowMs;
+
+    // Get or create rate limit info
+    let info = rateLimitStore.get(key);
+
+    if (!info || now > info.resetTime) {
+      // Create new or reset expired
+      info = { count: 0, resetTime };
+      rateLimitStore.set(key, info);
+    }
+
+    // Check if limit exceeded
+    if (info.count >= max) {
+      return {
+        success: false,
+        limit: max,
+        remaining: 0,
+        resetTime: info.resetTime,
+      };
+    }
+
+    // Increment count
+    info.count++;
+
+    return {
+      success: true,
+      limit: max,
+      remaining: max - info.count,
+      resetTime: info.resetTime,
+    };
   };
 }
 
 /**
- * Extracts the client IP address from the request headers.
- * 
- * Checks multiple common headers used by proxies and load balancers:
- * - x-forwarded-for (first IP in the list)
- * - x-real-ip
- * - cf-connecting-ip (Cloudflare)
- * 
- * @param request - The incoming HTTP request
- * @returns The client IP address, or 'unknown' if none found
+ * Get client IP address from request
  */
 function getClientIP(request: Request): string {
   // Try various headers for IP address
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
-    const [first] = forwarded.split(',');
-    if (first) {
-      return first.trim();
-    }
+    return forwarded.split(',')[0].trim();
   }
 
   const realIP = request.headers.get('x-real-ip');
@@ -217,5 +125,4 @@ export const rateLimiters = {
   }),
 };
 
-export { rateLimitStore };
 export default rateLimit;

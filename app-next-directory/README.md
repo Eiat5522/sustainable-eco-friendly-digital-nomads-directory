@@ -1,75 +1,212 @@
-# app-next-directory – Next.js Frontend
+# Next.js Frontend - Sustainable Eco-Friendly Digital Nomads Directory
 
-This workspace hosts the Next.js 15 App Router frontend for the Sustainable Eco-Friendly Digital Nomads Directory. It consumes Sanity content, MongoDB collections, and Redis-backed services to power listings, search, and authenticated dashboards.
+This is the **Next.js 14+ frontend application** for the Sustainable Eco-Friendly Digital Nomads Directory project. It provides a modern, responsive web interface with authentication, content management, and interactive features.
 
-## Current Status (Q1 2025)
+## ✅ Implementation Status
 
-- ✅ **Core experience online** – Home, search, listing detail, and dashboard shells are implemented with live data hooks and loading states.
-- ✅ **Auth-first routing** – NextAuth.js v5 flows guard dashboards, while role-aware layouts power editor/admin surfaces.
-- ✅ **Design system stabilized** – Component library in `src/components/` now drives all new UI work with Tailwind v4 tokens.
-- 🔄 **In progress** – Advanced search facets and result ranking are being tuned alongside analytics instrumentation.
+### **Authentication System - COMPLETED** 🎉
+- **Full NextAuth.js implementation** with JWT strategy
+- **Role-based access control** (5 user levels: user, editor, venueOwner, admin, superAdmin)
+- **MongoDB session management** with secure password hashing
+- **Comprehensive Playwright testing** (120+ test cases)
+- **Production-ready security** with rate limiting and input validation
 
-Track upcoming milestones in [`docs/reference/CHANGELOG.md`](../docs/reference/CHANGELOG.md).
+### **Current Task Progress**
+Based on the task tracking system:
+- ✅ **Tasks 1, 2, 4, 7, 14**: Completed (Next.js startup, carousel, TypeScript fixes, auth)
+- 🔄 **Tasks 3, 5, 6**: In Progress (Sanity integration, backend APIs, documentation)
+- ⏳ **Tasks 8-13**: Planned (API development, CMS integration, testing, optimization)
 
-## Getting Started
-```bash
-pnpm install
-pnpm dev       # http://localhost:3000
-pnpm lint      # ESLint + TypeScript checks
-pnpm test:unit # Jest unit tests
-pnpm test:e2e  # Playwright end-to-end suites
-```
+## 🚀 Quick Start
 
-Key directories:
-- `app/` – App Router pages, layouts, and API route handlers. 【F:app-next-directory/app/dashboard/page.tsx†L1-L34】
-- `src/components/` – UI system, domain components, and co-located tests. 【F:app-next-directory/src/components/listings/ListingDetailView.tsx†L1-L36】
-- `src/lib/` – Integrations (Sanity, MongoDB, Redis), DTO transformers, and analytics services. 【F:app-next-directory/src/lib/sanity/client.ts†L1-L28】【F:app-next-directory/src/lib/dbConnect.ts†L1-L34】
-- `src/models/` – Mongoose models with comprehensive Jest coverage. 【F:app-next-directory/src/models/User.ts†L1-L43】
-
-## Documentation
-
-- Workspace documentation lives under [`docs/app-next-directory/`](../docs/app-next-directory/).
-- Cross-workspace references (changelog, workspace setup, troubleshooting) are available in [`docs/reference/`](../docs/reference/).
-- See [`docs/app-next-directory/README.md`](../docs/app-next-directory/README.md) for navigation, roadmap highlights, and design guidelines.
-- **Email Configuration**: See [`docs/EMAIL_CONFIGURATION.md`](docs/EMAIL_CONFIGURATION.md) for setting up contact form email notifications.
-
-## Testing & Quality
-
-Latest verification: `pnpm lint`, `pnpm check-types`, `pnpm test:unit`, and `pnpm test:e2e` (Q1 2025 cycle). For tooling details and test matrices, read [`docs/app-next-directory/TESTING.md`](../docs/app-next-directory/TESTING.md).
-
-### Console Noise Suppression
-
-By default, **intentional test errors** (simulated DB failures, validation errors, expected test warnings) are filtered from console output to improve readability and reduce cognitive load during testing. 
-
-**What gets filtered:**
-- Intentional API errors (e.g., "Search GET error:", "MongoDB Connection Error:")
-- Expected authentication/auth errors during tests
-- React testing environment warnings (act(...) configuration)
-- JSDOM "not implemented" warnings (navigation, form submit, etc.)
-- Test-specific component errors (e.g., "Failed to load test listings")
-
-**What is NOT filtered (real issues that you should see):**
-- Real JavaScript errors (TypeError, ReferenceError, SyntaxError)
-- React code quality warnings (controlled/uncontrolled inputs, invalid props)
-- Unexpected errors with patterns not in the filter list
-- Legitimate warnings about code issues
-
-**To see all console output for debugging:**
+### Prerequisites
 
 ```bash
-JEST_CONSOLE_NO_FILTER=1 pnpm test:unit
+Node.js 18.17.0+ required
+npm 9.6.7+ required
 ```
 
-The filtering mechanism is configured in `jest.setup.ts`. The filters use specific string patterns to match only intentional test noise. For example, `'An update to'` alone won't suppress - it requires BOTH `'An update to'` AND `'inside a test was not wrapped in act'` to match the pattern.
+### Installation & Setup
 
-## Dependencies & Compatibility
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-### NextAuth.js v5 Beta
-This project uses **NextAuth.js v5.0.0-beta.30** to take advantage of the latest authentication features and improved App Router integration. The beta version is stable for production use, but be aware:
-- We're monitoring the [NextAuth.js v5 release roadmap](https://github.com/nextauthjs/next-auth/discussions) for the stable GA release
-- The current beta has been thoroughly tested with our authentication flows
-- Migration path to stable v5 will be minimal once released
-- Alternative: Consider NextAuth.js v4.x if you require only stable releases
+2. **Configure environment variables:**
+   Create `.env.local` from `.env.example`:
 
-### Tailwind CSS
-Tailwind CSS v4.x is installed as a **devDependency only** (not in dependencies) as it's a build-time tool that processes styles during the build phase. This reduces install time and keeps the production bundle clean.
+   ```env
+   # Sanity CMS Configuration
+   NEXT_PUBLIC_SANITY_PROJECT_ID=your_sanity_project_id
+   NEXT_PUBLIC_SANITY_DATASET=production
+   SANITY_API_TOKEN=your_sanity_api_token
+
+   # MongoDB Configuration
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/database
+
+   # NextAuth Configuration
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=your_32_char_secret
+
+   # OAuth Providers (Optional)
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   ```
+
+3. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Access the application:**
+   - Frontend: [http://localhost:3000](http://localhost:3000)
+   - Sanity Studio: [http://localhost:3333](http://localhost:3333) (from `/sanity` directory)
+
+## 📂 Project Architecture
+
+```text
+app-next-directory/
+├── public/                     # Static assets
+│   ├── images/                 # Image assets
+│   ├── icons/                  # Icon files
+│   └── fonts/                  # Custom fonts
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── api/                # API Routes
+│   │   │   ├── auth/           # NextAuth routes
+│   │   │   ├── listings/       # Listings API
+│   │   │   └── user/           # User management API
+│   │   ├── (auth)/             # Auth-related pages
+│   │   ├── listings/           # Listings pages
+│   │   ├── cities/             # City pages
+│   │   └── layout.tsx          # Root layout
+│   ├── components/             # React components
+│   │   ├── auth/               # Authentication components
+│   │   ├── listings/           # Listing components
+│   │   ├── common/             # Shared UI components
+│   │   ├── map/                # Map components
+│   │   └── ui/                 # Base UI components (Radix)
+│   ├── lib/                    # Utility functions
+│   │   ├── sanity/             # Sanity client & queries
+│   │   ├── mongodb/            # MongoDB connection & models
+│   │   ├── auth/               # Auth configuration & helpers
+│   │   └── utils/              # General utilities
+│   ├── types/                  # TypeScript type definitions
+│   └── styles/                 # Global styles
+├── tests/                      # Playwright test suites
+│   ├── auth.spec.ts            # Authentication tests
+│   ├── rbac.spec.ts            # Role-based access tests
+│   └── utils/                  # Test utilities
+└── docs/                       # Component documentation
+```
+
+## 🔧 Fixing Deprecated Dependencies
+
+If you see warnings for deprecated packages (such as `string-similarity`, `inflight`, or `glob`):
+
+1. Replace `string-similarity` with `fastest-levenshtein`:
+
+```bash
+npm uninstall string-similarity
+npm install fastest-levenshtein
+```
+
+2. Update `glob` to a modern version:
+
+```bash
+npm install glob@10.3.10
+```
+
+3. The `inflight` package is a transitive dependency. Run:
+
+```bash
+npm update
+```
+
+If warnings persist, check the root README for workspace-wide instructions.
+
+## 🎭 Testing
+
+This project uses Playwright for end-to-end testing. Our test suite covers:
+
+- Map integration and interactions
+- Listing filters and search
+- Mobile responsiveness
+- API integration
+- Error handling
+
+### Running Tests
+
+```bash
+# Install dependencies
+npm install
+
+# Install Playwright browsers
+npx playwright install --with-deps
+
+# Run all tests
+npm run test:e2e
+
+# Run specific test file
+npm run test:e2e tests/map-integration.spec.ts
+
+# Run tests in debug mode
+npm run test:debug
+```
+
+### Test Documentation
+
+For detailed information about our testing setup, please refer to:
+
+- [Testing Overview](tests/TESTING.md)
+- [Test Writing Guide](tests/WRITING_GUIDE.md)
+- [API Mocking Guide](tests/API-MOCKING.md)
+- [Test Utilities](tests/utils/README.md)
+
+### Continuous Integration
+
+Tests run automatically on:
+
+- Pull request creation/updates
+- Merges to main branch
+- Manual trigger via GitHub Actions
+
+## 📝 API Routes Documentation
+
+The Next.js app provides the following API routes:
+
+### Listings
+
+- `GET /api/listings` - List all listings with filtering options
+- `GET /api/listings/[slug]` - Get details of a specific listing
+- `POST /api/listings` - Create a new listing (authenticated, premium)
+- `PUT /api/listings/[slug]` - Update a listing (owner only)
+- `DELETE /api/listings/[slug]` - Delete a listing (owner only)
+
+### User
+
+- `GET /api/user/favorites` - Get user's favorite listings
+- `POST /api/user/favorites` - Add a listing to favorites
+- `DELETE /api/user/favorites/[id]` - Remove a listing from favorites
+
+### Authentication
+
+- `POST /api/auth/signup` - Register a new user
+- `GET /api/auth/session` - Get current session information
+
+### Other
+
+- `GET /api/blog` - Get blog posts
+- `GET /api/events` - Get upcoming sustainability events
+- `POST /api/reviews` - Submit a review for a listing
+
+## 🚀 Deployment
+
+The application is deployed on Vercel:
+
+1. Connect your GitHub repository to Vercel
+2. Set the environment variables in the Vercel dashboard
+3. Deploy from the main branch
+
+For more details, visit our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying).

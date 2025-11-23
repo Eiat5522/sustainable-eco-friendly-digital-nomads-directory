@@ -19,20 +19,7 @@ export function getExperiment(experimentId: string): Experiment | undefined {
 }
 
 export function getExperimentVariant(experiment: Experiment): ExperimentVariant {
-  const defaultVariant = experiment.variants[0];
-  if (!defaultVariant) {
-    throw new Error(`Experiment ${experiment.id} has no variants configured`);
-  }
-
-  const flag = PostHog.getFeatureFlag(experiment.id);
-  if (typeof flag === 'string') {
-    const matchingVariant = experiment.variants.find((variant) => variant.id === flag);
-    if (matchingVariant) {
-      return matchingVariant;
-    }
-  }
-
-  return defaultVariant;
+  return PostHog.getFeatureFlag(experiment.id) as ExperimentVariant || experiment.variants[0];
 }
 
 export function activateExperiment(experimentId: string): ExperimentVariant | null {

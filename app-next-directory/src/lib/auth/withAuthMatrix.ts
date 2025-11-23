@@ -1,5 +1,6 @@
 import { getToken } from 'next-auth/jwt';
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import {
     ACCESS_CONTROL_MATRIX,
     hasFeaturePermission,
@@ -22,8 +23,7 @@ export async function withAuthMatrix(
   page?: keyof typeof ACCESS_CONTROL_MATRIX[UserRole]['pages'] | null,
   action?: keyof PagePermissions | null,
   isApiRoute: boolean = false,
-  resourceOwnership?: { userId: string; resourceOwnerId: string },
-  hasPagePermissionFn: typeof hasPagePermission = hasPagePermission
+  resourceOwnership?: { userId: string; resourceOwnerId: string }
 ) {
   const pathname = request.nextUrl.pathname;
 
@@ -60,7 +60,7 @@ export async function withAuthMatrix(
       return NextResponse.next();
     }
 
-    const hasPermission = hasPagePermissionFn(userRole, page, action);
+    const hasPermission = hasPagePermission(userRole, page, action);
 
     if (!hasPermission) {
       return new NextResponse(
@@ -85,7 +85,7 @@ export async function withAuthMatrix(
 
   // If no token and accessing protected routes
   if (!token && page && action) {
-    const hasPermission = hasPagePermissionFn('unidentifiedUser', page, action);
+    const hasPermission = hasPagePermission('unidentifiedUser', page, action);
 
     if (!hasPermission) {
       // Create redirect URL with return path
@@ -99,7 +99,7 @@ export async function withAuthMatrix(
 
   // If we have specific page and action to check
   if (page && action) {
-    const hasPermission = hasPagePermissionFn(userRole, page, action);
+    const hasPermission = hasPagePermission(userRole, page, action);
 
     // Handle ownership-based permissions for venue owners
     if (!hasPermission && resourceOwnership && userRole === 'venueOwner') {
@@ -135,8 +135,7 @@ export async function withAuthMatrix(
 export async function withAuthApiFeature(
   request: NextRequest,
   feature: keyof typeof ACCESS_CONTROL_MATRIX[UserRole]['features'],
-  resourceOwnership?: { userId: string; resourceOwnerId: string },
-  hasFeaturePermissionFn: typeof hasFeaturePermission = hasFeaturePermission
+  resourceOwnership?: { userId: string; resourceOwnerId: string }
 ) {
   const token = await getToken({
     req: request,
@@ -161,8 +160,8 @@ export async function withAuthApiFeature(
     );
   }
 
-  const userRole: UserRole = (token?.role as UserRole) || 'unidentifiedUser';
-  const hasPermission = hasFeaturePermissionFn(userRole, feature);
+  const userRole: UserRole = (token?.role as UserRole) || 'defaultUser';
+  const hasPermission = hasFeaturePermission(userRole, feature);
 
   // Handle ownership-based permissions
   if (!hasPermission && resourceOwnership) {
@@ -279,19 +278,35 @@ export async function withAuth(
 ) {
   console.warn('withAuth is deprecated. Use withAuthMatrix for audit compliance.');
 
-  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET
+  });
+
   if (!token) {
     const url = new URL('/auth/signin', request.url);
     url.searchParams.set('callbackUrl', encodeURI(request.nextUrl.pathname));
     return NextResponse.redirect(url);
   }
 
-  const userRole = (token?.role as string) || 'user';
+  if (requiredRoles && requiredRoles.length > 0) {
+    const userRole = token?.role as string || 'defaultUser';
 
-  if (requiredRoles && !requiredRoles.includes(userRole)) {
-    const url = new URL('/auth/unauthorized', request.url);
-    url.searchParams.set('reason', 'insufficient_role');
-    return NextResponse.redirect(url);
+    // Map old role names to new ones
+    const roleMapping: Record<string, UserRole> = {
+      'admin': 'systemAdministrator',
+      'editor': 'systemAdministrator',
+      'venueOwner': 'venueOwner',
+      'user': 'registeredUser'
+    };
+
+    const mappedRole = roleMapping[userRole] || 'defaultUser';
+    const mappedRequiredRoles = requiredRoles.map(r => roleMapping[r] || r);
+
+    if (!mappedRequiredRoles.includes(mappedRole)) {
+      const url = new URL('/auth/unauthorized', request.url);
+      return NextResponse.redirect(url);
+    }
   }
 
   return NextResponse.next();

@@ -1,46 +1,18 @@
-import type { CityDTO } from '@/types/dto';
-import type { Listing } from '@/types';
-import { fetchJsonWithRetry, getDefaultTimeout, RequestTimeoutError } from '@/lib/http/request';
-import { logError } from '@/lib/error-handler';
-
-type CityApiResponse = {
-  data?: unknown;
-  city?: unknown;
-};
-
-type ListingsApiResponse = {
-  data?: unknown;
-  listings?: unknown;
-  success?: boolean;
-};
+import { City, Listing } from '@/types';
 
 // City details
-export async function fetchCityDetails(slug: string): Promise<CityDTO> {
+export async function fetchCityDetails(slug: string): Promise<City> {
   try {
-    const data = await fetchJsonWithRetry<CityApiResponse>(
-      `/api/cities/${encodeURIComponent(slug)}`,
-      { next: { revalidate: 300 } },
-      {
-        timeoutMs: getDefaultTimeout(),
-        retries: 2,
-      }
-    );
-    const primaryData =
-      typeof data?.data === 'object' && data.data !== null
-        ? (data.data as Record<string, unknown>)
-        : undefined;
-    const cityCandidate = primaryData?.city ?? data?.city;
+    const response = await fetch(`/api/cities/${slug}`);
 
-    if (!cityCandidate || typeof cityCandidate !== 'object' || Array.isArray(cityCandidate)) {
-      throw new Error('City not found in API response');
+    if (!response.ok) {
+      throw new Error('Failed to fetch city details');
     }
 
-    return cityCandidate as CityDTO;
+    const data = await response.json();
+    return data.data;
   } catch (error) {
-    logError(error, { scope: 'lib:api', action: 'fetchCityDetails', details: { slug } });
-    if (error instanceof RequestTimeoutError) {
-      throw new Error('Request timed out while fetching city details');
-    }
+    console.error('Error fetching city details:', error);
     throw error;
   }
 }
@@ -48,27 +20,16 @@ export async function fetchCityDetails(slug: string): Promise<CityDTO> {
 // City listings
 export async function fetchCityListings(slug: string): Promise<Listing[]> {
   try {
-    const data = await fetchJsonWithRetry<ListingsApiResponse>(
-      `/api/listings?citySlug=${encodeURIComponent(slug)}`,
-      { next: { revalidate: 300 } },
-      {
-        timeoutMs: getDefaultTimeout(),
-        retries: 2,
-      }
-    );
-    const nestedListings =
-      typeof data?.data === 'object' && data.data !== null
-        ? (data.data as Record<string, unknown>).listings
-        : undefined;
-    const listingsSource = Array.isArray(nestedListings)
-      ? nestedListings
-      : Array.isArray(data?.listings)
-        ? data.listings
-        : [];
+    const response = await fetch(`/api/listings?citySlug=${slug}`);
 
-    return Array.isArray(listingsSource) ? (listingsSource as Listing[]) : [];
+    if (!response.ok) {
+      throw new Error('Failed to fetch city listings');
+    }
+
+    const data = await response.json();
+    return data.data.listings || [];
   } catch (error) {
-    logError(error, { scope: 'lib:api', action: 'fetchCityListings', details: { slug } });
+    console.error('Error fetching city listings:', error);
     return [];
   }
 }

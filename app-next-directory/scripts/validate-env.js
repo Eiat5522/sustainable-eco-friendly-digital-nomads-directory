@@ -5,10 +5,9 @@
  * Validates all required environment variables for the authentication system
  */
 
-import dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
+require('dotenv').config({ path: '.env.local' });
 
-export function validateEnvironment() {
+function validateEnvironment() {
   console.log('🔍 Environment Validation for Phase 1 Integration\n');
 
   const requiredVars = [
@@ -37,12 +36,6 @@ export function validateEnvironment() {
       name: 'NEXT_PUBLIC_SANITY_PROJECT_ID',
       value: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
       description: 'Sanity project ID',
-      required: false
-    },
-    {
-      name: 'NEXT_PUBLIC_SANITY_DATASET',
-      value: process.env.NEXT_PUBLIC_SANITY_DATASET,
-      description: 'Sanity dataset (e.g., production)',
       required: false
     },
     {
@@ -75,46 +68,21 @@ export function validateEnvironment() {
     console.log(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}`);
   });
 
-  const oauthVars = [
-    {
-      name: 'GOOGLE_CLIENT_ID',
-      value: process.env.GOOGLE_CLIENT_ID,
-      description: 'Google OAuth client ID',
-      required: false,
-    },
-    {
-      name: 'GOOGLE_CLIENT_SECRET',
-      value: process.env.GOOGLE_CLIENT_SECRET,
-      description: 'Google OAuth client secret',
-      required: false,
-    },
-  ];
-
-  console.log('\n🌐 Social Sign-In Providers:');
-  oauthVars.forEach(variable => {
-    const isValid = variable.value && variable.value.length > 0;
-    const status = isValid ? '✅' : '○';
-    console.log(`   ${status} ${variable.name}: ${isValid ? '✓ Configured' : '○ Optional'}`);
-    if (!isValid) {
-      console.log(`      ${variable.description}`);
-    }
-  });
-
   console.log('\n📋 Summary:');
   if (allValid) {
     console.log('🎉 All required environment variables are configured!');
     console.log('🚀 Ready to run integration tests');
     console.log('\nNext steps:');
-    console.log('   1. pnpm run test:db-connection');
-    console.log('   2. pnpm run test:integration');
-    console.log('   3. pnpm dev (start development server)');
+    console.log('   1. npm run test:db-connection');
+    console.log('   2. npm run test:integration');
+    console.log('   3. npm run dev (start development server)');
   } else {
     console.log('⚠️  Some required environment variables are missing');
     console.log('📖 Please see MONGODB_SETUP.md for configuration instructions');
     console.log('\nQuick setup:');
     console.log('   1. Copy .env.example to .env.local');
     console.log('   2. Configure MONGODB_URI with your database');
-    console.log('   3. pnpm run validate:env (after filling values)');
+    console.log('   3. Run this script again to validate');
   }
 
   return allValid;

@@ -1,56 +1,55 @@
-'use client';
+"use client";
 
 import { useSession } from "next-auth/react";
-import { UserRole, hasPagePermission, hasFeaturePermission, PagePermissions, FeaturePermissions, ACCESS_CONTROL_MATRIX } from "../types/auth";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { UserRole } from "@/types/auth";
 
-/**
- * Custom hook to access authentication state and user information
- * @returns Authentication state and user data
- */
-export function useAuth() {
+export function useRequireAuth(requiredRoles?: UserRole[]) {
   const { data: session, status } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const user = session?.user;
-  const userRole = (user as { role?: UserRole })?.role || 'unidentifiedUser';
+  useEffect(() => {
+    if (status === "loading") return;
 
-  return {
-    // Authentication state
-    isAuthenticated: !!session,
-    isLoading: status === 'loading',
-    
-    // User data
-    user,
-    userRole,
-    
-    // Utility functions
-    hasPagePermission: (page: string, action: string) => {
-      return hasPagePermission(userRole, page as keyof typeof ACCESS_CONTROL_MATRIX[UserRole]['pages'], action as keyof PagePermissions);
-    },
-    
-    hasFeaturePermission: (feature: string) => {
-      return hasFeaturePermission(userRole, feature as keyof FeaturePermissions);
-    },
-    
-    // Session status
-    status,
-  };
+    if (!session) {
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`);
+      return;
+    }
+
+    if (requiredRoles && requiredRoles.length > 0) {
+      const userRole = session.user.role;
+      if (!userRole || !requiredRoles.includes(userRole)) {
+        router.push("/auth/unauthorized");
+      }
+    }
+  }, [session, status, router, pathname, requiredRoles]);
+
+  return { session, status };
 }
 
-/**
- * Hook to check if user has specific role
- * @param requiredRole - Role to check against
- * @returns Boolean indicating if user has the required role
- */
-export function useRequireRole(requiredRole: UserRole) {
-  const { userRole } = useAuth();
-  return userRole === requiredRole;
+export function useIsAuthorized(requiredRoles?: UserRole[]) {
+  const { data: session } = useSession();
+
+  if (!session) return false;
+
+  if (!requiredRoles || requiredRoles.length === 0) return true;
+
+  return requiredRoles.includes(session.user.role);
 }
 
-/**
- * Hook to check if user has admin privileges
- * @returns Boolean indicating if user is admin or superAdmin
- */
-export function useIsAdmin() {
-  const { userRole } = useAuth();
-  return userRole === 'admin' || userRole === 'superAdmin';
+export function useRedirectIfAuthenticated(redirectTo: string = "/") {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (session) {
+      router.push(redirectTo);
+    }
+  }, [session, status, router, redirectTo]);
+
+  return { session, status };
 }

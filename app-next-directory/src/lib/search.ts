@@ -1,21 +1,14 @@
-import type { SearchFilters, SearchResult, SearchResults, SortOption } from '@/types/search';
-import { client } from './sanity/client';
+import { SearchFilters, SortOption } from '@/types/search';
+import { getClient } from './sanity/client';
 
-interface SuggestionDocument {
-  name?: string;
-  keywords?: string[];
-}
-
-export interface SimilarListingResult {
-  _id: string;
-  name: string;
-  slug: string;
-  descriptionShort?: string;
-  category?: string;
-  city?: string;
-  primaryImage?: unknown;
-  ecoTags?: string[];
-  _score?: number;
+interface SearchResults {
+  results: any[];
+  pagination: {
+    total: number;
+    page: number;
+    totalPages: number;
+    hasMore: boolean;
+  };
 }
 
 /**
@@ -27,14 +20,14 @@ export async function searchListings(
   page = 1,
   limit = 12,
   sort?: SortOption,
-  _preview = false
+  preview = false
 ): Promise<SearchResults> {
-  const sanityClient = client;
+  const client = getClient(preview);
   const start = (page - 1) * limit;
 
-  // Base query building - only include published listings
-  let groqQuery = `*[_type == "listing" && moderation.status == "published"`;
-  const params: Record<string, unknown> = {};
+  // Base query building
+  let groqQuery = `*[_type == "listing"`;
+  const params: Record<string, any> = {};
 
   // Text search across multiple fields with field-specific boosts
   if (query) {
@@ -118,7 +111,7 @@ export async function searchListings(
       coordinates
     },
     coordinates,
-    "primaryImage": primaryImage {
+    mainImage {
       asset->,
       alt
     },
@@ -132,11 +125,11 @@ export async function searchListings(
   } [${start}...${start + limit}]`;
 
   // Execute query
-  const results = await sanityClient.fetch<SearchResult[]>(groqQuery, params);
+  const results = await client.fetch(groqQuery, params);
 
   // Get total count
   const countQuery = groqQuery.replace(/\{[^}]*\} \[\d+\.\.\.\d+\]$/, '').replace('*[', 'count(*[');
-  const total = await sanityClient.fetch<number>(countQuery, params);
+  const total = await client.fetch(countQuery, params);
 
   return {
     results,
@@ -155,29 +148,29 @@ export async function searchListings(
 export async function getSearchSuggestions(
   query: string,
   limit = 5,
-  _preview = false
+  preview = false
 ): Promise<string[]> {
-  const sanityClient = client;
+  const client = getClient(preview);
 
-  const groqQuery = `*[_type == "listing" && moderation.status == "published" && (
-    name match $searchTerm + "*" ||
-    searchMetadata.keywords[]->name match $searchTerm + "*"
+  const groqQuery = `*[_type == "listing" && (
+    name match $query + "*" ||
+    searchMetadata.keywords[]->name match $query + "*"
   )][0...${limit}] {
     name,
     "keywords": searchMetadata.keywords[]->name
   }`;
 
-  const results = await sanityClient.fetch<SuggestionDocument[]>(groqQuery, { searchTerm: query });
+  const results = await client.fetch(groqQuery, { query });
 
   // Extract and flatten unique suggestions
   const suggestions = new Set<string>();
-  results.forEach((result) => {
-    if (typeof result.name === 'string' && result.name.toLowerCase().includes(query.toLowerCase())) {
+  results.forEach((result: any) => {
+    if (result.name.toLowerCase().includes(query.toLowerCase())) {
       suggestions.add(result.name);
     }
-    if (Array.isArray(result.keywords)) {
-      result.keywords.forEach((keyword) => {
-        if (typeof keyword === 'string' && keyword.toLowerCase().includes(query.toLowerCase())) {
+    if (result.keywords) {
+      result.keywords.forEach((keyword: string) => {
+        if (keyword.toLowerCase().includes(query.toLowerCase())) {
           suggestions.add(keyword);
         }
       });
@@ -193,12 +186,12 @@ export async function getSearchSuggestions(
 export async function getSimilarListings(
   listingId: string,
   limit = 3,
-  _preview = false
-): Promise<SimilarListingResult[]> {
-  const sanityClient = client;
+  preview = false
+): Promise<any[]> {
+  const client = getClient(preview);
 
   const query = `*[_type == "listing" && _id == $listingId][0] {
-    "similar": *[_type == "listing" && _id != $listingId && moderation.status == "published"] | score(
+    "similar": *[_type == "listing" && _id != $listingId] | score(
       boost(category == ^.category, 3) +
       boost(city._ref == ^.city._ref, 2) +
       count((ecoFocusTags[]->name)[@ in ^.ecoFocusTags[]->name]) +
@@ -210,11 +203,11 @@ export async function getSimilarListings(
       descriptionShort,
       category,
       "city": city->name,
-      primaryImage,
+      mainImage,
       "ecoTags": ecoFocusTags[]->name,
       _score
     }
   }.similar`;
 
-  return sanityClient.fetch<SimilarListingResult[]>(query, { listingId });
+  return client.fetch(query, { listingId });
 }

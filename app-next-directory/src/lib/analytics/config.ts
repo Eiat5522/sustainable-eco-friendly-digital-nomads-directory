@@ -1,37 +1,5 @@
-
-// Dynamic imports to avoid missing package errors at compile time
-// These packages are mocked in tests and would need to be installed for production use
-type AnalyticsInstance = {
-  page: (options?: unknown) => Promise<void>;
-  track: (name: string, properties?: unknown) => Promise<void>;
-  identify: (userId: string, traits?: unknown) => Promise<void>;
-};
-type AnalyticsFactory = ((options: { app: string; plugins?: unknown[] }) => AnalyticsInstance) | null;
-type GoogleAnalyticsPlugin = (options: {
-  measurementIds: string[];
-  config?: { debug?: boolean };
-}) => unknown;
-
-let Analytics: AnalyticsFactory = null;
-let googleAnalytics: GoogleAnalyticsPlugin | null = null;
-
-try {
-  // Try to load analytics packages if available (mocked in tests)
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const analyticsModule = require('analytics');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const googleAnalyticsModule = require('@analytics/google-analytics');
-  
-  // Handle both default exports and direct exports
-  Analytics = analyticsModule.default || analyticsModule;
-  googleAnalytics = googleAnalyticsModule.default || googleAnalyticsModule;
-} catch {
-  // Packages not installed, will use fallback
-  Analytics = null;
-  googleAnalytics = null;
-}
-
-import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
+import Analytics from '@analytics/google-analytics-v4';
+import { AnalyticsBrowser } from '@vercel/analytics/react';
 import posthog from 'posthog-js';
 
 // Load environment variables
@@ -51,27 +19,23 @@ if (typeof window !== 'undefined' && POSTHOG_TOKEN) {
 }
 
 // Initialize analytics instance with GA4, Vercel, and PostHog
-const analytics = Analytics && googleAnalytics ? Analytics({
+const analytics = Analytics({
   app: 'sustainable-eco-nomads',
   plugins: [
-    googleAnalytics({
-      measurementIds: [GA_MEASUREMENT_ID || ''],
+    {
+      name: 'google-analytics',
+      measurementId: GA_MEASUREMENT_ID,
       config: {
         debug: process.env.NODE_ENV === 'development'
       }
-    })
+    }
   ]
-}) : {
-  // Fallback when packages are not installed
-  page: async (_options?: unknown) => { /* noop */ },
-  track: async (_name: string, _properties?: unknown) => { /* noop */ },
-  identify: async (_userId: string, _traits?: unknown) => { /* noop */ },
-};
+});
 
 // Initialize Vercel Analytics
-// VercelAnalytics is a React component, not an analytics instance with .track/.identify methods.
-// Remove .track/.identify calls and only use VercelAnalytics as a component in your app's layout.
-export const vercelAnalytics = VercelAnalytics;
+export const vercelAnalytics = process.env.NODE_ENV === 'production'
+  ? new AnalyticsBrowser()
+  : null;
 
 // Export analytics instances
 export { analytics, posthog };
@@ -95,7 +59,7 @@ export interface PageViewEvent {
 
 export interface CustomEvent {
   name: string;
-  properties?: Record<string, unknown>;
+  properties?: Record<string, any>;
 }
 
 // Analytics wrapper functions
@@ -109,7 +73,15 @@ export const trackPageView = async ({ title, path, referrer, search }: PageViewE
       search
     });
 
-    // VercelAnalytics does not support .track; use only as a component in your layout.
+    // Track in Vercel Analytics if available
+    if (vercelAnalytics) {
+      await vercelAnalytics.track('pageview', {
+        title,
+        path,
+        referrer,
+        search
+      });
+    }
   } catch (error) {
     console.error('Error tracking pageview:', error);
   }
@@ -120,18 +92,24 @@ export const trackEvent = async ({ name, properties }: CustomEvent) => {
     // Track in GA4
     await analytics.track(name, properties);
 
-    // VercelAnalytics does not support .track; use only as a component in your layout.
+    // Track in Vercel Analytics if available
+    if (vercelAnalytics) {
+      await vercelAnalytics.track(name, properties);
+    }
   } catch (error) {
     console.error('Error tracking event:', error);
   }
 };
 
-export const identifyUser = async (userId: string, traits?: Record<string, unknown>) => {
+export const identifyUser = async (userId: string, traits?: Record<string, any>) => {
   try {
     // Identify in GA4
     await analytics.identify(userId, traits);
 
-    // VercelAnalytics does not support .identify; use only as a component in your layout.
+    // Identify in Vercel Analytics if available
+    if (vercelAnalytics) {
+      await vercelAnalytics.identify(userId, traits);
+    }
   } catch (error) {
     console.error('Error identifying user:', error);
   }
@@ -185,7 +163,7 @@ export type EventProperties = {
   [EventNames.SEARCH_QUERY]: {
     query: string;
     resultsCount: number;
-    filters?: Record<string, unknown>;
+    filters?: Record<string, any>;
   };
   // Add more event property types as needed
 };

@@ -1,6 +1,6 @@
 export interface AnalyticsEvent {
   name: string;
-  properties?: Record<string, unknown>;
+  properties?: Record<string, any>;
 }
 
 export interface ExperimentVariant {

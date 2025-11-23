@@ -1,17 +1,6 @@
 # Sanity CMS Studio – Sustainable Eco-Friendly Digital Nomads Directory
 
-This is the **Sanity Content Studio** configuration for the Sustainable Eco-Friendly Digital Nomads Directory. It powers content management for listings, cities, blog posts, site configuration, and user-generated content.
-
-## Current Status (Q1 2025)
-
-- ✅ **Schema alignment complete** – Listings, cities, articles, and configuration documents are synchronized with the Next.js DTO layer.
-- ✅ **Studio UX refinements** – Custom desk structure, preview panes, and role-aware actions implemented.
-- ✅ **Content pipelines validated** – Import/export scripts in `listings/` and `sanity/scripts/` tested against production datasets.
-- 🔄 **Upcoming** – Editorial workflow automation and scheduled publishing webhooks.
-
-Track workspace milestones in [`docs/reference/CHANGELOG.md`](../docs/reference/CHANGELOG.md).
-
----
+This is the **Sanity Content Studio** configuration for the Sustainable Eco-Friendly Digital Nomads Directory project. It provides content management for listings, blog posts, cities, and site configuration.
 
 ## 🎯 Purpose
 
@@ -23,36 +12,28 @@ Sanity Studio serves as the **headless CMS backend** for managing:
 - **Site Configuration**: Global settings, navigation, metadata
 - **User-Generated Content**: Reviews, ratings, community submissions
 
----
-
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 ```bash
-Node.js 20.19.0+ required
-pnpm 10.0+ required
+Node.js 18.17.0+ required
+npm 9.6.7+ required
 ```
-
-> **Note**: This project requires Node.js 20.19.0 or higher for compatibility with Sanity v4.6+ and related packages.
 
 ### Setup & Development
 
 1. **Install dependencies:**
    ```bash
-   pnpm install
+   npm install
    ```
-
 2. **Start the Sanity Studio:**
    ```bash
-   pnpm dev
+   npm run dev
    ```
-
 3. **Access the studio:**
    - Studio URL: [http://localhost:3333](http://localhost:3333)
    - Login with your Sanity account credentials
-
----
 
 ## 📦 Monorepo Integration
 
@@ -60,103 +41,86 @@ This Sanity configuration is part of the monorepo:
 
 ```
 sustainable-eco-friendly-digital-nomads-directory/
-├── app-next-directory/   # Next.js frontend (consumes Sanity data)
-├── sanity/               # This Sanity Studio configuration
-├── listings/             # Data migration & processing scripts
+├── app-next-directory/          # Next.js frontend (consumes Sanity data)
+├── sanity/                      # This Sanity Studio configuration
+├── listings/                    # Data migration & processing scripts
 └── ...
 ```
 
-- **Next.js App**: Consumes content via `@sanity/client`
-- **Migration Scripts**: Use Sanity HTTP API for data import/export
-- **Shared Content Types**: Defined in `sanity/schemas/`
+### Cross-Project Dependencies
 
----
+- **Next.js App** consumes content via Sanity client (`@sanity/client`)
+- **Migration Scripts** in `/listings` interact with Sanity HTTP API
+- **Shared content types** defined in `sanity/schemas/`
 
 ## 🗂️ Documentation
 
-- All Sanity documentation is in [`docs/sanity/`](../docs/sanity/).
-- Cross-cutting references (workspace setup, troubleshooting, contribution workflow) now live in [`docs/reference/`](../docs/reference/).
-- See [`docs/README.md`](../docs/README.md) for project-wide navigation.
+All Sanity documentation is now located in `docs/sanity/`.
 
 ### Core Content Types
 
-- **Listing**: Venue info, sustainability features, amenities, images
-- **City**: Geographic info, featured venues, highlights
-- **Blog Post**: Editorial content, SEO fields, author attribution
-- **Site Configuration**: Global settings, navigation, contact info
+1. **Listing** (`listing.ts`)
 
-**Note**: The schemas have been recently realigned to improve consistency and support DTO-based data handling.
+   - Venue information (name, description, location)
+   - Sustainability features and certifications
+   - Amenities and digital nomad facilities
+   - Images and gallery
 
----
+2. **City** (`city.ts`)
+
+   - Geographic information and boundaries
+   - Featured venues and highlights
+   - Tourism and nomad-specific information
+
+3. **Blog Post** (`blogPost.ts`)
+
+   - Editorial content about sustainability
+   - SEO optimization fields
+   - Author attribution and publishing workflow
+
+4. **Site Configuration** (`siteConfig.ts`)
+   - Global site settings
+   - Navigation structure
+   - Contact information and social links
 
 ## 🔧 Development Commands
 
 ```bash
 # Start development studio
-pnpm dev
+npm run dev
 
 # Build for production
-pnpm build
+npm run build
 
 # Deploy studio to Sanity hosting
-pnpm deploy
+npm run deploy
 
 # Deploy GraphQL API
-pnpm deploy-graphql
-
-# Generate TypeScript types for schemas
-pnpm codegen
+npm run deploy-graphql
 ```
-
-### Using Sanity CLI
-
-For CLI operations not covered by the scripts above, use the latest Sanity CLI via npx:
-
-```bash
-# Check Sanity project status
-npx sanity@latest status
-
-# Run migrations
-npx sanity@latest migration run
-
-# Deploy GraphQL API
-npx sanity@latest graphql deploy
-
-```
-
-> **Migration Note**: This project no longer includes `@sanity/cli` as a dependency. Use `npx sanity@latest` for CLI operations to ensure you're always using the most recent version.
-
----
 
 ## 🔗 API Integration
 
-Sanity Studio connects to the Next.js frontend through:
+The Sanity Studio connects to the Next.js frontend through:
 
-- **@sanity/client**: Data fetching
-- **@sanity/image-url**: Optimized images
-- **Webhooks**: Real-time content sync
+- **Client Library**: `@sanity/client` for data fetching
+- **Image URLs**: `@sanity/image-url` for optimized images
+- **Real-time Updates**: Webhooks for content synchronization
 - **Preview Mode**: Draft content preview in Next.js
-- **Sanity Codegen**: Automatically generates TypeScript types for schemas, ensuring type safety and consistency across the application.
-
----
 
 ## 📚 Resources & Documentation
 
-- [Sanity Docs – Getting Started](https://www.sanity.io/docs/introduction/getting-started)
-- [Sanity Community Slack](https://slack.sanity.io/)
-- [Content Modeling](https://www.sanity.io/docs/content-modelling)
-- [Sanity Plugins](https://www.sanity.io/docs/content-studio/extending)
-
----
+- **Sanity Documentation**: [Getting Started Guide](https://www.sanity.io/docs/introduction/getting-started)
+- **Community Support**: [Sanity Community Slack](https://slack.sanity.io/)
+- **Schema Reference**: [Content Modeling](https://www.sanity.io/docs/content-modelling)
+- **Plugin Ecosystem**: [Sanity Plugins](https://www.sanity.io/docs/content-studio/extending)
 
 ## 🔐 Access & Permissions
+
+Access to the Sanity Studio is controlled through:
 
 - **Sanity Account Authentication**: Login required
 - **Project Permissions**: Role-based access (admin, editor, viewer)
 - **Content Workflow**: Draft/publish state management
 
 For access requests, contact the project administrator.
-
----
-
-_Last updated: Q1 2025_

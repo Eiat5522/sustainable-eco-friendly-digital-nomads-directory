@@ -23,26 +23,23 @@ export function validatePreviewToken(token: string | null): boolean {
   return token === process.env.SANITY_PREVIEW_SECRET
 }
 
-import { cachedClient } from './sanity/cached-client';
-
 // GROQ query helper
-const FETCH_BY_SLUG_QUERY = `*[_type == $type && slug.current == $slug][0]{
-  ...,
-  "author": author->{name, image},
-  "categories": categories[]->{title, slug},
-  "related": *[_type == $type && slug.current != $slug][0..2]{
-    title,
-    slug,
-    "imageUrl": primaryImage.asset->url
-  }
-}`;
-
 export async function fetchBySlug(type: string, slug: string, preview = false) {
-  if (preview) {
-    const client = getClient(true);
-    return client.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
-  }
-    return cachedClient.fetch(FETCH_BY_SLUG_QUERY, { type, slug });
+  const client = getClient(preview)
+  
+  return client.fetch(
+    `*[_type == $type && slug.current == $slug][0]{
+      ...,
+      "author": author->{name, image},
+      "categories": categories[]->{title, slug},
+      "related": *[_type == $type && slug.current != $slug][0..2]{
+        title,
+        slug,
+        "imageUrl": mainImage.asset->url
+      }
+    }`,
+    { type, slug }
+  )
 }
 
 // GraphQL configuration
@@ -51,4 +48,4 @@ export const config = {
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
   apiVersion: '2025-05-15',
   useCdn: process.env.NODE_ENV === 'production',
-};
+}

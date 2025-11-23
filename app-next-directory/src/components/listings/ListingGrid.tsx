@@ -1,109 +1,139 @@
-"use client";
-
+import { urlForImage } from '@/lib/sanity/client';
+import { type Listing } from '@/types/listings';
+import { SanityListing } from '@/types/sanity';
 import Image from 'next/image';
 import Link from 'next/link';
-import { NeoCard, NeoCardHeader, NeoCardTitle, NeoCardContent } from '@/components/ui/neo-card';
-import type { ListingSummaryDTO } from '@/types/dto';
-import { NoListingsFound } from '@/components/listings/NoListingsFound';
-import { Star } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { SyntheticEvent } from 'react';
-import { getTagColorClasses } from '@/utils/tag-styles';
+import { useRef } from 'react';
 
 interface ListingGridProps {
-  listings: ListingSummaryDTO[];
+  listings: (Listing | SanityListing)[];
+  useSlug?: boolean;
 }
 
-export function ListingGrid({ listings }: ListingGridProps) {
-  if (!Array.isArray(listings) || listings.length === 0) {
-    return <NoListingsFound />;
-  }
+export function ListingGrid({ listings, useSlug = false }: ListingGridProps) {
+  // Fix the ref issue - change from string to proper ref
+  const observerRef = useRef<HTMLDivElement>(null);
+
+  // Helper function to get image URL (from Sanity or directly)
+  const getImageUrl = (listing: Listing | SanityListing) => {
+    const isSanityListing = '_type' in listing || 'slug' in listing;
+
+    if (isSanityListing && 'mainImage' in listing && listing.mainImage) {
+      return urlForImage(listing.mainImage)
+        .width(800)
+        .height(480)
+        .fit('crop')
+        .auto('format')
+        .url();
+    }
+    return (listing as Listing).primary_image_url;
+  };
+
+  // Helper to get listing URL (by slug or ID)
+  const getListingUrl = (listing: Listing | SanityListing) => {
+    const isSanityListing = '_type' in listing || 'slug' in listing;
+
+    if (useSlug && isSanityListing && 'slug' in listing) {
+      return `/listings/${listing.slug}`;
+    }
+    return `/listings/${(listing as Listing).slug?.current || (listing as SanityListing).slug.current}`;
+  };
+
+  // Helper to get eco tags (different field names in different models)
+  const getEcoTags = (listing: Listing | SanityListing) => {
+    const isSanityListing = '_type' in listing || 'slug' in listing;
+
+    return isSanityListing && 'ecoTags' in listing
+      ? listing.ecoTags
+      : (listing as Listing).eco_focus_tags;
+  };
+
+  // Helper to get location/city
+  const getLocation = (listing: Listing | SanityListing) => {
+    const isSanityListing = '_type' in listing || 'slug' in listing;
+
+    return isSanityListing
+      ? listing.city
+      : (listing as Listing).city;
+  };
+
+  // Helper to get description
+  const getDescription = (listing: Listing | SanityListing) => {
+    const isSanityListing = '_type' in listing || 'slug' in listing;
+
+    return isSanityListing && 'descriptionShort' in listing
+      ? listing.descriptionShort
+      : (listing as Listing).description_short;
+  };
+
+  // Helper to get address
+  const getAddress = (listing: Listing | SanityListing) => {
+    const isSanityListing = '_type' in listing || 'slug' in listing;
+
+    return isSanityListing && 'addressString' in listing
+      ? listing.addressString
+      : (listing as Listing).address_string;
+  };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {listings.map((listing) => (
-        <Link key={listing.id} href={`/listings/${listing.slug}`} className="block h-full">
-          <NeoCard
-            variant="elevated"
-            className="group flex h-full flex-col transition-all duration-300 hover:shadow-[16px_16px_0px_0px] cursor-pointer"
-          >
-            <div className="relative h-48 mb-4 overflow-hidden rounded-lg">
-              {/* Local placeholder */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {listings.map((listing, index) => (
+        <Link
+          key={listing.id}
+          href={`/listings/${listing.slug}`}
+          className="group block transform transition-all duration-300 hover:scale-105"
+        >
+          <div style={{ animationDelay: `${index * 0.1}s` }}>
+            <div className="relative h-48 rounded-lg">
               <Image
-                src="/placeholder_image.png"
-                alt="Listing placeholder"
+                src={getImageUrl(listing)}
+                alt={listing.name}
                 fill
-                sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                className="object-cover"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
-              {/* Remote image layered above; hide on error */}
-              {listing.imageUrl && (
-                <Image
-                  src={listing.imageUrl}
-                  alt={`${listing.name}, ${listing.city?.name ?? ''}`}
-                  fill
-                  sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  onError={(e: SyntheticEvent<HTMLImageElement>) => { e.currentTarget.hidden = true; }}
-                />
-              )}
-              {listing.featured && (
-                <div className="absolute top-3 right-3 flex items-center gap-1 bg-yellow-400 text-black px-2 py-1 rounded-full shadow">
-                  <Star size={14} className="fill-black" aria-hidden />
-                  <span className="text-xs font-bold">Featured</span>
-                </div>
-              )}
+              <div className="absolute top-4 right-4 z-10">
+                <span className={`
+                  inline-block px-3 py-1 text-sm font-medium rounded-full
+                  ${listing.category === 'coworking' ? 'bg-category-coworking text-white' :
+                    listing.category === 'cafe' ? 'bg-category-cafe text-white' :
+                    'bg-category-accommodation text-white'}
+                  shadow-sm
+                `}>
+                  {listing.category}
+                </span>
+              </div>
             </div>
-            <NeoCardHeader>
-              <NeoCardTitle className="group-hover:text-neo-primary transition-colors duration-200">
+
+            <div className="p-6">
+              <h3 className="font-bold text-xl mb-2 group-hover:text-primary-600 transition-colors">
                 {listing.name}
-              </NeoCardTitle>
-              {listing.city?.name && (
-                <p className="body-sm text-neo-text-secondary mt-1">
-                  {listing.city.name}
-                </p>
-              )}
-            </NeoCardHeader>
-            {(Array.isArray(listing.ecoFocusTags) && listing.ecoFocusTags.length > 0) ||
-             (Array.isArray(listing.amenityNames) && listing.amenityNames.length > 0) ? (
-              <NeoCardContent className="mt-auto">
-                {Array.isArray(listing.ecoFocusTags) && listing.ecoFocusTags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {listing.ecoFocusTags.slice(0, 3).map((tag, index) => (
-                      <span
-                        key={`eco-${index}`}
-                        className={cn('px-2 py-1 text-xs rounded-lg font-medium', getTagColorClasses(tag, 'eco'))}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                    {listing.ecoFocusTags.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg font-medium">
-                        +{listing.ecoFocusTags.length - 3} more
-                      </span>
-                    )}
-                  </div>
+              </h3>
+              <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                {getDescription(listing)}
+              </p>
+
+              <div className="flex flex-wrap gap-2 mb-4">
+                {getEcoTags(listing)?.slice(0, 3).map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-block px-2 py-1 text-xs bg-primary-50 text-primary-700 rounded capitalize"
+                  >
+                    {tag.replace(/_/g, ' ')}
+                  </span>
+                ))}
+                {getEcoTags(listing)?.length > 3 && (
+                  <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                    +{getEcoTags(listing).length - 3} more
+                  </span>
                 )}
-                {Array.isArray(listing.amenityNames) && listing.amenityNames.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {listing.amenityNames.slice(0, 3).map((name, index) => (
-                      <span
-                        key={`amenity-${index}`}
-                        className={cn('px-2 py-1 text-xs rounded-lg font-medium', getTagColorClasses(name, 'amenity'))}
-                      >
-                        {name}
-                      </span>
-                    ))}
-                    {listing.amenityNames.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg font-medium">
-                        +{listing.amenityNames.length - 3} more
-                      </span>
-                    )}
-                  </div>
-                )}
-              </NeoCardContent>
-            ) : null}
-          </NeoCard>
+              </div>
+
+              <div className="text-sm text-gray-500">
+                <p className="line-clamp-1">{getAddress(listing)}</p>
+              </div>
+            </div>
+          </div>
         </Link>
       ))}
     </div>
