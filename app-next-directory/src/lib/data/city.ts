@@ -306,7 +306,7 @@ export async function getAllCitySlugs(): Promise<string[]> {
     return cities.map(city => city.slug);
   }
   
-  const getAllCitySlugsQuery = groq`*[_type == "city"]{"slug": slug.current}.slug`;
+  const getAllCitySlugsQuery = groq`*[_type == "city"].slug.current`;
   
   const slugs = await cachedClient.fetch<string[]>(getAllCitySlugsQuery);
   return Array.isArray(slugs) ? slugs.filter((slug): slug is string => typeof slug === 'string' && slug.length > 0) : [];

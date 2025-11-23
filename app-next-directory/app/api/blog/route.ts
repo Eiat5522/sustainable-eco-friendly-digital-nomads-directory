@@ -37,7 +37,7 @@ const postsQuery = groq`
 
 const countQuery = groq`count(*[_type == "blogPost" && defined(slug)])`;
 
-const escapeForGroq = (value: string) => value.replace(/"/g, '"');
+const escapeForGroq = (value: string) => value.replace(/"/g, '\\"');
 
 export async function GET(request: NextRequest) {
   try {
