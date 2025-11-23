@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { structuredLogger } from '@/lib/logger';
 
 const listingFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -289,7 +290,11 @@ export function VenueListingForm({ listing, onSave, saving = false }: VenueListi
       };
 
       onSave?.(listingData);
-    } catch (_error) {}
+    } catch (error) {
+      structuredLogger.error('Failed to save listing', error, {
+        component: 'VenueListingForm',
+      });
+    }
   };
 
   return (

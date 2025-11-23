@@ -192,7 +192,8 @@ export const buildRateLimiter = (redis: Redis | undefined) => {
           loginRateLimiter = undefined;
         }
       }
-    } catch (_error) {
+    } catch (error) {
+      console.warn('[auth] Failed to initialize login rate limiter', error);
       loginRateLimiter = undefined;
       if (isTestEnvironment) {
         lastRateLimiterConfigForTests = undefined;
@@ -204,7 +205,8 @@ export const buildRateLimiter = (redis: Redis | undefined) => {
 let initialRedis: Redis | undefined;
 try {
   initialRedis = getRedisClient();
-} catch (_error) {
+} catch (error) {
+  console.warn('[auth] Failed to obtain Redis client during initialization', error);
   initialRedis = undefined;
 }
 
@@ -216,7 +218,9 @@ if (typeof onRedisClientChange === 'function') {
     try {
       const normalized = normalizeRedisClient(newClient);
       buildRateLimiter(normalized);
-    } catch (_error) {}
+    } catch (error) {
+      console.warn('[auth] Failed to rebuild login rate limiter', error);
+    }
   });
 }
 
@@ -225,7 +229,9 @@ export async function enforceLoginRateLimit(identifier: string): Promise<LoginRa
   if (!override && loginRateLimiterPromise) {
     try {
       await loginRateLimiterPromise;
-    } catch (_error) {}
+    } catch (error) {
+      console.warn('[auth] Login ratelimiter initialisation error; allowing attempt', error);
+    }
   }
 
   const limiter = override ?? loginRateLimiter;
@@ -246,7 +252,8 @@ export async function enforceLoginRateLimit(identifier: string): Promise<LoginRa
       remaining: result.remaining,
       reset: result.reset,
     };
-  } catch (_error) {
+  } catch (error) {
+    console.warn('[auth] Login ratelimiter error; allowing attempt', error);
     return { success: true } as const;
   }
 }
@@ -266,6 +273,7 @@ export async function recordLoginAttempt(params: {
   // and block disposable domains before writing audit artifacts.
   const rawEmail = params?.email;
   if (typeof rawEmail !== 'string') {
+    console.warn('[auth] Skipping login attempt record due to invalid email', { email: rawEmail });
     return;
   }
 
@@ -273,6 +281,7 @@ export async function recordLoginAttempt(params: {
   const trimmedEmail = rawEmail.trim();
 
   if (!validator.isEmail(trimmedEmail)) {
+    console.warn('[auth] Skipping login attempt record due to invalid email', { email: trimmedEmail });
     return;
   }
 
@@ -280,7 +289,8 @@ export async function recordLoginAttempt(params: {
 
   try {
     await dbConnect();
-  } catch (_error) {
+  } catch (error) {
+    console.warn('[auth] Failed to record login attempt', error);
     return;
   }
 
@@ -296,11 +306,18 @@ export async function recordLoginAttempt(params: {
     const collection = mongoose.connection.collection('loginattempts');
     await collection.insertOne({ ...document });
     return;
-  } catch (_collectionError) {
+  } catch (collectionError) {
+    // Log collection failure
+    console.warn('[auth] Failed to record login attempt', collectionError);
     try {
       await LoginAttempt.create(document);
       return;
-    } catch (_modelError) {}
+    } catch (modelError) {
+      // Both failed - log model error as it may have more details
+      if (modelError) {
+        console.warn('[auth] Failed to record login attempt', modelError);
+      }
+    }
   }
 }
 

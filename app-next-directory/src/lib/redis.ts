@@ -18,7 +18,9 @@ const notifyListeners = () => {
   for (const listener of listeners) {
     try {
       listener(currentClient);
-    } catch (_error) {}
+    } catch (error) {
+      console.warn('[redis] listener threw error', error);
+    }
   }
 };
 

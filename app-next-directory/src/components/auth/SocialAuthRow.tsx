@@ -80,7 +80,8 @@ export function SocialAuthRow({ providers = PROVIDERS }: Readonly<{ providers?: 
         }
         const ids = Object.keys(data).filter(id => id !== 'credentials');
         setAvailableProviderIds(ids);
-      } catch (_err) {
+      } catch (err) {
+        console.warn('[auth] Failed to load providers', err);
         if (!cancelled) {
           setLoadError(true);
           setAvailableProviderIds([]);

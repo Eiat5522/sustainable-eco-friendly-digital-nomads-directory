@@ -74,7 +74,8 @@ export function FavoriteButton({
           const data = await response.json();
           setIsFavoritedState(data.favorited ?? false);
         }
-      } catch (_error) {
+      } catch (error) {
+        console.error('Error checking favorite status:', error);
       } finally {
         setIsCheckingStatus(false);
       }

@@ -119,12 +119,12 @@ export function Authenticated({ children, fallback = null }: AuthenticatedProps)
  * Component that renders children only if user has specific role
  */
 interface RequireRoleProps {
-  role: UserRole;
+  role?: UserRole;
   children: ReactNode;
   fallback?: ReactNode;
 }
 
-export function RequireRole({ role, children, fallback = null }: RequireRoleProps) {
+export function RequireRole({ role = 'admin', children, fallback = null }: RequireRoleProps) {
   const { userRole, isLoading } = useAuthContext();
 
   if (isLoading) {

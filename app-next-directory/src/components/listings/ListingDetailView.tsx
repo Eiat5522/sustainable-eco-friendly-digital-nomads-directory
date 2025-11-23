@@ -111,6 +111,7 @@ export function ListingDetailView({
           redirectTo(`/auth/login?callbackUrl=${encodeURIComponent(href)}`);
           return;
         }
+        console.error('Failed to toggle favorite:', res.status, res.statusText);
         return;
       }
 
@@ -119,7 +120,9 @@ export function ListingDetailView({
       setIsTogglingFavorite(true);
       const data = await res.json();
       setFavorited(Boolean(data?.favorited));
-    } catch (_err) {}
+    } catch (err) {
+      console.error('Failed to toggle favorite:', err);
+    }
   };
 
   const filteredRelatedListings = relatedListings.filter(related => related.id !== listing.id);

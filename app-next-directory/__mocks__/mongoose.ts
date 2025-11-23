@@ -120,7 +120,8 @@ class SchemaMock {
 const collectionStore: Record<string, Array<Record<string, unknown>>> = {};
 
 const createModelMock = (modelName: string, schema?: SchemaMock) => {
-  const modelMock = ((doc?: Record<string, unknown>) => {
+  // Use a regular function (not arrow) so it can be used with `new`
+  function modelMock(doc?: Record<string, unknown>) {
     const instance: Record<string, unknown> = { ...(doc || {}) };
     instance._id = instance._id || new ObjectIdMock();
     instance.isNew = true;
@@ -238,7 +239,7 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
     Object.setPrototypeOf(instance, modelMock.prototype);
 
     return instance;
-  }) as unknown as (...args: unknown[]) => Record<string, unknown>;
+  }
 
   // attach some runtime helpers that tests may use
   (modelMock as any).modelName = modelName;
@@ -252,7 +253,7 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
   (modelMock as any).find = jest.fn();
   (modelMock as any).countDocuments = jest.fn();
 
-  return modelMock;
+  return modelMock as unknown as (...args: unknown[]) => Record<string, unknown>;
 };
 
 function isValidObjectId(id: unknown): boolean {

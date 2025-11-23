@@ -306,18 +306,35 @@ declare global {
 if (process.env.JEST_CONSOLE_NO_FILTER !== '1') {
   const originalConsoleError = console.error;
   const originalConsoleWarn = console.warn;
+  const originalConsoleLog = console.log;
+
+  // Store originals for test access - tests can spy on these
+  (console as any).originalConsoleError = originalConsoleError;
+  (console as any).originalConsoleWarn = originalConsoleWarn;
 
   console.error = ((...args: unknown[]) => {
-    if (!shouldFilterWithFilters(defaultErrorFilters, args)) {
+    // Check if this console.error has been spied on by a test
+    // If it has a mock property, it's being tested, so always call through
+    const isMocked = 'mock' in console.error;
+    
+    if (isMocked || !shouldFilterWithFilters(defaultErrorFilters, args)) {
       originalConsoleError(...args);
     }
   }) as typeof console.error;
 
   console.warn = ((...args: unknown[]) => {
-    if (!shouldFilterWithFilters(defaultWarnFilters, args)) {
+    // Check if this console.warn has been spied on by a test
+    const isMocked = 'mock' in console.warn;
+    
+    if (isMocked || !shouldFilterWithFilters(defaultWarnFilters, args)) {
       originalConsoleWarn(...args);
     }
   }) as typeof console.warn;
+
+  console.log = ((...args: unknown[]) => {
+    // Don't filter console.log by default, but make it available
+    originalConsoleLog(...args);
+  }) as typeof console.log;
 }
 
 import { TextDecoder, TextEncoder } from 'node:util';
