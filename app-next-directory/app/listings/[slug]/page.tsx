@@ -436,7 +436,7 @@ export async function generateStaticParams() {
       slug: listing.slug,
     }));
   } catch (error) {
-    logger.error('Failed to fetch listing slugs for static generation', error, {
+    logger.error('Failed to fetch listing slugs for static generation', error instanceof Error ? error.message : String(error), {
       component: 'listings/[slug]',
       operation: 'generateStaticParams',
     });

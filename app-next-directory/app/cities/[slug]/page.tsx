@@ -8,6 +8,9 @@ import { structuredLogger } from '@/lib/logger';
 
 export const revalidate = 300;
 
+// Maximum number of cities to fetch for static generation
+const MAX_CITIES_FOR_STATIC_GENERATION = 1000;
+
 type Params = { slug: string };
 type Props = { params: Params | Promise<Params> };
 
@@ -239,12 +242,20 @@ export default async function CityPage({ params }: Props) {
  * This enables static generation while maintaining ISR for updates
  */
 export async function generateStaticParams() {
-  // Fetch all cities from Sanity - using a high limit to get all cities
-  // Adjust the limit based on your expected number of cities
-  const cities = await getCitiesList(1000);
-  
-  // Return array of params with slug
-  return cities.map((city) => ({
-    slug: city.slug,
-  }));
+  try {
+    // Fetch all cities from Sanity - using a high limit to get all cities
+    const cities = await getCitiesList(MAX_CITIES_FOR_STATIC_GENERATION);
+    
+    // Return array of params with slug
+    return cities.map((city) => ({
+      slug: city.slug,
+    }));
+  } catch (error) {
+    structuredLogger.error('Failed to fetch city slugs for static generation', error instanceof Error ? error.message : String(error), {
+      component: 'cities/[slug]',
+      operation: 'generateStaticParams',
+    });
+    // Return empty array to prevent build failure
+    return [];
+  }
 }

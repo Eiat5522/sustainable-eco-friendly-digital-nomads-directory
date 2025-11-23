@@ -206,4 +206,20 @@ describe('generateStaticParams', () => {
     
     expect(result).toEqual([]);
   });
+
+  it('should return an empty array and log error when fetch fails', async () => {
+    (getCitiesList as jest.Mock).mockRejectedValue(new Error('Fetch failed'));
+    
+    const result = await generateStaticParams();
+    
+    expect(structuredLogger.error).toHaveBeenCalledWith(
+      'Failed to fetch city slugs for static generation',
+      'Fetch failed',
+      {
+        component: 'cities/[slug]',
+        operation: 'generateStaticParams',
+      }
+    );
+    expect(result).toEqual([]);
+  });
 })
