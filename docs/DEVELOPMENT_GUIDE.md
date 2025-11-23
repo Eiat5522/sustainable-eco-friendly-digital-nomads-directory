@@ -145,6 +145,8 @@ npm run type-check    # Check TypeScript types
 
 ### Biome Integration
 
+✅ **Status**: Fully integrated and operational (verified 2025-11-23)
+
 The project uses **Biome** (the successor to Rome) as a unified tool for linting and formatting, alongside ESLint for Next.js-specific rules.
 
 #### Why Biome?
@@ -153,6 +155,14 @@ The project uses **Biome** (the successor to Rome) as a unified tool for linting
 - **Unified**: Single configuration for linting and formatting
 - **Compatible**: Matches Prettier formatting style
 - **Low overhead**: Minimal configuration required
+
+#### Installation Status
+
+- ✅ **Package**: `@biomejs/biome@2.3.7` installed
+- ✅ **Configuration**: `biome.json` configured with formatter & linter
+- ✅ **NPM Scripts**: All scripts configured and working
+- ✅ **Pre-commit Hooks**: Integrated via Husky
+- ✅ **CI/CD Pipeline**: Integrated in `.github/workflows/pull-request.yml`
 
 #### Running Code Quality Checks
 
@@ -176,19 +186,19 @@ pnpm lint
 #### Pre-commit Hooks
 
 The project uses **Husky** to automatically:
-1. Format code with Biome
-2. Run TypeScript type checking
-3. Run Biome linter with auto-fix
+1. Format code with Biome (`pnpm format`)
+2. Run TypeScript type checking (`pnpm type-check`)
+3. Run Biome linter with auto-fix (`pnpm lint:biome:fix`)
 
 This ensures all committed code meets quality standards.
 
 #### CI/CD Integration
 
-The CI pipeline runs:
-1. TypeScript type checking
-2. Biome linting
-3. Biome formatting check
-4. ESLint (Next.js rules)
+The CI pipeline (`.github/workflows/pull-request.yml`) runs:
+1. TypeScript type checking (`pnpm type-check`)
+2. Biome linting (`pnpm lint:biome`)
+3. Biome formatting check (`pnpm format:check`)
+4. ESLint for Next.js rules (`pnpm lint`)
 
 Pull requests will fail if any of these checks don't pass.
 
@@ -197,6 +207,15 @@ Pull requests will fail if any of these checks don't pass.
 - `biome.json` - Biome configuration (linting + formatting rules)
 - `app-next-directory/eslint.config.mjs` - ESLint configuration (Next.js specific rules)
 - `.husky/pre-commit` - Pre-commit hook configuration
+- `.github/workflows/pull-request.yml` - CI/CD workflow with Biome integration
+
+#### Verification
+
+Last verified: 2025-11-23
+- ✅ All Biome commands functional
+- ✅ Pre-commit hooks working
+- ✅ CI/CD integration confirmed
+- ✅ No configuration issues detected
 
 ### Code Style Rules
 

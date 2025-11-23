@@ -28,7 +28,7 @@ export interface SearchResult {
   _id: string;
   name: string;
   slug: string;
-  descriptionShort: string;
+  shortDescription: string;
   category: string;
   city: {
     name: string;

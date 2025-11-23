@@ -10,513 +10,529 @@
 ## Tasks
 
 ### 1. Upgrade Next.js and NextAuth (done, priority: high)
+
 - **Description:** Confirm Next.js 15.5.0 and NextAuth 5.0.0-beta.30 are configured correctly and plan for NextAuth's eventual stable release.
-- **Details:** 1.  Verify `package.json` dependencies for `next` (15.5.0) and `next-auth` (5.0.0-beta.30) stay pinned and compatible. 2.  Review and update Next.js configuration files (e.g., `next.config.js`) for any 15.x changes. 3.  Review and update NextAuth configuration while accounting for beta-breaking changes and future GA adjustments. 4.  Thoroughly test the application after the dependency review, including authentication flows, routing, and core features. 5.  Address any deprecation warnings or errors. 6.  Update related libraries or adapters if the beta release introduces breaking changes.
+- **Details:** 1. Verify `package.json` dependencies for `next` (15.5.0) and `next-auth` (5.0.0-beta.30) stay pinned and compatible. 2. Review and update Next.js configuration files (e.g., `next.config.js`) for any 15.x changes. 3. Review and update NextAuth configuration while accounting for beta-breaking changes and future GA adjustments. 4. Thoroughly test the application after the dependency review, including authentication flows, routing, and core features. 5. Address any deprecation warnings or errors. 6. Update related libraries or adapters if the beta release introduces breaking changes.
 - **Dependencies:** None
-- **Testing Strategy:** 1.  Run existing E2E tests to ensure core functionality remains intact. 2.  Test authentication flows (login, logout, registration, password reset). 3.  Test all pages and routes to ensure they load correctly. 4.  Manually test all features that use authentication and authorization. 5.  Verify that the application is still secure despite the NextAuth beta dependency.
+- **Testing Strategy:** 1. Run existing E2E tests to ensure core functionality remains intact. 2. Test authentication flows (login, logout, registration, password reset). 3. Test all pages and routes to ensure they load correctly. 4. Manually test all features that use authentication and authorization. 5. Verify that the application is still secure despite the NextAuth beta dependency.
 - **Subtasks:**
-  - Update Next.js and NextAuth Dependencies (done)
-    - Description: Confirm `next` (15.5.0) and `next-auth` (5.0.0-beta.30) dependencies stay aligned with the codebase and note the beta status.
-    - Details: Review `package.json` to ensure `next` remains on 15.5.0 and `next-auth` on 5.0.0-beta.30. Document that NextAuth v5 is currently beta and track any GA migration steps as release notes evolve.
-    - Dependencies: None
-    - Testing Strategy: Not specified
-  - Review and Update Next.js Configuration (done)
-    - Description: Review and update `next.config.js` and any other relevant Next.js configuration files for compatibility with Next.js 15.
-    - Details: Examine the `next.config.js` file for any deprecated configurations or breaking changes. Consult the Next.js 15 upgrade guide for necessary adjustments. Pay attention to image optimization, environment variables, and any custom configurations.
-    - Dependencies: Update Next.js and NextAuth Dependencies
-    - Testing Strategy: Not specified
-  - Review and Update NextAuth Configuration (done)
-    - Description: Review and update NextAuth configuration, paying close attention to breaking changes in NextAuth v5, especially related to the adapter and session strategies.
-    - Details: Review the NextAuth configuration file (e.g., `auth.ts` or similar).  Identify and address any breaking changes introduced in NextAuth v5.  This includes changes to the adapter (e.g., database adapter) and session strategies.  Update the configuration to align with the new version's requirements and document the beta caveats while preparing for GA.
-    - Dependencies: Update Next.js and NextAuth Dependencies
-    - Testing Strategy: Not specified
-  - Thoroughly Test Application Functionality (done)
-    - Description: Thoroughly test the application after the upgrade, including authentication flows, routing, and all core functionalities.
-    - Details: Run existing E2E tests. Manually test authentication flows (login, logout, registration, password reset). Test all pages and routes to ensure they load correctly. Manually test all features that use authentication and authorization. Verify that all core functionalities work as expected.
-    - Dependencies: Update Next.js and NextAuth Dependencies, Review and Update Next.js Configuration, Review and Update NextAuth Configuration
-    - Testing Strategy: Run existing E2E tests. Manually test authentication flows. Test all pages and routes. Manually test all features that use authentication and authorization.
-  - Address Deprecation Warnings and Errors (done)
-    - Description: Address any deprecation warnings or errors that arise during the upgrade process or during testing.
-    - Details: Carefully review the console output and any error logs for deprecation warnings or errors.  Identify the source of each warning or error and implement the necessary fixes.  This may involve updating code, adjusting configurations, or replacing deprecated features with their modern equivalents.
-    - Dependencies: Update Next.js and NextAuth Dependencies, Review and Update Next.js Configuration, Review and Update NextAuth Configuration, Thoroughly Test Application Functionality
-    - Testing Strategy: Verify that the application runs without any deprecation warnings or errors after the fixes are implemented.
+    - Update Next.js and NextAuth Dependencies (done)
+        - Description: Confirm `next` (15.5.0) and `next-auth` (5.0.0-beta.30) dependencies stay aligned with the codebase and note the beta status.
+        - Details: Review `package.json` to ensure `next` remains on 15.5.0 and `next-auth` on 5.0.0-beta.30. Document that NextAuth v5 is currently beta and track any GA migration steps as release notes evolve.
+        - Dependencies: None
+        - Testing Strategy: Not specified
+    - Review and Update Next.js Configuration (done)
+        - Description: Review and update `next.config.js` and any other relevant Next.js configuration files for compatibility with Next.js 15.
+        - Details: Examine the `next.config.js` file for any deprecated configurations or breaking changes. Consult the Next.js 15 upgrade guide for necessary adjustments. Pay attention to image optimization, environment variables, and any custom configurations.
+        - Dependencies: Update Next.js and NextAuth Dependencies
+        - Testing Strategy: Not specified
+    - Review and Update NextAuth Configuration (done)
+        - Description: Review and update NextAuth configuration, paying close attention to breaking changes in NextAuth v5, especially related to the adapter and session strategies.
+        - Details: Review the NextAuth configuration file (e.g., `auth.ts` or similar). Identify and address any breaking changes introduced in NextAuth v5. This includes changes to the adapter (e.g., database adapter) and session strategies. Update the configuration to align with the new version's requirements and document the beta caveats while preparing for GA.
+        - Dependencies: Update Next.js and NextAuth Dependencies
+        - Testing Strategy: Not specified
+    - Thoroughly Test Application Functionality (done)
+        - Description: Thoroughly test the application after the upgrade, including authentication flows, routing, and all core functionalities.
+        - Details: Run existing E2E tests. Manually test authentication flows (login, logout, registration, password reset). Test all pages and routes to ensure they load correctly. Manually test all features that use authentication and authorization. Verify that all core functionalities work as expected.
+        - Dependencies: Update Next.js and NextAuth Dependencies, Review and Update Next.js Configuration, Review and Update NextAuth Configuration
+        - Testing Strategy: Run existing E2E tests. Manually test authentication flows. Test all pages and routes. Manually test all features that use authentication and authorization.
+    - Address Deprecation Warnings and Errors (done)
+        - Description: Address any deprecation warnings or errors that arise during the upgrade process or during testing.
+        - Details: Carefully review the console output and any error logs for deprecation warnings or errors. Identify the source of each warning or error and implement the necessary fixes. This may involve updating code, adjusting configurations, or replacing deprecated features with their modern equivalents.
+        - Dependencies: Update Next.js and NextAuth Dependencies, Review and Update Next.js Configuration, Review and Update NextAuth Configuration, Thoroughly Test Application Functionality
+        - Testing Strategy: Verify that the application runs without any deprecation warnings or errors after the fixes are implemented.
 
 ### 2. Implement Redis-based Rate Limiting (done, priority: high)
+
 - **Description:** Integrate Redis into the rate limiter for the contact API to ensure rate limits persist across deployments.
-- **Details:** 1.  Choose a Redis provider (e.g., Upstash, or self-hosted). 2.  Install the necessary Redis client library (e.g., `ioredis`). 3.  Configure the Redis client with the appropriate connection details. 4.  Modify the rate limiter utility to use Redis for storing and retrieving IP address counters. 5.  Set appropriate key expirations in Redis to prevent memory leaks. 6.  Test the rate limiter to ensure it correctly limits requests from the same IP address.
+- **Details:** 1. Choose a Redis provider (e.g., Upstash, or self-hosted). 2. Install the necessary Redis client library (e.g., `ioredis`). 3. Configure the Redis client with the appropriate connection details. 4. Modify the rate limiter utility to use Redis for storing and retrieving IP address counters. 5. Set appropriate key expirations in Redis to prevent memory leaks. 6. Test the rate limiter to ensure it correctly limits requests from the same IP address.
 - **Dependencies:** Upgrade Next.js and NextAuth
-- **Testing Strategy:** 1.  Test the contact API with multiple requests from the same IP address to verify that the rate limit is enforced. 2.  Test the rate limiter with requests from different IP addresses to ensure they are not affected by each other. 3.  Verify that the rate limit resets after the specified time window. 4.  Monitor Redis usage to ensure it's functioning correctly.
+- **Testing Strategy:** 1. Test the contact API with multiple requests from the same IP address to verify that the rate limit is enforced. 2. Test the rate limiter with requests from different IP addresses to ensure they are not affected by each other. 3. Verify that the rate limit resets after the specified time window. 4. Monitor Redis usage to ensure it's functioning correctly.
 - **Subtasks:**
-  - Choose and Configure Redis Provider (done)
-    - Description: Select a Redis provider (e.g., Upstash, self-hosted) and configure the Redis client with the necessary connection details.
-    - Details: Evaluate different Redis providers based on cost, performance, and ease of use. Install the appropriate Redis client library (e.g., ioredis) and configure the client with the provider's connection string, authentication details, and other relevant settings.
-    - Dependencies: None
-    - Testing Strategy: Not specified
-  - Modify Rate Limiter to Use Redis (done)
-    - Description: Adapt the existing rate limiter utility to store and retrieve IP address counters from Redis.
-    - Details: Refactor the rate limiter logic to interact with the Redis client.  Replace the current storage mechanism (e.g., in-memory) with Redis commands (e.g., `INCR`, `GET`, `EXPIRE`). Ensure all rate limiting logic correctly uses Redis for storing and retrieving IP address counters.
-    - Dependencies: Choose and Configure Redis Provider
-    - Testing Strategy: Not specified
-  - Implement Key Expirations in Redis (done)
-    - Description: Set appropriate key expirations in Redis to prevent memory leaks and ensure rate limits reset.
-    - Details: Determine the appropriate time-to-live (TTL) for the rate limit keys in Redis. Use the `EXPIRE` command to set the TTL for each key, ensuring that the rate limits reset after the specified time window. Consider the rate limit duration (e.g., per minute, per hour) when setting the TTL.
-    - Dependencies: Modify Rate Limiter to Use Redis
-    - Testing Strategy: Not specified
-  - Test Rate Limiter Functionality (done)
-    - Description: Test the Redis-based rate limiter to verify it correctly limits requests from the same IP address.
-    - Details: Send a series of requests from the same IP address to the contact API. Verify that the rate limiter correctly enforces the defined rate limits.  Test different scenarios, including exceeding the rate limit and waiting for the limit to reset. Also, test with different IP addresses to ensure they are not affected by each other.
-    - Dependencies: Modify Rate Limiter to Use Redis, Implement Key Expirations in Redis
-    - Testing Strategy: Test the contact API with multiple requests from the same IP address to verify that the rate limit is enforced. Verify that the rate limit resets after the specified time window.
-  - Document and Refactor Code (done)
-    - Description: Document the changes and refactor the code for better readability and maintainability.
-    - Details: Add comments to the code explaining the Redis integration and rate limiting logic. Refactor the code to improve readability and maintainability. Ensure that the code adheres to the project's coding style guidelines.
-    - Dependencies: Test Rate Limiter Functionality
-    - Testing Strategy: Not specified
+    - Choose and Configure Redis Provider (done)
+        - Description: Select a Redis provider (e.g., Upstash, self-hosted) and configure the Redis client with the necessary connection details.
+        - Details: Evaluate different Redis providers based on cost, performance, and ease of use. Install the appropriate Redis client library (e.g., ioredis) and configure the client with the provider's connection string, authentication details, and other relevant settings.
+        - Dependencies: None
+        - Testing Strategy: Not specified
+    - Modify Rate Limiter to Use Redis (done)
+        - Description: Adapt the existing rate limiter utility to store and retrieve IP address counters from Redis.
+        - Details: Refactor the rate limiter logic to interact with the Redis client. Replace the current storage mechanism (e.g., in-memory) with Redis commands (e.g., `INCR`, `GET`, `EXPIRE`). Ensure all rate limiting logic correctly uses Redis for storing and retrieving IP address counters.
+        - Dependencies: Choose and Configure Redis Provider
+        - Testing Strategy: Not specified
+    - Implement Key Expirations in Redis (done)
+        - Description: Set appropriate key expirations in Redis to prevent memory leaks and ensure rate limits reset.
+        - Details: Determine the appropriate time-to-live (TTL) for the rate limit keys in Redis. Use the `EXPIRE` command to set the TTL for each key, ensuring that the rate limits reset after the specified time window. Consider the rate limit duration (e.g., per minute, per hour) when setting the TTL.
+        - Dependencies: Modify Rate Limiter to Use Redis
+        - Testing Strategy: Not specified
+    - Test Rate Limiter Functionality (done)
+        - Description: Test the Redis-based rate limiter to verify it correctly limits requests from the same IP address.
+        - Details: Send a series of requests from the same IP address to the contact API. Verify that the rate limiter correctly enforces the defined rate limits. Test different scenarios, including exceeding the rate limit and waiting for the limit to reset. Also, test with different IP addresses to ensure they are not affected by each other.
+        - Dependencies: Modify Rate Limiter to Use Redis, Implement Key Expirations in Redis
+        - Testing Strategy: Test the contact API with multiple requests from the same IP address to verify that the rate limit is enforced. Verify that the rate limit resets after the specified time window.
+    - Document and Refactor Code (done)
+        - Description: Document the changes and refactor the code for better readability and maintainability.
+        - Details: Add comments to the code explaining the Redis integration and rate limiting logic. Refactor the code to improve readability and maintainability. Ensure that the code adheres to the project's coding style guidelines.
+        - Dependencies: Test Rate Limiter Functionality
+        - Testing Strategy: Not specified
 
 ### 3. Refactor Authentication for Type Safety (done, priority: high)
+
 - **Description:** Improve type safety and consistency in authentication by extending NextAuth types.
-- **Details:** 1.  Create a `next-auth.d.ts` file in the project. 2.  Extend the `User` and `Session` interfaces in `next-auth.d.ts` to include `id` and `role` properties. 3.  Extend the `JWT` interface in `next-auth/jwt` to include `id` and `role` properties. 4.  Update the code to use the typed `session.user.role` and `token.role` properties. 5.  Review and update any code that uses `getServerSession()` or the middleware to ensure proper type handling. 6.  Consider adding password complexity and rate limiting to the authentication process.
+- **Details:** 1. Create a `next-auth.d.ts` file in the project. 2. Extend the `User` and `Session` interfaces in `next-auth.d.ts` to include `id` and `role` properties. 3. Extend the `JWT` interface in `next-auth/jwt` to include `id` and `role` properties. 4. Update the code to use the typed `session.user.role` and `token.role` properties. 5. Review and update any code that uses `getServerSession()` or the middleware to ensure proper type handling. 6. Consider adding password complexity and rate limiting to the authentication process.
 - **Dependencies:** Upgrade Next.js and NextAuth
-- **Testing Strategy:** 1.  Verify that `session.user.role` and `token.role` are correctly typed in the code. 2.  Test authentication flows to ensure roles are correctly assigned and used. 3.  Test authorization logic to ensure access control works as expected.
+- **Testing Strategy:** 1. Verify that `session.user.role` and `token.role` are correctly typed in the code. 2. Test authentication flows to ensure roles are correctly assigned and used. 3. Test authorization logic to ensure access control works as expected.
 - **Subtasks:**
-  - Create next-auth.d.ts file and extend User and Session interfaces (done)
-    - Description: Create a declaration file to extend NextAuth types for type safety.
-    - Details: Create `next-auth.d.ts` in the project root. Extend `User` and `Session` interfaces to include `id` and `role` properties. Ensure correct type definitions for these properties (e.g., `string` for `id` and `string` for `role`).
-    - Dependencies: None
-    - Testing Strategy: Not specified
-  - Extend JWT interface in next-auth/jwt (done)
-    - Description: Extend the JWT interface to include custom properties.
-    - Details: Locate the `JWT` interface definition (likely within `next-auth/jwt` or a related file). Extend the `JWT` interface to include `id` and `role` properties. Ensure the types match the `User` and `Session` properties.
-    - Dependencies: Create next-auth.d.ts file and extend User and Session interfaces
-    - Testing Strategy: Not specified
-  - Update code to use typed session.user.role and token.role (done)
-    - Description: Update all code using session and token data to use the newly defined types.
-    - Details: Go through the codebase and find all instances where `session.user.role` or `token.role` are used. Update these to use the extended types. Ensure that the code compiles without type errors. Verify that the IDE correctly recognizes the types.
-    - Dependencies: Create next-auth.d.ts file and extend User and Session interfaces, Extend JWT interface in next-auth/jwt
-    - Testing Strategy: Verify that `session.user.role` and `token.role` are correctly typed in the code using the IDE's intellisense and by building the project.
-  - Review and update getServerSession() and middleware usage (done)
-    - Description: Ensure proper type handling in getServerSession() and middleware.
-    - Details: Review any code that uses `getServerSession()` or middleware for authentication. Ensure that the extended types are correctly used and that the code handles the `id` and `role` properties appropriately. Check for any potential type-related issues.
-    - Dependencies: Update code to use typed session.user.role and token.role
-    - Testing Strategy: Test authentication flows to ensure roles are correctly assigned and used. Test authorization logic to ensure access control works as expected.
-  - Consider password complexity and rate limiting (done)
-    - Description: Evaluate and implement password complexity and rate limiting.
-    - Details: Research and implement password complexity requirements (e.g., minimum length, special characters). Consider implementing rate limiting to prevent brute-force attacks. This may involve using a library or service for rate limiting.
-    - Dependencies: None
-    - Testing Strategy: Not specified
+    - Create next-auth.d.ts file and extend User and Session interfaces (done)
+        - Description: Create a declaration file to extend NextAuth types for type safety.
+        - Details: Create `next-auth.d.ts` in the project root. Extend `User` and `Session` interfaces to include `id` and `role` properties. Ensure correct type definitions for these properties (e.g., `string` for `id` and `string` for `role`).
+        - Dependencies: None
+        - Testing Strategy: Not specified
+    - Extend JWT interface in next-auth/jwt (done)
+        - Description: Extend the JWT interface to include custom properties.
+        - Details: Locate the `JWT` interface definition (likely within `next-auth/jwt` or a related file). Extend the `JWT` interface to include `id` and `role` properties. Ensure the types match the `User` and `Session` properties.
+        - Dependencies: Create next-auth.d.ts file and extend User and Session interfaces
+        - Testing Strategy: Not specified
+    - Update code to use typed session.user.role and token.role (done)
+        - Description: Update all code using session and token data to use the newly defined types.
+        - Details: Go through the codebase and find all instances where `session.user.role` or `token.role` are used. Update these to use the extended types. Ensure that the code compiles without type errors. Verify that the IDE correctly recognizes the types.
+        - Dependencies: Create next-auth.d.ts file and extend User and Session interfaces, Extend JWT interface in next-auth/jwt
+        - Testing Strategy: Verify that `session.user.role` and `token.role` are correctly typed in the code using the IDE's intellisense and by building the project.
+    - Review and update getServerSession() and middleware usage (done)
+        - Description: Ensure proper type handling in getServerSession() and middleware.
+        - Details: Review any code that uses `getServerSession()` or middleware for authentication. Ensure that the extended types are correctly used and that the code handles the `id` and `role` properties appropriately. Check for any potential type-related issues.
+        - Dependencies: Update code to use typed session.user.role and token.role
+        - Testing Strategy: Test authentication flows to ensure roles are correctly assigned and used. Test authorization logic to ensure access control works as expected.
+    - Consider password complexity and rate limiting (done)
+        - Description: Evaluate and implement password complexity and rate limiting.
+        - Details: Research and implement password complexity requirements (e.g., minimum length, special characters). Consider implementing rate limiting to prevent brute-force attacks. This may involve using a library or service for rate limiting.
+        - Dependencies: None
+        - Testing Strategy: Not specified
 
 ### 4. Consolidate Data Fetching (done, priority: medium)
-- **Description:** Consolidate data fetching to avoid redundant queries, especially on the listing detail page.
-- **Details:** 1.  Analyze the listing detail page to identify redundant data fetching. 2.  Consolidate the Sanity queries for SEO metadata and page content into a single query, if possible. 3.  If consolidation isn't feasible, consider using Next.js's `<Suspense>` and parallel data fetching patterns or the new generateMetadata caching features. 4.  Cache the results of expensive queries.
-- **Dependencies:** Upgrade Next.js and NextAuth
-- **Testing Strategy:** 1.  Verify that the listing detail page loads all necessary data correctly. 2.  Use browser developer tools to monitor network requests and ensure that redundant queries are eliminated. 3.  Compare the page load time before and after the changes to measure the performance improvement.
-- **Subtasks:**
-  - Analyze Listing Detail Page for Redundant Data Fetching (done)
-    - Description: Identify all data fetching operations on the listing detail page and analyze their purpose and frequency to find potential redundancies.
-    - Details: Review the code for the listing detail page, including components, API calls, and data fetching logic. Use browser developer tools to monitor network requests and identify duplicate calls.
-    - Dependencies: None
-    - Testing Strategy: Use browser developer tools to monitor network requests and confirm the absence of redundant queries after changes.
-  - Consolidate Sanity Queries for SEO and Content (done)
-    - Description: Attempt to combine the Sanity queries for SEO metadata and page content into a single, optimized query.
-    - Details: Examine the existing Sanity queries for SEO metadata and page content. If possible, refactor the queries to fetch all required data in a single request, using GROQ projections to select only necessary fields.
-    - Dependencies: Upgrade Next.js and NextAuth
-    - Testing Strategy: Verify that all necessary data is still retrieved correctly after query consolidation. Compare the response times before and after the changes.
-  - Implement Parallel Data Fetching or Metadata Caching (done)
-    - Description: If query consolidation is not feasible, explore parallel data fetching using Next.js features or metadata caching.
-    - Details: If consolidation is not possible, investigate using Next.js's `<Suspense>` and parallel data fetching patterns or the new generateMetadata caching features to improve performance. Implement the chosen approach.
-    - Dependencies: Upgrade Next.js and NextAuth, Refactor Authentication for Type Safety
-    - Testing Strategy: Verify that the page loads all necessary data correctly and that the performance is improved. Measure the page load time before and after the changes.
-  - Cache Results of Expensive Queries (done)
-    - Description: Implement caching for expensive queries to reduce server load and improve response times.
-    - Details: Identify the most expensive queries and implement caching mechanisms. Consider using ISR or other caching strategies based on the specific needs of the queries. Ensure proper cache invalidation.
-    - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
-    - Testing Strategy: Verify that the cached responses are served correctly. Use browser developer tools to monitor network requests and ensure that cached responses are being used. Measure the performance improvement by comparing the response times before and after caching.
-  - Refactor Data Fetching Logic (done)
-    - Description: Refactor data fetching logic to use the consolidated queries and caching mechanisms.
-    - Details: Update the components on the listing detail page to use the consolidated queries and caching mechanisms. Ensure that the data is fetched and displayed correctly.
-    - Dependencies: Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety, Consolidate Data Fetching
-    - Testing Strategy: Verify that the listing detail page loads all necessary data correctly. Use browser developer tools to monitor network requests and ensure that the refactored code uses the optimized queries and caching mechanisms.
 
-### 5. Enforce Naming Consistency (pending, priority: medium)
-- **Description:** Enforce a consistent naming convention across the codebase.
-- **Details:** 1.  Use camelCase for JavaScript objects. 2.  Adjust GROQ queries to alias fields accordingly. For instance, query Sanity as: *[_type=="listing" && slug.current==$slug][0]{ _id, name, "descriptionLong": description_long, ... } so that the returned JSON keys match your desired casing. 3.  Use ESLint rules (like camelcase: ["error", {properties: "never"}]) to catch any stray snake_case in object literals if theyre unintended.
-- **Dependencies:** None
-- **Testing Strategy:** 1.  Review the codebase to ensure that the naming convention is consistent. 2.  Run the ESLint checks to identify any naming violations.
+- **Description:** Consolidate data fetching to avoid redundant queries, especially on the listing detail page.
+- **Details:** 1. Analyze the listing detail page to identify redundant data fetching. 2. Consolidate the Sanity queries for SEO metadata and page content into a single query, if possible. 3. If consolidation isn't feasible, consider using Next.js's `<Suspense>` and parallel data fetching patterns or the new generateMetadata caching features. 4. Cache the results of expensive queries.
+- **Dependencies:** Upgrade Next.js and NextAuth
+- **Testing Strategy:** 1. Verify that the listing detail page loads all necessary data correctly. 2. Use browser developer tools to monitor network requests and ensure that redundant queries are eliminated. 3. Compare the page load time before and after the changes to measure the performance improvement.
 - **Subtasks:**
-  - Implement camelCase for JavaScript objects (pending)
-    - Description: Enforce camelCase naming convention for all JavaScript objects throughout the codebase.
-    - Details: Review the codebase and refactor object property names to camelCase. This includes object literals, class properties, and any other JavaScript objects.
-    - Dependencies: None
-    - Testing Strategy: Manually review the codebase to ensure consistent camelCase usage. Use browser developer tools to inspect objects and verify naming.
-  - Adjust GROQ queries for field aliasing (pending)
-    - Description: Modify GROQ queries to alias fields, ensuring that the returned JSON keys use camelCase.
-    - Details: Identify all GROQ queries in the project. For each query, adjust the field selection to use aliases that match the camelCase convention. For example, change `description_long` to `"descriptionLong": description_long`.
-    - Dependencies: None
-    - Testing Strategy: Test the application functionality that relies on data fetched via GROQ queries. Verify that the returned JSON keys are in camelCase using browser developer tools.
-  - Configure ESLint for camelCase enforcement (pending)
-    - Description: Configure ESLint to enforce camelCase naming conventions and catch unintended snake_case usage.
-    - Details: Add or modify ESLint rules to include `camelcase: ["error", {properties: "never"}]` or similar rules to catch snake_case in object literals. Configure ESLint to run as part of the build process.
-    - Dependencies: None
-    - Testing Strategy: Run ESLint and verify that it reports errors for any snake_case violations. Fix any reported violations and re-run ESLint to confirm the fixes.
-  - Review and Refactor Existing Code (pending)
-    - Description: Thoroughly review the codebase for naming inconsistencies and refactor accordingly.
-    - Details: Go through the entire codebase, including components, utilities, and data fetching logic, to identify and fix any naming inconsistencies. Ensure all naming conventions align with the defined rules.
-    - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
-    - Testing Strategy: Manually review the codebase and use ESLint to identify and fix any naming violations. Verify that the application functions as expected after the refactoring.
-  - Document Naming Conventions (pending)
-    - Description: Document the adopted naming conventions for future reference and team collaboration.
-    - Details: Create or update documentation (e.g., a README file or a section in the project's documentation) to clearly state the adopted naming conventions (camelCase for JavaScript objects, field aliasing in GROQ queries, and ESLint configuration).
-    - Dependencies: None
-    - Testing Strategy: Review the documentation to ensure it accurately reflects the implemented naming conventions. Share the documentation with the team and solicit feedback.
+    - Analyze Listing Detail Page for Redundant Data Fetching (done)
+        - Description: Identify all data fetching operations on the listing detail page and analyze their purpose and frequency to find potential redundancies.
+        - Details: Review the code for the listing detail page, including components, API calls, and data fetching logic. Use browser developer tools to monitor network requests and identify duplicate calls.
+        - Dependencies: None
+        - Testing Strategy: Use browser developer tools to monitor network requests and confirm the absence of redundant queries after changes.
+    - Consolidate Sanity Queries for SEO and Content (done)
+        - Description: Attempt to combine the Sanity queries for SEO metadata and page content into a single, optimized query.
+        - Details: Examine the existing Sanity queries for SEO metadata and page content. If possible, refactor the queries to fetch all required data in a single request, using GROQ projections to select only necessary fields.
+        - Dependencies: Upgrade Next.js and NextAuth
+        - Testing Strategy: Verify that all necessary data is still retrieved correctly after query consolidation. Compare the response times before and after the changes.
+    - Implement Parallel Data Fetching or Metadata Caching (done)
+        - Description: If query consolidation is not feasible, explore parallel data fetching using Next.js features or metadata caching.
+        - Details: If consolidation is not possible, investigate using Next.js's `<Suspense>` and parallel data fetching patterns or the new generateMetadata caching features to improve performance. Implement the chosen approach.
+        - Dependencies: Upgrade Next.js and NextAuth, Refactor Authentication for Type Safety
+        - Testing Strategy: Verify that the page loads all necessary data correctly and that the performance is improved. Measure the page load time before and after the changes.
+    - Cache Results of Expensive Queries (done)
+        - Description: Implement caching for expensive queries to reduce server load and improve response times.
+        - Details: Identify the most expensive queries and implement caching mechanisms. Consider using ISR or other caching strategies based on the specific needs of the queries. Ensure proper cache invalidation.
+        - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
+        - Testing Strategy: Verify that the cached responses are served correctly. Use browser developer tools to monitor network requests and ensure that cached responses are being used. Measure the performance improvement by comparing the response times before and after caching.
+    - Refactor Data Fetching Logic (done)
+        - Description: Refactor data fetching logic to use the consolidated queries and caching mechanisms.
+        - Details: Update the components on the listing detail page to use the consolidated queries and caching mechanisms. Ensure that the data is fetched and displayed correctly.
+        - Dependencies: Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety, Consolidate Data Fetching
+        - Testing Strategy: Verify that the listing detail page loads all necessary data correctly. Use browser developer tools to monitor network requests and ensure that the refactored code uses the optimized queries and caching mechanisms.
+
+### 5. Enforce Naming Consistency (done, priority: medium)
+
+- **Description:** Enforce a consistent naming convention across the codebase.
+- **Details:** 1. Use camelCase for JavaScript objects. 2. Adjust GROQ queries to alias fields accordingly. For instance, query Sanity as: \*[\_type=="listing" && slug.current==$slug][0]{ \_id, name, "descriptionLong": description_long, ... } so that the returned JSON keys match your desired casing. 3. Use ESLint rules (like camelcase: ["error", {properties: "never"}]) to catch any stray snake_case in object literals if theyre unintended.
+- **Dependencies:** None
+- **Testing Strategy:** 1. Review the codebase to ensure that the naming convention is consistent. 2. Run the ESLint checks to identify any naming violations.
+- **Subtasks:**
+    - Implement camelCase for JavaScript objects (done)
+        - Description: Enforce camelCase naming convention for all JavaScript objects throughout the codebase.
+        - Details: Review the codebase and refactor object property names to camelCase. This includes object literals, class properties, and any other JavaScript objects.
+        - Dependencies: None
+        - Testing Strategy: Manually review the codebase to ensure consistent camelCase usage. Use browser developer tools to inspect objects and verify naming.
+    - Adjust GROQ queries for field aliasing (done)
+        - Description: Modify GROQ queries to alias fields, ensuring that the returned JSON keys use camelCase.
+        - Details: Identify all GROQ queries in the project. For each query, adjust the field selection to use aliases that match the camelCase convention. For example, change `description_long` to `"descriptionLong": description_long`.
+        - Dependencies: None
+        - Testing Strategy: Test the application functionality that relies on data fetched via GROQ queries. Verify that the returned JSON keys are in camelCase using browser developer tools.
+    - Configure ESLint for camelCase enforcement (done)
+        - Description: Configure ESLint to enforce camelCase naming conventions and catch unintended snake_case usage.
+        - Details: Add or modify ESLint rules to include `camelcase: ["error", {properties: "never"}]` or similar rules to catch snake_case in object literals. Configure ESLint to run as part of the build process.
+        - Dependencies: None
+        - Testing Strategy: Run ESLint and verify that it reports errors for any snake_case violations. Fix any reported violations and re-run ESLint to confirm the fixes.
+    - Review and Refactor Existing Code (done)
+        - Description: Thoroughly review the codebase for naming inconsistencies and refactor accordingly.
+        - Details: Go through the entire codebase, including components, utilities, and data fetching logic, to identify and fix any naming inconsistencies. Ensure all naming conventions align with the defined rules.
+        - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
+        - Testing Strategy: Manually review the codebase and use ESLint to identify and fix any naming violations. Verify that the application functions as expected after the refactoring.
+    - Document Naming Conventions (done)
+        - Description: Document the adopted naming conventions for future reference and team collaboration.
+        - Details: Create or update documentation (e.g., a README file or a section in the project's documentation) to clearly state the adopted naming conventions (camelCase for JavaScript objects, field aliasing in GROQ queries, and ESLint configuration).
+        - Dependencies: None
+        - Testing Strategy: Review the documentation to ensure it accurately reflects the implemented naming conventions. Share the documentation with the team and solicit feedback.
 
 ### 6. Implement Caching for Expensive Queries (done, priority: medium)
+
 - **Description:** Implement caching for the search/listings API and Sanity queries to improve performance.
-- **Details:** 1.  Implement caching for the search/listings API using ISR or Redis. 2.  Implement caching for Sanity queries using revalidate (ISR) for listing pages or cache frequent API query results in Redis (with an appropriate TTL). 3.  Ensure Sanity queries use projections to limit fields. 4.  Consider Sanity's query caching via CDN. 5.  For text search, evaluate indexing strategies (Sanity's built-in search or an external search service) if the dataset grows large.
+- **Details:** 1. Implement caching for the search/listings API using ISR or Redis. 2. Implement caching for Sanity queries using revalidate (ISR) for listing pages or cache frequent API query results in Redis (with an appropriate TTL). 3. Ensure Sanity queries use projections to limit fields. 4. Consider Sanity's query caching via CDN. 5. For text search, evaluate indexing strategies (Sanity's built-in search or an external search service) if the dataset grows large.
 - **Dependencies:** Consolidate Data Fetching
-- **Testing Strategy:** 1.  Verify that the search/listings API and Sanity queries return the correct data. 2.  Use browser developer tools to monitor network requests and ensure that cached responses are served. 3.  Measure the performance improvement by comparing the response times before and after caching.
+- **Testing Strategy:** 1. Verify that the search/listings API and Sanity queries return the correct data. 2. Use browser developer tools to monitor network requests and ensure that cached responses are served. 3. Measure the performance improvement by comparing the response times before and after caching.
 - **Subtasks:**
-  - Implement Caching for Search/Listings API (done)
-    - Description: Implement caching for the search/listings API to improve performance.
-    - Details: Implement caching using ISR or Redis for the search/listings API. Consider factors like cache invalidation and TTL.
-    - Dependencies: None
-    - Testing Strategy: Verify API returns correct data. Monitor network requests to confirm cached responses. Measure performance improvement.
-  - Implement Caching for Sanity Queries (done)
-    - Description: Implement caching for Sanity queries to improve performance.
-    - Details: Implement caching for Sanity queries using ISR for listing pages or cache frequent API query results in Redis with an appropriate TTL. Ensure queries use projections.
-    - Dependencies: None
-    - Testing Strategy: Verify data accuracy. Monitor network requests. Measure performance improvements.
-  - Optimize Sanity Queries with Projections (done)
-    - Description: Ensure Sanity queries use projections to limit the fields returned.
-    - Details: Review all Sanity queries and implement projections to fetch only the necessary fields. This reduces data transfer and improves performance.
-    - Dependencies: None
-    - Testing Strategy: Verify that only the required fields are fetched from Sanity. Measure performance improvements.
-  - Evaluate Sanity CDN Caching (done)
-    - Description: Consider Sanity's query caching via CDN.
-    - Details: Investigate and configure Sanity's CDN caching capabilities. Evaluate its effectiveness for the project's needs.
-    - Dependencies: None
-    - Testing Strategy: Verify that content is served from the CDN. Measure performance improvements.
-  - Evaluate Text Search Indexing Strategies (done)
-    - Description: Evaluate indexing strategies for text search if the dataset grows large.
-    - Details: If the dataset grows, evaluate Sanity's built-in search or an external search service (e.g., Algolia, ElasticSearch) for text search functionality.
-    - Dependencies: None
-    - Testing Strategy: Test search performance with a large dataset. Compare performance of different indexing strategies.
+    - Implement Caching for Search/Listings API (done)
+        - Description: Implement caching for the search/listings API to improve performance.
+        - Details: Implement caching using ISR or Redis for the search/listings API. Consider factors like cache invalidation and TTL.
+        - Dependencies: None
+        - Testing Strategy: Verify API returns correct data. Monitor network requests to confirm cached responses. Measure performance improvement.
+    - Implement Caching for Sanity Queries (done)
+        - Description: Implement caching for Sanity queries to improve performance.
+        - Details: Implement caching for Sanity queries using ISR for listing pages or cache frequent API query results in Redis with an appropriate TTL. Ensure queries use projections.
+        - Dependencies: None
+        - Testing Strategy: Verify data accuracy. Monitor network requests. Measure performance improvements.
+    - Optimize Sanity Queries with Projections (done)
+        - Description: Ensure Sanity queries use projections to limit the fields returned.
+        - Details: Review all Sanity queries and implement projections to fetch only the necessary fields. This reduces data transfer and improves performance.
+        - Dependencies: None
+        - Testing Strategy: Verify that only the required fields are fetched from Sanity. Measure performance improvements.
+    - Evaluate Sanity CDN Caching (done)
+        - Description: Consider Sanity's query caching via CDN.
+        - Details: Investigate and configure Sanity's CDN caching capabilities. Evaluate its effectiveness for the project's needs.
+        - Dependencies: None
+        - Testing Strategy: Verify that content is served from the CDN. Measure performance improvements.
+    - Evaluate Text Search Indexing Strategies (done)
+        - Description: Evaluate indexing strategies for text search if the dataset grows large.
+        - Details: If the dataset grows, evaluate Sanity's built-in search or an external search service (e.g., Algolia, ElasticSearch) for text search functionality.
+        - Dependencies: None
+        - Testing Strategy: Test search performance with a large dataset. Compare performance of different indexing strategies.
 
 ### 7. Implement Error Handling with error.js (done, priority: medium)
+
 - **Description:** Use Next.js error boundaries to handle unhandled exceptions.
-- **Details:** 1.  Create an `app/[...]/error.tsx` file to capture unhandled exceptions in the route segment. 2.  Create an `error.tsx` file in the `app/listings/[slug]` folder to handle errors in the listing detail page. 3.  Implement a user-friendly error message in the `error.tsx` component.
+- **Details:** 1. Create an `app/[...]/error.tsx` file to capture unhandled exceptions in the route segment. 2. Create an `error.tsx` file in the `app/listings/[slug]` folder to handle errors in the listing detail page. 3. Implement a user-friendly error message in the `error.tsx` component.
 - **Dependencies:** Upgrade Next.js and NextAuth
-- **Testing Strategy:** 1.  Test the error handling by intentionally causing an error in a page component. 2.  Verify that the error boundary correctly displays the error message.
+- **Testing Strategy:** 1. Test the error handling by intentionally causing an error in a page component. 2. Verify that the error boundary correctly displays the error message.
 - **Subtasks:**
-  - Create Global Error Boundary (done)
-    - Description: Create the `app/[...]/error.tsx` file to handle unhandled exceptions at the route segment level.
-    - Details: Implement the basic structure of the error boundary component in `app/[...]/error.tsx`. This should include a user-friendly error message and potentially a way to report the error.
-    - Dependencies: None
-    - Testing Strategy: Test by intentionally causing an error in a component within the application and verifying that the global error boundary displays the error message.
-  - Implement Error Boundary for Listing Detail Page (done)
-    - Description: Create the `app/listings/[slug]/error.tsx` file to handle errors specific to the listing detail page.
-    - Details: Implement the error boundary component in `app/listings/[slug]/error.tsx`. This should include a user-friendly error message, potentially specific to the listing detail page.
-    - Dependencies: None
-    - Testing Strategy: Test by intentionally causing an error within a component on the listing detail page and verifying that the specific error boundary displays the error message.
-  - Design User-Friendly Error Messages (done)
-    - Description: Design and implement user-friendly error messages for both error boundaries.
-    - Details: Craft clear and concise error messages that guide the user. Consider providing helpful information or actions, such as a link to refresh the page or contact support.  Ensure messages are accessible.
-    - Dependencies: Upgrade Next.js and NextAuth, Refactor Authentication for Type Safety
-    - Testing Strategy: Review the error messages for clarity and helpfulness. Ensure they are displayed correctly in both error boundary implementations.
-  - Integrate Error Reporting (Optional) (done)
-    - Description: Integrate error reporting to a service like Sentry or similar.
-    - Details: Integrate a service like Sentry to capture and report errors. This will help in monitoring and debugging production issues.  Configure the error boundaries to send error reports.
-    - Dependencies: Upgrade Next.js and NextAuth, Refactor Authentication for Type Safety
-    - Testing Strategy: Verify that errors are correctly reported to the chosen service by intentionally causing an error and checking the error logs.
-  - Test Error Handling with Intentional Errors (done)
-    - Description: Test the error handling by intentionally causing errors in different components.
-    - Details: Introduce errors in different components (e.g., data fetching, rendering) to trigger the error boundaries. Verify that the correct error messages are displayed and that error reporting (if implemented) functions correctly.
-    - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
-    - Testing Strategy: Intentionally introduce errors in various components and verify that the error boundaries catch them and display the expected messages. Check error reporting logs.
+    - Create Global Error Boundary (done)
+        - Description: Create the `app/[...]/error.tsx` file to handle unhandled exceptions at the route segment level.
+        - Details: Implement the basic structure of the error boundary component in `app/[...]/error.tsx`. This should include a user-friendly error message and potentially a way to report the error.
+        - Dependencies: None
+        - Testing Strategy: Test by intentionally causing an error in a component within the application and verifying that the global error boundary displays the error message.
+    - Implement Error Boundary for Listing Detail Page (done)
+        - Description: Create the `app/listings/[slug]/error.tsx` file to handle errors specific to the listing detail page.
+        - Details: Implement the error boundary component in `app/listings/[slug]/error.tsx`. This should include a user-friendly error message, potentially specific to the listing detail page.
+        - Dependencies: None
+        - Testing Strategy: Test by intentionally causing an error within a component on the listing detail page and verifying that the specific error boundary displays the error message.
+    - Design User-Friendly Error Messages (done)
+        - Description: Design and implement user-friendly error messages for both error boundaries.
+        - Details: Craft clear and concise error messages that guide the user. Consider providing helpful information or actions, such as a link to refresh the page or contact support. Ensure messages are accessible.
+        - Dependencies: Upgrade Next.js and NextAuth, Refactor Authentication for Type Safety
+        - Testing Strategy: Review the error messages for clarity and helpfulness. Ensure they are displayed correctly in both error boundary implementations.
+    - Integrate Error Reporting (Optional) (done)
+        - Description: Integrate error reporting to a service like Sentry or similar.
+        - Details: Integrate a service like Sentry to capture and report errors. This will help in monitoring and debugging production issues. Configure the error boundaries to send error reports.
+        - Dependencies: Upgrade Next.js and NextAuth, Refactor Authentication for Type Safety
+        - Testing Strategy: Verify that errors are correctly reported to the chosen service by intentionally causing an error and checking the error logs.
+    - Test Error Handling with Intentional Errors (done)
+        - Description: Test the error handling by intentionally causing errors in different components.
+        - Details: Introduce errors in different components (e.g., data fetching, rendering) to trigger the error boundaries. Verify that the correct error messages are displayed and that error reporting (if implemented) functions correctly.
+        - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
+        - Testing Strategy: Intentionally introduce errors in various components and verify that the error boundaries catch them and display the expected messages. Check error reporting logs.
 
 ### 8. Implement Loading States with Suspense or loading.tsx (done, priority: medium)
+
 - **Description:** Implement loading states for pages that fetch data.
-- **Details:** 1.  Implement `app/(route)/loading.tsx` for pages that fetch data, such as the listing detail page. 2.  Use a skeleton or spinner to improve perceived performance while data is being fetched.
+- **Details:** 1. Implement `app/(route)/loading.tsx` for pages that fetch data, such as the listing detail page. 2. Use a skeleton or spinner to improve perceived performance while data is being fetched.
 - **Dependencies:** Upgrade Next.js and NextAuth
-- **Testing Strategy:** 1.  Test the loading state by simulating a slow network connection. 2.  Verify that the loading state is displayed correctly while data is being fetched.
+- **Testing Strategy:** 1. Test the loading state by simulating a slow network connection. 2. Verify that the loading state is displayed correctly while data is being fetched.
 - **Subtasks:**
-  - Create loading.tsx file for the listing detail page (done)
-    - Description: Create the `app/(route)/loading.tsx` file for the listing detail page to handle loading states.
-    - Details: Create a new file named `loading.tsx` inside the appropriate route directory (e.g., `app/listings/[id]/loading.tsx`). This file will render the loading state.
-    - Dependencies: None
-    - Testing Strategy: Not specified
-  - Implement a skeleton UI in loading.tsx (done)
-    - Description: Implement a skeleton UI or a spinner within the `loading.tsx` file to provide visual feedback while data is loading.
-    - Details: Use a library like `react-loading-skeleton` or create a custom skeleton component to display placeholder elements. Alternatively, use a spinner component.
-    - Dependencies: Upgrade Next.js and NextAuth
-    - Testing Strategy: Not specified
-  - Fetch data in the listing detail page (done)
-    - Description: Ensure the listing detail page fetches data and triggers the loading state.
-    - Details: Verify that the data fetching logic in the listing detail page is correctly implemented and that the page uses the `loading.tsx` file during data fetching.
-    - Dependencies: None
-    - Testing Strategy: Not specified
-  - Test loading state with a slow network (done)
-    - Description: Test the loading state by simulating a slow network connection to verify the loading UI is displayed.
-    - Details: Use browser developer tools to throttle the network speed (e.g., to 'Slow 3G') and navigate to the listing detail page. Observe the loading state.
-    - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
-    - Testing Strategy: Simulate slow network conditions and verify the loading state is displayed.
-  - Verify loading state display (done)
-    - Description: Verify that the loading state is displayed correctly while data is being fetched.
-    - Details: Ensure the skeleton or spinner is visible during the data fetching process and disappears once the data is loaded.
-    - Dependencies: Consolidate Data Fetching
-    - Testing Strategy: Manually test the loading state on the listing detail page under slow network conditions.
+    - Create loading.tsx file for the listing detail page (done)
+        - Description: Create the `app/(route)/loading.tsx` file for the listing detail page to handle loading states.
+        - Details: Create a new file named `loading.tsx` inside the appropriate route directory (e.g., `app/listings/[id]/loading.tsx`). This file will render the loading state.
+        - Dependencies: None
+        - Testing Strategy: Not specified
+    - Implement a skeleton UI in loading.tsx (done)
+        - Description: Implement a skeleton UI or a spinner within the `loading.tsx` file to provide visual feedback while data is loading.
+        - Details: Use a library like `react-loading-skeleton` or create a custom skeleton component to display placeholder elements. Alternatively, use a spinner component.
+        - Dependencies: Upgrade Next.js and NextAuth
+        - Testing Strategy: Not specified
+    - Fetch data in the listing detail page (done)
+        - Description: Ensure the listing detail page fetches data and triggers the loading state.
+        - Details: Verify that the data fetching logic in the listing detail page is correctly implemented and that the page uses the `loading.tsx` file during data fetching.
+        - Dependencies: None
+        - Testing Strategy: Not specified
+    - Test loading state with a slow network (done)
+        - Description: Test the loading state by simulating a slow network connection to verify the loading UI is displayed.
+        - Details: Use browser developer tools to throttle the network speed (e.g., to 'Slow 3G') and navigate to the listing detail page. Observe the loading state.
+        - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
+        - Testing Strategy: Simulate slow network conditions and verify the loading state is displayed.
+    - Verify loading state display (done)
+        - Description: Verify that the loading state is displayed correctly while data is being fetched.
+        - Details: Ensure the skeleton or spinner is visible during the data fetching process and disappears once the data is loaded.
+        - Dependencies: Consolidate Data Fetching
+        - Testing Strategy: Manually test the loading state on the listing detail page under slow network conditions.
 
 ### 9. Implement Security Hardening for Contact Form (done, priority: medium)
+
 - **Description:** Sanitize user input in the contact form to prevent XSS vulnerabilities.
-- **Details:** 1.  Sanitize the subject and message fields of the contact form before constructing the email body. 2.  Use a templating library that auto-escapes HTML tags, or replace HTML tags with HTML entities. 3.  Ensure all environment secrets (SMTP credentials, NextAuth secret, etc.) are loaded from `.env.local`.
+- **Details:** 1. Sanitize the subject and message fields of the contact form before constructing the email body. 2. Use a templating library that auto-escapes HTML tags, or replace HTML tags with HTML entities. 3. Ensure all environment secrets (SMTP credentials, NextAuth secret, etc.) are loaded from `.env.local`.
 - **Dependencies:** Implement Redis-based Rate Limiting
-- **Testing Strategy:** 1.  Test the contact form with malicious input (e.g., HTML tags, JavaScript code) to verify that the input is sanitized correctly. 2.  Verify that the email body does not contain any unsanitized user input.
+- **Testing Strategy:** 1. Test the contact form with malicious input (e.g., HTML tags, JavaScript code) to verify that the input is sanitized correctly. 2. Verify that the email body does not contain any unsanitized user input.
 - **Subtasks:**
-  - Sanitize Subject and Message Fields (done)
-    - Description: Implement input sanitization for the subject and message fields of the contact form to prevent XSS attacks.
-    - Details: Use a sanitization library (e.g., DOMPurify) or implement custom sanitization logic to remove or encode potentially harmful characters and HTML tags from the subject and message fields before constructing the email body.
-    - Dependencies: None
-    - Testing Strategy: Test with various payloads including HTML tags, JavaScript code, and special characters to ensure proper sanitization.
-  - Implement HTML Escaping (done)
-    - Description: Ensure proper HTML escaping to prevent XSS vulnerabilities in the email body.
-    - Details: Use a templating library that automatically escapes HTML tags, or replace HTML tags with HTML entities (e.g., `<` with `&lt;`). Ensure that the chosen method is applied to all user-provided content before it's included in the email body.
-    - Dependencies: None
-    - Testing Strategy: Verify that HTML tags in the subject and message fields are correctly escaped in the generated email body.
-  - Secure Environment Secrets (done)
-    - Description: Verify that all sensitive environment variables are loaded securely.
-    - Details: Confirm that all sensitive information, such as SMTP credentials and the NextAuth secret, are loaded from the `.env.local` file. Avoid hardcoding any secrets directly in the code.
-    - Dependencies: None
-    - Testing Strategy: Verify that the application functions correctly with the environment variables loaded from `.env.local`.
-  - Implement Content Security Policy (CSP) (done)
-    - Description: Implement a Content Security Policy (CSP) to mitigate XSS attacks.
-    - Details: Configure a CSP in the application's headers to restrict the sources from which the browser can load resources, such as scripts, styles, and images. This helps prevent the execution of malicious scripts injected through XSS vulnerabilities.
-    - Dependencies: None
-    - Testing Strategy: Test the application with the CSP enabled to ensure that legitimate resources load correctly and that malicious scripts are blocked.
-  - Comprehensive Testing and Validation (done)
-    - Description: Thoroughly test the contact form to ensure security hardening is effective.
-    - Details: Test the contact form with a variety of malicious inputs, including HTML tags, JavaScript code, and special characters, to verify that the input is sanitized correctly and that the email body does not contain any unsanitized user input. Also, test the form with valid inputs to ensure functionality.
-    - Dependencies: None
-    - Testing Strategy: Execute a series of tests with various malicious payloads to verify that the implemented security measures are effective in preventing XSS attacks. Also, test the form with valid inputs to ensure functionality.
+    - Sanitize Subject and Message Fields (done)
+        - Description: Implement input sanitization for the subject and message fields of the contact form to prevent XSS attacks.
+        - Details: Use a sanitization library (e.g., DOMPurify) or implement custom sanitization logic to remove or encode potentially harmful characters and HTML tags from the subject and message fields before constructing the email body.
+        - Dependencies: None
+        - Testing Strategy: Test with various payloads including HTML tags, JavaScript code, and special characters to ensure proper sanitization.
+    - Implement HTML Escaping (done)
+        - Description: Ensure proper HTML escaping to prevent XSS vulnerabilities in the email body.
+        - Details: Use a templating library that automatically escapes HTML tags, or replace HTML tags with HTML entities (e.g., `<` with `&lt;`). Ensure that the chosen method is applied to all user-provided content before it's included in the email body.
+        - Dependencies: None
+        - Testing Strategy: Verify that HTML tags in the subject and message fields are correctly escaped in the generated email body.
+    - Secure Environment Secrets (done)
+        - Description: Verify that all sensitive environment variables are loaded securely.
+        - Details: Confirm that all sensitive information, such as SMTP credentials and the NextAuth secret, are loaded from the `.env.local` file. Avoid hardcoding any secrets directly in the code.
+        - Dependencies: None
+        - Testing Strategy: Verify that the application functions correctly with the environment variables loaded from `.env.local`.
+    - Implement Content Security Policy (CSP) (done)
+        - Description: Implement a Content Security Policy (CSP) to mitigate XSS attacks.
+        - Details: Configure a CSP in the application's headers to restrict the sources from which the browser can load resources, such as scripts, styles, and images. This helps prevent the execution of malicious scripts injected through XSS vulnerabilities.
+        - Dependencies: None
+        - Testing Strategy: Test the application with the CSP enabled to ensure that legitimate resources load correctly and that malicious scripts are blocked.
+    - Comprehensive Testing and Validation (done)
+        - Description: Thoroughly test the contact form to ensure security hardening is effective.
+        - Details: Test the contact form with a variety of malicious inputs, including HTML tags, JavaScript code, and special characters, to verify that the input is sanitized correctly and that the email body does not contain any unsanitized user input. Also, test the form with valid inputs to ensure functionality.
+        - Dependencies: None
+        - Testing Strategy: Execute a series of tests with various malicious payloads to verify that the implemented security measures are effective in preventing XSS attacks. Also, test the form with valid inputs to ensure functionality.
 
 ### 10. Implement Static Generation for City and Category Pages (pending, priority: medium)
+
 - **Description:** Extend static generation to city and category pages.
-- **Details:** 1.  Implement `generateStaticParams` for city and category pages. 2.  Fetch the necessary data (city slugs, category slugs) from Sanity. 3.  Return an array of objects with the `slug` property for each city and category. 4.  Set `revalidate` to refresh the pages periodically (optional).
+- **Details:** 1. Implement `generateStaticParams` for city and category pages. 2. Fetch the necessary data (city slugs, category slugs) from Sanity. 3. Return an array of objects with the `slug` property for each city and category. 4. Set `revalidate` to refresh the pages periodically (optional).
 - **Dependencies:** Upgrade Next.js and NextAuth
-- **Testing Strategy:** 1.  Verify that the city and category pages are statically generated. 2.  Test that the pages are revalidated correctly. 3.  Check the performance of the pages to ensure they load quickly.
+- **Testing Strategy:** 1. Verify that the city and category pages are statically generated. 2. Test that the pages are revalidated correctly. 3. Check the performance of the pages to ensure they load quickly.
 - **Subtasks:**
-  - Implement `generateStaticParams` for City and Category Pages (pending)
-    - Description: Implement the `generateStaticParams` function in the relevant Next.js pages for city and category to enable static generation.
-    - Details: Implement `generateStaticParams` in the city and category page files. This function should fetch the necessary data (city slugs, category slugs) from Sanity and return an array of objects with the `slug` property for each.
-    - Dependencies: None
-    - Testing Strategy: Verify that the `generateStaticParams` function correctly fetches and returns the expected slugs.
-  - Fetch City and Category Slugs from Sanity (pending)
-    - Description: Fetch city and category slugs from Sanity CMS using appropriate queries.
-    - Details: Write Sanity queries to retrieve all city slugs and category slugs. Ensure the queries are optimized for performance and only fetch the necessary data. Consider using projections to limit the fields returned.
-    - Dependencies: Upgrade Next.js and NextAuth
-    - Testing Strategy: Verify that the Sanity queries return the correct slugs for cities and categories. Check the query performance.
-  - Return Slug Objects for Static Generation (pending)
-    - Description: Format the fetched slugs into an array of objects suitable for static generation.
-    - Details: Transform the fetched city and category slugs into an array of objects, where each object has a `slug` property. This array will be used by Next.js to generate static pages for each slug.
-    - Dependencies: Refactor Authentication for Type Safety
-    - Testing Strategy: Ensure the returned array of objects has the correct format and contains all the necessary slugs.
-  - Implement Revalidation (Optional) (pending)
-    - Description: Implement revalidation to refresh the city and category pages periodically.
-    - Details: Set the `revalidate` option in the `generateStaticParams` function or the page component to refresh the pages periodically. Choose an appropriate revalidation interval based on the data update frequency.
-    - Dependencies: Upgrade Next.js and NextAuth
-    - Testing Strategy: Verify that the pages are revalidated correctly and that the content is updated at the specified interval.
-  - Test Static Generation and Page Performance (pending)
-    - Description: Test the static generation of city and category pages and evaluate their performance.
-    - Details: Verify that the city and category pages are statically generated. Check the generated HTML and ensure that the content is correct. Test the page load times and overall performance using browser developer tools.
-    - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Consolidate Data Fetching
-    - Testing Strategy: Verify that the city and category pages are statically generated. Test that the pages are revalidated correctly. Check the performance of the pages to ensure they load quickly.
+    - Implement `generateStaticParams` for City and Category Pages (pending)
+        - Description: Implement the `generateStaticParams` function in the relevant Next.js pages for city and category to enable static generation.
+        - Details: Implement `generateStaticParams` in the city and category page files. This function should fetch the necessary data (city slugs, category slugs) from Sanity and return an array of objects with the `slug` property for each.
+        - Dependencies: None
+        - Testing Strategy: Verify that the `generateStaticParams` function correctly fetches and returns the expected slugs.
+    - Fetch City and Category Slugs from Sanity (pending)
+        - Description: Fetch city and category slugs from Sanity CMS using appropriate queries.
+        - Details: Write Sanity queries to retrieve all city slugs and category slugs. Ensure the queries are optimized for performance and only fetch the necessary data. Consider using projections to limit the fields returned.
+        - Dependencies: Upgrade Next.js and NextAuth
+        - Testing Strategy: Verify that the Sanity queries return the correct slugs for cities and categories. Check the query performance.
+    - Return Slug Objects for Static Generation (pending)
+        - Description: Format the fetched slugs into an array of objects suitable for static generation.
+        - Details: Transform the fetched city and category slugs into an array of objects, where each object has a `slug` property. This array will be used by Next.js to generate static pages for each slug.
+        - Dependencies: Refactor Authentication for Type Safety
+        - Testing Strategy: Ensure the returned array of objects has the correct format and contains all the necessary slugs.
+    - Implement Revalidation (Optional) (pending)
+        - Description: Implement revalidation to refresh the city and category pages periodically.
+        - Details: Set the `revalidate` option in the `generateStaticParams` function or the page component to refresh the pages periodically. Choose an appropriate revalidation interval based on the data update frequency.
+        - Dependencies: Upgrade Next.js and NextAuth
+        - Testing Strategy: Verify that the pages are revalidated correctly and that the content is updated at the specified interval.
+    - Test Static Generation and Page Performance (pending)
+        - Description: Test the static generation of city and category pages and evaluate their performance.
+        - Details: Verify that the city and category pages are statically generated. Check the generated HTML and ensure that the content is correct. Test the page load times and overall performance using browser developer tools.
+        - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Consolidate Data Fetching
+        - Testing Strategy: Verify that the city and category pages are statically generated. Test that the pages are revalidated correctly. Check the performance of the pages to ensure they load quickly.
 
 ### 11. Improve Responsive and Accessible Design (pending, priority: medium)
-- **Description:** Ensure responsive and accessible design.
-- **Details:** 1.  Verify that interactive elements (buttons, toggles) have proper ARIA labels or use semantic tags. 2.  Test pages on mobile. 3.  Use Tailwind's responsive prefixes (sm:, md: etc.) to adapt layouts on smaller screens. 4.  Consider adding lazy-loading for non-critical content (e.g., if a map or video is present, use dynamic import() to load it only when needed or when in viewport).
-- **Dependencies:** None
-- **Testing Strategy:** 1.  Test the application on different screen sizes and devices to ensure responsiveness. 2.  Use accessibility testing tools to verify that the application is accessible. 3.  Verify that interactive elements have proper ARIA labels.
-- **Subtasks:**
-  - Audit Interactive Elements for ARIA Labels and Semantic Tags (pending)
-    - Description: Review all interactive elements (buttons, toggles, links, form controls) and ensure they have appropriate ARIA labels or use semantic HTML tags for accessibility.
-    - Details: Examine the codebase and identify all interactive elements. For each element, verify the presence and correctness of ARIA attributes (e.g., aria-label, aria-describedby, aria-expanded) or the use of semantic HTML elements (e.g., <button>, <nav>, <form>). Address any missing or incorrect implementations.
-    - Dependencies: None
-    - Testing Strategy: Manually inspect the application using browser developer tools (e.g., the Elements panel in Chrome DevTools) to verify the presence and correctness of ARIA attributes and semantic HTML tags. Use an accessibility testing tool (e.g., WAVE, Axe) to identify potential issues.
-  - Mobile Responsiveness Testing (pending)
-    - Description: Test the application on various mobile devices and screen sizes to ensure a consistent and usable experience.
-    - Details: Use browser developer tools' device emulation features to simulate different mobile devices and screen sizes. Test the application on actual mobile devices (iOS and Android) if possible. Focus on layout, touch target sizes, and content readability.
-    - Dependencies: None
-    - Testing Strategy: Test on various screen sizes and devices. Verify that the layout adapts correctly, content is readable, and interactive elements are easily tappable. Use browser developer tools to identify and fix any responsiveness issues.
-  - Implement Tailwind Responsive Prefixes (pending)
-    - Description: Apply Tailwind CSS responsive prefixes (sm:, md:, lg:, xl:, 2xl:) to adapt layouts for different screen sizes.
-    - Details: Identify areas where the layout needs to adapt to different screen sizes. Use Tailwind's responsive prefixes to apply different styles based on the screen size. For example, use `md:flex-row` to change the layout to a row on medium screens and larger.
-    - Dependencies: None
-    - Testing Strategy: Test the application on different screen sizes to ensure that the layout adapts correctly. Use browser developer tools to verify that the correct Tailwind classes are applied at each breakpoint.
-  - Implement Lazy Loading for Non-Critical Content (pending)
-    - Description: Implement lazy loading for non-critical content such as maps and videos to improve initial page load time.
-    - Details: Identify non-critical content, such as maps or videos. Use dynamic imports (`import()`) to load these components only when needed (e.g., when the user scrolls them into view or when the page is initially loaded). Consider using a library like `react-lazyload` or `intersection-observer` for efficient lazy loading.
-    - Dependencies: None
-    - Testing Strategy: Monitor the network requests in the browser developer tools to verify that the non-critical content is loaded only when needed. Measure the initial page load time before and after implementing lazy loading to assess the performance improvement.
-  - Accessibility Testing with Automated Tools (pending)
-    - Description: Integrate and run automated accessibility tests using tools like WAVE or Axe to identify and address accessibility issues.
-    - Details: Integrate an accessibility testing tool (e.g., WAVE, Axe) into the development workflow. Run automated tests to identify accessibility violations. Review the results and address any identified issues, such as missing alt text, insufficient color contrast, or incorrect ARIA attributes.
-    - Dependencies: None
-    - Testing Strategy: Run automated accessibility tests using WAVE or Axe. Review the results and address any identified issues. Manually verify the fixes to ensure that the application is accessible.
 
-### 12. Integrate Linting and Formatting into CI Pipeline (pending, priority: medium)
-- **Description:** Integrate lint and format checks into the CI pipeline.
-- **Details:** 1.  Integrate the lint and format checks into the CI pipeline (e.g. a GitHub Actions workflow) so that code style mistakes are caught on pull requests as well. 2.  Consider adopting Biome (the successor to Rome) as a unified tool. Biome can replace both ESLint and Prettier with a single config and faster run-time. For example, you could add a npm script: "format:check": "biome check --apply" to auto-fix issues, and run that in pre-commit or CI. Biome has low configuration overhead, which improves developer experience.
+- **Description:** Ensure responsive and accessible design.
+- **Details:** 1. Verify that interactive elements (buttons, toggles) have proper ARIA labels or use semantic tags. 2. Test pages on mobile. 3. Use Tailwind's responsive prefixes (sm:, md: etc.) to adapt layouts on smaller screens. 4. Consider adding lazy-loading for non-critical content (e.g., if a map or video is present, use dynamic import() to load it only when needed or when in viewport).
 - **Dependencies:** None
-- **Testing Strategy:** 1.  Ensure that the CI pipeline fails if there are any linting or formatting errors. 2.  Verify that the code is automatically formatted and linted in the CI pipeline.
+- **Testing Strategy:** 1. Test the application on different screen sizes and devices to ensure responsiveness. 2. Use accessibility testing tools to verify that the application is accessible. 3. Verify that interactive elements have proper ARIA labels.
 - **Subtasks:**
-  - Install and Configure Biome (pending)
-    - Description: Install Biome and configure it for the project, replacing ESLint and Prettier.
-    - Details: Install Biome using npm or yarn. Configure Biome with a `.biome.json` or `.biome.toml` file.  This should include settings for linting, formatting, and any other relevant rules.  Consider using a Biome configuration generator to start.
-    - Dependencies: None
-    - Testing Strategy: Not specified
-  - Create npm Scripts for Linting and Formatting (pending)
-    - Description: Add npm scripts to run Biome for linting and formatting.
-    - Details: Add scripts like `format:check` (e.g., `biome check --apply`) and `lint` (e.g., `biome check`).  These scripts should be easily executable from the command line and used in subsequent steps.
-    - Dependencies: Upgrade Next.js and NextAuth
-    - Testing Strategy: Not specified
-  - Integrate Linting and Formatting into CI Workflow (pending)
-    - Description: Modify the CI workflow (e.g., GitHub Actions) to run Biome checks.
-    - Details: Update the CI workflow file to include steps that run the `lint` and `format:check` npm scripts. The CI should fail if linting errors are found. The `format:check` script should be run to automatically fix formatting issues, and the changes should be committed back to the branch.
-    - Dependencies: Refactor Authentication for Type Safety
-    - Testing Strategy: Ensure the CI pipeline fails on linting errors and that formatting is applied automatically.
-  - Configure Pre-commit Hook (Optional) (pending)
-    - Description: Set up a pre-commit hook to automatically format code before each commit.
-    - Details: Use a tool like `husky` or `lint-staged` to run `biome check --apply` before each commit. This ensures that code is always formatted before being committed.
-    - Dependencies: Upgrade Next.js and NextAuth, Refactor Authentication for Type Safety
-    - Testing Strategy: Verify that code is automatically formatted before each commit.
-  - Test and Verify CI Integration (pending)
-    - Description: Test the CI integration to ensure it functions as expected.
-    - Details: Create a pull request with intentional linting and formatting errors. Verify that the CI pipeline fails. Fix the errors and verify that the pipeline passes. Check that formatting is applied automatically if using a pre-commit hook.
-    - Dependencies: Implement Redis-based Rate Limiting, Consolidate Data Fetching
-    - Testing Strategy: Create a PR with linting errors and verify the CI fails. Fix the errors and verify the CI passes. Check pre-commit hook functionality.
+    - Audit Interactive Elements for ARIA Labels and Semantic Tags (pending)
+        - Description: Review all interactive elements (buttons, toggles, links, form controls) and ensure they have appropriate ARIA labels or use semantic HTML tags for accessibility.
+        - Details: Examine the codebase and identify all interactive elements. For each element, verify the presence and correctness of ARIA attributes (e.g., aria-label, aria-describedby, aria-expanded) or the use of semantic HTML elements (e.g., <button>, <nav>, <form>). Address any missing or incorrect implementations.
+        - Dependencies: None
+        - Testing Strategy: Manually inspect the application using browser developer tools (e.g., the Elements panel in Chrome DevTools) to verify the presence and correctness of ARIA attributes and semantic HTML tags. Use an accessibility testing tool (e.g., WAVE, Axe) to identify potential issues.
+    - Mobile Responsiveness Testing (pending)
+        - Description: Test the application on various mobile devices and screen sizes to ensure a consistent and usable experience.
+        - Details: Use browser developer tools' device emulation features to simulate different mobile devices and screen sizes. Test the application on actual mobile devices (iOS and Android) if possible. Focus on layout, touch target sizes, and content readability.
+        - Dependencies: None
+        - Testing Strategy: Test on various screen sizes and devices. Verify that the layout adapts correctly, content is readable, and interactive elements are easily tappable. Use browser developer tools to identify and fix any responsiveness issues.
+    - Implement Tailwind Responsive Prefixes (pending)
+        - Description: Apply Tailwind CSS responsive prefixes (sm:, md:, lg:, xl:, 2xl:) to adapt layouts for different screen sizes.
+        - Details: Identify areas where the layout needs to adapt to different screen sizes. Use Tailwind's responsive prefixes to apply different styles based on the screen size. For example, use `md:flex-row` to change the layout to a row on medium screens and larger.
+        - Dependencies: None
+        - Testing Strategy: Test the application on different screen sizes to ensure that the layout adapts correctly. Use browser developer tools to verify that the correct Tailwind classes are applied at each breakpoint.
+    - Implement Lazy Loading for Non-Critical Content (pending)
+        - Description: Implement lazy loading for non-critical content such as maps and videos to improve initial page load time.
+        - Details: Identify non-critical content, such as maps or videos. Use dynamic imports (`import()`) to load these components only when needed (e.g., when the user scrolls them into view or when the page is initially loaded). Consider using a library like `react-lazyload` or `intersection-observer` for efficient lazy loading.
+        - Dependencies: None
+        - Testing Strategy: Monitor the network requests in the browser developer tools to verify that the non-critical content is loaded only when needed. Measure the initial page load time before and after implementing lazy loading to assess the performance improvement.
+    - Accessibility Testing with Automated Tools (pending)
+        - Description: Integrate and run automated accessibility tests using tools like WAVE or Axe to identify and address accessibility issues.
+        - Details: Integrate an accessibility testing tool (e.g., WAVE, Axe) into the development workflow. Run automated tests to identify accessibility violations. Review the results and address any identified issues, such as missing alt text, insufficient color contrast, or incorrect ARIA attributes.
+        - Dependencies: None
+        - Testing Strategy: Run automated accessibility tests using WAVE or Axe. Review the results and address any identified issues. Manually verify the fixes to ensure that the application is accessible.
+
+### 12. Integrate Linting and Formatting into CI Pipeline (done, priority: medium)
+
+- **Description:** Integrate lint and format checks into the CI pipeline.
+- **Details:** 1. Integrate the lint and format checks into the CI pipeline (e.g. a GitHub Actions workflow) so that code style mistakes are caught on pull requests as well. 2. Consider adopting Biome (the successor to Rome) as a unified tool. Biome can replace both ESLint and Prettier with a single config and faster run-time. For example, you could add a npm script: "format:check": "biome check --apply" to auto-fix issues, and run that in pre-commit or CI. Biome has low configuration overhead, which improves developer experience.
+- **Dependencies:** None
+- **Testing Strategy:** 1. Ensure that the CI pipeline fails if there are any linting or formatting errors. 2. Verify that the code is automatically formatted and linted in the CI pipeline.
+- **Subtasks:**
+    - Install and Configure Biome (done)
+        - Description: Install Biome and configure it for the project, replacing ESLint and Prettier.
+        - Details: Install Biome using npm or yarn. Configure Biome with a `.biome.json` or `.biome.toml` file. This should include settings for linting, formatting, and any other relevant rules. Consider using a Biome configuration generator to start.
+        - Dependencies: None
+        - Testing Strategy: Not specified
+    - Create npm Scripts for Linting and Formatting (done)
+        - Description: Add npm scripts to run Biome for linting and formatting.
+        - Details: Add scripts like `format:check` (e.g., `biome check --apply`) and `lint` (e.g., `biome check`). These scripts should be easily executable from the command line and used in subsequent steps.
+        - Dependencies: Upgrade Next.js and NextAuth
+        - Testing Strategy: Not specified
+    - Integrate Linting and Formatting into CI Workflow ()
+        - Description: Modify the CI workflow (e.g., GitHub Actions) to run Biome checks.
+        - Details: Update the CI workflow file to include steps that run the `lint` and `format:check` npm scripts. The CI should fail if linting errors are found. The `format:check` script should be run to automatically fix formatting issues, and the changes should be committed back to the branch.
+        - Dependencies: Refactor Authentication for Type Safety
+        - Testing Strategy: Ensure the CI pipeline fails on linting errors and that formatting is applied automatically.
+    - Configure Pre-commit Hook (Optional) ()
+        - Description: Set up a pre-commit hook to automatically format code before each commit.
+        - Details: Use a tool like `husky` or `lint-staged` to run `biome check --apply` before each commit. This ensures that code is always formatted before being committed.
+        - Dependencies: Upgrade Next.js and NextAuth, Refactor Authentication for Type Safety
+        - Testing Strategy: Verify that code is automatically formatted before each commit.
+    - Test and Verify CI Integration ()
+        - Description: Test the CI integration to ensure it functions as expected.
+        - Details: Create a pull request with intentional linting and formatting errors. Verify that the CI pipeline fails. Fix the errors and verify that the pipeline passes. Check that formatting is applied automatically if using a pre-commit hook.
+        - Dependencies: Implement Redis-based Rate Limiting, Consolidate Data Fetching
+        - Testing Strategy: Create a PR with linting errors and verify the CI fails. Fix the errors and verify the CI passes. Check pre-commit hook functionality.
 
 ### 13. Optimize Image Handling with Next.js Image Component (done, priority: medium)
+
 - **Description:** Replace raw <img> tags with Next.js Image component for automatic lazy-loading and resizing.
-- **Details:** 1.  Import the `Image` component from `next/image`. 2.  Replace the `<img>` tags with the `<Image>` component. 3.  Set the `src`, `alt`, `width`, `height`, `placeholder`, and `loading` props. 4.  Define a `sizes` prop or use responsive layouts for mobile clients.
+- **Details:** 1. Import the `Image` component from `next/image`. 2. Replace the `<img>` tags with the `<Image>` component. 3. Set the `src`, `alt`, `width`, `height`, `placeholder`, and `loading` props. 4. Define a `sizes` prop or use responsive layouts for mobile clients.
 - **Dependencies:** Upgrade Next.js and NextAuth
-- **Testing Strategy:** 1.  Verify that images are displayed correctly. 2.  Use browser developer tools to verify that images are lazy-loaded and resized correctly. 3.  Check the Lighthouse scores to measure the performance improvement.
+- **Testing Strategy:** 1. Verify that images are displayed correctly. 2. Use browser developer tools to verify that images are lazy-loaded and resized correctly. 3. Check the Lighthouse scores to measure the performance improvement.
 - **Subtasks:**
-  - Import Next.js Image Component (done)
-    - Description: Import the `Image` component from `next/image` in the relevant files.
-    - Details: Add the import statement `import Image from 'next/image'` at the top of the files where images are used.
-    - Dependencies: None
-    - Testing Strategy: Not specified
-  - Replace <img> tags with <Image> component (done)
-    - Description: Replace all instances of standard `<img>` tags with the Next.js `<Image>` component.
-    - Details: Find all occurrences of `<img>` tags in the codebase and replace them with `<Image>` components, ensuring correct attribute mapping.
-    - Dependencies: Upgrade Next.js and NextAuth
-    - Testing Strategy: Not specified
-  - Set Required Image Component Props (done)
-    - Description: Set the required props for the `<Image>` component: `src`, `alt`, `width`, and `height`.
-    - Details: For each `<Image>` component, ensure the `src` (image path), `alt` (alternative text), `width`, and `height` attributes are correctly set based on the original `<img>` tag or image data.
-    - Dependencies: Refactor Authentication for Type Safety
-    - Testing Strategy: Not specified
-  - Implement Placeholder and Loading Attributes (done)
-    - Description: Implement the `placeholder` and `loading` attributes for improved user experience.
-    - Details: Add the `placeholder` prop (e.g., 'blur' or 'empty') and the `loading` prop (e.g., 'lazy' or 'eager') to the `<Image>` components.
-    - Dependencies: Implement Redis-based Rate Limiting
-    - Testing Strategy: Not specified
-  - Verify Image Optimization and Performance (done)
-    - Description: Verify that images are lazy-loaded and resized correctly, and measure performance improvements.
-    - Details: Use browser developer tools to inspect network requests and confirm lazy loading. Check Lighthouse scores to measure performance gains related to image optimization.
-    - Dependencies: Consolidate Data Fetching
-    - Testing Strategy: Verify images display correctly. Use browser dev tools to confirm lazy-loading and resizing. Check Lighthouse scores for performance improvements.
+    - Import Next.js Image Component (done)
+        - Description: Import the `Image` component from `next/image` in the relevant files.
+        - Details: Add the import statement `import Image from 'next/image'` at the top of the files where images are used.
+        - Dependencies: None
+        - Testing Strategy: Not specified
+    - Replace <img> tags with <Image> component (done)
+        - Description: Replace all instances of standard `<img>` tags with the Next.js `<Image>` component.
+        - Details: Find all occurrences of `<img>` tags in the codebase and replace them with `<Image>` components, ensuring correct attribute mapping.
+        - Dependencies: Upgrade Next.js and NextAuth
+        - Testing Strategy: Not specified
+    - Set Required Image Component Props (done)
+        - Description: Set the required props for the `<Image>` component: `src`, `alt`, `width`, and `height`.
+        - Details: For each `<Image>` component, ensure the `src` (image path), `alt` (alternative text), `width`, and `height` attributes are correctly set based on the original `<img>` tag or image data.
+        - Dependencies: Refactor Authentication for Type Safety
+        - Testing Strategy: Not specified
+    - Implement Placeholder and Loading Attributes (done)
+        - Description: Implement the `placeholder` and `loading` attributes for improved user experience.
+        - Details: Add the `placeholder` prop (e.g., 'blur' or 'empty') and the `loading` prop (e.g., 'lazy' or 'eager') to the `<Image>` components.
+        - Dependencies: Implement Redis-based Rate Limiting
+        - Testing Strategy: Not specified
+    - Verify Image Optimization and Performance (done)
+        - Description: Verify that images are lazy-loaded and resized correctly, and measure performance improvements.
+        - Details: Use browser developer tools to inspect network requests and confirm lazy loading. Check Lighthouse scores to measure performance gains related to image optimization.
+        - Dependencies: Consolidate Data Fetching
+        - Testing Strategy: Verify images display correctly. Use browser dev tools to confirm lazy-loading and resizing. Check Lighthouse scores for performance improvements.
 
 ### 14. Ensure Tailwind CSS Best Practices (done, priority: low)
+
 - **Description:** Ensure consistent Tailwind CSS usage and minimize custom CSS.
-- **Details:** 1.  Ensure Tailwind's purge (content scanning) is configured to include all src files. 2.  Avoid adding long lists of classes conditionally in components; use helper libraries like `clsx` or Tailwind's variant utilities. 3.  Prefer Tailwind's built-in features (animations, aspect-ratio, line-clamp, etc.) over custom CSS when possible. 4.  Ensure consistency (e.g., use the design tokens defined in `tailwind.config` if any).
+- **Details:** 1. Ensure Tailwind's purge (content scanning) is configured to include all src files. 2. Avoid adding long lists of classes conditionally in components; use helper libraries like `clsx` or Tailwind's variant utilities. 3. Prefer Tailwind's built-in features (animations, aspect-ratio, line-clamp, etc.) over custom CSS when possible. 4. Ensure consistency (e.g., use the design tokens defined in `tailwind.config` if any).
 - **Dependencies:** None
-- **Testing Strategy:** 1.  Visually inspect the application to ensure that the styling is consistent. 2.  Verify that the Tailwind classes are applied correctly. 3.  Check the build size to ensure that Tailwind is not generating unnecessary CSS.
+- **Testing Strategy:** 1. Visually inspect the application to ensure that the styling is consistent. 2. Verify that the Tailwind classes are applied correctly. 3. Check the build size to ensure that Tailwind is not generating unnecessary CSS.
 - **Subtasks:**
-  - Configure Tailwind Purge for all source files (done)
-    - Description: Ensure Tailwind's purge configuration includes all source files to remove unused CSS.
-    - Details: Modify the `tailwind.config.js` file to correctly configure the `purge` option to scan all relevant source files (e.g., `src/**/*.js`, `src/**/*.jsx`, `src/**/*.ts`, `src/**/*.tsx`, etc.).
-    - Dependencies: None
-    - Testing Strategy: Build the project and inspect the generated CSS file to confirm that only the necessary styles are included.
-  - Refactor Conditional Class Application (done)
-    - Description: Replace long conditional class lists with helper libraries or Tailwind's variant utilities.
-    - Details: Identify components with complex conditional class applications. Refactor these components to use `clsx` or similar libraries for cleaner class management. Alternatively, leverage Tailwind's variant utilities (e.g., `hover:`, `focus:`) for conditional styling.
-    - Dependencies: None
-    - Testing Strategy: Visually inspect the affected components to ensure the styling is correct under all conditions and states.
-  - Prioritize Tailwind Built-in Features (done)
-    - Description: Replace custom CSS with Tailwind's built-in features where possible.
-    - Details: Review the codebase for custom CSS that can be replaced by Tailwind's utilities (e.g., animations, aspect-ratio, line-clamp). Replace custom CSS with the corresponding Tailwind classes.
-    - Dependencies: None
-    - Testing Strategy: Visually inspect the application to ensure the styling remains consistent after replacing custom CSS with Tailwind classes.
-  - Enforce Design Token Consistency (done)
-    - Description: Ensure consistent use of design tokens defined in `tailwind.config.js`.
-    - Details: Review the codebase and identify areas where hardcoded values are used for spacing, colors, fonts, etc. Replace these hardcoded values with the corresponding design tokens defined in `tailwind.config.js` to maintain consistency.
-    - Dependencies: None
-    - Testing Strategy: Visually inspect the application to ensure the styling is consistent with the design tokens defined in `tailwind.config.js`.
-  - Audit and Refactor Tailwind Usage (done)
-    - Description: Perform a comprehensive audit of Tailwind CSS usage and refactor as needed.
-    - Details: Conduct a thorough review of the codebase to identify areas that can be improved regarding Tailwind CSS best practices. This includes checking for redundant classes, inefficient class combinations, and opportunities to refactor for better maintainability and performance. Apply the findings from the previous subtasks during this audit.
-    - Dependencies: None
-    - Testing Strategy: Perform a visual inspection of the entire application and verify that the build size has not increased significantly after the refactoring.
+    - Configure Tailwind Purge for all source files (done)
+        - Description: Ensure Tailwind's purge configuration includes all source files to remove unused CSS.
+        - Details: Modify the `tailwind.config.js` file to correctly configure the `purge` option to scan all relevant source files (e.g., `src/**/*.js`, `src/**/*.jsx`, `src/**/*.ts`, `src/**/*.tsx`, etc.).
+        - Dependencies: None
+        - Testing Strategy: Build the project and inspect the generated CSS file to confirm that only the necessary styles are included.
+    - Refactor Conditional Class Application (done)
+        - Description: Replace long conditional class lists with helper libraries or Tailwind's variant utilities.
+        - Details: Identify components with complex conditional class applications. Refactor these components to use `clsx` or similar libraries for cleaner class management. Alternatively, leverage Tailwind's variant utilities (e.g., `hover:`, `focus:`) for conditional styling.
+        - Dependencies: None
+        - Testing Strategy: Visually inspect the affected components to ensure the styling is correct under all conditions and states.
+    - Prioritize Tailwind Built-in Features (done)
+        - Description: Replace custom CSS with Tailwind's built-in features where possible.
+        - Details: Review the codebase for custom CSS that can be replaced by Tailwind's utilities (e.g., animations, aspect-ratio, line-clamp). Replace custom CSS with the corresponding Tailwind classes.
+        - Dependencies: None
+        - Testing Strategy: Visually inspect the application to ensure the styling remains consistent after replacing custom CSS with Tailwind classes.
+    - Enforce Design Token Consistency (done)
+        - Description: Ensure consistent use of design tokens defined in `tailwind.config.js`.
+        - Details: Review the codebase and identify areas where hardcoded values are used for spacing, colors, fonts, etc. Replace these hardcoded values with the corresponding design tokens defined in `tailwind.config.js` to maintain consistency.
+        - Dependencies: None
+        - Testing Strategy: Visually inspect the application to ensure the styling is consistent with the design tokens defined in `tailwind.config.js`.
+    - Audit and Refactor Tailwind Usage (done)
+        - Description: Perform a comprehensive audit of Tailwind CSS usage and refactor as needed.
+        - Details: Conduct a thorough review of the codebase to identify areas that can be improved regarding Tailwind CSS best practices. This includes checking for redundant classes, inefficient class combinations, and opportunities to refactor for better maintainability and performance. Apply the findings from the previous subtasks during this audit.
+        - Dependencies: None
+        - Testing Strategy: Perform a visual inspection of the entire application and verify that the build size has not increased significantly after the refactoring.
 
 ### 15. Remove Legacy Route Files (done, priority: low)
-- **Description:** Remove the legacy route files (_city_bak and _id_bak directories) now that the slug-based routes are verified.
-- **Details:** 1.  Delete the `app/city/_city_bak` and `app/listings/_id_bak` directories. 2.  Ensure that the slug-based routes (`/city/[slug]` and `/listings/[slug]`) are still working correctly after the removal.
+
+- **Description:** Remove the legacy route files (\_city_bak and \_id_bak directories) now that the slug-based routes are verified.
+- **Details:** 1. Delete the `app/city/_city_bak` and `app/listings/_id_bak` directories. 2. Ensure that the slug-based routes (`/city/[slug]` and `/listings/[slug]`) are still working correctly after the removal.
 - **Dependencies:** Upgrade Next.js and NextAuth
-- **Testing Strategy:** 1.  Test the `/city/[slug]` and `/listings/[slug]` routes to ensure they function as expected. 2.  Verify that no errors occur after removing the legacy route files.
+- **Testing Strategy:** 1. Test the `/city/[slug]` and `/listings/[slug]` routes to ensure they function as expected. 2. Verify that no errors occur after removing the legacy route files.
 - **Subtasks:**
-  - Locate and Identify Legacy Route Directories (done)
-    - Description: Identify the exact locations of the legacy route directories to be removed.
-    - Details: Examine the project structure to pinpoint the `app/city/_city_bak` and `app/listings/_id_bak` directories.
-    - Dependencies: None
-    - Testing Strategy: Not specified
-  - Delete Legacy Route Directories (done)
-    - Description: Remove the identified legacy route directories from the project.
-    - Details: Use the appropriate file system commands (e.g., `rm -rf`) or IDE functionality to delete the specified directories.
-    - Dependencies: Upgrade Next.js and NextAuth
-    - Testing Strategy: Not specified
-  - Test City Slug-Based Route (done)
-    - Description: Verify the functionality of the `/city/[slug]` route after removing the legacy files.
-    - Details: Navigate to a known city slug (e.g., `/city/london`) and confirm that the page loads correctly and displays the expected content.
-    - Dependencies: Refactor Authentication for Type Safety
-    - Testing Strategy: Manually test the route in a browser.
-  - Test Listing Slug-Based Route (done)
-    - Description: Verify the functionality of the `/listings/[slug]` route after removing the legacy files.
-    - Details: Navigate to a known listing slug (e.g., `/listings/123`) and confirm that the page loads correctly and displays the expected content.
-    - Dependencies: Refactor Authentication for Type Safety
-    - Testing Strategy: Manually test the route in a browser.
-  - Verify No Errors After Removal (done)
-    - Description: Ensure that no errors are thrown in the browser console or server logs after the removal.
-    - Details: Check the browser console and server logs for any errors or warnings related to the removed files or routes.
-    - Dependencies: Implement Redis-based Rate Limiting, Consolidate Data Fetching
-    - Testing Strategy: Check browser console and server logs.
+    - Locate and Identify Legacy Route Directories (done)
+        - Description: Identify the exact locations of the legacy route directories to be removed.
+        - Details: Examine the project structure to pinpoint the `app/city/_city_bak` and `app/listings/_id_bak` directories.
+        - Dependencies: None
+        - Testing Strategy: Not specified
+    - Delete Legacy Route Directories (done)
+        - Description: Remove the identified legacy route directories from the project.
+        - Details: Use the appropriate file system commands (e.g., `rm -rf`) or IDE functionality to delete the specified directories.
+        - Dependencies: Upgrade Next.js and NextAuth
+        - Testing Strategy: Not specified
+    - Test City Slug-Based Route (done)
+        - Description: Verify the functionality of the `/city/[slug]` route after removing the legacy files.
+        - Details: Navigate to a known city slug (e.g., `/city/london`) and confirm that the page loads correctly and displays the expected content.
+        - Dependencies: Refactor Authentication for Type Safety
+        - Testing Strategy: Manually test the route in a browser.
+    - Test Listing Slug-Based Route (done)
+        - Description: Verify the functionality of the `/listings/[slug]` route after removing the legacy files.
+        - Details: Navigate to a known listing slug (e.g., `/listings/123`) and confirm that the page loads correctly and displays the expected content.
+        - Dependencies: Refactor Authentication for Type Safety
+        - Testing Strategy: Manually test the route in a browser.
+    - Verify No Errors After Removal (done)
+        - Description: Ensure that no errors are thrown in the browser console or server logs after the removal.
+        - Details: Check the browser console and server logs for any errors or warnings related to the removed files or routes.
+        - Dependencies: Implement Redis-based Rate Limiting, Consolidate Data Fetching
+        - Testing Strategy: Check browser console and server logs.
 
 ### 16. Remove or Guard Debug Console Logs (pending, priority: low)
+
 - **Description:** Remove or guard debug console logs in production code.
-- **Details:** 1.  Review the codebase for `console.log` statements. 2.  Remove the `console.log` statements or wrap them in a conditional check (e.g., `if (process.env.NODE_ENV !== 'production')`). 3.  Use Next.js built-in logging or monitoring tools for production diagnostics.
+- **Details:** 1. Review the codebase for `console.log` statements. 2. Remove the `console.log` statements or wrap them in a conditional check (e.g., `if (process.env.NODE_ENV !== 'production')`). 3. Use Next.js built-in logging or monitoring tools for production diagnostics.
 - **Dependencies:** None
-- **Testing Strategy:** 1.  Build the application in production mode and verify that no `console.log` statements appear in the browser console. 2.  Test the application in development mode to ensure that the debug logs are still visible.
+- **Testing Strategy:** 1. Build the application in production mode and verify that no `console.log` statements appear in the browser console. 2. Test the application in development mode to ensure that the debug logs are still visible.
 - **Subtasks:**
-  - Identify console.log Statements (pending)
-    - Description: Review the codebase to identify all instances of `console.log` statements.
-    - Details: Use a code search tool or IDE's search functionality to locate all occurrences of `console.log` within the project's source files.
-    - Dependencies: None
-    - Testing Strategy: Not specified
-  - Implement Conditional Logging (pending)
-    - Description: Wrap `console.log` statements in conditional checks to prevent logging in production.
-    - Details: Add a conditional check (e.g., `if (process.env.NODE_ENV !== 'production')`) around each identified `console.log` statement. Ensure that the check correctly identifies the production environment.
-    - Dependencies: Upgrade Next.js and NextAuth
-    - Testing Strategy: Verify that `console.log` statements are visible in development mode and are not present in production builds.
-  - Integrate Next.js Logging (pending)
-    - Description: Replace debug logs with Next.js built-in logging or monitoring tools.
-    - Details: Explore and implement Next.js's logging capabilities (e.g., using `next/server`'s `log` functions or a third-party logging service) for production diagnostics. Replace existing `console.log` statements with the chosen logging method.
-    - Dependencies: Refactor Authentication for Type Safety
-    - Testing Strategy: Ensure that logs are captured and accessible in production using the chosen logging solution. Verify that sensitive information is not logged.
-  - Verify Production Build (pending)
-    - Description: Build the application in production mode and confirm the absence of console logs.
-    - Details: Run a production build of the Next.js application (e.g., `npm run build`). Inspect the browser's console in the production build to ensure that no `console.log` statements are present.
-    - Dependencies: Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
-    - Testing Strategy: Build the application in production mode and verify that no `console.log` statements appear in the browser console.
-  - Test Development Mode (pending)
-    - Description: Test the application in development mode to ensure debug logs are still visible.
-    - Details: Run the application in development mode (e.g., `npm run dev`). Verify that the debug logs are visible in the browser's console or the terminal, depending on the logging implementation.
-    - Dependencies: Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
-    - Testing Strategy: Test the application in development mode to ensure that the debug logs are still visible.
+    - Identify console.log Statements (pending)
+        - Description: Review the codebase to identify all instances of `console.log` statements.
+        - Details: Use a code search tool or IDE's search functionality to locate all occurrences of `console.log` within the project's source files.
+        - Dependencies: None
+        - Testing Strategy: Not specified
+    - Implement Conditional Logging (pending)
+        - Description: Wrap `console.log` statements in conditional checks to prevent logging in production.
+        - Details: Add a conditional check (e.g., `if (process.env.NODE_ENV !== 'production')`) around each identified `console.log` statement. Ensure that the check correctly identifies the production environment.
+        - Dependencies: Upgrade Next.js and NextAuth
+        - Testing Strategy: Verify that `console.log` statements are visible in development mode and are not present in production builds.
+    - Integrate Next.js Logging (pending)
+        - Description: Replace debug logs with Next.js built-in logging or monitoring tools.
+        - Details: Explore and implement Next.js's logging capabilities (e.g., using `next/server`'s `log` functions or a third-party logging service) for production diagnostics. Replace existing `console.log` statements with the chosen logging method.
+        - Dependencies: Refactor Authentication for Type Safety
+        - Testing Strategy: Ensure that logs are captured and accessible in production using the chosen logging solution. Verify that sensitive information is not logged.
+    - Verify Production Build (pending)
+        - Description: Build the application in production mode and confirm the absence of console logs.
+        - Details: Run a production build of the Next.js application (e.g., `npm run build`). Inspect the browser's console in the production build to ensure that no `console.log` statements are present.
+        - Dependencies: Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
+        - Testing Strategy: Build the application in production mode and verify that no `console.log` statements appear in the browser console.
+    - Test Development Mode (pending)
+        - Description: Test the application in development mode to ensure debug logs are still visible.
+        - Details: Run the application in development mode (e.g., `npm run dev`). Verify that the debug logs are visible in the browser's console or the terminal, depending on the logging implementation.
+        - Dependencies: Implement Redis-based Rate Limiting, Refactor Authentication for Type Safety
+        - Testing Strategy: Test the application in development mode to ensure that the debug logs are still visible.

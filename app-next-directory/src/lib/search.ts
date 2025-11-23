@@ -10,7 +10,7 @@ export interface SimilarListingResult {
   _id: string;
   name: string;
   slug: string;
-  descriptionShort?: string;
+  shortDescription?: string;
   category?: string;
   city?: string;
   primaryImage?: unknown;
@@ -41,8 +41,8 @@ export async function searchListings(
     params.searchText = query;
     groqQuery += ` && (
       boost(name match $searchText, 2.5) ||
-      boost(descriptionShort match $searchText, 1.8) ||
-      boost(descriptionLong match $searchText, 1.5) ||
+      boost(shortDescription match $searchText, 1.8) ||
+      boost(longDescription match $searchText, 1.5) ||
       boost(searchMetadata.keywords[]->name match $searchText, 2.0) ||
       boost(category match $searchText, 1.2) ||
       city->name match $searchText ||
@@ -85,8 +85,8 @@ export async function searchListings(
 
   groqQuery += `] | score(
     boost(name match $searchText, 5) +
-    boost(descriptionShort match $searchText, 3) +
-    boost(descriptionLong match $searchText, 2) +
+    boost(shortDescription match $searchText, 3) +
+    boost(longDescription match $searchText, 2) +
     boost(category match $searchText, 2) +
     boost(city->name match $searchText, 2) +
     boost(searchMetadata.keywords[]->name match $searchText, 4)
@@ -110,7 +110,7 @@ export async function searchListings(
     _id,
     name,
     "slug": slug.current,
-    descriptionShort,
+    shortDescription,
     category,
     "city": city->{
       name,
@@ -207,7 +207,7 @@ export async function getSimilarListings(
       _id,
       name,
       "slug": slug.current,
-      descriptionShort,
+      shortDescription,
       category,
       "city": city->name,
       primaryImage,
