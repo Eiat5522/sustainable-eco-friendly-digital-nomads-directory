@@ -2,13 +2,13 @@
 . "$(dirname "$0")/_/husky.sh"
 cd app-next-directory
 
-echo "💅 Running prettier..."
-npm run format
+echo "💅 Running Biome formatter..."
+pnpm format
 
 echo "🔍 Running type check..."
-npm run type-check
+pnpm type-check
 
-echo "🧹 Running lint..."
-npm run lint
+echo "🧹 Running Biome linter..."
+pnpm lint:biome:fix
 
 echo "✨ Pre-commit checks completed!"
