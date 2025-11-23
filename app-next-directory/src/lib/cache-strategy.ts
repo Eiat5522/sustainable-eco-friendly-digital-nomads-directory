@@ -136,7 +136,7 @@ export async function cachedQuery<T>(
       structuredLogger.warn('Cache read failed, falling through to query', {
         component: 'cache-strategy',
         key: fullKey,
-        error,
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   }
@@ -183,7 +183,7 @@ async function setCachedValue<T>(
     structuredLogger.warn('Cache write failed', {
       component: 'cache-strategy',
       key,
-      error,
+      error: error instanceof Error ? error.message : String(error),
     });
   }
 }
