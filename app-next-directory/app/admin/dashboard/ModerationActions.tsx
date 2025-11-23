@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, FormEvent } from 'react';
+import { useState, useTransition, type FormEvent } from 'react';
 import type { ModerationAction } from '@/lib/admin/analytics';
 import {
   RequestTimeoutError,

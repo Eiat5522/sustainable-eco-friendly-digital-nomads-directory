@@ -2,9 +2,9 @@
 // For example, it helps convert listings.json data to the format expected by components
 // or converts between the Listing type (from listing.ts) and the Listing type (from listings.ts)
 
-import { Listing as SanityListing } from '@/types/listing';
-import { JsonListing } from '@/types/sanity-compatible-json';
-import { ListingCategory, PriceRange } from '@/types/enums';
+import type { Listing as SanityListing } from '@/types/listing';
+import type { JsonListing } from '@/types/sanity-compatible-json';
+import { ListingCategory, type PriceRange } from '@/types/enums';
 
 /**
  * Converts a JSON listing format to the Sanity CMS listing format

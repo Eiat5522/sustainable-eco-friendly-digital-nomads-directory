@@ -12,7 +12,7 @@ export interface UseCounterOptions {
 }
 
 // Default easeOutCubic
-const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 
 /**
  * useCounter animates a numeric value from start to end over duration using requestAnimationFrame.

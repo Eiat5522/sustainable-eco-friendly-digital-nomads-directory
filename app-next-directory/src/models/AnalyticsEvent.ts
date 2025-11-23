@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose, { type Document, Schema, type Types } from 'mongoose';
 
 export interface IAnalyticsEvent extends Document {
   userId?: Types.ObjectId; // Optional: if the event is tied to a logged-in user

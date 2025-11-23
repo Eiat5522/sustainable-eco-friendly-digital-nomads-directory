@@ -1,9 +1,9 @@
 'use client';
 
 import { useSession } from "next-auth/react";
-import { ComponentType, useEffect } from "react";
+import { type ComponentType, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { UserRole } from "../../types/auth";
+import type { UserRole } from "../../types/auth";
 
 interface WithAuthOptions {
   requiredRole?: UserRole;

@@ -446,8 +446,7 @@ process.env.NEXT_PUBLIC_SANITY_DATASET = process.env.NEXT_PUBLIC_SANITY_DATASET 
 
 // Mock global.fetch for NextAuth.js session requests
 if (!global.fetch) {
-  global.fetch = function () {
-    return Promise.resolve(new global.Response(
+  global.fetch = () => Promise.resolve(new global.Response(
       JSON.stringify({ user: { name: 'Test User', email: 'test@example.com' } }),
       {
         status: 200,
@@ -455,7 +454,6 @@ if (!global.fetch) {
         headers: { 'Content-Type': 'application/json' }
       }
     ));
-  };
 }
 
 // Ensure a safe default `window` and `window.plausible` exists to avoid
@@ -631,7 +629,7 @@ jest.mock('@/lib/rate-limit', () => {
 // Defensive runtime patch: some module resolution paths (Bun/ts-jest/ESM interop)
 // still end up with non-jest.fn exports. Ensure the exported helpers are jest.fn
 // compatible so tests can call mockReturnValue / mockResolvedValue reliably.
-(function () {
+(() => {
   import('@/lib/rate-limit')
     .then((rl) => {
       if (!rl || typeof rl.getClientIp !== 'function' || typeof (rl.getClientIp as { mockReturnValue: unknown }).mockReturnValue !== 'function') {
@@ -709,7 +707,7 @@ jest.mock('@/lib/email', () => {
 // Defensive runtime patch: ensure the auth config exports are jest.fn compatible
 // Some module resolution/interop paths may produce non-mock functions; this
 // guarantees tests can call `.mockReturnValue` / `.mockResolvedValue` safely.
-(function () {
+(() => {
   import('@/lib/auth/config')
     .then((ac) => {
       // Coerce both named and default exports to jest.fn compatible functions
@@ -754,7 +752,7 @@ jest.mock('@/lib/email', () => {
 // Also defensively patch the source file path in case some tests import
 // the module by resolved path rather than the mapped alias. This ensures
 // the same mocked jest.fn instance is available on all module instances.
-(function () {
+(() => {
   import('./src/lib/auth/config')
     .then((srcAuth) => {
       if (srcAuth) {
@@ -791,7 +789,7 @@ jest.mock('@/lib/email', () => {
 })();
 
 // Defensive runtime patch for tokens/email modules in case of alternate import paths
-(function () {
+(() => {
   import('@/lib/tokens')
     .then((tk) => {
       if (tk) {
@@ -819,7 +817,7 @@ jest.mock('@/lib/email', () => {
 })();
 
 
-;(function () {
+;(() => {
   import('@/lib/email')
     .then((em) => {
       if (em) {
@@ -845,7 +843,7 @@ jest.mock('@/lib/email', () => {
 })();
 
 // Ensure mongodb mock collection has jest.fn() methods
-;(function () {
+;(() => {
   import('@/lib/mongodb')
     .then((mongodb) => {
       if (mongodb && mongodb.default) {

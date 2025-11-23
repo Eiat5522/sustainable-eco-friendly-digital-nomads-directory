@@ -294,3 +294,20 @@ export async function getCitiesList(limit = 20): Promise<CityDTO[]> {
   const raw = await cachedClient.fetch(getAllCitiesPaginatedQuery, { limit });
   return (Array.isArray(raw) ? raw : []).map(toCityDTO).filter(Boolean) as CityDTO[];
 }
+
+/**
+ * Get all city slugs for static generation
+ * This function is used by generateStaticParams in city pages
+ */
+export async function getAllCitySlugs(): Promise<string[]> {
+  if (isE2ERun()) {
+    // Return E2E test fixture slugs
+    const cities = getE2ECityList(100);
+    return cities.map(city => city.slug);
+  }
+  
+  const getAllCitySlugsQuery = groq`*[_type == "city"].slug.current`;
+  
+  const slugs = await cachedClient.fetch<string[]>(getAllCitySlugsQuery);
+  return Array.isArray(slugs) ? slugs.filter((slug): slug is string => typeof slug === 'string' && slug.length > 0) : [];
+}

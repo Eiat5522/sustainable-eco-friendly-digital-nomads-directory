@@ -352,7 +352,7 @@ test.describe('Search & Filter UX', () => {
             if (channel <= 0.03928) {
               return channel / 12.92;
             }
-            return Math.pow((channel + 0.055) / 1.055, 2.4);
+            return ((channel + 0.055) / 1.055) ** 2.4;
           };
 
           const relativeLuminance = ([r, g, b]: [number, number, number]): number => {

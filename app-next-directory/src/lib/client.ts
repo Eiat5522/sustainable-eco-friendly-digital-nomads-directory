@@ -1,5 +1,5 @@
 // Search client implementation
-import { Listing } from '@/types/listings';
+import type { Listing } from '@/types/listings';
 import { fetchJsonWithRetry, getDefaultTimeout } from '@/lib/http/request';
 import { logError } from '@/lib/error-handler';
 

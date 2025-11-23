@@ -83,7 +83,7 @@ describe('tokens', () => {
 
     it('should handle special characters', () => {
       const { hashToken } = jest.requireActual('../tokens');
-      const raw = 'token-with-!@#$%^&*()_+={}[]|\\:\";\'<>?,./';
+      const raw = 'token-with-!@#$%^&*()_+={}[]|\\:";\'<>?,./';
       const hash = hashToken(raw);
       expect(hash).toMatch(/^[0-9a-f]{64}$/);
     });

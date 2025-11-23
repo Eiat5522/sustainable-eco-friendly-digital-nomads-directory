@@ -1,7 +1,7 @@
 'use client';
 
 import { useSession } from "next-auth/react";
-import { UserRole, hasPagePermission, hasFeaturePermission, PagePermissions, FeaturePermissions, ACCESS_CONTROL_MATRIX } from "../types/auth";
+import { type UserRole, hasPagePermission, hasFeaturePermission, type PagePermissions, type FeaturePermissions, type ACCESS_CONTROL_MATRIX } from "../types/auth";
 
 /**
  * Custom hook to access authentication state and user information

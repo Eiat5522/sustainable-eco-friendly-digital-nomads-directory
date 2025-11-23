@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { http, HttpResponse } from 'msw'
 import { FeaturedListings } from '../FeaturedListings'
 import { server } from '../../../test-helpers/msw-server-bridge'
-import { FeaturedListingDTO } from '@/types/dto'
+import type { FeaturedListingDTO } from '@/types/dto'
 import { mockFeaturedVenues } from '../featuredVenuesMockData'
 
 const mockListings: FeaturedListingDTO[] = mockFeaturedVenues

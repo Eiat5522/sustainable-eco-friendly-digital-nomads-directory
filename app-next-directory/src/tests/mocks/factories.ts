@@ -1,6 +1,6 @@
 // Mock factories for middleware tests
 
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 export function makeMockRequest(pathname: string): NextRequest {
   return {

@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, type KeyboardEvent, useMemo, useRef, useState } from 'react'
+import { type FormEvent, type KeyboardEvent, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSearchListings, type SearchListing, type SearchRequest } from '@/hooks/useSearchListings'
 

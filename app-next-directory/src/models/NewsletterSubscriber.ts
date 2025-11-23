@@ -1,6 +1,6 @@
 import mongoose, {
   Schema,
-  Document,
+  type Document,
   type CallbackWithoutResultAndOptionalError,
   type HydratedDocument,
   type UpdateQuery,

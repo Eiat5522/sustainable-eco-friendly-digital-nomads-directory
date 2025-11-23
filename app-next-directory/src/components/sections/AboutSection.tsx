@@ -3,7 +3,7 @@
 import React from 'react'
 import { NeoCard, NeoCardContent } from '@/components/ui/neo-card'
 import Link from 'next/link'
-import { Leaf, Users, Globe, Heart, LucideIcon } from 'lucide-react'
+import { Leaf, Users, Globe, Heart, type LucideIcon } from 'lucide-react'
 
 type Feature = {
   title: string

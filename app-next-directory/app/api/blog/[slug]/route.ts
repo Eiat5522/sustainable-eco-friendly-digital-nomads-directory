@@ -2,7 +2,7 @@ import structuredLogger from '@/lib/logger';
 import { client as sanityClient } from '@/lib/sanity/client';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { groq } from 'next-sanity';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { transformToBlogDetailDTO } from '@/lib/dto-transformer';
 import { incrementViewCount as persistentIncrementViewCount } from '@/lib/viewCountPersistence';
 

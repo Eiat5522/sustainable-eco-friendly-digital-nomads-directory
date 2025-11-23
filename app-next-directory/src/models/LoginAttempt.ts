@@ -1,9 +1,9 @@
 import mongoose, {
-  Document,
-  FilterQuery,
-  Query,
+  type Document,
+  type FilterQuery,
+  type Query,
   Schema,
-  UpdateQuery,
+  type UpdateQuery,
 } from 'mongoose';
 import type { CallbackError } from 'mongoose';
 
@@ -108,28 +108,28 @@ const extractField = <T>(update: UpdateQuery<ILoginAttempt>, field: UpdateField)
   const candidates: Array<{ value: unknown; label: string }> = [];
   const onInsertCandidates: Array<{ value: unknown; label: string }> = [];
 
-  if (Object.prototype.hasOwnProperty.call(normalized, field)) {
+  if (Object.hasOwn(normalized, field)) {
     candidates.push({ value: normalized[field], label: field });
   }
 
   const setClause = normalized.$set as Record<string, unknown> | undefined;
-  if (setClause && Object.prototype.hasOwnProperty.call(setClause, field)) {
+  if (setClause && Object.hasOwn(setClause, field)) {
     candidates.push({ value: setClause[field], label: '$set' });
   }
 
   const setOnInsertClause = normalized.$setOnInsert as Record<string, unknown> | undefined;
-  if (setOnInsertClause && Object.prototype.hasOwnProperty.call(setOnInsertClause, field)) {
+  if (setOnInsertClause && Object.hasOwn(setOnInsertClause, field)) {
     onInsertCandidates.push({ value: setOnInsertClause[field], label: '$setOnInsert' });
   }
 
   const unsetClause = normalized.$unset as Record<string, unknown> | undefined;
-  if (unsetClause && Object.prototype.hasOwnProperty.call(unsetClause, field)) {
+  if (unsetClause && Object.hasOwn(unsetClause, field)) {
     result.unset = true;
   }
 
   for (const operator of disallowedOperators) {
     const clause = normalized[operator as string] as Record<string, unknown> | undefined;
-    if (clause && Object.prototype.hasOwnProperty.call(clause, field)) {
+    if (clause && Object.hasOwn(clause, field)) {
       throw invariantError(
         field,
         `Operator ${String(operator)} is not supported for ${field} on login attempts.`,

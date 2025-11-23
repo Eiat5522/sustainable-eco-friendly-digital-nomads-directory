@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { ApiResponseHandler } from '@/utils/api-response';
 
 type NodeEnv = 'development' | 'production' | 'test';

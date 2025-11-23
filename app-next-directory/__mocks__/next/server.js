@@ -38,16 +38,12 @@ export class MockNextResponse {
 }
 
 // Add static methods to MockNextResponse to mimic real NextResponse
-MockNextResponse.json = function(data, init = {}) {
-  return new MockNextResponse(data, {
+MockNextResponse.json = (data, init = {}) => new MockNextResponse(data, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...(init.headers || {}) }
   });
-};
 
-MockNextResponse.redirect = function(url, status = 307) {
-  return new MockNextResponse('', { status, headers: { Location: url } });
-};
+MockNextResponse.redirect = (url, status = 307) => new MockNextResponse('', { status, headers: { Location: url } });
 
 export function createMocks({ method, json, url }) {
   return {

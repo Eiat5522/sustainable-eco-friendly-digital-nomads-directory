@@ -27,5 +27,3 @@ if (typeof globalThis.BroadcastChannel === 'undefined') {
     close() {}
   } as unknown as typeof BroadcastChannel;
 }
-
-export {};

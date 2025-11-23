@@ -1,4 +1,4 @@
-import { SortOption, DEFAULT_SORT_OPTIONS } from '../sort';
+import { type SortOption, DEFAULT_SORT_OPTIONS } from '../sort';
 
 describe('sort types and constants', () => {
   describe('SortOption interface', () => {

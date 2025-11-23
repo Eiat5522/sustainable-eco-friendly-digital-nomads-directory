@@ -1,6 +1,6 @@
 import { ApiResponseHandler } from '@/utils/api-response';
 import { rateLimit } from '@/utils/rate-limit';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import nodemailer from 'nodemailer';
 import type { SentMessageInfo, Transporter } from 'nodemailer';
 import { z } from 'zod';

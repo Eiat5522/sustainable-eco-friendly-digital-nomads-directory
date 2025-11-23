@@ -1,5 +1,5 @@
 import { revalidatePath } from 'next/cache';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getRequestContext, structuredLogger } from '@/lib/logger';
 import { validateRevalidationToken } from '@/utils/revalidation-token';

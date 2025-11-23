@@ -105,7 +105,7 @@ class SchemaMock {
 const collectionStore: Record<string, Array<Record<string, unknown>>> = {};
 
 const createModelMock = (modelName: string, schema?: SchemaMock) => {
-  const modelMock = function(doc?: Record<string, unknown>) {
+  const modelMock = ((doc?: Record<string, unknown>) => {
     const instance: Record<string, unknown> = { ...(doc || {}) };
     instance._id = instance._id || new ObjectIdMock();
     instance.isNew = true;
@@ -119,7 +119,7 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
         const opts = (pathDef && pathDef.options) ? pathDef.options as PathOptions : {} as PathOptions;
         const hasSetter = !!(opts && (opts.lowercase || opts.trim || typeof opts.set === 'function'));
 
-        const initialVal = Object.prototype.hasOwnProperty.call(instance, key) ? instance[key] : undefined;
+        const initialVal = Object.hasOwn(instance, key) ? instance[key] : undefined;
 
         if (hasSetter) {
           Object.defineProperty(instance, key, {
@@ -206,7 +206,7 @@ const createModelMock = (modelName: string, schema?: SchemaMock) => {
     Object.setPrototypeOf(instance, modelMock.prototype);
 
     return instance;
-  } as unknown as (...args: unknown[]) => Record<string, unknown>;
+  }) as unknown as (...args: unknown[]) => Record<string, unknown>;
 
   // attach some runtime helpers that tests may use
   (modelMock as any).modelName = modelName;

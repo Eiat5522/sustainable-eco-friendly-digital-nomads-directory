@@ -1,4 +1,4 @@
-import { Collection, Document } from 'mongodb';
+import type { Collection, Document } from 'mongodb';
 import { ApiResponseHandler } from '@/utils/api-response';
 import { getCollection } from '@/utils/db-helpers';
 import { getRequestContext, structuredLogger } from '@/lib/logger';

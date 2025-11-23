@@ -1,20 +1,23 @@
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 
-// Mock the Sanity client before importing sitemap
-const mockFetch = jest.fn();
+// Mock the client before import
 jest.mock('@/lib/sanity/client', () => ({
   client: {
-    fetch: mockFetch,
+    fetch: jest.fn(),
   },
 }));
 
 import sitemap from '../sitemap';
+import { client } from '@/lib/sanity/client';
+
+const mockClient = client as jest.Mocked<typeof client>;
 
 describe('sitemap', () => {
   const originalEnv = process.env.NEXT_PUBLIC_SITE_URL;
 
   beforeEach(() => {
-    mockFetch.mockClear();
+    jest.clearAllMocks();
+    mockClient.fetch.mockClear();
   });
 
   afterEach(() => {
@@ -27,20 +30,19 @@ describe('sitemap', () => {
 
   it('returns static pages only when Sanity fetch fails', async () => {
     delete process.env.NEXT_PUBLIC_SITE_URL;
-    mockFetch.mockRejectedValue(new Error('Sanity error'));
+    mockClient.fetch.mockRejectedValue(new Error('Sanity error'));
 
     const result = await sitemap();
 
-    expect(result).toHaveLength(4);
+    expect(result).toHaveLength(3);
     expect(result[0].url).toBe('http://localhost:3001');
     expect(result[1].url).toBe('http://localhost:3001/listings');
-    expect(result[2].url).toBe('http://localhost:3001/categories');
-    expect(result[3].url).toBe('http://localhost:3001/cities');
+    expect(result[2].url).toBe('http://localhost:3001/cities');
   });
 
   it('uses custom site URL from environment', async () => {
     process.env.NEXT_PUBLIC_SITE_URL = 'https://example.com';
-    mockFetch.mockRejectedValue(new Error('Sanity error'));
+    mockClient.fetch.mockRejectedValue(new Error('Sanity error'));
 
     const result = await sitemap();
 
@@ -49,50 +51,45 @@ describe('sitemap', () => {
   });
 
   it('includes static pages with correct priorities', async () => {
-    mockFetch.mockRejectedValue(new Error('Sanity error'));
+    mockClient.fetch.mockRejectedValue(new Error('Sanity error'));
 
     const result = await sitemap();
 
     const homePage = result.find(page => page.url.endsWith('/') || page.url === 'http://localhost:3001');
     const listingsPage = result.find(page => page.url.endsWith('/listings'));
-    const categoriesPage = result.find(page => page.url.endsWith('/categories'));
     const citiesPage = result.find(page => page.url.endsWith('/cities'));
 
     expect(homePage?.priority).toBe(1.0);
     expect(listingsPage?.priority).toBe(0.9);
-    expect(categoriesPage?.priority).toBe(0.8);
     expect(citiesPage?.priority).toBe(0.8);
   });
 
   it('includes static pages with correct change frequencies', async () => {
-    mockFetch.mockRejectedValue(new Error('Sanity error'));
+    mockClient.fetch.mockRejectedValue(new Error('Sanity error'));
 
     const result = await sitemap();
 
     const homePage = result.find(page => page.url.endsWith('/') || page.url === 'http://localhost:3001');
     const listingsPage = result.find(page => page.url.endsWith('/listings'));
-    const categoriesPage = result.find(page => page.url.endsWith('/categories'));
 
     expect(homePage?.changeFrequency).toBe('daily');
     expect(listingsPage?.changeFrequency).toBe('hourly');
-    expect(categoriesPage?.changeFrequency).toBe('weekly');
   });
 
   it('handles data fetch gracefully', async () => {
     process.env.NEXT_PUBLIC_SITE_URL = 'https://example.com';
     
-    mockFetch
+    mockClient.fetch
       .mockResolvedValueOnce([
         { slug: 'eco-cafe-bali', _updatedAt: '2024-01-10T00:00:00.000Z' },
         { slug: 'green-coworking', _updatedAt: '2024-01-15T00:00:00.000Z' },
       ])
-      .mockResolvedValueOnce([{ category: 'Cafe' }])
-      .mockResolvedValueOnce([{ name: 'Bali' }]);
+      .mockResolvedValueOnce([{ slug: 'bali' }]);
 
     const result = await sitemap();
 
     // Should include at least static pages
-    expect(result.length).toBeGreaterThanOrEqual(4);
+    expect(result.length).toBeGreaterThanOrEqual(3);
     
     // All entries should have proper structure
     result.forEach(entry => {
@@ -104,7 +101,7 @@ describe('sitemap', () => {
     const result = await sitemap();
 
     // Should have at least static pages
-    expect(result.length).toBeGreaterThanOrEqual(4);
+    expect(result.length).toBeGreaterThanOrEqual(3);
     
     // Check that each entry has required fields
     result.forEach(entry => {

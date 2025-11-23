@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { renderHook, act } from '@testing-library/react';
-import { useFilters, FilterDefinition } from '../useFilters';
+import { useFilters, type FilterDefinition } from '../useFilters';
 
 describe('useFilters', () => {
   const mockDefinitions: FilterDefinition[] = [

@@ -76,7 +76,7 @@ export async function PUT(request: Request, context: RouteContext) {
       'isFeatured',
     ];
     for (const key of allowedScalars) {
-      if (Object.prototype.hasOwnProperty.call(data, key)) patchPayload[key] = data[key];
+      if (Object.hasOwn(data, key)) patchPayload[key] = data[key];
     }
 
     // City reference
@@ -125,7 +125,7 @@ export async function PUT(request: Request, context: RouteContext) {
       'restaurantDetails',
     ];
     for (const detailKey of allowedDetails) {
-      if (Object.prototype.hasOwnProperty.call(data, detailKey) && data[detailKey] != null) {
+      if (Object.hasOwn(data, detailKey) && data[detailKey] != null) {
         patchPayload[detailKey] = data[detailKey];
       }
     }

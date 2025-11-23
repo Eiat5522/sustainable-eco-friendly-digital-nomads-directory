@@ -1,5 +1,5 @@
 // app-next-directory/src/models/UserFavorite.ts
-import mongoose, { Document, Model, Schema, Types } from 'mongoose';
+import mongoose, { type Document, type Model, Schema, type Types } from 'mongoose';
 
 /**
  * @swagger

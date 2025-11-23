@@ -1,5 +1,5 @@
 import PostHog from 'posthog-js';
-import { type Experiment, type ExperimentVariant } from './types';
+import type { Experiment, ExperimentVariant } from './types';
 
 const experiments: Experiment[] = [
   {

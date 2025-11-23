@@ -1,5 +1,5 @@
 import { test as base } from '@playwright/test';
-import { type Page } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { mockListings } from './test-data';
 
 // Define fixture types

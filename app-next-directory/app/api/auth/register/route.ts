@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import connect from '@/lib/dbConnect';
 import User from '@/models/User';
 import structuredLogger from '@/lib/logger';

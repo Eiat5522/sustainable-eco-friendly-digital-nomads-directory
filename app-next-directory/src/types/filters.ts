@@ -1,4 +1,4 @@
-import { ListingCategory } from './enums';
+import type { ListingCategory } from './enums';
 
 // Filter combination operators
 export type FilterOperator = 'AND' | 'OR';

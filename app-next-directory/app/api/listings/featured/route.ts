@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 import logger from '@/lib/logger';
 import { getFeaturedListings } from '@/lib/sanity/queries';
 import { ApiResponseHandler } from '@/utils/api-response';

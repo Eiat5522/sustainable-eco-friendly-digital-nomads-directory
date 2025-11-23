@@ -1,4 +1,4 @@
-import { Collection } from 'mongodb';
+import type { Collection } from 'mongodb';
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { auth } from '@/lib/auth';

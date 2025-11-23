@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Search, MapPin, Building2, Home, Wifi, Shield, Key } from 'lucide-react'
 import { NeoInput } from '@/components/ui/neo-input'
 import { NeoButton } from '@/components/ui/neo-button'
-import { FilterMultiSelect, Option } from '@/components/ui/filter-multi-select'
+import { FilterMultiSelect, type Option } from '@/components/ui/filter-multi-select'
 import type {
   City,
   CityResponse,

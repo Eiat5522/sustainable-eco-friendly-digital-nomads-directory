@@ -1,5 +1,5 @@
-import { type Page } from '@playwright/test';
-import { type Listing } from '@/types/listings';
+import type { Page } from '@playwright/test';
+import type { Listing } from '@/types/listings';
 
 export async function setupMockApi(page: Page, listings: Listing[]) {
   await page.route('/api/listings', async (route) => {

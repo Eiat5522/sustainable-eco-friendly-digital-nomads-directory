@@ -19,12 +19,12 @@ const targets = [
 ];
 
 function run() {
-  let changedFiles = [];
+  const changedFiles = [];
   for (const file of targets) {
     if (!fs.existsSync(file)) continue;
     let content = fs.readFileSync(file, 'utf8');
 
-    let original = content;
+    const original = content;
 
     // 1) Remove any previous custom block we may have injected earlier
     //    We detect blocks that start with `// Custom additions` and end right before `// Source: schema.json`
@@ -44,19 +44,12 @@ function run() {
 
     // 3) Replace inline asset reference objects with SanityReference | SanityImageAsset
     //    Pattern tries to be tolerant to spacing/newlines and additional fields.
-    const assetInlineRefRegex = new RegExp(
-      // asset?: { ... [internalGroqTypeReferenceTo]?: 'sanity.imageAsset' ... }
-      String.raw`asset\?\:\s*\{[\s\S]*?\[internalGroqTypeReferenceTo\]\?\:\s*'sanity\.imageAsset'[\s\S]*?\}`,
-      'g'
-    );
+    const assetInlineRefRegex = /asset\?:\s*\{[\s\S]*?\[internalGroqTypeReferenceTo\]\?:\s*'sanity\.imageAsset'[\s\S]*?\}/g;
     content = content.replace(assetInlineRefRegex, "asset?: SanityReference | SanityImageAsset");
 
     // 4) In rich text images and other image objects that might not include [internalGroqTypeReferenceTo]
     //    some generators emit asset?: { _ref: string; _type: 'reference' } without the symbol. Handle those too.
-    const simpleRefRegex = new RegExp(
-      String.raw`asset\?\:\s*\{\s*_ref\:\s*string\s*,\s*_type\:\s*'reference'[\s\S]*?\}`,
-      'g'
-    );
+    const simpleRefRegex = /asset\?:\s*\{\s*_ref:\s*string\s*,\s*_type:\s*'reference'[\s\S]*?\}/g;
     content = content.replace(simpleRefRegex, (match) => {
       // If the inline object already contains 'sanity.imageAsset' marker, it was handled above.
       if (/sanity\.imageAsset/.test(match)) return match;

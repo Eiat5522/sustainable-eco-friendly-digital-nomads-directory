@@ -1,4 +1,4 @@
-import { ACCESS_CONTROL_MATRIX, PagePermissions, UserRole } from '@/types/auth';
+import { ACCESS_CONTROL_MATRIX, type PagePermissions, type UserRole } from '@/types/auth';
 import { structuredLogger, getRequestContext } from '@/lib/logger';
 import type { NextRequest } from 'next/server';
 

@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
+import mongoose, { Schema, type Document, type Types } from 'mongoose';
 
 export interface IPasswordResetToken extends Document {
   userId: Types.ObjectId | string;

@@ -8,7 +8,7 @@ import { hasFeaturePermission, type UserRole } from '@/types/auth';
 import { revalidateTag } from 'next/cache';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
-import { Collection } from 'mongodb';
+import type { Collection } from 'mongodb';
 
 type ReviewDoc = {
   verified?: boolean;

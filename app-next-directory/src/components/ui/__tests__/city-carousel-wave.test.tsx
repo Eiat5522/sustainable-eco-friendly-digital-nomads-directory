@@ -1,9 +1,9 @@
-import React from 'react';
+import type React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import CityCarouselWave from '../city-carousel-wave';
-import { CityDTO } from '@/types/dto';
+import type { CityDTO } from '@/types/dto';
 import { useRouter } from 'next/navigation';
 
 // Mock gsap
