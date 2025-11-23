@@ -64,14 +64,15 @@ jobs:
           pnpm type-check
 
       - name: Lint with Biome
-        run: |
-          cd app-next-directory
-          pnpm lint:biome
+        run: pnpm lint:biome
 
       - name: Check formatting with Biome
+        run: pnpm format:check
+      
+      - name: Lint with ESLint
         run: |
           cd app-next-directory
-          pnpm format:check
+          pnpm lint
 
   build:
     runs-on: ubuntu-latest

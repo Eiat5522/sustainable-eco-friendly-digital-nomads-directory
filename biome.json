@@ -1,34 +1,12 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.3.7/schema.json",
   "vcs": {
-    "enabled": false,
+    "enabled": true,
     "clientKind": "git",
-    "useIgnoreFile": false
+    "useIgnoreFile": true
   },
   "files": {
-    "ignoreUnknown": true,
-    "includes": [
-      "!**/node_modules/**",
-      "!**/.next/**",
-      "!**/out/**",
-      "!**/dist/**",
-      "!**/build/**",
-      "!**/coverage/**",
-      "!**/.turbo/**",
-      "!**/.vercel/**",
-      "!**/__generated__/**",
-      "!**/playwright-report/**",
-      "!**/test-results/**",
-      "!**/.env*",
-      "!**/next-env.d.ts",
-      "!**/pnpm-lock.yaml",
-      "!**/package-lock.json",
-      "!**/yarn.lock",
-      "!**/*.min.js",
-      "!**/*.config.js",
-      "!**/*.config.cjs",
-      "!**/sanity.types.ts"
-    ]
+    "ignoreUnknown": true
   },
   "formatter": {
     "enabled": true,
