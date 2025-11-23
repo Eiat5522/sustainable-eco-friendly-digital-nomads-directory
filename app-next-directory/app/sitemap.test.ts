@@ -34,19 +34,14 @@ describe('sitemap', () => {
       { slug: 'listing-3', _updatedAt: null },
     ])
     mockedClient.fetch.mockResolvedValueOnce([
-      { category: 'Category A' },
-      { category: 'Category B' },
-      { category: null },
-    ])
-    mockedClient.fetch.mockResolvedValueOnce([
-      { name: 'City 1' },
-      { name: 'City 2' },
-      { name: null },
+      { slug: 'city-1' },
+      { slug: 'city-2' },
+      { slug: null },
     ])
 
     const result = await sitemap()
 
-    expect(result).toHaveLength(10) // 4 static, 2 listings, 2 categories, 2 cities
+    expect(result).toHaveLength(7) // 3 static, 2 listings, 2 cities
 
     expect(result).toContainEqual({
       url: baseUrl,
@@ -62,21 +57,14 @@ describe('sitemap', () => {
       priority: 0.7,
     })
 
-    expect(result).toContainEqual({
-      url: `${baseUrl}/category/category a`,
-      lastModified: expect.any(Date),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    })
-
      expect(result).toContainEqual({
-      url: `${baseUrl}/city/city 1`,
+      url: `${baseUrl}/cities/city-1`,
       lastModified: expect.any(Date),
       changeFrequency: 'weekly',
       priority: 0.6,
     })
 
-    expect(mockedClient.fetch).toHaveBeenCalledTimes(3)
+    expect(mockedClient.fetch).toHaveBeenCalledTimes(2)
   })
 
   it('should fall back to only static pages if fetching fails', async () => {
@@ -84,23 +72,21 @@ describe('sitemap', () => {
 
     const result = await sitemap()
 
-    expect(result).toHaveLength(4)
+    expect(result).toHaveLength(3)
     expect(result.map(item => item.url)).toEqual([
       baseUrl,
       `${baseUrl}/listings`,
-      `${baseUrl}/categories`,
       `${baseUrl}/cities`,
     ])
   })
 
   it('should handle empty arrays from sanity client', async () => {
      mockedClient.fetch.mockResolvedValueOnce([]) // listings
-     mockedClient.fetch.mockResolvedValueOnce([]) // categories
      mockedClient.fetch.mockResolvedValueOnce([]) // cities
 
      const result = await sitemap()
 
-     expect(result).toHaveLength(4)
+     expect(result).toHaveLength(3)
   })
 
   it('should use localhost as baseUrl if NEXT_PUBLIC_SITE_URL is not set', async () => {

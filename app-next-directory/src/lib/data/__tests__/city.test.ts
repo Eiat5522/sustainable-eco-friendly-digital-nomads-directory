@@ -3,6 +3,7 @@ import {
   getCityDetailBySlug,
   getListingsByCityId,
   getCitiesList,
+  getAllCitySlugs,
 } from '../city';
 
 jest.mock('@/lib/sanity/cached-client', () => ({
@@ -311,5 +312,56 @@ describe('city data helpers', () => {
 
     const cities = await getCitiesList(2);
     expect(cities).toEqual([]);
+  });
+});
+
+describe('getAllCitySlugs', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('returns all city slugs from Sanity', async () => {
+    fixtures.isE2ERun.mockReturnValue(false);
+    cachedClient.fetch.mockResolvedValue(['tokyo', 'new-york', 'london', 'paris']);
+
+    const result = await getAllCitySlugs();
+    expect(result).toEqual(['tokyo', 'new-york', 'london', 'paris']);
+    expect(cachedClient.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('filters out non-string slugs', async () => {
+    fixtures.isE2ERun.mockReturnValue(false);
+    cachedClient.fetch.mockResolvedValue(['tokyo', null, '', 'new-york', undefined, 'london']);
+
+    const result = await getAllCitySlugs();
+    expect(result).toEqual(['tokyo', 'new-york', 'london']);
+  });
+
+  it('returns empty array when Sanity returns null', async () => {
+    fixtures.isE2ERun.mockReturnValue(false);
+    cachedClient.fetch.mockResolvedValue(null);
+
+    const result = await getAllCitySlugs();
+    expect(result).toEqual([]);
+  });
+
+  it('returns empty array when Sanity returns non-array', async () => {
+    fixtures.isE2ERun.mockReturnValue(false);
+    cachedClient.fetch.mockResolvedValue({ invalid: 'data' });
+
+    const result = await getAllCitySlugs();
+    expect(result).toEqual([]);
+  });
+
+  it('uses E2E fixtures when running in E2E mode', async () => {
+    fixtures.isE2ERun.mockReturnValue(true);
+    fixtures.getE2ECityList.mockReturnValue([
+      { id: '1', slug: 'testopolis', name: 'Testopolis' },
+      { id: '2', slug: 'demo-city', name: 'Demo City' },
+    ]);
+
+    const result = await getAllCitySlugs();
+    expect(result).toEqual(['testopolis', 'demo-city']);
+    expect(cachedClient.fetch).not.toHaveBeenCalled();
   });
 });

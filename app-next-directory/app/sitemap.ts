@@ -13,12 +13,8 @@ type ListingRecord = {
   _updatedAt?: string | null
 }
 
-type CategoryRecord = {
-  category?: string | null
-}
-
 type CityRecord = {
-  name?: string | null
+  slug?: string | null
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -37,12 +33,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'hourly',
       priority: 0.9
-    },
-    {
-      url: `${baseUrl}/categories`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8
     },
     {
       url: `${baseUrl}/cities`,
@@ -65,20 +55,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         typeof listing.slug === 'string' && listing.slug.length > 0 && typeof listing._updatedAt === 'string'
       )
 
-    // Fetch categories
-    const categoriesRaw = await client.fetch<CategoryRecord[]>(
-      `*[_type == "listing"]{category} | unique`
-    )
-    const categories = (Array.isArray(categoriesRaw) ? categoriesRaw : [])
-      .map((category) => category?.category)
-      .filter((value): value is string => typeof value === 'string' && value.length > 0)
-
-    // Fetch cities
+    // Fetch cities with slugs
     const citiesRaw = await client.fetch<CityRecord[]>(
-      `*[_type == "city"]{name}`
+      `*[_type == "city"]{"slug": slug.current}`
     )
     const cities = (Array.isArray(citiesRaw) ? citiesRaw : [])
-      .map((city) => city?.name)
+      .map((city) => city?.slug)
       .filter((value): value is string => typeof value === 'string' && value.length > 0)
 
     // Listing pages
@@ -89,23 +71,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7
     }));
 
-    // Category pages
-    const categoryPages: SitemapEntry[] = categories.map((category) => ({
-      url: `${baseUrl}/category/${category.toLowerCase()}`,
+    // City pages - using the correct /cities/ path with slugs
+    const cityPages: SitemapEntry[] = cities.map((slug) => ({
+      url: `${baseUrl}/cities/${slug}`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.6
     }));
 
-    // City pages
-    const cityPages: SitemapEntry[] = cities.map((city) => ({
-      url: `${baseUrl}/city/${city.toLowerCase()}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6
-    }));
-
-    return [...staticPages, ...listingPages, ...categoryPages, ...cityPages]
+    return [...staticPages, ...listingPages, ...cityPages]
   } catch (_error) {
     // Fallback to static pages only if any error occurs
     return staticPages

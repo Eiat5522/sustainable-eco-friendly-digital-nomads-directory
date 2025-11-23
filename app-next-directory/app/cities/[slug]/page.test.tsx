@@ -2,14 +2,15 @@
 
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
-import CityPage from './page'
-import { getCityBySlug, getCityDetailBySlug, getListingsByCityId } from '@/lib/data/city'
+import CityPage, { generateStaticParams } from './page'
+import { getCityBySlug, getCityDetailBySlug, getListingsByCityId, getAllCitySlugs } from '@/lib/data/city'
 import { structuredLogger } from '@/lib/logger'
 
 jest.mock('@/lib/data/city', () => ({
   getCityBySlug: jest.fn(),
   getCityDetailBySlug: jest.fn(),
   getListingsByCityId: jest.fn(),
+  getAllCitySlugs: jest.fn(),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -175,5 +176,49 @@ describe('CityPage', () => {
         validationError: expect.any(String),
       },
     )
+  })
+})
+
+describe('generateStaticParams', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  it('should return an array of params with city slugs', async () => {
+    const mockSlugs = ['tokyo', 'new-york', 'london']
+    ;(getAllCitySlugs as jest.Mock).mockResolvedValue(mockSlugs)
+
+    const result = await generateStaticParams()
+
+    expect(result).toEqual([
+      { slug: 'tokyo' },
+      { slug: 'new-york' },
+      { slug: 'london' },
+    ])
+    expect(getAllCitySlugs).toHaveBeenCalledTimes(1)
+  })
+
+  it('should return an empty array if fetching slugs fails', async () => {
+    ;(getAllCitySlugs as jest.Mock).mockRejectedValue(new Error('Fetch error'))
+
+    const result = await generateStaticParams()
+
+    expect(result).toEqual([])
+    expect(structuredLogger.error).toHaveBeenCalledWith(
+      'Failed to generate static params for city pages',
+      expect.any(Error),
+      {
+        component: 'city-page',
+        operation: 'generateStaticParams',
+      },
+    )
+  })
+
+  it('should return an empty array if getAllCitySlugs returns empty array', async () => {
+    ;(getAllCitySlugs as jest.Mock).mockResolvedValue([])
+
+    const result = await generateStaticParams()
+
+    expect(result).toEqual([])
   })
 })

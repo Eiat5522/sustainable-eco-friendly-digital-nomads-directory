@@ -1,7 +1,7 @@
 import { CityDetailView } from '@/components/city/CityDetailView';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { getCityBySlug, getCityDetailBySlug, getListingsByCityId } from '@/lib/data/city';
+import { getCityBySlug, getCityDetailBySlug, getListingsByCityId, getAllCitySlugs } from '@/lib/data/city';
 import type { CityDTO, CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
 import { CityDTOSchema, CityDetailDTOSchema, ListingSummaryDTOArraySchema } from '@/types/dto-schemas';
 import { structuredLogger } from '@/lib/logger';
@@ -10,6 +10,24 @@ export const revalidate = 300;
 
 type Params = { slug: string };
 type Props = { params: Params | Promise<Params> };
+
+/**
+ * Generate static params for all city pages
+ * This enables static generation at build time for better performance
+ */
+export async function generateStaticParams(): Promise<Params[]> {
+  try {
+    const slugs = await getAllCitySlugs();
+    return slugs.map((slug) => ({ slug }));
+  } catch (error) {
+    structuredLogger.error('Failed to generate static params for city pages', error, {
+      component: 'city-page',
+      operation: 'generateStaticParams',
+    });
+    // Return empty array to allow dynamic rendering as fallback
+    return [];
+  }
+}
 
 const toTitleCaseFromSlug = (s: string) =>
    s.replace(/-/g, ' ')
