@@ -120,11 +120,92 @@ npm run dev           # Development server
 npm run build         # Production build
 npm run start         # Production server
 npm run lint          # ESLint check
-npm run format        # Prettier formatting
+npm run lint:biome    # Biome linter check
+npm run lint:biome:fix # Biome linter with auto-fix
+npm run format        # Biome code formatting (auto-fix)
+npm run format:check  # Check code formatting without fixing
+npm run type-check    # TypeScript type checking
 npm run test          # Run Playwright tests
 npm run test:ui       # Run tests with UI
 npm run test:auth     # Run authentication tests only
 ```
+
+#### Root Level Linting & Formatting
+
+```bash
+npm run format        # Format all code with Biome
+npm run format:check  # Check formatting without fixing
+npm run lint:biome    # Run Biome linter on entire project
+npm run lint:biome:fix # Run Biome linter with auto-fix
+npm run lint          # Run both Biome and ESLint
+npm run type-check    # Check TypeScript types
+```
+
+## 🎨 Code Quality & Formatting
+
+### Biome Integration
+
+The project uses **Biome** (the successor to Rome) as a unified tool for linting and formatting, alongside ESLint for Next.js-specific rules.
+
+#### Why Biome?
+
+- **Faster**: 10-100x faster than ESLint + Prettier
+- **Unified**: Single configuration for linting and formatting
+- **Compatible**: Matches Prettier formatting style
+- **Low overhead**: Minimal configuration required
+
+#### Running Code Quality Checks
+
+```bash
+# Format all code
+pnpm format
+
+# Check formatting without fixing
+pnpm format:check
+
+# Lint with Biome
+pnpm lint:biome
+
+# Lint with auto-fix
+pnpm lint:biome:fix
+
+# Run full lint check (Biome + ESLint)
+pnpm lint
+```
+
+#### Pre-commit Hooks
+
+The project uses **Husky** to automatically:
+1. Format code with Biome
+2. Run TypeScript type checking
+3. Run Biome linter with auto-fix
+
+This ensures all committed code meets quality standards.
+
+#### CI/CD Integration
+
+The CI pipeline runs:
+1. TypeScript type checking
+2. Biome linting
+3. Biome formatting check
+4. ESLint (Next.js rules)
+
+Pull requests will fail if any of these checks don't pass.
+
+#### Configuration Files
+
+- `biome.json` - Biome configuration (linting + formatting rules)
+- `app-next-directory/eslint.config.mjs` - ESLint configuration (Next.js specific rules)
+- `.husky/pre-commit` - Pre-commit hook configuration
+
+### Code Style Rules
+
+- **Indentation**: 2 spaces
+- **Quotes**: Single quotes (JavaScript/TypeScript), double quotes (JSX)
+- **Semicolons**: Always required
+- **Line width**: 100 characters
+- **Trailing commas**: ES5 style (objects, arrays)
+- **Arrow parentheses**: As needed
 
 #### Sanity Scripts (from sanity/)
 
