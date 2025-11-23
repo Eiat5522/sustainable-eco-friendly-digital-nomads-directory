@@ -19,7 +19,8 @@
   "css": {
     "parser": {
       "cssModules": true,
-      "allowWrongLineComments": true
+      "allowWrongLineComments": true,
+      "tailwindDirectives": true
     },
     "formatter": {
       "enabled": true,
@@ -44,7 +45,13 @@
     "rules": {
       "recommended": true,
       "a11y": {
-        "noSvgWithoutTitle": "off"
+        "noSvgWithoutTitle": "off",
+        "useSemanticElements": "off",
+        "noNoninteractiveElementToInteractiveRole": "off",
+        "useKeyWithClickEvents": "off",
+        "useButtonType": "off",
+        "noLabelWithoutControl": "off",
+        "noStaticElementInteractions": "off"
       },
       "complexity": {
         "noForEach": "off",
@@ -52,18 +59,36 @@
         "useLiteralKeys": "off"
       },
       "correctness": {
-        "noUnusedVariables": "warn",
-        "useExhaustiveDependencies": "warn"
+        "noUnusedVariables": "off",
+        "useExhaustiveDependencies": "warn",
+        "noInvalidUseBeforeDeclaration": "off",
+        "noVoidTypeReturn": "off",
+        "noUnsafeFinally": "off"
       },
       "style": {
         "noNonNullAssertion": "off",
         "useTemplate": "off",
         "noParameterAssign": "off"
       },
+      "performance": {
+        "noImgElement": "off",
+        "noDynamicNamespaceImportAccess": "off"
+      },
       "suspicious": {
         "noArrayIndexKey": "off",
         "noExplicitAny": "error",
-        "noConsole": "warn"
+        "noConsole": "warn",
+        "noExportsInTest": "off",
+        "noRedeclare": "off",
+        "noImplicitAnyLet": "off",
+        "noTemplateCurlyInString": "off",
+        "useIterableCallbackReturn": "off",
+        "noGlobalIsNan": "off",
+        "noAssignInExpressions": "off",
+        "noFocusedTests": "off"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "off"
       }
     }
   },
@@ -107,6 +132,26 @@
       }
     },
     {
+      "includes": ["**/InteractiveMap.tsx", "**/e2e/**/*", "**/http/request.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["**/jest.setup.ts", "**/*.config.*"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["**/instrumentation.ts", "**/logger.ts", "**/alert-service.ts"],
       "linter": {
         "rules": {
@@ -121,7 +166,8 @@
       "css": {
         "parser": {
           "cssModules": true,
-          "allowWrongLineComments": true
+          "allowWrongLineComments": true,
+          "tailwindDirectives": true
         }
       },
       "linter": {

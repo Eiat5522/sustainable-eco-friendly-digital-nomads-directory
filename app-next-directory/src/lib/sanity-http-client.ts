@@ -312,16 +312,6 @@ export class SanityHTTPClient {
         );
       }
       return result;
-
-      if (typeof result === 'undefined') {
-        throw new SanityAPIError('Delete failed: Delete error');
-      }
-
-      if (result === null) {
-        throw new SanityAPIError('Delete operation returned no result');
-      }
-
-      if (this.debug) return result;
     } catch (error: unknown) {
       // Catching unknown for better type safety
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';

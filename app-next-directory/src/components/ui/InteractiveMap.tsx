@@ -2,7 +2,7 @@
 
 import 'leaflet/dist/leaflet.css';
 import { MapPin } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface InteractiveMapProps {
@@ -19,17 +19,20 @@ export function InteractiveMap({ location, address, name, className }: Interacti
   const markerRef = useRef<any>(null);
   const [tileLoadFailed, setTileLoadFailed] = useState(false);
 
-  const createCustomMarkerIcon = (leaflet: any) =>
-    leaflet.divIcon({
-      html: `<div class="w-8 h-8 bg-neo-primary rounded-full flex items-center justify-center text-white shadow-lg">
+  const createCustomMarkerIcon = useCallback(
+    (leaflet: any) =>
+      leaflet.divIcon({
+        html: `<div class="w-8 h-8 bg-neo-primary rounded-full flex items-center justify-center text-white shadow-lg">
                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                </svg>
              </div>`,
-      className: 'custom-marker',
-      iconSize: [32, 32],
-      iconAnchor: [16, 32],
-    });
+        className: 'custom-marker',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+      }),
+    []
+  );
 
   useEffect(() => {
     if (!location || !mapRef.current) {

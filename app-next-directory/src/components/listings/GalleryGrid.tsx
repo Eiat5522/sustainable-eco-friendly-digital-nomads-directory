@@ -41,13 +41,13 @@ export default function GalleryGrid({ images, fallback = '/placeholder_image.png
     return null;
   });
 
-  const closeModal = () => {
+  const closeModal = React.useCallback(() => {
     setOpenIndex(null);
     // Restore focus to the last triggering thumbnail for good accessibility
     queueMicrotask(() => {
       lastTriggerRef.current?.focus();
     });
-  };
+  }, []);
 
   const goPrev = React.useCallback(() => {
     setOpenIndex(i => (i === null ? null : (i - 1 + toShow.length) % toShow.length));
