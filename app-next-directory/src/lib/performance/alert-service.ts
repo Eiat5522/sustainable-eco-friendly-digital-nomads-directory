@@ -73,7 +73,8 @@ export async function processMetricForAlert(
   try {
     await Promise.all(channels.map(channel => dispatchAlert(alert, channel)));
     return alert;
-  } catch (_error) {
+  } catch (error) {
+    console.error('Failed to dispatch alert:', error);
     return null;
   }
 }
@@ -160,7 +161,8 @@ async function sendSlackAlert(alert: Alert): Promise<boolean> {
     }
 
     return true;
-  } catch (_error) {
+  } catch (error) {
+    console.error('Failed to send Slack webhook:', error);
     return false;
   }
 }
@@ -183,7 +185,8 @@ async function sendWebhookAlert(alert: Alert): Promise<boolean> {
     }
 
     return true;
-  } catch (_error) {
+  } catch (error) {
+    console.error('Failed to send webhook alert:', error);
     return false;
   }
 }

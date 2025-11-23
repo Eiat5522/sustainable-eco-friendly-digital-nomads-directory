@@ -120,7 +120,9 @@ export const trackPageView = async ({ title, path, referrer, search }: PageViewE
     });
 
     // VercelAnalytics does not support .track; use only as a component in your layout.
-  } catch (_error) {}
+  } catch (error) {
+    console.warn('Failed to track page view:', error);
+  }
 };
 
 export const trackEvent = async ({ name, properties }: CustomEvent) => {
@@ -129,7 +131,9 @@ export const trackEvent = async ({ name, properties }: CustomEvent) => {
     await analytics.track(name, properties);
 
     // VercelAnalytics does not support .track; use only as a component in your layout.
-  } catch (_error) {}
+  } catch (error) {
+    console.warn('Failed to track event:', error);
+  }
 };
 
 export const identifyUser = async (userId: string, traits?: Record<string, unknown>) => {
@@ -138,7 +142,9 @@ export const identifyUser = async (userId: string, traits?: Record<string, unkno
     await analytics.identify(userId, traits);
 
     // VercelAnalytics does not support .identify; use only as a component in your layout.
-  } catch (_error) {}
+  } catch (error) {
+    console.warn('Failed to identify user:', error);
+  }
 };
 
 // Pre-defined event names for consistency
