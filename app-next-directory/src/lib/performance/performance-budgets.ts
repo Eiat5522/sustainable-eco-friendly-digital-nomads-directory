@@ -65,9 +65,13 @@ export const PERFORMANCE_BUDGETS = {
 const getBudget = (category: string, metric: string): Budget | undefined => {
   const categoryBudgets = PERFORMANCE_BUDGETS[category as keyof PerformanceBudgets];
   if (!categoryBudgets) {
+    console.warn(`Unknown performance metric: ${category}.${metric}`);
     return undefined;
   }
   const typedBudgets = categoryBudgets as Record<string, Budget>;
+  if (!typedBudgets[metric]) {
+    console.warn(`Unknown performance metric: ${category}.${metric}`);
+  }
   return typedBudgets[metric];
 };
 
