@@ -4,8 +4,14 @@
 
 - Total tasks: 16
 - In progress: 0
-- Pending: 5
-- Completed: 11
+- Pending: 2
+- Completed: 14
+
+## Remaining Tasks
+
+### 11. Improve Responsive and Accessible Design (pending, priority: medium)
+
+### 16. Remove or Guard Debug Console Logs (pending, priority: low)
 
 ## Tasks
 
@@ -306,34 +312,34 @@
         - Dependencies: None
         - Testing Strategy: Execute a series of tests with various malicious payloads to verify that the implemented security measures are effective in preventing XSS attacks. Also, test the form with valid inputs to ensure functionality.
 
-### 10. Implement Static Generation for City and Category Pages (pending, priority: medium)
+### 10. Implement Static Generation for City and Category Pages (done, priority: medium)
 
 - **Description:** Extend static generation to city and category pages.
 - **Details:** 1. Implement `generateStaticParams` for city and category pages. 2. Fetch the necessary data (city slugs, category slugs) from Sanity. 3. Return an array of objects with the `slug` property for each city and category. 4. Set `revalidate` to refresh the pages periodically (optional).
 - **Dependencies:** Upgrade Next.js and NextAuth
 - **Testing Strategy:** 1. Verify that the city and category pages are statically generated. 2. Test that the pages are revalidated correctly. 3. Check the performance of the pages to ensure they load quickly.
 - **Subtasks:**
-    - Implement `generateStaticParams` for City and Category Pages (pending)
+    - Implement `generateStaticParams` for City and Category Pages (done)
         - Description: Implement the `generateStaticParams` function in the relevant Next.js pages for city and category to enable static generation.
         - Details: Implement `generateStaticParams` in the city and category page files. This function should fetch the necessary data (city slugs, category slugs) from Sanity and return an array of objects with the `slug` property for each.
         - Dependencies: None
         - Testing Strategy: Verify that the `generateStaticParams` function correctly fetches and returns the expected slugs.
-    - Fetch City and Category Slugs from Sanity (pending)
+    - Fetch City and Category Slugs from Sanity (done)
         - Description: Fetch city and category slugs from Sanity CMS using appropriate queries.
         - Details: Write Sanity queries to retrieve all city slugs and category slugs. Ensure the queries are optimized for performance and only fetch the necessary data. Consider using projections to limit the fields returned.
         - Dependencies: Upgrade Next.js and NextAuth
         - Testing Strategy: Verify that the Sanity queries return the correct slugs for cities and categories. Check the query performance.
-    - Return Slug Objects for Static Generation (pending)
+    - Return Slug Objects for Static Generation (done)
         - Description: Format the fetched slugs into an array of objects suitable for static generation.
         - Details: Transform the fetched city and category slugs into an array of objects, where each object has a `slug` property. This array will be used by Next.js to generate static pages for each slug.
         - Dependencies: Refactor Authentication for Type Safety
         - Testing Strategy: Ensure the returned array of objects has the correct format and contains all the necessary slugs.
-    - Implement Revalidation (Optional) (pending)
+    - Implement Revalidation (Optional) (done)
         - Description: Implement revalidation to refresh the city and category pages periodically.
         - Details: Set the `revalidate` option in the `generateStaticParams` function or the page component to refresh the pages periodically. Choose an appropriate revalidation interval based on the data update frequency.
         - Dependencies: Upgrade Next.js and NextAuth
         - Testing Strategy: Verify that the pages are revalidated correctly and that the content is updated at the specified interval.
-    - Test Static Generation and Page Performance (pending)
+    - Test Static Generation and Page Performance (done)
         - Description: Test the static generation of city and category pages and evaluate their performance.
         - Details: Verify that the city and category pages are statically generated. Check the generated HTML and ensure that the content is correct. Test the page load times and overall performance using browser developer tools.
         - Dependencies: Upgrade Next.js and NextAuth, Implement Redis-based Rate Limiting, Consolidate Data Fetching
