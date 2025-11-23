@@ -290,4 +290,43 @@ describe('app/listings/[slug]/page', () => {
       })
     );
   });
+
+  describe('generateStaticParams', () => {
+    it('should return an array of listing slugs for published listings', async () => {
+      const mockListings = [
+        { slug: 'listing-1' },
+        { slug: 'listing-2' },
+        { slug: 'listing-3' },
+      ];
+      
+      mockClientFetch.mockResolvedValueOnce(mockListings);
+      
+      const pageModule = await import('../page');
+      const result = await pageModule.generateStaticParams();
+      
+      expect(result).toEqual([
+        { slug: 'listing-1' },
+        { slug: 'listing-2' },
+        { slug: 'listing-3' },
+      ]);
+    });
+
+    it('should return an empty array when no listings are found', async () => {
+      mockClientFetch.mockResolvedValueOnce([]);
+      
+      const pageModule = await import('../page');
+      const result = await pageModule.generateStaticParams();
+      
+      expect(result).toEqual([]);
+    });
+
+    it('should return an empty array when fetch fails', async () => {
+      mockClientFetch.mockRejectedValueOnce(new Error('Fetch failed'));
+      
+      const pageModule = await import('../page');
+      const result = await pageModule.generateStaticParams();
+      
+      expect(result).toEqual([]);
+    });
+  });
 });

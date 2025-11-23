@@ -1,7 +1,7 @@
 import { CityDetailView } from '@/components/city/CityDetailView';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { getCityBySlug, getCityDetailBySlug, getListingsByCityId } from '@/lib/data/city';
+import { getCityBySlug, getCityDetailBySlug, getListingsByCityId, getCitiesList } from '@/lib/data/city';
 import type { CityDTO, CityDetailDTO, ListingSummaryDTO } from '@/types/dto';
 import { CityDTOSchema, CityDetailDTOSchema, ListingSummaryDTOArraySchema } from '@/types/dto-schemas';
 import { structuredLogger } from '@/lib/logger';
@@ -232,4 +232,19 @@ export default async function CityPage({ params }: Props) {
       <Footer />
     </>
   );
+}
+
+/**
+ * Generate static paths for all cities at build time
+ * This enables static generation while maintaining ISR for updates
+ */
+export async function generateStaticParams() {
+  // Fetch all cities from Sanity - using a high limit to get all cities
+  // Adjust the limit based on your expected number of cities
+  const cities = await getCitiesList(1000);
+  
+  // Return array of params with slug
+  return cities.map((city) => ({
+    slug: city.slug,
+  }));
 }

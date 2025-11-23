@@ -2,14 +2,15 @@
 
 import '@testing-library/jest-dom'
 import { render, screen } from '@testing-library/react'
-import CityPage from './page'
-import { getCityBySlug, getCityDetailBySlug, getListingsByCityId } from '@/lib/data/city'
+import CityPage, { generateStaticParams } from './page'
+import { getCityBySlug, getCityDetailBySlug, getListingsByCityId, getCitiesList } from '@/lib/data/city'
 import { structuredLogger } from '@/lib/logger'
 
 jest.mock('@/lib/data/city', () => ({
   getCityBySlug: jest.fn(),
   getCityDetailBySlug: jest.fn(),
   getListingsByCityId: jest.fn(),
+  getCitiesList: jest.fn(),
 }))
 
 jest.mock('@/lib/logger', () => ({
@@ -176,4 +177,33 @@ describe('CityPage', () => {
       },
     )
   })
+})
+
+describe('generateStaticParams', () => {
+  it('should return an array of city slugs', async () => {
+    const mockCities = [
+      { id: '1', name: 'City 1', slug: 'city-1', country: 'Country 1', highlights: [], imageUrl: null, imageDimensions: null },
+      { id: '2', name: 'City 2', slug: 'city-2', country: 'Country 2', highlights: [], imageUrl: null, imageDimensions: null },
+      { id: '3', name: 'City 3', slug: 'city-3', country: 'Country 3', highlights: [], imageUrl: null, imageDimensions: null },
+    ];
+    
+    (getCitiesList as jest.Mock).mockResolvedValue(mockCities);
+    
+    const result = await generateStaticParams();
+    
+    expect(getCitiesList).toHaveBeenCalledWith(1000);
+    expect(result).toEqual([
+      { slug: 'city-1' },
+      { slug: 'city-2' },
+      { slug: 'city-3' },
+    ]);
+  });
+
+  it('should return an empty array when no cities are found', async () => {
+    (getCitiesList as jest.Mock).mockResolvedValue([]);
+    
+    const result = await generateStaticParams();
+    
+    expect(result).toEqual([]);
+  });
 })

@@ -419,3 +419,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   };
 }
+
+/**
+ * Generate static paths for all published listings at build time
+ * This enables static generation while maintaining ISR for updates
+ */
+export async function generateStaticParams() {
+  // Query to fetch all published listing slugs
+  const SLUGS_QUERY = groq`*[_type == "listing" && moderation.status == "published"]{ "slug": slug.current }`;
+  
+  try {
+    const listings = await client.fetch<Array<{ slug: string }>>(SLUGS_QUERY);
+    
+    // Return array of params with slug
+    return listings.map((listing) => ({
+      slug: listing.slug,
+    }));
+  } catch (error) {
+    logger.error('Failed to fetch listing slugs for static generation', error, {
+      component: 'listings/[slug]',
+      operation: 'generateStaticParams',
+    });
+    // Return empty array to prevent build failure
+    return [];
+  }
+}
