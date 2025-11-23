@@ -80,6 +80,12 @@ const eslintConfig = [
       "react/jsx-key": "warn",
       "react/jsx-no-comment-textnodes": "warn",
       'local-react-strictness/require-react-fc-type-parameters': 'warn',
+      "camelcase": ["error", {
+        "properties": "never",
+        "ignoreDestructuring": true,
+        "ignoreImports": true,
+        "allow": ["^_id$", "^_type$", "^_rev$", "^_createdAt$", "^_updatedAt$", "^_score$"]
+      }],
     }
   },
   {
