@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { VenueCard } from '../VenueCard';
-import { FeaturedListingDTO } from '@/types/dto';
+import type { FeaturedListingDTO } from '@/types/dto';
 import Link from 'next/link';
 
 // Mock next/link

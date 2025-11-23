@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import { describe, beforeAll, afterAll, beforeEach, afterEach, it, expect, jest } from '@jest/globals';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import type { MongoMemoryServer } from 'mongodb-memory-server';
 import ContactSubmission, { CONTACT_TYPES, CONTACT_STATUSES } from '../ContactSubmission';
 import { createMongoMemoryServer } from '../../test-helpers/createMongoMemoryServer';
 

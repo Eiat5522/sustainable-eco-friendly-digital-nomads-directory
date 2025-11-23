@@ -1,5 +1,5 @@
 import PostHog from 'posthog-js';
-import { type AnalyticsEvent, type Experiment, type ExperimentVariant } from './types';
+import type { AnalyticsEvent, Experiment, ExperimentVariant } from './types';
 
 class AnalyticsManager {
   private static instance: AnalyticsManager;

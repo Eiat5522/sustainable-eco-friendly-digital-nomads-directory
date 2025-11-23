@@ -1,4 +1,4 @@
-import { ComponentPropsWithoutRef, ReactNode } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 
 export interface ButtonProps extends Omit<ComponentPropsWithoutRef<'button'>, 'ref'> {
   variant?: 'default' | 'outline' | 'ghost' | 'link';

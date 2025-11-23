@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import type React from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { NeoInput } from '@/components/ui/neo-input'
 import { NeoButton } from '@/components/ui/neo-button'

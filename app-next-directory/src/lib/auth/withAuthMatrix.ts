@@ -1,12 +1,12 @@
 import { getToken } from 'next-auth/jwt';
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import {
     ACCESS_CONTROL_MATRIX,
     hasFeaturePermission,
     hasPagePermission,
-    PagePermissions,
+    type PagePermissions,
     ROLE_HIERARCHY,
-    UserRole
+    type UserRole
 } from '../../types/auth';
 
 /**

@@ -40,7 +40,7 @@ export default class ServerTiming {
   }
 }
 
-import { NextRequest, NextResponse } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export const serverTimingMiddleware = (_request: NextRequest) => {
   const timing = new ServerTiming();

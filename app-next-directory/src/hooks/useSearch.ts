@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { SearchFilters, SortOption } from '@/types/search';
+import type { SearchFilters, SortOption } from '@/types/search';
 
 interface SearchResult {
   _id: string;

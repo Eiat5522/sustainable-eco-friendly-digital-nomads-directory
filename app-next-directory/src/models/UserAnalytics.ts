@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import mongoose, { type Document, Schema, type Types } from 'mongoose';
 
 /**
  * Interface for User Analytics document

@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';

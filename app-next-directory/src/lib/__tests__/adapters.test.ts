@@ -1,5 +1,5 @@
 import { jsonToSanityListing, calculateEcoRating } from '../adapters';
-import { JsonListing } from '@/types/sanity-compatible-json';
+import type { JsonListing } from '@/types/sanity-compatible-json';
 import { ListingCategory, PriceRange } from '@/types/enums';
 
 // Mock Date for deterministic createdAt/updatedAt

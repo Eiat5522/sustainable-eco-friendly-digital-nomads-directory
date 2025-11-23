@@ -241,9 +241,7 @@ describe('db-helpers real MongoClient pathway', () => {
 
   it('propagates connection failures from the MongoClient', async () => {
     const mongodbMock = jest.requireMock('mongodb') as MongoMockModule;
-    mongodbMock.__mock.connectMock.mockImplementation(function () {
-      return Promise.reject(new Error('connect failure'));
-    });
+    mongodbMock.__mock.connectMock.mockImplementation(() => Promise.reject(new Error('connect failure')));
 
     const { getDatabase } = require('../db-helpers');
     await expect(getDatabase()).rejects.toThrow('connect failure');

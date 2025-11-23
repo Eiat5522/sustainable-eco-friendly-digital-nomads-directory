@@ -309,7 +309,7 @@ describe('rateLimit module', () => {
   });
 
   it('normalizes redis clients when binding throws', async () => {
-    const evalSha = function () {};
+    const evalSha = () => {};
     Object.defineProperty(evalSha, 'bind', { value: () => { throw new Error('bind failed'); } });
     const { module: rateLimitModule, mocks } = await setupModule({ initialRedis: { evalSha } as unknown as Record<string, unknown> });
 
@@ -322,7 +322,7 @@ describe('rateLimit module', () => {
   });
 
   it('covers legacy evalsha normalization when binding fails', async () => {
-    const evalsha = function () {};
+    const evalsha = () => {};
     Object.defineProperty(evalsha, 'bind', { value: () => { throw new Error('bind failure'); } });
     const { module: rateLimitModule, redisChangeHandler, mocks } = await setupModule({ initialRedis: { evalSha: jest.fn() } });
 
@@ -386,7 +386,7 @@ describe('rateLimit module', () => {
   });
 
   it('initializes the limiter when the module itself is the constructor', async () => {
-    const directCtor = jest.fn(function () {});
+    const directCtor = jest.fn(() => {});
     const { module: rateLimitModule, mocks } = await setupModule({
       initialRedis: { evalsha: jest.fn() } as unknown as Record<string, unknown>,
       preserveRatelimitShape: true,

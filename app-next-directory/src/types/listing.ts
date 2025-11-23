@@ -1,7 +1,7 @@
 // This file is now deprecated. Please use types from sanity/sanity.types.ts or src/types/appView.ts
 
 // Basic types
-import { ListingCategory, PriceRange } from './enums'
+import type { ListingCategory, PriceRange } from './enums'
 
 export type ListingType = ListingCategory
 export type PriceRangeType = PriceRange

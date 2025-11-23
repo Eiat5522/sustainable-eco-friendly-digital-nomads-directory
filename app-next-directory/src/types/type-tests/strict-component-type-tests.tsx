@@ -28,5 +28,3 @@ export const WrongPropName: StrictComponent<TitleProps> = (props) => {
   void missing;
   return null;
 };
-
-export {};

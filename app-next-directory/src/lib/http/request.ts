@@ -177,7 +177,7 @@ export async function fetchJsonWithRetry<T>(
         throw error;
       }
 
-      const delayMs = minDelayMs * Math.pow(backoffFactor, attempt);
+      const delayMs = minDelayMs * backoffFactor ** attempt;
       logger.warn({ err: error, attempt, url: input, delayMs }, 'Retrying HTTP request after failure');
       await delay(delayMs);
       attempt += 1;

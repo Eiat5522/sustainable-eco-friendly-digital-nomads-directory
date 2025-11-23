@@ -16,10 +16,10 @@ jest.mock('@/lib/error-handler', () => ({
 import { ListingsManagementTable } from '../ListingsManagementTable';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
-import {
-  type ListingManagementItem,
-  type ListingManagementResponse,
-  type ListingStats,
+import type {
+  ListingManagementItem,
+  ListingManagementResponse,
+  ListingStats,
 } from '@/types/listings';
 import { __TEST_DATA__ } from '@/src/tests/helpers/test-data';
 

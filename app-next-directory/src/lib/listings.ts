@@ -1,6 +1,6 @@
 // src/lib/listings.ts
 // Maps a raw Sanity listing result to AppListingDetail DTO
-import { AppListingDetail, AppListingCard } from '@/types/appView';
+import type { AppListingDetail, AppListingCard } from '@/types/appView';
 
 // Narrow unknown raw to Sanity listing-shaped object (not AppListingCard) with required fields
 import type { SanityImage, SanityGalleryImage } from '@/types/appView';

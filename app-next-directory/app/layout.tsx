@@ -1,6 +1,6 @@
 import './globals.css'
 import { cookies } from 'next/headers'
-import React from 'react'
+import type React from 'react'
 
 import { rootLayoutMetadata } from './layout.metadata'
 export { rootLayoutMetadata as metadata }

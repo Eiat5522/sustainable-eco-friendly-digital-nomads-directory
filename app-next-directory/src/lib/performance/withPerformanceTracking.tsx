@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useEffect } from 'react';
+import type React from 'react';
+import { useEffect } from 'react';
 import { recordMetric } from './web-vitals-reporter';
 
 export function withPerformanceTracking<P extends Record<string, unknown>>(componentName: string, Component: React.ComponentType<P>) {

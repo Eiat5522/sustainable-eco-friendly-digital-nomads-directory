@@ -2,7 +2,7 @@ import {
   isSanityListing,
   mapSanityListingToAppListingDetail,
   mapSanityListingToCard,
-  SanityListingRaw,
+  type SanityListingRaw,
 } from '../listings';
 
 const buildValidSanity = (): SanityListingRaw => ({

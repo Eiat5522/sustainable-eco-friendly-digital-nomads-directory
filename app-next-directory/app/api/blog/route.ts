@@ -3,7 +3,7 @@ import { ApiResponseHandler } from '@/utils/api-response';
 import { transformToBlogSummaryDTO } from '@/lib/dto-transformer';
 import { groq } from 'next-sanity';
 import type { QueryParams } from '@sanity/client';
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 interface RawBlogPost {
   _id: string;
@@ -37,7 +37,7 @@ const postsQuery = groq`
 
 const countQuery = groq`count(*[_type == "blogPost" && defined(slug)])`;
 
-const escapeForGroq = (value: string) => value.replace(/"/g, '\"');
+const escapeForGroq = (value: string) => value.replace(/"/g, '"');
 
 export async function GET(request: NextRequest) {
   try {

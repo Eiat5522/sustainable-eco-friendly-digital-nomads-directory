@@ -5,11 +5,11 @@
  * - Server Actions
  */
 
-import { UserRole } from '@/types/auth';
+import type { UserRole } from '@/types/auth';
 import bcrypt from 'bcryptjs';
 import User from '@/models/User';
 
-import { Types, isValidObjectId, type FilterQuery } from 'mongoose';
+import { type Types, isValidObjectId, type FilterQuery } from 'mongoose';
 import { isEmailVerificationRequired } from './config';
 import dbConnect from '@/lib/dbConnect';
 

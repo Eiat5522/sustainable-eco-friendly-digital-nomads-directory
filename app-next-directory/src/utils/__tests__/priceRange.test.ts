@@ -9,7 +9,7 @@ import {
   getPriceRangeEmoji,
   getAccommodationPriceDisplay,
   PRICE_RANGE_MAP,
-  PriceRange,
+  type PriceRange,
 } from '../priceRange';
 
 describe('priceRange', () => {

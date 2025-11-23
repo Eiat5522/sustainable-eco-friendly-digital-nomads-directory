@@ -65,7 +65,7 @@ export async function POST(request: NextRequest, _context: RouteContext) {
       return NextResponse.json({ error: 'operation is required' }, { status: 400 });
     }
 
-    if (!Object.prototype.hasOwnProperty.call(OPERATION_DESCRIPTIONS, operation)) {
+    if (!Object.hasOwn(OPERATION_DESCRIPTIONS, operation)) {
       return NextResponse.json({ error: `Unsupported operation: ${operation}` }, { status: 400 });
     }
 

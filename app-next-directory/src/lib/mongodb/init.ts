@@ -1,4 +1,4 @@
-import { MongoClient, MongoServerError } from 'mongodb';
+import { type MongoClient, MongoServerError } from 'mongodb';
 import { sessionSchema, sessionIndexes } from './schemas/session';
 
 export async function initializeDatabase(client: MongoClient) {

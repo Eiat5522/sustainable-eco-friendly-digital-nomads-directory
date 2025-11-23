@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 
 import dbConnect from '@/lib/dbConnect';
 import { getRedisClient, onRedisClientChange } from '@/lib/redis';
-import LoginAttempt, { LoginAttemptReason } from '@/models/LoginAttempt';
+import LoginAttempt, { type LoginAttemptReason } from '@/models/LoginAttempt';
 
 type Validator = typeof import('validator');
 
